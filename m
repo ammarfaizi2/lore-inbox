@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269411AbRHCPba>; Fri, 3 Aug 2001 11:31:30 -0400
+	id <S269413AbRHCPgU>; Fri, 3 Aug 2001 11:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269408AbRHCPbL>; Fri, 3 Aug 2001 11:31:11 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:42624 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S269407AbRHCPbF>; Fri, 3 Aug 2001 11:31:05 -0400
-Date: Fri, 3 Aug 2001 09:30:42 -0600
-Message-Id: <200108031530.f73FUg505310@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: dcinege@psychosis.com, linux-raid <linux-raid@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: md.c - devfs naming fix.
-In-Reply-To: <15210.19054.503792.982041@notabene.cse.unsw.edu.au>
-In-Reply-To: <3B1AF531.C31CB45C@psychosis.com>
-	<200107312139.f6VLdRp00491@mobilix.ras.ucalgary.ca>
-	<15210.19054.503792.982041@notabene.cse.unsw.edu.au>
+	id <S269408AbRHCPgK>; Fri, 3 Aug 2001 11:36:10 -0400
+Received: from [213.11.85.133] ([213.11.85.133]:4371 "EHLO titane.novadeck.net")
+	by vger.kernel.org with ESMTP id <S269414AbRHCPgD>;
+	Fri, 3 Aug 2001 11:36:03 -0400
+Message-Id: <200108031534.f73FYFY32370@titane.novadeck.net>
+Content-Type: text/plain; charset=US-ASCII
+From: sunnox <pn@novadeck.net>
+Reply-To: pn@novadeck.net
+Organization: Novadeck
+To: linux-kernel@vger.kernel.org
+Subject: NFS Root problem
+Date: Fri, 3 Aug 2001 17:31:36 +0200
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown writes:
-> On Tuesday July 31, rgooch@ras.ucalgary.ca wrote:
-> > Dave Cinege writes:
-> > > This is a multi-part message in MIME format.
-> > 
-> > Yuk! MIME!
-> > 
-> > > Changes:
-> > > 	Cleaned a few printk's
-> > > 
-> > > 	Removed a meaningless ifndef.
-> > > 
-> > > 	Moved md= name_to_ kdev_t() processing from md_setup() to
-> > > 	md_setup_drive. Rewrote it and added devfs_find_handle() call
-> > > 	to support devfs names for md=. 
-> > > 
-> > > The devfs_find_handle() code is now redundant in my patch and
-> > > fs/super.c::mount_root(). It probably should be moved directly into
-> > > name_to_kdev_t(), no? If this was done the md= code would have
-> > > worked as is, except for the devfs code choking on the trailing ','
-> > > in the device_names list. (Richard, want to check for this in the
-> > > future?)
-> > 
-> > What is this patch trying to fix? I've been running devfs with MD
-> > devices for a long time and have no problems. My raidtab lists devfs
-> > device names (in fact, the /dev/sd/* variants created by devfsd) and
-> > it seems to work fine.
-> 
-> You can start a raid array at boot time with a boot parameter like:
-> 
->   md=0,/dev/somedisc,/dev/otherdisc,/dev/thatoneoverthere
-> 
-> However, this only worked for device names that were hard coded into
-> init/main.c.  Devices which only had names in devfs couldn't be
-> recognised.
+Hi,
 
-Ah, OK. I suspected it was something to do with RAID autostart. OK,
-makes sense.
+I have a diskless workstation that is mounting is root partition from an NFS3 
+server.
+But each time the diskless workstation is mounting the root partion with 
+NFSv2 and not 3
+And mount /home partition in NFSv3
+See:
+http1:~# mount 
+/dev/root on / type nfs 
+(rw,v2,rsize=4096,wsize=4096,hard,udp,nolock,addr=10.0.7.1) none on /proc 
+type proc (rw) devpts on /dev/pts type devpts (rw) 10.0.7.1:/home on /home 
+type nfs (rw,v3,rsize=8192,wsize=8192,hard,udp,nolock,addr=10.0.7.1)
 
-> > Have you received any other comments? I've not tracked this.
-> 
-> The patch is already in Linus' tree.
+My configuration:
 
-Great.
+NFS server
 
-				Regards,
+linux 2.4.7+GFS patch
+nfs-utils-0.3.1
+util-linux-2.11h.tar.gz
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+NFS client
+
+linux 2.4.7+ NFS client patch (all)
+
+The root partition mounted from the diskless client is a GFS partition 
+The /home partion mounted from the diskless client is a reiserfs partition
+
+Thanks for any help

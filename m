@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVAWBx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVAWB5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVAWBx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 20:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVAWBx1
+	id S261155AbVAWB5h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 20:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVAWB5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 20:53:27 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:49844 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261185AbVAWBxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 20:53:07 -0500
-Subject: [PATCH] e100 locking up netconsole.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux NICS <linux.nics@intel.com>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 22 Jan 2005 20:52:26 -0500
-Message-Id: <1106445146.11995.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Jan 2005 20:57:37 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:45535 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261155AbVAWB5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 20:57:32 -0500
+Message-ID: <41F3046A.1050808@kolivas.org>
+Date: Sun, 23 Jan 2005 12:56:58 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: "Jack O'Quin" <joq@io.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+References: <200501230141.j0N1fOAB022422@localhost.localdomain>
+In-Reply-To: <200501230141.j0N1fOAB022422@localhost.localdomain>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5C6DBCC8FA73E3531F0F45AA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm currently working with Ingo's RT patched kernel, but I believe this
-affects the mainline too.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5C6DBCC8FA73E3531F0F45AA
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If the transmit buffer of the e100 overflowed, then the system would
-hang. This was caused because the e100 driver would stop the queue, and
-find_skb in netpoll.c would then loop forever.  This is because the e100
-net_poll would never start the queue again after the transmits have
-completed.
+Paul Davis wrote:
+>>The idea is to get equivalent performance to SCHED_FIFO. The results 
+>>show that much, and it is 100 times better than unprivileged 
+>>SCHED_NORMAL. The fact that this is an unoptimised normal desktop 
+>>environment means that the conclusion we _can_ draw is that SCHED_ISO is 
+>>as good as SCHED_FIFO for audio on the average desktop. I need someone 
+> 
+> 
+> no, this isn't true. the performance you are getting isn't as good as
+> SCHED_FIFO on a tuned system (h/w and s/w). the difference might be
+> the fact that you have "an average desktop", or it might be that your
+> desktop is just fine and SCHED_ISO actually is not as good as
+> SCHED_FIFO. 
 
-For those that use the e100 and netconsole, all you need to do is a
-sysreq 't' to lock up the system.
+<pedantic mode>
+On my desktop, whatever that is, SCHED_FIFO and SCHED_ISO results were 
+the same.
+</pedantic mode>
 
-Here's the patch: (from Ingo's linux-2.6.11-rc2-V0.7.36-02, but should
-be OK with 2.6.11-rc2)
+> 
+>>with optimised hardware setup to see if it's as good as SCHED_FIFO in 
+>>the critical setup.
+> 
+> 
+> agreed. i have every confidence that Lee and/or Jack will be
+> forthcoming :)
 
+Good stuff :).
 
-Index: drivers/net/e100.c
-===================================================================
---- drivers/net/e100.c	(revision 60)
-+++ drivers/net/e100.c	(working copy)
-@@ -1630,6 +1630,7 @@
- 	struct nic *nic = netdev_priv(netdev);
- 	e100_disable_irq(nic);
- 	e100_intr(nic->pdev->irq, netdev, NULL);
-+	e100_tx_clean(nic);
- 	e100_enable_irq(nic);
- }
- #endif
+Meanwhile, I have the priority support working (but not bug free), and 
+the preliminary results suggest that the results are better. Do I recall 
+someone mentioning jackd uses threads at different priority?
 
+Cheers,
+Con
 
+P.S. If you read any emotion in my emails without a smiley or frowny 
+face it's unintentional and is the limited emotional range the email 
+format is allowed to convey. Hmm.. perhaps I should make this my sig ;)
 
--- Steve
+--------------enig5C6DBCC8FA73E3531F0F45AA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFB8wRqZUg7+tp6mRURAos/AJ0Spf4h/NhQiCMKVltyqyZ1WZoU/wCfVD3a
+bpqsYZBMUMP8U1lpKJhve+0=
+=oE6k
+-----END PGP SIGNATURE-----
+
+--------------enig5C6DBCC8FA73E3531F0F45AA--

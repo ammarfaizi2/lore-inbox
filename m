@@ -1,34 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269420AbRHCPqa>; Fri, 3 Aug 2001 11:46:30 -0400
+	id <S269423AbRHCPqK>; Fri, 3 Aug 2001 11:46:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269421AbRHCPqU>; Fri, 3 Aug 2001 11:46:20 -0400
-Received: from u-54-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.54]:37259
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S269420AbRHCPqK>; Fri, 3 Aug 2001 11:46:10 -0400
-Date: Fri, 3 Aug 2001 17:45:22 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
+	id <S269421AbRHCPpv>; Fri, 3 Aug 2001 11:45:51 -0400
+Received: from linux06.unm.edu ([129.24.15.38]:12814 "HELO linux06.unm.edu")
+	by vger.kernel.org with SMTP id <S269420AbRHCPps>;
+	Fri, 3 Aug 2001 11:45:48 -0400
+Date: Fri, 3 Aug 2001 09:45:56 -0600 (MDT)
+From: Todd <todd@unm.edu>
 To: "chen, xiangping" <chen_xiangping@emc.com>
-Cc: "'Todd'" <todd@unm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: PCI bus speed
-Message-ID: <20010803174522.B28624@bacchus.dhis.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PCI bus speed
 In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC53A@elway.lss.emc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC53A@elway.lss.emc.com>; from chen_xiangping@emc.com on Fri, Aug 03, 2001 at 10:27:10AM -0400
-X-Accept-Language: de,en,fr
+Message-ID: <Pine.A41.4.33.0108030945140.19654-100000@aix05.unm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 10:27:10AM -0400, chen, xiangping wrote:
+chen,
 
+i think that if you look at the speed of the bridge, that is the speed the
+bridge wants to run the bus at.  as another poster noted, this doesn't
+really tell you the speed the bus is actually clocked at.
+
+t.
+
+On Fri, 3 Aug 2001, chen, xiangping wrote:
+
+> Date: Fri, 3 Aug 2001 10:27:10 -0400
+> From: "chen, xiangping" <chen_xiangping@emc.com>
+> To: 'Todd' <todd@unm.edu>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: RE: PCI bus speed
+>
 > yes. I see some items with flags listed as:
-> 	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 10    
-> 
+> 	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 10
+>
 > Is it suppose to mean that the bus freq is 66Mhz?
+>
+> Thanks,
+>
+> Xiangping
+>
+> -----Original Message-----
+> From: Todd [mailto:todd@unm.edu]
+> Sent: Thursday, August 02, 2001 8:03 PM
+> To: chen, xiangping
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: PCI bus speed
+>
+>
+> xiangping,
+>
+> try
+>
+> lspci -v
+>
+> the info you want is there.
+>
+> todd
+>
+> On Thu, 2 Aug 2001, chen, xiangping wrote:
+>
+> > Date: Thu, 2 Aug 2001 18:47:49 -0400
+> > From: "chen, xiangping" <chen_xiangping@emc.com>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: PCI bus speed
+> >
+> > Hi,
+> >
+> > Is there any easy way to probe the PCI bus speed
+> > of an Intel box?
+> >
+> > Thanks,
+> >
+> > Xiangping
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> =========================================================
+> Todd Underwood, todd@unm.edu
+>
+> =========================================================
+>
 
-Not necessarily ...
+=========================================================
+Todd Underwood, todd@unm.edu
 
-  Ralf
+=========================================================
+

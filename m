@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136693AbREHEQZ>; Tue, 8 May 2001 00:16:25 -0400
+	id <S136740AbREHERh>; Tue, 8 May 2001 00:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136740AbREHEQQ>; Tue, 8 May 2001 00:16:16 -0400
-Received: from 200191137058-dial-user-UOL.acessonet.com.br ([200.191.137.58]:62626
-	"EHLO pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S136693AbREHEP6>; Tue, 8 May 2001 00:15:58 -0400
-Date: Tue, 8 May 2001 01:16:10 -0300
-From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: EXT2-fs error with 2.4.4 (using CVS)
-Message-ID: <20010508011610.P15636@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.18i
-X-Mailer: Mutt/1.3.18i - Linux 2.4.4
+	id <S136741AbREHER1>; Tue, 8 May 2001 00:17:27 -0400
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:6159 "EHLO
+	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S136740AbREHERW>; Tue, 8 May 2001 00:17:22 -0400
+Date: Mon, 07 May 2001 22:17:15 -0600 (MDT)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: Re: OT: ps source?
+In-Reply-To: <3AF4D6B8.EFF8BEFC@wanadoo.fr>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: Fred Fleck <fred4160@yahoo.com>, linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.33.0105072214150.16922-100000@jbourne2.mtroyal.ab.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I received the following error while updating my Mozilla
-sources from MOZILLA_0_8_1_20010326_RELEASE to
-MOZILLA_0_9_RELEASE via CVS:
+On Sun, 6 May 2001, Pierre Rousselet wrote:
 
-==> /var/log/syslog <==
-May  8 00:25:52 pervalidus kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in
-directory #162813: directory entry across blocks - offset=92, inode=451111, rec_len=16404,
-name_len=9
-May  8 00:25:52 pervalidus kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in
-directory #162813: directory entry across blocks - offset=92, inode=451111, rec_len=16404,
-name_len=9
+> Fred Fleck wrote:
+> >
+> > Sorry for asking on this mailing list.
+> >
+> > Can someone please tell me where to find the source
+> > code for the ps command?
+> >
+> > Thanks
+> >
+> > Fred
+>
+> http://www.cs.uml.edu/~acahalan/procps/
+>
 
-When CVS finished, I received the following error:
+>From the procps man page:
+       Albert Cahalan <acahalan@cs.uml.edu> rewrote ps  for  full
+       Unix98  and  BSD  support,  along with some ugly hacks for
+       obsolete and foreign syntax.
 
-May  8 01:11:29 pervalidus kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in
-directory #162813: directory entry across blocks - offset=92, inode=451111, rec_len=16404,
-name_len=9
-May  8 01:11:29 pervalidus kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in
-directory #162813: directory entry across blocks - offset=92, inode=451111, rec_len=16404,
-name_len=9
+       Michael K. Johnson <johnsonm@redhat.com>  is  the  current
+       maintainer.
 
-And the following CVS message:
 
-cvs checkout: cannot remove
-mozilla/xpinstall/wizard/windows/nszip: No such file or
-directory
+Michaels' ftp for procps is at ftp://people.redhat.com/johnsonm/procps/
 
-When I tried to access
-/usr/local/src/CVS/X/mozilla/xpinstall/wizard/windows/ I got
-the same EXT2-fs error messages.
+Regards,
+Jim
 
-The partition is /usr/local/src
-(/dev/ide/host0/bus0/target0/lun0/part3)
-
-Is this some sort of ext2 fs corruption or what ? I booted with
-2.4.4 9 days ago, and there were no problems with fsck.
-
-checkout start: Tue May 8 00:22:40 BRT 2001
-checkout finish: Tue May 8 01:11:31 BRT 2001
-
-My .config is at http://www.pervalidus.net/.config-2.4.4.txt
-dmesg at http://www.pervalidus.net/dmesg-2.4.4.txt
+> Pierre
+>
 
 -- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+

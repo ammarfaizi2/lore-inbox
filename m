@@ -1,75 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131910AbRCVCOp>; Wed, 21 Mar 2001 21:14:45 -0500
+	id <S131912AbRCVCmL>; Wed, 21 Mar 2001 21:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131911AbRCVCOf>; Wed, 21 Mar 2001 21:14:35 -0500
-Received: from swan.prod.itd.earthlink.net ([207.217.120.123]:34999 "EHLO
-	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S131910AbRCVCOX>; Wed, 21 Mar 2001 21:14:23 -0500
-Message-ID: <3AB95FEC.6D27CB24@mcn.net>
-Date: Wed, 21 Mar 2001 19:14:04 -0700
+	id <S131914AbRCVCmC>; Wed, 21 Mar 2001 21:42:02 -0500
+Received: from scaup.prod.itd.earthlink.net ([207.217.121.49]:7343 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S131912AbRCVClx>; Wed, 21 Mar 2001 21:41:53 -0500
+Message-ID: <3AB9664B.10451E6D@mcn.net>
+Date: Wed, 21 Mar 2001 19:41:15 -0700
 From: TimO <hairballmt@mcn.net>
 Organization: Don't you mean Disorganization!?
 X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3-pre6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Only 10 MB/sec with via 82c686b chipset?
-In-Reply-To: <20010321143956.917977A94@Nicole.muc.suse.de>
+To: Tim Waugh <twaugh@redhat.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Will Newton <will@misconception.org.uk>,
+        Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: VIA audio and parport in 2.4.2
+In-Reply-To: <Pine.LNX.4.33.0103211333440.1541-100000@dogfox.localdomain> <3AB8B877.D36E8719@mandrakesoft.com> <20010321144907.D1323@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-egger@suse.de wrote:
+Tim Waugh wrote:
 > 
-> On 20 Mar, SodaPop wrote:
+> On Wed, Mar 21, 2001 at 09:19:35AM -0500, Jeff Garzik wrote:
 > 
-> > I have an IWill KK-266R motherboard with an athlon-c 1200
-> > processor in it, and for the life of me I can't get more than
-> > 10 MB/sec through the on-board ide controller.  Yes, all the
-> > appropriate support is turned on in the kernel to enable dma
-> > and specific chipset support, and yes, I think I have all
-> > relevant patches and a reasonable kernel.
+> > Attempting to pretend that the parallel port is not in an interrupt
+> > driven mode by passing irq=none is folly.
 > 
->  Yes, actually I'm seeing the same on a KT133 board from Elitegroup.
->  Although here I get a bit more: 15 MB/s
+> No, that's not what it's for.  It means 'for Christ sake don't use
+> interrupts, I know what I'm doing'.
 > 
-> > I noted a number of other interesting things;  one, that -X33,
-> > -X34, and -X64 through -X69 all have the same 10 MB/sec transfer
-> > rate, and two, that the 10 MB/sec transfer rate can be linearly
-> > increased to 12 MB/sec by raising the system bus from 100 mhz to
-> > 120 mhz (all components are safely rated at 133, no overclocking
-> > involved.)
+> > If irq=none is passed to tell the Via code to -force- the parallel
+> > port into a non-irq-driven mode is one thing.  If irq=none is passed
+> > to hide a problem with spurious interrupts, we need to fix that
+> > problem, not hide it.
 > 
->  Duh, before making such a claim you should consider the fact that
->  this is overclocking your PCI/AGP bus and I have yet to see any
->  graphic cards/IDE controllers/other devices which are rated for
->  37MHz PCI bus speed.
+> irq=none is passed in order to diagnose whether a problem happens on
+> only the interrupt-driven path or not.  Read the trouble-shooting
+> section parport.txt.  Understand that there are lots of printing code
+> paths nowadays (polling, interrupt-driven, PIO, DMA, etc).
 > 
-> --
+> > I still am not convinced that irq=<anything> should affect the Via
+> > code at all.  Maybe I can print out a message "irq=foo ignored".
 > 
-> Servus,
->        Daniel
+> Jeff, it needs to.  If you want to make irq=auto the default
+> (currently it's 'probe only'), then that is an entirely different
+> thing.
+> 
+> When the user tells you not to use interrupts, you'd better not.
+> 
+> > Optionally, I could handle irq=none by force-disabling the parallel
+> > port's interrupt driven modes, if they are active.
+> 
+> What the hell for?  Just don't use the interrupts.
+> 
+> Tim.
+> */
+> 
 
-Actually this depends on the MB.  On mine for instance (Athlon also, but
-not IWill), the PCI bus is a quotient of the oscillator and the FSB is
-a multiple of the PCI and the CPU & ev6 are multiples of the FSB. 
-Memory
-speed is also a multibple of PCI.  In this case increasing the FSB 
-doesn't increase the PCI.  Mine has two crystals 100/133 jumper con-
-figurable.
+Hi, Tim
 
-Anyway this is probably getting way off-topic; although I'd kinda like
-to see Dennis' output of both buffered and sustained output.  Looks
-kinda
-like a hw config problem.  Mine for comparison:
+What is the default anyway?  My BIOS is 0x378, 7, 3 and the driver
+reports this:
 
-Maxtor 13.4 Gig 5400rpm ATA66
-Buffered:		~170 - 175 MB
-Sustained:		~24 MB inner  ~26 MB outer  
-PCI: 33    FSB:  100    Memory 128M@133    CPU:  750Mhz    EV6:  200
+0x378: FIFO is 16 bytes
+0x378: writeIntrThreshold is 8
+0x378: readIntrThreshold is 8
+0x378: PWord is 8 bits
+0x378: Interrupts are ISA-Pulses
+0x378: possible IRQ conflict!       [Don't know why it always reports
+this]
+0x378: ECP port cfgA=0x10 cfgB=0x00
+0x378: ECP settings irq=<none or set by other means> dma=<none or set by
+other means>
+parport0: PC-style at 0x378 (0x778), irq 7, using FIFO
+[PCSPP,TRISTATE,COMPAT,ECP]
+parport0: cpp_daisy: aa5500ff(98)
+parport0: assign_addrs: aa5500ff(98)
+parport0: cpp_daisy: aa5500ff(98)
+parport0: assign_addrs: aa5500ff(98)
 
+With no options in modules.conf, lp0 uses polling; with irq=auto
+dma=auto
+it uses interrupt-driven but no dma?.
+
+-- 
 ===============
 -- Tim
---------------------==============++==============--------------------

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267261AbTGSMNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 08:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbTGSMNN
+	id S269902AbTGSMQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 08:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270036AbTGSMQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 08:13:13 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:50898 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S267261AbTGSMNM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 08:13:12 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-References: <20030711140219.GB16433@suse.de> <3F170D0F.7070304@pobox.com>
-	<20030717211623.GA2289@matchmail.com> <3F1713E5.6020206@pobox.com>
-	<20030718091018.A16388@infradead.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Jul 2003 20:48:28 +0200
-In-Reply-To: <20030718091018.A16388@infradead.org>
-Message-ID: <m34r1jy8lf.fsf@defiant.pm.waw.pl>
+	Sat, 19 Jul 2003 08:16:38 -0400
+Received: from tomts14.bellnexxia.net ([209.226.175.35]:20978 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S269902AbTGSMQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 08:16:36 -0400
+Date: Sat, 19 Jul 2003 08:30:20 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Alasdair Kergon <agk@uk.sistina.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: LVM/device mapper support for 2.6.0-test1?
+In-Reply-To: <20030718183027.A6328@uk.sistina.com>
+Message-ID: <Pine.LNX.4.53.0307190828570.4719@localhost.localdomain>
+References: <Pine.LNX.4.53.0307181254130.5747@localhost.localdomain>
+ <20030718183027.A6328@uk.sistina.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Fri, 18 Jul 2003, Alasdair Kergon wrote:
 
-> > Even though net devices are independently refcounted and internally 
-> > consistent, I have no idea if the module's code is refcounted elsewhere 
-> > or not.  So, I hope it's safe...
+> On Fri, Jul 18, 2003 at 12:55:02PM -0400, Robert P. J. Day wrote:
+> >   any pointers to LVM[2] support for 2.6?  that last message
+> > for LVM and device mapper referred only to 2.4.  thanks.
 > 
-> With the rmmod -a cronjobs some people like to run it'll break horribly :)
+> You should use the patches joe submitted to l-k recently together with
+> the userspace library and tools in the tarballs on the ftp site.
+> 
+> Snapshots and pvmove are still being ported to 2.6.
 
-Yes. I think rmmod -a (and modprobe -r) should go away then - unless the
-correct behavior is back.
--- 
-Krzysztof Halasa
-Network Administrator
+i just built (successfully, i think :-) LVM2 under 2.6.0-test1-ac2,
+and without testing it yet, i noticed that there is, in fact,
+a "pvmove" command.  does that mean that all the pvmove functionality
+is there now?  or what does it mean?
+
+rday

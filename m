@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272473AbTHEGaY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 02:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272478AbTHEGaY
+	id S272446AbTHEGZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 02:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272455AbTHEGZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 02:30:24 -0400
-Received: from iv.ro ([194.105.28.94]:3194 "HELO iv.ro") by vger.kernel.org
-	with SMTP id S272473AbTHEGaW (ORCPT
+	Tue, 5 Aug 2003 02:25:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5049 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272446AbTHEGZZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 02:30:22 -0400
-Date: Tue, 5 Aug 2003 09:44:44 +0300
-From: Jani Monoses <jani@iv.ro>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Tue, 5 Aug 2003 02:25:25 -0400
+Date: Mon, 4 Aug 2003 23:26:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Konold <martin.konold@erfrakon.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cs stack_dump
-Message-Id: <20030805094444.19cfc9f0.jani@iv.ro>
-In-Reply-To: <Pine.SOL.4.30.0308050032490.16314-100000@mion.elka.pw.edu.pl>
-References: <20030804174828.08dfc5f4.jani@iv.ro>
-	<Pine.SOL.4.30.0308050032490.16314-100000@mion.elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+Message-Id: <20030804232654.295c9255.akpm@osdl.org>
+In-Reply-To: <200308050704.22684.martin.konold@erfrakon.de>
+References: <200308050704.22684.martin.konold@erfrakon.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 01:56:01 +0200 (MET DST)
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+Martin Konold <martin.konold@erfrakon.de> wrote:
+>
+> Hi,
+> 
+>  when using  2.6.0.test1 on a high end laptop (P-IV 2.2 GHz, 1GB RAM) I notice 
+>  very significant slowdown in interactive usage compared to 2.4.21.
+> 
+>  The difference is most easily seen when switching folders in kmail. While 
+>  2.4.21 is instantaneous 2.6.0.test1 shows the clock for about 2-3 seconds.
+> 
+>  I am using maildir folders on reiserfs.
 
-> 
-> On Mon, 4 Aug 2003, Jani Monoses wrote:
-> 
-> I think I know how this happens:
-> 
-> register_disk()->blkdev_get()->do_open(), then disk->fops->open()
-> (idedisk_open() for ide-disk) calls check_disk_change().
-> check_disk_change() calls disk->fops->media_changed().
-> idedisk_media_changes() returns drive->removable, so instead of
-> returning from check_disk_change() block_device is invalidated
-> and bdev->bd_invalidated is set to 1.  Later in do_open(),
-> bdev->bd_invalidated flag is checked and since it is 1
-> rescan_partitions() is triggered.  Thus partitions are checked and
-> added twice: in do_open()->rescan_partitions() and in register_disk().
-> 
-> [ The same applies to ide-floppy driver and probably some other
-> drivers. ]
-> 
-> Ufff... I hope it is a correct description (I don't have hardware to
-> reproduce the problem).
+There is a bug in old kmail versions wherein they do silly things if the
+filesystem alleges that its optimum I/O size is much larger than 4k.
 
-You're probably right in the description. One ugly way I solved this for
-2.6.0-test1 was setting bd_invalidated to 0 
- 
-> Easy way is to fix is to add drive->attach flag, set it in
-> idedisk_attach() and check+clear in idedisk_media_changed(),
-> but I don't like this solution (patch below, Jani, can you test it?).
+2.6's reiserfs tell applications that its optimum IO size is 128k, and the
+bug bites.
 
-I can test is by tomorrow, it's another box that has the PCCard slot.
+Try mounting your reiserfs filesystems with the "nolargeio" option.
 
-Jani
+A `mount -o remount,nolargeio' will probably work too.
+
+Please test that, send a report, and if it fixes it, upgrade your kmail.
+
+Thanks.

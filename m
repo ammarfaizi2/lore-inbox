@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275287AbTHMRxG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275298AbTHMRxG
+	id S275301AbTHMRyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 13:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275309AbTHMRyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:53:06 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:39950 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S275287AbTHMRw7
+	Wed, 13 Aug 2003 13:54:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7601 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S275301AbTHMRyX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:52:59 -0400
-Date: Wed, 13 Aug 2003 20:00:20 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3-mm1 interactivity scheduling mistakes (smp)
-Message-ID: <20030813180020.GA1339@hh.idb.hist.no>
+	Wed, 13 Aug 2003 13:54:23 -0400
+Date: Wed, 13 Aug 2003 18:54:22 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, rddunlap@osdl.org, davej@redhat.com,
+       willy@debian.org, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-ID: <20030813175422.GZ10015@parcelfarce.linux.theplanet.co.uk>
+References: <3F397FFB.9090601@pobox.com> <20030812171407.09f31455.rddunlap@osdl.org> <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org> <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com> <20030813175009.GA12128@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030813175009.GA12128@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran a "nice make -j3 bzImage" on 2.6.9-test3-mm1 in order
-to compile 2.6.0-test3-mm2 on my dual celeron.
+On Wed, Aug 13, 2003 at 07:50:09PM +0200, Sam Ravnborg wrote:
+> On Wed, Aug 13, 2003 at 10:31:51AM -0700, Greg KH wrote:
+> > 
+> > How about this patch?  If you like it I'll add the pci.h change to the
+> > tree and let you take the tg3.c part.
+> > 
+> > +	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5700) },
+> Why not without the extra {}'s so something like this:
+> 
+> > +	PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5701),
+> > +	PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702),
+> >  	{ 0, }
+> >  };
+> >  
+> > +#define PCI_DEVICE(vend,dev) { \
+> > +	.vendor = (vend), .device = (dev), \
+> > +	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID }
 
-While waiting I played cuyo, a lightweight game similiar to tetris.
+... and while we're at it:
 
-This mostly behaved as expected, with a responsive game.
-But mozilla (on some other virtual desktop) occationally
-refreshed its page, causing several seconds with jerky response
-in the game.
++#define END_OF_LIST { 0, }
 
-This is wrong for two reasons:
-1. There should be enough cpu with two processors,
-   one running the game and another the heavy mozilla stuff.
-   The make was niced after all.  No guessing, I told it explicitly.
-
-2. The game has very interactive behaviour, it uses  4-10% cpu
-   and cause X to use about 20%.  Mozilla may have been idle for a 
-   while, getting "interactive".  But it shouldn't remain
-   interactive  for so long,  it sat at 100% till it went
-   idle again.   
-
-X runs with elevated priority, (std. debian testing setup)
-but that shouldn't matter - X only used 20% and that was
-for the game and two xterms.  Mozilla wasn't visible
-at all.
-
-Helge Hafting 
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpGncOfQCw9adR9SN84JAsHkZmw==
+thread-index: AcQVpPJPKv1bVq7HTzaWjDCgwQDFiA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 04:45:31 +0000
-Message-ID: <01a201c415a4$69dce2c0$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
+Delivery-date: Tue, 06 Jan 2004 00:50:05 +0000
+Message-ID: <045201c415a4$f24f9c60$d100000a@sbs2003.local>
 X-Mailer: Microsoft CDO for Exchange 2000
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 29 Mar 2004 16:42:16 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
-From: "Davide Libenzi" <davidel@xmailserver.org>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: <Administrator@smtp.paston.co.uk>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <mingo@redhat.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <20040104043037.007922C0F1@lists.samba.org>
+Date: Mon, 29 Mar 2004 16:46:05 +0100
+From: "Nick Piggin" <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
+To: <Administrator@smtp.paston.co.uk>
+Cc: <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
+        "Andrew Morton" <akpm@osdl.org>,
+        "Trivial Patch Monkey" <trivial@rustcorp.com.au>
+Subject: Re: [TRIVIAL PATCH] Use valid node number when unmapping CPUs
+References: <3FE74801.2010401@us.ibm.com> <3FE78F53.9090302@cyberone.com.au> <3FF9EABF.7050906@us.ibm.com>
+In-Reply-To: <3FF9EABF.7050906@us.ibm.com>
+Content-Type: text/plain;
+	format=flowed;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:16.0828 (UTC) FILETIME=[69DF53C0:01C415A4]
-
-On Sun, 4 Jan 2004, Rusty Russell wrote:
-
-> In message <Pine.LNX.4.44.0401031021280.1678-100000@bigblue.dev.mdolabs.com> you write:
-> > Rusty, I took a better look at the patch and I think we can have 
-> > per-kthread stuff w/out littering the task_struct and by making the thing 
-> > more robust.
-> 
-> Except sharing data with a lock is perfectly robust.
-> 
-> > We keep a global list_head protected by a global spinlock. We 
-> > define a structure that contain all the per-kthread stuff we need 
-> > (including a task_struct* to the kthread itself). When a kthread starts it 
-> > will add itself to the list, and when it will die it will remove itself 
-> > from the list.
-> 
-> Yeah, I deliberately didn't implement this, because (1) it seems like
-> a lot of complexity when using a lock and letting them share a single
-> structure works fine and is even simpler, and (2) the thread can't
-> just "do_exit()".
-> 
-> You can get around (2) by having a permenant parent "kthread" thread
-> which is a parent to all the kthreads (it'll get a SIGCHLD when
-> someone does "do_exit()").  But the implementation was pretty ugly,
-> since it involved having a communications mechanism with the kthread
-> parent, which means you have the global ktm_message-like-thing for
-> this...
-
-You will lose in any case. What happens if the thread does do_exit() and 
-you do kthread_stop() after that?
-With the patch I posted to you, the kthread_stop() will simply miss the 
-lookup and return -ENOENT.
+X-OriginalArrivalTime: 29 Mar 2004 15:46:06.0156 (UTC) FILETIME=[F29000C0:01C415A4]
 
 
 
-- Davide
+Matthew Dobson wrote:
+
+> Nick Piggin wrote:
+>
+>>
+>>
+>> Matthew Dobson wrote:
+>>
+>>> The cpu_2_node array for i386 is initialized to 0 for each CPU, 
+>>> effectively mapping all CPUs to node 0 unless changed.  When we 
+>>> unmap CPUs, however, we stick a -1 in the array, mapping the CPU to 
+>>> an invalid node.  This really isn't helpful.  We should map the CPU 
+>>> to node 0, to make sure that callers of cpu_to_node() and friends 
+>>> aren't returned a bogus node number.  This trivial patch changes the 
+>>> unmapping code to place a 0 in the node mapping for removed CPUs.
+>>>
+>>> Cheers!
+>>
+>>
+>>
+>>
+>> I'd prefer it got initialised to -1 for each cpu, and either set to -1
+>> or not touched during unmap.
+>
+> >
+>
+>>
+>> 0 is more bogus than the alternatives, isn't it? At least for the subset
+>> of CPUs not on node 0. Callers should be fixed.
+>
+>
+> Not really...  These macros are usually used for things like 
+> scheduling, memory placement and other decisions.  Right now the value 
+> doesn't have to be error-checked, because it is assumed to always 
+> return a valid node.  For these types of uses, it's far better to 
+> schedule/allocate something on the wrong node (ie: node 0) than on an 
+> invalid node (ie: node -1).  Having a possible negative value for this 
+> will break things when used as an array index (as it often is), and 
+> will force us to put tests to ensure it is a valid value before using 
+> it, and introduce possible races in the future (ie: imagine testing if 
+> CPU 17's node mapping is non-negative, simultaneously unmapping the 
+> CPU, then using the macro again to make a node decision.  You may get 
+> a negative value back, thus causing you to index way off the end of 
+> your array... BOOM).  If we stick with the convention that we always 
+> have a valid (even if not *correct*) value in these arrays, the worst 
+> we should get is poor performance, not breakage.
+
+
+OK, then keep the correct node number. No need to change it to node 0.
+Having the value not change at all (1) gives you the correct information
+at all times, and (2) eliminates the remaining race possibilities.
 
 

@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUIIQsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUIIQnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266316AbUIIQsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 12:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUIIQqf
+	id S266308AbUIIQnr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 12:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUIIQnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:46:35 -0400
-Received: from pD9517510.dip.t-dialin.net ([217.81.117.16]:59525 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S266349AbUIIQpF (ORCPT
+	Thu, 9 Sep 2004 12:43:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61158 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S266295AbUIIQjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:45:05 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-From: Thomas Charbonnel <thomas@undata.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
-In-Reply-To: <1094682656.12371.28.camel@localhost.localdomain>
-References: <OF08E1ED49.F0799581-ON86256F09.0070E65F-86256F09.0070E6A7@raytheon.com>
-	 <1094682656.12371.28.camel@localhost.localdomain>
+	Thu, 9 Sep 2004 12:39:31 -0400
+Subject: Re: 10 New compile/sparse warnings (overnight build)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094741838.4142.6.camel@cherrybomb.pdx.osdl.net>
+References: <1094741838.4142.6.camel@cherrybomb.pdx.osdl.net>
 Content-Type: text/plain
-Message-Id: <1094748286.18782.3.camel@localhost>
+Message-Id: <1094747967.2468.35.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 09 Sep 2004 18:44:46 +0200
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 09 Sep 2004 09:39:27 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote :
-> On Mer, 2004-09-08 at 21:33, Mark_H_Johnson@raytheon.com wrote:
-> > >.... Please disable IDE DMA and see
-> > >what happens (after hiding the PIO IDE codepath via
-> > >touch_preempt_timing()).
-> > 
-> > Not quite sure where to add touch_preempt_timing() calls - somewhere in the
-> > loop in ide_outsl and ide_insl? [so we keep resetting the start /end
-> > times?]
+Sorry about the duplicate entries.  I'll fix the tool.  There are really
+just 7 new sparse warnings.
+
+John
+
+On Thu, 2004-09-09 at 07:57, John Cherry wrote:
+> Summary:
+>    New warnings = 10
+>    Fixed warnings = 2
 > 
-> If you haven't done hdparm -u1 that may be a reason you want to touch
-> these. To defend against some very bad old h/w where a stall in the I/O
-> stream to the disk causes corruption we disable IRQ's across the
-> transfer in PIO mode by default.
+> New warnings:
+> -------------
+> net/ipv4/ipconfig.c:969:10: warning: undefined identifier 'i'
+> net/ipv4/ipconfig.c:969:10: warning: generating address of non-lvalue
 > 
-
-I had the exact same problem showing in the output of latencytest, and
-enabling unmaskirq on the drive being stressed solved it, thanks !
-
-See this for the problem :
-http://www.undata.org/~thomas/unmaskirq_0/index.html
-and this for the (impressive) results :
-http://www.undata.org/~thomas/unmaskirq_1/index.html
-
-Thomas
-
+> net/ipv4/ipconfig.c:969:10: warning: undefined identifier 'i'
+> net/ipv4/ipconfig.c:969:10: warning: generating address of non-lvalue
+> 
+> net/ipv4/ipconfig.c:969:32: warning: undefined identifier 'i'
+> 
+> net/ipv4/ipconfig.c:969:39: warning: unknown expression (7 46)
+> 
+> net/ipv4/ipconfig.c:970:18: warning: unknown expression (7 46)
+> 
+> net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
+> net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
+> net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
+> 
+> net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
+> net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
+> net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
+> 
+> net/ipv4/ipconfig.c:970:31: warning: undefined identifier 'i'
+> net/ipv4/ipconfig.c:970:31: warning: generating address of non-lvalue
+> net/ipv4/ipconfig.c:970:31: warning: loading unknown expression
+> 
+> net/ipv4/ipconfig.c:971:16: warning: unknown expression (7 46)
+> 
+> net/ipv4/ipconfig.c:971:9: warning: undefined identifier 'i'
+> 
+> 
+> Fixed warnings:
+> ---------------
+> fs/coda/file.c:298:14: warning: incorrect type in initializer
+> (incompatible argument 5 (different address spaces))
+> fs/coda/file.c:298:14:    expected int [usertype] ( *sendfile )( ... )
+> fs/coda/file.c:298:14:    got int [usertype] ( static [addressable]
+> [toplevel] *<noident> )( ... )
+> 
+> fs/coda/file.c:61:66: warning: incorrect type in argument 5 (different
+> address spaces)
+> fs/coda/file.c:61:66:    expected void *<noident>
+> fs/coda/file.c:61:66:    got void [noderef] *target<asn:1>
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbTEHP4u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTEHP4u
+	id S261670AbTEHPzA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTEHPy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:56:50 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:2708 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261790AbTEHP4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:56:47 -0400
-Date: Thu, 8 May 2003 18:09:15 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary firmware in the kernel - licensing issues.
-Message-ID: <20030508160915.GA12050@wohnheim.fh-wedel.de>
-References: <200305081559.h48FxqF07117@adam.yggdrasil.com>
+	Thu, 8 May 2003 11:54:59 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:8371 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261670AbTEHPy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:54:58 -0400
+Date: Thu, 8 May 2003 11:37:46 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Message-ID: <20030508153746.GQ679@phunnypharm.org>
+References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net> <20030508151643.GO679@phunnypharm.org> <20030508165118.A12791@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200305081559.h48FxqF07117@adam.yggdrasil.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030508165118.A12791@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 May 2003 08:59:52 -0700, Adam J. Richter wrote:
-> Jörn Engel wrote:
-> >For the kernel or the main CPU, the driver firmware is just data. The
-> >same, as the magic 0x12345678ul that gets written to some register
-> >because [can't tell, NDA]. In both cases, magic data gets written
-> >somewhere and afterwards, things just work.
+On Thu, May 08, 2003 at 04:51:18PM +0100, Christoph Hellwig wrote:
+> On Thu, May 08, 2003 at 11:16:43AM -0400, Ben Collins wrote:
+> > How would the driver differentiate between .compat_ioctl == NULL being a
+> > case where it should fail because there is no translation, or a case
+> > where it should use the compatible .ioctl? Maybe there should be an
+> > extra flag like use_compat_ioctl. So:
 > 
-> 	I think you are confusing "the preferred form of the work
-> for making modifications to it" (the GPL's definition of "source
-> code") with "documentation."  In the case of poking a few values,
-> the preferred form for making modifications may be actually editing
-> the numbers directly in source code.  That quite likely is the way
-> that all developers maintain and modify that code, even if doing so
-> in an effective manner requires additional documentation.
+> .compat_ioctl == NULL:  fail
+> .compat_ioctl == .ioctl: everythings fine, I read the docs
+
+That makes sense aswell.
+
+> > This would also solve the current problem where a module that is
+> > compiled with compat ioctl's using register_ioctl32_conversion() is not
+> > usable on a kernel compiled without CONFIG_COMPAT, even though it very
+> > well should be.
 > 
-> 	In comparison, with the binary blobs of firmware, the preferred
-> form of the work for making modifications is, presumably, to edit
-> a source file from which the binary blob can be rebuilt using an
-> assembler or compiler.
+> You mean you want to load the same binary module in differently
+> compiled kernels?  That's a flawed idea to start with..
 
-What's the difference? If the code uses 0x12345670ul, but 0x12345678ul
-would be correct, who is going to find the correct change without the
-documentation. Maybe someone reverse engineering the meaning of those
-bits. But most just accept the fact that one is better than the other
-without understanding why.
-
-And one big binary blob is better than the other. Same here.
-
-Anyway, _should be ok_ is not _definitely legal in all countries_, so
-we basically both say "see a lawyer".
-
-Jörn
+I don't, but I don't see the point in it not working in this case.
 
 -- 
-"Translations are and will always be problematic. They inflict violence 
-upon two languages." (translation from German)
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

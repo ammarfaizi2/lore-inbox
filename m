@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265574AbUEZMy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265583AbUEZM5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265574AbUEZMy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbUEZMyL
+	id S265583AbUEZM5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbUEZMyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:54:11 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:27016 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265586AbUEZMxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:53:02 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'Rik van Riel'" <riel@redhat.com>
-Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, <orders@nodivisions.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 05:55:50 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <Pine.LNX.4.44.0405260818030.30062-100000@chimarrao.boston.redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRDHF1/sdwIOqJURVeZcCRJ2OHd7QAAqewA
-Message-Id: <S265586AbUEZMxC/20040526125302Z+1835@vger.kernel.org>
+	Wed, 26 May 2004 08:54:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14017 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265585AbUEZMxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:53:18 -0400
+Date: Wed, 26 May 2004 14:53:00 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040526125300.GA18028@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+In-Reply-To: <20040526125014.GE12142@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Executables and shared libraries live in the filesystem
-> cache.  Evicting those from memory - because swapping is
-> disabled and "the VM should remove something from cache
-> instead" - will feel exactly the same as swapping ...
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I totally agree, you can't get away from evicting pages from memory to disk
-if your doing file system I/O because you eventually fill up memory. Any
-additional file system I/O requires evictions, period.
+On Wed, May 26, 2004 at 02:50:14PM +0200, J=F6rn Engel wrote:
+>=20
+> Experience indicates that for whatever reason, big stack consumers for
+> all three contexts never hit at the same time.  Big stack consumers
+> for one context happen too often, though.  "Too often" may be quite
+> rare, but considering the result of a stack overflow, even "quite
+> rare" is too much.  "Never" is the only acceptable target.
 
-Trying to preference executables and shared libraries is difficult because
-they are backed by named files, hence they also pagecache. (kind of reminds
-me of that little white speck on chicken poop. If it came out of the
-chicken, it's chicken poop too :)
+Actually it's not mever in 2.4. It does get here there by our customers once
+in a while. Esp with several NICs hitting an irq on the same CPU (eg the irq
+context goes over it's 2Kb limit)
 
-But there is the case where massive amounts of file system I/O (consider
-several fibre cards connecting to SAN attached storage that saturates the
-centerplane on some insanely large system) will force pages from running
-executables to be evicted, only to be faulted back a few milliseconds later.
-It's this thrashing effect that a separation eliminates if you have the
-ability to distinguish between executables (not just files mapped in
-executable but actual running processes) and non-executable pages.
+> done, a stack overflow will merely cause a kernel panic.  Until then,
+> I am just as conservative as Andreas.
 
-Consider how silly it would be for a system running a single process that
-consumes only 100k that generates so much filesystem I/O that the process is
-constantly paged out. When it needs to wake up again, becomes runnable and
-the program counter starts to access pages within the process address space,
-it gets faulted back in.
+actually the 4k stacks approach gives MORE breathing room for the problem
+cases that are getting hit by our customers...
 
-Lather, Rinse, Repeat ...
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---Buddy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFAtJMrxULwo51rQBIRAi83AJwIotH+cbvLLRl7G80z4lCdDI0YIgCffhIs
+nRUbc2u4ry7Rf6VHG7LreFk=
+=/cY2
+-----END PGP SIGNATURE-----
 
-
+--nFreZHaLTZJo0R7j--

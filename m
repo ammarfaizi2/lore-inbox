@@ -1,58 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbUKJU16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbUKJUf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbUKJU16 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 15:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUKJUYq
+	id S262124AbUKJUf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 15:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUKJUfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 15:24:46 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:49795 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262118AbUKJUWM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 15:22:12 -0500
-Message-ID: <41926E3A.5020005@tmr.com>
-Date: Wed, 10 Nov 2004 14:38:34 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zbigniew Szmek <zjedrzejewski-szmek@wp.pl>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make crypto modular
-References: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
-In-Reply-To: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Nov 2004 15:35:25 -0500
+Received: from ozlabs.org ([203.10.76.45]:62090 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262122AbUKJUbt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 15:31:49 -0500
+Date: Thu, 11 Nov 2004 07:30:58 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Bump MAX_HWIFS in IDE code
+Message-ID: <20041110203058.GA1922@krispykreme.ozlabs.ibm.com>
+References: <20041109203028.GA26806@krispykreme.ozlabs.ibm.com> <20041109125507.4bc49b3c.akpm@osdl.org> <20041109211201.GA8998@taniwha.stupidest.org> <1100038365.3946.236.camel@gaston> <58cb370e04111010055ed26378@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e04111010055ed26378@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zbigniew Szmek wrote:
-> Cryptoapi can be modular, so why not?
-> This patch does the following:
-> 1. Change Kconfig option CRYPTO to tristate
-> 2. Add __exit functions to crypto/api.c and crypto/proc.c
-> 3. Change crypto/api.c:init_crypto() from void to int
-> 4. Change crypto/Makefile to link hmac.o as part 
->    of the new crypto.ko module. 
->    
->    hmac.c could be compiled as a seperate module, if not for the fact,
->    that sizeof(struct digest_tfm) depends on CONFIG_CRYPTO_HMAC.
->    Linking them together ensures that there is no mismatch. If the user
->    compiles crypto.ko without HMAC, and then compiles another module
->    with HMAC, (for example ah4.ko), it will correctly fail with
->    "ah4: Unknown symbol crypto_hmac_init".
-> 
-> When CONFIG_CRYPTO=y the code generated should be identical,
-> apart from point 3. above. When CONFIG_CRYPTO=m 
-> size of crypto/crypto.ko is 15k.
-> 
-> The patch is against 2.6.10-rc1-mm1, applies cleanly to 2.6.10-rc1 and
-> to 2.6.7 with two offsets.
-> 
-Good job! Reduces the memory cost of having the capability "just in 
-case" needed in small memory machines.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> Anton, IDE driver is limited to 10 major numbers anyway
+> so please just use 10 for now...
 
+Thanks Bart, will do.
+
+Anton

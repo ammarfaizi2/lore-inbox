@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317779AbSGPH7j>; Tue, 16 Jul 2002 03:59:39 -0400
+	id <S317782AbSGPIFy>; Tue, 16 Jul 2002 04:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317781AbSGPH7f>; Tue, 16 Jul 2002 03:59:35 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:46353 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S317779AbSGPH7d>;
-	Tue, 16 Jul 2002 03:59:33 -0400
-Date: Tue, 16 Jul 2002 01:02:19 -0700
-To: Hell.Surfers@cwctv.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wine emulation integration.
-Message-ID: <20020716080219.GA26331@eskimo.com>
-References: <004540925061072DTVMAIL7@smtp.cwctv.net>
-Mime-Version: 1.0
+	id <S317783AbSGPIFx>; Tue, 16 Jul 2002 04:05:53 -0400
+Received: from avtodor.gorny.ru ([212.164.99.171]:22026 "EHLO mail.ruad")
+	by vger.kernel.org with ESMTP id <S317782AbSGPIFw>;
+	Tue, 16 Jul 2002 04:05:52 -0400
+Date: Tue, 16 Jul 2002 15:08:17 +0700
+From: Sokolov Sergei <s_sokolov@avtodor.gorny.ru>
+X-Mailer: The Bat! (v1.60c) Personal
+Reply-To: Sokolov Sergei <s_sokolov@avtodor.gorny.ru>
+X-Priority: 3 (Normal)
+Message-ID: <9320413493.20020716150817@avtodor.gorny.ru>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at buffer.c:549
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on mail/Gorno-Altaiavtodor(Release 5.0.9a |January 7, 2002) at
+ 16.07.2002 15:08:15,
+	Serialize by Router on mail/Gorno-Altaiavtodor(Release 5.0.9a |January 7, 2002) at
+ 16.07.2002 15:08:25,
+	Serialize complete at 16.07.2002 15:08:25
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004540925061072DTVMAIL7@smtp.cwctv.net>
-User-Agent: Mutt/1.3.28i
-From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wine is collection of application-level libraries and a special runtime
-execution system.  Integrating it into the kernel isn't sensible, since
-applications do not run in the kernel.
+Hello!
+I have linux kernel 2.4.19-rc1 with xfs enabled.
+RedHat 7.2:
+Linux version 2.4.19-rc1-xfs (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release))
 
-However, it is possible for Linux to support special system calls to aid
-the implementation of Wine (chiefly for performance reasons).  This was
-proposed at some point in the past, but I'm not sure what ever became of
-it.  The basic idea was to provide some special locking primitives for
-Win32 applications, as I recall...
+My xfs partitions locates on /dev/ataraid devices (Promise FastTrak Tx4),
+Two mirror on   four disks "Seagate Barracuda IV 80GB".
 
+I have two problems:
 
-What I think you're actually trying to propose is adding an
-abstraction/support layer for windows driver binaries in the Linux
-kernel.  This is actually an interesting idea in some respects, but it's
-not really all that closely related to Wine.  Kernel development is
-at a different level.
+1) [root@ws188 linux-2.4.19-rc1-xfs]# mkfs.xfs /dev/ataraid/d1p2
+   mkfs.xfs: warning - cannot set blocksize on block device /dev/ataraid/d1p2: Invalid argument
 
-It's also probably not worth the trouble at all.  Implementing it would
-be very difficult, and the number of devices it would enable would be
-very small.  It would also be very unstable, since besides the bugs in
-the windows drivers themselves, debugging the support layer around them
-would be really hard.  Generally speaking, it would almost always be
-easier to just write a native Linux driver for the hardware.
+2)When I copying files between partitions, I receive message.
 
--J
+Jul 12 17:01:19 ws188 kernel: kernel BUG at buffer.c:549!
+Jul 12 17:01:19 ws188 kernel: invalid operand: 0000
+Jul 12 17:01:19 ws188 kernel: CPU:    0
+Jul 12 17:01:19 ws188 kernel: EIP:    0010:[__insert_into_lru_list+37/112]    Not tainted
+Jul 12 17:01:19 ws188 kernel: EIP:    0010:[<c012f335>]    Not tainted
+Jul 12 17:01:19 ws188 kernel: EFLAGS: 00010206
+Jul 12 17:01:19 ws188 kernel: eax: 00000000   ebx: 00000008   ecx: d6e297c0   edx: c02ec594
+Jul 12 17:01:19 ws188 kernel: esi: 00000002   edi: 00001000   ebp: 00000000   esp: df0ebe18
+Jul 12 17:01:19 ws188 kernel: ds: 0018   es: 0018   ss: 0018
+Jul 12 17:01:19 ws188 kernel: Process mc (pid: 872, stackpage=df0eb000)
+Jul 12 17:01:19 ws188 kernel: Stack: 00000002 d6e297c0 c012fb64 d6e297c0 00000002 d6e297c0 00001000 c012fb7a
+Jul 12 17:01:19 ws188 kernel:        d6e297c0 c01305a5 d6e297c0 00000000 d09b22c0 484cc000 00000000 d6e297c0
+Jul 12 17:01:19 ws188 kernel:        c0130c56 d09b22c0 c10acf20 00000000 00001000 00001000 00001000 00000000
+Jul 12 17:01:19 ws188 kernel: Call Trace: [__refile_buffer+84/96] [refile_buffer+10/16] [__block_commit_write+
+117/192] [generic_commit_write+54/96] [pagebuf_generic_file_write+613/768]
+Jul 12 17:01:19 ws188 kernel: Call Trace: [<c012fb64>] [<c012fb7a>] [<c01305a5>] [<c0130c56>] [<c01cea75>]
+Jul 12 17:01:19 ws188 kernel:    [xfs_write+1032/1808] [linvfs_pb_bmap+0/208] [linvfs_write+812/864] [sys_writ
+e+150/240] [system_call+51/56]
+Jul 12 17:01:19 ws188 kernel:    [<c01d44a8>] [<c01d30b0>] [<c01cfe5c>] [<c012e026>] [<c01089bb>]
+Jul 12 17:01:19 ws188 kernel:
+Jul 12 17:01:19 ws188 kernel: Code: 0f 0b 25 02 60 9e 26 c0 8b 02 85 c0 75 07 89 0a 89 49 24 8b  
 
-
-On Tue, Jul 16, 2002 at 07:25:25AM +0100, Hell.Surfers@cwctv.net wrote:
-> Could the integration of wine into the kernel, be a good idea to take?
-> Its adding could be added to create a hybrid system that with extra
-> dev could allow modem cards to work under Linux that wouldnt otherwise
-> saving time and effort.
+-- 
+Sergei Sokolov
 

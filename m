@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbQLHBvp>; Thu, 7 Dec 2000 20:51:45 -0500
+	id <S130067AbQLHBxp>; Thu, 7 Dec 2000 20:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130067AbQLHBvf>; Thu, 7 Dec 2000 20:51:35 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:34067 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129967AbQLHBvS>;
-	Thu, 7 Dec 2000 20:51:18 -0500
-Date: Fri, 8 Dec 2000 02:20:44 +0100
-From: Andi Kleen <ak@suse.de>
-To: Rainer Mager <rmager@vgkk.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-Message-ID: <20001208022044.A6417@gruyere.muc.suse.de>
-In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>
-Mime-Version: 1.0
+	id <S129967AbQLHBxg>; Thu, 7 Dec 2000 20:53:36 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:7443 "HELO
+	mail.the-rileys.net") by vger.kernel.org with SMTP
+	id <S130067AbQLHBxW>; Thu, 7 Dec 2000 20:53:22 -0500
+Message-ID: <3A3037E9.6D5378A8@the-rileys.net>
+Date: Thu, 07 Dec 2000 20:22:52 -0500
+From: David Riley <oscar@the-rileys.net>
+Reply-To: oscar@the-rileys.net
+Organization: The Rileys
+X-Mailer: Mozilla 4.74 (Macintosh; U; PPC)
+X-Accept-Language: en,pdf
+MIME-Version: 1.0
+To: Bryan Whitehead <driver@rccacm.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Disableing USB.
+In-Reply-To: <Pine.LNX.4.21.0012071438020.3776-100000@www.rccacm.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>; from rmager@vgkk.com on Fri, Dec 08, 2000 at 09:44:29AM +0900
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 09:44:29AM +0900, Rainer Mager wrote:
-> 	I recently upgraded to a new machine. It is running RedHat 6.2 Linux (with
-> a SMP 2.4.0test[8-11] kernel) and has a Matrox G400 in it. X is 4.0.1.
-> Anyway, about once every 2-3 days X will spontaneously die and the only info
-> I get back is that it was because of signal 11.
-> 	I've heard that signal 11 can be related to bad hardware, most often
-> memory, but I've done a good bit of testing on this and the system seems ok.
-> What I did was to run the VA Linux Cerberos(sp?) test for 15 hours+ with no
-> errors. Actually this only worked when running from the console. When
-> running from X the machine locked up (although no signal 11).
-> 	The only info I've gotten back from the XFree86 mailing lists so far is
-> that there are known and wide spread problems with SMP and these types of
-> problems. Can anyone comment on this? Are there known SMP problems? What is
-> the current resolution plan?
+Bryan Whitehead wrote:
+> 
+> Is there a way I can disble a part of the kernel that is compiled into the
+> kernel? For example I'd like to pass this to lilo: "usb=disable" and then
+> the usb code is not loaded even though USB has been built into the kernel.
+> 
+> Is such a feature stupid? Or has this already been implemented?
+> 
+> It would be nice if this was generic and I could also pass things like
+> "procfs=disabled".
+> 
+> The resone I ask is a friend of mine got a new Sony Vaio Laptop that has
+> the ethernet card and USB device stepping on eachother. It would be nice
+> to pass to the Redhat/Mandrake/whatever installation boot disk usb=disable
+> so the ethernet card can work freely (he's doiung a ntwork install becasue
+> he has no CD-ROM), as he doesn't use any USB devices anyway.
 
-signal 11 just means that the program crashed with a segmentation fault. 
+Er... Well, the traditional solution has been "don't build it into your
+kernel if you don't want it", but in the case of stock kernels, that
+isn't always an option, I suppose.  Theoretically, the two devices
+shouldn't step on each other, but this is a computer.  Theory is so far
+removed from practice that it's... Well, I can't think up a good
+analogy.  It's far.
 
-Sounds like a X Server bug. You should probably contact XFree86, not
-linux-kernel
+*looks at kernel config options*
 
+Well, it looks like the usb cores (UHCI and OHCI) can be modular.  Why
+aren't they in the stock kernel, other than possibly autodetection
+problems?  If they are built as modules, using expert mode in RedHat or
+whatever equivalent may be in other dists may let you avoid insmodding
+the USB stuff...
 
--Andi
+Beyond that, having a command-line disable feature does seem pretty
+neat.  Although why would you want to disable procfs?  Maybe I missed
+something there, but it seems awful darn important to leave out. :-)
+
+-- 
+"Windows for Dummies?  Isn't that redundant?"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

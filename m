@@ -1,89 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUDNWdD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 18:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUDNWcv
+	id S261931AbUDNWd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUDNWch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:32:51 -0400
-Received: from mail.kroah.org ([65.200.24.183]:29087 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261930AbUDNWYh convert rfc822-to-8bit
+	Wed, 14 Apr 2004 18:32:37 -0400
+Received: from mail.kroah.org ([65.200.24.183]:29855 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261931AbUDNWYj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:24:37 -0400
+	Wed, 14 Apr 2004 18:24:39 -0400
 Subject: Re: [PATCH] I2C update for 2.6.5
-In-Reply-To: <10819814522824@kroah.com>
+In-Reply-To: <1081981453446@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Apr 2004 15:24:12 -0700
-Message-Id: <10819814521034@kroah.com>
+Date: Wed, 14 Apr 2004 15:24:13 -0700
+Message-Id: <10819814533933@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.22, 2004/04/09 12:06:16-07:00, greg@kroah.com
+ChangeSet 1.1643.36.27, 2004/04/12 15:17:01-07:00, mhoffman@lightlink.com
 
-[PATCH] I2C: clean up out of order bus Makefile and Kconfig entries.
+[PATCH] I2C: fix asb100 bug
+
+Hi nymisi, Greg:
+
+* Nyeste Mihály <nymisi@freemail.hu> [2004-01-27 16:02:04 +0100]:
+> Hi!
+>
+> I reported a bug of asb100 chip at:
+> http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=1539
+>
+> The reply was the follow:
+>
+> "Is there a BIOS option you can disable, e.g. Asus "COP",
+> "QFAN", or some such?  My guess is that the BIOS is
+> somehow interfering with the asb100 driver.  Otherwise
+> I don´t know how this could happen.
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Yeah, I wrote that.
+
+"You do that, you go to the box, you know.  Two minutes by
+yourself, and you feel shame, you know." - Denis the goalie
+
+Greg, please apply this fix (vs. 2.6.5):
 
 
- drivers/i2c/busses/Kconfig  |   16 ++++++++--------
- drivers/i2c/busses/Makefile |    2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/i2c/chips/asb100.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	Wed Apr 14 15:13:05 2004
-+++ b/drivers/i2c/busses/Kconfig	Wed Apr 14 15:13:05 2004
-@@ -5,29 +5,29 @@
- menu "I2C Hardware Bus support"
- 	depends on I2C
- 
--config I2C_ALI1563
--	tristate "ALI 1563"
-+config I2C_ALI1535
-+	tristate "ALI 1535"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the SMB
--	  Host controller on Acer Labs Inc. (ALI) M1563 South Bridges.  The SMB
-+	  Host controller on Acer Labs Inc. (ALI) M1535 South Bridges.  The SMB
- 	  controller is part of the 7101 device, which is an ACPI-compliant
- 	  Power Management Unit (PMU).
- 
- 	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-ali1563.
-+	  will be called i2c-ali1535.
- 
--config I2C_ALI1535
--	tristate "ALI 1535"
-+config I2C_ALI1563
-+	tristate "ALI 1563"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the SMB
--	  Host controller on Acer Labs Inc. (ALI) M1535 South Bridges.  The SMB
-+	  Host controller on Acer Labs Inc. (ALI) M1563 South Bridges.  The SMB
- 	  controller is part of the 7101 device, which is an ACPI-compliant
- 	  Power Management Unit (PMU).
- 
- 	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-ali1535.
-+	  will be called i2c-ali1563.
- 
- config I2C_ALI15X3
- 	tristate "ALI 15x3"
-diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
---- a/drivers/i2c/busses/Makefile	Wed Apr 14 15:13:05 2004
-+++ b/drivers/i2c/busses/Makefile	Wed Apr 14 15:13:05 2004
-@@ -3,8 +3,8 @@
- #
- 
- obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
--obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
- obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
-+obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
- obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
- obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
+diff -Nru a/drivers/i2c/chips/asb100.c b/drivers/i2c/chips/asb100.c
+--- a/drivers/i2c/chips/asb100.c	Wed Apr 14 15:12:31 2004
++++ b/drivers/i2c/chips/asb100.c	Wed Apr 14 15:12:31 2004
+@@ -468,7 +468,7 @@
+ 		data->reg[nr] = TEMP_TO_REG(val); \
+ 		break; \
+ 	} \
+-	asb100_write_value(client, ASB100_REG_TEMP_##REG(nr), \
++	asb100_write_value(client, ASB100_REG_TEMP_##REG(nr+1), \
+ 			data->reg[nr]); \
+ 	return count; \
+ }
 

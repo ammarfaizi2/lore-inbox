@@ -1,77 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUGCO63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265138AbUGCPA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUGCO63 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 10:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUGCO63
+	id S265138AbUGCPA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 11:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUGCPA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 10:58:29 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:6066 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265136AbUGCO6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 10:58:19 -0400
-Date: Sat, 3 Jul 2004 16:58:10 +0200 (MEST)
-Message-Id: <200407031458.i63EwAGO023123@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ahu@ds9a.nl
-Subject: Re: small perfctr bug or misunderstanding
-Cc: linux-kernel@vger.kernel.org
+	Sat, 3 Jul 2004 11:00:26 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:53508 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S265139AbUGCPAE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 11:00:04 -0400
+To: Andrew Clausen <clausen@gnu.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Steffen Winterfeldt <snwint@suse.de>, bug-parted@gnu.org,
+       Thomas Fehr <fehr@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+References: <s5gwu1mwpus.fsf@patl=users.sf.net>
+	<Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+	<20040703013552.GA630@gnu.org> <s5g8ye1qjg9.fsf@patl=users.sf.net>
+	<20040703144500.GL630@gnu.org>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5goemxp2oa.fsf@patl=users.sf.net>
+Date: 03 Jul 2004 11:00:02 -0400
+In-Reply-To: <20040703144500.GL630@gnu.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jul 2004 16:08:29 +0200, bert hubert wrote:
->Mikael, thanks for the low-level-api.txt documentation. Will vperfctr_* see
->some documentation? Want me to whip up manpages?
+Andrew Clausen <clausen@gnu.org> writes:
 
-Docs for the syscalls will appear shortly.
+> On Sat, Jul 03, 2004 at 10:15:47AM -0400, Patrick J. LoPresti wrote:
+> > Parted is primarily a component of larger systems; namely, the
+> > RedHat/Suse/etc. installers.  Those larger systems can figure out the
+> > correct geometry (using whatever logic/heuristics/knowledge they have)
+> > and pass it to the tools which need it, of which Parted is just one.
+> 
+> Why should they bother?  Shouldn't libparted just do it all for
+> them?  (Shouldn't parted use EDD?)
 
->So far perfctr has been very useful to me already - I now know parts of
->PowerDNS that are completely memory bound, which I so far only suspected.
->Are the global counters available? There is a note in the perfctl
->distribution that says they aren't?
+Two reasons:
 
-Currently no; I removed them while we've been debating the
-API to the (IMO more important) per-process counters.
-I intend to add them back once the current stuff has been
-Linus-approved.
+  1) "...of which Parted is just one."  Whatever logic you fancy for
+     determining the geometry, the results need to be available to
+     several tools.  Parted is only one such tool; ergo, the logic
+     belongs OUTSIDE of it.  Parted should expect to be TOLD the
+     geometry in any situation where it matters.
 
->One thing - on my Pentium M I'm unable to get more than one counter going
->simultaneously, I get 'Operation not permitted'. Perfex reports that
->supposedly two are possible.
+  2) The ideal logic varies depending on the capabilities of your
+     kernel.  The distribution vendor knows the capabilities of its
+     kernel, and can construct appropriate logic.  Putting logic into
+     Parted to handle every possible kernel is a sloppy design.
 
-Classic beginner's mistake :-)
+I hate "smart" software.  Don't be smart; be simple.  Default to
+whatever you like, but give me a way to TELL Parted the geometry.
 
->  void addCounter(unsigned int v, unsigned int unit=0) 
->  {
->    int count=d_control.cpu_control.nractrs;
+> I was under the impression that 2.6 provides a mechanism for setting
+> the HDIO_GETGEO thingy... so any program can tell Parted (and
+> everything else, for that matter) what they want the geometry to be.
 >
->    d_control.cpu_control.evntsel[count] = v | (1 << 16) | (1 << 22) | (unit << 8); 
->    d_control.cpu_control.pmc_map[count] = count;
->    d_control.cpu_control.nractrs++; // no support for .nrictrs
->  }
+> Perhaps I misunderstood your email:
+> 
+> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.0/0270.html
 
-Quoting from Documentation/perfctr/low-level-x86.txt:
+You understood correctly, but see below...
 
->Intel P6
->--------
->The evntsel values are mapped directly onto the counters'
->EVNTSEL control registers.
->
->The global enable bit (22) in EVNTSEL0 must be set. That bit is
->reserved in EVNTSEL1.
->...
->AMD K7/K8
->---------
->Similar to Intel P6. The main difference is that each evntsel has
->its own enable bit, which must be set.
+> It contains this:
+> 
+> 	echo "bios_cyl:C bios_head:H bios_sect:S" > /proc/ide/hda/settings
+> 
+> Isn't the kernel the right place for this kind of communication to
+> be happening, anyway?
 
-The driver sees ENABLE set in EVNTSEL1 on your P-M,
-and properly returns an error.
+Not according to the kernel developers.  They are threatening to
+remove HDIO_GETGEO completely.
 
-The proper way is for user-space to consider a set of
-events (not yet added to the control struct), and to
-use the current CPU type to format the control and
-handle any quirks. For P6 vs K7 the differences are
-minor, but to program the P4 you _really_ need helper
-procedures.
+> > (Note that this would also provide a way for end users to fix their
+> > partition tables if/when they broke.  Right now, the stock solution
+> > for disks which Parted "broke" is "sfdisk -d | sfdisk -C# -H# -S#".
+> > Wouldn't it be nice if people could use Parted instead?)
+> 
+> They can, right?  Just type the above, and then do some dummy thing
+> in parted.  (Parted doesn't have a "touch" command).
 
-/Mikael
+No, because Parted will "helpfully" infer the geometry from the
+existing partition table, no matter what HDIO_GETGEO returns!
+
+In short, the /proc/ide/hdX/settings + HDIO_GETGEO solution 1) only
+works on blank drives and 2) uses an interface which the kernel
+developers consider a crock.
+
+> > IBM Thinkpads use x/240/63.  In theory, other BIOSes could use
+> > anything.
+> 
+> Do they break on x/255/63?
+
+Yes, absolutely.  This is why I wrote the legacy_* support for the
+edd.o module in the first place.  Otherwise, I could have used
+x/255/63 and been done with it.
+
+ - Pat

@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbTIYLTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTIYLTQ
+	id S261806AbTIYLV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTIYLV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:19:16 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:38158 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261799AbTIYLTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:19:15 -0400
-Date: Thu, 25 Sep 2003 12:19:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix non-modular ftape compile
-Message-ID: <20030925121913.A10483@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-References: <20030925102309.GI15696@fs.tum.de> <20030925113816.A9693@infradead.org> <20030925110325.GK15696@fs.tum.de>
+	Thu, 25 Sep 2003 07:21:56 -0400
+Received: from mail2.uu.nl ([131.211.16.76]:2197 "EHLO mail2.uu.nl")
+	by vger.kernel.org with ESMTP id S261806AbTIYLVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:21:55 -0400
+Subject: more header annoyances
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: kraxel@bytesex.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1064488998.2228.516.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030925110325.GK15696@fs.tum.de>; from bunk@fs.tum.de on Thu, Sep 25, 2003 at 01:03:25PM +0200
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Sep 2003 13:23:18 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 01:03:25PM +0200, Adrian Bunk wrote:
-> It increases the kernel size since in 2.6 __exit functions are discarded 
-> at runtime and not at link time.
+Hi Gerd,
 
-Oh.  That sounds silly.  Do you remember who changed it and why?
+/usr/src/linux-2.6.x/include/media/id.h says "/* FIXME: this
+temporarely, until these are included in linux/i2c-id.h */". Since these
+are now in i2c-id.h, could you consider removing that file?
+
+Reason:
+-
+#include <media/tuner.h>
+#include <linux/i2c.h>
+-
+...(in a driver) will break compilation...
+-
+include/linux/i2c-id.h:79:1: warning: "I2C_DRIVERID_TDA9875" redefined
+In file included from include/media/tuner.h:25,
+                 from drivers/media/video/zr36120.c:42:
+include/media/id.h:19:1: warning: this is the location of the previous
+definition
+-
+
+Thanks,
+
+Ronald
+
+PS I hope I'm not annoying you with all these small issues, I'm just
+trying to find & solve issues that I notice in 2.6.x while doing some
+random work on it. :).
+
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
+Linux Video/Multimedia developer
 

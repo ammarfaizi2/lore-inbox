@@ -1,47 +1,232 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291857AbSBARMp>; Fri, 1 Feb 2002 12:12:45 -0500
+	id <S291869AbSBARSF>; Fri, 1 Feb 2002 12:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291864AbSBARMg>; Fri, 1 Feb 2002 12:12:36 -0500
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:10133 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S291857AbSBARMY>; Fri, 1 Feb 2002 12:12:24 -0500
-Date: Fri, 01 Feb 2002 12:12:11 -0500 (EST)
-Message-Id: <20020201.121211.55941171.wscott@bitmover.com>
-To: lm@bitmover.com
-Cc: brand@jupiter.cs.uni-dortmund.de, kaos@ocs.com.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-From: Wayne Scott <wscott@bitmover.com>
-In-Reply-To: <20020201083855.C8664@work.bitmover.com>
-In-Reply-To: <lm@bitmover.com>
-	<200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
-	<20020201083855.C8664@work.bitmover.com>
-X-Mailer: Mew version 2.1.52 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S291870AbSBARR4>; Fri, 1 Feb 2002 12:17:56 -0500
+Received: from ns.caldera.de ([212.34.180.1]:1174 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S291869AbSBARRr>;
+	Fri, 1 Feb 2002 12:17:47 -0500
+Date: Fri, 1 Feb 2002 18:17:41 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] kthread abstraction
+Message-ID: <20020201181741.A7268@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020201163818.A32551@caldera.de.suse.lists.linux.kernel> <p73d6zpno2u.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <p73d6zpno2u.fsf@oldwotan.suse.de>; from ak@suse.de on Fri, Feb 01, 2002 at 05:50:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Larry McVoy <lm@bitmover.com>
-> If so, what you are describing is called "hacking" in the negative
-> sense of the word, and what my customers do is called "programming".
-> It's quite rare to see the sort of mess that you described, it happens,
-> but it is rare.  I don'tknow how else to explain it, but it is not the
-> norm in the professional world to try a zillion different approaches
-> and revision control each and every one.
-> 
-> The norm is:
-> 	clone a repository
-> 	edit the files
-> 	modify/compile/debug until it works
-> 	check in
-> 	push the patch up the shared repository
+On Fri, Feb 01, 2002 at 05:50:33PM +0100, Andi Kleen wrote:
+> I think it would be better to pass data as a separate argument.
+> You can put the kthread and the data into a private structure on
+> the stack, pass the address of it to kernel_thread and wait until the 
+> thread has read it using a completion. 
 
-Or they create do a line of development in a repository with commits
-and then determine that it wasn't working.  No problem throw it away
-and start over from a clean copy.  Since the repositories are
-distributed, private branches just disappear if you don't like them.
+Reworked version below.
 
--Wayne
+
+
+diff -uNr -Xdontdiff ../master/linux-2.5.3/include/linux/kthread.h linux/include/linux/kthread.h
+--- ../master/linux-2.5.3/include/linux/kthread.h	Thu Jan  1 01:00:00 1970
++++ linux/include/linux/kthread.h	Fri Feb  1 18:08:50 2002
+@@ -0,0 +1,22 @@
++#ifndef _LINUX_KTHREAD_H
++#define _LINUX_KTHREAD_H
++
++struct task_struct;
++
++struct kthread {
++	const char *name;
++	struct task_struct *task;
++	struct completion done;
++#define KTH_RUNNING	1
++#define KTH_SHUTDOWN	2
++	long state;
++	int (*init)(struct kthread *, void *);
++	void (*cleanup)(struct kthread *, void *);
++	void (*main)(struct kthread *, void *);
++};
++
++extern int kthread_start(struct kthread *, void *);
++extern void kthread_stop(struct kthread *);
++extern int kthread_running(struct kthread *);
++
++#endif /* _LINUX_KTHREAD_H */
+diff -uNr -Xdontdiff ../master/linux-2.5.3/kernel/Makefile linux/kernel/Makefile
+--- ../master/linux-2.5.3/kernel/Makefile	Fri Feb  1 16:27:04 2002
++++ linux/kernel/Makefile	Fri Feb  1 16:29:19 2002
+@@ -10,12 +10,12 @@
+ O_TARGET := kernel.o
+ 
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o 
++		printk.o kthread.o
+ 
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
+ 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o 
++	    signal.o sys.o kmod.o context.o kthread.o
+ 
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += ksyms.o
+diff -uNr -Xdontdiff ../master/linux-2.5.3/kernel/kthread.c linux/kernel/kthread.c
+--- ../master/linux-2.5.3/kernel/kthread.c	Thu Jan  1 01:00:00 1970
++++ linux/kernel/kthread.c	Fri Feb  1 18:15:46 2002
+@@ -0,0 +1,149 @@
++/*
++ * Copyright (c) 2002 Christoph Hellwig.
++ * All rights resered.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/completion.h>
++#include <linux/kernel.h>
++#include <linux/kthread.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/signal.h>
++#include <linux/smp_lock.h>
++#include <linux/spinlock.h>
++#include <asm/bitops.h>
++
++#define KTHREAD_FLAGS \
++	(CLONE_FS|CLONE_FILES|CLONE_SIGHAND)
++
++struct kthread_args {
++	struct kthread *kth;
++	void *data;
++};
++
++
++static int kthread_stopped(struct kthread *kth)
++{
++	struct task_struct *task = kth->task;
++	unsigned long signr;
++	siginfo_t info;
++
++	spin_lock_irq(&task->sigmask_lock);
++	signr = dequeue_signal(&task->blocked, &info);
++	spin_unlock_irq(&task->sigmask_lock);
++
++	if (signr == SIGKILL && test_bit(KTH_SHUTDOWN, &kth->state))
++		return 1;
++	return 0;
++}
++
++static int kthread_main(void *p)
++{
++	struct kthread_args *args = p;
++	struct kthread *kth = args->kth;
++	void *data = args->data;
++
++	lock_kernel();
++	daemonize();
++	reparent_to_init();
++	strcpy(current->comm, kth->name);
++	unlock_kernel();
++
++	kth->task = current;
++
++	spin_lock_irq(&current->sigmask_lock);
++	siginitsetinv(&current->blocked,
++			sigmask(SIGHUP) | sigmask(SIGKILL) |
++			sigmask(SIGSTOP) | sigmask(SIGCONT));
++	spin_unlock_irq(&current->sigmask_lock);
++
++	if (kth->init)
++		kth->init(kth, data);
++	complete(&kth->done);
++
++	do {
++		kth->main(kth, data);
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule();
++	} while (!kthread_stopped(kth));
++
++	if (kth->cleanup)
++		kth->cleanup(kth, data);
++	clear_bit(KTH_RUNNING, &kth->state);
++	complete(&kth->done);
++	return 0;
++}
++
++/**
++ *	kthread_start    -    start a new kernel thread
++ *	@kth:		kernel thread description
++ *	@data:		opaque data for use with the methods
++ *
++ *	For off a new kernel thread as described by @kth.
++ */
++int kthread_start(struct kthread *kth, void *data)
++{
++	struct kthread_args args;
++	pid_t pid;
++
++	if (!kth->name || !kth->main)
++		return -EINVAL;
++
++	args.kth = kth;
++	args.data = data;
++	
++	init_completion(&kth->done);
++	if ((pid = kernel_thread(kthread_main, &args, KTHREAD_FLAGS)) < 0)
++		return pid;
++	set_bit(KTH_RUNNING, &kth->state);
++	wait_for_completion(&kth->done);
++	return 0;
++}
++
++/**
++ *	kthread_stop    -    stop a kernel thread
++ *	@kth:		kernel thread description
++ *
++ *	Stop the kernel thread described by @kth.
++ */
++void kthread_stop(struct kthread *kth)
++{
++	if (kth->task) {
++		init_completion(&kth->done);
++		set_bit(KTH_SHUTDOWN, &kth->state);
++		send_sig(SIGKILL, kth->task, 1);
++		wait_for_completion(&kth->done);
++		kth->task = NULL;
++		clear_bit(KTH_SHUTDOWN, &kth->state);
++	}
++}
++
++/**
++ *	kthread_running    -    check whether a kernel thread is running
++ *	@kth:		kernel thread description
++ *
++ *	Checks whether the kernel thread described by @kth is running.
++ */
++int kthread_running(struct kthread *kth)
++{
++	return test_bit(KTH_RUNNING, &kth->state);
++}
++
++EXPORT_SYMBOL(kthread_start);
++EXPORT_SYMBOL(kthread_stop);
++EXPORT_SYMBOL(kthread_running);

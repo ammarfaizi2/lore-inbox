@@ -1,22 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTGBTxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 15:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTGBTxW
+	id S264147AbTGBUGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTGBUGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 15:53:22 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:25756 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264465AbTGBTxT (ORCPT
+	Wed, 2 Jul 2003 16:06:12 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:19899 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264147AbTGBUGL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 15:53:19 -0400
-Date: Wed, 02 Jul 2003 12:56:03 -0700
+	Wed, 2 Jul 2003 16:06:11 -0400
+Date: Wed, 02 Jul 2003 13:05:01 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm3
-Message-ID: <537120000.1057175763@flay>
-In-Reply-To: <20030701221829.3e0edf3a.akpm@digeo.com>
-References: <20030701203830.19ba9328.akpm@digeo.com><15570000.1057122469@[10.10.2.4]> <20030701221829.3e0edf3a.akpm@digeo.com>
+To: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>
+cc: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <542640000.1057176301@flay>
+In-Reply-To: <Pine.LNX.4.44.0307021401570.31191-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0307021401570.31191-100000@chimarrao.boston.redhat.com>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,80 +27,48 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spiffy - works now.
+>> So ether we declare 32bit archs obsolete in production with 2.6, or we
+>> drop rmap behind remap_file_pages.
+> 
+>> Something has to change since IMHO in the current 2.5.73 remap_file_pages
+>> is nearly useless.
+> 
+> Agreed.  What we did for a certain unspecified kernel tree
+> at Red Hat was the following:
+> 
+> 1) limit sys_remap_file_pages functionality to shared memory
+>    segments on ramfs (unswappable) and tmpfs (mostly unswappable;))
+> 
+> 2) have the VMAs with remapped pages in them marked VM_LOCKED
+> 
+> 3) do not set up pte chains for the pages that get mapped with
+>    install_page
+> 
+> 4) remove said pages from the LRU list, in the ramfs case, they're
+>    unswappable anyway so we shouldn't have the VM scan them
+> 
+> The only known user of sys_remap_file_pages was more than happy
+> to have the functionality limited to just what they actually need, 
+> in order to get simpler code with less overhead.
+> 
+> Lets face it, nobody is going to use sys_remap_file_pages for
+> anything but a database shared memory segment anyway. You don't
+> need to care about truncate or the other corner cases.
 
-Kernbench: (make -j N vmlinux, where N = 2 x num_cpus)
-                              Elapsed      System        User         CPU
-                   2.5.73       45.08       98.30      568.56     1479.00
-               2.5.73-mm3       44.39       92.72      563.04     1476.25
-              2.5.73-mjb1       43.70       75.71      564.62     1465.00
+Well if RH have done this internally, and they invented the thing,
+then I see no reason not do that in 2.5 ... 
 
-Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
-                              Elapsed      System        User         CPU
-                   2.5.73       45.99      115.34      571.60     1493.00
-               2.5.73-mm3       45.36      111.71      565.71     1493.75
-              2.5.73-mjb1       43.88       88.37      570.41     1500.75
+>> Maybe I'm just taking this out of context, and it's twisting my brain,
+>> but as far as I know, the nonlinear vma's *are* backed by pte_chains.
+>
+> Rik:
+>
+> They are, but IMHO they shouldn't be.  The nonlinear vmas are used
+> only for database shared memory segments and other "bypass the VM"
+> applications, so I don't see any reason why we need to complicate
+> things hopelessly in order to deal with corner cases like truncate.
 
-Kernbench: (make -j vmlinux, maximal tasks)
-                              Elapsed      System        User         CPU
-                   2.5.73       46.01      115.06      571.66     1491.75
-               2.5.73-mm3       45.38      114.91      565.81     1497.75
-              2.5.73-mjb1       43.93       85.48      570.47     1492.25
+Agreed. Oddly, most of us seem to agree on this ... ;-)
 
-
-DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
-trademarks of the Standard Performance Evaluation Corporation. This 
-benchmarking was performed for research purposes only, and the run results
-are non-compliant and not-comparable with any published results.
-
-Results are shown as percentages of the first set displayed
-
-SDET 1  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         2.5%
-               2.5.73-mm3       105.3%         2.2%
-              2.5.73-mjb1       112.8%         0.0%
-
-SDET 2  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         7.1%
-               2.5.73-mm3        99.3%         3.4%
-              2.5.73-mjb1       108.8%         4.7%
-
-SDET 4  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         0.5%
-               2.5.73-mm3       102.5%         2.2%
-              2.5.73-mjb1       132.3%         0.0%
-
-SDET 8  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         1.4%
-               2.5.73-mm3        96.7%         0.7%
-              2.5.73-mjb1       122.5%         0.3%
-
-SDET 16  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         0.5%
-               2.5.73-mm3       101.8%         0.3%
-              2.5.73-mjb1       122.3%         0.9%
-
-SDET 32  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         0.1%
-               2.5.73-mm3       103.6%         0.8%
-              2.5.73-mjb1       123.2%         0.8%
-
-SDET 64  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         0.2%
-               2.5.73-mm3       104.1%         0.2%
-              2.5.73-mjb1       123.8%         0.1%
-
-SDET 128  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.73       100.0%         0.2%
-               2.5.73-mm3       103.5%         0.1%
-              2.5.73-mjb1       122.6%         0.3%
-
+M.
 

@@ -1,104 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269241AbUINJt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUINJtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269241AbUINJt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 05:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUINJt7
+	id S269242AbUINJtu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 05:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUINJtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 05:49:59 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50883 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269241AbUINJtq (ORCPT
+	Tue, 14 Sep 2004 05:49:50 -0400
+Received: from asplinux.ru ([195.133.213.194]:41222 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S269242AbUINJtq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 14 Sep 2004 05:49:46 -0400
-Date: Tue, 14 Sep 2004 11:51:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sched: add cond_resched_softirq()
-Message-ID: <20040914095110.GA24094@elte.hu>
-References: <20040914091529.GA21553@elte.hu> <20040914093855.GA23258@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-In-Reply-To: <20040914093855.GA23258@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-ID: <4146C15F.1040605@sw.ru>
+Date: Tue, 14 Sep 2004 14:01:03 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, mason@suse.com
+Subject: [PATCH] Rearrange of inode_lock in writeback_inodes()
+Content-Type: multipart/mixed;
+ boundary="------------080502030503050208020807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------080502030503050208020807
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch reaaranges inode_lock taking in writeback_inodes().
+It narrows down use of inode_lock and removes unneccassary nesting of 
+sb_lock and inode_lock.
+Instead of holding inode_lock for all the time I moved it around
+sync_sb_inodes() as it is in all other places.
 
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-the attached patch comes after preempt-lock-need-resched.patch.
+Kirill
 
-it adds cond_resched_softirq() which can be used by _process context_
-softirqs-disabled codepaths to preempt if necessary. The function will
-enable softirqs before scheduling. (Later patches will use this
-primitive.)
+--------------080502030503050208020807
+Content-Type: text/plain;
+ name="diff-sb-lock"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-sb-lock"
 
-	Ingo
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sched-add-cond_resched_softirq.patch"
-
-
-the attached patch comes after preempt-lock-need-resched.patch.
-
-it adds cond_resched_softirq() which can be used by _process context_
-softirqs-disabled codepaths to preempt if necessary. The function will
-enable softirqs before scheduling. (Later patches will use this
-primitive.)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/include/linux/sched.h.orig	
-+++ linux/include/linux/sched.h	
-@@ -955,9 +955,12 @@ static inline int need_resched(void)
-  * cond_resched() and cond_resched_lock(): latency reduction via
-  * explicit rescheduling in places that are safe. The return
-  * value indicates whether a reschedule was done in fact.
-+ * cond_resched_lock() will drop the spinlock before scheduling,
-+ * cond_resched_softirq() will enable bhs before scheduling.
-  */
- extern int cond_resched(void);
- extern int cond_resched_lock(spinlock_t * lock);
-+extern int cond_resched_softirq(void);
+--- ./fs/fs-writeback.c.sblock	2004-09-14 11:07:36.000000000 +0400
++++ ./fs/fs-writeback.c	2004-09-14 11:13:23.931085680 +0400
+@@ -392,7 +392,6 @@ writeback_inodes(struct writeback_contro
+ {
+ 	struct super_block *sb;
+ 
+-	spin_lock(&inode_lock);
+ 	spin_lock(&sb_lock);
+ restart:
+ 	sb = sb_entry(super_blocks.prev);
+@@ -407,8 +406,11 @@ restart:
+ 			 * be unmounted by the time it is released.
+ 			 */
+ 			if (down_read_trylock(&sb->s_umount)) {
+-				if (sb->s_root)
++				if (sb->s_root) {
++					spin_lock(&inode_lock);
+ 					sync_sb_inodes(sb, wbc);
++					spin_unlock(&inode_lock);
++				}
+ 				up_read(&sb->s_umount);
+ 			}
+ 			spin_lock(&sb_lock);
+@@ -425,7 +427,6 @@ restart:
+ 			break;
+ 	}
+ 	spin_unlock(&sb_lock);
+-	spin_unlock(&inode_lock);
+ }
  
  /*
-  * Does a critical section need to be broken due to another
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -3589,6 +3589,22 @@ int cond_resched_lock(spinlock_t * lock)
- 
- EXPORT_SYMBOL(cond_resched_lock);
- 
-+int __sched cond_resched_softirq(void)
-+{
-+	BUG_ON(!in_softirq());
-+
-+	if (need_resched()) {
-+		__local_bh_enable();
-+		__cond_resched();
-+		local_bh_disable();
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(cond_resched_softirq);
-+
-+
- /**
-  * yield - yield the current processor to other threads.
-  *
 
---bg08WKrSYDhXBjb5--
+--------------080502030503050208020807--
+

@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbTJFBvr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 21:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTJFBvr
+	id S263940AbTJFCDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 22:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTJFCDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 21:51:47 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:57305 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263942AbTJFBvq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 21:51:46 -0400
-Date: Sun, 5 Oct 2003 18:51:22 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-       Andre Hedrick <andre@linux-ide.org>, Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031006015122.GB14646@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Larry McVoy <lm@bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Andre Hedrick <andre@linux-ide.org>, Rob Landley <rob@landley.net>,
-	"Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10310051303450.21746-100000@master.linux-ide.org> <1065386079.3157.162.camel@imladris.demon.co.uk> <20031006012212.GA14646@work.bitmover.com> <Pine.LNX.4.58.0310051833170.16540@dlang.diginsite.com>
+	Sun, 5 Oct 2003 22:03:42 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:20237
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263940AbTJFCDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 22:03:41 -0400
+Date: Sun, 5 Oct 2003 19:03:42 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Erik Tews <erik@debian.franken.de>
+Cc: Christian Kujau <evil@g-house.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs one user DoS?
+Message-ID: <20031006020342.GH1205@matchmail.com>
+Mail-Followup-To: Erik Tews <erik@debian.franken.de>,
+	Christian Kujau <evil@g-house.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031004120625.GA41175@colocall.net> <3F7EF082.3020702@namesys.com> <3F804234.9070606@g-house.de> <20031005235149.GA3993@debian.franken.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310051833170.16540@dlang.diginsite.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+In-Reply-To: <20031005235149.GA3993@debian.franken.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 06:37:18PM -0700, David Lang wrote:
-> not to disagree with Larry in what he posted below, but there is nothing
-> in what he says that at all means that if you paste in code from one side
-> of a barrier to the other side the result doesn't need to be GPL'd
+On Mon, Oct 06, 2003 at 01:51:49AM +0200, Erik Tews wrote:
+> On Sun, Oct 05, 2003 at 06:09:24PM +0200, Christian Kujau wrote:
+> > Hans Reiser schrieb:
+> > >>I have found such strange thing:
+> > >>
+> > >>pseudo@avalon at 14:04:00  ~> dd if=/dev/zero of=file bs=1 count=0 
+> > >>seek=1000000000000
+> > >>
+> > >>After that my Intel Celeron 800 MHz/384M RAM 60G/Seagate U6 under
+> > >>Linux-2.4.22-grsec on reiserfs was utilized 100% for more than 2 hours.
+> > >>dd process can't be killed.
+> > >>
+> > >>Is this my flow or real bug?
+> > >>
+> > >it is fixed in reiser4.  linux has a lot of DOS vulerabilities to logged 
+> > >in users, mostly due to the ability to consume all of some resource or 
+> > >another.  forgive me for not discussing them publicly.;-)
+> > 
+> > perhaps "ulimit" could help here.
+> 
+> Really? If I got a process which is unkillable, how can the kernel kill
+> this process if it runs out of cpu-time?
 
-Agreed.  If you are making a derived work, and pasting in stuff from a
-GPLed source, your work is definitely derived and you are GPLed.  And I'd
-be with everyone else ripping you a new one if you didn't GPL it.
-
-I hope people understand that I respect the GPL and what it has accomplished.
-It's a great thing.  People should not abuse it.  My comments which may seem
-against that are legal in their basis, not my personal goals.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+If it is unkillable, you're either talking about kernel bugs or NFS, and
+root should be able to kill a user process that has run out of ulimit
+resources.

@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUHVI4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUHVJJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUHVI4H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 04:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUHVI4H
+	id S266580AbUHVJJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 05:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUHVJJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 04:56:07 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:10749 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S266543AbUHVI4A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 04:56:00 -0400
-Subject: [Transmeta hardware] Update of the CMS under Linux ?
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Aalborg University
-Message-Id: <1093165082.11189.20.camel@aphrodite.olympus.net>
+	Sun, 22 Aug 2004 05:09:24 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:57028 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266580AbUHVJJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 05:09:21 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8.1 - intermittent unblanking problem on Radeon Mobility 7500
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 22 Aug 2004 10:58:02 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Aug 2004 19:09:12 +1000
+Message-ID: <2306.1093165752@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have an intermittent unblanking problem with a Compaq Evo N800v
+laptop, running 2.6.8.1 with xorg x11 6.7.0-2 (Fedora Core 2).  This
+occurs from just blanking the screen, I am not shutting the lid.
 
-I would like to know if there is any hope to have a software that allow
-us to update the Transmeta CMS (Code Morphing Software) from Linux ?
+The screen and backlight correctly turn off after a few minutes.  Most
+of the time pressing any key will bring the display back.  On rare
+occasions, the backlight comes on but there is no data displayed, just
+a blank screen.  Switching back to a text console makes no difference,
+nothing is displayed.  Shutting down X and restarting it makes no
+difference.  Once the display is gone, the only fix is to reboot the
+laptop.
 
-I tried to google around but I never managed to find something valuable.
-The only valuable link seems to be this one:
-http://h18007.www1.hp.com/support/files/compaqtabletpc/us/download/18120.html
+What diagnostics are worth getting for this intermittent problem?  Any
+useful card registers that can be dumped?
 
-So, it seems to be possible.
+lspci -v
 
-I have a CMS 4.3.2 on my computer (see below) but the 4.4 is now out
-(see: http://www.theinquirer.net/?article=8071 or
-http://www.realworldtech.com/page.cfm?ArticleID=RWT010204000000&p=3 ,
-first sentence) and I think there is a bug in the one I have (see:
-http://freedesktop.org/bugzilla/show_bug.cgi?id=455).
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500] (prog-if 00 [VGA])
+        Subsystem: Compaq Computer Corporation: Unknown device 004a
+        Flags: bus master, stepping, 66Mhz, medium devsel, latency 66, IRQ 11
+        Memory at 88000000 (32-bit, prefetchable)
+        I/O ports at 3000 [size=256]
+        Memory at 80380000 (32-bit, non-prefetchable) [size=64K]
+        Capabilities: [58] AGP version 2.0
+        Capabilities: [50] Power Management version 2
 
-My version of the CMS is: 
-CPU: After generic identify, caps: 0080893f 0081813f 00000000 00000000
-CPU: After vendor identify, caps:  0080893f 0081813f 0000004e 00000000
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (32 bytes/line)
-CPU: L2 Cache: 512K (128 bytes/line)
-CPU: Processor revision 1.4.1.0, 933 MHz
-CPU: Code Morphing Software revision 4.3.2-9-343
-CPU: 20020426 17:54 official release 4.3.2#2
-CPU: After all inits, caps:        0080893f 0081813f 0000004e 00000000
-CPU: Transmeta(tm) Crusoe(tm) Processor TM5800 stepping 03
+.config extract. ACPI but no APM.  radeon and agpgart modules are
+loaded but have a use count of 0.
 
-
-
-See also:
-http://www.leog.net/fujp_forum/topic.asp?ARCHIVE=true&TOPIC_ID=2159
-
-Regards
--- 
-Emmanuel Fleury
- 
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_ASUS=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_ACPI_CPUFREQ=m
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=m
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=m
 

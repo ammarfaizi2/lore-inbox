@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130126AbRCHW5u>; Thu, 8 Mar 2001 17:57:50 -0500
+	id <S130202AbRCHXGu>; Thu, 8 Mar 2001 18:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130129AbRCHW5l>; Thu, 8 Mar 2001 17:57:41 -0500
-Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:32592 "EHLO
-	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S130126AbRCHW5V>; Thu, 8 Mar 2001 17:57:21 -0500
-Date: Thu, 8 Mar 2001 22:59:17 +0000 (GMT)
-From: Will Newton <will@misconception.org.uk>
-X-X-Sender: <will@dogfox.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: ES1371 driver in kernel 2.4.2
-Message-ID: <Pine.LNX.4.33.0103082255560.11750-100000@dogfox.localdomain>
+	id <S130209AbRCHXGa>; Thu, 8 Mar 2001 18:06:30 -0500
+Received: from glatton.cnchost.com ([207.155.248.47]:2021 "EHLO
+	glatton.cnchost.com") by vger.kernel.org with ESMTP
+	id <S130202AbRCHXGX>; Thu, 8 Mar 2001 18:06:23 -0500
+Message-ID: <3AA810DF.3070809@devries.tv>
+Date: Thu, 08 Mar 2001 18:08:15 -0500
+From: Peter DeVries <peter@devries.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Progress with drive corruption with KT7-RAID.  
+Content-Type: multipart/mixed;
+ boundary="------------070104070404000705030708"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070104070404000705030708
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am still having problems with this driver.
+  When I put the HD on ide2 and do the appropriate changes (ide=reverse) 
+The systemn is more stable.  I am getting the following message when 
+moving data around.  There seems to be a little corruption of the 
+directory stucture, Specifically in /usr/src/linux which I just used to 
+compile the kernel.
 
-When loading the driver I get:
 
-es1371: version v0.27 time 00:47:56 Mar  7 2001
-es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
-PCI: Found IRQ 10 for device 00:0b.0
-es1371: found es1371 rev 8 at io 0xa400 irq 10
-es1371: features: joystick 0x0
-ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
-spurious 8259A interrupt: IRQ7.
 
-This last line seems strange as /proc/interrupts does not list IRQ7:
+--------------070104070404000705030708
+Content-Type: text/plain;
+ name="error-dma-2.4.2-ac12"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="error-dma-2.4.2-ac12"
 
-  0:    2515137          XT-PIC  timer
-  1:      18752          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:    2438600          XT-PIC  serial
-  5:          0          XT-PIC  bttv
-  8:          1          XT-PIC  rtc
- 10:          0          XT-PIC  es1371
- 12:     310926          XT-PIC  PS/2 Mouse
- 14:     137157          XT-PIC  ide0
- 15:      35714          XT-PIC  ide1
-NMI:          0
-ERR:          1
+Config - 2.4.2-ac12, 20g IBM drive UDMA33, HD on Highpoint controller,
+UDMA100, ide2
 
-The chip is actually a Cirrus Logic CS4297A.
+EXT2-fs error (device ide0(3,10)): ext2_readdir: bad entry in directory #32447:
+rec_len is smaller than minimal - offset=0, inode=0, rec_len=0, name_len=0
+cp: /usr/src/linux/ipc/util.c: Input/output error
+cp: /usr/src/linux/ipc/Makefile: Input/output error
+cp: /usr/src/linux/ipc/util.h: Input/output error
+cp: /usr/src/linux/drivers: Input/output error
 
+
+--------------070104070404000705030708--
 

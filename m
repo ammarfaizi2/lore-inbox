@@ -1,84 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129566AbRBESPq>; Mon, 5 Feb 2001 13:15:46 -0500
+	id <S129699AbRBESRz>; Mon, 5 Feb 2001 13:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129711AbRBESPg>; Mon, 5 Feb 2001 13:15:36 -0500
-Received: from grunt.okdirect.com ([209.54.94.12]:26381 "HELO mail.pyxos.com")
-	by vger.kernel.org with SMTP id <S129232AbRBESP0>;
-	Mon, 5 Feb 2001 13:15:26 -0500
-Message-Id: <5.0.2.1.2.20010131134730.02eb4fe8@209.54.94.12>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 05 Feb 2001 12:15:22 -0600
-To: linux-kernel@vger.kernel.org
-From: Daniel Walton <zwwe@opti.cgi.net>
-Subject: 2.4.x latency
-In-Reply-To: <3A75BBB2.63CE124C@napster.com>
-In-Reply-To: <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
- <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
- <5.0.2.1.2.20010129002217.03362fe0@209.54.94.12>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129711AbRBESRp>; Mon, 5 Feb 2001 13:17:45 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:15343 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129699AbRBESRg>; Mon, 5 Feb 2001 13:17:36 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102051816.f15IGoT11015@webber.adilger.net>
+Subject: Re: modversions.h source pollution in 2.4
+In-Reply-To: <26206.981331639@kao2.melbourne.sgi.com> from Keith Owens at "Feb
+ 5, 2001 11:07:19 am"
+To: Keith Owens <kaos@ocs.com.au>
+Date: Mon, 5 Feb 2001 11:16:50 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens writes:
+> The following files explicitly include linux/modversions.h.  They
+> should not do this, the Makefiles are responsible for automatically
+> including modversions.h.  Since modversions.h will disappear in 2.5,
+> consider this advance warning that the offending sources can expect
+> problems.
+> 
+> Maintainers: please fix these sources by removing modversions.h.
 
-I'm experiencing an odd behavior under the 2.4.0 and 2.4.1 kernels on two 
-of my servers.  I'm experiencing high latency periods.  Sometimes the 
-periods are long and other times they are short.  As a test I setup three 
-ping processes on one of the servers all pinging the same destination on 
-the LAN at the same time.  Below is a sample of the ping output.  The 
-strange thing is that while all three ping processes went through the 
-latency cycle, they each did it at different times.  This tells me that 
-surely this isn't a network response issue or else all ping processes would 
-show the latency at the same time.
+It is not clear from your posting if anything other than removing the
+"#include <linux/modversions.h>" line is needed...  Also, what kernel
+versions is this needed for?  The LVM code uses a common source file
+for 2.2 and 2.4, so should the #include stay in for 2.2?
 
-64 bytes from (216.185.106.18): icmp_seq=55 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=56 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=57 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=58 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=59 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=60 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=61 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=62 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=63 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=64 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=65 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=66 ttl=255 time=4121.7 ms
-64 bytes from (216.185.106.18): icmp_seq=67 ttl=255 time=3259.0 ms
-64 bytes from (216.185.106.18): icmp_seq=68 ttl=255 time=2384.6 ms
-64 bytes from (216.185.106.18): icmp_seq=69 ttl=255 time=1511.2 ms
-64 bytes from (216.185.106.18): icmp_seq=70 ttl=255 time=666.1 ms
-64 bytes from (216.185.106.18): icmp_seq=71 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=72 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=73 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=74 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=75 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=76 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=77 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=78 ttl=255 time=0.1 ms
-64 bytes from (216.185.106.18): icmp_seq=79 ttl=255 time=0.1 ms
-
-
-The hardware in question are two Athlon servers with VIA KT133 chipset, 
-512Mb RAM, and IDE drives.  One server uses the tulip network driver for a 
-Netgear FA-310.  The other uses the NatSim DP83810 network driver for the 
-FA-312 and both exhibit the same problem.  I've had 3com 3c900 series cards 
-in the machines as well and the problem still persisted.
-
-One other interesting little fact is that if I ping the problem machines 
-from a good machine I always get 0.1 ms response times, even while the 
-pings from the problem machines are showing latency.
-
-I hope this is enough information for someone to work with.  I'm at a loss 
-for what the problem is and unfortunately I'm no kernel hacker.  I 
-appreciate any help you guys can offer.
-
-Thank you,
-Daniel Walton
-
-
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

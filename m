@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTIQEyK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 00:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTIQEyJ
+	id S262018AbTIQFJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 01:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTIQFJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 00:54:09 -0400
-Received: from dyn-ctb-203-221-73-208.webone.com.au ([203.221.73.208]:6917
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261959AbTIQEyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 00:54:06 -0400
-Message-ID: <3F67E8D4.6010707@cyberone.com.au>
-Date: Wed, 17 Sep 2003 14:53:40 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       richard.brunner@amd.com
-Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
-References: <20030917022256.GA17624@wotan.suse.de> <20030916194446.030d8e70.akpm@osdl.org>
-In-Reply-To: <20030916194446.030d8e70.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Sep 2003 01:09:58 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:41968 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id S262018AbTIQFJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 01:09:56 -0400
+Date: Wed, 17 Sep 2003 01:09:50 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-testX - strange scheduling(?) problem
+Message-ID: <20030917050950.GC1376@Master>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+P4 2G
+1G PC2700 RAM
+GF2 GTS video (nv drivers, not nvidia)
 
+In all 2.6.0-test versions (1-5) I get very odd issues when using cpu+memory
+intense apps. Using POV-Ray 3.5, for example:
+When I render an image I get about 15k pixels per second and the system is
+usable and responsive in other apps, most of the time.
+About 20% of the time the pixels-per-second is only 3k, the system is at
+nearly a standstill, and other apps barely function.
+I've tested it many times using the exact same image and the behavior is
+very consistent. Other apps do the same, but since I can't get a consistent
+starting state with them, I used POV-Ray for the testing.
+The slowdown is so bad that the screen can take as long as 2 seconds to 
+refresh, opening a term can take as much as 15 seconds.
+Stopping the render and restarting it fixes it about 1/2 the time. Stopping
+the render and switching to another app, then restarting the render fixes
+it about 1/2 the time. Enough stop & restarts always fixes it eventually.
+There doesn't appear to be any memory leakage, and the system isn't going
+into swap. Top shows the same numbers in all cases. Time of day, other 
+apps running, etc. makes no difference.
 
-Andrew Morton wrote:
-
->Andi Kleen <ak@suse.de> wrote:
->
->>
->>This is much more efficient than the previous workaround used in the kernel,
->>which checked for AMD CPUs in every prefetch(). This can be seen 
->>in the size of the vmlinux:
->>
->
->That is hardly a serious comparison: the workaround is just to stop the
->oopses while this gets sorted out.  It makes no pretense at either
->efficiency or permanence.
->
->
->>Without patch:
->>   text    data     bss     dec     hex filename
->>4020232  665956  169092 4855280  4a15f0 vmlinux
->>With patch:
->>4011578  665973  169092 4846643  49f433
->>
->
->hrm.  Why did data grow?
->
->
->>With prefetch check:    3.7268 microseconds
->>Without prefetch check: 3.65945 microseconds
->>
->
->We don't know how much of this difference is due to removing the branch and
->how much is due to reenabling prefetch.
->
->It would be interesting to see comparative benchmarking between prefetch
->and no prefetch at all, see whether this feature is worth its icache
->footprint.
->
-
-The test was on a pentium 4, so its only removing the extra code.
-
-I think Andi's patch is required (especially because it fixes
-userspace), and under the current cpu selection scheme, it is
-implemented correctly (although I am now at a loss as to what the
-generic thing is for).
-
-The conditional compilation thing is a seperate issue. This patch may
-have just broken a few camels' backs.
-
-What is intriguing to me is the "Its only a 2% slowdown of the page
-fault for every cpu other than K[78] for this single workaround. There
-is no point to conditional compilation" attitude some people have.
-Of course, its only 2% on a pagefault, not anywhere near 2% of kernel
-performance as a whole, so maybe that is justified.
-
-Just repeating though, that is a seperate issue and I think Andi's patch
-is needed.
-
+-- 
+Murray J. Root
 

@@ -1,64 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269249AbUHaXGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269293AbUHaXGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269249AbUHaXGS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 19:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269186AbUHaXDQ
+	id S269293AbUHaXGO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 19:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUHaXEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 19:03:16 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:20905 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268675AbUHaXCZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 19:02:25 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-	<Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 01 Sep 2004 01:02:24 +0200
-In-Reply-To: <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
-Message-ID: <m3eklm9ain.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 31 Aug 2004 19:04:11 -0400
+Received: from omx3-ext.SGI.COM ([192.48.171.20]:33676 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269124AbUHaXCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 19:02:50 -0400
+Message-ID: <4135032E.7060605@engr.sgi.com>
+Date: Tue, 31 Aug 2004 16:01:02 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Arthur Corliss <corliss@digitalmages.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       erikj@dbear.engr.sgi.com, limin@engr.sgi.com,
+       lse-tech@lists.sourceforge.net, ? <kernel@ragnark.vestdata.no>,
+       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>, csa@oss.sgi.com
+Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de> <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org> <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de> <412E4C27.1010805@engr.sgi.com> <Pine.LNX.4.58.0408271727020.1075@bifrost.nevaeh-linux.org> <20040830122614.GA2518@frec.bull.fr> <Pine.LNX.4.53.0408311611080.9018@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0408311611080.9018@gockel.physik3.uni-rostock.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Adding csa@oss.sgi.com, the CSA user group mailing list, to Cc.
 
-> In a graphical environment, the "icon" stream is a good example of this.  
-> It literally has _nothing_ to do with the data in the main stream. The
-> only linkage is a totally non-technical one, where the user wanted to
-> associate a secondary stream with the main stream _without_ altering the
-> main one. THAT is where named streams make sense.
+Tim Schmielau wrote:
+> On Mon, 30 Aug 2004, Guillaume Thouvenin wrote:
+> 
+> 
+>>  Thus, to be clear, the enhanced accounting can be divided into
+>>three parts:
+>>
+>>    1) A common data collection method in the kernel.
+>>       We could start from BSD-accounting and add CSA information. Could
+>>       it be something like BSD version4?
+> 
+> 
+> I've had a quick look at the CSA data collection patches. To get the 
+> discussion started, here are my comments:
+> 
+> 
+>>--- linux.orig/drivers/block/ll_rw_blk.c        2004-08-13 22:36:16.000000000 -0700
+>>+++ linux/drivers/block/ll_rw_blk.c     2004-08-18 12:07:10.000000000 -0700
+>>@@ -1948,10 +1950,12 @@
+>> 
+>>        if (rw == READ) {
+>>                disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
+>>+               current->rblk += nr_sectors;
+>>                if (!new_io)
+>>                        disk_stat_inc(rq->rq_disk, read_merges);
+>>        } else if (rw == WRITE) {
+>>                disk_stat_add(rq->rq_disk, write_sectors, nr_sectors);
+>>+               current->wblk += nr_sectors;
+>>                if (!new_io)
+>>                        disk_stat_inc(rq->rq_disk, write_merges);
+>>        }
+> 
+> 
+> Andi Kleen's comment on the ELSA patch also applies here - most writes
+> will get accounted to pdflushd. See
+> 
+> http://www.lib.uaa.alaska.edu/linux-kernel/archive/2004-Week-31/0047.html
+> 
+> for his comment.
 
-I think that the "icon" argument for named streams is a silly
-argument, since different users may want to have different icons for
-the same file.  Say that I want /usr/bin/emacs to have the enterprise
-icon and someone else wants the gnu head icon.  And besides, root owns
-the file anyways, so neither of us mortal users should be able to add
-a stream to it.
+I need more time on this. :)
 
-Another reason for named streams that usually crops up is the ability
-set a "preferred application" for a certain file, so that when I
-double click on a document I want to open it with antiword instead of
-openoffice.  But the same contra-argument applies here, different
-users have different preferences.
+> 
+> 
+>>--- /dev/null   1970-01-01 00:00:00.000000000 +0000
+>>+++ linux/include/linux/csa_internal.h  2004-08-19 15:19:05.000000000 -0700
+> 
+> [...]
+> 
+>>+#else  /* CONFIG_CSA || CONFIG_CSA_MODULE */
+>>+
+>>+#define csa_update_integrals()         do { } while (0);
+>>+#define csa_clear_integrals(task)      do { } while (0);
+>>+#endif /* CONFIG_CSA || CONFIG_CSA_MODULE */
+> 
+> 
+> I suppose the semicolons are unintentional.
 
-I can see the argument for having the equivalent of Content-type or
-Content-transfer-encoding as a named stream though.
+Good catch! I fixed this in our internal tree.
 
-  /Christer
+> 
+> 
+>>--- linux.orig/include/linux/sched.h    2004-08-19 15:17:52.000000000 -0700
+>>+++ linux/include/linux/sched.h 2004-08-19 15:19:05.000000000 -0700
+> 
+> [...]
+> 
+>>@@ -525,6 +527,10 @@
+>> 
+>> /* i/o counters(bytes read/written, blocks read/written, #syscalls, waittime */
+>>         unsigned long rchar, wchar, rblk, wblk, syscr, syscw, bwtime;
+>>+#if defined(CONFIG_CSA) || defined(CONFIG_CSA_MODULE)
+>>+       unsigned long csa_rss_mem1, csa_vm_mem1;
+>>+       clock_t csa_stimexpd;
+>>+#endif
+> 
+> 
+> These probably need to be u64, otherwise they might easily overflow within
+> a view seconds on 32 bit platforms.
 
--- 
-"Just how much can I get away with and still go to heaven?"
+Will fix it.
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+> 
+> 
+>>--- /dev/null   1970-01-01 00:00:00.000000000 +0000
+>>+++ linux/include/linux/acct_eop.h      2004-08-19 18:48:44.000000000 -0700
+> 
+> 
+> This should probably be unified with BSD accounting to a general accounting
+> hook.
+
+Do you suggest to merge acct_eop.h into acct.h? It sounds good to me!
+
+Thanks!
+  - jay
+
+> 
+> 
+> Tim
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by BEA Weblogic Workshop
+> FREE Java Enterprise J2EE developer tools!
+> Get your free copy of BEA WebLogic Workshop 8.1 today.
+> http://ads.osdn.com/?ad_id=5047&alloc_id=10808&op=click
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
+

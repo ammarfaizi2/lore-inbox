@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131461AbRCUOyV>; Wed, 21 Mar 2001 09:54:21 -0500
+	id <S131524AbRCUPGb>; Wed, 21 Mar 2001 10:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRCUOyM>; Wed, 21 Mar 2001 09:54:12 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:10256 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S131461AbRCUOyC>; Wed, 21 Mar 2001 09:54:02 -0500
-Message-Id: <200103211453.f2LErFt08457@mercury.nildram.co.uk>
-From: "Per Jessen" <per@computer.org>
-To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>,
-        "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-Date: Wed, 21 Mar 2001 14:56:32 
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
+	id <S131525AbRCUPGV>; Wed, 21 Mar 2001 10:06:21 -0500
+Received: from www.wen-online.de ([212.223.88.39]:14852 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131524AbRCUPGH>;
+	Wed, 21 Mar 2001 10:06:07 -0500
+Date: Wed, 21 Mar 2001 16:05:20 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Matthias Urlichs <smurf@noris.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <1eqmmju.3cit2gby1becM%smurf@noris.de>
+Message-ID: <Pine.LNX.4.33.0103211601400.1565-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: [OT] Re: mysterious card
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001 15:24:59 +0100, Heusden, Folkert van wrote:
+On Wed, 21 Mar 2001, Matthias Urlichs wrote:
 
->Ok, the question is: does anyone know a place on the web where I can find
->specifications of ISA-slots? I need to know what is supposed to be connected
->to the pins (1, 2, 6, etc.)
+> > > I frequently build Mozilla from scratch on my (aging) dual Celeron
+> > > machine.  [...]
+> > >     real    60m4.574s
+> > >     user    101m18.260s  <-- impossible no?
+> > >     sys     3m23.520s
+> >
+> > Why do numbers like this show up?  I noticed some of this after having
+> > enabled SMP on my UP box.
+> >
+> Now why would that be impossible on a two-CPU system?
 
-Are you talking about the the layout of the ISA-bus ? If so, it is
-well-documented in many places. I have never looked it up on the web,
-but try this: http://www.techfest.com/hardware/bus/isa.htm
+zzzt.  Right.. impossible on a UP box.
 
-(never used it myself, so I can't vouch for the technical quality/content)
-
-
-regards,
-Per Jessen
-
-regards,
-Per Jessen
-
+	-Mike
 

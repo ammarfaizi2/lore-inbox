@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131408AbRDJLLM>; Tue, 10 Apr 2001 07:11:12 -0400
+	id <S131446AbRDJLSp>; Tue, 10 Apr 2001 07:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131424AbRDJLLD>; Tue, 10 Apr 2001 07:11:03 -0400
-Received: from uucp.nl.uu.net ([193.79.237.146]:29875 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S131408AbRDJLKv>;
-	Tue, 10 Apr 2001 07:10:51 -0400
-Date: Tue, 10 Apr 2001 12:55:29 +0200 (CEST)
-From: kees <kees@schoen.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] exec_via_sudo
-Message-ID: <Pine.LNX.4.21.0104101251210.6726-100000@schoen3.schoen.nl>
+	id <S131460AbRDJLSf>; Tue, 10 Apr 2001 07:18:35 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47620 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131446AbRDJLSP>; Tue, 10 Apr 2001 07:18:15 -0400
+Subject: Re: ISIcom cards by Multi-tech
+To: reinelt@eunet.at (Michael Reinelt)
+Date: Tue, 10 Apr 2001 12:20:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3AD2A57D.F4AD7BF6@eunet.at> from "Michael Reinelt" at Apr 10, 2001 08:17:33 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mwBx-00042B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> > I dontt. Other than comparing the 2.2 and 2.4 driver
+> 
+> Surprise, surprise! I just got an email from Patrick Petersen
+> <PDP@MULTITECH.com> with a 2.4 driver I should test....
 
-Unix/Linux have a lot of daemons that have to run as root because they
-need to acces some specific data or run special programs. They are
-vulnerable as we learn.
-Is there any way to have something like an exec call that is
-subject to a sudo like permission system? That would run the daemons
-as a normal user but allow only for specific functions i.e. NOT A SHELL.
-comments?
+Great. 
 
-Kees
+> I'll keep you up to date, and will send you a patch if you like to.
 
+Do let me know and get him to send me a 2.4 update.

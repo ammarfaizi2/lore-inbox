@@ -1,73 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUKOU7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUKOVNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUKOU7H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUKOU5j
+	id S261720AbUKOVNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 16:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbUKOVMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:57:39 -0500
-Received: from almesberger.net ([63.105.73.238]:43019 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261712AbUKOUya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:54:30 -0500
-Date: Mon, 15 Nov 2004 17:54:15 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Generalize prio_tree (1/3)
-Message-ID: <20041115175415.X28802@almesberger.net>
-References: <20041114235646.K28802@almesberger.net> <Pine.LNX.4.58.0411151226010.20003@red.engin.umich.edu>
+	Mon, 15 Nov 2004 16:12:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:45027 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261720AbUKOVKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 16:10:11 -0500
+Subject: Linux 2.6.9-ac9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100549228.27278.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411151226010.20003@red.engin.umich.edu>; from vrajesh@umich.edu on Mon, Nov 15, 2004 at 01:13:48PM -0500
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 15 Nov 2004 20:07:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Venkatasubramanian wrote:
-> Again I don't like the following approach fully. I couldn't come
-> out with a clean generalization something like rb_tree code.
+Shrink the patch down by adopting 2.6.10-rc versions of the VM_IO fixes.
+Add various further small fixes from 2.6.10-rc upstream. Not that while
+this
+has more fixes most of them are far more minor than the earlier ones.
 
-Hmm, GET_INDEX/get_index grows and grows, and also generates a
-hotspot for patch collisions ...
+The it8212 still doesn't default to DMA on - that is on the TODO list.
+The
+HPT366 rework project is also not ready (its gone back to the drawing
+board for a few days if you are a volunteer and wondered what is up).
 
-And what if we took the hit and moved the key into struct
-prio_tree_node ? struct vm_area_struct.shared.vm_set already is
-one word longer than vm_area_struct.shared.prio_tree_node, so
-half of the key is free (in terms of storage - the key updates
-when vm_pgoff, vm_end, or vm_start changes aren't free). The
-other half could also be made free (in terms of storage and
-processing) with a little tweaking, e.g.  by adding
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
 
-	...
-	union {
-		unsigned long vm_pgoff;
-		struct vm_set {
-			unsigned long vm_pgoff;
-			...
-		} vm_set;
-		struct prio_tree_node prio_tree_node;
-	}
-	...
+2.6.9-ac9
+o	Linus moved the remap_page_range flag fixes 	(Linus Torvalds)
+	into the function. Now this has had some 
+	testing do the same in -ac and shrink the
+	diff a lot
+o	Fix low memory oops in device mapper		(N Cunningham)
+o	Fix duplicate kfree in dm-target error path	(Alasdair Kergon)
+o	Use a new bio on a md retry			(Neil Brown)
+o	Fix mediabay compile				(Alan Cox)
+o	Increase EDD array size				(Matt Domsch)
+o	Fix locking error/DoS in k15kusb105		(Greg Kroah-Hartmann)
+o	Fix locking hang on error path of whiteheat	(Greg Kroah-Hartmann)
+o	Use sector_t for md (fixes some large raids)	(Neil Brown)
+o	Fix further USB locking errors			(Greg Kroah-Hartmann)
+o	Report the right thing on a pnpbios fault	(Andy Whitcroft)
+o	Add PCI quirk for VIA audio			(David Shaohua Li)
+o	Fix neighbour table counter atomicity		(Herbert Xu)
+o	Error out on early exec before rootfs		(Chris Wright)
+o	Fix a.out crash with junk binary and 		(Chris Wright)
+	virtual memory limits disabled
+o	Import atomic_int_return for the neighbour fix	(KaiKai Kohei)
 
-#define vm_pgoff shared.vm_pgoff
+2.6.9-ac8
+o	Fix binfmt_exec partial read problem		(Chris Wright)
+o	Fix E820 overflow on x86-64 as per x86-32	(Andi Kleen)
 
-(Untested. This kind of #define is of course risky, so it may be
-better to just rewrite all the accesses.)
+2.6.9-ac7
+o	Redo the fixups in siimage/it8212 so they	(Alan Cox)
+	always actually work
+o	Fix up both drives on an IT8212 raid		(Alan Cox)
+o	Remove a debug printk/2 sec wait from CS5520	(Alan Cox)
+o	Move partial decode test to ide-cs/delkin only	(Alan Cox)
+o	Fix partial decode test for no serial number	(Alan Cox)
+o	Add support for disks on early rev IT821x	(Alan Cox)
+o	Allow ide-disk to be modular again		(Tomas Szepe)
+o	Further fixup fixes			(Bartlomiej Zolnierkiewicz)
+o	Apple Ipod-mini size reporting fix		(Avi Kivity)
+o	Initial (non SMP) cdu31a driver rescue		(Ondrej Zary)
+o	Allow READ_BUFFER_CAPACITY to SG_IO users	(Daniel Drake)
 
-Then, we could have
+2.6.9-ac6
+o	Fix problem with -ac5 msdos changes		(Vojtech Pavlik)
 
-	struct prio_tree_node {
-		unsigned long r_index, h_index;
-		...
-	};
+2.6.9-ac5
+o	Fix oops in and enable IT8212 driver		(Alan Cox)
+o	Minor delkin driver fix				(Mark Lord)
+o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
+	| I've used this version as its clearly correct for 2.6.9 
+	| although it might not be the right future solution
+o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
+	some devices like Nokia phones
+o	Fix misdetection of some drives as MRW capable	(Peter Osterlund)
+o	Fix promise 20267 hang with very long I/O's	(Krzysztof Chmielewski)
+o	Fix a case where serial break was not sent for	(Paul Fulghum)
+	the right time.
+o	Fix S/390 specific SACF hole			(Martin Schwidefsky)
+o	NVidia ACPI timer override			(Andi Kleen)
+o	Correct VIA PT880 PCI ident (and AGP ident)	(Dave Jones)
+o	Fix EDID/E820 corruption 			(Venkatesh Pallipadi)
+o	Tighten security on TIOCCONS			(od@suse.de)
+o	Fix incorrect __init s that could cause crash	(Randy Dunlap)
 
-For the elevators, the keys (the "footprint" of a set of overlapping
-requests) are already stored as separate variables, so that could be
-migrated very easily, at no additional cost.
+2.6.9-ac4
+o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
+o	Delkin cardbus IDE support			(Mark Lord)
+o	Fix SMP hang with IDE unregister		(Mark Lord)
+o	Fix proc file removal with IDE unregister	(Mark Lord)
+o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
+	spew
+o	First take at HPT372N problem fixing		(Alan Cox)
 
-- Werner
+2.6.9-ac3
+o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
+o	Fix broken parport_pc unload			(Andrea Arcangeli)
+o	Security fix for smbfs leak/overrun		(Urban Widmark)
+o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
+o	Fix cpia/module tools deadlock			(Peter Pregler)
+o	Fix missing suid_dumpable export		(Alan Cox)
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+2.6.9-ac2
+o	Fix invalid kernel version stupidity		(Adrian Bunk)
+o	Compiler ICE workaround/fixup			(Linus Torvalds)
+o	Fix network DoS bug in 2.6.9			(Herbert Xu)
+	| Suggested by Sami Farin
+o	Flash lights on panic as in 2.4			(Andi Kleen)
+
+2.6.9-ac1
+
+Security Fixes
+o	Set VM_IO on areas that are temporarily		(Alan Cox)
+	marked PageReserved (Serious bug)
+o	Lock ide-proc against driver unload		(Alan Cox)
+	(very low severity)
+
+Bug Fixes
+o	Working IDE locking				(Alan Cox)
+	| And a great deal of review by Bartlomiej
+o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
+	
+Functionality
+o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
+	on systems with broken IRQ tables.
+o	Support for setuid core dumping in some		(Alan Cox)
+	environments (off by default)
+o	Support for drives that don't report geometry
+o	IT8212 support (raid and passthrough)		(Alan Cox)
+o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
+	devices (boot with "all-generic-ide")
+o	Restore PWC driver				(Luc Saillard)
+
+Other
+o	Small pending tty clean-up to moxa		(Alan Cox)
+o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
+

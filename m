@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262887AbTHZSEh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTHZSEh
+	id S261413AbTHZR6o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 13:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTHZR6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:04:37 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:4781 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262887AbTHZSEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:04:21 -0400
-Message-Id: <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH resend #1] fix cu3088 group write
-To: Guillaume Morin <guillaume@morinfr.org>, linux-kernel@vger.kernel.org
-Date: Mon, 25 Aug 2003 12:47:29 +0200
-References: <mi9I.54n.13@gated-at.bofh.it> <oqcQ.6L8.11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+	Tue, 26 Aug 2003 13:58:44 -0400
+Received: from tolkor.sgi.com ([198.149.18.6]:51929 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S261413AbTHZR5j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 13:57:39 -0400
+Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
+From: Steve Lord <lord@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, barryn@pobox.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <20030826104458.448d1eea.akpm@osdl.org>
+References: <20030824171318.4acf1182.akpm@osdl.org>
+	 <20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
+	 <20030825124543.413187a5.akpm@osdl.org>
+	 <1061852050.25892.195.camel@jen.americas.sgi.com>
+	 <20030826031412.72785b15.akpm@osdl.org> <20030826110111.GA4750@in.ibm.com>
+	 <20030826104458.448d1eea.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1061920640.25889.1404.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 Aug 2003 12:57:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Morin wrote:
+On Tue, 2003-08-26 at 12:44, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >
+> >  > Binary searching reveals that the offending patch is
+> >  > O_SYNC-speedup-nolock-fix.patch
+> >  > 
+> > 
+> >  I'm not sure if this would help here, but there is
+> >  one bug which I just spotted which would affect writev from
+> >  XFS. I wasn't passing the nr_segs down properly.
+> 
+> That fixes it, thanks.
 
-> Hi Linus, Andrew
->  
-> The current cu3088 ccwgroup write code overwrite the last char of the
-> given arguments. This following patch fixes the problem. It is been
-> tested and applies on latest bk.
+Does rpm use readv/writev though? Or does the nfs server? not sure
+how this change would affect the original problem report.
 
-Your fix doesn't look right either. The input string should not 
-be longer than BUS_ID_SIZE, including the trailing zero.
-AFAICS, the correct way to solve this is the patch below,
-but I did not test it. Thanks for reporting the problem.
+Steve
 
-        Arnd <><
+-- 
 
-===== drivers/s390/net/cu3088.c 1.5 vs edited =====
---- 1.5/drivers/s390/net/cu3088.c       Mon May 26 02:00:00 2003
-+++ edited/drivers/s390/net/cu3088.c    Mon Aug 25 12:42:39 2003
-@@ -79,7 +79,7 @@
- 
-                if (!(end = strchr(start, delim[i])))
-                        return count;
--               len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start);
-+               len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start + 1);
-                strlcpy (bus_ids[i], start, len);
-                argv[i] = bus_ids[i];
-                start = end + 1;
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

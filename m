@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271377AbTGWXBq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 19:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271381AbTGWXBq
+	id S271374AbTGWXFO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 19:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271372AbTGWXFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 19:01:46 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9491 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271377AbTGWXBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 19:01:41 -0400
-Date: Wed, 23 Jul 2003 16:08:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Adrian Bunk <bunk@fs.tum.de>, "Adam J. Richter" <adam@yggdrasil.com>,
-       andersen@codepoet.org, jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-In-Reply-To: <Pine.LNX.4.44.0307240059020.714-100000@serv>
-Message-ID: <Pine.LNX.4.10.10307231603310.14556-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jul 2003 19:05:14 -0400
+Received: from 69.Red-217-126-207.pooles.rima-tde.net ([217.126.207.69]:21768
+	"EHLO server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id S271374AbTGWXFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 19:05:05 -0400
+Message-Id: <5.2.1.1.2.20030724011628.00bb6d38@192.168.2.130>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Thu, 24 Jul 2003 01:20:20 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: system_lists@nullzone.org
+Subject: Re: Problems with IDE - Ultra-ATA devices on a SiI chipset IDE
+  controler
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1059000564.6898.24.camel@dhcp22.swansea.linux.org.uk>
+References: <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
+ <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Alan,
 
-Roman:
+    I am just using 2.4.21 kernel version (standard drivers of this kernel).
 
-I strongly believe you do not care about the OSC.
-You have no desire to defend it.
-You have ideas of utopia (sp) and gemme another hit off the bong.
+Let me know if could be useful to send more information or if you need that 
+I do some tests (let me know what you need and i will do).
 
-I agree this thread is going no where and that nobody wants to ever
-enforce the rule to insure the ideas remain.  So GPL violations for all,
-no one will enforce or stop grand theift.
+Thanks.
 
-Lets all hold hands and sing and have good thoughts because thinking will
-result in karma, and that will solve it all.
+At 23:49 23/07/2003 +0100, Alan Cox wrote:
+>What drives and kernel revision are you using. I have fixed some SI680
+>problems fairly recently but I'd have expected different failure
+>patterns (the old code would put some UDMA100 devices into UDMA133 which
+>got interesting).
+>
+>Yes folks you *can* overclock IDE disks but its not a good idea
 
-Bawhahaha!
 
-Andre Hedrick
-LAD Storage Consulting Group
 
-On Thu, 24 Jul 2003, Roman Zippel wrote:
-
-> Hi,
-> 
-> On Wed, 23 Jul 2003, Andre Hedrick wrote:
-> 
-> > I forgot ... Hey ESR johnny get your guns we are going hunting to enforce
-> > GPL cause litigation is not practical.
-> 
-> As this is getting offtopic, I only strongly advise you to read up about 
-> social movements. (Yes, you can even find them in the american history.)
-> 
-> bye, Roman
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

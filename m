@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUL1Naw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbUL1Nl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUL1Naw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 08:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbUL1Naw
+	id S261194AbUL1Nl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 08:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUL1Nl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 08:30:52 -0500
-Received: from p4.ensae.fr ([83.145.66.202]:43130 "EHLO PC809.ensae.fr")
-	by vger.kernel.org with ESMTP id S261184AbUL1Nat (ORCPT
+	Tue, 28 Dec 2004 08:41:57 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:45770 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261194AbUL1Nlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 08:30:49 -0500
-From: Guillaume =?iso-8859-15?q?Lac=F4te?= <Linux@glacote.com>
-Reply-To: Linux@glacote.com
-To: linux-kernel@vger.kernel.org
-Subject: Areca ARC-1120 Raid6 card - did they borrow raid6int.uc ?
-Date: Tue, 28 Dec 2004 14:30:46 +0100
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 28 Dec 2004 08:41:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=c/ggdtQ6Brtz0IAT94JW9QkH/E+4qB5DfggwwqIqB6Bz6pAv5AgMOxOPXEl19/wU/o9yjxNeMlsdTnhVhskg5V8pR18IobLEqxAe+UHCQsik7VzRuNrAaaJtg+RC/86hNdEX9WfVrZOySF0GuRG554Hr9KLPzmgy6YWXAxpTFM8=
+Message-ID: <80d55176041228054116c804c7@mail.gmail.com>
+Date: Tue, 28 Dec 2004 08:41:55 -0500
+From: Marko Dimiskovski <marko.dimiskovski@gmail.com>
+Reply-To: Marko Dimiskovski <marko.dimiskovski@gmail.com>
+To: Marko Dimiskovski <marko.dimiskovski@gmail.com>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: reltime preemption: kernel oops in dri module i810
+In-Reply-To: <20041227195839.GA4369@zion.rivenstone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412281430.46839.Linux@glacote.com>
+References: <80d5517604122615207069056f@mail.gmail.com>
+	 <20041227195839.GA4369@zion.rivenstone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom's Hardware reviews a RAID6 hardware board:
-http://www.tomshardware.com/storage/20041227/areca-raid6-01.html#raid_level_6_array_in_detail
+thank you very much.  i hope this bug gets fixed soon because i'm
+tired of fooling around with X and i want to record with no problems!
+:-)
 
-I have no idea of wether the computation of the P and Q syndromes are standard 
-and well-known or not in the industry. I only know of Peter Anvin's 
-implementation:
-http://kernel.org/pub/linux/kernel/people/hpa/raid6.pdf
 
-My question is: if they are not, since it seems from the picture at Tom's that 
-Areca may have a similar implementation, did they borrow code ?
-
+On Mon, 27 Dec 2004 14:58:39 -0500, Joseph Fannin <jhf@rivenstone.net> wrote:
+> On Sun, Dec 26, 2004 at 06:20:45PM -0500, Marko Dimiskovski wrote:
+> > got some errors with the i810 and the realtime-preemption patch :-\
+> > the kernel version is 2.6.10-rc3-mm1-V0.7.33-04 as you can see from
+> > the attached config file and the message file has the oops in it.
+> > hope this helps.
+> 
+>     This is not a problem with the realtime-preemption patch but a bug
+> in the i810 drm module in the -mm kernels.  I've been getting this
+> too, and have reported it to the dri developers on the dri-devel list.
+> 
+> --
+> Joseph Fannin
+> jhf@rivenstone.net
+> 
+> "Bull in pure form is rare; there is usually some contamination by data."
+>     -- William Graves Perry Jr.
+> 
+> 
+>

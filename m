@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272413AbRIQVHz>; Mon, 17 Sep 2001 17:07:55 -0400
+	id <S271708AbRIQU6y>; Mon, 17 Sep 2001 16:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272602AbRIQVHp>; Mon, 17 Sep 2001 17:07:45 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:51974 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S272413AbRIQVHb>;
-	Mon, 17 Sep 2001 17:07:31 -0400
-Date: Mon, 17 Sep 2001 14:05:00 -0700
-From: Greg KH <greg@kroah.com>
-To: David Acklam <dackl@post.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compiled-in (non-modular) USB initialization bug
-Message-ID: <20010917140500.C32389@kroah.com>
-In-Reply-To: <Pine.LNX.4.30.0109171430130.3275-100000@udcnet.dyn.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0109171430130.3275-100000@udcnet.dyn.dhs.org>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S272413AbRIQU6p>; Mon, 17 Sep 2001 16:58:45 -0400
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:65495 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S271708AbRIQU6b>; Mon, 17 Sep 2001 16:58:31 -0400
+Importance: Normal
+Subject: Deadlock on the mm->mmap_sem
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFAA4120C7.50E3F5A3-ONC1256ACA.0072466F@de.ibm.com>
+From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Date: Mon, 17 Sep 2001 22:57:42 +0200
+X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 17/09/2001 22:57:45
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 17, 2001 at 02:34:42PM -0500, David Acklam wrote:
-> A few months ago I posted a bug report about the Pegasus driver not
-> initializing  (or not initializing fast enough to work with NFS-Root) when
-> compiled-in. I've found that this is not specific to the
-> pegasus, as I have recently noticed that the kernel 'driver-initialized'
-> messages for my USB mouse and keyboard (i.e. HID devices) come up AFTER
-> init has been started. These drivers are also 'compiled-in'
-> 
-> The problem this poses is that some applications (like NFSRoot) need
-> access to USB devices BEFORE the kernel mounts filesystems/starts init.
+Hello,
 
-Could you send me / the list the kernel boot messages when this happens?
-Along with the .config that you used?
+we're experiencing deadlocks on the mm->mmap_sem which appear to be
+caused by proc_pid_read_maps (on S/390, but I believe this is arch-
+independent).
 
-thanks,
+What happens is that proc_pid_read_maps grabs the mmap_sem as a reader,
+and *while it holds the lock*, does a copy_to_user.  This can of course
+page-fault, and the handler will also grab the mmap_sem (if it is the
+same task).
 
-greg k-h
+Now, normally this just works because both are readers.  However, on SMP
+it might just so happen that another thread sharing the mm wants to grab
+the lock as a writer after proc_pid_read_maps grabbed it as reader, but
+before the page fault handler grabs it.
+
+In that situation, that second thread blocks (because there's already a
+writer), and then the first thread blocks in the page fault handler
+(because a writer is pending).  Instant deadlock ...
+
+B.t.w. S/390 uses the generic spinlock based rwsem code, if this is of
+relevance.
+
+Any ideas how to fix this?  Should proc_pid_read_maps just drop the lock
+before copy_to_user?
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+

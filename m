@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129689AbQK0Xn4>; Mon, 27 Nov 2000 18:43:56 -0500
+        id <S129994AbQK0Xpg>; Mon, 27 Nov 2000 18:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129744AbQK0Xnr>; Mon, 27 Nov 2000 18:43:47 -0500
-Received: from comunit.de ([195.21.213.33]:5428 "HELO comunit.de")
-        by vger.kernel.org with SMTP id <S129689AbQK0Xnd>;
-        Mon, 27 Nov 2000 18:43:33 -0500
-Date: Tue, 28 Nov 2000 00:13:30 +0100 (CET)
-From: Sven Koch <haegar@cut.de>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
-In-Reply-To: <3A22E894.4E15E71@timpanogas.org>
-Message-ID: <Pine.LNX.4.30.0011280012530.22068-100000@space.comunit.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130127AbQK0Xp0>; Mon, 27 Nov 2000 18:45:26 -0500
+Received: from nread2.inwind.it ([212.141.53.75]:2953 "EHLO relay4.inwind.it")
+        by vger.kernel.org with ESMTP id <S129994AbQK0XpO>;
+        Mon, 27 Nov 2000 18:45:14 -0500
+Date: Tue, 28 Nov 2000 01:16:13 +0100
+From: Gianluca Anzolin <root@vger.kernel.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: KERNEL BUG: console not working in linux
+Message-ID: <20001128011613.A317@fourier.home.intranet>
+In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <200011271849.eARInfc255418@saturn.cs.uml.edu> <8vubeq$r5r$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8vubeq$r5r$1@cesium.transmeta.com>; from hpa@zytor.com on Mon, Nov 27, 2000 at 11:08:10AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Jeff V. Merkey wrote:
+Il giorno Mon, Nov 27, 2000 at 11:08:10AM -0800, H. Peter Anvin scrisse: 
+|Yes, it can.  Unfortunately, some "legacy-free" PCs apparently are
+|starting to take the tack that the KBC is legacy.  Therefore, the use
+|of port 92h is mandatory on those systems.
+|
+|Port 92h dates back to at the very least the IBM PS/2.
+|
+|Either way, the video card of the original poster is broken in more
+|ways than that.  Ports 0x00-0xFF are reserved for the motherboard
+|chipset and have been since the original IBM PC.
 
-> A level IV issue in 2.2.18-23.  With frame buffer enabled, upon boot,
-> the OS is displaying four penguin images instead of one penguin in the
-> upper left corner of the screen.  Looks rather tacky.  Also puts the VGA
-> text mode default into mode 274.   Is this what's supposed to happen?
+I'd like to add only that the video card is integrated on the mainboard.
+Maybe that register disables the integrated video card. I don't know.
+Anyway I must also point out that on FreeBSD that register is used only
+for IBM_L40 PC.
+That said now I know how to make linux work again on this PC.
+Let's see what will happen when 2.2.18 will come out as the new stable kernel.
 
-Let me guess: it's a 4 cpu smp system?
+Bye
+	Gianluca
 
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
-
+NB: the video card works without problems now. it's even found by lspci
+(which couldn't find it before). I can also use any extended vga mode.
+So the problem wasn't probably the video chipset.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUIVITU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUIVIWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUIVITU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 04:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUIVITU
+	id S262085AbUIVIWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 04:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUIVIWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 04:19:20 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:58496 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261875AbUIVITR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 04:19:17 -0400
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  
-	patch)
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Lloyd <dmlloyd@tds.net>
-Cc: SashaK <sashak@smlink.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
-	 <20040912011128.031f804a@localhost>
-	 <1095785705.17821.760.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
-Content-Type: text/plain
-Message-Id: <1095841141.17821.819.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 22 Sep 2004 09:19:01 +0100
+	Wed, 22 Sep 2004 04:22:10 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:65169 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262329AbUIVIWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 04:22:01 -0400
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <16721.13786.899310.697686@alkaid.it.uu.se>
+Date: Wed, 22 Sep 2004 10:20:42 +0200
+To: akpm@asdl.org
+Subject: [PATCH][2.6.9-rc2-mm1] virtual perfctr illegal sleep
+CC: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 15:09 -0500, David Lloyd wrote:
-> On Tue, 21 Sep 2004, David Woodhouse wrote:
-> 
-> > On Sun, 2004-09-12 at 01:11 +0300, SashaK wrote:
-> >> This is exactly that was discussed - 'slamr' is going to be replaced by
-> >> ALSA drivers. I don't know which modem you have, but recent ALSA
-> >> driver (CVS version) already supports ICH, SiS, NForce (snd-intel8x0m),
-> >> ATI IXP (snd-atiixp-modem) and VIA (snd-via82xx-modem) AC97 modems.
-> >
-> > What chance of making it work with the ISDN drivers? Should we make an 
-> > ALSA driver for ISDN?
-> 
-> That's an interesting idea.  Some thoughts I'd have off the bat:
-> 
-> - I don't think there's a software modem implementation (free or
->    otherwise) for linux that can support the server side of a digital
->    (v.90, v.92) connection, but that would be excellent to have
+Andrew,
 
-That'd be even better, yes -- but I was thinking of v.34.
-Even having just v.29 (fax) would be nice.
+This patch fixes an illegal sleep issue in perfctr's
+virtualised per-process counters: a spinlock is taken
+around calls to perfctr_cpu_{reserve,release}() which
+sleeps on a mutex. Change the spinlock to a mutex too.
 
-> - Americans might have an FCC concern due to power output restrictions on
->    digital modem protocols, and also other voice applications
+The problem was reported by Sami Farin.
 
-You can already use the Linux ISDN code in 'voice modem' mode and do
-what you like with it... what would concern them more?
+Strangely enough, DEBUG_SPINLOCK_SLEEP only triggers if I
+also have PREEMPT enabled. Is it supposed to be like that?
 
-> - Presumably it would only make sense to do this with voice connections
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-Indeed.
-
-> - Could this idea be extended to analog telephony devices?
-
-Ideally, it could be extended to analogue coupling using standard
-speakers and microphone. :)
-
--- 
-dwmw2
-
+diff -rupN linux-2.6.9-rc2-mm1/drivers/perfctr/virtual.c linux-2.6.9-rc2-mm1.virtual-perfctr-illegal-sleep-fix/drivers/perfctr/virtual.c
+--- linux-2.6.9-rc2-mm1/drivers/perfctr/virtual.c	2004-09-22 01:00:48.000000000 +0200
++++ linux-2.6.9-rc2-mm1.virtual-perfctr-illegal-sleep-fix/drivers/perfctr/virtual.c	2004-09-22 01:08:41.811834000 +0200
+@@ -91,7 +91,7 @@ static inline void vperfctr_init_bad_cpu
+  ****************************************************************/
+ 
+ /* XXX: perhaps relax this to number of _live_ perfctrs */
+-static spinlock_t nrctrs_lock = SPIN_LOCK_UNLOCKED;
++static DECLARE_MUTEX(nrctrs_mutex);
+ static int nrctrs;
+ static const char this_service[] = __FILE__;
+ 
+@@ -100,13 +100,13 @@ static int inc_nrctrs(void)
+ 	const char *other;
+ 
+ 	other = NULL;
+-	spin_lock(&nrctrs_lock);
++	down(&nrctrs_mutex);
+ 	if (++nrctrs == 1) {
+ 		other = perfctr_cpu_reserve(this_service);
+ 		if (other)
+ 			nrctrs = 0;
+ 	}
+-	spin_unlock(&nrctrs_lock);
++	up(&nrctrs_mutex);
+ 	if (other) {
+ 		printk(KERN_ERR __FILE__
+ 		       ": cannot operate, perfctr hardware taken by '%s'\n",
+@@ -119,10 +119,10 @@ static int inc_nrctrs(void)
+ 
+ static void dec_nrctrs(void)
+ {
+-	spin_lock(&nrctrs_lock);
++	down(&nrctrs_mutex);
+ 	if (--nrctrs == 0)
+ 		perfctr_cpu_release(this_service);
+-	spin_unlock(&nrctrs_lock);
++	up(&nrctrs_mutex);
+ }
+ 
+ /* Allocate a `struct vperfctr'. Claim and reserve

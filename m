@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293341AbSCOVnN>; Fri, 15 Mar 2002 16:43:13 -0500
+	id <S293344AbSCOVpd>; Fri, 15 Mar 2002 16:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293344AbSCOVnE>; Fri, 15 Mar 2002 16:43:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12817 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293341AbSCOVmo>; Fri, 15 Mar 2002 16:42:44 -0500
-Subject: Re: [PATCH] 2.4.18 scheduler bugs
-To: mingo@elte.hu
-Date: Fri, 15 Mar 2002 21:58:13 +0000 (GMT)
-Cc: joe.korty@ccur.com (Joe Korty), marcelo@conectiva.com.br (Marcelo Tosatti),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203152135170.22294-100000@elte.hu> from "Ingo Molnar" at Mar 15, 2002 09:35:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293347AbSCOVpZ>; Fri, 15 Mar 2002 16:45:25 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:53142 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S293344AbSCOVpM>; Fri, 15 Mar 2002 16:45:12 -0500
+Message-ID: <3C926B56.FC147170@delusion.de>
+Date: Fri, 15 Mar 2002 22:44:54 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.6 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Kernel powerdown
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16lziH-0004ma-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > moment work for them becomes available.  I see no reason why an idle cpu
-> > should be forced to remain idle until the next tick, nor why fixing that
-> > should be considered `broken'.
-> 
-> performance. IPIs are expensive.
+"Grover, Andrew" wrote:
 
-On a PIII I can see this being the case, especially as they dont power save
-on hlt nowdays. But on the Athlon the IPI isnt going down a little side 
-channel between cpus.
+> > Looks like the ACPI code is simply forgetting to turn off the
+> > NMI watchdog
 
+That's right, however I don't think it should have to turn it off.
+
+> Does the machine power off successfully using ACPI when the NMI watchdog is
+> not enabled?
+
+No, it never managed to power off with ACPI. It works with APM though.
+
+> Theoretically we should be turning the machine off, after which I'm pretty
+> sure the NMI watchdog shouldn't be an issue :)
+
+That's what I think.
+
+> but IIRC we are masking
+> interrupts and doing some delays before turning off, so the NMI watchdog
+> might not be liking that?
+
+The problem is that it doesn't power off at all, no matter how long the
+delay is ;)
+
+> APM doesn't turn off the NMI afaik so why should ACPI have to?
+
+Imho the problem will most likely go away when poweroff works properly
+on my board. I can supply whatever info you need to make it work, too ;)
+
+The board is an Asus A7V.
+
+-Udo.

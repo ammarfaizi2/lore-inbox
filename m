@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTJSN7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 09:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTJSN7j
+	id S261664AbTJSOJu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 10:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTJSOJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 09:59:39 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:9104 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262156AbTJSN7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 09:59:38 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Andi Kleen <ak@suse.de>
+	Sun, 19 Oct 2003 10:09:50 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:60556 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S261664AbTJSOJs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 10:09:48 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Ingo Oeser <ioe-lkml@rameria.de>
 Subject: Re: [2.6 patch] add a config option for -Os compilation
-Date: Sun, 19 Oct 2003 15:56:56 +0200
+Date: Sun, 19 Oct 2003 16:09:27 +0200
 User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <20031015225055.GS17986@fs.tum.de.suse.lists.linux.kernel> <20031018105733.380ea8d2.akpm@osdl.org.suse.lists.linux.kernel> <p731xtapd4r.fsf@oldwotan.suse.de>
-In-Reply-To: <p731xtapd4r.fsf@oldwotan.suse.de>
+References: <20031015225055.GS17986@fs.tum.de.suse.lists.linux.kernel> <p731xtapd4r.fsf@oldwotan.suse.de> <200310191556.56469.ioe-lkml@rameria.de>
+In-Reply-To: <200310191556.56469.ioe-lkml@rameria.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200310191556.56469.ioe-lkml@rameria.de>
+Message-Id: <200310191609.35179.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Saturday 18 October 2003 21:19, Andi Kleen wrote:
-> Best would be actually a mix of both - setting it case by case.
-> That's already done in specific cases, e.g. ACPI is always compiled
-> with -Os. This could be done for other files which are clearly
-> slow path too.
+On Sunday 19 October 2003 15:56, Ingo Oeser wrote:
+> Hi all,
 
-If there is is guarantee fro the GCC Steering Comitee, that there will
-never be any ABI changes generated from the differences there (like
-structure padding on/off).
+Hi Ingo
 
-Maybe there should be sth. in the build system for that, which is called
-$(call optimize_for_speed, $target) and $(call optimize_for_size,$target) 
-which then can be added on a per file basis and per directory tree,
-where it really matters and letting it to the default otherwise.
+> Simple implementation today:
+>
+> optimize_for_speed := CFLAGS_$1 += -O3
+> optimize_for_size  := CFLAGS_$1 += -Os
 
-That way we can tune gradually and remove GCC options.
+I experienced many problems while using -O3,
+because it may randomly inline functions, that
+are not marked inline. For example -O3 made
+ide-scsi on 2.4 nonworking for me.
+The book "Linux Device Drivers" has a longer
+explanation for _not_ using -O3 on kernels.
 
-Simple implementation today:
+>
+> Regards
+>
+> Ingo Oeser
 
-optimize_for_speed := CFLAGS_$1 += -O3
-optimize_for_size  := CFLAGS_$1 += -Os
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-
-Sam: What do you think?
-
-Regards
-
-Ingo Oeser
-
+iD8DBQE/kpsfoxoigfggmSgRAgKEAJ9VwoVGyaP3qIm+RT0o3Q9pAhxMYgCeMz9f
+vLJH6H+xM1yXfKXaXg2IPF8=
+=oQIW
+-----END PGP SIGNATURE-----
 

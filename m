@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315447AbSEQHID>; Fri, 17 May 2002 03:08:03 -0400
+	id <S315449AbSEQHIp>; Fri, 17 May 2002 03:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSEQHIC>; Fri, 17 May 2002 03:08:02 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:9114 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315447AbSEQHH7>;
-	Fri, 17 May 2002 03:07:59 -0400
-Date: Fri, 17 May 2002 17:07:16 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] signal cleanups continued: cleanup do_signal
-Message-Id: <20020517170716.723589b3.sfr@canb.auug.org.au>
-In-Reply-To: <20020517165712.56950189.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315451AbSEQHIo>; Fri, 17 May 2002 03:08:44 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:57099
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S315449AbSEQHIm>; Fri, 17 May 2002 03:08:42 -0400
+Date: Fri, 17 May 2002 00:07:50 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Conway <nconway.list@ukaea.org.uk>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+Message-ID: <20020517070750.GD627@matchmail.com>
+Mail-Followup-To: Neil Conway <nconway.list@ukaea.org.uk>,
+	vda@port.imtp.ilyichevsk.odessa.ua,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <5.1.0.14.2.20020514202811.01fcc1d0@pop.cus.cam.ac.uk> <3CE22B2B.5080506@evision-ventures.com> <200205151138.g4FBcGY13110@Port.imtp.ilyichevsk.odessa.ua> <3CE24CB9.8DFC5821@ukaea.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002 16:57:12 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+On Wed, May 15, 2002 at 12:55:37PM +0100, Neil Conway wrote:
+> You can (and must) safely "touch the cable" in between TCQ commands in
+> the right circumstances.  You are therefore touching the cable while the
+> hwgroup is busy, hence my suggestion that the flag we use to prevent
+> touching the cable during DMA should be named something other than busy.
 >
-> Hi Linus,
-> 
-> 11 out of our 17 architectures have basically the same code
-> in arch/../kernel/signal.c:do_signal.  This patch creates a
-> common function for that bit of code and uses it in the places
-> it can be.
 
-Forgot to mention, that this code segment was originally extracted
-by Paul Mackerras and original i386 patch was done by Anton Blanchard.
-
-diffstat for those who are interested:
-
- arch/cris/kernel/signal.c     |  100 ++------------------------------------
- arch/i386/kernel/signal.c     |  106 +++-------------------------------------
- arch/mips/kernel/signal.c     |  101 +++-----------------------------------
- arch/mips64/kernel/signal.c   |  102 +++------------------------------------
- arch/mips64/kernel/signal32.c |  101 +++-----------------------------------
- arch/parisc/kernel/signal.c   |  107 +++--------------------------------------
- arch/ppc/kernel/signal.c      |  100 ++------------------------------------
- arch/ppc64/kernel/signal.c    |  108 ++---------------------------------------
- arch/ppc64/kernel/signal32.c  |  109 +++---------------------------------------
- arch/s390/kernel/signal.c     |  104 +++-------------------------------------
- arch/s390x/kernel/signal.c    |  103 ++-------------------------------------
- arch/s390x/kernel/signal32.c  |  101 +++-----------------------------------
- arch/sh/kernel/signal.c       |  101 +++-----------------------------------
- arch/x86_64/kernel/signal.c   |  107 +++--------------------------------------
- include/asm-alpha/signal.h    |    3 +
- include/asm-arm/signal.h      |    2 
- include/asm-ia64/signal.h     |    2 
- include/asm-m68k/signal.h     |    2 
- include/asm-sparc/signal.h    |    2 
- include/asm-sparc64/signal.h  |    3 +
- include/linux/signal.h        |    4 +
- kernel/signal.c               |  106 ++++++++++++++++++++++++++++++++++++++++
- 22 files changed, 232 insertions(+), 1342 deletions(-)
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Ahh, but with TCQ the concept of busy changes.  The wire (simplified) is
+only busy when the tags are being transfered, otherwise the cable is unused
+unless the cable has been "locked" by one of the devices.

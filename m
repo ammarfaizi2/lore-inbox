@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSCTXtb>; Wed, 20 Mar 2002 18:49:31 -0500
+	id <S312299AbSCTXuv>; Wed, 20 Mar 2002 18:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312297AbSCTXtW>; Wed, 20 Mar 2002 18:49:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44561 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312296AbSCTXtM>; Wed, 20 Mar 2002 18:49:12 -0500
-Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
-To: kurt@garloff.de (Kurt Garloff)
-Date: Thu, 21 Mar 2002 00:04:51 +0000 (GMT)
-Cc: tepperly@llnl.gov (Tom Epperly),
-        linux-kernel@vger.kernel.org (Linux kernel list)
-In-Reply-To: <20020321002610.F5052@gum01m.etpnet.phys.tue.nl> from "Kurt Garloff" at Mar 21, 2002 12:26:10 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312300AbSCTXug>; Wed, 20 Mar 2002 18:50:36 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38662 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312297AbSCTXuE>; Wed, 20 Mar 2002 18:50:04 -0500
+Date: Wed, 20 Mar 2002 19:44:27 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@bytesex.org>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre4: zr36067.c needs update?
+In-Reply-To: <E16nq2a-0003l4-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0203201944010.9234-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nq4Z-0003lY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> disassembly?
-> AFAICS, its a push %ebp instruction, which should not be illegal. So either
-> your stack is overflowing or my suspicion with the defect CPU is applicable.
 
-Or somehow the I/D TLB's got messed up and the ITLB for that entry is now
-wrong.
+Geert, 
+
+Is the new API really backwards compatible ? ;)
+
+On Thu, 21 Mar 2002, Alan Cox wrote:
+
+> > /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
+> > -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
+> > zr36067.c: In function `zoran_open':
+> > zr36067.c:3268: structure has no member named `busy'
+> > zr36067.c: At top level:
+> 
+> Revert the video4linux changes - I played with them briefly and found
+> the same problem - they break most of the drivers.
+> 
+

@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280133AbRKNFZH>; Wed, 14 Nov 2001 00:25:07 -0500
+	id <S279394AbRKNGGP>; Wed, 14 Nov 2001 01:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280146AbRKNFY5>; Wed, 14 Nov 2001 00:24:57 -0500
-Received: from 66-108-76-7.nyc.rr.com ([66.108.76.7]:7663 "EHLO
-	localhost.galis.org") by vger.kernel.org with ESMTP
-	id <S280133AbRKNFYl>; Wed, 14 Nov 2001 00:24:41 -0500
-Date: Wed, 14 Nov 2001 00:25:13 -0500
-From: George Georgalis <george@galis.org>
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Buslogic SCSI hangs with cdrecord
-Message-ID: <20011114002513.D676@trot>
-Reply-To: George Georgalis <george@galis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S280161AbRKNGGF>; Wed, 14 Nov 2001 01:06:05 -0500
+Received: from goliath.siemens.de ([194.138.37.131]:6061 "EHLO
+	goliath.siemens.de") by vger.kernel.org with ESMTP
+	id <S280154AbRKNGFt>; Wed, 14 Nov 2001 01:05:49 -0500
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: "'Pavel Machek'" <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: STR with APM possible?
+Date: Wed, 14 Nov 2001 09:05:30 +0300
+Message-ID: <000801c16cd2$5cfde680$21c9ca95@mow.siemens.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3311
+In-Reply-To: <20011113010702.A37@toy.ucw.cz>
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+> 
+> > I have ASUS CUSL2 motherboard that supports STR (and it works
+perfectly
+> > under windows). With the same BIOS settings doing apm --suspend
+almost
+> > suspends - except that power supply fan continues to run, which
+> > indicates, system is not in STR state.
+> 
+> > Kernel is Mandrake cooker 2.4.13-4mdk (based on -ac6), but it was
+true
+> > for all kernels I've tried starting from 2.2.19
+> >
+> > ACPI is not included in mandrake kernels.
+> >
+> > Is it supported? Anything I can do to debug/fix it?
+> 
+> ACPI does not yet quite support suspend-to-ram. Wait awhile.
+> 
 
-Haven't posted or been around in a while so I hope this isn't a rehash.
-I didn't find anything in a quick goggle search...
+I know that ACPI does not yet work. The question was if it possible with
+APM. Obviously it works for many notebooks - because I fail to see how
+notebook differs in this respect from desktop, I assume it should work
+here as well.
 
-I'm having trouble writing CDs. I'll get from 0% to 75% (varies)
-through the process and the whole machine locks up, no oops and nothing
-in the log after a restart.
+Am I missing something?
 
-I've been running a 2.2.19-6.2.12 kernel (RH 6.2 updated rpm). And today
-I tried using a monolithic vmlinuz-2.2.20 with identical results.
-
-Here is a typical record command, I've tried it at 2, 4 and 8 speed.
-
-cdrecord -v speed=8 dev=0,3,0  -data ~ftp/pub/ISOs/enigma-i386-disc1.iso 
-
-I'm running an AMD Athlon Processor at 1200MHz on a Soyo SY-K7VTA PRO   
-board with lots of ram and no other responsibilities.                   
-
-below is the scsi details, has anyone heard of similar problems?
-
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: YAMAHA   Model: CRW8424S         Rev: 1.0j
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-***** BusLogic SCSI Driver Version 2.1.15 of 17 August 1998 *****
-Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-Configuring BusLogic Model BT-930 PCI Ultra SCSI Host Adapter
-  Firmware Version: 5.02, I/O Address: 0xD800, IRQ Channel: 11/Level
-  PCI Bus: 0, Device: 9, Address: 0xD5000000, Host Adapter SCSI ID: 7
-  Parity Checking: Enabled, Extended Translation: Enabled
-  Synchronous Negotiation: Fast, Wide Negotiation: Disabled
-  Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-  Driver Queue Depth: 255, Scatter/Gather Limit: 128 segments
-  Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-  Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
-  SCSI Bus Termination: Enabled, SCAM: Disabled
-*** BusLogic BT-930 Initialized Successfully ***
-
-
-// George
-
-(comments on Soyo SY-K7VTA PRO built in sound are also welcome)
-
--- 
-GEORGE GEORGALIS, Principal        http://www.galis.org/george 
-System Administration Services      email: george@galis.org 
-PGP Key ID: 98311631                  cell: 347-451-8229
+-andrej

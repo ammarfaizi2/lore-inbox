@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282994AbRLDJli>; Tue, 4 Dec 2001 04:41:38 -0500
+	id <S282983AbRLDJq6>; Tue, 4 Dec 2001 04:46:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282983AbRLDJl3>; Tue, 4 Dec 2001 04:41:29 -0500
-Received: from gate.tao-group.com ([62.255.240.131]:41220 "EHLO
-	mail.tao-group.com") by vger.kernel.org with ESMTP
-	id <S282976AbRLDJlL>; Tue, 4 Dec 2001 04:41:11 -0500
-Subject: Re: curious to know about linux internals(kernel
-From: Andrew Ebling <aebling@tao-group.com>
-To: m_choube@eudoramail.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>
-In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 04 Dec 2001 09:29:53 +0000
-Message-Id: <1007458193.376.5.camel@spinel>
-Mime-Version: 1.0
+	id <S282976AbRLDJqs>; Tue, 4 Dec 2001 04:46:48 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:58066 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S283005AbRLDJqj>; Tue, 4 Dec 2001 04:46:39 -0500
+Date: Tue, 4 Dec 2001 11:50:46 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: John Gluck <jgluck@rogers.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OSS driver cleanups.
+In-Reply-To: <20011204012615.IBYG23527.femail5.sdc1.sfba.home.com@there>
+Message-ID: <Pine.LNX.4.33.0112041146480.24822-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      i am new to linux (before this worked on windows)
->     
->      i am interested to know about kernel.
->  
->      i don't with which documents or books will give a through knowledge about linux kernel
-> 
->  please help me.
+On Mon, 3 Dec 2001, John Gluck wrote:
 
-I am working an a kernelhacking-HOWTO at:
+> Hi
+>
+> Out of curiosity, will ALSA also be available on the 24..xx kernels??
+> Will there be a choice of useing OSS or ALSA??
+> Will the ALSA drivers be the 0.9 series or the old 0.5 series??? AFAIK they
+> are very very different in architecture.
+>
+> I welcome the use of ALSA, as it appears to be a more flexibile solution and
+> can be used with OSS compatibility from an application point of view. My only
+> concern is that there is a potential for looseing support for some sound
+> cards.
 
-http://www.kernelhacking.org
+I doubt ALSA will get into 2.4 since its maintenance only, but i'm not the
+final authority on this ;) Also when ALSA starts getting incorporated
+into the kernel, they will use their more upto date tree, i would
+presume, so they wouldn't start at 0.5. But as everyone else says, i'm
+sure we'll be backporting fixes and perhaps even additional card support
+into 2.4-OSS as they appear.
 
-The aim of the document is to make kernel programming more accesible to
-those with limited time.  Anyone with C programming and Linux experience
-should be able to get something out of the document.
+Cheers,
+	Zwane Mwaikambo
 
-It is work in progress, but I try to release a new version each week.
-
-The kernelnewbies mailing list is a better place to ask newbie questions
-btw.
-
-HTH,
-
-Andy
 

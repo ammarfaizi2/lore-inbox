@@ -1,83 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269043AbUIXXM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269049AbUIXXVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269043AbUIXXM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 19:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUIXXM0
+	id S269049AbUIXXVB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 19:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIXXVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 19:12:26 -0400
-Received: from mail1.speakeasy.net ([216.254.0.201]:57985 "EHLO
-	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S269043AbUIXXMX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 19:12:23 -0400
-Date: Fri, 24 Sep 2004 16:12:19 -0700
-Message-Id: <200409242312.i8ONCJ6w004680@magilla.sf.frob.com>
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix PTRACE_ATTACH race with real parent's wait calls
-X-Fcc: ~/Mail/linus
-X-Windows: a terminal disease.
+	Fri, 24 Sep 2004 19:21:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39340 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269049AbUIXXUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 19:20:54 -0400
+Date: Fri, 24 Sep 2004 16:14:58 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Donald Duckie <schipperke2000@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbol __udivsi3_i4
+Message-Id: <20040924161458.7849019a.rddunlap@osdl.org>
+In-Reply-To: <20040924044952.73739.qmail@web53606.mail.yahoo.com>
+References: <20040923202342.2327585b.rddunlap@osdl.org>
+	<20040924044952.73739.qmail@web53606.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a race between PTRACE_ATTACH and the real parent calling wait.
-For a moment, the task is put in PT_PTRACED but with its parent still
-pointing to its real_parent.  In this circumstance, if the real parent
-calls wait without the WUNTRACED flag, he can see a stopped child status,
-which wait should never return without WUNTRACED when the caller is not
-using ptrace.  Here it is not the caller that is using ptrace, but some
-third party.
+On Thu, 23 Sep 2004 21:49:52 -0700 (PDT) Donald Duckie wrote:
 
-This patch avoids this race condition by only setting PT_PTRACED while
-holding the tasklist_lock.
+| hi randy!
+| 
+| thank you very much for your help.
+| 
+| it is indeed the % (mod) operator that generates the
+| unresolved symbol. it is also true with the /
+| (division) operator.  
+| 
+| is there any patch on this for
+| 2.4.18-sh? or how will i do away with this problem
+| aside from commenting it out from the code?
 
-ptrace_attach used task_lock for this, and a comment in sched.h says that
-it covers ->ptrace.  But in fact, no other users of ->ptrace use task_lock
-for synchronization.  The places that clear ->ptrace all do so while
-holding tasklist_lock for write.  That seems appropriate to me, as there
-are encoded assumptions that ->ptrace and the parent links get updated
-atomically.  Using tasklist_lock here makes the assumptions in the wait
-code work right, so that the race window I described above can't happen.
+Sorry, I don't track sh changes.  However, I do see in 2.4.26
+that arch/sh/lib/udivdi3.c contains a __udivdi3() function,
+so perhaps you could manage to use it or implement something
+similar to it.
 
+Or perhaps you could use a different kernel version.
 
-Thanks,
-Roland
+| btw, the previous unresolved symbol problems were
+| already solved. i just didn't copy the depmod
+| generated files in the running machine, that was why
+| those occured.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Good.
 
-Index: 2.6/kernel/ptrace.c
-===================================================================
-RCS file: /home/roland/redhat/bkcvs/linux-2.5/kernel/ptrace.c,v
-retrieving revision 1.36
-diff -B -b -p -u -r1.36 ptrace.c
---- 2.6/kernel/ptrace.c 23 Sep 2004 23:35:16 -0000 1.36
-+++ 2.6/kernel/ptrace.c 24 Sep 2004 22:46:40 -0000
-@@ -129,14 +129,22 @@ int ptrace_attach(struct task_struct *ta
- 	retval = security_ptrace(current, task);
- 	if (retval)
- 		goto bad;
-+	task_unlock(task);
-+
-+	retval = capable(CAP_SYS_PTRACE); /* Hold no locks while calling.  */
-+
-+	write_lock_irq(&tasklist_lock);
-+
-+	/* Re-check with tasklist_lock held. */
-+	if (unlikely(task->ptrace & PT_PTRACED)) {
-+		write_unlock_irq(&tasklist_lock);
-+		return -EPERM;
-+	}
- 
- 	/* Go */
- 	task->ptrace |= PT_PTRACED;
--	if (capable(CAP_SYS_PTRACE))
-+	if (retval)
- 		task->ptrace |= PT_PTRACE_CAP;
--	task_unlock(task);
--
--	write_lock_irq(&tasklist_lock);
- 	__ptrace_link(task, current);
- 	write_unlock_irq(&tasklist_lock);
- 
+--
+~Randy
 
 
+| --- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| 
+| > On Thu, 23 Sep 2004 19:10:50 -0700 (PDT) Donald
+| > Duckie wrote:
+| > 
+| > | hi!
+| > | 
+| > | can somebody please help me how to overcome this
+| > | problem:
+| > | unresolved symbol __udivsi3_i4
+| > | 
+| > | I compiled the snull files that i got from 
+| > |
+| >
+| http://www.oreilly.com.tw/editor_column/a138_read.htmland
+| > | ran depmod -a -F /proc/ksyms 2.4.18 snull.o
+| > | 
+| > | And in another machine (my running machine), I got
+| > the
+| > | following files from my compilation machine:
+| > | snull.o
+| > | /lib/modules/2.4.18/*
+| > | 
+| > | In my running machine, I ran modprobe but got this
+| > | error:
+| > | Using
+| > /lib/modules/2.4.18-sh/kernel/drivers/net/snull.
+| > |   <cut>
+| > | modprobe: unresolved symbol __udivsi3_i4
+| > |   <cut>
+| > 
+| > Let me try this again.  I suspect that the problem
+| > is the '%' (mod)
+| > operator at line 351.  Can you just delete part of
+| > that if-test
+| > to prove or disprove my suspicion?
+| > 
+| > 
+| > | The gcc version that is used is:
+| > | [aprhodite@aphrodite2 bin]$ sh-linux-gcc -v
+| > | Reading specs from
+| > | /usr/lib/gcc-lib/sh-linux/3.0.3/specs
+| > | Configured with: ../configure --prefix=/usr
+| > | --mandir=/usr/share/man --target=sh-linux
+| > | --host=i686-pc-linux-gnu --build=i
+| > | 686-pc-linux-gnu --disable-c99 --disable-nls
+| > | --enable-languages=c,c++ --with-system-zlib
+| > | --with-gxx-include-dir=/usr/sh-
+| > | linux/include/g++-v3
+| > | --includedir=/usr/sh-linux/include
+| > | --enable-threads=posix --enable-long-long
+| > | Thread model: posix
+| > | gcc version 3.0.3
+| > | 
+| > | 
+| > | Running nm -l-s snull.o
+| > | 00000000 a *ABS*
+| > |   <cut>
+| > |          U __udivsi3_i4
+| > | /home/aphrodite/snull/snull3/snull/snull.c:355
+| > |   <cut>
+| > | 
+| > | 
+| > | the block in snull.c that contains ine 355 is:
+| > |     352     if (lockup && ((priv->stats.tx_packets
+| > +
+| > | 1) % lockup) == 0) {
+| > |     353         /* Simulate a dropped transmit
+| > | interrupt */
+| > |     354         netif_stop_queue(dev);
+| > |     355         PDEBUG("Simulate lockup at %ld,
+| > txp
+| > | %ld\n", jiffies,
+| > |     356                         (unsigned long)
+| > | priv->stats.tx_packets);
+| > |     357     }
+| > | (which seems to  be okey)
+| > | 
+| > | 
+| > | The only modification to the downloaded snull
+| > files is
+| > | on snull.c:
+| > |      30 //#include <linux/malloc.h> /* kmalloc()
+| > */
+| > |      31 #include <linux/slab.h> /* kmalloc()
+| > | deprecated use slab.h instead*/
+| > | 
+| > | 
+| > | can anyone please tell me how to deal with this
+| > | unresolved symbol __udivsi3_i4?
+| > | 
+| > | 
+| > | thank you very much.
+| > | -donald

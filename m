@@ -1,83 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSLAUeu>; Sun, 1 Dec 2002 15:34:50 -0500
+	id <S262416AbSLAUef>; Sun, 1 Dec 2002 15:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSLAUeu>; Sun, 1 Dec 2002 15:34:50 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:34521 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262418AbSLAUer>; Sun, 1 Dec 2002 15:34:47 -0500
-Date: Sun, 1 Dec 2002 12:42:08 -0800
-From: Joshua Kwan <joshk@mspencer.net>
-To: andy@ajsoft.net
-Cc: andy@ajsoft.freeserve.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 DRM/DRI issue with Radeon
-Message-Id: <20021201124208.16b0ae70.joshk@mspencer.net>
-In-Reply-To: <20021201143233.MIKG4739.fep01-svc.ttyl.com@localhost>
-References: <20021201143233.MIKG4739.fep01-svc.ttyl.com@localhost>
-X-Mailer: Sylpheed version 0.8.6cvs7 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary=")+iEr=.rblYoPm4?"
+	id <S262418AbSLAUef>; Sun, 1 Dec 2002 15:34:35 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:7558 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S262416AbSLAUee>; Sun, 1 Dec 2002 15:34:34 -0500
+To: "Folkert van Heusden" <folkert@vanheusden.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20] alpha (alcor) failing during boot: NCR53c810/NCR53c875 give error "Cache test failed"
+References: <002e01c29976$71c12830$3640a8c0@boemboem>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
+X-Baby-2: None
+X-Love-1: Gone
+X-Love-2: Crazy-Cat
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 01 Dec 2002 21:40:12 +0100
+Message-ID: <wrplm39scb7.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <002e01c29976$71c12830$3640a8c0@boemboem>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---)+iEr=.rblYoPm4?
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+>>>>> "FvH" == Folkert van Heusden <folkert@vanheusden.com> writes:
 
-SSdtIHN0dW1wZWQsIHJlYWxseS4gVHJ5IGJ1aWxkaW5nIGl0IElOVE8gdGhlIGtlcm5lbCAoaWUg
-WSBpbnN0ZWFkIG9mCk0uKSBUaGlzIGlzIHdoYXQgSSBkaWQgYW5kIGl0IHdvcmtzLiBPciBtYXli
-ZSB5b3Ugc2hvdWxkIGdldCBYRnJlZTg2CjQuMi4xLCB3aGljaCBpcyB3aGF0IEkgaGF2ZTogCgpY
-RnJlZTg2IFZlcnNpb24gNC4yLjEuMSAoRGViaWFuIDQuMi4xLTQgMjAwMjExMjMwMDM4MDYKYnJh
-bmRlbkBkZWJpYW4ub3JnKSAvIFggV2luZG93IFN5c3RlbQoKSG9wZSB0aGluZ3Mgd29yayBvdXQu
-CgotSm9zaAoKUmFiaWQgY2hlZXNlYnVyZ2VycyBmb3JjZWQgQW5keSBKZWZmZXJzb24gPGFuZHlA
-YWpzb2Z0LmZyZWVzZXJ2ZS5jby51az4KdG8gd3JpdGUgdGhpcyBvbiBTdW4sIDEgRGVjIDIwMDIg
-MTQ6MzI6MzMgKzAwMDA6CQoKPiA+ID4gSW4gdGhlIDIuNC4yMCBrZXJuZWwgY2hhbmdlbG9nIEkg
-c2VlIGNvbW1lbnRzIGFib3V0IGhhdmluZwo+ID4gPiBjb25zaXN0ZW50IERSTSBtb2R1bGVzIHdp
-dGggWEZyZWU0LjIuMC4gSSBoYXZlIGEgUmFkZW9uIE1vYmlsaXR5Cj4gPiA+IE02IExZIGluIGEg
-RGVsbCBsYXB0b3AgYW5kIHdvdWxkIGxpa2UgdG8gZ2V0IERSSSB3b3JraW5nLiBXaGVuZXZlcgo+
-ID4gPiBJIHVzZSBhbnkgMi40LiooaW5jbHVkaW5nIDIuNC4yMCkga2VybmVsIEkgZ2V0IHRoZSBm
-b2xsb3dpbmcKPiA+ID4gbWVzc2FnZXMgaW4vdmFyL2xvZy9YRnJlZTg2LjAubG9nLCBhbmQgRFJN
-IGlzIG5vdCBlbmFibGVkLiBJcyB0aGlzCj4gPiA+IHN1cHBvc2VkIHRvIGJlIHdvcmtpbmcgaW4g
-Mi40LjIwID8gSSBhbSB1c2luZyBhIE1hbmRyYWtlIDguMgo+ID4gPiBzeXN0ZW0gKGV4Y2VwdCBm
-b3IgdGhlIGtlcm5lbCkuCj4gPiA+IChFRSkgUkFERU9OKDApOiBbZHJpXSBSQURFT05EUklTY3Jl
-ZW5Jbml0IGZhaWxlZCBiZWNhdXNlIG9mIGEKPiA+ID4gdmVyc2lvbiBtaXNtYXRjaC5bZHJpXSBy
-YWRlb24ubyBrZXJuZWwgbW9kdWxlIHZlcnNpb24gaXMgMS4xLjEgYnV0Cj4gPiA+IHZlcnNpb24g
-MS4yLnggaXMgbmVlZGVkLltkcmldIHNlZSBodHRwOi8vZ2F0b3Muc2YubmV0LyBmb3IgYW4KPiA+
-ID4gdXBkYXRlZCBtb2R1bGVbZHJpXSBEaXNhYmxpbmcgRFJJLgo+IAo+IAo+ID4gV29ya3MgZm9y
-IG1lLgo+ID4gRGViaWFuIEdOVS9MaW51eCB1bnN0YWJsZSBkaXN0cmlidXRpb24KPiA+IAo+ID4g
-WW91IGRpZCBlbmFibGUgcmFkZW9uIERSTSBkcml2ZXJzIGluIHRoZSBrZXJuZWwgY29uZmlnIHJp
-Z2h0PyBGb3IKPiA+IHlvdXIgY2hpcHNldCBhbmQgZm9yIHRoZSBSYWRlb24sIHJpZ2h0Pwo+IAo+
-IFdlbGwsIHllcy4gSSdtIGdldHRpbmcgVkVSU0lPTiBDT05GTElDVCBtZXNzYWdlcywgYW5kIG5v
-dCB0aGF0IHRoZXJlCj4gaXMgbm8gcmFkZW9uLm8gbW9kdWxlLiBGb3IgdGhlIHJlY29yZCwgd2hh
-dCBJIGdldCBmcm9tIGRtZXNnIGlzCj4gCj4gTGludXggYWdwZ2FydCBpbnRlcmZhY2UgdjAuOTkg
-KGMpIEplZmYgSGFydG1hbm4KPiBhZ3BnYXJ0OiBNYXhpbXVtIG1haW4gbWVtb3J5IHRvIHVzZSBm
-b3IgYWdwIG1lbW9yeTogMjAzTQo+IGFncGdhcnQ6IERldGVjdGVkIEludGVsIGk4MzBNIGNoaXBz
-ZXQKPiBhZ3BnYXJ0OiBBR1AgYXBlcnR1cmUgaXMgMjU2TSBAIDB4ZDAwMDAwMDAKPiBbZHJtXSBB
-R1AgMC45OSBvbiBVbmtub3duIEAgMHhkMDAwMDAwMCAyNTZNQgo+IFtkcm1dIEluaXRpYWxpemVk
-IHJhZGVvbiAxLjEuMSAyMDAxMDQwNSBvbiBtaW5vciAwCj4gCj4gRldJVyBJIGhhdmUgaW4gdGhl
-IGtlcm5lbAo+IAo+IC9kZXYvYWdwZ2FydCBzZXQgdG8gTW9kdWxlCj4gSTgzME0gc3VwcG9ydCBz
-ZXQgdG8gWWVzCj4gQnVpbGQgb2xkIERSTSA0LjAgZHJpdmVycyBzZXQgdG8gTm8KPiBEUk0gNC4x
-IEFUSSBSYWRlb24gc2V0IHRvIE1vZHVsZQo+IAo+IFNvIHRoZSB2ZXJzaW9uIG9mIHRoZSBrZXJu
-ZWwgbW9kdWxlIGlzIDEuMS4xIDIwMDEwNDA1ICh3aXRoIDIuNC4xOSwKPiBBTkQgMi40LjIwKSAs
-IHlldCB0aGUgWEZyZWU4NiBkcml2ZXJzIG5lZWQgMS4yLiogYXMgcGVyIHRoZSBvcmlnaW5hbAo+
-IG1lc3NhZ2UgaW4gdGhlIFhGcmVlODYuMC5sb2cuIFdoeSBpcyB0aGUga2VybmVsIHVzaW5nIDEu
-MS4xIGFuZCBub3QKPiAxLjIuKiA/Cj4gCj4gVGh4Cj4gCj4gLS0KPiBBbmR5Cj4gCj4gX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCj4gX18gRnJlZXNlcnZlIEFueVRpbWUsIG9ubHkgozEzLjk5IHBlciBtb250aCB3aXRo
-IG9uZSBtb250aCdzIEZSRUUKPiB0cmlhbCEgRm9yIG1vcmUgaW5mb3JtYXRpb24gdmlzaXQgaHR0
-cDovL3d3dy5mcmVlc2VydmUuY29tL3RpbWUvIG9yCj4gY2FsbCBmcmVlIG9uIDA4MDAgOTcwIDg4
-OTAKPiAK
+FvH> My Dec Alpha (Alcor) runs fine with 2.2.20.
+FvH> With 2.4.20, it fails during boot at the init. of the scsi-devices.
+FvH> Error is:
 
---)+iEr=.rblYoPm4?
-Content-Type: application/pgp-signature
+[...]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Please give 2.4.20-ac1 a try. It includes the CIA-1 fix that prevent
+Alcor machines (AS500 and co) from working.
 
-iD8DBQE96nQj6TRUxq22Mx4RAvVbAKCKsrHCeLmwpI5VT6Kiet06chjELwCeJ7EY
-zQdjsZ8TzSa+AIJG7f243hM=
-=b5b0
------END PGP SIGNATURE-----
-
---)+iEr=.rblYoPm4?--
+        M.
+-- 
+Places change, faces change. Life is so very strange.

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129234AbQKLPvM>; Sun, 12 Nov 2000 10:51:12 -0500
+	id <S131059AbQKLPvw>; Sun, 12 Nov 2000 10:51:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129987AbQKLPvD>; Sun, 12 Nov 2000 10:51:03 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:4615 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S129234AbQKLPuw>;
-	Sun, 12 Nov 2000 10:50:52 -0500
-Message-Id: <200011120139.eAC1d2E30929@sleipnir.valparaiso.cl>
-To: root@chaos.analogic.com
-cc: Andrea Arcangeli <andrea@suse.de>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue] 
-In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
-   of "Fri, 10 Nov 2000 15:07:46 CDT." <Pine.LNX.3.95.1001110150021.5941A-100000@chaos.analogic.com> 
-Date: Sat, 11 Nov 2000 22:39:02 -0300
+	id <S131056AbQKLPvn>; Sun, 12 Nov 2000 10:51:43 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:5639 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129987AbQKLPv0>;
+	Sun, 12 Nov 2000 10:51:26 -0500
+Message-Id: <200011111204.eABC4mY16907@sleipnir.valparaiso.cl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The IrDA patches !!! (was Re: [RANT] Linux-IrDA status) 
+In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
+   of "Fri, 10 Nov 2000 11:56:57 -0800." <Pine.LNX.4.10.10011101143330.990-100000@penguin.transmeta.com> 
+Date: Sat, 11 Nov 2000 09:04:47 -0300
 From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
-> On Fri, 10 Nov 2000, Andrea Arcangeli wrote:
+Linus Torvalds <torvalds@transmeta.com> said:
+> On Thu, 9 Nov 2000, Jean Tourrilhes wrote:
+> > 
+> > 	I spent my full day going through my archives and splitting
+> > the big patch of Dag into lots of small patches (see attached). I'm
+> > glad I've got a big hard drive full of junk.
+> 
+> When I say multiple mails, I mean multiple mails. NOT "26 attachements in
+> one mail". In fact, not a single attachment at all, please. Send me
+> patches as a regular text body, with the explanation at the top, and the
+> patch just appended.
+> 
+> Why?
+>
+> [Nice explanation snipped]
 
-[...]
-
-> > Ok. So please now show a tcpdump trace during the `sendmail -q` so we
-> > can see what's going wrong in the TCP connection to the smtp server:
-> >
-> > 	tcpdump port smtp
-
-> I tried to send Jeff a 45 Megabyte file. It is still in the queue.
-
-[...]
-
-> It isn't a TCP/IP stack problem. It may be a memory problem. Every time
-> sendmail spawns a child to send the file data, it crashes.  That's
-> why the file never gets sent!
-
-In my experience, if you try to send large messages over unreliable
-networks (we sometimes see 50 or more % losses due to chronical link
-overload downstream) the connection breaks up and the messages take a long
-time to get out of the door. No, not just Linux; our SunOS/Solaris/Linux
-mail servers have all shown the same behaviour. Makes sense: Unless the
-message is sent and ACKed, it stays put. SMTP has no "resume message" AFAIK...
-This could also be an explanation for this phenomemnon.
+How about placing this (slightly edited, and with some other stuff thrown
+in perhaps?) in a SUBMITTING-PATCHES file in the top of the kernel sources,
+so nobody can overlook it?
 --
 Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
 Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

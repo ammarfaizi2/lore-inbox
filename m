@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271800AbRIYWD5>; Tue, 25 Sep 2001 18:03:57 -0400
+	id <S271798AbRIYWGH>; Tue, 25 Sep 2001 18:06:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271787AbRIYWDt>; Tue, 25 Sep 2001 18:03:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34964 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271798AbRIYWDb>;
-	Tue, 25 Sep 2001 18:03:31 -0400
-Date: Tue, 25 Sep 2001 15:03:28 -0700 (PDT)
-Message-Id: <20010925.150328.75780096.davem@redhat.com>
-To: andrea@suse.de
-Cc: marcelo@conectiva.com.br, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010926000102.G8350@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0109251539150.2193-100000@freak.distro.conectiva>
-	<20010925.131528.78383994.davem@redhat.com>
-	<20010926000102.G8350@athlon.random>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S271809AbRIYWF6>; Tue, 25 Sep 2001 18:05:58 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:2826 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271747AbRIYWFq>; Tue, 25 Sep 2001 18:05:46 -0400
+Date: Tue, 25 Sep 2001 19:05:58 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jens Petersohn <jkp@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: protocol is buggy?
+Message-ID: <20010925190557.A4286@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jens Petersohn <jkp@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20010925124235.jkp@sgi.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <XFMail.20010925124235.jkp@sgi.com>; from jkp@sgi.com on Tue, Sep 25, 2001 at 12:42:35PM -0500
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Wed, 26 Sep 2001 00:01:02 +0200
-   
-   IMHO if we would hold the pagecache lock all the time while shrinking
-   the cache, then we could kill the lru lock in first place.
+Em Tue, Sep 25, 2001 at 12:42:35PM -0500, Jens Petersohn escreveu:
 
-And actually in the pagecache locking patches, doing such a thing
-would be impossible :-) since each page needs to grab a different
-lock (because the hash chain is potentially different).
+> getting the following in dmesg. Don't know if it's iptables related or
+> not. The ethernet card in question is a Intel EtherPRO 100 with the stock
+> 2.4.8 driver. Everything is working great, but I'm mostly curious why
+> these messages appear. A search in Google or LKM didn't turn anything
+> immidiately, but I might have missed something.
+ 
+> protocol 0008 is buggy, dev eth1
+> protocol 0008 is buggy, dev eth1
+> protocol 0008 is buggy, dev eth1
+> protocol 0008 is buggy, dev eth1
+> NET: 16 messages suppressed.
+> protocol 0008 is buggy, dev eth1
+ 
+> /proc/pci:
+>   Bus  0, device  19, function  0:
+>     Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 2).
+>       IRQ 5.
+>       Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
+>       Prefetchable 32 bit memory at 0xe4100000 [0xe4100fff].
+>       I/O at 0x7400 [0x741f].
+>       Non-prefetchable 32 bit memory at 0xe4000000 [0xe40fffff].
+ 
+> The card in question is the "public/internet" side of the firewall.
+> There are two additional interfaces, eth0 (private ethernet) and eth2,
+> a radio LAN.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+probably related to eth_type_trans not being called, or something else that
+doesn't properly set skb2->nh.raw, I've experienced this while hacking on
+802.2/NetBEUI, the message comes from net/core/dev.c, function
+dev_queue_xmit_nit, line 882 in 2.4.9. I'll take a look now, but I'm in a
+hurry, so don't hold your breath.
+
+- Arnaldo

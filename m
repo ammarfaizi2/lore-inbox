@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272773AbRJJBfx>; Tue, 9 Oct 2001 21:35:53 -0400
+	id <S273204AbRJJBim>; Tue, 9 Oct 2001 21:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273108AbRJJBfn>; Tue, 9 Oct 2001 21:35:43 -0400
-Received: from nsd.mandrakesoft.com ([216.71.84.35]:5189 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S272773AbRJJBff>; Tue, 9 Oct 2001 21:35:35 -0400
-Date: Tue, 9 Oct 2001 20:35:56 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: sethg@eng.sun.com
-cc: Robert Vojta <vojta@pharocom.net>, seth goldberg <seth.goldberg@sun.com>,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: sis900 does not work in 2.4.10
-In-Reply-To: <Pine.LNX.4.33.0110091543410.3118-100000@bergsoft.eng.sun.com>
-Message-ID: <Pine.LNX.3.96.1011009203409.702C-100000@mandrakesoft.mandrakesoft.com>
+	id <S273255AbRJJBic>; Tue, 9 Oct 2001 21:38:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59403 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273204AbRJJBiO>; Tue, 9 Oct 2001 21:38:14 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Re: Discrepancies between /proc/cpuinfo and Dave J's 
+ x86info
+Date: 9 Oct 2001 18:38:39 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9q08qv$v7$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0107111625410.1811-100000@Appserv.suse.de> <p05100361b77232f67994@[207.213.214.37]>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001 sethg@eng.sun.com wrote:
->   Installing the 2.4.10-ac10 patch fixed this [sis900] problem 100%.
->   Thanks ver much for the help.
+Followup to:  <p05100361b77232f67994@[207.213.214.37]>
+By author:    Jonathan Lundell <jlundell@pobox.com>
+In newsgroup: linux.dev.kernel
+>
+> At 4:28 PM +0200 2001-07-11, Dave Jones wrote:
+> >On Wed, 11 Jul 2001, Hugh Dickins wrote:
+> >
+> >>  Am I paranoid?
+> >
+> >Probably :)
+> >The Intel CPUs with PSN I've seen simply drop 1 level.
+> >What other CPUs support this feature? ISTR Transmeta had it?
+> >Do they behave the same?
+> >
+> >>   I feel nervous about "c->cpuid_level--" inferring
+> >>  what we expect to happen to it, would prefer to check it (below).
+> >>  +		c->cpuid_level = cpuid_eax(0);
+> >
+> >No biggie, either solution is fine with me.
+> 
+> HD's version has the advantage of not having to make assumptions 
+> about how future CPUs might handle the level, and leaves open the 
+> alternative possibility of leaving the level at 3 (or some future 4) 
+> and just turning off the serial-number capability.
+> 
 
-Note that the only sis900 change in 2.4.10-ac10 is the addition of a
-line MODULE_LICENSE("GPL").  Either your compiler is malfunctioning or
-some other bug is/was affecting you.
+cpuid_level-- is wrong on at least one existing processor (Crusoe),
+which doesn't have CPUID level 2 and therefore goes from 3 to 1.
 
-	Jeff
-
-
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbULPFDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbULPFEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbULPFDN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 00:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbULPFDN
+	id S262576AbULPFEL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 00:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbULPFEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 00:03:13 -0500
-Received: from mail.suse.de ([195.135.220.2]:23233 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262588AbULPFCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 00:02:52 -0500
-Date: Thu, 16 Dec 2004 06:02:48 +0100
-From: Andi Kleen <ak@suse.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andi Kleen <ak@suse.de>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org, jrsantos@austin.ibm.com
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <20041216050248.GG32718@wotan.suse.de>
-References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
+	Thu, 16 Dec 2004 00:04:11 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:46802 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262576AbULPFDm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 00:03:42 -0500
+Subject: Re: [RFC] Device Resource Management
+From: Robert Love <rml@ximian.com>
+To: Greg KH <greg@kroah.com>
+Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       len.brown@intel.com, shaohua.li@intel.com,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+In-Reply-To: <20041216041405.GA23223@kroah.com>
+References: <20041211054509.GA2661@neo.rr.com>
+	 <20041216041405.GA23223@kroah.com>
+Content-Type: text/plain
+Date: Thu, 16 Dec 2004 00:05:05 -0500
+Message-Id: <1103173505.6052.282.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> specSFS (an NFS server benchmarmk) has been very sensitive to TLB issues
-> for us, it uses all the memory as pagecache and you end up with 10
-> million+ dentries. Something similar that pounds on the dcache would be
-> interesting.
+On Wed, 2004-12-15 at 20:14 -0800, Greg KH wrote:
 
-I asked Brent to run some benchmarks originally and I believe he has 
-already run all that he could easily set up. If you want more testing
-you'll need to test yourself I think. 
+> Why would it matter if we export this info to userspace?  Do any
+> userspace programs care about this information?
 
-At least I don't think this patch should be further stalled unless
-someone actually comes up with a proof that it actually affects
-performance.
+We'd love to be able to view and manipulate resource information from
+HAL.  As HAL replaces vendor-specific solutions such as, say, kudzu, it
+will need to make device/driver decisions and implement work arounds, so
+this information is incredibly invaluable, let alone just neat to have.
 
--Andi
+Note _requiring_ user-space to implement the resource allocation
+strategy is an entirely different path, and I am not arguing that.  We'd
+like to read it, if nothing else.
+
+	Robert Love
+
+

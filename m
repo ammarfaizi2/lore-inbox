@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbREQW6I>; Thu, 17 May 2001 18:58:08 -0400
+	id <S262212AbREQW56>; Thu, 17 May 2001 18:57:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbREQW56>; Thu, 17 May 2001 18:57:58 -0400
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:28176 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S262208AbREQW5v>; Thu, 17 May 2001 18:57:51 -0400
-Date: Thu, 17 May 2001 23:57:45 +0100 (BST)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-cc: <davem@redhat.com>
-Subject: Kernel bug with UNIX sockets not detecting other end gone?
-Message-ID: <Pine.LNX.4.30.0105172353480.13175-100000@ferret.lmh.ox.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262210AbREQW5s>; Thu, 17 May 2001 18:57:48 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:25559 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S262208AbREQW5j>; Thu, 17 May 2001 18:57:39 -0400
+Date: Thu, 17 May 2001 23:57:37 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.xx ? messages related to parport printer ?
+Message-ID: <20010517235737.I11263@redhat.com>
+In-Reply-To: <3AFAAFE1.DEA0DA6D@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Pgaa2uWPnPrfixyx"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AFAAFE1.DEA0DA6D@wanadoo.fr>; from jean-luc.coulon@wanadoo.fr on Thu, May 10, 2001 at 05:12:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+--Pgaa2uWPnPrfixyx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I wonder if the following is a bug? It certainly differs from FreeBSD 4.2
-behaviour, which gives the behaviour I would expect.
+On Thu, May 10, 2001 at 05:12:33PM +0200, Jean-Luc Coulon wrote:
 
-The following program blocks indefinitely on Linux (2.2, 2.4 not tested).
-Since the other end is clearly gone, I would expect some sort of error
-condition. Indeed, FreeBSD gives ECONNRESET.
+> >Huh.  Does it do the same thing every time you load parport_probe?
+> >Does it always get truncated in the same place?
+>=20
+> Yes ! :-/
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdio.h>
-#include <unistd.h>
+Nothing really uses that information in 2.2 anyway, so it's harmless
+at least.  It's probably a timing thing; take a look at the
+differences between the 2.2 and 2.4 code for that.
 
-int
-main(int argc, const char* argv[])
-{
-  int the_sockets[2];
-  int retval;
-  char the_char;
-  int opt = 1;
+Tim.
+*/
 
-  retval = socketpair(PF_UNIX, SOCK_DGRAM, 0, the_sockets);
-  if (retval != 0)
-  {
-    perror("socketpair");
-    exit(1);
-  }
-  close(the_sockets[0]);
-  /* Linux (2.2) blocks here; FreeBSD does not */
-  retval = read(the_sockets[1], &the_char, sizeof(the_char));
-}
+--Pgaa2uWPnPrfixyx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Cheers
-Chris
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7BFdgONXnILZ4yVIRAgvhAJ90zdfOWII3eC7wNEoLb09Uu5rsfQCghTwy
+dm4lrJuyed+4G8s76QnFzWM=
+=gKNg
+-----END PGP SIGNATURE-----
+
+--Pgaa2uWPnPrfixyx--

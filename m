@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314571AbSEQMFo>; Fri, 17 May 2002 08:05:44 -0400
+	id <S315178AbSEQMT5>; Fri, 17 May 2002 08:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314596AbSEQMFo>; Fri, 17 May 2002 08:05:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:65270 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314571AbSEQMFn>; Fri, 17 May 2002 08:05:43 -0400
-Date: Fri, 17 May 2002 14:05:31 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.15-dj2
-In-Reply-To: <20020517015859.GA523@suse.de>
-Message-ID: <Pine.NEB.4.44.0205171402570.18435-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315285AbSEQMT4>; Fri, 17 May 2002 08:19:56 -0400
+Received: from slip-202-135-75-243.ca.au.prserv.net ([202.135.75.243]:10121
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315178AbSEQMT4>; Fri, 17 May 2002 08:19:56 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davem@redhat.com (David S. Miller), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: Your message of "Fri, 17 May 2002 13:17:25 +0100."
+             <E178gfl-0006Ip-00@the-village.bc.nu> 
+Date: Fri, 17 May 2002 22:21:45 +1000
+Message-Id: <E178gkH-0001LV-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+In message <E178gfl-0006Ip-00@the-village.bc.nu> you write:
+> > > I would much rather fix these instances than add yet another
+> > > interface.
+> > 
+> > I'll accept that if someone's volunteering to audit the kernel for
+> > them every six months.
+> > 
+> > Sorry I wasn't clear: I'm saying *replace*, not add,
+> 
+> Replace requires you audit every single use, and then work out how to
+> handle those that do care about the length and the point it faulted.
 
-I got the following during "make oldconfig":
+Read my original post.  I have done this.
 
-<--  snip  -->
+> From what I've seen of the stuff that has been fixed we have a mix
+> of the following
+> 
+> 1.	Misports of ancient verify_* code - eg the serial ones
+> 2.	Not checking the return code - 100% legal and standards compliant
 
-...
-*
-* PCMCIA/CardBus support
-*
-PCMCIA/CardBus support (CONFIG_PCMCIA) [M/n/y/?]
-  CardBus support (CONFIG_CARDBUS) [Y/n/?]
-  i82092 compatible bridge support (CONFIG_I82092) [M/n/?]
-  i82365 compatible bridge support (CONFIG_I82365) [M/n/?]
-  Databook TCIC host bridge support (CONFIG_TCIC) [M/n/?]
-scripts/Configure: [: : unary operator expected
-*
-* PCI Hotplug Support
-*
-Support for PCI Hotplug (EXPERIMENTAL) (CONFIG_HOTPLUG_PCI) [M/n/y/?]
-...
+No, the 400+ are all of form:
 
-<--  snip  -->
+	/* of course this returns 0 or -EFAULT! */
+	return copy_from_user(xxx);
 
-
-The fix is simple:
-
-
---- drivers/pcmcia/Config.in.old	Fri May 17 14:00:17 2002
-+++ drivers/pcmcia/Config.in	Fri May 17 14:00:43 2002
-@@ -21,7 +21,7 @@
-    if [ "$CONFIG_ARM" = "y" ]; then
-      dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100 $CONFIG_ARCH_SA1100 $CONFIG_PCMCIA
-    fi
--   if [ "$CONFIG_8xx" ="y" ]; then
-+   if [ "$CONFIG_8xx" = "y" ]; then
-      tristate ' M8xx support' CONFIG_PCMCIA_M8XX
-    fi
- fi
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281248AbRKHBfe>; Wed, 7 Nov 2001 20:35:34 -0500
+	id <S281232AbRKHBhP>; Wed, 7 Nov 2001 20:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281249AbRKHBfZ>; Wed, 7 Nov 2001 20:35:25 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:40978 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S281248AbRKHBfP>; Wed, 7 Nov 2001 20:35:15 -0500
-Date: Thu, 8 Nov 2001 10:35:55 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Theodore Tso <tytso@mit.edu>
-Cc: phillips@bonn-fries.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Message-Id: <20011108103555.017cb21e.rusty@rustcorp.com.au>
-In-Reply-To: <20011106104644.A2495@thunk.org>
-In-Reply-To: <20011105033316Z16051-18972+45@humbolt.nl.linux.org>
-	<E160sYK-0003WR-00@wagner>
-	<20011106104644.A2495@thunk.org>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	id <S281241AbRKHBhG>; Wed, 7 Nov 2001 20:37:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37772 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281261AbRKHBg7>;
+	Wed, 7 Nov 2001 20:36:59 -0500
+Date: Wed, 07 Nov 2001 17:36:49 -0800 (PST)
+Message-Id: <20011107.173649.94552736.davem@redhat.com>
+To: tim@physik3.uni-rostock.de
+Cc: adilger@turbolabs.com, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0111080216250.30014-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <20011107.170940.10246156.davem@redhat.com>
+	<Pine.LNX.4.30.0111080216250.30014-100000@gans.physik3.uni-rostock.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001 10:46:44 -0500
-Theodore Tso <tytso@mit.edu> wrote:
+   From: Tim Schmielau <tim@physik3.uni-rostock.de>
+   Date: Thu, 8 Nov 2001 02:20:02 +0100 (CET)
+   
+   They actually are necessary as unsigned values can never become less than
+   zero.
 
-> On Tue, Nov 06, 2001 at 09:48:52AM +1100, Rusty Russell wrote:
-> > 
-> > What concerns me most is the pain involved in writing a /proc or
-> > sysctl interface in the kernel today.  Take kernel/module.c's
-> > get_ksyms_list as a typical example: 45 lines of code to perform a
-> > very trivial task.  And this code is sitting in your kernel whether
-> > proc is enabled or not.  Now, I'm a huge Al Viro fan, but his proposed
-> > improvements are in the wrong direction, IMHO.
-> 
-> I'm all for simplifying the internal kernel interfaces.  What I'm not
-> at *all* convinced about is that it's worth it to make serious changes
-> to the layout of /proc, /proc/sys, etc.  And the concept of being able
-> to very rapidly and easily get at system configuration variables
-> without needing to make sure that /proc is mounted is a very, very
-> good thing.
+I definitely stand corrected.
 
-As these threads show, this is a big argument, involving:
-1) What should the in-kernel interface look like?
-2) What should the userspace interface look like?
-3) Should there be a sysctl interface overlap?
-
-I'm trying to nail down (1).  Whether there is a new backwards
-compatible sysctl() which takes a name instead of a number, and/or
-whether the whole thing should be done in userspace, I am not going
-to address.
-
-Rusty.
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262191AbUCWCls (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 21:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCWCls
+	id S262128AbUCWClQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 21:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUCWClP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 21:41:48 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:41136 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262191AbUCWCll (ORCPT
+	Mon, 22 Mar 2004 21:41:15 -0500
+Received: from main.gmane.org ([80.91.224.249]:63707 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262128AbUCWClE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 21:41:41 -0500
-Date: Mon, 22 Mar 2004 18:39:18 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040322183918.5e0f17c7.pj@sgi.com>
-In-Reply-To: <20040323020940.GV2045@holomorphy.com>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-	<20040318175654.435b1639.pj@sgi.com>
-	<1079737351.17841.51.camel@arrakis>
-	<20040319165928.45107621.pj@sgi.com>
-	<20040320031843.GY2045@holomorphy.com>
-	<20040320000235.5e72040a.pj@sgi.com>
-	<20040320111340.GA2045@holomorphy.com>
-	<20040322171243.070774e5.pj@sgi.com>
-	<20040323020940.GV2045@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 22 Mar 2004 21:41:04 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: Synaptics touchpad + external mouse with Linux 2.6?
+Date: Mon, 22 Mar 2004 18:41:08 -0800
+Message-ID: <pan.2004.03.23.02.41.08.115427@triplehelix.org>
+References: <m33c81lsnk.fsf@defiant.pm.waw.pl> <20040322061657.GA346@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> go for it
+On Mon, 22 Mar 2004 07:16:57 +0100, Vojtech Pavlik wrote:
+> I'm sorry to say it, but it's not possible. Well, it might be, but still
+> the magic to recognize which device is sending the data would be rather
+> crazy.
 
-I'll try.
+Forgive me if I'm being naive, but...
 
-The main thing I keep seeing, when I look at the resulting machine
-code, is that things such as the following (stripped of everything
-except the bare bones hardwired stuff I needed to compile):
+Why can't synaptics be transparent? Why can't it do all the stuff it
+requires special userspace things for in kernel space?
 
-    #define BITS_TO_LONGS(i) (i+63)/64
-    #define NR_CPUS 64
-    #define __mask(bits)    struct { unsigned long _m[BITS_TO_LONGS(bits)]; }
-    typedef __mask(NR_CPUS) cpumask_t;
+I should think that mapping the scroll buttons to their normal PS/2
+equivalents on a Synaptics touchpad is possible in kernel space.
 
-    #define mask_and(d,s1,s2)                                       \
-    do {                                                            \
-	    int i;                                                  \
-	    for (i = 0; i < sizeof(d)/sizeof(unsigned long); i++)   \
-		    d._m[i] = s1._m[i] & s2._m[i];                  \
-    } while(0)
+A friend recently expressed his discontent with this condition when he
+tried to plug in another mouse and use it while the Synaptics touchpad was
+still present.
 
-    unsigned long f(cpumask_t c, cpumask_t d, cpumask_t e)
-    {
-	mask_and(c,d,e);
-	return c._m[0];
-    }
-
-
-end up producing quite fine code, such as a single inline 64 bit and
-instruction, with no evidence of the for loop, array or struct wrapper,
-on an ia64 (gcc 3.2.3 -O2) for the interesting guts of my silly little
-test function f().
-
-Objdump -d of function f() in above:
-
-    4000000000000610 <f>:
-    4000000000000610:       0d 60 c0 19 3f 23       [MFI]       adds r12=-16,r12
-    4000000000000616:       00 00 00 02 00 00                   nop.f 0x0
-    400000000000061c:       21 0a 31 80                         and r8=r34,r33;;
-    4000000000000620:       11 00 00 00 01 00       [MIB]       nop.m 0x0
-    4000000000000626:       c0 80 30 00 42 80                   adds r12=16,r12
-    400000000000062c:       08 00 84 00                         br.ret.sptk.many b0;;
-
->From this I conjecture that I can provide a single call:
-
-    cpumask_and(cpumask_t d, cpumask_t s1, cpumask_t s2);
-
-that works on both normal (1 to 32 cpu) systems and on big iron systems,
-with traditional 'C' pass by value semantics, all derived from a single
-mask type that works for both node and cpu masks.
-
-The one sticky point evident to me so far would be if some generic code
-were passing a cpumask_t across a function call boundary, and needed to
-be optimum for both small and sparc64 - one would want to pass by value,
-the other would want to pass a pointer to the cpumask.
-
-This is not your fathers 'C'.  The compile time inlining and
-optimization provided by gcc enables it to do a lot more than Dennis
-Ritchie's original C compiler that I learned on.
+So, please enlighten me...
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Joshua Kwan
+
+

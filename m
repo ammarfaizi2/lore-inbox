@@ -1,105 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbTFLC02 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 22:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFLC02
+	id S264676AbTFLC2n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTFLC2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 22:26:28 -0400
-Received: from gateway.penguincomputing.com ([64.243.132.186]:58535 "EHLO
-	inside.penguincomputing.com") by vger.kernel.org with ESMTP
-	id S262498AbTFLC00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 22:26:26 -0400
-Message-ID: <3EE7E809.1000005@penguincomputing.com>
-Date: Wed, 11 Jun 2003 19:40:09 -0700
-From: Philip Pokorny <ppokorny@penguincomputing.com>
-Organization: Penguin Computing
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	Wed, 11 Jun 2003 22:28:42 -0400
+Received: from dyn-ctb-210-9-241-68.webone.com.au ([210.9.241.68]:29188 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264676AbTFLC2j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:28:39 -0400
+Message-ID: <3EE7E876.80808@cyberone.com.au>
+Date: Thu, 12 Jun 2003 12:41:58 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [PATCH] More i2c driver changes for 2.5.70
-References: <10553638062379@kroah.com>
+To: Chris Mason <mason@suse.com>
+CC: Andrea Arcangeli <andrea@suse.de>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls
+References: <20030611003356.GN26270@dualathlon.random>	 <1055292839.24111.180.camel@tiny.suse.com>	 <20030611010628.GO26270@dualathlon.random>	 <1055296630.23697.195.camel@tiny.suse.com>	 <20030611021030.GQ26270@dualathlon.random>	 <1055353360.23697.235.camel@tiny.suse.com>	 <20030611181217.GX26270@dualathlon.random>	 <1055356032.24111.240.camel@tiny.suse.com>	 <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au>	 <20030612012951.GG1500@dualathlon.random> <1055384547.24111.322.camel@tiny.suse.com>
+In-Reply-To: <1055384547.24111.322.camel@tiny.suse.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there is a race condition here in the "set" functions.
-
-I had added a  down()/up() semaphore pair to the write clauses of the 
-functions in the pre-sysfs driver to prevent the xx_update_client() call 
-from modifying the cached values at the same time that the set_xxx() 
-function was trying to change them.
-
-So for example:
-
- >  static ssize_t set_temp_max(struct device *dev, const char *buf,
- >  		size_t count, int nr)
- >  {
- >  	struct i2c_client *client = to_i2c_client(dev);
- >  	struct lm85_data *data = i2c_get_clientdata(client);
- >
- >  	int val = simple_strtol(buf, NULL, 10);
- > +     down(&data->update_lock);
- >  	data->temp_max[nr] = TEMP_TO_REG(val);
- >  	lm85_write_value(client, LM85_REG_TEMP_MAX(nr),
- >                                     data->temp_max[nr]);
- > +     up(&data->update_lock);
- >  	return count;
- >  }
-
-Isn't that still needed?
-
-:v)
-
-Greg KH wrote:
-> ChangeSet 1.1419.1.3, 2003/06/11 11:42:47-07:00, margitsw@t-online.de
-> 
-> [PATCH] I2C: add LM85 driver
-> 
-> Nothing extra in sysfs (yet) but I have left the way open in the driver
-> to do this.
-> Provides vid, vrm, fan_input(1-4), fan_min(1-4), pwm(1-3),
-> pwm_enable(1-3), in_input(0-4), in_min(0-4), in_max(0-4),
-> temp_input(1-3), temp_min(1-3), temp_max(1-3), alarms.
-> 
-> 
->  drivers/i2c/chips/Kconfig  |   19 
->  drivers/i2c/chips/Makefile |    1 
->  drivers/i2c/chips/lm85.c   | 1223 +++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 1241 insertions(+), 2 deletions(-)
-> 
 
 
+Chris Mason wrote:
 
-> +static ssize_t show_temp_max(struct device *dev, char *buf, int nr)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct lm85_data *data = i2c_get_clientdata(client);
-> +
-> +	lm85_update_client(client);
-> +	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->temp_max[nr]) );
-> +}
+>On Wed, 2003-06-11 at 21:29, Andrea Arcangeli wrote:
+>
+>
+>>this will avoid get_request_wait_wakeup to mess the wakeup, so we can
+>>wakep_nr(rq.count) safely.
+>>
+>>then there's the last issue raised by Chris, that is if we get request
+>>released faster than the tasks can run, still we can generate a not
+>>perfect fairness. My solution to that is to change wake_up to have a
+>>nr_exclusive not obeying to the try_to_wakeup retval. that should
+>>guarantee exact FIFO then, but it's a minor issue because the requests
+>>shouldn't be released systematically in a flood. So I'm leaving it
+>>opened for now, the others already addressed should be the major ones.
+>>
+>
+>I think the only time we really need to wakeup more than one waiter is
+>when we hit the q->batch_request mark.  After that, each new request
+>that is freed can be matched with a single waiter, and we know that any
+>previously finished requests have probably already been matched to their
+>own waiter.
+>
+>
+Nope. Not even then. Each retiring request should submit
+a wake up, and the process will submit another request.
+So the number of requests will be held at the batch_request
+mark until no more waiters.
 
-
-
-> +static ssize_t set_temp_max(struct device *dev, const char *buf, 
-> +		size_t count, int nr)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct lm85_data *data = i2c_get_clientdata(client);
-> +
-> +	int val = simple_strtol(buf, NULL, 10);
-> +	data->temp_max[nr] = TEMP_TO_REG(val);
-> +	lm85_write_value(client, LM85_REG_TEMP_MAX(nr), data->temp_max[nr]);
-> +	return count;
-> +}
-
-
--- 
-Philip Pokorny, Director of Engineering
-Tel: 415-358-2635   Fax: 415-358-2646   Toll Free: 888-PENGUIN
-PENGUIN COMPUTING, INC.
-www.penguincomputing.com
+Now that begs the question, why have batch_requests anymore?
+It no longer does anything.
 

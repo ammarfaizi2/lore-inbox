@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbUCGQyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 11:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUCGQyB
+	id S262240AbUCGRX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 12:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbUCGRX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 11:54:01 -0500
-Received: from [202.188.20.133] ([202.188.20.133]:15623 "HELO
-	vernal.wireline.slb.com") by vger.kernel.org with SMTP
-	id S262262AbUCGQxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 11:53:46 -0500
-To: <linux-kernel@vger.kernel.org>
-From: "monte" <fr8eedmanbill@hotmail.com>
-Date: Sun, 07 Mar 2004 16:53:42 GMT
-Message-Id: <1078678422-29920@excite.com>
-Subject: Save up to 80% on your medications!
-Content-Type: text/plain;
+	Sun, 7 Mar 2004 12:23:27 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36100
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262240AbUCGRX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 12:23:26 -0500
+Date: Sun, 7 Mar 2004 18:24:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+       riel@redhat.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040307172407.GA4922@dualathlon.random>
+References: <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <20040305152622.GA14375@elte.hu> <20040305155317.GC4922@dualathlon.random> <20040307084120.GB17629@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040307084120.GB17629@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 07, 2004 at 09:41:20AM +0100, Ingo Molnar wrote:
+> 
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > [...] but I'm quite confortable to say that up to 16G (included) 4:4
+> > is worthless unless you've to deal with the rmap waste IMHO. [...]
+> 
+> i've seen workloads on 8G RAM systems that easily filled up the ~800 MB
+> lowmem zone. (it had to do with many files and having them as a big
 
-Buy the drugs you need at huge discounts from Offshore Pharmacy!
+was that a kernel with rmap or w/o rmap?
 
-http://bigdiscounts.selcydc.com/s95/index.php?id=s95
+> but i'm quite strongly convinced that 'getting rid' of the 'pte chain
+> overhead' in favor of questionable lowmem space gains for a dying
+> (high-end server) platform is very shortsighted. [getting rid of them
+> for purposes of the 64-bit platforms could be OK, but the argumentation
+> isnt that strong there i think.]
 
-
-This weeks specials include great deals on:
-
-- V i a g r a Soft Tabs - (Takes effect in a quarter of the time!)
-- Super V i a g r a - (Lasts 8 times longer!)
-- U l t r a m - (Pain Relief)
-- S o m a - (Muscle Relaxants)
-- Z y b a n - (Stop Smoking)
-- P r o z a c - (Anti-Depressant)
-- X a n a x - (Anti-Depressant)
-- V a l i u m - (Anxiety Relief)
-
-http://bigdiscounts.selcydc.com/s95/index.php?id=s95
-
-
-
-
-
-
-
-gillaspie death venus colleen moira stimpson   sweety kristiDenver kristi mondana kbuchan   mdougher defilippis  cori dobkin rjhoban  hansolo madge 
-Get off this list by writing to getmeoff731@excitemail.com
+disagree, the reason I'm doing it is for the 64bit platforms, I can't
+care less about x86. the vm is dogslow with rmap.

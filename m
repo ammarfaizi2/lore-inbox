@@ -1,71 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263520AbTDCThS 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:37:18 -0500
+	id S263419AbTDCTav 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263524AbTDCThS 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:37:18 -0500
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:6644 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S263520AbTDCThK 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 14:37:10 -0500
-Importance: Normal
-Sensitivity: 
+	id S261304AbTDCTau 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:30:50 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36269 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263511AbTDCTTS 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 14:19:18 -0500
+Date: Thu, 3 Apr 2003 14:30:45 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, riel@redhat.com,
+       linux-kernel@vger.kernel.org, linux390@de.ibm.com
 Subject: Re: gcc-3.2 breaks rmap on s390x
-To: hugh@veritas.com, zaitcev@redhat.com, riel@surriel.com
-Cc: linux-kernel@vger.kernel.org,
-       "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFEA6A4CF2.EF4982E0-ONC1256CFD.006A9D4F@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 3 Apr 2003 21:42:25 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 03/04/2003 21:42:28
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-ID: <20030403143045.A1437@devserv.devel.redhat.com>
+References: <20030403131054.B25676@devserv.devel.redhat.com> <Pine.LNX.4.44.0304031954480.2237-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304031954480.2237-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Apr 03, 2003 at 08:01:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+> Date: Thu, 3 Apr 2003 20:01:10 +0100 (BST)
+> From: Hugh Dickins <hugh@veritas.com>
 
->Isn't it rather odd that it should fix the problem you describe?
->because the barrier you're adding comes only in the exceptional path,
->when the lock was found already held.  I suppose the compiler is free
->to make the barrier more general than you've asked for, but it seems
->unsafe to rely on that.
+> >  	while (test_and_set_bit(PG_chainlock, &page->flags)) {
+> > -		while (test_bit(PG_chainlock, &page->flags))
+> > +		while (test_bit(PG_chainlock, &page->flags)) {
+> >  			cpu_relax();
+> > +			barrier();
+> > +		}
+> >  	}
 
-No, it's the other way around:  the compiler is free to ignore the
-barrier only if can prove the path containing it is not taken
-(which it cannot in this case as the outer while depends on a volatile
-test_and_set_bit operation).
+> Isn't it rather odd that it should fix the problem you describe?
+> because the barrier you're adding comes only in the exceptional path,
+> when the lock was found already held.
 
+The actual code is not drastically rearranged and fragments
+are not replicated. Thus, the code below the while() loop
+cannot possibly know if the lock was contested or not
+(if the loop was executed at least once or not),
+and it has to load the value from memory.
 
-However, this code still contains a (theoretical) problem:
+But suppose your worst fears came true and complier decided
+to push the beyond the limits of reasonable into the shady
+realm of legal. The worst the compiler can do is:
 
->       while (test_and_set_bit(PG_chainlock, &page->flags)) {
-> -             while (test_bit(PG_chainlock, &page->flags))
-> +             while (test_bit(PG_chainlock, &page->flags)) {
->                       cpu_relax();
-> +                     barrier();
-> +             }
+   register word r10;
+   r10 = page->pte.direct;
+   if (r10!=0) something();
+   if (test_and_set_bit(PG_chainlock, &page->flags) == 0) {
+      /* No barrier here, mwuahahaha!!! */
+   } else {
+      do {
+        while (test_bit(PG_chainlock, &page->flags)) {
+          // This loop can be inverted too. No change to the reasoning.
+          cpu_relax();
+          barrier();
+        }
+      } while (test_and_set_bit(PG_chainlock, &page->flags));
+      r10 = page->pte.direct;
+   }
+   foo_using(r10);
 
-nothing in the inner loop contains a (hardware) memory barrier
-('serialization' in s390-speak), so nothing forces the processor
-to ever refresh its cached value of page->flags from memory.
+Which continues to work, because the value loaded before uncontested
+was taken is still valid later. The problem only happens if the
+lock was contested.
 
-On s390, the architecture definition would allow a processor
-to loop endlessly (that is, until the next interrupt, which
-serves as serialization operation).  However, none of the currently
-existing processors do that, so the problem is only theoretical ...
+BTW, Bill Irwin noted that, strictly speaking, the first if statement
+with page_mapped should be done under the lock for safety. I think
+he got a point. A 2.5 preempt in the wrong moment (between the
+first load and test_and_set_bit in the above example) makes
+the code invalid after all. Not that it mattered as long as
+compiler does not do such exercises as I outlined above.
 
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
+-- Pete

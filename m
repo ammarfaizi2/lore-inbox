@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSHXRIe>; Sat, 24 Aug 2002 13:08:34 -0400
+	id <S316574AbSHXR3t>; Sat, 24 Aug 2002 13:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSHXRIe>; Sat, 24 Aug 2002 13:08:34 -0400
-Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:43940 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316535AbSHXRId>; Sat, 24 Aug 2002 13:08:33 -0400
-Date: Sat, 24 Aug 2002 11:12:27 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Arador <diegocg@teleline.es>
-cc: Robert Love <rml@tech9.net>, <thunder@lightweight.ods.org>,
-       <dag@newtech.fi>, <linux-kernel@vger.kernel.org>, <conman@kolivas.net>
-Subject: Re: Preempt note in the logs
-In-Reply-To: <20020824190250.796126ac.diegocg@teleline.es>
-Message-ID: <Pine.LNX.4.44.0208241109210.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316576AbSHXR3t>; Sat, 24 Aug 2002 13:29:49 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:9919 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S316574AbSHXR3s>;
+	Sat, 24 Aug 2002 13:29:48 -0400
+Date: Sat, 24 Aug 2002 19:32:15 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4-ac1
+Message-ID: <20020824173215.GA475@prester.freenet.de>
+Mail-Followup-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
+Organization: hh59.org
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alan!
 
-On Sat, 24 Aug 2002, Arador wrote:
-> I can see all those messages, too. A lot of tasks (if not all)
-> seems to exit with a "note: task[PID] exited with preempt_count 1"
+On Fri, 23 Aug 2002, Alan Cox wrote:
 
-Symptoms confirmed, that is.
-
-> > Do you use XFS?  If not, what fs?
+> IDE status
+> 	Chasing two reports of strange ide-scsi crashes
+> 	Still some Promise glitches - need to review merge carefully
+> 	Need to double check SiS code versus older SiS code.
+> 	Sometimes we now turn DMA off excessively for simplex devices
 > 
-> Reiserfs
+> 	No corruption cases except known hardware incompatibilities
+> 	that broke before
 
-IMHO we can exclude reiserfs, at least the code must be clean. I'm on
-2.4.19-rc5-aa1 w/reiserfs 3.6, which acts just the hell of a perfect
-system. I'm serious. Of course it can be triggering.
+What latest 2.4 kernel would then be safe to  burn a CD via ide-scsi? Shall
+I stay away from ac-series as IDE changes are being made?
+Could it cause any serious harm to my CD while burning or my hdds?
 
-We have to check
-1. process kicking code
-2. process killing code
-3. memory allocation code
-4. read/write code
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+Thank you and regards,
+Axel S.

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265324AbTL0DEn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 22:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTL0DEn
+	id S265299AbTL0DAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 22:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTL0DAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 22:04:43 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:32775 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265324AbTL0DEm (ORCPT
+	Fri, 26 Dec 2003 22:00:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37248 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265299AbTL0DAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 22:04:42 -0500
-Date: Sat, 27 Dec 2003 00:58:43 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: David Monro <davidm@amberdata.demon.co.uk>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: handling an oddball PS/2 keyboard (w/ patch)
-Message-ID: <20031226235843.GA15973@win.tue.nl>
-References: <3FEA5044.5090106@amberdata.demon.co.uk> <20031225063936.GA15560@win.tue.nl> <200312251316.hBPDG7LT000163@81-2-122-30.bradfords.org.uk> <3FEAFDF3.80008@amberdata.demon.co.uk> <3FEB972B.4010406@amberdata.demon.co.uk> <20031226102210.GA11127@ucw.cz>
+	Fri, 26 Dec 2003 22:00:39 -0500
+Date: Fri, 26 Dec 2003 19:00:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@surriel.com>
+Cc: torvalds@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       andrea@suse.de
+Subject: Re: Page aging broken in 2.6
+Message-Id: <20031226190045.0f4651f3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com>
+References: <1072423739.15458.62.camel@gaston>
+	<Pine.LNX.4.58.0312260957100.14874@home.osdl.org>
+	<1072482941.15458.90.camel@gaston>
+	<Pine.LNX.4.58.0312261626260.14874@home.osdl.org>
+	<1072485899.15456.96.camel@gaston>
+	<Pine.LNX.4.58.0312261649070.14874@home.osdl.org>
+	<Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031226102210.GA11127@ucw.cz>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 26, 2003 at 11:22:10AM +0100, Vojtech Pavlik wrote:
+Rik van Riel <riel@surriel.com> wrote:
+>
+> On Fri, 26 Dec 2003, Linus Torvalds wrote:
+> 
+> > I'll let Rik and Andrea argue that part - it's entirely possible that
+> > getting lots of positive results is a _good_ thing, if the same page is
+> > mapped multiple times. That would just make us less eager to unmap it,
+> > which sounds like potentially the right thign to do (it's also how the
+> > old non-rmap code worked, and I know Rik thought it was "unfair", but
+> > whatever).
+> 
+> I'm really not sure which of the two behaviours would
+> perform better.  Chances are both behaviours will show
+> some performance improvement over the other, depending
+> on the workload...
+> 
 
-> This is intentional. Set 3 was never meant to be translated.
+The current behaviour seems better from a theoretical point of view.  All
+we want to know is the reference pattern - whether it is one process
+referencing the page frequently or 100 processes referencing it
+infrequently shouldn't matter.  And if we want to give mapped pages more
+preference over unmapped ones (they already have some preference, by the
+default value of /proc/sys/vm/swappiness), we have less radical ways of
+doing this.
 
-In fact it is just the opposite. Set 3 was designed to be translated.
-Look at the translated codes:
-Q (10), W (11), E (12), R (13), T (14), Y (15), U (16), I (17), O (18), P (19).
-Completely regular.
-Now look at the untranslated codes:
-Q (15), W (1d), E (24), R (2d), T (2c), Y (35), U (3c), I (43), O (44), P (4d).
-Messy.
-
-Andries
+But yes, it probably makes damn-all difference across a mix of workloads.
 

@@ -1,41 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291752AbSBHTWY>; Fri, 8 Feb 2002 14:22:24 -0500
+	id <S291753AbSBHTYE>; Fri, 8 Feb 2002 14:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291753AbSBHTWO>; Fri, 8 Feb 2002 14:22:14 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58346 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S291752AbSBHTWD>;
-	Fri, 8 Feb 2002 14:22:03 -0500
-Date: Fri, 8 Feb 2002 14:21:58 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>, Martin Wirth <Martin.Wirth@dlr.de>,
-        Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-        mingo@elte.hu, haveblue@us.ibm.com
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <Pine.LNX.4.31.0202081110190.12981-100000@cesium.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0202081416410.28514-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291754AbSBHTXz>; Fri, 8 Feb 2002 14:23:55 -0500
+Received: from f250.law11.hotmail.com ([64.4.16.75]:3592 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S291753AbSBHTXt>;
+	Fri, 8 Feb 2002 14:23:49 -0500
+X-Originating-IP: [156.153.254.10]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: tigran@veritas.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] larger kernel stack (8k->16k) per task (fwd)
+Date: Fri, 08 Feb 2002 11:23:43 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F2500h9N7AeVRZ24Qri0000fd95@hotmail.com>
+X-OriginalArrivalTime: 08 Feb 2002 19:23:43.0424 (UTC) FILETIME=[1F17FC00:01C1B0D6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi Tigran,
 
-On Fri, 8 Feb 2002, Linus Torvalds wrote:
+>From: Tigran Aivazian <tigran@veritas.com>
+>To: Balbir Singh <balbir_soni@hotmail.com>
+>CC: <linux-kernel@vger.kernel.org>
+>Subject: Re: [patch] larger kernel stack (8k->16k) per task (fwd)
+>Date: Fri, 8 Feb 2002 19:01:06 +0000 (GMT)
+>
+>Hi Balbir,
+>
+>On Fri, 8 Feb 2002, Balbir Singh wrote:
+> > 2. I think you missed getuser.S in arch/i386/kernel/lib.
+> >    All the __get_user_x should change to
+>
+>no, I didn't miss them. If you read the patch again you will see them.
+>
+> >
+> > 3. I verified that the instance of GET_CURRENT in hw-irq.h
+> >    is not being used by anybody and can safely be removed.
+>
+>yes, I also verified and came to the same conclusion but left the change
+>in the patch on purpose (so if anyone does start using it, it is already
+>correct)
+>
+> >
+> > __get_user_1:
+> >         movl %esp,%edx
+> >         andl $~(THREAD_SIZE - 1),%edx
+> >         cmpl addr_limit(%edx),%eax
+> >
+> > I have a patch that lets the user select any stack size
+> > from 8K to 64K, it can be configured. And yes, it works
+> > on my system.
+> >
+> > I do not have the /proc entry that u have though in
+> > my patch.
+> >
+> > Would you like to merge both the patches or would you
+> > like me to do it and send out a new version.
+> >
+> >
+> > The patch is attached along with this email. It
+> > is againt 2.4.17
+>
+>The serious problem with your patch is that you missed quite a few places
+>(e.g.  smpboot.c and traps.c). Most importantly, you missed the alignment
+>in vmlinux.lds so I guess your machine boots by pure luck :) In the early
+>stages (first hours of writing it) I missed that one too and was puzzled
+>by random panics on boot...
+>
 
-> ... so just make it a spinlock instead.
-> 
-> The semaphore is overkill, as the only thing we're really protecting is
-> one 64-bit access against other updates.
+I can explain the vmlinux.lds with the fact that
+I think we should not change the size of init_task
+in sched.h. It would affect all the architectures.
+As I mentioned, I followed the PARISC model.
 
-I'm not sure that we really need a separate spinlock here.  BKL might
-be just fine, provided that we remove it from real hogs.  And we can
-do it now.
+Yes, I did miss out changes in traps.c and smpboot.c
+Thanks for pointing them out.
 
-Had anyone actually seen lseek() vs. lseek() contention prior to the
-switch to ->i_sem-based variant?  If the mix looked like
-	infrequently called BKL hog + many lseeks()
-almost all contention cases would have lseek() spinning while
-a hog holds BKL.  And real problem here is a hog...
+
+>Actually, the patch I sent is only part of the "complete piece", the other
+>part being changes to kdb to work correctly with large stack. I can
+>separate those from kdb patch that I use and send out if there was enough
+>interest.
+>
+>Regards,
+>Tigran
+>
+
+
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
 

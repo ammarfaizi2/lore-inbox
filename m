@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTEGDu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 23:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbTEGDu3
+	id S262810AbTEGECl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 00:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTEGECl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 23:50:29 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45036 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262805AbTEGDu2 (ORCPT
+	Wed, 7 May 2003 00:02:41 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:56333 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S262810AbTEGECj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 23:50:28 -0400
-Date: Tue, 06 May 2003 19:55:11 -0700 (PDT)
-Message-Id: <20030506.195511.74729679.davem@redhat.com>
-To: george@mvista.com
-Cc: akpm@zip.com.au, kbuild-devel@lists.sourceforge.net, mec@shout.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] asm-generic magic
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EB817C9.8020603@mvista.com>
-References: <3EB75924.1080304@mvista.com>
-	<1052205991.983.13.camel@rth.ninka.net>
-	<3EB817C9.8020603@mvista.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 7 May 2003 00:02:39 -0400
+Subject: [PATCH 2.5.69] mod_timer fix for floppy98.c
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 May 2003 09:50:29 +0530
+Message-Id: <1052281229.1189.4.camel@lima.royalchallenge.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: george anzinger <george@mvista.com>
-   Date: Tue, 06 May 2003 13:15:05 -0700
+In my previous patch against 2.5.68, missed out killing del_timer.
+Thanks to Christian Heller for pointing it out.
 
-   David S. Miller wrote:
-   > This is not at all how this stuff is supposed to work.
-   
-   Um, where might one learn how it is _supposed_ to work?
+vinay
 
-By looking at existing uses.
+floppy98.c: Trivial {del,add}_timer to mod_timer conversions.
 
-Some files provide partial APIs, other files are "configured'
-by the asm-ARCH/foo.h header before being included.
+--- linux-2.5.69/drivers/block/floppy98.c	2003-05-05 09:56:04.000000000 +0530
++++ linux-2.5.69-nvk/drivers/block/floppy98.c	2003-05-07 09:43:22.000000000 +0530
+@@ -702,15 +702,16 @@
+ 
+ static void reschedule_timeout(int drive, const char *message, int marg)
+ {
++	long delay;
++
+ 	if (drive == current_reqD)
+ 		drive = current_drive;
+-	del_timer(&fd_timeout);
+ 	if (drive < 0 || drive > N_DRIVE) {
+-		fd_timeout.expires = jiffies + 20UL*HZ;
++		delay = jiffies + 20UL*HZ;
+ 		drive=0;
+ 	} else
+-		fd_timeout.expires = jiffies + UDP->timeout;
+-	add_timer(&fd_timeout);
++		delay = jiffies + UDP->timeout;
++	mod_timer(&fd_timeout, delay);
+ 	if (UDP->flags & FD_DEBUG){
+ 		DPRINT("reschedule timeout ");
+ 		printk(message, marg);
+
+
+

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267236AbTAVIOe>; Wed, 22 Jan 2003 03:14:34 -0500
+	id <S267376AbTAVIPb>; Wed, 22 Jan 2003 03:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267376AbTAVIOe>; Wed, 22 Jan 2003 03:14:34 -0500
-Received: from gate.perex.cz ([194.212.165.105]:53254 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267236AbTAVIOd>;
-	Wed, 22 Jan 2003 03:14:33 -0500
-Date: Wed, 22 Jan 2003 09:23:08 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Adam Belay <ambx1@neo.rr.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2
-In-Reply-To: <Pine.LNX.4.44.0301212034340.1577-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0301220918470.1210-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267378AbTAVIPb>; Wed, 22 Jan 2003 03:15:31 -0500
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:15066 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S267376AbTAVIPa>; Wed, 22 Jan 2003 03:15:30 -0500
+Date: Wed, 22 Jan 2003 09:23:16 +0100 (CET)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200301220823.h0M8NG2o022692@burner.fokus.gmd.de>
+To: axboe@suse.de, cdwrite@other.debian.org, greg@ulima.unil.ch,
+       linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Kai Germaschewski wrote:
+>From axboe@suse.de Wed Jan 22 09:06:12 2003
 
-> On Tue, 21 Jan 2003, Adam Belay wrote:
-> 
-> > How does this sound...
-> > 1.) detach pnp card service matching from the driver model, the driver model is
-> > what is imposing this one card per driver limit.
-> > 2.) create a special pnp_driver that handles cards and forwards driver model calls
-> > to the pnp card services, we can use attach_driver to avoid matching problems.
-> > 
-> > design goals for these changes should be as follows:
-> > 1.) multiple drivers can bind to one card
-> > 2.) pnp_attach, pnp_detach, and pnp status should be phased out and replaced with
-> > the special card driver, in other words the driver model can take care of this.
-> 
-> First of all I admit that I haven't been following closely, so I maybe way 
-> off.
-> 
-> Anyway, the old ISAPnP used, AFAIR, struct pci_bus for the card and struct
-> pci_device for the devices. So what's wrong with using the basically the
-> same abstraction with the driver model, which has buses and devices as
-> well. That means each device can have its own driver, and I suppose that
-> should be good enough (as opposed to only one driver per card).
-> 
-> But probably I'm missing something?
+>> >BURN-Free is ON.
+>> >Starting new track at sector: 0
+>> >Track 01:    4 of 4001 MB written (fifo  96%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+>> >CDB:  2A 00 00 00 08 B8 00 00 1F 00
+>> >status: 0x1 (GOOD STATUS)
+>> >resid: 63488
+>> >cmd finished after 0.008s timeout 100s
+>> 
+>> I can't tell you what happened because the kernel is broken :-(
+>> 
+>> If you fix the kernel, you will get a readble error message,
 
-The structure is clear (devices & cards) but we need something like device
-groups which contain subsets of devices per card. Actuall driver model
-doesn't allow this directly, so we are looking for a way to implement
-this.
+>How helpful. How about saying what's broken instead and I'd be happy to
+>fix it.
 
-Imagine:
+I thought it's obvious: It is most likely a problem caused by the broken 
+bit #defines in the Linux kernel for the SCSI status byte. I assume that
+status should be 0x02 instead of 0x01. In addition, I would guess that
+for the same reason, a kernel instance did not fetch the sense data as
+libscg should try to work around these Linux bugs if at least the first 
+sense byte is != 0.
 
-card -+-> audio1
-      |
-      +-> audio2
-      |
-      +-> IDE
+Jörg
 
-If we have two card drivers (one for audio1 & audio2 and second for IDE)  
-then current code will fail, because only one PnP driver can be attached
-to a card.
-
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fhg.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fhg.de/usr/schilling   ftp://ftp.berlios.de/pub/schily

@@ -1,83 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268017AbUHKKYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267949AbUHKKoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268017AbUHKKYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 06:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUHKKYc
+	id S267949AbUHKKoY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 06:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUHKKoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 06:24:32 -0400
-Received: from imap.gmx.net ([213.165.64.20]:48049 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268017AbUHKKY3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 06:24:29 -0400
-X-Authenticated: #4512188
-Message-ID: <4119F3D9.7040708@gmx.de>
-Date: Wed, 11 Aug 2004 12:24:25 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
+	Wed, 11 Aug 2004 06:44:23 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:51374 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S267949AbUHKKoT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 06:44:19 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Wed, 11 Aug 2004 12:42:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Paul Jackson <pj@sgi.com>, Hubertus Franke <frankeh@watson.ibm.com>,
+       mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com,
+       ckrm-tech@lists.sourceforge.net
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040810043120.23aaf071.pj@sgi.com> <41194E49.2000300@watson.ibm.com>
+In-Reply-To: <41194E49.2000300@watson.ibm.com>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: spaminos-ker@yahoo.com, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and
-         others)
-References: <20040811022143.4892.qmail@web13910.mail.yahoo.com> <cone.1092193795.772385.25569.502@pc.kolivas.org>
-In-Reply-To: <cone.1092193795.772385.25569.502@pc.kolivas.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408111242.04142.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wednesday 11 August 2004 00:38, Shailabh Nagar wrote:
+> >  Metrics, transactions, tasks, and resource
+> >     decisions all have to be tracked or managed by Class.
+> > 
+> >     These Classes form a fairly shallow hierarchy of usage levels or
+> >     service qualities, as perceived by the end users of the system.
+> > 
+> >     I'd guess that the average lifetime of a Class is months or years,
+> >     as they can reflect the relative priority of relations with long
+> >     standing, external customers.
+> > 
+> > Cpusets and CKRM have profoundly different purposes, economics and
+> > motivations.
+> 
+> I would say the methods differ, not the purpose. Both are trying to 
+> performance-isolate groups of tasks - one uses the spatial dimension of 
+> cpu bindings, the other uses  the temporal dimension of cpu time.
 
-Con Kolivas wrote:
-| I tried this on the latest staircase patch (7.I) and am not getting any
-| output from your script when tested up to 60 threads on my hardware. Can
-| you try this version of staircase please?
-|
-| There are 7.I patches against 2.6.8-rc4 and 2.6.8-rc4-mm1
-|
-| http://ck.kolivas.org/patches/2.6/2.6.8/
+So the purpose is different, too. With your words: spatial versus
+temporal separation. They are orthogonal. In physics terms: you need
+both to describe the universe and you cannot transform the one into
+the other. Both make sense, they can be combined to give more benefit
+(aehm, control).
 
-Hi,
 
-I just updated to 2.6.8-rc4-ck2 and tried the two options interactive
-and compute. Is the compute stuff functional? I tried setting it to 1
-within X and after that X wasn't usable anymore (meaning it looked like
-locked up, frozen/gone mouse cursor even). I managed to switch back to
-console and set it to 0 and all was OK again.
+> The other point of difference is the one you'd brought up earlier - ther 
+> restrictions on the hierarchy creation. CKRM has none (effectively), 
+> cpusets has many.
 
-The interactive to 0 setting helped me with runnign locally multiple
-processes using mpi. Nevertheless (only with interactive 1 regression to
-vanilla scheduler, else same) can't this be enhanced?
+Don't know how it's exactly implemented, but the restrictions should
+not be at hierarchy creation time (i.e. when creating the class
+(cpusets) subdirectory). They should be imposed when setting/changing
+the attributes. Writing illegal values to the virtual attribute files
+must simply fail. And each resource controller knows best what it
+allows for and what not, this shouldn't be a task of the
+infrastructure (CKRM).
 
-Details: I am working on a load balancing class using mpi. For testing
-purpises I am running multiple processes on my machine. So for a given
-problem I can say, it needs x time to solve. Using more processes opn a
-single machine, this time (except communication and balancing overhead)
-shouldn't be much larger. Unfortunately this happens. Eg. a given
-probelm using two processes needs about 20 seconds to finish. But using
-8 it already needs 47s (55s with interactiv set to 1). No, my balancing
-framework is quite good. On a real (small, even larger till 128 nodes
-tested) cluster overhead is just as low as 3% to 5%, ie. it scales quite
-linearly.
 
-Any idea how to tweak the staircase to get near the 20 seconds with more
-processes? Or is this rather a problem of mpich used locally?
+> As CKRM's interface stands today, there are sufficient differences 
+> between the interfaces to keep them separate.
+> 
+> However, if CKRM moves to a model where
+> - each controller is allowed to define its own virtual files and attributes
+> - each controllers has its own hierarchy (and hence more control over 
+> how it can be formed),
+> then the similarities will be too many to ignore merger possibilities
+> altogether.
+> 
+> The kicker is, we've not decided. The splitting of controllers into 
+> their own hierarchy is something we're considering independently (as a 
+> consequence of Linus' suggestion at KS04). But making the interface 
+> completely per-controller is something we can do, without too much 
+> effort, IF there is sufficient reason (we have other reasons for doing 
+> that as well - see recent postings on ckrm-tech).
 
-If you like I can send you my code to test (beware it is not that small).
+Having controller specifics less hidden is good because usage becomes
+more intuitive and you don't have to RTFM (controller specific manuals
+would have to be written, too). One file per attribute is also nicer
+than several attributes hidden in a shares files. Adding an attribute
+means adding a file, it doesn't break the old interface, so this is
+easier to maintain. And, as you mentioned, some files in the current
+CKRM interface just don't make sense for some resources. But a sane
+ruleset provided by CKRM for external controllers should be
+there. For example something like:
+   - Class members are added by writing to the vitual file "target".
+   - Class members are listed by reading the virtual file "target" and
+     the format is ...
+   - Each class attribute should be controlled by one file named
+     appropriately. Etc...
+   - Members of a class can register a callback which will be invoked
+     when following events occur:
+        - the class is destroyed
+	- ... ?
+   - etc ...
 
-Cheers,
+> Interest/recommendations from the community that cpusets  be part of 
+> CKRM's hierarchy would certainly be a factor in that decision.
 
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I'd prefer a single entry point for resource management with
+consistent (not necessarilly same) and easy to use user interfaces for
+all resources.
 
-iD8DBQFBGfPZxU2n/+9+t5gRApa1AJ9j82Aujwj/IoGLqvDsX29y/dLu/wCglvse
-bRV6zeWc+6z+ETl9Hxqleho=
-=Jay6
------END PGP SIGNATURE-----
+Regards,
+Erich
+

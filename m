@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUHWTjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUHWTjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266876AbUHWTjU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUHWTi1
+	id S266871AbUHWTjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUHWTii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:38:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53699 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266879AbUHWSga convert rfc822-to-8bit
+	Mon, 23 Aug 2004 15:38:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53187 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266876AbUHWSg3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:30 -0400
+	Mon, 23 Aug 2004 14:36:29 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10932860812984@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:41 -0700
-Message-Id: <10932860811635@kroah.com>
+In-Reply-To: <10932860842880@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:44 -0700
+Message-Id: <10932860842875@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.41.4, 2004/07/14 13:31:39-07:00, lxiep@us.ibm.com
+ChangeSet 1.1807.54.9, 2004/08/02 16:12:12-07:00, akpm@osdl.org
 
-[PATCH] PCI Hotplug: rpaphp_add_slot.patch
+[PATCH] I2C: activate SMBus device on hp d300l
 
-I found a bug in rpaphp code during DLPAR I/O testing.   When DLPAR ADD
-a non-empty I/O slot to a partition,  an adapter  in the slot  didn't
-get configured. The attached patch fixes that.
+From: Dominik Brodowski <linux@dominikbrodowski.de>
 
-Signed-off-by: Linda Xie <lxie@us.ibm.com>
+HP hides the SMBus on the HP D330L. Original patch by Stoyan Martinov.
+
+Signed-off-by: Örjan Persson <orange@fobie.net>
+Signed-off-by: Dominik Brodowski <linux@brodo.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/hotplug/rpaphp_pci.c |   21 ++++++++++++++++++---
- 1 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
 
-diff -Nru a/drivers/pci/hotplug/rpaphp_pci.c b/drivers/pci/hotplug/rpaphp_pci.c
---- a/drivers/pci/hotplug/rpaphp_pci.c	2004-08-23 11:08:56 -07:00
-+++ b/drivers/pci/hotplug/rpaphp_pci.c	2004-08-23 11:08:56 -07:00
-@@ -341,7 +341,6 @@
- 	return rc;
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2004-08-23 11:06:57 -07:00
++++ b/drivers/pci/quirks.c	2004-08-23 11:06:57 -07:00
+@@ -730,6 +730,11 @@
+ 			case 0x0890: /* HP Compaq nc6000 */
+ 				asus_hides_smbus = 1;
+ 			}
++		if (dev->device == PCI_DEVICE_ID_INTEL_82865_HB)
++			switch (dev->subsystem_device) {
++			case 0x12bc: /* HP D330L */
++				asus_hides_smbus = 1;
++			}
+ 	}
  }
  
--
- static void rpaphp_eeh_remove_bus_device(struct pci_dev *dev)
- {
- 	eeh_remove_device(dev);
-@@ -430,10 +429,26 @@
- 				__FUNCTION__, slot->name);
- 			goto exit_rc;
- 		}
--		if (init_slot_pci_funcs(slot)) {
--			err("%s: init_slot_pci_funcs failed\n", __FUNCTION__);
-+
-+		if (slot->hotplug_slot->info->adapter_status == NOT_CONFIGURED) {
-+			dbg("%s CONFIGURING pci adapter in slot[%s]\n",  
-+				__FUNCTION__, slot->name);
-+			if (rpaphp_config_pci_adapter(slot)) {
-+				err("%s: CONFIG pci adapter failed\n", __FUNCTION__);
-+				goto exit_rc;		
-+			}
-+		} else if (slot->hotplug_slot->info->adapter_status == CONFIGURED) {
-+			if (init_slot_pci_funcs(slot)) {
-+				err("%s: init_slot_pci_funcs failed\n", __FUNCTION__);
-+				goto exit_rc;
-+			}
-+
-+		} else {
-+			err("%s: slot[%s]'s adapter_status is NOT_VALID.\n",
-+				__FUNCTION__, slot->name);
- 			goto exit_rc;
- 		}
-+		
- 		print_slot_pci_funcs(slot);
- 		if (!list_empty(&slot->dev.pci_funcs)) {
- 			slot->state = CONFIGURED;
+@@ -1023,12 +1028,14 @@
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845G_HB,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82850_HB,	asus_hides_smbus_hostbridge },
++	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82865_HB,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_7205_0,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82855PM_HB,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82855GM_HB,	asus_hides_smbus_hostbridge },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_0,	asus_hides_smbus_lpc },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801BA_0,	asus_hides_smbus_lpc },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc },
++	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc },
+ 
+ #ifdef CONFIG_SCSI_SATA
+ 	/* Fixup BIOSes that configure Parallel ATA (PATA / IDE) and
 

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbQLOX7P>; Fri, 15 Dec 2000 18:59:15 -0500
+	id <S129428AbQLPALH>; Fri, 15 Dec 2000 19:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129385AbQLOX7G>; Fri, 15 Dec 2000 18:59:06 -0500
-Received: from m35-mp1-cvx1c.col.ntl.com ([213.104.76.35]:6404 "EHLO
-	[213.104.76.35]") by vger.kernel.org with ESMTP id <S129423AbQLOX6z>;
-	Fri, 15 Dec 2000 18:58:55 -0500
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: DPMS kicks in at the wrong time
-In-Reply-To: <200012130649.eBD6mcZ02368@emu.os2.ami.com.au>
-From: "John Fremlin" <vii@penguinpowered.com>
-Date: 15 Dec 2000 19:56:35 +0000
-In-Reply-To: John Summerfield's message of "Wed, 13 Dec 2000 14:48:47 +0800"
-Message-ID: <m2snnp791o.fsf@localhost.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S129706AbQLPAK5>; Fri, 15 Dec 2000 19:10:57 -0500
+Received: from [206.112.105.83] ([206.112.105.83]:3055 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S129428AbQLPAKt>; Fri, 15 Dec 2000 19:10:49 -0500
+From: brian@worldcontrol.com
+Date: Fri, 15 Dec 2000 15:44:16 -0800
+To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this a compromise and how?
+Message-ID: <20001215154416.B10854@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001214005345.A3732@top.worldcontrol.com> <20001214005826.H12544@one-eyed-alien.net> <20001214212211.A10157@iapetus.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <20001214212211.A10157@iapetus.localdomain>; from F.vanMaarseveen@inter.NL.net on Thu, Dec 14, 2000 at 09:22:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- John Summerfield <summer@OS2.ami.com.au> writes:
+Thanks for all the reponses.
 
-[...]
+I happened to have /home in its own partition, so I reinstalled from
+scratch via CD and installed all the security updates, among a
+myriad of other security measures.
 
-> 3) When I then switch back to a virtual console, the screen blanks
-> and switches to power-saving mode.
+I decided not to restore /usr/local from backups, but instead to
+rebuild everything in /usr/local from fresh sources.
 
-Which powersave mode? There are three, IIRC. You can tell them apart
-by the color of or whether the light blinks on some monitors.
-
-If the monitor is set to a modeline that it knows is crazy it might
-turn itself off automatically instead of trying to display it. That
-is, the framebuffer driver or XFree86 is probably not reseting some
-values it should.
-
-[...]
+All those executables and shared libraries in /usr/local just seemed
+to risky.
 
 -- 
+Brian Litzinger <brian@worldcontrol.com>
 
-	http://www.penguinpowered.com/~vii
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

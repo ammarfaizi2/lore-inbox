@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287166AbRL2JNZ>; Sat, 29 Dec 2001 04:13:25 -0500
+	id <S287171AbRL2Ji2>; Sat, 29 Dec 2001 04:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287167AbRL2JNP>; Sat, 29 Dec 2001 04:13:15 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15349 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S287166AbRL2JNE>; Sat, 29 Dec 2001 04:13:04 -0500
-Message-ID: <3C2D890E.BBDE7C09@mvista.com>
-Date: Sat, 29 Dec 2001 01:12:46 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S287173AbRL2JiS>; Sat, 29 Dec 2001 04:38:18 -0500
+Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:29712 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287171AbRL2JiB>;
+	Sat, 29 Dec 2001 04:38:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Legacy Fishtank <garzik@havoc.gtf.org>
+Subject: Re: State of the new config & build system
+Date: Sat, 29 Dec 2001 10:40:33 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Keith Owens <kaos@ocs.com.au>, Mike Castle <dalgoda@ix.netcom.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011229042139.GC14067@thune.mrc-home.com> <20011229024143.A11696@havoc.gtf.org> <3C2D7B2B.C1362850@zip.com.au>
+In-Reply-To: <3C2D7B2B.C1362850@zip.com.au>
 MIME-Version: 1.0
-To: knobi@knobisoft.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <3C2C3F55.3BA4A0C3@sirius-cafe.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16KFyl-0000DL-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Knoblauch wrote:
+On December 29, 2001 09:13 am, Andrew Morton wrote:
+> Legacy Fishtank wrote:
+> > 
+> > On Sat, Dec 29, 2001 at 03:44:10PM +1100, Keith Owens wrote:
+> > > What Mr. Fishtank seems to overlook is that kbuild 2.5 is far more
+> > > flexible and accurate than 2.4, including features that lots of people
+> > > want, like separate source and object trees.
+> > 
+> > I don't see the masses, or, well, anybody on lkml, clamoring for this.
 > 
-> > Re: [RFC] Scheduler issue 1, RT tasks ...
-> >
-> > >
-> > > Right, that was my question. George says, in your words, "for better
-> >
-> > > standards compliancy ..." and I want to know why you guys think
-> > that.
-> >
-> > The thought was that if someone need RT tasks he probably need a very
-> > low
-> > latency and so the idea that by applying global preemption decisions
-> > would
-> > lead to a better compliancy. But i'll be happy to ear that this is
-> > false
-> > anyway ...
-> >
-> 
->  without wanting to start a RT flame-fest, what do people really want
-> when they talk about RT in this [Linux] context:
-> 
-> - very low latency
-> - deterministic latency ("never to exceed")
-> - both
-> - something completely different
-> 
-All of the above from time to time and user to user.  That is, some
-folks want one or more of the above, some folks want more, some less. 
-What is really up?  Well they have a job to do that requires certain
-things.  Different jobs require different capabilities.  It is hard to
-say that any given system will do a reasonably complex job with out
-testing.  For example we may have the required latency but find the
-system fails because, to get the latency, we preempted another task that
-was (and so still is) in the middle of updating something we need to
-complete the job.
+> Clamour.
 
-On the other hand, some things clearly are in the way of doing some real
-time tasks in a timely fashion.  Among these things are long context
-switch latency, high kernel overhead, and low resolution time keeping/
-alarms.  So we talk (argue? posture?) most about these.  At the same
-time all the other bullet items of *nix systems are, at least some
-times, important.
+Clamour.
 
-Why Linux?  The same reasons it is used any where else.  Among these
-reasons is the desire to have to know and support only one system.  Thus
-the drive to extend it to the more responsive end of the spectrum
-without loosing other capabilities.  And, of course, the standards issue
-is in here.  Standards compliance is important from an investment point
-of view.  It allows the user to move his costly (far more than the
-hardware) software investment from one kernel/ system to another with
-little or no rework.
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Broke my tree yesterday, rm -rf was the fastest/easiest way out.
+
+Immediately after make -j2 bzImage, make bzImage seems to rebuild about half 
+the tree.
+
+Many incidents of time-wasting breakage over the last couple of years for me.
+
+> Keith says it speeds up builds where only a small number of files
+> have changed.  For me, that's the common case.
+
+Ooh, yes!
+
+> I'd like to hear more from Keith on where this 100% actually occurs,
+> but if he says it's fixable in a (give him four) week timeframe,
+> I believe him.
+
+He said something about reloading dependencies on each compile.
+
+--
+Daniel

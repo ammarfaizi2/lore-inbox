@@ -1,99 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSGPJKk>; Tue, 16 Jul 2002 05:10:40 -0400
+	id <S293203AbSGPJMW>; Tue, 16 Jul 2002 05:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSGPJKj>; Tue, 16 Jul 2002 05:10:39 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:54177 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S311885AbSGPJKh>;
-	Tue, 16 Jul 2002 05:10:37 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] migrate_to_cpu helper.
-Date: Tue, 16 Jul 2002 18:00:06 +1000
-Message-Id: <20020716091406.012C342FF@lists.samba.org>
+	id <S312601AbSGPJMV>; Tue, 16 Jul 2002 05:12:21 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:31473 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S311898AbSGPJL4> convert rfc822-to-8bit; Tue, 16 Jul 2002 05:11:56 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: Periodic clock tick considered harmful (was: Re: HZ, preferably as small as possible)
+Date: Tue, 16 Jul 2002 11:10:18 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207161110.18145.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part I of II, weaning us off "cpu mask is always an unsigned long".
+>We have a Linux kernel (2.4.18-rmk2) running on the IBM Linux Watch which
+>skips timer ticks, but only when there's no work to be done. We have dubbed
+>this timing scheme the Work Dependent Timing scheme.  Briefly, on every
+>return to the "Linux idle loop", the kernel checks if there's more work to
+>be done by parsing relevant lists and queues. If there's no current work to
+>be done, nor any work to be done in the next timer tick, the software timer
+>with the nearest timeout is retrieved and a hardware timer is programmed
+>accordingly with the nearest timeout to wake up the system in time to service
+>the associated software timer.
 
-Name: migrate_to_cpu patch
-Author: Rusty Russell
-Status: Trivial
+In principle that is what the version 2 of the s/390 timer patch does. My
+timer patch is a bit more complicated since it has to cope with an SMP system
+but that are just details in the backend code that deal with the question
+which cpu is doing the calls to do_timer(). The idea is to stop the hz timer
+for every cpu going idle. The last cpu going idle has to check if something is
+on tq_timer. If there is work on tq_timer then the clock is not reprogrammed
+and the next hz tick comes in normally. If there is nothing on tq_timer
+then the next timer event is calculated from the tv1-tv5 arrays and the
+clock comparator is reprogrammed. With that all cpus are truly doing nothing
+until either the clock comparator or another hardware interrupt comes in.
+That is where the monitor call instruction on s/390 comes into play. This neat
+instruction either causes a program check or does nothing (a nop). This is
+controlled by a bit in control register 8. So the additional cost on the
+system entry path is just one cycle for the nop if a cpu is running normally.
+The amount of additional work on the system entry path was the main backdraw
+of version 1 of the timer patch.
 
-D: This patch adds an easy "migrate_to_cpu()" call for simple
-D: in-kernel affinity, in preparation for generic cpu maps.
+Version 1 of the s/390 timer patch is even more radical. It eliminates the hz
+timer completly. Timer events are done with the clock comparator and process
+related timer (time slice, itimer and profiling timer) are done with the cpu
+timer. Since there isn't a periodic check anymore every change related to
+timers has to be notified to the architecture backend. That makes it necessary
+to introduce two hooks timer_notify and itimer_notify that are called from
+common code. Not really nice but necessary for this approach. A second, more
+severe backdraw is the need to check on every system entry if a jiffy update
+needs to be done and to do the calculations for proper process time accounting
+(in fact the jiffy variable is replaced by a macro and is not a problem but
+the wall_time and other internal timing stuff have to get updated).
+This makes up for about 60 cycles in the system entry path. This shows up on
+some micro benchmarks and was the reason to do version 2.
 
-diff -urpN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25.30418/Documentation/sched-coding.txt linux-2.5.25.30418.updated/Documentation/sched-coding.txt
---- linux-2.5.25.30418/Documentation/sched-coding.txt	Thu May 30 10:00:45 2002
-+++ linux-2.5.25.30418.updated/Documentation/sched-coding.txt	Tue Jul 16 17:22:36 2002
-@@ -103,7 +103,10 @@ void set_user_nice(task_t *p, long nice)
- 	Sets the "nice" value of task p to the given value.
- int setscheduler(pid_t pid, int policy, struct sched_param *param)
- 	Sets the scheduling policy and parameters for the given pid.
--void set_cpus_allowed(task_t *p, unsigned long new_mask)
-+void migrate_to_cpu(unsigned int cpu)
-+	Migrates the current task to the cpu and nails it there.  This
-+	is a more convenient form of:
-+void set_cpus_allowed(task_t *p, cpu_mask_t new_mask)
- 	Sets a given task's CPU affinity and migrates it to a proper cpu.
- 	Callers must have a valid reference to the task and assure the
- 	task not exit prematurely.  No locks can be held during the call.
-diff -urpN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25.30418/include/linux/sched.h linux-2.5.25.30418.updated/include/linux/sched.h
---- linux-2.5.25.30418/include/linux/sched.h	Sun Jul  7 02:12:24 2002
-+++ linux-2.5.25.30418.updated/include/linux/sched.h	Tue Jul 16 17:22:36 2002
-@@ -408,8 +408,16 @@ do { if (atomic_dec_and_test(&(tsk)->usa
- 
- #if CONFIG_SMP
- extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
-+static inline void migrate_to_cpu(unsigned int cpu)
-+{
-+	unsigned long mask = 0;
-+	BUG_ON(!cpu_online(cpu));
-+	__set_bit(cpu, &mask);
-+	set_cpus_allowed(current, mask);
-+}
- #else
--# define set_cpus_allowed(p, new_mask) do { } while (0)
-+#define set_cpus_allowed(p, new_mask) do { } while (0)
-+#define migrate_to_cpu(cpu) do { BUG_ON((cpu) != 0); } while(0)
- #endif
- 
- extern void set_user_nice(task_t *p, long nice);
-diff -urpN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25.30418/kernel/sched.c linux-2.5.25.30418.updated/kernel/sched.c
---- linux-2.5.25.30418/kernel/sched.c	Sun Jul  7 02:12:24 2002
-+++ linux-2.5.25.30418.updated/kernel/sched.c	Tue Jul 16 17:22:52 2002
-@@ -1807,7 +1807,7 @@ static int migration_thread(void * bind_
- 	if (cpu != master_migration_thread) {
- 		while (!cpu_rq(master_migration_thread)->migration_thread)
- 			yield();
--		set_cpus_allowed(current, 1UL << cpu);
-+		migrate_to_cpu(cpu);
- 	}
- 	printk("migration_task %d on cpu=%dn", cpu, smp_processor_id());
- 	ret = setscheduler(0, SCHED_FIFO, &param);
-@@ -1870,7 +1870,7 @@ void __init migration_init(void)
- 	int cpu;
- 
- 	master_migration_thread = smp_processor_id();
--	current->cpus_allowed = 1UL << master_migration_thread;
-+	migrate_to_cpu(master_migration_thread);
- 	
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
- 		if (!cpu_online(cpu))
-diff -urpN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25.30418/kernel/softirq.c linux-2.5.25.30418.updated/kernel/softirq.c
---- linux-2.5.25.30418/kernel/softirq.c	Sun Jul  7 02:12:24 2002
-+++ linux-2.5.25.30418.updated/kernel/softirq.c	Tue Jul 16 17:22:36 2002
-@@ -370,8 +370,7 @@ static int ksoftirqd(void * __bind_cpu)
- 	current->flags |= PF_IOTHREAD;
- 	sigfillset(&current->blocked);
- 
--	/* Migrate to the right CPU */
--	set_cpus_allowed(current, 1UL << cpu);
-+	migrate_to_cpu(cpu);
- 	if (smp_processor_id() != cpu)
- 		BUG();
- 
+blue skies,
+   Martin
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+P.S. the two timer patches are available on developer works:
+http://www10.software.ibm.com/developerworks/opensource/linux390/current2_4_17.shtml#jun132002-timer
+http://www10.software.ibm.com/developerworks/opensource/linux390/current2_4_17-may2002.shtml#timer20020531
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+

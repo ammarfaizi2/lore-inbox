@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbUK3ASa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbUK3AWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbUK3ASa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUK3AS3
+	id S261883AbUK3AWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUK3AWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:18:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29854 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261881AbUK3AS1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:18:27 -0500
-Date: Mon, 29 Nov 2004 16:18:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: stanojr@blackhole.websupport.sk
-Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@ucw.cz>
-Subject: Re: quota deadlock
-Message-Id: <20041129161801.23883a03.akpm@osdl.org>
-In-Reply-To: <20041112173118.GC17928@blackhole.websupport.sk>
-References: <20041112173118.GC17928@blackhole.websupport.sk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 29 Nov 2004 19:22:14 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10398 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261883AbUK3AWL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 19:22:11 -0500
+Date: Tue, 30 Nov 2004 01:21:27 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Terry Griffin <terryg@axian.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: odd behavior with r8169 and pcap
+Message-ID: <20041130002127.GC3880@electric-eye.fr.zoreil.com>
+References: <1101751909.2291.21.camel@tux.hq.axian.com> <20041129210213.GA3880@electric-eye.fr.zoreil.com> <1101766059.3382.57.camel@tux.hq.axian.com> <20041129231800.GB3880@electric-eye.fr.zoreil.com> <1101772869.3382.101.camel@tux.hq.axian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101772869.3382.101.camel@tux.hq.axian.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-stanojr@blackhole.websupport.sk wrote:
->
-> heavy write access to partition with quota enabled causes deadlock. if
->  processes try to access the deadlocked partition they                    
->  simply have no response and cannot be killed with SIGKILL. i've been
->  testing with reiserfs and ext2 on 2.6.9 kernel.
+Terry Griffin <terryg@axian.com> :
+[...]
+> Passing acpi=off did the trick. Throughput is at the higher rate
+> with or without pcap monitoring. I did not have to change any BIOS
+> settings.
 
-There are a bunch of patches in 2.6.10-rc2-mm3 which are designed to fix
-quota deadlocks.  Could you please test that (or a later -mm kernel) and
-let us know the result?
+As a longer term solution, something can surely be extracted from
+the acpi tables of your computer. See
+http://forums.gentoo.org/viewtopic.php?t=122145%22%22 for an intro.
 
-Thanks.
+--
+Ueimor

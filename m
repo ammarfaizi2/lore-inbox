@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbSKAEjd>; Thu, 31 Oct 2002 23:39:33 -0500
+	id <S265604AbSKAEjf>; Thu, 31 Oct 2002 23:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265607AbSKAEjc>; Thu, 31 Oct 2002 23:39:32 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:23748 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265603AbSKAEj2>; Thu, 31 Oct 2002 23:39:28 -0500
-Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF6D@orsmsx102.jf.intel.com>
-From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: RFC: bare pci configuration access functions ?
-Date: Thu, 31 Oct 2002 20:45:53 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265607AbSKAEjf>; Thu, 31 Oct 2002 23:39:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19472 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265604AbSKAEjc>; Thu, 31 Oct 2002 23:39:32 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: What's left over.
+Date: Fri, 1 Nov 2002 04:45:33 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <apt0td$3vq$1@penguin.transmeta.com>
+References: <3DC1E1AE.4070706@pobox.com> <Pine.LNX.4.44.0210311923460.24182-100000@nakedeye.aparity.com>
+X-Trace: palladium.transmeta.com 1036125947 778 127.0.0.1 (1 Nov 2002 04:45:47 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 1 Nov 2002 04:45:47 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.44.0210311923460.24182-100000@nakedeye.aparity.com>,
+Matt D. Robinson <yakker@aparity.com> wrote:
+>
+>To spend the last month and a half finalizing things for Linus,
+>sending this to him on multiple occasions, asking for his comments
+>and inclusion, asking for his feedback (as well as others), and
+>not hearing _one damn word_ from Linus all that time, and for him
+>to wait until now to just say "LKCD is stupid" is insulting.
 
-> On Thu, Oct 31, 2002 at 06:39:26PM -0800, Lee, Jung-Ik wrote:
-> > 
-> > Platform management, early console access, acpi, hotplug 
-> io-node w/ root,...
-> > pci_bus based access is useless before pci driver is initialized.
-> > All exceptions will be forced to use fake structs...
-> > Sounds we need to be ready to live with all exceptions here too :)
-> > Or just to make them all happy with that simple bare functions.
-> 
-> Ok, let's make them happy with bare functions, _if_ we have 
-> to.  Places
-> that do not have to will be gleefully pointed out and mocked :)
-> 
-> > OK, if simple and pure pci config access is not possible in 
-> Linux land,
-> > let pci driver fake itself, not everyone else :)
-> > Just export the two APIs like pci_config_{read|write}(s,b,d,f,s,v),
-> > or the ones in acpi driver. Hide the fake pci_bus 
-> manipulation in them. 
-> > This way is way better than having everyone fake pci driver ;-)
-> 
-> I agree.  But can we do this for all archs?  I don't know, and look
-> forward to your patch proving this will work.  Without all 
-> arch support
-> of this, I can't justify only exporting the functions for 
-> i386 and ia64.
+You got to hear my comment now, several times: convince somebody _else_.
 
-How about the followings ?
-It's for all architecture.
+But no, it wasn't the answer you wanted.  So you refuse to listen.  And
+yes, I get irritated too.  So right now I won't touch LKCD with a
+ten-foot pole, if only because I've been mail-bombed by people who argue
+for it when I have better things to do than to explain myself over and
+over again. 
 
-thanks,
-J.I.
+What's so hard to understand about the "vendor-driven" thing, and why do
+people continue to argue about it? 
 
-static struct pci_bus *get_pci_bus(s, b, d, f)
-{
-	struct pci_bus *bus;
-	struct pci_dev *dev = pci_find_slot(s, b, d+f);
-
-	if (dev && dev->bus)
-		bus = dev->bus;
-	else	// dup pci_bus w/ root & set bus->number=b
-		bus = get_fake_pci_bus(b);
-
-	return bus;
-}
-
-int pci_config_{read|write}(
-#ifdef WANT_PCI_BUS_PARAM
-		pci_bus, 
-#endif
-			s, b, d, f, w, size, v)
-{
-	struct pci_bus *bus;
-#ifdef WANT_PCI_BUS_PARAM
-	if (!valid(pci_bus))	// null or invalid
-#endif
-	bus = get_pci_bus(s, b, d, f);
-	if (!bus)
-		return error;
-
-	switch (size) {
-	case byte:
-		ret = pci_bus_{read|write}_##size (bus, d+f, w, v);
-		break;
-	...
-	}
-
-	return ret;
-}
-
-EXPORT_SYMBOL(pci_config_{read|write});
+			Linus

@@ -1,100 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbTE2U5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTE2U5n
+	id S262820AbTE2U5e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTE2U5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:57:43 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:15001
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S262850AbTE2U5h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:57:37 -0400
-Date: Thu, 29 May 2003 17:10:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [BK PATCHES] net driver merges
-Message-ID: <20030529211053.GA9069@gtf.org>
-Mime-Version: 1.0
+	Thu, 29 May 2003 16:57:33 -0400
+Received: from www.wwns.com ([209.149.59.66]:47573 "EHLO wwns.wwns.com")
+	by vger.kernel.org with ESMTP id S262820AbTE2U53 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 16:57:29 -0400
+From: "David R. Wilson" <david@wwns.com>
+Message-Id: <200305292117.h4TLHMj07604@wwns.wwns.com>
+Subject: Re: Asrock K7S8X Motherboard kernel problem
+To: linux-kernel@vger.kernel.org
+Date: Thu, 29 May 2003 16:17:22 -0500 (CDT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Problem with booting disappeared when I changed to NOAPIC in the
+.config file.
 
-Linus, please do a
+Thanks for the help fellows!
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+Dave
 
-Others may download the patch from
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.70-bk3-netdrvr1.patch.bz2
+Forwarded message:
+> 
+> Did you get a solution for your Asrock MB problem? 
+> If not I have some suggestions. I have another Asrock with an SiS746, 
+> and had the same (?) or similar problem. 
+> If you haven't tried it, I was successful with setting NOAPIC on the 
+> command line. This on stock RedHat 2.4.18 out of RH8. On that one I also 
+> had to set PCI=BIOS. 
+> With later kernels I compiled, both 2.4 and 2.5, I've generally had to 
+> set NOAPIC, but at least on 2.5 don't have to set PCI=BIOS. 
+> Hope it helps. 
+> wmb
+> 
+> 
+> List:     linux-kernel
+> Subject:  Asrock K7S8X Motherboard kernel problem
+> From:     "David R. Wilson" <david () wwns ! com>
+> Date:     2003-05-23 22:19:31
+> [Download message RAW]
+> 
+> Hello,
+> 
+> I must be missing something, I have an Asrock K7S8X motherboard.
+> According to the manual:
+> SIS 746 chipset
+> SIS 963L southbridge
+> 
+> and according to one of the motherboards:
+> VIA VT8235 southbridge
+> 
+> Kernel 2.4.21-rc3
+> 
+> with the patch from Vojtech Pavlik for the SIS southbridge at:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0305.2/0052.html
+> 
+> The boot messages mention a missing floppy controller among other 
+> problems:
+> 
+> Uniform Multi-Platform E-IDE driver Revision 7.00beta3-.2.4
+> ide: Assuming 33 MHz system bus speed for PIO modes; overide with idebus=xx
+> 
+> SIS 5513: IDE controller at PCI slot 00:02.5
+> SIS 5513: chipset revision 0
+> SIS 5513: not 100% native mode: will probe irqs later
+> 
+> SIS 746 ATA 133 controller
+> 	ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA hdb:DMA
+> 	ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA hdd:DMA
+> 
+> hda: WDC WE800BB-00DKA0, ATA DISK drive
+> blk: queue c03606a0, I/O limit 4095 Mb (mask 0xFFFFFFFF)
+> hdc CW 078D ATAPI CD-R/RW, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7, 0x3f6 on irq 14
+> ide1 at 0x170-0x177, 0x376 on irq 15
+> hda: attached ide-disk driver.
+> hda: lost interrupt
+> 
 
-This will update the following files:
 
- drivers/net/8139too.c        |    6 
- drivers/net/amd8111e.c       | 1047 +++++++++++++++++++++++++++----------------
- drivers/net/amd8111e.h       |  968 ++++++++++++++++++++-------------------
- drivers/net/e100/e100_main.c |   33 -
- drivers/net/pci-skeleton.c   |    4 
- drivers/net/pcnet32.c        |    7 
- drivers/net/r8169.c          |   44 +
- drivers/net/tlan.c           |  116 +++-
- 8 files changed, 1306 insertions(+), 919 deletions(-)
+-- 
+David R. Wilson  WB4LHO
+World Wide Network Services
+Nashville, Tennessee USA	Need QSL cards?
+david@wwns.com			http://store.wwns.com/lz1jz
 
-through these ChangeSets:
-
-<shemminger@osdl.org> (03/05/29 1.1438)
-   [netdrvr e100] initialize callbacks before registering netdev
-   
-   Ouch.
-
-<reeja.john@amd.com> (03/05/29 1.1437)
-   [netdrvr amd8111e] interrupt coalescing, libmii, bug fixes
-   
-   * Dynamic interrupt coalescing
-   * mii lib support
-   * dynamic IPG support (disabled by default)
-   * jumbo frame fix
-   * vlan fix
-   * rx irq coalescing fix
-
-<alan@lxorguk.ukuu.org.uk> (03/05/29 1.1436)
-   [netdrvr tlan] fix 64-bit issues
-
-<jgarzik@redhat.com> (03/05/29 1.1435)
-   [netdrvr r8169] use alloc_etherdev, pci_disable_device
-
-<jgarzik@redhat.com> (03/05/29 1.1433)
-   [netdrvr 8139too] respond to "isn't this racy?" comment
-
-<jgarzik@redhat.com> (03/05/28 1.1432)
-   [netdrvr] s/init_etherdev/alloc_etherdev/ in code comments,
-   in 8139too and pci-skeleton drivers.
-
-<jgarzik@redhat.com> (03/05/28 1.1431)
-   [netdrvr tlan] cleanup
-   
-   * use pci_{request,release}_regions for PCI devices
-   * use alloc_etherdev (fixes race)
-   * propagate error returns from pci_xxx function errors
-
-<engebret@us.ibm.com> (03/05/27 1.1392.7.7)
-   [netdrvr pcnet32] bug fixes
-   
-   I would like to see a couple of the pcnet32 changes that I think we can
-   agree on be put into the trees so a couple of the potential defects can be
-   avoided.  The following patch contains just these pieces.  The only
-   controversial one is an arbitrary change in the number of iterations in a
-   while loop spinning on hardware state.   No matter how this is done, I am
-   not especially fond of this bit of code as it has no reasonable error
-   recovery path -- however, as a half-way, incremental solution, increasing
-   the polling time should help as the 100 value was certainly found to be
-   insufficient.  1000 may not be sufficient either, but it is certainly no
-   worse.
-   
-   Both of the other changes were hit in testing (and I belive the wmb() at a
-   customer even), so it would help reduce some debug if these go in.  Any
-   feedback is appreciated - thanks.
 

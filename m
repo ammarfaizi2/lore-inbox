@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266586AbUBDUpl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUBDUYd
+	id S266602AbUBDU7M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266597AbUBDU4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:24:33 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:44079 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id S266522AbUBDUXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:23:30 -0500
-Message-ID: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
-Date: Wed, 4 Feb 2004 15:23:29 -0500 (GMT-05:00)
-From: Oliver Dain <odain2@mindspring.com>
-Reply-To: Oliver Dain <odain2@mindspring.com>
-To: linux-kernel@vger.kernel.org
-Subject: proper place for devfs_register_chrdev with pci_module_init
+	Wed, 4 Feb 2004 15:56:52 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:53969 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S266598AbUBDUyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:54:39 -0500
+Date: Wed, 4 Feb 2004 21:54:34 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
+Message-ID: <20040204205434.GX15492@khan.acc.umu.se>
+Mail-Followup-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <40210578.6000504@mrc-bsu.cam.ac.uk> <200402041503.i14F3Bdq000287@81-2-122-30.bradfords.org.uk> <1075907649.23288.1.camel@midux> <40211EE7.8090707@backtobasicsmgmt.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: Earthlink Zoo Mail 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40211EE7.8090707@backtobasicsmgmt.com>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm writing a char driver for a PCI card.  Looking at examples of such things I've found that most have a module_init like this:
+On Wed, Feb 04, 2004 at 09:33:43AM -0700, Kevin P. Fleming wrote:
+> Markus Hästbacka wrote:
+> 
+> >On Wed, 2004-02-04 at 17:03, John Bradford wrote:
+> >
+> >>There was some discussion on the list about dropping version numbers
+> >>altogether during 2.7:
+> >>
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=107174577415393&w=2
+> >
+> >Like it isn't hard enough already? You mean something like
+> >Smoking beaver.Out of detox.While running?
+> 
+> Several Species Of Small Furry Animals.Gathered Together In A Cave.And 
+> Grooving With A Pict
 
-int foo_init(void)
-{
-	/* stuff... */
-	devfs_register_chrdev(...);
-	/* more stuff... */
-	pci_module_init(...);
-}
+Can't get enough of Pink Floyd...
 
-This seems strange to me.  The devfs_register_chrdev call will register the module and cause it to be held in memory even if the associated PCI device isn't present on the system.  It seems like a better way to do this is to have the init method just call pci_module_init(...) and then in that method, after the PCI device has been initialized, call devfs_register_chrdev to associate the driver with the device.  That way the kernel can unload the module if no such device is present, but if the device is present (or if one appears via hotplug) the module will be loaded and can then register itself.  Will this work?  Is there a reason people don't do this?
+When Alan returns from his studies, we can always release
 
-I'm not subscribed to the LKML so please CC me on any responses.
+Alan's.Psychedelic.Breakfast
 
-Thanks,
-Oliver
+
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

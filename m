@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293196AbSCTT50>; Wed, 20 Mar 2002 14:57:26 -0500
+	id <S312095AbSCTUC6>; Wed, 20 Mar 2002 15:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312096AbSCTT5Q>; Wed, 20 Mar 2002 14:57:16 -0500
-Received: from maild.telia.com ([194.22.190.101]:5370 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S293194AbSCTT5L>;
-	Wed, 20 Mar 2002 14:57:11 -0500
-To: linux-kernel@vger.kernel.org
-Cc: linux_udf@hpesjro.fc.hp.com, Ben Fennema <bfennema@ix.netcom.com>
-Subject: [patch] UDF write support problem in 2.5.7
-From: Peter Osterlund <petero2@telia.com>
-Date: 20 Mar 2002 20:56:59 +0100
-Message-ID: <m2663r108k.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S312096AbSCTUCs>; Wed, 20 Mar 2002 15:02:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:9996 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312095AbSCTUCh>;
+	Wed, 20 Mar 2002 15:02:37 -0500
+Date: Wed, 20 Mar 2002 21:02:36 +0100
+From: Dave Jones <davej@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Adrian Bunk <bunk@fs.tum.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: aa-160-lru_release_check
+Message-ID: <20020320210236.K5094@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andrew Morton <akpm@zip.com.au>, Adrian Bunk <bunk@fs.tum.de>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C980990.1C6B232A@zip.com.au> <Pine.NEB.4.44.0203201703450.3932-100000@mimas.fachschaften.tu-muenchen.de> <3C98E2E4.A42B13D0@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Mar 20, 2002 at 11:28:36AM -0800, Andrew Morton wrote:
+ > > Is there a reason against intruducing BUG_ON in 2.4? It makes such things
+ > > more readable.
+ > I hate BUG_ON() :)  It's arse-about so you have to stare at it furiously
+ > to understand why your kernel still works.
 
-I can't get UDF write support to work in kernel 2.5.7 or 2.5.7-pre2.
-The problem is that linux/config.h is not included, so CONFIG_UDF_RW
-is undefined and the driver is compiled without write support. This
-patch fixes my problem:
+ Preach on brother Morton.
+ 
+ > I hope the Nobel committee is reading this mailing list: how
+ > about assert()?
 
---- linux/include/linux/udf_fs.h.old	Wed Mar 20 20:49:55 2002
-+++ linux/include/linux/udf_fs.h	Wed Mar 20 20:25:54 2002
-@@ -34,6 +34,8 @@
- #ifndef _UDF_FS_H
- #define _UDF_FS_H 1
- 
-+#include <linux/config.h>
-+
- #define UDF_PREALLOCATE
- #define UDF_DEFAULT_PREALLOC_BLOCKS	8
- 
+ Quite a few places in the kernel already are.
+ See drivers/net/pci-skeleton.c for one.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

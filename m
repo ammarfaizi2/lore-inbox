@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbUCLUXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 15:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUCLUSa
+	id S262513AbUCLUbb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 15:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCLU3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 15:18:30 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38555
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262497AbUCLUQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 15:16:51 -0500
-Message-ID: <40521AA6.7070308@redhat.com>
-Date: Fri, 12 Mar 2004 12:16:38 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040310
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: host name length
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 12 Mar 2004 15:29:53 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58382
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262513AbUCLU1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 15:27:00 -0500
+Date: Fri, 12 Mar 2004 21:27:41 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312202741.GG30940@dualathlon.random>
+References: <40520928.4050409@nortelnetworks.com> <Pine.LNX.4.44.0403121405170.6494-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403121405170.6494-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-POSIX nowadays contains
+On Fri, Mar 12, 2004 at 02:06:17PM -0500, Rik van Riel wrote:
+> On Fri, 12 Mar 2004, Chris Friesen wrote:
+> 
+> > What happens when you have more than PAGE_SIZE processes running?
+> 
+> Forked off the same process ?
+> Without doing an exec ?
+> On a 32 bit system ?
+> 
+> You'd probably run out of space to put the VMAs,
+> mm_structs and pgds long before reaching this point ...
 
-  _POSIX_HOST_NAME_MAX
-and
-  HOST_NAME_MAX
-
-for programs to use to learn about the maximum host name length which is
-allowed.  _POSIX_HOST_NAME_MAX is the standard-required minimum maximum
-and the value must be 256.
-
-The problem is that HOST_NAME_MAX currently is defined as 64, as defined
-by __NET_UTS_LEN in <linux/utsname.h>.  I.e., we have HOST_NAME_MAX as
-smaller than the minimum maximum which is obviously not POSIX compliant.
-
-Now, we can simply ignore the problem or do something about it and
-introduce a third version of the utsname structure with sufficiently big
-nodename field.
-
-Many OSes used small values before but 256 was chosen as a minimum
-maximum and some OSes were changed since host names longer than 64 chars
-indeed do exist.  I wonder why this never has been brought to the
-attention.  Or were people happy enough with truncated host names?
-
-
-Anyway, is there interest in getting this changed?
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+7.5k users are being reached in a real workload with around 2gigs mapped
+per process and with tons of vma per process. with 2.6 and faster cpus
+I hope to go even further.

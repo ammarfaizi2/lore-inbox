@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270488AbTGSDlK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 23:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270461AbTGSDlK
+	id S270461AbTGSEH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 00:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270489AbTGSEH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 23:41:10 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:55312 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S270491AbTGSDlF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 23:41:05 -0400
-Date: Fri, 18 Jul 2003 23:55:49 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>, linux-kernel@vger.kernel.org
-Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.
-Message-ID: <20030719035548.GA9696@mark.mielke.cc>
-References: <fb7ddfab3b.fab3bfb7dd@teleline.es> <20030718203924.N639@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718203924.N639@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 19 Jul 2003 00:07:58 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:39587 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S270461AbTGSEH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 00:07:57 -0400
+Message-ID: <3F18C90B.305@innocent.com>
+Date: Sat, 19 Jul 2003 00:28:59 -0400
+From: "Constantine 'Gus' Fantanas" <fantanas@innocent.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: menuconfig crash
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do unix(7) sockets with cmsg(UCM_RIGHTS) not give you what you want?
+To Whom it May Concern:
 
-You can have a cookie process sitting in user space waiting on a UNIX
-socket. When somebody passes you the right cookie string, you send them
-a file descriptor.
+I experienced a menuconfig crash and I am following the notication 
+instructions of the error message (pasted below).  At the time of the 
+crash, I was in the sound configuration section and was entering the 
+ALSA configuration subsection. The kernel I was trying to configure was 
+a Mandrake 2.4.21 kernel: linux-2.4.21-0.18mdk.
 
-mark
+Here is the error message:
 
-P.S. I had to look a bit for cmsg(UCM_RIGHTS). I was more familiar with
-     ioctl(I_SENDFD), which it appears that Linux does not implement.
+-------------BEGINNING OF PASTED MATERIAL------------------------------
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+ Q> scripts/Menuconfig: line 832: MCmenu73: command not found
 
-                           http://mark.mielke.cc/
+ Please report this to the maintainer <mec@shout.net>.  You may also
+ send a problem report to <linux-kernel@vger.kernel.org>.
+
+ Please indicate the kernel version you are trying to configure and
+ which menu you were trying to enter when this error occurred.
+
+ make: *** [menuconfig] Error 1
+
+------------END OF PASTED MATERIAL----------------------------------------
+
+The system I was trying to configure this kernel on was an old 200 MHz 
+Pentium MMX with 64 MB of RAM (so old that it had PCI and USB, but no 
+AGP; the video card was plugged into a PCI slot).
+
+Regards,
+
+Gus Fantanas
 

@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRKYIdK>; Sun, 25 Nov 2001 03:33:10 -0500
+	id <S280761AbRKYIzB>; Sun, 25 Nov 2001 03:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280757AbRKYIdA>; Sun, 25 Nov 2001 03:33:00 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:39314 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S276894AbRKYIcx>; Sun, 25 Nov 2001 03:32:53 -0500
-Subject: eepro100 Driver Problems ( wait
-From: Sid Carter <sidcarter@symonds.net>
-URL: http://www.symonds.net/~sidcarter/
-Operating-System: Turing OS XCVII
-Disclaimer: Not speaking for anyone in any way, shape, or form.
-Copyright: Copyright 2001 Sid Carter - All Rights Reserved
-To: linux-kernel@vger.kernel.org
-Reply-To: sidcarter@symonds.net
-Organization: Sid Carter Inc.
-Date: 25 Nov 2001 14:01:37 +0530
-Message-ID: <87zo5bgsk6.fsf@toboggan.in.ibm.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
-MIME-Version: 1.0
+	id <S280762AbRKYIyv>; Sun, 25 Nov 2001 03:54:51 -0500
+Received: from [202.73.165.14] ([202.73.165.14]:17536 "EHLO
+	maravillo.q-linux.com") by vger.kernel.org with ESMTP
+	id <S280761AbRKYIyg>; Sun, 25 Nov 2001 03:54:36 -0500
+Date: Sun, 25 Nov 2001 16:53:52 +0800
+From: Mike Maravillo <mike.maravillo@q-linux.com>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: change to fs/proc/inode.c breaks ALSA drivers
+Message-ID: <20011125165352.A2784@maravillo.q-linux.com>
+In-Reply-To: <20011125032447.4327.qmail@web9204.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011125032447.4327.qmail@web9204.mail.yahoo.com>; from alex14641@yahoo.com on Sat, Nov 24, 2001 at 07:24:47PM -0800
+Organization: Q Linux Solutions, Inc.
+X-Accepted-File-Formats: ASCII .rtf .ps - *NO* MS Office files please
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
+On Sat, Nov 24, 2001 at 07:24:47PM -0800, Alex Davis wrote:
+> 
+> Somewhere between 2.4.15pre6 and 2.4.15 final, fs/proc/inode.c
+> was modified. The change causes all the devices files that ALSA
+> creates in /proc/asound/dev to have a major and minor number of
+> zero. I'm sending a patch to revert the file back to what it
+> was in 2.4.15pre5.
 
-I recently got a new comp. It's an IBM PC with an Intel Motherboard.
+This change present on alsa-driver cvs fixed the problem on mine,
+at least.
 
-The results of lspci:
+diff -urN --exclude=CVS alsa-driver-0.5.12/kernel/info.c alsa-driver/kernel/info.c
+--- alsa-driver-0.5.12/kernel/info.c	Wed Jun 28 02:02:03 2000
++++ alsa-driver/kernel/info.c	Wed Nov 21 23:28:35 2001
+@@ -897,7 +897,9 @@
+ 	if (p) {
+ 		snd_info_device_entry_prepare(p, entry);
+ #ifdef LINUX_2_3
+-		p->proc_fops = &snd_fops;
++		/* we should not set this - at least * on 2.4.14 or later it causes
++		   problems! */
++		/* p->proc_fops = &snd_fops; */
+ #else
+ 		p->ops = &snd_info_device_inode_operations;
+ #endif
 
-toboggan:~# lspci
-00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 02)
-00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics Controller] (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82820 820 (Camino 2) Chipset PCI (rev 02)
-00:1f.0 ISA bridge: Intel Corp. 82820 820 (Camino 2) Chipset ISA Bridge (ICH2) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82820 820 (Camino 2) Chipset IDE U100 (rev 02)
-00:1f.2 USB Controller: Intel Corp. 82820 820 (Camino 2) Chipset USB (Hub A) (rev 02)
-00:1f.3 SMBus: Intel Corp. 82820 820 (Camino 2) Chipset SMBus (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82820 820 (Camino 2) Chipset AC'97 Audio Controller (rev 02)
-01:08.0 Ethernet controller: Intel Corp. 82820 (ICH2) Chipset Ethernet Controller (rev 01)
-
-I have setup it for network. It is running the Default Linus' 2.4.14 kernel
-tree with the SGI's XFS Patch. 
-
-toboggan:~# uname -a
-Linux toboggan 2.4.14-xfs.hommade #1 Sun Nov 11 00:01:40 IST 2001 i686 unknown
-
-Nov 25 13:43:58 toboggan kernel: eepro100: wait_for_cmd_done timeout!
-Nov 25 13:44:13 toboggan last message repeated 5 times
-
-I keep getting the above errors on my machine after which my network connection
-goes. This keeps happening randomly. I have to do a restart of my network to get
-on to the network. Anyone knows what the problem ? How I can fix it ?
-Please let me know if you require further information for an analysis of the
-problem.
-
-Thanks in Advance
-Regards
-        Carter
 -- 
-The only difference between your girlfriend and a barracuda is the nailpolish.
-
-Sid Carter                                                   Debian GNU/Linux.
+ .--.  Michael J. Maravillo                   office://+63.2.894.3592/
+( () ) Q Linux Solutions, Inc.              mobile://+63.917.897.0919/
+ `--\\ A Philippine Open Source Solutions Co.  http://www.q-linux.com/

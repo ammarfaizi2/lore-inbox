@@ -1,99 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTFUA6N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 20:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTFUA6N
+	id S265063AbTFUBIh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 21:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbTFUBIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 20:58:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10490 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265062AbTFUA6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 20:58:11 -0400
-Date: Sat, 21 Jun 2003 03:12:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Fabio Bracci <fabio@hoendiep.ath.cx>, perex@suse.cz
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: 2.5: wrong CONFIG_SND_SEQUENCER logic in several drivers
-Message-ID: <20030621011210.GS29247@fs.tum.de>
-References: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx> <20030530222701.GC2536@fs.tum.de> <1056143086.6808.12.camel@bolidino.hoendiep.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056143086.6808.12.camel@bolidino.hoendiep.ath.cx>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 Jun 2003 21:08:37 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:26349 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S265063AbTFUBIg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 21:08:36 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-Id: <20030621012241.C204E194A9@macp.eti.br>
+Date: Fri, 20 Jun 2003 22:22:41 -0300 (BRT)
+From: marcelo@macp.eti.br (marcelo)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 11:04:47PM +0200, Fabio Bracci wrote:
+Between jobs now, but I was a technical consultant for one for the 2nd tier
+database companies in the market, having been technical support before, for a
+total of over 10 years. I think I can give some extra perspective to the issues
+of inovation.
 
-> Hi
-> 	Hereby I have attached the requested .conf file ("config.2.5.70").
-> I tried again to compile a kernel, but now using the 2.5.72 one. But
-> again something went wrong while compiling the sound subsystem. That's
-> why I attacched also the new .conf file ("config.2.5.70").
-> I now got the following messages:
-> ...
->...
->   LD      vmlinux
-> sound/built-in.o(.text+0x1b6ea): In function `snd_rawmidi_dev_register':
-> : undefined reference to `snd_seq_device_new'
-> sound/built-in.o(.text+0x22fb8): In function `snd_card_emu10k1_probe':
-> : undefined reference to `snd_seq_device_new'
-> make: *** [vmlinux] Error 1
-> 
-> 
-> Hopefully this will help.
+I will use the word copy and sucks from now on very liberaly.
 
-Yup, thanks a lot!
+All the really good people that worked for development on this company came
+from other database companies. There was IBM people, DEC people, Sybase people.
 
-> Greetings,
-> 	Fabio ...
->...
-> #
-> # Advanced Linux Sound Architecture
-> #
-> CONFIG_SND=y
-> CONFIG_SND_SEQUENCER=m
-> CONFIG_SND_SEQ_DUMMY=m
-> # CONFIG_SND_OSSEMUL is not set
-> CONFIG_SND_RTCTIMER=m
-> CONFIG_SND_VERBOSE_PRINTK=y
-> # CONFIG_SND_DEBUG is not set
->...
-> CONFIG_SND_EMU10K1=y
->...
+A lot of the features they implemented on the database were based on features
+the other guys had.
 
+I also paid close attention to ORACLE as our largest competitor. What they were
+doing was also largely implementing what was in the relational books, and what
+other databases had. Not a whole lot of inovation. Marketing and I would dare
+say bribing customers was what made ORACLE so big at first place.
 
-This is a bug in several ALSA drivers.
+Now onto operating systems. Microsoft's Win95 and follow-ons were in large part
+copies of ideas pursued by others before like Xerox, Apple, so on, at the User
+Interface level. The underlying base OS (File, Network, ... I/O and process
+management) is largely copies of DEC VMS. Of course, the most senior engineer
+on the NT project that defined the Win32 API was from DEC. Some will recall
+litigation that Microsoft settled with DEC for finding large pieces of VMS code
+on NT, down to complete data structures !!!
 
-@Fabio:
-As a workaround, compile "Sequencer support" statically (non-modular).
+Onto the current UNIX field. Every single UNIX OS in the market has major flaws
+if compared to the other. AIX thread performance sucks (said by IBM employees
+openly to me). Solaris file system I/O sucks compared to AIX, at least until
+Veritas came around, I don't fell competent to coment Veritas fs. HP-UX memory
+management for caching seems infantile compared to AIX's. AIX beats the other
+OS's on not needing so much kernel linking or boot time parameter setting.
 
-@Jaroslav:
-Several drivers have a wrong logic for CONFIG_SND_SEQUENCER. The correct 
-solution is something like the following:
+All of this happens because of scarse resources. If you look at the OS's from a
+very technical level, I say Linux 2.5,72 has the best of all of them, because
+the combined manpower available to Linux kernel development, combined with
+basicly no deadlines, and complete willingness to redo what sucks without budget
+(time) constraints, explains it.
 
---- sound/pci/emu10k1/emu10k1.c.old	2003-06-21 03:02:04.000000000 +0200
-+++ sound/pci/emu10k1/emu10k1.c	2003-06-21 03:02:31.000000000 +0200
-@@ -35,7 +35,7 @@
- MODULE_DEVICES("{{Creative Labs,SB Live!/PCI512/E-mu APS},"
- 	       "{Creative Labs,SB Audigy}}");
- 
--#if defined(CONFIG_SND_SEQUENCER) || defined(CONFIG_SND_SEQUENCER_MODULE)
-+#if defined(CONFIG_SND_SEQUENCER) || (defined (MODULE) && defined(CONFIG_SND_SEQUENCER_MODULE))
- #define ENABLE_SYNTH
- #include <sound/emu10k1_synth.h>
- #endif
+Just the fact that all the source is open, makes the OS so much more valuable
+to mission critical systems. In the rare situation someone finds a bug in Linux
+after a system is deployed, the fix is usually available very kickly, and the
+user can apply only the fix to his problem to his production system, avoiding
+service packs that fix hundreds of bugs at the same time, which usually leads
+to other bugs. If M$'s bug database and their code was 100% available to
+everybody,  it would be very, very, very enlightning to see how much even XP
+sucks internally.
 
-If you comfirm this is correct I'll send a fix for all affected drivers.
+The fact that Linux development is not affected by trade show dates or revenue
+expectations plus peer review is what makes it's development process so much
+more reliable.
 
-cu
-Adrian
+In time, I'm sure funding for Linux will happen. I think it's only a matter of
+time until some way in which people that make important contributions to Linux
+will be paid for that, perhaps by the way of a Linux foundation, that would
+collect donations from heavvy Linux users (dreaming right now). If IBM makes
+a billion/year from Linux, what's it donating 10 million a Year to such a 
+foundation, which would be enough to keep maybe 200 developers paid for what
+they're doing. My fear is such system might spoil some of the spirit in which
+people contribute to Linux.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Pooling 10 million a year to reward Linux kernel contributors would be actually
+a lot cheaper even if it came from a single UNIX vendor alone, look at how many
+members OSDL has !!! Combined, they could contribute 10 million a year, at an
+almost pocket change sum for each company individually.

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271391AbTG2LM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbTG2LMS
+	id S271405AbTG2LWc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271407AbTG2LWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:12:18 -0400
-Received: from gate.corvil.net ([213.94.219.177]:43782 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S271394AbTG2LKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:10:53 -0400
-Message-ID: <3F265630.1080503@draigBrady.com>
-Date: Tue, 29 Jul 2003 12:10:40 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 07:22:32 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:50603 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S271405AbTG2LWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:22:31 -0400
+From: Miles Lane <miles.lane@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Linus' 2.6.0-test1 (PPC) -- Radeon Mobility M7 LW (AGP) display messed up (DRI update problem?)
+Date: Tue, 29 Jul 2003 04:22:29 -0700
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
-To: Balram Adlakha <b_adlakha@softhome.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 NFS file transfer
-References: <20030728225947.GA1694@localhost.localdomain> <20030729014822.6488539d.akpm@osdl.org> <20030729105706.GA2761@localhost.localdomain>
-In-Reply-To: <20030729105706.GA2761@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307290422.29999.miles.lane@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balram Adlakha wrote:
-> On Tue, Jul 29, 2003 at 01:48:22AM -0700, Andrew Morton wrote:
-> 
->>Balram Adlakha <b_adlakha@softhome.net> wrote:
->>
->>>I cannot transfer files larger than 914 mb from an NFS mounted
->>>filesystem to a local filesystem. A larger file than that is
->>>simply cut of at 914 MB. This is using 2.6.0-test1, 2.4.20 
->>>works fine.
+Hi all,
 
-Looks like rounding around 32 bits to me:
+Disabling DRI fixed the problem, but now I find that the problem
+goes back to at least 2.5.75.  I am going to keep going back until
+I locate the patch that causes the failure.
 
-$ echo "((2^32)+(914*(1024^2)))/(1024^3)" | bc -l
-4.89 #GB
-
-Pádraig.
-
+	Miles

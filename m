@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129189AbQKGW2Y>; Tue, 7 Nov 2000 17:28:24 -0500
+	id <S129279AbQKGW3n>; Tue, 7 Nov 2000 17:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQKGW2N>; Tue, 7 Nov 2000 17:28:13 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:31886 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S129189AbQKGW2C>;
-	Tue, 7 Nov 2000 17:28:02 -0500
-Date: Tue, 7 Nov 2000 23:28:14 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Stange NFS messages - 2.2.18pre19
-Message-ID: <Pine.LNX.4.10.10011072326340.21756-100000@iq.rulez.org>
+	id <S129486AbQKGW3d>; Tue, 7 Nov 2000 17:29:33 -0500
+Received: from rsn-rby-gw.hk-r.se ([194.47.128.222]:32425 "EHLO
+	tux.rsn.hk-r.se") by vger.kernel.org with ESMTP id <S129279AbQKGW3W>;
+	Tue, 7 Nov 2000 17:29:22 -0500
+Date: Tue, 7 Nov 2000 23:28:31 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: Anil kumar <anils_r@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.4.21.0011072137120.3574-100000@saturn.homenet>
+Message-ID: <Pine.LNX.4.21.0011072328050.22346-100000@tux.rsn.hk-r.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 7 Nov 2000, Tigran Aivazian wrote:
 
-I'm getting this under moderate NFS load:
-Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
-Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  6 19:54:51 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  6 20:08:53 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  6 20:53:23 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 09:03:28 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 09:15:18 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 11:12:51 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 18:01:17 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 19:34:59 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 19:40:59 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
-Nov  7 21:43:48 iq kernel: svc: server socket destroy delayed (sk_inuse:
-1)
+> On Tue, 7 Nov 2000, Anil kumar wrote:
+> >   The system hangs after messages:
+> >   loading linux......
+> >   uncompressing linux, booting linux kernel OK.
+> > 
+> >   The System hangs here.
+> > 
+> >   Please let me know where I am wrong
+> 
+> Hi Anil,
+> 
+> The only serious mistake you did was using test9 kernel when test11-pre1
+> (or at least test10) was available. So, redo everything you have done with
+> test11-pre1 and if you still cannot boot then send a message to this list
+> with details like your CPUs, motherboard etc. etc.
 
-What do these means? Is this a kernel bug?
+Have you chosen the right cpu type in the configuration?
 
---  SaPE
-
-Peter, Sasi <sape@sch.hu>
+/Martin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

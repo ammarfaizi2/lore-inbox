@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVBCBeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVBCBjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbVBCBeW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVBCBeT
+	id S262328AbVBCBjD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBCBgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:34:19 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:2969 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262491AbVBCBd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:33:27 -0500
-Subject: Re: dm-crypt crypt_status reports key?
-From: Christophe Saout <christophe@saout.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de,
-       Alasdair G Kergon <agk@redhat.com>
-In-Reply-To: <20050202211916.GJ2493@waste.org>
-References: <20050202211916.GJ2493@waste.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EC4mQ2gNSb697zLwztOZ"
-Date: Thu, 03 Feb 2005 02:33:01 +0100
-Message-Id: <1107394381.10497.16.camel@server.cs.pocnet.net>
+	Wed, 2 Feb 2005 20:36:33 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:402
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262843AbVBCBaE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 20:30:04 -0500
+Date: Wed, 2 Feb 2005 17:23:33 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Einar =?ISO-8859-1?Q?L=FCck?= <lkml@einar-lueck.de>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2/2] ipv4 routing: multipath with cache support,
+ 2.6.10-rc3
+Message-Id: <20050202172333.4d0ad5f0.davem@davemloft.net>
+In-Reply-To: <41C6B54F.2020604@einar-lueck.de>
+References: <41C6B54F.2020604@einar-lueck.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Dec 2004 12:19:43 +0100
+Einar Lück <lkml@einar-lueck.de> wrote:
 
---=-EC4mQ2gNSb697zLwztOZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> This patch is an approach towards solving some problems with the 
+> current multipath implementation:
+> * routing cache allows only one route to be cached for a certain 
+>  search key
+> * a mulitpath/load balancing decision is only made in case a 
+>  corresponding route is not yet cached
+> In the scenarios, that are relevant to us (high amount of outgoing 
+> connection requests), this is a serious problem.
 
-Am Mittwoch, den 02.02.2005, 13:19 -0800 schrieb Matt Mackall:
+I agree that per-connection attempt a new multipath decision
+should be made, but within a flow I disagree.
 
-> From looking at the dm_crypt code, it appears that it can be
-> interrogated to report the current key. Some quick testing shows:
->=20
-> # dmsetup table /dev/mapper/volume1
-> 0 2000000 crypt aes-plain 0123456789abcdef0123456789abcdef 0 7:0 0
->=20
-> Obviously, root can in principle recover this password from the
-> running kernel but it seems silly to make it so easy.
+This needs to be flow based.
 
-I already tried that. It took me about five minutes using a shell, dd
-and hexdump to get the key out of the running kernel...
+Can you describe more precisely "the scenerios, that are relevant
+to us"?
 
-> Moreover, it seems this facility exists to support some form of
-> automated table storage (LVM?). As we don't want anyone/anything
-> accidentally storing our passwords on disk in the clear, we probably
-> shouldn't facilitate this. Perhaps we can stick something here like
-> "<secret>" that the dm_crypt constructor can reject.
+If you are only interested in more precise multipathing when TCP
+connections on the local system are made, this we can implement
+via a flag to the ipv4 routing cache which forces a new multipath
+decision when TCP sockets have their identity established.
+We have a precise interface that is invoked at this time, called
+ip_route_connect().  So that is where we would pass in some flag
+to indicate that we desire the new multipath behavior.
 
-Yes, the reason is that the device-mapper supports on-the-fly
-modifications of the device. cryptsetup has a command to resize the
-mapping for example. It can do that without asking for the password
-again. Features like this are the reason I'm doing this. Userspace tools
-should be able to assume that they can use the result of a table status
-command to create a new table with this information.
+If you want this behavior on a router, you will need to mark the
+packets using something like firewall marking on the SKB, then this
+mark would be used at route cache lookup time to determine what
+kind of multipath decisions to make.
 
-An alternativ would be to use some form of handle to point to the key
-after it has been given to the kernel. But that would require some more
-infrastructure.
-
-I could imagine something like this:
-
-Some kernel infrastructure for key management. It can hold keys which
-are referenced by some form of handle. The keys are refcounted and wiped
-if the reference count drops to zero.
-
-If you want to create a dm-crypt mapping (or something else that uses
-some form of cryptographic key) you create a new handle and assign the
-key. Then you give the handle to dm-crypt which increments reference
-count. When cryptsetup exits its reference to the key is dropped but the
-key still has a reference from the active dm-crypt mapping. Later on
-another application could then safely do something with that handle. As
-long as an application or in-kernel user references the key it won't be
-dropped so it's safe for a userspace application to play around with it.
-
-BTW: The setkey command also seems to return the keys in use for IPSEC
-connections.
-
-
---=-EC4mQ2gNSb697zLwztOZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCAX9NZCYBcts5dM0RAqsxAKCuWQ0yaCobqN1NQEXjuLJHugeSxgCeLz4a
-9HW6xsJdkO7mWZQhNQLCXd4=
-=ukTD
------END PGP SIGNATURE-----
-
---=-EC4mQ2gNSb697zLwztOZ--
+There is no way we can enable the new behavior for every routing
+cache lookup.

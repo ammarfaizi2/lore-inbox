@@ -1,78 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130493AbRDARMw>; Sun, 1 Apr 2001 13:12:52 -0400
+	id <S130487AbRDARRm>; Sun, 1 Apr 2001 13:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130487AbRDARMn>; Sun, 1 Apr 2001 13:12:43 -0400
-Received: from gear.torque.net ([204.138.244.1]:16655 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S130446AbRDARMf>;
-	Sun, 1 Apr 2001 13:12:35 -0400
-Message-ID: <3AC752DA.20F5A54@torque.net>
-Date: Sun, 01 Apr 2001 12:10:02 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Peter Daum <gator@cs.tu-berlin.de>, linux-scsi@vger.kernel.org
-Subject: Re: scsi bus numbering
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131191AbRDARRc>; Sun, 1 Apr 2001 13:17:32 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:37648 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S130487AbRDARRW>; Sun, 1 Apr 2001 13:17:22 -0400
+Message-Id: <200104011716.f31HGas68857@aslan.scsiguy.com>
+To: Peter Enderborg <pme@ufh.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Version 6.1.6 of the aic7xxx driver availalbe 
+In-Reply-To: Your message of "Sun, 01 Apr 2001 11:30:11 +0200."
+             <3AC6F522.93101FDE@ufh.se> 
+Date: Sun, 01 Apr 2001 11:16:36 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Daum <gator@cs.tu-berlin.de> wrote:
-> For some reason, the order of initializing the scsi drivers
-> changed between 2.4.2 and 2.4.3: If both, ncr53c8xx and aic7xxx
-> drivers are included in the kernel, up to version 2.4.2, the
-> adaptec driver always came first (so the first disk on an adaptec
-> controller ended up as /dev/sda) while in 2.4.3, the ncr driver
-> initializes first and all the device names change - with
-> potentially disastrous effects for unsuspecting users.
-> 
-> AFAIK, the numbering of scsi busses depends only on the order the
-> low-level drivers are loaded. Not that I can think of any better
-> way to do this, but it would be good if things were a little bit
-> more predictable - in absence of any better idea, maybe by
-> loading the drivers in alphabetical order or something like that ...
+>> >> >A typical revery in my logs.
+>>
+>> This really looks like you bus is not up to snuff.  We timeout during
+>> a write to the drive.  Although the chip has data to write, the target
+>> has stopped asking for data.  This is a classic symptom of a lost signal
+>> transition on the bus.  The old driver may have worked in the past
+>> because it was not quite as fast at driving the bus.  2.2.19 uses the
+>> "old" aic7xxx driver but includes some performance improvements over 2.2.18.
+>> The new driver has similar improvements.  Check your cables.  Check
+>> your terminators.  Etc.
+>>
+>
+>I dont think so. The system is very simple. On the 50 pin Fast scsi there is
+>the CD.  And on the Ultra2 device the IBM harddrive.  On the cable there is
+>a terminator.  (This is the cable from ASUS delivered with the motherboard.
+>Is a balanced pair cable.) On the harddrive there is a strap for termination
+>and in the BIOS there is a swich for ternination. The strip is off. (I have
+>tryed on also) And the BIOS control led termination is ON. I have tryed all
+>permutations! But I have found a workaround.  The wide scsi was not in use
+>and have the same connector so  I moved the harddriv to that bus and now
+>everything works with 2.4.3. Or at least for a half an hour...  But the drive
+>is a LVD and should be on the Ultra2 connector.
 
-Looking at the drivers/scsi/Makefile file in lk 2.4.3
-you can see that aic7xxx_old.o is about half way down
-the list with ncr53c8xx.o towards the end. So this
-dictates the old behaviour (in the lk 2.4 series).
-However the new aic7xxx driver isn't in that list,
-it has its own entry:
-    subdir-$(CONFIG_SCSI_AIC7XXX)   += aic7xxx
-which seems to invoke drivers/scsi/aic7xxx/Makefile
-_after_ all other built in adapters drivers are built.
-Maybe another "make" mechanism needs to be found to
-restore the previous ordering information. In any case
-building the aic7xxx driver last has already surprised
-a lot of people.
- 
-> How is it possible, to influence that order at the moment (for
-> example, to revert to the old order)? I personally couldn't
-> figure out, where to change this.
+I've seen so many bug reports lately, that I can't recall your exact
+configuration.  You make it sound as if you have an aic7890 with a
+50 pin bus and a 68 pin bus.  If this is the case, it does not sound
+like your termination is properly setup for having devices on "either
+side" of the controller.  The controller termination should probably
+be off.
 
->>>>>>>>>  scsihosts  <<<<<<<<<<<<<
-
-As a boot time option try:
-  scsihosts=aic7xxx:ncr53c8xxx
-or if you are using lilo, in /etc/lilo.conf add:
-  append="scsihosts=aic7xxx:ncr53c8xxx"
-
-Actually just doing:
-  scsihosts=aic7xxx
-should do the trick for most people.
-
-In the unlikely case that the SCSI mid level is a module,
-then you can pass the scsihosts argument to the
-module load (or add an option line to /etc/modules.conf):
-  modprobe scsi_mod scsihosts=aic7xxx:ncr53c8xxx
-
-You could also read the SCSI-2.4-HOWTO at:
-http://www.linuxdoc.org/HOWTO/SCSI-2.4-HOWTO/
-
-BTW You can thank Richard Gooch and devfs for scsihosts.
-Lucky he spotted the requirement some time back.
-
-Doug Gilbert
+--
+Justin

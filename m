@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266476AbUBGAOU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 19:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266567AbUBGAOU
+	id S265636AbUBGAhq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUBGAhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 19:14:20 -0500
-Received: from mail.kroah.org ([65.200.24.183]:6600 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266476AbUBGAON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 19:14:13 -0500
-Date: Fri, 6 Feb 2004 16:14:10 -0800
-From: Greg KH <greg@kroah.com>
-To: Steve Kieu <haiquy@yahoo.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Need help about scanner (2.6.2-mm1)
-Message-ID: <20040207001410.GA4492@kroah.com>
-References: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Feb 2004 19:37:46 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38559
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265636AbUBGAho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 19:37:44 -0500
+Message-ID: <4024333B.6020805@redhat.com>
+Date: Fri, 06 Feb 2004 16:37:15 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Rik van Riel <riel@redhat.com>, Jamie Lokier <jamie@shareable.org>,
+       Andi Kleen <ak@suse.de>, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com> <20040206154906.GS31926@dualathlon.random>
+In-Reply-To: <20040206154906.GS31926@dualathlon.random>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 10:57:49AM +1100, Steve Kieu wrote:
-> Hi,
-> 
-> I noticed that 2.6.2-mm1, usb scanner is removed. With
-> vanilla 2.6.2, this modules always OOP and somebody
-> said we should use libusb instead. However after
-> googling for a while I can not find any documentation
-> how to use that even in the libusb homepage. Please
-> help me , or pinpoint some place I could have some
-> guides. Thank
-> you.
+Andrea Arcangeli wrote:
 
+> by the same argument the 2.6 i386 vsyscall is not acceptable too since
+> it has an hardcoded address too that is the same for all binary kernels
+> that you ship, and furthmore it has the sysenter or int 0x80 hardcoded
+> at a fixed address to jump into.
 
-Get the latest version of xsane and use it.  It should have the libusb
-support built into it already.
+You don't read what I write.
 
-If you have any problems, try asking on the xsane mailing lists.
+The official kernel might have the vdso at a fixed address part no part
+of the ABI requires this address and so anybody with some security
+conscience can change the kernel to randomize the vdso address.  It's
+not my or Ingo's fault that Linus doesn't like the exec-shield code
+which would introduce the randomization.  The important aspect is that
+we can add vdso randomization and nothing else needs changing.  The same
+libc will run6 on a stock kernel and the one with the randomized vdso.
+This is not the case on x86-64 where the absolute address for the
+gettimeofday is used.
 
-Good luck,
-
-greg k-h
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

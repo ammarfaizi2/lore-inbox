@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289161AbSBJBs2>; Sat, 9 Feb 2002 20:48:28 -0500
+	id <S289191AbSBJCDy>; Sat, 9 Feb 2002 21:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289172AbSBJBsU>; Sat, 9 Feb 2002 20:48:20 -0500
-Received: from cc5993-b.ensch1.ov.nl.home.com ([212.204.161.160]:21266 "HELO
-	packetstorm.nu") by vger.kernel.org with SMTP id <S289161AbSBJBsJ>;
-	Sat, 9 Feb 2002 20:48:09 -0500
-Reply-To: <alex@packetstorm.nu>
-From: "Alex Scheele" <alex@packetstorm.nu>
-To: <chaffee@cs.berkeley.edu>
-Cc: "Dave Jones" <davej@suse.de>, "Lkml" <linux-kernel@vger.kernel.org>
-Subject: [patch][2.5.4-dj4] cleanup to use strsep for fs/fat/inode.c
-Date: Sun, 10 Feb 2002 02:48:07 +0100
-Message-ID: <IOEMLDKDBECBHMIOCKODKEMCCJAA.alex@packetstorm.nu>
+	id <S289185AbSBJCDf>; Sat, 9 Feb 2002 21:03:35 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:50009 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289172AbSBJCDa>; Sat, 9 Feb 2002 21:03:30 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200202100203.g1A23To32387@devserv.devel.redhat.com>
+Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
+To: video4linux-list@redhat.com
+Date: Sat, 9 Feb 2002 21:03:29 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org (Kernel List)
+In-Reply-To: <20020209194602.A23061@bytesex.org> from "Gerd Knorr" at Feb 09, 2002 07:46:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> It also provides a ioctl wrapper function which handles copying the
+> ioctl args from/to userspace, so we have this at one place can drop all
+> the copy_from/to_user calls within the v4l device driver ioctl handlers.
+> 
+> Comments?
 
-This patch changes all use of strtok() to strsep().
-Strtok() isn't SMP/thread safe. strsep is considered safer.
-
-
---
-	Alex (alex@packetstorm.nu)
-
-
--------------------------- cut here -------------------------
-diff -uN linux-2.5.3-dj4/fs/fat/inode.c linux/fs/fat/inode.c
---- linux-2.5.3-dj4/fs/fat/inode.c      Sat Feb  9 21:57:39 2002
-+++ linux/fs/fat/inode.c        Sun Feb 10 03:47:48 2002
-@@ -223,8 +223,9 @@
-                goto out;
-        save = 0;
-        savep = NULL;
--       for (this_char = strtok(options,","); this_char;
--            this_char = strtok(NULL,",")) {
-+       while ((this_char = strsep(&options,",")) != NULL) {
-+               if (!*this_char)
-+                       continue;
-                if ((value = strchr(this_char,'=')) != NULL) {
-                        save = *value;
-                        savep = value;
-
-
+I'm not sure 2.4 should change but for 2.5 this is absolutely bang on
+perfect

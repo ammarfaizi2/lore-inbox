@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265812AbSKAXUr>; Fri, 1 Nov 2002 18:20:47 -0500
+	id <S265817AbSKAXdU>; Fri, 1 Nov 2002 18:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265818AbSKAXUq>; Fri, 1 Nov 2002 18:20:46 -0500
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:55815 "EHLO
-	skarpsey.dyndns.org") by vger.kernel.org with ESMTP
-	id <S265812AbSKAXUm> convert rfc822-to-8bit; Fri, 1 Nov 2002 18:20:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: AlphaPC+Sym53c8xx driver failure
-Date: Fri, 1 Nov 2002 18:22:50 -0500
-User-Agent: KMail/1.4.3
-References: <3DC2E30E.13470.26B6B20E@localhost>
-In-Reply-To: <3DC2E30E.13470.26B6B20E@localhost>
+	id <S265819AbSKAXdU>; Fri, 1 Nov 2002 18:33:20 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:26555 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265817AbSKAXdT>;
+	Fri, 1 Nov 2002 18:33:19 -0500
+Date: Fri, 1 Nov 2002 15:35:49 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.45 ipmr.c compile failure
+In-Reply-To: <3DC2578E.999E569C@aitel.hist.no>
+Message-ID: <Pine.LNX.4.33L2.0211011525300.28320-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211011722.50320.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 01:24 pm, Martin Brulisauer wrote:
-> Did you apply the core_cia.c patch?
-> You can find it at
-> http://knowledge.bruli.net/uploads/core_cia-patch.txt
+| net/ipv4/ipmr.c: In function `ipmr_forward_finish':
+| net/ipv4/ipmr.c:1114: structure has no member named `pmtu'
+| net/ipv4/ipmr.c: In function `ipmr_queue_xmit':
+| net/ipv4/ipmr.c:1170: structure has no member named `pmtu'
 
-Thx, I did not know about that one...
+Several people reported this problem in 2.5.45.
 
-Are there any other commonly-used patches to get 2.4 working on 
-the Alpha?  It seems Alpha support is just not seriously 
-maintained in the stock kernel...
+I don't know how tough it is to check all combinations of config
+options for such build problems, and I don't know how much code
+and/or options there are in linux/net/ compared to linux/drivers/usb/,
+but when I was the USB maintainer, before sending patches to Linus,
+I would	use a script to build all of USB in-kernel and then build all
+of USB as loadable modules.  This helped me make sure that easy-to-catch
+problems didn't happen.
 
+just an idea...
 -- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
+~Randy
+(OK, net/ is about double the size of usb/)
 

@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVASUnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVASUng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVASUnD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVASUnD
+	id S261884AbVASUng (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVASUng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:43:03 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:44037 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261883AbVASUm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:42:58 -0500
-Message-Id: <200501192042.j0JKgPTW024711@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues 
-In-Reply-To: Your message of "Wed, 19 Jan 2005 15:12:05 EST."
-             <41EEBF15.9050700@comcast.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113082320.GB18685@infradead.org> <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <1106157152.6310.171.camel@laptopd505.fenrus.org> <41EEABEF.5000503@comcast.net> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu>
-            <41EEBF15.9050700@comcast.net>
+	Wed, 19 Jan 2005 15:43:36 -0500
+Received: from main.gmane.org ([80.91.229.2]:20716 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261884AbVASUnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:43:25 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] AOE: fix up the block device registration so that it
+ actually works now.
+Date: Wed, 19 Jan 2005 15:43:02 -0500
+Message-ID: <87mzv5m9pl.fsf@coraid.com>
+References: <20050119000935.GA22454@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106167343_1885P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Jan 2005 15:42:23 -0500
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-214-28-36.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:dgobE2Ajx64PAvPppnl6fndCpOs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1106167343_1885P
-Content-Type: text/plain; charset=us-ascii
+--=-=-=
 
-On Wed, 19 Jan 2005 15:12:05 EST, John Richard Moser said:
+Greg KH <greg@kroah.com> writes:
 
-> > And why were they merged?  Because they showed up in 4-8K chunks.
+> Ed, I need the following patch against the latest -bk tree in order to
+> get the aoe code to load and work properly.  Does it look good to you?
 
-> so you want 90-200 split out patches for GrSecurity?
-
-Even better would be a 30-40 patch train for PaX, a 10-15 patch train
-for the other randomization stuff in grsecurity (pid, port number, all
-the rest of those), a 50-60 patch train for the RBAC stuff, and so on.
-
-Keep in mind that properly segmented, *parts* of grsecurity have at least
-a fighting chance - the fact that (for instance) mainline may reject the
-way RBAC is implemented because it's not LSM-based doesn't mean that you
-shouldn't at least try to get the PaX stuff in, and the randomization stuff,
-and so on.
+I hadn't submitted all my changes correctly, sorry.  Here's a patch
+against block-2.6 that rectifies the omission.
 
 
+Remove allow aoeblk_exit to be called from __init code, and move
+register_blkdev into aoe_init.
 
---==_Exmh_1106167343_1885P
-Content-Type: application/pgp-signature
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFB7sYvcC3lWbTT17ARAur8AJ9umjcqWka7MFG8oI7RajDNK5bfVACg+bF6
-XpITnsnBBboK8YkGueI6krk=
-=C8T3
------END PGP SIGNATURE-----
+--=-=-=
+Content-Disposition: inline; filename=diff-block-2.6
 
---==_Exmh_1106167343_1885P--
+diff -uprN block-2.6-export-a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+--- block-2.6-export-a/drivers/block/aoe/aoeblk.c	2005-01-19 14:29:31.000000000 -0500
++++ patch-block-2.6-20050119-export/linux/drivers/block/aoe/aoeblk.c	2005-01-19 15:21:53.000000000 -0500
+@@ -245,7 +252,7 @@ aoeblk_gdalloc(void *vp)
+ 		d->fw_ver, (long long)d->ssize);
+ }
+ 
+-void __exit
++void
+ aoeblk_exit(void)
+ {
+ 	kmem_cache_destroy(buf_pool_cache);
+@@ -254,19 +261,12 @@ aoeblk_exit(void)
+ int __init
+ aoeblk_init(void)
+ {
+-	int n;
+-
+ 	buf_pool_cache = kmem_cache_create("aoe_bufs", 
+ 					   sizeof(struct buf),
+ 					   0, 0, NULL, NULL);
+ 	if (buf_pool_cache == NULL)
+ 		return -ENOMEM;
+ 
+-	n = register_blkdev(AOE_MAJOR, DEVICE_NAME);
+-	if (n < 0) {
+-		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
+-		return n;
+-	}
+ 	return 0;
+ }
+ 
+
+--=-=-=
+
+
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+
+--=-=-=--
+

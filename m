@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292945AbSBVSLK>; Fri, 22 Feb 2002 13:11:10 -0500
+	id <S292946AbSBVSK3>; Fri, 22 Feb 2002 13:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292947AbSBVSK7>; Fri, 22 Feb 2002 13:10:59 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:33766 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S292945AbSBVSKm>; Fri, 22 Feb 2002 13:10:42 -0500
-Date: Fri, 22 Feb 2002 18:09:57 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Zach Brown <zab@zabbo.net>
-Subject: Re: is CONFIG_PACKET_MMAP always a win?
-Message-ID: <20020222180957.A16796@kushida.apsleyroad.org>
-In-Reply-To: <3C75A418.2C848B3F@kegel.com>
-Mime-Version: 1.0
+	id <S292945AbSBVSKT>; Fri, 22 Feb 2002 13:10:19 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:47493 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292946AbSBVSKL>; Fri, 22 Feb 2002 13:10:11 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200202221809.g1MI9n109591@eng2.beaverton.ibm.com>
+Subject: 64GB (i386) kernel config + PAGE_OFFSET change
+To: linux-kernel@vger.kernel.org
+Date: Fri, 22 Feb 2002 10:09:49 -0800 (PST)
+Cc: andrea@suse.de
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C75A418.2C848B3F@kegel.com>; from dank@kegel.com on Thu, Feb 21, 2002 at 05:51:20PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
-> c) enable CONFIG_PACKET_MMAP, use PACKET_RX_RING, and read packets from an mmap'd ring buffer
->    Overhead: kernel does a full memcpy of the packet body to get it
->    into the ring buffer, and my program does another to get it out.
+Hi,
 
-I had a look at this about a year ago, and it seems there is no method
-provided to read the packets without copying them, if you need them in
-user space.
+I am trying to boot a 2.4.17 (i386) kernel with 64GB kernel config
+and PAGE_OFFSET changed to 3.5 GB (0xE0000000) and it does not boot.
 
-Probably the fastest way to process packets in user space is to use a
-special protocol handler of your own that mmaps the area where packets
-are already DMAd from the driver.  I have been known to suggest simply
-mapping all 1GB of low kernel memory into user space for this :-)  I
-haven't tried this, or writing the protocol handler, though.
+I was wondering why ? I have 8GB on my machine (P-III). I looked 
+at Andrea's 3.5 GB user-virtual patch. It does not support 3.5GB 
+for 64GB kernel either ? I can't boot even with forcing mem=1G either.
 
-cheers,
--- Jamie
+Is there something fundamental here ?
 
+Please let me know.
 
+Thanks,
+Badari

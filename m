@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267084AbSLKJ1c>; Wed, 11 Dec 2002 04:27:32 -0500
+	id <S267086AbSLKJ3z>; Wed, 11 Dec 2002 04:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267085AbSLKJ1c>; Wed, 11 Dec 2002 04:27:32 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:27544 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267084AbSLKJ1b>; Wed, 11 Dec 2002 04:27:31 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD Writing in 2.5.51
-References: <1039598049.480.7.camel@nirvana>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Wed, 11 Dec 2002 10:34:43 +0100
-In-Reply-To: <1039598049.480.7.camel@nirvana> (mdew's message of "11 Dec
- 2002 22:14:07 +1300")
-Message-ID: <87fzt43nm4.fsf@web.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
+	id <S267094AbSLKJ3z>; Wed, 11 Dec 2002 04:29:55 -0500
+Received: from CPE-203-51-35-111.nsw.bigpond.net.au ([203.51.35.111]:62446
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S267086AbSLKJ3y>; Wed, 11 Dec 2002 04:29:54 -0500
+Message-ID: <3DF7075E.CB1C7201@eyal.emu.id.au>
+Date: Wed, 11 Dec 2002 20:37:34 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre1 compile failure: drivers/net/pcmcia/fmvj18x_cs.c
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* mdew  writes:
->So many howto's for writing in 2.4.x, simply put, what do i need
->(kernel-wise) to get IDE CD writing going? 
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4  -DMODULE -DMODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=fmvj18x_cs  -c -o
+fmvj18x_cs.o fmvj18x_cs.c
+fmvj18x_cs.c: In function `fmvj18x_config':
+fmvj18x_cs.c:489: `PRODID_TDK_GN3410' undeclared (first use in this
+function)
+fmvj18x_cs.c:489: (Each undeclared identifier is reported only once
+fmvj18x_cs.c:489: for each function it appears in.)
+fmvj18x_cs.c:529: `MANFID_UNGERMANN' undeclared (first use in this
+function)
+make[3]: *** [fmvj18x_cs.o] Error 1
+make[3]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/net/pcmcia'
 
->the lwn.net announcements dont really explain what needs to been done,
->what modules need to be loaded (and what I dont need anymore) etc.
+#
+# PCMCIA network device support
+#
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+CONFIG_ARCNET_COM20020_CS=m
+CONFIG_PCMCIA_IBMTR=m
+CONFIG_PCMCIA_XIRCOM=m
+CONFIG_PCMCIA_XIRTULIP=m
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_PCMCIA_NETWAVE=m
+CONFIG_PCMCIA_WAVELAN=m
+CONFIG_AIRONET4500_CS=m
 
-You don't need any additional modules. Just don't activate ide-scsi by
-either not appending ide-scsi/scsi=hdX or not compiling ide-scsi
-support in the kernel. 
-
-You also need a recent version of cdrtools. Just take the latest
-cdrtools-2.0pre version. cdrdao won't work yet without moving the new
-libscg from cdrtools to cdrdao, but it's not too hard to do and if you
-complain on the cdrdao list they will perhaps update it themselves
-sooner ;-)
-After that is done you can burn your disks with dev=/dev/hdX.
-
-regards
-Markus
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129892AbQKMRqd>; Mon, 13 Nov 2000 12:46:33 -0500
+	id <S129045AbQKMSAY>; Mon, 13 Nov 2000 13:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130153AbQKMRqX>; Mon, 13 Nov 2000 12:46:23 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:51091 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130152AbQKMRqO>; Mon, 13 Nov 2000 12:46:14 -0500
-Date: Mon, 13 Nov 2000 17:46:12 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: tytso@mit.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
-Message-ID: <20001113174612.W18112@redhat.com>
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="nDmTXYS4kVhtHHfR"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org>; from tytso@mit.edu on Sun, Nov 12, 2000 at 02:39:09PM -0500
+	id <S129257AbQKMSAE>; Mon, 13 Nov 2000 13:00:04 -0500
+Received: from 64-6-178-172.den1.phoenixdsl.net ([64.6.178.172]:17138 "HELO
+	matrix.the-republic.org") by vger.kernel.org with SMTP
+	id <S129245AbQKMR75>; Mon, 13 Nov 2000 12:59:57 -0500
+Date: Mon, 13 Nov 2000 17:59:54 +0000 (GMT)
+From: "Willis L. Sarka" <wlsarka@the-republic.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG] Hard lockup using emu10k1-based sound card
+Message-ID: <Pine.LNX.4.30.0011131751160.21258-100000@matrix.the-republic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get a hard lockup when trying to play a mp3 with XMMS;
+Sound Blaster Live card.  The first second loops, and I lose all
+connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
+nothing.
 
---nDmTXYS4kVhtHHfR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Details:
 
-On Sun, Nov 12, 2000 at 02:39:09PM -0500, tytso@mit.edu wrote:
+running RedHat 7.0
+using kernel 2.4.0-test11pre4
+emu10k1 compiled as a module
+system is a Dell Dimension 4100 (815e based, 512mb ram, 3com 3c905c cardA)
 
-> Fixed
->=20
->      * Zip/Imm/Parport will reliably hang the system (James M. "Dart",
->        fixed)
+I'll try to compile in soundcore and emu10k1 into the kernel, foregoing
+any modules and see if that helps.  I will also revert back to
+2.4.0-test10 as well just to test.  If anyone needs further information,
+let me know.
 
-This isn't fixed, I'm pretty sure.  I haven't looked at it yet.
+Thanks,
+Will Sarka
 
-Tim.
-*/
 
---nDmTXYS4kVhtHHfR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+-- 
+---------------------------------------------
+Those, who would give up essential liberty to
+purchase a little temporary safety, deserve
+neither liberty nor safety.
 
-iD8DBQE6ECjkONXnILZ4yVIRAuAOAKCMeAQUA5uiCnxxpmZ/Z+AI4rtIMgCfcPUw
-AZJnsQHKmVrcwuIsGksvN0s=
-=izfF
------END PGP SIGNATURE-----
+-Ben Franklin
+Historical Review of Constitution and
+Government of Pennsylvania
+---------------------------------------------
 
---nDmTXYS4kVhtHHfR--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

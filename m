@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281702AbRKUKna>; Wed, 21 Nov 2001 05:43:30 -0500
+	id <S281704AbRKUKuv>; Wed, 21 Nov 2001 05:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281599AbRKUKnU>; Wed, 21 Nov 2001 05:43:20 -0500
-Received: from uucp.cistron.nl ([195.64.68.38]:48646 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S281563AbRKUKnQ>;
-	Wed, 21 Nov 2001 05:43:16 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: New ac patch???
-Date: Wed, 21 Nov 2001 10:43:15 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9tg0g3$jbl$1@ncc1701.cistron.net>
-In-Reply-To: <20011121100849.D15851@joshua.mesa.nl> <E166TZh-0004T8-00@the-village.bc.nu>
-X-Trace: ncc1701.cistron.net 1006339395 19829 195.64.65.67 (21 Nov 2001 10:43:15 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	id <S281703AbRKUKul>; Wed, 21 Nov 2001 05:50:41 -0500
+Received: from isolaweb.it ([213.82.132.2]:14857 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S281700AbRKUKub>;
+	Wed, 21 Nov 2001 05:50:31 -0500
+Message-Id: <5.1.0.14.2.20011121114716.034e7a60@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 21 Nov 2001 11:49:40 +0100
 To: linux-kernel@vger.kernel.org
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: SDK for iPAQ
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E166TZh-0004T8-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->> 2.4.13-ac will "flushing ide drives" on shutdown. This helped my laptop
->> from not '/dev/hdax no cleanly unmounted, checking' on startup. I'm sure
->> the system did not crash before that.
->
->You have a box with an IBM 20Gig 2.5" drive (just out of interest)
->
->> 2.4.15-pre6 does not have this code and now sometimes some filesystems
->> seem not to be clean anymore on startup...
->> Will the ide_notify_reboot be included in 2.4.15 final?
->
->Probably not - the taskfile/LBA48 code wants more testing first. I believe
->you can pick up the relevant patch from www.linux-ide.org however, thanks
->to Andre
+Hi All,
 
-As I posted here last week, it's trivial to put the IDE drives into
-standby mode just before powerdown instead. It has the same effect
-and it would take just a few lines of code.
+I need to know where can I download a complete native SDK for iPAQ (not a 
+cross-compiler).
+I need to get a native development tools because I want recompile
+some applications that perform some gcc tests like configure.
 
-The Debian /sbin/halt does this now just before it asks the kernel
-to poweroff, and it fixes this problem just fine. It would be better
-if the kernel did it though.
+This development tools should be mounted from an external share like nfs or 
+smbfs
+because there isn't enough space on the iPAQ, right ?
 
-Mike.
--- 
-"Only two things are infinite, the universe and human stupidity,
- and I'm not sure about the former" -- Albert Einstein.
+And finally, does anyone know if smbfs works well on iPAQ ?
+
+Thanks very much.
+
+
+Roberto Fichera.
 

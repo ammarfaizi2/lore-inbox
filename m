@@ -1,109 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265745AbTIETJY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbTIETJY
+	id S265729AbTIETG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265731AbTIETG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:09:24 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:16374 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S265745AbTIETJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:09:20 -0400
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-From: Martin Schlemmer <azarah@gentoo.org>
-To: jimwclark@ntlworld.com
-Cc: Valdis.Kletnieks@vt.edu, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200309051931.09491.jimwclark@ntlworld.com>
-References: <1062637356.846.3471.camel@cube>
-	 <200309042251.38514.jimwclark@ntlworld.com>
-	 <200309051752.h85HqYS0031240@turing-police.cc.vt.edu>
-	 <200309051931.09491.jimwclark@ntlworld.com>
-Content-Type: text/plain
-Message-Id: <1062788373.3371.32.camel@workshop.saharacpt.lan>
+	Fri, 5 Sep 2003 15:06:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28084 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265729AbTIETGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:06:55 -0400
+Date: Fri, 5 Sep 2003 21:06:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <rob@landley.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Patrick Mochel <mochel@osdl.org>,
+       Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030905190649.GP16859@atrey.karlin.mff.cuni.cz>
+References: <200309050158.36447.rob@landley.net> <Pine.LNX.4.44.0309051044470.17174-100000@cherise> <20030905180248.GB29353@gtf.org> <200309051457.37241.rob@landley.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 05 Sep 2003 20:59:33 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309051457.37241.rob@landley.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 20:31, James Clark wrote:
-> Valdis Kletnieks wrote:
-> 
-> > So if 500 million people are productive 60% of the time and hosed 40% of
-> > the time, and 5 million people are productive 95% of the time, the 60/40
-> > model is better because 60% of 500M is more than 95% of 5M?
-> 
-> This is a good example of the kind of rubbish that is sometimes talked around 
-> here. I've lost count of the number of times I've heard the 'Windows is SO 
-> unstable argument' it almost seems like a religion. I would agree with what 
-> you have said if Windows was actually unusable 40% of the time. Do you really 
-> believe this figure? In reality it is much better than that as plainly the 
-> majority of the WORLD are using it. I love Linux but I also use Windows. 
-> Sorry to break your delusion, it ain't that bad.
-> 
-> > Ask Joe User how he feels about NOT being able to add IPv6 support to
-> > his existing system until his vendor says they'll do it for him, and then
-> > look at when Linux had support.
-> 
-> Its very true that in the Windows world you have to wait for Micro$oft 
-> sometimes, it is even true that they probably hold back features so that can 
-> put them in the next release and get you to pay for them. Why is this any 
-> worse than expecting Joe User, who is a 'user' and not a 'developer' to 
-> rebuild the most important bits of his OS and risk breaking the whole lot.
-> 
-> This is not about Windows v Linux so please stop compraring what I have 
-> proposed to Windows. This debate should be about Performance v Usability. 
-> Source interfaces have ultimate performance, nobody has suggested, yet, that 
-> they are easier for Joe User than a binary interface.
-> 
+Hi!
 
-Right.  Not trying to get involved in this mess [8)], but there
-was a few other comments that was less linux/windows, but more
-valid ... what about responding to them?  Could be interesting
-to hear what you have to say ...
+> > > > the power LED still on and the hibernate light off, and the thing's a
+> > > > brick at that point; the only thing you can do is hold the power button
+> > > > down for ten seconds or pop the battery to get it to boot back up from
+> > > > scratch.)  So I have to shut the sucker down every time I want to move
+> > > > it, which is a pain...
+> > >
+> > > What model is it? It probably doesn't support APM at all. I can't
+> > > guarantee that ACPI suspend/resume will work on it, but I'm interested to
+> > > see if it does..
+> >
+> > Note that a lot of ThinkPads out in the field need a BIOS update
+> > before their ACPI is working.  (I know this because IBM was quite
+> > helpful and proactive in addressing their Linux-related ACPI BIOS
+> > issues)
+> 
+> ACPI currently works fine in terms of IRQ routing, sensing when the lid closes 
+> and the power button gets pressed, telling me how much battery power is left 
+> and when I disconnect the AC adapter from the wall...
+> 
+> I was hoping software suspend would avoid having to have IBM firmware involved 
+> in the suspend process at all (it can boot, it can shut down, I just want it 
+> to snapshot process state so it comes up with the same things up on the 
+> desktop as last time).
 
+Yes software suspend can do that.
 
-> James
-> 
-> 
-> 
-> On Friday 05 Sep 2003 6:52 pm, you wrote:
-> > On Thu, 04 Sep 2003 22:51:38 BST, James Clark said:
-> > > FUD. It mostly works, sometimes it doesn't, but in total the number of
-> > > working hours of PRODUCTIVE use from it is many orders of magnitude
-> > > greater. Multiple the number of Windows users in the world by their
-> > > working time and then do the same for Linux!
-> >
-> > So if 500 million people are productive 60% of the time and hosed 40% of
-> > the time, and 5 million people are productive 95% of the time, the 60/40
-> > model is better because 60% of 500M is more than 95% of 5M?
-> >
-> > What's wrong with this picture?
-> >
-> > > hence the OS could escape the niche box it currently is in. Please ask
-> > > Joe User how he feels about rebuilding his whole OS to add IP6 support to
-> > > an existing stable system etc.
-> >
-> > Ask Joe User how he feels about NOT being able to add IPv6 support to
-> > his existing system until his vendor says they'll do it for him, and then
-> > look at when Linux had support.
-> >
-> > http://www.ipv6.org/impl/linux.html
-> > http://www.ipv6.org/impl/windows.html
-> >
-> > And most important, google around for +ipv6 +"craig metz", and look at when
-> > *he* did the IPv6 work - and you were free to put the patches on your
-> > system as soon as he posted them.
-> >
-> > Now as you were saying?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> P.S.  I reeeeeeeeeeeeeeeeeally hate it the way the keys on the keyboard 
+> sometimes have an up event delayed (or miss it entirely) and decide to 
+> auto-repeat insanely fast.  It happens about twice an hour.  I've seen mouse 
+> clicks do it as well.  Not a show-stopper, just annoying.
+
+I guess that *is* showstopper. Unfortunately notebook keyboards tend
+to be crappy :-(.
+									Pavel
 -- 
-Martin Schlemmer
-
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130875AbRCFCTK>; Mon, 5 Mar 2001 21:19:10 -0500
+	id <S130867AbRCFC0V>; Mon, 5 Mar 2001 21:26:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130873AbRCFCTA>; Mon, 5 Mar 2001 21:19:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:29056 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S130875AbRCFCSp>; Mon, 5 Mar 2001 21:18:45 -0500
-Date: Mon, 5 Mar 2001 21:18:23 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Robert Read <rread@datarithm.net>
-cc: Pozsar Balazs <pozsy@sch.bme.hu>, Paul Flinders <P.Flinders@ftel.co.uk>,
-        Jeff Mcadams <jeffm@iglou.com>, Rik van Riel <riel@conectiva.com.br>,
-        John Kodis <kodis@mail630.gsfc.nasa.gov>,
-        linux-kernel <linux-kernel@vger.kernel.org>, bug-bash@gnu.org
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010305123907.C6400@tenchi.datarithm.net>
-Message-ID: <Pine.LNX.3.95.1010305211222.4500A-100000@chaos.analogic.com>
+	id <S130869AbRCFC0M>; Mon, 5 Mar 2001 21:26:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4875 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130867AbRCFC0F>; Mon, 5 Mar 2001 21:26:05 -0500
+Date: Mon, 5 Mar 2001 18:25:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeremy Hansen <jeremy@xxedgexx.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's
+In-Reply-To: <Pine.LNX.4.33L2.0103052108590.32449-100000@srv2.ecropolis.com>
+Message-ID: <Pine.LNX.4.10.10103051819530.8391-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Robert Read wrote:
 
-> On Mon, Mar 05, 2001 at 07:58:52PM +0100, Pozsar Balazs wrote:
-> > 
-> > And what does POSIX say about "#!/bin/sh\r" ?
-> > In other words: should the kernel look for the interpreter between the !
-> > and the newline, or [the first space or newline] or the first whitespace?
-> > 
-> > IMHO, the first whitespace. Which means that "#!/bin/sh\r" should invoke
-> > /bin/sh. (though it is junk).
-> > 
+
+On Mon, 5 Mar 2001, Jeremy Hansen wrote:
 > 
-> The line terminator, '\n', is what terminates the interpreter.  White
-> space (in this case, only ' ' and '\t') is used to seperate the
-> arguments to the interpreter.  This allows scripts to pass args to
-> intepreters, as in #!/usr/bin/per -w or #!/usr/bin/env perl -w
+> Right now I'm running 2.4.2-ac11 on both machines and getting the same
+> results:
 > 
-> So is '\r' a line terminator? For Linux, no.  Should '\r' seperate
-> arguments?  No, that would be very strange.
+> SCSI:
 > 
+> [root@orville /root]# time /root/xlog file.out fsync
+> 
+> real    0m21.266s
+> user    0m0.000s
+> sys     0m0.310s
+> 
+> IDE:
+> 
+> [root@kahlbi /root]# time /root/xlog file.out fsync
+> 
+> real    0m8.928s
+> user    0m0.000s
+> sys     0m6.700s
+> 
+> This behavior has been noticed by others, so I'm hoping I'm not just crazy
+> or that my test is somehow flawed.
+> 
+> We're using MySQL with Berkeley DB for transaction log support.  It was
+> really confusing when a simple ide workstation was out performing our
+> Ultra160 raid array.
 
-For research, I suggest a look at getopt(3) or whatever it's called.
-The command line args are seperated into chunks based upon what got
-seperated into argv[1]....[n], delimited by (hold my breath) white-space.
+Well, it's entirely possible that the mid-level SCSI layer is doing
+something horribly stupid.
 
-Of course, it's not getopt(), but "makeopt()" that we are looking for.
-...Whatever chopped up those command-line arguments in the first place.
+On the other hand, it's also entirely possible that IDE is just a lot
+better than what the SCSI-bigots tend to claim. It's not all that
+surprising, considering that the PC industry has pushed untold billions of
+dollars into improving IDE, with SCSI as nary a consideration. The above
+may just simply be the Truth, with a capital T.
 
-If __that__ corresponds so POSIX rules, then whatever follows must
-also comply.
+(And "bonnie" is not a very good benchmark. It's not exactly mirroring any
+real life access patterns. I would not be surprised if the SCSI driver
+performance has been tuned by bonnie alone, and maybe it just sucks at
+everything else)
 
-Cheers,
-Dick Johnson
+Maybe we should ask whether somebody like lnz is interested in seeing what
+SCSI does wrong here?
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+		Linus
 

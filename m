@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265898AbUBCHgt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 02:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUBCHgt
+	id S265907AbUBCIEN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 03:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUBCIEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 02:36:49 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:40064 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265898AbUBCHgs (ORCPT
+	Tue, 3 Feb 2004 03:04:13 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:35240 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265907AbUBCIEK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 02:36:48 -0500
-Date: Tue, 3 Feb 2004 08:37:06 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: "P. Christeas" <p_christ@hol.gr>, acpi-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: FYI: ACPI 'sleep 1' resets atkbd keycodes
-Message-ID: <20040203073706.GE337@ucw.cz>
-References: <200401251137.21646.p_christ@hol.gr> <20040125115946.GA414@ucw.cz> <200402022338.48010.dtor_core@ameritech.net>
+	Tue, 3 Feb 2004 03:04:10 -0500
+Date: Tue, 3 Feb 2004 09:04:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
+       dipankar@in.ibm.com
+Subject: Re: [PATCH 3/4] 2.6.2-rc2-mm2 CPU Hotplug: The Core
+Message-ID: <20040203080436.GA374@elte.hu>
+References: <20040202154040.GA5895@elte.hu> <20040203010224.2A2F52C0CB@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402022338.48010.dtor_core@ameritech.net>
+In-Reply-To: <20040203010224.2A2F52C0CB@lists.samba.org>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin 2.60
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 11:38:41PM -0500, Dmitry Torokhov wrote:
 
-> I feel a little uneasy about killing the input device if set changes after
-> resume. That would cause a new input device created but for user it would
-> look like keyboard is lost or am I missing someting?
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-The console will automatically and immediately grab the new keyboard and
-everything will continue to work, even X, because it uses the console
-for input.
+> This terminating signal idea is simply flawed: affinity is inherited,
+> so you're killing a process which knows nothing anyway.
+> 
+> If we can't do it well, leave it to userspace to sort out 8)
 
-Later, when X uses the event interface, it'll get a notification that
-the keyboard was removed and added again, which will cause it to open
-the new one, so all will be OK, too.
+yes, but currently there's no mechanism for userspace to get notified -
+hence no clean way for userspace to sort it out. (other than userspace
+continuously polling the CPU mask - bleh.) But this is a separate issue.
 
-> What about the patch below which would reset keyboard to the default keymap
-> only if set changes?
-
-I don't think there is a problem with just reconnecting. It's extremely
-unlikely that the set can change, too, because everyone uses translated
-set 2, and that's the lowest common denominator.
-
-Unless you specified extra arguments on the kernel command line, you
-can't get any other set.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+	Ingo

@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUDCEPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 23:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUDCEPp
+	id S261468AbUDCEOO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 23:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUDCEOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 23:15:45 -0500
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:32870 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261563AbUDCEPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 23:15:45 -0500
-Message-ID: <406E2227.10405@yahoo.com.au>
-Date: Sat, 03 Apr 2004 12:32:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ale813@comcast.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RDMA development
-References: <040320040224.12519.406E204B000C1A9E000030E72200751150FFCCCEC79A93@comcast.net>
-In-Reply-To: <040320040224.12519.406E204B000C1A9E000030E72200751150FFCCCEC79A93@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 23:14:14 -0500
+Received: from waste.org ([209.173.204.2]:3308 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261468AbUDCEON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 23:14:13 -0500
+Date: Fri, 2 Apr 2004 22:14:06 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] improve CONFIG_EMBEDDED help text
+Message-ID: <20040403041406.GU6248@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ale813@comcast.net wrote:
-> If interested to design and implement RDMA, please respond to: rdma04@yahoo.com.  Location: Bay Area, CA.
->  
-> (Sorry to use the mailing list! Will _not_ do that again.)
 
-Err why did you use it in the first place if you knew not to?
+Make CONFIG_EMBEDDED description more accurate
+
+Index: tiny/init/Kconfig
+===================================================================
+--- tiny.orig/init/Kconfig	2004-03-25 14:09:38.000000000 -0600
++++ tiny/init/Kconfig	2004-03-25 15:49:17.000000000 -0600
+@@ -183,12 +183,12 @@
+ 
+ 
+ menuconfig EMBEDDED
+-	bool "Remove kernel features (for embedded systems)"
++	bool "Configure standard kernel features (for small systems)"
+ 	help
+-	  This option allows certain base kernel features to be removed from
+-	  the build.  This is for specialized environments which can tolerate
+-	  a "non-standard" kernel.  Only use this if you really know what you
+-	  are doing.
++	  This option allows certain base kernel options and settings
++          to be disabled or tweaked. This is for specialized
++          environments which can tolerate a "non-standard" kernel.
++          Only use this if you really know what you are doing.
+ 
+ config KALLSYMS
+ 	 bool "Load all symbols for debugging/kksymoops" if EMBEDDED
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

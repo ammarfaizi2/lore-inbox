@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbTIXLWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 07:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTIXLWP
+	id S261256AbTIXLtq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 07:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTIXLtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 07:22:15 -0400
-Received: from dyn-ctb-203-221-73-21.webone.com.au ([203.221.73.21]:19726 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261251AbTIXLWO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 07:22:14 -0400
-Message-ID: <3F717E62.5020404@cyberone.com.au>
-Date: Wed, 24 Sep 2003 21:22:10 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Wed, 24 Sep 2003 07:49:46 -0400
+Received: from [200.167.49.193] ([200.167.49.193]:52487 "HELO 67.72.78.212")
+	by vger.kernel.org with SMTP id S261256AbTIXLtp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 07:49:45 -0400
+Message-ID: <4$6gv4b1$m16czsl9h3m@1jwhh9v>
+From: "" <jodyjones@movemail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Vicodin, limited supply available
+Date: Wed, 24 Sep 03 10:50:28 GMT
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RFC] runtime selectable IO schedulers
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="021AB940AA2"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.kerneltrap.org/~npiggin/elv-select.patch-030924
+This is a multi-part message in MIME format.
 
-Against test5-mm4. This is commented a bit better than the previous
-version I sent to Al and Jens.
+--021AB940AA2
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-sysfs interface is /sys/block/*/queue/io_scheduler. Valid values are
-as, deadline, noop, cfq. Switching schedulers under disk load works fine
-in my tests. sysfs stuff seems to be working nicely and handles lingering
-userspace references properly.
+Order Vicodin Online Anytime
+24/7 online service. Vicodin-ES 7.5/750mg.
+FedEx shipping. Online tracking.
+Reliable, confidential, and professional service. 
+www.pharmacydepot.biz/central
 
-Review of the kobject / sysfs stuff would be especially helpful. Thanks.
 
+
+
+
+
+
+
+
+
+
+
+You are receiving this message because of 
+your previous interest in our products.  Please
+use this link to purge from our list:
+
+www.pharmacydepot.biz/a.html
+
+--021AB940AA2--
 

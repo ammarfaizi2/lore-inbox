@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314359AbSDROIN>; Thu, 18 Apr 2002 10:08:13 -0400
+	id <S314360AbSDROKS>; Thu, 18 Apr 2002 10:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314363AbSDROIM>; Thu, 18 Apr 2002 10:08:12 -0400
-Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:49135 "EHLO
-	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S314359AbSDROIL>; Thu, 18 Apr 2002 10:08:11 -0400
-Date: Thu, 18 Apr 2002 10:06:22 -0400
-From: Rick Haines <rick@kuroyi.net>
-To: linux-kernel@vger.kernel.org
-Subject: read latency (ia64)
-Message-ID: <20020418140622.GA31405@sasami.kuroyi.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S314361AbSDROKR>; Thu, 18 Apr 2002 10:10:17 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:57482 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S314360AbSDROKP>; Thu, 18 Apr 2002 10:10:15 -0400
+Message-ID: <3CBED3C0.1020203@metaparadigm.com>
+Date: Thu, 18 Apr 2002 22:10:08 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+MIME-Version: 1.0
+To: Martin Rode <martin.rode@programmfabrik.de>
+Cc: Keith Owens <kaos@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: Callbacks to userspace from VFS ?
+In-Reply-To: <30229.1019092935@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Lion with 4 666mhz B3 stepping cpus and 4GB ram running Debian
-unstable with kernel 2.4.18 and the 020410 ia64 patch (I have the same
-problem with 2.4.9-itanium-smp from the archive).
+fam and imon also sound like they would do what you want to do.
 
-I have a program that reads large files in increments of 81920 blocks.
-After about 9600 read calls I get about a dozen reads that take about 3 
-seconds each.  Does anyone have any ideas as to a cause/solution?
-(I have 4 other threads working/possibly writing output at the same 
-time, although in this case only 1 of them would be active at 
-the same time).  I am also running a program that callocs almost all my 
-ram to make sure none of the file is cached.
+fam works with or without the imon (inode monitor) kernel extension.
+If imon is present, then fam doesn't need to poll for changes on interested
+files/directories and operation is much more efficient. I think imon still
+needs some work from reading the docs (is only version 0.0.2).
 
-I can provide more info if necessary.
-Here is a partial log I made (read#/time in seconds):
+~mc
 
-9597 2.823812008
-9598 0.009531000
-9599 0.000220000
-9600 0.010351000
-9601 0.014768000
-9602 0.000213000
-9603 2.910599947
-9604 0.009694000
-9605 0.000193000
-9606 0.014762000
-9607 0.000193000
-9608 0.009892000
-9609 2.869304895
-9610 0.000717000
-9611 0.014134000
-9612 0.010046000
-9613 0.000200000
-9614 0.009780000
-9615 0.000200000
-9616 2.974085093
+http://oss.sgi.com/projects/fam/
 
-Thanks for your help.
+Keith Owens wrote:
 
--- 
-Rick (rick@kuroyi.net)
-http://dxr3.sourceforge.net
-http://rsub.sourceforge.net
+>On 17 Apr 2002 16:21:13 +0200, 
+>Martin Rode <martin.rode@programmfabrik.de> wrote:
+>
+>>after programming at least 10 scripts polling a what we call
+>>"hot-folder" for new files I had the idea to integrate call backs into
+>>the file system layer of the linux kernel.
+>>
+>>I would like to tell the kernel to callback my program whenever a file
+>>or directory is being inserted, updated or deleted.
+>>
+>
+>dnotify already exists, although you have to work out what has changed.
+>
+>XFS implements DMAPI (Data Management API) event callouts which give
+>much more details.  DMAPI is designed for full blown Hierarchical
+>Storage Managements systems.
+>http://www.opengroup.org/pubs/catalog/c429.htm to purchase the DMAPI
+>standard, there is also a free (with registration) online standard.
+>
+>Not speaking for SGI.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-I think the slogan of the fansubbers puts
-it best: "Cheaper than crack, and lots more fun."
+

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264441AbUEEVqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264687AbUEEVm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264441AbUEEVqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 17:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbUEEVqi
+	id S264687AbUEEVm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 17:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbUEEVm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 17:46:38 -0400
-Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:40330
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S264441AbUEEVqf convert rfc822-to-8bit (ORCPT
+	Wed, 5 May 2004 17:42:58 -0400
+Received: from hell.org.pl ([212.244.218.42]:64006 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S264687AbUEEVm4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 17:46:35 -0400
-Date: Wed, 5 May 2004 22:46:34 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with nptl and uname
-In-Reply-To: <c7badk$333$1@p3EE0629D.dip0.t-ipconnect.de>
-Message-ID: <Pine.LNX.4.58.0405052241400.6631@ppg_penguin>
-References: <c7badk$333$1@p3EE0629D.dip0.t-ipconnect.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Wed, 5 May 2004 17:42:56 -0400
+Date: Wed, 5 May 2004 23:43:01 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, swsusp-devel@lists.sourceforge.net
+Subject: Re: swsusp documentation updates
+Message-ID: <20040505214301.GA27339@hell.org.pl>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	acpi-devel@lists.sourceforge.net,
+	swsusp-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 May 2004, Andreas Hartmann wrote:
+<linux-kernel@vger.kernel.org>, acpi, swsusp
+Bcc: 
+Subject: Re: swsusp documentation updates
+Reply-To: 
+In-Reply-To: <1Srcw-5NU-25@gated-at.bofh.it>
 
-> Hello all,
->
-> I've have a problem to get ntpl working on my machine:
->
+Thus wrote Pavel Machek:
+> +Q: Does linux support ACPI S4?
+> +
+> +A: No.
 
-Sorry about replying to the list, but my (cable) IP address fails your
-blacklist.
+I believe pmdisk uses proper S4 by default.
 
-> I have a AMD Athlon XP and kernel 2.6.6-rc3 (2.6.6-rc3-mm1). I compiled
-> glibc 2.3.3 with gcc 3.3.2, kernelheaders 2.6.5.1 and binutils
-> 2.15.90.0.3 with
->
-> configure --with-tls --prefix=/usr --enable-add-ons=nptl --enable-kernel=2.4.1
->
+> +That means that machine does not enter S4 on suspend-to-disk, but
+> +simply enters S5. That has few advantages, you can for example boot
+> +windows on next boot, and return to your Linux session later. You
+> +could even have few different Linuxes on your box (not sharing any
+> +partitions), and switch between them.
 
->
-> initial thread stack 0x80037000-0xc0000000 (0x3ffc9000)
-> /opt/cd/libc/compile/nptl/tst-attr3: pthread_create #1 failed: Cannot
-> allocate memory
->
+That's bogus. Entering S4 does not prevent booting multiple systems, or at
+least the ACPI spec does not contradict this possibility. S4 and S5 are
+nearly identical in that matter (see section 9.1.4).
 
- At a guess, no tmpfs support, or it's not mounted at /dev/shm.
+> +It also has disadvantages. On HP nx5000, if you unplug power cord
+> +while machine is suspended-to-disk, Linux will fail to notice that.
 
->
-> There seems to be another problem wit uname:
->
-> Hardware platform:
-> uname -i
-> unknown
->
-> CPU:
-> uname -p
-> unknown
->
+Hmm, people were reporting that on the swsusp mailing list. The
+aforementioned section contains some notes about hardware state changes
+over suspend, but I don't really know if Linux makes use of that.
 
- Absolutely normal.  On linuxfromscratch there's a patch for coreutils
-which would make uname -p return AuthenticAMD, but that's getting OT
-here.
+Apart from that, there seem to differences in handling PMEs -- the RTC
+alarm event works fine for me if the box enters S4 and does not if it's at
+S5. Wake-On-LAN may suffer the same problems, depending on the machine.
 
-Ken
+If I may suggest something, it would be stupid to turn down S4 completely,
+especially that infrastructure to chose S4 over pm_power_off() already
+exists (/sys/power/).
+
+Best regards,
+
 -- 
- das eine Mal als Tragödie, das andere Mal als Farce
-
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

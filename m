@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTJIWNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 18:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJIWNx
+	id S261270AbTJIWQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 18:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJIWQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 18:13:53 -0400
-Received: from mail.gmx.de ([213.165.64.20]:21167 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261779AbTJIWNw (ORCPT
+	Thu, 9 Oct 2003 18:16:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:15584 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261270AbTJIWQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 18:13:52 -0400
-X-Authenticated: #7204266
-Cc: Chris Wright <chrisw@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Horrible ordeals with ACPI, APIC and HIGHMEM (2.6.0-test* and -ac kernels)
-References: <oprwsg9wfc9y0cdf@mail.gmx.net> <20031009140523.A18065@build.pdx.osdl.net> <oprwsoirf09y0cdf@mail.gmx.net> <20031009145839.A18072@build.pdx.osdl.net>
-Message-ID: <oprwsqppse9y0cdf@mail.gmx.net>
-From: Martin Aspeli <optilude@gmx.net>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
+	Thu, 9 Oct 2003 18:16:55 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 09 Oct 2003 23:14:03 +0100
-In-Reply-To: <20031009145839.A18072@build.pdx.osdl.net>
-User-Agent: Opera7.20/Win32 M2 build 3144
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16261.56894.8109.858323@charged.uio.no>
+Date: Thu, 9 Oct 2003 18:16:30 -0400
+To: Ulrich Drepper <drepper@redhat.com>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: statfs() / statvfs() syscall ballsup...
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> fixes acpi pci link allocation which could pick a bad irq causing an
-> interrupt storm.  typical symptom was hang on boot.
 
-Well, the hang only occurs when Local APIC was enabled. If Local APIC is 
-taken out of the kernel, it boots, but events/0 starts eating my entire 
-CPU and the fan is constantly on. I can't tell whether this is because 
-events/0 is eating my CPU and hence it's running hot, or if it's 
-(partially) unrelated.
+Hi,
 
-I'm still a little lost as to what Local APIC does (apart from being an 
-interrupt controller) or how it's related to ACPI (apart from obvious 
-puns), or indeed whether or not my Penium-M has one.
+  We appear to have a problem with the new statfs interface
+in 2.6.0...
 
-You say stray ACPI events could cause keventd to chew CPU. It does seem 
-likely. What would cause a runaway ACPI event? How would I stop one (apart 
- from acpi=off, of course, which leaves me IRQ less).
+The problem is that as far as userland is concerned, 'struct statfs'
+reports f_blocks, f_bfree,... in units of the "optimal transfer size":
+f_bsize (backwards compatibility).
 
-Conversely, I suppose - is it possible to give IRQs to my sound card and 
-the four or five other unidentified pieces of hardware that get no IRQ at 
-boot, manually even? I'm a little worried this may leave me fan-less, 
-although the BIOS seems to be turning the fan on sometimes if I boot with 
-acpi=off.
+OTOH 'struct statvfs' reports the same values in units of the fragment
+size (the blocksize of the underlying filesyste): f_frsize. (says
+Single User Spec v2)
 
->> And why do things run like a 286 when I enable HIGHMEM?
-> I don't know, it shouldn't.
+Both are apparently supposed to syscall down via sys_statfs()...
 
-I most whole-heartedly agree!
+Question: how we're supposed to reconcile the two cases for something
+like NFS, where these 2 values are supposed to differ?
 
-Thank you for all your help!
+Note that f_bsize is usually larger than f_frsize, hence conversions
+from the former to the latter are subject to rounding errors...
 
-Martin
-
--- 
-Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/
+Cheers,
+  Trond

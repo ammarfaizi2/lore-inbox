@@ -1,65 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291908AbSBIJNZ>; Sat, 9 Feb 2002 04:13:25 -0500
+	id <S288784AbSBIJ0h>; Sat, 9 Feb 2002 04:26:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291910AbSBIJNP>; Sat, 9 Feb 2002 04:13:15 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:28339 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S291908AbSBIJNB>; Sat, 9 Feb 2002 04:13:01 -0500
-Date: Sat, 9 Feb 2002 10:06:14 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Olaf Zaplinski <olaf.zaplinski@web.de>
-Cc: linux-kernel@vger.kernel.org, netfilter@lists.samba.org
-Subject: Re: iptables: why different behaviour with two kernel versions?
-Message-ID: <20020209100614.U26676@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
-	Olaf Zaplinski <olaf.zaplinski@web.de>,
-	linux-kernel@vger.kernel.org, netfilter@lists.samba.org
-In-Reply-To: <3C645047.C2C248B8@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3C645047.C2C248B8@web.de>; from olaf.zaplinski@web.de on Fri, Feb 08, 2002 at 11:25:11PM +0100
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Pungenday, the 28th day of Chaos in the YOLD 3168
+	id <S288788AbSBIJ02>; Sat, 9 Feb 2002 04:26:28 -0500
+Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:43170 "EHLO
+	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288784AbSBIJ0I>; Sat, 9 Feb 2002 04:26:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Andreas Dilger <adilger@turbolabs.com>, Patrick Mochel <mochel@osdl.org>
+Subject: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+Date: Sat, 9 Feb 2002 04:27:00 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com>
+In-Reply-To: <20020208203931.X15496@lynx.turbolabs.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020209092607.UHF12059.femail26.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 11:25:11PM +0100, Olaf Zaplinski wrote:
-> Hi all,
+On Friday 08 February 2002 10:39 pm, Andreas Dilger wrote:
+> On Feb 08, 2002  18:25 -0800, Patrick Mochel wrote:
+> > (I don't have a public repository yet, so there's no place to pull form)
+>
+> I don't see why everyone who is using BK is expecting Linus to do a pull.
+> In the non-BK case, wasn't it always a "push" model, and Linus would not
+> "pull" from URLs and such?
 
-Hi Olaf.
+I'm all for it.  I think it's a good thing.
 
-Please direct iptables usage questions to the netfilter@lists.samba.org
-mailinglist (as stated in the MAINTAINERS file).
+In the absence of significant latency issues, pull scales better than push.  
+It always has.  Push is better in low bandwidth situations with lots of idle 
+capacity, but it breaks down when the system approaches saturation.
 
-> my self made firewall at $HOME (iptables based) works fine, but the
-> accounting data it reports every day is not as expected.
-[...]
+Pull data is naturally supplied when you're ready for it (assuming no 
+significant latency to access it).  Push either scrolls by unread or piles up 
+in your inbox and gets buried until it goes stale.  Web pages work on a pull 
+model, "push" was an internet fad a few years ago that failed for a reason.  
+When push models hit saturation it breaks down and you wind up with the old 
+"I love lucy" episode with the chocolate factory.  Back in the days where 
+ethernet used hubs instead of switches, going over 50% utilization could lock 
+the whole network pretty easily, and these days with switched gigabit 
+eithernet you still have network interfaces going into interrupt livelock but 
+able to handle a higher load in polling mode.  The Linux scheduler itself 
+pulls tasks from a pool of runnable tasks.  If each task had a timer that 
+expired generating an interrupt that pushed it to a processor, things 
+wouldn't work so well.  (I could go on...)
 
->From what you have written, I can draw the assumption that you think
-forwarded packets go through INPUT or OUTPUT?  Then you're thinking in
-2.2.x ipchains terms.
+Linus has actually been using his mailbox to simulate pull by keeping the 
+push model at saturation and having repeated retransmits of stuff he expects 
+to repeatedly delete until he's ready to reach out and grab it as it passes 
+by when the time is right.  The flood he's plucking stuff from is his inbox 
+instead of the internet, but the fact remains 90% of it flows by unread 
+(wasting attention to delete it, a small amount but it adds up), and isn't 
+guaranteed to be there when he IS ready for it.
 
-In 2.4.x (== iptables) firewalling, forwarded packets go only through 
-output.
+Humans naturally work by pull.  It just works better to grab stuff out of the 
+fridge when you're hungry instead of having it crammed down your throat at 
+random.  Push winds up going into a buffer which we pull from (which is how 
+mail works), and if that buffer overflows during load spikes, or is just 
+constantly filling faster than it drains in the long term, then you wind up 
+retransmitting stuff that got dropped (increasing the bandwidth usage) and it 
+all just falls apart...
 
-> So I built the 2.4.13 kernel to test that and got dozens of rejects in the
-> logs, e.g. UDP connects to the DNS forwarders... so I could not test the
-> accounting stuff. I switched back to 2.4.17 and everything was fine again.
-> 
-> So what's wrong with iptables-1.2.4 userland tools and 2.4.[13|17]? Why is
-> iptables-rules@2.4.13 not the same as iptables-rules@2.4.17?
+Years ago, Linus wasn't regularly at saturation, so push was fine.  (Optimal 
+even: interrupts are better than polling up until you approach livelock.)  
+And with Linus's previous toolset, grabbing code from URLs was a significant 
+interruption in his workflow, hence a bad thing.  But with bitkeeper, it 
+isn't.  And if Linus is going to focus on taking the bulk of new patches from 
+a dozen or so trusted lieutenants anyway, it makes sense for them to give him 
+the option of a pull model.
 
-Maybe something else in your setup was different?  There is no difference
-between the filter table in 2.4.13 and 2.4.17.
+I'd encourage this trend.  If in the future linus pulls from lieutenants and 
+lieutenants pull from maintainers, the dropped patches problem basically goes 
+away.  Just make sure that when the level above you IS ready to take it from 
+your level, it's there and ready for them...
 
-> Olaf
+Rob
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+Standard disclaimer: it's 4:30am, who knows how much sense this will make in 
+the morning? :)

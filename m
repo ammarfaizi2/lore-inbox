@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S133081AbQK0AJG>; Sun, 26 Nov 2000 19:09:06 -0500
+        id <S133053AbQK0AP7>; Sun, 26 Nov 2000 19:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S133085AbQK0AI4>; Sun, 26 Nov 2000 19:08:56 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19490 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S133081AbQK0AIm>; Sun, 26 Nov 2000 19:08:42 -0500
-Date: Mon, 27 Nov 2000 00:38:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel_thread bogosity
-Message-ID: <20001127003844.C23807@athlon.random>
-In-Reply-To: <20001123232333.A6426@bug.ucw.cz> <20001124014830.I1461@athlon.random> <20001124205247.A141@bug.ucw.cz> <20001126172658.A5636@athlon.random> <20001126232932.A4052@bug.ucw.cz>
+        id <S133082AbQK0APt>; Sun, 26 Nov 2000 19:15:49 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:38271 "EHLO
+        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+        id <S133053AbQK0APl>; Sun, 26 Nov 2000 19:15:41 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: initdata for modules? 
+In-Reply-To: Your message of "Sun, 26 Nov 2000 17:01:35 PDT."
+             <20001126170135.A1787@vger.timpanogas.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001126232932.A4052@bug.ucw.cz>; from pavel@suse.cz on Sun, Nov 26, 2000 at 11:29:32PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Mon, 27 Nov 2000 10:45:34 +1100
+Message-ID: <1887.975282334@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 11:29:32PM +0100, Pavel Machek wrote:
-> Is this different on x86-64 in long mode?
+On Sun, 26 Nov 2000 17:01:35 -0700, 
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
+>insmod ppp_deflate (should trigger load of all these modules).  I 
+>know it's works this way if there's a modules.dep file laying 
+>around, but it would be nice for it to work this way without 
+>needing the external text file.
 
-Yes, in 64bit mode ss:rsp is restore unconditionally. In compatibility and
-legacy modes it's restored only if the CPL changes.
+There is a clean split between modprobe and insmod, modprobe is the
+high level command that does all the fancy checking for inter module
+dependencies, handling aliases and extracting options from
+modules.conf.  insmod is the low level command that does exactly what
+you tell it to do, no more, no less.  The only smarts that insmod has
+is the ability to take a module name without '/' and find it using the
+patchs in modules.conf.  That split between high and low level commands
+is too useful to contaminate.
 
-kernel never runs in compatibility mode (and userspace never runs iret) so in
-kernel_thread we know x86-64 always restores ss:rsp from the stack.
+modules.conf already supports "above" and "below" commands for
+non-standard dependencies.  The problem of not having a module.dep on
+the first boot of a new kernel was addressed in kernel 2.4.0-test5 or
+thereabouts, make modules_install runs depmod to build modules.dep
+ready for the first boot.
 
-You should find this as a familiar behaviour as you just tried to pass a stack
-via kernel_thread in your latest patch against cvs :).
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

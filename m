@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271840AbTG2QIN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 12:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271839AbTG2QHw
+	id S271886AbTG2QOv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 12:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271889AbTG2QOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 12:07:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:36874 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S271832AbTG2QGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 12:06:32 -0400
-Date: Tue, 29 Jul 2003 18:06:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: ak@suse.de, vherva@niksula.hut.fi, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br, torvalds@osdl.org
-Subject: Re: [PATCH] NMI watchdog documentation
-Message-ID: <20030729160630.GA2133@wotan.suse.de>
-References: <200307291037.h6TAbX9G026932@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Jul 2003 12:14:51 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:52696 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S271886AbTG2QOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 12:14:48 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Timothy Miller <miller@techsource.com>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Wed, 30 Jul 2003 11:17:07 -0500
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
+       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307300946.41674.phillips@arcor.de> <3F26957E.7040204@techsource.com>
+In-Reply-To: <3F26957E.7040204@techsource.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200307291037.h6TAbX9G026932@harpo.it.uu.se>
+Message-Id: <200307301117.08273.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andi, you have the numbers mixed up. mode 1 is I/O-APIC, mode 2 is local APIC,
-> and x86-64 defaults nmi_watchdog to I/O-APIC mode.
-> Now, is it the I/O-APIC or local APIC watchdog that doesn't work in x86-64?
+On Tuesday 29 July 2003 10:40, Timothy Miller wrote:
+> IF it's possible to intelligently determine interactivity and other such
+> things, and lots of impressive progress is being made in that area, then
+> that is definately preferable.
 
-Right, 1 and 2 need to be exchanged. Anyways local apic mode does not seem
-to work, the kernel always reportss "NMI stuck" at bootup.
-IO APIC mode for is default.
+But it's not possible to determine realtimeness automatically, as far as I 
+know.
 
-I have not tested if it works with a 32bit kernel on an Opteron box.
+> ...It might help to have an API for real-time processes that is accessible
+> by non-root tasks.  If a task sets itself to real-time, its scheduling
+> is more predictable, but it gets a shorter timeslice (perhaps) so that
+> being real-time doesn't adversely impact the system when abused.
 
--Andi
+That's precisely what Davide's SCHED_SOFTRR is and does.
+
+> The nice thing about the smart schedulers is that (a) no one has to
+> change their apps (although they can tweak to cooperate better), and (b)
+> future apps will behave well without us having to anticipate anything.
+
+On the other hand, you want to avoid messing up the kernel just because some 
+app is broken.  While it's not always possible to avoid changing apps to fix 
+them, in the case of audio apps on Linux at this point in time, it most 
+certainly is.
+
+Regards,
+
+Daniel
+

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUHKTTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUHKTWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUHKTTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268187AbUHKTTY
+	id S268186AbUHKTWk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268188AbUHKTWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:19:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:35782 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268183AbUHKTTF (ORCPT
+	Wed, 11 Aug 2004 15:22:40 -0400
+Received: from imap.gmx.net ([213.165.64.20]:3279 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268186AbUHKTWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:19:05 -0400
-Date: Wed, 11 Aug 2004 11:12:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040811181236.GD14979@kroah.com>
-References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com> <20040811172800.GB14979@kroah.com> <200408111102.10689.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408111102.10689.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 11 Aug 2004 15:22:24 -0400
+X-Authenticated: #4512188
+Message-ID: <411A71F1.3090504@gmx.de>
+Date: Wed, 11 Aug 2004 21:22:25 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler fairness problem on 2.6 series
+References: <20040811022143.4892.qmail@web13910.mail.yahoo.com> <cone.1092193795.772385.25569.502@pc.kolivas.org> <4119F3D9.7040708@gmx.de> <411A024B.6060100@kolivas.org> <411A0B71.4030503@gmx.de>
+In-Reply-To: <411A0B71.4030503@gmx.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 11:02:10AM -0700, Jesse Barnes wrote:
-> On Wednesday, August 11, 2004 10:28 am, Greg KH wrote:
-> > On Wed, Aug 11, 2004 at 10:04:02AM -0700, Jesse Barnes wrote:
-> > > On Friday, August 6, 2004 2:14 pm, Jon Smirl wrote:
-> > > > Please check the code out and give it some testing. It will probably
-> > > > needs some adjustment for other platforms.
-> > >
-> > > Jon, this works on my machine too.  Greg, if it looks ok can you pull it
-> > > in? And can you add:
-> > >
-> > >  * (C) Copyright 2004 Silicon Graphics, Inc.
-> > >  *       Jesse Barnes <jbarnes@sgi.com>
-> > >
-> > > to pci-sysfs.c if you do?
-> >
-> > Care to send me a new patch?  Oh, and that copyright line needs to look
-> > like:
-> > * Copyright (c) 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
-> >
-> > to make it legal, or so my lawyers say :)
-> 
-> But I'm not the copyright holder, Silicon Graphics is, I just wanted people to 
-> know who to harass if something breaks :).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's fine.  It's the "Copyright (c) 2004" order and exact "(c)" that
-really matters, from what I have been told to do.
+|
+| I don't think it is the overhead. I rather think the way the kernel
+| schedulers gives mpich and the cpu bound program  resources is unfair.
 
-thanks,
+Well, I don't know whether it helps, but I ran a profiler and these are
+the functions which cause so much wasted CPU cycles when running 16
+processes of my example with mpich:
 
-greg k-h
+124910    9.8170  vmlinux                  tcp_poll
+123356    9.6949  vmlinux                  sys_select
+85634     6.7302  vmlinux                  do_select
+71858     5.6475  vmlinux                  sysenter_past_esp
+62093     4.8801  vmlinux                  kfree
+51658     4.0600  vmlinux                  __copy_to_user_ll
+37495     2.9468  vmlinux                  max_select_fd
+36949     2.9039  vmlinux                  __kmalloc
+22700     1.7841  vmlinux                  __copy_from_user_ll
+14587     1.1464  vmlinux                  do_gettimeofday
+
+Is anything scheduler related?
+
+bye,
+
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBGnHxxU2n/+9+t5gRAlF+AJ9z+OqbIJYkeiy4nAPVB22S/WLLnACg1khF
+XeF+3Hq0adpoLjdbn+tmzn0=
+=7Onu
+-----END PGP SIGNATURE-----

@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286254AbRLJM75>; Mon, 10 Dec 2001 07:59:57 -0500
+	id <S286256AbRLJNKS>; Mon, 10 Dec 2001 08:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286255AbRLJM7r>; Mon, 10 Dec 2001 07:59:47 -0500
-Received: from trappist.elis.rug.ac.be ([157.193.67.1]:3304 "EHLO
-	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
-	id <S286254AbRLJM7m>; Mon, 10 Dec 2001 07:59:42 -0500
-Date: Mon, 10 Dec 2001 13:59:33 +0100 (CET)
-From: Frank Cornelis <fcorneli@elis.rug.ac.be>
-To: Sarita N <sarita_navuluru@rediffmail.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: KERNEL SYSTEM CALLS DEFINITIONS
-In-Reply-To: <20011209225143.30988.qmail@mailweb22.rediffmail.com>
-Message-ID: <Pine.LNX.4.33.0112101358190.12402-100000@trappist.elis.rug.ac.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286257AbRLJNKI>; Mon, 10 Dec 2001 08:10:08 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:64261 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S286256AbRLJNKB>;
+	Mon, 10 Dec 2001 08:10:01 -0500
+Date: Mon, 10 Dec 2001 14:08:57 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: scottm@somanetworks.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Power Management support for opl3sa2
+Message-Id: <20011210140857.67e424e6.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0112101207200.2228-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.33.0112091737230.30328-100000@rancor.yyz.somanetworks.com>
+	<Pine.LNX.4.33.0112101207200.2228-100000@netfinity.realnet.co.sz>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Dec 2001 12:10:59 +0200 (SAST)
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
 
-> I have to build a tool in C that would caputure the system calls and 
-> signals between a user application and the operating system.  
+> > PS: Zwane, feel like taking over as maintainer of this driver?
+> 
+> Sure i'd be glad to i don't think that many people have such archaic
+> hardware anymore but i find it hard to let go ;)
 
-See 'man ptrace' for the ptrace system call which does it all for you.
+Ah, I am interested in survival of this driver, too. I own some Toshiba Librettos (very neat), that have them onboard, as far as I know. So you are not alone :-)
 
-Frank.
+Regards,
+Stephan
 

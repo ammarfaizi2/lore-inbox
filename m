@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUJSPn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269466AbUJSPth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269470AbUJSPn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 11:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUJSPn3
+	id S269466AbUJSPth (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 11:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUJSPth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 11:43:29 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55525 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S269470AbUJSPn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 11:43:27 -0400
-Date: Tue, 19 Oct 2004 11:43:15 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ronald Moesbergen <r.moesbergen@hccnet.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.6.9-rc3, i8042.c: Can't read CTR while initializing i8042
-Message-ID: <20041019154315.GA10692@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ronald Moesbergen <r.moesbergen@hccnet.nl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4161A2C1.8000901@hccnet.nl> <1097079186.29255.53.camel@localhost.localdomain>
+	Tue, 19 Oct 2004 11:49:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:19167 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269466AbUJSPtc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 11:49:32 -0400
+Date: Tue, 19 Oct 2004 17:50:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
+Message-ID: <20041019155008.GA9116@elte.hu>
+References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019144642.GA6512@elte.hu> <28172.195.245.190.93.1098199429.squirrel@195.245.190.93>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097079186.29255.53.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <28172.195.245.190.93.1098199429.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 05:13:07PM +0100, Alan Cox wrote:
-> On Llu, 2004-10-04 at 20:21, Ronald Moesbergen wrote:
-> > Since 2.6.9-rc3 (I tested rc3-bk3 also) on 3 out of 10 boots my PS/2 
-> > keyboard is dead and 'i8042.c: Can't read CTR while initializing i8042' 
-> > shows up in my logfile. Google found this:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109463125415432&w=2
-> > 
-> > which suggests to add i8042.noacpi=1 to my boot parameters, but 
-> > unfortunately that doesn't help, the kernel doesn't even recognize this 
-> > option. Reverting back to 2.6.9-rc2 fixes it. The machine is a P4 3Ghz 
-> > HT, E7205 chipset, ASUS P4P8X board.
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> OK. After some incremental configurations, I've isolated that those
+> oops(es) only occurs if PREEMPT_TIMING and/or LATENCY_TRACE areset
+> (Y). My first suspect was that newest RWSEM_DEADLOCK_DETECT, but it
+> wasn't the case.
 > 
-> For E7xxx systems you need to disable USB legacy support in the BIOS
-> because SMM only works on the boot processor. There is a patch to
-> automate it in 2.6.8.1-ac you can also borrow
+> So something has broken on that non-preemptible critical section
+> timing stuff since U4.
+> 
+> Hasn't anybody else stumbled on this?
 
-Same problem on a Dell Dimension 8250. However I couldn't find an option
-on the BIOS to disable usb legacy support. 
+i'm using it myself and havent seen the problem yet. Could you send me
+the latest .configs, the working and the broken one too? I'll try to
+reprodue it (or maybe someone else with a serial console sees it too).
 
-The only thing that worked was booting with 'acpi=off'.
-
-Jan
-
+	Ingo

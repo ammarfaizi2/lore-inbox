@@ -1,39 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUJYRtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbUJYRxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbUJYRtG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUJYRqH
+	id S261250AbUJYRxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUJYRuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:46:07 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:61065 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261202AbUJYRgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:36:11 -0400
-Date: Mon, 25 Oct 2004 19:34:38 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Larry McVoy <lm@work.bitmover.com>, Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041025173438.GH14325@dualathlon.random>
-References: <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <20041025171223.GA4503@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025171223.GA4503@work.bitmover.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Mon, 25 Oct 2004 13:50:21 -0400
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:64006 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261220AbUJYRsv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:48:51 -0400
+Message-ID: <417D3D78.5020201@kolumbus.fi>
+Date: Mon, 25 Oct 2004 20:52:56 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Subject: Re: [PATCH 13/28] VFS: Introduce soft reference counts
+References: <10987154731896@sun.com> <10987155032816@sun.com> <417D35F0.1070501@kolumbus.fi> <417D370D.3090700@sun.com>
+In-Reply-To: <417D370D.3090700@sun.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 25.10.2004 20:50:09,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 25.10.2004 20:50:53,
+	Serialize complete at 25.10.2004 20:50:53
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 10:12:23AM -0700, Larry McVoy wrote:
-> We think that that is not true and you yourself prove our point.  Kernel
-> guys like working on the kernel. [..]
+Mike Waychison wrote:
 
-This is sure fine with Linus and Andrew (peraphs even with myself), but
-not everybody is Andrew and Linus. The reason I don't use it myself is
-to avoid tainting _other_ people that might be beginners that might one
-day write their own GPL'd SCM.
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Mika Penttilä wrote:
+>  
+>
+>>Mike Waychison wrote:
+>>
+>>    
+>>
+>>>This patch introduces the concept of a 'soft' reference count for a
+>>>vfsmount.
+>>>This type of reference count allows for references to be held on
+>>>mountpoints
+>>>that do not affect their busy states for userland unmounting.  Some might
+>>>argue that this is wrong because 'when I unmount a filesystem, I want the
+>>>resources associated with it to go away too', but this way of thinking
+>>>was
+>>>deprecated with the addition of namespaces and --bind back in the 2.4
+>>>series.
+>>>
+>>>A future addition may see a callback mechanism so that in kernel users
+>>>can
+>>>use a given mountpoint and have it deregistered some way (quota and
+>>>accounting come to mind).
+>>>
+>>>These soft reference counts are used by a later patch that adds an
+>>>interface
+>>>for holding and manipulating mountpoints using filedescriptors.
+>>>
+>>>Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+>>>
+>>>+static inline struct vfsmount *mntsoftget(struct vfsmount *mnt)
+>>>+{
+>>>+    if (mnt) {
+>>>+        read_lock(&vfsmountref_lock);
+>>>+        atomic_inc(&mnt->mnt_softcount);
+>>>+        mntgroupget(mnt);
+>>>+        read_unlock(&vfsmountref_lock);
+>>>+    }
+>>>+    return mnt;
+>>>+}
+>>>+
+>>>+static inline void mntsoftput(struct vfsmount *mnt)
+>>>+{
+>>>+    struct vfsmount *cleanup;
+>>>+    might_sleep();
+>>>+    if (mnt) {
+>>>+        if (atomic_dec_and_test(&mnt->mnt_count))
+>>>+            __mntput(mnt);
+>>>+        read_lock(&vfsmountref_lock);
+>>>+        cleanup = mntgroupput(mnt);
+>>>+        atomic_dec(&mnt->mnt_softcount);
+>>>+        read_unlock(&vfsmountref_lock);
+>>>+        if (cleanup)
+>>>+            __mntgroupput(cleanup);
+>>>+    }
+>>>+}
+>>>+
+>>>extern void free_vfsmnt(struct vfsmount *mnt);
+>>> 
+>>>
+>>>      
+>>>
+>>What is this against? What are mntgroupput and mntgroupget? 
+>>    
+>>
+>
+>This is against patch [PATCH 11/28] VFS: Allow detachable subtrees.
+>
+>In that patch, mntgroup(get|put) handles the count of all non-glue
+>references for a given tree of vfsmounts.
+>
+>
+>  
+>
+>>Why does soft put decrement mnt_count which isn't increment by soft get? 
+>>    
+>>
+>
+>Ah, thanks for pointing that out.  It got messed up when I created the
+>patchset from the bk tree. Will fix.
+>
+>  
+>
+>>How do
+>>soft references allow userland umount? I don't see soft references used
+>>anywhere...
+>>    
+>>
+>
+>Soft references are used by the mountpoint file descriptor patch
+>[14/28].  They allow references to be had on a vfsmount such that the
+>mountpoint itself is not kept busy in the namespace.  This allows a
+>program to 'grab a mountpoint' by a magic file (gotten by sys_mountfd),
+>and perform ops on it.   The mountfd holds a reference to the vfsmount,
+>but it doesn't keep userspace from trying to umount(2) the path.
+>
+>Does that help?
+>
+>  
+>
+I think at least patches 11 and 14 got lost...
+
+--Mika
+
+
+

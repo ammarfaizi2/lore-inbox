@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262659AbTCTXne>; Thu, 20 Mar 2003 18:43:34 -0500
+	id <S263340AbTCTXfr>; Thu, 20 Mar 2003 18:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbTCTXmc>; Thu, 20 Mar 2003 18:42:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:23986 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262659AbTCTXl4>;
-	Thu, 20 Mar 2003 18:41:56 -0500
-Date: Thu, 20 Mar 2003 17:58:05 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WimMark I report for 2.5.65-mm2 (now with deadline)
-Message-Id: <20030320175805.1625dbcc.akpm@digeo.com>
-In-Reply-To: <20030320204041.GO2835@ca-server1.us.oracle.com>
-References: <20030320204041.GO2835@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S263338AbTCTXfp>; Thu, 20 Mar 2003 18:35:45 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22674
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263337AbTCTXfo>; Thu, 20 Mar 2003 18:35:44 -0500
+Subject: RE: Release of 2.4.21
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dow, Benjamin" <bdow@mrv.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <19EE6EC66973A5408FBE4CB7772F6F0A046ACA@ltnmail.xyplex.com>
+References: <19EE6EC66973A5408FBE4CB7772F6F0A046ACA@ltnmail.xyplex.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2003 23:52:48.0920 (UTC) FILETIME=[CFDBE980:01C2EF3B]
+Organization: 
+Message-Id: <1048208223.4031.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Mar 2003 00:57:04 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker <Joel.Becker@oracle.com> wrote:
->
-> 
-> WimMark I report for 2.5.65-mm2
-> 
-> Runs (antic):  1374.22 1487.19 1437.26
-> Runs (deadline):  1238.58 1537.36 1513.04
+On Thu, 2003-03-20 at 21:17, Dow, Benjamin wrote:
+> What would concern me about releasing 2.4.21 with just this bugfix is the
+> reports I've seen of it breaking other things (kill, etc).  Have these
+> issues been addressed?
 
-The averages of these are equal.  Can we safely conclude that this is fixed
-up now?
+No one has sent me any patches, any analysis of the changes identifying
+problems or alternative fixes.
+
+Alan
 

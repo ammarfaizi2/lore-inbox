@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136016AbRAGQsP>; Sun, 7 Jan 2001 11:48:15 -0500
+	id <S136019AbRAGQuf>; Sun, 7 Jan 2001 11:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136066AbRAGQrz>; Sun, 7 Jan 2001 11:47:55 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:41989 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S136065AbRAGQrt>;
-	Sun, 7 Jan 2001 11:47:49 -0500
-Message-ID: <3A589D06.D65FDDA9@innominate.de>
-Date: Sun, 07 Jan 2001 17:44:54 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S136001AbRAGQuZ>; Sun, 7 Jan 2001 11:50:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36623 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136019AbRAGQuI>; Sun, 7 Jan 2001 11:50:08 -0500
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+To: hadi@cyberus.ca (jamal)
+Date: Sun, 7 Jan 2001 16:51:11 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        ak@suse.de, greearb@candelatech.com, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <Pine.GSO.4.30.0101071102140.18916-100000@shell.cyberus.ca> from "jamal" at Jan 07, 2001 11:12:23 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave <djdave@bigpond.net.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ftruncate returning EPERM on vfat filesystem
-In-Reply-To: <Pine.LNX.4.30.0101071613130.1132-100000@athlon.internal> <E14FGI2-0002fo-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14FJ2H-0002vI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > +
-> > +       /* FAT cannot truncate to a longer file */
-> > +       if (attr->ia_valid & ATTR_SIZE) {
-> > +               if (attr->ia_size > inode->i_size)
-> > +                       return -EPERM;
-> > +       }
-> >
-> >         error = inode_change_ok(inode, attr);
-> >         if (error)
-> >
-> > Can someone tell me if this is the cause of my samba problems, and if
-> > so, why this was added and if this is safe to revert?
-> 
-> To stop a case where the fs gets corrupted otherwise. You can change that to
-> return 0 which is more correct but most not remove it.
-> 
-> (ftruncate is specified to make the file at most length bytes long, extending
-> the file is not a guaranteed side effect according to the docs I have)
+> Ok. Good point.
+> But remember that parsing /proc for an embedded system is also not the
+> most healthy thing.
 
-Speaking as an old time dos hacker, this is allowed and commonly done. 
-I wouldn't read too much into the fact that it's not documented.  :-) 
-As I recall, new clusters are allocated but not cleared.
+I dont compile in /proc either. SIOCGIFCONF is enough for an embedded box.
 
---
-Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

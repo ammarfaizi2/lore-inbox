@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318061AbSIABGs>; Sat, 31 Aug 2002 21:06:48 -0400
+	id <S318075AbSIABZr>; Sat, 31 Aug 2002 21:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318075AbSIABGr>; Sat, 31 Aug 2002 21:06:47 -0400
-Received: from ftp.mms.de ([193.103.160.42]:28166 "EHLO mms.de")
-	by vger.kernel.org with ESMTP id <S318061AbSIABGr>;
-	Sat, 31 Aug 2002 21:06:47 -0400
-Date: Sun, 1 Sep 2002 03:11:08 +0200 (CEST)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
-Subject: 2.4.20-pre5-ac1: 80pin cable detection wrong?
-Message-ID: <Pine.LNX.4.44.0209010303240.12765-100000@space.comunit.de>
+	id <S318076AbSIABZq>; Sat, 31 Aug 2002 21:25:46 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:20959 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S318075AbSIABZq>; Sat, 31 Aug 2002 21:25:46 -0400
+Message-ID: <3D716D23.1000101@oracle.com>
+Date: Sun, 01 Sep 2002 03:28:03 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Consulting Premium Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org
+Subject: Re: drivers/atm/firestream.c doesn't compile in 2.5.33
+References: <Pine.NEB.4.44.0209010227250.147-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi...
+Adrian Bunk wrote:
+> <--  snip  -->
+> 
+> ...
+>   gcc -Wp,-MD,./.firestream.o.d -D__KERNEL__
+> -I/home/bunk/linux/kernel-2.5/linux-2.5.33-full/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=k6 -nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=firestream
+> -c -o firestream.o firestream.c
+> firestream.c: In function `fs_open':
+> firestream.c:870: called object is not a function
+> firestream.c:870: parse error before string constant
+> firestream.c:1097: called object is not a function
+> firestream.c:1097: parse error before string constant
+> firestream.c: In function `fs_close':
+> firestream.c:1109: called object is not a function
+> firestream.c:1109: parse error before string constant
+> firestream.c:1159: called object is not a function
+> firestream.c:1159: parse error before string constant
 
-Just installed kernel 2.4.20-pre5-ac1 and it seems to get the
-cable-detection on my promise-controller wrong:
+Same symptom as the cpia.c (and IrDA, too). Just change
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-[logs about the internal piix4 removed, this one works]
-PDC20268: IDE controller at PCI slot 00:0f.0
-PCI: Found IRQ 11 for device 00:0f.0
-PDC20268: chipset revision 2
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: ROM enabled at 0xe7000000
-    ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
-hda: IBM-DJNA-352030, ATA DISK drive
-hdc: WDC WD600AB-32CZA0, ATA DISK drive
-hdd: ASUS CD-S400/A, ATAPI CD/DVD-ROM drive
-hde: MAXTOR 4K080H4, ATA DISK drive
-ULTRA 66/100/133: Primary channel of Ultra 66/100/133 requires an 80-pin
-cable for Ultra66 operation.
-         Switching to Ultra33 mode.
-Warning: Primary channel requires an 80-pin cable for operation.
-hde reduced to Ultra33 mode.
-hdg: MAXTOR 4K080H4, ATA DISK drive
-ULTRA 66/100/133: Secondary channel of Ultra 66/100/133 requires an 80-pin
-cable for Ultra66 operation.
-         Switching to Ultra33 mode.
-Warning: Secondary channel requires an 80-pin cable for operation.
-hdg reduced to Ultra33 mode.
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0xdc00-0xdc07,0xe002 on irq 11
-ide3 at 0xe400-0xe407,0xe802 on irq 11
-[...]
-hde: host protected area => 1
-hde: 156301488 sectors (80026 MB) w/2000KiB Cache, CHS=155061/16/63,
-UDMA(100)
-hdg: host protected area => 1
-hdg: 156301488 sectors (80026 MB) w/2000KiB Cache, CHS=155061/16/63,
-UDMA(100)
+#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " 
+__FUNCTION__ "\n")
+#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  " 
+__FUNCTION__ "\n")
 
-Both of the 80gb Maxtor-drives are connected to the promise pci-controller
-with a 80pin-cable each.
+to
 
+#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter %s\n", 
+__FUNCTION__)
+#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  %s\n", 
+__FUNCTION__)
 
-c'ya
-sven
+(the 2.4.20-pre5 firestream.c has the fixed version already)
 
--- 
+--alessandro
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+  "everything dies, baby that's a fact
+    but maybe everything that dies someday comes back"
+        (Bruce Springsteen, "Atlantic City")
 

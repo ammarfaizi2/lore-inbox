@@ -1,38 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUEYFjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264785AbUEYFhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264775AbUEYFjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 01:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUEYFjV
+	id S264785AbUEYFhb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 01:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUEYFgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 01:39:21 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:27778 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264776AbUEYFgh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 May 2004 01:36:37 -0400
-Date: Tue, 25 May 2004 07:35:24 +0200
+Received: from dbl.q-ag.de ([213.172.117.3]:25730 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264774AbUEYFfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 01:35:46 -0400
+Date: Tue, 25 May 2004 07:35:22 +0200
 From: Manfred Spraul <manfred@dbl.q-ag.de>
-Message-Id: <200405250535.i4P5ZO7I017623@dbl.q-ag.de>
+Message-Id: <200405250535.i4P5ZMFt017607@dbl.q-ag.de>
 To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: [RFC, PATCH] 5/5 rcu lock update: Hierarchical rcu_cpu_mask bitmap
+Subject: [RFC, PATCH] 3/5 rcu lock update: Code move & cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Step five for reducing cacheline trashing within rcupdate.c,
-third step for a hierarchical cpumask bitmap: 
+Step three for reducing cacheline trashing within rcupdate.c,
+first step for a hierarchical cpumask bitmap: 
 
-Introduce a new cpu_quiet implementation based on a hierarchical
-bitmap, again based on generation numbers.
+Cleanup and code move from <linux/rcupdate.h> to kernel/rcupdate.c.
 
-Each level contains a copy of the generation number. A mismatch means
-that the level is not yet initialized.
-
-Most code changes depend on RCU_HUGE, the old (and more efficient)
-code remains unchanged and can be used for non-gargantuan systems.
-
-Proof of concept, needs further cleanups and testing.
-Does pass reaim on an 8-way Pentium III Xeon.
+No code changes.
 
 What do you think?
 
@@ -45,215 +37,247 @@ What do you think?
 //  PATCHLEVEL = 6
 //  SUBLEVEL = 6
 //  EXTRAVERSION = -mm4
---- 2.6/kernel/rcupdate.c	2004-05-23 13:30:01.000000000 +0200
-+++ build-2.6/kernel/rcupdate.c	2004-05-23 13:31:23.000000000 +0200
-@@ -49,14 +49,48 @@
+--- 2.6/kernel/rcupdate.c	2004-05-23 11:54:15.000000000 +0200
++++ build-2.6/kernel/rcupdate.c	2004-05-23 11:55:38.000000000 +0200
+@@ -47,8 +47,17 @@
+ 
+ /* Definition for rcupdate control block. */
  struct rcu_ctrlblk rcu_ctrlblk = 
- 	{ .cur = -300, .completed = -300 , .lock = SEQCNT_ZERO };
- 
-+/* XXX Dummy - should belong into arch XXX */
-+#define RCU_HUGE
-+#define RCU_GROUP_SIZE	2
-+/* XXX End of dummy XXX */
+-	{ .batch = { .cur = -300, .completed = -300 , .lock = SEQCNT_ZERO },
+-	  .state = {.mutex = SPIN_LOCK_UNLOCKED, .rcu_cpu_mask = CPU_MASK_NONE } };
++	{ .cur = -300, .completed = -300 , .lock = SEQCNT_ZERO };
 +
-+#ifdef RCU_HUGE
++/* Bookkeeping of the progress of the grace period */
++struct {
++	spinlock_t	mutex; /* Guard this struct and writes to rcu_ctrlblk */
++	cpumask_t	rcu_cpu_mask; /* CPUs that need to switch in order    */
++	                              /* for current batch to proceed.        */
++} rcu_state ____cacheline_maxaligned_in_smp = 
++	  {.mutex = SPIN_LOCK_UNLOCKED, .rcu_cpu_mask = CPU_MASK_NONE };
 +
-+#define RCU_GROUPCOUNT		((NR_CPUS+RCU_GROUP_SIZE-1)/RCU_GROUP_SIZE)
-+#define RCU_GROUP_CPUMASKLEN	((RCU_GROUP_SIZE+BITS_PER_LONG-1)/BITS_PER_LONG)
-+#define RCU_GROUPMASKLEN	((NR_CPUS+RCU_GROUP_SIZE*BITS_PER_LONG-1)/(RCU_GROUP_SIZE*BITS_PER_LONG))
 +
-+struct rcu_group_state {
-+	spinlock_t	mutex; /* Guard this struct                           */
-+	long batchnum;
-+	unsigned long outstanding[RCU_GROUP_CPUMASKLEN];
-+} ____cacheline_maxaligned_in_smp;
-+
-+struct rcu_group_state rcu_groups[RCU_GROUPCOUNT] = 
-+	{ [0 ... RCU_GROUPCOUNT-1] =
-+		{ .mutex = SPIN_LOCK_UNLOCKED, .batchnum = -400 } };
-+
-+#endif
-+
- /* Bookkeeping of the progress of the grace period */
- struct {
- 	spinlock_t	mutex; /* Guard this struct and writes to rcu_ctrlblk */
-+#ifdef RCU_HUGE
-+	long batchnum;         /* batchnum we are working on. Mismatch with   */
-+	                       /* rcu_ctrlblk.cur means restart from scratch  */
-+	unsigned long outstanding[RCU_GROUPMASKLEN];
-+#else
- 	cpumask_t	rcu_cpu_mask; /* CPUs that need to switch in order    */
- 	                              /* for current batch to proceed.        */
-+#endif
- } rcu_state ____cacheline_maxaligned_in_smp = 
--	  {.mutex = SPIN_LOCK_UNLOCKED, .rcu_cpu_mask = CPU_MASK_NONE };
--
-+	  {.mutex = SPIN_LOCK_UNLOCKED,
-+#ifdef RCU_HUGE
-+		.batchnum = -400,
-+#else
-+		.rcu_cpu_mask = CPU_MASK_NONE
-+#endif
-+	  };
- 
  DEFINE_PER_CPU(struct rcu_data, rcu_data) = { 0L };
  
-@@ -130,17 +164,23 @@
+ /* Fake initialization required by compiler */
+@@ -101,15 +110,15 @@
+  * The grace period handling consists out of two steps:
+  * - A new grace period is started.
+  *   This is done by rcu_start_batch. The start is not broadcasted to
+- *   all cpus, they must pick this up by comparing rcu_ctrlblk.batch.cur with
++ *   all cpus, they must pick this up by comparing rcu_ctrlblk.cur with
+  *   RCU_quiescbatch(cpu). All cpus are recorded  in the
+- *   rcu_ctrlblk.state.rcu_cpu_mask bitmap.
++ *   rcu_state.rcu_cpu_mask bitmap.
+  * - All cpus must go through a quiescent state.
+  *   Since the start of the grace period is not broadcasted, at least two
+  *   calls to rcu_check_quiescent_state are required:
+  *   The first call just notices that a new grace period is running. The
+  *   following calls check if there was a quiescent state since the beginning
+- *   of the grace period. If so, it updates rcu_ctrlblk.state.rcu_cpu_mask. If
++ *   of the grace period. If so, it updates rcu_state.rcu_cpu_mask. If
+  *   the bitmap is empty, then the grace period is completed. 
+  *   rcu_check_quiescent_state calls rcu_start_batch(0) to start the next grace
+  *   period (if necessary).
+@@ -117,25 +126,25 @@
+ /*
+  * Register a new batch of callbacks, and start it up if there is currently no
+  * active batch and the batch to be registered has not already occurred.
+- * Caller must hold the rcu_ctrlblk.state lock.
++ * Caller must hold rcu_state.mutex.
   */
  static void rcu_start_batch(int next_pending)
  {
--	cpumask_t active;
--
- 	if (next_pending)
- 		rcu_ctrlblk.next_pending = 1;
+ 	cpumask_t active;
  
- 	if (rcu_ctrlblk.next_pending &&
- 			rcu_ctrlblk.completed == rcu_ctrlblk.cur) {
-+#ifdef RCU_HUGE
-+		/* Nothing to do: RCU_HUGE uses lazy initialization of the
-+		 * outstanding bitmap
-+		 */
-+#else
-+		cpumask_t active;
-+
+ 	if (next_pending)
+-		rcu_ctrlblk.batch.next_pending = 1;
++		rcu_ctrlblk.next_pending = 1;
+ 
+-	if (rcu_ctrlblk.batch.next_pending &&
+-			rcu_ctrlblk.batch.completed == rcu_ctrlblk.batch.cur) {
++	if (rcu_ctrlblk.next_pending &&
++			rcu_ctrlblk.completed == rcu_ctrlblk.cur) {
  		/* Can't change, since spin lock held. */
  		active = nohz_cpu_mask;
  		cpus_complement(active);
- 		cpus_and(rcu_state.rcu_cpu_mask, cpu_online_map, active);
-+#endif
- 		write_seqcount_begin(&rcu_ctrlblk.lock);
- 		rcu_ctrlblk.next_pending = 0;
- 		rcu_ctrlblk.cur++;
-@@ -153,6 +193,75 @@
-  * Clear it from the cpu mask and complete the grace period if it was the last
-  * cpu. Start another grace period if someone has further entries pending
-  */
-+#ifdef RCU_HUGE
-+static void cpu_quiet(int cpu, int force)
-+{
-+	struct rcu_group_state *rgs;
-+	long batch;
-+	int i;
-+
-+	batch = rcu_ctrlblk.cur;
-+
-+	rgs = &rcu_groups[cpu/RCU_GROUP_SIZE];
-+
-+	spin_lock(&rgs->mutex);
-+	if (rgs->batchnum != batch) {
-+		int offset;
-+		/* first call for this batch - initialize outstanding */
-+		rgs->batchnum = batch;
-+		memset(rgs->outstanding, 0, sizeof(rgs->outstanding));
-+		offset = (cpu/RCU_GROUP_SIZE)*RCU_GROUP_SIZE;
-+		for (i=0;i<RCU_GROUP_SIZE;i++) {
-+			if (cpu_online(i+offset) && !cpu_isset(i+offset, nohz_cpu_mask))
-+				__set_bit(i, rgs->outstanding);
-+		}
-+	}
-+	if (unlikely(RCU_quiescbatch(cpu) != rgs->batchnum) && likely(!force))
-+       		goto out_unlock_group;
-+
-+	__clear_bit(cpu%RCU_GROUP_SIZE, rgs->outstanding);
-+	for (i=0;i<RCU_GROUP_CPUMASKLEN;i++) {
-+		if (rgs->outstanding[i])
-+			break;
-+	}
-+	if (i==RCU_GROUP_CPUMASKLEN) {
-+		/* group completed, escalate to global level */
-+		spin_lock(&rcu_state.mutex);
-+
-+		if (rcu_state.batchnum != rcu_ctrlblk.cur) {
-+			/* first call for this batch - initialize outstanding */
-+			rcu_state.batchnum = rcu_ctrlblk.cur;
-+			memset(rcu_state.outstanding, 0, sizeof(rcu_state.outstanding));
-+
-+			for (i=0;i<NR_CPUS;i+=RCU_GROUP_SIZE) {
-+				int j;
-+				for (j=0;j<RCU_GROUP_SIZE;j++) {
-+					if (cpu_online(i+j) && !cpu_isset(i+j, nohz_cpu_mask))
-+						break;
-+				}
-+				if (j != RCU_GROUP_SIZE)
-+					__set_bit(i/RCU_GROUP_SIZE, rcu_state.outstanding);
-+			}
-+		}
-+		if (unlikely(rgs->batchnum != rcu_state.batchnum))
-+       			goto out_unlock_all;
-+		__clear_bit(cpu/RCU_GROUP_SIZE, rcu_state.outstanding);
-+		for (i=0;i<RCU_GROUPMASKLEN;i++) {
-+			if (rcu_state.outstanding[i])
-+				break;
-+		}
-+		if (i==RCU_GROUPMASKLEN) {
-+			/* all groups completed, batch completed */
-+			rcu_ctrlblk.completed = rcu_ctrlblk.cur;
-+			rcu_start_batch(0);
-+		}
-+out_unlock_all:
-+		spin_unlock(&rcu_state.mutex);
-+	}
-+out_unlock_group:
-+	spin_unlock(&rgs->mutex);
-+}
-+#else
- static void cpu_quiet(int cpu, int force)
- {
- 	spin_lock(&rcu_state.mutex);
-@@ -175,6 +284,7 @@
- out_unlock:
- 	spin_unlock(&rcu_state.mutex);
+-		cpus_and(rcu_ctrlblk.state.rcu_cpu_mask, cpu_online_map, active);
+-		write_seqcount_begin(&rcu_ctrlblk.batch.lock);
+-		rcu_ctrlblk.batch.next_pending = 0;
+-		rcu_ctrlblk.batch.cur++;
+-		write_seqcount_end(&rcu_ctrlblk.batch.lock);
++		cpus_and(rcu_state.rcu_cpu_mask, cpu_online_map, active);
++		write_seqcount_begin(&rcu_ctrlblk.lock);
++		rcu_ctrlblk.next_pending = 0;
++		rcu_ctrlblk.cur++;
++		write_seqcount_end(&rcu_ctrlblk.lock);
+ 	}
  }
-+#endif
  
- /*
-  * Check if the cpu has gone through a quiescent state (say context
-@@ -240,6 +350,7 @@
+@@ -146,10 +155,10 @@
+  */
+ static void cpu_quiet(int cpu)
+ {
+-	cpu_clear(cpu, rcu_ctrlblk.state.rcu_cpu_mask);
+-	if (cpus_empty(rcu_ctrlblk.state.rcu_cpu_mask)) {
++	cpu_clear(cpu, rcu_state.rcu_cpu_mask);
++	if (cpus_empty(rcu_state.rcu_cpu_mask)) {
+ 		/* batch completed ! */
+-		rcu_ctrlblk.batch.completed = rcu_ctrlblk.batch.cur;
++		rcu_ctrlblk.completed = rcu_ctrlblk.cur;
+ 		rcu_start_batch(0);
+ 	}
+ }
+@@ -163,11 +172,11 @@
+ {
+ 	int cpu = smp_processor_id();
+ 
+-	if (RCU_quiescbatch(cpu) != rcu_ctrlblk.batch.cur) {
++	if (RCU_quiescbatch(cpu) != rcu_ctrlblk.cur) {
+ 		/* new grace period: record qsctr value. */
+ 		RCU_qs_pending(cpu) = 1;
+ 		RCU_last_qsctr(cpu) = RCU_qsctr(cpu);
+-		RCU_quiescbatch(cpu) = rcu_ctrlblk.batch.cur;
++		RCU_quiescbatch(cpu) = rcu_ctrlblk.cur;
+ 		return;
+ 	}
+ 
+@@ -187,15 +196,15 @@
+ 		return;
+ 	RCU_qs_pending(cpu) = 0;
+ 
+-	spin_lock(&rcu_ctrlblk.state.mutex);
++	spin_lock(&rcu_state.mutex);
+ 	/*
+ 	 * RCU_quiescbatch/batch.cur and the cpu bitmap can come out of sync
+ 	 * during cpu startup. Ignore the quiescent state.
+ 	 */
+-	if (likely(RCU_quiescbatch(cpu) == rcu_ctrlblk.batch.cur)) 
++	if (likely(RCU_quiescbatch(cpu) == rcu_ctrlblk.cur)) 
+ 		cpu_quiet(cpu);
+ 
+-	spin_unlock(&rcu_ctrlblk.state.mutex);
++	spin_unlock(&rcu_state.mutex);
+ }
+ 
+ 
+@@ -225,11 +234,11 @@
  	 * we can block indefinitely waiting for it, so flush
  	 * it here
  	 */
-+	spin_unlock_wait(&rcu_state.mutex);
- 	cpu_quiet(cpu, 1);
+-	spin_lock_bh(&rcu_ctrlblk.state.mutex);
+-	if (rcu_ctrlblk.batch.cur != rcu_ctrlblk.batch.completed)
++	spin_lock_bh(&rcu_state.mutex);
++	if (rcu_ctrlblk.cur != rcu_ctrlblk.completed)
+ 		cpu_quiet(cpu);
+ unlock:
+-	spin_unlock_bh(&rcu_ctrlblk.state.mutex);
++	spin_unlock_bh(&rcu_state.mutex);
  
  	rcu_move_batch(&RCU_curlist(cpu));
-@@ -250,11 +361,30 @@
+ 	rcu_move_batch(&RCU_nxtlist(cpu));
+@@ -241,10 +250,10 @@
  
- #endif
- 
-+#ifdef RCU_HUGE
-+static void rcu_update_group(int cpu)
-+{
-+	int i, offset;
-+	offset = (cpu/RCU_GROUP_SIZE)*RCU_GROUP_SIZE;
-+	for (i=0;i<RCU_GROUP_SIZE;i++) {
-+		if (cpu_online(i+offset) && !cpu_isset(i, nohz_cpu_mask))
-+			break;
-+	}
-+	if (i == RCU_GROUP_SIZE) {
-+		/* No cpu online from this group. Initialize batchnum. */
-+		rcu_groups[cpu/RCU_GROUP_SIZE].batchnum = rcu_ctrlblk.completed;
-+	}
-+}
-+#endif
-+
  void rcu_restart_cpu(int cpu)
  {
- 	spin_lock_bh(&rcu_state.mutex);
- 	RCU_quiescbatch(cpu) = rcu_ctrlblk.completed;
+-	spin_lock_bh(&rcu_ctrlblk.state.mutex);
+-	RCU_quiescbatch(cpu) = rcu_ctrlblk.batch.completed;
++	spin_lock_bh(&rcu_state.mutex);
++	RCU_quiescbatch(cpu) = rcu_ctrlblk.completed;
  	RCU_qs_pending(cpu) = 0;
-+#ifdef RCU_HUGE
-+	rcu_update_group(cpu);
-+#endif
- 	spin_unlock_bh(&rcu_state.mutex);
+-	spin_unlock_bh(&rcu_ctrlblk.state.mutex);
++	spin_unlock_bh(&rcu_state.mutex);
  }
  
-@@ -315,6 +445,9 @@
+ /*
+@@ -256,7 +265,7 @@
+ 	LIST_HEAD(list);
  
- static void __devinit rcu_online_cpu(int cpu)
- {
-+#ifdef RCU_HUGE
-+	rcu_update_group(cpu);
-+#endif
- 	memset(&per_cpu(rcu_data, cpu), 0, sizeof(struct rcu_data));
+ 	if (!list_empty(&RCU_curlist(cpu)) &&
+-			!rcu_batch_before(rcu_ctrlblk.batch.completed,RCU_batch(cpu))) {
++			!rcu_batch_before(rcu_ctrlblk.completed,RCU_batch(cpu))) {
+ 		__list_splice(&RCU_curlist(cpu), &list);
+ 		INIT_LIST_HEAD(&RCU_curlist(cpu));
+ 	}
+@@ -273,17 +282,17 @@
+ 		 * start the next batch of callbacks
+ 		 */
+ 		do {
+-			seq = read_seqcount_begin(&rcu_ctrlblk.batch.lock);
++			seq = read_seqcount_begin(&rcu_ctrlblk.lock);
+ 			/* determine batch number */
+-			RCU_batch(cpu) = rcu_ctrlblk.batch.cur + 1;
+-			next_pending = rcu_ctrlblk.batch.next_pending;
+-		} while (read_seqcount_retry(&rcu_ctrlblk.batch.lock, seq));
++			RCU_batch(cpu) = rcu_ctrlblk.cur + 1;
++			next_pending = rcu_ctrlblk.next_pending;
++		} while (read_seqcount_retry(&rcu_ctrlblk.lock, seq));
+ 
+ 		if (!next_pending) {
+ 			/* and start it/schedule start if it's a new batch */
+-			spin_lock(&rcu_ctrlblk.state.mutex);
++			spin_lock(&rcu_state.mutex);
+ 			rcu_start_batch(1);
+-			spin_unlock(&rcu_ctrlblk.state.mutex);
++			spin_unlock(&rcu_state.mutex);
+ 		}
+ 	} else {
+ 		local_irq_enable();
+@@ -308,7 +317,7 @@
  	tasklet_init(&RCU_tasklet(cpu), rcu_process_callbacks, 0UL);
  	INIT_LIST_HEAD(&RCU_nxtlist(cpu));
+ 	INIT_LIST_HEAD(&RCU_curlist(cpu));
+-	RCU_quiescbatch(cpu) = rcu_ctrlblk.batch.completed;
++	RCU_quiescbatch(cpu) = rcu_ctrlblk.completed;
+ 	RCU_qs_pending(cpu) = 0;
+ }
+ 
+--- 2.6/include/linux/rcupdate.h	2004-05-23 11:54:15.000000000 +0200
++++ build-2.6/include/linux/rcupdate.h	2004-05-23 11:54:38.000000000 +0200
+@@ -64,24 +64,13 @@
+ 
+ 
+ 
+-/* Control variables for rcupdate callback mechanism. */
++/* Global control variables for rcupdate callback mechanism. */
+ struct rcu_ctrlblk {
+-	/* "const" members: only changed when starting/ending a grace period  */
+-	struct {
+-		long	cur;		/* Current batch number.	      */
+-		long	completed;	/* Number of the last completed batch */
+-		int	next_pending;	/* Is the next batch already waiting? */
+-		seqcount_t lock;	/* for atomically reading cur and     */
+-		                        /* next_pending. Spinlock not used,   */
+-		                        /* protected by state.mutex           */
+-	} batch ____cacheline_maxaligned_in_smp;
+-	/* remaining members: bookkeeping of the progress of the grace period */
+-	struct {
+-		spinlock_t	mutex;	/* Guard this struct                  */
+-		cpumask_t	rcu_cpu_mask; 	/* CPUs that need to switch   */
+-				/* in order for current batch to proceed.     */
+-	} state ____cacheline_maxaligned_in_smp;
+-};
++	long	cur;		/* Current batch number.                      */
++	long	completed;	/* Number of the last completed batch         */
++	int	next_pending;	/* Is the next batch already waiting?         */
++	seqcount_t lock;	/* For atomic reads of cur and next_pending.  */
++} ____cacheline_maxaligned_in_smp;
+ 
+ /* Is batch a before batch b ? */
+ static inline int rcu_batch_before(long a, long b)
+@@ -131,14 +120,14 @@
+ 	 * for them has completed.
+ 	 */
+ 	if (!list_empty(&RCU_curlist(cpu)) &&
+-		  !rcu_batch_before(rcu_ctrlblk.batch.completed,RCU_batch(cpu)))
++		  !rcu_batch_before(rcu_ctrlblk.completed,RCU_batch(cpu)))
+ 		return 1;
+ 	/* This cpu has no pending entries, but there are new entries */
+ 	if (list_empty(&RCU_curlist(cpu)) &&
+ 			 !list_empty(&RCU_nxtlist(cpu)))
+ 		return 1;
+ 	/* The rcu core waits for a quiescent state from the cpu */
+-	if (RCU_quiescbatch(cpu) != rcu_ctrlblk.batch.cur || RCU_qs_pending(cpu))
++	if (RCU_quiescbatch(cpu) != rcu_ctrlblk.cur || RCU_qs_pending(cpu))
+ 		return 1;
+ 	/* nothing to do */
+ 	return 0;

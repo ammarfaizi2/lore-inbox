@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRG2DTQ>; Sat, 28 Jul 2001 23:19:16 -0400
+	id <S267338AbRG2ELu>; Sun, 29 Jul 2001 00:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267524AbRG2DTG>; Sat, 28 Jul 2001 23:19:06 -0400
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:17560 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S267520AbRG2DSx>; Sat, 28 Jul 2001 23:18:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gav <gavbaker@ntlworld.com>
+	id <S267529AbRG2ELj>; Sun, 29 Jul 2001 00:11:39 -0400
+Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:16884 "EHLO
+	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S267338AbRG2ELW>; Sun, 29 Jul 2001 00:11:22 -0400
+From: Josh McKinney <forming@home.com>
+Date: Sat, 28 Jul 2001 23:11:24 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT133A / athlon / MMX
-Date: Sun, 29 Jul 2001 04:03:29 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu>
-In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <01072904032900.04737@box.penguin.power>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Problems with 2.4.7 and VIA IDE
+Message-ID: <20010728231123.A6128@home.com>
+Mail-Followup-To: josh, linux-kernel@vger.kernel.org
+In-Reply-To: <E15QWqv-0007qf-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <E15QWqv-0007qf-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday 27 July 2001 20:40, Alan Cox wrote:
 
-> > On Fri, Jul 27, 2001 at 09:19:21PM +0100, Alan Cox wrote:
-> >     Its heavily tied to certain motherboards. Some people found a
-> >     better PSU fixed it, others that altering memory settings
-> >     helped. And in many cases, taking it back and buying a different
-> >     vendors board worked.
-> >
-> > Does anyone know *why* stuff breaks? surely VIA do as they have a fix
-> > for (some, all?) cases of breakage?
->
-> At the moment the big problem is I don't have enough reliable info to
-> see patterns that I can give to VIA for study. VIAs fixes for board
-> problems are for the fifo problem normally seen with the 686B and SB Live
-> but sometimes in other cases.
->
-> (and it seems also we have a few via + promise weirdnesses on all sorts of
->  boards not yet explained)
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just FYI, I've been running 2.4.7-pre6 for a few weeks on a Abit-KT7-a 
-(hpt370) that uses the KT133/VIA chipset, with a 1.33Ghz Athlon and the 
-kernel compiled for an Athlon. 
+On approximately Sat, Jul 28, 2001 at 05:22:09PM +0100, Alan Cox wrote:
+> >         This is sort of a continuation of my last msg. I tried a rpm
+> > -Va on one xterm and a tar cf /dev/null / on another, and I got
+> > another dma error:
+> >=20
+> > hda: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
+> > hda: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
+>=20
+> BadCRC is normally a cable error, but I'm suspicious that its also one of
+> the things caused by PCI bus problems on the VIA stuff
+    I am running the same chipset and used to see these sort of problems in
+the early 2.3pre and 2.4 days, but have not seen a BadCRC error for a long
+time. =20
 
-The machine is now rock solid. I've given it the usual tests, k7burn for 5 
-hours, cp'ing 30G+ across drives a few times etc, and all is good.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The broken sound (crackle/pop) with my SB128PCI (same problem as SBLive) 
-still didn't go away though, but enabling PCI DRAM PREFETCH on the VT8363 
-Bus-PCI Bridge does cure it. This took me a while to find as I can't set this 
-in my bios, but powertweak came to the rescue.
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-While DRAM Prefetch is supposed to be an option to increase performance, my 
-sound is totally unusable without this set. I've heard numerous people 
-explain the same problem and it would be interesting to find out if this 
-cures their sound troubles too. If this is the case, is this something that 
-belongs in quirks, or is it too hardware specific? and would enabling this by 
-default hurt anything anyway? Or is this just masking the underlaying problem 
-?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- Regards, Gavin Baker
+iD8DBQE7Y4zqNkH04TEdiy8RAhSoAJ9e6FJp21zjY2Qohxq5O4Z2XznozwCeO+gH
+Z9t2XZRwN/0C5Gi95kvIPUE=
+=qU6R
+-----END PGP SIGNATURE-----
 
+--envbJBWh7q8WU6mo--

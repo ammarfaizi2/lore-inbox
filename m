@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267541AbTACPHp>; Fri, 3 Jan 2003 10:07:45 -0500
+	id <S267543AbTACPS1>; Fri, 3 Jan 2003 10:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbTACPHp>; Fri, 3 Jan 2003 10:07:45 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:9744 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S267541AbTACPHo>;
-	Fri, 3 Jan 2003 10:07:44 -0500
-Date: Fri, 03 Jan 2003 08:14:06 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: dipankar@in.ibm.com, linux-scsi@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx broken in 2.5.53/54 ?
-Message-ID: <596830816.1041606846@aslan.scsiguy.com>
-In-Reply-To: <20030103101618.GB8582@in.ibm.com>
-References: <20030103101618.GB8582@in.ibm.com>
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+	id <S267546AbTACPS1>; Fri, 3 Jan 2003 10:18:27 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:49928 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267543AbTACPS0>;
+	Fri, 3 Jan 2003 10:18:26 -0500
+Message-ID: <3E15AB4E.6070409@walrond.org>
+Date: Fri, 03 Jan 2003 15:25:02 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+References: <Pine.LNX.3.96.1030103095620.25100B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like the aic7xxx driver in 2.5.53 and 54 are broken on my hardware.
+Sesquipedalian comes from Latin sesquipedalis, "a foot and a half long, 
+hence inordinately long," from sesqui, "one half more, half as much 
+again" + pes, ped-, "a foot."
 
-It looks like the driver recovers fine.
+Lucky boy :)
 
-...
+Bill Davidsen wrote:
+> On Fri, 3 Jan 2003, Andrew Walrond wrote:
+> 
+> 
+>>>I can understand your reasons, and I can also agree with them, but
+>>>I am quite impressed reading a nominalistic discussion on lkml, with almost the
+>>>same argumentations and logical plant of medioeval nominalistic
+>>>syllogismi.
+>>>
+>>>It is quite interesting, the story of culture is quite a wheel, and
+>>>people mental attitude, storically, seems to be recurisive (not evolutionary).
+>>
+>>
+>>Cripes. Are you a lawyer?    ;)
+> 
+> 
+> No, a sesquipedaliac.
+> 
 
-> aic7xxx: PCI Device 0:1:0 failed memory mapped test.  Using PIO.
-> Uhhuh. NMI received for unknown reason 25 on CPU 0.
-
-SERR must be enabled by your BIOS.  I will change the driver so
-that, should the memory mapped I/O test fail, an SERR (and thus an
-NMI) is not generated.
-
-...
-
-> scsi0: PCI error Interrupt at seqaddr = 0x2
-> scsi0: Signaled a Target Abort
-
-These are left over from the failed memory mapped I/O test.  They
-should have been cleared by the test, but the behavior must be
-different for the 7896/97.  I'll review the documentation for this
-chip and see if I can quiet up the failure.
-
-Just out of curiosity, do you have any strange PCI options enabled
-in your BIOS?  I remeber seeing memory mapped I/O failures on this
-ServerWorks chipset under FreeBSD in the past, but an updated BIOS
-resolved the issue for the affected users.  It seemed that the BIOS
-incorrectly placed the Adaptec controller in a prefetchable region.
-
---
-Justin
 

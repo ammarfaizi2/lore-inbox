@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136670AbREGVs0>; Mon, 7 May 2001 17:48:26 -0400
+	id <S136675AbREGVo4>; Mon, 7 May 2001 17:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136678AbREGVsQ>; Mon, 7 May 2001 17:48:16 -0400
-Received: from colorfullife.com ([216.156.138.34]:17683 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S136670AbREGVsL>;
-	Mon, 7 May 2001 17:48:11 -0400
-Message-ID: <3AF71818.F58139C6@colorfullife.com>
-Date: Mon, 07 May 2001 23:48:08 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, de
+	id <S136678AbREGVor>; Mon, 7 May 2001 17:44:47 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22035 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136675AbREGVoe>; Mon, 7 May 2001 17:44:34 -0400
+Date: Mon, 7 May 2001 14:44:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: <nigel@nrg.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+In-Reply-To: <3AF712D5.5D712E0F@didntduck.org>
+Message-ID: <Pine.LNX.4.31.0105071443080.1195-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zero^H^H^H^Hsingle copy pipe
-In-Reply-To: <E14wscv-00046J-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > The main problem is that map_user_kiobuf() locks pages into memory.
-> > It's a bad idea for pipes. Either we must severely limit the maximum
-> 
-> You only have to map them for the actual copy.
 
-The current map_user_kiobuf() doesn't have an 'mm' parameter, I can only
-use it from the context of the writer.
-I could use map_user_kiobuf_mm(), but the kiobuf structure is far too
-large, I really don't want a huge structure (> 8 kB?) for a simple 4 kB
-single copy transfer.
-Including a memset(,0,sizeof(*iobuf) in kiobuf_init().
 
-I think reusing the ptrace interface (access_process_vm()) is the better
-solution.
+On Mon, 7 May 2001, Brian Gerst wrote:
+>
+> Keep in mind that regs->eflags could be from user space, and could have
+> some undesirable flags set.  That's why I did a test/sti instead of
+> reloading eflags.  Plus my patch leaves interrupts disabled for the
+> minimum time possible.
 
---
-	Manfred
+The plain "popf" should be ok: the way intel works, you cannot actually
+use popf to set any of the strange flags (if vm86 mode etc).
+
+I like the size of this alternate patch.
+
+		Linus
+

@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVALTsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVALTsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVALTsl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVALTlX
+	id S261335AbVALTsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVALTpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:41:23 -0500
-Received: from hqemgate03.nvidia.com ([216.228.112.143]:49673 "EHLO
-	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
-	id S261337AbVALTid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:38:33 -0500
-Date: Wed, 12 Jan 2005 13:37:27 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Terence Ripperda <tripperda@nvidia.com>,
-       Brian Gerst <bgerst@didntduck.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@linux.ie>
-Subject: Re: inter_module_get and __symbol_get
-Message-ID: <20050112193727.GM1933@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20050106213225.GJ6184@hygelac> <41DDB465.8000705@didntduck.org> <20050106225140.GO6184@hygelac> <9e4733910501072000491d6c04@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 12 Jan 2005 14:45:04 -0500
+Received: from mail.enyo.de ([212.9.189.167]:3050 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261336AbVALTnK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:43:10 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+References: <20050112094807.K24171@build.pdx.osdl.net>
+Date: Wed, 12 Jan 2005 20:43:07 +0100
+In-Reply-To: <20050112094807.K24171@build.pdx.osdl.net> (Chris Wright's
+	message of "Wed, 12 Jan 2005 09:48:07 -0800")
+Message-ID: <87r7kqe8ms.fsf@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910501072000491d6c04@mail.gmail.com>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-X-OriginalArrivalTime: 12 Jan 2005 19:37:22.0214 (UTC) FILETIME=[22B82C60:01C4F8DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Chris Wright:
 
-it would seem like the old mechanism was preferable, but perhaps I'm
-missing something. in this particular case, there are times when a user
-wants to avoid using agp at all for testing purposes, but if I
-understand correctly, we'll be forced to load agpgart anyways due to
-unresolved symbols.
+> This same discussion is taking place in a few forums.  Are you opposed to
+> creating a security contact point for the kernel for people to contact
+> with potential security issues?
 
-but I think Keith Owens was correct in his larger picture view that
-this mechanism is useful for much more than just agp. I'm just
-confused why it was regressed from a non-gpl symbol to a gpl symbol
-(or more appropriately why the non-gpl symbol was regressed in favor
-of a gpl-only symbol).
+Would this be anything but a secretary in front of vendor-sec?
 
-Thanks,
-Terence
+> http://www.wiretrip.net/rfp/policy.html
+>
+> Right now most things come in via 1) lkml, 2) maintainers, 3) vendor-sec.
+> It would be nice to have a more centralized place for all of this
+> information to help track it, make sure things don't fall through
+> the cracks, and make sure of timely fix and disclosure.
 
+You mean, like issuing *security* *advisories*? *gasp*
 
-On Fri, Jan 07, 2005 at 11:00:09PM -0500, jonsmirl@gmail.com wrote:
-> The inter_module_xxx free DRM is already in Linus BK. Sooner or later
-> the inter_module_xx exports in the AGP driver should disappear too.
-> 
-> DRM now handles things at compile time. If AGP is enabled at compile
-> time, AGP support gets built into the DRM module. If AGP is not
-> enabled, AGP does not get compiled in. If you try to take a DRM that
-> was built for AGP and move it to a system without, it's not going to
-> load because it will need the AGP symbols.
-> 
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
+I think this is an absolute must (and we are certainly not alone!),
+but this project does not depend on the way the initial initial
+contact is handled.
+
+> +      If it is a security bug, please copy the Security Contact listed
+> +in the MAINTAINERS file.  They can help coordinate bugfix and disclosure.
+
+If this is about delayed disclosure, a few more details are required,
+IMHO.  Otherwise, submitters will continue to use their
+well-established channels.  Most people hesitate before posting stuff
+they view sensitive to a mailing list.

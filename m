@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262641AbTDAQQg>; Tue, 1 Apr 2003 11:16:36 -0500
+	id <S262653AbTDAQSv>; Tue, 1 Apr 2003 11:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262639AbTDAQQf>; Tue, 1 Apr 2003 11:16:35 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:20886 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262635AbTDAQPp>;
-	Tue, 1 Apr 2003 11:15:45 -0500
-Date: Tue, 1 Apr 2003 22:02:15 +0530
+	id <S262652AbTDAQSJ>; Tue, 1 Apr 2003 11:18:09 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:9875 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262643AbTDAQRH>;
+	Tue, 1 Apr 2003 11:17:07 -0500
+Date: Tue, 1 Apr 2003 22:03:37 +0530
 From: Suparna Bhattacharya <suparna@in.ibm.com>
 To: bcrl@redhat.com, akpm@digeo.com
 Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Filesystem aio rdwr patchset
-Message-ID: <20030401220215.A1857@in.ibm.com>
+Message-ID: <20030401220337.D1857@in.ibm.com>
 Reply-To: suparna@in.ibm.com
 References: <20030401215957.A1800@in.ibm.com>
 Mime-Version: 1.0
@@ -24,539 +24,287 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Apr 01, 2003 at 09:59:57PM +0530, Suparna Bhattacharya wrote:
-> 01aioretry.patch : this is the common generic aio
->   retry code
-
+> 04ext2-aiogetblk.patch :  an async get block 
+>   implementation for ext2
+> 
 -- 
 Suparna Bhattacharya (suparna@in.ibm.com)
 Linux Technology Center
 IBM Software Labs, India
 
-
-diff -ur linux-2.5.66/fs/aio.c linux-2.5.66aio/fs/aio.c
---- linux-2.5.66/fs/aio.c	Tue Mar 25 03:30:22 2003
-+++ linux-2.5.66aio/fs/aio.c	Wed Mar 26 20:25:02 2003
-@@ -395,6 +396,7 @@
- 	req->ki_cancel = NULL;
- 	req->ki_retry = NULL;
- 	req->ki_user_obj = NULL;
-+	INIT_LIST_HEAD(&req->ki_run_list);
- 
- 	/* Check if the completion queue has enough free space to
- 	 * accept an event from this io.
-@@ -558,46 +560,124 @@
- 	enter_lazy_tlb(mm, current, smp_processor_id());
- }
- 
--/* Run on kevent's context.  FIXME: needs to be per-cpu and warn if an
-- * operation blocks.
-- */
--static void aio_kick_handler(void *data)
-+static inline int __queue_kicked_iocb(struct kiocb *iocb)
+diff -ur linux-2.5.66/fs/ext2/balloc.c linux-2.5.66aio/fs/ext2/balloc.c
+--- linux-2.5.66/fs/ext2/balloc.c	Tue Mar 25 03:30:18 2003
++++ linux-2.5.66aio/fs/ext2/balloc.c	Wed Mar 26 19:50:08 2003
+@@ -76,7 +76,7 @@
+  * Return buffer_head on success or NULL in case of failure.
+  */
+ static struct buffer_head *
+-read_block_bitmap(struct super_block *sb, unsigned int block_group)
++read_block_bitmap_async(struct super_block *sb, unsigned int block_group)
  {
--	struct kioctx *ctx = data;
-+	struct kioctx	*ctx = iocb->ki_ctx;
- 
--	use_mm(ctx->mm);
-+	if (list_empty(&iocb->ki_run_list)) {
-+		list_add_tail(&iocb->ki_run_list, 
-+			&ctx->run_list);
-+		return 1;
-+	}
-+	return 0;
-+}
- 
--	spin_lock_irq(&ctx->ctx_lock);
--	while (!list_empty(&ctx->run_list)) {
--		struct kiocb *iocb;
--		long ret;
-+/* Expects to be called with iocb->ki_ctx->lock held */
-+static ssize_t aio_run_iocb(struct kiocb *iocb)
-+{
-+	struct kioctx	*ctx = iocb->ki_ctx;
-+	ssize_t (*retry)(struct kiocb *);
-+	ssize_t ret;
- 
--		iocb = list_entry(ctx->run_list.next, struct kiocb,
--				  ki_run_list);
--		list_del(&iocb->ki_run_list);
--		iocb->ki_users ++;
--		spin_unlock_irq(&ctx->ctx_lock);
-+	if (iocb->ki_retried++ > 1024*1024) {
-+		printk("Maximal retry count. Bytes done %d\n",
-+			iocb->ki_nbytes - iocb->ki_left);
-+		return -EAGAIN;
-+	}
-+
-+	if (!(iocb->ki_retried & 0xff)) {
-+		printk("%ld aio retries completed %d bytes of %d\n",
-+			iocb->ki_retried, 
-+			iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes);
-+	}
-+
-+	if (!(retry = iocb->ki_retry)) {
-+		printk("aio_run_iocb: iocb->ki_retry = NULL\n");
-+		return 0;
-+	}
-+
-+	iocb->ki_users ++;
-+	kiocbClearKicked(iocb);
-+	iocb->ki_run_list.next = iocb->ki_run_list.prev = NULL;
-+	iocb->ki_retry = NULL;	
-+	spin_unlock_irq(&ctx->ctx_lock);
-+	
-+	BUG_ON(current->iocb != NULL);
-+	
-+	current->iocb = iocb;
-+	ret = retry(iocb);
-+	current->iocb = NULL;
- 
--		kiocbClearKicked(iocb);
--		ret = iocb->ki_retry(iocb);
--		if (-EIOCBQUEUED != ret) {
-+	if (-EIOCBQUEUED != ret) {
-+		if (list_empty(&iocb->ki_wait.task_list)) 
- 			aio_complete(iocb, ret, 0);
--			iocb = NULL;
--		}
-+		else
-+			printk("can't delete iocb in use\n");
-+	} else {
-+		if (list_empty(&iocb->ki_wait.task_list)) 
-+			kiocbSetKicked(iocb);
-+	}
-+	spin_lock_irq(&ctx->ctx_lock);
- 
--		spin_lock_irq(&ctx->ctx_lock);
--		if (NULL != iocb)
--			__aio_put_req(ctx, iocb);
-+	iocb->ki_retry = retry;
-+	INIT_LIST_HEAD(&iocb->ki_run_list);
-+	if (kiocbIsKicked(iocb)) {
-+		BUG_ON(ret != -EIOCBQUEUED);
-+		__queue_kicked_iocb(iocb);
-+	} 
-+	__aio_put_req(ctx, iocb);
-+	return ret;
-+}
-+
-+static void aio_run_iocbs(struct kioctx *ctx)
-+{
-+	struct kiocb *iocb;
-+	ssize_t ret;
-+
-+	spin_lock_irq(&ctx->ctx_lock);
-+	while (!list_empty(&ctx->run_list)) {
-+		iocb = list_entry(ctx->run_list.next, struct kiocb,
-+			ki_run_list);
-+		list_del(&iocb->ki_run_list);
-+		ret = aio_run_iocb(iocb);
- 	}
- 	spin_unlock_irq(&ctx->ctx_lock);
-+}
-+
-+/* Run on aiod/kevent's context.  FIXME: needs to be per-cpu and warn if an
-+ * operation blocks.
-+ */
-+static void aio_kick_handler(void *data)
-+{
-+	struct kioctx *ctx = data;
- 
-+	use_mm(ctx->mm);
-+	aio_run_iocbs(ctx);
- 	unuse_mm(ctx->mm);
+ 	struct ext2_group_desc * desc;
+ 	struct buffer_head * bh = NULL;
+@@ -84,7 +84,7 @@
+ 	desc = ext2_get_group_desc (sb, block_group, NULL);
+ 	if (!desc)
+ 		goto error_out;
+-	bh = sb_bread(sb, le32_to_cpu(desc->bg_block_bitmap));
++	bh = sb_bread_async(sb, le32_to_cpu(desc->bg_block_bitmap));
+ 	if (!bh)
+ 		ext2_error (sb, "read_block_bitmap",
+ 			    "Cannot read block bitmap - "
+@@ -94,6 +94,15 @@
+ 	return bh;
  }
  
--void kick_iocb(struct kiocb *iocb)
++static struct buffer_head *
++read_block_bitmap(struct super_block *sb, unsigned int block_group)
++{
++	struct buffer_head * bh = NULL;
 +
-+void queue_kicked_iocb(struct kiocb *iocb)
++	do_sync_op(bh = read_block_bitmap_async(sb, block_group));
++	return bh;
++}
++
+ static inline int reserve_blocks(struct super_block *sb, int count)
  {
- 	struct kioctx	*ctx = iocb->ki_ctx;
-+	unsigned long flags;
-+	int run = 0;
-+
-+	WARN_ON((!list_empty(&iocb->ki_wait.task_list)));
-+
-+	spin_lock_irqsave(&ctx->ctx_lock, flags);
-+	run = __queue_kicked_iocb(iocb);
-+	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
-+	if (run) {
-+		if (waitqueue_active(&ctx->wait))
-+			wake_up(&ctx->wait);
-+		else
-+			queue_work(aio_wq, &ctx->wq);
-+	}
-+}
+ 	struct ext2_sb_info * sbi = EXT2_SB(sb);
+@@ -309,7 +318,7 @@
+  * bitmap, and then for any free bit if that fails.
+  * This function also updates quota and i_blocks field.
+  */
+-int ext2_new_block (struct inode * inode, unsigned long goal,
++int ext2_new_block_async (struct inode * inode, unsigned long goal,
+     u32 * prealloc_count, u32 * prealloc_block, int * err)
+ {
+ 	struct buffer_head *bitmap_bh = NULL;
+@@ -401,7 +410,7 @@
+ 	}
+ 	brelse(bitmap_bh);
+ 	bitmap_bh = read_block_bitmap(sb, group_no);
+-	if (!bitmap_bh)
++	if (!bitmap_bh || IS_ERR(bitmap_bh))
+ 		goto io_error;
  
-+void kick_iocb(struct kiocb *iocb)
+ 	ret_block = grab_block(bitmap_bh->b_data, group_size, 0);
+@@ -481,10 +490,20 @@
+ 	return block;
+ 
+ io_error:
+-	*err = -EIO;
++	*err = IS_ERR(bitmap_bh) ? PTR_ERR(bitmap_bh) : -EIO;
+ 	goto out_release;
+ }
+ 
++int ext2_new_block (struct inode * inode, unsigned long goal,
++    u32 * prealloc_count, u32 * prealloc_block, int * err)
 +{
- 	/* sync iocbs are easy: they can only ever be executing from a 
- 	 * single context. */
- 	if (is_sync_kiocb(iocb)) {
-@@ -607,11 +687,9 @@
++	int block = 0;
++
++	do_sync_op(block = ext2_new_block_async(inode, goal, prealloc_count,
++		prealloc_block, err));
++	return block;
++}
++
+ unsigned long ext2_count_free_blocks (struct super_block * sb)
+ {
+ #ifdef EXT2FS_DEBUG
+diff -ur linux-2.5.66/fs/ext2/ext2.h linux-2.5.66aio/fs/ext2/ext2.h
+--- linux-2.5.66/fs/ext2/ext2.h	Tue Mar 25 03:31:48 2003
++++ linux-2.5.66aio/fs/ext2/ext2.h	Tue Mar 25 13:42:02 2003
+@@ -74,6 +74,8 @@
+ extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
+ extern int ext2_new_block (struct inode *, unsigned long,
+ 			   __u32 *, __u32 *, int *);
++extern int ext2_new_block_async (struct inode *, unsigned long,
++			   __u32 *, __u32 *, int *);
+ extern void ext2_free_blocks (struct inode *, unsigned long,
+ 			      unsigned long);
+ extern unsigned long ext2_count_free_blocks (struct super_block *);
+diff -ur linux-2.5.66/fs/ext2/inode.c linux-2.5.66aio/fs/ext2/inode.c
+--- linux-2.5.66/fs/ext2/inode.c	Tue Mar 25 03:29:57 2003
++++ linux-2.5.66aio/fs/ext2/inode.c	Mon Mar 31 21:16:08 2003
+@@ -98,7 +98,8 @@
+ #endif
+ }
+ 
+-static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
++static int ext2_alloc_block_async (struct inode * inode, unsigned long goal, 
++	int *err)
+ {
+ #ifdef EXT2FS_DEBUG
+ 	static unsigned long alloc_hits = 0, alloc_attempts = 0;
+@@ -123,18 +124,26 @@
+ 		ext2_debug ("preallocation miss (%lu/%lu).\n",
+ 			    alloc_hits, ++alloc_attempts);
+ 		if (S_ISREG(inode->i_mode))
+-			result = ext2_new_block (inode, goal, 
++			result = ext2_new_block_async (inode, goal, 
+ 				 &ei->i_prealloc_count,
+ 				 &ei->i_prealloc_block, err);
+ 		else
+ 			result = ext2_new_block (inode, goal, 0, 0, err);
+ 	}
+ #else
+-	result = ext2_new_block (inode, goal, 0, 0, err);
++	result = ext2_new_block_async (inode, goal, 0, 0, err);
+ #endif
+ 	return result;
+ }
+ 
++static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
++{
++	int result;
++
++	do_sync_op(result = ext2_alloc_block_async(inode, goal, err));
++	return result;
++}
++
+ typedef struct {
+ 	u32	*p;
+ 	u32	key;
+@@ -252,7 +261,7 @@
+  *	or when it reads all @depth-1 indirect blocks successfully and finds
+  *	the whole chain, all way to the data (returns %NULL, *err == 0).
+  */
+-static Indirect *ext2_get_branch(struct inode *inode,
++static Indirect *ext2_get_branch_async(struct inode *inode,
+ 				 int depth,
+ 				 int *offsets,
+ 				 Indirect chain[4],
+@@ -268,8 +277,8 @@
+ 	if (!p->key)
+ 		goto no_block;
+ 	while (--depth) {
+-		bh = sb_bread(sb, le32_to_cpu(p->key));
+-		if (!bh)
++		bh = sb_bread_async(sb, le32_to_cpu(p->key));
++		if (!bh || IS_ERR(bh))
+ 			goto failure;
+ 		read_lock(&EXT2_I(inode)->i_meta_lock);
+ 		if (!verify_chain(chain, p))
+@@ -287,11 +296,24 @@
+ 	*err = -EAGAIN;
+ 	goto no_block;
+ failure:
+-	*err = -EIO;
++	*err = IS_ERR(bh) ? PTR_ERR(bh) : -EIO;
+ no_block:
+ 	return p;
+ }
+ 
++static Indirect *ext2_get_branch(struct inode *inode,
++				 int depth,
++				 int *offsets,
++				 Indirect chain[4],
++				 int *err)
++{
++	Indirect *p;
++
++	do_sync_op(p = ext2_get_branch_async(inode, depth, offsets, chain, 
++		err));
++	return p;
++}
++
+ /**
+  *	ext2_find_near - find a place for allocation with sufficient locality
+  *	@inode: owner
+@@ -406,7 +428,7 @@
+  *	as described above and return 0.
+  */
+ 
+-static int ext2_alloc_branch(struct inode *inode,
++static int ext2_alloc_branch_async(struct inode *inode,
+ 			     int num,
+ 			     unsigned long goal,
+ 			     int *offsets,
+@@ -422,7 +444,7 @@
+ 	if (parent) for (n = 1; n < num; n++) {
+ 		struct buffer_head *bh;
+ 		/* Allocate the next block */
+-		int nr = ext2_alloc_block(inode, parent, &err);
++		int nr = ext2_alloc_block_async(inode, parent, &err);
+ 		if (!nr)
+ 			break;
+ 		branch[n].key = cpu_to_le32(nr);
+@@ -458,6 +480,19 @@
+ 	return err;
+ }
+ 
++static int ext2_alloc_branch(struct inode *inode,
++			     int num,
++			     unsigned long goal,
++			     int *offsets,
++			     Indirect *branch)
++{
++	int err;
++
++	do_sync_op(err = ext2_alloc_branch_async(inode, num, goal, 
++		offsets, branch));
++	return err;
++}
++
+ /**
+  *	ext2_splice_branch - splice the allocated branch onto inode.
+  *	@inode: owner
+@@ -531,7 +566,7 @@
+  * reachable from inode.
+  */
+ 
+-static int ext2_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
++static int ext2_get_block_async(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
+ {
+ 	int err = -EIO;
+ 	int offsets[4];
+@@ -546,7 +581,7 @@
+ 		goto out;
+ 
+ reread:
+-	partial = ext2_get_branch(inode, depth, offsets, chain, &err);
++	partial = ext2_get_branch_async(inode, depth, offsets, chain, &err);
+ 
+ 	/* Simplest case - block found, no allocation needed */
+ 	if (!partial) {
+@@ -560,7 +595,7 @@
  	}
  
- 	if (!kiocbTryKick(iocb)) {
--		unsigned long flags;
--		spin_lock_irqsave(&ctx->ctx_lock, flags);
--		list_add_tail(&iocb->ki_run_list, &ctx->run_list);
--		spin_unlock_irqrestore(&ctx->ctx_lock, flags);
--		schedule_work(&ctx->wq);
-+		queue_kicked_iocb(iocb);
-+	} else {
-+		pr_debug("iocb already kicked or in progress\n");
- 	}
+ 	/* Next simple case - plain lookup or failed read of indirect block */
+-	if (!create || err == -EIO) {
++	if (!create || err == -EIO || err == -EIOCBQUEUED) {
+ cleanup:
+ 		while (partial > chain) {
+ 			brelse(partial->bh);
+@@ -582,7 +617,7 @@
+ 		goto changed;
+ 
+ 	left = (chain + depth) - partial;
+-	err = ext2_alloc_branch(inode, left, goal,
++	err = ext2_alloc_branch_async(inode, left, goal,
+ 					offsets+(partial-chain), partial);
+ 	if (err)
+ 		goto cleanup;
+@@ -601,6 +636,15 @@
+ 	goto reread;
  }
  
-@@ -642,13 +720,13 @@
- 		iocb->ki_user_data = res;
- 		if (iocb->ki_users == 1) {
- 			iocb->ki_users = 0;
--			return 1;
-+			ret = 1;
-+		} else {
-+			spin_lock_irq(&ctx->ctx_lock);
-+			iocb->ki_users--;
-+			ret = (0 == iocb->ki_users);
-+			spin_unlock_irq(&ctx->ctx_lock);
- 		}
--		spin_lock_irq(&ctx->ctx_lock);
--		iocb->ki_users--;
--		ret = (0 == iocb->ki_users);
--		spin_unlock_irq(&ctx->ctx_lock);
--
- 		/* sync iocbs put the task here for us */
- 		wake_up_process(iocb->ki_user_obj);
- 		return ret;
-@@ -664,6 +742,9 @@
- 	 */
- 	spin_lock_irqsave(&ctx->ctx_lock, flags);
- 
-+	if (iocb->ki_run_list.prev && !list_empty(&iocb->ki_run_list))
-+		list_del_init(&iocb->ki_run_list);
++static int ext2_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
++{
++	int err;
 +
- 	ring = kmap_atomic(info->ring_pages[0], KM_IRQ1);
- 
- 	tail = info->tail;
-@@ -865,6 +946,8 @@
- 			ret = 0;
- 			if (to.timed_out)	/* Only check after read evt */
- 				break;
-+			/* accelerate kicked iocbs for this ctx */	
-+			aio_run_iocbs(ctx);
- 			schedule();
- 			if (signal_pending(tsk)) {
- 				ret = -EINTR;
-@@ -984,6 +1067,149 @@
- 	return -EINVAL;
++	do_sync_op(err = ext2_get_block_async(inode, iblock, bh_result, 
++		create));
++	return err;
++}
++
+ static int ext2_writepage(struct page *page, struct writeback_control *wbc)
+ {
+ 	return block_write_full_page(page, ext2_get_block, wbc);
+@@ -622,7 +666,7 @@
+ ext2_prepare_write(struct file *file, struct page *page,
+ 			unsigned from, unsigned to)
+ {
+-	return block_prepare_write(page,from,to,ext2_get_block);
++	return block_prepare_write(page,from,to,ext2_get_block_async);
  }
  
-+ssize_t aio_pread(struct kiocb *iocb)
-+{
-+	struct file *file = iocb->ki_filp;
-+	ssize_t ret = 0;
-+
-+	ret = file->f_op->aio_read(iocb, iocb->ki_buf,
-+		iocb->ki_left, iocb->ki_pos);
-+
-+	pr_debug("aio_pread: fop ret %d\n", ret);
-+
-+	/*
-+	 * Can't just depend on iocb->ki_left to determine 
-+	 * whether we are done. This may have been a short read.
-+	 */
-+	if (ret > 0) {
-+		iocb->ki_buf += ret;
-+		iocb->ki_left -= ret;
-+
-+		ret = -EIOCBQUEUED;
-+	}
-+
-+	/* This means we must have transferred all that we could */
-+	/* No need to retry anymore */
-+	if (ret == 0) 
-+		ret = iocb->ki_nbytes - iocb->ki_left;
-+
-+	return ret;
-+}
-+
-+ssize_t aio_pwrite(struct kiocb *iocb)
-+{
-+	struct file *file = iocb->ki_filp;
-+	ssize_t ret = 0;
-+
-+	ret = file->f_op->aio_write(iocb, iocb->ki_buf,
-+		iocb->ki_left, iocb->ki_pos);
-+
-+	pr_debug("aio_pread: fop ret %d\n", ret);
-+
-+	/* 
-+	 * TBD: Even if iocb->ki_left = 0, could we need to 
-+	 * wait for data to be sync'd ? Or can we assume
-+	 * that aio_fdsync/aio_fsync would be called explicitly
-+	 * as required.
-+	 */
-+	if (ret > 0) {
-+		iocb->ki_buf += ret;
-+		iocb->ki_left -= ret;
-+
-+		ret = -EIOCBQUEUED;
-+	}
-+
-+	/* This means we must have transferred all that we could */
-+	/* No need to retry anymore */
-+	if (ret == 0) 
-+		ret = iocb->ki_nbytes - iocb->ki_left;
-+
-+	return ret;
-+}
-+
-+ssize_t aio_fdsync(struct kiocb *iocb)
-+{
-+	struct file *file = iocb->ki_filp;
-+	ssize_t ret = -EINVAL;
-+
-+	if (file->f_op->aio_fsync)
-+		ret = file->f_op->aio_fsync(iocb, 1);
-+	return ret;
-+}
-+	
-+ssize_t aio_fsync(struct kiocb *iocb)
-+{
-+	struct file *file = iocb->ki_filp;
-+	ssize_t ret = -EINVAL;
-+
-+	if (file->f_op->aio_fsync)
-+		ret = file->f_op->aio_fsync(iocb, 0);
-+	return ret;
-+}
-+	
-+/* Called during initial submission and subsequent retry operations */
-+ssize_t aio_setup_iocb(struct kiocb *iocb)
-+{
-+	struct file *file = iocb->ki_filp;
-+	ssize_t ret = 0;
-+	
-+	switch (iocb->ki_opcode) {
-+	case IOCB_CMD_PREAD:
-+		ret = -EBADF;
-+		if (unlikely(!(file->f_mode & FMODE_READ)))
-+			break;
-+		ret = -EFAULT;
-+		if (unlikely(!access_ok(VERIFY_WRITE, iocb->ki_buf, 
-+			iocb->ki_left)))
-+			break;
-+		ret = -EINVAL;
-+		if (file->f_op->aio_read)
-+			iocb->ki_retry = aio_pread;
-+		break;
-+	case IOCB_CMD_PWRITE:
-+		ret = -EBADF;
-+		if (unlikely(!(file->f_mode & FMODE_WRITE)))
-+			break;
-+		ret = -EFAULT;
-+		if (unlikely(!access_ok(VERIFY_READ, iocb->ki_buf, 
-+			iocb->ki_left)))
-+			break;
-+		ret = -EINVAL;
-+		if (file->f_op->aio_write)
-+			iocb->ki_retry = aio_pwrite;
-+		break;
-+	case IOCB_CMD_FDSYNC:
-+		ret = -EINVAL;
-+		if (file->f_op->aio_fsync)
-+			iocb->ki_retry = aio_fdsync;
-+		break;
-+	case IOCB_CMD_FSYNC:
-+		ret = -EINVAL;
-+		if (file->f_op->aio_fsync)
-+			iocb->ki_retry = aio_fsync;
-+		break;
-+	default:
-+		dprintk("EINVAL: io_submit: no operation provided\n");
-+		ret = -EINVAL;
-+	}
-+
-+	if (!iocb->ki_retry)
-+		return ret;
-+
-+	pr_debug("ki_pos = %llu\n", iocb->ki_pos);
-+
-+	return 0;
-+}
-+
-+int aio_wake_function(wait_queue_t *wait, unsigned mode, int sync)
-+{
-+	struct kiocb *iocb = container_of(wait, struct kiocb, ki_wait);
-+
-+	list_del_init(&wait->task_list);
-+	kick_iocb(iocb);
-+	return 1;
-+}
-+
- static int FASTCALL(io_submit_one(struct kioctx *ctx, struct iocb *user_iocb,
- 				  struct iocb *iocb));
- static int io_submit_one(struct kioctx *ctx, struct iocb *user_iocb,
-@@ -992,7 +1218,6 @@
- 	struct kiocb *req;
- 	struct file *file;
- 	ssize_t ret;
--	char *buf;
- 
- 	/* enforce forwards compatibility on users */
- 	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved2 ||
-@@ -1033,51 +1258,27 @@
- 	req->ki_user_data = iocb->aio_data;
- 	req->ki_pos = iocb->aio_offset;
- 
--	buf = (char *)(unsigned long)iocb->aio_buf;
-+	req->ki_buf = (char *)(unsigned long)iocb->aio_buf;
-+	req->ki_left = req->ki_nbytes = iocb->aio_nbytes;
-+	req->ki_opcode = iocb->aio_lio_opcode;
-+	init_waitqueue_func_entry(&req->ki_wait, aio_wake_function);
-+	INIT_LIST_HEAD(&req->ki_wait.task_list);
-+	req->ki_run_list.next = req->ki_run_list.prev = NULL;
-+	req->ki_retry = NULL;
-+	req->ki_retried = 0;
- 
--	switch (iocb->aio_lio_opcode) {
--	case IOCB_CMD_PREAD:
--		ret = -EBADF;
--		if (unlikely(!(file->f_mode & FMODE_READ)))
--			goto out_put_req;
--		ret = -EFAULT;
--		if (unlikely(!access_ok(VERIFY_WRITE, buf, iocb->aio_nbytes)))
--			goto out_put_req;
--		ret = -EINVAL;
--		if (file->f_op->aio_read)
--			ret = file->f_op->aio_read(req, buf,
--					iocb->aio_nbytes, req->ki_pos);
--		break;
--	case IOCB_CMD_PWRITE:
--		ret = -EBADF;
--		if (unlikely(!(file->f_mode & FMODE_WRITE)))
--			goto out_put_req;
--		ret = -EFAULT;
--		if (unlikely(!access_ok(VERIFY_READ, buf, iocb->aio_nbytes)))
--			goto out_put_req;
--		ret = -EINVAL;
--		if (file->f_op->aio_write)
--			ret = file->f_op->aio_write(req, buf,
--					iocb->aio_nbytes, req->ki_pos);
--		break;
--	case IOCB_CMD_FDSYNC:
--		ret = -EINVAL;
--		if (file->f_op->aio_fsync)
--			ret = file->f_op->aio_fsync(req, 1);
--		break;
--	case IOCB_CMD_FSYNC:
--		ret = -EINVAL;
--		if (file->f_op->aio_fsync)
--			ret = file->f_op->aio_fsync(req, 0);
--		break;
--	default:
--		dprintk("EINVAL: io_submit: no operation provided\n");
--		ret = -EINVAL;
--	}
-+	ret = aio_setup_iocb(req);
-+
-+	if ((-EBADF == ret) || (-EFAULT == ret))
-+		goto out_put_req;
-+
-+	spin_lock_irq(&ctx->ctx_lock);
-+	ret = aio_run_iocb(req);
-+	spin_unlock_irq(&ctx->ctx_lock);
-+
-+	if (-EIOCBQUEUED == ret)
-+		queue_work(aio_wq, &ctx->wq);
- 
--	if (likely(-EIOCBQUEUED == ret))
--		return 0;
--	aio_complete(req, ret, 0);
- 	return 0;
- 
- out_put_req:
-diff -ur linux-2.5.66/include/linux/aio.h linux-2.5.66aio/include/linux/aio.h
---- linux-2.5.66/include/linux/aio.h	Tue Mar 25 03:29:54 2003
-+++ linux-2.5.66aio/include/linux/aio.h	Wed Mar 26 18:46:18 2003
-@@ -54,7 +54,7 @@
- 	struct file		*ki_filp;
- 	struct kioctx		*ki_ctx;	/* may be NULL for sync ops */
- 	int			(*ki_cancel)(struct kiocb *, struct io_event *);
--	long			(*ki_retry)(struct kiocb *);
-+	ssize_t			(*ki_retry)(struct kiocb *);
- 
- 	struct list_head	ki_list;	/* the aio core uses this
- 						 * for cancellation */
-@@ -62,6 +62,14 @@
- 	void			*ki_user_obj;	/* pointer to userland's iocb */
- 	__u64			ki_user_data;	/* user's data for completion */
- 	loff_t			ki_pos;
-+	
-+	/* State that we remember to be able to restart/retry  */
-+	unsigned short		ki_opcode;
-+	size_t			ki_nbytes; 	/* copy of iocb->aio_nbytes */
-+	char 			*ki_buf;	/* remaining iocb->aio_buf */
-+	size_t			ki_left; 	/* remaining bytes */
-+	wait_queue_t		ki_wait;
-+	long			ki_retried; 	/* just for testing */
- 
- 	char			private[KIOCB_PRIVATE_SIZE];
- };
-@@ -77,6 +85,8 @@
- 		(x)->ki_ctx = &tsk->active_mm->default_kioctx;	\
- 		(x)->ki_cancel = NULL;			\
- 		(x)->ki_user_obj = tsk;			\
-+		(x)->ki_user_data = 0;			\
-+		init_wait((&(x)->ki_wait));		\
- 	} while (0)
- 
- #define AIO_RING_MAGIC			0xa10a10a1
-@@ -151,6 +161,13 @@
- #define get_ioctx(kioctx)	do { if (unlikely(atomic_read(&(kioctx)->users) <= 0)) BUG(); atomic_inc(&(kioctx)->users); } while (0)
- #define put_ioctx(kioctx)	do { if (unlikely(atomic_dec_and_test(&(kioctx)->users))) __put_ioctx(kioctx); else if (unlikely(atomic_read(&(kioctx)->users) < 0)) BUG(); } while (0)
- 
-+#define do_sync_op(op)		do { \
-+	struct kiocb *iocb = current->iocb; \
-+	current->iocb = NULL; \
-+	op; \
-+	current->iocb = iocb; \
-+	} while (0);
-+
- #include <linux/aio_abi.h>
- 
- static inline struct kiocb *list_kiocb(struct list_head *h)
-diff -ur linux-2.5.66/include/linux/init_task.h linux-2.5.66aio/include/linux/init_task.h
---- linux-2.5.66/include/linux/init_task.h	Tue Mar 25 03:30:00 2003
-+++ linux-2.5.66aio/include/linux/init_task.h	Fri Mar 21 14:50:42 2003
-@@ -103,6 +103,7 @@
- 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.journal_info	= NULL,						\
-+	.iocb		= NULL,						\
- }
- 
- 
-diff -ur linux-2.5.66/include/linux/sched.h linux-2.5.66aio/include/linux/sched.h
---- linux-2.5.66/include/linux/sched.h	Tue Mar 25 03:30:00 2003
-+++ linux-2.5.66aio/include/linux/sched.h	Fri Mar 21 14:50:42 2003
-@@ -438,6 +438,8 @@
- 
- 	unsigned long ptrace_message;
- 	siginfo_t *last_siginfo; /* For ptrace use.  */
-+/* current aio handle */
-+	struct kiocb *iocb;
- };
- 
- extern void __put_task_struct(struct task_struct *tsk);
-diff -ur linux-2.5.66/kernel/fork.c linux-2.5.66aio/kernel/fork.c
---- linux-2.5.66/kernel/fork.c	Tue Mar 25 03:30:00 2003
-+++ linux-2.5.66aio/kernel/fork.c	Wed Mar 26 18:32:24 2003
-@@ -856,6 +856,7 @@
- 	p->lock_depth = -1;		/* -1 = no lock */
- 	p->start_time = get_jiffies_64();
- 	p->security = NULL;
-+	p->iocb = NULL;
- 
- 	retval = -ENOMEM;
- 	if (security_task_alloc(p))
+ static int

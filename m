@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289768AbSBJVgS>; Sun, 10 Feb 2002 16:36:18 -0500
+	id <S289767AbSBJVkR>; Sun, 10 Feb 2002 16:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289767AbSBJVfb>; Sun, 10 Feb 2002 16:35:31 -0500
-Received: from ns.suse.de ([213.95.15.193]:31752 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289793AbSBJVdx>;
-	Sun, 10 Feb 2002 16:33:53 -0500
-Date: Sun, 10 Feb 2002 22:33:49 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alex Riesen <fork0@users.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
-In-Reply-To: <20020209222358.GA1589@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0202102232510.29486-100000@Appserv.suse.de>
+	id <S289793AbSBJVkB>; Sun, 10 Feb 2002 16:40:01 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:16259 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S289767AbSBJVjl>; Sun, 10 Feb 2002 16:39:41 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Cyrille Chepelov <cyrille@chepelov.org>
+Date: Mon, 11 Feb 2002 08:42:26 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15462.59714.671946.156442@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, andre@linux-ide.org,
+        jmontpezat@nerim.net
+Subject: Re: [RAID-soft,ATA,WD] problems with a RAID5 disc not detected 
+In-Reply-To: message from Cyrille Chepelov on Sunday February 10
+In-Reply-To: <20020210205653.GA20212@calixo.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Feb 2002, Pavel Machek wrote:
+On Sunday February 10, cyrille@chepelov.org wrote:
+> 
+> *However*, every time I boot, even though the disc is properly detected and
+> its partition table read, the new WD (40 Gb) discs's partitions are ignored
+> by the RAID5 autodetector. When the machine hits runlevel 2, it is possible
+> to manually raidhotadd back the partitions, and after the reconstruction is
+> complete, things seem to work normally, but there is obviously something
+> wrong.
 
-> >  > Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
-> >  > Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
-> >  > Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
-> >  Machine checks are indicative of hardware fault.
-> >  Overclocking, inadequate cooling and bad memory are the usual
-> > causes.
-> Maybe you should print something like
-> Machine Check Exception: .... (hardware problem!)
-> so that we get less reports like this?
+Are you sure that you set the partition type properly for the
+partitions in the new drive. i.e. set it to FD ??
 
-When I get around to finishing the diagnosis tool, I'll add
-something like "Feed to decodemca for more info".
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+NeilBrown

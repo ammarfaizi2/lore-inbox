@@ -1,158 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbTAQWKM>; Fri, 17 Jan 2003 17:10:12 -0500
+	id <S261599AbTAQWYM>; Fri, 17 Jan 2003 17:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbTAQWKM>; Fri, 17 Jan 2003 17:10:12 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:28177 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261689AbTAQWJI>; Fri, 17 Jan 2003 17:09:08 -0500
-Message-ID: <3E28785A.AC583D9F@linux-m68k.org>
-Date: Fri, 17 Jan 2003 22:40:42 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Werner Almesberger <wa@almesberger.net>, kuznet@ms2.inr.ac.ru,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-References: <20030117022833.229992C365@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S261701AbTAQWYL>; Fri, 17 Jan 2003 17:24:11 -0500
+Received: from [209.184.141.189] ([209.184.141.189]:1598 "HELO ubergeek")
+	by vger.kernel.org with SMTP id <S261599AbTAQWYK>;
+	Fri, 17 Jan 2003 17:24:10 -0500
+Subject: Re: Two on the kernel. - Please Respond.
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1042836639.1292.16.camel@UberGeek>
+References: <1042836639.1292.16.camel@UberGeek>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042842769.1291.20.camel@UberGeek>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 17 Jan 2003 16:32:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+If you have any information to share, questions, etc, I'd appreciate
+anything which may help shed light on what I'm seeing here. I'm planning
+on testing a custom patch set internally so I know it will fix the
+problems below, but I need feed back to make sure I'm headed in the
+right direction. TIA
 
-Rusty Russell wrote:
 
-> Two Stage Delete
-> ================
+On Fri, 2003-01-17 at 14:50, GrandMasterLee wrote:
+> Hey all, 
+> I've got two issues here. Both issues were seen with 2.4.19aa1. The
+> second issue was seen with 2.4.20aa1 also.
 > 
-> So let's apply standard locking techniques.  A standard approach to
-> this for data (eg networking packets) involves two-stage delete: we
-> keep a reference count in the object, which is usually 1 + number of
-> users, and to delete it we mark it deleted so noone new can use it,
-> and drop the reference count.  The last user, who drops the reference
-> count to zero, actually does the free.
-
-Rusty, could you please show me where you found the deleted flag in
-network packets? Where did you find that it's required to test the
-deleted flag before you can get a reference to the object?
-Actually it's far more common to just delete the object when all
-references are gone without any need for a deleted flag. Why does
-everyone else get away with a "single stage delete"? Where is the
-deleted flag (or active flag) for modules coming from?
-
-(BTW I would be really happy to get any response to this, I already
-explained this all before, so I'd really like to know whether someone
-understands what I'm talking about or what is so difficult to
-understand.)
-
-As already mentioned every object can only be deleted, when it's nowhere
-registered anymore and all users are gone, the same is true for modules:
-
-	if (!is_registered(obj) && !get_usecount(obj))
-		delete(obj);
-
-The is_registered() check can be omitted, if we unregister the object
-ourselves, but this requires some locking to prevent new users until the
-object is unregistered:
-
-	lock();
-	if (get_usecount(obj)) {
-		unlock();
-		return -EBUSY;
-	}
-	unregister(obj);
-	unlock();
-	delete(obj);
-
-New users have to do this:
-
-	lock();
-	obj = lookup();
-	if (obj)
-		inc_usecount(obj);
-	unlock();
-
-This is the standard mechanism we can find all over the kernel. The
-problem with modules now is that the usecount check and the unregister
-happen at two different places and the lock is not held until the object
-is unregistered, so we have to add a new flag:
-
-	mod_lock();
-	if (get_usecount(obj)) {
-		mod_unlock();
-		return -EBUSY;
-	}
-	deactivate(obj);
-	mod_unlock();
-	...
-	obj_lock();
-	unregister(obj);
-	obj_unlock();
-	delete(obj);
-
-New users have to do this now:
-
-	obj_lock();
-	obj = lookup();
-	if (obj) {
-		mod_lock();
-		if (is_active(obj))
-			inc_usecount(obj);
-		mod_unlock();
-	}
-	obj_unlock();
-
-Rusty now worked very hard to make the read path as cheap as possible,
-but the general complexity is still the same as always. The only way to
-make this even cheaper is to reduce the complexity and this is only
-possible by getting rid of the is_active() check. The only consequence
-would be that we had no global activate switch anymore, but is it really
-needed? (Insert compelling reason here, why such a switch is absolutely
-required, as I don't know any.)
-
-To understand the possible alternatives I have to rename Rustys "Two
-Stage Delete" into "Three stage delete":
-1. deactivate
-2. unregister
-3. delete
-(In case anyone was wondering where the single reference in Rustys
-example is coming from - it's the registered state from the second
-stage).
-As said above the delete stage can only be entered if the object is not
-registered and not used anymore, this is the only absolute requirement,
-but currently we can't even get past the first stage as long as there
-are users (otherwise we risk a deadlock).
-When Rusty is now talking about exposing a two stage api to the modules,
-he actually means the first stage in order to leave it to the module how
-to deactivate the module. It makes indeed little sense to expose this
-stage, because this is the stage, which is causing the extra complexity
-and which we should rather get rid of.
-On the other hand it would make quite a lot more sense to expose the
-second stage to the modules. This stage is independent of the usecount,
-this means we can easily and safely prevent new users from using the
-module. The standard mechanism above to remove an object can easily be
-changed into:
-
-unregister(force):
-	lock();
-	if (get_usecount(obj) && !force) {
-		unlock();
-		return -EBUSY;
-	}
-	unregister(obj);
-	unlock();
-delete:
-	if (get_usecount(obj))
-		return -EBUSY;
-	delete(obj);
-
-Doing these stages with one or two functions doesn't really matter, the
-work has to be done anyway and causes no real extra complexity.
-
-bye, Roman
-
-
+> 
+> 1. This message between two linux machines during backup (rsync), across
+> GBE:
+> 
+> "TCP: Treason uncloaked! Peer 10.1.1.40:37859/873 shrinks window
+> 2430745930:2430747378. Repaired."
+> "TCP: Treason uncloaked! Peer 10.1.1.40:37859/873 shrinks window
+> 2430745930:2430747378. Repaired.
+> XFS mounting file"
+> 
+> I saw some info on LKML archives about this, but no resolution or
+> reason. The system reporting the errors has an EEPRO1000 and is
+> connected via crossover to a system with embedded BCM5700s. MTU is 9000
+> 
+> 2. tar xjvf breaks the machine: Usually black-screens.
+> 
+> When untarring say, bzipped kernel source, though other tars have caused
+> this too, the system will get very slow, the untarring will stop, and
+> then about 2 - 5 mins later, everything stops. Sometimes this causes a
+> black screen, other times, it's just frozen with whatever's on the
+> screen. The system must be hard booted for it to recover, usually
+> needing to hold the power button down till forced power off too.(5
+> seconds)
+> 
+> I thought this might be memory related, so I umounted /dev/shm after a
+> reboot, and tried my untar test again. Usually I could untar 2 times
+> before the system entered the aforementioned state. I then tried
+> 2.4.20aa1, and got the same result. I then tried just 2.4.20 + XFS
+> patches, and now my system is actually faster at most things than it was
+> prior. I'm not sure why.
+> 
+> The system mentioned in #2 is an AMD Athlon-C with 512MB RAM two HDDs a
+> CDRW and a DVD-ROM drive. It is 100% XFS and LVM is used for 5 volumes,
+> but not / .
+> 
+> Any help with this would be greatly appreciated.
+> 
+-- 
+GrandMasterLee <masterlee@digitalroadkill.net>

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130196AbRCGFFW>; Wed, 7 Mar 2001 00:05:22 -0500
+	id <S130209AbRCGFUY>; Wed, 7 Mar 2001 00:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130138AbRCGFFM>; Wed, 7 Mar 2001 00:05:12 -0500
-Received: from rmx614-mta.mail.com ([165.251.48.52]:52975 "EHLO
-	rmx614-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S130130AbRCGFFE>; Wed, 7 Mar 2001 00:05:04 -0500
-Message-ID: <381411025.983941453617.JavaMail.root@web124-wra.mail.com>
-Date: Wed, 7 Mar 2001 00:04:08 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.2-ac13 make modules_install error
-CC: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.246.36
+	id <S130225AbRCGFUO>; Wed, 7 Mar 2001 00:20:14 -0500
+Received: from servo.isi.edu ([128.9.160.111]:18695 "EHLO servo.isi.edu")
+	by vger.kernel.org with ESMTP id <S130209AbRCGFUK>;
+	Wed, 7 Mar 2001 00:20:10 -0500
+Message-Id: <200103070519.f275JSw05855@servo.isi.edu>
+To: linux-kernel@vger.kernel.org
+cc: jelson@circlemud.org
+Subject: Mapping a piece of one process' addrspace to another?
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <5852.983942368.1@servo.isi.edu>
+Date: Tue, 06 Mar 2001 21:19:28 -0800
+From: Jeremy Elson <jelson@circlemud.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   While 'make modules_install' on 2.4.2-ac13, I receive the following error:
+Greetings,
 
-make -C kernel modules_install
-make[1]: Entering directory '/usr/src/linux/kernel'
-make[1]: Nothing to be done for 'modules_install'.
-..
-make -C drivers modules_install
-make[1]: Entering directory ;/usr/src/linux/drivers'
-make -C arm modules_install
-make[2]: Entering directory '/usr/src/linux/drivers/atm'
-mkdir -p /lib/modules/2.4.2-ac13/kernel/$(shell ($CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
-/bin/sh: CONFIG_SHELL: command not found
-/bin/sh: TOPDIR: command not found
-....
+Is there some way to map a piece of process X's address space into
+process Y, without X's knowledge or cooperation?  (The non-cooperating
+nature of process X is why I can't use plain old shared memory.)
 
-All previous steps appeared to work without any problems, and I performed a 'make mrproper'. The build worked in 2.4.2-ac11 . Any suggestions?
+Put another way, I need to grant Process Y permission to write into a
+private buffer owned by process X.  X doesn't know this is happening,
+and I don't know where X's buffer even lives (X's stack, heap, etc.).
+X just passes a pointer to the kernel via a system call (e.g., like
+sys_read).
+
+In the system I currently have implemented, Y writes a buffer to the
+kernel, and the kernel relays it to X on behalf of Y.  But, for
+performance reasons, I want to try to get Y to write its data directly
+to X instead.  X might be any process calling read() (e.g., "cat"),
+but Y is in collusion with the kernel.
+
+If this is possible at all, is it also possible on a granularity down
+to one byte (as opposed to an entire page)?
+
+Sorry if this seems like a strange thing to do - but, I hope to
+document and release my code soon, in which case its purpose should be
+clearer :-).
 
 Regards,
-Frank
-
-
+Jeremy

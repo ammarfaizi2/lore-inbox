@@ -1,177 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbTJFFdi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 01:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263988AbTJFFdh
+	id S263985AbTJFF3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 01:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTJFF3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 01:33:37 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38162
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263998AbTJFFb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 01:31:59 -0400
-Date: Sun, 5 Oct 2003 22:29:40 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Devin Henderson <linux@devhen.com>
-cc: Pauli Borodulin <boro@fixel.org>, linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 DMA? (2.6.0-test6)
-In-Reply-To: <3F80D5BC.4040004@devhen.com>
-Message-ID: <Pine.LNX.4.10.10310052225350.21746-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Oct 2003 01:29:32 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:49609 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263987AbTJFF3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 01:29:21 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH][v850]  Move `ptrinfo' function from mm/slab.c to mm/memory.c
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20031006052905.2481A3732@mcspd15.ucom.lsi.nec.co.jp>
+Date: Mon,  6 Oct 2003 14:29:05 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please apply.
 
-I have a scheduled fix prepared for release and review by SiI monday
-morning 9AM Pacific time.  Once it is cleared by SiI, it will be released
-out to the masses.
+This function doesn't compile on non-MMU systems, so put it in a place
+where it won't cause problems (mm/memory.c is only compiled if
+CONFIG_MMU is defined).
 
-I can only chortle over the issue of how attempts to replace me, and me
-trying to escape the indenture servant slave of maintainership yet still
-bound after nearly 6 years.
-
-Will attempt to address the mod15b phy issues
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sun, 5 Oct 2003, Devin Henderson wrote:
-
-> Pauli Borodulin wrote:
-> 
-> >> On Sun, Oct 05, 2003 at 11:50:29AM +0200, Jurgen Kramer wrote:
-> >>
-> >>> I am currently running 2.6.0-test6 on an old PII which has a SiI3112
-> >>> SATA PCI card in one of its PCI slots. It seems that the SiI3112 is not
-> >>> using DMA so now it is even running slower then the onboard PIIX4 IDE
-> >>> controller.
-> >>>
-> >>> Is DMA supported on the Si3112? DMA is not being enabled by the SiI3112
-> >>> card's BIOS (this is a cheap PCI card):
-> >>
-> > >> [...]
-> >
-> > Hugo Mills wrote:
-> >
-> >>    I get this, too, on 2.4.22-ac2, and I've had someone else tell me
-> >> about the same issue with their card (don't know what kernel he's
-> >> running).
-> >
-> > > [...]
-> >
-> > Same problems here. My kernel version is 2.4.22, but more important is 
-> > that the driver version is 1.06. My card is manufactured by "VScom" 
-> > and it looks almost identical compared to the evaluation card made my 
-> > Silicon Image.
-> >
-> > Here are my snippets:
-> >
-> > dmesg:
-> > [snip]
-> > SiI3112 Serial ATA: IDE controller at PCI slot 00:09.0
-> > PCI: Found IRQ 11 for device 00:09.0
-> > SiI3112 Serial ATA: chipset revision 1
-> > SiI3112 Serial ATA: not 100% native mode: will probe irqs later
-> > ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-> > ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
-> > hde: Maxtor 6Y120M0, ATA DISK drive
-> > blk: queue c03426a8, I/O limit 4095Mb (mask 0xffffffff)
-> > hdg: Maxtor 6Y120M0, ATA DISK drive
-> > blk: queue c0342afc, I/O limit 4095Mb (mask 0xffffffff)
-> > [/snip]
-> >
-> > server:/var/log# cat /proc/ide/siimage
-> > Controller: 0
-> > SiI3112 Chipset.
-> > MMIO Base 0xec003000
-> > MMIO-DMA Base 0xec003000
-> > MMIO-DMA Base 0xec003008
-> >
-> > server:/var/log# hdparm /dev/hde
-> >
-> > /dev/hde:
-> >  multcount    = 16 (on)
-> >  IO_support   =  0 (default 16-bit)
-> >  unmaskirq    =  0 (off)
-> >  using_dma    =  1 (on)
-> >  keepsettings =  0 (off)
-> >  readonly     =  0 (off)
-> >  readahead    =  8 (on)
-> >  geometry     = 238216/16/63, sectors = 240121728, start = 0
-> >
-> > server:/var/log# hdparm -I /dev/hde
-> >
-> > [snip]
-> > /dev/hde:
-> >
-> > ATA device, with non-removable media
-> >     Model Number:       Maxtor 6Y120M0
-> >     Serial Number:      Y3JZGQYE
-> >     Firmware Revision:  YAR51BW0
-> > Standards:
-> >     Supported: 7 6 5 4
-> >     Likely used: 7
-> > Configuration:
-> >     Logical         max     current
-> >     cylinders       16383   16383
-> >     heads           16      16
-> >     sectors/track   63      63
-> >     --
-> >     CHS current addressable sectors:   16514064
-> >     LBA    user addressable sectors:  240121728
-> >     device size with M = 1024*1024:      117246 MBytes
-> >     device size with M = 1000*1000:      122942 MBytes (122 GB)
-> > Capabilities:
-> >     LBA, IORDY(can be disabled)
-> >     Queue depth: 1
-> >     Standby timer values: spec'd by Standard, no device specific minimum
-> >     R/W multiple sector transfer: Max = 16  Current = 16
-> >     Advanced power management level: unknown setting (0x0000)
-> >     Recommended acoustic management value: 192, current value: 254
-> >     DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
-> >          Cycle time: min=120ns recommended=120ns
-> >     PIO: pio0 pio1 pio2 pio3 pio4
-> >          Cycle time: no flow control=120ns  IORDY flow control=120ns
-> > [/snip]
-> >
-> > server:/var/log# hdparm -i /dev/hde
-> >
-> > /dev/hde:
-> >
-> >  Model=Maxtor 6Y120M0, FwRev=YAR51BW0, SerialNo=Y3JZGQYE
-> >  Config={ Fixed }
-> >  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
-> >  BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=16
-> >  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
-> >  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
-> >  PIO modes:  pio0 pio1 pio2 pio3 pio4
-> >  DMA modes:  mdma0 mdma1 mdma2
-> >  UDMA modes: udma0 udma1 udma2
-> >  AdvancedPM=yes: disabled (255) WriteCache=enabled
-> >  Drive conforms to: (null):  1 2 3 4 5 6 7
-> >
-> >
-> > Oh, and running 'hdparm -X[anything here] -d1 -c1 -K1' makes my system 
-> > get stuck and I have to reset.
-> >
-> I'm having the same problems and I'm using the ol' 2.4.20-20.9 kernel 
-> with RH 9. I had to give up on my Serial to IDE convertor so now I'm 
-> using IDE again (I couldn't stand the 1.3 MB/sec transfer rate with the 
-> SiI3112 so I reinstalled using IDE). Anyway, I too am looking for a fix 
-> for this but it looks to me like very little if anything has changed 
-> since 2.4.x. My system also crashes (to say the least! I lose all access 
-> to my HD) when I try hdparm -X66 -d1 /dev/hdg.
-> 
-> -- 
-> Devin
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+diff -ruN -X../cludes linux-2.6.0-test6-moo/mm/memory.c linux-2.6.0-test6-moo-v850-20031006/mm/memory.c
+--- linux-2.6.0-test6-moo/mm/memory.c	2003-09-29 13:19:22.000000000 +0900
++++ linux-2.6.0-test6-moo-v850-20031006/mm/memory.c	2003-10-06 14:07:08.000000000 +0900
+@@ -1685,3 +1685,76 @@
+ 	}
+ 	return page;
+ }
++
++void ptrinfo(unsigned long addr)
++{
++	struct page *page;
++
++	printk("Dumping data about address %p.\n", (void*)addr);
++	if (!virt_addr_valid((void*)addr)) {
++		printk("virt addr invalid.\n");
++		return;
++	}
++	do {
++		pgd_t *pgd = pgd_offset_k(addr);
++		pmd_t *pmd;
++		if (pgd_none(*pgd)) {
++			printk("No pgd.\n");
++			break;
++		}
++		pmd = pmd_offset(pgd, addr);
++		if (pmd_none(*pmd)) {
++			printk("No pmd.\n");
++			break;
++		}
++#ifdef CONFIG_X86
++		if (pmd_large(*pmd)) {
++			printk("Large page.\n");
++			break;
++		}
++#endif
++		printk("normal page, pte_val 0x%llx\n",
++		  (unsigned long long)pte_val(*pte_offset_kernel(pmd, addr)));
++	} while(0);
++
++	page = virt_to_page((void*)addr);
++	printk("struct page at %p, flags %lxh.\n", page, page->flags);
++	if (PageSlab(page)) {
++		kmem_cache_t *c;
++		struct slab *s;
++		unsigned long flags;
++		int objnr;
++		void *objp;
++
++		c = GET_PAGE_CACHE(page);
++		printk("belongs to cache %s.\n",c->name);
++
++		spin_lock_irqsave(&c->spinlock, flags);
++		s = GET_PAGE_SLAB(page);
++		printk("slabp %p with %d inuse objects (from %d).\n",
++			s, s->inuse, c->num);
++		check_slabp(c,s);
++
++		objnr = (addr-(unsigned long)s->s_mem)/c->objsize;
++		objp = s->s_mem+c->objsize*objnr;
++		printk("points into object no %d, starting at %p, len %d.\n",
++			objnr, objp, c->objsize);
++		if (objnr >= c->num) {
++			printk("Bad obj number.\n");
++		} else {
++			kernel_map_pages(virt_to_page(objp),
++					c->objsize/PAGE_SIZE, 1);
++
++			if (c->flags & SLAB_RED_ZONE)
++				printk("redzone: 0x%lx/0x%lx.\n",
++					*dbg_redzone1(c, objp),
++					*dbg_redzone2(c, objp));
++
++			if (c->flags & SLAB_STORE_USER)
++				printk("Last user: %p.\n",
++					*dbg_userword(c, objp));
++		}
++		spin_unlock_irqrestore(&c->spinlock, flags);
++
++	}
++}
+diff -ruN -X../cludes linux-2.6.0-test6-moo/mm/slab.c linux-2.6.0-test6-moo-v850-20031006/mm/slab.c
+--- linux-2.6.0-test6-moo/mm/slab.c	2003-09-29 13:19:22.000000000 +0900
++++ linux-2.6.0-test6-moo-v850-20031006/mm/slab.c	2003-10-03 16:53:56.000000000 +0900
+@@ -2739,76 +2739,3 @@
+ 
+ 	return size;
+ }
+-
+-void ptrinfo(unsigned long addr)
+-{
+-	struct page *page;
+-
+-	printk("Dumping data about address %p.\n", (void*)addr);
+-	if (!virt_addr_valid((void*)addr)) {
+-		printk("virt addr invalid.\n");
+-		return;
+-	}
+-	do {
+-		pgd_t *pgd = pgd_offset_k(addr);
+-		pmd_t *pmd;
+-		if (pgd_none(*pgd)) {
+-			printk("No pgd.\n");
+-			break;
+-		}
+-		pmd = pmd_offset(pgd, addr);
+-		if (pmd_none(*pmd)) {
+-			printk("No pmd.\n");
+-			break;
+-		}
+-#ifdef CONFIG_X86
+-		if (pmd_large(*pmd)) {
+-			printk("Large page.\n");
+-			break;
+-		}
+-#endif
+-		printk("normal page, pte_val 0x%llx\n",
+-		  (unsigned long long)pte_val(*pte_offset_kernel(pmd, addr)));
+-	} while(0);
+-
+-	page = virt_to_page((void*)addr);
+-	printk("struct page at %p, flags %lxh.\n", page, page->flags);
+-	if (PageSlab(page)) {
+-		kmem_cache_t *c;
+-		struct slab *s;
+-		unsigned long flags;
+-		int objnr;
+-		void *objp;
+-
+-		c = GET_PAGE_CACHE(page);
+-		printk("belongs to cache %s.\n",c->name);
+-
+-		spin_lock_irqsave(&c->spinlock, flags);
+-		s = GET_PAGE_SLAB(page);
+-		printk("slabp %p with %d inuse objects (from %d).\n",
+-			s, s->inuse, c->num);
+-		check_slabp(c,s);
+-
+-		objnr = (addr-(unsigned long)s->s_mem)/c->objsize;
+-		objp = s->s_mem+c->objsize*objnr;
+-		printk("points into object no %d, starting at %p, len %d.\n",
+-			objnr, objp, c->objsize);
+-		if (objnr >= c->num) {
+-			printk("Bad obj number.\n");
+-		} else {
+-			kernel_map_pages(virt_to_page(objp),
+-					c->objsize/PAGE_SIZE, 1);
+-
+-			if (c->flags & SLAB_RED_ZONE)
+-				printk("redzone: 0x%lx/0x%lx.\n",
+-					*dbg_redzone1(c, objp),
+-					*dbg_redzone2(c, objp));
+-
+-			if (c->flags & SLAB_STORE_USER)
+-				printk("Last user: %p.\n",
+-					*dbg_userword(c, objp));
+-		}
+-		spin_unlock_irqrestore(&c->spinlock, flags);
+-
+-	}
+-}

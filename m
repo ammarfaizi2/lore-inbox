@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279556AbRKAS5C>; Thu, 1 Nov 2001 13:57:02 -0500
+	id <S279575AbRKATBm>; Thu, 1 Nov 2001 14:01:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279561AbRKAS4x>; Thu, 1 Nov 2001 13:56:53 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:52744 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S279556AbRKAS4r>;
-	Thu, 1 Nov 2001 13:56:47 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111011856.VAA27068@ms2.inr.ac.ru>
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-To: ak@suse.de (Andi Kleen)
-Date: Thu, 1 Nov 2001 21:56:34 +0300 (MSK)
-Cc: ak@suse.de, joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20011101192153.A30903@wotan.suse.de> from "Andi Kleen" at Nov 1, 1 07:21:53 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S279561AbRKATBd>; Thu, 1 Nov 2001 14:01:33 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6385
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279566AbRKATBW>; Thu, 1 Nov 2001 14:01:22 -0500
+Date: Thu, 1 Nov 2001 11:01:16 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Cached b0rked in 2.4.14-pre6
+Message-ID: <20011101110116.A31193@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-> When you e.g. have a TCP sniffer it makes sense to only bind it to ETH_P_IP.
+My cached has been decremented a few too many times on 2.4.14-pre6.  Right
+now it's listing cached as "7516", but it was at 4GB not very long ago...
 
-For what purpose? To add a small underdeveloped copy of BPF?
+I know that Rik has posted a patch against 2.4.13-ac, but I don't know if
+it's meant for 2.4.14-pre6 also...
 
-If it was an optimization I would understand this of course.
-But you propose deoptimization. :-)
+I've seen another report of the same thing against 2.4.13 and 2.4.13-ac.
+Here are the two kernels that I have seen this on (because I haven't tried
+any inbetween):
+vmlinuz-2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
+vmlinuz-2.4.14-pre6+preempt+netdev_random+ext3_0.9.14-2414p5
 
+I'm running the bottom one now with seven hours uptime...
 
-> Do you worry about the handling of hundreds of packet sockets? 
-
-I worry about _one_ packet socket, which implements a protocol
-in user space. And only about this. It is what packet sockets
-are used for.
-
-And I do want to see any refs to it in irrelevant place, which output path is.
-
-To summarize: I wanted to see a patch allowing to detect that
-nobody listens on outpu (or even splitting input and output ptype_all.)
-So that it becomes possible to use ETH_P_ALL to listen
-for all frames, but not to abuse output path.
-
-Opposite is just non-sense with no applications.
-
-Alexey
+Mike

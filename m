@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbUJ0U3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbUJ0U7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbUJ0U3H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbUJ0U27
+	id S262695AbUJ0U7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUJ0U6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:28:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17631 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262677AbUJ0U2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:28:12 -0400
-Date: Wed, 27 Oct 2004 13:27:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "l_linux-kernel@mail2news.4t2.com" <ThomasWeber@abyss.4t2.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-In-Reply-To: <20041027200805.GA17759@4t2.com>
-Message-ID: <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
-References: <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com>
- <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <20041027200805.GA17759@4t2.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Oct 2004 16:58:41 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:31497 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262695AbUJ0UzO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:55:14 -0400
+Date: Wed, 27 Oct 2004 13:54:45 -0700
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041027205445.GB24732@nietzsche.lynx.com>
+References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com> <20041027150548.GA11233@elte.hu> <20041027204935.GA24732@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027204935.GA24732@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 27 Oct 2004, l_linux-kernel@mail2news.4t2.com wrote:
-> > 
-> > which is a hell of a lot more descriptive, in my opinion.
+On Wed, Oct 27, 2004 at 01:49:35PM -0700, Bill Huey wrote:
+> I've got a latency/histogram patch here, but I've been having problems
+> trying to integrate it into Ingo's irq-threads and getting that simple
+> subtraction returning something sensible. The basic logic works otherwise.
 > 
-> Indeed. But you hide this kind of information very carefully.
-> Announcing with a subject like this one isn't very descriptive.
+> Maybe another pair of eyes can figure this out, since I could have missed
+> something pretty simple...
 
-But that _wasn't_ in this idiotic thread.
+It was originally mean to go in between the irq-thread wake attempt and
+the actual running of the thread body itself. Somehow this is breaking
+in my effort to integrate this logic into Ingo's (your) stuff. Brain
+farting severely right now.
 
-The subject line of my announcement was
+bill
 
-	Subject: Linux 2.6.9-rc4 - pls test (and no more patches)
-
-and the body was
-
-	Ok, 
-	 trying to make ready for the real 2.6.9 in a week or so, so please give
-	this a beating, and if you have pending patches, please hold on to them
-	for a bit longer, until after the 2.6.9 release. It would be good to have
-	a 2.6.9 that doesn't need a dot-release immediately ;)
-
-	The appended shortlog gives a pretty good idea of what has been going on. 
-	Mostly small stuff, with some architecture updates and an ACPI update 
-	thrown in for good measure.
-
-(plus the shortlog).
-
-Not exactly "hidden", was it?
-
-And to everybody complaining about "-rcX" - people don't want to break 
-existing scripts, so the naming possibilities are either "-pre" or "-rc". 
-And we've used "-rc" for the whole 2.6.x series, so there had better be a 
-_good_ reason to change the naming.
-
-So far, nobody has had a good reason. People are just complaining, because 
-this is an area where you can complain without actually having any real 
-hard technical input. It's "easy" to have an opinion.
-
-So guys, look at the big picture. Is this really worth worrying over?
-
-		Linus

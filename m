@@ -1,123 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262587AbTCZWIi>; Wed, 26 Mar 2003 17:08:38 -0500
+	id <S262513AbTCZWQR>; Wed, 26 Mar 2003 17:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262595AbTCZWIh>; Wed, 26 Mar 2003 17:08:37 -0500
-Received: from sj-core-2.cisco.com ([171.71.177.254]:52904 "EHLO
-	sj-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S262587AbTCZWIA>; Wed, 26 Mar 2003 17:08:00 -0500
-Message-Id: <5.1.0.14.2.20030327091616.03a2ce60@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 27 Mar 2003 09:16:18 +1100
-To: Matt Mackall <mpm@selenic.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: [PATCH] ENBD for 2.5.64
-Cc: Jeff Garzik <jgarzik@pobox.com>, ptb@it.uc3m.es,
-       Justin Cormack <justin@street-vision.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
+	id <S262559AbTCZWQR>; Wed, 26 Mar 2003 17:16:17 -0500
+Received: from [12.47.58.223] ([12.47.58.223]:50996 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S262513AbTCZWQQ>; Wed, 26 Mar 2003 17:16:16 -0500
+Date: Wed, 26 Mar 2003 16:31:45 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swap 13/13 may_enter_fs?
+Message-Id: <20030326163145.22c90521.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303261649020.1315-100000@localhost.localdomain>
+References: <20030325171223.7a2c50ee.akpm@digeo.com>
+	<Pine.LNX.4.44.0303261649020.1315-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2003 22:27:22.0143 (UTC) FILETIME=[DE8A52F0:01C2F3E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:09 AM 26/03/2003 -0600, Matt Mackall wrote:
-> > >Indeed, there are iSCSI implementations that do multipath and
-> > >failover.
-> >
-> > iSCSI is a transport.
-> > logically, any "multipathing" and "failover" belongs in a layer above 
-> it --
-> > typically as a block-layer function -- and not as a transport-layer
-> > function.
-> >
-> > multipathing belongs elsewhere -- whether it be in MD, LVM, EVMS, 
-> DevMapper
-> > PowerPath, ...
+Hugh Dickins <hugh@veritas.com> wrote:
 >
->Funny then that I should be talking about Cisco's driver. :P
+> On Tue, 25 Mar 2003, Andrew Morton wrote:
+> > 
+> > For example, a memory-backed filesystem may be trying to allocate GFP_NOFS
+> > memory while holding filesystem locks which are taken by its writepage.
+> > 
+> > How about adding a new field to backing_dev_info for this case?  Damned if I
+> > can think of a name for it though.
+> 
+> I think you're overcomplicating it.  Of the existing memory_backed bdis
+> (ramdisk, hugetlbfs, ramfs, sysfs, tmpfs, swap) only two have non-NULL
+> writepage, and both of those two go (indirectly and directly) to swap
+> (and neither holds FS lock while waiting to allocate memory).
 
-:-)
+But this is a much nicer patch.  Thanks for doing all this btw.  I was
+barfing at ?:, not your code ;)
 
-see my previous email to Jeff.  iSCSI as a transport protocol does have a 
-muxing capability -- but its usefulness is somewhat limited (imho).
+> If we were looking for a correct solution, I don't think backing_dev_info
+> would be the right place: we're talking about GFP_ needed for writepage,
+> which should be specified in the struct address_space filled in by the
+> FS: I think it's more a limitation of the FS than its backing device.
 
->iSCSI inherently has more interesting reconnect logic than other block
->devices, so it's fairly trivial to throw in recognition of identical
->devices discovered on two or more iSCSI targets..
+Good point.
 
-what logic do you use to identify "identical devices"?
-same data reported from SCSI Report_LUNs?  or perhaps the same data 
-reported from a SCSI_Inquiry?
+> +			bdi = mapping->backing_dev_info;
+> +			if (bdi->swap_backed)
+> +				gfp_needed_for_writepage = __GFP_IO;
+> +			else
+> +				gfp_needed_for_writepage = __GFP_FS;
+> +			if (!(gfp_mask & gfp_needed_for_writepage))
 
-in reality, all multipathing software tends to use some blocks at the end 
-of the disk (just in the same way that most LVMs do also).
+This is inaccurate?  shmem_writepage() performs no IO and could/should be
+called even for GFP_NOIO allocations.
 
-for example, consider the following output from a set of two SCSI_Inquiry 
-and Report_LUNs on two paths to storage:
-         Lun Description Table
-         WWPN             Lun   Capacity Vendor       Product      Serial
-         ---------------- ----- -------- ------------ ------------ ------
-         Path A:
-         21000004cf8c21fb 0     16GB     HP 18.2G     ST318452FC   3EV0BD8E
-         21000004cf8c21c5 0     16GB     HP 18.2G     ST318452FC   3EV0KHHP
-         50060e8000009591 0     50GB     HITACHI      DF500F       DF500-00B
-         50060e8000009591 1     50GB     HITACHI      DF500F       DF500-00B
-         50060e8000009591 2     50GB     HITACHI      DF500F       DF500-00B
-         50060e8000009591 3     50GB     HITACHI      DF500F       DF500-00B
+It's probably not very important but if we're going to make a change it may
+as well be the right one.
 
-         Path B:
-         31000004cf8c21fb 0     16GB     HP 18.2G     ST318452FC   3EV0BD8E
-         31000004cf8c21c5 0     16GB     HP 18.2G     ST318452FC   3EV0KHHP
-         50060e8000009591 0     50GB     HITACHI      DF500F       DF500-00A
-         50060e8000009591 1     50GB     HITACHI      DF500F       DF500-00A
-         50060e8000009591 2     50GB     HITACHI      DF500F       DF500-00A
-         50060e8000009591 3     50GB     HITACHI      DF500F       DF500-00A
+Could you live with
 
+	if (bdi->has_special_writepage)
+		gfp_needed_for_writepage = bfi->gfp_needed_for_writepage;
 
-the "HP 18.2G" devices are 18G FC disks in a FC JBOD.  each disk will 
-report an identical Serial # regardless of the interface/path used to get 
-to that device.  no issues there right -- you can identify the disk as 
-being unique via its "Serial #" and can see the interface used to get to it 
-via its WWPN.
+?  So swap_backing_dev_info uses __GFP_IO and shmem_backing_dev_info() (which
+is competely atomic) uses zero?
 
-now, take a look at some disk from an intelligent disk array (in this case, 
-a HDS 9200).
-it reports a _different_ serial number for the same disk, dependent on the 
-interface used.  (DF500 is the model # of a HDS 9200, interfaces are 
-numbered 00A/00B/01A/01B).
+Yeah, it's a bit awkward.  I'm OK with the special-casing.  Both swap and
+tmpfs _are_ special, and unique.  Recognising that fact in vmscan.c is
+reasonable.  ->gfp_needed_for_writepage should probably be in the superblock,
+but that's just too far away.
 
-does one now need to add logic into the kernel to provide some multipathing 
-for HDS disks?
-does using linux mean that one had to change some settings on the HDS disk 
-array to get it to report different information via a SCSI_Inquiry?  (it 
-can - but thats not the point - the point is that any multipathing software 
-out there just 'works' right now).
+> -	int memory_backed;	/* Cannot clean pages with writepage */
+> +	unsigned int
+> +		memory_backed:1,/* Do not count its dirty pages in nr_dirty */
+> +		swap_backed:1;	/* Its memory_backed writepage goes to swap */
+>  };
 
-this is just one example.  i could probably find another 50 of 
-slightly-different-behavior if you wanted me to!
-
-> > >Both iSCSI and ENBD currently have issues with pending writes during
-> > >network outages. The current I/O layer fails to report failed writes
-> > >to fsync and friends.
-> >
-> > these are not "iSCSI" or "ENBD" issues.  these are issues with VFS.
->
->Except that the issue simply doesn't show up for anyone else, which is
->why it hasn't been fixed yet. Patches are in the works, but they need
->more testing:
->
->http://www.selenic.com/linux/write-error-propagation/
-
-oh, but it does show up for other people.  it may be that the issue doesn't 
-show up at fsync() time, but rather at close() time, or perhaps neither of 
-those!
-
-code looks interesting.  i'll take a look.
-hmm, must find out a way to intentionally introduce errors now and see what 
-happens!
-
-
-cheers,
-
-lincoln.
+Hard call.  It is a tradeoff between icache misses and dcache misses. 
+Obviously that is trivia in this case.
 

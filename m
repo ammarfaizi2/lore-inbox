@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282998AbRLQWwg>; Mon, 17 Dec 2001 17:52:36 -0500
+	id <S283048AbRLQXTn>; Mon, 17 Dec 2001 18:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283003AbRLQWw0>; Mon, 17 Dec 2001 17:52:26 -0500
-Received: from harddata.com ([216.123.194.198]:11529 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S282998AbRLQWwK>;
-	Mon, 17 Dec 2001 17:52:10 -0500
-Date: Mon, 17 Dec 2001 15:52:03 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rival <frival@zk3.dec.com>
-Subject: Re: 2.4.17-rc1 does not boot my Alphas
-Message-ID: <20011217155203.B14805@mail.harddata.com>
-In-Reply-To: <20011216160404.A2945@mail.harddata.com> <3C1D4871.82053E7A@zk3.dec.com> <20011216225013.A4984@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011216225013.A4984@mail.harddata.com>; from michal@harddata.com on Sun, Dec 16, 2001 at 10:50:13PM -0700
+	id <S283012AbRLQXTc>; Mon, 17 Dec 2001 18:19:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45838 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283048AbRLQXTY>; Mon, 17 Dec 2001 18:19:24 -0500
+Date: Mon, 17 Dec 2001 15:18:14 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.40.0112171508330.1577-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0112171516090.1891-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 16, 2001 at 10:50:13PM -0700, Michal Jaegermann wrote:
-> 
-> Tommorow I will try to graft 'arch/alpha' from 2.4.13-ac8 to 2.4.17rc1
-> just to see what will happen.
 
-Not much is left from these changes if one wants to stay within
-"reasonable and compilable". :-)  Anyway, even after this compiles my
-Nautilus boxes still do not boot nor show any inclinations to inform why
-they are unhappy.
+On Mon, 17 Dec 2001, Davide Libenzi wrote:
+> >
+> > You have to prioritize. Scheduling overhead is way down the list.
+>
+> You don't really have to serialize/prioritize, old Latins used to say
+> "Divide Et Impera" ;)
 
-At the very bottom of arch/alpha/kernel/setup.c one can find the
-following:
+Well, you explicitly _asked_ me why I had been silent on the issue. I told
+you.
 
-static int alpha_panic_event(struct notifier_block *this,
-                             unsigned long event,
-                             void *ptr)
-{
-#if 1
-        /* FIXME FIXME FIXME */
-        /* If we are using SRM and serial console, just hard halt here. */
-        if (alpha_using_srm && srmcons_output)
-                __halt();
-#endif
-        return NOTIFY_DONE;
-}
+I also told you that I thought it wasn't that big of a deal, and that
+patches already exist.
 
-After I changed "#if 1" to "#if 0" results were that most of the time,
-although not always, after aboot loader messages I was sooner or later
-quietly back at SRM prompt and yes - "srmcons" was given in boot flags.
-On some occasions an attempt to boot would simply lock up.  To be sure
-this was happening both with CONFIG_ALPHA_LEGACY_START_ADDRESS set
-and not set.
+So I'm letting the patches fight it out among the people who _do_ care.
 
-Anybody with some ideas where I should really look?
+Then, eventually, I'll do something about it, when we have a winner.
 
-  Michal
+If that isn't "Divide et Impera", I don't know _what_ is. Remember: the
+romans didn't much care for their subjects. They just wanted the glory,
+and the taxes.
+
+		Linus
+

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVBKGzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVBKG63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVBKGzl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 01:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVBKGzl
+	id S262203AbVBKG63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 01:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVBKG63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 01:55:41 -0500
-Received: from smtp.wp.pl ([212.77.101.1]:63799 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S262200AbVBKGzc (ORCPT
+	Fri, 11 Feb 2005 01:58:29 -0500
+Received: from waste.org ([216.27.176.166]:36562 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262203AbVBKG60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 01:55:32 -0500
-Date: Fri, 11 Feb 2005 07:55:15 +0100
-From: Marcin Kuk <marcin@laptek.servix>
-To: Philip Armstrong <phil@kantaka.co.uk>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: (fwd) Re: Bug#289770: kernel-image-2.6.10-1-686: 2.6.10 fails to set up DMA on my IBM thinkpad
-Message-ID: <20050211065514.GA628@laptek.servix>
-References: <20050111195345.GI2618@stro.at> <20050112120245.GA24839@kantaka.co.uk> <200501121352.33520.bzolnier@elka.pw.edu.pl> <20050210200201.GA28238@kantaka.co.uk>
+	Fri, 11 Feb 2005 01:58:26 -0500
+Date: Thu, 10 Feb 2005 22:57:53 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Chris Wright <chrisw@osdl.org>,
+       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.11-rc3-mm2
+Message-ID: <20050211065753.GE15058@waste.org>
+References: <420C25D6.6090807@bigpond.net.au> <200502110341.j1B3fS8o017685@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050210200201.GA28238@kantaka.co.uk>
-User-Agent: Mutt/1.4.2.1i
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=NO(0.563347) AS3=NO AS4=NO                          
+In-Reply-To: <200502110341.j1B3fS8o017685@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 08:02:01PM +0000, Philip Armstrong wrote:
-> On Wed, Jan 12, 2005 at 01:52:33PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On Wednesday 12 January 2005 13:02, Philip Armstrong wrote:
-> > > On Tue, Jan 11, 2005 at 08:53:45PM +0100, maximilian attems wrote:
-> > > > dma on a thinkpad  600E worked for 2.6.8, but didn't since 2.6.9
-> > > > also non working 2.6.10.
-> > > > 
-> > > > -hda: 12594960 sectors (6448 MB) w/460KiB Cache, CHS=13328/15/63, UDMA(33)
-> > > > +hda: 12594960 sectors (6448 MB) w/460KiB Cache, CHS=13328/15/63
-> > > > 
-> > > > could you please look at the following ide dma bug report for piix in
-> > > > debian -> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=289770
-> > > > full dmesg of both 2.6.8 and 2.6.10 are posted there.
-> > 
-> > "something" steals resource needed for IDE driver so no DMA
+On Thu, Feb 10, 2005 at 10:41:28PM -0500, Paul Davis wrote:
+>   [ the best solution is .... ]
 > 
-> Further investigation reveals that turning off CONFIG_PNPBIOS solves
-> the problem.
+>   [ my preferred solution is ... ]
 > 
-> With PNPBIOS set, the kernel seems to think that the io range is in
-> use regardless of whether quickboot is set in the BIOS or not.
+>   [ it would be better if ... ]
+> 
+>   [ this is a kludge and it should be done instead like ... ]
+> 
+> did nobody read what andrew wrote and what JOQ pointed out?
+> 
+> after weeks of debating this, no other conceptual solution emerged
+> that did not have at least as many problems as the RT LSM module, and
+> all other proposed solutions were also more invasive of other aspects
+> of kernel design and operations than RT LSM is.
 
-I have Toshiba Satellite 320CDT.
-I compiled 2.6.10 vanilla kernel with CONFIG_PNPBIOS disabled.
-All IDE drivers was compiled into the kernel.
-I can't still enable DMA for my harrddisk.
-This is my earlier crying:
+Eh? Chris Wright's original rlimits patch was very straightforward
+(unlike some of the other rlimit-like patches that followed).
+I haven't heard the downsides of it yet.
 
-http://marc.theaimsgroup.com/?t=110789166000004&r=1&w=2
+simple rlimits:
+ logical extension of standard, flexible interface
+ fine-grained per-process access to nice levels and priorities
+ managed with standard tools
+ fairly broad possible applications
+ clean enough to be added unconditionally
+ already doing mlock this way!
 
-What can I do?
-
-Best regards
+RT LSM:
+ new, narrow magic group interface (module parameters!)
+ boolean granularity of access to all RT levels and maybe mlock
+ potential interesting interaction with other LSMs
+ not orthogonal to mlock
+ not appropriate for every box out there
+ requires lsm and (sysfs or modprobe)
 
 -- 
-Marcin Kuk
+Mathematics is the supreme nostalgia of our time.

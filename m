@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269109AbUHZQgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269166AbUHZQko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269109AbUHZQgd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 12:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUHZQgX
+	id S269166AbUHZQko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 12:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269188AbUHZQkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 12:36:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48297 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269185AbUHZQ2O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 12:28:14 -0400
-Date: Thu, 26 Aug 2004 09:17:22 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Cc: markb@wetlettuce.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1: ip auto-config accepts wrong packages
-Message-Id: <20040826091722.54a0cc72.rddunlap@osdl.org>
-In-Reply-To: <412DBBF0.3090107@bio.ifi.lmu.de>
-References: <412C5E80.8050603@bio.ifi.lmu.de>
-	<1093439062.25506.12.camel@mbpc.signal.qinetiq.com>
-	<412CA518.7090109@bio.ifi.lmu.de>
-	<1093448839.25506.57.camel@mbpc.signal.qinetiq.com>
-	<412DBBF0.3090107@bio.ifi.lmu.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 12:40:22 -0400
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:49338 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269166AbUHZQiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 12:38:17 -0400
+Message-ID: <412E11ED.7040300@kolivas.org>
+Date: Fri, 27 Aug 2004 02:38:05 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl>
+In-Reply-To: <200408261636.06857.rjw@sisk.pl>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3A75C81C3BC9A176A5ED83B6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004 12:31:12 +0200 Frank Steiner wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3A75C81C3BC9A176A5ED83B6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-| Hi Mark,
-| 
-| in addition to the DEBUG flags I added two little debugging lines to make
-| sure the right code is executed.
-| 
-| ipconfig.c:
-| 			if (able & IC_BOOTP){
-| 			  DBG(("calling get_random_btyes"));
-| 				get_random_bytes(&d->xid, sizeof(u32));
-| 
-| random.c:
-| 
-| 	void get_random_bytes(void *buf, int nbytes)
-| 	{
-| 	  DEBUG_ENT("get_random_bytes entered\n");
-| 	  if (sec_random_state) {
-| 	    DEBUG_ENT("sec_random_state\n");
-| 	    extract_entropy(sec_random_state, (char *) buf, nbytes,
-| 			    EXTRACT_ENTROPY_SECONDARY);
-| 	  }
-| 
-| 
-| And here is the output from boot.msg:
-| 
-| 
-| <4>IP-Config: Entered.
-| <4>calling get_random_btyes<7>random: get_random_bytes entered
-| <7>random: sec_random_state
-| <7>random: 0000 0000 : going to reseed secondary with 64 bits (32 of 0 requested)
-| <7>random: 0000 0000 : trying to extract 64 bits from primary
-| <7>random: 0000 0000 : debiting 0 bits from primary
-| <7>random: 0000 0000 : trying to extract 32 bits from secondary
-| <7>random: 0000 0000 : debiting 32 bits from secondary (unlimited)
-| <4>IP-Config: eth0 UP (able=1, xid=07196018)
-| <5>Sending BOOTP requests .<7>random: get_random_bytes entered
-| <7>random: sec_random_state
-| <7>random: 0000 0000 : going to reseed secondary with 64 bits (32 of 0 requested)
-| <7>random: 0000 0000 : trying to extract 64 bits from primary
-| <7>random: 0000 0000 : debiting 0 bits from primary
-| <7>random: 0000 0000 : trying to extract 32 bits from secondary
-| <7>random: 0000 0000 : debiting 32 bits from secondary (unlimited)
-| <6>tg3: eth0: Link is up at 100 Mbps, full duplex.
-| <6>tg3: eth0: Flow control is on for TX and on for RX.
-| <4>.DHCP/BOOTP: Got extension 1: ff ff ff 80
-| <4>DHCP/BOOTP: Got extension 3: 8d 54 01 82
-| <4>DHCP/BOOTP: Got extension 6: 81 bb d6 87
-| <4>DHCP/BOOTP: Got extension 17: 2f
-| <4>DHCP/BOOTP: Got extension 28: 8d 54 01 ff
-| <4>DHCP/BOOTP: Got extension 15: 62 69 6f 2e 69 66 69 2e 6c 6d 75 2e 64 65
-| <4> OK
-| <4>IP-Config: Got BOOTP answer from 141.84.1.132, my address is 141.84.1.167
-| ...
-| 
-| So it looks like the code is executed, but the xid is always the
-| same. Just like the random module would not create a random number
-| but a constant :-) I'm not good enough in C to really understand
-| and further debug the code in random.c or ipconfig.c :-((
+Rafael J. Wysocki wrote:
+> On Thursday 26 of August 2004 13:07, Con Kolivas wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2
+>>>.6.9-rc1-mm1/
+>>>
+>>>
+>>>- nicksched is still here.  There has been very little feedback, except
+>>>that it seems to slow some workloads on NUMA.
+>>
+>>That's because most people aren't interested in a new cpu scheduler for
+>>2.6.
+> 
+> 
+> I am, but I have no benchmarks that give any useful numbers.
 
-Maybe fixed by
-http://linux.bkbits.net:8080/linux-2.5/cset@412a4a00MfXRfzWB5kTFo9NXM1Q3hw?nav=index.html|ChangeSet@-7d
+That's because there are none for interactivity; you're simply 
+reinforcing my point.
 
-i.e., fix is already merged, I think.
+>>The current one works well enough in most situations and people
+>>aren't trying -mm to fix their interactive problems since they are few
+>>and far between.
+> 
+> 
+> Actually, with the current scheduler, updatedb really sucks.  It's supposed to 
+> be a background task, but it hogs IO resources and memory like crazy 
+> (disclaimer: it's my personal subjective observation).
 
---
-~Randy
+The cpu scheduler plays almost no part in this. It's the I/O scheduler 
+and the vm. IOnice will help the former _when it comes out_. Dropping 
+the swappiness kind of helps the latter; although there are numerous 
+alternative tweaks appearing for that too.
+
+Cheers,
+Con
+
+--------------enig3A75C81C3BC9A176A5ED83B6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBLhHtZUg7+tp6mRURAnNeAJkBC3WLSdSmER8cCKXO/F1cyrZhogCdELbj
+0MgXD65k5fAqUqn/9/Msm4g=
+=1d3E
+-----END PGP SIGNATURE-----
+
+--------------enig3A75C81C3BC9A176A5ED83B6--

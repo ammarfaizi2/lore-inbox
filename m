@@ -1,136 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbUDMJPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 05:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUDMJPk
+	id S263364AbUDMJTD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 05:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbUDMJTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 05:15:40 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:6318 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263171AbUDMJPa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 05:15:30 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Greg KH <greg@kroah.com>
-Subject: [PATCH 2/3] USB speedtouch: fix memory leak in error path
-Date: Tue, 13 Apr 2004 11:15:25 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sf.net, linux-kernel@vger.kernel.org
+	Tue, 13 Apr 2004 05:19:02 -0400
+Received: from ozlabs.org ([203.10.76.45]:59281 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263370AbUDMJS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 05:18:59 -0400
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404131115.25784.baldrick@free.fr>
+Message-ID: <16507.45195.148525.945019@cargo.ozlabs.ibm.com>
+Date: Tue, 13 Apr 2004 19:19:07 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: boutcher@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix ibmveth.c compilation
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, this patch fixes a memory leak in the speedtouch driver.
-The leak occurs when the ATM layer submits a skbuff for transmission,
-but the driver rejects it (because the device has been unplugged for
-example).  The ATM layer requires the driver to free the skbuff in this
-case.  The patch is against your 2.6 kernel tree.
+This patch changes PCI_DMA_TODEVICE to DMA_TO_DEVICE in a couple of
+places in drivers/net/ibmveth.c, since it doesn't compile without this
+change and it does compile with it.  It also reformats a couple of
+over-long lines in the vicinity of the other changes.
 
- speedtch.c |   42 +++++++++++++++++++++++++++---------------
- 1 files changed, 27 insertions(+), 15 deletions(-)
+Please apply.
 
+Thanks,
+Paul.
 
-diff -Nru a/drivers/usb/misc/speedtch.c b/drivers/usb/misc/speedtch.c
---- a/drivers/usb/misc/speedtch.c	Tue Apr 13 10:57:43 2004
-+++ b/drivers/usb/misc/speedtch.c	Tue Apr 13 10:57:43 2004
-@@ -299,6 +299,19 @@
- };
+diff -urN linux-2.5/drivers/net/ibmveth.c test25/drivers/net/ibmveth.c
+--- linux-2.5/drivers/net/ibmveth.c	2004-04-13 09:25:10.027576720 +1000
++++ test25/drivers/net/ibmveth.c	2004-04-13 18:37:04.966522224 +1000
+@@ -641,7 +641,8 @@
  
+ 	/* map the initial fragment */
+ 	desc[0].fields.length  = nfrags ? skb->len - skb->data_len : skb->len;
+-	desc[0].fields.address = vio_map_single(adapter->vdev, skb->data, desc[0].fields.length, PCI_DMA_TODEVICE);
++	desc[0].fields.address = vio_map_single(adapter->vdev, skb->data,
++					desc[0].fields.length, DMA_TO_DEVICE);
+ 	desc[0].fields.valid   = 1;
  
-+/***********
-+**  misc  **
-+***********/
-+
-+static inline void udsl_pop (struct atm_vcc *vcc, struct sk_buff *skb)
-+{
-+	if (vcc->pop)
-+		vcc->pop (vcc, skb);
-+	else
-+		dev_kfree_skb (skb);
-+}
-+
-+
- /*************
- **  decode  **
- *************/
-@@ -720,10 +733,7 @@
- 	if (!UDSL_SKB (skb)->num_cells) {
- 		struct atm_vcc *vcc = UDSL_SKB (skb)->atm_data.vcc;
- 
--		if (vcc->pop)
--			vcc->pop (vcc, skb);
--		else
--			dev_kfree_skb (skb);
-+		udsl_pop (vcc, skb);
- 		instance->current_skb = NULL;
- 
- 		atomic_inc (&vcc->stats->tx);
-@@ -742,10 +752,7 @@
- 		if (UDSL_SKB (skb)->atm_data.vcc == vcc) {
- 			dbg ("udsl_cancel_send: popping skb 0x%p", skb);
- 			__skb_unlink (skb, &instance->sndqueue);
--			if (vcc->pop)
--				vcc->pop (vcc, skb);
--			else
--				dev_kfree_skb (skb);
-+			udsl_pop (vcc, skb);
- 		}
- 	spin_unlock_irq (&instance->sndqueue.lock);
- 
-@@ -753,10 +760,7 @@
- 	if ((skb = instance->current_skb) && (UDSL_SKB (skb)->atm_data.vcc == vcc)) {
- 		dbg ("udsl_cancel_send: popping current skb (0x%p)", skb);
- 		instance->current_skb = NULL;
--		if (vcc->pop)
--			vcc->pop (vcc, skb);
--		else
--			dev_kfree_skb (skb);
-+		udsl_pop (vcc, skb);
- 	}
- 	tasklet_enable (&instance->send_tasklet);
- 	dbg ("udsl_cancel_send done");
-@@ -765,22 +769,26 @@
- static int udsl_atm_send (struct atm_vcc *vcc, struct sk_buff *skb)
- {
- 	struct udsl_instance_data *instance = vcc->dev->dev_data;
-+	int err;
- 
- 	vdbg ("udsl_atm_send called (skb 0x%p, len %u)", skb, skb->len);
- 
- 	if (!instance || !instance->usb_dev) {
- 		dbg ("udsl_atm_send: NULL data!");
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto fail;
- 	}
- 
- 	if (vcc->qos.aal != ATM_AAL5) {
- 		dbg ("udsl_atm_send: unsupported ATM type %d!", vcc->qos.aal);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto fail;
- 	}
- 
- 	if (skb->len > ATM_MAX_AAL5_PDU) {
- 		dbg ("udsl_atm_send: packet too long (%d vs %d)!", skb->len, ATM_MAX_AAL5_PDU);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto fail;
- 	}
- 
- 	PACKETDEBUG (skb->data, skb->len);
-@@ -790,6 +798,10 @@
- 	tasklet_schedule (&instance->send_tasklet);
- 
- 	return 0;
-+
-+fail:
-+	udsl_pop (vcc, skb);
-+	return err;
- }
- 
+ 	if(dma_mapping_error(desc[0].fields.address)) {
+@@ -657,9 +658,10 @@
+ 	/* map fragments past the initial portion if there are any */
+ 	while(curfrag--) {
+ 		skb_frag_t *frag = &skb_shinfo(skb)->frags[curfrag];
+-		desc[curfrag+1].fields.address = vio_map_single(adapter->vdev,
+-								page_address(frag->page) + frag->page_offset,
+-								frag->size, PCI_DMA_TODEVICE);
++		desc[curfrag+1].fields.address
++			= vio_map_single(adapter->vdev,
++				page_address(frag->page) + frag->page_offset,
++				frag->size, DMA_TO_DEVICE);
+ 		desc[curfrag+1].fields.length = frag->size;
+ 		desc[curfrag+1].fields.valid  = 1;
  

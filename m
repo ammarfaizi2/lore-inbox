@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312962AbSFQNJb>; Mon, 17 Jun 2002 09:09:31 -0400
+	id <S313087AbSFQNOn>; Mon, 17 Jun 2002 09:14:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSFQNJa>; Mon, 17 Jun 2002 09:09:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9346 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S312962AbSFQNJa>; Mon, 17 Jun 2002 09:09:30 -0400
-Date: Mon, 17 Jun 2002 09:11:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: binary compatibity (mixing different gcc versions) in modules
-In-Reply-To: <7w3cvmdquu.fsf@avalon.france.sdesigns.com>
-Message-ID: <Pine.LNX.3.95.1020617085231.12517B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313125AbSFQNOm>; Mon, 17 Jun 2002 09:14:42 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:19351 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S313087AbSFQNOl>; Mon, 17 Jun 2002 09:14:41 -0400
+Date: Mon, 17 Jun 2002 09:16:07 -0400
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 IDE 91
+Message-ID: <20020617131607.GA2748@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jun 2002, Emmanuel Michon wrote:
+>> tiobench.pl --size 2048 --numruns 3 --threads 128  # 384 MB ram in machine
 
-> Hi,
-> 
-> looking at nvidia proprietary driver, the makefile warns
-> the user against insmod'ing a module compiled with a gcc
-> version different from the one that was used to compile
-> the kernel.
-> 
-> This sounds strange to me, since I never encountered this
-> problem.
-> 
-> As a counterpart, what I'm sure of, is that you easily get system
-> crashes when insmod'ing a module resulting of the linking together 
-> (with ld -r) of object files (.o) that were not produced by the same gcc.
-> 
-> Can someone give me a clue on what happens?
-> 
+> From your trace it would seem that writeout completion has not
+> occurred against one or more pages.  Could be that the device
+> driver lost an interrupt, or it failed to deliver completion
+> for one or more BIO segments, or something screwed up at the
+> VFS level.
 
-Nothing happens if you don't use -fcaller-saves or some other such
-optimization(s). Even -fomit-frame-pointer is safe across called
-functions so there should not be a problem mixing and matching.
+> I am (of course ;)) disinclined to believe the latter, mainly
+> because of the amount of testing I do here.  Eight-hour Cerberus
+> runs on quad CPU, five IDE disks and six SCSI disks all chugging
+> along, no probs.
 
-Note that your 'C' runtime library was probably not created by your
-current C Compiler and your user-mode C programs probably run just
-fine.
+> Is it reproducible?   Are you able to try it on a different machine?
+> On other disks in the same machine?
 
-Very old GNU C compilers followed the "M$" convention of prepending
-an underscore on a global variable. Therefore "main:" became "_main:".
-With such a compiler output, the linker will have trouble.
+tiobench had a similar livelock in 2.5.19, 2.5.19 + 2 versions of
+wli's lazy-buddy allocator, 2.5.20, 2.5.21, and 2.5.21 with the
+request queue size change we talked about.  However, when I tried
+it just now on a different disk and filesystem type (reiser instead
+of ext2) it didn't happen.  The non-reproduced livelock didn't
+have any of the previous stress testing run against the machine
+though.
 
-If you link together certain objects to make a module, you must
-ascertain that the objects were produced using the same kernel
-structures (read identical kernel version). As an example, the
-main module structure, used by the kernel to find out where your
-module's procedures are, is called: "struct file_operations".
-The first structure member used to be a pointer to lseek(), now
-it's an opaque object of type THIS_MODULE.
+Since the tiobench livelock appeared in 2.5.19, the following
+kernels have completed all tests.
 
-Imagine the fun if you made a module with this mixup!
+2.4.19-pre10
+2.5.20-dj3
+2.4.19-pre10-ac2
+2.4.19-pre10-aa1
+2.5.20-dj4
+2.4.19-pre10-jam2
+2.4.19-pre10-jam2-O2
+2.4.19-pre10-jam2-O3
+2.4.18-cmpr-cache
+2.4.19-pre10-mjc1
 
-Cheers,
-Dick Johnson
+2.5.22 is out now and I'm trying that.  If it has a problem, I'm
+inclined to rebuild the ext2 that tiobench, osdb, and dbench run 
+on.  (may not help, but it won't hurt :)
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+-- 
+Randy Hron
 

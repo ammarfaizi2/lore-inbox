@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUHFMqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUHFMty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265038AbUHFMqd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 08:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUHFMqd
+	id S265087AbUHFMty (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 08:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUHFMty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 08:46:33 -0400
-Received: from mailr.eris.qinetiq.com ([128.98.1.9]:57494 "HELO
-	qinetiq-tim.net") by vger.kernel.org with SMTP id S265038AbUHFMqY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 08:46:24 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-Date: Fri, 6 Aug 2004 13:48:58 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040805031918.08790a82.akpm@osdl.org>
-In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 6 Aug 2004 08:49:54 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:37033 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265087AbUHFMtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 08:49:51 -0400
+Date: Fri, 6 Aug 2004 14:49:41 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: qeth performance.
+Message-ID: <20040806124941.GA2065@wohnheim.fh-wedel.de>
+References: <20040805131440.GF8251@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408061349.02992.m.watts@eris.qinetiq.com>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.62; host: mailr.qinetiq-tim.net)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040805131440.GF8251@mschwid3.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 5 August 2004 15:14:40 +0200, Martin Schwidefsky wrote:
+> 
+> qeth network driver performance improvements. The ping time on the
+> HiperSockets interface drops from 250 usecs to 50 usecs and the 1 bytes
+> request/response test improves from 70000 to 110000 transactions.
 
+Looks good.
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6
->.8-rc3-mm1/
->
+> +config QDIO_DEBUG
+> +	bool "Extended debugging information"
+> +	depends on QDIO
+> +	help
+> +	  Say Y here to get extended debugging output in /proc/s390dbf/qdio...
+> +	  Warning: this option reduces the performance of the QDIO module.
+> +
+> +	  If unsure, say N.
+> +
+>  comment "Misc"
 
-This now boots nicely on my Dual Opteron.
+> +#ifdef CONFIG_QDIO_DEBUG
 
-Disk I/O still sucks badly though...
+> +#ifdef CONFIG_QDIO_DEBUG
 
-Mark.
+> +#ifdef CONFIG_QDIO_DEBUG
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
+> +#ifdef CONFIG_QDIO_DEBUG
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> +#ifdef CONFIG_QDIO_DEBUG
 
-iD8DBQFBE34+Bn4EFUVUIO0RAqzoAKDRlcp3WoWN7tIblVoaABR8V8GLLACfUWtw
-q+ueFCLaS6WnbBgIpZqh1eI=
-=sVE8
------END PGP SIGNATURE-----
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+> +#ifdef CONFIG_QDIO_DEBUG
+
+After 50% of the patch I grew tired of it.  Martin, since when do you
+like excessive use of #ifdef?
+
+Jörn
+
+-- 
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

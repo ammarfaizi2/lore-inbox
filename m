@@ -1,50 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263687AbREYKh0>; Fri, 25 May 2001 06:37:26 -0400
+	id <S263698AbREYKzs>; Fri, 25 May 2001 06:55:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263688AbREYKhQ>; Fri, 25 May 2001 06:37:16 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:46267 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S263687AbREYKg6>; Fri, 25 May 2001 06:36:58 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 25 May 2001 03:36:43 -0700
-Message-Id: <200105251036.DAA23376@adam.yggdrasil.com>
-To: hugh@misc.nu
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Cc: aaronl@vitelus.com, acahalan@cs.uml.edu, greg@kroah.com,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	id <S263697AbREYKzj>; Fri, 25 May 2001 06:55:39 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:21256 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S263692AbREYKzT>; Fri, 25 May 2001 06:55:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
+Date: Fri, 25 May 2001 12:56:30 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        "Peter J. Braam" <braam@mountainviewdata.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+In-Reply-To: <200105222010.f4MKAWZk011755@webber.adilger.int> <0105242307570P.06233@starship> <3B0D8465.B1A13674@namesys.com>
+In-Reply-To: <3B0D8465.B1A13674@namesys.com>
+MIME-Version: 1.0
+Message-Id: <0105251256300U.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Here's a surprise.  I think the problems with the keyspan
-copyrights may have sprung from an administrative error.  I notice that
-the copyright notices in
-linux-2.4.*/drivers/usb/serial/keyspan_usa{26,28,49}msg.h, which look
-GPL compatible to me, look as if they were intended for
-keyspan_usa{18x,19,28,28x,49w}_fw.h, since they refer to firmware
-in their titles:
+On Friday 25 May 2001 00:00, Hans Reiser wrote:
+> Daniel Phillips wrote:
+> > I suppose I'm just reiterating the obvious, but we should
+> > eventually have a generic filesystem transaction API at the VFS
+> > level, once we have enough data points to know what the One True
+> > API should be.
+>
+> Daniel, implementing transactions is not a trivial thing as you
+> probably know. It requires that you resolve such issues as, what
+> happens if the user forgets to close the transaction, issues of
+> lock/transaction duration, of transaction batching, of levels of
+> isolation, of concurrent transactions modifying global fs metadata
+> and some but not all of those concurrent transactions receiving a
+> rollback, and of permissions relating to keeping transactions open. 
+> I would encourage you to participate in the reiser4 design discussion
+> we will be having over the next 6 months, and give us your opinions. 
+> Josh will be leading that design effort for the ReiserFS team.
 
-        Copyright (c) 1998-2000 InnoSys Incorporated.  All Rights Reserved
-        This file is available under a BSD-style copyright
+Graciously accepted.  Coming up with something sensible in a mere 6 
+months would be a minor miracle. ;-)
 
-        Keyspan USB Async Firmware to run on Anchor EZ-USB
-                          ^^^^^^^^
+- what happens if the user forgets to close the transaction?
 
+   I plan to set a checkpoint there (because the transaction got
+   too big) and log the fact that it's open.
 
-	Yet, the keyspan*msg.h files have no firmware.  The firmware
-is in keyspan_usa*_fw.h.
+- issues of lock/transaction duration
 
-	Hugh, perhaps you could pass this up the chain of command
-at Keyspan and see if they will simply grant permission to
-replace the *_fw.h copyright notice with the one from *msg.h, which
-is probably a lot simpler than having them spend lawyer and management
-time on writing new terms.
+   Once again relying on checkpoints, when the transaction gets
+   uncomfortably big for cache, set a checkpoint.  I haven't thought
+   about locks
 
-	I have cc'ed this to linux-kernel because there is a
-current discussion going on there on this subject that I had just
-responded to.
+- transaction batching
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+   1) Explicit transaction batch close 2) Cache gets past a certain     
+   fullness.  In both cases, no new transactions are allowed to start
+   and as soon as all current ones are closed we close the batch.
+
+- of levels of isolation
+- concurrent transactions modifying global fs metadata
+   and some but not all of those concurrent transactions receiving a
+   rollback
+
+   First I was going to write 'huh?' here, then I realized you're       
+   talking about real database ops, not just filesystem ops.  I had
+   in mind something more modest: transactions are 'mv', 'read/write'
+   (if the 'atomic read/write' is set), other filesystem operations I've
+   forgotten, and anything the user puts between open_xact and          
+   close_xact.  You are raising the ante a little ;-)
+
+   In my case (Tux2) I could do an efficient rollback to the beginning
+  of the batch (phase), then I would have had to have kept an           
+   in-memory log of the transactions for selective replay.  With a      
+   journal log you can obviously do the same thing, but perhaps more
+   efficiently if your journal design supports undo/redo.
+
+   The above is a pure flight of fancy, we won't be seeing anything
+   so fancy as an API across filesystems.
+
+- permissions relating to keeping transactions open. 
+   We can see this one in the light of a simple filesystem              
+   transaction: what happens if we are in the middle of a mv and        
+   someone changes the permissions?  Go with the starting or
+   ending permissions?
+
+Well, the database side of this is really interesting, but to get 
+something generic across filesystems, the scope pretty well has to be 
+limited to journal-type transactions, don't you think?
+
+--
+Daniel

@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVBJKO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVBJKSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVBJKO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 05:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBJKO1
+	id S262091AbVBJKSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 05:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVBJKSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 05:14:27 -0500
-Received: from agf.customers.acn.gr ([213.5.17.156]:60069 "EHLO
-	enigma.wired-net.gr") by vger.kernel.org with ESMTP id S262089AbVBJKNQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 05:13:16 -0500
-Message-ID: <006e01c50f59$0b2ef560$0101010a@dioxide>
-From: "linux" <kernel@wired-net.gr>
-To: "Roman Zippel" <zippel@linux-m68k.org>, "Larry McVoy" <lm@bitmover.com>
-Cc: "Nicolas Pitre" <nico@cam.org>, "Jon Smirl" <jonsmirl@gmail.com>,
-       <tytso@mit.edu>, "Stelian Pop" <stelian@popies.net>,
-       "Francois Romieu" <romieu@fr.zoreil.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-References: <20050209184629.GR22893@bitmover.com> <Pine.LNX.4.61.0502091513060.7836@localhost.localdomain> <20050209235312.GA25351@bitmover.com> <Pine.LNX.4.61.0502100109050.6118@scrub.home> <20050210005041.GA26312@bitmover.com> <Pine.LNX.4.61.0502101045110.30794@scrub.home>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Date: Thu, 10 Feb 2005 12:11:55 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 10 Feb 2005 05:18:50 -0500
+Received: from mxc.rambler.ru ([81.19.66.31]:28933 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S262091AbVBJKSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 05:18:35 -0500
+Date: Thu, 10 Feb 2005 13:15:48 -0500
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Floppy driver DMA question - PLEASE answer me, it's important for
+ fixing
+Message-Id: <20050210131548.42ccd31d.sonic_amiga@rambler.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I really got bored of this thread.Can you all question your self on thing?
-If someone starts reading right now the sources of the linux kernel will be
-able to understand every aspect and part of the code???
-Do you understand every aspect?
+ I'd like to ask some questions about floppy driver. I am owner of Pegasos-II PowerPC-based mainboard (http://www.pegasosppc.com) and floppy drive doesn't work on my machine. It doesn't read any data, sometimes even causes random crashes. Sometimes operation looks like completed ok but wrong data are read from/written to disk. Everything points to DMA problem - wrong region is used.
+ I tried to turn off DMA by specifying floppy=nodma but then it doesn't work at all.
+ I investigated the problem and discovered that virtual DMA for PowerPC is not implemented at all and hardware DMA is also handled differently. So here is my question:
 
-Is it still "opensource" or starts to be a "closedsource" software "product
-" despite the fact that is still free to the community.
-DONT say again the source is there ,you dont have but to read it.
-Someone in this list ( very popular ) has said some years ago that even now
-Micro$oft gives out the source noone will be able to do some changes and
-some of us wont be able to understand this product ever never.
-So in the name of this idea is still linux an "opensource" idea or a
-"closed" one delivered from those who have the information already to
-maintain it and give it to us freely. I tend to develop in linux only 4
-years now and i tried to make some changes in the kernel so that they can
-conform according to my needs... i have to say that it was very very time
-consuming.....no doc...no comments...no explanation....I think that a lot of
-us have the same question....
+ In include/asm-ppc/floppy.h i see the following:
+ --- cut ---
+/*
+ * The PowerPC has no problems with floppy DMA crossing 64k borders.
+ */
+#define CROSS_64KB(a,s)	(0)
+ --- cut ---
+ What architectures was this tested on? Only Macintoshes or also something else? Does this work on CHRP-based machines? Pegasos is a CHRP-based machine and i'd like to know if ISA DMA is restricted in the same way as on x86. If yes, i will try to replace this macro with one taken from include/asm-i386/floppy.h but i'm afraid of reducing functionality or even breaking support for some machines which i don't know about. I guess i should use some #ifdef's here but i don't know conditions for them.
 
+ P. S. For information: Pegasos uses Discovery II MV64361 as a northbridge and VIA 8231 as southbridge. For full technical specifications see: http://www.pegasosppc.com/tech_specs.php
 
-"Opensource" || "Closedsource" ???????????
-
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru

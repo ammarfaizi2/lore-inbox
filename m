@@ -1,211 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUHPXhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUHPXkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUHPXhq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 19:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUHPXhq
+	id S266463AbUHPXkU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 19:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUHPXkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 19:37:46 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53412 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266465AbUHPXfx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 19:35:53 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: switch ide-proc to use the ide_key functionality
-Date: Tue, 17 Aug 2004 01:35:11 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040815150414.GA12181@devserv.devel.redhat.com>
-In-Reply-To: <20040815150414.GA12181@devserv.devel.redhat.com>
+	Mon, 16 Aug 2004 19:40:19 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:43423 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266463AbUHPXkE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 19:40:04 -0400
+Date: Mon, 16 Aug 2004 16:39:30 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm1
+Message-ID: <121120000.1092699569@flay>
+In-Reply-To: <20040816143710.1cd0bd2c.akpm@osdl.org>
+References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408170135.11465.bzolnier@elka.pw.edu.pl>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm1
 
-Alan, 'ide_key' protection misses driver specfiic /proc/entries.
+make install from this config file:
 
-It is also still racy for some drivers because ide_register_hw() -> 
-init_hwif_data() sets hwif->key to zero - you must set hwif->hold to 1.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/config.numaq
 
-[ There might be other similar problems, need to double check. ]
+results in this failure:
 
-Can't we solve the problem in simpler way by covering affected /proc
-handlers with ide_setting_sem?
+make: *** No rule to make target `.tmp_kallsyms2.S', needed by `.tmp_kallsyms2.o'.  Stop.
 
-On Sunday 15 August 2004 17:04, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude
-> linux.vanilla-2.6.8-rc3/drivers/ide/ide-proc.c
-> linux-2.6.8-rc3/drivers/ide/ide-proc.c ---
-> linux.vanilla-2.6.8-rc3/drivers/ide/ide-proc.c	2004-08-09
-> 15:51:00.000000000 +0100 +++
-> linux-2.6.8-rc3/drivers/ide/ide-proc.c	2004-08-12 17:26:00.000000000 +0100
-> @@ -355,7 +355,7 @@
->  static int proc_ide_read_identify
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *)data;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
->  	int		len = 0, i = 0;
->  	int		err = 0;
->
-> @@ -397,11 +397,15 @@
->  static int proc_ide_read_settings
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> -	ide_settings_t	*setting = (ide_settings_t *) drive->settings;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
-> +	ide_settings_t	*setting;
->  	char		*out = page;
->  	int		len, rc, mul_factor, div_factor;
-> +
-> +	if(drive == NULL)
-> +		return -EIO;
->
-> +	setting = (ide_settings_t *) drive->settings;
->  	down(&ide_setting_sem);
->  	out += sprintf(out, "name\t\t\tvalue\t\tmin\t\tmax\t\tmode\n");
->  	out += sprintf(out, "----\t\t\t-----\t\t---\t\t---\t\t----\n");
-> @@ -431,7 +435,7 @@
->  static int proc_ide_write_settings(struct file *file, const char __user
-> *buffer, unsigned long count, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
->  	char		name[MAX_LEN + 1];
->  	int		for_real = 0;
->  	unsigned long	n;
-> @@ -440,6 +444,9 @@
->
->  	if (!capable(CAP_SYS_ADMIN))
->  		return -EACCES;
-> +
-> +	if (drive == NULL)
-> +		return -EIO;
->
->  	if (count >= PAGE_SIZE)
->  		return -EINVAL;
-> @@ -523,9 +530,12 @@
->  int proc_ide_read_capacity
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
->  	int		len;
->
-> +	if(drive == NULL)
-> +		return -EIO;
-> +
->  	len = sprintf(page,"%llu\n",
->  		      (long long) (DRIVER(drive)->capacity(drive)));
->  	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
-> @@ -534,9 +544,12 @@
->  int proc_ide_read_geometry
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
->  	char		*out = page;
->  	int		len;
-> +
-> +	if(drive == NULL)
-> +		return -EIO;
->
->  	out += sprintf(out,"physical     %d/%d/%d\n",
->  			drive->cyl, drive->head, drive->sect);
-> @@ -552,10 +565,14 @@
->  static int proc_ide_read_dmodel
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> -	struct hd_driveid *id = drive->id;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
-> +	struct hd_driveid *id;
->  	int		len;
->
-> +	if(drive == NULL)
-> +		return -EIO;
-> +
-> +	id = drive->id;
->  	len = sprintf(page, "%.40s\n",
->  		(id && id->model[0]) ? (char *)id->model : "(none)");
->  	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
-> @@ -564,40 +581,30 @@
->  static int proc_ide_read_driver
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> -	ide_driver_t	*driver = drive->driver;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
-> +	ide_driver_t	*driver;
->  	int		len;
->
-> +	if(drive == NULL)
-> +		return -EIO;
-> +
-> +	driver = drive->driver;
-> +
->  	len = sprintf(page, "%s version %s\n",
->  			driver->name, driver->version);
->  	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
->  }
->
-> -static int proc_ide_write_driver
-> -	(struct file *file, const char __user *buffer, unsigned long count, void
-> *data) -{
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> -	char name[32];
-> -
-> -	if (!capable(CAP_SYS_ADMIN))
-> -		return -EACCES;
-> -	if (count > 31)
-> -		count = 31;
-> -	if (copy_from_user(name, buffer, count))
-> -		return -EFAULT;
-> -	name[count] = '\0';
-> -	if (ide_replace_subdriver(drive, name))
-> -		return -EINVAL;
-> -	return count;
-> -}
-> -
->  static int proc_ide_read_media
->  	(char *page, char **start, off_t off, int count, int *eof, void *data)
->  {
-> -	ide_drive_t	*drive = (ide_drive_t *) data;
-> +	ide_drive_t	*drive = ide_drive_from_key(data);
->  	const char	*media;
->  	int		len;
->
-> +	if(drive == NULL)
-> +		return -EINVAL;
-> +
->  	switch (drive->media) {
->  		case ide_disk:	media = "disk\n";
->  				break;
-> @@ -616,7 +623,7 @@
->  }
->
->  static ide_proc_entry_t generic_drive_entries[] = {
-> -	{ "driver",	S_IFREG|S_IRUGO,	proc_ide_read_driver,	proc_ide_write_driver
-> }, +	{ "driver",	S_IFREG|S_IRUGO,	proc_ide_read_driver,	NULL },
->  	{ "identify",	S_IFREG|S_IRUSR,	proc_ide_read_identify,	NULL },
->  	{ "media",	S_IFREG|S_IRUGO,	proc_ide_read_media,	NULL },
->  	{ "model",	S_IFREG|S_IRUGO,	proc_ide_read_dmodel,	NULL },
-> @@ -668,7 +675,7 @@
->
->  		drive->proc = proc_mkdir(drive->name, parent);
->  		if (drive->proc)
-> -			ide_add_proc_entries(drive->proc, generic_drive_entries, drive);
-> +			ide_add_proc_entries(drive->proc, generic_drive_entries,
-> ide_drive_to_key(drive)); sprintf(name,"ide%d/%s", (drive->name[2]-'a')/2,
-> drive->name);
->  		ent = proc_symlink(drive->name, proc_ide_root, name);
->  		if (!ent) return;
->
->
-> Signed-off-by: Alan Cox <alan@redhat.com>
+gcc 2.95.4 ... 2.6.8.1 compiles fine. I have a feeling that people have discussed
+this before - apologies if so, but I can't find the answer in my logs -sorry.
+
+
+M.
+

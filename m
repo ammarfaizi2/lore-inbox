@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265166AbTF1LHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 07:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTF1LHg
+	id S265145AbTF1LGV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 07:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbTF1LGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 07:07:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63967 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265166AbTF1LHf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 07:07:35 -0400
-Date: Sat, 28 Jun 2003 12:21:51 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Margit Schubert-While <margitsw@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre2 unresolved proc_get_inode
-Message-ID: <20030628112151.GC27348@parcelfarce.linux.theplanet.co.uk>
-References: <5.1.0.14.2.20030628123855.00aefd18@pop.t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20030628123855.00aefd18@pop.t-online.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 28 Jun 2003 07:06:21 -0400
+Received: from [62.248.102.66] ([62.248.102.66]:31681 "HELO
+	eposta.kablonet.com.tr") by vger.kernel.org with SMTP
+	id S265145AbTF1LGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 07:06:20 -0400
+Message-ID: <3EFD7B14.7060307@kablonet.com.tr>
+Date: Sat, 28 Jun 2003 14:25:08 +0300
+From: Onur Kucuk <onur@kablonet.com.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030514
+X-Accept-Language: en, en-us, tr
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-ac4 & cm9739 & SATA
+References: <3EFCD206.2020501@kablonet.com.tr> <3EFCF119.7000809@pobox.com>
+In-Reply-To: <3EFCF119.7000809@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 28, 2003 at 12:40:36PM +0200, Margit Schubert-While wrote:
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.22-pre2; fi
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.4.22-pre2/kernel/drivers/net/wan/comx.o
-> depmod:         proc_get_inode
+Jeff Garzik wrote:
+> Onur Kucuk wrote:
 > 
-> I suppose we let Christoph and Marc fight it out.
+>>    SATA (hde) is gone at 2.4.21-ac3 (and ac4), though system see it 
+>> with 2.4.20
+> 
+> 
+> 
+>> # CONFIG_SCSI_ATA is not set
+>> # CONFIG_SCSI_ATA_PIIX is not set
+> 
+> 
+> 
+> Though I didn't see it in his changelog, it looks like Alan merged my 
+> SATA driver.  Turn on the above two config options, and that should 
+> re-enable it.
+> 
+>     Jeff
 
-You know what?  I'm so fed up with that crap, that today Marcelo will
-get a patch killing proc_get_inode(), making proc_lookup() static and
-eliminating ->proc_iops completely.
 
-Enough is enough.  comx is the only user of that crap and all procfs
-code in comx is broken by design and trivially exploitable.  It's
-unsalvagable and any attempt to fix it will amount to rewrite from
-scratch anyway.
+  Done, working fine, thank you
 
-It's not a new problem, it had been discussed to hell and back and
-comx folks could not have been arsed to do anything about it in what,
-3 years?
+  Now I have a shiny new sda instead of the old hde :)
+
+
+  And just if I can find a way to make the sound work properly
+
+
+
+  Regards,
+  Onur Kucuk
+
+

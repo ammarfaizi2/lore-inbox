@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVCIAEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVCIAEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVCIAEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVCIAA7
+	id S262418AbVCIAEG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVCIAAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:00:59 -0500
-Received: from loon.tech9.net ([69.20.54.92]:57575 "EHLO loon.tech9.net")
-	by vger.kernel.org with ESMTP id S262414AbVCIAAT (ORCPT
+	Tue, 8 Mar 2005 19:00:45 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:36019 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S262388AbVCHX6p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:00:19 -0500
-Subject: Re: 2.6.11-mm2
-From: Robert Love <rlove@rlove.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1110325890l.6106l.1l@werewolf.able.es>
-References: <20050308033846.0c4f8245.akpm@osdl.org>
-	 <1110325018l.6106l.0l@werewolf.able.es>
-	 <1110325442.30255.8.camel@localhost>
-	 <1110325890l.6106l.1l@werewolf.able.es>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 19:02:46 -0500
-Message-Id: <1110326566.30255.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 18:58:45 -0500
+Date: Tue, 8 Mar 2005 23:58:37 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: greg@kroah.com, chrisw@osdl.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] drm missing memset can crash X server...
+Message-ID: <Pine.LNX.4.58.0503082356460.17157@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 23:51 +0000, J.A. Magallon wrote:
 
-> Ahh, damn, that explains it. I use a main thread that does nothing but
-> wait for the worker threads. So it sure gets moved to CPU0, but as it
-> does not waste CPU time, I do not see it...
-> 
-> Thanks. Will see what can I do with my threads. cpusets, perhaps...
+Egbert Eich reported a bug 2673 on bugs.freedesktop.org and tracked it
+down to a missing memset in the setversion ioctl, this causes X server
+crashes so I would like to see the fix in a 2.6.11.x tree if possible..
 
-Affinity is inherited.
+Regards,
+Dave.
 
-Start the threads in a shell script that runs taskset on itself.  Or
-just modify this program to have the main thread do sched_setaffinity()
-on itself.
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
 
-	Robert Love
+diff -Nru a/drivers/char/drm/drm_ioctl.c b/drivers/char/drm/drm_ioctl.c
+--- a/drivers/char/drm/drm_ioctl.c	2005-03-09 10:53:42 +11:00
++++ b/drivers/char/drm/drm_ioctl.c	2005-03-09 10:53:43 +11:00
+@@ -326,6 +326,8 @@
 
+ 	DRM_COPY_FROM_USER_IOCTL(sv, argp, sizeof(sv));
 
++	memset(&version, 0, sizeof(version));
++
+ 	dev->driver->version(&version);
+ 	retv.drm_di_major = DRM_IF_MAJOR;
+ 	retv.drm_di_minor = DRM_IF_MINOR;

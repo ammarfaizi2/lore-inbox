@@ -1,624 +1,428 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVCHSna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVCHSyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVCHSna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 13:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVCHSna
+	id S261505AbVCHSyw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 13:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVCHSyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 13:43:30 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:52707 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261504AbVCHSmg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 13:42:36 -0500
-Message-ID: <422DF217.8070401@us.ltcfwd.linux.ibm.com>
-Date: Tue, 08 Mar 2005 13:42:31 -0500
-From: Wen Xiong <wendyx@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
-References: <42225A64.6070904@us.ltcfwd.linux.ibm.com> <20050228065534.GC23595@kroah.com> <4228CE5C.9010207@us.ltcfwd.linux.ibm.com> <20050305064445.GA8447@kroah.com> <422CDA58.5000506@us.ltcfwd.linux.ibm.com> <20050308064211.GE17022@kroah.com>
-In-Reply-To: <20050308064211.GE17022@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------040202060805020003050602"
+	Tue, 8 Mar 2005 13:54:52 -0500
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:60424 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S261505AbVCHSyc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 13:54:32 -0500
+Date: Tue, 8 Mar 2005 19:54:11 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.11-mm2 fremap.c compile error
+Message-ID: <20050308185411.GA17977@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20050308033846.0c4f8245.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308033846.0c4f8245.akpm@osdl.org>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040202060805020003050602
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+mm/fremap.c:33:48: macro "flush_cache_page" passed 3 arguments, but takes just 2
+mm/fremap.c: In function `zap_pte':
+mm/fremap.c:33: error: `flush_cache_page' undeclared (first use in this function)
+mm/fremap.c:33: error: (Each undeclared identifier is reported only once
+mm/fremap.c:33: error: for each function it appears in.)
+mm/fremap.c:34:55: macro "ptep_get_and_clear" passed 3 arguments, but takes just 1
+mm/fremap.c:34: error: `ptep_get_and_clear' undeclared (first use in this function)
+mm/fremap.c:48:41: macro "pte_clear" passed 3 arguments, but takes just 1
+mm/fremap.c:48: error: `pte_clear' undeclared (first use in this function)
+mm/fremap.c: In function `install_page':
+mm/fremap.c:97: warning: implicit declaration of function `set_pte_at'
+make[1]: *** [mm/fremap.o] Error 1
+make: *** [mm] Error 2
 
-Greg KH wrote:
+The same config worked fine for 2.6.11-mm1:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_KALLSYMS=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_SCHED_SMT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_SECCOMP=y
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=m
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_IBM=m
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PNP=y
+CONFIG_PNPACPI=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_LBD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID10=y
+CONFIG_MD_RAID5=y
+CONFIG_MD_RAID6=y
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_RAWIO=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_IP_TCPDIAG_IPV6=y
+CONFIG_IPV6=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_ESP=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_INET6_TUNNEL=y
+CONFIG_IPV6_TUNNEL=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_IP6_NF_QUEUE=y
+CONFIG_IP6_NF_IPTABLES=y
+CONFIG_IP6_NF_MATCH_LIMIT=y
+CONFIG_IP6_NF_MATCH_MAC=y
+CONFIG_IP6_NF_MATCH_RT=y
+CONFIG_IP6_NF_MATCH_OPTS=y
+CONFIG_IP6_NF_MATCH_FRAG=y
+CONFIG_IP6_NF_MATCH_HL=y
+CONFIG_IP6_NF_MATCH_MULTIPORT=y
+CONFIG_IP6_NF_MATCH_OWNER=y
+CONFIG_IP6_NF_MATCH_MARK=y
+CONFIG_IP6_NF_MATCH_IPV6HEADER=y
+CONFIG_IP6_NF_MATCH_AHESP=y
+CONFIG_IP6_NF_MATCH_LENGTH=y
+CONFIG_IP6_NF_MATCH_EUI64=y
+CONFIG_IP6_NF_FILTER=y
+CONFIG_IP6_NF_TARGET_LOG=y
+CONFIG_IP6_NF_MANGLE=y
+CONFIG_IP6_NF_TARGET_MARK=y
+CONFIG_IP6_NF_RAW=y
+CONFIG_XFRM=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_E1000=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_HW_RANDOM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_I2C=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_SOFT_CURSOR=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_TIMER=y
+CONFIG_SND_PCM=y
+CONFIG_SND_HWDEP=y
+CONFIG_SND_RAWMIDI=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_AC97_CODEC=y
+CONFIG_SND_EMU10K1=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_MON=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISER4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_UFS_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
 
->On Mon, Mar 07, 2005 at 05:48:56PM -0500, Wen Xiong wrote:
->  
->
->>Since some tools in Digi company need these new ioctls to access device 
->>driver. I still keep these new ioctls.
->>    
->>
->
->What tools?  What are they used for?  Why do they need them?  Why can't
->they just use the sysfs files?  
->
->As the driver isn't in the kernel tree, there should not be any users
->expecting these ioctls to be around, right?
->
->thanks,
->
->greg k-h
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi Greg,
-I exchanged emails with digi developer,  I scrubbed out some structs and 
-ioctls aren't being used by this driver.
-Only keep some structures for management ports. After scrubbed the 
-digi.h, I combined two headers to one header.
-Hope you like  it this time.
-
-Thanks,
-wendy
-
-The following email I got from Scott Kilau in digi:
-Scott Kilau wrote:
-
-        The DPA program is very old, and is shared among other drivers 
-and OS's,
-        so changing the code to read the sysfs instead of doing ioctls 
-is not possible.
-        However, any *new* tools I write, will use sysfs, which is why 
-we need to have both the ioctl calls and sysfs files.
-        The digi.h file has extra structures and ioctls that may not be 
-used in the driver, as that header
-        is shared among other drivers and OS's.
-
-
-
---------------040202060805020003050602
-Content-Type: text/plain;
- name="patch6.jasmine"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch6.jasmine"
-
-diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_driver.h linux-2.6.11.new/drivers/serial/jsm/jsm_driver.h
---- linux-2.6.11.org/drivers/serial/jsm/jsm_driver.h	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.11.new/drivers/serial/jsm/jsm_driver.h	2005-03-08 12:19:05.204062432 -0600
-@@ -0,0 +1,526 @@
-+/************************************************************************
-+ * Copyright 2003 Digi International (www.digi.com)
-+ *
-+ * Copyright (C) 2004 IBM Corporation. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED; without even the 
-+ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-+ * PURPOSE.  See the GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License 
-+ * along with this program; if not, write to the Free Software 
-+ * Foundation, Inc., 59 * Temple Place - Suite 330, Boston,
-+ * MA  02111-1307, USA.
-+ *
-+ * Contact Information:
-+ * Scott H Kilau <Scott_Kilau@digi.com>
-+ * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-+ *
-+ ***********************************************************************/
-+
-+#ifndef __JSM_DRIVER_H
-+#define __JSM_DRIVER_H
-+
-+#include <linux/kernel.h>
-+#include <linux/version.h>
-+#include <linux/types.h>	/* To pick up the varions Linux types */
-+#include <linux/tty.h>
-+#include <linux/serial_core.h>
-+#include <linux/device.h>
-+#include <linux/ioctl.h>
-+
-+/*
-+ * Debugging levels can be set using debug insmod variable
-+ * They can also be compiled out completely.
-+ */
-+enum {
-+	DBG_INIT	= 0x01,
-+	DBG_BASIC	= 0x02,
-+	DBG_CORE	= 0x04,
-+	DBG_OPEN	= 0x08,
-+	DBG_CLOSE	= 0x10,
-+	DBG_READ	= 0x20,
-+	DBG_WRITE	= 0x40,
-+	DBG_IOCTL	= 0x80,
-+	DBG_PROC	= 0x100,
-+	DBG_PARAM	= 0x200,
-+	DBG_PSCAN	= 0x400,
-+	DBG_EVENT	= 0x800,
-+	DBG_DRAIN	= 0x1000,
-+	DBG_MSIGS	= 0x2000,
-+	DBG_MGMT	= 0x4000,
-+	DBG_INTR	= 0x8000,
-+	DBG_CARR	= 0x10000,
-+};
-+
-+#define jsm_printk(nlevel, klevel, pdev, fmt, args...) \
-+	if ((DBG_##nlevel & jsm_debug))  		\
-+	dev_printk(KERN_##klevel, pdev->dev, fmt, ## args)
-+
-+#define MAXPORTS	8
-+#define MAX_STOPS_SENT	5
-+
-+/* Board type definitions */
-+
-+#define T_NEO           0000
-+#define T_CLASSIC       0001
-+#define T_PCIBUS        0400
-+
-+/* Board State Definitions */
-+
-+#define BD_RUNNING      0x0
-+#define BD_REASON       0x7f
-+#define BD_NOTFOUND     0x1
-+#define BD_NOIOPORT     0x2
-+#define BD_NOMEM        0x3
-+#define BD_NOBIOS       0x4
-+#define BD_NOFEP        0x5
-+#define BD_FAILED       0x6
-+#define BD_ALLOCATED    0x7
-+#define BD_TRIBOOT      0x8
-+#define BD_BADKME       0x80
-+
-+/* 4 extra for alignment play space */
-+#define WRITEBUFLEN	((4096) + 4)
-+#define MYFLIPLEN	N_TTY_BUF_SIZE
-+
-+#define JSM_VERSION	"jsm: 1.1-1-INKERNEL"
-+#define JSM_PARTNUM	"40002438_A-INKERNEL"
-+
-+/*
-+ * All the possible states the driver can be while being loaded.
-+ */
-+enum {
-+	DRIVER_INITIALIZED = 0,
-+	DRIVER_READY
-+};
-+
-+/*
-+ * All the possible states the board can be while booting up.
-+ */
-+enum {
-+	BOARD_FAILED = 0,
-+	BOARD_FOUND,
-+	BOARD_READY
-+};
-+
-+struct board_id {
-+	u8 *name;
-+	u32 maxports;
-+};
-+
-+struct jsm_board;
-+struct jsm_channel;
-+
-+/************************************************************************
-+ * Per board operations structure					*
-+ ************************************************************************/
-+struct board_ops {
-+	irqreturn_t (*intr) (int irq, void *voidbrd, struct pt_regs *regs);
-+	void (*uart_init) (struct jsm_channel *ch);
-+	void (*uart_off) (struct jsm_channel *ch);
-+	void (*param) (struct jsm_channel *ch);
-+	void (*assert_modem_signals) (struct jsm_channel *ch);
-+	void (*flush_uart_write) (struct jsm_channel *ch);
-+	void (*flush_uart_read) (struct jsm_channel *ch);
-+	void (*disable_receiver) (struct jsm_channel *ch);
-+	void (*enable_receiver) (struct jsm_channel *ch);
-+	void (*send_break) (struct jsm_channel *ch);
-+	void (*clear_break) (struct jsm_channel *ch, int);
-+	void (*send_start_character) (struct jsm_channel *ch);
-+	void (*send_stop_character) (struct jsm_channel *ch);
-+	void (*copy_data_from_queue_to_uart) (struct jsm_channel *ch);
-+	u32 (*get_uart_bytes_left) (struct jsm_channel *ch);
-+	void (*send_immediate_char) (struct jsm_channel *ch, unsigned char);
-+};
-+
-+
-+/*
-+ *	Per-board information
-+ */
-+struct jsm_board
-+{
-+	int		boardnum;	/* Board number: 0-32 */
-+
-+	int		type;		/* Type of board */
-+	char		*name;		/* Product Name */
-+	u8		rev;		/* PCI revision ID */
-+	struct pci_dev	*pci_dev;
-+	u32		maxports;	/* MAX ports this board can handle */
-+
-+	spinlock_t	bd_lock;	/* Used to protect board */
-+
-+	spinlock_t	bd_intr_lock;	/* Used to protect the poller tasklet and
-+					 * the interrupt routine from each other.
-+					 */
-+
-+	u32		state;		/* State of card. */
-+	wait_queue_head_t state_wait;	/* Place to sleep on for state change */
-+
-+	u32		nasync;		/* Number of ports on card */
-+
-+	u32		irq;		/* Interrupt request number */
-+	u64		intr_count;	/* Count of interrupts */
-+
-+	u64		membase;	/* Start of base memory of the card */
-+	u64		membase_end;	/* End of base memory of the card */
-+
-+	u8		*re_map_membase;/* Remapped memory of the card */
-+
-+	u64		iobase;		/* Start of io base of the card */
-+	u64		iobase_end;	/* End of io base of the card */
-+
-+	u32		bd_uart_offset;	/* Space between each UART */
-+
-+	struct jsm_channel *channels[MAXPORTS]; /* array of pointers to our channels. */
-+
-+	u32		jsm_major_serial_registered;
-+	u32		jsm_serial_major;
-+
-+	char		*flipbuf;	/* Our flip buffer, alloced if board is found */
-+
-+	u16		dpatype;	/* The board "type", as defined by DPA */
-+	u16		dpastatus;	/* The board "status", as defined by DPA */
-+
-+	u32		bd_dividend;	/* Board/UARTs specific dividend */
-+
-+	struct board_ops *bd_ops;
-+
-+	struct list_head jsm_board_entry;
-+};
-+
-+/************************************************************************ 
-+ * Device flag definitions for ch_flags.
-+ ************************************************************************/
-+#define CH_PRON		0x0001		/* Printer on string		*/
-+#define CH_STOP		0x0002		/* Output is stopped		*/
-+#define CH_STOPI	0x0004		/* Input is stopped		*/
-+#define CH_CD		0x0008		/* Carrier is present		*/
-+#define CH_FCAR		0x0010		/* Carrier forced on		*/
-+#define CH_HANGUP	0x0020		/* Hangup received		*/
-+
-+#define CH_RECEIVER_OFF	0x0040		/* Receiver is off		*/
-+#define CH_OPENING	0x0080		/* Port in fragile open state	*/
-+#define CH_CLOSING	0x0100		/* Port in fragile close state	*/
-+#define CH_FIFO_ENABLED 0x0200		/* Port has FIFOs enabled	*/
-+#define CH_TX_FIFO_EMPTY 0x0400		/* TX Fifo is completely empty	*/
-+#define CH_TX_FIFO_LWM	0x0800		/* TX Fifo is below Low Water	*/
-+#define CH_BREAK_SENDING 0x1000		/* Break is being sent		*/
-+#define CH_LOOPBACK 0x2000		/* Channel is in lookback mode	*/
-+#define CH_FLIPBUF_IN_USE 0x4000	/* Channel's flipbuf is in use	*/
-+#define CH_BAUD0	0x08000		/* Used for checking B0 transitions */
-+
-+/* Our Read/Error/Write queue sizes */
-+#define RQUEUEMASK	0x1FFF		/* 8 K - 1 */
-+#define EQUEUEMASK	0x1FFF		/* 8 K - 1 */
-+#define WQUEUEMASK	0x0FFF		/* 4 K - 1 */
-+#define RQUEUESIZE	(RQUEUEMASK + 1)
-+#define EQUEUESIZE	RQUEUESIZE
-+#define WQUEUESIZE	(WQUEUEMASK + 1)
-+
-+
-+/************************************************************************ 
-+ * Channel information structure.
-+ ************************************************************************/
-+struct jsm_channel {
-+	struct uart_port uart_port;
-+	struct jsm_board	*ch_bd;		/* Board structure pointer	*/
-+
-+	spinlock_t	ch_lock;	/* provide for serialization */
-+	wait_queue_head_t ch_flags_wait;
-+
-+	u32		ch_portnum;	/* Port number, 0 offset.	*/
-+	u32		ch_open_count;	/* open count			*/
-+	u32		ch_flags;	/* Channel flags		*/
-+
-+	u64		ch_close_delay;	/* How long we should drop RTS/DTR for */
-+
-+	u64		ch_cpstime;	/* Time for CPS calculations	*/
-+
-+	tcflag_t	ch_c_iflag;	/* channel iflags		*/
-+	tcflag_t	ch_c_cflag;	/* channel cflags		*/
-+	tcflag_t	ch_c_oflag;	/* channel oflags		*/
-+	tcflag_t	ch_c_lflag;	/* channel lflags		*/
-+	u8		ch_stopc;	/* Stop character		*/
-+	u8		ch_startc;	/* Start character		*/
-+
-+	u32		ch_old_baud;	/* Cache of the current baud */
-+	u32		ch_custom_speed;/* Custom baud, if set */
-+
-+	u32		ch_wopen;	/* Waiting for open process cnt */
-+
-+	u8		ch_mostat;	/* FEP output modem status	*/
-+	u8		ch_mistat;	/* FEP input modem status	*/
-+
-+	struct neo_uart_struct *ch_neo_uart;	/* Pointer to the "mapped" UART struct */
-+	u8		ch_cached_lsr;	/* Cached value of the LSR register */
-+
-+	u8		*ch_rqueue;	/* Our read queue buffer - malloc'ed */
-+	u16		ch_r_head;	/* Head location of the read queue */
-+	u16		ch_r_tail;	/* Tail location of the read queue */
-+
-+	u8		*ch_equeue;	/* Our error queue buffer - malloc'ed */
-+	u16		ch_e_head;	/* Head location of the error queue */
-+	u16		ch_e_tail;	/* Tail location of the error queue */
-+
-+	u8		*ch_wqueue;	/* Our write queue buffer - malloc'ed */
-+	u16		ch_w_head;	/* Head location of the write queue */
-+	u16		ch_w_tail;	/* Tail location of the write queue */
-+
-+	u64		ch_rxcount;	/* total of data received so far */
-+	u64		ch_txcount;	/* total of data transmitted so far */
-+
-+	u8		ch_r_tlevel;	/* Receive Trigger level */
-+	u8		ch_t_tlevel;	/* Transmit Trigger level */
-+
-+	u8		ch_r_watermark;	/* Receive Watermark */
-+
-+
-+	u32		ch_stops_sent;	/* How many times I have sent a stop character
-+					 * to try to stop the other guy sending.
-+					 */
-+	u64		ch_err_parity;	/* Count of parity errors on channel */
-+	u64		ch_err_frame;	/* Count of framing errors on channel */
-+	u64		ch_err_break;	/* Count of breaks on channel */
-+	u64		ch_err_overrun; /* Count of overruns on channel */
-+
-+	u64		ch_xon_sends;	/* Count of xons transmitted */
-+	u64		ch_xoff_sends;	/* Count of xoffs transmitted */
-+};
-+
-+
-+/************************************************************************ 
-+ * Per channel/port NEO UART structure					*
-+ ************************************************************************
-+ *		Base Structure Entries Usage Meanings to Host		*
-+ *									*
-+ *	W = read write		R = read only				* 
-+ *			U = Unused.					*
-+ ************************************************************************/
-+
-+struct neo_uart_struct {
-+	 u8 txrx;		/* WR	RHR/THR - Holding Reg */
-+	 u8 ier;		/* WR	IER - Interrupt Enable Reg */
-+	 u8 isr_fcr;		/* WR	ISR/FCR - Interrupt Status Reg/Fifo Control Reg */
-+	 u8 lcr;		/* WR	LCR - Line Control Reg */
-+	 u8 mcr;		/* WR	MCR - Modem Control Reg */
-+	 u8 lsr;		/* WR	LSR - Line Status Reg */
-+	 u8 msr;		/* WR	MSR - Modem Status Reg */
-+	 u8 spr;		/* WR	SPR - Scratch Pad Reg */
-+	 u8 fctr;		/* WR	FCTR - Feature Control Reg */
-+	 u8 efr;		/* WR	EFR - Enhanced Function Reg */
-+	 u8 tfifo;		/* WR	TXCNT/TXTRG - Transmit FIFO Reg */	
-+	 u8 rfifo;		/* WR	RXCNT/RXTRG - Recieve FIFO Reg */
-+	 u8 xoffchar1;	/* WR	XOFF 1 - XOff Character 1 Reg */
-+	 u8 xoffchar2;	/* WR	XOFF 2 - XOff Character 2 Reg */
-+	 u8 xonchar1;	/* WR	XON 1 - Xon Character 1 Reg */
-+	 u8 xonchar2;	/* WR	XON 2 - XOn Character 2 Reg */
-+
-+	 u8 reserved1[0x2ff - 0x200]; /* U	Reserved by Exar */
-+	 u8 txrxburst[64];	/* RW	64 bytes of RX/TX FIFO Data */
-+	 u8 reserved2[0x37f - 0x340]; /* U	Reserved by Exar */
-+	 u8 rxburst_with_errors[64];	/* R	64 bytes of RX FIFO Data + LSR */
-+};
-+
-+/* Where to read the extended interrupt register (32bits instead of 8bits) */
-+#define	UART_17158_POLL_ADDR_OFFSET	0x80
-+
-+/*
-+ * These are the redefinitions for the FCTR on the XR17C158, since
-+ * Exar made them different than their earlier design. (XR16C854)
-+ */
-+
-+/* These are only applicable when table D is selected */
-+#define UART_17158_FCTR_RTS_NODELAY	0x00
-+#define UART_17158_FCTR_RTS_4DELAY	0x01
-+#define UART_17158_FCTR_RTS_6DELAY	0x02
-+#define UART_17158_FCTR_RTS_8DELAY	0x03
-+#define UART_17158_FCTR_RTS_12DELAY	0x12
-+#define UART_17158_FCTR_RTS_16DELAY	0x05
-+#define UART_17158_FCTR_RTS_20DELAY	0x13
-+#define UART_17158_FCTR_RTS_24DELAY	0x06
-+#define UART_17158_FCTR_RTS_28DELAY	0x14
-+#define UART_17158_FCTR_RTS_32DELAY	0x07
-+#define UART_17158_FCTR_RTS_36DELAY	0x16
-+#define UART_17158_FCTR_RTS_40DELAY	0x08
-+#define UART_17158_FCTR_RTS_44DELAY	0x09
-+#define UART_17158_FCTR_RTS_48DELAY	0x10
-+#define UART_17158_FCTR_RTS_52DELAY	0x11
-+
-+#define UART_17158_FCTR_RTS_IRDA	0x10
-+#define UART_17158_FCTR_RS485		0x20
-+#define UART_17158_FCTR_TRGA		0x00
-+#define UART_17158_FCTR_TRGB		0x40
-+#define UART_17158_FCTR_TRGC		0x80
-+#define UART_17158_FCTR_TRGD		0xC0
-+
-+/* 17158 trigger table selects.. */
-+#define UART_17158_FCTR_BIT6		0x40
-+#define UART_17158_FCTR_BIT7		0x80
-+
-+/* 17158 TX/RX memmapped buffer offsets */
-+#define UART_17158_RX_FIFOSIZE		64
-+#define UART_17158_TX_FIFOSIZE		64
-+
-+/* 17158 Extended IIR's */
-+#define UART_17158_IIR_RDI_TIMEOUT	0x0C	/* Receiver data TIMEOUT */
-+#define UART_17158_IIR_XONXOFF		0x10	/* Received an XON/XOFF char */
-+#define UART_17158_IIR_HWFLOW_STATE_CHANGE 0x20	/* CTS/DSR or RTS/DTR state change */
-+#define UART_17158_IIR_FIFO_ENABLED	0xC0	/* 16550 FIFOs are Enabled */
-+
-+/*
-+ * These are the extended interrupts that get sent
-+ * back to us from the UART's 32bit interrupt register
-+ */
-+#define UART_17158_RX_LINE_STATUS	0x1	/* RX Ready */
-+#define UART_17158_RXRDY_TIMEOUT	0x2	/* RX Ready Timeout */
-+#define UART_17158_TXRDY		0x3	/* TX Ready */
-+#define UART_17158_MSR			0x4	/* Modem State Change */
-+#define UART_17158_TX_AND_FIFO_CLR	0x40	/* Transmitter Holding Reg Empty */
-+#define UART_17158_RX_FIFO_DATA_ERROR	0x80	/* UART detected an RX FIFO Data error */
-+
-+/*
-+ * These are the EXTENDED definitions for the 17C158's Interrupt
-+ * Enable Register.
-+ */
-+#define UART_17158_EFR_ECB	0x10	/* Enhanced control bit */
-+#define UART_17158_EFR_IXON	0x2	/* Receiver compares Xon1/Xoff1 */
-+#define UART_17158_EFR_IXOFF	0x8	/* Transmit Xon1/Xoff1 */
-+#define UART_17158_EFR_RTSDTR	0x40	/* Auto RTS/DTR Flow Control Enable */
-+#define UART_17158_EFR_CTSDSR	0x80	/* Auto CTS/DSR Flow COntrol Enable */
-+
-+#define UART_17158_XOFF_DETECT	0x1	/* Indicates whether chip saw an incoming XOFF char  */
-+#define UART_17158_XON_DETECT	0x2	/* Indicates whether chip saw an incoming XON char */
-+
-+#define UART_17158_IER_RSVD1	0x10	/* Reserved by Exar */
-+#define UART_17158_IER_XOFF	0x20	/* Xoff Interrupt Enable */
-+#define UART_17158_IER_RTSDTR	0x40	/* Output Interrupt Enable */
-+#define UART_17158_IER_CTSDSR	0x80	/* Input Interrupt Enable */
-+
-+#define PCI_DEVICE_NEO_4_PCI_NAME		"Neo 4 PCI"
-+#define PCI_DEVICE_NEO_8_PCI_NAME		"Neo 8 PCI"
-+#define PCI_DEVICE_NEO_2DB9_PCI_NAME		"Neo 2 - DB9 Universal PCI"
-+#define PCI_DEVICE_NEO_2DB9PRI_PCI_NAME		"Neo 2 - DB9 Universal PCI - Powered Ring Indicator"
-+#define PCI_DEVICE_NEO_2RJ45_PCI_NAME		"Neo 2 - RJ45 Universal PCI"
-+#define PCI_DEVICE_NEO_2RJ45PRI_PCI_NAME	"Neo 2 - RJ45 Universal PCI - Powered Ring Indicator"
-+#define PCI_DEVICE_NEO_1_422_PCI_NAME		"Neo 1 422 PCI"
-+#define PCI_DEVICE_NEO_1_422_485_PCI_NAME	"Neo 1 422/485 PCI"
-+#define PCI_DEVICE_NEO_2_422_485_PCI_NAME	"Neo 2 422/485 PCI"
-+
-+/*
-+ * Our Global Variables.
-+ */
-+extern struct	uart_driver jsm_uart_driver;
-+extern struct	board_ops jsm_neo_ops;
-+extern int	jsm_debug;
-+extern int	jsm_rawreadok;
-+
-+extern int	jsm_driver_state;	/* The state of the driver	*/
-+extern char	*jsm_driver_state_text[];/* Array of driver state text */
-+
-+extern spinlock_t jsm_board_head_lock;
-+extern struct list_head jsm_board_head;
-+/*************************************************************************
-+ *
-+ * Prototypes for non-static functions used in more than one module
-+ *
-+ *************************************************************************/
-+extern char *jsm_ioctl_name(int cmd);
-+extern int jsm_total_boardnum(void);
-+
-+int jsm_mgmt_open(struct inode *inode, struct file *file);
-+int jsm_mgmt_close(struct inode *inode, struct file *file);
-+int jsm_mgmt_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
-+
-+int jsm_tty_write(struct uart_port *port);
-+int jsm_tty_register(struct jsm_board *brd);
-+
-+int jsm_tty_init(struct jsm_board *);
-+int jsm_uart_port_init(struct jsm_board *);
-+int jsm_remove_uart_port(struct jsm_board *);
-+
-+void jsm_tty_uninit(struct jsm_board *);
-+
-+void jsm_input(struct jsm_channel *ch);
-+void jsm_carrier(struct jsm_channel *ch);
-+void jsm_check_queue_flow_control(struct jsm_channel *ch);
-+
-+void jsm_create_driver_sysfiles(struct device_driver *);
-+void jsm_remove_driver_sysfiles(struct device_driver *);
-+
-+
-+/************************************************************************
-+ * All structures for management ports of adapters			* 
-+ ************************************************************************/
-+
-+#define DIGI_PLEN       28              /* String length                */
-+#define DIGI_TSIZ       10              /* Terminal string len          */
-+
-+struct digi {
-+	unsigned short	digi_flags;		/* Flags (see above)	*/
-+	unsigned short	digi_maxcps;		/* Max printer CPS	*/
-+	unsigned short	digi_maxchar;		/* Max chars in print queue */
-+	unsigned short	digi_bufsize;		/* Buffer size		*/
-+	unsigned char	digi_onlen;		/* Length of ON string	*/
-+	unsigned char	digi_offlen;		/* Length of OFF string	*/
-+	char		digi_onstr[DIGI_PLEN];	/* Printer on string	*/
-+	char		digi_offstr[DIGI_PLEN];	/* Printer off string	*/
-+	char		digi_term[DIGI_TSIZ];	/* terminal string	*/
-+};
-+
-+/************************************************************************
-+ * Structure to get driver status information
-+ ************************************************************************/
-+struct digi_dinfo {
-+	u8	dinfo_nboards;		/* # boards configured	*/
-+	char	dinfo_reserved[12];	/* for future expansion */
-+	char	dinfo_version[16];	/* driver version	*/
-+};
-+
-+struct digi_info {
-+	unsigned int	info_bdnum;		/* Board number (0 based)  */
-+	unsigned int	info_ioport;		/* io port address	   */
-+	unsigned long	info_physaddr;		/* memory address	   */
-+	unsigned int	info_physsize;		/* Size of host mem window */
-+	unsigned int	info_memsize;		/* Amount of dual-port mem */
-+						/* on board		   */
-+	unsigned short	info_bdtype;		/* Board type		   */
-+	unsigned short	info_nports;		/* number of ports	   */
-+	char		info_bdstate;		/* board state		   */
-+	char		info_reserved[7];	/* for future expansion	   */
-+};
-+
-+struct ni_info {
-+	int board;
-+	int channel;
-+	int dtr;
-+	int rts;
-+	int cts;
-+	int dsr;
-+	int ri;
-+	int dcd;
-+	int curtx;
-+	int currx;
-+	unsigned short iflag;
-+	unsigned short oflag;
-+	unsigned short cflag;
-+	unsigned short lflag;
-+	unsigned int mstat;
-+	unsigned char hflow;
-+	unsigned char xmit_stopped;
-+	unsigned char recv_stopped;
-+	unsigned int baud;
-+};
-+
-+/* Ioctls needed for dpa operation */
-+#define DIGI_GETDD	('d'<<8) | 248		/* get driver info      */
-+#define DIGI_GETBD	('d'<<8) | 249		/* get board info       */
-+#define DIGI_GET_NI_INFO ('d'<<8) | 250		/* nonintelligent state snfo */
-+
-+#endif
-
---------------040202060805020003050602--
-
+Good luck,
+Jurriaan
+-- 
+You stay here, Audrey -- this is between me and the vegetable!
+	Seymour, from  Little Shop Of Horrors 
+Debian (Unstable) GNU/Linux 2.6.11-mm1 2x4734 bogomips load 0.38

@@ -1,72 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318942AbSICVUQ>; Tue, 3 Sep 2002 17:20:16 -0400
+	id <S318960AbSICV2U>; Tue, 3 Sep 2002 17:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318944AbSICVUQ>; Tue, 3 Sep 2002 17:20:16 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:44965 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318942AbSICVUO>; Tue, 3 Sep 2002 17:20:14 -0400
-Date: Tue, 3 Sep 2002 14:24:34 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
+	id <S318961AbSICV2U>; Tue, 3 Sep 2002 17:28:20 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:529 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S318960AbSICV2R>; Tue, 3 Sep 2002 17:28:17 -0400
+Message-Id: <200209032132.g83LWdD09043@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
        linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-Message-ID: <20020903142434.A2538@eng2.beaverton.ibm.com>
-References: <dledford@redhat.com> <200209031909.g83J9iG07312@localhost.localdomain>
+Subject: Re: aic7xxx sets CDR offline, how to reset? 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "03 Sep 2002 21:59:37 BST." <1031086777.21579.33.camel@irongate.swansea.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200209031909.g83J9iG07312@localhost.localdomain>; from James.Bottomley@SteelEye.com on Tue, Sep 03, 2002 at 02:09:44PM -0500
+Date: Tue, 03 Sep 2002 16:32:38 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James -
+alan@lxorguk.ukuu.org.uk said:
+> What do we plan to do for the cases where reset is disabled because we
+> have shared disk scsi so don't want to reset and hose the reservations
 
-On Tue, Sep 03, 2002 at 02:09:44PM -0500, James Bottomley wrote:
-> dledford@redhat.com said:
-> > Leave abort active.  It does actually work in certain scenarios.  The
-> > CD  burner scenario that started this thread is an example of
-> > somewhere that  an abort should actually do the job. 
-> 
-> Unfortunately, it would destroy the REQ_BARRIER approach in the block layer.  
-> At best, abort probably causes a command to overtake a barrier it shouldn't, 
-> at worst we abort the ordered tag that is the barrier and transactional 
-> integrity is lost.
-> 
-> When error correction is needed, we have to return all the commands for that 
-> device to the block layer so that ordering and barrier issues can be taken 
-> care of in the reissue.  This makes LUN RESET (for those that support it) the 
-> minimum level of error correction we can apply.
-> 
-> James
+The reset gets issued and the reservation gets broken.  Good HA or other 
+software knows the reservation may be lost and takes this into account in the 
+cluster algorithm.
 
-If we only send an abort or reset after a quiesce I don't see why one
-is better than the other.
+With SCSI-2 reservations, there's no way to preserve the reservation and have 
+the reset be effective (I know, in theory, that this can be circumvented by 
+the soft reset alternative, but I've never seen a device that implements it 
+correctly).  I suppose we hope SCSI-3 Persistent Group Reservations come along 
+quickly.
 
-Not specific to reset or abort - if a single command gets an error, we
-wait for oustanding commands to complete before starting up the error
-handler thread. If all the commands (error one and outstanding) have
-barriers, those that do not error out will complete out of order from
-the errored command.
+> If your error correction always requires all commands return to the
+> block layer then the block layer is IMHO broken. Its messy enough
+> doing that before you hit the fun situations where insert scsi
+> commands of their own the block layer never initiated. 
 
-How is this properly handled? 
+This is part of the slim SCSI down approach.  The block layer already has 
+handling for tag errors like this.  Inserted SCSI commands should now work 
+correctly since we're deprecating the scsi_do_cmnd() in favour of scsi_do_req, 
+which means the command is always associated with a request and goes into the 
+block queue just like any other request.
 
-And what happens if one command gets some sort of check condition (like
-medium error, or aborted command) that causes a retry? Will IO's still
-be correctly ordered?
+I think the block layer, which already knows about the barrier ordering, is 
+the appropriate place for this.  If you think the scsi error handler is a 
+hairy wart now, just watch it grow into a stonking great carbuncle as I try to 
+introduce it to the concept of command queue ordering and appropriate recovery.
 
-The abort could also be usefull in handling the locking/ownership of the
-scsi_cmnd - the abort at the LLD layer can be used by the LLD to cancel
-any software timeouts, as well as to flush the command from the hardware.
-After the abort, the mid-layer could assume that it once again "owned"
-the scsi_cmnd, especially if the LLD abort were a required function.
+> Next you only need to return stuff if commands have been issued
+> between the aborting command and a barrier. Since most sane systems
+> will never be causing REQ_BARRIER that should mean the general case
+> for an abort is going to be fine. The CD burner example is also true
+> for this. If we track barrier sequences then we will know the barrier
+> count for the command we are aborting and the top barrier count for
+> commands issued to the device. Finally you only need to go to the
+> large hammer approach when you are dealing with a media changing
+> command (ie WRITE*) - if we abort a read then knowing we don't queue
+> overlapping read then write to disk we already know that the read will
+> not break down the tag ordering as I understand it ? 
 
-I would like to see error handling occur without quiescing the entire
-adapter before taking any action. Stopping all adapter IO for a timeout
-can be a bit expensive - imagine a tape drive and multiple disks on an
-adapter, any IO disk timeout or failure will wait for the tape IO to
-complete before allowing any other IO, if the tape operation is long or
-is going to timeout this could be minutes or hours.
+I agree with your reasoning.  However, errors occur infrequently enough (I 
+hope) so that its just not worth the extra code complexity to make the error 
+handler look for that case.
 
--- Patrick Mansfield
+However, in all honesty, I have to say that I just don't believe ABORTs are 
+ever particularly effective.  As part of error recovery, If a device is 
+tipping over into failure, adding another message isn't a good way to pull it 
+back.  ABORT is really part of the I/O cancellation API, and, like all 
+cancellation implementations, it's potentially full of holes.  The only uses 
+it might have---like oops I didn't mean to fixate that CD, give it back to me 
+now---aren't clearly defined in the SPEC to produce the desired effect (stop 
+the fixation so the drive door can be opened).
+
+> If we get to the point we need an abort we don't want to issue a
+> reset. Not every device comes back sane from a reset and in some cases
+> we have to issue a whole sequence of commands to get the state of the
+> device back (door locking, power management, ..)
+
+Well, this is SCSI---the first thing most controllers do for parallel SCSI at 
+least is reset the BUS.  Some FC drivers do the FC equivalent as well (not 
+that they should, but that's another issue).
+
+The pain of coming back from a reset (and I grant, it isn't trivial) is well 
+known and well implemented in SCSI.  It also, from error handlings point of 
+view, sets the device back to a known point in the state model.
+
+James
+
+

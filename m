@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbSJFAiD>; Sat, 5 Oct 2002 20:38:03 -0400
+	id <S263112AbSJFAob>; Sat, 5 Oct 2002 20:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263093AbSJFAiD>; Sat, 5 Oct 2002 20:38:03 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:41108
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S263080AbSJFAiC>; Sat, 5 Oct 2002 20:38:02 -0400
-Date: Sat, 5 Oct 2002 20:41:25 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Gigi Duru <giduru@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0210052039480.20917-100000@montezuma.mastecende.com>
+	id <S263120AbSJFAob>; Sat, 5 Oct 2002 20:44:31 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:19925 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S263112AbSJFAoa>; Sat, 5 Oct 2002 20:44:30 -0400
+Date: Sat, 5 Oct 2002 21:49:55 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       Ben Collins <bcollins@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0210052149170.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Gigi Duru wrote:
+On 6 Oct 2002, Alan Cox wrote:
 
-> Trivial experiment: configure out _ALL_ the options on
-> 2.5.38 and build bzImage. My result? A totally useless
-> 270KB kernel (compressed). 
+> Linus used to do about a patch every 2 days. Nowdays its a lot slower. I
+> put that down to buttkeeper
 
-You didn't configure it properly...
+Linus snapshots are available on a 3-hourly basis from:
 
-http://function.linuxpower.ca/dmesg-386-2.4.txt
+ftp://nl.linux.org/pub/linux/bk2patch/
 
-	Zwane
+Rik
 -- 
-function.linuxpower.ca
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

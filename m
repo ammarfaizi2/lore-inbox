@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262458AbSJET2h>; Sat, 5 Oct 2002 15:28:37 -0400
+	id <S262456AbSJET1X>; Sat, 5 Oct 2002 15:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262459AbSJET2h>; Sat, 5 Oct 2002 15:28:37 -0400
-Received: from packet.digeo.com ([12.110.80.53]:4090 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262458AbSJET2f>;
-	Sat, 5 Oct 2002 15:28:35 -0400
-Message-ID: <3D9F3EAC.590738BA@digeo.com>
-Date: Sat, 05 Oct 2002 12:34:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
-X-Accept-Language: en
+	id <S262457AbSJET1X>; Sat, 5 Oct 2002 15:27:23 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36113
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262456AbSJET1W>; Sat, 5 Oct 2002 15:27:22 -0400
+Date: Sat, 5 Oct 2002 12:30:18 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 etc and IDE HDisk geometry
+In-Reply-To: <20021004215049.GA20192@win.tue.nl>
+Message-ID: <Pine.LNX.4.10.10210051228080.21833-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Lincoln Dale <ltd@cisco.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] direct-IO API change
-References: <Pine.LNX.4.44.0210041621170.2526-100000@home.transmeta.com
-	 > <5.1.0.14.2.20021005194507.031018c0@mira-sjcm-3.cisco.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Oct 2002 19:34:05.0085 (UTC) FILETIME=[2A5C2CD0:01C26CA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lincoln Dale wrote:
+
+Andries,
+
+If CHS is truly meaningless (less drives smaller than 8.4GB) why can we
+not specify forced LBA geometry reporting?  Also any drive supporting
+48-bit feature sets are forbidden to use CHS.
+
+Just a comment, not bait for a lesson or lecture :-)
+
+
+On Fri, 4 Oct 2002, Andries Brouwer wrote:
+
+> On Fri, Oct 04, 2002 at 11:47:16PM +1000, Allan Duncan wrote:
 > 
-> At 04:23 PM 4/10/2002 -0700, Linus Torvalds wrote:
-> >Especially since I thought that O_DIRECT on the regular file (or block
-> >device) performed about as well as raw does anyway these days? Or is that
-> >just one of my LSD-induced flashbacks?
+> > Question is - what is determining that initial value that becomes the "logical"
+> > CHS, and does it matter?
 > 
-> from my multiple 64/66 PCI bus + multiple 2gbit/s FC HBA tests, yes,
-> they're around the same.
-> (now up to 390mbyte/sec throughput on latest & greatest x86 hardware i
-> have; front-side-bus no longer the limiting factor, but dual 64/66 PCI).
+> No, it does not matter at all.
+> CHS are meaningless numbers not used anywhere anymore in Linux.
 > 
-> of course, purely synthetic tests designed to stress Fibre Channel
-> switching infrastructure, not real-world disk i/o..
+> If you want to influence what geometry *fdisk will use, give it
+> the appropriate options or commands. No need to go via the kernel.
+> But only in rare cases is it necessary to worry about geometry.
+> 
+> Andries
+> 
+> > Aside - RedHat has dropped cfdisk from util-linux in their distro versions 7.2 ff.
+> > Given the bad words said about fdisk, what did cfdisk do to be ostracised?
+> 
+> RedHat thought cfdisk is buggy.
+> They were mistaken.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-direct-io has lost its challenge ;)
+Andre Hedrick
+LAD Storage Consulting Group
 
-I'd love to see the result of some pagecache testing on that
-setup if you have time.
-
-Nothing fancy - just:
-
-for i in $(each ext2 mountpoint)
-do
-	dd if=/dev/zero of=$i/foo bs-1M count=4000 &
-done
-vmstat 1
-
-and
-
-for i in $(each ext2 mountpoint)
-do
-	cat $i/foo > /dev/null &
-done
-vmstat 1
-
-Linus's current BK tree has a few warmups which will help the
-writeout phase a little.

@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261586AbSJJODl>; Thu, 10 Oct 2002 10:03:41 -0400
+	id <S261587AbSJJOJ0>; Thu, 10 Oct 2002 10:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261587AbSJJODl>; Thu, 10 Oct 2002 10:03:41 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:36574 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S261586AbSJJODk>;
-	Thu, 10 Oct 2002 10:03:40 -0400
-Date: Thu, 10 Oct 2002 08:04:48 -0600
-From: yodaiken@fsmlabs.com
-To: Larry McVoy <lm@work.bitmover.com>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
-Message-ID: <20021010080448.A17675@hq.fsmlabs.com>
-References: <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net> <20021007143134.V14596@work.bitmover.com> <ao2ee1$l0c$1@forge.intermeta.de> <20021009165500.L27050@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021009165500.L27050@work.bitmover.com>; from lm@bitmover.com on Wed, Oct 09, 2002 at 04:55:00PM -0700
-Organization: FSM Labs
+	id <S261590AbSJJOJ0>; Thu, 10 Oct 2002 10:09:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64014 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261587AbSJJOJZ>;
+	Thu, 10 Oct 2002 10:09:25 -0400
+Message-ID: <3DA58B60.1010101@pobox.com>
+Date: Thu, 10 Oct 2002 10:14:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Walter Landry <wlandry@ucsd.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A simple request (was Re: boring BK stats)
+References: <20021009.163920.85414652.wlandry@ucsd.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 04:55:00PM -0700, Larry McVoy wrote:
-> > Let's insert some fact in this discussion:
+Walter Landry wrote:
+> Jeff Garzik wrote:
 > 
-> OK.
+>>If you can't fit a whole tree including metadata into RAM, though,
+>>BK crawls... Going from "bk citool" at the command line to actually
+>>seeing the citool window approaches five minutes of runtime, on this
+>>200MB laptop... [my dual athlon with 512MB RAM corroborates your
+>>numbers, though] "bk -r co -Sq" takes a similar amount of time...
+>>
+>>I also find that BK brings out the worst in the 2.4 kernel
+>>elevator/VM... mouse clicks in Mozilla take upwards of 10 seconds to
+>>respond, when "bk -r co -Sq" is running on this laptop [any other
+>>read-from-disk process behaves similarly]. And running any two BK
+>>jobs at the same time is a huge mistake. Two "bk -r co -Sq" runs
+>>easily take four or more times longer than a single run. Ditto for
+>>consistency checks, or any other disk-intensive activity BK indulges
+>>in.
 > 
-> > Basically you charge a small(-ish) company about $25k for any
-> > reasonable license. This is about as much as we spent for Software in
-> > the last seven years (we do own a few Windows and Office licenses).
+> 
+> Hello,
+> 
+> What kind of CPU and hard drive do your two machines above have?  I'm
+> a developer for arch[1], and I'm wondering how fast things can get.
 
-The historical expense for software
-in your company has absolutely no relation to the cost-effectiveness of
-a new purchase as far as I can see.
+The laptop has 200MB RAM, and mozilla and a ton of xterms loaded.  IDE 
+drives w/ Intel PIIX4 controller.  The Dual Athlon has 512MB RAM, and I 
+forget what kind of IDE controller -- I think AMD.  IDE drives as well.
 
-But it is interesting that you can hire a full time "really good" 
-programmer for total cost of $50K/year. Salaries are dropping.
+BitKeeper must scan the entire tree when doing a checkin or checkout, so 
+that is impossible to optimize at the SCM level without compromising 
+features...  if your source tree takes up ~190MB on disk, you have 200MB 
+of RAM total, and you need to sequentially scan the entire thing, there 
+is nothing that can be done at either the OS or app level... You're just 
+screwed.  Things are extremely fast on the Dual Athlon because the 
+entire tree is in RAM.
 
 
+> Note: If you answer, you'll certainly be aiding arch development.  It
+>       might be interpreted as "develop[ing] ... a product which
+>       contains substantially similar capabilities of the BitKeeper
+>       Software, or, in the reasonable opinion of BitMover, competes
+>       with the BitKeeper Software".  So you might lose the ability to
+>       use the free license.  But I'll let you decide if you want to
+>       help us.
 
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+Don't be silly:  I am more than willing to help, via answering 
+questions.  If I had time I would help code.  I'm not religious about 
+"only BitKeeper" to the exclusion of helping open source projects.  I 
+simply use what is most expedient and productive for my kernel 
+development workflow.
+
+	Jeff
+
+
 

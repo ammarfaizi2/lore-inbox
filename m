@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263145AbUB0Vi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUB0Vh6
+	id S263148AbUB0Vhp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbUB0Vgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 16:37:58 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33000
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263145AbUB0VhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:37:24 -0500
-Date: Fri, 27 Feb 2004 22:37:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040227213724.GK8834@dualathlon.random>
-References: <20040227122936.4c1be1fd.akpm@osdl.org> <Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com> <20040227212844.GJ8834@dualathlon.random>
+	Fri, 27 Feb 2004 16:36:36 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:23617 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S263136AbUB0VeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 16:34:11 -0500
+X-BrightmailFiltered: true
+Date: Fri, 27 Feb 2004 22:34:26 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.3] Mouse loosing sync (again)
+Message-ID: <20040227213426.GA28041@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040227201441.GA19946@dreamland.darkstar.lan> <20040227210057.GA924@ucw.cz> <20040227210801.GA26589@dreamland.darkstar.lan> <20040227212346.GA981@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040227212844.GJ8834@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20040227212346.GA981@ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 10:28:44PM +0100, Andrea Arcangeli wrote:
-> expect if compared to 4:4, I won't personally need to deal with the 4:4
+Il Fri, Feb 27, 2004 at 10:23:46PM +0100, Vojtech Pavlik ha scritto: 
+> On Fri, Feb 27, 2004 at 10:08:01PM +0100, Kronos wrote:
+> 
+> > > > These happened while surfing web with little activity on eth0 and while disks
+> > > > were almost idle (-u1 is set on both of them). Using vmstat I see that
+> > > > I'm getting around 1300 interrupts per second while moving mouse (less
+> > > > than 1100 while doing nothing), so I don't think that there's something 
+> > > > spinning in ISR for too long.
+> > > > 
+> > > > Problem first appeared in 2.6.2, 2.6.1 is unaffected. I see that in
+> > > > 2.6.3 there's a patch which is supposed to fix this, but it still
+> > > > happens for me.
+> > > > 
+> > > > Any clue?
+> > > 
+> > > The bad parity messages definitely suggest a problem with the mouse
+> > > cable - either too long or broken.
+> > 
+> > Hum, but why does it work with older kernels? If I boot with 2.6.1 it
+> > works without problems.
+> 
+> 2.6.1 ignores bad parity in mouse data.
 
-<joke>
-and btw, if I will have the luck of not having to deal with the 4:4 2.0
-kernel slowdown, it's also because AMD is effectively saving the soul of
-the vm hackers ;)
-</joke>
+Oh, I see. Thanks for the clarification, I'll try and see if I can
+reproduce with another mouse.
+
+Luca
+-- 
+Home: http://kronoz.cjb.net
+"L'ottimista pensa che questo sia il migliore dei mondi possibili. 
+ Il pessimista sa che e` vero" -- J. Robert Oppenheimer

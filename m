@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUKDTls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbUKDTqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUKDTls (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbUKDTk4
+	id S262414AbUKDTqt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUKDTqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:40:56 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53195 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262381AbUKDTgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:36:51 -0500
-Date: Thu, 4 Nov 2004 13:36:29 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Erich Focht <efocht@hpce.nec.com>, Takayoshi Kochi <t-kochi@bq.jp.nec.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Externalize SLIT table
-Message-ID: <20041104193629.GA22887@sgi.com>
-References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104141337.GA18445@sgi.com> <200411041631.42627.efocht@hpce.nec.com> <20041104170435.GA19687@wotan.suse.de>
+	Thu, 4 Nov 2004 14:46:31 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63192
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262410AbUKDTnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:43:07 -0500
+Date: Thu, 4 Nov 2004 11:32:19 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Robert Love <rml@novell.com>
+Cc: greg@kroah.com, anton@samba.org, linux-kernel@vger.kernel.org,
+       davem@redhat.com, herbert@gondor.apana.org.au, kay.sievers@vrfy.org
+Subject: Re: netlink vs kobject_uevent ordering
+Message-Id: <20041104113219.10770b35.davem@davemloft.net>
+In-Reply-To: <1099592033.31022.138.camel@betsy.boston.ximian.com>
+References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
+	<20041104180550.GA16744@kroah.com>
+	<1099592033.31022.138.camel@betsy.boston.ximian.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104170435.GA19687@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 06:04:35PM +0100, Andi Kleen wrote:
-> On Thu, Nov 04, 2004 at 04:31:42PM +0100, Erich Focht wrote:
-> > On Thursday 04 November 2004 15:13, Jack Steiner wrote:
-> > > I think it would also be useful to have a similar cpu-to-cpu distance
-> > > metric:
-> > > ????????% cat /sys/devices/system/cpu/cpu0/distance
-> > > ????????10 20 40 60 
-> > > 
-> > > This gives the same information but is cpu-centric rather than
-> > > node centric.
-> > 
-> > I don't see the use of that once you have some way to find the logical
-> > CPU to node number mapping. The "node distances" are meant to be
+On Thu, 04 Nov 2004 13:13:53 -0500
+Robert Love <rml@novell.com> wrote:
+
+> On Thu, 2004-11-04 at 10:05 -0800, Greg KH wrote:
 > 
-> I think he wants it just to have a more convenient interface,
-> which is not necessarily a bad thing.  But then one could put the 
-> convenience into libnuma anyways.
+> > So, Robert and Kay, any thoughts as to how this has ever worked at boot
+> > time in the past?
 > 
-> -Andi
+> Weird.  I don't have a clue, but clearly it did work.
 
-Yes, strictly convenience.  Most of the cases that I have seen deal with
-cpu placement & cpu distances from each other. I agree that cpu-to-cpu
-distances can be determined by converting to nodes & finding the 
-node-to-node distance.
-
-A second reason is symmetry. If there is a /sys/devices/system/node/node0/distance
-metric, it seems as though there should also be a /sys/devices/system/cpu/cpu0/distance
-metric.
-
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
-
+It might have really failing recently because nl_table in
+net/netlink/af_netlink.c has become dynamically allocated
+memory setup by netlink_proto_init().

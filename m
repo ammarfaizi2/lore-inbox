@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265168AbTBBIjD>; Sun, 2 Feb 2003 03:39:03 -0500
+	id <S265154AbTBBIkB>; Sun, 2 Feb 2003 03:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbTBBIjD>; Sun, 2 Feb 2003 03:39:03 -0500
-Received: from host25-120.pool80181.interbusiness.it ([80.181.120.25]:9088
-	"EHLO igor.opun.it") by vger.kernel.org with ESMTP
-	id <S265168AbTBBIjC>; Sun, 2 Feb 2003 03:39:02 -0500
-Message-ID: <3E3CDB58.A697BFEF@libero.it>
-Date: Sun, 02 Feb 2003 09:48:24 +0100
-From: Abramo Bagnara <abramo.bagnara@libero.it>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en, it
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: futimes()?
-References: <b1htmi$9r6$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S265169AbTBBIkA>; Sun, 2 Feb 2003 03:40:00 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57998
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265154AbTBBIj5>; Sun, 2 Feb 2003 03:39:57 -0500
+Subject: Re: [PCMCIA] [IDE] [2.5.59-mm7] Badness in  kobject_register call
+	trace
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200302012325.07397.cb-lkml@fish.zetnet.co.uk>
+References: <200302012325.07397.cb-lkml@fish.zetnet.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044179118.16853.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 02 Feb 2003 09:45:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
-> 
-> In the general vein of avoiding security holes by using file
-> descriptors when doing repeated operations on the same filesystem
-> object, I have noticed that there doesn't seem to be a way to set
-> mtime using a file descriptor.  Do we need a futimes() syscall?
+On Sat, 2003-02-01 at 23:25, Charles Baylis wrote:
+> On inserting a PCMCIA compact flash adapter, I get this backtrace. I presume 
+> this fits in the "yes, 2.5 IDE isn't finished yet" category. Other 
+> information available on request.
 
-Parallel to that, there is the long time needed lutimes() syscall.
+Badness in kobject_register is something that whoever did kobject stuff for
+IDE broke. Its not a change done by the IDE people. Hopefully whoever did
+the kobject stuff will fix it
 
-Who has never been annoyed that restoring a backup there's no way to
-restore former symlink mtime?
+As to the IDE side, idecs is a bit iffy in 2.5. 
 
--- 
-Abramo Bagnara                       mailto:abramo.bagnara@libero.it
+Alan
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy

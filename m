@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbUCFCgR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 21:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUCFCgR
+	id S261571AbUCFDJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 22:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUCFDJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 21:36:17 -0500
-Received: from dp.samba.org ([66.70.73.150]:59268 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261571AbUCFCgQ (ORCPT
+	Fri, 5 Mar 2004 22:09:19 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:62906 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261571AbUCFDJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 21:36:16 -0500
-Date: Sat, 6 Mar 2004 13:31:50 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: Re: problem with cache flush routine for G5?
-Message-ID: <20040306023150.GK5801@krispykreme>
-References: <40479A50.9090605@nortelnetworks.com> <1078444268.5698.27.camel@gaston> <4047CBB3.9050608@nortelnetworks.com> <1078452637.5700.45.camel@gaston> <404812A2.70207@nortelnetworks.com> <1078465612.5704.52.camel@gaston> <4048B720.4010403@nortelnetworks.com>
+	Fri, 5 Mar 2004 22:09:18 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 2.6.4-rc1-mm[12] - dm_any_congested issues 
+Date: Sat, 6 Mar 2004 03:09:15 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c2bfcr$bkc$2@news.cistron.nl>
+References: <20040302201536.52c4e467.akpm@osdl.org> <200403051754.i25Hsjg7015052@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4048B720.4010403@nortelnetworks.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1078542555 11916 62.216.29.200 (6 Mar 2004 03:09:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> After doing some digging in the 970fx specs, it seems that we may not 
-> need to explicitly force a store of the L1 dcache at all.  According to 
-> the docs, the L1 dcache is unconditionally store-through. Thus, for a 
-> brute-force implementation we should be able to just invalidate the 
-> whole icache, do the appropriate sync/isync, and it should pick up the 
-> changed instructions from the L2 cache.  Do you see any problems with 
-> this?  Do I actually still need the store?
+In article <200403051754.i25Hsjg7015052@turing-police.cc.vt.edu>,
+ <Valdis.Kletnieks@vt.edu> wrote:
+>On Tue, 02 Mar 2004 20:15:36 PST, Andrew Morton <akpm@osdl.org>  said:
+>
+>(Added in -rc1-mm1 which I didn't try, problem noticed in -rc2-mm2)
+>
+>> queue-congestion-dm-implementation.patch
+>>   Implement queue congestion callout for device mapper
+>
+>This is causing the following trace every second or 2 on my laptop:
+>
+>Mar  4 17:47:26 turing-police kernel: Debug: sleeping function called
+>from invalid context at include/linux/rwsem.h:43
+>Of course backing it out makes the messages go away, since dm_any_congested()
+>was added by that patch.  This patch just not ready for prime time, or
+>am I (as usual)
+>managing to trip over some silly corner case due to odd configuration?
 
-Yeah you will get away with it on the 970FX, do the sync before and
-isync afterwards. As you suggest, you really should modify it to track 
-changed regions and flush them explicitly :)
+It's a bug. The new queue congestion function cannot sleep, yet
+it calls parts of DM that can sleep (indirectly). This needs to
+be fixed in DM (I think).
+See https://www.redhat.com/archives/linux-lvm/2004-March/msg00033.html
 
-Anton
+Mike.
+

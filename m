@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268099AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
+	id <S268105AbTAJCNy>; Thu, 9 Jan 2003 21:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268102AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
-Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:3826 "EHLO
-	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S268099AbTAJCHB>; Thu, 9 Jan 2003 21:07:01 -0500
-Message-ID: <04a701c2b84e$2bd7ad70$1125a8c0@wizardess.wiz>
-From: "jdow" <jdow@earthlink.net>
-To: "Chris Adams" <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
-References: <fa.eembe5o.i4osri@ifi.uio.no> <20030109192432.A485131@hiwaay.net>
-Subject: Re: "Mother" == "computer-illiterate"
-Date: Thu, 9 Jan 2003 18:15:39 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S268106AbTAJCNy>; Thu, 9 Jan 2003 21:13:54 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:13779 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S268105AbTAJCNx>;
+	Thu, 9 Jan 2003 21:13:53 -0500
+Subject: [RFC][PATCH] linux-2.5.55_x86-tsc-cleanup_A0
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042165079.1052.296.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 09 Jan 2003 18:18:00 -0800
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Chris Adams" <cmadams@hiwaay.net>
+All,
+	This patch simply removes one more of the remaining CONFIG_X86_TSC
+#ifdefs from get_cycles(). It is replaced w/ a if(cpu_has_tsc) switch,
+so if you think this will cause a major performance impact, let me know
+and I'll leave it alone. 
 
-> Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
-> >and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
-> >who know what her networking related patent is on)
-> 
-> That's HEDLEY!  Oh, but he doesn't have any patents.
+Otherwise I'll send it in for real on monday. 
 
-No, it's Hedy Lamarr and she invented frequency hopping spread spectrum
-with George Anthiel. I worked on one of the first practical implementations
-of the concept back in the early 70s. Somehow it seems appropriate.
+thanks
+-john
 
-{^_^}  Joanne, jdow@earthlink.net
+diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
+--- a/include/asm-i386/timex.h	Thu Jan  9 17:17:17 2003
++++ b/include/asm-i386/timex.h	Thu Jan  9 17:17:17 2003
+@@ -40,14 +40,10 @@
+ 
+ static inline cycles_t get_cycles (void)
+ {
+-#ifndef CONFIG_X86_TSC
+-	return 0;
+-#else
+-	unsigned long long ret;
+-
+-	rdtscll(ret);
++	unsigned long long ret = 0;
++	if(cpu_has_tsc)
++		rdtscll(ret);
+ 	return ret;
+-#endif
+ }
+ 
+ extern unsigned long cpu_khz;
+
+
 

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUIYT0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUIYT02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269242AbUIYT0L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 15:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbUIYT0L
+	id S269390AbUIYT02 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 15:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269398AbUIYT02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 15:26:11 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47566 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269242AbUIYT0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 15:26:07 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-In-Reply-To: <20040908083158.GA1611@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
-	 <1094597710.16954.207.camel@krustophenia.net>
-	 <1094598822.16954.219.camel@krustophenia.net>
-	 <32930.192.168.1.5.1094601493.squirrel@192.168.1.5>
-	 <20040908082358.GB680@elte.hu>  <20040908083158.GA1611@elte.hu>
-Content-Type: text/plain
-Message-Id: <1096140366.3504.5.camel@krustophenia.net>
+	Sat, 25 Sep 2004 15:26:28 -0400
+Received: from dp.samba.org ([66.70.73.150]:14236 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S269390AbUIYT0Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 15:26:25 -0400
+Date: Sat, 25 Sep 2004 12:25:44 -0700
+From: Jeremy Allison <jra@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeremy Allison <jra@samba.org>,
+       YOSHIFUJI Hideaki / =?utf-8?B?5ZCJ6Jek6Iux5piO?= 
+	<yoshfuji@linux-ipv6.org>,
+       samuel.thibault@ens-lyon.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6] smbfs & "du" illness
+Message-ID: <20040925192544.GA580@jeremy1>
+Reply-To: Jeremy Allison <jra@samba.org>
+References: <20040917205422.GD2685@bouh.is-a-geek.org> <Pine.LNX.4.58.0409250929030.2317@ppc970.osdl.org> <20040925171104.GN580@jeremy1> <20040926.024131.06508879.yoshfuji@linux-ipv6.org> <20040925174406.GP580@jeremy1> <Pine.LNX.4.58.0409251054490.2317@ppc970.osdl.org> <20040925182907.GS580@jeremy1> <Pine.LNX.4.58.0409251218170.2317@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 25 Sep 2004 15:26:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409251218170.2317@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 04:31, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
+On Sat, Sep 25, 2004 at 12:20:20PM -0700, Linus Torvalds wrote:
 > 
-> > * Rui Nuno Capela <rncbc@rncbc.org> wrote:
-> > 
-> > > OK, could just someone with a P4 HT/SMP box hand me their working
-> > > kernel .config file for me to try? That could be a good starting
-> > > point, if not a plain baseline.
-> > 
-> > I'll try the latest VP kernel (-R9) on a P4/HT SMP box in a minute and
-> > will send you a .config if it works. [...]
+> If the number doesn't make sense, then we shouldn't look at it. The 
+> _only_ thing that number makes sense for is st_blocks as far as the Linux 
+> client is concerned. 
 > 
-> P4/HT SMP works fine here - config attached.
-> 
-> since your lockups occur under X, could you try to disable DRI/DRM in
-> your XConfig? Also, would it be possible to connect that box to another
-> box via a serial line and enable the kernel's serial console via the
-> 'console=ttyS0,38400 console=tty' boot option and run 'minicom' on that
-> other box, set the serial line to 38400 baud there too and capture all
-> kernel messages that occur when the lockups happens? Also enable the NMI
-> watchdog via nmi_watchdog=1.
+> In other words, the Linux client is a hell of a lot better off just taking 
+> "(filesize + 511) >> 9", as far as I can tell. It's more accurate than the 
+> random number you have.
 
-Rui brought up an interesting point on the alsa list.  Is this procedure
-possible at all on a new laptop without a legacy serial port?
+At present this is true, but just because our implementation of the spec
+is broken (and yes it's complicated by the fact that we're the only
+ones implementing the server side of this at the moment) doesn't mean
+that the client should depend on this.
 
-Lee
+After all, now I know about it I'll fix it for the next release
+and eventually modern clients and servers will be consistent on
+this issue. But if you want to have a fallback hack that does
+this at present then that's fine by me. It'd be nice if it was
+temporary though.
 
+Jeremy.

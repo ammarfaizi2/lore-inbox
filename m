@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264099AbTFKELO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 00:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTFKELO
+	id S264085AbTFKENb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 00:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFKENb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 00:11:14 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:27884 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S264099AbTFKELN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 00:11:13 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Wed, 11 Jun 2003 16:58:57 +1000
+	Wed, 11 Jun 2003 00:13:31 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:58785 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264085AbTFKENa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 00:13:30 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: Linux 2.4.21-rc1
+Date: Wed, 11 Jun 2003 01:27:07 -0300
+User-Agent: KMail/1.5.1
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> <200304250006.53769.lucasvr@gobolinux.org> <20030607193542.GA12443@fs.tum.de>
+In-Reply-To: <20030607193542.GA12443@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16102.54065.747185.327285@gargle.gargle.HOWL>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Fix raid0 init failure
-In-Reply-To: message from Zwane Mwaikambo on Tuesday June 10
-References: <Pine.LNX.4.50.0306102154210.19137-100000@montezuma.mastecende.com>
-X-Mailer: VM 7.16 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200306110127.07243.lucasvr@gobolinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday June 10, zwane@linuxpower.ca wrote:
-> create_strip_zone was accessing uninitialised data via 
-> zone->dev = conf->devlist 
+On Saturday 07 June 2003 16:35, Adrian Bunk wrote:
+> On Fri, Apr 25, 2003 at 12:06:53AM -0300, Lucas Correia Villa Real wrote:
+> > Hi,
+>
+> Hi Lucas,
+>
+> > I had some problems compiling the ramdisk driver:
+> >
+> > gcc -D__KERNEL__ -I/Depot/Sources/2.4.21-rc1/include -Wall
+> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+> > -DMODULE -DMODVERSIONS -include
+> > /Depot/Sources/2.4.21-rc1/include/linux/modversions.h  -nostdinc
+> > -iwithprefix include -DKBUILD_BASENAME=rd  -c -o rd.o rd.c
+> > rd.c:88: `CONFIG_BLK_DEV_RAM_SIZE' undeclared here (not in a function)
+> > make[2]: *** [rd.o] Error 1
+> > make[2]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers/block'
+> > make[1]: *** [_modsubdir_block] Error 2
+> > make[1]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers'
+> > make: *** [_mod_drivers] Error 2
+> >
+> >
+> > The simple patch below can fix it, though. Is it ok to check against
+> > CONFIG_BLK_DEV_RAM_SIZE definition and redefine it if not found?
+>
+> does this problem still exist in -rc7 ?
+>
+> If yes, please send your .config .
 
-Yes thank.  There are few more of those in other raid levels.  I'm
-about to send a patch off to Linus.
+I have tryied with -rc8, and the problem is fixed now.
 
-NeilBrown
+Lucas

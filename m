@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319022AbSIIVZK>; Mon, 9 Sep 2002 17:25:10 -0400
+	id <S319028AbSIIV1l>; Mon, 9 Sep 2002 17:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319024AbSIIVZK>; Mon, 9 Sep 2002 17:25:10 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:36083 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S319022AbSIIVZJ>; Mon, 9 Sep 2002 17:25:09 -0400
-Date: Mon, 9 Sep 2002 14:24:30 -0700
-From: Chris Wright <chris@wirex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org,
-       Trivial Kernel Patches <trivial@rustcorp.com.au>
-Subject: [TRIVIAL] 2.5.34 kernel-api DocBook fix
-Message-ID: <20020909142430.A2017@figure1.int.wirex.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	Trivial Kernel Patches <trivial@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319033AbSIIV1l>; Mon, 9 Sep 2002 17:27:41 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:29389 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S319028AbSIIV1k>; Mon, 9 Sep 2002 17:27:40 -0400
+Message-ID: <20020909213137.28292.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 10 Sep 2002 05:31:37 +0800
+Subject: 2.5.3[3,4] Preemption problem
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update kernel-api.tmpl to reflect mtrr changes so that the docs will build.
+Hi all,
 
-thanks,
--chris
+$ shutdown -h now
 
---- 2.5.34/Documentation/DocBook/kernel-api.tmpl	Wed Jul 31 07:43:38 2002
-+++ 2.5.34-doc/Documentation/DocBook/kernel-api.tmpl	Mon Sep  9 13:19:29 2002
-@@ -161,7 +161,7 @@
-      </sect1>
- 
-      <sect1><title>MTRR Handling</title>
--!Earch/i386/kernel/mtrr.c
-+!Earch/i386/kernel/cpu/mtrr/main.c
-      </sect1>
-      <sect1><title>PCI Support Library</title>
- !Edrivers/pci/pci.c
+...
+...
+Halting system...
+Shutting down devices
+Power down.
+note: halt[15347] exited with preempt_count 1
+
+With 2.5.33 and 2.5.34.
+Let me know is you need further information.
+
+Ciao,
+          Paolo
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

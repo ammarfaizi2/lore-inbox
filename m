@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265218AbRF0JIY>; Wed, 27 Jun 2001 05:08:24 -0400
+	id <S265222AbRF0JTH>; Wed, 27 Jun 2001 05:19:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265222AbRF0JIO>; Wed, 27 Jun 2001 05:08:14 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:50354 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S265218AbRF0JH5> convert rfc822-to-8bit;
-	Wed, 27 Jun 2001 05:07:57 -0400
-Message-ID: <3B39A269.4C7E60@Sun.COM>
-Date: Wed, 27 Jun 2001 11:07:53 +0200
-From: Julien Laganier <Julien.Laganier@Sun.COM>
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Nilsson <pzycrow@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Some experience of linux on a Laptop
-In-Reply-To: <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S265225AbRF0JSs>; Wed, 27 Jun 2001 05:18:48 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:14864 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S265222AbRF0JSh>;
+	Wed, 27 Jun 2001 05:18:37 -0400
+Date: Wed, 27 Jun 2001 11:18:28 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: A signal fairy tale
+Message-ID: <20010627111827.A22744@pcep-jamie.cern.ch>
+In-Reply-To: <3B38860D.8E07353D@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B38860D.8E07353D@kegel.com>; from dank@kegel.com on Tue, Jun 26, 2001 at 05:54:37AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Nilsson wrote:
-> 
-> Well I thought that it was time for me to give some feedback to the linux
-> community. So I will tell you guys a little of my experience with linux so
-> far.
-> 
-> I have a Toshiba Portégé 3010CT laptop. That is:
-> 266MHz Pentium-MMX
-> 4GB HD with 512kb cache (which linux reduces to 0kb)
-> 32 Mb EDO RAM
-> 
-> After have tried
-> Slackware
-> Gentoo
-> Linux From Scratch
-> Debian
-> Mandrake
-> and soon ROCK linux
-> 
-> I have come to the conclusion that linux is NOT suitable for the general
-> desktop market, I have configured a number of linux routers/fierwalls and am
-> really pleased with the scalability, but the harware compatibility is to
-> damn low for a general user base. I know this isn't really a Linux issue
-> rather a distribution issue, but in the end it's you guys that make the
-> drivers. So a little plea is that you let the optimization phase cooldown a
-> little and concern your self a little more with compatibility, and ease of
-> installation, (tidy up the kernel build system).
-> 
-> On my particular computer the chipset (toshiba specific) is not supported
-> wich makes the harddrive unable to run in UDMA and/or use it's cache.
-> Somehow this make X totaly unusable. With a little luck if it doesn't hang
-> it takes several minutes to launch a simple program.
-> This could be X specific, but I doub't it.
-> 
-> So when you speak of being able to run on 386:es I still have problem
-> starting X on 266MHz with 32Mb mem. This should not be =)
+Dan Kegel wrote:
+>        That signal is no longer delivered normally or available for
+>        pickup with sigwait() et al.  Instead, it must be picked up by
+>        calling read() on the file descriptor returned by sigwait();
+>        the buffer passed to read() must have a size which is a
+>        multiple of sizeof(siginfo_t).
 
-Take a look at http://www.linux-laptop.net
-It's quite useful :-)
+Does this mean that the read() call must write sizeof(siginfo_t) bytes
+for each signal delivered?
+
+At the moment, the kernel does not have to write the whole siginfo_t
+structure to userspace -- it can write just those fields which are
+relevant for a particular signal.
+
+>        A signal number cannot be opened more than once concurrently;
+>        sigopen() thus provides a way to avoid signal usage clashes in
+>        large programs.
+
+sigopen() won't prevent signal usage clashes if the other user is using
+sigaction() and sigtimedwait(), or will it?
+
+Btw, this functionality is already available using sigaction().  Just
+search for a signal whose handler is SIG_DFL.  If you then block that
+signal before changing, checking the result, and unblocking the signal,
+you can avoid race conditions too.  (This is what my programs do).
+
+-- Jamie

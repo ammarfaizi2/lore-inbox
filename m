@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317271AbSFLAWb>; Tue, 11 Jun 2002 20:22:31 -0400
+	id <S317277AbSFLA1R>; Tue, 11 Jun 2002 20:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317277AbSFLAWa>; Tue, 11 Jun 2002 20:22:30 -0400
-Received: from 04-195.088.popsite.net ([64.24.84.195]:11392 "EHLO perl")
-	by vger.kernel.org with ESMTP id <S317271AbSFLAWa>;
-	Tue, 11 Jun 2002 20:22:30 -0400
-Date: Wed, 12 Jun 2002 00:22:29 +0000
-To: linux-kernel@vger.kernel.org
-Cc: xsdg@mangalore.zipworld.com.au
-Subject: computer reboots before "Uncompressing Linux..." with 2.5.19-xfs
-Message-ID: <20020612002229.A27386@216.254.117.126>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: xsdg <xsdg@openprojects.net>
+	id <S317279AbSFLA1Q>; Tue, 11 Jun 2002 20:27:16 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:39862 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317277AbSFLA1P>; Tue, 11 Jun 2002 20:27:15 -0400
+Date: Tue, 11 Jun 2002 19:27:10 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.21: kbuild changes broke filenames with commas 
+In-Reply-To: <16120.1023839748@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0206111903480.18347-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hola...
-I'm trying to get kernel 2.5.19-xfs working on one of my boxes...  The box is
-a P200-MMX, currently running 2.5.7-xfs and using grub as the bootloader.  Each
-time I try to boot the kernel, grub tells me...
+On Wed, 12 Jun 2002, Keith Owens wrote:
 
-root (hd0,0)
- Filesystem type is ext2fs, partition type 0x83
-kernel /boot/kernels/19.5.2k-xfs single
- [Linux-bzImage, setup=0x1400, size=0x134aff]
+> So what?  Users want filenames with ',' in them, the build system
+> should cope with it.  Restricting what the user is allowed to do to
+> what the build system can handle is the wrong approach.  The build
+> system already has to replace '-' with '_', changing comma as well is
+> not a problem.  Or are you going to say that '-' is not allowed in
+> filenames either?
 
-Then, after a small pause, the box reboots (note: it does _not_ print
-"Uncompressing Linux...").  I have tried the following:
-1) Compile the kernel, optimized for P-MMX, on another box (PII-350 Deschutes)
-   using gcc 2.95.4
-2) Recompile bzImage
-3) Recompile bzImage
-4) Remove framebuffer support.  Remove vid mode selection support.  Optimize
-   for Pentium-Classic.  Recompile with everything else the same
-5) Recompile on target box (gcc 2.95.4 also) with options the same as after #4
+It's a stupid discussion - I added support for filenames containing a ',', 
+but the only remaining user is 53c7,8xx.c. That one is broken by the BIO 
+changes anyway, and I heard people say it should go away, as the 
+hardware is supported by other drivers. So I'll wait and see, if it 
+doesn't get fixed but removed, I think removing the hacks to support ',' 
+in the filename is the way to go.
 
-All of my boxes are running Debian SID (not necessarily up-to-date).  I asked a
-number of times in #kernelnewbies on OPN, to no avail.  Any and all
-help would be greatly appreciated. (Please CC me in replies)
+> >Now, what if we had:
+> > 
+> > 	foo,bar.c
+> > 
+> > and
+> > 
+> > 	foo_bar.c
+> > 
+> > in the same directory?  The kbuild system goes wrong, destroying dependency
+> > information, using the wrong KBUILD_BASENAME.  Oops.  I guess we papered
+> > over a bug by allowing commas in filenames.
+> 
+> Not in kbuild 2.5.  I handle this case correctly for the -MD dependency
+> filename.  Try it and see.
 
-	--xsdg
--- 
-|---------------------------------------------------|
-| It's not the fall that kills you, it's the        |
-|   landing.                                        |
-|---------------------------------------------------|
-| http://xsdg.hypermart.net   xsdg@openprojects.net |
-|---------------------------------------------------|
+Well, let me rephrase it as "foo,bar.c" and "foo:bar.c" ;). kbuild-2.5
+would break. Of course it's fixable with even more workarounds, but that's
+not the point.
+
+> OBJECTNAME is externally visible, it is used in Rusty's rationalization
+> of boot and module parameters.  The only time that OBJECTNAME collision
+> would be a problem is when there are two modules called foo,bar and
+> foo_bar.  Having two modules that differ by a single character in the
+> middle of the name is going to cause more problems than just option
+> collision.  BTW, the existing build system does not support
+> KBUILD_OBJECTNAME so Rusty's code cannot go in.
+
+Rusty knows that the current build system can support KBUILD_OBJECT (which 
+is what you called it, not KBUILD_OBJECTNAME) just fine - it's a three 
+line diff, but I don't see a point in submitting it as long as nobody uses 
+it.
+
+--Kai
+
+

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284542AbRLRSn1>; Tue, 18 Dec 2001 13:43:27 -0500
+	id <S284546AbRLRSig>; Tue, 18 Dec 2001 13:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284545AbRLRSl4>; Tue, 18 Dec 2001 13:41:56 -0500
-Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:21230 "EHLO
-	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284484AbRLRSkP>; Tue, 18 Dec 2001 13:40:15 -0500
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200112181508.fBIF8Rs15880@pinkpanther.swansea.linux.org.uk>
-Subject: Re: [CFT][PATCH] watchdog nowayout and timeout module parameters
-To: mdomsch@lists.us.dell.com (Matt Domsch)
-Date: Tue, 18 Dec 2001 15:08:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com, kenji@bitgate.com,
-        nils@kernelconcepts.de, fuganti@conectiva.com.br,
-        giometti@ascensit.com, support@ascensit.com, pb@nexus.co.uk,
-        chowes@vsol.net, gorgo@itc.hu, info@itc.hu, lethal@chaoticdreams.org,
-        woody@netwinder.org, johnsonm@redhat.com
-In-Reply-To: <Pine.LNX.4.33.0112171116140.19932-100000@localhost.localdomain> from "Matt Domsch" at Dec 17, 2001 12:32:59 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284491AbRLRShq>; Tue, 18 Dec 2001 13:37:46 -0500
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:42624
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S284467AbRLRShl>; Tue, 18 Dec 2001 13:37:41 -0500
+Date: Tue, 18 Dec 2001 10:37:30 -0800
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200112181837.fBIIbUF02685@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: "Wenyong Deng" <wydeng@platodesign.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to use >3G memory per process
+In-Reply-To: <OHEPLPGMMIEGHANJIEBAIEPKCEAA.wydeng@platodesign.com>
+In-Reply-To: <OHEPLPGMMIEGHANJIEBAIEPKCEAA.wydeng@platodesign.com>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> To the following drivers was also added a 'timeout=X' module parameter,
-> where timeout is specified in seconds.  Only drivers for which no
-> similar parm was already present were modified:
+In mailing-lists.linux-kernel, you wrote:
 
-Timeout has been moved to an ioctl more by other diffs so Im not sure
-timeout= is too important
+> [1] What need to be done for the kernel to support 3.5G or more user
+> address space per process?
 
-Rest looks good
+On ia32, change the value of __PAGE_OFFSET (where kernel space starts)
+in include/asm-i386/page.h.  The size of kernel space must be a power
+of 2, so you can change __PAGE_OFFSET from its default of 0xC0000000
+to either 0xE0000000 (reasonable) or 0xF0000000 (overboard ?).
+You must also change the unlabeled value near the top of
+arch/i386/vmlinux.lds to match the value of __PAGE_OFFSET.
+
+> [2] What need to be done at compilation time? Any option for
+> compiler/linker?
+
+No changes are required in the method of compiling the kernel.  As for
+your application, no changes should be required, although I am not
+familiar with libhoard.  
+
+Note that this change increases the mmap() region of user space, but
+since you are speak of using malloc() and/or libhoard, that should be
+sufficient for your purposes.  With __PAGE_OFFSET set to 0xE0000000,
+your program should have (3.5GB - 2 * Program Size - Stack Size) of
+usable address space.
+
+Cheers, Wayne
 

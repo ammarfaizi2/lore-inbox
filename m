@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288696AbSAQNWW>; Thu, 17 Jan 2002 08:22:22 -0500
+	id <S288716AbSAQNms>; Thu, 17 Jan 2002 08:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288691AbSAQNWM>; Thu, 17 Jan 2002 08:22:12 -0500
-Received: from [195.25.229.189] ([195.25.229.189]:31344 "EHLO
-	mailrennes.rennes.si.fr.atosorigin.com") by vger.kernel.org
-	with ESMTP id <S288696AbSAQNWH> convert rfc822-to-8bit; Thu, 17 Jan 2002 08:22:07 -0500
-Message-ID: <013901c19f59$d72beb50$8a140237@rennes.si.fr.atosorigin.com>
-From: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: modules detection
-Date: Thu, 17 Jan 2002 14:21:14 +0100
-Organization: ENIB - Promo `98
+	id <S288731AbSAQNmj>; Thu, 17 Jan 2002 08:42:39 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:36500 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id <S288716AbSAQNm1>; Thu, 17 Jan 2002 08:42:27 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [lkml] Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.33L.0201161917060.32617-100000@imladris.surriel.com>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: 17 Jan 2002 08:42:26 -0500
+In-Reply-To: <Pine.LNX.4.33L.0201161917060.32617-100000@imladris.surriel.com>
+Message-ID: <9cfpu49qekd.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 17 Jan 2002 13:21:15.0389 (UTC) FILETIME=[D72AB2D0:01C19F59]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Rik van Riel <riel@conectiva.com.br> writes:
 
-I need to know (in a script shell for instance) if a running kernel
-is compiled with/without module support. I don't have access to the
-source tree when detecting (though I have it mounted sometime later).
+> It seems the IRC log of the journalist in question was missing
+> some lines of what I said and he just glued together the remaining
+> parts of the paragraph for that particular question ;)
 
-Reading the source (fs/proc/proc_misc.c), I understand that the file
-/proc/modules exists only when modules are supported by the running
-kernel. Is that true? If so, can I assume that the following script
-is correct?
+It also looked to me like Rik was talking about the mainline VM, not
+any VM that exists in the many not-yet-integrated -aa patchsets.
 
--=-=-=-
-#!/bin/bash
-[ -e /proc/modules ] && echo Modules supported by running kernel. \
-                     || echo Modules not supported by running kernel.
--=-=-=-
+The argument always feels to me like:
 
-If not, how may I detect module support?
+Joe Luser: "I downloaded a 2.4 kernel and boy does the VM bite!"  
 
-(Yes, I could build two kernels supporting modules vs not supporting
-modules, but my machine is quite slow : 2h per compilation :-( ).
+AA: "That's not true at all, but you need to apply these thirteen -aa
+     patches from my site."  
 
-Thanks for any reply.
+Joe Luser: <runs away in fear>
 
-Regards,
-Yann E. MORIN.
-
---
-.---------------------------.----------------------.------------------.
-|       Yann E. MORIN       |  Real-Time Embedded  | ASCII RIBBON /"\ |
-|  phone: (33) 662 376 056  |  Software  Designer  |   CAMPAIGN   \ / |
-|   http://ymorin.free.fr   °----------------------:   AGAINST     X  |
-| yann.morin.1998@anciens.enib.fr                  |  HTML MAIL   / \ |
-°--------------------------------------------------°------------------°
-
+ian
 

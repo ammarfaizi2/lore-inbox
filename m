@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267855AbUG3WRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUG3WWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267855AbUG3WRV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 18:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUG3WRV
+	id S267860AbUG3WWC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 18:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUG3WWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 18:17:21 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:63886 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S267855AbUG3WPw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 18:15:52 -0400
-Subject: Re: [Patch] Per kthread freezer flags
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Peter Osterlund <petero2@telia.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3llh1k845.fsf@telia.com>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-	 <20040729190438.GA468@openzaurus.ucw.cz>
-	 <1091139864.2703.24.camel@desktop.cunninghams>
-	 <20040729224422.GG18623@elf.ucw.cz>  <m3llh1k845.fsf@telia.com>
+	Fri, 30 Jul 2004 18:22:01 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:4304 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267859AbUG3WSx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 18:18:53 -0400
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
+	pcibus_to_node()
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <200407300836.32812.jbarnes@engr.sgi.com>
+References: <1090887007.16676.18.camel@arrakis>
+	 <200407290843.46116.jbarnes@engr.sgi.com> <1091139818.4070.7.camel@arrakis>
+	 <200407300836.32812.jbarnes@engr.sgi.com>
 Content-Type: text/plain
-Message-Id: <1091225740.11580.0.camel@laptop.cunninghams>
+Organization: IBM LTC
+Message-Id: <1091225824.5925.1.camel@arrakis>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 31 Jul 2004 08:15:41 +1000
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 30 Jul 2004 15:17:05 -0700
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2004-07-30 at 22:11, Peter Osterlund wrote:
-> Yes. What about this code in the main loop in kcdrwd?
+On Fri, 2004-07-30 at 08:36, Jesse Barnes wrote:
+> I think this will work.  My tree didn't have nodemask_t though, so it didn't 
+> compile :)  Here's a first stab at an ia64 portion of the patch.
 > 
-> 			/* make swsusp happy with our thread */
-> 			if (current->flags & PF_FREEZE)
-> 				refrigerator(PF_FREEZE);
-> 
-> Should it still be there when the task is marked as PF_NOFREEZE?
+> Jesse
 
-No, it's not needed if the thread is NOFREEZE.
+Andrew picked it up in 2.6.8-rc2-mm1, so if you base your patch against
+that it should compile...  That's what I based my patch off.  Our lab
+has been down for a few days so I hope to do some testing on Monday for
+my patches.  If all goes well, I'll add your code into my patch and
+submit it early next week, ok?
 
-Regards,
+Thanks!
 
-Nigel
+-Matt
 

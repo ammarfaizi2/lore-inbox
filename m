@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267971AbTBSDqb>; Tue, 18 Feb 2003 22:46:31 -0500
+	id <S267951AbTBSDx1>; Tue, 18 Feb 2003 22:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267973AbTBSDqb>; Tue, 18 Feb 2003 22:46:31 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:17676 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S267971AbTBSDqa>; Tue, 18 Feb 2003 22:46:30 -0500
-Date: Wed, 19 Feb 2003 14:56:04 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: desrt <desrt@desrt.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5: crypto core + block devices + ???
-In-Reply-To: <1045625825.2879.8.camel@nothing.desrt.ca>
-Message-ID: <Pine.LNX.4.44.0302191454160.1595-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267959AbTBSDx1>; Tue, 18 Feb 2003 22:53:27 -0500
+Received: from rth.ninka.net ([216.101.162.244]:5515 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267951AbTBSDx1>;
+	Tue, 18 Feb 2003 22:53:27 -0500
+Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore
+From: "David S. Miller" <davem@redhat.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: chas williams <chas@locutus.cmf.nrl.navy.mil>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030219025347.D22992@parcelfarce.linux.theplanet.co.uk>
+References: <20030219025347.D22992@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Feb 2003 20:47:36 -0800
+Message-Id: <1045630056.10926.4.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Feb 2003, desrt wrote:
+On Tue, 2003-02-18 at 18:53, Matthew Wilcox wrote:
+> you seem to be under the impression that <linux/sem.h> has something
+> to do with linux semaphores.  this is not the case; they're sysv semaphores.
 
-> Looking at the way the crypto api works (ie: skatterlists) makes it seem
-> vaguely compatible with what I've read about the new block device IO
-> mechanisms in 2.5.  Is this an accident?  Is there some generic crypto
-> support for block devices planned that will obsolete using the loopback
-> driver to this end? (like the pages get decrypted upon loading into the
-> buffer cache from the physical media or whatever? i'm not really sure
-> how all the block device stuff works,...)
-> 
+I agree, this bit has to be fixed.
 
-Nothing like this is planned that I'm aware of.
+> atm really needs fixing properly.
 
+True, but his change by itself is OK.  All of the places where
+atm_dev_lock is acquired it is safe to do things like sleep.
 
-> If there are no deeper motives here and the intention is to continue
-> supporting encrypted filesystems via the loopback interface, is there
-> anyone working on the project?
+While checking this I notice that atm_alloc_dev uses GFP_ATOMIC
+thus unnecessarily.
 
-Yes, a few people have been working on loopback crypto support for 2.5, 
-see the cryptoapi-devel archives.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+Anyways, Matt, without a full time ATM maintainer and having basically
+nobody who wants to take that on, we should take the small fixes when
+they do occur and are correct as Chas's patch is.
 

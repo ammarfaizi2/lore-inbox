@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312401AbSCYLfJ>; Mon, 25 Mar 2002 06:35:09 -0500
+	id <S312403AbSCYLkA>; Mon, 25 Mar 2002 06:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312404AbSCYLeu>; Mon, 25 Mar 2002 06:34:50 -0500
-Received: from p50846B26.dip.t-dialin.net ([80.132.107.38]:34018 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S312401AbSCYLei>;
-	Mon, 25 Mar 2002 06:34:38 -0500
-To: Robert Love <rml@tech9.net>
-Cc: Andrew Morton <akpm@zip.com.au>,
-        christophe =?iso-8859-1?q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x and resume
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au>
-	<1016914030.949.20.camel@phantasy>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Mon, 25 Mar 2002 12:34:18 +0100
-Message-ID: <m3r8m851ad.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
- i386-redhat-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312404AbSCYLjv>; Mon, 25 Mar 2002 06:39:51 -0500
+Received: from ns.suse.de ([213.95.15.193]:63241 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312403AbSCYLjn>;
+	Mon, 25 Mar 2002 06:39:43 -0500
+Date: Mon, 25 Mar 2002 12:39:42 +0100
+From: Dave Jones <davej@suse.de>
+To: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: David Flynn <dave@woaf.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Subject: Re: Possible problems with D-LINK DFE-550TX (stock sundance driver) under 2.4.18
+Message-ID: <20020325123942.A23014@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	=?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+	David Flynn <dave@woaf.net>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+In-Reply-To: <200203250336.08428.Dieter.Nuetzel@hamburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
+On Mon, Mar 25, 2002 at 03:36:07AM +0100, Dieter Nützel wrote:
+ > > Try booting with just one processor (maxcpus=1 boot option) or borrow
+ > > two Athlon MP and see if you can reproduce the problem then. If you can,
+ > > someone may help you. I you can't reproduce it with one CPU, you're
+ > > probably on your own.
+ > 
+ > On "newer" Athlon XP (Duron, Athlon Thoroughbred) L5-4 bridge have to be 
+ > closed.
 
-> On Sat, 2002-03-23 at 13:39, Andrew Morton wrote:
->
->> in modules.conf, and we really have eight NICS, and they're
->> being plugged and unplugged, how can we reliably associate
->> that option with the eight cards?  So the right option is
->> applied to each card eash time it's inserted?  Should the
->> option be associated with a card, or with a bus position?
->
-> Ugh, not pretty.
->
-> Associate it with the bus position I'd say?
-
-I don't know wherewith the <i> in eth<i> is associated (bus pos or
-maybe linear ordering of the MAC addresses or somesuch), but I would
-expect a selected combination of eth<i> userland configuration (IP
-address, netmask) and driver level configuration (WOL, ...) to remain
-stable.
-
-Being able to redetect a pulled card put in a different slot as a
-"known" one giving it the same eth<i> (and associated WOL etc. config)
-as before would of course be nice, but I can't see how this can be
-cleanly done over reboots.
-
-With bus pos you get a lesser variant of the "SCSI disk association
-problem", i.e. inserting an eth card in an empty slot between other
-eth cards moves at least some of the others (I'm not sure, but I think
-this would be the current behaviour. - Over reboots, not in the
-hot-plug case, of course).
-
-I wouldn't mind if the <i> in eth<i> was somehow derived from the
-phy. bus pos; so I'd maybe have eth3 and eth7 and if I plugged another
-one it could be eth4. That way I'd only have to worry about the cards
-"wandering" around when changing/drastically reconfiguring (BIOS
-update?) the motherboard.
-
-To cut a lengthy dogfight short most of that useful functionality
-could be had by indexing the eth configure scripts over, say, MAC
-address instead of eth<i>; that way I'd have to touch the config when
-exchanging the card against a different one; but no others would
-decide to move around no matter what. OK, so there might be b0rked
-cards with unusable MACs out there, but for the applications I have in
-mind I wouldn't use those, anyway.
-
-(All this comes to mind because in my PFY days I had to fight with a
-firewall which, after card change (might even have been driver load
-order, can't remember whether it was the same driver for all 3 cards)
-shifted eth<i> in a most, ah, undesirable fashion.)
-
-
-So long,
-   Joe
+You don't for a minute think that there might be a reason that bridge
+got broken at the factory ? *sigh*, we've been through this topic
+before, I'm tired of arguing it. 
 
 -- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

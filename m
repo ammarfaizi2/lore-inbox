@@ -1,87 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUFFHUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUFFHc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUFFHUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 03:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUFFHUJ
+	id S263003AbUFFHc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 03:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUFFHc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 03:20:09 -0400
-Received: from mail.codeweavers.com ([216.251.189.131]:59809 "EHLO
-	mail.codeweavers.com") by vger.kernel.org with ESMTP
-	id S262974AbUFFHUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 03:20:01 -0400
-Message-ID: <40C2D5F4.4020803@codeweavers.com>
-Date: Sun, 06 Jun 2004 17:29:40 +0900
-From: Mike McCormack <mike@codeweavers.com>
-Organization: Codeweavers
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
+	Sun, 6 Jun 2004 03:32:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46473 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263003AbUFFHc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 03:32:26 -0400
 Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-References: <40C2B51C.9030203@codeweavers.com> <20040606052615.GA14988@elte.hu>
-In-Reply-To: <20040606052615.GA14988@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Mike McCormack <mike@codeweavers.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <40C2D5F4.4020803@codeweavers.com>
+References: <40C2B51C.9030203@codeweavers.com>
+	 <20040606052615.GA14988@elte.hu>  <40C2D5F4.4020803@codeweavers.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZVFnDopQoloWpG2lCG7b"
+Organization: Red Hat UK
+Message-Id: <1086507140.2810.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 06 Jun 2004 09:32:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Ingo,
+--=-ZVFnDopQoloWpG2lCG7b
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Ingo Molnar wrote:
+On Sun, 2004-06-06 at 10:29, Mike McCormack wrote:
+> Hi Ingo,
+>=20
+> Ingo Molnar wrote:
+>=20
+> > there are multiple methods in FC1 to turn this off:
+> >=20
+> > - FC1 has PT_GNU_STACK support and all binaries that have no
+> >   PT_GNU_STACK program header will have the stock Linux VM layout.=20
+> >   (including executable stack/heap) So by stripping the PT_GNU_STACK=20
+> >   header from the wine binary you get this effect.
+>=20
+> As far as we can tell, this alone does not stop the kernel from loading=20
+> stuff at the addresses we need.  Even without PT_GNU_STACK ld-linux.so.2=20
+> and libc are loaded below 0x01000000, which is the region that Wine=20
+> assumes is free.  I think this may be due to prelinking...
 
-> there are multiple methods in FC1 to turn this off:
-> 
-> - FC1 has PT_GNU_STACK support and all binaries that have no
->   PT_GNU_STACK program header will have the stock Linux VM layout. 
->   (including executable stack/heap) So by stripping the PT_GNU_STACK 
->   header from the wine binary you get this effect.
+that is prelink yes, not the kernel execshield.
 
-As far as we can tell, this alone does not stop the kernel from loading 
-stuff at the addresses we need.  Even without PT_GNU_STACK ld-linux.so.2 
-and libc are loaded below 0x01000000, which is the region that Wine 
-assumes is free.  I think this may be due to prelinking...
 
-We (Codeweavers) build Wine on a Redhat 6.2 based machine, so 
-PT_GNU_STACK is not added to the binaries.  They still don't work on 
-Fedora Core 1.
+--=-ZVFnDopQoloWpG2lCG7b
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> - you get the same effect by setting the personality to PER_LINUX32 via:
-> 
-> 	personality(PER_LINUX32);
-> 
->   this is a NOP on stock x86 Linux, and turns off exec-shield on FC1.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
- From the Wine project's POV, there are two problems with that solution:
+iD8DBQBAwsiExULwo51rQBIRApchAJ424lle4GJOQdQCZXOABDfVKxDkDwCeNt9Q
+brsR+b+2tgnuxcku3BktYfk=
+=Dh8F
+-----END PGP SIGNATURE-----
 
-1) it's not backwards compatible with older binaries
+--=-ZVFnDopQoloWpG2lCG7b--
 
-2) it's distribution specific, so other distributions could come up
-    with a new method of doing the same thing.
-
-> all these methods were present in FC1 from day 1 on. In fact we
-> specifically targetted Wine (and similar applications) with these
-> methods to make it easy for them to be built under FC1. (of course
-> existing binaries of Wine worked and work fine because they dont have
-> PT_GNU_STACK.)
-
-The first thing we knew about exec-shield was when stuff started 
-breaking. Perhaps we could work a little more closely when there's a 
-possibility that Wine could break due to a new kernel feature?
-
-Ideally the solution to the problem should be backward compatible, and 
-not require any change to older binaries for them to work.
-
->>We developed a hack to work around this problem by creating a staticly
->>linked binary to reserve memory then load ld-linux.so.2 and a
->>dynamically executable into memory manually and run start them.
-> 
-> 
-> while this should work too - why not one of the methods above?
-
-It would be better to argue that with Alexandre Julliard, because he's 
-the guy that chooses the solutions.  My guess is for the reasons I 
-explained above.
-
-Mike

@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUFXP7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUFXP7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265781AbUFXP7U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUFXP7U
+	id S265782AbUFXP7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 11:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUFXP7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 24 Jun 2004 11:59:23 -0400
+Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:55178 "HELO
+	dyn.galis.org") by vger.kernel.org with SMTP id S265782AbUFXP7U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 24 Jun 2004 11:59:20 -0400
-Received: from linuxhacker.ru ([217.76.32.60]:30441 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S265781AbUFXP7R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 11:59:17 -0400
-Date: Thu, 24 Jun 2004 18:58:40 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Michael Kerrisk <mtk-lists@jambit.com>
-Cc: linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>,
-       Vladimir Saveliev <vs@namesys.com>, Chris Mason <mason@suse.com>,
-       mk <michael.kerrisk@gmx.net>
-Subject: Re: Strange NOTAIL inheritance behaviour in Reiserfs 3.6
-Message-ID: <20040624155840.GG2362@linuxhacker.ru>
-References: <041c01c45875$0368e340$c100a8c0@wakatipu> <200406231111.i5NBBFwF201534@car.linuxhacker.ru> <005e01c459f7$6a8546d0$c100a8c0@wakatipu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MBOX-Line: From george@galis.org  Thu Jun 24 11:59:19 2004
+Date: Thu, 24 Jun 2004 11:59:19 -0400
+From: George Georgalis <george@galis.org>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: SATA_SIL fails with 2.6.7-bk6 seagate drive
+Message-ID: <20040624155919.GA16422@trot.local>
+References: <20040623202539.GB3537@trot.local> <Pine.GSO.4.33.0406232055050.25702-100000@sweetums.bluetronic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <005e01c459f7$6a8546d0$c100a8c0@wakatipu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.GSO.4.33.0406232055050.25702-100000@sweetums.bluetronic.net>
+X-Time: trot.local; @707; Thu, 24 Jun 2004 11:59:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Jun 23, 2004 at 08:59:06PM -0400, Ricky Beam wrote:
+>On Wed, 23 Jun 2004, George Georgalis wrote:
+>>I changed "hdc" entries to "sda" in fstab and grub, but on reboot
+>>my root, sda1, could not be found. Might it be another device?
+>>Or something else? config attached.
+>
+># CONFIG_BLK_DEV_SD is not set
+>
+>I'm gonna go ahead and say what I'm thinking *grin*... well, duh.  There's
+>no support for any SCSI DISKS.  libata is a scsi driver which makes your
+>sata drives appear as scsi drives.
+>
+>Turn that on, recompile, and reboot.
 
-On Thu, Jun 24, 2004 at 04:27:44PM +0200, Michael Kerrisk wrote:
-> >
-> > MK>     # mount -t reiserfs /dev/hda12 /testfs
-> > Does it work as expected if you add "-o attrs" to the mount command?
-> Yes!  Thanks.  However, it is a little unfortunate that if one fails
-> to use this option, then:
-> 1. "chattr +t" (and I suppose underlying ioctl()s) can still be used to
->    set this attribute on a directory, without any error resulting.
->    It would be better if an error is reported.
+Whoops! Well that got me able to mount it. Thanks!
 
-Well, initial idea was to allow people to at least reset attributes
-in case of operationg with disabled attributes processing.
+dd if=/dev/zero of=/mnt/zero-`date +%s`
 
-> 2. The attribute is then inherited by files created in that directory,
->    but has no effect.
+has caused pdflush to block IO, any access to /mnt and the process
+does not return. other than the pdflush load of ~99% the box seems to
+function normally. 2.6.7-bk6, seagate drive
 
-Yes, attribute inheritance is working. The only part that is disabled
-by default is copying from fs-specific attribute storage to actual VFS inode
-attributes.
+I enabled some video options which seem to have blanked my display,
+wrong driver, bug or overscanning text console (?), not sure; but I'll
+follow up with more detailed sata report when I get video okay (at least
+24 hrs).
 
-> 3. A later explicit "chattr + t" on the files themselves DOES result in
->    unpacking of the tails.  Why?
+// George
 
-There is a check in attributes setting code (and attributes setting/cleaning
-is enabled), that tests if NOTAIL attribute is set, that calls tails
-unpacking if so. Next time you write to that file it will be packed back
-(if possible).
+-- 
+George Georgalis, Architect and administrator, Linux services. IXOYE
+http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
+Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
 
-I agree that all of this is not very intuitive, though.
-
-Bye,
-    Oleg

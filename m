@@ -1,92 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269470AbUI3UV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269491AbUI3U1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269470AbUI3UV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UV3
+	id S269491AbUI3U1I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUI3U1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:21:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14520 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269470AbUI3UVV (ORCPT
+	Thu, 30 Sep 2004 16:27:07 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:50835 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S269491AbUI3U1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:21:21 -0400
-Subject: Re: [PATCH/RFC] Simplified Readahead
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Stephen Tweedie <sct@redhat.com>, Steven Pratt <slpratt@austin.ibm.com>,
-       Ram Pai <linuxram@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040929231327.GM2061@schnapps.adilger.int>
-References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
-	 <415B3845.3010005@austin.ibm.com>
-	 <20040929231327.GM2061@schnapps.adilger.int>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096575644.1977.463.camel@sisko.scot.redhat.com>
+	Thu, 30 Sep 2004 16:27:04 -0400
+Date: Thu, 30 Sep 2004 22:26:55 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] overcommit symbolic constants
+Message-ID: <20040930202653.GA5532@apps.cwi.nl>
+References: <UTC200409301341.i8UDfRi02421.aeb@smtp.cwi.nl> <1096548791.19269.5.camel@localhost.localdomain> <20040930141905.GA4077@apps.cwi.nl> <1096550863.19487.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Sep 2004 21:20:44 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096550863.19487.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 30, 2004 at 02:27:44PM +0100, Alan Cox wrote:
 
-On Thu, 2004-09-30 at 00:13, Andreas Dilger wrote:
-> On a readahead-related note, I'm wondering how hard it would be to have
-> some tunables and/or hooks from the readahead state manchine made
-> available to the filesystem?  With the 2.4 readahead code it was basically
-> impossible for the filesystem to disable the readahead, I haven't looked
-> at the 2.6 readahead enough to determine whether we need that or not.
+> What might work (if you've not already tried it) is to make the initial
+> stack something like 1 or 4Mbytes. Don't map the pages but install a vma
+> of that size. That would pre-reserve address space and perhaps avoid
+> this. I guess if that works then make it a /proc/sys tunable for
+> guaranteed stack.
 
-Well, readahead is still done internally by filemap.c without consulting
-the individual fs.
+A good and simple idea.
+Yes, works entirely satisfactorily in my first few tests.
 
-> The real issue (reason for turning off RA in 2.4) is that within Lustre
-> there can be many DLM extent locks for a single file, so client A can
-> be writing to one part of the file, and client B can be reading from
-> another part of the same file.  With the stock readahead it wouldn't
-> stay within the lock extent boundaries, and we couldn't turn it off
-> easily.  Having some sort of FS method that says "don't do RA beyond
-> this offset" would be useful here.
-
-Do you really want that, though?  I'd have thought that grabbing a DLM
-lock was potentially a high-latency operation, so you might actually
-_benefit_ from notification that you want to start acquiring it early. 
-If it's going to be prohibitively expensive to acquire, though, you'd
-still want the option of not doing so.
-
-But there's not really any way for the fs to tell right now whether a
-read is for readahead or not.  It can _nearly_ do so: if you implement
-a_ops->readpages(), then that only gets called for readahead.  
-
-Trouble is, that same readahead code is also used to kick off early
-reads when the user actually requested a single large read.  If the app
-reads 100k at once, then do_generic_mapping_read() first kicks off
-readahead, then does individual page-sized read_page()s to get the
-data.  And the readahead code doesn't really know about this at all; it
-can't tell what amount of sequential data the user is guaranteed to
-want.
-
-ext3 could make use of this sort of information too, btw.  Currently,
-mpage_readpages() ends up calling the fs get_block() to map all the
-pages for reading, before submitting the IO request; and even though
-the final IO is async, the get_block() is still fully synchronous.  If
-ext3 knew it was a readahead, it could potentially queue the read for
-the indirect block and return EAGAIN, stopping the readahead at the
-point where we don't yet have mapping information in cache.
-
-But you don't want ext3_get_block() returning EAGAIN for synchronous
-reads. :-)
-
-> The other problem that Lustre had was that the stock readahead would
-> send out page reads in small chunks as the window grew instead of
-> sending out large requests that could be turned into large, efficient
-> network RPCs.  So the desire would be to have some sort of tunable in
-> the readahead state (per fs or per file) that says "don't submit
-> another readahead until the window is growing by X pages".
-
-Does the current 2.6 ahead-window readahead still show that problem?
-
---Stephen
-
-
+Andries

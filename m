@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbTFKAp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 20:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTFKAp6
+	id S262312AbTFKArS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 20:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTFKArS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 20:45:58 -0400
-Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:30638 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S262439AbTFKAp4
+	Tue, 10 Jun 2003 20:47:18 -0400
+Received: from dyn-ctb-210-9-246-243.webone.com.au ([210.9.246.243]:54279 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262312AbTFKArL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 20:45:56 -0400
-Subject: RE: [PATCH] io stalls
-From: Chris Mason <mason@suse.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrea Arcangeli <andrea@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGMECMCPAA.rwhite@casabyte.com>
-References: <PEEPIDHAKMCGHDBJLHKGMECMCPAA.rwhite@casabyte.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055293132.24111.186.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Jun 2003 20:58:53 -0400
+	Tue, 10 Jun 2003 20:47:11 -0400
+Message-ID: <3EE67F38.9030702@cyberone.com.au>
+Date: Wed, 11 Jun 2003 11:00:40 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Pratt <slpratt@austin.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70-mm2 causes performance drop of random read O_DIRECT
+References: <3EE5190D.3070401@austin.ibm.com> <3EE522AA.7020200@cyberone.com.au> <3EE5E5AA.6020901@austin.ibm.com>
+In-Reply-To: <3EE5E5AA.6020901@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-10 at 19:04, Robert White wrote:
-> From: Chris Mason [mailto:mason@suse.com]
-> Sent: Monday, June 09, 2003 7:13 PM
-> 
-> > 2) Provide a somewhat obvious patch that makes the current
-> > __get_request_wait call significantly more fair, in hopes of either
-> > blaming it for the stalls or removing it from the list of candidates
-> 
-> Without the a_w_q_exclusive() on add_wait_queue the FIFO effect is lost when
-> all the members of the wait queue compete for their timeslice in the
-> scheduler.  For all intents and purposes the fairness goes up some (you stop
-> having the one guy sorted to the un-happy end of the disk) but low priority
-> tasks will still always end up stalled on the dirty end of the stick.
-> Basically each new round at the queue-empty moment is a mob rush for the
-> door.
-> 
-> With the a_w_q_exclusive(), you get past fair and well into anti-optimal.
-> Your FIFO becomes essentially mandatory with no regard for anything but the
-> order things hit the wait queue.  (Particularly on an SMP machine, however)
-> "new requestors" may/will jump to the head of the line because they were
-> never *in* the wait queue.  
 
-The patches flying around force new io into the wait queue any time
-someone else is already waiting, nobody is allowed to jump to the head
-of the line.
 
-The rest of your ideas are interesting, we just can't smush them into
-2.4.  Please consider doing some experiments on the 2.5 io schedulers
-and making suggestions, it's a critical area.
+Steven Pratt wrote:
 
--chris
+> Nick Piggin wrote:
+>
+>> Steven Pratt wrote:
+>>
+>>> Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
+>>> significant degrade in random read for block devices using 
+>>> O_DIRECT.   The drop occurs for all block sizes and ranges from 
+>>> 30%-40.  CPU usage is also lower although it may already be so low 
+>>> as to be irrelavent.
+>>
+>>
+>> Hi Steven, this is quite likely to be an io scheduler problem.
+>> Is your test program rawread v2.1.5?
+>
+>
+> This test was actually using 2.1.4, but the only difference in the 
+> 2.1.5 version is a fix for the test label array for the aio versions 
+> of the test.  No functional change, just fixed the outputed test 
+> description.
+>
+>> What is the command line you are using to invoke the program? 
+>
+>
+> rawread -t6 -p8 -m1 -d2 -s4096 -n65536 -l1 -z -x
+>
+> Which you can find if you follow either results link and look in the 
+> benchmark directory where all raw benchmark out put is stored.
+>
+
+OK thanks, I can now reproduce this! I'll work on it.
 

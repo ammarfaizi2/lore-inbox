@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265479AbRFVRe3>; Fri, 22 Jun 2001 13:34:29 -0400
+	id <S265449AbRFVR17>; Fri, 22 Jun 2001 13:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbRFVReL>; Fri, 22 Jun 2001 13:34:11 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:32568 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S265478AbRFVReB>; Fri, 22 Jun 2001 13:34:01 -0400
-Message-ID: <3B338174.1070507@blue-labs.org>
-Date: Fri, 22 Jun 2001 10:33:40 -0700
-From: David Ford <david@blue-labs.org>
-Organization: Blue Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9.1) Gecko/20010607
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [bug] OOPS/stunted boot, aic7xxx, 2.4.x
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265474AbRFVR1u>; Fri, 22 Jun 2001 13:27:50 -0400
+Received: from mail.mediaways.net ([193.189.224.113]:51840 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S265449AbRFVR1j>; Fri, 22 Jun 2001 13:27:39 -0400
+Date: Fri, 22 Jun 2001 19:27:32 +0200
+From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Alan Cox <laughing@shared-source.org>
+Subject: Re: Linux 2.4.5-ac15 / 2.4.6-pre5
+Message-ID: <20010622192732.A11019@frodo.uni-erlangen.de>
+In-Reply-To: <20010622160821.A7032@frodo.uni-erlangen.de> <Pine.LNX.4.33.0106221747090.782-100000@mikeg.weiden.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0106221747090.782-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Fri, Jun 22, 2001 at 05:50:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'lo
+Mike Galbraith schrieb am Freitag, den 22. Juni 2001:
 
-I have a client machine that I can't get 2.4 to boot on.  It is an SMP 
-motherboard with one CPU  , dual port aic7896/97 ultra2 onboard.
+> >  6  5  1  77232   2692   2136  47004 560 892  2048  1524 10428 285529   2  98   0
+>                                                            ^^^^^
+> Was disk running?  (I bet not.. bet it stopped just after stall began)
 
-I'm slowing going backwards from 2.4.6-pre5 and am currently compiling 
-2.4.3.  With the later kernels, the machine simply hangs, flat out does 
-nothing instead of initializing the aic driver.  With the earlier 
-kernels I get the below messages.  BTW, why the heck is the linux kernel 
-relying on Berkely DB?  I find it rather bothersome that I have to go 
-fetch and compile a userland library just to compile the aic driver.
+There was no disk activity during the stall.
 
-More details to follow I'm sure.
-
-David
-
---------
-
-
-scsi:0:0:0:0 Attempting to queue an ABORT message
-..Command already completed
-aic7xxx_abort returns 8194
-..Attempting to queue an ABORT message
-..Device is active, asserting aTN
-Recovery code sleeping
-Recovery code awake
-..Timer expired
-..returns 8195
-..attepting to queue a TARET RESET message
-..returns 8195
-..recovery SCB completes
-..attempting to queue an abort
-ahc_intr : HOST_MSG_LOOP bad phase 0x0
-..command aborted from QINFIFO
-..returns 8194
-scsi: device set offline - not ready or command retry failed after bus 
-reset: host  0 channel 0  id 0 lun 0
-
-(partially repeats for each id, 1-15, on both  ports)
-
-
+Walter

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbULaNDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbULaNP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbULaNDi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 08:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbULaNDi
+	id S262027AbULaNP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 08:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbULaNP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 08:03:38 -0500
-Received: from smtp.intoto.com ([207.145.48.18]:7698 "HELO
-	ip-207-145-48-18.sjc.megapath.net") by vger.kernel.org with SMTP
-	id S262008AbULaNDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 08:03:35 -0500
-Message-Id: <6.1.2.0.1.20041231184958.02767968@172.16.1.10>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
-Date: Fri, 31 Dec 2004 18:51:18 +0530
-To: linux-kernel@vger.kernel.org
-From: Uma Mahesh <mahesh@intotoinc.com>
-Subject: Multicast data packets forwarding in Linux kernel w.r.t. IGMP
-  Proxy
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Fri, 31 Dec 2004 08:15:59 -0500
+Received: from 80-219-198-150.dclient.hispeed.ch ([80.219.198.150]:7555 "EHLO
+	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id S262027AbULaNPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 08:15:55 -0500
+From: Thomas Sailer <sailer@scs.ch>
+Organization: Supercomputing Systems AG
+To: Mike Hearn <mh@codeweavers.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+Date: Fri, 31 Dec 2004 14:13:16 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, the3dfxdude@gmail.com,
+       pouech-eric@wanadoo.fr, dan@debian.org, roland@redhat.com,
+       linux-kernel@vger.kernel.org, wine-devel@winehq.com,
+       wine-patches@winehq.com, mingo@elte.hu
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <1104401393.5128.24.camel@gamecube.scs.ch> <1104411980.3073.6.camel@littlegreen>
+In-Reply-To: <1104411980.3073.6.camel@littlegreen>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412311413.16313.sailer@scs.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am trying to implement the IGMP Proxy software in Linux.
+On Donnerstag 30 Dezember 2004 14.06, you wrote:
 
-I have some basic doubt related to forwarding multicast data packets
-in linux, w.r.t. IGMP Proxy.
+> Tom, does this patch against Wine help? It should do the same thing as
+> the setarch program, so if that fixes it then this should also (if I've
+> understood how this mechanism works of course).
 
-Is it the IGMP Proxy or Linux kernel (on which multicast routing support
-is enabled), which one forwards multicast data packets?
+No this doesn't work. The decision which address space layout to use is done 
+in arch/i386/mm/mmap.c:arch_pick_mmap_layout, and this function is called by 
+the elf loader in fs/binfmt_elf.c:load_elf_binary, i.e. the decision which 
+address space layout to use for the current wine process is already done long 
+time before your personality syscall takes effect.
 
-In other words, is it required IGMP Proxy to route multicast data packets
-based on membership database it has?
-OR
-Is it required to add multicast routes into the kernel, like a multicast
-router adds using socket option MRT_ADD_MFC, from user space?
+I hoped there was some ELF section magic to turn this off (like execshield), 
+but there doesn't seem to be.
 
-Do we have any exported calls to add/delete multicast routes in the kernel?
-Can any body help in this regard?
-
-Thanks in Advance,
-Mahesh.
-
-
+Tom

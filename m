@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTIOXyM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbTIOXyM
+	id S261720AbTIOXzu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbTIOXzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:54:12 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:55291 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261719AbTIOXyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:54:09 -0400
-Date: Tue, 16 Sep 2003 00:53:03 +0100
-From: Dave Jones <davej@redhat.com>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] changes at SubmittingDrivers
-Message-ID: <20030915235303.GB32543@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Xose Vazquez Perez <xose@wanadoo.es>,
-	Tosatti <marcelo.tosatti@cyclades.com.br>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3F6646C9.8030808@wanadoo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Sep 2003 19:55:50 -0400
+Received: from lidskialf.net ([62.3.233.115]:51692 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261720AbTIOXyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 19:54:44 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       <acpi-devel@lists.sourceforge.net>, "linux-acpi" <linux-acpi@intel.com>
+Subject: Re: Status of patches: es7000 & picmode
+Date: Tue, 16 Sep 2003 00:54:43 +0100
+User-Agent: KMail/1.5.3
+Cc: <linux-kernel@vger.kernel.org>
+References: <7F740D512C7C1046AB53446D3720017304AF5B@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AF5B@scsmsx402.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F6646C9.8030808@wanadoo.es>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309160054.43650.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 01:10:01AM +0200, Xose Vazquez Perez wrote:
- >  	The same rules apply as 2.4 except that you should follow linux-kernel
- > -	to track changes in API's. The final contact point for Linux 2.5
- > +	to track changes in API's. The final contact point for Linux 2.6
- >  	submissions is Linus Torvalds <torvalds@transmeta.com>.
+On Tuesday 16 September 2003 00:49, Nakajima, Jun wrote:
+> Len is traveling today, and he should be available soon.
+>
+> We wanted to test it a bit first because of the large changes to how
+> IRQs were set up. Looks like we haven't heard complaints about it?
 
-Should be torvalds@osdl.org
+Nothing so far, no. 
 
-		Dave
+> I thought your changes for es7000 were applicable only to 2.6. Is that
+> correct?
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+Yeah, thats right.
+
+Sorry about hassling you: just don't want things to slip through the net.
+

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132163AbRCVTVr>; Thu, 22 Mar 2001 14:21:47 -0500
+	id <S132158AbRCVTSH>; Thu, 22 Mar 2001 14:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132162AbRCVTVi>; Thu, 22 Mar 2001 14:21:38 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:54929 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S132155AbRCVTVV>;
-	Thu, 22 Mar 2001 14:21:21 -0500
-Date: Thu, 22 Mar 2001 20:20:15 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2-ac21
-In-Reply-To: <E14g9vt-000334-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10103222018590.552-100000@callisto.of.borg>
+	id <S132155AbRCVTR7>; Thu, 22 Mar 2001 14:17:59 -0500
+Received: from clueserver.org ([206.163.47.224]:36360 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S132158AbRCVTRq>;
+	Thu, 22 Mar 2001 14:17:46 -0500
+Date: Thu, 22 Mar 2001 11:30:46 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: Danny ter Haar <dth@HoHo.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where's Alan?
+In-Reply-To: <99cnj3$5ij$1@voyager.cistron.net>
+Message-ID: <Pine.LNX.4.10.10103221129570.22867-100000@clueserver.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Mar 2001, Danny ter Haar wrote:
 
-Credit where credit's due...
+> alterity  <alterity@dingoblue.net.au> wrote:
+> >Haven't seen a post for sometime from the usually prolific Mr Cox.
+> >What's the gossip?
+> 
+> Don't worry, missed him as well, but he's been posting
+> comments since yesterday. His personal webpage hasn't
+> been updated since 13th of this month though...
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
-> 2.4.2-ac21
-> o	Update NEC DDB5476 eval board support		(Geert Uytterhoeven)
+He found out what happens when you mix Penguin bars and Penguin Mints and
+he has been in detox since. ];>
 
-Actually this port was done by Jun Sun (based on the DDB5074 port).
-
-> o	Update NEC DDB5074 eval board support		(Geert Uytterhoeven)
-
-And here Ralf just used indent on the existing sources :-)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 

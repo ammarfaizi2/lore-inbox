@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbRGHRP3>; Sun, 8 Jul 2001 13:15:29 -0400
+	id <S266935AbRGHRQ7>; Sun, 8 Jul 2001 13:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266934AbRGHRPT>; Sun, 8 Jul 2001 13:15:19 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:13828 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266932AbRGHRPE>;
-	Sun, 8 Jul 2001 13:15:04 -0400
-Date: Sat, 30 Jun 2001 14:57:33 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@oss.sgi.com
-Subject: Re: [ANNOUNCE] Secondary mips tree.
-Message-ID: <20010630145732.E255@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.10.10106221348150.9835-100000@transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10106221348150.9835-100000@transvirtual.com>; from jsimmons@transvirtual.com on Fri, Jun 22, 2001 at 01:57:38PM -0700
+	id <S265051AbRGHRQt>; Sun, 8 Jul 2001 13:16:49 -0400
+Received: from www.wen-online.de ([212.223.88.39]:3332 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264849AbRGHRQh>;
+	Sun, 8 Jul 2001 13:16:37 -0400
+Date: Sun, 8 Jul 2001 19:15:40 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33L.0107081241280.22014-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0107081856590.318-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 8 Jul 2001, Rik van Riel wrote:
 
->  	We have started a secondary tree for linux mips. This tree will
-> be to SGI mips tree as Alan Cox's tree is to linus branch. We will test
-> and play with "experimental patches" and then in time hand them off to the
-> main branch Ralf Baechle maintains. Also one of the main reasons for this
-> branch was to unite several of the mips trees into one place. Anyones
-> patches (if good) are welcomed. The site is 
+> On Sun, 8 Jul 2001, Mike Galbraith wrote:
+>
+> > is very oom with no disk activity.  It _looks_ (xmm and vmstat) like
+> > it just ran out of cleanable dirty pages.  With or without swap,
+>
+> ... Bingo.  You hit the infamous __wait_on_buffer / ___wait_on_page
+> bug. I've seen this for quite a while now on our quad xeon test
+> machine, with some kernel versions it can be reproduced in minutes,
+> with others it won't trigger at all.
+>
+> And after a recompile it's usually gone ...
+>
+> I hope there is somebody out there who can RELIABLY trigger
+> this bug, so we have a chance of tracking it down.
 
-Do you want to "eat" linux-vr tree? linux-vr list is dead and there's no
-(or not much) development in its CVS (at 240t7 :-()
+Well, my box seems to think I'm a somebody.  If it changes it's mind,
+I'll let you know.  I'll throw whatever rocks I can find at it to get
+it all angry and confused.  You sneak up behind it and do the stake and
+mallot number.
 
-> http://www.sf.net/projects/linux-mips
+tar -rvf /dev/null /usr/local (10 gig of.. mess) with X/KDE running
+seems 100% repeatable here.
 
-Is this sourceforge?
+'scuse me while I go recompile again and hope it just goes away ;-)
 
-> We also have a mailing list which instructions are on the SF page on how
-> to join. Thank you. 
-
-Is it ok to be used as linux-vr list?
-
-> P.S
->     If anyone has the mips cobalt working with 2.4.X I really like those
-> patches. Thank you.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+	-Mike
 

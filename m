@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbULNQZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbULNQXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbULNQZD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:25:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbULNQZC
+	id S261549AbULNQXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 11:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbULNQXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:25:02 -0500
-Received: from gort.metaparadigm.com ([203.117.131.12]:63427 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S261548AbULNQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:24:32 -0500
-Message-ID: <41BF13EC.8020909@metaparadigm.com>
-Date: Wed, 15 Dec 2004 00:25:16 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Tue, 14 Dec 2004 11:23:39 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:13468 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S261549AbULNQXM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 11:23:12 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: realtime preempt 2.6.10-rc3-mm1-V0.33-0
+Date: Tue, 14 Dec 2004 11:23:02 -0500
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: Adam Sulmicki <adam@cfar.umd.edu>, Juergen Botz <jurgen@botz.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad T42, keyboard sometimes hosed when waking from sleep
-References: <cpl6n2$ivd$1@sea.gmane.org> <Pine.BSF.4.61.0412131854030.66694@www.missl.cs.umd.edu>
-In-Reply-To: <Pine.BSF.4.61.0412131854030.66694@www.missl.cs.umd.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412141123.02293.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.42.94] at Tue, 14 Dec 2004 10:23:02 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Sulmicki wrote:
+Greetings;
 
->
->
-> On Mon, 13 Dec 2004, Juergen Botz wrote:
->
->> I have a new IBM Thinkpad T42, FC3 with all updates, stock
->> 2.6.9-1.681_FC3 kernel + iwp2200 driver (0.13).  Everyone once
->> in a while when I wake from ACPI S3 sleep my keyboard is hosed...
->> the first key I press starts rapidly auto-repeating, which can't
->> be stopped, and pressing any key produces either no visible
->> action or some other character (not the one normally on that
->> key) which also auto repeats madly.
->>
->> It doesn't always happen, only maybe 10% of the time I come
->> out of S3.  I can't switch to different vt since ctrl-alt-fN
->> don't work, and since I am rarely on a text console I have
->> no idea whether it would happen there.  Putting the machine
->> back to sleep and re-waking doesn't fix it, so my only option
->> has been to reboot via the 'Actions' menu (mouse is ok through
->> all this.)
->>
->> Others have also reported this happening with APM, so it
->> doesn't seem to be an ACPI bug per se.
->>
->> Any ideas?
->
->
-> just another data point. I had seen the same thing happen for me once 
-> with my T41p. Same config as above ie FC3, 2.6.9-1.681_FC3.
->
-> might be some RH-FC specific thing since I did not see it happen with 
-> earlier incarnations of kernel.
+A question and a comment.
 
+Q: Where have the 'nv' drivers gone in the make xconfig display? 
+I just bought a Chaintech Gforce 5200 and cannot find the driver
+in the menu so I can make the module.
 
-I get the same thing on Debian/sid with pretty much stock 2.6.9
-on a T42 - so probably not a RH-FC think - and I'm using APM.
+Comment: While apparently stable, it appears that its slowing
+down the stuff that normally runs at a nice=19, such as
+setiathome.  This box normally does about 7.5 units a day, and
+has only been doing about 5 to 6 the last few days.
 
-~mc
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318321AbSGWUxj>; Tue, 23 Jul 2002 16:53:39 -0400
+	id <S318326AbSGWUzX>; Tue, 23 Jul 2002 16:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318322AbSGWUxj>; Tue, 23 Jul 2002 16:53:39 -0400
-Received: from zion.devzone.ch ([212.254.206.211]:6807 "EHLO zion.devzone.ch")
-	by vger.kernel.org with ESMTP id <S318321AbSGWUxh>;
-	Tue, 23 Jul 2002 16:53:37 -0400
-Message-ID: <32868.80.218.9.155.1027457806.squirrel@www.devzone.ch>
-Date: Tue, 23 Jul 2002 22:56:46 +0200 (CEST)
-Subject: 2.4.19-rc3 incorrectly detects PDC20276 in ATA mode as raid controller 
-From: "Daniel Tschan" <tschan+linux-kernel@devzone.ch>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-Mailer: SquirrelMail (version 1.2.7)
+	id <S318337AbSGWUzW>; Tue, 23 Jul 2002 16:55:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15630 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318326AbSGWUyW>;
+	Tue, 23 Jul 2002 16:54:22 -0400
+Message-ID: <3D3DC2BD.BC3B371@zip.com.au>
+Date: Tue, 23 Jul 2002 13:55:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Robert Love <rml@tech9.net>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page-writeback.c compile warning fix
+References: <1027457453.931.111.camel@sinai>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Robert Love wrote:
+> 
+> Andrew and Linus,
+> 
+> Compile of mm/page-writeback.c gives a warning of undefined use of
+> "writeback_backing_dev()".
+> 
 
-Kernel 2.4.19-rc3 introduces a new bug regarding the Promise PDC20276
-controller. One of my machines has a Gigabyte GA-8IRXP Motherboard with an
-onboard Promise PDC20276. The controller can either be run in RAID or in
-ATA mode. I operate it in ATA mode. Kernel 2.4.19-rc3 now incorrectly
-skips IDE initialization of the PDC20276 because it thinks it's a RAID
-controller which results in a kernel panic (the root filesystem is on a
-harddisk connected to the Promise controller). It outputs a message like
-this before it panics: PDC20276: Skipping RAID controller. This worked
-correctly in 2.4.19-rc2.
+Yeah, sorry.  I missed a file when generating the diff.  I have
+this in the pending pile:
 
-Regards
-Daniel
+ writeback.h |    5 +++++
+ 1 files changed, 5 insertions(+)
 
+--- 2.5.27/include/linux/writeback.h~writeback-warning	Mon Jul 22 12:33:39 2002
++++ 2.5.27-akpm/include/linux/writeback.h	Mon Jul 22 12:33:44 2002
+@@ -8,6 +8,8 @@
+ #ifndef WRITEBACK_H
+ #define WRITEBACK_H
+ 
++struct backing_dev_info;
++
+ extern spinlock_t inode_lock;
+ extern struct list_head inode_in_use;
+ extern struct list_head inode_unused;
+@@ -38,6 +40,9 @@ void wake_up_inode(struct inode *inode);
+ void __wait_on_inode(struct inode * inode);
+ void sync_inodes_sb(struct super_block *, int wait);
+ void sync_inodes(int wait);
++void writeback_backing_dev(struct backing_dev_info *bdi, int *nr_to_write,
++			enum writeback_sync_modes sync_mode,
++			unsigned long *older_than_this);
+ 
+ /* writeback.h requires fs.h; it, too, is not included from here. */
+ static inline void wait_on_inode(struct inode *inode)
 
-
+.

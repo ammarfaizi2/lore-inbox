@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVCLW0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVCLW2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVCLW0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 17:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCLW0s
+	id S262086AbVCLW2z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 17:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVCLW1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 17:26:48 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19475 "HELO
+	Sat, 12 Mar 2005 17:27:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:20755 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261174AbVCLW0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 17:26:20 -0500
-Date: Sat, 12 Mar 2005 23:26:18 +0100
+	id S261206AbVCLW0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 17:26:35 -0500
+Date: Sat, 12 Mar 2005 23:26:33 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, "Eric W. Biederman" <ebiederman@lnxi.com>,
-       linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove drivers/mtd/maps/ich2rom.c
-Message-ID: <20050312222617.GJ3814@stusta.de>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       dhowells@redhat.com
+Subject: [2.6 patch] drivers/video/: misc cleanups
+Message-ID: <20050312222633.GK3814@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,340 +23,341 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/mtd/maps/ich2rom.c is completely unused because it was renamed 
-to drivers/mtd/maps/ichxrom.c .
-
-This patch removes the stale ich2rom.c file.
-
-This patch was already ACK'ed by David Woodhouse and Eric W. Biederman.
+This patch contains cleanups under drivers/video/ including:
+- make some needlessly global code static
+- the following was needlessly EXPORT_SYMBOL'ed:
+  - fbcon.c: fb_con
+  - fbmon.c: get_EDID_from_firmware (completely unused)
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent on:
-- 24 Feb 2005
+ arch/frv/kernel/setup.c        |    3 ---
+ drivers/video/console/fbcon.c  |   26 ++++++++++++--------------
+ drivers/video/console/fbcon.h  |    1 -
+ drivers/video/console/mdacon.c |    4 ++--
+ drivers/video/fbmon.c          |   20 +-------------------
+ drivers/video/modedb.c         |    5 ++---
+ drivers/video/vga16fb.c        |   24 ++++++++++++------------
+ include/linux/console.h        |    1 -
+ 8 files changed, 29 insertions(+), 55 deletions(-)
 
- drivers/mtd/maps/ich2rom.c |  316 -------------------------------------
- 1 files changed, 316 deletions(-)
-
---- linux-2.6.11-rc4-mm1-full/drivers/mtd/maps/ich2rom.c	2004-12-24 22:35:49.000000000 +0100
-+++ /dev/null	2004-11-25 03:16:25.000000000 +0100
-@@ -1,316 +0,0 @@
+--- linux-2.6.10-rc2-mm2-full/include/linux/console.h.old	2004-11-21 15:20:38.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/include/linux/console.h	2004-11-21 15:20:46.000000000 +0100
+@@ -59,7 +59,6 @@
+ extern const struct consw *conswitchp;
+ 
+ extern const struct consw dummy_con;	/* dummy console buffer */
+-extern const struct consw fb_con;	/* frame buffer based console */
+ extern const struct consw vga_con;	/* VGA text console */
+ extern const struct consw newport_con;	/* SGI Newport console  */
+ extern const struct consw prom_con;	/* SPARC PROM console */
+--- linux-2.6.10-rc2-mm2-full/drivers/video/console/fbcon.h.old	2004-11-21 15:26:10.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/console/fbcon.h	2004-11-21 15:26:19.000000000 +0100
+@@ -155,7 +155,6 @@
+ #define SCROLL_REDRAW	   0x004
+ #define SCROLL_PAN_REDRAW  0x005
+ 
+-extern int fb_console_init(void);
+ #ifdef CONFIG_FB_TILEBLITTING
+ extern void fbcon_set_tileops(struct vc_data *vc, struct fb_info *info,
+ 			      struct display *p, struct fbcon_ops *ops);
+--- linux-2.6.10-rc2-mm2-full/drivers/video/console/fbcon.c.old	2004-11-21 15:19:18.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/console/fbcon.c	2004-11-21 15:54:54.000000000 +0100
+@@ -107,15 +107,15 @@
+ };
+ 
+ struct display fb_display[MAX_NR_CONSOLES];
+-signed char con2fb_map[MAX_NR_CONSOLES];
+-signed char con2fb_map_boot[MAX_NR_CONSOLES];
++static signed char con2fb_map[MAX_NR_CONSOLES];
++static signed char con2fb_map_boot[MAX_NR_CONSOLES];
+ static int logo_height;
+ static int logo_lines;
+ /* logo_shown is an index to vc_cons when >= 0; otherwise follows FBCON_LOGO
+    enums.  */
+ static int logo_shown = FBCON_LOGO_CANSHOW;
+ /* Software scrollback */
+-int fbcon_softback_size = 32768;
++static int fbcon_softback_size = 32768;
+ static unsigned long softback_buf, softback_curr;
+ static unsigned long softback_in;
+ static unsigned long softback_top, softback_end;
+@@ -130,6 +130,8 @@
+ /* current fb_info */
+ static int info_idx = -1;
+ 
++static const struct consw fb_con;
++
+ #define CM_SOFTBACK	(8)
+ 
+ #define advance_row(p, delta) (unsigned short *)((unsigned long)(p) + (delta) * vc->vc_size_row)
+@@ -305,7 +307,8 @@
+ 	mod_timer(&ops->cursor_timer, jiffies + HZ/5);
+ }
+ 
+-int __init fb_console_setup(char *this_opt)
++#ifndef MODULE
++static int __init fb_console_setup(char *this_opt)
+ {
+ 	char *options;
+ 	int i, j;
+@@ -359,6 +362,7 @@
+ }
+ 
+ __setup("fbcon=", fb_console_setup);
++#endif
+ 
+ static int search_fb_in_map(int idx)
+ {
+@@ -1114,7 +1118,7 @@
+ static int scrollback_max = 0;
+ static int scrollback_current = 0;
+ 
+-int update_var(int con, struct fb_info *info)
++static int update_var(int con, struct fb_info *info)
+ {
+ 	if (con == ((struct fbcon_ops *)info->fbcon_par)->currcon)
+ 		return fb_pan_display(info, &info->var);
+@@ -2709,7 +2713,7 @@
+  *  The console `switch' structure for the frame buffer based console
+  */
+ 
+-const struct consw fb_con = {
++static const struct consw fb_con = {
+ 	.owner			= THIS_MODULE,
+ 	.con_startup 		= fbcon_startup,
+ 	.con_init 		= fbcon_init,
+@@ -2739,7 +2743,7 @@
+ 	.notifier_call	= fbcon_event_notify,
+ };
+ 
+-int __init fb_console_init(void)
++static int __init fb_console_init(void)
+ {
+ 	int i;
+ 
+@@ -2767,7 +2771,7 @@
+ 
+ #ifdef MODULE
+ 
+-void __exit fb_console_exit(void)
++static void __exit fb_console_exit(void)
+ {
+ 	acquire_console_sem();
+ 	fb_unregister_client(&fbcon_event_notifier);
+@@ -2779,10 +2783,4 @@
+ 
+ #endif
+ 
 -/*
-- * ich2rom.c
-- *
-- * Normal mappings of chips in physical memory
-- * $Id: ich2rom.c,v 1.7 2003/05/21 12:45:18 dwmw2 Exp $
+- *  Visible symbols for modules
 - */
 -
--#include <linux/module.h>
--#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <asm/io.h>
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/map.h>
--#include <linux/config.h>
--#include <linux/pci.h>
--#include <linux/pci_ids.h>
+-EXPORT_SYMBOL(fb_con);
 -
--#define RESERVE_MEM_REGION 0
--
--#define ICH2_FWH_REGION_START	0xFF000000UL
--#define ICH2_FWH_REGION_SIZE	0x01000000UL
--#define BIOS_CNTL	0x4e
--#define FWH_DEC_EN1	0xE3
--#define FWH_DEC_EN2	0xF0
--#define FWH_SEL1	0xE8
--#define FWH_SEL2	0xEE
--
--struct ich2rom_map_info {
--	struct map_info map;
--	struct mtd_info *mtd;
--	unsigned long window_addr;
--};
--
--static inline unsigned long addr(struct map_info *map, unsigned long ofs)
--{
--	unsigned long offset;
--	offset = ((8*1024*1024) - map->size) + ofs;
--	if (offset >= (4*1024*1024)) {
--		offset += 0x400000;
--	}
--	return map->map_priv_1 + 0x400000 + offset;
--}
--
--static inline unsigned long dbg_addr(struct map_info *map, unsigned long addr)
--{
--	return addr - map->map_priv_1 + ICH2_FWH_REGION_START;
--}
--	
--static __u8 ich2rom_read8(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readb(addr(map, ofs));
--}
--
--static __u16 ich2rom_read16(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readw(addr(map, ofs));
--}
--
--static __u32 ich2rom_read32(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readl(addr(map, ofs));
--}
--
--static void ich2rom_copy_from(struct map_info *map, void *to, unsigned long from, ssize_t len)
--{
--	memcpy_fromio(to, addr(map, from), len);
--}
--
--static void ich2rom_write8(struct map_info *map, __u8 d, unsigned long ofs)
--{
--	__raw_writeb(d, addr(map,ofs));
--	mb();
--}
--
--static void ich2rom_write16(struct map_info *map, __u16 d, unsigned long ofs)
--{
--	__raw_writew(d, addr(map, ofs));
--	mb();
--}
--
--static void ich2rom_write32(struct map_info *map, __u32 d, unsigned long ofs)
--{
--	__raw_writel(d, addr(map, ofs));
--	mb();
--}
--
--static void ich2rom_copy_to(struct map_info *map, unsigned long to, const void *from, ssize_t len)
--{
--	memcpy_toio(addr(map, to), from, len);
--}
--
--static struct ich2rom_map_info ich2rom_map = {
--	.map = {
--		.name = "ICH2 rom",
--		.phys = NO_XIP,
--		.size = 0,
--		.buswidth = 1,
--		.read8 = ich2rom_read8,
--		.read16 = ich2rom_read16,
--		.read32 = ich2rom_read32,
--		.copy_from = ich2rom_copy_from,
--		.write8 = ich2rom_write8,
--		.write16 = ich2rom_write16,
--		.write32 = ich2rom_write32,
--		.copy_to = ich2rom_copy_to,
--		/* Firmware hubs only use vpp when being programmed
--		 * in a factory setting.  So in place programming
--		 * needs to use a different method.
--		 */
--	},
--	.mtd = NULL,
--	.window_addr = 0,
--};
--
--enum fwh_lock_state {
--	FWH_DENY_WRITE = 1,
--	FWH_IMMUTABLE  = 2,
--	FWH_DENY_READ  = 4,
--};
--
--static int ich2rom_set_lock_state(struct mtd_info *mtd, loff_t ofs, size_t len,
--	enum fwh_lock_state state)
--{
--	struct map_info *map = mtd->priv;
--	unsigned long start = ofs;
--	unsigned long end = start + len -1;
--
--	/* FIXME do I need to guard against concurrency here? */
--	/* round down to 64K boundaries */
--	start = start & ~0xFFFF;
--	end = end & ~0xFFFF;
--	while (start <= end) {
--		unsigned long ctrl_addr;
--		ctrl_addr = addr(map, start) - 0x400000 + 2;
--		writeb(state, ctrl_addr);
--		start = start + 0x10000;
--	}
--	return 0;
--}
--
--static int ich2rom_lock(struct mtd_info *mtd, loff_t ofs, size_t len)
--{
--	return ich2rom_set_lock_state(mtd, ofs, len, FWH_DENY_WRITE);
--}
--
--static int ich2rom_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
--{
--	return ich2rom_set_lock_state(mtd, ofs, len, 0);
--}
--
--static int __devinit ich2rom_init_one (struct pci_dev *pdev,
--	const struct pci_device_id *ent)
--{
--	u16 word;
--	struct ich2rom_map_info *info = &ich2rom_map;
--	unsigned long map_size;
--
--	/* For now I just handle the ich2 and I assume there
--	 * are not a lot of resources up at the top of the address
--	 * space.  It is possible to handle other devices in the
--	 * top 16MB but it is very painful.  Also since
--	 * you can only really attach a FWH to an ICH2 there
--	 * a number of simplifications you can make.
--	 *
--	 * Also you can page firmware hubs if an 8MB window isn't enough 
--	 * but don't currently handle that case either.
--	 */
--
--#if RESERVE_MEM_REGION
--	/* Some boards have this reserved and I haven't found a good work
--	 * around to say I know what I'm doing!
--	 */
--	if (!request_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE, "ich2rom")) {
--		printk(KERN_ERR "ich2rom: cannot reserve rom window\n");
--		goto err_out_none;
--	}
--#endif /* RESERVE_MEM_REGION */
--	
--	/* Enable writes through the rom window */
--	pci_read_config_word(pdev, BIOS_CNTL, &word);
--	if (!(word & 1)  && (word & (1<<1))) {
--		/* The BIOS will generate an error if I enable
--		 * this device, so don't even try.
--		 */
--		printk(KERN_ERR "ich2rom: firmware access control, I can't enable writes\n");
--		goto err_out_none;
--	}
--	pci_write_config_word(pdev, BIOS_CNTL, word | 1);
--
--
--	/* Map the firmware hub into my address space. */
--	/* Does this use to much virtual address space? */
--	info->window_addr = (unsigned long)ioremap(
--		ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
--	if (!info->window_addr) {
--		printk(KERN_ERR "Failed to ioremap\n");
--		goto err_out_free_mmio_region;
--	}
--
--	/* For now assume the firmware has setup all relevant firmware
--	 * windows.  We don't have enough information to handle this case
--	 * intelligently.
--	 */
--
--	/* FIXME select the firmware hub and enable a window to it. */
--
--	info->mtd = NULL;
--	info->map.map_priv_1 = 	info->window_addr;
--
--	map_size = ICH2_FWH_REGION_SIZE;
--	while(!info->mtd && (map_size > 0)) {
--		info->map.size = map_size;
--		info->mtd = do_map_probe("jedec_probe", &ich2rom_map.map);
--		map_size -= 512*1024;
--	}
--	if (!info->mtd) {
--		goto err_out_iounmap;
--	}
--	/* I know I can only be a firmware hub here so put
--	 * in the special lock and unlock routines.
--	 */
--	info->mtd->lock = ich2rom_lock;
--	info->mtd->unlock = ich2rom_unlock;
--		
--	info->mtd->owner = THIS_MODULE;
--	add_mtd_device(info->mtd);
--	return 0;
--
--err_out_iounmap:
--	iounmap((void *)(info->window_addr));
--err_out_free_mmio_region:
--#if RESERVE_MEM_REGION
--	release_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
+ MODULE_LICENSE("GPL");
+--- linux-2.6.10-rc2-mm2-full/drivers/video/console/mdacon.c.old	2004-11-21 15:27:40.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/console/mdacon.c	2004-11-21 15:28:21.000000000 +0100
+@@ -576,7 +576,7 @@
+  *  The console `switch' structure for the MDA based console
+  */
+ 
+-const struct consw mda_con = {
++static const struct consw mda_con = {
+ 	.owner =		THIS_MODULE,
+ 	.con_startup =		mdacon_startup,
+ 	.con_init =		mdacon_init,
+@@ -603,7 +603,7 @@
+ 	return take_over_console(&mda_con, mda_first_vc-1, mda_last_vc-1, 0);
+ }
+ 
+-void __exit mda_console_exit(void)
++static void __exit mda_console_exit(void)
+ {
+ 	give_up_console(&mda_con);
+ }
+--- linux-2.6.10-rc2-mm2-full/drivers/video/vga16fb.c.old	2004-11-21 15:37:10.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/video/vga16fb.c	2004-11-21 15:38:46.000000000 +0100
+@@ -874,7 +874,7 @@
+ 	return 0;
+ }
+ 
+-void vga_8planes_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
++static void vga_8planes_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
+ {
+ 	u32 dx = rect->dx, width = rect->width;
+         char oldindex = getindex();
+@@ -928,7 +928,7 @@
+         setindex(oldindex);
+ }
+ 
+-void vga16fb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
++static void vga16fb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
+ {
+ 	int x, x2, y2, vxres, vyres, width, height, line_ofs;
+ 	char __iomem *dst;
+@@ -1003,7 +1003,7 @@
+ 	}
+ }
+ 
+-void vga_8planes_copyarea(struct fb_info *info, const struct fb_copyarea *area)
++static void vga_8planes_copyarea(struct fb_info *info, const struct fb_copyarea *area)
+ {
+         char oldindex = getindex();
+         char oldmode = setmode(0x41);
+@@ -1058,7 +1058,7 @@
+         setindex(oldindex);
+ }
+ 
+-void vga16fb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
++static void vga16fb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
+ {
+ 	u32 dx = area->dx, dy = area->dy, sx = area->sx, sy = area->sy; 
+ 	int x, x2, y2, old_dx, old_dy, vxres, vyres;
+@@ -1166,7 +1166,7 @@
+ #endif
+ #endif
+ 
+-void vga_8planes_imageblit(struct fb_info *info, const struct fb_image *image)
++static void vga_8planes_imageblit(struct fb_info *info, const struct fb_image *image)
+ {
+         char oldindex = getindex();
+         char oldmode = setmode(0x40);
+@@ -1197,7 +1197,7 @@
+         setindex(oldindex);
+ }
+ 
+-void vga_imageblit_expand(struct fb_info *info, const struct fb_image *image)
++static void vga_imageblit_expand(struct fb_info *info, const struct fb_image *image)
+ {
+ 	char __iomem *where = info->screen_base + (image->dx/8) +
+ 		image->dy * info->fix.line_length;
+@@ -1261,7 +1261,7 @@
+ 	}
+ }
+ 
+-void vga_imageblit_color(struct fb_info *info, const struct fb_image *image) 
++static void vga_imageblit_color(struct fb_info *info, const struct fb_image *image) 
+ {
+ 	/*
+ 	 * Draw logo 
+@@ -1306,7 +1306,7 @@
+ 	}
+ }
+ 				
+-void vga16fb_imageblit(struct fb_info *info, const struct fb_image *image)
++static void vga16fb_imageblit(struct fb_info *info, const struct fb_image *image)
+ {
+ 	if (image->depth == 1)
+ 		vga_imageblit_expand(info, image);
+@@ -1329,7 +1329,8 @@
+ 	.fb_cursor      = soft_cursor,
+ };
+ 
+-int vga16fb_setup(char *options)
++#ifndef MODULE
++static int vga16fb_setup(char *options)
+ {
+ 	char *this_opt;
+ 	
+@@ -1341,8 +1342,9 @@
+ 	}
+ 	return 0;
+ }
++#endif
+ 
+-int __init vga16fb_init(void)
++static int __init vga16fb_init(void)
+ {
+ 	int i;
+ 	int ret;
+@@ -1427,9 +1429,7 @@
+     /* XXX unshare VGA regions */
+ }
+ 
+-#ifdef MODULE
+ MODULE_LICENSE("GPL");
 -#endif
--err_out_none:
--	return -ENODEV;
--}
--
--
--static void __devexit ich2rom_remove_one (struct pci_dev *pdev)
--{
--	struct ich2rom_map_info *info = &ich2rom_map;
--	u16 word;
--
--	del_mtd_device(info->mtd);
--	map_destroy(info->mtd);
--	info->mtd = NULL;
--	info->map.map_priv_1 = 0;
--
--	iounmap((void *)(info->window_addr));
--	info->window_addr = 0;
--
--	/* Disable writes through the rom window */
--	pci_read_config_word(pdev, BIOS_CNTL, &word);
--	pci_write_config_word(pdev, BIOS_CNTL, word & ~1);
--
--#if RESERVE_MEM_REGION	
--	release_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
--#endif
--}
--
--static struct pci_device_id ich2rom_pci_tbl[] = {
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ 0, },
--};
--
--MODULE_DEVICE_TABLE(pci, ich2rom_pci_tbl);
--
--#if 0
--static struct pci_driver ich2rom_driver = {
--	.name =		"ich2rom",
--	.id_table =	ich2rom_pci_tbl,
--	.probe =	ich2rom_init_one,
--	.remove =	ich2rom_remove_one,
--};
--#endif
--
--static struct pci_dev *mydev;
--int __init init_ich2rom(void)
--{
--	struct pci_dev *pdev;
--	struct pci_device_id *id;
--	pdev = NULL;
--	for(id = ich2rom_pci_tbl; id->vendor; id++) {
--		pdev = pci_find_device(id->vendor, id->device, NULL);
--		if (pdev) {
--			break;
--		}
--	}
--	if (pdev) {
--		mydev = pdev;
--		return ich2rom_init_one(pdev, &ich2rom_pci_tbl[0]);
--	}
--	return -ENXIO;
--#if 0
--	return pci_module_init(&ich2rom_driver);
--#endif
--}
--
--static void __exit cleanup_ich2rom(void)
--{
--	ich2rom_remove_one(mydev);
--}
--
--module_init(init_ich2rom);
--module_exit(cleanup_ich2rom);
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Eric Biederman <ebiederman@lnxi.com>");
--MODULE_DESCRIPTION("MTD map driver for BIOS chips on the ICH2 southbridge");
+ module_init(vga16fb_init);
+ module_exit(vga16fb_exit);
+ 
 
+--- linux-2.6.11-rc3-mm2-full/drivers/video/modedb.c.old	2005-02-11 16:50:40.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/video/modedb.c	2005-02-11 16:49:36.000000000 +0100
+@@ -404,8 +403,8 @@
+  *
+  */
+ 
+-int fb_try_mode(struct fb_var_screeninfo *var, struct fb_info *info,
+-		const struct fb_videomode *mode, unsigned int bpp)
++static int fb_try_mode(struct fb_var_screeninfo *var, struct fb_info *info,
++		       const struct fb_videomode *mode, unsigned int bpp)
+ {
+     int err = 0;
+ 
+--- linux-2.6.11-mm3-full/drivers/video/fbmon.c.old	2005-03-12 20:10:21.000000000 +0100
++++ linux-2.6.11-mm3-full/drivers/video/fbmon.c	2005-03-12 20:11:38.000000000 +0100
+@@ -74,10 +74,9 @@
+ 	},
+ };
+ 
+-const unsigned char edid_v1_header[] = { 0x00, 0xff, 0xff, 0xff,
++static const unsigned char edid_v1_header[] = { 0x00, 0xff, 0xff, 0xff,
+ 	0xff, 0xff, 0xff, 0x00
+ };
+-const unsigned char edid_v1_descriptor_flag[] = { 0x00, 0x00 };
+ 
+ static void copy_string(unsigned char *c, unsigned char *s)
+ {
+@@ -872,18 +871,6 @@
+ 	DPRINTK("========================================\n");
+ }
+ 
+-char *get_EDID_from_firmware(struct device *dev)
+-{
+-	unsigned char *pedid = NULL;
+-
+-#if defined(CONFIG_EDID_FIRMWARE) && defined(CONFIG_X86)
+-	pedid = edid_info.dummy;
+-	if (!pedid)
+-		return NULL;
+-#endif
+-	return pedid;
+-}
+-
+ /* 
+  * VESA Generalized Timing Formula (GTF) 
+  */
+@@ -1193,10 +1180,6 @@
+ {
+ 	specs = NULL;
+ }
+-char *get_EDID_from_firmware(struct device *dev)
+-{
+-	return NULL;
+-}
+ void fb_destroy_modedb(struct fb_videomode *modedb)
+ {
+ }
+@@ -1270,7 +1253,6 @@
+ 
+ EXPORT_SYMBOL(fb_parse_edid);
+ EXPORT_SYMBOL(fb_edid_to_monspecs);
+-EXPORT_SYMBOL(get_EDID_from_firmware);
+ 
+ EXPORT_SYMBOL(fb_get_mode);
+ EXPORT_SYMBOL(fb_validate_mode);
+--- linux-2.6.11-mm3-full/arch/frv/kernel/setup.c.old	2005-03-12 20:12:23.000000000 +0100
++++ linux-2.6.11-mm3-full/arch/frv/kernel/setup.c	2005-03-12 20:12:36.000000000 +0100
+@@ -65,9 +65,6 @@
+ 
+ #ifdef CONFIG_CONSOLE
+ extern struct consw *conswitchp;
+-#ifdef CONFIG_FRAMEBUFFER
+-extern struct consw fb_con;
+-#endif
+ #endif
+ 
+ #ifdef CONFIG_MB93090_MB00

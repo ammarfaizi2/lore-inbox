@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266706AbRHBRBb>; Thu, 2 Aug 2001 13:01:31 -0400
+	id <S265402AbRHBRFl>; Thu, 2 Aug 2001 13:05:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266723AbRHBRBW>; Thu, 2 Aug 2001 13:01:22 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:40207 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S266673AbRHBRBC>; Thu, 2 Aug 2001 13:01:02 -0400
-Date: Thu, 2 Aug 2001 11:00:14 -0600
-Message-Id: <200108021700.f72H0E119628@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
-In-Reply-To: <E15SLQQ-00011K-00@the-village.bc.nu>
-In-Reply-To: <no.id>
-	<E15SLQQ-00011K-00@the-village.bc.nu>
+	id <S266864AbRHBRFb>; Thu, 2 Aug 2001 13:05:31 -0400
+Received: from waste.org ([209.173.204.2]:9595 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S266723AbRHBRFY>;
+	Thu, 2 Aug 2001 13:05:24 -0400
+Date: Thu, 2 Aug 2001 12:05:09 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: george anzinger <george@mvista.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Chris Friesen <cfriesen@nortelnetworks.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <3B698177.C12183CF@mvista.com>
+Message-ID: <Pine.LNX.4.30.0108021154410.2340-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > That said, in 2.5 I want to see us move away from using device numbers
-> > as the fundamental device handle and move to device instance
-> > structures. That's a lot cleaner, and BTW is devfs-neutral
-> > (i.e. doesn't need devfs to work). Exposing a 32 bit dev_t to
-> > user-space is acceptable, but internally it should be shunned.
-> 
-> You need it internally otherwise you are screwed the moment you have
-> 65536 volumes mounted - because you run out of unique device
-> identifiers for stat.
+On Thu, 2 Aug 2001, george anzinger wrote:
 
-I consider that "external" use. The kernel doesn't need it, it just
-provides unique numbers for user-space. The kernel just happens to
-carry along the information so that user-space can get it as needed.
+> Ok, but then what?  The head timer expires.  Now what?  Since we are not
+> clocking the slice we don't know when it started.  Seems to me we are
+> just shifting the overhead to a different place and adding additional
+> tests and code to do it. The add_timer() code is fast.  The timing
+> tests (800MHZ PIII) show the whole setup taking an average of about 1.16
+> micro seconds.  the problem is that this happens, under kernel compile,
+> ~300 times per second, so the numbers add up.
 
-Aside: the idea of mounting >65536 volumes frightens me. Accidentally
-do a "df" and go away for a coffee while your machine hammers away.
+As you said, most of those 'time to reschedule' timers never expire - we
+hit a rescheduling point first, yes? In the old system, we essentially had
+one 'time to reschedule' timer pending at any given time, I'm just trying
+to approximate that.
 
-> Fortunately 32bit dev_t (not kdev_t .. which I think is what you are
-> talking about and will I assume go pointer to struct) is only one
-> syscall change
+> Note that the ticked
+> system timer overhead (interrupts, time keeping, timers, the works) is
+> about 0.12% of the available cpu.  Under heavy load this raises to about
+> 0.24% according to my measurments.  The tick less system overhead under
+> the same kernel compile load is about 0.12%.  No load is about 0.012%,
+> but heavy load can take it to 12% or more, most of this comming from the
+> accounting overhead in schedule().  Is it worth it?
 
-Looks like we agree. And as long as you have <65536 volumes, then
-libc5 will continue to work just fine. Which is also good.
+Does the higher timer granularity cause overall throughput to improve, by
+any chance?
 
-				Regards,
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285815AbRLHEZ7>; Fri, 7 Dec 2001 23:25:59 -0500
+	id <S285818AbRLHEkU>; Fri, 7 Dec 2001 23:40:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285816AbRLHEZt>; Fri, 7 Dec 2001 23:25:49 -0500
-Received: from milsum.Biomed.McGill.CA ([132.206.111.48]:52996 "EHLO
-	milsum.biomed.mcgill.ca") by vger.kernel.org with ESMTP
-	id <S285815AbRLHEZj>; Fri, 7 Dec 2001 23:25:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Lavoie <clavoie@bmed.mcgill.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: File copy system call proposal
-Date: Fri, 7 Dec 2001 23:25:35 -0500
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu>
-In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011208042544Z285815-752+9588@vger.kernel.org>
+	id <S285819AbRLHEkF>; Fri, 7 Dec 2001 23:40:05 -0500
+Received: from zero.tech9.net ([209.61.188.187]:12294 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S285818AbRLHEkB>;
+	Fri, 7 Dec 2001 23:40:01 -0500
+Subject: Re: [PATCH] Make highly niced processes run only when idle
+From: Robert Love <rml@tech9.net>
+To: root <r6144@263.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15377.39251.359055.873680@localhost.localdomain>
+In-Reply-To: <15377.39251.359055.873680@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 07 Dec 2001 23:39:53 -0500
+Message-Id: <1007786393.12110.4.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 December 2001 22:42, Quinn Harris wrote:
+On Fri, 2001-12-07 at 23:38, root wrote:
+> This patch makes a process with nice values >= 20 (according to
+> setpriority(2)) completely stop when there are other runnable
+> processes with smaller nice values.
+> Try run something with `nice -n 30' (which `setpriority' to 20)
 
-You might be interested in reading about the MIT exokernel, who proposes much 
-of the same thing you are...
+What do you think will happen when an "idle" task holds a resource or is
+otherwise a producer for something a higher priority, running, task
+needs?
 
-http://www.pdos.lcs.mit.edu/exo.html
+	Robert Love
 
-... and ends up saying that it's a _huge_ performance boost in several 
-typical operations.
-
--- 
-Christian Lavoie
-clavoie@bmed.mcgill.ca

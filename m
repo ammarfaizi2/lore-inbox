@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268415AbUH3Bx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUH3Bym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268415AbUH3Bx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUH3Bx2
+	id S268439AbUH3Bym (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268440AbUH3Bym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:53:28 -0400
-Received: from Jupiter.Toms.NET ([64.32.223.162]:56762 "EHLO jupiter.toms.net")
-	by vger.kernel.org with ESMTP id S268415AbUH3BxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:53:08 -0400
-Date: Sun, 29 Aug 2004 21:52:50 -0400 (EDT)
-From: Tom Oehser <tom@toms.net>
-To: Andries.Brouwer@cwi.nl
-cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] minix fix - ? does this fix "du" bug ?!?
-In-Reply-To: <UTC200408202121.i7KLLCO04775.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0408292151290.19310@jupiter.toms.net>
-References: <UTC200408202121.i7KLLCO04775.aeb@smtp.cwi.nl>
+	Sun, 29 Aug 2004 21:54:42 -0400
+Received: from mail-08.iinet.net.au ([203.59.3.40]:58571 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S268439AbUH3Byb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 21:54:31 -0400
+Date: Mon, 30 Aug 2004 09:53:13 +0800 (WST)
+From: Michael <quadfour@iinet.net.au>
+X-X-Sender: quadfour@natalie
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1 OOPS, processes hanging in D state, can reproduce
+In-Reply-To: <Pine.LNX.4.50.0408290951430.5632-100000@natalie>
+Message-ID: <Pine.LNX.4.50.0408300924310.705-100000@natalie>
+References: <Pine.LNX.4.50.0408290659030.3632-100000@natalie>
+ <1093740497.7078.15.camel@krustophenia.net> <Pine.LNX.4.50.0408290951430.5632-100000@natalie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 29 Aug 2004, Michael wrote:
 
-Will this patch fix the fact that 'du' is broken on minix, as a
-few of us have been reporting?  (Assume yes:  Yippeedoo! Thanks!) -Tom
+> 
+> On Sat, 28 Aug 2004, Lee Revell wrote:
+> 
+> > 
+> > On Sat, 2004-08-28 at 20:25, Michael wrote:
+> > > First post to the list, never found a kernel bug before :)
+> > > 
+> > 
+> > Your kernel is tainted, probably due to having a binary module loaded. 
+> > Please reproduce with an untainted kernel and repost.
 
-> In 2.5.18 some minix-specific stuff was moved to the minix
-> subdirectory where it belonged. However, a typo crept in.
-> A few people have complained, but so far not sufficiently loudly.
->
-> The bug is of a type that automated tools might discover:
-> a value res is computed, but not used.
->
-> Andries
->
-> Signed-off-by: Andries Brouwer
->
-> diff -uprN -X /linux/dontdiff a/fs/minixdiff -uprN -X /linux/dontdiff a/fs/minix/itree_common.c b/fs/minix/itree_common.c
-> --- a/fs/minix/itree_common.c	2003-12-18 03:59:05.000000000 +0100
-> +++ b/fs/minix/itree_common.c	2004-08-20 23:02:26.000000000 +0200
-> @@ -358,5 +358,5 @@ static inline unsigned nblocks(loff_t si
->  		res += blocks;
->  		direct = 1;
->  	}
-> -	return blocks;
-> +	return res;
->  }
-> -
+I've received a howto via email on tracking down kernel oopses. I've 
+followed the guide as far as I could but got stuck at the point of trying 
+to find the part of asm code causing this because the 'Code' does not 
+match as in the howto. I think the oops is stemming from a problem with 
+the loop module but I don't know how to continue, I have not got the 
+knowledge to do this.
+
+More or less I think I've done as much as I can, I've provided as much 
+information as I can about the problem. Im leaving this in the hands of 
+experienced people :)
+
+Regards
+Michael Collard

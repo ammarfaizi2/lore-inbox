@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUKWN7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUKWOBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbUKWN7x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 08:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUKWN7x
+	id S261252AbUKWOBy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKWOBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 08:59:53 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:47634 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261243AbUKWN7r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 08:59:47 -0500
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Mitchell Blank Jr <mitch@sfgoth.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: sparse segfaults
-References: <20041120143755.E13550@flint.arm.linux.org.uk>
-	<20041122183956.GA50325@gaz.sfgoth.com>
-	<Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
-	<200411222130.46247.duncan.sands@math.u-psud.fr>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: Lovecraft was an optimist.
-Date: Tue, 23 Nov 2004 13:59:19 +0000
-In-Reply-To: <200411222130.46247.duncan.sands@math.u-psud.fr> (Duncan
- Sands's message of "22 Nov 2004 20:53:34 -0000")
-Message-ID: <87y8gswts8.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 23 Nov 2004 09:01:53 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:14830 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261253AbUKWOAm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 09:00:42 -0500
+Date: Tue, 23 Nov 2004 15:00:37 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Amit Gud <amitgud1@gmail.com>
+cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+In-Reply-To: <2c59f00304112301467b411a46@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0411231458450.28979@yvahk01.tjqt.qr>
+References: <2c59f00304112205546349e88e@mail.gmail.com> 
+ <200411221759.iAMHx7QJ005491@turing-police.cc.vt.edu>  <41A23566.6080903@namesys.com>
+  <Pine.LNX.4.53.0411222002380.21595@yvahk01.tjqt.qr>
+ <2c59f00304112301467b411a46@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Nov 2004, Duncan Sands mused:
-> Generalized lvalues have been removed.  Check out
-> http://gcc.gnu.org/ml/gcc/2004-11/msg00604.html
+>Correct me if I'm wrong, but the best way I know whether a file should
+>be treated as directory or as a file (atleast how I've implemented it)
+>depends upon the context (how the file is accessed) in the user-space
+>and this context is reflected in the kernel space in the flags of the
+>struct nameidata. So ...
 
-There is talk of putting a subset of them back again, because a *lot* of
-code does things like
+And there I see a problem! The open() call (kernel: sys_open) allows to open
+both files and directories in the standard operation.
+There is the O_DIRECTORY user-space flag, but which only says "it must be a
+directory". So there's something missing to say "must be a file".
 
-((foo_t *)foo)++;
-
-and the generalized lvalues extension makes that work as expected. Yes,
-all such code is technically broken, but a large number of non-GCC
-compilers also implement the extension enough for the construct above to
-be valid.
+Hell will freeze over if a reiser4 "object" can be ANY type, blockdev,
+chardev, symlink, <think something up>.
 
 
-Where it's really bad is in C++, where it can change the semantics of
-some otherwise-valid code (due to the way it interacts with function
-overloading). The whole generalized lvalues extension is definitely not
-coming back, because fixing that C++ bug was a major reason why it was
-removed in the first place.
-
+Jan Engelhardt
 -- 
-`The sword we forged has turned upon us
- Only now, at the end of all things do we see
- The lamp-bearer dies; only the lamp burns on.'
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

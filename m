@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbULEGEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbULEGVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbULEGEl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 01:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbULEGEl
+	id S261260AbULEGVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 01:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbULEGVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 01:04:41 -0500
-Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:15108
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S261259AbULEGEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 01:04:39 -0500
-Message-Id: <200412050819.iB58Jlhj006511@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: jonathan@jonmasters.org
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Blaisorblade <blaisorblade_spam@yahoo.it>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: Re: [PATCH] UML - SYSEMU fixes 
-In-Reply-To: Your message of "Sat, 04 Dec 2004 11:28:28 GMT."
-             <35fb2e5904120403281a63eccd@mail.gmail.com> 
-References: <200412032145.iB3LjQZW004710@ccure.user-mode-linux.org>  <35fb2e5904120403281a63eccd@mail.gmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 Dec 2004 03:19:47 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Sun, 5 Dec 2004 01:21:48 -0500
+Received: from lakermmtao03.cox.net ([68.230.240.36]:767 "EHLO
+	lakermmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S261260AbULEGVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 01:21:46 -0500
+In-Reply-To: <200412050023.iB50NUdF025947@laptop11.inf.utfsm.cl>
+References: <200412050023.iB50NUdF025947@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <EF96E6D4-4685-11D9-9115-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Imanpreet Singh Arora <imanpreet@gmail.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: What if?
+Date: Sun, 5 Dec 2004 01:21:44 -0500
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jonmasters@gmail.com said:
-> That's great, but do any of these patches address various undefines in
-> arch/um/kernel/process.c:check_sysemu when built without skas? 
+On Dec 04, 2004, at 19:23, Horst von Brand wrote:
+> ... And pointless, you'd just get Linux as it stands
+> today, and loose many current developers (due to unfamiliarity with 
+> C++).
 
-Apparently they did.  I just checked with skas turned off and got a successful
-build.
+Personally, the reason _I_ hate C++ is that I got tired of having to 
+learn the obtuse
+combinations of symbols and excess keywords necessary to bludgeon my
+favorite refcount and memory management systems into the C++ objects.  
+It just
+wasn't worth the effort when I could write equivalent, better, and 
+easier to read
+code in C.
 
-> Also, on 2.6.9, I get dud CFLAGS defined when CONFIG_PROF is set *and*
-> CONFIG_FRAME_POINTER is also set - gcc complains about use of "-gp"
-> and "-fomit-frame-pointer" but surely it should be building with frame
-> pointers anyway if I've asked it to do so? 
+Cheers,
+Kyle Moffett
 
-I just checked with that config, and it builds fine.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-				Jeff
 

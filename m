@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVAUAgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVAUBYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVAUAgT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 19:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVAUAgT
+	id S261934AbVAUBYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 20:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVAUBYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 19:36:19 -0500
-Received: from news.suse.de ([195.135.220.2]:12432 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262213AbVAUAgK (ORCPT
+	Thu, 20 Jan 2005 20:24:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52384 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261934AbVAUBYh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 19:36:10 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [patch 5/5] Disallow in-inode attributes for reserved inodes
-Date: Fri, 21 Jan 2005 01:36:03 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, Andrew Tridgell <tridge@osdl.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Alex Tomas <alex@clusterfs.com>,
-       linux-kernel@vger.kernel.org
-References: <20050120020124.110155000@suse.de> <200501201429.15681.agruen@suse.de> <20050120230518.GL22715@schnapps.adilger.int>
-In-Reply-To: <20050120230518.GL22715@schnapps.adilger.int>
+	Thu, 20 Jan 2005 20:24:37 -0500
+From: Limin Gu <limin@dbear.engr.sgi.com>
+Message-Id: <200501210124.j0L1OUE22333@dbear.engr.sgi.com>
+Subject: Re: [patch] Job - inescapable job containers
+To: akpm@osdl.org (Andrew Morton)
+Date: Thu, 20 Jan 2005 17:24:30 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       limin@dbear.engr.sgi.com (Limin Gu)
+In-Reply-To: <20050119170628.2429c41e.akpm@osdl.org> from "Andrew Morton" at Jan 19, 2005 05:06:28 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501210136.04024.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 January 2005 00:05, Andreas Dilger wrote:
-> [...]
-> But as your patch stands it doesn't ever check if i_extra_isize is valid
-> for the root or lost+found inode.  It just always sets i_extra_isize = 0
-	(that's the in-memory i_extra_isize)
-> and never uses it.  Given that the root inode is fairly high-traffic it
-> makes sense to use the faster EA space if it is available.
+> I'm totally not in a position to evaluate the completeness, desirability,
+> interest-level, etc of this patch, I'm afraid.  This is an opportunity for
+> other stakeholders to weigh in..
 
-It's only a single block we're talking about, not all the overhead you run 
-into with huge amounts of attributes in many xattr disk blocks. It sure would 
-be much cleaner to use the root inode's in-inode space like with all other 
-inodes, but performance wise I don't think it matters.
+Thanks Andrew!
 
-> If these inodes have a BAD i_extra_isize it is OK to skip it, but I'm
-> not so keen to have an ext3_error() there.  If the user doesn't have an
-> e2fsck with ea-in-inode support there isn't anything they can do to fix
-> it and they will get a full e2fsck on each boot.
+First, Job can work as a standalone kernel module.
+The current implementation provides the inescapable job container.
+Job provides global unique Job ID (jid) to processes in a cluster
+environment. Job initiation on Linux is performed via a PAM session
+module with authentication and security checks. Root level processes,
+or those with the CAP_SYS_RESOURCE capability, can create new jobs
+or escape from a job.
 
-Agreed, that would be really bad. We should get e2fsck fixed ASAP.
+Second, Job based batch schedulers or resource limit tools can take the
+advantage of the process control ability Job provides.
 
-> Even so, for the effort of setting i_extra_isize = 4 (or larger if we
-> initialize the fixed fields) we can do the equivalent of what e2fsck will
-> do when it finds a bogus value.
+Thrid, Job provides a registion mechanism to various accounting modules
+for setting and getting job based accounting information.
+CSA (Comprehensive System Accounting) is one example of the accounting
+modules, (CSA code maintainer Jay Lan is currently on vacation, he will
+be back at Feb. 1).
 
-We cannot ask the user, and we don't have the kind of global view that e2fsck 
-has. Something different may be messed up, and may have lead to the 
-corruption. It's unlikely, but not impossible.
+We are pushing Job to linux kernel. If anybody has been using Job in your
+open source software, please respond to show the desirability and
+interest-level for Job, and we highly appreciate your suggestion on its 
+completeness as well.
 
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+Thank you!
+
+--Limin

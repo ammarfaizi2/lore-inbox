@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263927AbRFFR0V>; Wed, 6 Jun 2001 13:26:21 -0400
+	id <S263887AbRFFRav>; Wed, 6 Jun 2001 13:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263885AbRFFR0L>; Wed, 6 Jun 2001 13:26:11 -0400
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:23306 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S263827AbRFFR0E>; Wed, 6 Jun 2001 13:26:04 -0400
-Message-ID: <002e01c0eead$03c6d890$26040a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010605234928.A28971@lightning.swansea.linux.org.uk>
-Subject: Re: Linux 2.4.5-ac9
-Date: Wed, 6 Jun 2001 13:20:41 -0400
+	id <S263885AbRFFRal>; Wed, 6 Jun 2001 13:30:41 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:18843 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263851AbRFFRaY>;
+	Wed, 6 Jun 2001 13:30:24 -0400
+Message-ID: <3B1E68AB.CDD00F2C@mandrakesoft.com>
+Date: Wed, 06 Jun 2001 13:30:19 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Frank Davis <fdavis112@juno.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patches sound driver locking issue
+In-Reply-To: <383443482.991847258860.JavaMail.root@web395-wra.mail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.5-ac9
+Frank Davis wrote:
+> 
+> Hello all,
+>     I have attached patches against the following sound drivers to fix the locking issues mentioned in Alan's release notes for 2.4.5-ac9 . Please CC me on your comments to the code (I can address the issues quicker). Thanks.
 
-> o Fix xircom_cb problems with some cisco kit (Ion Badulescu)
+Do these patches have the same problems that your es1371 patch did?
 
-I'm not sure what this is supposed to fix, but it makes my Xircom
-RBEM56G-100 almost useless on my network at the office.  Actually, I can't
-quite blame just this patch, it only makes the problem worse, the driver
-from 2.4.5-ac3 worked, but with 1 second ping times, the new driver barely
-works at all, it seems to think the link is not there, at least not enough
-to pull an IP address.
+Let's make sure that is fixed first, and is solid.
 
-The last driver that worked moderately well for me was the one from
-2.4.4-ac11, it still had a few issues, mostly when resuming, but everything
-worked at home on my 10Mb hub, and at the office on my 10/100Mb FD Cisco
-6509.  I must admist that I haven't tested every version in between.
-
-One other note, the version in 2.4.4-ac11 is listed as 1.33 while the
-version in 2.4.5-ac9 is 1.11, why did we go backwards?  Were there
-significant problems with the newer version?  The 1.33 sure seems to work
-better for me.
-
-Later,
-Tom
-
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

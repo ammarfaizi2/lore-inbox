@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313684AbSDPODx>; Tue, 16 Apr 2002 10:03:53 -0400
+	id <S313685AbSDPOHd>; Tue, 16 Apr 2002 10:07:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313686AbSDPODw>; Tue, 16 Apr 2002 10:03:52 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38408 "EHLO
+	id <S313686AbSDPOHc>; Tue, 16 Apr 2002 10:07:32 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38920 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313684AbSDPODv>; Tue, 16 Apr 2002 10:03:51 -0400
-Date: Tue, 16 Apr 2002 10:00:36 -0400 (EDT)
+	id <S313685AbSDPOHc>; Tue, 16 Apr 2002 10:07:32 -0400
+Date: Tue, 16 Apr 2002 10:04:38 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <20020416013016.GA23513@matchmail.com>
-Message-ID: <Pine.LNX.3.96.1020416095729.26684A-100000@gatekeeper.tmr.com>
+To: Olaf Fraczyk <olaf@navi.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl>
+Message-ID: <Pine.LNX.3.96.1020416100047.26684B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002, Mike Fedyk wrote:
+On Tue, 16 Apr 2002, Olaf Fraczyk wrote:
 
-> No matter how much someone can go through their own code and say "it's
-> ready" there's always a good chance there is some bug that will trigger
-> under testing.  Also, Andrew found a problem with your locking changes when
-> he split up your patch, and at the time you were saying it is ready and
-> there were no bug reports against in...
+> Hi,
+> I would like to know why exactly this value was choosen.
+> Is it safe to change it to eg. 1024? Will it break anything?
+> What else should I change to get it working:
+> CLOCKS_PER_SEC?
+> Please CC me.
 
-If you are going to reject code from people who send in code which turns
-out to have bugs you are going to have a VERY small set of submitters.
-It's good to have someone else read the code, for breakup or whatever, but
-to avoid cleanup in a stable kernel seems long term the wrong direction.
+I think you just want to change HZ, and can do that safely. Do note that
+some software may be using 100 instead of HZ, so you might get some
+problems there.
+
+Think of HZ as "how often do we want to thrash the cache of CPU-bound
+processes." More is not necessarily better.
+
+If you want low latency there are low latency and preempt patches. They
+will do more the make the system responsive than increasing HZ.
 
 -- 
 bill davidsen <davidsen@tmr.com>

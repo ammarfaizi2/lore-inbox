@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUHGW3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUHGWkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbUHGW3e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 18:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUHGW3e
+	id S263001AbUHGWkh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 18:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUHGWkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 18:29:34 -0400
-Received: from thunk.org ([140.239.227.29]:30658 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S264524AbUHGW3c (ORCPT
+	Sat, 7 Aug 2004 18:40:37 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:50857 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S263001AbUHGWkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 18:29:32 -0400
-Date: Sat, 7 Aug 2004 18:26:34 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: James Morris <jmorris@redhat.com>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       mludvig@suse.cz, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: [PATCH]
-Message-ID: <20040807222634.GA15806@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>,
-	James Morris <jmorris@redhat.com>,
-	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-	mludvig@suse.cz, cryptoapi@lists.logix.cz,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-References: <20040806042852.GD23994@certainkey.com> <Xine.LNX.4.44.0408060040360.20834-100000@dhcp83-76.boston.redhat.com> <20040806125427.GE23994@certainkey.com>
+	Sat, 7 Aug 2004 18:40:35 -0400
+Date: Sun, 8 Aug 2004 01:40:19 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@pobox.com, jolt@tuxbox.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] b44 1GB DMA workaround (was: b44: add 47xx support)
+Message-ID: <20040807224019.GA24817@ee.oulu.fi>
+References: <200407232335.37809.jolt@tuxbox.org> <20040726141128.GA5435@ee.oulu.fi> <20040804003108.GA10445@ee.oulu.fi> <20040803183919.2990d045.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040806125427.GE23994@certainkey.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040803183919.2990d045.davem@redhat.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 08:54:27AM -0400, Jean-Luc Cooke wrote:
-> That and it's not endian-correct.  There are other issues with random.c (lack
-> for forward secrecy in the case of seed discovery, use of the insecure MD4 in
-> creating syn and seq# for tcp, the use of halfMD4 and twothridsMD4 is
-> madness
-> (what is 2/3's of 16!?!), 
+On Tue, Aug 03, 2004 at 06:39:19PM -0700, David S. Miller wrote:
+> Changing skb->data is not legal.  Please implement this in
+> such a way that skb->data does not get modified.  By modifying
+> skb->data you will break things such as packet sniffers and
+> netfilter, and that's just the tip of the iceberg. :-)
+> 
+Haven't noticed any breakage (tm) but I'm just a x86 weenie :-)
 
-This was deliberate becasue sequence number generation could not be
-slow for some workloads.  The sequence number attacks that MD4
-protects against are tcp hijacking attacks where the attacker is on
-the network path ---- if you really want security you'd be using real
-crypto for encryption and for integrity protection at the application
-layer.
+Current approach is:
 
-> the use of LFSRs for "mixing" when they're linear,
-> the polymonials used are not even primitive, 
+        if(1 (just for testing ;) ) || mapping+len > B44_DMA_MASK) {
+                /* Chip can't handle DMA to/from >1GB, use bounce buffer */
+                pci_unmap_single(bp->pdev, mapping, len,PCI_DMA_TODEVICE);
+                memcpy(bp->tx_bufs+entry*TX_PKT_BUF_SZ,skb->data,skb->len);
+                mapping = pci_map_single(bp->pdev,bp->tx_bufs+entry*TX_PKT_BUF_SZ, len, PCI_DMA_TODEVICE);
+        }
 
-The basic idea here is that you can mix in arbitrary amounts of zero
-data without destroying the randomness of the pool.  This is
-important, and was an explicit design goal.
+Which also works (tm). Setting the skb to a special value seems a bit tricky
+as skb->len is used in b44_tx for that nop^H^H^Hpci_unmap_single. It looks
+to me as the right things when the code gets changed as above (even for
+archs where the unmapping is not a nop) get done, but I could easily be
+missing something.
 
-> the ability for root to wipe-out
-> the random pool, the ability for root to access the random seed directly, the
-> paper I'm co-authoring will explain all of this).
 
-Yawn.  Root has access to /dev/mem.  Your point?
 
-							- Ted
+-- 
+Pekka Pietikainen

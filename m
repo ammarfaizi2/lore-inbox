@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314957AbSEHTil>; Wed, 8 May 2002 15:38:41 -0400
+	id <S314975AbSEHTmO>; Wed, 8 May 2002 15:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314975AbSEHTik>; Wed, 8 May 2002 15:38:40 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:774 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S314957AbSEHTik>; Wed, 8 May 2002 15:38:40 -0400
-Date: Wed, 8 May 2002 20:38:29 +0100 (BST)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: Dax Kelson <dax@gurulabs.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Completely honor prctl(PR_SET_KEEPCAPS, 1)
-In-Reply-To: <Pine.LNX.4.44.0205080136560.8607-100000@mooru.gurulabs.com>
-Message-ID: <Pine.LNX.4.33.0205082029060.14553-100000@sphinx.mythic-beasts.com>
+	id <S314981AbSEHTmN>; Wed, 8 May 2002 15:42:13 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:61337 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S314975AbSEHTmN>; Wed, 8 May 2002 15:42:13 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Andre Hedrick <andre@linux-ide.org>
+Cc: Bjorn Wesen <bjorn.wesen@axis.com>, Paul Mackerras <paulus@samba.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE 58
+Date: Wed, 8 May 2002 21:10:54 +0200
+Message-Id: <20020508191054.6282@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.44.0205081200340.5406-100000@home.transmeta.com>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>And done properly with per-controller (or drive - you may want to
+>virtualize at the drive level just because you could separate out
+>different kinds of drive accesses that way too) function pointers you can
+>then _mix_ access methods, without getting completely idiotic run-time
+>checks inside "ide_out()".
 
-Hi,
+Which ends up basically into having function pointers in the
+ata_channel (or ata_drive, but I doubt that would be really
+necessary) a set of 4 access functions: taskfile_in/out for
+access to taskfile registers (8 bits), and data_in/out for
+steaming datas in/out of the data reg (16 bits).
 
-On Wed, 8 May 2002, Dax Kelson wrote:
+That would cleanly solve my problem of mixing MMIO and PIO
+controllers in the same machine, that would solve the crazy
+byteswapping needed by some controllers for PIO at least,
+etc...
 
-> Originally when a process set*uided all capabilities bits were cleared.
-> Then sometime later (wish BK went back 3 years), the behaviour was
-> modified according to the comment "A process may, via prctl(), elect to
-> keep its capabilites when it calls setuid() and switches away from
-> uid==0. Both permitted and effective sets will be retained."
->
-> The current behavior/implementation doesn't match the comment. Only
-> permitted capabilities are retained.
->
-> This patch against 2.4.18-3 (RHL7.3 kernel, should apply against stock)
-> fixes it.  Now both permitted and effective capabilities are retained.
+I would even suggest not caring about the taskfile register
+address at all (that is kill the array of port addresses) but
+just pass the taskfile_in/out functions the register number
+(cyl_hi, cyl_lo, select, ....) as a nice symbolic constant,
+and let the channel specific implementation figure it out.
+I haven't checked if you already killed all of the request/release
+region crap done by the common ide code, that is matter is completely
+internal to the host controller driver, etc...
 
-This is a change of behaviour in a fairly security sensitive area, so I'd
-like us to step back and ask - should we fix the code or the comment?
+Now, andre may tell us we need one more set for "slow IO"
+versions for some HW, I don't know the details for these so
+I'll let the old man speak up here.
 
-An application using prctl()[1] is capability aware. I think it is fair
-(and more secure) if we require these applications to explicitly request
-raising capabilities in the effective set, after the switch from euid == 0
-to euid != 0.
+Ben.
 
-Comments?
-
-Cheers
-Chris
-
-[1] There are quite a few now - search google for PR_SET_KEEPCAPS.
 

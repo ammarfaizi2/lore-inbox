@@ -1,94 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273931AbRIXPHL>; Mon, 24 Sep 2001 11:07:11 -0400
+	id <S273934AbRIXPJL>; Mon, 24 Sep 2001 11:09:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273934AbRIXPHB>; Mon, 24 Sep 2001 11:07:01 -0400
-Received: from [195.246.135.25] ([195.246.135.25]:60681 "EHLO
-	chert.194.133.98.200") by vger.kernel.org with ESMTP
-	id <S273931AbRIXPGq>; Mon, 24 Sep 2001 11:06:46 -0400
-Date: Mon, 24 Sep 2001 19:06:16 +0200
-From: Andrei Lahun <Uman@editec-lotteries.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: process stopped in D state for seconds
-Message-ID: <20010924190616.A24246@chert.194.133.98.200>
-In-Reply-To: <20010924152356.A14097@chert.194.133.98.200>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010924152356.A14097@chert.194.133.98.200>
-User-Agent: Mutt/1.3.22.1i
+	id <S273935AbRIXPJB>; Mon, 24 Sep 2001 11:09:01 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:5645 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S273934AbRIXPIy>; Mon, 24 Sep 2001 11:08:54 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.10pre10 aic7xxx problem 
+Date: Mon, 24 Sep 2001 17:08:54 +0200
+Message-Id: <20010924150854.26490@smtp.adsl.oleane.com>
+In-Reply-To: <9678C2B4D848D41187450090276D1FAE1008EBA5@FMSMSX32>
+In-Reply-To: <9678C2B4D848D41187450090276D1FAE1008EBA5@FMSMSX32>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 03:23:56PM +0200, Andrei Lahun wrote:
-I made a trace from ksymoops, sorry if itis still not enough.
-Call Trace: [<c01103a2>] [<c017cfac>] [<c0186f1b>] [<c0187dbf>] [<c0112841>] 
-   [<c0187dbf>] [<c018a41e>] [<c018caa1>] [<c017c5b8>] [<c017c612>] [<c013acf2>] 
-   [<c013ae59>] [<c0186e30>] [<c0186e30>] [<c018b662>] [<c0141a81>] [<c01309bf>] 
-   [<c015dc7c>] [<c0186e30>] [<c017b4c6>] [<c01863ad>] [<c0186e30>] [<c017b4c6>] 
-   [<c0186e30>] [<c017b4c6>] [<c01863ad>] [<c0186c80>] [<c018617c>] [<c0186e5c>] 
-   [<c0186c80>] [<c01862f5>] [<c011000a>] [<c01103a2>] [<c017cfac>] [<c0186f1b>] 
-   [<c0187532>] [<c01874db>] [<c01283ce>] [<c0128116>] [<c011eea1>] [<c011ef2f>] 
-   [<c011f027>] [<c010f568>] [<c010f408>] [<c016ec9c>] [<c016ed01>] [<c0133fab>] 
-   [<c0188f14>] [<c017ef35>] [<c0141290>] [<c0134dc0>] [<c013b157>] [<c0106b2b>] 
-Warning (Oops_read): Code line not seen, dumping what data is available
+>I've seen some pretty heinous bugs in Big Bear firmware of that vintage.
+>I'll bet that the aic debug info will indicate that the disk goes out to
+>lunch.  I used to support a large customer who had a large population of
+>these disks and we went through a lot of pain debugging these drives with
+>Seagate.
+>The solution will likely be one or both of these changes:
+>  1) Upgrade the disk firmware to 1497 or later 
+>         (I have a copy if it's not readily available to you.)
+>     The servo should also be 6246 or later.
+>  2) Turn off SMART in mode page 1C (88 00).  Also the default number of
+>retries for the factory settings are way too high.  The mode page settings
+>for ST34520W should look like this:
+>pg len ....
+>-- --  
+>01 0a c4 20 79 00 00 00 20 00 ff ff
+>02 0e e0 e0 00 00 00 00 00 00 00 00 00 00 00 00
+>03 16 00 00 1f 61 00 00 00 00 00 f6 02 00 00 01 00 24 00 34 40 00 00 00
+>04 16 00 23 2e 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 1c 20 00 00
+>07 0a 0c 20 79 00 00 00 00 00 ff ff
+>08 12 90 00 ff ff 00 00 ff ff ff ff 80 01 00 00 00 00 00 00
+>0a 0a 00 00 00 00 00 00 ff ff 00 00
+>1c 0a 88 00 00 00 00 00 00 00 00 01
 
-Proc;  xine
->>EIP; c3378000 <___strtok+310c250/85cf250>   <=====
-Trace; c01103a2 <wait_for_completion+76/a4>
-Trace; c017cfac <ide_do_drive_cmd+100/120>
-Trace; c0186f1a <create_proc_ide_interfaces+433e/66f4>
-Trace; c0187dbe <create_proc_ide_interfaces+51e2/66f4>
-Trace; c0112840 <panic+570/5e0>
-Trace; c0187dbe <create_proc_ide_interfaces+51e2/66f4>
-Trace; c018a41e <init_cdrom_command+342/9a8>
-Trace; c018caa0 <cdrom_mode_select+1fb8/22a8>
-Trace; c017c5b8 <ide_wait_stat+378/440>
-Trace; c017c612 <ide_wait_stat+3d2/440>
-Trace; c013acf2 <page_follow_link+8aa/8f0>
-Trace; c013ae58 <__kill_fasync+50/60>
-Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
-Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
-Trace; c018b662 <cdrom_mode_select+b7a/22a8>
-Trace; c0141a80 <is_bad_inode+45c/558>
-Trace; c01309be <generic_direct_IO+18a/1e4>
-Trace; c015dc7c <batch_entropy_store+220/228>
-Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
-Trace; c017b4c6 <atapi_output_bytes+3e/68>
-Trace; c01863ac <create_proc_ide_interfaces+37d0/66f4>
-Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
-Trace; c017b4c6 <atapi_output_bytes+3e/68>
-Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
-Trace; c017b4c6 <atapi_output_bytes+3e/68>
-Trace; c01863ac <create_proc_ide_interfaces+37d0/66f4>
-Trace; c0186c80 <create_proc_ide_interfaces+40a4/66f4>
-Trace; c018617c <create_proc_ide_interfaces+35a0/66f4>
-Trace; c0186e5c <create_proc_ide_interfaces+4280/66f4>
-Trace; c0186c80 <create_proc_ide_interfaces+40a4/66f4>
-Trace; c01862f4 <create_proc_ide_interfaces+3718/66f4>
-Trace; c011000a <schedule+25e/394>
-Trace; c01103a2 <wait_for_completion+76/a4>
-Trace; c017cfac <ide_do_drive_cmd+100/120>
-Trace; c0186f1a <create_proc_ide_interfaces+433e/66f4>
-Trace; c0187532 <create_proc_ide_interfaces+4956/66f4>
-Trace; c01874da <create_proc_ide_interfaces+48fe/66f4>
-Trace; c01283ce <__alloc_pages+46/1f8>
-Trace; c0128116 <_alloc_pages+16/288>
-Trace; c011eea0 <vmtruncate+36c/a0c>
-Trace; c011ef2e <vmtruncate+3fa/a0c>
-Trace; c011f026 <vmtruncate+4f2/a0c>
-Trace; c010f568 <do_BUG+184/6b8>
-Trace; c010f408 <do_BUG+24/6b8>
-Trace; c016ec9c <generic_make_request+130/140>
-Trace; c016ed00 <submit_bh+54/70>
-Trace; c0133faa <kern_mount+c82/11b4>
-Trace; c0188f14 <create_proc_ide_interfaces+6338/66f4>
-Trace; c017ef34 <system_bus_clock+c20/c74>
-Trace; c0141290 <update_atime+44/54>
-Trace; c0134dc0 <blkdev_put+228/234>
-Trace; c013b156 <kill_fasync+2ee/308>
-Trace; c0106b2a <__up_wakeup+1046/2254>
-I did it when it stopped in D state.(for 5 second)
-Another thread where Ok.
+Ok, thanks. I don't have the firmwares not I know how to update it on
+those disks. I can try hacking the mode pages however.
+
+The "weird" thing is that this same disk works perfectly well on MacOS
+with the same HW config, and used to work fine in linux until very
+recently.
+
+Justin suggested an interrupt problem. I'll look into it in more detail,
+but I don't think there's anything like that. This box (PowerMac G4) has
+a quite clean interrupt mapping provided by the firmware with no interrupt
+sharing, and things related to parsing that firmware didn't evolve lately
+(there have been no significant change to PPC OpenPIC interrupt management
+since a long time).
+
+Regards,
+Ben.
 
 

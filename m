@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVAHWFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVAHWJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVAHWFq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAHWFi
+	id S261943AbVAHWJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVAHWGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:05:38 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:15123 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261943AbVAHWBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:01:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=HxomOzVkAW6pxpVkNc4tKivasKHEIflKTPq1lsZQHBldEQDkE4jel0CKK2kIgCHJhSRhD6B3y4fxt+FyBVrnzYvsy64RA7pvDsQ1loFtvHU818Yu15qVreIY+t5Y7XB+QvLqeBkes568Z0G+8DOmq8J7DQmTsBTIYdQggRRlFJ4=
-Message-ID: <7f800d9f050108140116a8f2c3@mail.gmail.com>
-Date: Sat, 8 Jan 2005 14:01:03 -0800
-From: Andre Eisenbach <int2str@gmail.com>
-Reply-To: Andre Eisenbach <int2str@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: X applications don't run with 2.6.10-mm2
+	Sat, 8 Jan 2005 17:06:12 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:43435
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261969AbVAHWBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:01:53 -0500
+Date: Sat, 8 Jan 2005 13:56:36 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: clameter@sgi.com, akpm@osdl.org, linux-ia64@vger.kernel.org,
+       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
+Message-Id: <20050108135636.6796419a.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, all,
+On Sat, 8 Jan 2005 21:12:10 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-After updrading from linux-2.6.10-rc2-mm3 to linux-2.6.10-mm2, X
-windows applications (any) would not start anymore. Not even Xterm.
-The X server alone would run, but launching any application resulted
-in this error message:
+> Christoph, a late comment: doesn't this effectively replace
+> do_anonymous_page's clear_user_highpage by clear_highpage, which would
+> be a bad idea (inefficient? or corrupting?) on those few architectures
+> which actually do something with that user addr?
 
-XIO: fatal IO error 25 (Inappropriate ioctl for device) on X server ":0.0"
-after 118 requests (115 known processed) with 10 events remaining.
+Good catch, it probably does.  We really do need to use
+the page clearing routines that pass in the user virtual
+address when preparing new anonymous pages or else we'll
+get cache aliasing problems on sparc, sparc64, and mips
+at the very least.  That is what the virtual address argument
+was added for to begin with.
 
-No error shows up in dmesg or the X server log.
-
-According to a post on this site [1], the problem already occured with
-2.6.10-rc3-mm1, which I personally didn't try.
-
-I've since switched to linux-2.6.10-ck2 and it works without a problem.
-
-Let me know if you would like me to do any more testing.
-
-Hardware is a AMD 2400+ Notebook with Radeon Mobility (IGP 320) graphics card.
-
-Cheers,
-   Andre
-
----
-[1] http://www.phaeronix.net/node/25
+The other way to deal with this is to make whatever routine
+the kscrubd thing invokes do all the cache flushing et al.
+magic so that the above works when taking pages from the
+pre-zero'd pool (only, if no pre-zero'd pages are available
+we sill need to invoke clear_user_highpage() with the proper
+virtual address).

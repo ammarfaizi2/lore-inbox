@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVBUO7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVBUPCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVBUO7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 09:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVBUO66
+	id S262000AbVBUPCL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 10:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVBUPCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 09:58:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45324 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261989AbVBUOsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 09:48:31 -0500
-Date: Mon, 21 Feb 2005 15:48:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: rl@hellgate.ch, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/via-rhine.c: make a variable static const
-Message-ID: <20050221144826.GF3187@stusta.de>
-References: <20050219084433.GU4337@stusta.de> <4216FD14.5070506@pobox.com>
+	Mon, 21 Feb 2005 10:02:09 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:50854 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262000AbVBUPCE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 10:02:04 -0500
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give
+	dev=/dev/hdX as device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com>
+References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu>
+	 <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
+	 <cv36kk$54m$1@gatekeeper.tmr.com>
+	 <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1108998023.15518.93.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4216FD14.5070506@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 21 Feb 2005 15:00:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 19, 2005 at 03:47:16AM -0500, Jeff Garzik wrote:
-> Adrian Bunk wrote:
->...
-> >-int mmio_verify_registers[] = {
-> >+static int mmio_verify_registers[] = {
-> > 	RxConfig, TxConfig, IntrEnable, ConfigA, ConfigB, ConfigC, ConfigD,
-> > 	0
-> 
-> static const
+On Gwe, 2005-02-18 at 10:31, Kiniger, Karl (GE Healthcare) wrote:
+> Not entirely true (at least for me). I actually tried to read the 
+> last iso9660 data sector with a small C program (reading 2 kb) and
+> it failed to read the sector. Using ide-scsi I was able to read it.....
 
-
-Updated patch below.
-
-
-<--  snip  -->
-
-
-This patch makes a needlessly global variable static const.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc3-mm2-full/drivers/net/via-rhine.c.old	2005-02-16 18:56:59.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/via-rhine.c	2005-02-16 18:57:05.000000000 +0100
-@@ -390,7 +390,7 @@
- 
- #ifdef USE_MMIO
- /* Registers we check that mmio and reg are the same. */
--int mmio_verify_registers[] = {
-+static const int mmio_verify_registers[] = {
- 	RxConfig, TxConfig, IntrEnable, ConfigA, ConfigB, ConfigC, ConfigD,
- 	0
- };
-
-
+Thats the bug that should now be fixed by the ide changes I did so that
+ide-cd has the knowledge ide-scsi has for partial completions of I/O
 

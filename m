@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267677AbTBYFQ7>; Tue, 25 Feb 2003 00:16:59 -0500
+	id <S267612AbTBYFfF>; Tue, 25 Feb 2003 00:35:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267679AbTBYFQ7>; Tue, 25 Feb 2003 00:16:59 -0500
-Received: from holomorphy.com ([66.224.33.161]:35252 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267677AbTBYFQ6>;
-	Tue, 25 Feb 2003 00:16:58 -0500
-Date: Mon, 24 Feb 2003 21:26:02 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225052602.GW10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030225051956.GA18302@f00f.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267648AbTBYFfF>; Tue, 25 Feb 2003 00:35:05 -0500
+Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:26819 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S267612AbTBYFfE>; Tue, 25 Feb 2003 00:35:04 -0500
+Date: Mon, 24 Feb 2003 22:45:18 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: Mike Sullivan <mike.sullivan@alltec.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduling with HyperThreading
+In-Reply-To: <3E5AC10B.6010705@alltec.com>
+Message-ID: <Pine.LNX.4.51.0302242240400.20688@skuld.mtroyal.ab.ca>
+References: <3E5AC10B.6010705@alltec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 01:28:30PM +0000, Alan Cox wrote:
->> _If_ it harms performance on small boxes.
+On Mon, 24 Feb 2003, Mike Sullivan wrote:
 
-On Mon, Feb 24, 2003 at 09:19:56PM -0800, Chris Wedgwood wrote:
-> You mean like the general slowdown from 2.4 - >2.5?
-> It seems to me for small boxes, 2.5.x is margianlly slower at most
-> things than 2.4.x.
-> I'm hoping and the code solidifes and things are tuned this gap will
-> go away and 2.5.x will inch ahead...  hoping....
+> What kernel versions will attempt to distribute jobs across physical CPUs on
+> Xeon SMP configurations.
 
-Could you help identify the regressions? Profiles? Workload?
+>From what I've heard, Arjans' user space daemon might be the way
+things are going, it's at http://people.redhat.com/arjanv/irqbalance/ .
 
-On Mon, Feb 24, 2003 at 01:28:30PM +0000, Alan Cox wrote:
->> The definitive Linux box appears to be $199 from Walmart right now,
->> and its not SMP.
+The other way that you might try is the irq load balance patch that Ingo
+produced.  There is a patch that is from 2.4.20 at
+http://www.hardrock.org/kernel/2.4.20/ and it is what I'm using at work on
+our current Xeon systems (until I have the chance to test the user space
+daemon at least).
 
-On Mon, Feb 24, 2003 at 09:19:56PM -0800, Chris Wedgwood wrote:
-> In two year this kind of hardware probably will be SMP (HT or some
+Hope that helps.
 
-I'm a programmer not an economist (despite utility functions and Nash
-equilibria). Don't tell me what's definitive, give me some profiles.
+Regards
+James Bourne
 
--- wli
+>                         Mike
+
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
+

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286456AbSABAz3>; Tue, 1 Jan 2002 19:55:29 -0500
+	id <S283938AbSABA7U>; Tue, 1 Jan 2002 19:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbSABAzT>; Tue, 1 Jan 2002 19:55:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1542 "EHLO
+	id <S286465AbSABA7K>; Tue, 1 Jan 2002 19:59:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6662 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286456AbSABAzJ>; Tue, 1 Jan 2002 19:55:09 -0500
-To: linux-kernel@vger.kernel.org
+	id <S283938AbSABA7H>; Tue, 1 Jan 2002 19:59:07 -0500
+Message-ID: <3C325823.7010501@zytor.com>
+Date: Tue, 01 Jan 2002 16:45:23 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: zImage not supported for 2.2.20?
-Date: 1 Jan 2002 16:54:52 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a0tlos$e6m$1@cesium.transmeta.com>
-In-Reply-To: <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <4.3.2.7.2.20011231090710.00ab7e30@192.168.124.1>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+To: Dave Jones <davej@suse.de>
+CC: robert@schwebel.de, Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Jason Sodergren <jason@mugwump.taiga.com>,
+        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
+Subject: Re: [PATCH][RFC] AMD Elan patch
+In-Reply-To: <Pine.LNX.4.33.0201020104140.26007-100000@Appserv.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <4.3.2.7.2.20011231090710.00ab7e30@192.168.124.1>
-By author:    Roy Hills <linux-kernel-l@nta-monitor.com>
-In newsgroup: linux.dev.kernel
+Dave Jones wrote:
+
+> On Tue, 1 Jan 2002, H. Peter Anvin wrote:
 > 
-> My understanding is that the problem is something to do with the
-> Toshiba Tecra laptops not flushing the cache properly when activating
-> the A20 line.  This causes a problem for bzImage kernels because they
-> decompress into extended memory, whereas zImage kernels don't and
-> thus don't tickle the bug.
+> 
+>>Do you happen to know if there is an easy and safe way to detect an Elan
+>>at runtime? If so, it might make more sense to make this a runtime
+>>decision instead.
+>>
+> 
+> Family 4 Model 10 or so my information tells me.
+> Unless there are also others with the same name and different cpuid info.
 > 
 
-It's a timing problem; it has nothing to do with the cache.  The
-workaround for the timing problem was added a long time ago.
+
+That identifies the CPU core, but not the chipset -- and it's quite 
+likely the CPU core will pop up in other uses.
+
+Not trustworthy.
 
 	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+
+

@@ -1,106 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264212AbTEGTPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbTEGTPX
+	id S264206AbTEGTHH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbTEGTHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:15:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6787 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264212AbTEGTPS
+	Wed, 7 May 2003 15:07:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6019 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264206AbTEGTHE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:15:18 -0400
-Date: Wed, 7 May 2003 15:30:40 -0400 (EDT)
+	Wed, 7 May 2003 15:07:04 -0400
+Date: Wed, 7 May 2003 15:22:23 -0400 (EDT)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 X-X-Sender: root@chaos
 Reply-To: root@chaos.analogic.com
-To: Roland Dreier <roland@topspin.com>
-cc: Jonathan Lundell <linux@lundell-bros.com>,
-       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: top stack (l)users for 2.5.69
-In-Reply-To: <52bryeppb3.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.53.0305071523010.13724@chaos>
+In-Reply-To: <Pine.LNX.4.50.0305071137330.2208-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.53.0305071517100.13724@chaos>
 References: <20030507132024.GB18177@wohnheim.fh-wedel.de>
  <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de>
  <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]>
  <Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com>
- <Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com>
+ <Pine.LNX.4.53.0305071424290.13499@chaos>
+ <Pine.LNX.4.50.0305071137330.2208-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, Roland Dreier wrote:
+On Wed, 7 May 2003, Davide Libenzi wrote:
 
-> >>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
+> On Wed, 7 May 2003, Richard B. Johnson wrote:
 >
->     Richard> On Wed, 7 May 2003, Roland Dreier wrote: The kernel
->     Richard> stack, at least for ix86, is only one, set upon startup
->     Richard> at 8192 bytes above a label called init_task_unit. The
->     Richard> kernel must have a separate stack and, contrary to what
->     Richard> I've been reading on this list, it can't have more kernel
->     Richard> stacks than CPUs and, I don't see a separate stack
->     Richard> allocated for different CPUs.
+> > No, No. That is a process stack. Every process has it's own, entirely
+> > seperate stack. This stack is used only in user mode. The kernel has
+> > it's own stack. Every time you switch to kernel mode either by
+> > calling the kernel or by a hardware interrupt, the kernel's stack
+> > is used.
 >
->     Roland> This is total nonsense.  Please don't confuse matters by
->     Roland> spreading misinformation like this.  Every task has a
->     Roland> separate (8K) kernel stack.  Look at the implementation of
->     Roland> do_fork() and in particular alloc_task_struct().
->
->     Roland> If there were only one kernel stack, what do you think
->     Roland> would happen if a process went to sleep in kernel code?
->
->     Richard> No, No. That is a process stack. Every process has it's
->     Richard> own, entirely seperate stack. This stack is used only in
->     Richard> user mode. The kernel has it's own stack. Every time you
->     Richard> switch to kernel mode either by calling the kernel or by
->     Richard> a hardware interrupt, the kernel's stack is used.
->
-> Again, this is nonsense and misinformation.  Look at do_fork() and
-> alloc_task_struct().  Do you see how alloc_task_struct() is just
-> defined to be __get_free_pages(GFP_KERNEL,1) for i386?  Do you
-> understand that that just allocates two pages (8K) of kernel memory?
-> Do you see that it is never mapped into userspace, and that anyway
-> a userspace process can use far more than 8K of stack?
->
-> That 8K of memory is used for the kernel stack for a particular
-> process.  When a process makes a system call, that specific stack is
-> used as the kernel stack.
-
-I haven't got a clue why and when that code got added. It is
-absolutely positively wasted and is not required for kernel system
-calls nor interrupts since they all must operate in kernel mode
-and, therefore, use the kernel stack.
-
->
->     Richard> When a task sleeps, it sleeps in kernel mode. The kernel
->     Richard> schedules other tasks until the sleeper has been
->     Richard> satisfied either by time or by event.
->
-> Right.  Now think about where the kernel stack for the process that is
-> sleeping in the kernel is kept.
+> Is it your understanding that does not exist a per task kernel stack ?
 >
 
-It's the kernel, of course. The scheduler runs in the kernel under
-the kernel stack, with the kernel data. It has nothing to do with
-the original user once the user sleeps. The user's context was
-saved, the kernel was set up, and the kernel will schedule other
-tasks until the sleep time or the sleep_on even is complete.
-At that time, (or thereafter), the kernel will schedule
-the previously sleeping task, its context will be restored, and
-it continues execution.
+It is my understanding that there is one kernel stack. If there
+is a stack allocated for some "transition", and I guess there
+may be, because of the mail I'm getting, then it has absolutely
+no purpose whatsoever and is wasted valuable non-paged RAM.
 
-The context of a task (see entry.S) is completely defined by
-its registers, including the hidden part of the segments
-(selectors) that define priviledge.
+The reason why system-call parameters are passed in registers
+is so that we didn't have the overhead of copying stuff from a
+user stack to a kernel stack.
 
->  - Roland
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Does anybody know (not guess) if this was stuff added for the
+new non-interrupt 0x80 syscall code? I want to know how a
+simple kernel got corrupted into this twisted thing.
+
+Anybody who has a copy of any of the Intel manuals since '386
+knows that there needs to be only one kernel stack.
 
 Cheers,
 Dick Johnson

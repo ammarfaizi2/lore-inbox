@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262167AbSJAPtJ>; Tue, 1 Oct 2002 11:49:09 -0400
+	id <S261707AbSJAQDL>; Tue, 1 Oct 2002 12:03:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbSJAPtI>; Tue, 1 Oct 2002 11:49:08 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:37373 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S262167AbSJAPtH>;
-	Tue, 1 Oct 2002 11:49:07 -0400
-Date: Tue, 1 Oct 2002 17:54:28 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: KDSETKEYCODE work with new input layer?
-Message-ID: <20021001155428.GA19122@win.tue.nl>
-References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz> <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net> <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz>
+	id <S261699AbSJAQBs>; Tue, 1 Oct 2002 12:01:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57256 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261694AbSJAQBT>;
+	Tue, 1 Oct 2002 12:01:19 -0400
+Date: Tue, 1 Oct 2002 18:06:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
+       Alexander Viro <viro@math.psu.edu>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+Message-ID: <20021001160608.GX3867@suse.de>
+References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021001174129.A12995@ucw.cz>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20021001154808.GD126@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 05:41:29PM +0200, Vojtech Pavlik wrote:
+On Tue, Oct 01 2002, Dave Jones wrote:
+> Consider it patch 1/2 of the device mapper merge 8-)
 
-> > Will you be releasing an updated kbd package?
-> 
-> Well, I'm not the maintainer of the kbd package, but I probably will
-> have to release a new tool to set the keycode table.
+Indeed, the patches are also arriving out of order though, LVM remove
+patch should be 2/2 not 1/2. IMO.
 
-If possible, make it as a patch of the old [gs]etkeycodes, and such
-that it recognizes the kernel version and does the right thing
-on both 2.4 and 2.6. This is a fairly obscure area, so the utility
-should be as self-documenting as possible.
+-- 
+Jens Axboe
 
-Andries

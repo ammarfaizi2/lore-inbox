@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274434AbRJJOYt>; Wed, 10 Oct 2001 10:24:49 -0400
+	id <S275734AbRJJOie>; Wed, 10 Oct 2001 10:38:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275449AbRJJOYj>; Wed, 10 Oct 2001 10:24:39 -0400
-Received: from t2.redhat.com ([199.183.24.243]:4599 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S274434AbRJJOYT>; Wed, 10 Oct 2001 10:24:19 -0400
-Message-ID: <3BC45A2C.1F7754B1@redhat.com>
-Date: Wed, 10 Oct 2001 15:24:44 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>, linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices
-In-Reply-To: <F4C5F64C4EBBD51198AD009027D61DB31C8139@otcexc01.otc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275818AbRJJOiP>; Wed, 10 Oct 2001 10:38:15 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:7693 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S275734AbRJJOiN>; Wed, 10 Oct 2001 10:38:13 -0400
+Date: Wed, 10 Oct 2001 09:38:16 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200110101438.JAA35345@tomcat.admin.navo.hpc.mil>
+To: balbir.singh@wipro.com, Balbir Singh <balbir.singh@wipro.com>
+Subject: Re: is reparent_to_init a good thing to do?
+CC: landley@trommello.org, Andrew Morton <akpm@zip.com.au>,
+        lkml <linux-kernel@vger.kernel.org>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bonds, Deanna" wrote:
+"BALBIR SINGH" <balbir.singh@wipro.com>:
+> Balbir Singh wrote:
 > 
+> > Rob Landley wrote:
 > >
-> > The kernel dpt_i2o is GPL. Its in part built from GPL'd code
-> > I wrote but
-> > mostly from what I assume was originally a  cross platform
-> > dpt source set.
+> >> Or long lived kernel threads from short lived login sessions.
+> >>
+> >> You have a headless gateway box for your local subnet, administered 
+> >> via ssh from a machine on the local subnet.  So you SSH into the box 
+> >> through eth1, ifconfig eth0 down back up again.  If eth0 is an 
+> >> rtl8039too, this fires off a kernel thread (which, before 
+> >> reparent_to_init, was parented to your ssh login session).
+> >>
+> >> Now exit the login session.  SSH does not exit until all the child 
+> >> processes exit, so it just hangs there until you kill it from another 
+> >> console window...
+> >>
+> >> Rob
+> >>
+> > The question one can ask is what should a thread do then?
+> > Should reparent_to_init() send a SIGCHLD to the process/task
+> > that was parent before init became the parent? this should be easy
+> > to do, but will this fix the problem? I think so.
 > >
-> > Alan
+> > I can patch up something soon, if somebody is willing to test it.
 > 
-> The main dpt_i2o files are GPL.  There are some header files that are used
-> for the ioctl interface that are used across all platforms and management
-> utilities.  They were originally released under BDS license for the most
-> flexibility.  But we have no problems in re-releasing them under GPL as long
-> as we have the 'copy-back' right and can continue to use them in our other
-> products.  All we would be concerned with is not having to GPL all the
-> software that uses those headers (which is pretty much everything related to
-> the i2o raid cards on every OS).
+> 
+> Ooh! sorry this is a wrong approach to send SIGCHLD to the previous parent.
+> AFAIK, all shells send their children SIGHUP when the shell exits, but SSH
+> may have some special security consideration in waiting for all children to
+> exit, does anyone know?
 
-Then dual-licensing it with BSD and GPL sounds the way to go; quite a
-few drivers
-do that, and I can't imagine anyone having a problem with that.
+Not exactly - sshd will not terminate a connection until all forwarded socket
+connections are terminated. If processes are running in the background, then
+they will remain after sshd terminates. Foreground processes will terminate as
+specified by the shell.
+
+If the sshd TCP socket remains open after the network interface is shutdown,
+then you are into the TCP timeout.. Not a ssh logout.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

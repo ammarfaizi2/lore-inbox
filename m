@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261547AbSIZWs7>; Thu, 26 Sep 2002 18:48:59 -0400
+	id <S261553AbSIZWzj>; Thu, 26 Sep 2002 18:55:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261549AbSIZWs7>; Thu, 26 Sep 2002 18:48:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12298 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261547AbSIZWsW>; Thu, 26 Sep 2002 18:48:22 -0400
-Date: Thu, 26 Sep 2002 15:56:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
-In-Reply-To: <Pine.LNX.4.33.0209261533230.1345-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0209261550590.1573-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261560AbSIZWyv>; Thu, 26 Sep 2002 18:54:51 -0400
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:32015 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S261553AbSIZWyA>;
+	Thu, 26 Sep 2002 18:54:00 -0400
+Subject: Re: using memset in a module
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020926.154956.109059025.davem@redhat.com>
+References: <1033080562.3371.24.camel@zaphod>
+	 <20020926.154956.109059025.davem@redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033081116.3371.29.camel@zaphod>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 26 Sep 2002 18:58:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 26 Sep 2002, Linus Torvalds wrote:
+On Thu, 2002-09-26 at 18:49, David S. Miller wrote:
+>    From: Shaya Potter <spotter@cs.columbia.edu>
+>    Date: 26 Sep 2002 18:49:22 -0400
 > 
-> and then when we pin a page, we do
+>    I have a problem using memset in a module.
+>    
+> You cannot use different compilers to build modules than
+> were used to build the kernel itself.
 > 
-> 	/* This is part of the 
-> 	struct page_change_struct pinned_data;
+> If 2.95 was used to build the kernel, and you then try to
+> use gcc-3.{0,1,2} to build a module that resulting module
+> will have little chance of working.
 
-That "This is part of the " comment should continue with "struct futex_q", 
-but I went off and was supposed to check what the futex data structure was 
-called, and forgot about updating it.
+I know that, gcc-3.2 was an act of desperation after gcc-2.95 wasn't
+working at all.  I just wanted to see if it made a diff and it did,
+didnt even bother try loading the resulting .o
 
-Anyway, the point being that this needs no new allocations in _any_ path,
-and only extends a structure that we already need for the slow case for
-futexes. It does imply a new lock, though, and the COW path would have to
-check that hash (which should scale pretty well, since we only have
-entries here when somebody is blocked on a futex).
-
-Oh, and we need a new hash table, since the native futex hash can't just
-be re-used due to different indexing - the futex hash is based on physical
-page and offset, while the page_change_struct hash is based on virtual
-address and the mm.
-
-(I initially thought we could make the page_change_struct hash be based on 
-physical page, but there can be multiple instances of the same physical 
-page being mapped into the same VM, so that wouldn't be a good thing - 
-we'd get callbacks for the wrong virtual address being COW'ed).
-
-		Linus
+shaya
 

@@ -1,22 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277154AbRJLK7g>; Fri, 12 Oct 2001 06:59:36 -0400
+	id <S277614AbRJLLE4>; Fri, 12 Oct 2001 07:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277260AbRJLK70>; Fri, 12 Oct 2001 06:59:26 -0400
-Received: from ppp65-054.verat.net ([217.26.65.54]:26497 "EHLO
-	spnew.snpe.co.yu") by vger.kernel.org with ESMTP id <S277154AbRJLK7T>;
-	Fri, 12 Oct 2001 06:59:19 -0400
-Message-Id: <200110121206.f9CC6XV01124@spnew.snpe.co.yu>
-Content-Type: text/plain; charset=US-ASCII
-From: snpe <snpe@snpe.co.yu>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.11 & 2.4.12 are much slower
-Date: Fri, 12 Oct 2001 14:06:32 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S277192AbRJLLEq>; Fri, 12 Oct 2001 07:04:46 -0400
+Received: from mail.case.pt ([194.65.97.60]:39430 "EHLO case_primary.case.pt")
+	by vger.kernel.org with ESMTP id <S277614AbRJLLEi>;
+	Fri, 12 Oct 2001 07:04:38 -0400
+Message-ID: <01C15314.F7036250.rui.ribeiro@case.pt>
+From: Rui Ribeiro <rui.ribeiro@case.pt>
+Reply-To: "rui.ribeiro@case.pt" <rui.ribeiro@case.pt>
+To: "'snpe'" <snpe@snpe.co.yu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel 2.4.11 & 2.4.12 are much slower
+Date: Fri, 12 Oct 2001 11:56:44 +0100
+Organization: Case, S.A.
+X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+-----Original Message-----
+From:	snpe [SMTP:snpe@snpe.co.yu]
+Sent:	Sexta-feira, 12 de Outubro de 2001 13:07
+To:	linux-kernel@vger.kernel.org
+Subject:	Kernel 2.4.11 & 2.4.12 are much slower
 
 Hello,
 	I try kernel 2.4.11 and 2.4.12 (RH 7.1, gcc-2.96-81, celeron 300 mhz
@@ -28,3 +38,11 @@ What is problem ?
 
 regards
 peco
+-
+
+[Rui Ribeiro]  
+I also noticed disk performance w/ 2.4.12. The kernel settings are exactly the same I used for 2.4.11 and 2.4.10.
+
+Regards,
+Rui
+

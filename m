@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263845AbUDFWxa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDFWxa
+	id S262634AbUDFW6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUDFW6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:53:30 -0400
-Received: from ns.suse.de ([195.135.220.2]:41876 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264053AbUDFWx2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:53:28 -0400
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: {put,get}_user() side effects
-References: <200404062053.i36KrC3Y005111@eeyore.valparaiso.cl>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I joined scientology at a garage sale!!
-Date: Wed, 07 Apr 2004 00:53:26 +0200
-In-Reply-To: <200404062053.i36KrC3Y005111@eeyore.valparaiso.cl> (Horst von
- Brand's message of "Tue, 06 Apr 2004 16:53:11 -0400")
-Message-ID: <je3c7gyazd.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Tue, 6 Apr 2004 18:58:49 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:36049 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262634AbUDFW6q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:58:46 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem with 2.6.5-rc3
+Date: Tue, 6 Apr 2004 18:58:41 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE002F7B6C6@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem with 2.6.5-rc3
+Thread-Index: AcQahvfy7Iu7orCfTKSJk7numyuLmQArwmeQAD0v6IA=
+From: "Brown, Len" <len.brown@intel.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>,
+       "Shawn Starr" <shawn.starr@rogers.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Apr 2004 22:58:42.0407 (UTC) FILETIME=[B4FF9770:01C41C2A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-> Geert Uytterhoeven <geert@linux-m68k.org> said:
->> On Tue, 6 Apr 2004, Andi Kleen wrote:
->> > Geert Uytterhoeven <geert@linux-m68k.org> writes:
->> > > On most (all?) architectures {get,put}_user() has side effects:
->> > >
->> > > #define put_user(x,ptr)                                                 \
->> > >   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
->> >
->> > Neither typeof not sizeof are supposed to have side effects. If your
->> > compiler generates them that's a compiler bug.
+>> When I try to access the eth0 device I get:
+>> 
+>> Apr  4 15:39:01 coredump kernel: NETDEV WATCHDOG: eth0: 
+>> transmit timed out Apr  4 16:22:12 coredump kernel: NETDEV 
+>> WATCHDOG: eth0: transmit timed out
 >
->> From a simple compile test, you seem to be right... Weird, since it does
->> expand to 3 times 'pIndex++', but pIndex is incremented only once.
->
-> Better check with a C language lawyer. Maybe gcc gets it wrong, or it is
-> undefined
+>Shawn, try turning off ACPI for interrupt routing.  Load the 
+>kernel with
+>the kernel parameter "noapci" set.
 
-It's not undefined, the standard explicitly says that the argument of
-sizeof is not evaluated (unless its type is a VLA).  I can't remember gcc
-ever getting that wrong.
+You mean "acpi=off", or "pci=noacpi".  If either of these fix the
+problem, please let me know.  (and send me the dmesg and
+/proc/interrupts for both cases)
 
-Andreas.
+"noapic" (note spelling) would have no effect on this box b/c it is
+running in PIC-mode.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Cheers,
+-Len

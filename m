@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271738AbTHDOPH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 10:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271741AbTHDOPH
+	id S271741AbTHDOPq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 10:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271749AbTHDOPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 10:15:07 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:20722 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S271738AbTHDOPE
+	Mon, 4 Aug 2003 10:15:46 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:60141
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S271741AbTHDOPn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 10:15:04 -0400
-Message-ID: <3F2E6A86.3060402@softhome.net>
-Date: Mon, 04 Aug 2003 16:15:34 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Pollard <jesse@cats-chateau.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TOE brain dump
-References: <gq0f.8bj.9@gated-at.bofh.it> <gvCD.4mJ.5@gated-at.bofh.it> <gJmp.7Th.33@gated-at.bofh.it> <gNpS.2YJ.9@gated-at.bofh.it>
-In-Reply-To: <gNpS.2YJ.9@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 10:15:43 -0400
+Date: Mon, 4 Aug 2003 18:18:46 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: "Cho, joon-woo" <jwc@core.kaist.ac.kr>, linux-kernel@vger.kernel.org
+Subject: Re: [Q] Question about memory access
+Message-ID: <20030804161846.GA814@wind.cocodriloo.com>
+References: <00a001c35a58$02c20f00$a5a5f88f@core8fyzomwjks> <1059989725.392.2.camel@sherbert>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059989725.392.2.camel@sherbert>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
->>3k of code.
->>not 650k of bzip.
+On Mon, Aug 04, 2003 at 10:35:25AM +0100, Gianni Tedesco wrote:
+> On Mon, 2003-08-04 at 08:14, Cho, joon-woo wrote:
+> > If someone want to transfer large data from some device to memory, he may
+> > use DMA method.
+> > 
+> > At this point, i am confused.
+> > 
+> > I think that only one process can access physical memory(RAM) at a time.
 > 
-> And it handles ipfilter?
-> and LSM security hooks?
-> how about IPSec?
-> and IPv6?
-> 
-> I don't think so.
+> The DMA controller is a dedicated piece of hardware that copies the data
+> from devices to RAM. This means that other processes can use the CPU
+> while the DMA is in progress. That is the whole point of DMA.
 
-   Answer is "No".
+Yes, this is called having 2 bus masters, which are the chips that
+can use the bus to read and write to memory. What can be done is to
+timeshare the bus, for example the cpu accesses memory on odd cycles
+and the dma chip does on even cycles.
 
-   I'm running expensive workstation - and I'm _NOT_ using 
-LSM/IPSec/IPv6. I do not care what I _*can*_ do - I care about what I 
-_*need*_ to do.
-   Point is here that 3k of code is all what we need. Not 'what every 
-one does need', not Linux kernel.
+A more complex design would allow the cpu to access memory on all
+cycles, but give the dma chip more priority. This would mean that
+a dma transfer would take priority over the cpu. Think about
+a sound card reading the sound data to pump it to the speakers,
+you would prefer not to have it skip.
 
-P.S.
-   printk() is absolutely renundant since there is no display at all ;-)
-   And can you imagine Linux without printk, bug_on & panic?-)))
+Greets, Antonio.
 
+-- 
+
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

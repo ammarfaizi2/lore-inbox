@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271706AbRIDPNn>; Tue, 4 Sep 2001 11:13:43 -0400
+	id <S271705AbRIDPRD>; Tue, 4 Sep 2001 11:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271705AbRIDPNe>; Tue, 4 Sep 2001 11:13:34 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:11651 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S271706AbRIDPNZ>; Tue, 4 Sep 2001 11:13:25 -0400
-Date: Tue, 4 Sep 2001 10:13:18 -0500
-From: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Wrong BogoMIPS on alpha
-Message-ID: <20010904101318.B1458@draal.physics.wisc.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S271767AbRIDPQx>; Tue, 4 Sep 2001 11:16:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11787 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271705AbRIDPQd>; Tue, 4 Sep 2001 11:16:33 -0400
+Subject: Re: Question Re AC Patch with VM Tuneable Parms for now
+To: jlmales@softhome.net
+Date: Tue, 4 Sep 2001 16:20:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B943CB0.14656.754C73@localhost> from "John L. Males" at Sep 04, 2001 02:30:08 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15eI05-0003k5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Can someone advise me if the "Make several vm behaviours tunable for
+> now" as of the 2.4.9-ac4 patch are implemented in the kernel .config
+> file?  If so is there an easy way to carry forward a 2.4.8 version of
 
---pvezYHf7grwyp3Bc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+They are in /proc
 
-Recently the bogomips measurement has gone all haywire.  Every once in a
-while when I boot up the bogomips measurement will be absurly high (i.e.
-5 Terahertz), with obvious associated problems.  This happens in recent
-kernels with both gcc-2.96-81 (redhat) and egcs-2.91.66.  It does not
-happen with early 2.4 kernels or 2.2 kernels.  It does not happen all
-the time.  It never happens from a cold boot, and (almost) always
-happens in a warm reboot.  In particular, MILO (which is a stripped-down
-linux 2.0 kernel that loads the real kernel) always measures the
-bogomips correctly immediately before loading a new kernel that measures
-it incorrectly.
+> the .config file using "make xconfig" so that I do not have to set
+> all the setting I have made from scratch?  I get the sense from the
 
-The system is:
-Alpha LX164 (21164 chip) at 600MHz
-Kernels 2.4.7-2.4.9.
-
-Cheers,
--- Bob
-
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
-
---pvezYHf7grwyp3Bc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjuU744ACgkQjwioWRGe9K2wzgCfa0S/hH67KBfT4HrBoa1w25Lz
-NoMAnRj7n6+fcFxjWEzLNz8aZpp02hPT
-=WuqW
------END PGP SIGNATURE-----
-
---pvezYHf7grwyp3Bc--
+Make oldconfig

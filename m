@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269423AbTGJR2w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbTGJR2v
+	id S269451AbTGJRaM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269467AbTGJRaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:28:51 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:44197 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269423AbTGJR2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:28:42 -0400
-Date: Thu, 10 Jul 2003 19:43:22 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@redhat.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
-       <linux-kernel@vger.kernel.org>
+	Thu, 10 Jul 2003 13:30:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13759 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269451AbTGJRaC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 13:30:02 -0400
+Date: Thu, 10 Jul 2003 10:38:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.74-mm3 OOM killer fubared ?
-In-Reply-To: <Pine.LNX.4.44.0307101030270.3903-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0307101934090.6757-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030710103810.1276def5.akpm@osdl.org>
+In-Reply-To: <bejhrj$dgg$1@news.cistron.nl>
+References: <bejhrj$dgg$1@news.cistron.nl>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The problem, as I see it, is that you can dirty pages 10-15 times
-> > faster than they can be written to disk. So, you will always
-> > have the possibility of an OOM situation as long as you are I/O
-> > bound.
+"Miquel van Smoorenburg" <miquels@cistron.nl> wrote:
 >
-> That's not a problem at all.  I think the VM never starts
-> pageout IO on a page that doesn't look like it'll become
-> freeable after the IO is done, so we simply shouldn't go
-> into the OOM killer as long as there are pages waiting on
-> pageout IO to finish.
->
-> Once we really are OOM we shouldn't have pages in pageout
-> IO.
+> I was running 2.5.74 on our newsfeeder box for a day without
+> problems (and 2.5.72-mm2 for weeks before that).
 
-What piece of code does prevent that?
-As I see, OOM is triggered if no pages were freed in few loops. It
-doesn't care about pages that are already being written or pages for which
-write operation was started.
+And how was 2.5.72-mm2 performing, generally?
 
-The only thing that prevents total oom when writing a lot of dirty pages
-is blk_congestion_wait, but it's pretty unreliable because
-1) it uses timeout
-2) not all page writes go through block devices (NFS, NBD etc.)
-blk_congestion_wait may be used for improving performance, but not for
-ensuring stability.
+> Now with 2.5.74-mm3 (booted 11 hours ago) it keeps killing processes
+> for no apparent reason:
+> ...
+> I notice that in -mm3 this was deleted relative to -vanilla:
+> 
+> -
+> -       /*
+> -        * Enough swap space left?  Not OOM.
+> -        */
+> -       if (nr_swap_pages > 0)
+> -               return;
+>   
+> .. is that what causes this?
 
-> This is what I am doing in current 2.4-rmap and it seems
-> to do the right thing in both the "heavy IO" and the "out
-> of memory" corner cases.
+Yes.  That was a "hmm, I wonder what happens if I do this" patch.  It's
+interesting that we're going down that code path.
 
-I remember there was (and probably still is, only with smaller
-probability) a similar bug in 2.2.
+Is your INND configured to use the strange mmap(MAP_SHARED) of a blockdev
+thing?   That could explain the scanning hysteria.
 
-Mikulas
+> Related mm question - this box is a news server, which does a lot
+> of streaming I/O, and also keeps a history database open. I have the
+> idea that the streaming I/O evicts the history database hash and
+> index file caches from memory, which I do not want. Any chance of
+> a control on a filedescriptor that tells it how persistant to be
+> in caching file data ? E.g. a sort of "nice" for the cache, so that
+> I could say that streaming data may be flushed from buffers/cache
+> earlier than other data (where the other data would be the
+> database files) ?
+
+Makes sense.  We can use posix_fadvise(POSIX_FADV_NOREUSE) as a hint to
+tell the VM/VFS to throw away old pages.  I'll take a look at that.
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272856AbRIMXUR>; Thu, 13 Sep 2001 19:20:17 -0400
+	id <S272871AbRIMXU1>; Thu, 13 Sep 2001 19:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272847AbRIMXUF>; Thu, 13 Sep 2001 19:20:05 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:30656 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S272848AbRIMXTZ>;
-	Thu, 13 Sep 2001 19:19:25 -0400
-Date: Thu, 13 Sep 2001 16:19:44 -0700
+	id <S272847AbRIMXUT>; Thu, 13 Sep 2001 19:20:19 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:11201 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S272871AbRIMXUC>;
+	Thu, 13 Sep 2001 19:20:02 -0400
+Date: Thu, 13 Sep 2001 16:20:20 -0700
 To: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dag@brattli.net>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         linux-irda@pasta.cs.uit.no
-Subject: [IrDA patch] ir248_irnet_nodelay.diff
-Message-ID: <20010913161944.E7470@bougret.hpl.hp.com>
+Subject: [IrDA patch] ir247_lap_keepalive.diff
+Message-ID: <20010913162020.F7470@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,63 +25,84 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir248_irnet_nodelay.diff :
+ir247_lap_keepalive.diff :
 ------------------------
-	o [FEATURE] Use DEV_ADDR_ANY instead of 0
-	o [FEATURE] Remove the 3 second delay from connection setup
+	<Apply after ir248_disco_fixes_4.diff to avoid "offset X lines">
+	o [FEATURE] Add "lap_keepalive_time" sysctl
+		- Control how long LAP stay alive after last socket closed
+		- Allow to test the secondary disconnect path
+		- Allow to trigger LMP deadlocks fixed one month ago
 
-diff -u -p linux/net/irda/irnet/irnet.l2.h linux/net/irda/irnet/irnet.h
---- linux/net/irda/irnet/irnet.l2.h	Thu Sep 13 11:59:06 2001
-+++ linux/net/irda/irnet/irnet.h	Thu Sep 13 11:59:58 2001
-@@ -185,6 +185,13 @@
-  *	  is transparently controlled from pppd lcp-max-configure.
-  *	o Add ttp_connect flag to prevent rentry on the connect procedure
-  *	o Test and fixups to eliminate side effects of retries
-+ *
-+ * v7 - 22/08/01 - Jean II
-+ *	o Cleanup : Change "saddr = 0x0" to "saddr = DEV_ADDR_ANY"
-+ *	o Fix bug in BLOCK_WHEN_CONNECT introduced in v6 : due to the
-+ *	  asynchronous IAS query, self->tsap is NULL when PPP send the
-+ *	  first packet.  This was preventing "connect-delay 0" to work.
-+ *	  Change the test in ppp_irnet_send() to self->ttp_connect.
-  */
+diff -u -p linux/include/net/irda/irlmp.j1.h linux/include/net/irda/irlmp.h
+--- linux/include/net/irda/irlmp.j1.h	Thu Sep 13 12:07:12 2001
++++ linux/include/net/irda/irlmp.h	Thu Sep 13 12:08:30 2001
+@@ -247,6 +247,7 @@ extern char *lmp_reasons[];
+ extern int sysctl_discovery_timeout;
+ extern int sysctl_discovery_slots;
+ extern int sysctl_discovery;
++extern int sysctl_lap_keepalive_time;	/* in ms, default is LM_IDLE_TIMEOUT */
+ extern struct irlmp_cb *irlmp;
  
- /***************************** INCLUDES *****************************/
-diff -u -p linux/net/irda/irnet/irnet_irda.l2.c linux/net/irda/irnet/irnet_irda.c
---- linux/net/irda/irnet/irnet_irda.l2.c	Thu Sep 13 11:59:16 2001
-+++ linux/net/irda/irnet/irnet_irda.c	Thu Sep 13 11:59:58 2001
-@@ -478,9 +478,9 @@ irda_irnet_create(irnet_socket *	self)
-   self->ttp_connect = 0;	/* Not connecting yet */
-   self->rname[0] = '\0';	/* May be set via control channel */
-   self->rdaddr = DEV_ADDR_ANY;	/* May be set via control channel */
--  self->rsaddr = 0x0;		/* May be set via control channel */
-+  self->rsaddr = DEV_ADDR_ANY;	/* May be set via control channel */
-   self->daddr = DEV_ADDR_ANY;	/* Until we get connected */
--  self->saddr = 0x0;		/* Until we get connected */
-+  self->saddr = DEV_ADDR_ANY;	/* Until we get connected */
-   self->max_sdu_size_rx = TTP_SAR_UNBOUND;
+ static inline hashbin_t *irlmp_get_cachelog(void) { return irlmp->cachelog; }
+diff -u -p linux/net/irda/irlmp.j1.c linux/net/irda/irlmp.c
+--- linux/net/irda/irlmp.j1.c	Thu Sep 13 12:07:27 2001
++++ linux/net/irda/irlmp.c	Thu Sep 13 12:08:30 2001
+@@ -49,6 +49,7 @@ struct irlmp_cb *irlmp = NULL;
+ int  sysctl_discovery         = 0;
+ int  sysctl_discovery_timeout = 3; /* 3 seconds by default */
+ int  sysctl_discovery_slots   = 6; /* 6 slots by default */
++int  sysctl_lap_keepalive_time = LM_IDLE_TIMEOUT * 1000 / HZ;
+ char sysctl_devname[65];
  
-   /* Register as a client with IrLMP */
-diff -u -p linux/net/irda/irnet/irnet_ppp.l2.c linux/net/irda/irnet/irnet_ppp.c
---- linux/net/irda/irnet/irnet_ppp.l2.c	Thu Sep 13 11:59:25 2001
-+++ linux/net/irda/irnet/irnet_ppp.c	Thu Sep 13 11:59:58 2001
-@@ -858,8 +858,8 @@ ppp_irnet_send(struct ppp_channel *	chan
-       irda_irnet_connect(self);
- #endif /* CONNECT_IN_SEND */
+ char *lmp_reasons[] = {
+diff -u -p linux/net/irda/irsysctl.j1.c linux/net/irda/irsysctl.c
+--- linux/net/irda/irsysctl.j1.c	Thu Sep 13 12:07:39 2001
++++ linux/net/irda/irsysctl.c	Thu Sep 13 12:08:30 2001
+@@ -33,7 +33,7 @@
  
--      DEBUG(PPP_INFO, "IrTTP not ready ! (%d-0x%X)\n",
--	    self->ttp_open, (unsigned int) self->tsap);
-+      DEBUG(PPP_INFO, "IrTTP not ready ! (%d-%d)\n",
-+	    self->ttp_open, self->ttp_connect);
+ #define NET_IRDA 412 /* Random number */
+ enum { DISCOVERY=1, DEVNAME, DEBUG, SLOTS, DISCOVERY_TIMEOUT, 
+-       SLOT_TIMEOUT, MAX_BAUD_RATE, MAX_INACTIVE_TIME };
++       SLOT_TIMEOUT, MAX_BAUD_RATE, MAX_INACTIVE_TIME, LAP_KEEPALIVE_TIME, };
  
-       /* Note : we can either drop the packet or block the packet.
-        *
-@@ -882,7 +882,7 @@ ppp_irnet_send(struct ppp_channel *	chan
-        */
- #ifdef BLOCK_WHEN_CONNECT
-       /* If we are attempting to connect */
--      if(self->tsap)
-+      if(self->ttp_connect)
- 	{
- 	  /* Blocking packet, ppp_generic will retry later */
- 	  return 0;
+ extern int  sysctl_discovery;
+ extern int  sysctl_discovery_slots;
+@@ -44,6 +44,7 @@ int         sysctl_compression = 0;
+ extern char sysctl_devname[];
+ extern int  sysctl_max_baud_rate;
+ extern int  sysctl_max_inactive_time;
++extern int  sysctl_lap_keepalive_time;
+ 
+ #ifdef CONFIG_IRDA_DEBUG
+ extern unsigned int irda_debug;
+@@ -88,6 +89,8 @@ static ctl_table irda_table[] = {
+ 	{ MAX_BAUD_RATE, "max_baud_rate", &sysctl_max_baud_rate,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec },
+ 	{ MAX_INACTIVE_TIME, "max_inactive_time", &sysctl_max_inactive_time,
++	  sizeof(int), 0644, NULL, &proc_dointvec },
++	{ LAP_KEEPALIVE_TIME, "lap_keepalive_time", &sysctl_lap_keepalive_time,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec },
+ 	{ 0 }
+ };
+diff -u -p linux/net/irda/irlmp_event.j1.c linux/net/irda/irlmp_event.c
+--- linux/net/irda/irlmp_event.j1.c	Thu Sep 13 12:07:50 2001
++++ linux/net/irda/irlmp_event.c	Thu Sep 13 12:08:30 2001
+@@ -387,9 +387,15 @@ static void irlmp_state_active(struct la
+ 		 *  must be the one that tries to close IrLAP. It will be 
+ 		 *  removed later and moved to the list of unconnected LSAPs
+ 		 */
+-		if (HASHBIN_GET_SIZE(self->lsaps) > 0)
+-			irlmp_start_idle_timer(self, LM_IDLE_TIMEOUT);
+-		else {
++		if (HASHBIN_GET_SIZE(self->lsaps) > 0) {
++			/* Make sure the timer has sensible value (the user
++			 * may have set it) - Jean II */
++			if(sysctl_lap_keepalive_time < 100)	/* 100ms */
++				sysctl_lap_keepalive_time = 100;
++			if(sysctl_lap_keepalive_time > 10000)	/* 10s */
++				sysctl_lap_keepalive_time = 10000;
++			irlmp_start_idle_timer(self, sysctl_lap_keepalive_time * HZ / 1000);
++		} else {
+ 			/* No more connections, so close IrLAP */
+ 
+ 			/* We don't want to change state just yet, because

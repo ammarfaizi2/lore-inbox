@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVDETv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVDETsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVDETv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDETsb
+	id S261948AbVDETsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDETo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:48:31 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:1507 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261923AbVDETrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:47:00 -0400
-Date: Tue, 5 Apr 2005 15:46:54 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-In-Reply-To: <20050405183141.GA27195@muc.de>
-Message-ID: <Pine.LNX.4.58.0504051539490.13242@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
- <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
- <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
- <20050405183141.GA27195@muc.de>
+	Tue, 5 Apr 2005 15:44:57 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:18782 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261920AbVDETki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:40:38 -0400
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Paulo Marques <pmarques@grupopie.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+X-Message-Flag: Warning: May contain useful information
+References: <4252BC37.8030306@grupopie.com>
+	<Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 05 Apr 2005 12:20:41 -0700
+In-Reply-To: <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost> (Jesper
+ Juhl's message of "Tue, 5 Apr 2005 20:54:07 +0200 (CEST)")
+Message-ID: <521x9pc9o6.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 05 Apr 2005 19:20:41.0690 (UTC) FILETIME=[8EA593A0:01C53A14]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > or simply
+    > 	if (!(ptr = kcalloc(n, size, ...)))
+    > 		goto out;
+    > and save an additional line of screen realestate while you are at it...
 
+No, please don't do that.  The general kernel style is to avoid
+assignments within conditionals.
 
-On Tue, 5 Apr 2005, Andi Kleen wrote:
-
-> Try booting with acpi_skip_timer_override
-
-
-Nope, this doesn't fix the problem. Here's the dmesg of 2.6.11.6 with
-'acpi_skip_timer_override apic=debug':
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug-acpi_skip_timer_override
-
-Here's /proc/interrupts:
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apicdebug-acpi_skip_timer_override
-
-
-The clock still runs at double speed. The IRQ assignments seem to all have
-been permuted, though, with 'acpi_skip_timer_override'
-
-
-Thanks,
-Chris
+ - R.

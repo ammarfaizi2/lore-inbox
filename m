@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314811AbSFQQmV>; Mon, 17 Jun 2002 12:42:21 -0400
+	id <S314829AbSFQQnV>; Mon, 17 Jun 2002 12:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSFQQmU>; Mon, 17 Jun 2002 12:42:20 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:10771 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314811AbSFQQmS>; Mon, 17 Jun 2002 12:42:18 -0400
-Message-Id: <200206171642.g5HGg5b03044@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Oliver Neukum <oliver@neukum.name>,
-       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
-       garloff@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
-       linux-usb-devel@lists.sourceforge.net,
-       linux1394-devel@lists.sourceforge.net, dougg@torque.net
-Subject: Re: [linux-usb-devel] Re: /proc/scsi/map 
-In-Reply-To: Message from Patrick Mansfield <patmans@us.ibm.com> 
-   of "Mon, 17 Jun 2002 09:09:58 PDT." <20020617090958.A19843@eng2.beaverton.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 17 Jun 2002 11:42:05 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S315192AbSFQQnU>; Mon, 17 Jun 2002 12:43:20 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:12766 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S314829AbSFQQnS>; Mon, 17 Jun 2002 12:43:18 -0400
+Message-ID: <3D0E0E5F.20406@drugphish.ch>
+Date: Mon, 17 Jun 2002 18:29:19 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Firewire Disks. (fwd)
+References: <Pine.LNX.3.95.1020617081723.12517A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patmans@us.ibm.com said:
-> I agree it would be nice to get the ID via user space, but it is not
-> that hard to get the ID, and trying the various SCSI INQUIRY pages
-> that supply  the ID is not complicated.
+Hello,
 
-OK, how about some hardware scenarios:
+Sorry for keeping you waiting.
 
-I've a scsi array (an LSI 6298) which has no WWN page (0x83) but does have a 
-serial number in the VPD page.  However, the VPD serial number is an 
-identifier for the array *controller* and thus is the *same* for all the LUNs. 
- For this beast I have to add in the LUN number to the VPD serial number to 
-get a unique identifier per device.  Worse, the LSI 6298 is multi path.  Now I 
-get a different "unique" identifier depending on path (because different 
-controllers give different VPD serial numbers), so if I want to identify it 
-uniquely, I have to use some property of the LUN, like partion UUID.
+> Well. I have been experimenting and a Firewire CD-R/W is found and
+> accessible. However, a 80 Gb Maxtor hard disk is not. I had to
+> copy from an RS-232C screen because the resounding crash(es) repeat
+> forever until I hit the reset switch. <EOL> == "end of line with
+> data missing after".
+> 
+> 
+> ohci1394: $Revision: 1.80 $ Ben Collins <bcollins@debian.org>
 
-Or, what about an old 8 bit EMC symmetrix.  They have no WWN page and they 
-embed both a LUN and a *path* identifier in the VPD serial number.  To get the 
-globally unique ID for this one, I have to strip off the path part.
+Gulp, you should really be using a more recent copy of that driver. I'm 
+running 1.91 from the CVS and I remember having had problems with the 
+1.80 driver series too. I don't know why the ieee1394 tree is not pushed 
+into the mainline kernel ...
 
-> FYI the various SCSI ID pages and such are described in the SCSI
-> primaray command for example the following:
+Download the subversion client [1] and then follow the rest of the 
+procedure on that page. Could you try and checkout the newest tree and 
+simply replace the ieee1394 tree with the CVS one. You should probably 
+also switch to a more recent 2.4.x tree since IIRC the .19 series has 
+some changes to the scsi (emulation) subsystem.
 
-> ftp://ftp.t10.org/t10/drafts/spc3/spc3r07.pdf 
+> ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[9] MMIO=[febfd000-febfe000] Max
+> Packet=[ <EOL>
+> ieee1394: Device added: Node 0:1023, GUID 00063a0245003973
+> ieee1394: sbp2: Driver forced to serialize I/O (serialize_io = 1)
+> ieee1394: sbp2: Node 0:1023: Max speed [S400] - Max payload [1024]
+> scsi2 : IEEE-1394 SBP-2 protocol driver
+> scsi: unknown type 24
+>   Vendor: GHIJKLMN  Model: OPQRSTUVWXYZ     Rev: "Unprintable junk"
+>   Type:   Unknown                           ANSI SCSI revision: 03
+> resize_dma_pool: unknown device type 24
+> 
+> 
+> Startup messages continue without further references to either SCSI
+> or IEEE1394. The crash occurs when my SCSI root-file system is first
+> referenced after initrd completes (pivot_root).
+> 
+> When this 80 Gb drive is used under W$, on the same machine, I see
+> no evidence of "GHIJKLMN" or "OPQRSTUVWXYZ" although the device-manager
+> doesn't let you read physical device info like it does with SCSI.
+> 
+> Number 24, shown above, is ^X, not part of the obvious
+>  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" string that we see parts of above. So
+> it doesn't look like a read from the wrong offset during the device-
+> inquiry.
+> 
+> 
+> I'm using Linux-2.4.18. Maybe there is a more "mature" version
+> of sbp2 I should be using??
 
-Ah, but that's the scsi-3 spec which (finally) cleaned up this unique name 
-business.  However, for SCSI-2 and before, it was an unholy mess, as the two 
-examples above illustrate.  I agree that for all modern devices which are 
-SCSI-3 SPC compliant, then just asking for the WWN page probably works.  The 
-question is what to do about all the legacy hardware out there?
+Could you try with the latest 2.4.19preX tree and also replace the 
+../drivers/ieee1394 with the CVS one?
 
-James
+[1] http://linux1394.sourceforge.net/svn.html
 
+Best regards,
+Roberto Nibali, ratz
+
+p.s.: You have to hurry up, since I'm not online very often the next few 
+weeks. Of course you could also show up at OLS with the disk ;).
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

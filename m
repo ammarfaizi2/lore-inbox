@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264448AbRFOQnQ>; Fri, 15 Jun 2001 12:43:16 -0400
+	id <S264450AbRFOQuQ>; Fri, 15 Jun 2001 12:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264446AbRFOQnG>; Fri, 15 Jun 2001 12:43:06 -0400
-Received: from usw-sf-sshgate.sourceforge.net ([216.136.171.253]:10940 "EHLO
-	usw-sf-netmisc.sourceforge.net") by vger.kernel.org with ESMTP
-	id <S264448AbRFOQmz>; Fri, 15 Jun 2001 12:42:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: kgdb for 2.4.5 kernels
-Message-Id: <E15AwgQ-0006Xs-00@usw-pr-shell2.sourceforge.net>
-From: "Amit S. Kale" <akale@users.sourceforge.net>
-Date: Fri, 15 Jun 2001 09:42:54 -0700
+	id <S264453AbRFOQt5>; Fri, 15 Jun 2001 12:49:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51980 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264450AbRFOQts>;
+	Fri, 15 Jun 2001 12:49:48 -0400
+Date: Fri, 15 Jun 2001 17:49:46 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Final call for testers][PATCH] superblock handling changes (2.4.6-pre3)
+Message-ID: <20010615174946.D9522@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20010615171632.C9522@parcelfarce.linux.theplanet.co.uk> <Pine.GSO.4.21.0106151221190.8909-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0106151221190.8909-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Jun 15, 2001 at 12:34:41PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 15, 2001 at 12:34:41PM -0400, Alexander Viro wrote:
+> Aside of the missing ->s_count++ - no arguments.
 
-Linux kernel source level debugger, kgdb is available for
-kernel version 2.4.5. It contains the same functionality as
-kgdb for 2.4.3.
+My mistake.
 
-Please visit http://kgdb.sourceforge.net/ to download it.
+> > > +	list_add (&s->s_list, super_blocks.prev);
+> > 
+> > I'd use list_add_tail(&s->s_list, super_blocks);
+> 
+> Umm... Why? I've no problems with either variant, but I really see no
+> clear win (or loss) in list_add_tail here. If there is some code that
+> relies on the order in that list it's badly broken - remember, we used
+> to reuse unmounted superblocks, so order might be almost arbitrary.
 
-Regards.
---
-Amit S. Kale
-<akale@users.sourceforge.net>
-Linux kernel source level debugger    http://kgdb.sourceforge.net/
-Translation filesystem                http://trfs.sourceforge.net/
+It does exactly the same thing -- inserting at the end of the list --
+just slightly more obvious what its doing.
+
+-- 
+Revolutions do not require corporate support.

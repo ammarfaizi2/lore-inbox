@@ -1,94 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262350AbTHYXIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 19:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbTHYXIV
+	id S262193AbTHZANA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 20:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTHZANA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 19:08:21 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:13519 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262350AbTHYXIK (ORCPT
+	Mon, 25 Aug 2003 20:13:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262193AbTHZAM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 19:08:10 -0400
-Date: Mon, 25 Aug 2003 19:08:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [bk patches] net driver updates
-Message-ID: <20030825230809.GA11073@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 25 Aug 2003 20:12:59 -0400
+Date: Tue, 26 Aug 2003 10:12:45 +1000 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jamesm@excalibur.intercode.com.au
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Arnd Bergmann <arnd@arndb.de>, <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: selinux build failure
+In-Reply-To: <20030825095055.7d73b93b.rddunlap@osdl.org>
+Message-ID: <Mutt.LNX.4.44.0308261011001.1041-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Aug 2003, Randy.Dunlap wrote:
 
-Marcelo, please do a
+> Yes, the second patch fixes for me also.  [2.6.0-test4 now]
+> I also see the warnings below.
+> 
+> | security/selinux/hooks.c: In function `selinux_bprm_set_security':
+> | security/selinux/hooks.c:1384: warning: cast to pointer from integer of different size
+> | security/selinux/hooks.c:1430: warning: cast to pointer from integer of different size
+> | security/selinux/hooks.c: In function `selinux_bprm_compute_creds':
+> | security/selinux/hooks.c:1520: warning: cast from pointer to integer of different size
+> | security/selinux/hooks.c: In function `selinux_getprocattr':
+> | security/selinux/hooks.c:3147: warning: passing arg 3 of `security_sid_to_context' from incompatible pointer type
+> 
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
+Yep, a fix for this is forthcoming.
 
-I have sent the patch separately for your review.
 
-Others may download the patch from:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-netdrvr1.patch.bz2
-
-This will update the following files:
-
- drivers/net/8139cp.c            |    4 
- drivers/net/8139too.c           |   10 
- drivers/net/bonding/bond_main.c |   17 -
- drivers/net/bonding/bonding.h   |    2 
- drivers/net/net_init.c          |    3 
- drivers/net/tulip/tulip_core.c  |    1 
- drivers/net/wireless/airo.c     |  568 ++++++++++++++++++++++------------------
- include/linux/netdevice.h       |    2 
- 8 files changed, 342 insertions(+), 265 deletions(-)
-
-through these ChangeSets:
-
-<sziwan@hell.org.pl> (03/08/18 1.1064.1.13)
-   [netdrvr 8139too] fix resume behavior,
-   by correctly saving/restoring pci state.
-
-<matthewn@snapgear.com> (03/08/18 1.1064.1.12)
-   [netdrvr 8139cp] fix h/w vlan offload
-   
-   It wants big endian vlan tags.  IEEE, or just weird?
-
-<javier@tudela.mad.ttd.net> (03/08/18 1.1064.1.11)
-   [wireless airo] Replaces task queues by simpler kernel_thread
-
-<javier@tudela.mad.ttd.net> (03/08/18 1.1064.1.10)
-   [wireless airo] Fixes unregistering of PCI cards
-
-<ionut@badula.org> (03/08/17 1.1064.1.9)
-   [netdrvr tulip] add pci id for 3com 3CSOHO100B-TX
-
-<amir.noam@intel.com> (03/08/07 1.1064.1.8)
-   [netdrvr bonding] embed stats struct inside bonding private struct
-   
-   Simplification: Don't allocate the stats struct via kmalloc,
-   embed it inside it's parent bonding_t.
-
-<amir.noam@intel.com> (03/08/07 1.1064.1.7)
-   [net] export alloc_netdev
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.6)
-   [PATCH] Fix adhoc config
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.5)
-   [PATCH] Safer unload code
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.4)
-   [PATCH] MIC support with newer firmware
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.3)
-   [PATCH] Missing lines for Wireless Extensions 16
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.2)
-   [netdrvr airo] MAC type changed to unsigned
-
-<achirica@telefonica.net> (03/08/07 1.1064.1.1)
-   [netdrvr airo] Missing defines (only for documentation)
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 

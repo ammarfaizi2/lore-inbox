@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTKZKoq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 05:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTKZKoq
+	id S264134AbTKZKru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 05:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbTKZKru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 05:44:46 -0500
-Received: from gwyn.kn-bremen.de ([212.63.36.242]:38121 "EHLO
-	gwyn.kn-bremen.de") by vger.kernel.org with ESMTP id S264128AbTKZKop
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 05:44:45 -0500
-Date: Wed, 26 Nov 2003 11:42:43 +0100
-From: Christian Schlittchen <corwin@amber.kn-bremen.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test10: Badness in local_bh_enable at kernel/softirq.c:121
-Message-ID: <20031126104243.GA1395@amber.kn-bremen.de>
-Mime-Version: 1.0
+	Wed, 26 Nov 2003 05:47:50 -0500
+Received: from ns.suse.de ([195.135.220.2]:1453 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264134AbTKZKrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 05:47:46 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fire Engine??
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
+	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Nov 2003 10:53:21 +0100
+In-Reply-To: <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
+Message-ID: <p73fzgbzca6.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" <davem@redhat.com> writes:
+> 
+> So his claim is that, in their mesaurements, "CPU utilization"
+> was lower in their stack.  Was he using 2.6.x and TSO capable
+> cards on the Linux side?  If not, it's not apples to apples
+> against are current upcoming technology.
 
-When trying to establish a ppp/pppoe connection I get the following
-and the connection fails:
+Maybe they just have a better copy_to_user(). That eats most time anyways.
 
-Badness in local_bh_enable at kernel/softirq.c:121
-Call Trace:
-[<c011feac>] local_bh_enable+0x8c/0x90
-[<e096ccae>] ppp_sync_push+0x6e/0x1a0 [ppp_synctty]
-[<c015cdc0>] __lookup_hash+0x70/0xd0
-[<e096c651>] ppp_sync_wakeup+0x31/0x70 [ppp_synctty]
-[<c0207b79>] pty_unthrottle+0x59/0x60
-[<c02043ba>] check_unthrottle+0x3a/0x40
-[<c0204463>] n_tty_flush_buffer+0x13/0x60
-[<c0207f6d>] pty_flush_buffer+0x6d/0x70
-[<c0200c0e>] do_tty_hangup+0x3fe/0x460
-[<c0202246>] release_dev+0x656/0x6b0
-[<c014010b>] zap_pmd_range+0x4b/0x70
-[<c0140173>] unmap_page_range+0x43/0x70
-[<c01656a2>] dput+0x22/0x220
-[<c0202600>] tty_release+0x0/0x70
-[<c020262a>] tty_release+0x2a/0x70
-[<c014f468>] __fput+0x118/0x130
-[<c014d9d9>] filp_close+0x59/0x90
-[<c011d70c>] put_files_struct+0x5c/0xd0
-[<c011e33f>] do_exit+0x15f/0x3b0
-[<c011e66b>] do_group_exit+0x7b/0xc0
-[<c010935b>] syscall_call+0x7/0xb
+I think there are definitely areas of improvements left in current TCP.
+It has gotten quite fat over the last years.
 
-This is 100% reproducible with any kernel version since at least 2.5.71
-I tried. I tried to recompile the kernel with different settings and
-compilers, but the error stays the same.
+Some issues just from the top of my head. I have not done detailed profiling
+recently and don't know if any of this would help significantly. It is 
+just what I remember right now.
 
-I can provide more information if needed.
+- Window computation for incoming packets is quite dumbly coded right now
+and could be optimized
+- I suspect the copy/process-in--user-context setup needs to be rethought/
+rebenchmarked in Gigabit setups.  There was at least one test case
+where tcp_low_latency=1 helped. It just adds latency that might hurt
+and is not very useful when you have hardware checksums anyways
+- If they tested TCP-over-NFS then I'm pretty sure Linux lost badly because
+the current paths for that are just awfully inefficient.
+- Overall IP/TCP could probably have some more instructions and hopefully
+cache misses shaved off with some careful going over the fast paths.
+- There are too many locks. That hurts when you have slow atomic operations
+(like on P4) and together with the next issue. 
+- We do most things one packet at a time. This means locking and multiple
+layer overhead multiplies. Most network operations come in packet bursts
+and it would be much more efficient to batch operations: always process
+lists of packets instead of single packets. This could probably lower
+locking overhead a lot.
+- On TX we are inefficient for the same reason. TCP builds one packet
+at a time and then goes down through all layers taking all locks (queue,
+device driver etc.) and submits the single packet. Then repeats that for 
+lots of packets because many TCP writes are > MTU. Batching that would 
+likely help a lot, like it was done in the 2.6 VFS. I think it could 
+also make hard_start_xmit in many drivers significantly faster.
+- The hash tables are too big. This causes unnecessary cache misses all the 
+time.
+- Doing gettimeofday on each incoming packet is just dumb, especially
+when you have gettimeofday backed with a slow southbridge timer.
+This shows quite badly on many profile logs.
+I still think right solution for that would be to only take time stamps
+when there is any user for it (= no timestamps in 99% of all systems) 
+- user copy and checksum could probably also done faster if they were
+batched for multiple packets. It is hard to optimize properly for 
+<= 1.5K copies.
+This is especially true for 4/4 split kernels which will eat an 
+page table look up + lock for each individual copy, but also for others.
 
-Regards, Christian
-
+-Andi

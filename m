@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbULCOqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbULCOpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbULCOqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 09:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbULCOqL
+	id S262209AbULCOpo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 09:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbULCOpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 09:46:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:22672 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262210AbULCOqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 09:46:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dmWusMNxj6G6tn8MVNZ2cMY3zJzuoHJp6Bt78BHpmG/vgX0xI4yyoq3fwZZ+8la7hMM8ql1Tq+daECcYCqdT/z1R+tdzc1BoNI3mm9gIZDqxyXiTxL79ryvJx+MDbyTjGXbo4J1BS9H8+8jQ4eLS++oJSc+tDXBnAKvi26sWLV8=
-Message-ID: <3b2b32004120306463b016029@mail.gmail.com>
-Date: Fri, 3 Dec 2004 09:46:00 -0500
-From: Linh Dang <dang.linh@gmail.com>
-Reply-To: Linh Dang <dang.linh@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <16815.31634.698591.747661@cargo.ozlabs.ibm.com>
+	Fri, 3 Dec 2004 09:45:43 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39598 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262209AbULCOpd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 09:45:33 -0500
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+	performance tests
+From: Sebastien Decugis <sebastien.decugis@ext.bull.net>
+To: linux-ia64@vger.kernel.org, linux-mm@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Organization: Bull S.A.
+Date: Fri, 03 Dec 2004 15:49:51 +0100
+Message-Id: <1102085391.14792.102.camel@decugiss.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/12/2004 15:52:45,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/12/2004 15:52:48,
+	Serialize complete at 03/12/2004 15:52:48
 Content-Transfer-Encoding: 7bit
-References: <3b2b32004120206497a471367@mail.gmail.com>
-	 <3b2b320041202082812ee4709@mail.gmail.com>
-	 <16815.31634.698591.747661@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Dec 2004 07:31:14 +1100, Paul Mackerras <paulus@samba.org> wrote:
-> Linh Dang writes:
-> 
-> > In 2.6.9 on non-APUS ppc32 platforms, virt_to_bus() will just subtract
-> > KERNELBASE  from the the virtual address. bus_to_virt() will perform
-> > the reverse operation.
-> >
-> > This patch will make virt_to_bus():
-> >
-> >      - perform the current operation if the virtual address is between
-> >        KERNELBASE and ioremap_bot.
-> 
-> Why do you want to do this?  The only code that should be using
-> virt_to_bus or bus_to_virt is the DMA API code, and it's happy with
-> them the way they are.
+[Gerrit Huizenga, 2004-12-02 16:24:04]
+> Towards that end, there
+> was a recent effort at Bull on the NPTL work which serves as a very
+> interesting model:
 
-I wrote a DMA engine (to used by other drivers) that (would like to) accept
-all kind of buffers as input (vmalloced, dual-access shared RAM mapped
-by BATs, etc). The DMA engine has to decode the virtual address of the
-input buffer to (possibly multiple) physical  address(es). virt_to_phys()
-has the right name for the job except it only works for the kernel virtual
-addresses initially mapped at KERNELBASE
+> http://nptl.bullopensource.org/Tests/results/run-browse.php
 
-> 
-> > The patch also changes virt_to_phys()/phys_to_virt() in a similar way.
-> 
-> What do you want to use them for?  They are only for use in low-level
-> memory management code.
+> Basically, you can compare results from any test run with any other
+> and get a summary of differences.  That helps give a quick status
+> check and helps you focus on the correct issues when tracking down
+> defects.
 
-Any driver for a DMA-capable device would use them and the way
-virt_to_phys/phys_to_virt is currently written, you can't used them
-with vmalloced buffers.
+Thanks Gerrit for mentioning this :)
 
-> 
-> Paul.
-> 
-Thanx for the feedback
--- 
-Linh Dang
+Just an additional information -- the tool used to get this reporting
+system is OSS and can be found here:
+http://tslogparser.sourceforge.net
+
+This tool is not mature yet, but it gives an overview of how useful a
+test suite can be, when the results are easy to analyse...
+
+It currently supports only the Open POSIX Test Suite, but I'd be happy
+to work to enlarge the scope of this tool.
+
+Regards, 
+Seb.
+
+PS: please include me in reply as I'm not subscribed to the list...
+-------------------------------
+Sebastien DECUGIS
+NPTL Test & Trace Project
+http://nptl.bullopensource.org/
+
+"You may fail if you try.
+You -will- fail if you don't."
+

@@ -1,94 +1,196 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286274AbRLJOl1>; Mon, 10 Dec 2001 09:41:27 -0500
+	id <S286275AbRLJOnq>; Mon, 10 Dec 2001 09:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286275AbRLJOlQ>; Mon, 10 Dec 2001 09:41:16 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:40785 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S286274AbRLJOlJ>; Mon, 10 Dec 2001 09:41:09 -0500
-Date: Mon, 10 Dec 2001 15:40:57 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: GOTO Masanori <gotom@debian.org>
-Cc: torvalds@transmeta.com, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] direct IO breaks root filesystem
-Message-ID: <20011210154057.J4801@athlon.random>
-In-Reply-To: <w534rmzendn.wl@megaela.fe.dis.titech.ac.jp> <Pine.LNX.4.33.0112092154060.13692-100000@penguin.transmeta.com> <w53d71n1c6g.wl@megaela.fe.dis.titech.ac.jp>
+	id <S286276AbRLJOnh>; Mon, 10 Dec 2001 09:43:37 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:33341 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S286275AbRLJOnX>; Mon, 10 Dec 2001 09:43:23 -0500
+Subject: Re: 2.4.14/16 load reboots
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16D6mp-00073p-00@the-village.bc.nu>
+In-Reply-To: <E16D6mp-00073p-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Dec 2001 09:43:39 -0500
+Message-Id: <1007995424.1263.1.camel@aurora>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <w53d71n1c6g.wl@megaela.fe.dis.titech.ac.jp>; from gotom@debian.org on Mon, Dec 10, 2001 at 09:39:51PM +0900
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 09:39:51PM +0900, GOTO Masanori wrote:
-> At Sun, 9 Dec 2001 21:55:57 -0800 (PST),
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> > On Mon, 10 Dec 2001, GOTO Masanori wrote:
-> > >
-> > > The reason is that when kernel accesses /dev/sda with O_DIRECT,
-> > > blkdev_direct_IO() is called. But, it calls generic_direct_IO(),
-> > > and generic_direct_IO() calls brw_kiovec(..., inode->i_dev, ...).
-> > 
-> > That's a bad bug, yes.
+On Sun, 2001-12-09 at 11:26, Alan Cox wrote:
+> > I have a Venturis (same board as the PPro celebris, just no sockets and
+> > such for the dual that the celebris offered).  There are odd problems
+> > with this system.  However, if you aren't running certain features, any
+> > recent kernel WILL run.
 > 
-> Yes, dangerous bug...
-
-at least it's not security related :)
-
+> Can you send me the config you use and if you have any scribbled notes on 
+> what to do to make it work that would be great. To most people
+> venturis/celebris is a 2.2 only computer and I'd love to change that.
 > 
-> > However, the bug is really in "generic_direct_IO()", and you should fix it
-> > there, instead of avoiding to use it altogether.
-> > 
-> > "generic_direct_IO()" should just get the device from "bh->b_dev (which is
-> > filled in correctly by "get_block()".
+> Also if you run dmidecode on it do you get any tables ?
 > 
-> Oh, that's right, the patch becomes more simple (and works well).
-> Is this patch OK?
-
-yes it is.
-
-Thanks and sorry for your troubles. BTW, if you read back my first post
-about the blkdev-pagecache you'll notice I got bitten by the same bug
-too and I had to reinstall the test-machine from scratch :). 2.4.10
-didn't had such bug, but after integrating the direct-io with the blkdev
-inode physical address space the bug seen the light again. I should have
-fixed the below way since the first place, at that time there were two
-functions anyways and so it was less obvious the below was the right fix
-(previously I just did a one liner to fix it (s/dev/rdev/)).
-
-> --- linux.vanilla/fs/buffer.c	Mon Dec 10 21:13:10 2001
-> +++ linux/fs/buffer.c	Mon Dec 10 20:59:34 2001
-> @@ -2003,12 +2003,12 @@
->  {
->  	int i, nr_blocks, retval;
->  	unsigned long * blocks = iobuf->blocks;
-> +	struct buffer_head bh;
->  
-> +	bh.b_dev = inode->i_dev;
->  	nr_blocks = iobuf->length / blocksize;
->  	/* build the blocklist */
->  	for (i = 0; i < nr_blocks; i++, blocknr++) {
-> -		struct buffer_head bh;
-> -
->  		bh.b_state = 0;
->  		bh.b_dev = inode->i_dev;
->  		bh.b_size = blocksize;
-> @@ -2034,7 +2034,7 @@
->  		blocks[i] = bh.b_blocknr;
->  	}
->  
-> -	retval = brw_kiovec(rw, 1, &iobuf, inode->i_dev, iobuf->blocks, blocksize);
-> +	retval = brw_kiovec(rw, 1, &iobuf, bh.b_dev, iobuf->blocks, blocksize);
->  
->   out:
->  	return retval;
+> Alan
 > 
-> 
-> -- gotom
+
+The only notes I really have are that you cannot use APM.  You must use
+more recent BIOS (mine is running one from late 1999 I believe... that
+is recent since DEC is long gone).  This is all from memory.
+
+My configuration follows after.
+
+I hope this helps people.  Also, note that if you use pppd on 2.4.x (or
+even most 2.2.x) w/ the Venturis PPro systems, you probably shouldn't
+try to do anything more than 56k for port bitrate.  Bad things start to
+happen.
+
+Some things not set, like ECN, do work, I just have reasons (in this
+case, hotmail for my wife) to not use the things.  I am sure this is
+true w/ most drivers.  However, this as listed below (# lines were
+removed), lets me run my Venturis 6200 GL just fine with 2.4.x kernels
+(and most 2.3.x kernels from wherever I started using them (can't
+remember today)).
+
+Trever
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_TULIP=y
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_RTC=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
 
 
-Andrea

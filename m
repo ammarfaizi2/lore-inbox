@@ -1,84 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267176AbSLKOsQ>; Wed, 11 Dec 2002 09:48:16 -0500
+	id <S267175AbSLKOoq>; Wed, 11 Dec 2002 09:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSLKOqp>; Wed, 11 Dec 2002 09:46:45 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:20374 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S267176AbSLKOqX>; Wed, 11 Dec 2002 09:46:23 -0500
-Date: Wed, 11 Dec 2002 15:53:58 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH 2.4.21-pre1 RESEND] CREDITS update
-Message-ID: <20021211155358.G22483@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S267174AbSLKOop>; Wed, 11 Dec 2002 09:44:45 -0500
+Received: from mg02.austin.ibm.com ([192.35.232.12]:59086 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S267173AbSLKOom>; Wed, 11 Dec 2002 09:44:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
+Date: Wed, 11 Dec 2002 08:06:00 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com
+References: <02121016034706.02220@boiler> <20021211141820.GA21461@reti> <200212111435.gBBEYWa06788@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200212111435.gBBEYWa06788@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Message-Id: <02121108060005.29515@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 11 December 2002 13:24, Denis Vlasenko wrote:
+> On 11 December 2002 12:18, Joe Thornber wrote:
+> > On Wed, Dec 11, 2002 at 07:16:53AM -0600, Kevin Corry wrote:
+> > > However, it might be a good idea to consider how bio's keep track
+> > > of errors. When a bio is created, it is marked UPTODATE. Then, if
+> > > any part of a bio takes an error, the UPTODATE flag is turned off.
+> > > When the whole bio completes, if the UPTODATE flag is still on,
+> > > there were no errors during the i/o. Perhaps the "error" field in
+> > > "struct dm_io" could be modified to use this method of error
+> > > tracking? Then we could change dec_pending() to be something like:
+> > >
+> > > if (error)
+> > > 	clear_bit(DM_IO_UPTODATE, &io->error);
+> > >
+> > > with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
+> >
+> > The problem with this is you don't keep track of the specific error
+> > to later pass to bio_endio(io->bio...).  I guess it all comes down to
+> > just how expensive that spin lock is; and since locking only occurs
+> > when there's an error I'm happy with things as they are.
+>
+> lock();
+> a = b;
+> unlock();
+>
+> Store of ints is atomic anyway. You need locking if a is a larger entity,
+> say, a struct.
 
-This patch updates my current CREDITS and MAINTAINERS entry.
+Storing an int is *not* atomic unless it is declared as atomic_t and you use 
+the appropriate macros (see include/asm-*/atomic.h). Remember, we are talking 
+about a field in a data structure that can be accessed from multiple threads 
+on multiple CPUs.
 
-Marcelo, please apply.
-
-Stelian.
-
-===== CREDITS 1.59 vs edited =====
---- 1.59/CREDITS	Mon Dec  9 09:13:59 2002
-+++ edited/CREDITS	Tue Dec 10 11:54:20 2002
-@@ -2397,13 +2397,10 @@
- D: CDROM driver "sonycd535" (Sony CDU-535/531)
- 
- N: Stelian Pop
--E: stelian.pop@fr.alcove.com
-+E: stelian@popies.net
- P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
- D: sonypi, meye drivers, mct_u232 usb serial hacks
--S: Alcôve
--S: 153, bd. Anatole France 
--S: 93200 Saint Denis
--S: France
-+S: Paris, France
- 
- N: Frederic Potter 
- E: fpotter@cirpack.com
-===== MAINTAINERS 1.88 vs edited =====
---- 1.88/MAINTAINERS	Fri Dec  6 20:12:01 2002
-+++ edited/MAINTAINERS	Wed Dec 11 10:18:09 2002
-@@ -1041,6 +1041,12 @@
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
-+MOTION EYE VAIO PICTUREBOOK CAMERA DRIVER
-+P:	Stelian Pop
-+M:	stelian@popies.net
-+W:	http://popies.net/meye/
-+S:	Maintained
-+
- MOUSE AND MISC DEVICES [GENERAL]
- P:	Alessandro Rubini
- M:	rubini@ipvvis.unipv.it
-@@ -1485,6 +1491,12 @@
- P:	Thomas Bogendoerfer
- M:	tsbogend@alpha.franken.de
- L:	linux-net@vger.kernel.org
-+S:	Maintained
-+
-+SONY VAIO CONTROL DEVICE DRIVER
-+P:	Stelian Pop
-+M:	stelian@popies.net
-+W:	http://popies.net/sonypi/
- S:	Maintained
- 
- SOUND
 -- 
-Stelian Pop <stelian@popies.net>
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbTBFEHL>; Wed, 5 Feb 2003 23:07:11 -0500
+	id <S265612AbTBFEOw>; Wed, 5 Feb 2003 23:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbTBFEGD>; Wed, 5 Feb 2003 23:06:03 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56592 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265400AbTBFEC7>;
-	Wed, 5 Feb 2003 23:02:59 -0500
-Subject: Re: [PATCH] PCI Hotplug changes for 2.5.59
-In-reply-to: <10445044903733@kroah.com>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-From: Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Wed, 5 Feb 2003 20:08 -0800
-Message-id: <10445044911216@kroah.com>
-X-mailer: gregkh_patchbomb
+	id <S265637AbTBFEOe>; Wed, 5 Feb 2003 23:14:34 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:41489 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S265612AbTBFENv>; Wed, 5 Feb 2003 23:13:51 -0500
+Date: Wed, 5 Feb 2003 23:23:03 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Larry McVoy <lm@work.bitmover.com>, Andrea Arcangeli <andrea@e-mind.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030206042303.GB523@phunnypharm.org>
+References: <20030206021029.GW19678@dualathlon.random> <20030206030908.GA26137@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030206030908.GA26137@work.bitmover.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.947.23.12, 2003/02/06 10:14:04+11:00, randy.dunlap@verizon.net
+On Wed, Feb 05, 2003 at 07:09:08PM -0800, Larry McVoy wrote:
+> If people start using this against the bkbits.net server, we'll be
+> forced to shut down http access.  We can't afford the bandwidth costs,
+> we get charged per byte after a certain amount.
+> 
+> I'm not saying this new code isn't the most wonderful thing since sliced
+> bread, I'm saying that programatic access to the http servers on bkbits is
+> absolutely not supported and excessive bandwidth means we shut that down.
+> 
+> Sorry, but getting at the data this way is very bandwidth intensive and
+> we can't pay for it.  If you use BK to get the data it is easily 1/1000th
+> of the amount of bandwidth these scripts use.  If someone wants to foot
+> the bandwidth bill, it is currently $950/month.
 
-[PATCH] PCI Hotplug: memory leaks in acpiphp_glue
+You may want to enable mod_deflate, and then scripts can easily make use
+of gzip compressed data. May not be an end-all, but something to
+consider.
 
-Here's the memory leaks patch for acpiphp_glue.c.
-
-
-diff -Nru a/drivers/hotplug/acpiphp_glue.c b/drivers/hotplug/acpiphp_glue.c
---- a/drivers/hotplug/acpiphp_glue.c	Thu Feb  6 14:51:22 2003
-+++ b/drivers/hotplug/acpiphp_glue.c	Thu Feb  6 14:51:22 2003
-@@ -578,6 +578,7 @@
- 		bridge->io_head = acpiphp_make_resource((u64)base, limit - base + 1);
- 		if (!bridge->io_head) {
- 			err("out of memory\n");
-+			kfree(bridge);
- 			return;
- 		}
- 		dbg("16bit I/O range: %04x-%04x\n",
-@@ -592,6 +593,7 @@
- 		bridge->io_head = acpiphp_make_resource((u64)base, limit - base + 1);
- 		if (!bridge->io_head) {
- 			err("out of memory\n");
-+			kfree(bridge);
- 			return;
- 		}
- 		dbg("32bit I/O range: %08x-%08x\n",
-@@ -613,6 +615,7 @@
- 	bridge->mem_head = acpiphp_make_resource((u64)base, limit - base + 1);
- 	if (!bridge->mem_head) {
- 		err("out of memory\n");
-+		kfree(bridge);
- 		return;
- 	}
- 	dbg("32bit Memory range: %08x-%08x\n",
-@@ -632,6 +635,7 @@
- 		bridge->p_mem_head = acpiphp_make_resource((u64)base, limit - base + 1);
- 		if (!bridge->p_mem_head) {
- 			err("out of memory\n");
-+			kfree(bridge);
- 			return;
- 		}
- 		dbg("32bit Prefetchable memory range: %08x-%08x\n",
-@@ -647,6 +651,7 @@
- 		bridge->p_mem_head = acpiphp_make_resource(base64, limit64 - base64 + 1);
- 		if (!bridge->p_mem_head) {
- 			err("out of memory\n");
-+			kfree(bridge);
- 			return;
- 		}
- 		dbg("64bit Prefetchable memory range: %08x%08x-%08x%08x\n",
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

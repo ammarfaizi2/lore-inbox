@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQLJMAl>; Sun, 10 Dec 2000 07:00:41 -0500
+	id <S129812AbQLJMZi>; Sun, 10 Dec 2000 07:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129812AbQLJMAW>; Sun, 10 Dec 2000 07:00:22 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:48644 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129761AbQLJMAP>; Sun, 10 Dec 2000 07:00:15 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200012101129.DAA05519@cx518206-b.irvn1.occa.home.com>
-Subject: Re: Traffic storm interaction with MacOS 8.6
-To: j.d.morton@lancaster.ac.uk (Jonathan Morton)
-Date: Sun, 10 Dec 2000 03:29:46 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-Reply-To: barryn@pobox.com
-In-Reply-To: <l0313030bb658f80c3180@[192.168.239.101]> from "Jonathan Morton" at Dec 10, 2000 10:07:42 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129830AbQLJMZT>; Sun, 10 Dec 2000 07:25:19 -0500
+Received: from smtp1.ihug.co.nz ([203.109.252.7]:50695 "EHLO smtp1.ihug.co.nz")
+	by vger.kernel.org with ESMTP id <S129812AbQLJMZK>;
+	Sun, 10 Dec 2000 07:25:10 -0500
+Message-ID: <3A336EE4.2EA1CD04@ihug.co.nz>
+Date: Mon, 11 Dec 2000 00:54:12 +1300
+From: Gerard Sharp <gsharp@ihug.co.nz>
+Reply-To: gsharp@ihug.co.nz
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [patch] modutils 2.3.22 and kernel 2.4.0-test12-pre7 (sans-word-wrap)
+Content-Type: multipart/mixed;
+ boundary="------------88C6AB5A4973C8E39FE33403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Setup:
-> 	Client A is a PowerMac 8100/80 with a G3 CPU upgrade, MacOS 8.6
-[snip]
+This is a multi-part message in MIME format.
+--------------88C6AB5A4973C8E39FE33403
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-MacOS 9.0.4 has many TCP fixes, including a vulnerability that allowed a
-packet storm denial of service. Can you reproduce the problem with that
-version of MacOS? (If you can't run 9.0.4 for some reason, there's an
-Open Transport update available for 9.0 with the fixes, but your Mac is
-too old to run it under 8.6.)
+My mail client thought it would be amusing to wrap my text at 80
+columns.
+Useful at times, I'll give it that; but it chewed on my patch a little.
 
-[Actually, it's possible to hack it into running under 8.6 on an older
-machine, but (disregarding any legal ramifications which I'm too tired to
-think about now) it introduces some weird glitches, and I *really* would
-not recommend it -- also, I forget how I hacked it into working on an
-older machine; I *think* the hacking procedure involved using an OS 9 CD
-at some point in the process.]
+Reasoning / excuses in my earlier post with the similar subject line...
 
--Barry K. Nathan <barryn@pobox.com>
+
+Good Night and Happy Hacking
+Gerard Sharp
+Two Penguins at 1024x768
+--------------88C6AB5A4973C8E39FE33403
+Content-Type: text/plain; charset=iso-8859-1;
+ name="ntfs_net.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline;
+ filename="ntfs_net.patch"
+
+#diff -dur linux-2.4.0-test12-clean linux-2.4.0-test12-fixed
+diff -dur linux-2.4.0-test12-clean/drivers/net/8139too.c linux-2.4.0-test12-fixed/drivers/net/8139too.c
+--- linux-2.4.0-test12-clean/drivers/net/8139too.c      Sun Dec 10 12:55:42 2000
++++ linux-2.4.0-test12-fixed/drivers/net/8139too.c      Sun Dec 10 14:45:20 2000
+@@ -74,6 +74,8 @@
+
+                Tobias Ringström - Rx interrupt status checking suggestion
+
++               Gerard Sharp - bug fix for MODULE_PARM
++
+        Submitting bug reports:
+
+                "rtl8139-diag -mmmaaavvveefN" output
+@@ -536,7 +538,9 @@
+ MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
+ MODULE_PARM (multicast_filter_limit, "i");
+ MODULE_PARM (max_interrupt_work, "i");
++#ifdef RTL8139_DEBUG
+ MODULE_PARM (debug, "i");
++#endif /*RTL8139_DEBUG*/
+ MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
+
+ static int read_eeprom (void *ioaddr, int location, int addr_len);
+diff -dur linux-2.4.0-test12-clean/fs/ntfs/fs.c linux-2.4.0-test12-fixed/fs/ntfs/fs.c
+--- linux-2.4.0-test12-clean/fs/ntfs/fs.c       Sun Dec 10 12:55:47 2000
++++ linux-2.4.0-test12-fixed/fs/ntfs/fs.c       Sun Dec 10 14:43:35 2000
+@@ -963,9 +963,10 @@
+ EXPORT_NO_SYMBOLS;
+ MODULE_AUTHOR("Martin von Löwis");
+ MODULE_DESCRIPTION("NTFS driver");
++#ifdef DEBUG
+ MODULE_PARM(ntdebug, "i");
+ MODULE_PARM_DESC(ntdebug, "Debug level");
+-
++#endif /*DEBUG*/
++
+ module_init(init_ntfs_fs)
+ module_exit(exit_ntfs_fs)
+ /*
+
+--------------88C6AB5A4973C8E39FE33403--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269121AbUJTS7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269132AbUJTTGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269121AbUJTS7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJTS4V
+	id S269132AbUJTTGi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269137AbUJTTGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:56:21 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:16366 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268989AbUJTSzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:55:17 -0400
-Date: Wed, 20 Oct 2004 11:55:14 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: Hanna Linder <hannal@us.ibm.com>, greg@kroah.com, davej@codemonkey.org.uk
-Subject: [RFT 2.6] sis-agp.c: replace pci_find_device with pci_get_device
-Message-ID: <18870000.1098298514@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 20 Oct 2004 15:06:35 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:50340 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S268989AbUJTTCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:02:44 -0400
+Date: Wed, 20 Oct 2004 14:02:30 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Alexander Batyrshin <abatyrshin@ru.mvista.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+In-Reply-To: <4176A50C.9050303@ru.mvista.com>
+Message-ID: <Pine.LNX.4.58.0410201401430.1219@gradall.private.brainfood.com>
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
+ <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
+ <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+ <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+ <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
+ <20041020094508.GA29080@elte.hu> <4176A50C.9050303@ru.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Oct 2004, Alexander Batyrshin wrote:
 
-As pci_find_device is going away soon I have converted this file to use
-pci_get_device instead. for_each_pci_dev is a macro wrapper around
-pci_get_device.  I have compile tested it. If anyone has this hardware
-and could test it that would be great.
+>
+>
+> Ingo Molnar wrote:
+> > i have released the -U8 Real-Time Preemption patch:
+> >
+> >   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U8
+> >
+>
+> 2.
+> if execute
+> ``for i in `seq 1 9999`; do nohup bash >/dev/null 2>&1 & done'',
+> then you'll get something like:
+> [...skip...]
+> Warning: dev (pts0) tty->count(16) != #fd's(8) in tty_open
+> Warning: dev (pts0) tty->count(16) != #fd's(11) in tty_open
+> Warning: dev (pts0) tty->count(17) != #fd's(13) in tty_open
+> Warning: dev (pts0) tty->count(18) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(18) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(18) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(19) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(19) != #fd's(16) in release_dev
+> Warning: dev (pts0) tty->count(18) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(18) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(19) != #fd's(17) in tty_open
+> Warning: dev (pts0) tty->count(19) != #fd's(17) in release_dev
+> Warning: dev (pts0) tty->count(18) != #fd's(17) in tty_open
+> Warning: dev (pts0) tty->count(18) != #fd's(17) in tty_open
+> Warning: dev (pts0) tty->count(19) != #fd's(17) in release_dev
+> Warning: dev (pts0) tty->count(17) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(16) != #fd's(19) in release_dev
+> Warning: dev (pts0) tty->count(15) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(14) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(14) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(13) != #fd's(18) in tty_open
+> Warning: dev (pts0) tty->count(14) != #fd's(19) in release_dev
+> Warning: dev (pts0) tty->count(13) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(13) != #fd's(17) in release_dev
+> Warning: dev (pts0) tty->count(12) != #fd's(18) in tty_open
+> Warning: dev (pts0) tty->count(12) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(12) != #fd's(18) in release_dev
+> Warning: dev (pts0) tty->count(28) != #fd's(16) in tty_open
+> Warning: dev (pts0) tty->count(528) != #fd's(13) in tty_open
+> Warning: dev (pts0) tty->count(528) != #fd's(13) in release_dev
+> Warning: dev (pts0) tty->count(527) != #fd's(12) in tty_open
+> Warning: dev (pts0) tty->count(528) != #fd's(12) in release_dev
+> Warning: dev (pts0) tty->count(538) != #fd's(28) in release_dev
+> Warning: dev (pts0) tty->count(537) != #fd's(528) in tty_open
+> Warning: dev (pts0) tty->count(537) != #fd's(527) in release_dev
+> Warning: dev (pts0) tty->count(536) != #fd's(527) in tty_open
+> Warning: dev (pts0) tty->count(536) != #fd's(527) in tty_open
+> Warning: dev (pts0) tty->count(536) != #fd's(527) in release_dev
+> Warning: dev (pts0) tty->count(535) != #fd's(527) in tty_open
+> Warning: dev (pts0) tty->count(535) != #fd's(530) in tty_open
+> [...skip...]
+> Warning: dev (pts0) tty->count(11) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(10) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(9) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(8) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(7) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(6) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(5) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(4) != #fd's(71) in release_dev
+> Warning: dev (pts0) tty->count(3) != #fd's(71) in release_dev
+> eggcups: page allocation failure. order:1, mode:0x20
+>   [<c01439d8>] __alloc_pages+0x228/0x3ff (8)
+>   [<c0143bce>] __get_free_pages+0x1f/0x3b (68)
+>   [<c014719c>] kmem_getpages+0x25/0xe0 (8)
+> [...skip...]
 
-Hanna Linder
-IBM Linux Technology Center
+I got something like this too, just now.  Not doing anything special(tty7
+holds xdm).
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
----
-
-diff -Nrup linux-2.6.9cln/drivers/char/agp/sis-agp.c linux-2.6.9patch2/drivers/char/agp/sis-agp.c
---- linux-2.6.9cln/drivers/char/agp/sis-agp.c	2004-10-18 16:35:52.000000000 -0700
-+++ linux-2.6.9patch2/drivers/char/agp/sis-agp.c	2004-10-19 15:52:32.000000000 -0700
-@@ -85,7 +85,7 @@ static void sis_delayed_enable(u32 mode)
- 	command |= AGPSTAT_AGP_ENABLE;
- 	rate = (command & 0x7) << 2;
- 
--	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
-+	for_each_pci_dev(device) {
- 		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
- 		if (!agp)
- 			continue;
-
+Warning: dev (pts7) tty->count(4) != #fd's(3) in tty_open
+Warning: dev (pts7) tty->count(4) != #fd's(3) in release_dev

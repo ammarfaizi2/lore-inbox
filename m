@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUF1Llg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUF1Lxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUF1Llg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 07:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264914AbUF1Llg
+	id S264915AbUF1Lxy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 07:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUF1Lxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 07:41:36 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:21683 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264912AbUF1Lle (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 07:41:34 -0400
-Date: Mon, 28 Jun 2004 13:41:03 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] A generic_file_sendpage()
-Message-ID: <20040628114103.GB1010@wohnheim.fh-wedel.de>
-References: <20040608154438.GK18083@dualathlon.random> <20040608193621.GA12780@holomorphy.com> <1086783559.1194.24.camel@boxen> <20040625191924.GA8656@wohnheim.fh-wedel.de> <20040625194611.GQ12308@parcelfarce.linux.theplanet.co.uk> <20040625200342.GE8656@wohnheim.fh-wedel.de> <1088211213.9740.16.camel@lade.trondhjem.org>
+	Mon, 28 Jun 2004 07:53:54 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:14086 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264915AbUF1Lxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 07:53:50 -0400
+Subject: Re: [PATCH] Staircase scheduler v7.4
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>, Michael Buesch <mbuesch@freenet.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Willy Tarreau <willy@w.ods.org>
+In-Reply-To: <40DFDBB2.7010800@yahoo.com.au>
+References: <200406251840.46577.mbuesch@freenet.de>
+	 <200406261929.35950.mbuesch@freenet.de>
+	 <1088363821.1698.1.camel@teapot.felipe-alfaro.com>
+	 <200406272128.57367.mbuesch@freenet.de>
+	 <1088373352.1691.1.camel@teapot.felipe-alfaro.com>
+	 <Pine.LNX.4.58.0406281013590.11399@kolivas.org>
+	 <1088412045.1694.3.camel@teapot.felipe-alfaro.com>
+	 <40DFDBB2.7010800@yahoo.com.au>
+Content-Type: text/plain
+Date: Mon, 28 Jun 2004 13:53:46 +0200
+Message-Id: <1088423626.1699.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1088211213.9740.16.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 June 2004 20:53:34 -0400, Trond Myklebust wrote:
-> På fr , 25/06/2004 klokka 16:03, skreiv Jörn Engel:
-> > Not sure.  NFSv3 appears to be fixable, the only context is the UID,
+On Mon, 2004-06-28 at 18:49 +1000, Nick Piggin wrote:
+> Felipe Alfaro Solana wrote:
 > 
-> Huh???? WTF happened to the actual credential?
-
-No idea, I couldn't find it in the source.
-
-> > which happens to be stored in the inode as well.  NFSv4 and cifs could
-> > be worse, I didn't look closely yet.  smbfs accesses the dentry, which
-> > has similar effects, but should be fixable as well.
+> > I have tested 2.6.7-bk10 plus from_2.6.7_to_staircase_7.7 patch and,
+> > while it's definitively better than previous versions, it still feels a
+> > little jerky when moving windows in X11 wrt to -mm3. Renicing makes it a
+> > little bit smoother, but not as much as -mm3 without renicing.
 > > 
-> > Do you know of any impossible cases?
 > 
-> NFS, CIFS, all other networked filesystems that need private context
-> information beyond what is contained in the struct file. Why?
+> You know, if renicing X makes it smoother, then that is a good thing
+> IMO. X needs large amounts of CPU and low latency in order to get
+> good interactivity, which is something the scheduler shouldn't give
+> to a process unless it is told to.
 
-Darn!  I need to copy an inode.  Currently, I'm opening a two files,
-copy between them and close them again.  Open and close are completely
-pointless and only complicate things.
+But the problem here is that -ck3 with X reniced to -10 is not as smooth
+as -mm3 with no renicing. That's what worries me.
 
-The fun part is that cifs would actually benifit from the same things
-it complicates.  Oh well.
-
-Jörn
-
--- 
-Geld macht nicht glücklich.
-Glück macht nicht satt.

@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbTJJXvi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 19:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTJJXvi
+	id S263158AbTJKAYm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 20:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTJKAYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 19:51:38 -0400
-Received: from zok.sgi.com ([204.94.215.101]:36512 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263151AbTJJXvh (ORCPT
+	Fri, 10 Oct 2003 20:24:42 -0400
+Received: from maintech.de ([217.160.75.157]:407 "EHLO p10065214.pureserver.de")
+	by vger.kernel.org with ESMTP id S263158AbTJKAYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 19:51:37 -0400
-Date: Fri, 10 Oct 2003 16:51:02 -0700
-To: davidm@hpl.hp.com
-Cc: Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
-       davidm@napali.hpl.hp.com
-Subject: Re: [PATCH] Altix I/O code cleanup
-Message-ID: <20031010235102.GA6198@sgi.com>
-Mail-Followup-To: davidm@hpl.hp.com, Patrick Gefre <pfg@sgi.com>,
-	linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-References: <3F872984.7877D382@sgi.com> <20031010215153.GA5328@sgi.com> <16263.14277.278807.472247@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16263.14277.278807.472247@napali.hpl.hp.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+	Fri, 10 Oct 2003 20:24:40 -0400
+Message-ID: <3F874DC6.7090404@maintech.de>
+Date: Sat, 11 Oct 2003 02:24:38 +0200
+From: Thomas Kleffel <lkml@maintech.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030813 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bug report for linux-2.6.0-test7: System crashes when I try to start
+ my software raid
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 03:50:45PM -0700, David Mosberger wrote:
-> >>>>> On Fri, 10 Oct 2003 14:51:53 -0700, jbarnes@sgi.com (Jesse Barnes) said:
-> 
->   Jesse> David, please apply this set of patches from Pat.
-> 
-> Unfortunately, the 2.6 tree is closed for cleanups.  I would _like_ to
-> see the patch applied, though.  Perhaps you could talk to Andrew and
-> see if you can get an exception?
+Hi!
 
-Ok, I'll talk to Pat.  I know that at least part of this is bugfixes.
+Today I wanted to give 2.6.0 a try on my fileserver. It's got a software 
+raid (md - no evms) with 11*120GB IDE. When I tried to start it 
+(raidstart /dev/md0) my system crashed badly. It didnt react to anything 
+but magic sysreq. The last thing I could see was an (incomplete) stack 
+trace. Incomplete beacause scrollback didn't work anymore. It looks like 
+the crashes didn't trash my data or raid headers.
 
->   Jesse> Btw, any estimate as to when your BK tree will be updated?
-> 
-> Just did a short while ago.  It's not the final stuff, but getting closer.
-> (I just merged your discontig fixes, btw.)
+I can reproduce the bug - it happens everytime when I try to start my raid.
+I already tried to disable DMA - didn't help. The system worked fine for 
+over a year with 2.4.x kernels. Currently I run 2.4.22_pre2-gss (a 
+gentoo flavour).
 
-Kick ass!  I've been waiting for this day! :)
+I am willing to help anyone who wants to fix this as good as I can. This 
+includes giving informations,  testing, etc... just contact me.
 
-Thanks,
-Jesse
+If there's a better place than this list for posting this report, please 
+tell me.
+
+Thanks for helping,
+Thomas Kleffel
+
+
+Some information that might be helpful:
+
+lspci:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
+(rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 40)
+00:04.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:04.3 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:09.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+(rev 78)
+00:0a.0 Unknown mass storage controller: Triones Technologies, Inc. 
+HPT366/368/370/370A/372 (rev 03)
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
+(rev 02)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo Banshee 
+(rev 03)
+
+
+cpuinfo:
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1109.910
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
+cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2215.11
+
+
+

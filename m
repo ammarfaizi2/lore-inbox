@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319239AbSHNIA1>; Wed, 14 Aug 2002 04:00:27 -0400
+	id <S319240AbSHNIGx>; Wed, 14 Aug 2002 04:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319240AbSHNIA1>; Wed, 14 Aug 2002 04:00:27 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7952 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S319239AbSHNIA0>; Wed, 14 Aug 2002 04:00:26 -0400
-Message-Id: <200208140758.g7E7wBp15027@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Peter Chubb <peter@chubb.wattle.id.au>, "Jim Roland" <jroland@roland.net>,
-       Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: RE:Re: The spam problem.
-Date: Wed, 14 Aug 2002 10:55:09 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: <Hell.Surfers@cwctv.net>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-References: <15704.7035.97347.606927@wombat.chubb.wattle.id.au>
-In-Reply-To: <15704.7035.97347.606927@wombat.chubb.wattle.id.au>
+	id <S319241AbSHNIGx>; Wed, 14 Aug 2002 04:06:53 -0400
+Received: from central.caverock.net.nz ([210.55.207.1]:17673 "EHLO
+	central.caverock.net.nz") by vger.kernel.org with ESMTP
+	id <S319240AbSHNIGw>; Wed, 14 Aug 2002 04:06:52 -0400
+Date: Wed, 14 Aug 2002 20:09:05 +1200 (NZST)
+From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
+To: linux-kernel@vger.kernel.org
+cc: ecoffey@alphalink.com.au
+Subject: devfs_find_and_unregister fix (was Re: Linux 2.5.31)
+Message-ID: <Pine.LNX.4.21.0208141953470.3423-100000@brick.flying-brick.caverock.net.nz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 August 2002 18:32, Peter Chubb wrote:
-> >>>>> "Jim" == Jim Roland <jroland@roland.net> writes:
->
-> Jim> Now there's a good thought!  Post, Confirm, gets posted.  If
-> Jim> member, no confirmation necessary.
->
-> It'd be impractical because you'd need to merge not only the people
-> directly on the list as members, but also the people who get LKML as
-> digest via Dell, as news, or via a mail exploder.
 
-It may be very nice to ask confirmation for suspicious posts only.
-Filter can discriminate messages into:
+In reply to:
+ecoffey at alphalink dot com dot au
+>devfs problem, make modules_install fails with
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map 2.5.31; fi
+>depmod: *** Unresolved symbols in
+>/lib/modules/2.5.31/kernel/sound/core/snd.o
+>depmod: devfs_find_and_unregister
 
-1.Obvious spam: drop on the floor
-2.Possible spam: ask sender to confirm
-  (with reason why robot thinks it may be a spam)
-3.Not a spam: post without confirmation
+fs/devfs/base.c,  Line 2315, add this:
 
-This avoids problems with good messages being lost
-and does not require human admins to read the messages.
---
-vda
+--- fs/devfs/base_orig.c	Wed Aug 14 20:02:09 2002
++++ fs/devfs/base.c	Tue Aug 13 18:51:23 2002
+@@ -2312,6 +2312,7 @@
+ EXPORT_SYMBOL(devfs_mk_symlink);
+ EXPORT_SYMBOL(devfs_mk_dir);
+ EXPORT_SYMBOL(devfs_get_handle);
++EXPORT_SYMBOL(devfs_find_and_unregister);
+ EXPORT_SYMBOL(devfs_get_flags);
+ EXPORT_SYMBOL(devfs_set_flags);
+ EXPORT_SYMBOL(devfs_get_maj_min);
+
+
+
+-- 
+ /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
+| |_/'  viking@ `\_| |            including Pippin, our cat
+|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
+ \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
+

@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267124AbTAKDBk>; Fri, 10 Jan 2003 22:01:40 -0500
+	id <S267135AbTAKDHf>; Fri, 10 Jan 2003 22:07:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267128AbTAKDBj>; Fri, 10 Jan 2003 22:01:39 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:50955
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267124AbTAKDBj>; Fri, 10 Jan 2003 22:01:39 -0500
-Date: Fri, 10 Jan 2003 22:11:02 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Rob Wilkens <robw@optonline.net>
-cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry Sendlosky <Larry.Sendlosky@storigen.com>,
-       Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267142AbTAKDHf>; Fri, 10 Jan 2003 22:07:35 -0500
+Received: from dsl-65-185-37-21.telocity.com ([65.185.37.21]:19655 "EHLO
+	onevista.com") by vger.kernel.org with ESMTP id <S267135AbTAKDHe>;
+	Fri, 10 Jan 2003 22:07:34 -0500
+Reply-To: johna@onevista.com
+Message-Id: <200301110316.WAA00987@onevista.com>
+Content-Type: text/plain; charset=US-ASCII
+From: John Adams <johna@onevista.com>
+Organization: One Vista Associates
+To: linux-kernel@vger.kernel.org
 Subject: Re: Nvidia and its choice to read the GPL "differently"
+Date: Fri, 10 Jan 2003 22:16:10 -0500
+X-Mailer: KMail [version 1.3.2]
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <20030111025449.GJ9124@work.bitmover.com> <1042253924.1385.70.camel@RobsPC.RobertWilkens.com>
 In-Reply-To: <1042253924.1385.70.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.44.0301102207060.2124-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Rob Wilkens wrote:
-
-> On Fri, 2003-01-10 at 21:54, Larry McVoy wrote:
-> > Indeed.  Lots of things which are hard look easy to people who haven't 
-> > done them.  Operating systems don't have a corner on that market.
-> 
+On Friday 10 January 2003 09:58 pm, Rob Wilkens wrote:
+>
 > Of all the things that computer software programmers do, writing
 > operating systems is among the most simplistic of those tasks.
 
-okay
-
-> Of that, I am certain.
-
-okay
- 
-> That is why my first job out of college was as an Operating Systems
-> Kernel Programmer.
->
-> That is what they call "low level programming" and that kind of
-> programming is looked down upon by most other programmers.
-> 
-> High-level languages (stuff like delphi and visual basic) are grown-up
-> languages and tools where you can create more substantial programs using
-> more substantial areas of your brain.
-
-Please say you're simply trolling...
-
--- 
-function.linuxpower.ca
-
-
+I think we have an under-bridge dweller.

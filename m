@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbRG2N5I>; Sun, 29 Jul 2001 09:57:08 -0400
+	id <S267996AbRG2OA6>; Sun, 29 Jul 2001 10:00:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267996AbRG2N46>; Sun, 29 Jul 2001 09:56:58 -0400
-Received: from Odin.AC.HMC.Edu ([134.173.32.75]:19380 "EHLO odin.ac.hmc.edu")
-	by vger.kernel.org with ESMTP id <S267532AbRG2N4r>;
-	Sun, 29 Jul 2001 09:56:47 -0400
-Date: Sun, 29 Jul 2001 06:56:54 -0700 (PDT)
-From: Nate Eldredge <neldredge@hmc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: International crypto patches and new kernels
-Message-ID: <Pine.LNX.4.21.0107290655030.19655-100000@odin.ac.hmc.edu>
+	id <S268004AbRG2OAs>; Sun, 29 Jul 2001 10:00:48 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:32779 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267996AbRG2OAb>;
+	Sun, 29 Jul 2001 10:00:31 -0400
+Date: Sun, 29 Jul 2001 11:00:34 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Lawrence Greenfield <leg+@andrew.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <20010729020812.D9350@emma1.emma.line.org>
+Message-ID: <Pine.LNX.4.33L.0107291058560.11893-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-The International crypto patches do not appear to work with the latest
-kernels.
+On Sun, 29 Jul 2001, Matthias Andree wrote:
+> On Sat, 28 Jul 2001, Rik van Riel wrote:
+>
+> > > The standard is only useful if it specifies how to get data safely on
+> > > disk - it is quite explicit for fsync(), but you evidently cannot
+> > > fsync() a link().
+> >
+> > As Linus said, fsync() on the directory.
+>
+> Relying on that to work on other operating systems is no better than
+> demanding synchronous meta data writes: relying on undocumented
+> behaviour.
+>
+> If we spake about Linux-specific applications, that'd be okay, but we
+> speak about portable applications, and the diversity is bigger than
+> useful. Speed is not the only problem the OS has to solve.
 
-The latest patch I can find is one against 2.4.5-ac11, at
-http://www.bzimage.org/kernel-patches/v2.4/alan/v2.4.5/patch-2.4.5-ac11-crypto.bz2
-.  This works when applied to 2.4.5-ac11.  However, I tried applying
-it to 2.4.6-ac5.  It applies all right (a couple of offset hunks, and
-the diffs of debian control files obviously fail, because the files
-aren't there on my system).  But when I boot it and attempt to use
-loopback encryption, the mount fails with -EINVAL and the kernel emits
-the following messages.
+I guess many MTAs have a small libc inside of them exactly
+in order to handle things like this without fouling up the
+core code too much.
 
-attempt to access beyond end of device
-07:02: rw=0, want=10241, limit=10240
-EXT2-fs: unable to read group descriptors
+Time to make your favorite MTA use link_slowly()  ;)
 
-Further attempts to fsck the device results in:
+cheers,
 
-e2fsck 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-fsck.ext2: Attempt to read block from filesystem resulted in short read
-while trying to open /dev/loop2
-Could this be a zero-length partition?
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-If I losetup -d the device and losetup it again, fsck succeeds, but
-mounting still fails.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Here's what I'm doing to make it fail.
-
-CIPHER=aes
-KEYSIZE=256
-LOOPDEV=/dev/loop2
-FILE=/spare/encrypted-image
-SIZE=10240 # kbytes
-PASSWORD=12345
-MOUNTPOINT=/mnt/scratch
-FS=ext2
-TESTFILE=$MOUNTPOINT/testfile
-TESTSTRING="This is a test."
-
-dd if=/dev/zero of=$FILE bs=1k count=$SIZE
-echo $PASSWORD |losetup -e $CIPHER -k $KEYSIZE -p 0 $LOOPDEV $FILE
-mkfs.$FS $LOOPDEV			# works
-fsck.$FS -f $LOOPDEV			# passes
-mount -t $FS $LOOPDEV $MOUNTPOINT	# fails as above
-echo $TESTSTRING > $TESTFILE		# obviously fails
-umount $MOUNTPOINT			# the same
-fsck.$FS -f $LOOPDEV			# fails as above
-losetup -d $LOOPDEV
-echo $PASSWORD |losetup -e $CIPHER -k $KEYSIZE -p 0 $LOOPDEV $FILE
-fsck.$FS -f $LOOPDEV			# passes
-mount -t $FS $LOOPDEV $MOUNTPOINT	# still fails
-
-
-I have also tried with FS=minix, CIPHER=twofish, and KEYSIZE=128, and
-I've tried putting FILE on ext2 and reiserfs partitions.  None of them
-helps.
-
-I think I have gotten the initial mount to succeed in previous tests,
-but I can't reproduce it now.  In any case, further attempts to mount
-fail.
-
-The same patch applied to 2.4.7-ac2 fails similarly.
-
--- 
-
-Nate Eldredge
-neldredge@hmc.edu
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

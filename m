@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265251AbUETWeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265305AbUETWjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbUETWeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 18:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUETWeJ
+	id S265305AbUETWjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 18:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUETWjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 18:34:09 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:63476 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265251AbUETWeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 18:34:07 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fixing sendfile on 64bit architectures
-Date: Thu, 20 May 2004 18:33:28 -0400
-User-Agent: KMail/1.6.2
-Cc: davidm@hpl.hp.com, hch@infradead.org, linux-kernel@vger.kernel.org
-References: <26879984$108499340940abaf81679ba6.07529629@config22.schlund.de> <200405201810.48141.jbarnes@engr.sgi.com> <20040520152510.02de52a1.akpm@osdl.org>
-In-Reply-To: <20040520152510.02de52a1.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 20 May 2004 18:39:18 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:38810 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265301AbUETWjR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 18:39:17 -0400
+Date: Fri, 21 May 2004 00:36:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Laurent Goujon <laurent.goujon@online.fr>
+Cc: Rudo Thomas <rudo@matfyz.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Sluggish performances with FreeBSD
+Message-ID: <20040521003616.D2172@electric-eye.fr.zoreil.com>
+References: <1085080302.7764.20.camel@caribou.no-ip.org> <20040520193406.GA16184@ss1000.ms.mff.cuni.cz> <1085083195.4240.4.camel@caribou.no-ip.org> <20040520232957.A2172@electric-eye.fr.zoreil.com> <1085091424.4238.13.camel@caribou.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405201833.28362.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1085091424.4238.13.camel@caribou.no-ip.org>; from laurent.goujon@online.fr on Fri, May 21, 2004 at 12:17:05AM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, May 20, 2004 6:25 pm, Andrew Morton wrote:
-> Me no understand Jesse.
->
-> Removing the ifdefs and letting the linker do the job has the advantage
-> that the compiler gets to check more code for you.
+Re,
 
-Nevermind, I was confused about the patch.  I thought (without looking at it) 
-that arch versions would be hidden in arch code, but now I see that they're 
-just completely unused, so there's little chance for confusion.  I'll shut up 
-now.
+Laurent Goujon <laurent.goujon@online.fr> :
+[...]
+> sis900.c: v1.08.07 11/02/2003
+> eth0: Unknown PHY transceiver found at address 1.
 
-Jesse
+This one is probably for Daniele Venzano (webvenza@libero.it).
+You should check the l-k archive from 05/18/2004 and 05/19/2004
+(search for the subject: Re: [PATCH] Sis900 bug fixes 3/4).
+
+> eth0: Using transceiver found at address 1 as default
+> eth0: SiS 900 PCI Fast Ethernet at 0xcc00, IRQ 11, 00:a0:cc:cf:86:c7.
+
+--
+Ueimor

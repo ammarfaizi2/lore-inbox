@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290965AbSCSSzh>; Tue, 19 Mar 2002 13:55:37 -0500
+	id <S291074AbSCSSwz>; Tue, 19 Mar 2002 13:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290796AbSCSSzb>; Tue, 19 Mar 2002 13:55:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2318 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291102AbSCSSyj>; Tue, 19 Mar 2002 13:54:39 -0500
-Subject: Re: Bitkeeper licence issues
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Tue, 19 Mar 2002 19:09:44 +0000 (GMT)
-Cc: davem@redhat.com (David S. Miller), lm@bitmover.com, pavel@ucw.cz,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C97867B.70015FA1@linux-m68k.org> from "Roman Zippel" at Mar 19, 2002 07:42:03 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290796AbSCSSwi>; Tue, 19 Mar 2002 13:52:38 -0500
+Received: from web20505.mail.yahoo.com ([216.136.226.140]:38921 "HELO
+	web20505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S290797AbSCSSwK>; Tue, 19 Mar 2002 13:52:10 -0500
+Message-ID: <20020319185209.2308.qmail@web20505.mail.yahoo.com>
+Date: Tue, 19 Mar 2002 19:52:09 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.4.19pre3-ac2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nOzQ-0008U7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> like that and didn't had to learn it the hard way. Free software is
-> simply no business model. Of course we have to make our living somehow,
+Hi Alan,
 
-Work for me. I've run a profitable small open source company, I've worked
-for Red Hat. 
+I cannot compile shm.c unless I apply this
+patch. I hope it's correct, I put 0 in the acct
+field just because there was 0 at the
+do_mmap() line.
 
-> prevented by massive protectionism. Try to imagine, what it means for an
-> economic, which is based on trade, if goods can be produced at almost no
-> cost. Current world trade has already in several areas not much to do
-> with "trade" anymore and I'm not very optimistic how this can get any
-> better with the current economic model.
+I'm really sorry this patch will be mangled
+by my mail client here, but it's a one liner,
+self-explanatory.
 
-Think about it this way. There is no reason to suppose that the concept
-of the Innovators Dilemma does not ultimately apply to nations. If you
-accept that premise - and there is a lot of evidence for it, then the
-western european nations get more and more specialist and "up market" and
-eventually run out of anything to sell but lawyers. At which point we get
-the great depression mark 2.
+Regards,
+Willy
 
-Hans Reiser's team of Russian wizards is simply a couple of years ahead of
-everyone else moving all real software development to the czech republic
-and india, the phone support to the philipines and the hardware to 
-taiwanese and chinese bulk build to order.
+--- linux/ipc/shm.c-orig        Tue Mar 19 19:45:52
+2002
++++ linux/ipc/shm.c     Tue Mar 19 19:46:17 2002
+@@ -679,7 +679,7 @@
+                shmdnext = shmd->vm_next;
+                if (shmd->vm_ops == &shm_vm_ops
+                    && shmd->vm_start -
+(shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+-                       do_munmap(mm, shmd->vm_start,
+shmd->vm_end - shmd->vm_start);
++                       do_munmap(mm, shmd->vm_start,
+shmd->vm_end - shmd->vm_start, 0);
+                        retval = 0;
+                }
+        }
 
-Alan
 
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

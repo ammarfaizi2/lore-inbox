@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270667AbTG0EbW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 00:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270668AbTG0EbV
+	id S270669AbTG0Eqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 00:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270671AbTG0Eqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 00:31:21 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:56271 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S270667AbTG0EbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 00:31:21 -0400
-Message-ID: <3F235CEE.9080709@genebrew.com>
-Date: Sun, 27 Jul 2003 01:02:38 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
+	Sun, 27 Jul 2003 00:46:31 -0400
+Received: from mail1.cc.huji.ac.il ([132.64.1.17]:52679 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S270669AbTG0Eq3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 00:46:29 -0400
+Message-ID: <3F23517B.9030407@mscc.huji.ac.il>
+Date: Sun, 27 Jul 2003 07:13:47 +0300
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+Organization: Hebrew University of Jerusalem
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030713
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Tomas Szepe <szepe@pinerecords.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] sanitize power management config menus
-References: <20030726200213.GD16160@louise.pinerecords.com>	<20030726194651.5e3f00bb.rddunlap@osdl.org>	<20030727025647.GB17724@louise.pinerecords.com> <20030726204623.47b08882.rddunlap@osdl.org>
-In-Reply-To: <20030726204623.47b08882.rddunlap@osdl.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: alexander.riesen@synopsys.COM, linux-kernel@vger.kernel.org
+Subject: Re: IPX support to kernel 2.6
+References: <3F1FAE0C.4090608@mscc.huji.ac.il> <20030724135347.GK13611@Synopsys.COM> <3F1FDB97.7060907@mscc.huji.ac.il> <20030726172048.GB1189@conectiva.com.br>
+In-Reply-To: <20030726172048.GB1189@conectiva.com.br>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (pluto.mscc.huji.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+Arnaldo Carvalho de Melo wrote:
+> Em Thu, Jul 24, 2003 at 04:13:59PM +0300, Voicu Liviu escreveu:
+> 
+>>Alex Riesen wrote:
+>>
+>>>Voicu Liviu, Thu, Jul 24, 2003 11:59:40 +0200:
+>>>
+>>>>Problem:
+>>>>
+>>>>Hi guys, I wanted to add IPX support to kernel 2.6 in order to mount 
+>>>>novell volumes but it seems not tu exist!
+>>>
+>>>It is renamed:
+>>>ANSI/IEEE 802.2 - aka LLC (IPX, Appletalk, Token Ring)
+>>>under Networking support/Networking options.
+>>>
+>>
+>>Wow, I appreciate your help
+> 
+> 
+> It was not renamed, it just requires that LLC be selected first, then one has
+> to select IPX as before.
+> 
+> I plan to make the LLC1 part, that is all that is needed for IPX, Appletalk and
+> Token Ring to be separated from the big llc module, and making those depending
+> only on LLC1 to be top level in the config, triggering the selection of LLC1
+> automatically, this will help as well on not having to have LLC2 when all one
+> wants is IPX, Appletalk or Token Ring.
+> 
+> - Arnaldo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> +	  This creates an image which is saved in your active swap space. On
-> +	  the next boot, pass the 'resume=/path/to/your/swap/file' option and
-> +	  the kernel will detect the saved image, restore the memory from it,
-> +	  and then continue to run as before you suspended.
+Thank you very much for your response,
 
-Couple of points/questions:
+-- 
+Voicu Liviu
+Rothberg International School
+Computation center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: pacman@mscc.huji.ac.il
 
-- Is it possible to make swsusp use a dedicated hibernate partition, for 
-better interoperability with Windows? I was thinking of the dual boot 
-situation, where I would like a laptop to boot whatever OS was booted 
-last. And how does s4bios fit in?
+System Operating: Linux Gentoo1.4 ( www.gentoo.org )
 
-- Perhaps we can mention in the help text that swsusp performs a 
-function similar to hibernate, and different from the APM suspend 
-operation, with corresponding power savings.
+Click here to see my GPG signature:
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
 
-Thanks,
-Rahul
 

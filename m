@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129767AbQKBWcg>; Thu, 2 Nov 2000 17:32:36 -0500
+	id <S129787AbQKBWeG>; Thu, 2 Nov 2000 17:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129787AbQKBWc0>; Thu, 2 Nov 2000 17:32:26 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:42258 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129767AbQKBWcR>;
-	Thu, 2 Nov 2000 17:32:17 -0500
-Message-ID: <3A01EB44.924D164A@mandrakesoft.com>
-Date: Thu, 02 Nov 2000 17:31:32 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129919AbQKBWd4>; Thu, 2 Nov 2000 17:33:56 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:17285 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129787AbQKBWdu>; Thu, 2 Nov 2000 17:33:50 -0500
+Date: Thu, 2 Nov 2000 17:32:54 -0500 (EST)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Sample device driver - 2.2 and 2.4 support?
+Message-ID: <Pine.LNX.4.30.0011021711120.1544-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-To: hugh@mimosa.com
-CC: Tim Riker <Tim@Rikers.org>, Andrea Arcangeli <andrea@suse.de>,
-        Andi Kleen <ak@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-In-Reply-To: <Pine.LNX.4.21.0011021655260.8398-100000@redshift.mimosa.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Hugh Redelmeier" wrote:
-> Being GCC-dependent is rather parochial.  Being GCC-version-dependent
-> is downright embarrassing.
-> 
-> Summary: spurious GCC-isms are a bad thing.
+I've been assigned a device driver that uses the old (2.0) PCI
+support APIs - and is still working on 2.2.
 
-Summary:  You have no clue about kernel<->gcc interdependencies and
-issues.
+I need to get this driver working on 2.2 and 2.4, I'm assuming I'll
+need to go switch to the newer PCI stuff - but am curious about the
+toleration support in later 2.2 kernels; is it complete enough that
+I can migrate to 2.4, and still compile on 2.2?
 
+The device:
+  1-2 DMA
+  1   IRQ
 
-> - use ISO C 89 when possible (without undue pain)
-> 
-> - use IOS C 99 when advantageous
-> 
-> - use GCCisms for the remainder of appropriate things BUT embed them
->   in macros defined in header so that they can be systematically
->   replaced.  Using these macros probably makes the code more readable.
->   Use of any GCCism should probably be justified in commentary.
-> 
-> This would improve the code *and* make it more portable.
+The driver:
+  mkalloc
+  __get_free_pages
+  virt_to_bus
+  request_irc
+  wake_up
 
-Why does this improve the code?  It gets slower and uglier and more
-difficult to maintain.
+The driver has similiar functionality to a sound card:
+  Send/Receive (possibly large) data to device via DMA (page fixing, etc)
 
-Why does this make the code more portable?  gcc is already highly
-portable, and so it the kernel.  This too gains us nothing.
+Is there a cononical example (esp. wrt 2.2 <-> 2.4 changes) I should look
+at ?
 
-Removing gcc-isms without a pragmatic reason -- and no, ISO C compliancy
-is not a pragmatic reason -- is silly, extra work for little or no
-value.
-
-	Jeff
-
-
+Thanks,
 -- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUFEI1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUFEI2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbUFEI1P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 04:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264596AbUFEI1P
+	id S265682AbUFEI2k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 04:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264596AbUFEI2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 04:27:15 -0400
-Received: from holomorphy.com ([207.189.100.168]:44459 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264569AbUFEI1M (ORCPT
+	Sat, 5 Jun 2004 04:28:40 -0400
+Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:40162 "EHLO
+	spotnic.de") by vger.kernel.org with ESMTP id S265682AbUFEI2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 04:27:12 -0400
-Date: Sat, 5 Jun 2004 01:26:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040605082647.GQ21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-	ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-	Simon.Derr@bull.net
-References: <20040603101010.4b15734a.pj@sgi.com> <1086313667.29381.897.camel@bach> <40BFD839.7060101@yahoo.com.au> <20040603221854.25d80f5a.pj@sgi.com> <16576.16748.771295.988065@alkaid.it.uu.se> <20040604090314.56d64f4d.pj@sgi.com> <20040604165601.GC21007@holomorphy.com> <20040604170542.576b4243.pj@sgi.com> <20040605013139.GM21007@holomorphy.com> <20040605010444.6a384e6c.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040605010444.6a384e6c.pj@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 5 Jun 2004 04:28:16 -0400
+In-Reply-To: <1086390590.4588.70.camel@imladris.demon.co.uk>
+References: <200406041000.41147.cijoml@volny.cz> <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com> <1086390590.4588.70.camel@imladris.demon.co.uk>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-21-742694562"
+Message-Id: <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
+Content-Transfer-Encoding: 7bit
+Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org
+From: Daniel Egger <de@axiros.com>
+Subject: Re: jff2 filesystem in vanilla
+Date: Sat, 5 Jun 2004 10:27:56 +0200
+To: David Woodhouse <dwmw2@infradead.org>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 05, 2004 at 01:04:44AM -0700, Paul Jackson wrote:
-> That looks more readable.  Thanks.
-> Do you see a sensible way to pass back an odd number of u32's?  If
-> NR_CPUS is say 8, then the 32 bit user code might expect to only need
-> one compat_ulong_t, not two.  If NR_CPUS is 48, then it should only need
-> 3, not 4.   And so forth.
-> As I noted in another reply, perhaps your bitmap_to_u32_array() code
-> could be modified to handle this.
-> And I agree with Andrew's suggestion, that cpumask provide the
-> conversion, to and from kernel memory, separately from copying the
-> result to user space.
 
-So do it in the caller, e.g..
+--Apple-Mail-21-742694562
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-int copy_cpus_to_user32(const u32 __user *ubuf, cpumask_t cpus)
-{
-	int i, ret, len = ALIGN(NR_CPUS, 32)/(32/sizeof(u32));
-	u32 *ary = kmalloc(sizeof(cpumask_t), GFP_KERNEL);
-	if (!ary)
-		return -ENOMEM;
-	cpus_to_u32_array(ary, cpus);
-	ret = copy_to_user(ubuf, ary, len);
-	kfree(ary);
-	return ret;
-}
+On 05.06.2004, at 01:09, David Woodhouse wrote:
 
-int copy_cpus_from_user32(cpumask_t *cpus, const u32 __user *ubuf)
-{
-	int i, ret, len = ALIGN(NR_CPUS, 32)/(32/sizeof(u32));
-	u32 *ary = kmalloc(sizeof(cpumask_t), GFP_KERNEL);
-	if (!ary)
-		return -ENOMEM;
-	if (!(ret = copy_from_user(ary, ubuf, len)))
-		cpus_from_u32_array(cpus, ary);
-	kfree(ary);
-	return ret;
-}
+> Linus' tree is updated periodically when I'm sufficiently happy with 
+> the
+> stability of the development tree in CVS, and when I have time to merge
+> it, test it and read through all the changes for sanity -- which often
+> involves redoing some of them. You should be OK using what's in the
+> kernel -- let me know if you have problems.
 
-or some such nonsense, or whatever someone can be arsed to consider a
-better idea. One should note such a reformatting, as a user ABI change
-in a stable series, would be unfriendly to 64-bit userspace on BE boxen.
-i.e. do this only for 32-bit target userspace on 64-bit kernels + boxen.
+The original version in the 2.4 kernel has a dramatic problem
+leading to FS corruption, at least when used with blkmtd on CF.
+That's why I'm using 2.4 and a CVS snapshot, not only because
+it is much faster.
 
+>> To use it on a non-MTD[1] device you will need an emulation layer,
+>> the pseudo Block-MTD device. And you will need some additional 
+>> partition
+>> using ext2/ext3/reiserfs/FAT containing the kernel for your Grub/LILO
+>> bootloader.
 
--- wli
+> JFFS2 on blkmtd isn't ideal -- it's designed to work on real flash. But
+> it works. It could do with someone making it use the stuff we did for
+> NAND -- batching writes into 512-byte chunks etc.
+
+Believe it or not but JFFS2 is the only filesystem that works
+reasonably on CF, especially when the system is used mostly read
+only and the device is cut off from power every now and then. ;)
+
+I tried different FS which we used read-only (and remounted it
+r/w in case we needed it) in the last tries but we still were
+able to kill a card without a problem and had FS corruption which
+needed a console to fix.
+
+Servus,
+       Daniel
+
+--Apple-Mail-21-742694562
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQMGEEjBkNMiD99JrAQI5xQgAuDG5FCWj1KSNZi20LBD1XRPEM/C+2pOV
+rUjuSKoRpaDktOeRDWcwHcoUXh9eQ9OKvrTREcXLfVZqK/OpALj+UAdDTIFso4UB
+ZaqUmIUQHiJRcAY/8VpMTJhNcn5nsY6JtpfdZ9B5OOv4a37i2+SmgcHc2oTBFqK5
+dSrLYzIiwOwJTi6sKuB6nKAQV1XKKxGbWSlGomamqnHMcxo98I4uSc/8QipfIHRj
+wkg4lN2IrLjgbXRXlKlZeOiurizw1odZ6kR9AUoxmPgJKq/PelRAs0oSt3Nit7WY
+1DMloyWArrRzzfVzEgfgD31uPH8HzkOrrrZGsPWj6HyGSDx8D3KE8w==
+=tw+7
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-21-742694562--
+

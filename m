@@ -1,96 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVCHGos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVCHGsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVCHGos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCHGor
+	id S261837AbVCHGsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVCHGpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:44:47 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32398 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261822AbVCHGka convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:40:30 -0500
-Date: Mon, 7 Mar 2005 22:39:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?U+liYXN0aWVuIER1Z3Xp?= <sebastien.dugue@bull.net>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-Message-Id: <20050307223917.1e800784.akpm@osdl.org>
-In-Reply-To: <1110189607.11938.14.camel@frecb000686>
-References: <1110189607.11938.14.camel@frecb000686>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 8 Mar 2005 01:45:05 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:29125 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261825AbVCHGnO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 01:43:14 -0500
+Date: Tue, 8 Mar 2005 07:42:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>, paul@linuxaudiosystems.com, joq@io.com,
+       cfriesen@nortelnetworks.com, hch@infradead.org, rlrevell@joe-job.com,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050308064237.GA22762@elte.hu>
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050307204044.23e34019.akpm@osdl.org> <422D3AB2.9020409@bigpond.net.au> <20050308054931.GA20200@elte.hu> <422D4628.8060203@bigpond.net.au> <20050308064006.GI5389@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308064006.GI5389@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sébastien Dugué <sebastien.dugue@bull.net> wrote:
->
-> When reading a file in async mode (using kernel AIO), and the file
->  size is lower than the requested size (short read),  the direct IO
->  layer reports an incorrect number of bytes read (transferred).
+
+* Chris Wright <chrisw@osdl.org> wrote:
+
+> > Yes.  In kernel "damage control" is an optional extra not a necessity 
+> > with this solution.  Not so sure about with the RT LSB solution though.
 > 
->   That case is handled for the sync path in 'direct_io_worker' 
->  (fs/direct-io.c) where a check is made against the file size.
-> 
->   This patch does the same thing for the async path.
+> This has one advantage over RT LSM in that area, which is it places an
+> upper bound on the priority (in control of the admin).  So it's
+> possible to save some space for damage control in the top few prio
+> slots.
 
-It looks sane to me.  It needs a couple of fixes, below.  One of them is
-horrid and isn't really a fix at all, but it improves things.
+it's not just purely for damage control - there have been requests of
+being able to 'partition' the RT priorities space between applications. 
+(It's an afterthought but nice nevertheless.)
 
-Would Suparna and Badari have time to check the logic of these two patches
-please?
-
-
-
-
-- i_size is 64 bit, ssize_t is 32-bit
-
-- whitespace tweaks.
-
-- i_size_read() in interrupt context is a no-no.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/fs/direct-io.c |   14 +++++++++++---
- 1 files changed, 11 insertions(+), 3 deletions(-)
-
-diff -puN fs/direct-io.c~direct-io-async-short-read-fix-fix fs/direct-io.c
---- 25/fs/direct-io.c~direct-io-async-short-read-fix-fix	2005-03-07 22:28:52.000000000 -0800
-+++ 25-akpm/fs/direct-io.c	2005-03-07 22:37:18.000000000 -0800
-@@ -231,7 +231,7 @@ static void finished_one_bio(struct dio 
- 	if (dio->bio_count == 1) {
- 		if (dio->is_async) {
- 			ssize_t transferred;
--			ssize_t i_size;
-+			loff_t i_size;
- 			loff_t offset;
- 
- 			/*
-@@ -241,11 +241,19 @@ static void finished_one_bio(struct dio 
- 			spin_unlock_irqrestore(&dio->bio_lock, flags);
- 
- 			/* Check for short read case */
-+
-+			/*
-+			 * We should use i_size_read() here.  But we're called
-+			 * in interrupt context.  If this CPU happened to be
-+			 * in the middle of i_size_write() when the interrupt
-+			 * occurred, i_size_read() would lock up.
-+			 * So we just risk getting a wrong result instead :(
-+			 */
-+			i_size = dio->inode->i_size;
- 			transferred = dio->result;
--			i_size = i_size_read (dio->inode);
- 			offset = dio->iocb->ki_pos;
- 
--			if ((dio->rw == READ) && ((offset + transferred) > i_size))
-+			if ((dio->rw == READ) && (offset+transferred > i_size))
- 				transferred = i_size - offset;
- 
- 			dio_complete(dio, offset, transferred);
-_
-
+	Ingo

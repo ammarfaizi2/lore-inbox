@@ -1,2865 +1,2466 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267738AbTADAYU>; Fri, 3 Jan 2003 19:24:20 -0500
+	id <S267736AbTADAWa>; Fri, 3 Jan 2003 19:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267743AbTADAYT>; Fri, 3 Jan 2003 19:24:19 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:8958 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267738AbTADAVM>;
-	Fri, 3 Jan 2003 19:21:12 -0500
-Message-ID: <3E162A8D.7BA28BA4@mvista.com>
-Date: Fri, 03 Jan 2003 16:27:57 -0800
+	id <S267741AbTADAW3>; Fri, 3 Jan 2003 19:22:29 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54525 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267736AbTADAUC>;
+	Fri, 3 Jan 2003 19:20:02 -0500
+Message-ID: <3E162A4B.C2310A05@mvista.com>
+Date: Fri, 03 Jan 2003 16:26:51 -0800
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 23
+Subject: Re: [PATCH ] POSIX clocks & timers take 19 (NOT HIGH RES)
+References: <Pine.LNX.4.44.0212050904390.27298-100000@home.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------0073EC6479D1674740E75603"
+ boundary="------------202B6E51A51800476BA3DB77"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This is a multi-part message in MIME format.
---------------0073EC6479D1674740E75603
+--------------202B6E51A51800476BA3DB77
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-This is the platform part of the high-res timers for the
-x86.
 
-Now for 2.5.54-bk1
+Now for 2.5.54-bk1.
 
 Changes since last time:
 
-Prior changes:
-Changes to the .../arch/i386/kernel/time/Makefile
-Moved the disable_tsc var to time.c so it can be shared.
-Picked up the do_timer.h changes in two addional sub archs.
+This version has a new timer id manager.  Andrew Morton
+suggested elimination of recursion (done) and I added code
+to allow it to release unused nodes.  The prior version only
+released the leaf nodes.  (The id manager uses radix tree
+type nodes.)  Also added is a reuse count so ids will not
+repeat for at least 256 alloc/ free cycles.
+-----------
 
-CONFIG dependency added to not turn on stuff only needed
-when CONFIG_HIGH_RES = y.
-----------
+The changes for the new sys_call restart now allow one
+restart function to handle both nanosleep and
+clock_nanosleep.  Saves a bit of code, nice.
 
-This patch, in conjunction with the "core" high-res-timers
-patch implements high resolution timers on the i386
-platforms.  The high-res-timers use the periodic interrupt
-to "remind" the system to look at the clock.  The clock
-should be relatively high resolution (1 micro second or
-better).  This patch allows configuring of three possible
-clocks, the TSC, the ACPI pm timer, or the Programmable
-interrupt timer (PIT).  Most of the changes in this patch
-are in the arch/i386/kernel/timer/* code.
+All the requested changes and Lindent too :).
 
-This patch uses (if available) the APIC timer(s) to generate
-1/HZ ticks and sub 1/HZ ticks as needed.  The PIT still
-interrupts, but if the APIC timer is available, just causes
-the wall clock update.  No attempt is made to make this
-interrupt happen on jiffie boundaries, however, the APIC
-timers are disciplined to expire on 1/HZ boundaries to give
-consistent timer latencies WRT to the system time.
+I also broke clock_nanosleep() apart much the same way
+nanosleep() was with the 2.5.50-bk5 changes.  
 
-With this patch applied and enabled (at config time in the
-processor feature section), the system clock will be the
-specified clock.  The PIT is not used to keep track of time,
-but only to remind the system to look at the clock.  Sub
-jiffies are kept and available for code that knows how to
-use them.
+This is still this way.  Should be easy to do the compat
+stuff.
 
-Depends on the core high res timers patch.
 
-This patch as well as the POSIX clocks & timers patch is
-available on the project site:
-http://sourceforge.net/projects/high-res-timers/
-
-The 3 parts to the high res timers are:
- core		The core kernel (i.e. platform independent) changes
-*i386		The high-res changes for the i386 (x86) platform
- hrposix	The changes to the POSIX clocks & timers patch to
-use high-res timers
-
-Please apply.
 -- 
 George Anzinger   george@mvista.com
 High-res-timers: 
 http://sourceforge.net/projects/high-res-timers/
 Preemption patch:
 http://www.kernel.org/pub/linux/kernel/people/rml
---------------0073EC6479D1674740E75603
+--------------202B6E51A51800476BA3DB77
 Content-Type: text/plain; charset=us-ascii;
- name="hrtimers-i386-2.5.54-bk1-1.0.patch"
+ name="hrtimers-posix-2.5.54-bk1-1.0.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="hrtimers-i386-2.5.54-bk1-1.0.patch"
+ filename="hrtimers-posix-2.5.54-bk1-1.0.patch"
 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/Kconfig linux/arch/i386/Kconfig
---- linux-2.5.54-bk1-core/arch/i386/Kconfig	Fri Jan  3 15:07:04 2003
-+++ linux/arch/i386/Kconfig	Fri Jan  3 15:08:28 2003
-@@ -393,6 +393,107 @@
- 
- 	  If you don't know what to do here, say N.
- 
-+config HIGH_RES_TIMERS
-+	bool "Configure High-Resolution-Timers"
-+	help
-+	  POSIX timers are available by default.  This option enables
-+	  high resolution POSIX timers.  With this option the resolution
-+	  is at least 1 micro second.  High resolution is not free.  If
-+	  enabled this option will add a small overhead each time a
-+	  timer expires that is not on a 1/HZ tick boundry.  If no such
-+	  timers are used the overhead is nil.
-+
-+	  This option enables two additional POSIX CLOCKS,
-+	  CLOCK_REALTIME_HR and CLOCK_MONOTONIC_HR.  Note that this
-+	  option does not change the resolution of CLOCK_REALTIME or
-+	  CLOCK_MONOTONIC which remain at 1/HZ resolution.
-+
-+choice
-+	prompt "Clock source?"
-+	depends on HIGH_RES_TIMERS
-+ 	default HIGH_RES_TIMER_TSC
-+	help 
-+	  This option allows you to choose the wall clock timer for your
-+	  system.  With high resolution timers on the x86 platforms it
-+	  is best to keep the interrupt generating timer separate from
-+	  the time keeping timer.  On x86 platforms there are three
-+	  possible sources implemented for the wall clock.  These are:
-+ 
-+  	  <timer>				<resolution>
-+ 	  ACPI power management (pm) timer	~280 nano seconds
-+  	  TSC (Time Stamp Counter)		1/CPU clock
-+ 	  PIT (Programmable Interrupt Timer)	~838 nano seconds
-+
-+	  The PIT is always used to generate clock interrupts but, in
-+	  SMP systems the APIC timers are used to drive the timer list
-+	  code.  This means that, in SMP systems the PIT will not be
-+	  programmed to generate sub jiffie events and can give
-+	  reasonable service as the clock interrupt. In non SMP (UP)
-+	  systems it will be programmed to interrupt when the next timer
-+	  is to expire or on the next 1/HZ tick.  For this reason it is
-+	  best to not use this timer as the wall clock timer in UP
-+	  systems.  This timer has a resolution of 838 nano seconds.  IN
-+	  UP SYSTEMS THIS OPTION SHOULD ONLY BE USED IF BOTH ACPI AND
-+	  TSC ARE NOT AVAILABLE.
-+
-+	  The TSC runs at the cpu clock rate (i.e. its resolution is
-+	  1/CPU clock) and it has a very low access time.  However, it
-+	  is subject, in some (incorrect) processors, to throttling to
-+	  cool the cpu, and to other slow downs during power management.
-+	  If your system has power managment code active these changes
-+	  are tracked by the TSC timer code.  If your cpu is correct and
-+	  does not change the TSC frequency for throttling or power
-+	  management outside of the power managment kernel code, this is
-+	  the best clock timer.
-+
-+	  The ACPI pm timer is available on systems with Advanced
-+	  Configuration and Power Interface support.  The pm timer is
-+	  available on these systems even if you don't use or enable
-+	  ACPI in the software or the BIOS (but see Default ACPI pm
-+	  timer address).  The timer has a resolution of about 280
-+	  nanoseconds, however, the access time is a bit higher than
-+	  that of the TSC.  Since it is part of ACPI it is intended to
-+	  keep track of time while the system is under power management,
-+	  thus it is not subject to the power management problems of the
-+	  TSC.
-+
-+	  If you enable the ACPI pm timer and it can not be found, it is
-+	  possible that your BIOS is not producing the ACPI table or
-+	  that your machine does not support ACPI.  In the former case,
-+	  see "Default ACPI pm timer address".  If the timer is not
-+	  found the boot will fail when trying to calibrate the 'delay'
-+	  loop.
-+
-+config HIGH_RES_TIMER_ACPI_PM
-+	bool "ACPI-pm-timer"
-+	
-+config HIGH_RES_TIMER_TSC
-+	bool "Time-stamp-counter/TSC"
-+	depends on X86_TSC
-+
-+config HIGH_RES_TIMER_PIT
-+	bool "Programable-interrupt-timer/PIT"
-+	  
-+endchoice	  
-+
-+config HIGH_RES_TIMER_ACPI_PM_ADD
-+	int "Default ACPI pm timer address"
-+	depends on HIGH_RES_TIMER_ACPI_PM
-+	default 0
-+	help
-+	  This option is available for use on systems where the BIOS
-+	  does not generate the ACPI tables if ACPI is not enabled.  For
-+	  example some BIOSes will not generate the ACPI tables if APM
-+	  is enabled.  The ACPI pm timer is still available but can not
-+	  be found by the software.  This option allows you to supply
-+	  the needed address.  When the high resolution timers code
-+	  finds a valid ACPI pm timer address it reports it in the boot
-+	  messages log (look for lines that begin with
-+	  "High-res-timers:").  You can turn on the ACPI support in the
-+	  BIOS, boot the system and find this value.  You can then enter
-+	  it at configure time.  Both the report and the entry are in
-+	  decimal.
-+
- config PREEMPT
- 	bool "Preemptible Kernel"
- 	help
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/apic.c linux/arch/i386/kernel/apic.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/apic.c	Thu Jan  2 12:16:49 2003
-+++ linux/arch/i386/kernel/apic.c	Fri Jan  3 15:08:32 2003
-@@ -23,6 +23,7 @@
- #include <linux/interrupt.h>
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
-+#include <linux/hrtime.h>
- 
- #include <asm/atomic.h>
- #include <asm/smp.h>
-@@ -786,7 +787,7 @@
-  * P5 APIC double write bug.
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.54-bk1-kb/arch/i386/kernel/entry.S	Fri Jan  3 15:07:04 2003
++++ linux/arch/i386/kernel/entry.S	Fri Jan  3 15:07:33 2003
+@@ -41,7 +41,6 @@
   */
  
--#define APIC_DIVISOR 16
-+#define APIC_DIVISOR 1
- 
- void __setup_APIC_LVTT(unsigned int clocks)
- {
-@@ -797,12 +798,12 @@
- 	apic_write_around(APIC_LVTT, lvtt1_value);
- 
- 	/*
--	 * Divide PICLK by 16
-+	 * Divide PICLK by 1
- 	 */
- 	tmp_value = apic_read(APIC_TDCR);
- 	apic_write_around(APIC_TDCR, (tmp_value
- 				& ~(APIC_TDR_DIV_1 | APIC_TDR_DIV_TMBASE))
--				| APIC_TDR_DIV_16);
-+				| APIC_TDR_DIV_1);
- 
- 	apic_write_around(APIC_TMICT, clocks/APIC_DIVISOR);
- }
-@@ -900,7 +901,7 @@
- 	return result;
- }
- 
--static unsigned int calibration_result;
-+static unsigned int calibration_result = 1000;
- 
- int dont_use_local_apic_timer __initdata = 0;
- 
-@@ -921,6 +922,8 @@
- 	 */
- 	setup_APIC_timer(calibration_result);
- 
-+	compute_latch(calibration_result);
-+
- 	local_irq_enable();
- }
- 
-@@ -1011,6 +1014,8 @@
- 			__setup_APIC_LVTT(calibration_result/prof_counter[cpu]);
- 			prof_old_multiplier[cpu] = prof_counter[cpu];
- 		}
-+
-+		discipline_timer(cpu);
- 
- #ifdef CONFIG_SMP
- 		update_process_times(user_mode(regs));
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/time.c	Fri Jan  3 15:07:33 2003
-+++ linux/arch/i386/kernel/time.c	Fri Jan  3 15:08:32 2003
-@@ -29,7 +29,10 @@
-  *	Fixed a xtime SMP race (we need the xtime_lock rw spinlock to
-  *	serialize accesses to xtime/lost_ticks).
-  */
--
-+/* 2002-8-13 George Anzinger  Modified for High res timers: 
-+ *                            Copyright (C) 2002 MontaVista Software
-+*/
-+#define _INCLUDED_FROM_TIME_C
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -60,6 +63,7 @@
  #include <linux/config.h>
+-#include <linux/sys.h>
+ #include <linux/linkage.h>
+ #include <asm/thread_info.h>
+ #include <asm/errno.h>
+@@ -276,7 +275,7 @@
+ 	pushl %eax
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebx)
+-	cmpl $(NR_syscalls), %eax
++	cmpl $(nr_syscalls), %eax
+ 	jae syscall_badsys
  
- #include <asm/arch_hooks.h>
-+#include <linux/hrtime.h>
+ 	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
+@@ -300,7 +299,7 @@
+ 	pushl %eax			# save orig_eax
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebx)
+-	cmpl $(NR_syscalls), %eax
++	cmpl $(nr_syscalls), %eax
+ 	jae syscall_badsys
+ 					# system call tracing in operation
+ 	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
+@@ -376,7 +375,7 @@
+ 	xorl %edx,%edx
+ 	call do_syscall_trace
+ 	movl ORIG_EAX(%esp), %eax
+-	cmpl $(NR_syscalls), %eax
++	cmpl $(nr_syscalls), %eax
+ 	jnae syscall_call
+ 	jmp syscall_exit
  
- extern spinlock_t i8259A_lock;
- int pit_latch_buggy;              /* extern */
-@@ -73,7 +77,23 @@
- extern rwlock_t xtime_lock;
- extern unsigned long wall_jiffies;
- 
-+
-+#ifndef CONFIG_HIGH_RES_TIMERS
-+
-+/* Number of usecs that the last interrupt was delayed */
-+static int delay_at_last_interrupt;
-+
-+#endif  /* CONFIG_HIGH_RES_TIMERS */
-+
- spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
-+/*
-+ * We have three of these do_xxx_gettimeoffset() routines:
-+ * do_fast_gettimeoffset(void) for TSC systems with out high-res-timers
-+ * do_slow_gettimeoffset(void) for ~TSC systems with out high-res-timers
-+ * do_highres__gettimeoffset(void) for systems with high-res-timers
-+ *
-+ * Pick the desired one at compile time...
-+ */
- 
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
- EXPORT_SYMBOL(i8253_lock);
-@@ -92,16 +112,25 @@
- 	read_lock_irqsave(&xtime_lock, flags);
- 	usec = timer->get_offset();
- 	{
-+                /*
-+                 * FIX ME***** Due to adjtime and such
-+                 * this should be changed to actually update
-+                 * wall time using the proper routine.
-+                 * Otherwise we run the risk of time moving
-+                 * backward due to different interpretations
-+                 * of the jiffie.  I.e jiffie != 1/HZ
-+                 * (but it is close).
-+                 */
- 		unsigned long lost = jiffies - wall_jiffies;
- 		if (lost)
--			usec += lost * (1000000 / HZ);
-+			usec += lost * (USEC_PER_SEC / HZ);
- 	}
- 	sec = xtime.tv_sec;
- 	usec += (xtime.tv_nsec / 1000);
- 	read_unlock_irqrestore(&xtime_lock, flags);
- 
--	while (usec >= 1000000) {
--		usec -= 1000000;
-+	while (usec >= USEC_PER_SEC) {
-+		usec -= USEC_PER_SEC;
- 		sec++;
- 	}
- 
-@@ -213,7 +242,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static inline void do_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
- {
- #ifdef CONFIG_X86_IO_APIC
- 	if (timer_ack) {
-@@ -233,36 +262,29 @@
- 
- 	do_timer_interrupt_hook(regs);
- 
--	/*
-+        /* 
-+         * This is dumb for two reasons.  
-+         * 1.) it is based on wall time which has not yet been updated.
-+         * 2.) it is checked each tick for something that happens each
-+         *     10 min.  Why not use a timer for it?  Much lower overhead,
-+         *     in fact, zero if STA_UNSYNC is set.
-+         */
-+        /*
- 	 * If we have an externally synchronized Linux clock, then update
- 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
- 	 * called as close as possible to 500 ms before the new second starts.
- 	 */
- 	if ((time_status & STA_UNSYNC) == 0 &&
- 	    xtime.tv_sec > last_rtc_update + 660 &&
--	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
--	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
-+	    (xtime.tv_nsec ) >= 500000000 - ((unsigned) tick_nsec) / 2 &&
-+	    (xtime.tv_nsec ) <= 500000000 + ((unsigned) tick_nsec) / 2) {
- 		if (set_rtc_mmss(xtime.tv_sec) == 0)
- 			last_rtc_update = xtime.tv_sec;
- 		else
--			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
-+                        /* do it again in 60 s */	
-+			last_rtc_update = xtime.tv_sec - 600; 
- 	}
- 	    
--#ifdef CONFIG_MCA
--	if( MCA_bus ) {
--		/* The PS/2 uses level-triggered interrupts.  You can't
--		turn them off, nor would you want to (any attempt to
--		enable edge-triggered interrupts usually gets intercepted by a
--		special hardware circuit).  Hence we have to acknowledge
--		the timer interrupt.  Through some incredibly stupid
--		design idea, the reset for IRQ 0 is done by setting the
--		high bit of the PPI port B (0x61).  Note that some PS/2s,
--		notably the 55SX, work fine if this is removed.  */
+@@ -830,8 +829,15 @@
+ 	.long sys_epoll_wait
+  	.long sys_remap_file_pages
+  	.long sys_set_tid_address
 -
--		irq = inb_p( 0x61 );	/* read the current state */
--		outb_p( irq|0x80, 0x61 );	/* reset the IRQ */
--	}
--#endif
+-
+-	.rept NR_syscalls-(.-sys_call_table)/4
+-		.long sys_ni_syscall
+-	.endr
++ 	.long sys_timer_create
++ 	.long sys_timer_settime		/* 260 */
++ 	.long sys_timer_gettime
++ 	.long sys_timer_getoverrun
++ 	.long sys_timer_delete
++ 	.long sys_clock_settime
++ 	.long sys_clock_gettime		/* 265 */
++ 	.long sys_clock_getres
++ 	.long sys_clock_nanosleep
++ 
++ 
++nr_syscalls=(.-sys_call_table)/4
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
+--- linux-2.5.54-bk1-kb/arch/i386/kernel/time.c	Thu Jan  2 12:16:49 2003
++++ linux/arch/i386/kernel/time.c	Fri Jan  3 15:07:33 2003
+@@ -133,6 +133,7 @@
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+ 	write_unlock_irq(&xtime_lock);
++	clock_was_set();
  }
  
  /*
-@@ -279,16 +301,66 @@
- 	 * the irq version of write_lock because as just said we have irq
- 	 * locally disabled. -arca
- 	 */
-+	discipline_timer(smp_processor_id());
- 	write_lock(&xtime_lock);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/fs/exec.c linux/fs/exec.c
+--- linux-2.5.54-bk1-kb/fs/exec.c	Thu Jan  2 12:17:11 2003
++++ linux/fs/exec.c	Fri Jan  3 15:07:33 2003
+@@ -778,6 +778,7 @@
+ 			
+ 	flush_signal_handlers(current);
+ 	flush_old_files(current->files);
++	exit_itimers(current);
  
- 	timer->mark_offset();
-  
--	do_timer_interrupt(irq, NULL, regs);
-+	do_timer_interrupt(irq, regs);
+ 	return 0;
  
- 	write_unlock(&xtime_lock);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/asm-generic/siginfo.h linux/include/asm-generic/siginfo.h
+--- linux-2.5.54-bk1-kb/include/asm-generic/siginfo.h	Wed Oct 30 22:45:08 2002
++++ linux/include/asm-generic/siginfo.h	Fri Jan  3 15:07:33 2003
+@@ -43,8 +43,11 @@
  
- }
-+#ifdef CONFIG_HIGH_RES_TIMERS
+ 		/* POSIX.1b timers */
+ 		struct {
+-			unsigned int _timer1;
+-			unsigned int _timer2;
++			timer_t _tid;		/* timer id */
++			int _overrun;		/* overrun count */
++			char _pad[sizeof( __ARCH_SI_UID_T) - sizeof(int)];
++			sigval_t _sigval;	/* same as below */
++			int _sys_private;       /* not to be passed to user */
+ 		} _timer;
+ 
+ 		/* POSIX.1b signals */
+@@ -86,8 +89,9 @@
+  */
+ #define si_pid		_sifields._kill._pid
+ #define si_uid		_sifields._kill._uid
+-#define si_timer1	_sifields._timer._timer1
+-#define si_timer2	_sifields._timer._timer2
++#define si_tid		_sifields._timer._tid
++#define si_overrun	_sifields._timer._overrun
++#define si_sys_private  _sifields._timer._sys_private
+ #define si_status	_sifields._sigchld._status
+ #define si_utime	_sifields._sigchld._utime
+ #define si_stime	_sifields._sigchld._stime
+@@ -221,6 +225,7 @@
+ #define SIGEV_SIGNAL	0	/* notify via signal */
+ #define SIGEV_NONE	1	/* other notification: meaningless */
+ #define SIGEV_THREAD	2	/* deliver via thread creation */
++#define SIGEV_THREAD_ID 4	/* deliver to thread */
+ 
+ #define SIGEV_MAX_SIZE	64
+ #ifndef SIGEV_PAD_SIZE
+@@ -235,6 +240,7 @@
+ 	int sigev_notify;
+ 	union {
+ 		int _pad[SIGEV_PAD_SIZE];
++		 int _tid;
+ 
+ 		struct {
+ 			void (*_function)(sigval_t);
+@@ -247,10 +253,12 @@
+ 
+ #define sigev_notify_function	_sigev_un._sigev_thread._function
+ #define sigev_notify_attributes	_sigev_un._sigev_thread._attribute
++#define sigev_notify_thread_id	 _sigev_un._tid
+ 
+ #ifdef __KERNEL__
+ 
+ struct siginfo;
++void do_schedule_next_timer(struct siginfo *info);
+ 
+ #ifndef HAVE_ARCH_COPY_SIGINFO
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/asm-i386/posix_types.h linux/include/asm-i386/posix_types.h
+--- linux-2.5.54-bk1-kb/include/asm-i386/posix_types.h	Mon Sep  9 10:35:18 2002
++++ linux/include/asm-i386/posix_types.h	Fri Jan  3 15:07:33 2003
+@@ -22,6 +22,8 @@
+ typedef long		__kernel_time_t;
+ typedef long		__kernel_suseconds_t;
+ typedef long		__kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int		__kernel_daddr_t;
+ typedef char *		__kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/asm-i386/signal.h linux/include/asm-i386/signal.h
+--- linux-2.5.54-bk1-kb/include/asm-i386/signal.h	Wed Dec 11 06:25:28 2002
++++ linux/include/asm-i386/signal.h	Fri Jan  3 15:07:33 2003
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/linkage.h>
++#include <linux/time.h>
+ 
+ /* Avoid too many header ordering problems.  */
+ struct siginfo;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.5.54-bk1-kb/include/asm-i386/unistd.h	Thu Jan  2 12:17:13 2003
++++ linux/include/asm-i386/unistd.h	Fri Jan  3 15:07:33 2003
+@@ -262,6 +262,15 @@
+ #define __NR_epoll_wait		256
+ #define __NR_remap_file_pages	257
+ #define __NR_set_tid_address	258
++#define __NR_timer_create	259
++#define __NR_timer_settime	(__NR_timer_create+1)
++#define __NR_timer_gettime	(__NR_timer_create+2)
++#define __NR_timer_getoverrun	(__NR_timer_create+3)
++#define __NR_timer_delete	(__NR_timer_create+4)
++#define __NR_clock_settime	(__NR_timer_create+5)
++#define __NR_clock_gettime	(__NR_timer_create+6)
++#define __NR_clock_getres	(__NR_timer_create+7)
++#define __NR_clock_nanosleep	(__NR_timer_create+8)
+ 
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/idr.h linux/include/linux/idr.h
+--- linux-2.5.54-bk1-kb/include/linux/idr.h	Wed Dec 31 16:00:00 1969
++++ linux/include/linux/idr.h	Fri Jan  3 15:07:33 2003
+@@ -0,0 +1,63 @@
 +/*
- 
-+ * We always continue to provide interrupts even if they are not
-+ * serviced.  To do this, we leave the chip in periodic mode programmed
-+ * to interrupt every jiffie.  This is done by, for short intervals,
-+ * programming a short time, waiting till it is loaded and then
-+ * programming the 1/HZ.  The chip will not load the 1/HZ count till the
-+ * short count expires.  If the last interrupt was programmed to be
-+ * short, we need to program another short to cover the remaining part
-+ * of the jiffie and can then just leave the chip alone.  Note that it
-+ * is also a low overhead way of doing things as we do not have to mess
-+ * with the chip MOST of the time. 
-+ 
-+  */
-+
-+int _schedule_next_int(unsigned long jiffie_f,long sub_jiffie_in, int always)
-+{
-+        long sub_jiff_offset; 
-+	int * last_was_long = &__last_was_long;
-+	if ((sub_jiffie_in == -1) && *last_was_long) return 0;
-+        /* 
-+         * First figure where we are in time. 
-+         * A note on locking.  We are under the timerlist_lock here.  This
-+         * means that interrupts are off already, so don't use irq versions.
-+         */
-+        IF_SMP( read_lock(&xtime_lock));
-+
-+        sub_jiff_offset = quick_update_jiffies_sub(jiffie_f);
-+
-+        IF_SMP( read_unlock(&xtime_lock));
-+
-+
-+        if (( *last_was_long = (sub_jiffie_in == -1 ))) {
-+
-+                sub_jiff_offset = cycles_per_jiffies - sub_jiff_offset;
-+        }else{
-+		sub_jiff_offset = sub_jiffie_in - sub_jiff_offset;
-+        }
-+        /*
-+         * If time is already passed, just return saying so.
-+         */
-+        if (! always && (sub_jiff_offset < 0)){
-+                *last_was_long = 0;
-+                return 1;
-+        }
-+        reload_timer_chip(sub_jiff_offset);
-+        return 0;
-+}
-+#endif
- /* not static: needed by APM */
- unsigned long get_cmos_time(void)
- {
-@@ -353,6 +425,7 @@
- 	
- 	xtime.tv_sec = get_cmos_time();
- 	xtime.tv_nsec = 0;
-+        IF_HIGH_RES(tick_nsec = NSEC_PER_SEC / HZ);
- 
- 
- 	timer = select_timer();
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/Makefile linux/arch/i386/kernel/timers/Makefile
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/Makefile	Thu Jan  2 12:16:49 2003
-+++ linux/arch/i386/kernel/timers/Makefile	Fri Jan  3 15:08:32 2003
-@@ -1,7 +1,14 @@
- #
- # Makefile for x86 timers
- #
-+obj-y := timer.o 
- 
--obj-y := timer.o timer_tsc.o timer_pit.o
-+ifndef CONFIG_HIGH_RES_TIMERS
-+obj-y += timer_tsc.o timer_pit.o
-+endif
- 
- obj-$(CONFIG_X86_CYCLONE)	+= timer_cyclone.o
-+obj-$(CONFIG_HIGH_RES_TIMER_ACPI_PM) += hrtimer_pm.o
-+obj-$(CONFIG_HIGH_RES_TIMER_ACPI_PM) += high-res-tbxfroot.o
-+obj-$(CONFIG_HIGH_RES_TIMER_TSC) += hrtimer_tsc.o
-+obj-$(CONFIG_HIGH_RES_TIMER_PIT) += hrtimer_pit.o
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/high-res-tbxfroot.c linux/arch/i386/kernel/timers/high-res-tbxfroot.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/high-res-tbxfroot.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/high-res-tbxfroot.c	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,263 @@
-+/******************************************************************************
++ * include/linux/id.h
++ * 
++ * 2002-10-18  written by Jim Houston jim.houston@ccur.com
++ *	Copyright (C) 2002 by Concurrent Computer Corporation
++ *	Distributed under the GNU GPL license version 2.
 + *
-+ * Module Name: tbxfroot - Find the root ACPI table (RSDT)
-+ *              $Revision: 49 $
-+ *
-+ *****************************************************************************/
-+
-+/*
-+ *  Copyright (C) 2000, 2001 R. Byron Moore
-+
-+ *  This code purloined and modified by George Anzinger
-+ *                          Copyright (C) 2002 by MontaVista Software.
-+ *  It is part of the high-res-timers ACPI option and its sole purpose is
-+ *  to find the darn timer.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ * Small id to pointer translation service avoiding fixed sized
++ * tables.
 + */
++#include <linux/types.h>
++#include <asm/bitops.h>
 +
-+/* This is most annoying!  We want to find the address of the pm timer in the
-+ * ACPI hardware package.  We know there is one if ACPI is available at all 
-+ * as it is part of the basic ACPI hardware set. 
-+ * However, the powers that be have conspired to make it a real
-+ * pain to find the address.  We have written a minimal search routine
-+ * that we use only once on boot up.  We try to cover all the bases including
-+ * checksum, and version.  We will try to get some constants and structures
-+ * from the ACPI code in an attempt to follow it, but darn, what a mess.
-+ *
-+ * First problem, the include files are in the driver package....
-+ * and what a mess they are.  We pick up the kernel string and types first.
++#define RESERVED_ID_BITS 8
 +
-+ * But then there is the COMPILER_DEPENDENT_UINT64 ...
-+ */
-+#define ACPI_MACHINE_WIDTH	BITS_PER_LONG
-+#define COMPILER_DEPENDENT_UINT64   unsigned long long
-+#define COMPILER_DEPENDENT_INT64   long long
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <../drivers/acpi/include/actypes.h>
-+#include <../drivers/acpi/include/actbl.h>
-+#include <../drivers/acpi/include/acconfig.h>
-+#include <linux/init.h>
-+#include <asm/page.h>
-+
-+#define STRNCMP(d,s,n)  strncmp((d), (s), (NATIVE_INT)(n))
-+#define RSDP_CHECKSUM_LENGTH 20
-+
-+#ifndef CONFIG_ACPI
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    hrt_acpi_checksum
-+ *
-+ * PARAMETERS:  Buffer              - Buffer to checksum
-+ *              Length              - Size of the buffer
-+ *
-+ * RETURNS      8 bit checksum of buffer
-+ *
-+ * DESCRIPTION: Computes an 8 bit checksum of the buffer(length) and returns it.
-+ *
-+ ******************************************************************************/
-+static __init u8
-+hrt_acpi_checksum(void *buffer, u32 length)
-+{
-+	u8 *limit;
-+	u8 *rover;
-+	u8 sum = 0;
-+
-+	if (buffer && length) {
-+		/*  Buffer and Length are valid   */
-+
-+		limit = (u8 *) buffer + length;
-+
-+		for (rover = buffer; rover < limit; rover++) {
-+			sum = (u8) (sum + *rover);
-+		}
-+	}
-+
-+	return (sum);
-+}
-+
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    hrt_acpi_scan_memory_for_rsdp
-+ *
-+ * PARAMETERS:  Start_address       - Starting pointer for search
-+ *              Length              - Maximum length to search
-+ *
-+ * RETURN:      Pointer to the RSDP if found, otherwise NULL.
-+ *
-+ * DESCRIPTION: Search a block of memory for the RSDP signature
-+ *
-+ ******************************************************************************/
-+static __init u8 *
-+hrt_acpi_scan_memory_for_rsdp(u8 * start_address, u32 length)
-+{
-+	u32 offset;
-+	u8 *mem_rover;
-+
-+	/* Search from given start addr for the requested length  */
-+
-+	for (offset = 0, mem_rover = start_address;
-+	     offset < length;
-+	     offset += RSDP_SCAN_STEP, mem_rover += RSDP_SCAN_STEP) {
-+
-+		/* The signature and checksum must both be correct */
-+
-+		if (STRNCMP((NATIVE_CHAR *) mem_rover,
-+			    RSDP_SIG, sizeof (RSDP_SIG) - 1) == 0 &&
-+		    hrt_acpi_checksum(mem_rover, RSDP_CHECKSUM_LENGTH) == 0) {
-+			/* If so, we have found the RSDP */
-+
-+			;
-+			return (mem_rover);
-+		}
-+	}
-+
-+	/* Searched entire block, no RSDP was found */
-+
-+	return (NULL);
-+}
-+
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    hrt_acpi_find_rsdp
-+ *
-+ * PARAMETERS: 
-+ *
-+ * RETURN:      Logical address of rsdp
-+ *
-+ * DESCRIPTION: Search lower 1_mbyte of memory for the root system descriptor
-+ *              pointer structure.  If it is found, return its address,
-+ *              else return 0.
-+ *
-+ *              NOTE: The RSDP must be either in the first 1_k of the Extended
-+ *              BIOS Data Area or between E0000 and FFFFF (ACPI 1.0 section
-+ *              5.2.2; assertion #421).
-+ *
-+ ******************************************************************************/
-+/* Constants used in searching for the RSDP in low memory */
-+
-+#define LO_RSDP_WINDOW_BASE         0	/* Physical Address */
-+#define HI_RSDP_WINDOW_BASE         0xE0000	/* Physical Address */
-+#define LO_RSDP_WINDOW_SIZE         0x400
-+#define HI_RSDP_WINDOW_SIZE         0x20000
-+#define RSDP_SCAN_STEP              16
-+
-+static __init RSDP_DESCRIPTOR *
-+hrt_find_acpi_rsdp(void)
-+{
-+	u8 *mem_rover;
-+
-+	/*
-+	 * 1) Search EBDA (low memory) paragraphs
-+	 */
-+	mem_rover =
-+	    hrt_acpi_scan_memory_for_rsdp((u8 *) __va(LO_RSDP_WINDOW_BASE),
-+					  LO_RSDP_WINDOW_SIZE);
-+
-+	if (!mem_rover) {
-+		/*
-+		 * 2) Search upper memory: 
-+		 *    16-byte boundaries in E0000h-F0000h
-+		 */
-+		mem_rover =
-+		    hrt_acpi_scan_memory_for_rsdp((u8 *)
-+						  __va(HI_RSDP_WINDOW_BASE),
-+						  HI_RSDP_WINDOW_SIZE);
-+	}
-+
-+	if (mem_rover) {
-+		/* Found it, return the logical address */
-+
-+		return (RSDP_DESCRIPTOR *) mem_rover;
-+	}
-+	return (RSDP_DESCRIPTOR *) 0;
-+}
-+
-+__init u32 hrt_get_acpi_pm_ptr(void)
-+{
-+	fadt_descriptor_rev2 *fadt;
-+	RSDT_DESCRIPTOR_REV2 *rsdt;
-+	XSDT_DESCRIPTOR_REV2 *xsdt;
-+	RSDP_DESCRIPTOR *rsdp = hrt_find_acpi_rsdp();
-+
-+	if (!rsdp) {
-+		printk("ACPI: System description tables not found\n");
-+		return 0;
-+	}
-+	/*
-+	 * Now that we have that problem out of the way, lets set up this
-+	 * timer.  We need to figure the addresses based on the revision
-+	 * of ACPI, which is in this here table we just found.
-+	 * We will not check the RSDT checksum, but will the FADT.
-+	 */
-+	if (rsdp->revision == 2) {
-+		xsdt =
-+		    (XSDT_DESCRIPTOR_REV2 *) __va(rsdp->xsdt_physical_address);
-+		fadt =
-+		    (fadt_descriptor_rev2 *) __va(xsdt->table_offset_entry[0]);
-+	} else {
-+		rsdt =
-+		    (RSDT_DESCRIPTOR_REV2 *) __va(rsdp->rsdt_physical_address);
-+		fadt =
-+		    (fadt_descriptor_rev2 *) __va(rsdt->table_offset_entry[0]);
-+	}
-+	/*
-+	 * Verify the signature and the checksum
-+	 */
-+	if (STRNCMP((NATIVE_CHAR *) fadt->header.signature,
-+		    FADT_SIG, sizeof (FADT_SIG) - 1) == 0 &&
-+	    hrt_acpi_checksum((NATIVE_CHAR *) fadt, fadt->header.length) == 0) {
-+		/*
-+		 * looks good.  Again, based on revision,
-+		 * pluck the addresses we want and get out.
-+		 */
-+		if (rsdp->revision == 2) {
-+			return (u32) fadt->Xpm_tmr_blk.address;
-+		} else {
-+			return (u32) fadt->V1_pm_tmr_blk;
-+		}
-+	}
-+	printk("ACPI: Signature or checksum failed on FADT\n");
-+	return 0;
-+}
-+
++#if     BITS_PER_LONG == 32
++#define IDR_BITS 5
++#define IDR_FULL 0xffffffff
++#elif BITS_PER_LONG == 64
++#define IDR_BITS 6
++#define IDR_FULL 0xffffffffffffffff
 +#else
-+int acpi_get_firmware_table(acpi_string signature,
-+			    u32 instance,
-+			    u32 flags, acpi_table_header ** table_pointer);
-+
-+extern fadt_descriptor_rev2 acpi_fadt;
-+__init u32 hrt_get_acpi_pm_ptr(void)
-+{
-+	fadt_descriptor_rev2 *fadt = &acpi_fadt;
-+	fadt_descriptor_rev2 local_fadt;
-+
-+	if (!fadt || !fadt->header.signature[0]) {
-+		fadt = &local_fadt;
-+		acpi_get_firmware_table("FACP", 1, 0,
-+					(acpi_table_header **) & fadt);
-+	}
-+	if (!fadt || !fadt->header.signature[0]) {
-+		printk("ACPI: Could not find the ACPI pm timer.");
-+	}
-+
-+	if (fadt->header.revision == 2) {
-+		return (u32) fadt->Xpm_tmr_blk.address;
-+	} else {
-+		return (u32) fadt->V1_pm_tmr_blk;
-+	}
-+}
++#error "BITS_PER_LONG is not 32 or 64"
 +#endif
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_pit.c linux/arch/i386/kernel/timers/hrtimer_pit.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_pit.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_pit.c	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,165 @@
-+/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
-+ */
 +
-+#include <linux/spinlock.h>
-+#include <linux/init.h>
-+#include <linux/timex.h>
-+#include <linux/errno.h>
-+#include <linux/cpufreq.h>
-+#include <linux/hrtime.h>
++#define IDR_MASK ((1 << IDR_BITS)-1)
 +
-+#include <asm/timer.h>
-+#include <asm/io.h>
++/* Leave the possibility of an incomplete final layer */
++#define MAX_LEVEL (BITS_PER_LONG - RESERVED_ID_BITS + IDR_BITS - 1) / IDR_BITS
++#define MAX_ID_SHIFT (BITS_PER_LONG - RESERVED_ID_BITS)
++#define MAX_ID_BIT (1 << MAX_ID_SHIFT)
++#define MAX_ID_MASK (MAX_ID_BIT - 1)
 +
++/* Number of id_layer structs to leave in free list */
++#define IDR_FREE_MAX MAX_LEVEL + MAX_LEVEL
 +
-+
-+/* Cached *multiplier* to convert TSC counts to microseconds.
-+ * (see the equation below).
-+ * Equal to 2^32 * (1 / (clocks per usec) ).
-+ * Initialized in time_init.
-+ */
-+extern unsigned long fast_gettimeoffset_quotient;
-+
-+extern unsigned long do_highres_gettimeoffset_pit(void)
-+{
-+        /*
-+         * We are under the xtime_lock here.
-+         */
-+        long tmp = quick_get_cpuctr();
-+        long rtn = arch_cycles_to_usec(tmp + sub_jiffie());
-+	return rtn;
-+}
-+
-+static void high_res_mark_offset_pit(void)
-+{
-+	return;
-+}
-+
-+
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C, and for
-+ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-+ * output busy loop as low as possible. We avoid reading the CTC registers
-+ * directly because of the awkward 8-bit access mechanism of the 82C54
-+ * device.
-+ */
-+
-+#define CAL_JIFS 5
-+#define CALIBRATE_LATCH	(((CAL_JIFS * CLOCK_TICK_RATE) + HZ/2)/HZ)
-+#define CALIBRATE_TIME	((CAL_JIFS * USEC_PER_SEC)/HZ)
-+#define CALIBRATE_TIME_NSEC (CAL_JIFS * (NSEC_PER_SEC/HZ))
-+
-+
-+static unsigned long __init calibrate_tsc(void)
-+{
-+       /* Set the Gate high, disable speaker */
-+	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
-+
-+	/*
-+	 * Now let's take care of CTC channel 2
-+	 *
-+	 * Set the Gate high, program CTC channel 2 for mode 0,
-+	 * (interrupt on terminal count mode), binary count,
-+	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
-+	 */
-+	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
-+
-+	{
-+		unsigned long startlow, starthigh;
-+		unsigned long endlow, endhigh;
-+		unsigned long count;
-+
-+		rdtsc(startlow,starthigh);
-+		count = 0;
-+		do {
-+			count++;
-+		} while ((inb(0x61) & 0x20) == 0);
-+		rdtsc(endlow,endhigh);
-+
-+		/* Error: ECTCNEVERSET */
-+		if (count <= 1)
-+			goto bad_ctc;
-+
-+		/* 64-bit subtract - gcc just messes up with long longs */
-+		__asm__("subl %2,%0\n\t"
-+			"sbbl %3,%1"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"g" (startlow), "g" (starthigh),
-+			 "0" (endlow), "1" (endhigh));
-+
-+		/* Error: ECPUTOOFAST */
-+		if (endhigh)
-+			goto bad_ctc;
-+
-+		/* Error: ECPUTOOSLOW */
-+		if (endlow <= CALIBRATE_TIME)
-+			goto bad_ctc;
-+
-+                /*
-+                 * endlow at this point is CAL_JIFS * arch clocks
-+                 * per jiffie.  Set up the value for 
-+                 * high_res use. Note: keep the whole
-+                 * value for now, we will do
-+                 * the divide later (want that precision).
-+                 */
-+
-+		__asm__("divl %2"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+		return endlow;
-+	}
-+
-+	/*
-+	 * The CTC wasn't reliable: we got a hit on the very first read,
-+	 * or the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+bad_ctc:
-+        printk("******************** TSC calibrate failed!\n");
-+	return 0;
-+}
-+
-+
-+
-+#include <asm/kgdb.h>
-+
-+static int high_res_init_pit(void)
-+{
-+
-+	//breakpoint();
-+
-+
-+	/* report CPU clock rate in Hz.
-+	 * The formula is:
-+	 * (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-+	 * clock/second. Our precision is about 100 ppm.
-+	 */
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient = calibrate_tsc();
-+		if(tsc_quotient){
-+			fast_gettimeoffset_quotient = tsc_quotient;
-+			cpu_khz = div_sc32( 1000, tsc_quotient);
-+			{	
-+				printk("Detected %lu.%03lu MHz processor.\n", 
-+				       cpu_khz / 1000, cpu_khz % 1000);
-+			}
-+		}
-+	}
-+	start_PIT();
-+	return 0;
-+}
-+
-+/************************************************************/
-+
-+/* tsc timer_opts struct */
-+struct timer_opts hrtimer_pit = {
-+	.init =		high_res_init_pit,
-+	.mark_offset =	high_res_mark_offset_pit, 
-+	.get_offset =	do_highres_gettimeoffset_pit,
-+};
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_pm.c linux/arch/i386/kernel/timers/hrtimer_pm.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_pm.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_pm.c	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,198 @@
-+/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <linux/init.h>
-+#include <linux/timex.h>
-+#include <linux/errno.h>
-+#include <linux/cpufreq.h>
-+#include <linux/hrtime.h>
-+
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+
-+
-+
-+/* Cached *multiplier* to convert TSC counts to microseconds.
-+ * (see the equation below).
-+ * Equal to 2^32 * (1 / (clocks per usec) ).
-+ * Initialized in time_init.
-+ */
-+extern unsigned long fast_gettimeoffset_quotient;
-+
-+extern unsigned long do_highres_gettimeoffset_pm(void)
-+{
-+        /*
-+         * We are under the xtime_lock here.
-+         */
-+        long tmp = quick_get_cpuctr();
-+        long rtn = arch_cycles_to_usec(tmp + sub_jiffie());
-+	return rtn;
-+}
-+
-+static void high_res_mark_offset_pm(void)
-+{
-+	return;
-+}
-+
-+
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C, and for
-+ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-+ * output busy loop as low as possible. We avoid reading the CTC registers
-+ * directly because of the awkward 8-bit access mechanism of the 82C54
-+ * device.
-+ */
-+
-+#define CAL_JIFS 5
-+#define CALIBRATE_LATCH	(((CAL_JIFS * CLOCK_TICK_RATE) + HZ/2)/HZ)
-+#define CALIBRATE_TIME	((CAL_JIFS * USEC_PER_SEC)/HZ)
-+#define CALIBRATE_TIME_NSEC (CAL_JIFS * (NSEC_PER_SEC/HZ))
-+
-+static __initdata unsigned long tsc_cycles_per_5_jiffies;
-+
-+static unsigned long __init calibrate_tsc(void)
-+{
-+       /* Set the Gate high, disable speaker */
-+	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
-+
-+	/*
-+	 * Now let's take care of CTC channel 2
-+	 *
-+	 * Set the Gate high, program CTC channel 2 for mode 0,
-+	 * (interrupt on terminal count mode), binary count,
-+	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
-+	 */
-+	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
-+
-+	{
-+		unsigned long startlow, starthigh;
-+		unsigned long endlow, endhigh;
-+		unsigned long count;
-+
-+		rdtsc(startlow,starthigh);
-+		count = 0;
-+		do {
-+			count++;
-+		} while ((inb(0x61) & 0x20) == 0);
-+		rdtsc(endlow,endhigh);
-+
-+		/* Error: ECTCNEVERSET */
-+		if (count <= 1)
-+			goto bad_ctc;
-+
-+		/* 64-bit subtract - gcc just messes up with long longs */
-+		__asm__("subl %2,%0\n\t"
-+			"sbbl %3,%1"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"g" (startlow), "g" (starthigh),
-+			 "0" (endlow), "1" (endhigh));
-+
-+		/* Error: ECPUTOOFAST */
-+		if (endhigh)
-+			goto bad_ctc;
-+
-+		/* Error: ECPUTOOSLOW */
-+		if (endlow <= CALIBRATE_TIME)
-+			goto bad_ctc;
-+
-+                /*
-+                 * endlow at this point is CAL_JIFS * arch clocks
-+                 * per jiffie.  Set up the value for 
-+                 * high_res use. Note: keep the whole
-+                 * value for now, we will do
-+                 * the divide later (want that precision).
-+                 */
-+
-+		__asm__("divl %2"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+		return endlow;
-+	}
-+
-+	/*
-+	 * The CTC wasn't reliable: we got a hit on the very first read,
-+	 * or the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+bad_ctc:
-+        printk("******************** TSC calibrate failed!\n");
-+	return 0;
-+}
-+
-+
-+static inline __init void hrt_udelay(int usec)
-+{
-+        long now,end;
-+        rdtscl(end);
-+        end += (usec * tsc_cycles_per_5_jiffies) / (USEC_PER_JIFFIES * 5);
-+        do {rdtscl(now);} while((end - now) > 0);
-+
-+}
-+
-+
-+
-+static int high_res_init_pm(void)
-+{
-+
-+
-+	/* report CPU clock rate in Hz.
-+	 * The formula is:
-+	 * (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-+	 * clock/second. Our precision is about 100 ppm.
-+	 */
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient = calibrate_tsc();
-+		if(tsc_quotient){
-+			fast_gettimeoffset_quotient = tsc_quotient;
-+			cpu_khz = div_sc32( 1000, tsc_quotient);
-+			{	
-+				printk("Detected %lu.%03lu MHz processor.\n", 
-+				       cpu_khz / 1000, cpu_khz % 1000);
-+			}
-+		}
-+	}
-+	start_PIT();
-+        acpi_pm_tmr_address = hrt_get_acpi_pm_ptr(); 
-+        if (!acpi_pm_tmr_address){                    
-+                printk(message,default_pm_add);
-+                if ( (acpi_pm_tmr_address = default_pm_add)){
-+                        last_update +=  quick_get_cpuctr();
-+                        hrt_udelay(4);
-+			if (!quick_get_cpuctr()){
-+                                printk("High-res-timers: No ACPI pm timer found at %d.\n",
-+                                       acpi_pm_tmr_address);
-+                                acpi_pm_tmr_address = 0;
-+                        } 
-+                } 
-+        }else{
-+                if (default_pm_add != acpi_pm_tmr_address) {
-+                        printk("High-res-timers: Ignoring supplied default ACPI pm timer address.\n"); 
-+                }
-+                last_update +=  quick_get_cpuctr();
-+        }
-+        if (!acpi_pm_tmr_address){
-+                printk(fail_message);
-+		return -EINVAL;
-+        }else{
-+                printk("High-res-timers: Found ACPI pm timer at %d\n",
-+                       acpi_pm_tmr_address);
-+        }
-+	return 0;
-+}
-+
-+/************************************************************/
-+
-+/* tsc timer_opts struct */
-+struct timer_opts hrtimer_pm = {
-+	.init =		high_res_init_pm,
-+	.mark_offset =	high_res_mark_offset_pm, 
-+	.get_offset =	do_highres_gettimeoffset_pm,
++struct idr_layer {
++	unsigned long	        bitmap;     // A zero bit means "space here"
++	int                     count;      // When zero, we can release it
++	struct idr_layer       *ary[1<<IDR_BITS];
 +};
 +
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_tsc.c linux/arch/i386/kernel/timers/hrtimer_tsc.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/hrtimer_tsc.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_tsc.c	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,289 @@
++struct idr {
++	struct idr_layer *top;
++	int		  layers;
++	int		  count;
++	struct idr_layer *id_free;
++	int               id_free_cnt;
++	spinlock_t        lock;
++};
++
 +/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
++ * This is what we export.
 + */
 +
-+#include <linux/spinlock.h>
++void *idr_find(struct idr *idp, int id);
++int idr_pre_get(struct idr *idp);
++int idr_get_new(struct idr *idp, void *ptr);
++void idr_remove(struct idr *idp, int id);
++void idr_init(struct idr *idp);
++
++extern kmem_cache_t *idr_layer_cache;
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-2.5.54-bk1-kb/include/linux/init_task.h	Mon Dec 30 11:48:18 2002
++++ linux/include/linux/init_task.h	Fri Jan  3 15:07:33 2003
+@@ -93,6 +93,7 @@
+ 	.sig		= &init_signals,				\
+ 	.pending	= { NULL, &tsk.pending.head, {{0}}},		\
+ 	.blocked	= {{0}},					\
++	 .posix_timers	 = LIST_HEAD_INIT(tsk.posix_timers),		   \
+ 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.journal_info	= NULL,						\
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/posix-timers.h linux/include/linux/posix-timers.h
+--- linux-2.5.54-bk1-kb/include/linux/posix-timers.h	Wed Dec 31 16:00:00 1969
++++ linux/include/linux/posix-timers.h	Fri Jan  3 15:07:33 2003
+@@ -0,0 +1,30 @@
++#ifndef _linux_POSIX_TIMERS_H
++#define _linux_POSIX_TIMERS_H
++
++struct k_clock {
++	int res;		/* in nano seconds */
++	int (*clock_set) (struct timespec * tp);
++	int (*clock_get) (struct timespec * tp);
++	int (*nsleep) (int flags,
++		       struct timespec * new_setting,
++		       struct itimerspec * old_setting);
++	int (*timer_set) (struct k_itimer * timr, int flags,
++			  struct itimerspec * new_setting,
++			  struct itimerspec * old_setting);
++	int (*timer_del) (struct k_itimer * timr);
++	void (*timer_get) (struct k_itimer * timr,
++			   struct itimerspec * cur_setting);
++};
++struct now_struct {
++	unsigned long jiffies;
++};
++
++#define posix_get_now(now) (now)->jiffies = jiffies;
++#define posix_time_before(timer, now) \
++                      time_before((timer)->expires, (now)->jiffies)
++
++#define posix_bump_timer(timr) do { \
++                        (timr)->it_timer.expires += (timr)->it_incr; \
++                        (timr)->it_overrun++;               \
++                       }while (0)
++#endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.54-bk1-kb/include/linux/sched.h	Thu Jan  2 12:17:16 2003
++++ linux/include/linux/sched.h	Fri Jan  3 15:07:33 2003
+@@ -276,6 +276,25 @@
+ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+ 
++/* POSIX.1b interval timer structure. */
++struct k_itimer {
++	struct list_head list;		 /* free/ allocate list */
++	spinlock_t it_lock;
++	clockid_t it_clock;		/* which timer type */
++	timer_t it_id;			/* timer id */
++	int it_overrun;			/* overrun on pending signal  */
++	int it_overrun_last;		 /* overrun on last delivered signal */
++	int it_requeue_pending;          /* waiting to requeue this timer */
++	int it_sigev_notify;		 /* notify word of sigevent struct */
++	int it_sigev_signo;		 /* signo word of sigevent struct */
++	sigval_t it_sigev_value;	 /* value word of sigevent struct */
++	unsigned long it_incr;		/* interval specified in jiffies */
++	struct task_struct *it_process;	/* process to send signal to */
++	struct timer_list it_timer;
++};
++
++
++
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
+@@ -339,6 +358,7 @@
+ 	unsigned long it_real_value, it_prof_value, it_virt_value;
+ 	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+ 	struct timer_list real_timer;
++	struct list_head posix_timers; /* POSIX.1b Interval Timers */
+ 	unsigned long utime, stime, cutime, cstime;
+ 	unsigned long start_time;
+ /* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
+@@ -576,6 +596,7 @@
+ extern void exit_files(struct task_struct *);
+ extern void exit_sighand(struct task_struct *);
+ extern void __exit_sighand(struct task_struct *);
++extern void exit_itimers(struct task_struct *);
+ 
+ extern void reparent_to_init(void);
+ extern void daemonize(void);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/signal.h linux/include/linux/signal.h
+--- linux-2.5.54-bk1-kb/include/linux/signal.h	Wed Dec 11 06:25:32 2002
++++ linux/include/linux/signal.h	Fri Jan  3 15:07:33 2003
+@@ -224,7 +224,7 @@
+ struct pt_regs;
+ extern int get_signal_to_deliver(siginfo_t *info, struct pt_regs *regs);
+ #endif
+-
++#define FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _LINUX_SIGNAL_H */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/sys.h linux/include/linux/sys.h
+--- linux-2.5.54-bk1-kb/include/linux/sys.h	Wed Oct 30 22:46:36 2002
++++ linux/include/linux/sys.h	Fri Jan  3 15:07:33 2003
+@@ -2,9 +2,8 @@
+ #define _LINUX_SYS_H
+ 
+ /*
+- * system call entry points ... but not all are defined
++ * This file is no longer used or needed
+  */
+-#define NR_syscalls 260
+ 
+ /*
+  * These are system calls that will be removed at some time
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/time.h linux/include/linux/time.h
+--- linux-2.5.54-bk1-kb/include/linux/time.h	Wed Dec 11 06:25:33 2002
++++ linux/include/linux/time.h	Fri Jan  3 15:07:33 2003
+@@ -40,6 +40,19 @@
+  */
+ #define MAX_JIFFY_OFFSET ((~0UL >> 1)-1)
+ 
++/* Parameters used to convert the timespec values */
++#ifndef USEC_PER_SEC
++#define USEC_PER_SEC (1000000L)
++#endif
++
++#ifndef NSEC_PER_SEC
++#define NSEC_PER_SEC (1000000000L)
++#endif
++
++#ifndef NSEC_PER_USEC
++#define NSEC_PER_USEC (1000L)
++#endif
++
+ static __inline__ unsigned long
+ timespec_to_jiffies(struct timespec *value)
+ {
+@@ -138,6 +151,8 @@
+ #ifdef __KERNEL__
+ extern void do_gettimeofday(struct timeval *tv);
+ extern void do_settimeofday(struct timeval *tv);
++extern int do_sys_settimeofday(struct timeval *tv, struct timezone *tz);
++extern void clock_was_set(void); // call when ever the clock is set
+ extern long do_nanosleep(struct timespec *t);
+ extern long do_utimes(char * filename, struct timeval * times);
+ #endif
+@@ -165,5 +180,25 @@
+ 	struct	timeval it_interval;	/* timer interval */
+ 	struct	timeval it_value;	/* current value */
+ };
++
++
++/*
++ * The IDs of the various system clocks (for POSIX.1b interval timers).
++ */
++#define CLOCK_REALTIME		  0
++#define CLOCK_MONOTONIC	  1
++#define CLOCK_PROCESS_CPUTIME_ID 2
++#define CLOCK_THREAD_CPUTIME_ID	 3
++#define CLOCK_REALTIME_HR	 4
++#define CLOCK_MONOTONIC_HR	  5
++
++#define MAX_CLOCKS 6
++
++/*
++ * The various flags for setting POSIX.1b interval timers.
++ */
++
++#define TIMER_ABSTIME 0x01
++
+ 
+ #endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/include/linux/types.h linux/include/linux/types.h
+--- linux-2.5.54-bk1-kb/include/linux/types.h	Thu Jan  2 12:17:16 2003
++++ linux/include/linux/types.h	Fri Jan  3 15:07:33 2003
+@@ -25,6 +25,8 @@
+ typedef __kernel_daddr_t	daddr_t;
+ typedef __kernel_key_t		key_t;
+ typedef __kernel_suseconds_t	suseconds_t;
++typedef __kernel_timer_t	timer_t;
++typedef __kernel_clockid_t	clockid_t;
+ 
+ #ifdef __KERNEL__
+ typedef __kernel_uid32_t	uid_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/Makefile linux/kernel/Makefile
+--- linux-2.5.54-bk1-kb/kernel/Makefile	Thu Dec 19 12:13:18 2002
++++ linux/kernel/Makefile	Fri Jan  3 15:07:33 2003
+@@ -10,7 +10,8 @@
+ 	    exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+ 	    signal.o sys.o kmod.o workqueue.o futex.o platform.o pid.o \
+-	    rcupdate.o intermodule.o extable.o params.o
++	    rcupdate.o intermodule.o extable.o params.o \
++	    posix-timers.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.54-bk1-kb/kernel/exit.c	Thu Jan  2 12:17:16 2003
++++ linux/kernel/exit.c	Fri Jan  3 15:07:33 2003
+@@ -411,6 +411,7 @@
+ 	mmdrop(active_mm);
+ }
+ 
++
+ /*
+  * Turn us into a lazy TLB process if we
+  * aren't already..
+@@ -659,6 +660,7 @@
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+ 	exit_namespace(tsk);
++	exit_itimers(tsk);
+ 	exit_thread();
+ 
+ 	if (current->leader)
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/fork.c linux/kernel/fork.c
+--- linux-2.5.54-bk1-kb/kernel/fork.c	Thu Jan  2 12:17:16 2003
++++ linux/kernel/fork.c	Fri Jan  3 15:07:33 2003
+@@ -812,6 +812,7 @@
+ 		goto bad_fork_cleanup_files;
+ 	if (copy_sighand(clone_flags, p))
+ 		goto bad_fork_cleanup_fs;
++	INIT_LIST_HEAD(&p->posix_timers);
+ 	if (copy_mm(clone_flags, p))
+ 		goto bad_fork_cleanup_sighand;
+ 	if (copy_namespace(clone_flags, p))
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/posix-timers.c linux/kernel/posix-timers.c
+--- linux-2.5.54-bk1-kb/kernel/posix-timers.c	Wed Dec 31 16:00:00 1969
++++ linux/kernel/posix-timers.c	Fri Jan  3 15:07:33 2003
+@@ -0,0 +1,1316 @@
++/*
++ * linux/kernel/posix_timers.c
++ *
++ * 
++ * 2002-10-15  Posix Clocks & timers by George Anzinger
++ *			     Copyright (C) 2002 by MontaVista Software.
++ */
++
++/* These are all the functions necessary to implement 
++ * POSIX clocks & timers
++ */
++
++#include <linux/mm.h>
++#include <linux/smp_lock.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/time.h>
++
++#include <asm/uaccess.h>
++#include <asm/semaphore.h>
++#include <linux/list.h>
 +#include <linux/init.h>
-+#include <linux/timex.h>
-+#include <linux/errno.h>
-+#include <linux/cpufreq.h>
-+#include <linux/hrtime.h>
++#include <linux/compiler.h>
++#include <linux/idr.h>
++#include <linux/posix-timers.h>
 +
-+#include <asm/timer.h>
-+#include <asm/io.h>
++#ifndef div_long_long_rem
++#include <asm/div64.h>
 +
-+extern int x86_udelay_tsc;
-+extern spinlock_t i8253_lock;
++#define div_long_long_rem(dividend,divisor,remainder) ({ \
++		       u64 result = dividend;		\
++		       *remainder = do_div(result,divisor); \
++		       result; })
 +
++#endif				/* ifndef div_long_long_rem */
 +
++/*
++ * Management arrays for POSIX timers.	 Timers are kept in slab memory
++ * Timer ids are allocated by an external routine that keeps track of the
++ * id and the timer.  The external interface is:
++ *
++ *void *idr_find(struct idr *idp, int id);           to find timer_id <id>
++ *int idr_get_new(struct idr *idp, void *ptr);       to get a new id and 
++ *                                                  related it to <ptr>
++ *void idr_remove(struct idr *idp, int id);          to release <id>
++ *void idr_init(struct idr *idp);                    to initialize <idp>
++ *                                                  which we supply.
++ * The idr_get_new *may* call slab for more memory so it must not be
++ * called under a spin lock.  Likewise idr_remore may release memory
++ * (but it may be ok to do this under a lock...).
++ * idr_find is just a memory look up and is quite fast.  A zero return
++ * indicates that the requested id does not exist.
 +
-+/* Cached *multiplier* to convert TSC counts to microseconds.
-+ * (see the equation below).
-+ * Equal to 2^32 * (1 / (clocks per usec) ).
-+ * Initialized in time_init.
 + */
-+extern unsigned long fast_gettimeoffset_quotient;
++/*
++   * Lets keep our timers in a slab cache :-)
++ */
++static kmem_cache_t *posix_timers_cache;
++struct idr posix_timers_id;
++spinlock_t idr_lock = SPIN_LOCK_UNLOCKED;
 +
-+static unsigned long do_highres_gettimeoffset(void)
-+{
-+        /*
-+         * We are under the xtime_lock here.
-+         */
-+        long tmp = quick_get_cpuctr();
-+        long rtn = arch_cycles_to_usec(tmp + sub_jiffie());
-+	return rtn;
-+}
-+
-+static void high_res_mark_offset_tsc(void)
-+{
-+	return;
-+}
-+
-+
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C, and for
-+ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-+ * output busy loop as low as possible. We avoid reading the CTC registers
-+ * directly because of the awkward 8-bit access mechanism of the 82C54
-+ * device.
++/*
++ * Just because the timer is not in the timer list does NOT mean it is
++ * inactive.  It could be in the "fire" routine getting a new expire time.
++ */
++#define TIMER_INACTIVE 1
++#define TIMER_RETRY 1
++#ifdef CONFIG_SMP
++#define timer_active(tmr) (tmr->it_timer.entry.prev != (void *)TIMER_INACTIVE)
++#define set_timer_inactive(tmr) tmr->it_timer.entry.prev = (void *)TIMER_INACTIVE
++#else
++#define timer_active(tmr) BARFY	// error to use outside of SMP
++#define set_timer_inactive(tmr)
++#endif
++/*
++ * The timer ID is turned into a timer address by idr_find().
++ * Verifying a valid ID consists of:
++ * 
++ * a) checking that idr_find() returns other than zero.
++ * b) checking that the timer id matches the one in the timer itself.
++ * c) that the timer owner is in the callers thread group.
 + */
 +
-+#define CAL_JIFS 5
-+#define CALIBRATE_LATCH	(((CAL_JIFS * CLOCK_TICK_RATE) + HZ/2)/HZ)
-+#define CALIBRATE_TIME	((CAL_JIFS * USEC_PER_SEC)/HZ)
-+#define CALIBRATE_TIME_NSEC (CAL_JIFS * (NSEC_PER_SEC/HZ))
++extern rwlock_t xtime_lock;
 +
-+static __initdata unsigned long tsc_cycles_per_5_jiffies;
++/* 
++ * CLOCKs: The POSIX standard calls for a couple of clocks and allows us
++ *	    to implement others.  This structure defines the various
++ *	    clocks and allows the possibility of adding others.	 We
++ *	    provide an interface to add clocks to the table and expect
++ *	    the "arch" code to add at least one clock that is high
++ *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
++ *	    1/HZ resolution clock.
 +
-+static unsigned long __init calibrate_tsc(void)
++ * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
++ *	    two clocks (and the other process related clocks (Std
++ *	    1003.1d-1999).  The way these should be supported, we think,
++ *	    is to use large negative numbers for the two clocks that are
++ *	    pinned to the executing process and to use -pid for clocks
++ *	    pinned to particular pids.	Calls which supported these clock
++ *	    ids would split early in the function.
++ 
++ * RESOLUTION: Clock resolution is used to round up timer and interval
++ *	    times, NOT to report clock times, which are reported with as
++ *	    much resolution as the system can muster.  In some cases this
++ *	    resolution may depend on the underlaying clock hardware and
++ *	    may not be quantifiable until run time, and only then is the
++ *	    necessary code is written.	The standard says we should say
++ *	    something about this issue in the documentation...
++
++ * FUNCTIONS: The CLOCKs structure defines possible functions to handle
++ *	    various clock functions.  For clocks that use the standard
++ *	    system timer code these entries should be NULL.  This will
++ *	    allow dispatch without the overhead of indirect function
++ *	    calls.  CLOCKS that depend on other sources (e.g. WWV or GPS)
++ *	    must supply functions here, even if the function just returns
++ *	    ENOSYS.  The standard POSIX timer management code assumes the
++ *	    following: 1.) The k_itimer struct (sched.h) is used for the
++ *	    timer.  2.) The list, it_lock, it_clock, it_id and it_process
++ *	    fields are not modified by timer code. 
++ *
++ *          At this time all functions EXCEPT clock_nanosleep can be
++ *          redirected by the CLOCKS structure.  Clock_nanosleep is in
++ *          there, but the code ignors it.
++ *
++ * Permissions: It is assumed that the clock_settime() function defined
++ *	    for each clock will take care of permission checks.	 Some
++ *	    clocks may be set able by any user (i.e. local process
++ *	    clocks) others not.	 Currently the only set able clock we
++ *	    have is CLOCK_REALTIME and its high res counter part, both of
++ *	    which we beg off on and pass to do_sys_settimeofday().
++ */
++
++struct k_clock posix_clocks[MAX_CLOCKS];
++
++#define if_clock_do(clock_fun, alt_fun,parms)	(! clock_fun)? alt_fun parms :\
++							      clock_fun parms
++
++#define p_timer_get( clock,a,b) if_clock_do((clock)->timer_get, \
++					     do_timer_gettime,	 \
++					     (a,b))
++
++#define p_nsleep( clock,a,b,c) if_clock_do((clock)->nsleep,   \
++					    do_nsleep,	       \
++					    (a,b,c))
++
++#define p_timer_del( clock,a) if_clock_do((clock)->timer_del, \
++					   do_timer_delete,    \
++					   (a))
++
++void register_posix_clock(int clock_id, struct k_clock *new_clock);
++
++static int do_posix_gettime(struct k_clock *clock, struct timespec *tp);
++
++int do_posix_clock_monotonic_gettime(struct timespec *tp);
++
++int do_posix_clock_monotonic_settime(struct timespec *tp);
++static struct k_itimer *lock_timer(timer_t timer_id, long *flags);
++static inline void unlock_timer(struct k_itimer *timr, long flags);
++
++/* 
++ * Initialize everything, well, just everything in Posix clocks/timers ;)
++ */
++
++static __init int
++init_posix_timers(void)
 +{
-+       /* Set the Gate high, disable speaker */
-+	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
++	struct k_clock clock_realtime = {.res = NSEC_PER_SEC / HZ };
++	struct k_clock clock_monotonic = {.res = NSEC_PER_SEC / HZ,
++		.clock_get = do_posix_clock_monotonic_gettime,
++		.clock_set = do_posix_clock_monotonic_settime
++	};
 +
-+	/*
-+	 * Now let's take care of CTC channel 2
-+	 *
-+	 * Set the Gate high, program CTC channel 2 for mode 0,
-+	 * (interrupt on terminal count mode), binary count,
-+	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
-+	 */
-+	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
++	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
++	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
 +
-+	{
-+		unsigned long startlow, starthigh;
-+		unsigned long endlow, endhigh;
-+		unsigned long count;
-+
-+		rdtsc(startlow,starthigh);
-+		count = 0;
-+		do {
-+			count++;
-+		} while ((inb(0x61) & 0x20) == 0);
-+		rdtsc(endlow,endhigh);
-+
-+
-+		/* Error: ECTCNEVERSET */
-+		if (count <= 1)
-+			goto bad_ctc;
-+
-+		/* 64-bit subtract - gcc just messes up with long longs */
-+		__asm__("subl %2,%0\n\t"
-+			"sbbl %3,%1"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"g" (startlow), "g" (starthigh),
-+			 "0" (endlow), "1" (endhigh));
-+
-+		/* Error: ECPUTOOFAST */
-+		if (endhigh)
-+			goto bad_ctc;
-+
-+		/* Error: ECPUTOOSLOW */
-+		if (endlow <= CALIBRATE_TIME)
-+			goto bad_ctc;
-+
-+                /*
-+                 * endlow at this point is CAL_JIFS * arch clocks
-+                 * per jiffie.  Set up the value for 
-+                 * high_res use. Note: keep the whole
-+                 * value for now, we will do
-+                 * the divide later (want that precision).
-+                 */
-+                tsc_cycles_per_5_jiffies = endlow;
-+
-+		__asm__("divl %2"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+		return endlow;
-+	}
-+
-+	/*
-+	 * The CTC wasn't reliable: we got a hit on the very first read,
-+	 * or the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+bad_ctc:
-+        printk("******************** TSC calibrate failed!\n");
++	posix_timers_cache = kmem_cache_create("posix_timers_cache",
++					       sizeof (struct k_itimer), 0, 0,
++					       0, 0);
++	idr_init(&posix_timers_id);
 +	return 0;
 +}
 +
++__initcall(init_posix_timers);
 +
-+#ifdef CONFIG_CPU_FREQ
++static inline int
++tstojiffie(struct timespec *tp, int res, unsigned long *jiff)
++{
++	unsigned long sec = tp->tv_sec;
++	long nsec = tp->tv_nsec + res - 1;
++
++	if (nsec > NSEC_PER_SEC) {
++		sec++;
++		nsec -= NSEC_PER_SEC;
++	}
++
++	/*
++	 * A note on jiffy overflow: It is possible for the system to
++	 * have been up long enough for the jiffies quanity to overflow.
++	 * In order for correct timer evaluations we require that the
++	 * specified time be somewhere between now and now + (max
++	 * unsigned int/2).  Times beyond this will be truncated back to
++	 * this value.   This is done in the absolute adjustment code,
++	 * below.  Here it is enough to just discard the high order
++	 * bits.  
++	 */
++	*jiff = HZ * sec;
++	/*
++	 * Do the res thing. (Don't forget the add in the declaration of nsec) 
++	 */
++	nsec -= nsec % res;
++	/*
++	 * Split to jiffie and sub jiffie
++	 */
++	*jiff += nsec / (NSEC_PER_SEC / HZ);
++	/*
++	 * We trust that the optimizer will use the remainder from the 
++	 * above div in the following operation as long as they are close. 
++	 */
++	return 0;
++}
++static void
++tstotimer(struct itimerspec *time, struct k_itimer *timer)
++{
++	int res = posix_clocks[timer->it_clock].res;
++	tstojiffie(&time->it_value, res, &timer->it_timer.expires);
++	tstojiffie(&time->it_interval, res, &timer->it_incr);
++}
++
++static void
++schedule_next_timer(struct k_itimer *timr)
++{
++	struct now_struct now;
++
++	/* Set up the timer for the next interval (if there is one) */
++	if (timr->it_incr == 0) {
++		{
++			set_timer_inactive(timr);
++			return;
++		}
++	}
++	posix_get_now(&now);
++	while (posix_time_before(&timr->it_timer, &now)) {
++		posix_bump_timer(timr);
++	};
++	timr->it_overrun_last = timr->it_overrun;
++	timr->it_overrun = -1;
++	add_timer(&timr->it_timer);
++}
++
++/*
++
++ * This function is exported for use by the signal deliver code.  It is
++ * called just prior to the info block being released and passes that
++ * block to us.  It's function is to update the overrun entry AND to
++ * restart the timer.  It should only be called if the timer is to be
++ * restarted (i.e. we have flagged this in the sys_private entry of the
++ * info block).
++ *
++ * To protect aginst the timer going away while the interrupt is queued,
++ * we require that the it_requeue_pending flag be set.
++
++ */
++void
++do_schedule_next_timer(struct siginfo *info)
++{
++
++	struct k_itimer *timr;
++	long flags;
++
++	timr = lock_timer(info->si_tid, &flags);
++
++	if (!timr || !timr->it_requeue_pending)
++		goto exit;
++
++	schedule_next_timer(timr);
++	info->si_overrun = timr->it_overrun_last;
++      exit:
++	if (timr)
++		unlock_timer(timr, flags);
++}
++
++/* 
++
++ * Notify the task and set up the timer for the next expiration (if
++ * applicable).  This function requires that the k_itimer structure
++ * it_lock is taken.  This code will requeue the timer only if we get
++ * either an error return or a flag (ret > 0) from send_seg_info
++ * indicating that the signal was either not queued or was queued
++ * without an info block.  In this case, we will not get a call back to
++ * do_schedule_next_timer() so we do it here.  This should be rare...
++
++ */
++
++static void
++timer_notify_task(struct k_itimer *timr)
++{
++	struct siginfo info;
++	int ret;
++
++	memset(&info, 0, sizeof (info));
++
++	/* Send signal to the process that owns this timer. */
++	info.si_signo = timr->it_sigev_signo;
++	info.si_errno = 0;
++	info.si_code = SI_TIMER;
++	info.si_tid = timr->it_id;
++	info.si_value = timr->it_sigev_value;
++	if (timr->it_incr == 0) {
++		set_timer_inactive(timr);
++	} else {
++		timr->it_requeue_pending = info.si_sys_private = 1;
++	}
++	ret = send_sig_info(info.si_signo, &info, timr->it_process);
++	switch (ret) {
++
++	default:
++		/*
++		 * Signal was not sent.  May or may not need to
++		 * restart the timer.
++		 */
++		printk(KERN_WARNING "sending signal failed: %d\n", ret);
++	case 1:
++		/*
++		 * signal was not sent because of sig_ignor or,
++		 * possibly no queue memory OR will be sent but,
++		 * we will not get a call back to restart it AND
++		 * it should be restarted. 
++		 */
++		schedule_next_timer(timr);
++	case 0:
++		/* 
++		 * all's well new signal queued
++		 */
++		break;
++	}
++}
++
++/*
++
++ * This function gets called when a POSIX.1b interval timer expires.  It
++ * is used as a callback from the kernel internal timer.  The
++ * run_timer_list code ALWAYS calls with interrutps on.
++
++ */
++static void
++posix_timer_fn(unsigned long __data)
++{
++	struct k_itimer *timr = (struct k_itimer *) __data;
++	long flags;
++
++	spin_lock_irqsave(&timr->it_lock, flags);
++	timer_notify_task(timr);
++	unlock_timer(timr, flags);
++}
++
++/*
++ * For some reason mips/mips64 define the SIGEV constants plus 128.  
++ * Here we define a mask to get rid of the common bits.	 The 
++ * optimizer should make this costless to all but mips.
++ */
++#if (ARCH == mips) || (ARCH == mips64)
++#define MIPS_SIGEV ~(SIGEV_NONE & \
++		      SIGEV_SIGNAL & \
++		      SIGEV_THREAD &  \
++		      SIGEV_THREAD_ID)
++#else
++#define MIPS_SIGEV (int)-1
++#endif
++
++static inline struct task_struct *
++good_sigevent(sigevent_t * event)
++{
++	struct task_struct *rtn = current;
++
++	if (event->sigev_notify & SIGEV_THREAD_ID & MIPS_SIGEV) {
++		if (!(rtn =
++		      find_task_by_pid(event->sigev_notify_thread_id)) ||
++		    rtn->tgid != current->tgid) {
++			return NULL;
++		}
++	}
++	if (event->sigev_notify & SIGEV_SIGNAL & MIPS_SIGEV) {
++		if ((unsigned) (event->sigev_signo > SIGRTMAX))
++			return NULL;
++	}
++	if (event->sigev_notify & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID)) {
++		return NULL;
++	}
++	return rtn;
++}
++
++void
++register_posix_clock(int clock_id, struct k_clock *new_clock)
++{
++	if ((unsigned) clock_id >= MAX_CLOCKS) {
++		printk("POSIX clock register failed for clock_id %d\n",
++		       clock_id);
++		return;
++	}
++	posix_clocks[clock_id] = *new_clock;
++}
++
++static struct k_itimer *
++alloc_posix_timer(void)
++{
++	struct k_itimer *tmr;
++	tmr = kmem_cache_alloc(posix_timers_cache, GFP_KERNEL);
++	memset(tmr, 0, sizeof (struct k_itimer));
++	return (tmr);
++}
++
++static void
++release_posix_timer(struct k_itimer *tmr)
++{
++	if (tmr->it_id > 0){
++		spin_lock_irq(&idr_lock);
++		idr_remove(&posix_timers_id, tmr->it_id);
++		spin_unlock_irq(&idr_lock);
++	}
++	kmem_cache_free(posix_timers_cache, tmr);
++}
++
++/* Create a POSIX.1b interval timer. */
++
++asmlinkage int
++sys_timer_create(clockid_t which_clock,
++		 struct sigevent *timer_event_spec, timer_t * created_timer_id)
++{
++	int error = 0;
++	struct k_itimer *new_timer = NULL;
++	timer_t new_timer_id;
++	struct task_struct *process = 0;
++	sigevent_t event;
++
++	if ((unsigned) which_clock >= MAX_CLOCKS ||
++	    !posix_clocks[which_clock].res) return -EINVAL;
++
++	new_timer = alloc_posix_timer();
++	if (unlikely (new_timer == NULL))
++		return -EAGAIN;
++
++	spin_lock_init(&new_timer->it_lock);
++	do {
++		if ( unlikely ( !idr_pre_get(&posix_timers_id))){
++			error = -EAGAIN;
++			goto out;			
++		}
++		spin_lock_irq(&idr_lock);
++		new_timer_id = (timer_t) idr_get_new(
++			&posix_timers_id, (void *) new_timer);
++		spin_unlock_irq(&idr_lock);
++	}while( unlikely (new_timer_id == -1));
++
++	new_timer->it_id = new_timer_id;
++	/*
++	 * return the timer_id now.  The next step is hard to 
++	 * back out if there is an error.
++	 */
++	if (copy_to_user(created_timer_id,
++			 &new_timer_id, sizeof (new_timer_id))) {
++		error = -EFAULT;
++		goto out;
++	}
++	if (timer_event_spec) {
++		if (copy_from_user(&event, timer_event_spec, sizeof (event))) {
++			error = -EFAULT;
++			goto out;
++		}
++		read_lock(&tasklist_lock);
++		if ((process = good_sigevent(&event))) {
++			/*
++
++			 * We may be setting up this process for another
++			 * thread.  It may be exitiing.  To catch this
++			 * case the we check the PF_EXITING flag.  If
++			 * the flag is not set, the task_lock will catch
++			 * him before it is too late (in exit_itimers).
++
++			 * The exec case is a bit more invloved but easy
++			 * to code.  If the process is in our thread
++			 * group (and it must be or we would not allow
++			 * it here) and is doing an exec, it will cause
++			 * us to be killed.  In this case it will wait
++			 * for us to die which means we can finish this
++			 * linkage with our last gasp. I.e. no code :)
++
++			 */
++			task_lock(process);
++			if (!(process->flags & PF_EXITING)) {
++				list_add(&new_timer->list,
++					 &process->posix_timers);
++				task_unlock(process);
++			} else {
++				task_unlock(process);
++				process = 0;
++			}
++		}
++		read_unlock(&tasklist_lock);
++		if (!process) {
++			error = -EINVAL;
++			goto out;
++		}
++		new_timer->it_sigev_notify = event.sigev_notify;
++		new_timer->it_sigev_signo = event.sigev_signo;
++		new_timer->it_sigev_value = event.sigev_value;
++	} else {
++		new_timer->it_sigev_notify = SIGEV_SIGNAL;
++		new_timer->it_sigev_signo = SIGALRM;
++		new_timer->it_sigev_value.sival_int = new_timer->it_id;
++		process = current;
++		task_lock(process);
++		list_add(&new_timer->list, &process->posix_timers);
++		task_unlock(process);
++	}
++
++	new_timer->it_clock = which_clock;
++	new_timer->it_incr = 0;
++	new_timer->it_overrun = -1;
++	init_timer(&new_timer->it_timer);
++	new_timer->it_timer.expires = 0;
++	new_timer->it_timer.data = (unsigned long) new_timer;
++	new_timer->it_timer.function = posix_timer_fn;
++	set_timer_inactive(new_timer);
++
++	/*
++	 * Once we set the process, it can be found so do it last...
++	 */
++	new_timer->it_process = process;
++
++      out:
++	if (error) {
++		release_posix_timer(new_timer);
++	}
++	return error;
++}
++
++/*
++ * good_timespec
++ *
++ * This function checks the elements of a timespec structure.
++ *
++ * Arguments:
++ * ts	     : Pointer to the timespec structure to check
++ *
++ * Return value: 
++ * If a NULL pointer was passed in, or the tv_nsec field was less than 0
++ * or greater than NSEC_PER_SEC, or the tv_sec field was less than 0,
++ * this function returns 0. Otherwise it returns 1.
++
++ */
 +
 +static int
-+time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
-+		       void *data)
++good_timespec(const struct timespec *ts)
 +{
-+	struct cpufreq_freqs *freq = data;
-+	unsigned int i;
++	if ((ts == NULL) ||
++	    (ts->tv_sec < 0) ||
++	    ((unsigned) ts->tv_nsec >= NSEC_PER_SEC)) return 0;
++	return 1;
++}
 +
-+	if (!cpu_has_tsc)
-+		return 0;
++static inline void
++unlock_timer(struct k_itimer *timr, long flags)
++{
++	spin_unlock_irqrestore(&timr->it_lock, flags);
++}
 +
-+	if((val == CPUFREQ_PRECHANGE && (freq->old < freq->new)) ||
-+	   (val == CPUFREQ_POSTCHANGE && (freq->old > freq->new))){
-+		if((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)){
++/*
 +
-+			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
++ * Locking issues: We need to protect the result of the id look up until
++ * we get the timer locked down so it is not deleted under us.  The
++ * removal is done under the idr spinlock so we use that here to bridge
++ * the find to the timer lock.  To avoid a dead lock, the timer id MUST
++ * be release with out holding the timer lock.
 +
-+		        arch_to_usec = 
-+				fast_gettimeoffset_quotient = 
-+				cpufreq_scale(fast_gettimeoffset_quotient, 
-+					      freq->new, freq->old);
-+			arch_to_latch = 
-+				cpufreq_scale(arch_to_latch, 
-+					      freq->new, freq->old);
-+			arch_to_nsec =
-+				cpufreq_scale(arch_to_nsec, 
-+					      freq->new, freq->old);
-+			nsec_to_arch =
-+				cpufreq_scale(nsec_to_arch, 
-+					      freq->old, freq->new);
-+			usec_to_arch =
-+				cpufreq_scale(usec_to_arch, 
-+					      freq->old, freq->new);
-+			cycles_per_jiffies =
-+				cpufreq_scale(cycles_per_jiffies, 
-+					      freq->old, freq->new);
++ */
++static struct k_itimer *
++lock_timer(timer_t timer_id, long *flags)
++{
++	struct k_itimer *timr;
++
++	spin_lock_irq(&idr_lock);
++	timr = (struct k_itimer *) idr_find(&posix_timers_id, (int) timer_id);
++	if (timr) {
++		spin_lock_irqsave(&timr->it_lock, *flags);
++		spin_unlock_irq(&idr_lock);
++
++		if ( (timr->it_id != timer_id) || !(timr->it_process) ||
++		     timr->it_process->tgid != current->tgid) {
++			unlock_timer(timr, *flags);
++			timr = NULL;
 +		}
-+		for (i=0; i<NR_CPUS; i++)
-+			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
-+				cpu_data[i].loops_per_jiffy = 
-+					cpufreq_scale(
-+						cpu_data[i].loops_per_jiffy, 
-+						freq->old, freq->new);
++	} else {
++		spin_unlock_irq(&idr_lock);
 +	}
++
++	return timr;
++}
++
++/* 
++
++ * Get the time remaining on a POSIX.1b interval timer.  This function
++ * is ALWAYS called with spin_lock_irq on the timer, thus it must not
++ * mess with irq.
++
++ * We have a couple of messes to clean up here.  First there is the case
++ * of a timer that has a requeue pending.  These timers should appear to
++ * be in the timer list with an expiry as if we were to requeue them
++ * now.
++
++ * The second issue is the SIGEV_NONE timer which may be active but is
++ * not really ever put in the timer list (to save system resources).
++ * This timer may be expired, and if so, we will do it here.  Otherwise
++ * it is the same as a requeue pending timer WRT to what we should
++ * report.
++
++ */
++void inline
++do_timer_gettime(struct k_itimer *timr, struct itimerspec *cur_setting)
++{
++	long sub_expires;
++	unsigned long expires;
++	struct now_struct now;
++
++	do {
++		expires = timr->it_timer.expires;
++	} while ((volatile long) (timr->it_timer.expires) != expires);
++
++	posix_get_now(&now);
++
++	if (expires && (timr->it_sigev_notify & SIGEV_NONE) && !timr->it_incr) {
++		if (posix_time_before(&timr->it_timer, &now)) {
++			timr->it_timer.expires = expires = 0;
++		}
++	}
++	if (expires) {
++		if (timr->it_requeue_pending ||
++		    (timr->it_sigev_notify & SIGEV_NONE)) {
++			while (posix_time_before(&timr->it_timer, &now)) {
++				posix_bump_timer(timr);
++			};
++		} else {
++			if (!timer_pending(&timr->it_timer)) {
++				sub_expires = expires = 0;
++			}
++		}
++		if (expires) {
++			expires -= now.jiffies;
++		}
++	}
++	jiffies_to_timespec(expires, &cur_setting->it_value);
++	jiffies_to_timespec(timr->it_incr, &cur_setting->it_interval);
++
++	if (cur_setting->it_value.tv_sec < 0) {
++		cur_setting->it_value.tv_nsec = 1;
++		cur_setting->it_value.tv_sec = 0;
++	}
++}
++/* Get the time remaining on a POSIX.1b interval timer. */
++asmlinkage int
++sys_timer_gettime(timer_t timer_id, struct itimerspec *setting)
++{
++	struct k_itimer *timr;
++	struct itimerspec cur_setting;
++	long flags;
++
++	timr = lock_timer(timer_id, &flags);
++	if (!timr)
++		return -EINVAL;
++
++	p_timer_get(&posix_clocks[timr->it_clock], timr, &cur_setting);
++
++	unlock_timer(timr, flags);
++
++	if (copy_to_user(setting, &cur_setting, sizeof (cur_setting)))
++		return -EFAULT;
 +
 +	return 0;
 +}
++/*
 +
-+static struct notifier_block time_cpufreq_notifier_block = {
-+	notifier_call:	time_cpufreq_notifier
-+};
-+#endif
++ * Get the number of overruns of a POSIX.1b interval timer.  This is to
++ * be the overrun of the timer last delivered.  At the same time we are
++ * accumulating overruns on the next timer.  The overrun is frozen when
++ * the signal is delivered, either at the notify time (if the info block
++ * is not queued) or at the actual delivery time (as we are informed by
++ * the call back to do_schedule_next_timer().  So all we need to do is
++ * to pick up the frozen overrun.
 +
++ */
 +
-+static int high_res_init_tsc(void)
++asmlinkage int
++sys_timer_getoverrun(timer_t timer_id)
 +{
-+	/*
-+	 * If we have APM enabled or the CPU clock speed is variable
-+	 * (CPU stops clock on HLT or slows clock to save power)
-+	 * then the TSC timestamps may diverge by up to 1 jiffy from
-+	 * 'real time' but nothing will break.
-+	 * The most frequent case is that the CPU is "woken" from a halt
-+	 * state by the timer interrupt itself, so we get 0 error. In the
-+	 * rare cases where a driver would "wake" the CPU and request a
-+	 * timestamp, the maximum error is < 1 jiffy. But timestamps are
-+	 * still perfectly ordered.
-+	 * Note that the TSC counter will be reset if APM suspends
-+	 * to disk; this won't break the kernel, though, 'cuz we're
-+	 * smart.  See arch/i386/kernel/apm.c.
-+	 */
-+ 	/*
-+ 	 *	Firstly we have to do a CPU check for chips with
-+ 	 * 	a potentially buggy TSC. At this point we haven't run
-+ 	 *	the ident/bugs checks so we must run this hook as it
-+ 	 *	may turn off the TSC flag.
-+ 	 *
-+ 	 *	NOTE: this doesnt yet handle SMP 486 machines where only
-+ 	 *	some CPU's have a TSC. Thats never worked and nobody has
-+ 	 *	moaned if you have the only one in the world - you fix it!
-+ 	 */
-+ 
-+ 	dodgy_tsc();
-+ 	
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient = calibrate_tsc();
-+		if (tsc_quotient) {
-+			fast_gettimeoffset_quotient = tsc_quotient;
-+			/*
-+			 *	We could be more selective here I suspect
-+			 *	and just enable this for the next intel chips ?
-+			 */
-+			x86_udelay_tsc = 1;
++	struct k_itimer *timr;
++	int overrun;
++	long flags;
 +
-+                        /*
-+                         * Kick off the high res timers
-+                         */
-+			/*
-+			 * The init_hrtimers macro is in the choosen
-+			 * support package depending on the clock
-+			 *  source, PIT, TSC, or ACPI pm timer.
-+			 */
-+			arch_to_usec = fast_gettimeoffset_quotient;
-+ 
-+			arch_to_latch = div_ll_X_l(
-+				mpy_l_X_l_ll(fast_gettimeoffset_quotient,
-+					     CLOCK_TICK_RATE),
-+				(USEC_PER_SEC));
++	timr = lock_timer(timer_id, &flags);
++	if (!timr)
++		return -EINVAL;
 +
-+			arch_to_nsec = div_sc_n(HR_TIME_SCALE_NSEC,
-+						CALIBRATE_TIME * NSEC_PER_USEC,
-+						tsc_cycles_per_5_jiffies);
++	overrun = timr->it_overrun_last;
++	unlock_timer(timr, flags);
 +
-+			nsec_to_arch = div_sc_n(HR_TIME_SCALE_NSEC,
-+						tsc_cycles_per_5_jiffies,
-+						CALIBRATE_TIME * NSEC_PER_USEC);
++	return overrun;
++}
++/* Adjust for absolute time */
++/*
++ * If absolute time is given and it is not CLOCK_MONOTONIC, we need to
++ * adjust for the offset between the timer clock (CLOCK_MONOTONIC) and
++ * what ever clock he is using.
++ *
++ * If it is relative time, we need to add the current (CLOCK_MONOTONIC)
++ * time to it to get the proper time for the timer.
++ */
++static int
++adjust_abs_time(struct k_clock *clock, struct timespec *tp, int abs)
++{
++	struct timespec now;
++	struct timespec oc;
++	do_posix_clock_monotonic_gettime(&now);
 +
-+			usec_to_arch = div_sc_n(HR_TIME_SCALE_USEC,
-+						tsc_cycles_per_5_jiffies,
-+						CALIBRATE_TIME );
++	if (abs &&
++	    (posix_clocks[CLOCK_MONOTONIC].clock_get == clock->clock_get)) {
++	} else {
 +
-+			cycles_per_jiffies = tsc_cycles_per_5_jiffies / 
-+				CAL_JIFS;  
++		if (abs) {
++			do_posix_gettime(clock, &oc);
++		} else {
++			oc.tv_nsec = oc.tv_sec = 0;
++		}
++		tp->tv_sec += now.tv_sec - oc.tv_sec;
++		tp->tv_nsec += now.tv_nsec - oc.tv_nsec;
 +
-+			start_PIT();
-+
-+			/* report CPU clock rate in Hz.
-+			 * The formula is:
-+			 * (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-+			 * clock/second. Our precision is about 100 ppm.
-+			 */
-+			cpu_khz = div_sc32( 1000, tsc_quotient);
-+			{	
-+				printk("Detected %lu.%03lu MHz processor.\n", 
-+				       cpu_khz / 1000, cpu_khz % 1000);
-+			}
-+#ifdef CONFIG_CPU_FREQ
-+			cpufreq_register_notifier(&time_cpufreq_notifier_block,
-+						  CPUFREQ_TRANSITION_NOTIFIER);
-+#endif
-+			return 0;
++		/* 
++		 * Normalize...
++		 */
++		if ((tp->tv_nsec - NSEC_PER_SEC) >= 0) {
++			tp->tv_nsec -= NSEC_PER_SEC;
++			tp->tv_sec++;
++		}
++		if ((tp->tv_nsec) < 0) {
++			tp->tv_nsec += NSEC_PER_SEC;
++			tp->tv_sec--;
 +		}
 +	}
-+	return -ENODEV;
-+}
-+
-+/************************************************************/
-+
-+/* tsc timer_opts struct */
-+struct timer_opts hrtimer_tsc = {
-+	.init =		high_res_init_tsc,
-+	.mark_offset =	high_res_mark_offset_tsc, 
-+	.get_offset =	do_highres_gettimeoffset,
-+};
-+
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer.c linux/arch/i386/kernel/timers/timer.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer.c	Thu Jan  2 12:16:49 2003
-+++ linux/arch/i386/kernel/timers/timer.c	Fri Jan  3 15:08:32 2003
-@@ -1,14 +1,36 @@
- #include <linux/kernel.h>
-+#include <linux/hrtime.h>
- #include <asm/timer.h>
-+/* processor.h for disable_tsc flag */
-+#include <asm/processor.h>
-+#include <linux/init.h>
-+/*
-+ * export these here so it can be used by more than one clock source
-+ */
-+unsigned long fast_gettimeoffset_quotient;
-+int tsc_disable __initdata = 0;
- 
- /* list of externed timers */
- extern struct timer_opts timer_pit;
- extern struct timer_opts timer_tsc;
-+extern struct timer_opts hrtimer_tsc;
-+extern struct timer_opts hrtimer_pm;
-+extern struct timer_opts hrtimer_pit;
- 
- /* list of timers, ordered by preference, NULL terminated */
- static struct timer_opts* timers[] = {
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+#ifdef CONFIG_HIGH_RES_TIMER_ACPI_PM
-+	&hrtimer_pm,
-+#elif  CONFIG_HIGH_RES_TIMER_TSC
-+	&hrtimer_tsc,
-+#elif  CONFIG_HIGH_RES_TIMER_PIT
-+	&hrtimer_pit,
-+#endif
-+#else
- 	&timer_tsc,
- 	&timer_pit,
-+#endif
- 	NULL,
- };
- 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer_pit.c linux/arch/i386/kernel/timers/timer_pit.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer_pit.c	Thu Jan  2 12:16:49 2003
-+++ linux/arch/i386/kernel/timers/timer_pit.c	Fri Jan  3 15:08:32 2003
-@@ -11,6 +11,7 @@
- #include <asm/timer.h>
- #include <asm/smp.h>
- #include <asm/io.h>
-+#include <linux/hrtime.h>
- #include <asm/arch_hooks.h>
- 
- extern spinlock_t i8259A_lock;
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer_tsc.c linux/arch/i386/kernel/timers/timer_tsc.c
---- linux-2.5.54-bk1-core/arch/i386/kernel/timers/timer_tsc.c	Thu Jan  2 12:16:49 2003
-+++ linux/arch/i386/kernel/timers/timer_tsc.c	Fri Jan  3 15:08:32 2003
-@@ -14,7 +14,7 @@
- /* processor.h for distable_tsc flag */
- #include <asm/processor.h>
- 
--int tsc_disable __initdata = 0;
-+extern int tsc_disable;
- 
- extern int x86_udelay_tsc;
- extern spinlock_t i8253_lock;
-@@ -30,7 +30,7 @@
-  * Equal to 2^32 * (1 / (clocks per usec) ).
-  * Initialized in time_init.
-  */
--unsigned long fast_gettimeoffset_quotient;
-+extern unsigned long fast_gettimeoffset_quotient;
- 
- static unsigned long get_offset_tsc(void)
- {
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/hrtime-M386.h linux/include/asm-i386/hrtime-M386.h
---- linux-2.5.54-bk1-core/include/asm-i386/hrtime-M386.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M386.h	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,272 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime-M386.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Thanx to Michael Barabanov for helping me with the non-pentium code.
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/utime.txt
-+ */
-+/* This is in case its not a pentuim or a ppro.
-+ * we dont have access to the cycle counters
-+ */
-+/* 
-+ * This code swiped from the utime project to support high res timers
-+ * Principle thief George Anzinger george@mvista.com
-+ */
-+#ifndef _ASM_HRTIME_M386_H
-+#define _ASM_HRTIME_M386_H
-+
-+#ifdef __KERNEL__
-+
-+extern int base_c0, base_c0_offset;
-+#define timer_latch_reset(x) _timer_latch_reset = x
-+extern int _timer_latch_reset;
-+
-+/*
-+ * Never call this routine with local ints on.
-+ * update_jiffies_sub()
-+ */
-+
-+extern inline unsigned int
-+read_timer_chip(void)
-+{
-+	unsigned int next_intr;
-+
-+	LATCH_CNT0();
-+	READ_CNT0(next_intr);
-+	return next_intr;
-+}
-+
-+#define HR_SCALE_ARCH_NSEC 20
-+#define HR_SCALE_ARCH_USEC 30
-+#define HR_SCALE_NSEC_ARCH 32
-+#define HR_SCALE_USEC_ARCH 29
-+
-+#define cf_arch_to_usec (SC_n(HR_SCALE_ARCH_USEC,1000000)/ \
-+                           (long long)CLOCK_TICK_RATE)
-+
-+extern inline int
-+arch_cycles_to_usec(long update)
-+{
-+	return (mpy_sc_n(HR_SCALE_ARCH_USEC, update, arch_to_usec));
-+}
-+#define cf_arch_to_nsec (SC_n(HR_SCALE_ARCH_NSEC,1000000000)/ \
-+                           (long long)CLOCK_TICK_RATE)
-+
-+extern inline int
-+arch_cycles_to_nsec(long update)
-+{
-+	return mpy_sc_n(HR_SCALE_ARCH_NSEC, update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+#define cf_usec_to_arch (SC_n( HR_SCALE_USEC_ARCH,CLOCK_TICK_RATE)/ \
-+                                            (long long)1000000)
-+extern inline int
-+usec_to_arch_cycles(unsigned long usec)
-+{
-+	return mpy_sc_n(HR_SCALE_USEC_ARCH, usec, usec_to_arch);
-+}
-+#define cf_nsec_to_arch (SC_n( HR_SCALE_NSEC_ARCH,CLOCK_TICK_RATE)/ \
-+                                            (long long)1000000000)
-+extern inline int
-+nsec_to_arch_cycles(long nsec)
-+{
-+	return (mpy_sc32(nsec, nsec_to_arch));
-+}
-+#ifndef CONFIG_SMP
-+/*
-+ * If this is defined otherwise to allow NTP adjusting, it should
-+ * be scaled by about 16 bits (or so) to allow small percentage
-+ * changes
-+ */
-+#define arch_cycles_to_latch(x) x
-+
-+#else
-+/*
-+ * APIC clocks run from a low of 33MH to say 200MH.  The PIT timer
-+ * runs about 1.2 MH.  We want to scale so that ( APIC << scale )/PIT
-+ * is less 2 ^ 32.  Lets use 2 ^ 19, leaves plenty of room.
-+ */
-+#define HR_SCALE_ARCH_LATCH 19
-+
-+#define compute_latch(APIC_clocks_jiffie) arch_to_latch = div_sc_n(   \
-+                                                    HR_SCALE_ARCH_LATCH,   \
-+				                    APIC_clocks_jiffie,   \
-+				                    cycles_per_jiffies);
-+extern inline int
-+arch_cycles_to_latch(unsigned long update)
-+{
-+	return (mpy_sc_n(HR_SCALE_ARCH_LATCH, update, arch_to_latch));
-+}
-+
-+#endif
-+/*
-+ * This function updates base_c0
-+ * This function is always called under the write_lock_irq(&xtime_lock)
-+ * It returns the number of "clocks" since the last call to it.
-+ *
-+ * There is a problem having a counter that has a period the same as it is
-+ * interagated.  I.e. did it just roll over or has a very short time really
-+ * elapsed.  (One of the reasons one should not use the PIT for both ints
-+ * and time.)  We will take the occurance of an interrupt since last time
-+ * to indicate that the counter has reset.  This will work for the 
-+ * get_cpuctr() code but is flawed for the quick_get_cpuctr() as it is
-+ * called when ever time is requested.  For that code, we make sure that
-+ * we never move backward in time.
-+ */
-+extern inline unsigned long
-+get_cpuctr(void)
-+{
-+	int c0;
-+	long rtn;
-+
-+	spin_lock(&i8253_lock);
-+	c0 = read_timer_chip();
-+
-+	rtn = base_c0 - c0 + _timer_latch_reset;
-+
-+//      if (rtn < 0) {
-+//                rtn += _timer_latch_reset;
-+//        }
-+	base_c0 = c0;
-+	base_c0_offset = 0;
-+	spin_unlock(&i8253_lock);
-+
-+	return rtn;
-+}
-+/*
-+ * In an SMP system this is called under the read_lock_irq(xtime_lock)
-+ * In a UP system it is also called with this lock (PIT case only)
-+ * It returns the number of "clocks" since the last call to get_cpuctr (above).
-+ */
-+extern inline unsigned long
-+quick_get_cpuctr(void)
-+{
-+	register int c0;
-+	long rtn;
-+
-+	spin_lock(&i8253_lock);
-+	c0 = read_timer_chip();
 +	/*
-+	 * If the new count is greater than 
-+	 * the last one (base_c0) the chip has just rolled and an 
-+	 * interrupt is pending.  To get the time right. We need to add
-+	 * _timer_latch_reset to the answer.  All this is true if only
-+	 * one roll is involved, but base_co should be updated at least
-+	 * every 1/HZ.
++	 * Check if the requested time is prior to now (if so set now) or
++	 * is more than the timer code can handle (if so we error out).
++	 * The (unsigned) catches the case of prior to "now" with the same
++	 * test.  Only on failure do we sort out what happened, and then
++	 * we use the (unsigned) to error out negative seconds.
 +	 */
-+	rtn = base_c0 - c0;
-+	if (rtn < base_c0_offset) {
-+		rtn += _timer_latch_reset;
++	if ((unsigned) (tp->tv_sec - now.tv_sec) > (MAX_JIFFY_OFFSET / HZ)) {
++		if ((unsigned) tp->tv_sec < now.tv_sec) {
++			tp->tv_sec = now.tv_sec;
++			tp->tv_nsec = now.tv_nsec;
++		} else {
++			// tp->tv_sec = now.tv_sec + (MAX_JIFFY_OFFSET / HZ);
++			/*
++			 * This is a considered response, not exactly in
++			 * line with the standard (in fact it is silent on
++			 * possible overflows).  We assume such a large 
++			 * value is ALMOST always a programming error and
++			 * try not to compound it by setting a really dumb
++			 * value.
++			 */
++			return -EINVAL;
++		}
 +	}
-+	base_c0_offset = rtn;
-+	spin_unlock(&i8253_lock);
-+	return rtn;
++	return 0;
 +}
 +
-+#ifdef _INCLUDED_FROM_TIME_C
-+int base_c0 = 0;
-+int base_c0_offset = 0;
-+struct timer_conversion_bits timer_conversion_bits = {
-+	_cycles_per_jiffies:(LATCH),
-+	_nsec_to_arch:cf_nsec_to_arch,
-+	_usec_to_arch:cf_usec_to_arch,
-+	_arch_to_nsec:cf_arch_to_nsec,
-+	_arch_to_usec:cf_arch_to_usec,
-+	_arch_to_latch:1
-+};
-+EXTERN int _timer_latch_reset = LATCH;
-+
-+#define set_last_timer_cc() (void)(1)
-+
-+/* This returns the correct cycles_per_sec from a calibrated one
-+ */
-+#define arch_hrtime_init(x) (CLOCK_TICK_RATE)
-+
-+/*
-+ * The reload_timer_chip routine is called under the timerlist lock (irq off)
-+ * and, in SMP, the xtime_lock.  We also take the i8253_lock for the chip access
-+ */
-+#ifndef CONFIG_X86_LOCAL_APIC
-+
-+extern inline void
-+reload_timer_chip(int new_latch_value)
++/* Set a POSIX.1b interval timer. */
++/* timr->it_lock is taken. */
++static inline int
++do_timer_settime(struct k_itimer *timr, int flags,
++		 struct itimerspec *new_setting, struct itimerspec *old_setting)
 +{
-+	int c1, c1new, delta;
-+	unsigned char pit_status;
-+	/*
-+	 * In put value is in timer units for the 386 platform.
-+	 * We must be called with irq disabled.
-+	 */
-+	spin_lock(&i8253_lock);
-+	/*
-+	 * we need to get this last value of the timer chip
-+	 */
-+	LATCH_CNT0_AND_CNT1();
-+	READ_CNT0(delta);
-+	READ_CNT1(c1);
-+	base_c0 -= delta;
++	struct k_clock *clock = &posix_clocks[timr->it_clock];
 +
-+	new_latch_value = arch_cycles_to_latch(new_latch_value);
-+	if (new_latch_value < TIMER_DELTA) {
-+		new_latch_value = TIMER_DELTA;
++	if (old_setting) {
++		do_timer_gettime(timr, old_setting);
 +	}
-+	outb_p(PIT0_PERIODIC, PIT_COMMAND);
-+	outb_p(new_latch_value & 0xff, PIT0);	/* LSB */
-+	outb(new_latch_value >> 8, PIT0);	/* MSB */
-+	do {
-+		outb_p(PIT0_LATCH_STATUS, PIT_COMMAND);
-+		pit_status = inb(PIT0);
-+	} while (pit_status & PIT_NULL_COUNT);
-+	do {
-+		LATCH_CNT0_AND_CNT1();
-+		READ_CNT0(delta);
-+		READ_CNT1(c1new);
-+	} while (!(((new_latch_value - delta) & 0xffff) < 15));
 +
-+	outb_p(LATCH & 0xff, PIT0);	/* LSB */
-+	outb(LATCH >> 8, PIT0);	/* MSB */
++	/* disable the timer */
++	timr->it_incr = 0;
++	/* 
++	 * careful here.  If smp we could be in the "fire" routine which will
++	 * be spinning as we hold the lock.  But this is ONLY an SMP issue.
++	 */
++#ifdef CONFIG_SMP
++	if (timer_active(timr) && !del_timer(&timr->it_timer)) {
++		/*
++		 * It can only be active if on an other cpu.  Since
++		 * we have cleared the interval stuff above, it should
++		 * clear once we release the spin lock.  Of course once
++		 * we do that anything could happen, including the 
++		 * complete melt down of the timer.  So return with 
++		 * a "retry" exit status.
++		 */
++		return TIMER_RETRY;
++	}
++	set_timer_inactive(timr);
++#else
++	del_timer(&timr->it_timer);
++#endif
++	timr->it_requeue_pending = 0;
++	timr->it_overrun_last = 0;
++	timr->it_overrun = -1;
++	/* 
++	 *switch off the timer when it_value is zero 
++	 */
++	if ((new_setting->it_value.tv_sec == 0) &&
++	    (new_setting->it_value.tv_nsec == 0)) {
++		timr->it_timer.expires = 0;
++		return 0;
++	}
++
++	if ((flags & TIMER_ABSTIME) &&
++	    (clock->clock_get != do_posix_clock_monotonic_gettime)) {
++	}
++	if (adjust_abs_time(clock,
++			    &new_setting->it_value, flags & TIMER_ABSTIME)) {
++		return -EINVAL;
++	}
++	tstotimer(new_setting, timr);
 +
 +	/*
-+	 * this is assuming that counter one is latched on with
-+	 * 18 as the value
-+	 * Most BIOSes do this i guess....
++	 * For some reason the timer does not fire immediately if expires is
++	 * equal to jiffies, so the timer notify function is called directly.
++	 * We do not even queue SIGEV_NONE timers!
 +	 */
-+	c1 -= c1new;
-+	base_c0 += ((c1 < 0) ? (c1 + 18) : (c1)) + delta;
-+	if (base_c0 < 0) {
-+		base_c0 += _timer_latch_reset;
++	if (!(timr->it_sigev_notify & SIGEV_NONE)) {
++		if (timr->it_timer.expires == jiffies) {
++			timer_notify_task(timr);
++		} else
++			add_timer(&timr->it_timer);
 +	}
-+	spin_unlock(&i8253_lock);
-+	return;
-+}
-+#endif
-+/*
-+ * No run time conversion factors need to be set up as the PIT has a fixed
-+ * speed.
-+ */
-+#define init_hrtimers()
-+
-+#endif				/* _INCLUDED_FROM_HRTIME_C_ */
-+#endif				/* __KERNEL__ */
-+#endif				/* _ASM_HRTIME_M386_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/hrtime-M586.h linux/include/asm-i386/hrtime-M586.h
---- linux-2.5.54-bk1-core/include/asm-i386/hrtime-M586.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M586.h	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,170 @@
-+/*
-+ * UTIME: On-demand Microsecond Resolution Timers
-+ * ----------------------------------------------
-+ *
-+ * File: include/asm-i586/hrtime-Macpi.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/utime.txt
-+ */
-+/* 
-+ * This code swiped from the utime project to support high res timers
-+ * Principle thief George Anzinger george@mvista.com
-+ */
-+#include <asm/msr.h>
-+#ifndef _ASM_HRTIME_M586_H
-+#define _ASM_HRTIME_M586_H
-+
-+#ifdef __KERNEL__
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+/*
-+ * This gets redefined when we calibrate the TSC
-+ */
-+struct timer_conversion_bits timer_conversion_bits = {
-+	_cycles_per_jiffies:LATCH
-+};
-+#endif
-+
-+/*
-+ * This define avoids an ugly ifdef in time.c
-+ */
-+#define get_cpuctr_from_timer_interrupt()
-+#define timer_latch_reset(s)
-+
-+/* NOTE: When trying to port this to other architectures define
-+ * this to be (void)(1) (ie. #define set_last_timer_cc() (void)(1))
-+ * otherwise sched.c would give an undefined reference
-+ */
-+
-+// think this is old cruft... extern void set_last_timer_cc(void);
-+/*
-+ * These are specific to the pentium counters
-+ */
-+extern inline unsigned long
-+get_cpuctr(void)
-+{
-+	/*
-+	 * We are interested only in deltas so we just use the low bits
-+	 * at 1GHZ this should be good for 4.2 seconds, at 100GHZ 42 ms
-+	 */
-+	unsigned long old = last_update;
-+	rdtscl(last_update);
-+	return last_update - old;
-+}
-+extern inline unsigned long
-+quick_get_cpuctr(void)
-+{
-+	unsigned long value;
-+	rdtscl(value);
-+	return value - last_update;
-+}
-+#define arch_hrtime_init(x) (x)
-+
-+extern unsigned long long base_cpuctr;
-+extern unsigned long base_jiffies;
-+/* 
-+ * We use various scaling.  The sc32 scales by 2**32, sc_n by the first parm.
-+ * When working with constants, choose a scale such that x/n->(32-scale)< 1/2.
-+ * So for 1/3 <1/2 so scale of 32, where as 3/1 must be shifted 3 times (3/8) to
-+ * be less than 1/2 so scale should be 29
-+ *
-+ * The principle high end is when we can no longer keep 1/HZ worth of arch
-+ * time (TSC counts) in an integer.  This will happen somewhere between 40GHz and
-+ * 50GHz with HZ set to 100.  For now we are cool and the scale of 24 works for 
-+ * the nano second to arch from 2MHz to 40+GHz.  
-+ */
-+#define HR_TIME_SCALE_NSEC 22
-+#define HR_TIME_SCALE_USEC 14
-+extern inline int
-+arch_cycles_to_usec(unsigned long update)
-+{
-+	return (mpy_sc32(update, arch_to_usec));
-+}
-+/*
-+ * We use the same scale for both the pit and the APIC
-+ */
-+extern inline int
-+arch_cycles_to_latch(unsigned long update)
-+{
-+	return (mpy_sc32(update, arch_to_latch));
-+}
-+#define compute_latch(APIC_clocks_jiffie) arch_to_latch = \
-+                                             div_sc32(APIC_clocks_jiffie, \
-+				                      cycles_per_jiffies);
-+
-+extern inline int
-+arch_cycles_to_nsec(long update)
-+{
-+	return mpy_sc_n(HR_TIME_SCALE_NSEC, update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+extern inline int
-+usec_to_arch_cycles(unsigned long usec)
-+{
-+	return mpy_sc_n(HR_TIME_SCALE_USEC, usec, usec_to_arch);
-+}
-+extern inline int
-+nsec_to_arch_cycles(unsigned long nsec)
-+{
-+	return mpy_sc_n(HR_TIME_SCALE_NSEC, nsec, nsec_to_arch);
++	return 0;
 +}
 +
-+EXTERN int pit_pgm_correction;
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+
-+#include <asm/io.h>
-+
-+#ifndef USEC_PER_SEC
-+#define USEC_PER_SEC 1000000
-+#endif
-+	/*
-+	 * Code for runtime calibration of high res timers
-+	 * Watch out, cycles_per_sec will overflow when we
-+	 * get a ~ 2.14 GHz machine...
-+	 * We are starting with tsc_cycles_per_5_jiffies set to 
-+	 * 5 times the actual value (as set by 
-+	 * calibrate_tsc() ).
-+	 */
-+#define init_hrtimers() \
-+        arch_to_usec = fast_gettimeoffset_quotient; \
-+ \
-+        arch_to_latch = div_ll_X_l(mpy_l_X_l_ll(fast_gettimeoffset_quotient, \
-+                                                CLOCK_TICK_RATE),           \
-+                                   (USEC_PER_SEC));          \
-+\
-+        arch_to_nsec = div_sc_n(HR_TIME_SCALE_NSEC, \
-+                               CALIBRATE_TIME * NSEC_PER_USEC, \
-+                               tsc_cycles_per_5_jiffies); \
-+ \
-+        nsec_to_arch = div_sc_n(HR_TIME_SCALE_NSEC, \
-+                                tsc_cycles_per_5_jiffies, \
-+                                CALIBRATE_TIME * NSEC_PER_USEC); \
-+        usec_to_arch = div_sc_n(HR_TIME_SCALE_USEC, \
-+                                tsc_cycles_per_5_jiffies, \
-+                                CALIBRATE_TIME ); \
-+        cycles_per_jiffies = tsc_cycles_per_5_jiffies / CAL_JIFS;
-+
-+#endif				/* _INCLUDED_FROM_HRTIME_C */
-+#endif				/* __KERNEL__ */
-+#endif				/* _ASM_HRTIME-M586_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/hrtime-Macpi.h linux/include/asm-i386/hrtime-Macpi.h
---- linux-2.5.54-bk1-core/include/asm-i386/hrtime-Macpi.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-Macpi.h	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,190 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime-Macpi.h 
-+ * Copyright (C) 2001 by MontaVista Software,
-+
-+ * This software may be used and distributed according to the terms of
-+ * the GNU Public License, incorporated herein by reference.
-+
-+ */
-+#include <asm/msr.h>
-+#include <asm/io.h>
-+#ifndef _ASM_HRTIME_Macpi_H
-+#define _ASM_HRTIME_Macpi_H
-+
-+#ifdef __KERNEL__
-+
-+/*
-+ * This define avoids an ugly ifdef in time.c
-+ */
-+#define timer_latch_reset(s)
-+
-+/* NOTE: When trying to port this to other architectures define
-+ * this to be (void)(1) (ie. #define set_last_timer_cc() (void)(1))
-+ * otherwise sched.c would give an undefined reference
-+ */
-+
-+extern void set_last_timer_cc(void);
-+/*
-+ * These are specific to the ACPI pm counter
-+ * The spec says the counter can be either 32 or 24 bits wide.  We treat them
-+ * both as 24 bits.  Its faster than doing the test.
-+ */
-+#define SIZE_MASK 0xffffff
-+
-+extern int acpi_pm_tmr_address;
-+
-+extern inline unsigned long
-+get_cpuctr(void)
++/* Set a POSIX.1b interval timer */
++asmlinkage int
++sys_timer_settime(timer_t timer_id, int flags,
++		  const struct itimerspec *new_setting,
++		  struct itimerspec *old_setting)
 +{
-+	static long old;
++	struct k_itimer *timr;
++	struct itimerspec new_spec, old_spec;
++	int error = 0;
++	long flag;
++	struct itimerspec *rtn = old_setting ? &old_spec : NULL;
 +
-+	old = last_update;
-+	last_update = inl(acpi_pm_tmr_address);
-+	return (last_update - old) & SIZE_MASK;
-+}
-+extern inline unsigned long
-+quick_get_cpuctr(void)
-+{
-+	return (inl(acpi_pm_tmr_address) - last_update) & SIZE_MASK;
-+}
-+#define arch_hrtime_init(x) (x)
-+
-+/* 
-+ * We use various scaling.  The sc32 scales by 2**32, sc_n by the first parm.
-+ * When working with constants, choose a scale such that x/n->(32-scale)< 1/2.
-+ * So for 1/3 <1/2 so scale of 32, where as 3/1 must be shifted 3 times (3/8) to
-+ * be less than 1/2 so scale should be 29
-+ *
-+ */
-+#define HR_SCALE_ARCH_NSEC 22
-+#define HR_SCALE_ARCH_USEC 32
-+#define HR_SCALE_NSEC_ARCH 32
-+#define HR_SCALE_USEC_ARCH 29
-+
-+#ifndef  PM_TIMER_FREQUENCY
-+#define PM_TIMER_FREQUENCY  3579545	/*45   counts per second */
-+#endif
-+#define PM_TIMER_FREQUENCY_x_100  357954545	/* counts per second * 100 */
-+
-+#define cf_arch_to_usec (SC_32(100000000)/(long long)PM_TIMER_FREQUENCY_x_100)
-+extern inline int
-+arch_cycles_to_usec(unsigned long update)
-+{
-+	return (mpy_sc32(update, arch_to_usec));
-+}
-+/* 
-+ * Note: In the SMP case this value will be overwritten when the 
-+ * APIC clocks are figured out using the "compute_latch function below.
-+ * If the system is not SMP, the PIT is the ticker and this is the 
-+ * conversion for that.
-+ */
-+#define cf_arch_to_latch SC_32(CLOCK_TICK_RATE)/(long long)(CLOCK_TICK_RATE * 3)
-+
-+#ifndef CONFIG_SMP
-+/*
-+ * We need to take 1/3 of the presented value (or more exactly)
-+ * CLOCK_TICK_RATE /PM_TIMER_FREQUENCY.  Note that these two timers
-+ * are on the same cyrstal so will be EXACTLY 1/3.
-+ */
-+extern inline int
-+arch_cycles_to_latch(unsigned long update)
-+{
-+	return (mpy_sc32(update, arch_to_latch));
-+}
-+#else
-+/*
-+ * APIC clocks run from a low of 33MH to say 200MH.  The PM timer
-+ * runs about 3.5 MH.  We want to scale so that ( APIC << scale )/PM
-+ * is less 2 ^ 32.  Lets use 2 ^ 19, leaves plenty of room.
-+ */
-+#define HR_SCALE_ARCH_LATCH 19
-+
-+#define compute_latch(APIC_clocks_jiffie) arch_to_latch = div_sc_n(   \
-+                                                    HR_SCALE_ARCH_LATCH,   \
-+				                    APIC_clocks_jiffie,   \
-+				                    cycles_per_jiffies);
-+extern inline int
-+arch_cycles_to_latch(unsigned long update)
-+{
-+	return (mpy_sc_n(HR_SCALE_ARCH_LATCH, update, arch_to_latch));
-+}
-+
-+#endif
-+
-+#define cf_arch_to_nsec (SC_n(HR_SCALE_ARCH_NSEC,100000000000LL)/ \
-+                           (long long)PM_TIMER_FREQUENCY_x_100)
-+
-+extern inline int
-+arch_cycles_to_nsec(long update)
-+{
-+	return mpy_sc_n(HR_SCALE_ARCH_NSEC, update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+#define cf_usec_to_arch (SC_n( HR_SCALE_USEC_ARCH,PM_TIMER_FREQUENCY_x_100)/ \
-+                                            (long long)100000000)
-+extern inline int
-+usec_to_arch_cycles(unsigned long usec)
-+{
-+	return mpy_sc_n(HR_SCALE_USEC_ARCH, usec, usec_to_arch);
-+}
-+#define cf_nsec_to_arch (SC_n( HR_SCALE_NSEC_ARCH,PM_TIMER_FREQUENCY)/ \
-+                                            (long long)1000000000)
-+extern inline int
-+nsec_to_arch_cycles(unsigned long nsec)
-+{
-+	return mpy_sc32(nsec, nsec_to_arch);
-+}
-+
-+extern int hrt_get_acpi_pm_ptr(void);
-+//EXTERN int pit_pgm_correction;
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+
-+#include <asm/io.h>
-+struct timer_conversion_bits timer_conversion_bits = {
-+	_cycles_per_jiffies:((PM_TIMER_FREQUENCY + HZ / 2) / HZ),
-+	_nsec_to_arch:cf_nsec_to_arch,
-+	_usec_to_arch:cf_usec_to_arch,
-+	_arch_to_nsec:cf_arch_to_nsec,
-+	_arch_to_usec:cf_arch_to_usec,
-+	_arch_to_latch:cf_arch_to_latch
-+};
-+int acpi_pm_tmr_address;
-+
-+#endif				/* _INCLUDED_FROM_TIME_C_ */
-+
-+/*
-+ * No run time conversion factors need to be set up as the pm timer has a fixed
-+ * speed.
-+ */
-+/*
-+ * Here we have a local udelay for our init use only.  The system delay has
-+ * has not yet been calibrated when we use this, however, we do know
-+ * tsc_cycles_per_5_jiffies...
-+ */
-+
-+#if defined( CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD) && CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD > 0
-+#define default_pm_add CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD
-+#define message "High-res-timers: ACPI pm timer not found.  Trying specified address %d\n"
-+#else
-+#define default_pm_add 0
-+#define message \
-+        "High-res-timers: ACPI pm timer not found(%d) and no backup."\
-+        "\nCheck BIOS settings or supply a backup.  See configure documentation.\n"
-+#endif
-+#define fail_message \
-+"High-res-timers: >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"\
-+"High-res-timers: >Failed to find the ACPI pm timer                           <\n"\
-+"High-res-timers: >-<--><-->-<-->-<-->-<-->Boot will fail in Calibrate Delay  <\n"\
-+"High-res-timers: >Supply a valid default pm timer address                    <\n"\
-+"High-res-timers: >or get your BIOS to turn on ACPI support.                  <\n"\
-+"High-res-timers: >See CONFIGURE help for more information.                   <\n"\
-+"High-res-timers: >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"
-+/*
-+ * After we get the address, we set last_update to the current timer value
-+ */
-+#endif				/* __KERNEL__ */
-+#endif				/* _ASM_HRTIME-Mapic_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/hrtime.h linux/include/asm-i386/hrtime.h
---- linux-2.5.54-bk1-core/include/asm-i386/hrtime.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime.h	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,523 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.  
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/high-res-timers/
-+ */
-+/*
-+ * This code purloined from the utime project for high res timers.
-+ * Principle modifier George Anzinger george@mvista.com
-+ */
-+#ifndef _I386_HRTIME_H
-+#define _I386_HRTIME_H
-+#ifdef __KERNEL__
-+
-+#include <linux/config.h>	/* for CONFIG_APM etc... */
-+#include <asm/types.h>		/* for u16s */
-+#include <asm/io.h>
-+#include <asm/sc_math.h>	/* scaling math routines */
-+#include <asm/delay.h>
-+#include <asm/smp.h>
-+#include <linux/timex.h>	/* for LATCH */
-+/*
-+
-+ * We always want the timer, if not touched otherwise, to give periodic
-+ * 1/HZ interrupts.  This is done by programing the interrupt we want
-+ * and, once it it loaded, (in the case of the PIT) dropping a 1/HZ
-+ * program on top of it.  For other timers, other strategies are used,
-+ * such as programming a 1/HZ interval on interrupt.  The The PIT will
-+ * give us the desired interrupt and, at interrupt time, load the 1/HZ
-+ * program.  So...
-+
-+ * If no sub 1/HZ ticks are needed AND we are aligned with the 1/HZ 
-+ * boundry, we don't need to touch the PIT.  Otherwise we do the above.
-+
-+ * There are two reasons to keep this:
-+ * 1. The NMI watchdog uses the timer interrupt to generate the NMI interrupts.
-+ * 2. We don't have to touch the PIT unless we have a sub jiffie event in
-+ *    the next 1/HZ interval (unless we drift away from the 1/HZ boundry).
-+ */
-+
-+/*
-+ * The high-res-timers option is set up to self configure with different 
-+ * platforms.  It is up to the platform to provide certian macros which
-+ * override the default macros defined in system without (or with disabled)
-+ * high-res-timers.
-+ *
-+ * To do high-res-timers at some fundamental level the timer interrupt must
-+ * be seperated from the time keeping tick.  A tick can still be generated
-+ * by the timer interrupt, but it may be surrounded by non-tick interrupts.
-+ * It is up to the platform to determine if a particular interrupt is a tick,
-+ * and up to the timer code (in timer.c) to determine what time events have
-+ * expired.
-+ *
-+ * Macros:
-+ * update_jiffies()  This macro is to compute the new value of jiffie and 
-+ *                   sub_jiffie.  If high-res-timers are not available it
-+ *                   may be assumed that this macro will be called once
-+ *                   every 1/HZ and so should reduce to:
-+ *
-+ * 	(*(u64 *)&jiffies_64)++;
-+ *
-+ * sub_jiffie, in this case will always be zero, and need not be addressed.
-+ * It is assumed that the sub_jiffie is in platform defined units and runs
-+ * from 0 to a value which represents 1/HZ on that platform.  (See conversion
-+ * macro requirements below.)
-+ * If high-res-timers are available, this macro will be called each timer
-+ * interrupt which may be more often than 1/HZ.  It is up to the code to 
-+ * determine if a new jiffie has just started and pass this info to:
-+ *
-+ * new_jiffie() which should return true if the last call to update_jiffie()
-+ *              moved the jiffie count (as apposed to just the sub_jiffie).
-+ *              For systems without high-res-timers the kernel will predefine
-+ *              this to be 0 which will allow the compiler to optimize the code
-+ *              for this case.  In SMP systems this should be set to all 1's
-+ *              as it is used in a per cpu fashion to indicate that a paricular
-+ *              cpu needs to run the accounting code.  It should result
-+ *              in a variable that can be cast to a volital long and of
-+ *              which the address can be taken.
-+ *
-+ * schedule_next_int(jiffie_f,sub_jiffie_v,always) is a macro that the 
-+ *                                 platform should 
-+ *                                 provide that will set up the timer interrupt 
-+ *                                 hardware to interrupt at the absolute time
-+ *                                 defined by jiffie_f,sub_jiffie_v where the 
-+ *                                 units are 1/HZ and the platform defined 
-+ *                                 sub_jiffie unit.  This function must 
-+ *                                 determine the actual current time and the 
-+ *                                 requested offset and act accordingly.  A 
-+ *                                 sub_jiffie_v value of -1 should be 
-+ *                                 understood to mean the next even jiffie 
-+ *                                 regardless of the jiffie_f value.  If 
-+ *                                 the current jiffie is not jiffie_f, it 
-+ *                                 may be assumed that the requested time 
-+ *                                 has passed and an immeadiate interrupt 
-+ *                                 should be taken.  If high-res-timers are 
-+ *                                 not available, this macro should evaluate 
-+ *                                 to nil.  This macro may return 1 if always
-+ *                                 if false AND the requested time has passed.
-+ *                                 "Always" indicates that an interrupt is
-+ *                                 required even if the time has already passed.
-+ */
-+
-+/*
-+ * no of usecs less than which events cannot be scheduled
-+ */
-+#define TIMER_DELTA  5
-+#ifdef _INCLUDED_FROM_TIME_C
-+#define EXTERN
-+int timer_delta = TIMER_DELTA;
-+#else
-+#define EXTERN  extern
-+extern int timer_delta;
-+#endif
-+
-+/*
-+
-+ * Interrupt generators need to be disciplined to generate the interrupt
-+ * on the 1/HZ boundry (assuming we don't need sub_jiffie interrupts) if
-+ * the timer clock is other than the interrupt generator clock.  In the
-+ * I386 case this includes the PIT and TSC or pm combinations and the
-+ * apic and TSC or pm combinations, i.e. all but the PIT/PIT
-+ * combination.
-+
-+ */
-+#if defined(CONFIG_X86_LOCAL_APIC) || !defined(CONFIG_HIGH_RES_TIMER_PIT)
-+#define TIMER_NEEDS_DISCIPLINE
-+#define IF_DISCIPLINE(x) x
-+EXTERN int timer_discipline_diff;
-+EXTERN int min_hz_sub_jiffie;
-+EXTERN int max_hz_sub_jiffie;
-+EXTERN int _last_was_long[NR_CPUS];
-+#define __last_was_long  _last_was_long[smp_processor_id()]
-+#else
-+#define IF_DISCIPLINE(x)
-+EXTERN int _last_was_long;
-+#define __last_was_long  _last_was_long
-+#endif
-+
-+#define CONFIG_HIGH_RES_RESOLUTION 1000	// nano second resolution
-+					   // we will use for high res.
-+
-+#define USEC_PER_JIFFIES  (1000000/HZ)
-+/*
-+ * This is really: x*(CLOCK_TICK_RATE+HZ/2)/1000000
-+ * Note that we can not figure the constant part at
-+ * compile time because we would loose precision.
-+ */
-+#define PIT0_LATCH_STATUS 0xc2
-+#define PIT0 0x40
-+#define PIT1 0x41
-+#define PIT_COMMAND 0x43
-+#define PIT0_ONE_SHOT 0x38
-+#define PIT0_PERIODIC 0x34
-+#define PIT0_LATCH_COUNT 0xd2
-+#define PIT01_LATCH_COUNT 0xd6
-+#define PIT_NULL_COUNT 0x40
-+#define READ_CNT0(varr) {varr = inb(PIT0);varr += (inb(PIT0))<<8;}
-+#define READ_CNT1(var) { var = inb(PIT1); }
-+#define LATCH_CNT0() { outb(PIT0_LATCH_COUNT,PIT_COMMAND); }
-+#define LATCH_CNT0_AND_CNT1() { outb(PIT01_LATCH_COUNT,PIT_COMMAND); }
-+
-+#define TO_LATCH(x) (((x)*LATCH)/USEC_PER_JIFFIES)
-+
-+#define sub_jiffie() _sub_jiffie
-+#define schedule_next_int(a,b,c)  _schedule_next_int(a,b,c)
-+
-+#define update_jiffies() update_jiffies_sub()
-+#define new_jiffie() _new_jiffie
-+
-+extern unsigned long next_intr;
-+extern spinlock_t i8253_lock;
-+extern rwlock_t xtime_lock;
-+extern volatile unsigned long jiffies;
-+extern u64 jiffies_64;
-+
-+extern int _schedule_next_int(unsigned long jiffie_f, long sub_jiffie_in,
-+			      int always);
-+
-+extern unsigned int volatile latch_reload;
-+
-+EXTERN int jiffies_intr;
-+EXTERN long volatile _new_jiffie;
-+EXTERN int _sub_jiffie;
-+EXTERN unsigned long volatile last_update;
-+EXTERN int high_res_test_val;
-+
-+extern inline void
-+start_PIT(void)
-+{
-+	spin_lock(&i8253_lock);
-+	outb_p(PIT0_PERIODIC, PIT_COMMAND);
-+	outb_p(LATCH & 0xff, PIT0);	/* LSB */
-+	outb(LATCH >> 8, PIT0);	/* MSB */
-+	spin_unlock(&i8253_lock);
-+}
-+
-+/*
-+ * Now go ahead and include the clock specific file 586/386/acpi
-+ * These asm files have extern inline functions to do a lot of
-+ * stuff as well as the conversion routines.
-+ */
-+#ifdef CONFIG_HIGH_RES_TIMER_ACPI_PM
-+#include <asm/hrtime-Macpi.h>
-+#elif defined(CONFIG_HIGH_RES_TIMER_PIT)
-+#include <asm/hrtime-M386.h>
-+#elif defined(CONFIG_HIGH_RES_TIMER_TSC)
-+#include <asm/hrtime-M586.h>
-+#else
-+#error "Need one of: CONFIG_HIGH_RES_TIMER_ACPI_PM CONFIG_HIGH_RES_TIMER_TSC CONFIG_HIGH_RES_TIMER_PIT"
-+#endif
-+
-+extern unsigned long long jiffiesll;
-+
-+/*
-+ * We stole this routine from the Utime code, but there it
-+ * calculated microseconds and here we calculate sub_jiffies
-+ * which have (in this case) units of TSC count.  (If there
-+ * is no TSC, see hrtime-M386.h where a different unit
-+ * is used.  This allows the more expensive math (to get
-+ * standard units) to be done only when needed.  Also this
-+ * makes it as easy (and as efficient) to calculate nano
-+ * as well as micro seconds.
-+ */
-+
-+extern inline void
-+arch_update_jiffies(unsigned long update)
-+{
-+	/*
-+	 * update is the delta in sub_jiffies
-+	 */
-+	_sub_jiffie += update;
-+	while ((unsigned long) _sub_jiffie > cycles_per_jiffies) {
-+		_sub_jiffie -= cycles_per_jiffies;
-+		_new_jiffie = ~0;
-+		jiffies_intr++;
-+		jiffies_64++;
++	if (new_setting == NULL) {
++		return -EINVAL;
 +	}
++
++	if (copy_from_user(&new_spec, new_setting, sizeof (new_spec))) {
++		return -EFAULT;
++	}
++
++	if ((!good_timespec(&new_spec.it_interval)) ||
++	    (!good_timespec(&new_spec.it_value))) {
++		return -EINVAL;
++	}
++      retry:
++	timr = lock_timer(timer_id, &flag);
++	if (!timr)
++		return -EINVAL;
++
++	if (!posix_clocks[timr->it_clock].timer_set) {
++		error = do_timer_settime(timr, flags, &new_spec, rtn);
++	} else {
++		error = posix_clocks[timr->it_clock].timer_set(timr,
++							       flags,
++							       &new_spec, rtn);
++	}
++	unlock_timer(timr, flag);
++	if (error == TIMER_RETRY) {
++		rtn = NULL;	// We already got the old time...
++		goto retry;
++	}
++
++	if (old_setting && !error) {
++		if (copy_to_user(old_setting, &old_spec, sizeof (old_spec))) {
++			error = -EFAULT;
++		}
++	}
++
++	return error;
 +}
 +
-+#define SC_32_TO_USEC (SC_32(1000000)/ (long long)CLOCK_TICK_RATE)
++static inline int
++do_timer_delete(struct k_itimer *timer)
++{
++	timer->it_incr = 0;
++#ifdef CONFIG_SMP
++	if (timer_active(timer) &&
++	    !del_timer(&timer->it_timer) && !timer->it_requeue_pending) {
++		/*
++		 * It can only be active if on an other cpu.  Since
++		 * we have cleared the interval stuff above, it should
++		 * clear once we release the spin lock.  Of course once
++		 * we do that anything could happen, including the 
++		 * complete melt down of the timer.  So return with 
++		 * a "retry" exit status.
++		 */
++		return TIMER_RETRY;
++	}
++#else
++	del_timer(&timer->it_timer);
++#endif
++	return 0;
++}
++
++/* Delete a POSIX.1b interval timer. */
++asmlinkage int
++sys_timer_delete(timer_t timer_id)
++{
++	struct k_itimer *timer;
++	long flags;
++
++#ifdef CONFIG_SMP
++	int error;
++      retry_delete:
++#endif
++
++	timer = lock_timer(timer_id, &flags);
++	if (!timer)
++		return -EINVAL;
++
++#ifdef CONFIG_SMP
++	error = p_timer_del(&posix_clocks[timer->it_clock], timer);
++
++	if (error == TIMER_RETRY) {
++		unlock_timer(timer, flags);
++		goto retry_delete;
++	}
++#else
++	p_timer_del(&posix_clocks[timer->it_clock], timer);
++#endif
++
++	task_lock(timer->it_process);
++
++	list_del(&timer->list);
++
++	task_unlock(timer->it_process);
 +
 +	/*
-+	 * In the ALL_PERIODIC mode we program the PIT to give periodic
-+	 * interrupts and, if no sub_jiffie timers are due, leave it alone.
-+	 * This means that it can drift WRT the clock (TSC or pm timer).
-+	 * What we are trying to do is to program the next interrupt to
-+	 * occure on exactly the requested time.  If we are not doing 
-+	 * sub HZ interrupts we expect to find a small excess of time
-+	 * beyond the 1/HZ, i.e. _sub_jiffie will have some small value. 
-+	 * This value will drift AND may jump upward from time to time. 
-+	 * The drift is due to not having precise tracking between the 
-+	 * two timers (the PIT and either the TSC or the PM timer) and
-+	 * the jump is caused by interrupt delays, cache misses etc. 
-+	 * We need to correct for the drift.  To correct all we need to 
-+	 * do is to set "last_was_long" to zero and a new timer program 
-+	 * will be started to "do the right thing".
-+
-+	 * Detecting the need to do this correction is another issue. 
-+	 * Here is what we do:
-+	 * Each interrupt where last_was_long is !=0 (indicates the
-+	 * interrupt should be on a 1/HZ boundry) we check the resulting 
-+	 * _sub_jiffie.  If it is smaller than some MIN value, we do
-+	 * the correction.  (Note that drift that makes the value  
-+	 * smaller is the easy one.)  We also require that
-+	 * _sub_jiffie <= some max at least once over a period of 1 second. 
-+	 * I.e.  with HZ = 100, we will allow up to 99 "late" interrupts
-+	 * before we do a correction.
-+
-+	 * The values we use for min_hz_sub_jiffie and max_hz_sub_jiffie 
-+	 * depend on the units and we will start by, during boot,
-+	 * observing what MIN appears to be.  We will set max_hz_sub_jiffie
-+	 * to be about 100 machine cycles more than this.
-+
-+	 * Note that with  min_hz_sub_jiffie and max_hz_sub_jiffie
-+	 * set to 0, this code will reset the PIT every HZ.
++	 * This keeps any tasks waiting on the spin lock from thinking
++	 * they got something (see the lock code above).
 +	 */
-+#ifdef TIMER_NEEDS_DISCIPLINE
-+extern inline void
-+discipline_timer(int cpu)
-+{
-+	int *last_was_long = &_last_was_long[cpu];
-+
-+	if (!*last_was_long)
-+		return;
-+
-+	timer_discipline_diff = quick_get_cpuctr() + _sub_jiffie;
-+	while (timer_discipline_diff > cycles_per_jiffies) {
-+		timer_discipline_diff -= cycles_per_jiffies;
-+	}
-+	if (timer_discipline_diff < min_hz_sub_jiffie) {
-+		*last_was_long = 0;
-+		return;
-+	}
-+	if (timer_discipline_diff <= max_hz_sub_jiffie) {
-+		*last_was_long = 1;
-+		return;
-+	}
-+	if (++*last_was_long > HZ) {
-+		*last_was_long = 0;
-+		return;
-+	}
++	timer->it_process = NULL;
++	unlock_timer(timer, flags);
++	release_posix_timer(timer);
++	return 0;
 +}
-+#else
-+#define discipline_timer(a)
-+#endif
 +/*
-+ * This routine is always called under the write_lockirq(xtime_lock)
++ * return  timer owned by the process, used by exit_itimers
 + */
-+extern inline void
-+update_jiffies_sub(void)
-+{
-+	unsigned long cycles_update;
-+
-+	cycles_update = get_cpuctr();
-+
-+	arch_update_jiffies(cycles_update);
-+}
-+
-+/*
-+ * quick_update_jiffies_sub returns the sub_jiffie offset of 
-+ * current time from the "ref_jiff" jiffie value.  We do this
-+ * with out updating any memory values and thus do not need to
-+ * take any locks, if we are careful.
-+ *
-+ * I don't know how to eliminate the lock in the SMP case, so..
-+ * Oh, and also the PIT case requires a lock anyway, so..
-+ */
-+#if defined (CONFIG_SMP) || defined(CONFIG_HIGH_RES_TIMER_PIT)
 +static inline void
-+get_rat_jiffies(unsigned long *jiffies_f,
-+		long *_sub_jiffie_f, unsigned long *update)
++itimer_delete(struct k_itimer *timer)
 +{
++	if (sys_timer_delete(timer->it_id)) {
++		BUG();
++	}
++}
++/*
++ * This is exported to exit and exec
++ */
++void
++exit_itimers(struct task_struct *tsk)
++{
++	struct k_itimer *tmr;
++
++	task_lock(tsk);
++	while (!list_empty(&tsk->posix_timers)) {
++		tmr = list_entry(tsk->posix_timers.next, struct k_itimer, list);
++		task_unlock(tsk);
++		itimer_delete(tmr);
++		task_lock(tsk);
++	}
++	task_unlock(tsk);
++}
++
++/*
++ * And now for the "clock" calls
++
++ * These functions are called both from timer functions (with the timer
++ * spin_lock_irq() held and from clock calls with no locking.	They must
++ * use the save flags versions of locks.
++ */
++static int
++do_posix_gettime(struct k_clock *clock, struct timespec *tp)
++{
++
++	if (clock->clock_get) {
++		return clock->clock_get(tp);
++	}
++
++	do_gettimeofday((struct timeval *) tp);
++	tp->tv_nsec *= NSEC_PER_USEC;
++	return 0;
++}
++
++/*
++ * We do ticks here to avoid the irq lock ( they take sooo long)
++ * Note also that the while loop assures that the sub_jiff_offset
++ * will be less than a jiffie, thus no need to normalize the result.
++ * Well, not really, if called with ints off :(
++ */
++
++int
++do_posix_clock_monotonic_gettime(struct timespec *tp)
++{
++	long sub_sec;
++	u64 jiffies_64_f;
++
++#if (BITS_PER_LONG > 32)
++
++	jiffies_64_f = jiffies_64;
++
++#elif defined(CONFIG_SMP)
++
++	/* Tricks don't work here, must take the lock.   Remember, called
++	 * above from both timer and clock system calls => save flags.
++	 */
++	{
++		unsigned long flags;
++		read_lock_irqsave(&xtime_lock, flags);
++		jiffies_64_f = jiffies_64;
++
++		read_unlock_irqrestore(&xtime_lock, flags);
++	}
++#elif ! defined(CONFIG_SMP) && (BITS_PER_LONG < 64)
++	unsigned long jiffies_f;
++	do {
++		jiffies_f = jiffies;
++		barrier();
++		jiffies_64_f = jiffies_64;
++	} while (unlikely(jiffies_f != jiffies));
++
++#endif
++	tp->tv_sec = div_long_long_rem(jiffies_64_f, HZ, &sub_sec);
++
++	tp->tv_nsec = sub_sec * (NSEC_PER_SEC / HZ);
++	return 0;
++}
++
++int
++do_posix_clock_monotonic_settime(struct timespec *tp)
++{
++	return -EINVAL;
++}
++
++asmlinkage int
++sys_clock_settime(clockid_t which_clock, const struct timespec *tp)
++{
++	struct timespec new_tp;
++
++	if ((unsigned) which_clock >= MAX_CLOCKS ||
++	    !posix_clocks[which_clock].res) return -EINVAL;
++	if (copy_from_user(&new_tp, tp, sizeof (*tp)))
++		return -EFAULT;
++	if (posix_clocks[which_clock].clock_set) {
++		return posix_clocks[which_clock].clock_set(&new_tp);
++	}
++	new_tp.tv_nsec /= NSEC_PER_USEC;
++	return do_sys_settimeofday((struct timeval *) &new_tp, NULL);
++}
++asmlinkage int
++sys_clock_gettime(clockid_t which_clock, struct timespec *tp)
++{
++	struct timespec rtn_tp;
++	int error = 0;
++
++	if ((unsigned) which_clock >= MAX_CLOCKS ||
++	    !posix_clocks[which_clock].res) return -EINVAL;
++
++	error = do_posix_gettime(&posix_clocks[which_clock], &rtn_tp);
++
++	if (!error) {
++		if (copy_to_user(tp, &rtn_tp, sizeof (rtn_tp))) {
++			error = -EFAULT;
++		}
++	}
++	return error;
++
++}
++asmlinkage int
++sys_clock_getres(clockid_t which_clock, struct timespec *tp)
++{
++	struct timespec rtn_tp;
++
++	if ((unsigned) which_clock >= MAX_CLOCKS ||
++	    !posix_clocks[which_clock].res) return -EINVAL;
++
++	rtn_tp.tv_sec = 0;
++	rtn_tp.tv_nsec = posix_clocks[which_clock].res;
++	if (tp) {
++		if (copy_to_user(tp, &rtn_tp, sizeof (rtn_tp))) {
++			return -EFAULT;
++		}
++	}
++	return 0;
++
++}
++static void
++nanosleep_wake_up(unsigned long __data)
++{
++	struct task_struct *p = (struct task_struct *) __data;
++
++	wake_up_process(p);
++}
++
++/*
++ * The standard says that an absolute nanosleep call MUST wake up at
++ * the requested time in spite of clock settings.  Here is what we do:
++ * For each nanosleep call that needs it (only absolute and not on 
++ * CLOCK_MONOTONIC* (as it can not be set)) we thread a little structure
++ * into the "nanosleep_abs_list".  All we need is the task_struct pointer.
++ * When ever the clock is set we just wake up all those tasks.	 The rest
++ * is done by the while loop in clock_nanosleep().
++
++ * On locking, clock_was_set() is called from update_wall_clock which 
++ * holds (or has held for it) a write_lock_irq( xtime_lock) and is 
++ * called from the timer bh code.  Thus we need the irq save locks.
++ */
++spinlock_t nanosleep_abs_list_lock = SPIN_LOCK_UNLOCKED;
++
++struct list_head nanosleep_abs_list = LIST_HEAD_INIT(nanosleep_abs_list);
++
++struct abs_struct {
++	struct list_head list;
++	struct task_struct *t;
++};
++
++void
++clock_was_set(void)
++{
++	struct list_head *pos;
 +	unsigned long flags;
 +
-+	read_lock_irqsave(&xtime_lock, flags);
-+	*jiffies_f = jiffies;
-+	*_sub_jiffie_f = _sub_jiffie;
-+	*update = quick_get_cpuctr();
-+	read_unlock_irqrestore(&xtime_lock, flags);
-+}
-+
-+#else
-+static inline void
-+get_rat_jiffies(unsigned long *jiffies_f, long *_sub_jiffie_f,
-+		unsigned long *update)
-+{
-+	unsigned long last_update_f;
-+	do {
-+		*jiffies_f = jiffies;
-+		last_update_f = last_update;
-+		barrier();
-+		*_sub_jiffie_f = _sub_jiffie;
-+		*update = quick_get_cpuctr();
-+		barrier();
-+	} while (*jiffies_f != jiffies || last_update_f != last_update);
-+}
-+#endif				/* CONFIG_SMP */
-+
-+/*
-+ * If smp, this must be called with the read_lockirq(&xtime_lock) held.
-+ * No lock is needed if not SMP.
-+ */
-+
-+extern inline long
-+quick_update_jiffies_sub(unsigned long ref_jiff)
-+{
-+	unsigned long update;
-+	unsigned long rtn;
-+	unsigned long jiffies_f;
-+	long _sub_jiffie_f;
-+
-+	get_rat_jiffies(&jiffies_f, &_sub_jiffie_f, &update);
-+
-+	rtn = _sub_jiffie_f + (unsigned long) update;
-+	rtn += (jiffies_f - ref_jiff) * cycles_per_jiffies;
-+	return rtn;
-+
-+}
-+#ifdef CONFIG_X86_LOCAL_APIC
-+#include <asm/apic.h>
-+/*
-+ * If we have a local APIC, we will use its counter to get the needed 
-+ * interrupts.  Here is where we program it.
-+ */
-+extern int prof_counter[NR_CPUS];
-+
-+extern void __setup_APIC_LVTT(unsigned int);
-+
-+extern inline void
-+reload_timer_chip(int new_latch_value)
-+{
-+	int new_latch = arch_cycles_to_latch(new_latch_value);
-+	/*
-+	 * We may want to do more in line code for speed here.
-+	 * For now, however...
-+
-+	 * Note: The interrupt routine presets the counter for 1/HZ
-+	 * each interrupt so we only deal with requested shorter times
-+	 * either due to timer requests or drift.
-+	 */
-+	if (new_latch < timer_delta)
-+		new_latch = timer_delta;
-+	/*
-+	 * The profile counter may be set causing us to ignor (or 
-+	 * really just profile) the interrupt.  Force it to roll over
-+	 * and give us the interrupt.  This may cause a hic cup in
-+	 * the profile, but it will resume on the next tick.
-+	 * There are, clearly, more complicated ways to deal with
-+	 * profiling.
-+	 */
-+	prof_counter[smp_processor_id()] = 1;
-+	apic_write_around(APIC_TMICT, new_latch);
-+}
-+
-+#endif
-+#ifndef CONFIG_HIGH_RES_TIMER_PIT
-+#ifndef CONFIG_X86_LOCAL_APIC
-+extern inline void
-+reload_timer_chip(int new_latch_value)
-+{
-+	unsigned char pit_status;
-+	/*
-+	 * The input value is in arch cycles
-+	 * We must be called with irq disabled.
-+	 */
-+
-+	new_latch_value = arch_cycles_to_latch(new_latch_value);
-+	if (new_latch_value < TIMER_DELTA) {
-+		new_latch_value = TIMER_DELTA;
++	spin_lock_irqsave(&nanosleep_abs_list_lock, flags);
++	list_for_each(pos, &nanosleep_abs_list) {
++		wake_up_process(list_entry(pos, struct abs_struct, list)->t);
 +	}
-+	spin_lock(&i8253_lock);
-+	outb_p(PIT0_PERIODIC, PIT_COMMAND);
-+	outb_p(new_latch_value & 0xff, PIT0);	/* LSB */
-+	outb(new_latch_value >> 8, PIT0);	/* MSB */
++	spin_unlock_irqrestore(&nanosleep_abs_list_lock, flags);
++}
++
++long clock_nanosleep_restart(struct restart_block *restart_block);
++
++extern long do_clock_nanosleep(clockid_t which_clock, int flags, 
++			       struct timespec *t);
++
++#ifdef FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
++
++asmlinkage long
++sys_nanosleep(struct timespec *rqtp, struct timespec *rmtp)
++{
++	struct timespec t;
++	long ret;
++
++	if (copy_from_user(&t, rqtp, sizeof (t)))
++		return -EFAULT;
++
++	ret = do_clock_nanosleep(CLOCK_REALTIME, 0, &t);
++
++	if (ret == -ERESTART_RESTARTBLOCK && rmtp && 
++	    copy_to_user(rmtp, &t, sizeof (t)))
++			return -EFAULT;
++	return ret;
++}
++#endif				// ! FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
++
++asmlinkage long
++sys_clock_nanosleep(clockid_t which_clock, int flags,
++		    const struct timespec *rqtp, struct timespec *rmtp)
++{
++	struct timespec t;
++	int ret;
++
++	if ((unsigned) which_clock >= MAX_CLOCKS ||
++	    !posix_clocks[which_clock].res) return -EINVAL;
++
++	if (copy_from_user(&t, rqtp, sizeof (struct timespec)))
++		return -EFAULT;
++
++	if ((unsigned) t.tv_nsec >= NSEC_PER_SEC || t.tv_sec < 0)
++		return -EINVAL;
++
++	ret = do_clock_nanosleep(which_clock, flags, &t);
++
++	if ((ret == -ERESTART_RESTARTBLOCK) && rmtp && 
++	    copy_to_user(rmtp, &t, sizeof (t)))
++			return -EFAULT;
++	return ret;
++
++}
++
++long
++do_clock_nanosleep(clockid_t which_clock, int flags, struct timespec *tsave)
++{
++	struct timespec t;
++	struct timer_list new_timer;
++	struct abs_struct abs_struct = { list:{next:0} };
++	int abs;
++	int rtn = 0;
++	int active;
++	struct restart_block *restart_block =
++	    &current_thread_info()->restart_block;
++
++	init_timer(&new_timer);
++	new_timer.expires = 0;
++	new_timer.data = (unsigned long) current;
++	new_timer.function = nanosleep_wake_up;
++	abs = flags & TIMER_ABSTIME;
++
++	if (restart_block->fn == clock_nanosleep_restart) {
++		/*
++		 * Interrupted by a non-delivered signal, pick up remaining
++		 * time and continue.
++		 */
++		restart_block->fn = do_no_restart_syscall;
++		if (!restart_block->arg2)
++			return -EINTR;
++
++		new_timer.expires = restart_block->arg2;
++		if (time_before(new_timer.expires, jiffies))
++			return 0;
++	}
++
++	if (abs && (posix_clocks[which_clock].clock_get !=
++		    posix_clocks[CLOCK_MONOTONIC].clock_get)) {
++		spin_lock_irq(&nanosleep_abs_list_lock);
++		list_add(&abs_struct.list, &nanosleep_abs_list);
++		abs_struct.t = current;
++		spin_unlock_irq(&nanosleep_abs_list_lock);
++	}
 +	do {
-+		outb_p(PIT0_LATCH_STATUS, PIT_COMMAND);
-+		pit_status = inb(PIT0);
-+	} while (pit_status & PIT_NULL_COUNT);
-+	outb_p(LATCH & 0xff, PIT0);	/* LSB */
-+	outb(LATCH >> 8, PIT0);	/* MSB */
-+	spin_unlock(&i8253_lock);
-+	return;
++		t = *tsave;
++		if ((abs || !new_timer.expires) &&
++		    !(rtn = adjust_abs_time(&posix_clocks[which_clock],
++					    &t, abs))) {
++			/*
++			 * On error, we don't set up the timer so
++			 * we don't arm the timer so
++			 * del_timer_sync() will return 0, thus
++			 * active is zero... and so it goes.
++			 */
++
++			tstojiffie(&t,
++				   posix_clocks[which_clock].res,
++				   &new_timer.expires);
++		}
++		if (new_timer.expires) {
++			current->state = TASK_INTERRUPTIBLE;
++			add_timer(&new_timer);
++
++			schedule();
++		}
++	}
++	while ((active = del_timer_sync(&new_timer)) &&
++	       !test_thread_flag(TIF_SIGPENDING));
++
++	if (abs_struct.list.next) {
++		spin_lock_irq(&nanosleep_abs_list_lock);
++		list_del(&abs_struct.list);
++		spin_unlock_irq(&nanosleep_abs_list_lock);
++	}
++	if (active) {
++		unsigned long jiffies_f = jiffies;
++
++		/*
++		 * Always restart abs calls from scratch to pick up any
++		 * clock shifting that happened while we are away.
++		 */
++		if (abs)
++			return -ERESTARTNOHAND;
++
++		jiffies_to_timespec(new_timer.expires - jiffies_f, tsave);
++
++		while (tsave->tv_nsec < 0) {
++			tsave->tv_nsec += NSEC_PER_SEC;
++			tsave->tv_sec--;
++		}
++		if (tsave->tv_sec < 0) {
++			tsave->tv_sec = 0;
++			tsave->tv_nsec = 1;
++		}
++		restart_block->fn = clock_nanosleep_restart;
++		restart_block->arg0 = which_clock;
++		restart_block->arg1 = (int)tsave;
++		restart_block->arg2 = new_timer.expires;
++		return -ERESTART_RESTARTBLOCK;
++	}
++
++	return rtn;
 +}
-+#endif				//  ! CONFIG_X86_LOCAL_APIC
-+#endif				//  ! CONFIG_HIGH_RES_TIMER_PIT
 +/*
-+ * Time out for a discussion.  Because the PIT and TSC (or the PIT and
-+ * pm timer) may drift WRT each other, we need a way to get the jiffie
-+ * interrupt to happen as near to the jiffie roll as possible.  This
-+ * insures that we will get the interrupt when the timer is to be
-+ * delivered, not before (we would not deliver) or later, making the
-+ * jiffie timers different from the sub_jiffie deliveries.  We would
-+ * also like any latency between a "requested" interrupt and the
-+ * automatic jiffie interrupts from the PIT to be the same.  Since it
-+ * takes some time to set up the PIT, we assume that requested
-+ * interrupts may be a bit late when compared to the automatic
-+ * interrupts.  When we request a jiffie interrupt, we want the
-+ * interrupt to happen at the requested time, which will be a bit before
-+ * we get to the jiffies update code. 
-+ *
-+ * What we want to determine here is a.) how long it takes (min) to get
-+ * from a requested interrupt to the jiffies update code and b.) how
-+ * long it takes when the interrupt is automatic (i.e. from the PIT
-+ * reset logic).  When we set "last_was_long" to zero, the next tick
-+ * setup code will "request" a jiffies interrupt (as long as we do not
-+ * have any sub jiffie timers pending).  The interrupt after the
-+ * requested one will be automatic.  Ignoring drift over this 2/HZ time
-+ * we then get two latency values, the requested latency and the
-+ * automatic latency.  We set up the difference to correct the requested
-+ * time and the second one as the center of a window which we will use
-+ * to detect the need to resync the PIT.  We do this for HZ ticks and
-+ * take the min.
++ * This will restart either clock_nanosleep or clock_nanosleep
 + */
-+#ifdef TIMER_NEEDS_DISCIPLINE
-+#define NANOSEC_SYNC_LIMIT 2000	// Try for 2 usec. max drift
-+#define final_clock_init() \
-+        { unsigned long end = jiffies + HZ + HZ; \
-+          int min_a =  cycles_per_jiffies, min_b =  cycles_per_jiffies;  \
-+          long flags;                         \
-+          int * last_was_long = &_last_was_long[smp_processor_id()];   \
-+          while (time_before(jiffies,end)){ \
-+               unsigned long f_jiffies = jiffies;     \
-+               while (jiffies == f_jiffies); \
-+               *last_was_long = 0;            \
-+               while (jiffies == f_jiffies + 1); \
-+               read_lock_irqsave(&xtime_lock, flags); \
-+               if (  timer_discipline_diff < min_a) \
-+                     min_a =   timer_discipline_diff; \
-+               read_unlock_irqrestore(&xtime_lock, flags); \
-+               while (jiffies == f_jiffies + 2); \
-+               read_lock_irqsave(&xtime_lock, flags); \
-+               if (  timer_discipline_diff < min_b) \
-+                     min_b =   timer_discipline_diff; \
-+               read_unlock_irqrestore(&xtime_lock, flags); \
-+          }                             \
-+         min_hz_sub_jiffie = min_b -  nsec_to_arch_cycles(NANOSEC_SYNC_LIMIT);\
-+          if( min_hz_sub_jiffie < 0)  min_hz_sub_jiffie = 0; \
-+          max_hz_sub_jiffie = min_b +  nsec_to_arch_cycles(NANOSEC_SYNC_LIMIT);\
-+       timer_delta = arch_cycles_to_latch(usec_to_arch_cycles(TIMER_DELTA)); \
-+       }
-+#else
-+#define final_clock_init()
-+#endif				// TIMER_NEEDS_DISCIPLINE
-+#endif				/* __KERNEL__ */
-+#endif				/* _I386_HRTIME_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/mach-default/do_timer.h linux/include/asm-i386/mach-default/do_timer.h
---- linux-2.5.54-bk1-core/include/asm-i386/mach-default/do_timer.h	Mon Dec 30 11:48:16 2002
-+++ linux/include/asm-i386/mach-default/do_timer.h	Fri Jan  3 15:08:32 2003
-@@ -16,7 +16,12 @@
- static inline void do_timer_interrupt_hook(struct pt_regs *regs)
- {
- 	do_timer(regs);
--/*
-+        IF_HIGH_RES(
-+                if (!(new_jiffie() & 1))
-+                        return;
-+                jiffies_intr = 0;
-+                )
-+ /*
-  * In the SMP case we use the local APIC timer interrupt to do the
-  * profiling, except when we simulate SMP mode on a uniprocessor
-  * system, in that case we have to call the local interrupt handler.
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/mach-visws/do_timer.h linux/include/asm-i386/mach-visws/do_timer.h
---- linux-2.5.54-bk1-core/include/asm-i386/mach-visws/do_timer.h	Mon Dec 30 14:56:47 2002
-+++ linux/include/asm-i386/mach-visws/do_timer.h	Fri Jan  3 15:08:32 2003
-@@ -9,6 +9,11 @@
- 	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
++long
++clock_nanosleep_restart(struct restart_block *restart_block)
++{
++	struct timespec t;
++	int ret = do_clock_nanosleep(restart_block->arg0, 0, &t);
++
++	if ((ret == -ERESTART_RESTARTBLOCK) && restart_block->arg1 && 
++	    copy_to_user((struct timespec *)(restart_block->arg1), &t, 
++			 sizeof (t)))
++		return -EFAULT;
++	return ret;
++}
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/signal.c linux/kernel/signal.c
+--- linux-2.5.54-bk1-kb/kernel/signal.c	Thu Dec 19 12:13:18 2002
++++ linux/kernel/signal.c	Fri Jan  3 15:07:33 2003
+@@ -457,8 +457,6 @@
+ 		if (!collect_signal(sig, pending, info))
+ 			sig = 0;
+ 				
+-		/* XXX: Once POSIX.1b timers are in, if si_code == SI_TIMER,
+-		   we need to xchg out the timer overrun values.  */
+ 	}
+ 	recalc_sigpending();
  
- 	do_timer(regs);
-+        IF_HIGH_RES(
-+                if (!(new_jiffie() & 1))
-+                        return;
-+                jiffies_intr = 0;
-+                )
- /*
-  * In the SMP case we use the local APIC timer interrupt to do the
-  * profiling, except when we simulate SMP mode on a uniprocessor
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/mach-voyager/do_timer.h linux/include/asm-i386/mach-voyager/do_timer.h
---- linux-2.5.54-bk1-core/include/asm-i386/mach-voyager/do_timer.h	Mon Dec 30 14:58:37 2002
-+++ linux/include/asm-i386/mach-voyager/do_timer.h	Fri Jan  3 15:08:32 2003
-@@ -4,6 +4,11 @@
- static inline void do_timer_interrupt_hook(struct pt_regs *regs)
+@@ -473,6 +471,7 @@
+  */
+ int dequeue_signal(sigset_t *mask, siginfo_t *info)
  {
- 	do_timer(regs);
-+        IF_HIGH_RES(
-+                if (!(new_jiffie() & 1))
-+                        return;
-+                jiffies_intr = 0;
-+                )
- 
- 	voyager_timer_interrupt(regs);
++	int ret;
+ 	/*
+ 	 * Here we handle shared pending signals. To implement the full
+ 	 * semantics we need to unqueue and resend them. It will likely
+@@ -483,7 +482,13 @@
+ 		if (signr)
+ 			__send_sig_info(signr, info, current);
+ 	}
+-	return __dequeue_signal(&current->pending, mask, info);
++	ret = __dequeue_signal(&current->pending, mask, info);
++	if ( ret &&
++	     ((info->si_code & __SI_MASK) == __SI_TIMER) &&
++	     info->si_sys_private){
++		do_schedule_next_timer(info);
++	}
++	return ret;
  }
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-core/include/asm-i386/sc_math.h linux/include/asm-i386/sc_math.h
---- linux-2.5.54-bk1-core/include/asm-i386/sc_math.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/sc_math.h	Fri Jan  3 15:08:32 2003
-@@ -0,0 +1,139 @@
-+#ifndef SC_MATH
-+#define SC_MATH
-+#define MATH_STR(X) #X
-+#define MATH_NAME(X) X
+ 
+ static int rm_from_queue(int sig, struct sigpending *s)
+@@ -622,6 +627,7 @@
+ static int send_signal(int sig, struct siginfo *info, struct sigpending *signals)
+ {
+ 	struct sigqueue * q = NULL;
++	int ret = 0;
+ 
+ 	/*
+ 	 * fast-pathed signals for kernel-internal things like SIGSTOP
+@@ -665,17 +671,26 @@
+ 				copy_siginfo(&q->info, info);
+ 				break;
+ 		}
+-	} else if (sig >= SIGRTMIN && info && (unsigned long)info != 1
++	} else {
++		if (sig >= SIGRTMIN && info && (unsigned long)info != 1
+ 		   && info->si_code != SI_USER)
+ 		/*
+ 		 * Queue overflow, abort.  We may abort if the signal was rt
+ 		 * and sent by user using something other than kill().
+ 		 */
+-		return -EAGAIN;
++			return -EAGAIN;
 +
++		if (((unsigned long)info > 1) && (info->si_code == SI_TIMER))
++			/*
++			 * Set up a return to indicate that we dropped 
++			 * the signal.
++			 */
++			ret = info->si_sys_private;
++	}
+ 
+ out_set:
+ 	sigaddset(&signals->signal, sig);
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -715,7 +730,7 @@
+ {
+ 	int retval = send_signal(sig, info, &t->pending);
+ 
+-	if (!retval && !sigismember(&t->blocked, sig))
++	if ((retval >= 0) && !sigismember(&t->blocked, sig))
+ 		signal_wake_up(t);
+ 
+ 	return retval;
+@@ -751,6 +766,12 @@
+ 
+ 	handle_stop_signal(sig, t);
+ 
++	if (((unsigned long)info > 2) && (info->si_code == SI_TIMER))
++		/*
++		 * Set up a return to indicate that we dropped the signal.
++		 */
++		ret = info->si_sys_private;
++
+ 	/* Optimize away the signal, if it's a signal that can be
+ 	   handled immediately (ie non-blocked and untraced) and
+ 	   that is ignored (either explicitly or by default).  */
+@@ -1478,8 +1499,9 @@
+ 		err |= __put_user(from->si_uid, &to->si_uid);
+ 		break;
+ 	case __SI_TIMER:
+-		err |= __put_user(from->si_timer1, &to->si_timer1);
+-		err |= __put_user(from->si_timer2, &to->si_timer2);
++		 err |= __put_user(from->si_tid, &to->si_tid);
++		 err |= __put_user(from->si_overrun, &to->si_overrun);
++		 err |= __put_user(from->si_ptr, &to->si_ptr);
+ 		break;
+ 	case __SI_POLL:
+ 		err |= __put_user(from->si_band, &to->si_band);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/kernel/timer.c linux/kernel/timer.c
+--- linux-2.5.54-bk1-kb/kernel/timer.c	Thu Dec 19 12:13:18 2002
++++ linux/kernel/timer.c	Fri Jan  3 15:07:33 2003
+@@ -49,12 +49,11 @@
+ 	struct list_head vec[TVR_SIZE];
+ } tvec_root_t;
+ 
+-typedef struct timer_list timer_t;
+ 
+ struct tvec_t_base_s {
+ 	spinlock_t lock;
+ 	unsigned long timer_jiffies;
+-	timer_t *running_timer;
++	struct timer_list *running_timer;
+ 	tvec_root_t tv1;
+ 	tvec_t tv2;
+ 	tvec_t tv3;
+@@ -67,7 +66,7 @@
+ /* Fake initialization */
+ static DEFINE_PER_CPU(tvec_base_t, tvec_bases) = { SPIN_LOCK_UNLOCKED };
+ 
+-static void check_timer_failed(timer_t *timer)
++static void check_timer_failed(struct timer_list *timer)
+ {
+ 	static int whine_count;
+ 	if (whine_count < 16) {
+@@ -85,13 +84,13 @@
+ 	timer->magic = TIMER_MAGIC;
+ }
+ 
+-static inline void check_timer(timer_t *timer)
++static inline void check_timer(struct timer_list *timer)
+ {
+ 	if (timer->magic != TIMER_MAGIC)
+ 		check_timer_failed(timer);
+ }
+ 
+-static inline void internal_add_timer(tvec_base_t *base, timer_t *timer)
++static inline void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
+ {
+ 	unsigned long expires = timer->expires;
+ 	unsigned long idx = expires - base->timer_jiffies;
+@@ -143,7 +142,7 @@
+  * Timers with an ->expired field in the past will be executed in the next
+  * timer tick. It's illegal to add an already pending timer.
+  */
+-void add_timer(timer_t *timer)
++void add_timer(struct timer_list *timer)
+ {
+ 	int cpu = get_cpu();
+ 	tvec_base_t *base = &per_cpu(tvec_bases, cpu);
+@@ -201,7 +200,7 @@
+  * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
+  * active timer returns 1.)
+  */
+-int mod_timer(timer_t *timer, unsigned long expires)
++int mod_timer(struct timer_list *timer, unsigned long expires)
+ {
+ 	tvec_base_t *old_base, *new_base;
+ 	unsigned long flags;
+@@ -278,7 +277,7 @@
+  * (ie. del_timer() of an inactive timer returns 0, del_timer() of an
+  * active timer returns 1.)
+  */
+-int del_timer(timer_t *timer)
++int del_timer(struct timer_list *timer)
+ {
+ 	unsigned long flags;
+ 	tvec_base_t *base;
+@@ -317,7 +316,7 @@
+  *
+  * The function returns whether it has deactivated a pending timer or not.
+  */
+-int del_timer_sync(timer_t *timer)
++int del_timer_sync(struct timer_list *timer)
+ {
+ 	tvec_base_t *base;
+ 	int i, ret = 0;
+@@ -360,9 +359,9 @@
+ 	 * detach them individually, just clear the list afterwards.
+ 	 */
+ 	while (curr != head) {
+-		timer_t *tmp;
++		struct timer_list *tmp;
+ 
+-		tmp = list_entry(curr, timer_t, entry);
++		tmp = list_entry(curr, struct timer_list, entry);
+ 		if (tmp->base != base)
+ 			BUG();
+ 		next = curr->next;
+@@ -401,9 +400,9 @@
+ 		if (curr != head) {
+ 			void (*fn)(unsigned long);
+ 			unsigned long data;
+-			timer_t *timer;
++			struct timer_list *timer;
+ 
+-			timer = list_entry(curr, timer_t, entry);
++			timer = list_entry(curr, struct timer_list, entry);
+  			fn = timer->function;
+  			data = timer->data;
+ 
+@@ -505,6 +504,7 @@
+ 	if (xtime.tv_sec % 86400 == 0) {
+ 	    xtime.tv_sec--;
+ 	    time_state = TIME_OOP;
++	    clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+ 	}
+ 	break;
+@@ -513,6 +513,7 @@
+ 	if ((xtime.tv_sec + 1) % 86400 == 0) {
+ 	    xtime.tv_sec++;
+ 	    time_state = TIME_WAIT;
++	    clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+ 	}
+ 	break;
+@@ -965,7 +966,7 @@
+  */
+ signed long schedule_timeout(signed long timeout)
+ {
+-	timer_t timer;
++	struct timer_list timer;
+ 	unsigned long expire;
+ 
+ 	switch (timeout)
+@@ -1020,6 +1021,7 @@
+ {
+ 	return current->pid;
+ }
++#ifndef FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
+ 
+ static long nanosleep_restart(struct restart_block *restart)
+ {
+@@ -1078,6 +1080,7 @@
+ 	}
+ 	return ret;
+ }
++#endif // ! FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
+ 
+ /*
+  * sys_sysinfo - fill in sysinfo struct
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.54-bk1-kb/lib/idr.c linux/lib/idr.c
+--- linux-2.5.54-bk1-kb/lib/idr.c	Wed Dec 31 16:00:00 1969
++++ linux/lib/idr.c	Fri Jan  3 15:07:33 2003
+@@ -0,0 +1,342 @@
 +/*
-+ * Pre scaling defines
-+ */
-+#define SC_32(x) ((long long)x<<32)
-+#define SC_n(n,x) (((long long)x)<<n)
-+/*
-+ * This routine preforms the following calculation:
++ * linux/kernel/id.c
 + *
-+ * X = (a*b)>>32
-+ * we could, (but don't) also get the part shifted out.
-+ */
-+extern inline long
-+mpy_sc32(long a, long b)
-+{
-+	long edx;
-+      __asm__("imull %2":"=a"(a), "=d"(edx)
-+      :	"rm"(b), "0"(a));
-+	return edx;
-+}
-+/*
-+ * X = (a/b)<<32 or more precisely x = (a<<32)/b
-+ */
-+
-+extern inline long
-+div_sc32(long a, long b)
-+{
-+	long dum;
-+      __asm__("divl %2":"=a"(b), "=d"(dum)
-+      :	"r"(b), "0"(0), "1"(a));
-+
-+	return b;
-+}
-+/*
-+ * X = (a*b)>>24
-+ * we could, (but don't) also get the part shifted out.
-+ */
-+
-+#define mpy_ex24(a,b) mpy_sc_n(24,a,b)
-+/*
-+ * X = (a/b)<<24 or more precisely x = (a<<24)/b
-+ */
-+#define div_ex24(a,b) div_sc_n(24,a,b)
-+
-+/*
-+ * The routines allow you to do x = (a/b) << N and
-+ * x=(a*b)>>N for values of N from 1 to 32.
++ * 2002-10-18  written by Jim Houston jim.houston@ccur.com
++ *	Copyright (C) 2002 by Concurrent Computer Corporation
++ *	Distributed under the GNU GPL license version 2.
 + *
-+ * These are handy to have to do scaled math.
-+ * Scaled math has two nice features:
-+ * A.) A great deal more precision can be maintained by
-+ *     keeping more signifigant bits.
-+ * B.) Often an in line div can be repaced with a mpy
-+ *     which is a LOT faster.
-+ */
-+
-+#define mpy_sc_n(N,aa,bb) ({long edx,a=aa,b=bb; \
-+	__asm__("imull %2\n\t" \
-+                "shldl $(32-"MATH_STR(N)"),%0,%1"    \
-+		:"=a" (a), "=d" (edx)\
-+		:"rm" (b),            \
-+		 "0" (a)); edx;})
-+
-+#define div_sc_n(N,aa,bb) ({long dum=aa,dum2,b=bb; \
-+        __asm__("shrdl $(32-"MATH_STR(N)"),%4,%3\n\t"  \
-+                "sarl $(32-"MATH_STR(N)"),%4\n\t"      \
-+                "divl %2"              \
-+                :"=a" (dum2), "=d" (dum)      \
-+                :"rm" (b), "0" (0), "1" (dum)); dum2;})
-+
-+/*
-+ * (long)X = ((long long)divs) / (long)div
-+ * (long)rem = ((long long)divs) % (long)div
++ * Small id to pointer translation service.  
 + *
-+ * Warning, this will do an exception if X overflows.
-+ */
-+#define div_long_long_rem(a,b,c) div_ll_X_l_rem(a,b,c)
++ * It uses a radix tree like structure as a sparse array indexed 
++ * by the id to obtain the pointer.  The bitmap makes allocating
++ * a new id quick.  
 +
-+extern inline long
-+div_ll_X_l_rem(long long divs, long div, long *rem)
-+{
-+	long dum2;
-+      __asm__("divl %2":"=a"(dum2), "=d"(*rem)
-+      :	"rm"(div), "A"(divs));
++ * Modified by George Anzinger to reuse immediately and to use
++ * find bit instructions.  Also removed _irq on spinlocks.
 +
-+	return dum2;
++ * So here is what this bit of code does:
 +
-+}
-+/*
-+ * same as above, but no remainder
-+ */
-+extern inline long
-+div_ll_X_l(long long divs, long div)
-+{
-+	long dum;
-+	return div_ll_X_l_rem(divs, div, &dum);
-+}
-+/*
-+ * (long)X = (((long)divh<<32) | (long)divl) / (long)div
-+ * (long)rem = (((long)divh<<32) % (long)divl) / (long)div
++ * You call it to allocate an id (an int) an associate with that id a
++ * pointer or what ever, we treat it as a (void *).  You can pass this
++ * id to a user for him to pass back at a later time.  You then pass
++ * that id to this code and it returns your pointer.
++
++ * You can release ids at any time. When all ids are released, most of 
++ * the memory is returned (we keep IDR_FREE_MAX) in a local pool so we
++ * don't need to go to the memory "store" during an id allocate, just 
++ * so you don't need to be too concerned about locking and conflicts
++ * with the slab allocator.
++
++ * A word on reuse.  We reuse empty id slots as soon as we can, always
++ * using the lowest one available.  But we also merge a counter in the
++ * high bits of the id.  The counter is RESERVED_ID_BITS (8 at this time)
++ * long.  This means that if you allocate and release the same id in a 
++ * loop we will reuse an id after about 256 times around the loop.  The
++ * word about is used here as we will NOT return a valid id of -1 so if
++ * you loop on the largest possible id (and that is 24 bits, wow!) we
++ * will kick the counter to avoid -1.  (Paranoid?  You bet!)
 + *
-+ * Warning, this will do an exception if X overflows.
++ * What you need to do is, since we don't keep the counter as part of
++ * id / ptr pair, to keep a copy of it in the pointed to structure
++ * (or else where) so that when you ask for a ptr you can varify that
++ * the returned ptr is correct by comparing the id it contains with the one
++ * you asked for.  In other words, we only did half the reuse protection.
++ * Since the code depends on your code doing this check, we ignore high
++ * order bits in the id, not just the count, but bits that would, if used,
++ * index outside of the allocated ids.  In other words, if the largest id
++ * currently allocated is 32 a look up will only look at the low 5 bits of
++ * the id.  Since you will want to keep this id in the structure anyway
++ * (if for no other reason than to be able to eliminate the id when the
++ * structure is found in some other way) this seems reasonable.  If you
++ * really think otherwise, the code to check these bits here, it is just
++ * disabled with a #if 0.
++
++
++ * So here are the complete details:
++
++ *  include <linux/idr.h>
++
++ * void idr_init(struct idr *idp)
++
++ *   This function is use to set up the handle (idp) that you will pass
++ *   to the rest of the functions.  The structure is defined in the
++ *   header.
++
++ * int idr_pre_get(struct idr *idp)
++
++ *   This function should be called prior to locking and calling the
++ *   following function.  It pre allocates enough memory to satisfy the
++ *   worst possible allocation.  It can sleep, so must not be called
++ *   with any spinlocks held.  If the system is REALLY out of memory
++ *   this function returns 0, other wise 1.
++
++ * int idr_get_new(struct idr *idp, void *ptr);
++ 
++ *   This is the allocate id function.  It should be called with any
++ *   required locks.  In fact, in the SMP case, you MUST lock prior to
++ *   calling this function to avoid possible out of memory problems.  If
++ *   memory is required, it will return a -1, in which case you should
++ *   unlock and go back to the idr_pre_get() call.  ptr is the pointer
++ *   you want associated with the id.  In other words:
++
++ * void *idr_find(struct idr *idp, int id);
++ 
++ *   returns the "ptr", given the id.  A NULL return indicates that the
++ *   id is not valid (or you passed NULL in the idr_get_new(), shame on
++ *   you).  This function must be called with a spinlock that prevents
++ *   calling either idr_get_new() or idr_remove() or idr_find() while it
++ *   is working.
++
++ * void idr_remove(struct idr *idp, int id);
++
++ *   removes the given id, freeing that slot and any memory that may
++ *   now be unused.  See idr_find() for locking restrictions.
++
 + */
-+extern inline long
-+div_h_or_l_X_l_rem(long divh, long divl, long div, long *rem)
-+{
-+	long dum2;
-+      __asm__("divl %2":"=a"(dum2), "=d"(*rem)
-+      :	"rm"(div), "0"(divl), "1"(divh));
 +
-+	return dum2;
 +
-+}
-+extern inline long long
-+mpy_l_X_l_ll(long mpy1, long mpy2)
-+{
-+	long long eax;
-+      __asm__("imull %1\n\t":"=A"(eax)
-+      :	"rm"(mpy2), "a"(mpy1));
 +
-+	return eax;
-+
-+}
-+extern inline long
-+mpy_1_X_1_h(long mpy1, long mpy2, long *hi)
-+{
-+	long eax;
-+      __asm__("imull %2\n\t":"=a"(eax), "=d"(*hi)
-+      :	"rm"(mpy2), "0"(mpy1));
-+
-+	return eax;
-+
-+}
-+
++#ifndef TEST                        // to test in user space...
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/module.h>
 +#endif
++#include <linux/string.h>
++#include <linux/idr.h>
++
++
++static kmem_cache_t *idr_layer_cache;
++
++
++
++static inline struct idr_layer *alloc_layer(struct idr *idp)
++{
++	struct idr_layer *p;
++
++	spin_lock(&idp->lock);
++	if (!(p = idp->id_free))
++		BUG();
++	idp->id_free = p->ary[0];
++	idp->id_free_cnt--;
++	p->ary[0] = 0;
++	spin_unlock(&idp->lock);
++	return(p);
++}
++
++static inline void free_layer(struct idr *idp, struct idr_layer *p)
++{
++	/*
++	 * Depends on the return element being zeroed.
++	 */
++	spin_lock(&idp->lock);
++	p->ary[0] = idp->id_free;
++	idp->id_free = p;
++	idp->id_free_cnt++;
++	spin_unlock(&idp->lock);
++}
++
++int idr_pre_get(struct idr *idp)
++{
++	while (idp->id_free_cnt < idp->layers + 1) {
++		struct idr_layer *new;
++		new = kmem_cache_alloc(idr_layer_cache, GFP_KERNEL);
++		if(new == NULL)
++			return (0);
++		free_layer(idp, new);
++	}
++	return 1;
++}
++EXPORT_SYMBOL(idr_pre_get);
++
++static inline int sub_alloc(struct idr *idp, int shift, void *ptr)
++{
++	int n, v = 0;
++	struct idr_layer *p;
++	struct idr_layer **pa[MAX_LEVEL];
++	struct idr_layer ***paa = &pa[0];
++	
++	*paa = NULL;
++	*++paa = &idp->top;
++
++	/*
++	 * By keeping each pointer in an array we can do the 
++	 * "after" recursion processing.  In this case, that means
++	 * we can update the upper level bit map.
++	 */
++	
++	while (1){
++		p = **paa;
++		n = ffz(p->bitmap);
++		if (shift){
++			/*
++			 * We run around this while until we
++			 * reach the leaf node...
++			 */
++			if (!p->ary[n]){
++				/*
++				 * If no node, allocate one, AFTER
++				 * we insure that we will not
++				 * intrude on the reserved bit field.
++				 */
++				if ((n << shift) >= MAX_ID_BIT)
++					return -1;
++				p->ary[n] = alloc_layer(idp);
++				p->count++;
++			}
++			*++paa = &p->ary[n];
++			v += (n << shift);
++			shift -= IDR_BITS;
++		} else {
++			/*
++			 * We have reached the leaf node, plant the
++			 * users pointer and return the raw id.
++			 */
++			p->ary[n] = (struct idr_layer *)ptr;
++			__set_bit(n, &p->bitmap);
++			v += n;
++			p->count++;
++			/*
++			 * This is the post recursion processing.  Once
++			 * we find a bitmap that is not full we are
++			 * done
++			 */
++			while (*(paa-1) && (**paa)->bitmap == IDR_FULL){
++				n = *paa - &(**(paa-1))->ary[0];
++				__set_bit(n, &(**--paa)->bitmap);
++			}
++			return(v);
++		}
++	}
++}
++
++int idr_get_new(struct idr *idp, void *ptr)
++{
++	int v;
++	
++	if (idp->id_free_cnt < idp->layers + 1) 
++		return (-1);
++	/*
++	 * Add a new layer if the array is full 
++	 */
++	if (unlikely(!idp->top || idp->top->bitmap == IDR_FULL)){
++		/*
++		 * This is a bit different than the lower layers because
++		 * we have one branch already allocated and full.
++		 */
++		struct idr_layer *new = alloc_layer(idp);
++		new->ary[0] = idp->top;
++		if ( idp->top)
++			++new->count;
++		idp->top = new;
++		if ( idp->layers++ )
++			__set_bit(0, &new->bitmap);
++	}
++	v = sub_alloc(idp,  (idp->layers - 1) * IDR_BITS, ptr);
++	if ( likely(v >= 0 )){
++		idp->count++;
++		v += (idp->count << MAX_ID_SHIFT);
++		if ( unlikely( v == -1 ))
++		     v += (1 << MAX_ID_SHIFT);
++	}
++	return(v);
++}
++EXPORT_SYMBOL(idr_get_new);
++
++
++static inline void sub_remove(struct idr *idp, int shift, int id)
++{
++	struct idr_layer *p = idp->top;
++	struct idr_layer **pa[MAX_LEVEL];
++	struct idr_layer ***paa = &pa[0];
++
++	*paa = NULL;
++	*++paa = &idp->top;
++
++	while ((shift > 0) && p) {
++		int n = (id >> shift) & IDR_MASK;
++		__clear_bit(n, &p->bitmap);
++		*++paa = &p->ary[n];
++		p = p->ary[n];
++		shift -= IDR_BITS;
++	}
++	if ( likely(p)){
++		int n = id & IDR_MASK;
++		__clear_bit(n, &p->bitmap);
++		p->ary[n] = NULL;
++		while(*paa && ! --((**paa)->count)){
++			free_layer(idp, **paa);
++			**paa-- = NULL;
++		}
++		if ( ! *paa )
++			--idp->layers;
++	}
++}
++void idr_remove(struct idr *idp, int id)
++{
++	struct idr_layer *p;
++
++	sub_remove(idp, (idp->layers - 1) * IDR_BITS, id);
++	if ( idp->top && idp->top->count == 1 && 
++	     (idp->layers > 1) &&
++	     idp->top->ary[0]){  // We can drop a layer
++
++		p = idp->top->ary[0];
++		idp->top->bitmap = idp->top->count = 0;
++		free_layer(idp, idp->top);
++		idp->top = p;
++		--idp->layers;
++	}
++	while (idp->id_free_cnt >= IDR_FREE_MAX) {
++		
++		p = alloc_layer(idp);
++		kmem_cache_free(idr_layer_cache, p);
++		return;
++	}
++}
++EXPORT_SYMBOL(idr_remove);
++
++void *idr_find(struct idr *idp, int id)
++{
++	int n;
++	struct idr_layer *p;
++
++	n = idp->layers * IDR_BITS;
++	p = idp->top;
++#if 0
++	/*
++	 * This tests to see if bits outside the current tree are
++	 * present.  If so, tain't one of ours!
++	 */
++	if ( unlikely( (id & ~(~0 << MAX_ID_SHIFT)) >> (n + IDR_BITS)))
++	     return NULL;
++#endif
++	while (n > 0 && p) {
++		n -= IDR_BITS;
++		p = p->ary[(id >> n) & IDR_MASK];
++	}
++	return((void *)p);
++}
++EXPORT_SYMBOL(idr_find);
++
++static void idr_cache_ctor(void * idr_layer, 
++			   kmem_cache_t *idr_layer_cache, unsigned long flags)
++{
++	memset(idr_layer, 0, sizeof(struct idr_layer));
++}
++
++static  int init_id_cache(void)
++{
++	if (!idr_layer_cache)
++		idr_layer_cache = kmem_cache_create("idr_layer_cache", 
++			sizeof(struct idr_layer), 0, 0, idr_cache_ctor, 0);
++	return 0;
++}
++
++void idr_init(struct idr *idp)
++{
++	init_id_cache();
++	memset(idp, 0, sizeof(struct idr));
++	spin_lock_init(&idp->lock);
++}
++EXPORT_SYMBOL(idr_init);
++
 
---------------0073EC6479D1674740E75603--
+--------------202B6E51A51800476BA3DB77--
 

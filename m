@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUIENVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUIENW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUIENVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 09:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266657AbUIENVr
+	id S266657AbUIENW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 09:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUIENW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 09:21:47 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:54149 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S266663AbUIENVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 09:21:40 -0400
-Message-ID: <413B121B.2070101@upb.de>
-Date: Sun, 05 Sep 2004 15:18:19 +0200
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.2) Gecko/20040426
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: why do i get "Stale NFS file handle" for hours?
-References: <chdp06$e56$1@sea.gmane.org>	 <1094348385.13791.119.camel@lade.trondhjem.org>  <413A7119.2090709@upb.de>	 <1094349744.13791.128.camel@lade.trondhjem.org>  <413A789C.9000501@upb.de> <1094353267.13791.156.camel@lade.trondhjem.org>
-In-Reply-To: <1094353267.13791.156.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
-	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-MailScanner-From: skoehler@upb.de
+	Sun, 5 Sep 2004 09:22:28 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:59620 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S266674AbUIENWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 09:22:12 -0400
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Sun, 5 Sep 2004 15:19:48 +0200
+To: Christoph Hellwig <hch@infradead.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>, Dan Kegel <dank@kegel.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Getting kernel.org kernel to build for m68k?
+Message-ID: <20040905131948.GE2605@kiste>
+References: <41355F88.2080801@kegel.com> <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be> <Pine.LNX.4.58.0409051224020.30282@anakin> <20040905120325.A29363@infradead.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tVmo9FyGdCe4F4YN"
+Content-Disposition: inline
+In-Reply-To: <20040905120325.A29363@infradead.org>
+User-Agent: Mutt/1.5.6+20040722i
+X-Smurf-Spam-Score: -3.1 (---)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, there are 3 possibilities:
-> 
->  1) You are exporting a non-supported filesystem, (e.g. FAT). See the
-> FAQ on http://nfs.sourceforge.org.
 
-I'm exporting a reiserfs.
+--tVmo9FyGdCe4F4YN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  2) A bug in your initscripts is causing the table of exports to be
-> clobbered. Running "exportfs" in legacy 2.4 mode (without having the
-> nfsd filesystem mounted on /proc/fs/nfsd) appears to be broken for me at
-> least...
+Hi,
 
-So there should be a filesystem mounted to /proc/fs/nfsd? This isn't the 
-case on my machine. Should the init-script do a simple "mount -t nfsd 
-none /proc/fs/nfsd"? Than this would be a Bug of my distribution (Gentoo).
+Christoph Hellwig:
+> > Hence if no one objects, I'll submit the patch to Andrew and Linus.
+>=20
+> the common code changes below are not okay.
 
+Why not?
+
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+
+--tVmo9FyGdCe4F4YN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBOxJ08+hUANcKr/kRAnEYAJ9p5O+ePqtPSnOQa2H1XBzYYckKIgCdG3ol
+Zp/GW1yBw+HHPOM+rWfqsgU=
+=Gxkd
+-----END PGP SIGNATURE-----
+
+--tVmo9FyGdCe4F4YN--

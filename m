@@ -1,67 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUJNUXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUJNUXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267180AbUJNUXU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUJNTpg
+	id S267368AbUJNUXT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUJNSrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:45:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16786 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267254AbUJNTo0
+	Thu, 14 Oct 2004 14:47:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10629 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267189AbUJNSHt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:44:26 -0400
-Date: Thu, 14 Oct 2004 20:44:21 +0100
+	Thu, 14 Oct 2004 14:07:49 -0400
+Date: Thu, 14 Oct 2004 19:07:48 +0100
 From: Matthew Wilcox <matthew@wil.cx>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RESEND][PATCH 5/6] Provide a filesystem-specific sync'able page bit
-Message-ID: <20041014194421.GU16153@parcelfarce.linux.theplanet.co.uk>
-References: <24461.1097780707@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
+Message-ID: <20041014180748.GS16153@parcelfarce.linux.theplanet.co.uk>
+References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014125348.GA9633@infradead.org> <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk> <20041014180005.GA11954@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <24461.1097780707@redhat.com>
+In-Reply-To: <20041014180005.GA11954@infradead.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 08:05:07PM +0100, David Howells wrote:
->  #define PG_highmem		 8
-> +#define PG_fs_misc		 9	/* Filesystem specific bit */
->  #define PG_checked		 9	/* kill me in 2.5.<early>. */
->  #define PG_arch_1		10
->  #define PG_reserved		11
-> @@ -315,4 +316,13 @@ static inline void set_page_writeback(st
->  	test_set_page_writeback(page);
->  }
->  
-> +/*
-> + * Filesystem-specific page bit testing
-> + */
-> +#define PageFsMisc(page)		test_bit(PG_fs_misc, &(page)->flags)
-> +#define SetPageFsMisc(page)		set_bit(PG_fs_misc, &(page)->flags)
-> +#define TestSetPageFsMisc(page)		test_and_set_bit(PG_fs_misc, &(page)->flags)
-> +#define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
-> +#define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
-> +
->  #endif	/* PAGE_FLAGS_H */
+On Thu, Oct 14, 2004 at 07:00:06PM +0100, Christoph Hellwig wrote:
+> For some architectures the sysdata is different for bus vs device, so
+> yes, we do want strict typechecking.
 
-That's not really enough documentation.  Who sets this flag?  Who clears this
-flag?  Currently, mm/page_alloc.c clears this flag:
-
-./mm/page_alloc.c:                      1 << PG_checked | 1 << PG_mappedtodisk);
-
-which probably wouldn't be noticed by someone grepping for uses.
-If you're going to not kill this flag, at least rename it so we don't
-have two defines for the same bit.
-
-The other 'misc bit' has documentation of the form:
-
- * PG_arch_1 is an architecture specific page state bit.  The generic code
- * guarantees that this bit is cleared for a page when it first is entered into
- * the page cache.
-
-which really ought to at least mention Documentation/cachetlb.txt
+How interesting.  I was under the impression that dev->sysdata was always
+a copy of the bus's.  If that's not guaranteed, then we're just going
+to have to dereference the additional pointer and use the bus' sysdata.
 
 -- 
 "Next the statesmen will invent cheap lies, putting the blame upon 

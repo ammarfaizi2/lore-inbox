@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUK3Hu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUK3IJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUK3Hu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 02:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUK3Hu7
+	id S262008AbUK3IJE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 03:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUK3IJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 02:50:59 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:34066 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262006AbUK3Huy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 02:50:54 -0500
-Subject: Re: [PATCH] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is
-	broken
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041129234353.378586a9.akpm@osdl.org>
-References: <200411292204.iATM4o4C005049@hera.kernel.org>
-	 <1101800060.2640.21.camel@laptop.fenrus.org>
-	 <20041129234353.378586a9.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1101801044.2640.31.camel@laptop.fenrus.org>
+	Tue, 30 Nov 2004 03:09:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:1035 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262008AbUK3IJA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 03:09:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=D8ZfssHj13PDIjJKK/5nBIItpFfp2tCt7U3LKDB7c5jZ8D1+suGA6xGqEvWfNTuN5/cN9MUzXgdan/RsfT3QekVc3gJEDVUNIVOTe2B/4y7HEcp4LXkbBDqKbMuaXw2Rzxq4hVYFC8L2FByjphekjXJ3o8jQB3ajZy51RjwZ7KQ=
+Message-ID: <81b0412b04113000087fc8391e@mail.gmail.com>
+Date: Tue, 30 Nov 2004 09:08:59 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+In-Reply-To: <1101721336.21273.6138.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 30 Nov 2004 08:50:45 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <19865.1101395592@redhat.com>
+	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	 <20041127032403.GB10536@kroah.com>
+	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+	 <1101721336.21273.6138.camel@baythorne.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-29 at 23:43 -0800, Andrew Morton wrote:
+On Mon, 29 Nov 2004 09:42:16 +0000, David Woodhouse <dwmw2@infradead.org> wrote:
+> I've lost track of the number of times things have broken because of
+> incorrect use of kernel headers from userspace. That's what we're trying
+> to fix -- by putting only the bits which are _supposed_ to be visible
+> into files which userspace sees, where we know they define part of the
+> userspace API and hence we can be extremely careful when editing them.
 
-> (I get the feeling that I'm missing your point here)
+how about generating the user-visible interfaces and structures from the headers
+using something like sparse and defined annotations? I.e.:
 
-it's more that I'm missing my own point due to lack of caffeine at 9am
-
--- 
-
+struct iovec
+{
+	void __user *iov_base;
+	__kernel_size_t iov_len;
+} __user_api__;

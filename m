@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVCNE4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVCNE6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVCNE4E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 23:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVCNE4D
+	id S261702AbVCNE6O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 23:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVCNE4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 23:56:03 -0500
-Received: from li-22.members.linode.com ([64.5.53.22]:35803 "EHLO
-	www.cryptography.com") by vger.kernel.org with ESMTP
-	id S261517AbVCNEzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 23:55:47 -0500
-Message-ID: <423518E7.3030300@root.org>
-Date: Sun, 13 Mar 2005 20:53:59 -0800
-From: Nate Lawson <nate@root.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] IDE failure on ACPI resume
-References: <1110741241.8136.46.camel@tyrosine>
-In-Reply-To: <1110741241.8136.46.camel@tyrosine>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 13 Mar 2005 23:56:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18825 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261526AbVCNE4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 23:56:01 -0500
+Date: Sun, 13 Mar 2005 20:55:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg Stark <gsstark@mit.edu>
+Cc: gsstark@mit.edu, s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org,
+       pmcfarland@downeast.net
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+Message-Id: <20050313205531.442ddb77.akpm@osdl.org>
+In-Reply-To: <87br9m7s8h.fsf@stark.xeocode.com>
+References: <87u0ng90mo.fsf@stark.xeocode.com>
+	<200503130152.52342.pmcfarland@downeast.net>
+	<874qff89ob.fsf@stark.xeocode.com>
+	<200503140103.55354.s0348365@sms.ed.ac.uk>
+	<87sm2y7uon.fsf@stark.xeocode.com>
+	<20050313200753.20411bdb.akpm@osdl.org>
+	<87br9m7s8h.fsf@stark.xeocode.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On resume, an HP nc6220 fails during resuming of the IDE devices. In
-> this section of code from ide-iops.c:
+Greg Stark <gsstark@mit.edu> wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
 > 
->                 stat = hwif->INB(hwif->io_ports[IDE_STATUS_OFFSET]);
->                 if ((stat & BUSY_STAT) == 0)
->                         return 0;
->                 /*
->                  * Assume a value of 0xff means nothing is connected to
->                  * the interface and it doesn't implement the pull-down
->                  * resistor on D7.
->                  */
->                 if (stat == 0xff)
->                         return -ENODEV;
+> > I would agree with that.  If it's in the tree and the config system offers
+> > it, it should work.  And if it _used_ to work, and no longer does so then
+> > double bad.
 > 
-> 0xff is read and ENODEV returned. This results in
+> Er, yeah, it's not like this is a new card that some crufty old driver never
+> supported well. It worked fine in the past and got broke.
+> 
+> > Are you able to narrow it down to something more fine grained than "between
+> > 2.6.6 and 2.6.9-rc1"?
+> 
+> Er, I suppose I would have to build some more kernels. Ugh. Is there a good
+> place to start or do I have to just do a binary search?
+> 
 
-Sounds like PCI not being completely restored.  We had to work around 
-some weird ATA issues in FreeBSD with the status register being invalid 
-for quite a while after resume.  A retry loop was the solution.
+I'd suggest the first step would be to take the driver(s) from a working
+kernel, put them into a current tree and see if things start working again.
 
--- 
-Nate
+If that doesn't reveal anything then yes, it's down to binary searching.
+
+

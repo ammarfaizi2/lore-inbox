@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVCWWtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVCWWuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVCWWtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVCWWtZ
+	id S262429AbVCWWuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVCWWuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:49:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48850 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262366AbVCWWtW (ORCPT
+	Wed, 23 Mar 2005 17:50:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:37330 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262429AbVCWWuT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:49:22 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050323143405.502c1c84.akpm@osdl.org> 
-References: <20050323143405.502c1c84.akpm@osdl.org>  <20050323130628.3a230dec.akpm@osdl.org> <29204.1111608899@redhat.com> <30327.1111613194@redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Keys: Pass session keyring to call_usermodehelper() 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Mar 2005 22:49:07 +0000
-Message-ID: <31726.1111618147@redhat.com>
+	Wed, 23 Mar 2005 17:50:19 -0500
+Date: Wed, 23 Mar 2005 14:49:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: andrea@suse.de, mjbligh@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-Id: <20050323144953.288a5baf.akpm@osdl.org>
+In-Reply-To: <1111607584.5786.55.camel@localhost.localdomain>
+References: <20050315204413.GF20253@csail.mit.edu>
+	<20050316003134.GY7699@opteron.random>
+	<20050316040435.39533675.akpm@osdl.org>
+	<20050316183701.GB21597@opteron.random>
+	<1111607584.5786.55.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
+>  2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
+>  hours the system hit OOM, and OOM keep killing processes one by one.
 
-> Well one question is "does it make sense to make a keyring session a part
-> of the call_usermodehelper() API?".  As it appears that only one caller
-> will ever want to do that then I'd say no, and that it should be some
-> specialised thing private to the key code and the call_usermodehelper()
-> implementation.
-> 
-> So unless you think that a significant number of callers will appear who
-> are actually using the new capability then it would be better to keep the
-> existing call_usermodehelper() API.
+I don't have a very good record reading these oom dumps lately, but this
+one look really weird.  Basically no mapped memory, tons of pagecache on
+the LRU.
 
-That's a good question, and one that's not easy to answer. Obviously, at the
-moment there will only be that one user. I'm not sure that other users will
-necessarily want to make use of it.
-
-On the other hand, I can see the authorisation key bit being extended to
-provide all of these things with access to the authorising process's keyrings,
-whether or not they're constructing keys; but that can probably be made
-transparent.
-
-David
+It would be interesting if you could run the same test on 2.6.11.  

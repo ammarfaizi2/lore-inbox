@@ -1,98 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266435AbUFQKVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266446AbUFQK05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266435AbUFQKVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 06:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266446AbUFQKVY
+	id S266446AbUFQK05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 06:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266447AbUFQK05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 06:21:24 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:5295 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S266435AbUFQKVU (ORCPT
+	Thu, 17 Jun 2004 06:26:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:26265 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266446AbUFQK04 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 06:21:20 -0400
-Message-ID: <40D1709C.8040902@stanchina.net>
-Date: Thu, 17 Jun 2004 12:21:16 +0200
-From: Flavio Stanchina <flavio@stanchina.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 17 Jun 2004 06:26:56 -0400
+Date: Thu, 17 Jun 2004 12:26:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, peter@cordes.ca,
+       len.brown@intel.com
+Subject: Re: x86-64: double timer interrupts in recent 2.4.x
+Message-Id: <20040617122645.5d1b5ec1.ak@suse.de>
+In-Reply-To: <200406170854.i5H8s0v5012548@alkaid.it.uu.se>
+References: <200406170854.i5H8s0v5012548@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_porta-19605-1087467678-0001-2"
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Broken CREDITS file.
-References: <1087437489.798.4.camel@ansel.lan> <20040616190927.003d3859.rddunlap@osdl.org>
-In-Reply-To: <20040616190927.003d3859.rddunlap@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Thu, 17 Jun 2004 10:54:00 +0200 (MEST)
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 
---=_porta-19605-1087467678-0001-2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> On Wed, 16 Jun 2004 16:28:26 -0300, Peter Cordes wrote:
+> > I just noticed that on my Opteron cluster, the nodes that are running 64bit
+> >kernels have their clocks ticking at double speed.  This happens with
+> >Linux 2.4.26, and 2.4.27-pre2
+> 
+> I had the same problem: 2.4 x86-64 kernels ticking the clock
+> twice its normal speed, unless I booted with pci=noacpi.
+> 
+> This got fixed very recently I believe, in a 2.4.27-pre kernel.
 
-Randy.Dunlap wrote:
+In which one exactly? Most likely it was an ACPI problem/fix.
+Len, do you remember fixing such an issue?
 
-> | N: Leonard N. Zubkoff
-> I doubt it, since he died in a helicopter crash in Alaska a couple
-> of years ago.  However, it seems to be OK with most of us that
-> his name stays in the CREDITS file, so don't edit it so quickly.
-
-Do we need an "hit by a bus" flag in the credits file? I think it would 
-be a good way to remember people like Leonard *and* make sure that to 
-one writes inadequate emails like the parent.
-
-In this particular case,
-H: Leonard Zubkoff was killed in a helicopter crash in Alaska on August 
-29, 2002
-
-...and maybe an additional
-W: http://www.electricpenguin.com/filking/articles/zubkoff.html
-
-Patch is attached.
-
--- 
-Ciao, Flavio
-
---=_porta-19605-1087467678-0001-2
-Content-Type: text/plain; name="lnz-RIP.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lnz-RIP.patch"
-
-===== CREDITS 1.119 vs edited =====
---- 1.119/CREDITS	2004-05-29 09:28:48 +02:00
-+++ edited/CREDITS	2004-06-17 12:14:42 +02:00
-@@ -2,8 +2,8 @@
- 	contributed to the Linux project.  It is sorted by name and
- 	formatted to allow easy grepping and beautification by
- 	scripts.  The fields are: name (N), email (E), web-address
--	(W), PGP key ID and fingerprint (P), description (D), and
--	snail-mail address (S).
-+	(W), PGP key ID and fingerprint (P), description (D), an
-+	hit-by-a-bus message (H), and snail-mail address (S).
- 	Thanks,
- 
- 			Linus
-@@ -3578,7 +3578,9 @@
- S: Germany
- 
- N: Leonard N. Zubkoff
-+H: Leonard was killed in a helicopter crash in Alaska on August 29, 2002
- W: http://www.dandelion.com/Linux/
-+W: http://www.electricpenguin.com/filking/articles/zubkoff.html
- D: BusLogic SCSI driver
- D: Mylex DAC960 PCI RAID driver
- D: Miscellaneous kernel fixes
-@@ -3599,6 +3601,6 @@
- 
- # Don't add your name here, unless you really _are_ after Marc
- # alphabetically. Leonard used to be very proud of being the 
--# last entry, and he'll get positively pissed if he can't even
--# be second-to-last.  (and this file really _is_ supposed to be
--# in alphabetic order)
-+# last entry, and he would get positively pissed if he knew he's
-+# not even second-to-last any more.  (and this file really _is_
-+# supposed to be in alphabetic order)
-
---=_porta-19605-1087467678-0001-2--
+-Andi

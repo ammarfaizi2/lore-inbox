@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261687AbSJMTwE>; Sun, 13 Oct 2002 15:52:04 -0400
+	id <S261608AbSJMTx3>; Sun, 13 Oct 2002 15:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261681AbSJMTvj>; Sun, 13 Oct 2002 15:51:39 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:50366 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261687AbSJMTvb>; Sun, 13 Oct 2002 15:51:31 -0400
-Date: Sun, 13 Oct 2002 17:57:06 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: Brian Jackson <brian-kernel-list@mdrx.com>, <linux-kernel@vger.kernel.org>,
-       <evms-devel@lists.sourceforge.net>
-Subject: Re: Linux v2.5.42
-In-Reply-To: <Pine.LNX.4.33.0210131545510.17395-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.44L.0210131755340.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261630AbSJMTx3>; Sun, 13 Oct 2002 15:53:29 -0400
+Received: from packet.digeo.com ([12.110.80.53]:39328 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261608AbSJMTxX>;
+	Sun, 13 Oct 2002 15:53:23 -0400
+Message-ID: <3DA9D08B.EF8E1AF1@digeo.com>
+Date: Sun, 13 Oct 2002 12:59:07 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: Brian Jackson <brian-kernel-list@mdrx.com>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Subject: Re: Linux v2.5.42
+References: <20021013170630.29597.qmail@escalade.vistahp.com> <Pine.LNX.4.33.0210131545510.17395-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Oct 2002 19:59:08.0003 (UTC) FILETIME=[FD794330:01C272F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Oct 2002, Mark Hahn wrote:
+Mark Hahn wrote:
+> 
+> I'm bothered by other IBM influences, such as their fixation with
+> performance of broken platforms like Profusion, or tuning for NUMA.
 
-> > Yes I do realize that, but I think EVMS offers more in the long run than any
-> > of the others.
->
-> not to put too find a point on it, but IBM has their own goals. for
-> instance, some part of EVMS design is motivated by IBM's political
-> desire to permit its bank customers, who have horrible old OS/2 systems,
-> to transparently use OS/2 volumes.  it's not as if IBM couldn't provide
-> a simple, user-level migration tool.
+Actually it's rather useful to have these platforms around.  Because
+if you fix a problem on profusion and NUMA-Q, it's really, really fixed
+for other hardware...
 
-You don't need a migration tool.
-
-All you need is:
-
-1) a kernel level driver that can map devices, ie. a device mapper
-
-2) user space tools that can parse the volume metadata and tell the
-   kernel how to map each chunk at initialisation or mount time
-
-You don't need a flying circus in kernel space.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+They show up races and lock contention like crazy.

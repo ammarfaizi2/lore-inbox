@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUGAWLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUGAWN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUGAWLl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 18:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUGAWJP
+	id S266319AbUGAWN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 18:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUGAWNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 18:09:15 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:36521 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266322AbUGAWFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 18:05:48 -0400
-Date: Thu, 1 Jul 2004 15:05:10 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: akpm@osdl.org, viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: [PATCH] task name handling in proc fs
-Message-ID: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com>
+	Thu, 1 Jul 2004 18:13:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27410 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266319AbUGAWND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 18:13:03 -0400
+Date: Thu, 1 Jul 2004 23:12:56 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Tom Rini <trini@kernel.crashing.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: binutils woes
+Message-ID: <20040701231256.G8389@flint.arm.linux.org.uk>
+Mail-Followup-To: Martin Schlemmer <azarah@nosferatu.za.org>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <20040701175231.B8389@flint.arm.linux.org.uk> <20040701174731.GD15960@smtp.west.cox.net> <20040701190720.C8389@flint.arm.linux.org.uk> <1088711048.8875.5.camel@nosferatu.lan> <20040701205255.F8389@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040701205255.F8389@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jul 01, 2004 at 08:52:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've seen the the top command segfault when dealing with a badly (very
-badly) formed task name obtained from a 'stat' file in proc fs.  Upon
-further examination, it appears that the task name could be updated at
-the same time it is handed off to sprintf in proc_pid_stat().  Now one
-could argue that top should be more intelligent and deal with these
-badly formed names.  However, I think it's bad to be passing strings that
-could be changing to sprintf within the kernel.  I'm pretty sure sprintf
-expects the character strings to be static.  Below is a patch to address
-this code and one other place dealing with task names in the same file.
+On Thu, Jul 01, 2004 at 08:52:55PM +0100, Russell King wrote:
+> Therefore, unless anyone has any objections, I shall be cooking up
+> a patch which adds an extra pass to any final object link for the
+> kernel build system.
+
+Ok, I decided that touching the rules used for the boot loader(s) was
+probably going to be too fraught, so here's one which just checks the
+final link for the main kernel image.
+
+Essentially, we run 'nm' against the object, and look for any line
+which matches the pattern '^ *U '.  With this, a failing output looks
+like:
+
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+ldchk: .tmp_vmlinux1: final image has undefined symbols:
+  SIZEOF_MACHINE_DESC
+make[1]: *** [.tmp_vmlinux1] Error 1
+make: *** [vmlinux] Error 2
+
+and successful output:
+
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+  KSYM    .tmp_kallsyms1.S
+  AS      .tmp_kallsyms1.o
+  LD      .tmp_vmlinux2
+  KSYM    .tmp_kallsyms2.S
+  AS      .tmp_kallsyms2.o
+  LD      vmlinux
+
+
+===== Makefile 1.500 vs edited =====
+--- 1.500/Makefile	Tue Jun 29 15:44:49 2004
++++ edited/Makefile	Thu Jul  1 23:10:04 2004
+@@ -533,6 +533,8 @@
+ endef
+ 
+ #	set -e makes the rule exit immediately on error
++#	Note: Ensure that there are no undefined symbols in the final
++#	linked image.  Not doing this can lead to silent link failures.
+ 
+ define rule_vmlinux__
+ 	+set -e;							\
+@@ -545,6 +547,12 @@
+ 	$(if $($(quiet)cmd_vmlinux__),					\
+ 	  echo '  $($(quiet)cmd_vmlinux__)' &&) 			\
+ 	$(cmd_vmlinux__);						\
++	if $(NM) $@ | grep -q '^ *U '; then				\
++		echo 'ldchk: $@: final image has undefined symbols:';	\
++		$(NM) $@ | sed 's/^ *U \(.*\)/  \1/p;d';		\
++		$(RM) -f $@;						\
++		exit 1;							\
++	fi;								\
+ 	echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
+ endef
+ 
+
 
 -- 
-Mike
-
-
-diff -Naur linux-2.6.7/fs/proc/array.c linux-2.6.7.ptest/fs/proc/array.c
---- linux-2.6.7/fs/proc/array.c	Wed Jun 16 05:19:36 2004
-+++ linux-2.6.7.ptest/fs/proc/array.c	Thu Jul  1 17:44:14 2004
-@@ -97,14 +97,14 @@
- 		name++;
- 		i--;
- 		*buf = c;
--		if (!c)
-+		if (!*buf)
- 			break;
--		if (c == '\\') {
--			buf[1] = c;
-+		if (*buf == '\\') {
-+			buf[1] = *buf;
- 			buf += 2;
- 			continue;
- 		}
--		if (c == '\n') {
-+		if (*buf == '\n') {
- 			buf[0] = '\\';
- 			buf[1] = 'n';
- 			buf += 2;
-@@ -308,14 +308,11 @@
- 	int num_threads = 0;
- 	struct mm_struct *mm;
- 	unsigned long long start_time;
-+	char tname[sizeof(task->comm)];
- 
- 	state = *get_task_state(task);
- 	vsize = eip = esp = 0;
--	task_lock(task);
--	mm = task->mm;
--	if(mm)
--		mm = mmgrab(mm);
--	task_unlock(task);
-+	mm = get_task_mm(task);
- 	if (mm) {
- 		down_read(&mm->mmap_sem);
- 		vsize = task_vsize(mm);
-@@ -357,11 +354,15 @@
- 	/* Temporary variable needed for gcc-2.96 */
- 	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
- 
-+	/* Make a static copy of task name for sprintf */
-+	memcpy(tname, task->comm, sizeof(tname));
-+	tname[sizeof(tname)-1] = '\0';
-+
- 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
- %lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
- 		task->pid,
--		task->comm,
-+		tname,
- 		state,
- 		ppid,
- 		pgid,
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

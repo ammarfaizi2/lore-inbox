@@ -1,124 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbUAGPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 10:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbUAGPeX
+	id S266208AbUAGPff (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 10:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUAGPff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 10:34:23 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:22044 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S265607AbUAGPeT
+	Wed, 7 Jan 2004 10:35:35 -0500
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:7837 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S265612AbUAGPfX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 10:34:19 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200401071534.i07FY8IY032449@green.mif.pg.gda.pl>
-Subject: Re: Linux 2.4.25-pre4
-To: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org (kernel list)
-Date: Wed, 7 Jan 2004 16:34:08 +0100 (CET)
-Cc: marcelo.tosatti@cyclades.com (Marcello Tosatti)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 10:35:23 -0500
+From: Berkley Shands <berkley@cs.wustl.edu>
+Date: Wed, 7 Jan 2004 09:35:18 -0600 (CST)
+Message-Id: <200401071535.i07FZIX0000020986@mudpuddle.cs.wustl.edu>
+To: gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
->From ankry@sunrise.pg.gda.pl  Wed Jan  7 16:31:11 2004
-Return-Path: <ankry@sunrise.pg.gda.pl>
-Received: from sunrise.pg.gda.pl (root@sunrise.pg.gda.pl [153.19.40.230])
-	by green.mif.pg.gda.pl (8.12.10/8.12.6) with ESMTP id i07FVBo0032429
-	for <ankry@green.mif.pg.gda.pl>; Wed, 7 Jan 2004 16:31:11 +0100
-Received: from sunrise.pg.gda.pl (localhost [127.0.0.1])
-	by sunrise.pg.gda.pl (8.12.10/8.12.9) with ESMTP id i07FV6DJ005180
-	for <ankry@green.mif.pg.gda.pl>; Wed, 7 Jan 2004 16:31:06 +0100 (CET)
-Received: (from ankry@localhost)
-	by sunrise.pg.gda.pl (8.12.10/8.12.9/Submit) id i07FV4VW005179
-	for ankry@green.mif.pg.gda.pl; Wed, 7 Jan 2004 16:31:04 +0100 (CET)
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200401071531.i07FV4VW005179@sunrise.pg.gda.pl>
-Subject: Re: Linux 2.4.25-pre4 (fwd)
-To: ankry@green.mif.pg.gda.pl
-Date: Wed, 7 Jan 104 16:31:04 +0100 (CET)
-Content-Type: text
+	Running with the force segment merge OFF panics the processor after
+about 1000 scsi retries. the error given, also in pci-gart.c, is
+pci_map_area overflow 4096 bytes
+So a brain dead repair kills the kernel. Someone clearly needs to figure
+out where to correct the merge of the sg lists. A bit of doc on the iommu
+and the 4096 byte limit would be nice too :-)
 
-"F wrote:"
->From linux-kernel-owner+ankry=40pg.gda.pl@vger.kernel.org  Tue Jan  6 18:34:02 2004
-X-BrightmailFiltered: true
-Date: Tue, 6 Jan 2004 18:30:17 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Matt Domsch <Matt_Domsch@dell.com>,
-        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Linux 2.4.25-pre4
-Message-ID: <20040106173017.GA10755@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040106102819.A12626@lists.us.dell.com>
-User-Agent: Mutt/1.4i
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-X-Spam-Checker-Version: SpamAssassin 2.70-cvs (1.218-2003-11-09-exp) on 
-	mordred.oi.pg.gda.pl
-X-Spam-Level: 
-X-Spam-Status: No, hits=0.3 required=5.0 tests=UPPERCASE_25_50 autolearn=no 
-	version=2.70-cvs
+I see that is is the aborting of an SCB that causes the sg list halt.
 
-Matt Domsch <Matt_Domsch@dell.com> ha scritto:
->> Trying to compile $subj with following config (these options seem to
->> cause the problem, full config attached):
->> 
->> CONFIG_SCSI_MEGARAID=y
->> CONFIG_SCSI_MEGARAID2=y
->>
->> Is this a known issue and megaraids can't live together, or am I
->> supposed to be able to compile both drivers in and this is a bug?
-> 
-> yes, this is known and expected.  You can build both as modules, but
-> they're not intended to both be loaded simultaneously (either built-in
-> or as modules).  They're mutually exclusive.
+Jan  7 09:18:32 typhoon kernel: DevQ(0:6:0): 0 waiting
+Jan  7 09:18:32 typhoon kernel: (scsi0:A:2:0): SCB 0x46 - timed out
+Jan  7 09:18:32 typhoon kernel: Recovery SCB completes
+Jan  7 09:18:32 typhoon kernel: scsi0: Issued Channel A Bus Reset. 3 SCBs aborted
+Jan  7 09:18:46 typhoon kernel: Did it again, boss 0000:01:03.0
 
-Ok, what about this patch (against 2.4.25-pre4):
+Since the sg list merges into one i/o list, simply adding s->length = 4096
+back into the list seems to keep the kernel up. a better if slightly less
+stupid fix is to add up the remaining sg list lengths, and ajust
+the sg[0] entry to sum to the correct value.
 
---- linux-2.4/drivers/scsi/Config.in.orig	Tue Jan  6 18:11:10 2004
-+++ linux-2.4/drivers/scsi/Config.in	Tue Jan  6 18:23:29 2004
-@@ -66,8 +66,13 @@
- dep_tristate 'AdvanSys SCSI support' CONFIG_SCSI_ADVANSYS $CONFIG_SCSI
- dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
- dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
--dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
--dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+
-+if [ "$CONFIG_SCSI_MEGARAID2" == "n" -o "$CONFIG_SCSI_MEGARAID2" == "" ]; then
-+  dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
-+fi
-+if [ "$CONFIG_SCSI_MEGARAID" == "n" -o "$CONFIG_SCSI_MEGARAID" == "" ]; then
-+  dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+fi
- 
- dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
- if [ "$CONFIG_SCSI_BUSLOGIC" != "n" ]; then
+/*   		BUG_ON(s->length == 0); */
+if (! s->length)
+   {
+   unsigned long zero = sg[0].length;
+   unsigned long remain = 0;
+   int t = 0;
+   
+   BUG_ON(i != 1);		/* some other error here */
+   
+   for (t = i + 1; t < nents; t++)
+      remain += sg[t].length;	/* collect remaining sizes */
+   zero -= remain;		/* deduct what is left on the list */
+   sg[0].length = zero / 2;
+   sg[1].length = zero / 2;	/* allocate uniformly */
+   size = zero / 2;		/* reduce oversize first entry */
+   printk(KERN_WARNING "Did it again, boss %s\n", dev->slot_name);
+   }
 
+The better solution is to have the upper layer fix the sg list, or
+have some marker that the list was diddled, and save the old entries
+to put it back.
 
-I'm not very familiar with 2.4 config language, maybe there's a better
-way to do it.
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Carpe diem, quam minimum credula postero. (Q. Horatius Flaccus)
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+berkley

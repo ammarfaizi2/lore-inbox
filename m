@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUACPaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 10:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbUACPaW
+	id S263486AbUACPcI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 10:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbUACPcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 10:30:22 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:42762 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263475AbUACPaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 10:30:19 -0500
-Date: Sat, 3 Jan 2004 16:41:58 +0100
-To: Libor Vanek <libor@conet.cz>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall table AKA hijacking syscalls
-Message-ID: <20040103154158.GB5531@hh.idb.hist.no>
-References: <3FF56B1C.1040308@conet.cz> <20040102233542.GW28023@krispykreme> <3FF602C9.4080100@conet.cz>
+	Sat, 3 Jan 2004 10:32:08 -0500
+Received: from gprs214-81.eurotel.cz ([160.218.214.81]:11648 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263486AbUACPcE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 10:32:04 -0500
+Date: Sat, 3 Jan 2004 16:33:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Fix softcursor in 2.6.X
+Message-ID: <20040103153310.GA617@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FF602C9.4080100@conet.cz>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 12:46:17AM +0100, Libor Vanek wrote:
-> >>I'm writing some project which needs to hijack some syscalls in VFS 
-> >>layer. AFAIK in 2.6 is this "not-wanted" solution (even that there are 
-> >>some very nasty ways of doing it - see 
-> >>http://mail.nl.linux.org/kernelnewbies/2002-12/msg00266.html )
-> >
-> >
-> >And it will fail miserably on many non x86 architectures for
-> >various reasons:
-> >
-> >1. ppc64 and ia64 use function descriptors
-> >2. sparc64 uses a 32bit call out table
-> >
-> >In short its not only an awful hack, its horribly non portable :)
-> 
-> But in short you always get some syscall from userspace and have some table 
-> with function vectors assigned to each syscall, don't you?
-> 
-> So you can have something like 
-> "append_this_function_before_syscall_sys_open" and 
-> "append_this_function_after_syscall_sys_open" which would be platform 
-> independent but will have platform dependent implementation.
+Hi!
 
-Why bother overriding syscalls?
-If you want a different sys_open, just modify/rewrite it.  Then you get a kernel
-that works your way without touching the syscall table (or other implementation of it) 
-at all.
+Softcursor was broken for half of 2.5 series. This fixes it by first
+hiding cursor _then_ hiding softcursor. Very simple mistake... Please
+apply,
 
-Of course this sort of rewrite cannot be acitvated/deactivated by loading/unloading
-a module.  But that isn't necessary, use a writeable flag in /proc instead.
+								Pavel
 
-i.e.:
-sys_open(...) 
-{
-  if (activated_in_proc) my_sys_open(...); else standard_sys_open(...);
-}
+--- tmp/linux/drivers/char/vt.c	2003-10-18 20:26:33.000000000 +0200
++++ linux/drivers/char/vt.c	2004-01-03 16:08:44.000000000 +0100
+@@ -530,17 +530,22 @@
+ 		sw->con_putc(vc_cons[currcons].d, i, y, x);
+ }
+ 
+-static void hide_cursor(int currcons)
++static void hide_softcursor(int currcons)
+ {
+-	if (currcons == sel_cons)
+-		clear_selection();
+ 	if (softcursor_original != -1) {
+ 		scr_writew(softcursor_original,(u16 *) pos);
+ 		if (DO_UPDATE)
+ 			sw->con_putc(vc_cons[currcons].d, softcursor_original, y, x);
+ 		softcursor_original = -1;
+ 	}
++}
++
++static void hide_cursor(int currcons)
++{
++	if (currcons == sel_cons)
++		clear_selection();
+ 	sw->con_cursor(vc_cons[currcons].d,CM_ERASE);
++	hide_softcursor(currcons);
+ }
+ 
+ static void set_cursor(int currcons)
 
-Helge Hafting
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

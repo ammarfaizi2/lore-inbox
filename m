@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280931AbRKDRX2>; Sun, 4 Nov 2001 12:23:28 -0500
+	id <S281051AbRKDRZs>; Sun, 4 Nov 2001 12:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280037AbRKDRXI>; Sun, 4 Nov 2001 12:23:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16647 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280043AbRKDRXF>; Sun, 4 Nov 2001 12:23:05 -0500
-Subject: Re: emu10k emits buzzing and crackling
-To: rui.p.m.sousa@clix.pt (Rui Sousa)
-Date: Sun, 4 Nov 2001 17:29:47 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), rui.p.m.sousa@clix.pt (Rui Sousa),
-        sirmorcant@morcant.org (Morgan Collins [Ax0n]), kwijibo@zianet.com,
-        bcrl@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111041813310.3150-100000@sophia-sousar2.nice.mindspeed.com> from "Rui Sousa" at Nov 04, 2001 06:18:25 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S280037AbRKDRZi>; Sun, 4 Nov 2001 12:25:38 -0500
+Received: from are.twiddle.net ([64.81.246.98]:43962 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S280969AbRKDRZW>;
+	Sun, 4 Nov 2001 12:25:22 -0500
+Date: Sun, 4 Nov 2001 09:25:17 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: csr21@cam.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: SPARC and SA_SIGINFO signal handling
+Message-ID: <20011104092517.A10981@twiddle.net>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>, csr21@cam.ac.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011031094342.A27520@cam.ac.uk> <20011031.021131.74751566.davem@redhat.com> <20011103115900.B5984@twiddle.net> <20011103.155422.74749787.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E160R5f-0002Sb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011103.155422.74749787.davem@redhat.com>; from davem@redhat.com on Sat, Nov 03, 2001 at 03:54:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > GNOME pretty much requires esd, like KDE requires arts.
-> 
-> For most common sound cards. Not when you can have 32 independent stereo 
-> sound streams.
+On Sat, Nov 03, 2001 at 03:54:22PM -0800, David S. Miller wrote:
+> Is it required?  All the information that thing provides is
+> determinable via other methods.
 
-You still need esd/arts. You can't play remote audio otherwise.
+*shrug* Define "required".  It's a standard format.
+
+
+r~

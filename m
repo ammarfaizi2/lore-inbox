@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263903AbUA0WBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbUA0WBZ
+	id S265594AbUA0WGa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 17:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbUA0WGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:01:25 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:44004 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263903AbUA0WBT (ORCPT
+	Tue, 27 Jan 2004 17:06:30 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:16302 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S265594AbUA0WGZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:01:19 -0500
-Message-ID: <4016DE81.9080507@us.ibm.com>
-Date: Tue, 27 Jan 2004 13:56:17 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	Tue, 27 Jan 2004 17:06:25 -0500
+To: marcelo.tosatti@cyclades.com
+Cc: lkml <linux-kernel@vger.kernel.org>, kkeil@suse.de,
+       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
+Subject: [TRIVIAL PATCH] 2.4 make dep and hisax/Makefile md5sum warning fix
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 27 Jan 2004 22:13:19 +0100
+Message-ID: <m3y8rtccy8.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: akpm@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove memblks from the kernel
-References: <237770000.1074843321@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> This patch removes memblks from the kernel ... we don't use them, and
-> the NUMA API that was planning to use them when they were originally 
-> designed isn't going to use them anymore. They're just unnecessary 
-> added complexity now ... time for them to go.
-> 
-> There's a slight complication in that ia64 uses something with a similar
-> name for part of its memory layout, but Jes Sorensen kindly untangled them
-> from each other for us. The patch with his modifications is below. Jes 
-> tested it on ia64, and I testbuilt it with every config in my arsenal.
-> 
-> Please apply ... thanks,
-> 
-> M.
+--=-=-=
 
-As the unfortunate soul who pushed this whole memblk concept way back 
-when, I'll add my support for their removal.  The things I envisioned 
-happening with memblks never materialized and so Martin is right, now 
-they're just taking up space.  Adios memblks, we barely knew ye.
+Hi,
 
-Cheers!
+The following patch suppresses the "md5sum: WARNING: 1 of 13 computed
+checksums did NOT match" warning from make dep.
 
--Matt
+The "md5sum -c" status is still used by the drivers (some certification
+requirement for ISDN equipment in Germany).
 
+Unless they are objections please apply to 2.4 kernel tree. Thanks.
+-- 
+Krzysztof Halasa, B*FH
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=hisax-md5sum-2.4.25pre7.patch
+
+--- linux-2.4.orig/drivers/isdn/hisax/Makefile	2003-06-13 16:51:34.000000000 +0200
++++ linux-2.4/drivers/isdn/hisax/Makefile	2004-01-27 22:05:31.000000000 +0100
+@@ -66,7 +66,7 @@
+ obj-$(CONFIG_HISAX_FRITZ_PCIPNP)        += hisax_isac.o hisax_fcpcipnp.o
+ obj-$(CONFIG_USB_AUERISDN)	        += isdnhdlc.o
+ 
+-CERT := $(shell md5sum -c md5sums.asc >> /dev/null;echo $$?)
++CERT := $(shell md5sum --status -c md5sums.asc >> /dev/null;echo $$?)
+ CFLAGS_cert.o := -DCERTIFICATION=$(CERT)
+ 
+ include $(TOPDIR)/Rules.make
+
+--=-=-=--

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262118AbSIYWP3>; Wed, 25 Sep 2002 18:15:29 -0400
+	id <S262124AbSIYWZg>; Wed, 25 Sep 2002 18:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262125AbSIYWP3>; Wed, 25 Sep 2002 18:15:29 -0400
-Received: from dsl-213-023-040-245.arcor-ip.net ([213.23.40.245]:25035 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262118AbSIYWP2>;
-	Wed, 25 Sep 2002 18:15:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Dave Olien <dmo@osdl.org>, "David S. Miller" <davem@redhat.com>
-Subject: DAC960, documentation links
-Date: Thu, 26 Sep 2002 00:20:41 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: davidm@hpl.hp.com, Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
-       axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <20020924095456.A17658@acpi.pdx.osdl.net> <E17ttf4-0003iY-00@starship>
-In-Reply-To: <E17ttf4-0003iY-00@starship>
+	id <S262129AbSIYWZg>; Wed, 25 Sep 2002 18:25:36 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:23941 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id <S262124AbSIYWZf>;
+	Wed, 25 Sep 2002 18:25:35 -0400
+To: James Stevenson <james@stev.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19: oops in ide-scsi
+References: <87n0q8tcs8.fsf@ceramic.fifi.org>
+	<1032891985.2035.1.camel@god.stev.org>
+	<87smzzksri.fsf@ceramic.fifi.org>
+	<1032903706.2445.4.camel@god.stev.org>
+	<87adm6kofe.fsf@ceramic.fifi.org>
+	<1032977895.1676.0.camel@god.stev.org>
+From: Philippe Troin <phil@fifi.org>
+Date: 25 Sep 2002 15:30:46 -0700
+In-Reply-To: <1032977895.1676.0.camel@god.stev.org>
+Message-ID: <87vg4tk8h5.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17uKWQ-0003uA-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave, I know you already have done all these, but...
+James Stevenson <james@stev.org> writes:
 
-Links to the late Leonard Zubkoff's information pages:
+> Hi
+> 
+> then i belive there are other possible problems which may by
+> just as bad
 
-   http://www.dandelion.com/Linux/DAC960.html
-   http://www.dandelion.com/Linux/BusLogic.html
+Can you elaborate?
 
-These pages are linked from:
-
-   Documentation/README.DAC960
-
-This appears to be the best that Mylex can offer:
-
-   http://www.mylex.com/support/index.html
-   (contact technical support)
-
-As you said.
-
--- 
-Daniel
+Phil.

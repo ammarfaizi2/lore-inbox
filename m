@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRCBU5R>; Fri, 2 Mar 2001 15:57:17 -0500
+	id <S129524AbRCBVKt>; Fri, 2 Mar 2001 16:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129498AbRCBU5I>; Fri, 2 Mar 2001 15:57:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:24080 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129495AbRCBU5C>; Fri, 2 Mar 2001 15:57:02 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: scsi vs ide performance on fsync's
-Date: 2 Mar 2001 12:56:52 -0800
-Organization: Transmeta Corporation
-Message-ID: <97p1ek$10t$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33L2.0103021241550.14586-200000@srv2.ecropolis.com>
+	id <S129509AbRCBVKj>; Fri, 2 Mar 2001 16:10:39 -0500
+Received: from grace.speakeasy.org ([216.254.0.2]:49929 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S129498AbRCBVKd>; Fri, 2 Mar 2001 16:10:33 -0500
+Date: Fri, 2 Mar 2001 16:10:47 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: usbdevfs can be mounted multiple times
+Message-ID: <Pine.LNX.4.33.0103021605570.22765-100000@fonzie.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33L2.0103021241550.14586-200000@srv2.ecropolis.com>,
-Jeremy Hansen  <jeremy@xxedgexx.com> wrote:
->
->The SCSI adapter on the raid array is an Adaptec 39160, the raid
->controller is a CMD-7040.  Kernel 2.4.0 using XFS for the filesystem on
->the raid array, kernel 2.2.18 on ext2 on the IDE drive.  The filesystem is
->not the problem, as I get almost the exact same results running this on
->ext2 on the raid array.
+Hello!
 
-Did you try a 2.4.x kernel on both?
+I understand that root can do many strange and unsafe things, but mounting
+the same filesystem many times is not allowed for systems other than
+usbdevfs.
 
-2.4.0 has a bad elevator, which may show problems, so please check 2.4.2
-if the numbers change. Also, "fsync()" is very different indeed on 2.2.x
-and 2.4.x, and I would not be 100% surprised if your IDE drive does
-asynchronous write caching and your RAID does not... That would not show
-up in bonnie.
+[root@fonzie proski]# mount
+/dev/ide/host0/bus0/target0/lun0/part1 on / type reiserfs (rw)
+none on /proc type proc (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /proc/bus/usb type usbdevfs (rw)
+[root@fonzie proski]# mount /proc/bus/usb
+[root@fonzie proski]# mount /proc/bus/usb
+[root@fonzie proski]# mount /proc/bus/usb
+[root@fonzie proski]# mount /proc/bus/usb
+[root@fonzie proski]# mount
+/dev/ide/host0/bus0/target0/lun0/part1 on / type reiserfs (rw)
+none on /proc type proc (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /proc/bus/usb type usbdevfs (rw)
+none on /proc/bus/usb type usbdevfs (rw)
+none on /proc/bus/usb type usbdevfs (rw)
+none on /proc/bus/usb type usbdevfs (rw)
+none on /proc/bus/usb type usbdevfs (rw)
+[root@fonzie proski]# mount /dev/pts
+mount: none already mounted or /dev/pts busy
+mount: according to mtab, none is already mounted on /dev/pts
+[root@fonzie proski]# mount --version
+mount: mount-2.10p
+[root@fonzie proski]# uname -a
+Linux fonzie 2.4.2-ac8 #3 Fri Mar 2 12:59:44 EST 2001 i686 unknown
+[root@fonzie proski]#
 
-Also note how your bonnie file remove numbers for IDE seem to be much
-better than for your RAID array, so it is not impossible that your RAID
-unit just has a _huge_ setup overhead but good throughput, and that the
-IDE numbers are better simply because your IDE setup is much lower
-latency. Never mistake throughput for _speed_.
+Regards,
+Pavel Roskin
 
-		Linus

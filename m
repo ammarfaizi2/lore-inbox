@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130566AbRAGL2g>; Sun, 7 Jan 2001 06:28:36 -0500
+	id <S130484AbRAGLot>; Sun, 7 Jan 2001 06:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130560AbRAGL2Z>; Sun, 7 Jan 2001 06:28:25 -0500
-Received: from staq1.atlantech.net ([209.190.211.2]:9992 "EHLO
-	ns4.cyberjunkees.com") by vger.kernel.org with ESMTP
-	id <S130486AbRAGL2V>; Sun, 7 Jan 2001 06:28:21 -0500
-From: Jim Olsen <jim@browsermedia.com>
-Organization: CyberJunkees
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Which kernel fixes the VM issues?
-Date: Sun, 7 Jan 2001 06:31:29 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
+	id <S130486AbRAGLoj>; Sun, 7 Jan 2001 06:44:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19987 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130484AbRAGLo2>;
+	Sun, 7 Jan 2001 06:44:28 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101070958.f079wmx22407@flint.arm.linux.org.uk>
+Subject: Re: Little question about modules...
+To: Pixel@the-babel-tower.nobis.phear.org (Nicolas Noble)
+Date: Sun, 7 Jan 2001 09:58:47 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux-kernel's Mailing list)
+In-Reply-To: <Pine.LNX.4.21.0101140318240.5780-100000@the-babel-tower.nobis.phear.org> from "Nicolas Noble" at Jan 14, 2001 03:20:52 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01010706312902.10913@jim.cyberjunkees.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi... I have a question or two that would help me clear up a bit of the fuzz 
-I have relating to the VM: do_try_to_free_pages issue.  
+Nicolas Noble writes:
+> Why do I have used by -1 for the module ipv6 onto my system?
 
-I currently have a server with:
+I guess this is going to be a new FAQ!  Can we add it to the lkml FAQ
+please?
 
-o) 1 GB RAM
-o) Dual PIII 700 Processors
-o) Dual EtherExpress Pro NIC's
-o) RedHat 6.2 w/ 2.2.17 (No patches applied)
-o) High load (HTTP, DNS, SMTP, etc)
-
-About once a week I get the 'VM: do_try_to_free_pages ...' error and 
-eventually get a complete system lockup. And just this morning it locked up 
-again, although this time with a 'VFS: LRU block list corrupted' message in 
-the logs, which i'm assuming is related to the VM issue as well. 
-
-When this server started having these lockups related to the VM I researched 
-it, and found some messages poing to a 2.2.18pre* patch available to fix this 
-issue, and also later down the road that the patch was accepted into the 
-2.2.18 final.  
-
-In following this mailing list, though, I have seen that certain people are 
-still having problems with the VM while running 2.2.18, although it seems to 
-be relegated only to those people who might be running ReiserFS.  The fix, it 
-seems, for people with 2.2.18+ReiserFS is to get latest 2.2.19pre*.
-
-My question is, exactly which kernel should I use in order to rid my server 
-of this VM issue?  I'm uncomfortable (and always have been) with running pre* 
-kernels on production machines, so i'd like to stick with 2.2.18, but I would 
-like to know if it truly does fix the problem(s) with the VM.  If I need to, 
-though, I will (hesitantly) put a 2.2.19pre* kernel on the box.  
-
-Also, I would like to know if the VM problems with 2.2.18+ReiserFS are 
-strictly a ReiserFS issue (code or whatnot) or is it an issue in how ReiserFS 
-uses the memory? If it is an issue in how the memory is used, then is it 
-possible for servers that have a heavy load with lots of dynamic content (and 
-therefore lots of memory usage) to also still have this issue with 2.2.18 
-regardless of whether they have ReiserFS or not?
-
-I'll be applying 2.2.18 soon, so the question is sort of moot as I will find 
-out eventually. Nonetheless, I would appreciate an absolute resolution to 
-this issue that has been on my mind, not to mention the fact that it would 
-more than likely give me a break from hearing the pager go off in the 
-wee-morning hours, eh?
-
-Jim Olsen
-Linux Systems Administrator
--- 
-Bus error -- please leave by the rear door.
+"-1" means that the module itself decides whether it can be unloaded or
+not, in this case it is decided by the function "ipv6_unload".  It is
+not a bug to have a use count of "-1".
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271197AbTGWSxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271214AbTGWSxO
+	id S271214AbTGWSyu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271217AbTGWSyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:53:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58004 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271197AbTGWSwJ (ORCPT
+	Wed, 23 Jul 2003 14:54:50 -0400
+Received: from mail.gmx.de ([213.165.64.20]:56549 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271214AbTGWSyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:52:09 -0400
-Date: Wed, 23 Jul 2003 12:04:57 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Glenn Fowler <gsf@research.att.com>
-Cc: gsf@research.att.com, dgk@research.att.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: kernel bug in socketpair()
-Message-Id: <20030723120457.206dc02d.davem@redhat.com>
-In-Reply-To: <200307231854.OAA90112@raptor.research.att.com>
-References: <200307231428.KAA15254@raptor.research.att.com>
-	<20030723074615.25eea776.davem@redhat.com>
-	<200307231656.MAA69129@raptor.research.att.com>
-	<20030723100043.18d5b025.davem@redhat.com>
-	<200307231724.NAA90957@raptor.research.att.com>
-	<20030723103135.3eac4cd2.davem@redhat.com>
-	<200307231814.OAA74344@raptor.research.att.com>
-	<20030723112307.5b8ae55c.davem@redhat.com>
-	<200307231854.OAA90112@raptor.research.att.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 23 Jul 2003 14:54:47 -0400
+Date: Thu, 24 Jul 2003 00:39:29 +0530
+From: Apurva Mehta <apurva@gmx.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: different behaviour with badblocks on 2.6.0-test1-mm1-07int
+Message-ID: <20030723190929.GB1288@home.woodlands>
+Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030722214253.GD1176@matchmail.com> <20030723081844.GB1324@home.woodlands> <200307231324.h6NDO5qj009710@turing-police.cc.vt.edu> <20030723151950.GA2218@home.woodlands> <20030723170107.GH1176@matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030723170107.GH1176@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 14:54:49 -0400 (EDT)
-Glenn Fowler <gsf@research.att.com> wrote:
-
-> On Wed, 23 Jul 2003 11:23:07 -0700 David S. Miller wrote:
-> > On Wed, 23 Jul 2003 14:14:57 -0400 (EDT)
-> > Glenn Fowler <gsf@research.att.com> wrote:
+* Mike Fedyk <mfedyk@matchmail.com> [2003-07-23 22:41]:
+> > I am using 2.1.14.. Still no luck with it reading disks.. 
 > 
-> > > named sockets seem a little heavyweight for this application
-> 
-> > I think it'll be cheaper than unnamed unix sockets and
-> > groveling in /proc/*/fd/
-> 
-> > And even if there is a minor performance issue, you'll more than get
-> > that back due to the portability gain. :-)
-> 
-> named unix sockets reside in the fs namespace, no?
+> Maybe you need to mount sysfs on /sys?
 
-Right.
+Right, gkrellm does report some disk usage now, but it is far from
+accurate. It registers barely any of the disk activity. Starting
+Firebird or Opera may occasionally register one spike on the
+graph. Mostly, the disk activity is not reported. 
 
-> so they must be linked to a dir before use and unlinked after use
-> the unlink after use would be particularly tricky for the parent process
-> implementing
-> 	cmd <(cmd ...) ...
+This seems to be a gkrellm bug since vmstat reports disk usage more
+accurately, although I haven't really looked closely at the output..
 
-Hmmm... true.
-
-I honestly don't know what to suggest you use, sorry :(
-
-Is bash totally broken because of all this?  Or does the problem only
-trigger when using (cmd) subprocesses in a certain way?
+	- Apurva

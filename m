@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbTIYTUo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTIYTUo
+	id S261853AbTIYT3s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbTIYT3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:20:44 -0400
-Received: from traffic.dsnl.net ([213.160.215.14]:21184 "EHLO
-	audrey1.deltasolutions.nl") by vger.kernel.org with ESMTP
-	id S261685AbTIYTUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:20:42 -0400
-Subject: Re: zr36120 2.6.x port (was: Re: [Mjpeg-users] DC30+ can't capture
-	size greater than 224x168)
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Pauline Middelink <middelink@polyware.nl>, linux-kernel@vger.kernel.org,
-       kraxel@bytesex.org
-In-Reply-To: <20030925171010.A17271@infradead.org>
-References: <BAY7-F62oStVwgTlLlJ0001924a@hotmail.com>
-	 <1064478814.2220.326.camel@shrek.bitfreak.net>
-	 <20030925084932.GA22441@polyware.nl>
-	 <1064484678.2227.465.camel@shrek.bitfreak.net>
-	 <20030925102635.GA25634@polyware.nl>
-	 <1064505583.2228.716.camel@shrek.bitfreak.net>
-	 <20030925171010.A17271@infradead.org>
-Content-Type: text/plain
-Message-Id: <1064517681.2228.724.camel@shrek.bitfreak.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 21:21:57 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Sep 2003 15:29:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10580 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261853AbTIYT3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 15:29:44 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: andrea@kernel.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+References: <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Sep 2003 13:23:40 -0600
+In-Reply-To: <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+Message-ID: <m1brt8iseb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds <torvalds@osdl.org> writes:
 
-On Thu, 2003-09-25 at 18:10, Christoph Hellwig wrote:
-> On Thu, Sep 25, 2003 at 05:59:44PM +0200, Ronald Bultje wrote:
-> > +	if (!try_module_get(THIS_MODULE)) {
-> > +		printk(KERN_ERR "failed to acquire lock on myself\n");
-> > +		return -EIO;
-> > +	}
+> On 25 Sep 2003, Eric W. Biederman wrote:
+> > > 
+> > > However, that only explains why you don't use BitKeeper. And everybody
+> > > accepts that. When I started to use BK, I made it _very_ clear that
+> > > service for non-BK users will be _at_least_ as good as it ever was before
+> > > I started using BK.
+> > 
+> > And for the core kernel development this is true.  There are subprojects
+> > that are currently using BK that you can't even get the code without
+> > BK.  And the only reason they are using BK is they are attempting to
+> > following how Linux is managed.  So having the Linux kernel
+> > development use BK does have some down sides.
 > 
-> This is broken, you need an owner outside the open routine.
+> That's actually a pretty good point. I end up releasing "sparse" only as a
+> BK archive, simply because I'm too lazy to care and there aren't enough
+> people involved (and those that _are_ involved do actually end up
+> re-exporting it as non-BK, but that doesn't invalidate your point).
+>
+> I don't know what the solution to it might be - but I don't think the 
+> reason they are using BK is that they are trying to emulate "the great 
+> kernel project". I know it wasn't for me - it's just that once you get 
+> used to BK, there's no way you'll ever go back to CVS willingly. 
 
-Eh? could you explain, please?
+I expressed it badly.  But the kernel using BK both introduces people
+to BK, and it validates BK as a useful tool.  Especially as the kernel
+tends to embody many of the best practices in the community.
 
-> > +
-> > +	/* find the device */
-> > +	for (i = 0; i < zoran_cards; i++) {
-> > +		if (zorans[i].video_dev->minor == minor) {
-> > +			ztv = &zorans[i];
-> > +			break;
-> > +		}
-> > +	}
+The only sure piece of the solution I have it to keep saying there is
+a problem, and to raise the level of the conversation to it's
+technical merits.
+
+> > In addition there are some major gains to be had in standardizing on a
+> > distributed version control system that everyone can use, and
+> > unfortunately BK does not fill that position.
 > 
-> What serializes this?
+> I don't disagree, but I don't see a real way to solve it. As Larry will 
+> tell you, the technical problems are bigger than you imagine.  So a BK 
+> killer won't be coming any time soon, methinks.
 
-We have an array of devices, and in order to find the right one, we go
-through the array until the inode belonging to the device that's being
-opened matches the one in the video device that we reigstered during
-module loading. I don't know of a way to get that information in any
-direct (non-loop) way, but that might be because I never cared to. I
-admit it's ugly, but it's correct and used in other drivers, too.
+It does not have to start as a BK killer.  Just something that is
+architecturally sound, once all of the basics work adding the polish
+can be done by the community.
 
-Ronald
+I am pretty certain I could write up something that got the core of
+the repository right in a month or two.  The hard part is avoiding
+mistakes in repository architecture.  CVS has never recovered, despite
+a lot of good work put into it.  For the few blunders Larry has made
+he has worked very hard to correct things.
 
--- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
-Linux Video/Multimedia developer
+But of course if I do something I won't be targeting the kernel
+developers directly.  I will do it to solve my problems on the
+projects I lead.  Which may not map well to kernel development.  But
+doing anything else would be an academic exercise because I could
+not maintain it.  
 
+Eric

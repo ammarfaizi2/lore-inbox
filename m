@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263233AbUJ2Kwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263237AbUJ2K5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263233AbUJ2Kwu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 06:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbUJ2Kwu
+	id S263237AbUJ2K5C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 06:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbUJ2K5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 06:52:50 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:59118 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263233AbUJ2Kwg (ORCPT
+	Fri, 29 Oct 2004 06:57:02 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:47770 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263239AbUJ2Kzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 06:52:36 -0400
-Message-ID: <418220C5.2030004@in.ibm.com>
-Date: Fri, 29 Oct 2004 16:21:49 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ebiederm@xmission.com, varap@us.ibm.com,
-       fastboot@osdl.org
-Subject: Re: Compile error on 2.6.10-rc1-mm1
-References: <41820F72.5020203@in.ibm.com> <20041029024305.7bd9778c.akpm@osdl.org>
-In-Reply-To: <20041029024305.7bd9778c.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Oct 2004 06:55:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=BFdbQpc+iYsw8JI6007B05xIMoWHKJMqZC4QXIPa/PIQ3WrEKPUX74xaxETABnHJWdEsURCR1JixQNqtcIXeN3uU9RrrkvLo4V9S59I1wK/ibacrdZk4vS6FsbYKB8hVF6Q9knUgHwMdyHCD7i7z9hHf9kY0h9n4uDRn5cyOtdc=
+Message-ID: <2a4f155d04102903551f558132@mail.gmail.com>
+Date: Fri, 29 Oct 2004 13:55:33 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: SSH and 2.6.9
+Cc: Andrew Morton <akpm@osdl.org>, dan@fullmotions.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0410291234530.22050@jjulnx.backbone.dif.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
+	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
+	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
+	 <1098913797.3495.0.camel@hanzo.fullmotions.com>
+	 <Pine.LNX.4.61.0410280034020.3284@dragon.hygekrogen.localhost>
+	 <20041028022942.7ef1a8b8.akpm@osdl.org>
+	 <Pine.LNX.4.61.0410291234530.22050@jjulnx.backbone.dif.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
+Slackware 10 is (was?) known to have a faulty udev.rules files
+breaking /dev/tty with latest 2.6 kernels. I already reported this to
+Patrick Volkerding but have no idea if its fixed because I am now a
+Debian user *g*.
+
+Regards,
+/ismail
+
+
+On Fri, 29 Oct 2004 12:36:19 +0200 (CEST), Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> On Thu, 28 Oct 2004, Andrew Morton wrote:
 > 
->>The compile time error that few people have been seeing with 
->> the last couple of -mm releases are due to the changes 
->> introduced to arch/i386/kernel/vmlinux.lds.S to enable kexec 
->> based crashdumps.
->>...
->> --- linux-2.6.10-rc1/arch/i386/kernel/vmlinux.lds.S~kdump-fix-bss-compile-error	2004-10-28 15:15:43.000000000 +0530
->> +++ linux-2.6.10-rc1-hari/arch/i386/kernel/vmlinux.lds.S	2004-10-28 15:18:04.000000000 +0530
->> @@ -117,8 +117,9 @@ SECTIONS
->>    /* freed after init ends here */
->>  	
->>    __bss_start = .;		/* BSS */
->> +  .bss.page_aligned  : AT(ADDR(.bss.page_aligned) - LOAD_OFFSET) {
->> +	*(.bss.page_aligned) }
->>    .bss : AT(ADDR(.bss) - LOAD_OFFSET) {
->> -	*(.bss.page_aligned)
->>  	*(.bss)
->>    }
->>    . = ALIGN(4);
+> > Date: Thu, 28 Oct 2004 02:29:42 -0700
+> > From: Andrew Morton <akpm@osdl.org>
+> > To: Jesper Juhl <juhl-lkml@dif.dk>
+> > Cc: dan@fullmotions.com, linux-kernel@vger.kernel.org
+> > Subject: Re: SSH and 2.6.9
+> >
+> > Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> > >
+> > > Now I guess we just need for someone to find out why LEGACY_PTYS breaks
+> > >  ssh (and other apps?) with kernels >= 2.6.9,
+> >
+> > Works OK here, witht he latest of everything.  Please send the faulty
+> > .config.
+> >
+> > If you could generate the `strace -f' output from good and bad
+> > sessions and identify where things went wrong, that would help.
+> >
 > 
+> I have no problem here, and I can't reproduce it by enabling LEGACY_PTYS
+> either, so you'll have to get the .config and strace etc from Danny Brow.
 > 
-> It's hard to see how that could go wrong.  Did you compare the before- and
-> after- output from `objdump -h vmlinux'?
+> --
+> Jesper Juhl
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-The output of objdump for the bss related sections are as below..
 
-Without patch - machine with newer binutils
-
-  24 .bss          0002cf38  c03df000  003df000  002df000  2**12
-                   ALLOC
-
-With patch - machine with newer binutils
-
-  24 .bss.page_aligned 00002000  c03df000  c03df000  002df000  2**2
-
-  25 .bss          0002af38  c03e1000  003e1000  002df000  2**12
-                   ALLOC
-
-With patch - machine with old binutils
-
-  24 .bss.page_aligned 00002000  c03df000  c03df000  002df000  2**2
-                   CONTENTS
-  25 .bss          0002af38  c03e1000  003e1000  002df000  2**12
-                   ALLOC
-
-Regards, Hari
+-- 
+Time is what you make of it

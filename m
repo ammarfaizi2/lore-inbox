@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSILQLZ>; Thu, 12 Sep 2002 12:11:25 -0400
+	id <S316519AbSILQRz>; Thu, 12 Sep 2002 12:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSILQLZ>; Thu, 12 Sep 2002 12:11:25 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:46493 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S316586AbSILQLY>; Thu, 12 Sep 2002 12:11:24 -0400
-Date: Thu, 12 Sep 2002 13:16:02 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@digeo.com>
-cc: Rick Lindsley <ricklind@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] sard changes for 2.5.34
-In-Reply-To: <3D804036.4C000672@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0209121314440.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316538AbSILQRz>; Thu, 12 Sep 2002 12:17:55 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:48141 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S316519AbSILQRy>;
+	Thu, 12 Sep 2002 12:17:54 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209121622.g8CGMgP07303@oboe.it.uc3m.es>
+Subject: route inode->block_device in 2.5?
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Thu, 12 Sep 2002 18:22:42 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Andrew Morton wrote:
+Is there a pointer chain by which one can get to the struct
+block_device of the underlying block device from an inode?
 
-> b).  Let's get the kernel right and change userspace to follow.  We have
-> another accounting patch which breaks top(1), so Rik has fixed it (and
-> is feeding the fixes upstream).
+Well, or from kdev_t (since inode->i_rdev is such).
 
-Speaking of which, what happened to the iowait patch ?
-Did you merge it with Linus or did it fall between the cracks ?
+I want to drop a 'special' request on to the request queue of the
+backing device, but I can't find a convenient entry point with more than
+an inode to hand, and I can't find the route from there.  Tes, I can get
+the major, and look at that offset in the blk_dev array, but those are
+blk_dev_struct 's not struct block_device's.
 
-regards,
+I agree that you may well ask why I want to do this, but at the moment
+this is just experimetin, so i can't answer sensibly - to try the effect
+of 'special' requests, maybe. If it's not possible, tell me, and I'll
+concentrate on some other thing.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Thanks for any hint kindly dropped ..
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Peter

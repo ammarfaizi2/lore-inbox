@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVCVVzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVCVVzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVCVVzU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVCVVyS
+	id S262082AbVCVVzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVCVVyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:54:18 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:3042 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262064AbVCVVwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:52:32 -0500
-Date: Tue, 22 Mar 2005 21:51:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <20050322123301.090cbfa6.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
-    <20050322034053.311b10e6.akpm@osdl.org> 
-    <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com> 
-    <20050322110144.3a3002d9.davem@davemloft.net> 
-    <20050322112125.0330c4ee.davem@davemloft.net> 
-    <20050322112329.70bde057.davem@davemloft.net> 
-    <Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com> 
-    <20050322123301.090cbfa6.davem@davemloft.net>
+	Tue, 22 Mar 2005 16:54:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54741 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262072AbVCVVxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:53:34 -0500
+Message-ID: <424093C8.400@pobox.com>
+Date: Tue, 22 Mar 2005 16:53:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Pawe__ Sikora <pluto@pld-linux.org>, linux-kernel@vger.kernel.org,
+       Richard Henderson <rth@twiddle.net>, Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH][alpha] "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko]
+ undefined!
+References: <200503152335.48995.pluto@pld-linux.org> <20050322130657.7502418d.akpm@osdl.org>
+In-Reply-To: <20050322130657.7502418d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, David S. Miller wrote:
-> On Tue, 22 Mar 2005 19:36:46 +0000 (GMT)
-> Hugh Dickins <hugh@veritas.com> wrote:
+Andrew Morton wrote:
+> Pawe__ Sikora <pluto@pld-linux.org> wrote:
 > 
-> > I notice that although both i386 and sparc64 use pgtable-nopud.h, the
-> > i386 pud_clear does nothing at all and the sparc64 pud_clear resets to 0.
+>>Fix for modpost warning:
+>> "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko] undefined!
+>>
+>> --- linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c.orig	2005-03-13 07:44:05.000000000 +0100
+>> +++ linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c	2005-03-15 23:20:00.405832368 +0100
+>> @@ -67,6 +67,9 @@
+>>  EXPORT_SYMBOL(alpha_using_srm);
+>>  #endif /* CONFIG_ALPHA_GENERIC */
+>>  
+>> +#include <linux/pm.h>
+>> +EXPORT_SYMBOL(pm_power_off);
+>> +
+>>  /* platform dependent support */
+>>  EXPORT_SYMBOL(strcat);
+>>  EXPORT_SYMBOL(strcmp);
+>> --- linux-2.6.11.3/arch/alpha/kernel/process.c.orig	2005-03-13 07:44:40.000000000 +0100
+>> +++ linux-2.6.11.3/arch/alpha/kernel/process.c	2005-03-15 23:28:15.687538104 +0100
+>> @@ -183,6 +183,8 @@
+>>  
+>>  EXPORT_SYMBOL(machine_power_off);
+>>  
+>> +void (*pm_power_off)(void) = machine_power_off;
+>> +
+>>  /* Used by sysrq-p, among others.  I don't believe r9-r15 are ever
+>>     saved in the context it's used.  */
 > 
-> This was a dead end.  I386 doesn't do anything with pud_clear() in
-> order to work around a chip erratum.
 > 
-> IA64 does clear in pud_clear() just like sparc64.
-
-My mind kept flipping back and forth on whether it was pud_clear().
-I agree, I can't see that it's the issue now.
-
-> I think it's the floor/ceiling stuff.
+> There doesn't seem to be a lot of point in defining it and not using it.
 > 
-> At that pud_clear(), we do it if floor-->ceiling (after masking)
-> covers the whole PUD.  Not whether start/end do, which is what
-> the code sort of does right now.
+> Perhaps IPMI is making untoward assumptions about the architecture's power
+> management?  Should we instead be disabling CONFIG_IPMI_POWEROFF on alpha
+> (and others?)
 
-Not an explanation I understood ;)
+Although I suppose its possible that some alpha machines have SMI 
+hardware, I don't think I've ever seen ACPI or IPMI on any alpha.
 
-> "start" and "end" say which specific entries we might be purging.
+	Jeff
 
-Yes.
 
-> "floor" and "ceiling" say that once that purging is done, the
-> extent of the potential address space freed.
 
-Well, they specify the limits beyond which we cannot free,
-because there's other stuff still making use of addresses beyond.
-
-> I cooked up a quick patch that changes the logic to:
-> 
-> 	floor &= PUD_MASK;
-> 	ceiling &= PUD_MASK;
-> 	if (floor - 1 >= ceiling - 1)
-> 		return;
-
-That can't be right.  In exit_mmap, for example, floor will be 0
-throughout, and the condition will be true for all values of ceiling.
-
-> 	pmd = pmd_offset(pud, start);
-> 	pud_clear(pud);
-> 	pmd_free_tlb(tlb, pmd);
-> 
-> and things start to basically work.
-
-Because none of your higher level tables are being freed at all:
-eventually you'll run out of memory.
-
-I still can't see what's wrong with the code that's already
-there.  My brain is seizing up, I'm taking a break.
-
-Hugh

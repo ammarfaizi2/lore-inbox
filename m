@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUG2PQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267910AbUG2PTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268049AbUG2PQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUG2PNf
+	id S267910AbUG2PTj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268167AbUG2PT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:13:35 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:57861 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264966AbUG2Oc2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:32:28 -0400
-Date: Thu, 29 Jul 2004 16:32:26 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] decode local APIC errors
-In-Reply-To: <200407272036.i6RKatf1013827@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.58L.0407291621150.18647@blysk.ds.pg.gda.pl>
-References: <200407272036.i6RKatf1013827@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jul 2004 11:19:29 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:5020 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267910AbUG2PCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 11:02:47 -0400
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       mbligh@aracnet.com, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m14qnr62hd.fsf@ebiederm.dsl.xmission.com>
+References: <16734.1090513167@ocs3.ocs.com.au>
+	 <200407280903.37860.jbarnes@engr.sgi.com>
+	 <m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
+	 <200407281106.17626.jbarnes@engr.sgi.com>
+	 <20040728124405.1a934bec.akpm@osdl.org>
+	 <m1pt6f681y.fsf@ebiederm.dsl.xmission.com>
+	 <1091055192.31923.1.camel@localhost.localdomain>
+	 <m14qnr62hd.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1091109602.851.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 15:00:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Mikael Pettersson wrote:
+On Iau, 2004-07-29 at 02:12, Eric W. Biederman wrote:
+> Or those devices that hang the machine when you clear it.
 
-> You're right, separate printk()s don't work, and formatting the
-> text to a buffer gets into other problems(*).
-> 
-> Andrew, please feel free to toss my crappy patch in /dev/null...
+There are none. Its required by the PCI spec and used by BIOS vendors
+during the boot sequence. So its a *tested* approach.
 
- As I've written, I'm not against it in principle, e.g. feel free to 
-recode it to log something like this:
+> And there is the fact that the pci configuration access methods
+> are frequently BIOS calls.
 
-<3>APIC: error on CPU0: 05(04)
-<7>APIC:   01: Send Checksum Error
-<7>APIC:   04: Send Accept Error
-<7>APIC:  (04: Send Accept Error)
+You will be running bios code on some systems every time you read
+the cmos clock, every time you touch pci config space, every time
+you hit a key, even in your new kernel boot up path - whats your
+point
 
-or anything sensible more or less similar.  The example doesn't require
-any temporary hold space.
+> So I do see just clearing the master bit on each PCI devices to
+> as dangerous as calling the shutdown methods.
 
-  Maciej
+Then we violently disagree
+

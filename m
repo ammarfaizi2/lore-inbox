@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263826AbUENHDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263942AbUENHJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263826AbUENHDN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 03:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbUENHDN
+	id S263942AbUENHJV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 03:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUENHJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 03:03:13 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:58384 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S265130AbUENG4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 02:56:07 -0400
-Date: Fri, 14 May 2004 15:04:16 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Chris Wedgwood <cw@f00f.org>
-cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       nautilus-list@gnome.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-In-Reply-To: <20040513190440.GA23111@taniwha.stupidest.org>
-Message-ID: <Pine.LNX.4.58.0405141455570.3012@wombat.indigo.net.au>
-References: <1084152941.22837.21.camel@vertex> <Pine.LNX.4.58.0405132330480.13693@donald.themaw.net>
- <20040513190440.GA23111@taniwha.stupidest.org>
+	Fri, 14 May 2004 03:09:21 -0400
+Received: from moutng.kundenserver.de ([212.227.126.189]:44783 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263942AbUENHJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 03:09:19 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: Chris Wright <chrisw@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] capabilites, take 2
+References: <200405131308.40477.luto@myrealbox.com>
+	<20040513182010.L21045@build.pdx.osdl.net>
+	<200405140135.i4E1Zp7A025139@turing-police.cc.vt.edu>
+	<874qqj1sk3.fsf@goat.bogus.local>
+	<200405140604.i4E64ikK008021@turing-police.cc.vt.edu>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Fri, 14 May 2004 09:09:11 +0200
+In-Reply-To: <200405140604.i4E64ikK008021@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Fri, 14 May 2004 02:04:44 -0400")
+Message-ID: <87u0yjzdrc.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+Content-Type: text/plain; charset=us-ascii
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 May 2004, Chris Wedgwood wrote:
+Valdis.Kletnieks@vt.edu writes:
 
-> On Thu, May 13, 2004 at 11:36:38PM +0800, raven@themaw.net wrote:
-> 
-> > Would this allow me to receive a notification when a directory is
-> > passed over during a path walk?
-> 
-> No.  And are you sure you want this?
-> 
-> > Could this strategy be adapted to notify an in kernel module?
-> 
-> Maybe you should explain what you are trying to do...  getting a
-> notification when a path element is walked sounds problematic of many
-> levels.
+> On Fri, 14 May 2004 07:33:32 +0200, Olaf Dietsche said:
+>
+>> Seems like you're not aware of:
+>> <http://www.olafdietsche.de/linux/capability/>
+>> 
+>> This supports filesystem capabilities with the current (POSIX?)
+>> implementation.
 
-I'm not trying to do anything atm.
+This refers to the linux kernel main line.
 
-I'm just fishing for ideas.
+> Yes.. I was aware of that.. and I just visited it.. and the VERY TOP it says:
+>
+> "Filesystem capabilities for linux
+>
+> This implementation is likely *not* POSIX compatible."
 
-Ian
+This refers to the tools I provide. I should emphasize this on the
+page, thank you. My patch doesn't change the rules, how the capability
+bits are mingled.
 
+> Now who should I believe, you or the author of the page? :)
+
+Alright, I deserve this for being imprecise. :)
+
+Regards, Olaf.

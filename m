@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264722AbUEOVTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264741AbUEOVpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbUEOVTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 17:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUEOVTJ
+	id S264741AbUEOVpo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 17:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbUEOVpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 17:19:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18153 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264722AbUEOVTE (ORCPT
+	Sat, 15 May 2004 17:45:44 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:37525 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S264741AbUEOVpn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 17:19:04 -0400
-Date: Sat, 15 May 2004 23:19:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniele Bernardini <db@sqbc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dma ripping
-Message-ID: <20040515211901.GG24600@suse.de>
-References: <1084548566.12022.57.camel@linux.site> <20040515101415.GA24600@suse.de> <1084610731.4666.8.camel@linux.site> <20040515145800.GE24600@suse.de> <1084629809.4612.51.camel@linux.site>
-Mime-Version: 1.0
+	Sat, 15 May 2004 17:45:43 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@lst.de>, netdev@oss.sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pete Popov <ppopov@mvista.com>
+Subject: Re: [PATCH] remove comx drivers from tree
+References: <20040507111725.GA11575@lst.de> <40A50292.3070601@pobox.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 15 May 2004 23:41:59 +0200
+In-Reply-To: <40A50292.3070601@pobox.com> (Jeff Garzik's message of "Fri, 14
+ May 2004 13:32:02 -0400")
+Message-ID: <m3sme1cqqg.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084629809.4612.51.camel@linux.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15 2004, Daniele Bernardini wrote:
-> On Sat, 2004-05-15 at 16:58, Jens Axboe wrote:
-> > On Sat, May 15 2004, Daniele Bernardini wrote:
-> > > 
-> > > On Sat, 2004-05-15 at 12:14, Jens Axboe wrote:
-> > > > On Fri, May 14 2004, Daniele Bernardini wrote:
-> > > > > Hi Folks, 
-> > > > > 
-> > > > > I am trying to get cd ripping to work on a freshly installed SuSE 9.1 on
-> > > > > IBM thinkpad R50 with dvdram drive. 
-> > > > > 
-> > > > > It works for a while and then hangs. At this point nothing short of a
-> > > > > reboot works. Ripping stop working when the message 
-> > > > > 	cdrom: dropping to single frame dma
-> > > > > comes up. The system feels slow for a couple of seconds and then is back
-> > > > > to normal, but no ripping until next reboot
-> > > > > 
-> > > > > I am running the 2.6.4 compiled by SuSE.
-> > > > 
-> > > > Can you retest with this small debug patch applied.
-> > > > 
-> > > > --- drivers/cdrom/cdrom.c~	2004-05-15 12:12:24.770228291 +0200
-> > > > +++ drivers/cdrom/cdrom.c	2004-05-15 12:13:25.101720866 +0200
-> > > > @@ -1987,6 +1987,7 @@
-> > > >  			struct request_sense *s = rq->sense;
-> > > >  			ret = -EIO;
-> > > >  			cdi->last_sense = s->sense_key;
-> > > > +			printk("rip failed, sense %x/%x/%x\n", s->sense_key, s->asc, s->ascq);
-> > > >  		}
-> > > >  
-> > > >  		if (blk_rq_unmap_user(rq, ubuf, bio, len))
-> > > 
-> > > I did it and started ripping a cd it froze after 9 tracks, though did
-> > > not see your message. I was looking at /var/log/messages (see below).
-> > > BTW the system got instable and then froze had to power down. It
-> > > happened before always after the ripping problem.
-> > > 
-> > > Should I aswitch on debug for the cdrom?
-> > 
-> > Just an idea - can you log vmstat 5 info while doing this burn? Maybe
-> > there's still a little leak in there, so watch the ram usage
-> > (used/free/swap/cache).
-> > 
-> > Does your drive have dma enabled?
-> 
-> dma was off. I turned it on and now everything is fine I am through the
-> third cd without a glitch...
-> 
-> Thanks and sorry for being so stupid :)
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-You are not being stupid, I think we have a leak in there some where.
-PIO should work just fine. Slower than DMA of course, but it should work
-perfectly of course.
+> I have applied this to my netdev-2.6 tree, and so it should show up in
+> -mm sometime.
+>
+>   drivers/net/wan/Kconfig           |  113 -
+>   drivers/net/wan/Makefile          |    8
+>   drivers/net/wan/comx-hw-comx.c    | 1449 -------------------
+>   drivers/net/wan/comx-hw-locomx.c  |  495 ------
+>   drivers/net/wan/comx-hw-mixcom.c  |  959 ------------
+>   drivers/net/wan/comx-hw-munich.c  | 2853
+>   --------------------------------------
+>   drivers/net/wan/comx-proto-fr.c   | 1013 -------------
+>   drivers/net/wan/comx-proto-lapb.c |  550 -------
+>   drivers/net/wan/comx-proto-ppp.c  |  268 ---
+>   drivers/net/wan/comx.c            | 1127 ---------------
+>   drivers/net/wan/comx.h            |  231 ---
+>   drivers/net/wan/comxhw.h          |  112 -
 
-I'll check up on this...
-
+While obviously I don't object (we should list removed things along
+with kernel version somewhere, though)... I could possibly port
+the drivers to my generic HDLC code, if someone sends me the hardware
+in question. Sure, I will never send it back, and it has to have V.35
+or V.24 interface, so I can connect it to something.
 -- 
-Jens Axboe
-
+Krzysztof Halasa, B*FH

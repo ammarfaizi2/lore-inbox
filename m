@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264829AbRFSXEr>; Tue, 19 Jun 2001 19:04:47 -0400
+	id <S264830AbRFSXRX>; Tue, 19 Jun 2001 19:17:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264830AbRFSXEi>; Tue, 19 Jun 2001 19:04:38 -0400
-Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:35853 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S264829AbRFSXEe>;
-	Tue, 19 Jun 2001 19:04:34 -0400
-Message-ID: <3B2F3194.D36843D7@mail.utexas.edu>
-Date: Tue, 19 Jun 2001 17:03:48 +0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac14 i686)
-X-Accept-Language: en,fr,de
+	id <S264831AbRFSXRM>; Tue, 19 Jun 2001 19:17:12 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:54468 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264830AbRFSXQ5>;
+	Tue, 19 Jun 2001 19:16:57 -0400
+Message-ID: <3B2FDD62.EFC6AEB1@candelatech.com>
+Date: Tue, 19 Jun 2001 16:16:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: "clock timer configuration lost" on non-VIA m.b.
+To: "David S. Miller" <davem@redhat.com>
+CC: Dax Kelson <dkelson@gurulabs.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>,
+        VLAN Mailing List <vlan@Scry.WANfear.com>,
+        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
+        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
+Subject: Re: Should VLANs be devices or something else?
+In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
+		<Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com> <15151.55017.371775.585016@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.5-ac14 on an Asus A7A266 w/ Athlon:
+"David S. Miller" wrote:
+> 
+> Dax Kelson writes:
+>  > On Tue, 19 Jun 2001, Ben Greear wrote:
+>  > > Should VLANs be devices or some other thing?
+>  >
+>  > I would vote that VLANs be devices.
+>  >
+>  > Conceptually, VLANs as network devices is a no brainer.
+> 
+> Conceptually, svr4 streams are a beautiful and elegant
+> mechanism. :-)
+> 
+> Technical implementation level concerns need to be considered
+> as well as "does it look nice".
 
-...
-Jun 19 16:14:21 pollux kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a motherboard.
-Jun 19 16:14:21 pollux kernel: probable hardware bug: restoring chip
-configuration.
-...
+I found it to be the easiest way to implement things.  It allowed
+me to not have to touch any of layer 3, and I did not have to patch
+any user-space program like ip or ifconfig.
 
-According to the documentation, this is an ALi chipset:
-
-Northbridge: ALi M1647
-
-Southbridge: ALi M1535D+
-
-The message appears irregularly, with a period varying between 10
-minutes and an hour.
-
-More system info available on request.
-
-Bobby Bryant
-Austin, Texas
+I'm not even sure if the nay-sayers ever had another idea, they
+just didn't like having lots of interfaces.  Originally, there
+were claims of inefficiency, but it seems that other than things
+like 'ip' and ifconfig, there are no serious performance problems
+I am aware of.
 
 
+Adding the hashed lookup for devices took the exponential curve out of
+ip and ifconfig's performance, btw.
+
+
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

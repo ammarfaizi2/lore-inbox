@@ -1,60 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279432AbRJ2UIT>; Mon, 29 Oct 2001 15:08:19 -0500
+	id <S279438AbRJ2UJj>; Mon, 29 Oct 2001 15:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279438AbRJ2UIJ>; Mon, 29 Oct 2001 15:08:09 -0500
-Received: from web11303.mail.yahoo.com ([216.136.131.206]:12902 "HELO
-	web11303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S279432AbRJ2UHz>; Mon, 29 Oct 2001 15:07:55 -0500
-Message-ID: <20011029200832.77853.qmail@web11303.mail.yahoo.com>
-Date: Mon, 29 Oct 2001 12:08:32 -0800 (PST)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: Re: opl3sa2 sound driver and mixers
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15yIWa-0003lV-00@the-village.bc.nu>
+	id <S279444AbRJ2UJa>; Mon, 29 Oct 2001 15:09:30 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:1668 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S279442AbRJ2UJN>; Mon, 29 Oct 2001 15:09:13 -0500
+Message-ID: <009e01c160b5$e48038c0$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Urban Widmark" <urban@teststation.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0110291847420.21339-100000@cola.teststation.com>
+Subject: Re: via-rhine and MMIO
+Date: Mon, 29 Oct 2001 21:11:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, this is with kernel 2.4.9, but it has been
-happening with every 2.4 kernel I've tried on these
-notebooks.  I haven't tried 2.2 kernels in so long I
-can't remember if they acted the same or not. 
-
-Alex
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > sound works, but an extra mixer seems to always
-> load. 
-> > I always suspected t was because of code sharing
-> or
-> > somthing, but I thought I'd ask here to see if it
-> was
-> > a bug or just a quirk of the driver.  I don't have
-> the
-> > notebook on hand right, now do these are from
-> memory. 
-> > When I load sound, several modules get loaded,
-> opl3sa2
-> > and AD18?? (can't remember the number off hand). 
-> 
-> AD1848 - this is correct. The opl3sa2 is an AD1848
-> compatible device
-> and an MPU401 compatible device (and some other
-> oddments). 
-> 
-> > What's strange is that 2 mixers seem to get
-> loaded. 
-> > The first is for a CS4??? (can't recall the exact
-> 
-> CS4232 - that mixer shouldnt be getting created.
-> That is a bug. I'll take
-> a look at it
+----- Original Message -----
+From: "Urban Widmark" <urban@teststation.com>
+To: "Martin Eriksson" <nitrax@giron.wox.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, October 29, 2001 7:13 PM
+Subject: Re: via-rhine and MMIO
 
 
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+> On Mon, 29 Oct 2001, Martin Eriksson wrote:
+>
+> > I have done some changes to the via-rhine driver in 2.4.13 to be able to
+run
+> > with MMIO. I know it isn't really needed but I do it mainly for fun &
+> > learning.
+>
+> Any measurable performance difference?
+
+I don't think so, it would be slightly less latency, but as via-rhine needs
+to copy the data anyway...
+
+>
+> Any important changes from the driver that used to be on
+>     http://www.cs.umu.se/~c97men/linux ?
+> (I have a copy of "v1.03a ME1.0 3/12/00")
+
+Yes _I_ have matured a bit =) And the new driver does not choose between
+MMIO/PORTIO at runtime, because most other drivers seem to select this via
+CONFIG_ directives.
+
+>
+>
+> > /* Reload the station address from the EEPROM. */
+> > writeb(0x20, ioaddr + MACRegEEcsr);
+> > /* Typically 2 cycles to reload. */
+> > for (i = 0; i < 150; i++)
+> >     if (! (readb(ioaddr + MACRegEEcsr) & 0x20))
+> >         break;
+> > ...
+> >
+> > If I run this code when I'm using MMIO, I get a hardware adress of
+> > "ff:ff:ff:ff:ff:ff" instead of the right one (and everything craps up).
+But
+> > when I comment out this part all is fine. So what's it needed for
+anyway?
+>
+> It is needed on some cards when rebooting from some other OSes that power
+> down the card (eg vt6102 chips on win98). The writeb causes the chip
+> itself to reload the hardware address from eeprom. Perhaps it no longer
+> finds the eeprom and just reads 0xff from some unmapped memory space.
+>
+> Does it work to enable MMIO after the reset code?
+
+I'll check that out, and if all works fine I'll release a patch. By the way,
+how *do* you measure network performance the best way? What I have done now
+is only to stress test the driver, by copying a 400MB file from my Windows
+machine to /dev/null and at the same time recieving a 400MB file over FTP
+from my Sun Sparc which is bridged on another via-rhine.
+
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
+
+

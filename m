@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVCYWfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVCYWga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVCYWfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVCYWdC
+	id S261862AbVCYWga (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVCYW2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:33:02 -0500
-Received: from alog0005.analogic.com ([208.224.220.20]:3746 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261862AbVCYWaZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:30:25 -0500
-Date: Fri, 25 Mar 2005 17:29:56 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -
- fs/ext2/
-In-Reply-To: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 25 Mar 2005 17:28:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:58805 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261855AbVCYW1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 17:27:23 -0500
+Subject: Re: [PATCH] ppc32/64: Map prefetchable PCI without guarded bit
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <6ab08e99eb9f0823f7f7fb12e728e90d@kernel.crashing.org>
+References: <1111645464.5569.15.camel@gaston>
+	 <6ab08e99eb9f0823f7f7fb12e728e90d@kernel.crashing.org>
+Content-Type: text/plain
+Date: Sat, 26 Mar 2005 09:26:52 +1100
+Message-Id: <1111789613.5569.69.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-03-24 at 19:20 +0100, Segher Boessenkool wrote:
+> > While experimenting with framebuffer access performances, we noticed a
+> > very significant improvement in write access to it when not setting
+> > the "guarded" bit on the MMU mappings. This bit basically says that
+> > reads and writes won't have side effects (it allows speculation).
+> 
+> Unless the data is already in cache.
+> 
+> > It appears that it also disables write combining.
+> 
+> When the page is also cache-inhibited, it indeed does.
+> 
+> 
+> Btw, did you ever get to fix the problem with mapping the last page
+> of physical address space via /dev/mem ?
 
-Isn't it expensive of CPU time to call kfree() even though the
-pointer may have already been freed? I suggest that the check
-for a NULL before the call is much less expensive than calling
-kfree() and doing the check there. The resulting "double check"
-is cheap, compared to the call.
+I don't think so, but I'll have to double check.
 
-On Fri, 25 Mar 2005, Jesper Juhl wrote:
+Ben.
 
-> (please keep me on CC)
->
->
-> kfree() handles NULL fine, to check is redundant.
->
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->
-> --- linux-2.6.12-rc1-mm3-orig/fs/ext2/acl.c	2005-03-02 08:38:18.000000000 +0100
-> +++ linux-2.6.12-rc1-mm3/fs/ext2/acl.c	2005-03-25 22:41:07.000000000 +0100
-> @@ -194,8 +194,7 @@ ext2_get_acl(struct inode *inode, int ty
-> 		acl = NULL;
-> 	else
-> 		acl = ERR_PTR(retval);
-> -	if (value)
-> -		kfree(value);
-> +	kfree(value);
->
-> 	if (!IS_ERR(acl)) {
-> 		switch(type) {
-> @@ -262,8 +261,7 @@ ext2_set_acl(struct inode *inode, int ty
->
-> 	error = ext2_xattr_set(inode, name_index, "", value, size, 0);
->
-> -	if (value)
-> -		kfree(value);
-> +	kfree(value);
-> 	if (!error) {
-> 		switch(type) {
-> 			case ACL_TYPE_ACCESS:
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

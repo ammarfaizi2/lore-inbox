@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291399AbSBHEI5>; Thu, 7 Feb 2002 23:08:57 -0500
+	id <S290707AbSBHEK5>; Thu, 7 Feb 2002 23:10:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291400AbSBHEIr>; Thu, 7 Feb 2002 23:08:47 -0500
-Received: from out016pub.verizon.net ([206.46.170.92]:56743 "EHLO
-	out016.verizon.net") by vger.kernel.org with ESMTP
-	id <S291399AbSBHEIi>; Thu, 7 Feb 2002 23:08:38 -0500
-Date: Thu, 7 Feb 2002 23:06:14 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Alpha update for 2.5.3
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020208015826.JIFG11848.out009.verizon.net@pool-141-150-235-204.delv.east.verizon.net> <Pine.LNX.4.10.10202071952340.15165-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10202071952340.15165-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Thu, Feb 07, 2002 at 07:53:11PM -0800
-Message-Id: <20020208040837.MDKA24823.out016.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+	id <S291391AbSBHEKr>; Thu, 7 Feb 2002 23:10:47 -0500
+Received: from ns.suse.de ([213.95.15.193]:18950 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290707AbSBHEKf>;
+	Thu, 7 Feb 2002 23:10:35 -0500
+Date: Fri, 8 Feb 2002 05:10:34 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Skip Ford <skip.ford@verizon.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.5.4-pre3 and IDE changes
+In-Reply-To: <20020208035851.KOPJ10804.out006.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+Message-ID: <Pine.LNX.4.33.0202080508410.29741-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0202080508412.29741@Appserv.suse.de>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> That code path will go away!
-> That is a diagnostic path only.
+On Thu, 7 Feb 2002, Skip Ford wrote:
 
-Sorry Jeff, and others, if that's the wrong patch.  It fixed the compile
-error for ide-dma so I used it.  I still haven't been able to test it
-due to link errors with bus_to_virt.
+> This is the patch that Jens posted, though he posted it before this
+> kernel was even released.  His post said it fixed a compile error
+> in pre2, but pre2 compiled fine.  It _does_ fix the compile error in
+> pre3 though.
 
-So if Andre is saying don't use it, then don't.  My apologies.
+As more developers start pulling Linus' bitkeeper tree, you'll probably
+see more bugs getting fixed before they're reported 8-)
 
 -- 
-Skip
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

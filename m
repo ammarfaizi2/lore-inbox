@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319690AbSIMPvE>; Fri, 13 Sep 2002 11:51:04 -0400
+	id <S319693AbSIMPwE>; Fri, 13 Sep 2002 11:52:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319693AbSIMPvD>; Fri, 13 Sep 2002 11:51:03 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:30474 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S319690AbSIMPu6>; Fri, 13 Sep 2002 11:50:58 -0400
-Date: Fri, 13 Sep 2002 17:55:00 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Daniel Phillips <phillips@arcor.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Raceless module interface
-In-Reply-To: <E17psOu-0008AW-00@starship>
-Message-ID: <Pine.LNX.4.44.0209131740530.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319694AbSIMPwE>; Fri, 13 Sep 2002 11:52:04 -0400
+Received: from rrcs-se-65-34-21-74.biz.rr.com ([65.34.21.74]:15233 "HELO
+	rich-paul.net") by vger.kernel.org with SMTP id <S319693AbSIMPwD>;
+	Fri, 13 Sep 2002 11:52:03 -0400
+Date: Fri, 13 Sep 2002 11:34:13 -0400
+From: rich-paul@rich-paul.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -ac patch:  Which release notes?
+Message-ID: <20020913113412.A14561@monster.list>
+References: <20020913043216.A5854@monster.rich-paul.net> <1031921819.9056.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <1031921819.9056.7.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Sep 13, 2002 at 01:56:59PM +0100
+X-Operating-System: Linux monster 2.4.17-SMPs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Found a copy, thanks ... guess google wasn't the place to do that search
 
-On Fri, 13 Sep 2002, Daniel Phillips wrote:
 
-> > The exit itself can fail as well, so it has to be done by the module code
-> > anyway (until it suceeds).
->
-> That's debatable.  Arguably, a failed ->module_cleanup() should be
-> retried on every rmmod -a, but expecting module.c to just keep
-> retrying mindlessly on its own sounds too much like a busy wait.
+On Fri, Sep 13, 2002 at 01:56:59PM +0100, Alan Cox wrote:
+> On Fri, 2002-09-13 at 09:32, linguist-linux@rich-paul.net wrote:
+> > The ac series of patches adds a config question "Have you read the
+> > release notes?" in the IDE/ATA section.  I have read linux/README,
+> > which identifies itself as the release notes, but found no reason for
+> > the the warning there.
+> 
+> The release notes are the ones posted to the kernel list and to the news
+> sites. I guess I should include them i the kernel too 8)
+> 
 
-That's not what I meant, if module_init fails the module goes directly to
-the cleanup state and the module code calls module_exit. Depending on this
-return value it continues to the exit state. Further exit attempts (if
-necessary) are done on user request.
-
-> > What DoS opportunities are there?
->
-> Suppose the module exit relies on synchronize_kernel.  The attacker
-> can force repeated synchronize_kernels, knowing that module.c will
-> mindlessly do a synchronize_kernel every time a module init fails,
-> whether needed or not.  Each synchronize_kernel takes an unbounded
-> amount of time to complete, across which module.c holds a lock.
-
-This can't happen:
-
-	if (hook) {
-		hook = NULL;
-		synchronize();
-	}
-
-> > Module init failure is the exception
-> > case and usally needs further attention, so we could actually disable
-> > further attempts to load this module, unless the user tells us
-> > specifically so.
->
-> Sure, you can fix it by lathering on more complexity.  What you have
-> to do is explain why we should do that, when there is a simpler and
-> faster approach that doesn't introduce the problem in the first
-> place.
-
-It doesn't add any complexity (at least not to the kernel). A simple
-approach might be that a failed kernel module cannot be loaded with
-modprobe anymore, this sort of policy can be done in userspace.
-
-> I take it that the points you didn't reply to are points that you
-> agree with?  (The main point being, that we both advocate a simple,
-> two-method interface for module load/unload.)
-
-Basically yes, it's just that your initial RFC was more confusing than
-helpful.
-
-bye, Roman
-
+-- 
+Got freedom?  Vote Libertarian:  http://www.lp.org

@@ -1,30 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261271AbSJQJto>; Thu, 17 Oct 2002 05:49:44 -0400
+	id <S261299AbSJQJxr>; Thu, 17 Oct 2002 05:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbSJQJto>; Thu, 17 Oct 2002 05:49:44 -0400
-Received: from [66.103.33.250] ([66.103.33.250]:54188 "EHLO spyke.sytes.net")
-	by vger.kernel.org with ESMTP id <S261271AbSJQJtn>;
-	Thu, 17 Oct 2002 05:49:43 -0400
-Date: Thu, 17 Oct 2002 06:55:41 -0300
-From: Spyke <spyke@spyke.sytes.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VIA82C686 Audio Problem.
-Message-Id: <20021017065541.529b9041.spyke@spyke.sytes.net>
-In-Reply-To: <20021017064218.7ae4dda0.spyke@spyke.sytes.net>
-References: <20021017064218.7ae4dda0.spyke@spyke.sytes.net>
-Reply-To: spyke@spyke.sytes.net
-Organization: Linux
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261302AbSJQJxr>; Thu, 17 Oct 2002 05:53:47 -0400
+Received: from mailgate.imerge.co.uk ([195.217.208.100]:46830 "EHLO
+	imgserv04.imerge-bh.co.uk") by vger.kernel.org with ESMTP
+	id <S261299AbSJQJxq>; Thu, 17 Oct 2002 05:53:46 -0400
+Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB9D4266@imgserv04>
+From: James Finnie <jf1@IMERGE.co.uk>
+To: "'ebiederm@xmission.com'" <ebiederm@xmission.com>,
+       James Finnie <jf1@IMERGE.co.uk>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'andre@linux-ide.org'" <andre@linux-ide.org>
+Subject: RE: [PATCH]:  Sanity checking for drives that claim to be LBA-48,
+	 but aren't!
+Date: Thu, 17 Oct 2002 11:02:19 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, better give the kernel release too.
-2.4.19
-:)
+ 
+> There are also a set of bits that reports which revs of the 
+> ATA standard
+> a drive complies with.  Should we check that one as well?  
+> 
+> Eric
+>  
 
-Brendan
-spyke@spyke.sytes.net
+Knowing my luck, those bits are probably broken on my drives too :)
+
+Sounds like common sense though.  I don't pretend to know enough about how
+the IDE driver works in order fix it... Andre? :) 
+
+
+James
+
+
+Oh, appologies to everyone for the line-wrapped patch, M$Exchange has *LOTS*
+to answer for.  If you want the patch without line-wraps, email me and I'll
+send it as an attachment.  Didn't want to polute the list.
+ 
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Imerge Limited                          Tel :- +44 (0)1954 783600 
+Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
+Saxon Way                               Web :- http://www.imerge.co.uk 
+Bar Hill 
+Cambridge 
+CB3 8SL 
+United Kingdom 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+

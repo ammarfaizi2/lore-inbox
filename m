@@ -1,60 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRADLcP>; Thu, 4 Jan 2001 06:32:15 -0500
+	id <S131721AbRADMBW>; Thu, 4 Jan 2001 07:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131721AbRADLcF>; Thu, 4 Jan 2001 06:32:05 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:54031 "HELO
-	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S129413AbRADLby>; Thu, 4 Jan 2001 06:31:54 -0500
-Date: Thu, 4 Jan 2001 12:31:39 +0100
-From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: linux-kernel@vger.kernel.org
-Subject: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
+	id <S132428AbRADMBM>; Thu, 4 Jan 2001 07:01:12 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:29963 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131721AbRADMBB>;
+	Thu, 4 Jan 2001 07:01:01 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: sidb@FreeNet.co.uk
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: prerelease-ac5 make dep error 
+In-Reply-To: Your message of "Thu, 04 Jan 2001 10:27:59 -0000."
+             <3A54502F.6039978E@FreeNet.co.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Date: Thu, 04 Jan 2001 23:00:54 +1100
+Message-ID: <6343.978609654@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, 04 Jan 2001 10:27:59 +0000, 
+Sid Boyce <sidb@FreeNet.co.uk> wrote:
+>	Just seen this on UP kernel build.....
+>/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS'
+>references itself (eventually).  Stop.
 
-  I recently installed a system with the 3c905C
-NIC on RedHat 6.2. In our network, IP adresses
-are granted via DHCP, although every host has
-a fixed IP instead of a dynamic IP pool. The IP
-is statically coupled with the MAC adresses of
-our network.
+What does make --version report?
 
-  The freshly installed RedHat 6.2 worked nice
-and flawlessly, and the IP was handed out correctly
-to the new machine. However after upgrading
-to the 2.2.16 RedHat Kernel RPMS, the DHCP negotiation
-no longer worked! Okay, I said, maybe it is a RedHat
-thing (they included modules both for the 90x and for the 59x
-cards, and I tried both), so I downloaded 2.2.18 proper.
-I compiled in the support for the card, but also: same
-result. The old 2.2.14 RedHat kernel worked, but the
-newer kernels did not.
-
-  Unfortunately the machine had to go on the net, so I had
-to switch the NIC for a DEC Tulip one, which worked flawlessly
-under 2.2.18 again. Therfore I unfortunately can't volunteer
-for testing :(, all I can say is that something happened
-between 2.2.14 and 2.2.16/2.2.18 which made DHCP inoperable
-for the 3c905C.
-
-Please CC any replies to my email adress, as I am not subscribed
-to linux-kernel.
-
-- Chris
-
--- 
-Christian Loth
-Coder of 'Project Gidayu'
-Computer Science Student, University of Dortmund
-chris@gidayu.mud.de - http://gidayu.mud.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

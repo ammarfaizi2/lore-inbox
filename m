@@ -1,46 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262463AbSI2MyC>; Sun, 29 Sep 2002 08:54:02 -0400
+	id <S262464AbSI2M7u>; Sun, 29 Sep 2002 08:59:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbSI2MyC>; Sun, 29 Sep 2002 08:54:02 -0400
-Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:55048 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S262463AbSI2MyC>;
-	Sun, 29 Sep 2002 08:54:02 -0400
-Date: Sun, 29 Sep 2002 08:59:25 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: james <jdickens@ameritech.net>
-cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <200209290114.15994.jdickens@ameritech.net>
-Message-ID: <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
+	id <S262467AbSI2M7u>; Sun, 29 Sep 2002 08:59:50 -0400
+Received: from mta03ps.bigpond.com ([144.135.25.135]:50917 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262464AbSI2M7t>; Sun, 29 Sep 2002 08:59:49 -0400
+Message-ID: <3D96FAA4.F328E3D5@bigpond.com>
+Date: Sun, 29 Sep 2002 23:05:40 +1000
+From: Allan Duncan <allan.d@bigpond.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.39APIC i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Gabor Z. Papp" <gzp@myhost.mynet>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre7-ac3 spurious 8259A interrupt
+References: <1333.3d96c7c1.d91c5@gzp1.gzp.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nOn Sun, 29 Sep 2002, james wrote:
+You don't say what chipset the m/b uses.
 
-> How many people are sitting on the sidelines waiting for guarantee that ide is
-> not going to blow up on our filesystems and take our data with it. Guarantee
-> that ide is working and not dangerous to our data, then I bet a lot more
-> people will come back and bang on 2.5.
-> James
-
-Some of us are waiting until it actually compiles for us ;) (see previous
-bug report)
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+I see this message once, near boot time, on a VIA KT266A,
+unless I use a RedHat patched kernel.  Haven't managed to
+find what they did to stop it though.

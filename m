@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSD1MtD>; Sun, 28 Apr 2002 08:49:03 -0400
+	id <S310637AbSD1N0W>; Sun, 28 Apr 2002 09:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310435AbSD1MtC>; Sun, 28 Apr 2002 08:49:02 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:46814 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S310224AbSD1MtC>; Sun, 28 Apr 2002 08:49:02 -0400
-Date: 28 Apr 2002 11:18:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8NjsfDgXw-B@khms.westfalen.de>
-In-Reply-To: <3CC9D865.80104@antefacto.com>
-Subject: Re: [PATCH] 2.5.10 IDE 42
-X-Mailer: CrossPoint v3.12d.kh9 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+	id <S310654AbSD1N0V>; Sun, 28 Apr 2002 09:26:21 -0400
+Received: from kahuna.kalkatraz.de ([62.145.25.91]:2688 "EHLO golem.home.local")
+	by vger.kernel.org with ESMTP id <S310637AbSD1N0V>;
+	Sun, 28 Apr 2002 09:26:21 -0400
+Date: Sun, 28 Apr 2002 15:26:02 +0200
+From: Lars Weitze <cd@kalkatraz.de>
+To: Jeremy Zawodny <Jeremy@Zawodny.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 100 Mbit on slow machine
+Message-Id: <20020428152602.083e3b06.cd@kalkatraz.de>
+In-Reply-To: <20020427221905.GA10112@thinkpad0.zawodny.com>
+Organization: http://www.liquidsteel.net
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: "Add'HrsHhg}pA?6>_fl]8[PNFwpJTSTW?I_:}%1O}rQof)E5W:qQbr1i>J?[?W:9"~?}]; ,?}|UTr8Ww=d%HY}-ap:|nv&<Y?3}t~lcR9D/?<~c</0{]DzT-Oj[cU;XPiM\CR6FjHk)5'ztDGpD< j]qoHG:5[;Y!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-padraig@antefacto.com (Padraig Brady)  wrote on 26.04.02 in <3CC9D865.80104@antefacto.com>:
+On Sat, 27 Apr 2002 15:19:05 -0700
+Jeremy Zawodny <Jeremy@Zawodny.com> wrote:
 
-> Martin Dalecki wrote:
->  > Uz.ytkownik Sebastian Droege napisa?:
->  >
->  >> On Fri, 26 Apr 2002 09:41:30 +0200
->  >> Martin Dalecki <dalecki@evision-ventures.com> wrote:
->  >>
->  >> Hi,
->  >>
->  >> @@ -584,27 +585,25 @@
->  >>              drive->failures = 0;
->  >>          } else {
->  >>              drive->failures++;
->  >> +            char *msg = "";
->  >>
->  >> My compiler won't compile that ;)
->  >> Declare msg after the function's beginning and it compiles fine
->  >
->  >
->  > Well it doesn't has to be the function it sufficient to be
->  > the beginng of a block. However this is puzzling me,
->  > becouse the gcc-3.1 snap eats the above just like if it
->  > where a C++ complier!!!
+> Have you verified that the duplex settings are correct?  I've had
+> problems on more than one occasion with mismatched duplex on 100Mbit
+> cards (and switches).
 
-> Note the "mixed declarations and code" @
-> http://www.gnu.org/software/gcc/gcc-3.0/c99status.html
+Know the problem. It's running full duplex, but there is an other server
+an the same switch with the same network card making none of these
+problems. Anyway. I've put a 10 Mbit board into it now and moved the big
+harddisk to another PC.
 
-And see the -std= option for selecting what ou want it to conform to.
+Regards
+CD
+-- 
+    "Ihre Meinung ist mir zwar widerlich, aber ich werde mich
+     dafuer totschlagen lassen, dass sie sie sagen duerfen."
+                                                        Voltaire
 
-MfG Kai
+PGP-Key:          http://cd.kalkatraz.de
+PGP fingerprint:  4950 8576 778F DEDF 85D1  C04D 586F 2C45 E714 E13A

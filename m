@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316830AbSEVCb3>; Tue, 21 May 2002 22:31:29 -0400
+	id <S316833AbSEVCkT>; Tue, 21 May 2002 22:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSEVCb2>; Tue, 21 May 2002 22:31:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39632 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316830AbSEVCb1>;
-	Tue, 21 May 2002 22:31:27 -0400
-Date: Tue, 21 May 2002 19:17:24 -0700 (PDT)
-Message-Id: <20020521.191724.56166460.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+	id <S316835AbSEVCkS>; Tue, 21 May 2002 22:40:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6665 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316833AbSEVCkQ>; Tue, 21 May 2002 22:40:16 -0400
+Date: Tue, 21 May 2002 19:40:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: zippel@linux-m68k.org, <linux-kernel@vger.kernel.org>
 Subject: Re: Linux-2.5.17
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0205211752350.3589-100000@home.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020521.191724.56166460.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0205211933490.989-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Tue, 21 May 2002 17:54:18 -0700 (PDT)
 
-   That's the big one, actually. The exit case we _could_ do very differently
-   anyway, and there are reasons that we probably should try to.
-   
-   (When we exit, we could flush the TLB and at the same time do a
-   "speculative" switch to the mm of the next process on the run-queue of
-   this CPU, so that when we actually tear down the MM we would have no TLB
-   issues at all any more).
 
-I think deferring this to the lazy TLB end at the next task switch is
-worth pursuing.
+On Tue, 21 May 2002, David S. Miller wrote:
+>
+> I think deferring this to the lazy TLB end at the next task switch is
+> worth pursuing.
 
-I always wanted to also explore way to speed up these pieces of code
-we have which walk the page table tree to kill everything off.
-Something simple like a very small bitmap in the mm_struct.  It would
-work by keeping track of which areas of the address space actually
-have some mappings present.  The set bits would be kept track of
-pessimistically, to keep it fast and simple.
+No can do.
 
-So when you add a page mapping somewhere you'd go:
+If we tear down the page tables, we _have_ to flush the TLB on x86,
+because even if we don't touch them later on, speculative execution may
+end up causing TLB fills, and if we don't tell the TLB fill hw that we've
+torn down the pages (by invalidating the TLB), you can get all the same
+nasty behaviour.
 
-	set_mapping_bit(mm, address);
+And we cannot just defer the TLB flush to a later date ("who cares if we
+get crap in the TLB, we'll flush it anyway"), because some of the bogus
+TLB contents might get the "Global" bit set too. Which would mean that
+those bogus entries wouldn't be flushed at all.
 
-Then exit_mmap() would only traverse into parts of the page
-tables where mappings actually existed.
+In short:
+ - if we tear down the page tables, we _have_ to flush the TLB, even if we
+   turn it into a lazy TLB.
+ - At least on x86, once you flush the TLB, the incremental cost of doing
+   a full mm switch is basically zero. The TLB flush is, after all, the
+   real cost of the mm switch (this is likely to be true on other CPU's
+   too).
+ - so we can choose between just flushing the TLB (and leaving it lazy),
+   and then on the next switch_mm() we flush it again when we switch into
+   the next process, _OR_ we could try to opportunistically switch mm's
+   "early".
 
-Similarly for copy_page_range when dup'ing an address space.
+The early switch would at least on x86 be likely to result in the minimal
+amount of TLB flushing theoretically possible. Which I kind of like (if
+you can _prove_ that you cannot do better, you're in a good position ;).
 
-This stuff shows up clearly on the fork/exit/exec microbenchmark
-profiles.
+But the "just flush the TLB" approach certainly also works.
 
-Like I said, keep the bitmap very small, perhaps 4 unsigned longs
-at the most.
+		Linus
 
-Actually, what this suggests is that we blow away the page table
-flushing guts of exit_mmap() and just have this
-"anihilate_address_space()" thing that is %100 arch-specific and can
-be used to optimize this as much as a platform wants to.  We can even
-provide a "boring" generic implementation protected by
-HAVE_ARCH_ANIHILATE_ADDRESS_SPACE that basically looks like what we
-have there today.  (The interface name sucks, I know, sorry, we'll
-will have to come up with a nicer name :-)

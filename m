@@ -1,83 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbUKQSE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbUKQUDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbUKQSE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUKQR7A
+	id S262520AbUKQUDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbUKQUB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:59:00 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:23749 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262443AbUKQRsy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:48:54 -0500
-Date: Wed, 17 Nov 2004 09:48:53 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: john stultz <johnstul@us.ibm.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux@brodo.de, lkml <linux-kernel@vger.kernel.org>
-Subject: summary (Re: [patch] prefer TSC over PM Timer)
-In-Reply-To: <1100705495.32698.38.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0411170946410.9434@twinlark.arctic.org>
-References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
-  <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
- <1100705495.32698.38.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Nov 2004 15:01:57 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:49341 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262525AbUKQT7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 14:59:12 -0500
+Date: Wed, 17 Nov 2004 14:58:50 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [Request for inclusion] Filesystem in Userspace
+In-reply-to: <Pine.LNX.4.53.0411171908260.29426@yvahk01.tjqt.qr>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Message-id: <419BAD7A.6040303@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+ <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+ <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
+ <84144f0204111602136a9bbded@mail.gmail.com>
+ <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
+ <20041116120226.A27354@pauline.vellum.cz>
+ <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com>
+ <E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
+ <16795.33515.187015.492860@thebsh.namesys.com>
+ <Pine.LNX.4.53.0411171809490.24190@yvahk01.tjqt.qr>
+ <16795.35688.634029.21478@gargle.gargle.HOWL>
+ <Pine.LNX.4.53.0411171837250.15704@yvahk01.tjqt.qr>
+ <16795.37202.793499.93514@gargle.gargle.HOWL>
+ <Pine.LNX.4.53.0411171908260.29426@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok thanks everyone... i've been educated, and attempted to summarize the 
-situation.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-if timer_pm is fixed to read the PM timer only once on non-broken systems 
-then it is generally the best choice.  it is only at a ~3x disadvantage 
-compared to tsc/lapic in that case.
+Jan Engelhardt wrote:
+>>Unless, of course, by "polluted" you mean that output of "cat
+>>/proc/self/mounts" becomes longer.
+> 
+> 
+> Precisely that. I recall there once was "you're exceeding the maximum number of
+> filesystems" or such, has that "bug"/"non-feature" been lifted?
+> 
 
-until/unless C3 and deeper resync tsc then it's best not to default to tsc 
-even on transmeta.  it would require some co-ordination between timer_tsc 
-and ACPI code to know if C3/etc. are enabled, i don't see that 
-co-ordination there now.  so it really does seem like adding "clock=tsc" 
-to boot is best left to installers/users/not-the-kernel for now.
+Two issues are resolved in current 2.6:
 
-here's my device summary:
+  - /proc/mounts used to be limitted to a page of data, fixed mid 2.4
+  - there used to be a limit of pseudo-block backed filesystems in a
+system, which was fixed by distros by using multiple majors, fixed
+properly in 2.6.4-rc1
 
-PIT:
-- many slow i/o accesses to read
-- works everywhere
 
-PM:
-- minimum one slow i/o access to read
-- measurements on a handful of systems show one PM timer read
-  costs ~3x a TSC read.
-- kernel presently uses 3 reads as a bug workaround, but can be
-  reduced to one read.
-- works on ~all hardware less than a few years old
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-TSC:
-- fast read
-- on most systems this varies with power mgmt -- and some power mgmt
-  occurs "behind-the-scenes" without kernel awareness
-- cpufreq is better and better at tracking the changes (but not on SMP?)
-- 2.6.10-rc2 disables even more behind-the-scenes power mgmt
-- stops counting in C3 (solved? with PIT/PM/RTC read coming out of C3)
-- drift possible across nodes in NUMA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-local APIC:
-- fast read (approx same as TSC)
-- enabling lapic causes some dell laptops to crash
-- stops counting in C3 (solvable with PIT/PM/RTC read coming out of C3)
-- shared with scheduler -- easy to manage today
-- can't be shared with scheduler if we add variable scheduler ticks
-  (can't read CCR and write ICR atomically -- potential to drift)
-- local apic timer ticks are the best choice for scheduling on SMP
-  because it allows all the CPU schedulers to be skewed and avoid
-  lock conflicts.
-- drift possible across nodes in NUMA?
-
-HPET:
-- at the moment i know nothing about it (none of my systems have it)
-
-let me know if i've missed anything.
-
--dean
+iD8DBQFBm616dQs4kOxk3/MRAgmbAJ9M9h6/Jp94h9cAr3u167CFLSa/5QCfYng3
+w6QNoKtus1zExR7pRXXhVqQ=
+=23z1
+-----END PGP SIGNATURE-----

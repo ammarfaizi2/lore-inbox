@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266016AbUFVWWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUFVWZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266016AbUFVWWx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 18:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbUFVWVk
+	id S265799AbUFVWZH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 18:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUFVWXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 18:21:40 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:14023 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S266016AbUFVWTJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 18:19:09 -0400
-Subject: Re: 2.6.7 and rfcomm Oops (BlueTooth)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D8AB57.5040206@ThinRope.net>
-References: <40D8AB57.5040206@ThinRope.net>
+	Tue, 22 Jun 2004 18:23:03 -0400
+Received: from gate.crashing.org ([63.228.1.57]:34731 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266014AbUFVWVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 18:21:25 -0400
+Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <16600.45126.425726.174463@alkaid.it.uu.se>
+References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
+	 <1087928274.1881.4.camel@gaston>
+	 <16600.37372.473221.988885@alkaid.it.uu.se>
+	 <1087935661.1855.10.camel@gaston>
+	 <16600.39256.669322.177553@alkaid.it.uu.se>
+	 <1087939194.1839.13.camel@gaston>
+	 <16600.45126.425726.174463@alkaid.it.uu.se>
 Content-Type: text/plain
-Message-Id: <1087942737.4209.49.camel@pegasus>
+Message-Id: <1087942472.1855.75.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 23 Jun 2004 00:18:58 +0200
+Date: Tue, 22 Jun 2004 17:14:33 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kalin,
+On Tue, 2004-06-22 at 17:18, Mikael Pettersson wrote:
 
-> I just managed to start using my phone for ppp via BlueTooth with 2.6.7 (stock + kmsgdump patch).
-> 
-> Sometimes I get the foolowing Oops though:
-> 
-> Bluetooth: RFCOMM ver 1.3
-> Bluetooth: RFCOMM socket layer initialized
-> Bluetooth: RFCOMM TTY layer initialized
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:
-> 00000000
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT 
-> Modules linked in: rfcomm l2cap hci_usb bluetooth usbhid 3c59x nvidia ehci_hcd ohci_hcd usbcore ipv6
-> CPU:    0
-> EIP:    0060:[<00000000>]    Tainted: P  
-> EFLAGS: 00210202   (2.6.7-KK1_sata) 
-> EIP is at 0x0
-> eax: 00000000   ebx: d5500000   ecx: e0c7f5c0   edx: 00000000
-> esi: da66cf58   edi: c0000000   ebp: 00000000   esp: d5501eb4
-> ds: 007b   es: 007b   ss: 0068
-> Process rfcomm (pid: 9368, threadinfo=d5500000 task=dd5f6830)
-> Stack: e0c7654e da66cf58 00000000 d5500000 e0c7f5c0 e0c76617 da66cf58 00000000 
->        da66c3d8 d210b000 cfdac7e0 e0c7ade7 da66cf58 00000000 d210b000 00000000 
->        c0259dcb d210b000 cfdac7e0 00000000 00200286 00000000 026524f0 026524f0 
-> Call Trace:
->  [<e0c7654e>] __rfcomm_dlc_close+0x4e/0xd0 [rfcomm]
->  [<e0c76617>] rfcomm_dlc_close+0x47/0x70 [rfcomm]
->  [<e0c7ade7>] rfcomm_tty_close+0x67/0xb0 [rfcomm]
->  [<c0259dcb>] release_dev+0x60b/0x620
->  [<c016552f>] do_pollfd+0x4f/0x90
->  [<c01655da>] do_poll+0x6a/0xd0
->  [<c025a140>] tty_release+0x0/0x60
->  [<c025a16a>] tty_release+0x2a/0x60
->  [<c0152d64>] __fput+0x114/0x130
->  [<c0151429>] filp_close+0x59/0x90
->  [<c01514c1>] sys_close+0x61/0xa0
->  [<c0106087>] syscall_call+0x7/0xb
-> 
-> Code:  Bad EIP value.
->  <6>note: rfcomm[9368] exited with preempt_count 2
+> So can I assume constant TB speed? In that case I don't
+> really care about core speed changes.
 
-what the hell is causing this? I didn't changed anything in the RFCOMM
-TTY layer. Please disable preempt support and try again.
+So far, tb speed is constant yes, I haven't seen a case where it's
+not. What we should really do is to expose the tb speed to userspace
+generically on ppc, possibly via /proc/cpuinfo like we do on ppc64,
+it definitely has other uses than just profiling.
 
-Regards
-
-Marcel
+Ben.
 
 

@@ -1,228 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263051AbTDFS2j (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 14:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263052AbTDFS2j (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 14:28:39 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:27574
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263051AbTDFS2f (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 14:28:35 -0400
-Message-ID: <3E90746A.2010300@redhat.com>
-Date: Sun, 06 Apr 2003 11:39:38 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030406
-X-Accept-Language: en-us, en
+	id S263052AbTDFSoE (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 14:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTDFSoE (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 14:44:04 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:58772 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S263052AbTDFSoD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 14:44:03 -0400
+Date: Sun, 6 Apr 2003 11:55:37 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Stephan van Hienen <raid@a2000.nu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tuning disk on 3ware /performance problem
+In-Reply-To: <200304061131_MC3-1-333A-E630@compuserve.com>
+Message-ID: <Pine.LNX.4.53.0304061153050.2993@twinlark.arctic.org>
+References: <200304061131_MC3-1-333A-E630@compuserve.com>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] new syscall: flink
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB04ADB0645C246407B04E58C"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB04ADB0645C246407B04E58C
-Content-Type: multipart/mixed;
- boundary="------------090707040202090203010700"
+On Sun, 6 Apr 2003, Chuck Ebbert wrote:
 
-This is a multi-part message in MIME format.
---------------090707040202090203010700
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>
+>
+>
+> > Is there anything i can do to tune the drives connected to he 3ware
+> > controller ? (37MB/sec vs 43MB/sec) (and why is the seq. output block
+> > 65MB/sec on the 3ware vs 41MB/sec on 'ide controllers')
+>
+>
+> Try doing a real test with a 1 GB file on an empty filesystem:
+>
+>
+> # mount /fs && date
+> # time dd if=/dev/zero of=/fs/file1 bs=128k count=8k
 
-I got a couple of requests for a function which isn't support on Linux
-so far.  Also not supportable, i.e., cannot be emulated at userlevel.
-It has some history in other systems (QNX I think), though, and helps
-with some security issues.  It really not adding much new functionality
-and I hope I got it right with my "monkey see, monkey do" technique of
-looking up other places doing similar things.
+that should be:
 
-The syscall I mean is
+time 'dd if=/dev/zero of=/fs/file1 bs=128k count=8k && sync'
 
-  int flink (int fd, const char *newname)
+otherwise you're not measuring the time it takes to get all the data to
+disk.
 
-Similar to link(), but the first parameter is a file decsriptor.  Using
-the file descriptor helps to avoid races in some situation.  Look at
-this code bit (this is constructed and just a little test case):
+or use lmdd from lmbench, and its built in syncing options.
 
-#include <errno.h>
-#define EE(a,x) {int e = a;if (e!=x)printf("%s = %d (%m)\n", #a, errno);}
-#define E(a) EE(a,0)
-int
-main()
-{
-  printf("uid = %d, euid = %d, gid = %d, egid = %d\n", getuid(),
-geteuid(), getgid(), getegid());
-  E(setfsuid(getuid()));
-  E(setfsgid(getgid()));
-  char buf[] = "aaXXXXXX";
-  int fd = mkstemp (buf);
-  EE(setfsuid(0),getuid());
-  EE(setfsgid(0),getgid());
-  E(fchown(fd,48,48));
-  E(setfsuid(getuid()));
-  E(setfsgid(getgid()));
-  E(syscall(268,fd,"aa"));
-  E(unlink(buf));
-  return 0;
-}
+> # umount /fs && date && mount /fs
 
-This is for a SUID/SGID root application.  A temporary file is created
-carefully using the permissions of the user running the program.  If the
-syscall 268 (flink) line would be
+or i suppose if you're not looking at the output of "time" and rather hand
+subtracting the two dates?
 
-  link(buf,"aa)
+-dean
 
-instead, somebody with limited priviledges could in theory have unlinked
-the temporary file and created a new one.  With flink() this isn't
-possible.  And the best is: the unlink() line can be moved right below
-the mkstemp() call.  This means no temporary files are around if
-something goes wrong before the unlink().  (For me this is at least as
-important as the security issue, it simplifies temp file handling and
-reduces the number of bugs == leftover fiels).
-
-The patch itself is very minimal.  The impact on the link() syscall is
-not measurable and the extra code for sys_flink is only a few bytes.
-
-Is this acceptable?  Shall I add more syscall definitions for platforms
-!= x86 (I'd think the port maintainers want to do this themselves)?
-
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
-
---------------090707040202090203010700
-Content-Type: text/plain;
- name="d-kernel-flink"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="d-kernel-flink"
-
---- linux-2.5/arch/i386/kernel/entry.S-flink	2003-03-21 23:09:32.000000000 -0800
-+++ linux-2.5/arch/i386/kernel/entry.S	2003-04-06 10:32:27.000000000 -0700
-@@ -852,6 +852,7 @@ ENTRY(sys_call_table)
-  	.long sys_clock_gettime		/* 265 */
-  	.long sys_clock_getres
-  	.long sys_clock_nanosleep
-+	.long sys_flink
-  
-  
- nr_syscalls=(.-sys_call_table)/4
---- linux-2.5/fs/namei.c-flink	2003-04-03 10:04:03.000000000 -0800
-+++ linux-2.5/fs/namei.c	2003-04-06 11:20:41.000000000 -0700
-@@ -16,6 +16,7 @@
- 
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/file.h>
- #include <linux/fs.h>
- #include <linux/namei.h>
- #include <linux/quotaops.h>
-@@ -1796,10 +1797,10 @@ int vfs_link(struct dentry *old_dentry, 
-  * with linux 2.0, and to avoid hard-linking to directories
-  * and other special files.  --ADM
-  */
--asmlinkage long sys_link(const char * oldname, const char * newname)
-+static long link_common(struct vfsmount *old_mnt, struct dentry *old_dentry, const char *newname)
- {
- 	struct dentry *new_dentry;
--	struct nameidata nd, old_nd;
-+	struct nameidata nd;
- 	int error;
- 	char * to;
- 
-@@ -1807,32 +1808,53 @@ asmlinkage long sys_link(const char * ol
- 	if (IS_ERR(to))
- 		return PTR_ERR(to);
- 
--	error = __user_walk(oldname, 0, &old_nd);
--	if (error)
--		goto exit;
- 	error = path_lookup(to, LOOKUP_PARENT, &nd);
- 	if (error)
--		goto out;
-+		goto exit;
- 	error = -EXDEV;
--	if (old_nd.mnt != nd.mnt)
-+	if (old_mnt != nd.mnt)
- 		goto out_release;
- 	new_dentry = lookup_create(&nd, 0);
- 	error = PTR_ERR(new_dentry);
- 	if (!IS_ERR(new_dentry)) {
--		error = vfs_link(old_nd.dentry, nd.dentry->d_inode, new_dentry);
-+		error = vfs_link(old_dentry, nd.dentry->d_inode, new_dentry);
- 		dput(new_dentry);
- 	}
- 	up(&nd.dentry->d_inode->i_sem);
- out_release:
- 	path_release(&nd);
--out:
--	path_release(&old_nd);
- exit:
- 	putname(to);
- 
- 	return error;
- }
- 
-+asmlinkage long sys_link(const char *oldname, const char *newname)
-+{
-+	struct nameidata old_nd;
-+	int error;
-+
-+	error = __user_walk(oldname, 0, &old_nd);
-+	if (!error) {
-+		error = link_common(old_nd.mnt, old_nd.dentry, newname);
-+		path_release(&old_nd);
-+	}
-+	return error;
-+}
-+
-+asmlinkage long sys_flink(unsigned int fd, const char *newname)
-+{
-+	struct file *file;
-+	int error = -EBADF;
-+
-+	file = fget(fd);
-+	if (file) {
-+		error = link_common(file->f_vfsmnt, file->f_dentry, newname);
-+		fput(file);
-+	}
-+	return error;
-+}
-+
- /*
-  * The worst of all namespace operations - renaming directory. "Perverted"
-  * doesn't even start to describe it. Somebody in UCB had a heck of a trip...
---- linux-2.5/include/asm-i386/unistd.h-flink	2003-02-19 21:41:59.000000000 -0800
-+++ linux-2.5/include/asm-i386/unistd.h	2003-04-06 10:30:08.000000000 -0700
-@@ -273,8 +273,9 @@
- #define __NR_clock_gettime	(__NR_timer_create+6)
- #define __NR_clock_getres	(__NR_timer_create+7)
- #define __NR_clock_nanosleep	(__NR_timer_create+8)
-+#define __NR_flink		268
- 
--#define NR_syscalls 268
-+#define NR_syscalls 269
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-
---------------090707040202090203010700--
-
---------------enigB04ADB0645C246407B04E58C
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+kHRu2ijCOnn/RHQRAqQhAJ4xcFZctekSYSj4nl9U0oMqJ8gaiACgv+RW
-j12hvCQGKCv8SSlZFZP10F4=
-=z7oF
------END PGP SIGNATURE-----
-
---------------enigB04ADB0645C246407B04E58C--
-
+> # time dd if=/fs/file1 of=/dev/null bs=128k
+>
+>
+> I get numbers that disagree with hdparm by a large amount.
+>
+> --
+>  Chuck
+>  I am not a number!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

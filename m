@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318962AbSIJBgU>; Mon, 9 Sep 2002 21:36:20 -0400
+	id <S318923AbSIJBee>; Mon, 9 Sep 2002 21:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318968AbSIJBgU>; Mon, 9 Sep 2002 21:36:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60167 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318962AbSIJBgR>; Mon, 9 Sep 2002 21:36:17 -0400
-Date: Mon, 9 Sep 2002 18:41:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <1031618439.31787.20.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209091832160.1714-100000@home.transmeta.com>
+	id <S318946AbSIJBea>; Mon, 9 Sep 2002 21:34:30 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:47020 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318923AbSIJBe3>;
+	Mon, 9 Sep 2002 21:34:29 -0400
+Date: Mon, 9 Sep 2002 21:39:13 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Daniel Phillips <phillips@arcor.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about pseudo filesystems
+In-Reply-To: <20020909235654.A5875@kushida.apsleyroad.org>
+Message-ID: <Pine.GSO.4.21.0209092136190.4087-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 10 Sep 2002, Alan Cox wrote:
-> 
-> I'd have thought you may well want the reverse. If the user didnt pick
-> the kernel debugging, don't die on software check option you want to
-> blow up.
 
-No, thanks. If it's fatal, it's a BUG(), and you blow regardless.
+On Mon, 9 Sep 2002, Jamie Lokier wrote:
 
-If it isn't fatal, there is no excuse for blowing up. EVER.  That's
-_especially_ true for some random user who didn't ask for, and can't
-handle debugging. If it's useful information that the developer believes
-he wants, it shouldn't be conditional at all.
+> Daniel Phillips wrote:
+> > > The expected behaviour is as it has always been: rmmod fails if anyone
+> > > is using the module, and succeeds if nobody is using the module.  The
+> > > garbage collection of modules is done using "rmmod -a" periodically, as
+> > > it always has been.
+> > 
+> > When you say 'rmmod modulename' the module is supposed to be removed, if
+> > it can be.  That is the user's expectation, and qualifies as 'obviously
+> > correct'.
+> > 
+> > Garbage collecting should *not* be the primary mechanism for removing
+> > modules, that is what rmmod is for.  Neither should a filesystem module
+> > magically disappear from the system just because the last mount went
+> > away, unless the module writer very specifically desires that.  This is
+> > where the obfuscating opinion is coming from: Al has come up with an
+> > application where he wants the magic disappearing behavior and wants
+> > to impose it on the rest of the world, regardless of whether it makes
+> > sense.
 
-> If they are debugging or its < 2.6.0-rc1 you want it to show
-> the stack and keep going
+Huh?
+ 
+> I think you've misunderstood.  The module does _not_ disappear when the
+> last file reference is closed.  It's reference count is decremented,
+> that is all.  Just the same as if you managed the reference count
+> yourself.  You still need rmmod to actually remove the module.
 
-You definitely want to keep going regardless. A BUG() that takes out the
-machine is just not useful, because users who aren't ready to debug it
-can't even make any reports except "it stops" (which this one did if you
-were under X - the machine was just _dead_).
-
-Basically, with the amount of locking we have, a BUG() or a blow-up just 
-about anywhere is lethal. Most sequences (especially in drivers, but 
-inside filesystems etc too) tend to hold spinlocks etc that just makes it 
-a bad idea to BUG() out unless you really really have to, since the 
-machine is not likely to survive and be able to write good reports to disk 
-etc at pretty much any point.
-
-(It used to be that you could take a fault just about anywhere except for
-in interrupt handlers, and Linux would try its damndest to clean up and
-continue as if nothing had happened. Those days are sadly gone, and
-trapping and depending on killing the process seldom works well any more).
-
-On the whole, it's a lot better to just print out a message (and call
-traces are often very useful) and continue. That's not always possible, of
-course, and a lot of BUG() and BUG_ON() cases are perfectly valid simply
-because sometimes there isn't anything you can do except kill the machine
-and try to inform the user.
-
-I think the historical kernel behaviour ("trap and kill and continue"  
-historically worked so fine for _both_ major bugs and for "random sanity
-test" cases) has caused us to be a bit lazy about this sometimes.
-
-			Linus
+Never let the facts to stand in a way of a rant.  Or presume that ability to
+write implies ability to read, for that matter...
 

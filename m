@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVCCErX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVCCEzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVCCErX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCCErA
+	id S261497AbVCCEzU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVCCEzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:47:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21472 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261265AbVCCEqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:46:44 -0500
-Message-ID: <4226969E.5020101@pobox.com>
-Date: Wed, 02 Mar 2005 23:46:22 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com>	<20050302162312.06e22e70.akpm@osdl.org>	<42265A6F.8030609@pobox.com>	<20050302165830.0a74b85c.davem@davemloft.net>	<422674A4.9080209@pobox.com>	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
-In-Reply-To: <42268F93.6060504@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 23:55:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:53203 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261530AbVCCEx1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:53:27 -0500
+Subject: Re: radeonfb blanks my monitor
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: =?ISO-8859-1?Q?Fr=E9d=E9ric?= "L. W. Meunier" <2@pervalidus.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
+References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net>
+	 <1109823010.5610.161.camel@gaston>
+	 <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 03 Mar 2005 15:50:51 +1100
+Message-Id: <1109825452.5611.163.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If Linus/DaveM really don't like -pre/-rc naming, I think 2.6.x.y is 
-preferable to even/odd.
+On Thu, 2005-03-03 at 01:39 -0300, Frédéric L. W. Meunier wrote:
+> On Thu, 3 Mar 2005, Benjamin Herrenschmidt wrote:
+> 
+> > On Wed, 2005-03-02 at 23:51 -0300, Frédéric L. W. Meunier wrote:
+> >> I just replaced my Matrox G400 with a Jetway Radeon 9600LE
+> >> (256Mb). If I run 'modprobe radeonfb', the monitor blanks out
+> >> and the power on light keeps flashing.
+> >>
+> >> What may be wrong ? Using 2.6.11.
+> >
+> > Do you have a way to capture the dmesg log produced ?
+> 
+> These are the lines before I have to use SysRq.
+> 
+> Mar  2 15:16:45 darkstar kernel: radeonfb: Found Intel x86 BIOS ROM Image
+> Mar  2 15:16:45 darkstar kernel: radeonfb: Retreived PLL infos from BIOS
+> Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: dvi passed test.
+> Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: vga passed test.
+> Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 1 type CRT found
+> Mar  2 15:16:46 darkstar kernel: radeonfb: EDID probed
+> Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 2 type no found
+> 
+> BTW, I don't know if it could be related, but my motherboard 
+> only supports AGP 4x
 
-Just create a 2.6.X repo at each release.  For bug fixes to 2.6.X, 
-commit to this repo, then pull into linux-2.6.  For everything else, 
-pull straight into linux-2.6.
+There should be more than these... Does it continue booting afte the
+screen goes blank or not at all ? Can you send the full dmesg log too ?
+Also, enable radeonfb verbose debug in the config.
 
-The linux-2.6 repo would be upstream, and linux-2.6.X repo would be 
-where bugfix-only releases come from.
+> > Also, does it work if radeonfb is built-in ?
+> 
+> I'll try later. Time to sleep.
 
-	Jeff
-
-
+Ok, thanks.
 

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262189AbSJNVvj>; Mon, 14 Oct 2002 17:51:39 -0400
+	id <S262198AbSJNVyl>; Mon, 14 Oct 2002 17:54:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262198AbSJNVvi>; Mon, 14 Oct 2002 17:51:38 -0400
-Received: from ns0.cobite.com ([208.222.80.10]:44295 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S262189AbSJNVvh>;
-	Mon, 14 Oct 2002 17:51:37 -0400
-Date: Mon, 14 Oct 2002 17:57:27 -0400 (EDT)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@admin
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] raw over raid5: BUG at drivers/block/ll_rw_blk.c:1967
-In-Reply-To: <3DAB2DD9.B78639C5@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210141755340.2876-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262193AbSJNVyl>; Mon, 14 Oct 2002 17:54:41 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:42903 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S262198AbSJNVyk>; Mon, 14 Oct 2002 17:54:40 -0400
+Message-Id: <5.1.0.14.2.20021014144731.083a56f0@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 14 Oct 2002 15:00:12 -0700
+To: Alexander Viro <viro@math.psu.edu>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: [PATCH] Export sockfd_lookup function
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <Pine.GSO.4.21.0210141700010.6505-100000@weyl.math.psu.edu>
+References: <5.1.0.14.2.20021014134001.083de250@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Andrew Morton wrote:
+At 05:01 PM 10/14/2002 -0400, Alexander Viro wrote:
 
-> David Mansfield wrote:
-> > 
-> > Hi everyone,
-> > 
-> > I haven't been able to run raw over raid5 since 2.5.30 or so, but every
-> > time I'm about to report it, a new kernel comes out and the problem
-> > changes completely :-( Now I'm finally going to start getting out the info
-> > it the hopes someone can fix it.  The oops was triggered by attempting to
-> > read from /dev/raw/raw1 (bound to /dev/md0) using dd.  System info
-> > follows oops:
-> > 
-> > ------------[ cut here ]------------
-> > kernel BUG at drivers/block/ll_rw_blk.c:1967!
-> 
-> I don't think you told us the kernel version?
 
-Arrgh.  It was 2.5.42 vanilla.
+>On Mon, 14 Oct 2002, Maksim (Max) Krasnyanskiy wrote:
+>
+> >
+> > Can we export sockfd_lookup function ?
+> > I need it in one of the Bluetooth modules which has to look up 'struct 
+> socket'
+> > from fd in the ioctl handler.
+>
+>What the hell does that ioctl do with file descriptors in the first place?
+What is so unusual in dealing with file descriptors in ioctl ?
 
-> There have been recent fixes wrt sizing of the BIOs which the
-> direct-io layer sends down.  So please make sure that you're
-> testing Linus's current -bk, or 2.5.42 plus
-> 
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.42/2.5.42-mm2/broken-out/dio-bio-add-fix-1.patch
+Anyway, that ioctl takes file descriptor, finds struct socket and starts 
+kernel
+thread, struct socket is then used in that kernel thread 
+(sock->ops->sendmsg, etc).
+Take a look in net/bluetooth/bnep/sock.c:bnep_sock_ioctl() if you're 
+interested.
 
-I've applied this patch and retested.  I was able to run dd once this 
-time, hit ctrl-c, all ok.  But I hit up-arrow and re-did it and it gave 
-the same oops.  I'm going to try with the full (latest) mm patch.
-
-> Either that, or raid5 is bust ;)
-> 
-
-I guess so.
-
-David
-
--- 
-/==============================\
-| David Mansfield              |
-| lkml@dm.cobite.com           |
-\==============================/
+Max
 

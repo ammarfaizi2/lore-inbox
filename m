@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVADTAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVADTCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVADTAP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 14:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVADTAP
+	id S261825AbVADTCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 14:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVADTCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 14:00:15 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:6309 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261799AbVADTAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 14:00:01 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <87u0pxhvn0.fsf@sulphur.joq.us>
-References: <1104374603.9732.32.camel@krustophenia.net>
-	 <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org>  <87u0pxhvn0.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Date: Tue, 04 Jan 2005 13:59:57 -0500
-Message-Id: <1104865198.8346.8.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 14:02:23 -0500
+Received: from alog0168.analogic.com ([208.224.220.183]:3712 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261825AbVADTCA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:02:00 -0500
+Date: Tue, 4 Jan 2005 13:53:00 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: aryix <aryix@softhome.net>, lug-list@lugmen.org.ar,
+       linux-kernel@vger.kernel.org
+Subject: Re: dmesg: PCI interrupts are no longer routed automatically.........
+In-Reply-To: <1104862721.1846.49.camel@eeyore>
+Message-ID: <Pine.LNX.4.61.0501041342070.5445@chaos.analogic.com>
+References: <20041229095559.5ebfc4d4@sophia> <1104862721.1846.49.camel@eeyore>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 12:55 -0600, Jack O'Quin wrote:
-> But, the lack of this feature has been a continual impediment for
-> years now.  It affects not just me, but most other serious Linux audio
-> developers and many of our users.  We need a simple way for users to
-> configure a Digital Audio Workstation without having to run large,
-> complex, insecure audio applications as `root'.  Our competition runs
-> on Windows and Mac systems where no such configuration is needed.
+On Tue, 4 Jan 2005, Bjorn Helgaas wrote:
 
-We could do it the was OSX (our real competition) does if that would
-make people happy.  They just let any user run RT tasks.  Oh wait, but
-that's a "broken design", everyone knows that OSX is a joke, no one
-would use *that* OS to mix a CD or score a movie.  :-)
+> Do you have a device that doesn't work unless you specify
+> "pci=routeirq"?
+>
+> If all your devices work, you can ignore the note in dmesg.
+>
+> -
 
-Lee
+I note that pci_enable_device() needs to be executed __before__
+the IRQ is obtained on 2.6.10, otherwise you get the wrong IRQ
+(IRQ10 on this system)B.
 
- 
+This doesn't seem to be correct since the IRQ connection was set
+by the BIOS and certainly shouldn't be changed. On this system,
+interrupts that were not shared on 2.4.n and early 2.6.n end
+up being shared... See IRQ18 below.
 
+            CPU0
+   0:    1135520    IO-APIC-edge  timer
+   1:       3203    IO-APIC-edge  i8042
+   7:          0    IO-APIC-edge  parport0
+   8:          1    IO-APIC-edge  rtc
+   9:          0   IO-APIC-level  acpi
+  12:         66    IO-APIC-edge  i8042
+  14:      10637    IO-APIC-edge  ide0
+  16:          0   IO-APIC-level  uhci_hcd, uhci_hcd
+  18:         81   IO-APIC-level  libata, uhci_hcd, Analogic Corp DLB
+  19:          0   IO-APIC-level  uhci_hcd
+  20:        801   IO-APIC-level  eth0
+  21:        982   IO-APIC-level  aic7xxx
+  23:          0   IO-APIC-level  ehci_hcd
+NMI:          0 
+LOC:    1135484 
+ERR:          0
+MIS:          0
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

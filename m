@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbTIOFG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 01:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbTIOFG1
+	id S262438AbTIOFQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 01:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTIOFQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 01:06:27 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39672 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262436AbTIOFG1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 01:06:27 -0400
-Date: Mon, 15 Sep 2003 10:43:11 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>,
-       arjanv@redhat.com
-Subject: Re: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
-Message-ID: <20030915051308.GA1159@llm08.in.ibm.com>
-References: <20030910081654.GA1129@llm08.in.ibm.com> <1063208464.700.35.camel@localhost> <20030911055428.GA1140@llm08.in.ibm.com> <20030911110853.GB3700@llm08.in.ibm.com> <3F60A08A.7040504@colorfullife.com> <20030912085921.GB1128@llm08.in.ibm.com> <3F6378B0.8040606@colorfullife.com> <20030914080942.GA9302@in.ibm.com> <20030914130037.GA1781@in.ibm.com>
-Mime-Version: 1.0
+	Mon, 15 Sep 2003 01:16:09 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:62660 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262438AbTIOFQG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 01:16:06 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Andrea VM changes
+References: <Pine.LNX.4.55L.0308301248380.31588@freak.distro.conectiva>
+	<Pine.LNX.4.55L.0308301607540.31588@freak.distro.conectiva>
+	<Pine.LNX.4.55L.0308301618500.31588@freak.distro.conectiva>
+	<20030830231904.GL24409@dualathlon.random>
+	<1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 15 Sep 2003 01:16:03 -0400
+Message-ID: <87y8wq638s.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030914130037.GA1781@in.ibm.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 06:30:37PM +0530, Dipankar Sarma wrote:
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> On Sul, 2003-08-31 at 00:19, Andrea Arcangeli wrote:
+> > I've an algorithm that will work, and that will provide very good
+> > guarantees to kill the "best" task to make the machine usable again,
+> > with the needed protection against the security DoSes, but it's in
+> > no-way similar to the current oom killer.
 > 
-> While we are at it, we should also probably look up the cache line
-> size for a cpu family from a table, store it in some per-cpu data
-> (cpuinfo_x86 ?) and provide an l1_cache_bytes() api to
-> return it at run time.
+> And -ac has trivial code so you can avoid OOM killing every happening,
+> which is pretty much essential for big servers. Perhaps merging that
+> as well would be a good idea.
 
-If we are going to solve the cache line size mismatch due to compile 
-time arch versus run time arch (compiling on a PIII and running on a P4), 
-we might end up with kernel code which sometimes refer to the static line size 
-and sometimes to the run time size, which might cause correctness issues.  
-So maybe it is good idea to have just one macro for l1 size?  We can't
-do away with the static one, so maybe we should keep it and expect users
-to compile with the target cpu properly set (otherwise they lose out on
-performance -- correctness won't be a problem).  I could be wrong...just
-thinking out loud...
+Indeed there has been an enormous amount of discussion on the postgres mailing
+list about how to deal with the OOM killer. The wide consensus there is that
+the only sane setting for a production database would be one that guarantees
+never to kill overcommit at all.
 
-Thanks,
-Kiran
+Frankly, they're a bit in shock that this wasn't an option a long time ago.
+
+Consider e.g.:
+
+http://groups.google.com/groups?threadm=3F510688.1050709%40colorfullife.com
+
+-- 
+greg
+

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281232AbRKHBhP>; Wed, 7 Nov 2001 20:37:15 -0500
+	id <S281241AbRKHBoG>; Wed, 7 Nov 2001 20:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281241AbRKHBhG>; Wed, 7 Nov 2001 20:37:06 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:37772 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281261AbRKHBg7>;
-	Wed, 7 Nov 2001 20:36:59 -0500
-Date: Wed, 07 Nov 2001 17:36:49 -0800 (PST)
-Message-Id: <20011107.173649.94552736.davem@redhat.com>
-To: tim@physik3.uni-rostock.de
-Cc: adilger@turbolabs.com, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0111080216250.30014-100000@gans.physik3.uni-rostock.de>
-In-Reply-To: <20011107.170940.10246156.davem@redhat.com>
-	<Pine.LNX.4.30.0111080216250.30014-100000@gans.physik3.uni-rostock.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S281249AbRKHBn4>; Wed, 7 Nov 2001 20:43:56 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:26118 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S281241AbRKHBno>; Wed, 7 Nov 2001 20:43:44 -0500
+Date: Thu, 8 Nov 2001 10:44:25 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: erik@hensema.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Yet another design for /proc. Or actually /kernel.
+Message-Id: <20011108104425.496f717d.rusty@rustcorp.com.au>
+In-Reply-To: <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl>
+In-Reply-To: <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tim Schmielau <tim@physik3.uni-rostock.de>
-   Date: Thu, 8 Nov 2001 02:20:02 +0100 (CET)
-   
-   They actually are necessary as unsigned values can never become less than
-   zero.
+On 7 Nov 2001 19:09:35 GMT
+spamtrap@use.reply-to (Erik Hensema) wrote:
 
-I definitely stand corrected.
+> 
+> Here's my go at a new design for /proc. I designed it from a userland
+> point of view and tried not to drown myself into details.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+> - Multiple values per file when needed
+> 	A file is a two dimensional array: it has lines and every line
+> 	can consist of multiple fields.
+> 	A good example of this is the current /proc/mounts.
+> 	This can be parsed very easily in all languages.
+> 	No need for single-value files, that's oversimplification.
+
+No, it deals nicely with any possible values in the file.  And without headers,
+how do I know what's what?  And how do I update one value.
+
+Meanwhile, there's far too much talk, far too little code.  Will post new patch
+next week.
+
+Rusty.

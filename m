@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268354AbTCFVpO>; Thu, 6 Mar 2003 16:45:14 -0500
+	id <S268410AbTCFVpU>; Thu, 6 Mar 2003 16:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268402AbTCFVpO>; Thu, 6 Mar 2003 16:45:14 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28072
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268354AbTCFVpN>; Thu, 6 Mar 2003 16:45:13 -0500
-Subject: Re: Disabling ATAPI retry?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: kelleycook@wideopenwest.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3e67c49b.7c12.1804289383@wideopenwest.com>
-References: <3e67c49b.7c12.1804289383@wideopenwest.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046991672.17715.134.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 06 Mar 2003 23:01:12 +0000
+	id <S268409AbTCFVpU>; Thu, 6 Mar 2003 16:45:20 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:26480 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S268410AbTCFVpT>; Thu, 6 Mar 2003 16:45:19 -0500
+Date: Thu, 6 Mar 2003 22:46:19 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
+Subject: Oops counter (was Re: ntfs OOPS (2.5.63))
+In-Reply-To: <20030306123601.0fdcc6ad.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.30.0303062230470.31029-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 20:58, kelleycook@wideopenwest.com wrote:
-> Is there a boot parameter or a runtime command that can tell
-> the linux IDE driver not to automatically retry on error.
 
-There isn't. You can always build a kernel set not to, but even then it
-takes the drive firmware a sizeable time to retry a block. If its an IBM
-you might want to try the ibm tools on them if you can get them. They 
-seem to have vanished from the face of the earth when IBM dumped its disk
-business 
+> | > ==> Mar  1 13:35:44 midway kernel: Oops: 0002
+> | >
+> | > This means oops counter is 2. So there were two oopses before with
+> | > counter value 0 and 1.
+> |
+> | I just checked, this is not true (I could dig up the false source
+> | of information if interested).
+
+I didn't have to: Google listed it in the top 5 hits searching for
+"oops counter" ...
+
+> However, such an oops counter could be useful...
+
+I believed immediately this feature was added, it looked so good idea.
+
+	Szaka
 

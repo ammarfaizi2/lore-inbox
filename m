@@ -1,124 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbTBTTwx>; Thu, 20 Feb 2003 14:52:53 -0500
+	id <S266953AbTBTTwm>; Thu, 20 Feb 2003 14:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTBTTwx>; Thu, 20 Feb 2003 14:52:53 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:62187 "EHLO
+	id <S266952AbTBTTwl>; Thu, 20 Feb 2003 14:52:41 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:60907 "EHLO
 	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S266948AbTBTTwc>; Thu, 20 Feb 2003 14:52:32 -0500
-Message-Id: <200302202002.h1KK2YZ00018@rumms.uni-mannheim.de>
+	id <S266944AbTBTTwa>; Thu, 20 Feb 2003 14:52:30 -0500
+Message-Id: <200302202002.h1KK2XZ00009@rumms.uni-mannheim.de>
 From: Thomas Schlichter <schlicht@uni-mannheim.de>
 To: Andrew Morton <akpm@digeo.com>
-Subject: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c with flush_tlb_all()
-Date: Thu, 20 Feb 2003 21:00:05 +0100
+Subject: [PATCH][2.5] flush_tlb_all is not preempt safe in x86_64 and i386/mach-voyager
+Date: Thu, 20 Feb 2003 11:55:26 +0100
 User-Agent: KMail/1.5
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0302140600050.3518-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0302140600050.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
   protocol="application/pgp-signature";
   micalg=pgp-sha1;
-  boundary="Boundary-03=_GPTV+Ly8Mcw+RMQ";
-  charset="us-ascii"
+  boundary="Boundary-03=_pQLV+P5xaA0IXCB";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-03=_GPTV+Ly8Mcw+RMQ
+--Boundary-03=_pQLV+P5xaA0IXCB
 Content-Type: multipart/mixed;
-  boundary="Boundary-01=_FPTV+bi5jiq8u8s"
+  boundary="Boundary-01=_eQLV+rW/yfUInu0"
 Content-Transfer-Encoding: 7bit
 Content-Description: signed data
 Content-Disposition: inline
 
---Boundary-01=_FPTV+bi5jiq8u8s
+--Boundary-01=_eQLV+rW/yfUInu0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Description: body text
 Content-Disposition: inline
 
-This patch replaces the flush_map() function in the arch/i386/mm/pageattr.c file with flush_tlb_all() calls, as the flush_map() function wants to do the same, but just forgot the preempt_disable() and preempt_enable() calls.
-
-To minimize future inconsistency I think this patch should be applied...
+This patch is based on Changeset 1.914.160.6.
+It solves the flush_tlb_all preempt-issue for x86_64 and the i386/mach-voyager subarchitecture.
 
 Best regards
   Thomas Schlichter
 
---Boundary-01=_FPTV+bi5jiq8u8s
+P.S.: Wouldn't it even have been possible to solve this problem just by swapping the original two lines?
+
+--Boundary-01=_eQLV+rW/yfUInu0
 Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="remove_flush_map.patch"
+  charset="iso-8859-1";
+  name="flush_tlb_all_preempt.patch"
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="remove_flush_map.patch"
+Content-Disposition: inline; filename="flush_tlb_all_preempt.patch"
 
-=2D-- linux-2.5.62/arch/i386/mm/pageattr.c.orig	Wed Feb 19 16:44:56 2003
-+++ linux-2.5.62/arch/i386/mm/pageattr.c	Wed Feb 19 16:46:11 2003
-@@ -45,17 +45,6 @@
- 	return base;
- }=20
+=2D-- linux-2.5.62/arch/i386/mach-voyager/voyager_smp.c.orig	Wed Feb 19 16:=
+43:22 2003
++++ linux-2.5.62/arch/i386/mach-voyager/voyager_smp.c	Wed Feb 19 16:43:57 2=
+003
+@@ -1230,9 +1230,11 @@
+ void
+ flush_tlb_all(void)
+ {
++	preempt_disable();
+ 	smp_call_function (flush_tlb_all_function, 0, 1, 1);
 =20
-=2Dstatic void flush_kernel_map(void *dummy)=20
-=2D{=20
-=2D	/* Could use CLFLUSH here if the CPU supports it (Hammer,P4) */
-=2D	if (boot_cpu_data.x86_model >=3D 4)=20
-=2D		asm volatile("wbinvd":::"memory");=20
-=2D	/* Flush all to work around Errata in early athlons regarding=20
-=2D	 * large page flushing.=20
-=2D	 */
-=2D	__flush_tlb_all(); =09
-=2D}
-=2D
- static void set_pmd_pte(pte_t *kpte, unsigned long address, pte_t pte)=20
- {=20
- 	set_pte_atomic(kpte, pte); 	/* change init_mm */
-@@ -129,14 +118,6 @@
- 	return 0;
- }=20
+ 	do_flush_tlb_all_local();
++	preempt_enable();
+ }
 =20
-=2Dstatic inline void flush_map(void)
-=2D{=09
-=2D#ifdef CONFIG_SMP=20
-=2D	smp_call_function(flush_kernel_map, NULL, 1, 1);
-=2D#endif=09
-=2D	flush_kernel_map(NULL);
-=2D}
-=2D
- struct deferred_page {=20
- 	struct deferred_page *next;=20
- 	struct page *fpage;
-@@ -172,7 +153,7 @@
- 			struct deferred_page *df;
- 			df =3D kmalloc(sizeof(struct deferred_page), GFP_KERNEL);=20
- 			if (!df) {
-=2D				flush_map();
-+				flush_tlb_all();
- 				__free_page(fpage);
- 			} else {=20
- 				df->next =3D df_list;
-@@ -192,7 +173,7 @@
- 	down_read(&init_mm.mmap_sem);
- 	df =3D xchg(&df_list, NULL);
- 	up_read(&init_mm.mmap_sem);
-=2D	flush_map();
-+	flush_tlb_all();
- 	for (; df; df =3D next_df) {=20
- 		next_df =3D df->next;
- 		if (df->fpage)=20
+ /* used to set up the trampoline for other CPUs when the memory manager
+=2D-- linux-2.5.62/arch/x86_64/kernel/smp.c.orig	Wed Feb 19 21:08:20 2003
++++ linux-2.5.62/arch/x86_64/kernel/smp.c	Wed Feb 19 21:09:40 2003
+@@ -344,9 +344,11 @@
+=20
+ void flush_tlb_all(void)
+ {
++	preempt_disable();
+ 	smp_call_function (flush_tlb_all_ipi,0,1,1);
+=20
+ 	do_flush_tlb_all_local();
++	preempt_enable();
+ }
+=20
+ void smp_kdb_stop(void)
 
---Boundary-01=_FPTV+bi5jiq8u8s--
+--Boundary-01=_eQLV+rW/yfUInu0--
 
---Boundary-03=_GPTV+Ly8Mcw+RMQ
+--Boundary-03=_pQLV+P5xaA0IXCB
 Content-Type: application/pgp-signature
 Content-Description: signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+VTPGYAiN+WRIZzQRAmYRAJwIIWY1h8eWae1qLoMxxtQaJZY39QCdEI+K
-tFumUlvHZIKsKJEY6hYthjY=
-=54KB
+iD8DBQA+VLQpYAiN+WRIZzQRArcDAKCPjb8hcEaD/sW8tthMKFm0kgQdvACeLmKU
++D9oRiDaYeAAd235H4UrFAY=
+=OXlB
 -----END PGP SIGNATURE-----
 
---Boundary-03=_GPTV+Ly8Mcw+RMQ--
+--Boundary-03=_pQLV+P5xaA0IXCB--
+
 

@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVADVMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVADVRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVADVMh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVADVJb
+	id S262129AbVADVRB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVADVQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:09:31 -0500
-Received: from gprs215-69.eurotel.cz ([160.218.215.69]:8122 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261873AbVADVE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:04:58 -0500
-Date: Tue, 4 Jan 2005 22:04:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104210424.GA1619@elf.ucw.cz>
-References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+	Tue, 4 Jan 2005 16:16:12 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:39866 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262008AbVADVJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:09:16 -0500
+Subject: Re: [PATCH] disallow modular capabilities
+From: Lee Revell <rlrevell@joe-job.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
+References: <20050102200032.GA8623@lst.de>
+	 <1104870292.8346.24.camel@krustophenia.net>
+	 <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Tue, 04 Jan 2005 16:09:02 -0500
+Message-Id: <1104872943.8346.30.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Yes, -mm gives a bit more testing coverage, but it doesn't seem to be 
-> > enough for this vast amount of changes.
+On Tue, 2005-01-04 at 13:05 -0800, Linus Torvalds wrote:
 > 
-> I have to say that with a few minor exceptions the introduction of new
-> features hasn't created long term (more than a few days) of problems. And
-> we have had that in previous stable versions as well. New features
-> themselves may not be totally stable, but in most cases they don't break
-> existing features, or are fixed in bk1 or bk2. What worries me is removing
-> features deliberately, and I won't beat that dead horse again, I've said
-> my piece.
+> On Tue, 4 Jan 2005, Lee Revell wrote:
+> > 
+> > And I posted this to LKML almost a week ago, and a real fix was posted
+> > in response.
+> > 
+> > http://lkml.org/lkml/2004/12/28/112
 > 
-> The "few minor exceptions:"
-> 
-> SCSI command filtering - while I totally support the idea (and always
-> have), I miss running cdrecord as a normal user. Multisession doesn't work
-> as a normal user (at least if you follow the man page) because only root
-> can use -msinfo. There's also some raw mode which got a permission denied,
-> don't remember as I was trying something not doing production stuff.
-> 
-> APM vs. ACPI - shutdown doesn't reliably power down about half of the
-> machines I use, and all five laptops have working suspend and non-working
-> resume. APM seems to be pretty unsupported beyond "use ACPI for that."
+> Well, I realize that it has been on bugtraq, but does that make it a real 
+> concern? I'll make the tristate a boolean, but has anybody half-way sane 
+> ever _done_ what is described by the bugtraq posting? IOW, it looks pretty 
+> much like a made-up example, also known as a "don't do that then" kind of 
+> buglet ;)
 
-Go ahead and become APM maintainer... APM needs some care. 
+Well, a buglet is still a type of bug ;-)
 
-Problem is that ACPI needs driver model changes, and those affect APM
-too. But noone is using APM these days, so when something breaks
-there, it takes long to discover.
+What's wrong with Serge's patch?  I don't see any downside.
 
-So even someone testing APM at regular (like every -rc and every -mm)
-basis would help...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+http://lkml.org/lkml/2004/12/29/59
+
+Lee
+

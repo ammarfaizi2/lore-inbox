@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265277AbUE0ViD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUE0Vqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUE0ViD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 17:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUE0ViD
+	id S265114AbUE0Vqc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 17:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUE0Vqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 17:38:03 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:51681 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S265277AbUE0Vh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 17:37:58 -0400
-Date: Thu, 27 May 2004 14:37:51 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Arjan van de Ven <arjanv@redhat.com>, Anton Blanchard <anton@samba.org>
-Cc: Thomas Zehetbauer <thomasz@hostmaster.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_IRQBALANCE for AMD64?
-Message-ID: <20040527213750.GB7772@taniwha.stupidest.org>
-References: <1085629714.6583.12.camel@hostmaster.org> <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org> <20040527170334.GE23262@krispykreme> <1085629714.6583.12.camel@hostmaster.org> <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org> <1085676625.7179.7.camel@laptop.fenrus.com>
+	Thu, 27 May 2004 17:46:32 -0400
+Received: from main.gmane.org ([80.91.224.249]:3727 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265325AbUE0Vqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 17:46:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: nvidia not working on 2.6.6-bk5+ (x86-64) ?
+Date: Thu, 27 May 2004 23:45:20 +0200
+Message-ID: <c95njk$v62$1@sea.gmane.org>
+References: <pan.2004.05.22.14.08.33.254151@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040527170334.GE23262@krispykreme> <1085676625.7179.7.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9ee3ea7.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.2) Gecko/20040426
+X-Accept-Language: de, en
+In-Reply-To: <pan.2004.05.22.14.08.33.254151@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 06:50:25PM +0200, Arjan van de Ven wrote:
+> the nvidia driver works fine on 2.6.6 but causes x to freeze on startup
+> with 2.6.6-bk5+ (haven't tried -bk[1234]). the nv driver works. i first
+> thought of the 4kstacks issue,but they are i386 only and the patch doesn't
+> affect x86-64. any ideas what might break nvidia?
 
-> irqbalanced has NOT been obsoleted by CONFIG_IRQBALANCE.
-
-On Fri, May 28, 2004 at 03:03:34AM +1000, Anton Blanchard wrote:
-
-> > Seems to work, just like the i386 irqbalanced before it has been
-> > obsoleted by CONFIG_IRQBALANCE
->
-> No, CONFIG_IRQBALANCE is an x86 specific hack.
+i have the same problem with 2.6.7-rc1. 2.6.6 works fine. (both kernels 
+without any patches)
 
 
-
-Why do we have CONFIG_IRQBALANCE at all then?
-
-
-
-  --cw

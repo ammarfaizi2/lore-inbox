@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264781AbSJOSmt>; Tue, 15 Oct 2002 14:42:49 -0400
+	id <S264698AbSJOSns>; Tue, 15 Oct 2002 14:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264827AbSJOSmt>; Tue, 15 Oct 2002 14:42:49 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:23773 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264781AbSJOSms>;
-	Tue, 15 Oct 2002 14:42:48 -0400
-Subject: [PATCH] compile fix for dmi_scan.c in 2.4.bk-current
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Oct 2002 11:40:53 -0700
-Message-Id: <1034707253.19093.174.camel@cog>
+	id <S264823AbSJOSns>; Tue, 15 Oct 2002 14:43:48 -0400
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:46720
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP
+	id <S264698AbSJOSnr>; Tue, 15 Oct 2002 14:43:47 -0400
+Message-Id: <200210151849.g9FInbur002088@orion.dwf.com>
+X-Mailer: exmh version 2.5 07/25/2002 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+From: clemens@dwf.com
+Subject: What kernels 2.4.x 2.5.x compile gcc3.2???
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Oct 2002 12:49:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, 
-	Saw you've inc'ed the EXTRAVERSION in bk, so I figured I should send
-this fix to you before you mailed out pre11.
+The subject just about says it.
+What versions of 2.4.x and 2.5.x compile cleanly with
+the new gcc 3.2 that is included in most recent releases
+(in particular RH8.0)
 
-I'm not sure if its the "proper" fix, but solves:
-
-arch/i386/kernel/kernel.o: In function `fix_broken_hp_bios_irq9':
-arch/i386/kernel/kernel.o(.text.init+0x3601): undefined reference to
-`broken_hp_bios_irq9'
-arch/i386/kernel/kernel.o(.text.init+0x3614): undefined reference to
-`broken_hp_bios_irq9'
-
-thanks
--john
-
-PS: agpgart seems broken as well, but I don't normally build w/ it, so
-I'll leave the fix to someone who knows what they're doing.
+The 2.4.18-14 kernel sources from RH have LOTS of patches,
+and they (well the modules) still dont compile with their
+own config file (sigh).
 
 
---- 1.26/arch/i386/kernel/dmi_scan.c    Thu Oct 10 16:12:50 2002
-+++ edited/arch/i386/kernel/dmi_scan.c  Tue Oct 15 00:55:36 2002
-@@ -492,7 +492,7 @@
- static __init int fix_broken_hp_bios_irq9(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_PCI
--       extern int broken_hp_bios_irq9;
-+       int broken_hp_bios_irq9;
-        if (broken_hp_bios_irq9 == 0)
-        {
-                broken_hp_bios_irq9 = 1;
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
 
 

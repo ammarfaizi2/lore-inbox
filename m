@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264734AbSJ3Tkv>; Wed, 30 Oct 2002 14:40:51 -0500
+	id <S264881AbSJ3T7B>; Wed, 30 Oct 2002 14:59:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264873AbSJ3Tku>; Wed, 30 Oct 2002 14:40:50 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:57582 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264734AbSJ3Th5>;
-	Wed, 30 Oct 2002 14:37:57 -0500
-Message-ID: <3DC0362D.C8F2D2EC@mvista.com>
-Date: Wed, 30 Oct 2002 11:42:37 -0800
+	id <S264904AbSJ3T7A>; Wed, 30 Oct 2002 14:59:00 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16628 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264881AbSJ3Tvu>;
+	Wed, 30 Oct 2002 14:51:50 -0500
+Message-ID: <3DC03981.EEFE4C86@mvista.com>
+Date: Wed, 30 Oct 2002 11:56:49 -0800
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
@@ -16,16 +16,18 @@ MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 9
 Content-Type: multipart/mixed;
- boundary="------------73CAAD768B5F822A1B037458"
+ boundary="------------A5E49CCC5B5399AB1A956094"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This is a multi-part message in MIME format.
---------------73CAAD768B5F822A1B037458
+--------------A5E49CCC5B5399AB1A956094
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
+Amd me with a slow up link.  Dum dum dum!!  Correct patch is
+attached.
 
 This patch, in conjunction with the "core" high-res-timers
 patch implements high resolution timers on the i386
@@ -73,16 +75,16 @@ High-res-timers:
 http://sourceforge.net/projects/high-res-timers/
 Preemption patch:
 http://www.kernel.org/pub/linux/kernel/people/rml
---------------73CAAD768B5F822A1B037458
+--------------A5E49CCC5B5399AB1A956094
 Content-Type: text/plain; charset=us-ascii;
- name="hrtimers-i386-2.5.44-bk3-1.0.patch"
+ name="hrtimers-i386-2.5.44-bk3-1.1.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="hrtimers-i386-2.5.44-bk3-1.0.patch"
+ filename="hrtimers-i386-2.5.44-bk3-1.1.patch"
 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/Config.help linux/arch/i386/Config.help
---- linux-2.5.44-bk2-core/arch/i386/Config.help	Tue Oct 22 14:24:38 2002
-+++ linux/arch/i386/Config.help	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/Config.help linux/arch/i386/Config.help
+--- linux-2.5.44-bk3-core/arch/i386/Config.help	Tue Oct 22 14:24:38 2002
++++ linux/arch/i386/Config.help	Wed Oct 30 10:45:25 2002
 @@ -52,6 +52,75 @@
    Say Y here if you are building a kernel for a desktop, embedded
    or real-time system.  Say N if you are unsure.
@@ -159,10 +161,10 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  CONFIG_X86
    This is Linux's home port.  Linux was originally native to the Intel
    386, and runs on all the later x86 processors including the Intel
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/config.in linux/arch/i386/config.in
---- linux-2.5.44-bk2-core/arch/i386/config.in	Wed Oct 30 01:59:51 2002
-+++ linux/arch/i386/config.in	Wed Oct 30 02:06:23 2002
-@@ -156,6 +156,23 @@
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.44-bk3-core/arch/i386/config.in	Wed Oct 30 10:12:20 2002
++++ linux/arch/i386/config.in	Wed Oct 30 10:45:25 2002
+@@ -159,6 +159,23 @@
  bool 'Huge TLB Page Support' CONFIG_HUGETLB_PAGE
  
  bool 'Symmetric multi-processing support' CONFIG_SMP
@@ -186,7 +188,7 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  bool 'Preemptible Kernel' CONFIG_PREEMPT
  if [ "$CONFIG_SMP" != "y" ]; then
     bool 'Local APIC support on uniprocessors' CONFIG_X86_UP_APIC
-@@ -355,6 +372,7 @@
+@@ -358,6 +375,7 @@
  else
     define_bool CONFIG_BLK_DEV_HD n
  fi
@@ -194,9 +196,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  endmenu
  
  mainmenu_option next_comment
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/apic.c linux/arch/i386/kernel/apic.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/apic.c	Wed Oct 16 00:17:47 2002
-+++ linux/arch/i386/kernel/apic.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/apic.c linux/arch/i386/kernel/apic.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/apic.c	Wed Oct 16 00:17:47 2002
++++ linux/arch/i386/kernel/apic.c	Wed Oct 30 10:45:25 2002
 @@ -800,7 +800,7 @@
   * P5 APIC double write bug.
   */
@@ -242,9 +244,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  
  #ifdef CONFIG_SMP
  		update_process_times(user_mode(regs));
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/time.c	Wed Oct 30 02:00:56 2002
-+++ linux/arch/i386/kernel/time.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/time.c	Wed Oct 30 10:38:01 2002
++++ linux/arch/i386/kernel/time.c	Wed Oct 30 10:45:25 2002
 @@ -29,7 +29,10 @@
   *	Fixed a xtime SMP race (we need the xtime_lock rw spinlock to
   *	serialize accesses to xtime/lost_ticks).
@@ -447,9 +449,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  
  
  	timer = select_timer();
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/Makefile linux/arch/i386/kernel/timers/Makefile
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/Makefile	Tue Oct 15 15:42:24 2002
-+++ linux/arch/i386/kernel/timers/Makefile	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/Makefile linux/arch/i386/kernel/timers/Makefile
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/Makefile	Tue Oct 15 15:42:24 2002
++++ linux/arch/i386/kernel/timers/Makefile	Wed Oct 30 10:45:25 2002
 @@ -6,6 +6,12 @@
  
  obj-y += timer_tsc.o
@@ -463,9 +465,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
 +obj-$(CONFIG_HIGH_RES_TIMER_PIT) += hrtimer_pit.o
  
  include $(TOPDIR)/Rules.make
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/high-res-tbxfroot.c linux/arch/i386/kernel/timers/high-res-tbxfroot.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/high-res-tbxfroot.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/high-res-tbxfroot.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/high-res-tbxfroot.c linux/arch/i386/kernel/timers/high-res-tbxfroot.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/high-res-tbxfroot.c	Wed Dec 31 16:00:00 1969
++++ linux/arch/i386/kernel/timers/high-res-tbxfroot.c	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,273 @@
 +/******************************************************************************
 + *
@@ -740,9 +742,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
 +        }
 +}
 +#endif
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_pit.c linux/arch/i386/kernel/timers/hrtimer_pit.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_pit.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_pit.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_pit.c linux/arch/i386/kernel/timers/hrtimer_pit.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_pit.c	Wed Dec 31 16:00:00 1969
++++ linux/arch/i386/kernel/timers/hrtimer_pit.c	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,163 @@
 +/*
 + * This code largely moved from arch/i386/kernel/time.c.
@@ -907,9 +909,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
 +	.mark_offset =	high_res_mark_offset_pit, 
 +	.get_offset =	do_highres_gettimeoffset_pit,
 +};
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_pm.c linux/arch/i386/kernel/timers/hrtimer_pm.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_pm.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_pm.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_pm.c linux/arch/i386/kernel/timers/hrtimer_pm.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_pm.c	Wed Dec 31 16:00:00 1969
++++ linux/arch/i386/kernel/timers/hrtimer_pm.c	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,196 @@
 +/*
 + * This code largely moved from arch/i386/kernel/time.c.
@@ -1107,9 +1109,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
 +	.mark_offset =	high_res_mark_offset_pm, 
 +	.get_offset =	do_highres_gettimeoffset_pm,
 +};
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_tsc.c linux/arch/i386/kernel/timers/hrtimer_tsc.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/hrtimer_tsc.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/timers/hrtimer_tsc.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_tsc.c linux/arch/i386/kernel/timers/hrtimer_tsc.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/hrtimer_tsc.c	Wed Dec 31 16:00:00 1969
++++ linux/arch/i386/kernel/timers/hrtimer_tsc.c	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,288 @@
 +/*
 + * This code largely moved from arch/i386/kernel/time.c.
@@ -1399,9 +1401,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
 +	.mark_offset =	high_res_mark_offset_tsc, 
 +	.get_offset =	do_highres_gettimeoffset,
 +};
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer.c linux/arch/i386/kernel/timers/timer.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer.c	Tue Oct 15 15:42:24 2002
-+++ linux/arch/i386/kernel/timers/timer.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer.c linux/arch/i386/kernel/timers/timer.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer.c	Tue Oct 15 15:42:24 2002
++++ linux/arch/i386/kernel/timers/timer.c	Wed Oct 30 10:45:25 2002
 @@ -1,15 +1,32 @@
  #include <linux/kernel.h>
 +#include <linux/hrtime.h>
@@ -1436,9 +1438,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  #endif
  	NULL,
  };
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer_pit.c linux/arch/i386/kernel/timers/timer_pit.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer_pit.c	Tue Oct 15 15:42:24 2002
-+++ linux/arch/i386/kernel/timers/timer_pit.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer_pit.c linux/arch/i386/kernel/timers/timer_pit.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer_pit.c	Tue Oct 15 15:42:24 2002
++++ linux/arch/i386/kernel/timers/timer_pit.c	Wed Oct 30 10:45:25 2002
 @@ -9,6 +9,7 @@
  #include <asm/mpspec.h>
  #include <asm/timer.h>
@@ -1447,9 +1449,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  
  extern spinlock_t i8259A_lock;
  extern spinlock_t i8253_lock;
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer_tsc.c linux/arch/i386/kernel/timers/timer_tsc.c
---- linux-2.5.44-bk2-core/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 30 02:00:56 2002
-+++ linux/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer_tsc.c linux/arch/i386/kernel/timers/timer_tsc.c
+--- linux-2.5.44-bk3-core/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 30 10:38:01 2002
++++ linux/arch/i386/kernel/timers/timer_tsc.c	Wed Oct 30 10:45:25 2002
 @@ -26,7 +26,7 @@
   * Equal to 2^32 * (1 / (clocks per usec) ).
   * Initialized in time_init.
@@ -1459,9 +1461,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  
  static unsigned long get_offset_tsc(void)
  {
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/i386/mach-generic/do_timer.h linux/arch/i386/mach-generic/do_timer.h
---- linux-2.5.44-bk2-core/arch/i386/mach-generic/do_timer.h	Wed Oct 16 00:17:47 2002
-+++ linux/arch/i386/mach-generic/do_timer.h	Wed Oct 30 02:06:23 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/arch/i386/mach-generic/do_timer.h linux/arch/i386/mach-generic/do_timer.h
+--- linux-2.5.44-bk3-core/arch/i386/mach-generic/do_timer.h	Wed Oct 16 00:17:47 2002
++++ linux/arch/i386/mach-generic/do_timer.h	Wed Oct 30 10:45:25 2002
 @@ -14,6 +14,11 @@
  static inline void do_timer_interrupt_hook(struct pt_regs *regs)
  {
@@ -1474,9 +1476,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/arch/
  /*
   * In the SMP case we use the local APIC timer interrupt to do the
   * profiling, except when we simulate SMP mode on a uniprocessor
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/hrtime-M386.h linux/include/asm-i386/hrtime-M386.h
---- linux-2.5.44-bk2-core/include/asm-i386/hrtime-M386.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M386.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/hrtime-M386.h linux/include/asm-i386/hrtime-M386.h
+--- linux-2.5.44-bk3-core/include/asm-i386/hrtime-M386.h	Wed Dec 31 16:00:00 1969
++++ linux/include/asm-i386/hrtime-M386.h	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,247 @@
 +/*
 + *
@@ -1725,9 +1727,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
 +#endif /* __KERNEL__ */
 +#endif /* _ASM_HRTIME_M386_H */
 +
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/hrtime-M586.h linux/include/asm-i386/hrtime-M586.h
---- linux-2.5.44-bk2-core/include/asm-i386/hrtime-M586.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M586.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/hrtime-M586.h linux/include/asm-i386/hrtime-M586.h
+--- linux-2.5.44-bk3-core/include/asm-i386/hrtime-M586.h	Wed Dec 31 16:00:00 1969
++++ linux/include/asm-i386/hrtime-M586.h	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,165 @@
 +/*
 + * UTIME: On-demand Microsecond Resolution Timers
@@ -1894,9 +1896,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
 +#endif   /* _INCLUDED_FROM_HRTIME_C */
 +#endif				/* __KERNEL__ */
 +#endif				/* _ASM_HRTIME-M586_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/hrtime-Macpi.h linux/include/asm-i386/hrtime-Macpi.h
---- linux-2.5.44-bk2-core/include/asm-i386/hrtime-Macpi.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-Macpi.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/hrtime-Macpi.h linux/include/asm-i386/hrtime-Macpi.h
+--- linux-2.5.44-bk3-core/include/asm-i386/hrtime-Macpi.h	Wed Dec 31 16:00:00 1969
++++ linux/include/asm-i386/hrtime-Macpi.h	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,184 @@
 +/*
 + *
@@ -2082,9 +2084,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
 + */
 +#endif				/* __KERNEL__ */
 +#endif				/* _ASM_HRTIME-Mapic_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/hrtime.h linux/include/asm-i386/hrtime.h
---- linux-2.5.44-bk2-core/include/asm-i386/hrtime.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/hrtime.h linux/include/asm-i386/hrtime.h
+--- linux-2.5.44-bk3-core/include/asm-i386/hrtime.h	Wed Dec 31 16:00:00 1969
++++ linux/include/asm-i386/hrtime.h	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,486 @@
 +/*
 + *
@@ -2572,9 +2574,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
 +#endif                          /* not CONFIG_HIGH_RES_TIMER_PIT */
 +#endif				/* __KERNEL__ */
 +#endif				/* _I386_HRTIME_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/sc_math.h linux/include/asm-i386/sc_math.h
---- linux-2.5.44-bk2-core/include/asm-i386/sc_math.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/sc_math.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/sc_math.h linux/include/asm-i386/sc_math.h
+--- linux-2.5.44-bk3-core/include/asm-i386/sc_math.h	Wed Dec 31 16:00:00 1969
++++ linux/include/asm-i386/sc_math.h	Wed Oct 30 10:45:25 2002
 @@ -0,0 +1,143 @@
 +#ifndef SC_MATH
 +#define SC_MATH
@@ -2719,9 +2721,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
 +}
 +
 +#endif
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/include/asm-i386/signal.h linux/include/asm-i386/signal.h
---- linux-2.5.44-bk2-core/include/asm-i386/signal.h	Wed Oct 30 02:00:56 2002
-+++ linux/include/asm-i386/signal.h	Wed Oct 30 02:06:24 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/include/asm-i386/signal.h linux/include/asm-i386/signal.h
+--- linux-2.5.44-bk3-core/include/asm-i386/signal.h	Wed Oct 30 10:38:01 2002
++++ linux/include/asm-i386/signal.h	Wed Oct 30 10:45:25 2002
 @@ -3,6 +3,8 @@
  
  #include <linux/types.h>
@@ -2731,9 +2733,9 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/inclu
  
  /* Avoid too many header ordering problems.  */
  struct siginfo;
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/kernel/posix-timers.c linux/kernel/posix-timers.c
---- linux-2.5.44-bk2-core/kernel/posix-timers.c	Wed Oct 30 02:00:56 2002
-+++ linux/kernel/posix-timers.c	Wed Oct 30 02:06:25 2002
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-core/kernel/posix-timers.c linux/kernel/posix-timers.c
+--- linux-2.5.44-bk3-core/kernel/posix-timers.c	Wed Oct 30 10:38:01 2002
++++ linux/kernel/posix-timers.c	Wed Oct 30 10:45:25 2002
 @@ -186,6 +186,11 @@
  	unsigned long sec = tp->tv_sec;
  	long nsec = tp->tv_nsec + res - 1;
@@ -2747,5 +2749,5 @@ diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk2-core/kerne
  	 * A note on jiffy overflow: It is possible for the system to
  	 * have been up long enough for the jiffies quanity to overflow.
 
---------------73CAAD768B5F822A1B037458--
+--------------A5E49CCC5B5399AB1A956094--
 

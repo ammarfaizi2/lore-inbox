@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRHVGmQ>; Wed, 22 Aug 2001 02:42:16 -0400
+	id <S271946AbRHVGoH>; Wed, 22 Aug 2001 02:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271926AbRHVGmF>; Wed, 22 Aug 2001 02:42:05 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:1210 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S271906AbRHVGlw>; Wed, 22 Aug 2001 02:41:52 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: hugh@veritas.com (Hugh Dickins), andersee@debian.org (Erik Andersen),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-Subject: Re: [Patch] sysinfo compatibility
-In-Reply-To: <E15ZGRX-0008Qn-00@the-village.bc.nu>
-Organisation: SAP LinuxLab
-Date: 22 Aug 2001 08:40:32 +0200
-In-Reply-To: <E15ZGRX-0008Qn-00@the-village.bc.nu>
-Message-ID: <m3elq41tsv.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S271947AbRHVGn5>; Wed, 22 Aug 2001 02:43:57 -0400
+Received: from fe170.worldonline.dk ([212.54.64.199]:31243 "HELO
+	fe170.worldonline.dk") by vger.kernel.org with SMTP
+	id <S271946AbRHVGns>; Wed, 22 Aug 2001 02:43:48 -0400
+Date: Wed, 22 Aug 2001 08:46:49 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
+Message-ID: <20010822084649.F604@suse.de>
+In-Reply-To: <20010821195525.05d0f8bf.skraw@ithnet.com> <200108211833.f7LIXHY96688@aslan.scsiguy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+In-Reply-To: <200108211833.f7LIXHY96688@aslan.scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Tue, Aug 21 2001, Justin T. Gibbs wrote:
+> [...] Unfortunately the x86 port
+> doesn't support passing large dma addresses to drivers so bouncing is required
+> in order to do PAE.
 
-On Tue, 21 Aug 2001, Alan Cox wrote:
->> > There are callers who did add ram + swap
->> And that's a reason to break compatibility?
->  
-> We had to break compatibility anyway for 2.4
+With the PCI64 + highmem no-bounce patches it does, so feel free to
+convert aic7xxx to the newpci64 API :-)
 
-Only for machines with more than 4G swap or ram, not swap +
-ram. My patch addresses only this case where we did not fix anything
-(for the kernel space) but broke something. Please keep in mind that
-2-4 GB machines where quite common also for 2.2.
-
-Greetings
-		Christoph
-
+-- 
+Jens Axboe
 

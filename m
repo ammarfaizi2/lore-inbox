@@ -1,56 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264806AbTFQPuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 11:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264809AbTFQPuI
+	id S264809AbTFQPzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 11:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbTFQPzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 11:50:08 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:6959 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id S264806AbTFQPuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 11:50:05 -0400
-Date: Tue, 17 Jun 2003 18:03:15 +0200
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI broken... again!
-Message-ID: <20030617160315.GA19560@poupinou.org>
-References: <20030617144443.GA27558@codeblau.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030617144443.GA27558@codeblau.de>
-User-Agent: Mutt/1.5.4i
-From: Ducrot Bruno <poup@poupinou.org>
+	Tue, 17 Jun 2003 11:55:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51213 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264809AbTFQPzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 11:55:04 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] VFS autmounter support
+Date: 17 Jun 2003 09:08:28 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bcneds$or6$1@cesium.transmeta.com>
+References: <6516.1055861757@warthog.warthog>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 04:44:43PM +0200, Felix von Leitner wrote:
-> Linux 2.5.70 and above have broken ACPI.  Again.  This is my fifth
-> machine on which I try ACPI, two notebooks and three desktops, chipsets
-> from Intel, VIA and SiS, no matter, ACPI still breaks 'em all.
+Followup to:  <6516.1055861757@warthog.warthog>
+By author:    David Howells <dhowells@redhat.com>
+In newsgroup: linux.dev.kernel
+>
 > 
-> The symptom is that eth0 does not see the others.  /proc/interrupts has
-> the correct interrupt listed, so it took me a while to suspect ACPI.
-> agpgart also crashes, and firewire and USB didn't find any devices.
+> Hi Linus, Al,
 > 
-> Why oh why is ACPI so horrendously broken?
+> The attached patch adds automounting support and mountpount expiry support to
+> the VFS.
 > 
-> And more to the point: if it _is_ this broken, why ship it at all?  I
-> don't recall a single moment where ACPI did anything good for me, only
-> crashes, data loss and general brokenness.  This may be a technology
-> fitting Microsoft and Intel PCs, but why give it even more leverage by
-> supporting it in Linux?  I say rip this abomination right out of the
-> kernel and be done with it.
+> This patch involves the adding the following features:
+> 
+>  (1) A new dentry operation that (a) marks a dentry as being an automount
+>      point, and (b) gets called by the VFS to come up with a vfsmount
+>      structure which the VFS then stitches into the mount tree fabric at the
+>      appropriate place.
+> 
+>  (2) A new lookup flag that is used by sys_*stat() to prevent automounting of
+>      the path endpoint. This means "ls -l" in an automounter directory doesn't
+>      cause a mount storm, but will display all the mountpoints in that
+>      directory as subdirectories (either the underlying mountpoint dir or the
+>      root dir of the mounted fs if the mountpoint has been triggered already).
+> 
+>  (3) do_kern_mount() is now exported.
+> 
+>  (4) The vfsmount structure has acquired, amongst other things, a timeout
+>      field. If mntput() notices a vfsmount reach a usage count of 1, then the
+>      vfsmount expiry time is set and the namespace that contains the vfsmount
+>      has its expiration work chitty queued.
+> 
+>  (5) The namespace structure has acquired a work struct that is used to
+>      actually perform vfsmount expiry under process context.
 > 
 
-Then how do you manage if one day you go with a64?
-Do you have laptops with via chipsets?  If yes, do you
-have overheat issues without acpi?  Ok, acpi is not stable for
-you, but have you at least tryed a 2.4 kernels with
-latest patches from sf.net/projects/acpi, or a 2.4 ac kernels?
+This seems a bit heavyweight; although some VFS support is needed for
+a complex filesystem, effectively doing it all in the kernel (#3)
+seems a bit... excessive.
 
+At least #2 can be done with existing means using follow_link.
+
+I think using a revalidation pointer like dentries might be a better
+way to do #4/#5, although using the existing one in the dentries is
+probably better.
+
+#1 isn't really clear to me what you're going for, but it seems to be
+to duplicate bookkeeping.
+
+I also don't see how this solves the biggest problems with complex
+automounts, which are:
+
+a) how to guarantee that a large mount tree can be safely destroyed;
+b) how to detect partial unmounts.
+
+	-hpa
 -- 
-Ducrot Bruno
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

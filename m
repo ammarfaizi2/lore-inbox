@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbTIOQ5W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 12:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTIOQ5W
+	id S261554AbTIORG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 13:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTIORG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 12:57:22 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:46096 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261563AbTIOQ5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 12:57:17 -0400
-Date: Mon, 15 Sep 2003 13:59:28 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, rusty@rustcorp.com.au
-Subject: Re: 2.6.0-test5-mm2
-Message-ID: <20030915165928.GC1142@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, rusty@rustcorp.com.au
-References: <20030914234843.20cea5b3.akpm@osdl.org> <1063636490.5588.10.camel@lorien>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063636490.5588.10.camel@lorien>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Mon, 15 Sep 2003 13:06:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61597 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261554AbTIORG0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 13:06:26 -0400
+Date: Mon, 15 Sep 2003 10:03:14 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Joshua Kwan <joshk@triplehelix.org>
+cc: <linux-kernel@vger.kernel.org>, <pavel@ucw.cz>
+Subject: Re: Swsusp weirdness with ACPI
+In-Reply-To: <20030913210722.GA264@anemic>
+Message-ID: <Pine.LNX.4.33.0309150955360.950-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Sep 15, 2003 at 11:34:51AM -0300, Luiz Capitulino escreveu:
-> #ifdef CONFIG_NETFILTER_DEBUG
->         nf_debug_ip_local_deliver(skb);
->         skb->nf_debug =3D 0;
-                         ^^
 
-Fixed in DaveM's tree, this kind of messages should be posted to the netfilter
-and/or netdev mailing lists.
+> Here is my /proc/acpi/sleep:
+> S0 S3 S4 S4bios S5
+> 
+> - 0 doesn't seem to do anything.
 
-- Arnaldo
+0 is 'On'. It will not do anything. 
+
+> - 3 will ONLY 'suspend' my laptop if all my USB devices are disconnected
+>   and I have removed my PCMCIA cards.
+
+Do you physically have to remove the devices or can you simply remove the 
+modules? 
+
+>   Furthermore, it won't resume. The fan will spin up, etc., but the LCD
+>   will not turn on.
+
+Noted. This is a common problem that we're trying to get to the bottom of. 
+
+
+> - 4 nearly works. When it's suspending there will be an oops that flies
+>   by too quickly to read. It will turn off though, but when I reboot it,
+>   my swap partition will have been hosed:
+> 
+>   "Unable to find swap-space signature" when trying to swapon
+>   
+>   "PM: Reading swsusp image.
+>   swsusp: Resume From partition: hda7, Device: unknown-block(0,0)
+>   Resume Machine: Error -6 resuming
+>   PM: Resume from disk failed." when I try to resume.
+> 
+>   I have to mkswap it again for stuff to work.
+
+Interesting. That backtrace and the cause (whether it's an actual Oops, a 
+BUG() or a WARN_ON()) is important. Is there anyway you could hook up a 
+serial console to capture the output? 
+
+Also, if you're willing, I would recommend trying 2.6.0-test5-mm2, which
+will allow you to try the original swsusp code (via /proc/acpi/sleep)
+independently of the more recent suspend-to-disk code (via 
+/sys/power/state).
+
+Thanks,
+
+
+	Pat
+

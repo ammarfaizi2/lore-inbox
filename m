@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSGPKa0>; Tue, 16 Jul 2002 06:30:26 -0400
+	id <S313087AbSGPKey>; Tue, 16 Jul 2002 06:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSGPKaZ>; Tue, 16 Jul 2002 06:30:25 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:27275 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S313687AbSGPKaZ>; Tue, 16 Jul 2002 06:30:25 -0400
-Date: 16 Jul 2002 11:17:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8S-HwBiHw-B@khms.westfalen.de>
-In-Reply-To: <200207111921.g6BJLtI459123@saturn.cs.uml.edu>
-Subject: Re: HZ, preferably as small as possible
-X-Mailer: CrossPoint v3.12d.kh9 R/C435
-MIME-Version: 1.0
+	id <S313867AbSGPKex>; Tue, 16 Jul 2002 06:34:53 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:4818 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S313087AbSGPKew>; Tue, 16 Jul 2002 06:34:52 -0400
+Date: Tue, 16 Jul 2002 12:16:38 +0200
+From: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020716121637.A223@linux-m68k.org>
+References: <200207151307.g6FD7DJ1020676@burner.fokus.gmd.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <3D2DBB7B.9020600@evision-ventures.com> <200207111921.g6BJLtI459123@saturn.cs.uml.edu>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207151307.g6FD7DJ1020676@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Mon, Jul 15, 2002 at 03:07:13PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-acahalan@cs.uml.edu (Albert D. Cahalan)  wrote on 11.07.02 in <200207111921.g6BJLtI459123@saturn.cs.uml.edu>:
+On Mon, Jul 15, 2002 at 03:07:13PM +0200, Joerg Schilling wrote:
+> 
+> >From: Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+> 
+> >> >There is another problem, with your scsi transport library you
+> >> >are bypassing normal Linux devices. Try
+> >> >  mount /dev/scd0 /mnt
+> >> >  cdrecord -dev 0,0,0 -blank=fast
+> >> >  ls -al /mnt
+> >> 
+> >> >Nice? It certainly isn't the fault of Linux if you choose to
+> >> >bypass normal device usage and it can be very annoying not
+> >> >only for beginners.
+> >> 
+> >> It is not a fault of cdrecord either.
+> 
+> >A cure would be nice and I don't see what the kernel could do
+> >to solve this problem as long as cdrecord insists on talking
+> >to the SCSI bus directly.
+> 
+> >If nothing else, cdrecord manpage
+> > - should make a big fat warning about it
+> > - should stop claiming that it is safe to suid cdrecord
+> 
+> >The potential for breakage is huge, people run automounters on CD's,
+> >file managers may try to mount the CD without asking the user.
+> 
+> The bad news is that it seems that the automounters are part of the GUIs and 
+> not well enough documented. There should be:
+> 
+> -	Something like the Solaris volume manager that is part of the base OS 
+> 	and kernel folks should forbid GUI folks to add such tasks to the GUI
 
-> Hell yes. It's going to remain evil until the 2.4 kernel
-> is a distant memory. Debian uses a 2.2 kernel in the
-> upcoming release, so it will be a good long time until
-> everyone is using a 2.6 kernel. When 2.8 comes out,
-> Debian will finally stop using 2.4 and I can get rid of
-> my evil hack.
+Solaris vold? Thanks no, floppy access was so easy in SunOS before the 
+days of the volume manager.
 
-Currently, the upcoming version has 4 2.2.20 kernels, 7 2.4.16 kernels,  
-and 7 2.4.18 kernels.
+> -	The volume manager should have a documented interface that allows 
+> 	programs like e.g. cdrecord to gain exclusive access to a CD drive.
 
+much simpler, cdrom driver needs an ioctl to claim exclusive use of
+the device and cdrecord than needs to use that ioctl.
 
-MfG Kai
+Richard

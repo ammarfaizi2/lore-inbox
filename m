@@ -1,139 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbUBXGrI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 01:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUBXGrI
+	id S262189AbUBXGxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 01:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXGxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 01:47:08 -0500
-Received: from [217.7.64.198] ([217.7.64.198]:22672 "EHLO mx1.net4u.de")
-	by vger.kernel.org with ESMTP id S262187AbUBXGrA (ORCPT
+	Tue, 24 Feb 2004 01:53:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10886 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262189AbUBXGxc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 01:47:00 -0500
-From: Ernst Herzberg <earny@net4u.de>
-Reply-To: earny@net4u.de
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.3: tg3: can't set full duplex
-Date: Tue, 24 Feb 2004 07:46:58 +0100
-User-Agent: KMail/1.6
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 24 Feb 2004 01:53:32 -0500
+Date: Mon, 23 Feb 2004 22:53:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: rathamahata@php4.ru, linux-kernel@vger.kernel.org, gluk@php4.ru,
+       anton@megashop.ru
+Subject: Re: 2.6.1 IO lockup on SMP systems
+Message-Id: <20040223225337.217447be.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58L.0402240357350.6209@logos.cnet>
+References: <200401311940.28078.rathamahata@php4.ru>
+	<20040221113044.7deb60b9.akpm@osdl.org>
+	<200402222039.58702.gluk@php4.ru>
+	<200402232027.26958.rathamahata@php4.ru>
+	<20040223142626.48938d7c.akpm@osdl.org>
+	<Pine.LNX.4.58L.0402240357350.6209@logos.cnet>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402240746.58494.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+>  > Also, run
+>  >
+>  > 	while true
+>  > 	do
+>  > 		cat /proc/meminfo
+>  > 		sleep 10
+>  > 	done
+>  >
+>  > and record the info which that leaves behind when the machine locks up.
+>  > This should tell us whether it is an application or kernel memory leak.  If
+>  > it is indeed a leak.
+> 
+>  Hi Andrew,
+> 
+>  Care to explain me why should the kernel hang if due to an application
+>  leak ?
 
-Moin.
+It shouldn't - the oom killer should have done something.  But we'll
+address that once we've confirmed that something really is leaking.
 
-tweaky ~ # dmesg | tail
-Mounted devfs on /dev
-Freeing unused kernel memory: 156k freed
-Adding 2000084k swap on /dev/sda2.  Priority:-1 extents:1
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-tg3: eth0: Link is up at 100 Mbps, half duplex.
-tg3: eth0: Flow control is off for TX and off for RX.
-tg3: eth1: Link is up at 1000 Mbps, full duplex.
-tg3: eth1: Flow control is on for TX and on for RX.
-tweaky ~ # ethtool eth0
-Settings for eth0:
-        Supported ports: [ MII ]
-        Supported link modes:   10baseT/Half 10baseT/Full
-                                100baseT/Half 100baseT/Full
-                                1000baseT/Half 1000baseT/Full
-        Supports auto-negotiation: Yes
-        Advertised link modes:  10baseT/Half 10baseT/Full
-                                100baseT/Half 100baseT/Full
-                                1000baseT/Half 1000baseT/Full
-        Advertised auto-negotiation: Yes
-        Speed: 100Mb/s
-        Duplex: Half
-        Port: Twisted Pair
-        PHYAD: 1
-        Transceiver: internal
-        Auto-negotiation: on
-        Supports Wake-on: g
-        Wake-on: d
-        Current message level: 0x000000ff (255)
-        Link detected: yes
-tweaky ~ # ethtool -s eth0 duplex full
-tweaky ~ # ethtool eth0
-Settings for eth0:
-        Supported ports: [ MII ]
-        Supported link modes:   10baseT/Half 10baseT/Full
-                                100baseT/Half 100baseT/Full
-                                1000baseT/Half 1000baseT/Full
-        Supports auto-negotiation: Yes
-        Advertised link modes:  10baseT/Half 10baseT/Full
-                                100baseT/Half 100baseT/Full
-                                1000baseT/Half 1000baseT/Full
-        Advertised auto-negotiation: Yes
-        Speed: 100Mb/s
-        Duplex: Half
-        Port: Twisted Pair
-        PHYAD: 1
-        Transceiver: internal
-        Auto-negotiation: on
-        Supports Wake-on: g
-        Wake-on: d
-        Current message level: 0x000000ff (255)
-        Link detected: yes
-tweaky ~ # dmesg | tail
-Mounted devfs on /dev
-Freeing unused kernel memory: 156k freed
-Adding 2000084k swap on /dev/sda2.  Priority:-1 extents:1
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-tg3: eth0: Link is up at 100 Mbps, half duplex.
-tg3: eth0: Flow control is off for TX and off for RX.
-tg3: eth1: Link is up at 1000 Mbps, full duplex.
-tg3: eth1: Flow control is on for TX and on for RX.
+>  The hang looks wrong even if the leak is in userspace app, yes?
 
------------------
-
-Nothings happens. Was working with 2.4.21 
-
------------------
-
-tweaky ~ # ethtool
-ethtool version 1.7
-[..]
-
-tweaky ~ # lspci
-00:00.0 Host bridge: ServerWorks CMIC-HE (rev 22)
-00:00.1 Host bridge: ServerWorks CMIC-HE
-00:00.2 Host bridge: ServerWorks CMIC-HE
-00:00.3 Host bridge: ServerWorks CMIC-HE
-00:03.0 SCSI storage controller: Adaptec AIC-7892P U160/m (rev 02)
-00:04.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 Host bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 05)
-00:0f.3 ISA bridge: ServerWorks GCLE Host Bridge
-00:10.0 Host bridge: ServerWorks CIOB30 (rev 03)
-00:10.2 Host bridge: ServerWorks CIOB30 (rev 03)
-00:11.0 Host bridge: ServerWorks CIOB30 (rev 03)
-00:11.2 Host bridge: ServerWorks CIOB30 (rev 03)
-00:12.0 Host bridge: ServerWorks CIOB30 (rev 03)
-00:12.2 Host bridge: ServerWorks CIOB30 (rev 03)
-03:01.0 PCI bridge: Intel Corp. 21154 PCI-to-PCI Bridge
-04:00.0 PCI bridge: Intel Corp. 21154 PCI-to-PCI Bridge
-04:01.0 SCSI storage controller: QLogic Corp. ISP12160 Dual Channel Ultra3 
-SCSI Processor (rev 06)
-05:00.0 RAID bus controller: American Megatrends Inc. MegaRAID (rev 20)
-0a:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5700 Gigabit 
-Ethernet (rev 14)
-0a:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5700 Gigabit 
-Ethernet (rev 14)
-
----------------------------------
-
-
-Problem is: With this switch this card hangs sometimes if fullduplex is not 
-switched on. And the port on the Switch supports full duplex ;-)
-
-~Earny
+Probably, yes.

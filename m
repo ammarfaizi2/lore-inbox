@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279613AbRJ2XXk>; Mon, 29 Oct 2001 18:23:40 -0500
+	id <S279614AbRJ2XYk>; Mon, 29 Oct 2001 18:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279618AbRJ2XXU>; Mon, 29 Oct 2001 18:23:20 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:10674 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S279616AbRJ2XXL>; Mon, 29 Oct 2001 18:23:11 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Simon Kirby <sim@netnation.com>
-Date: Tue, 30 Oct 2001 11:23:49 +1100 (EST)
+	id <S279615AbRJ2XYc>; Mon, 29 Oct 2001 18:24:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10245 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279614AbRJ2XYT>; Mon, 29 Oct 2001 18:24:19 -0500
+Date: Mon, 29 Oct 2001 15:22:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: please revert bogus patch to vmscan.c
+In-Reply-To: <20011029.151422.102554141.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110291520260.16656-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15325.62229.637726.355892@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@ucw.cz>
-Subject: Re: Oops: Quota race in 2.4.12?
-In-Reply-To: message from Simon Kirby on Sunday October 28
-In-Reply-To: <20011028215818.A7887@netnation.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday October 28, sim@netnation.com wrote:
-> Some of our dual CPU web servers with 2.4.12 are Oopsing while running
-> quotacheck.  
+On Mon, 29 Oct 2001, David S. Miller wrote:
+>    Date: Mon, 29 Oct 2001 18:08:37 -0500
+>
+>    is completely bogus.  Without the tlb flush, the system may never update
+>    the accessed bit on a page that is heavily being used.
+>
+> It's intentional Ben, think about the high cost of the SMP invalidate
+> when kswapd is just scanning page tables.
 
-And speaking of quota oopses, I have had oops while enabling quota on
-an active filesystem (which admittedly isn't very smart, but shouldn't
-oops).
-I think the following patch fixes it for 2.4.13.  I had a quick look
-at the latest -ac code it doesn't have the same problem.
+Indeed. I thought it shouldn't mater, but apparently it does..
 
---------------------------------------------------------------------
-Avoid Oops when quotas turned on on active filesystem
+Does it make the accessed bit less reliable? Sure it does. But basically,
+either the page is accessed SO much that it stays in the TLB all the time
+(which is basically not really possible if you page heavily, I suspect),
+or it will age out of the TLB on its own at which point we get the
+accessed bit back.
 
-Current code
-  sets quotas-enabled flag
-  possibly blocks on dqget or dqput
-  then sets dq_op
+In the worst case it does generate more noise in the reference bit logic,
+but ..
 
-If other code call DQUOT_INIT (for example) during the block, it will oops.
+		Linus
 
-
---- ./fs/dquot.c	2001/10/30 00:17:23	1.1
-+++ ./fs/dquot.c	2001/10/30 00:18:26	1.2
-@@ -1363,6 +1363,7 @@
- 	inode->i_flags |= S_NOQUOTA;
- 
- 	dqopt->files[type] = f;
-+	sb->dq_op = &dquot_operations;
- 	set_enable_flags(dqopt, type);
- 
- 	dquot = dqget(sb, 0, type);
-@@ -1370,7 +1371,6 @@
- 	dqopt->block_expire[type] = (dquot != NODQUOT) ? dquot->dq_btime : MAX_DQ_TIME;
- 	dqput(dquot);
- 
--	sb->dq_op = &dquot_operations;
- 	add_dquot_ref(sb, type);
- 
- 	up(&dqopt->dqoff_sem);
-
-
--------------------------------------------------------------------

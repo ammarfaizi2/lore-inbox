@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbTARDmO>; Fri, 17 Jan 2003 22:42:14 -0500
+	id <S262258AbTARDyz>; Fri, 17 Jan 2003 22:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbTARDmO>; Fri, 17 Jan 2003 22:42:14 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:27870
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S262384AbTARDmN>; Fri, 17 Jan 2003 22:42:13 -0500
-Message-ID: <3E28CF26.6020202@redhat.com>
-Date: Sat, 18 Jan 2003 03:51:02 +0000
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030115
-X-Accept-Language: en-us, en
+	id <S262392AbTARDyy>; Fri, 17 Jan 2003 22:54:54 -0500
+Received: from [217.7.64.198] ([217.7.64.198]:49885 "EHLO mx1.net4u.de")
+	by vger.kernel.org with ESMTP id <S262258AbTARDyy>;
+	Fri, 17 Jan 2003 22:54:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ernst Herzberg <earny@net4u.de>
+Reply-To: earny@net4u.de
+To: John Cherry <cherry@osdl.org>
+Subject: Re: Linux 2.5.59
+Date: Sat, 18 Jan 2003 05:03:49 +0100
+User-Agent: KMail/1.4.3
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301161826430.8879-100000@penguin.transmeta.com> <1042822516.14996.10.camel@cherrypit.pdx.osdl.net>
+In-Reply-To: <1042822516.14996.10.camel@cherrypit.pdx.osdl.net>
+X-Message-Flag: Warning: May contain useful information
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Question about threads and signals
-References: <20030118032450.GA18282@bjl1.asuk.net>
-In-Reply-To: <20030118032450.GA18282@bjl1.asuk.net>
-X-Enigmail-Version: 0.72.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301180503.49525.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Freitag, 17. Januar 2003 17:55, John Cherry wrote:
 
-Jamie Lokier wrote:
+...
+> Compile statistics have been for kernel releases from 2.5.46 to 2.5.59
+> at: www.osdl.org/archive/cherry/stability
 
-> 1. If a signal is delivered to a thread, is it masked for the duration of
->    the handler in (a) just that thread or (b) all threads?
+think on old oldconfigs:
 
-(a)
+--- compregress.sh.old  2003-01-18 04:49:26.000000000 +0100
++++ compregress.sh      2003-01-18 04:51:17.000000000 +0100
+@@ -231,18 +231,16 @@
 
->    In other words, if I have 3 threads and SIGIO is not blocked in any
->    of them, is it possible for my SIGIO handler to be called up to 3
->    times concurrently?  Or is the blocked mask somehow shared?
+ if [ $HAS_OLDCONFIG == 1 ]; then
+   printf "   Making bzImage (oldconfig): "
++  STR="\n"
+   for x in 1 2 3 4 5 6 7 8 9 10; do
+-    echo "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" >> tmp_return
++    STR="$STR$STR"
+   done
+-  STR=`cat tmp_return`
+-  rm -f tmp_return
 
-Masks are never shared.
+   test -f .config && cp -f .config .config.bak
+   make mrproper > /dev/null 2>&1
+   test -f .config.bak && mv .config.bak .config
 
-
->    Is the same thing true of SIGCHLD?  SIGSEGV?
-
-Yes.  Up to the point where a fatal signal isn't caught and the process
-is killed.  At that point all threads except the one responsible for the
-termination is stopped and then terminated.
-
-
-> 2. Is this true of POSIX threads in general, or just Linux?
-
-Well, the above is what POSIX requires and what I think we've
-implemented.  These requirements are essential for programs which do
-much of their work in signal handlers.  Creating more threads which
-mainly just sit around but can react to signals is a valid programming
-model.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+KM8m2ijCOnn/RHQRAlcEAJ0W27Ju6gq4xhT7A0PGr2IJCGfp0ACfa2NY
-2mmvlgXLC2Xm8UYnU+rD6cE=
-=7eDw
------END PGP SIGNATURE-----
-
+   echo -e $STR | make oldconfig &> /dev/null
+-  echo -e $STR | make oldconfig &> /dev/null
+   make dep >> $KERNEL_OLDCONFIG 2>&1
+   make $MAKEOPT bzImage >> $KERNEL_OLDCONFIG 2>&1
+   WARN_COUNT=`egrep "warning:" $KERNEL_OLDCONFIG | wc -l`

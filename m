@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbVBCXEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVBCW6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbVBCXEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 18:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVBCXET
+	id S261185AbVBCW6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVBCWxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 18:04:19 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:55046 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S263174AbVBCXCf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 18:02:35 -0500
-Date: Thu, 3 Feb 2005 15:01:27 -0800
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050203230127.GA18378@nietzsche.lynx.com>
-References: <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <87is5ahpy1.fsf@sulphur.joq.us> <20050202211405.GA13941@nietzsche.lynx.com> <20050202212100.GA12808@elte.hu> <20050202213402.GB14023@nietzsche.lynx.com> <20050203214133.GA27956@elte.hu>
-Mime-Version: 1.0
+	Thu, 3 Feb 2005 17:53:42 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:12469 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261738AbVBCWmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 17:42:53 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050203214133.GA27956@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16898.43219.133783.439910@alkaid.it.uu.se>
+Date: Thu, 3 Feb 2005 23:42:27 +0100
+To: sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
+CC: linux-kernel@vger.kernel.org
+Subject: ext3 extended attributes refcounting wrong?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 10:41:33PM +0100, Ingo Molnar wrote:
-> * Bill Huey <bhuey@lnxw.com> wrote:
-> > It's clever that they do that, but additional control is needed in the
-> > future. jackd isn't the most sophisticate media app on this planet (not
-> > too much of an insult :)) [...]
-> 
-> i think you are underestimating Jack - it is easily amongst the most
-> sophisticated audio frameworks in existence, and it certainly has one of
-> the most robust designs. Just shop around on google for Jack-based audio
-> applications. What i'd love to see is more integration (and cooperation)
-> between the audio frameworks of desktop projects (KDE, Gnome) and Jack.
+I believe there is some accounting error in the ext3 code
+for the case when CONFIG_EXT3_FS_XATTR is not selected.
 
-This is a really long winded and long standing offtopic gripe I have with
-general application development under Linux. The only way I'm going to
-get folks to understand my position on it is if I code it up in my
-implementation language of choice with my own APIs.
+Whenever any one of my development boxes triggers an fsck
+at boot because some file system, usually /, has been mounted
+sufficiently many times, an inconsistency error occurs:
 
-There's a TON more that can be done with QoS in the kernel (EDL schedulers),
-DSP JIT compiler techniques and other kernel things that can support
-pro-audio. I simply can't get to yet until the RT patch has a few more
-goodies and I'm permitted to do this as my next project.
+Extended attribute block N has reference count M, should be M'.
 
-I had a crazy prototype of some DSP graph system (in C++) I wrote years
-ago for 3D audio where I'm drawing my knowledge from and it's getting
-time to resurrect it again if I'm going to provide a proof of concept
-to push an edge.
+where M' is much less than M. As I drop into single-user and
+run fsck, it finds at lot occurrences of this error, followed by:
 
-Also, think, people working with the RT patch are also ignoring frame
-accurate video and many others things that just haven't been done yet
-since the patch is so new and there hasn't been more interest from
-folks yet regarding it. I suspect that it's because that folks don't
-know about it yet.
+Block bitmap differences ...
 
-bill
+and then:
 
+Free blocks count wrong
+
+(always too low, i.e. I have more free blocks than the fs records).
+
+This occurs on all my boxes, with different CPUs (x86/x86-64/ppc)
+and different chipsets (Intel, Promise, VIA, Apple), and basically
+the only commonalities are:
+- they dual boot the most recent 2.4 and 2.6 kernels, and I switch often
+- all file systems are ext3
+- all XATTR stuff is disabled
+
+/Mikael

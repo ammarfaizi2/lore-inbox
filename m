@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264823AbSKJLmZ>; Sun, 10 Nov 2002 06:42:25 -0500
+	id <S264847AbSKJLwW>; Sun, 10 Nov 2002 06:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264819AbSKJLld>; Sun, 10 Nov 2002 06:41:33 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264816AbSKJLl3>;
-	Sun, 10 Nov 2002 06:41:29 -0500
-Date: Fri, 8 Nov 2002 11:42:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] CREDITS entry
-Message-ID: <20021108104206.GB3102@elf.ucw.cz>
-References: <Pine.LNX.4.44.0211050236050.27141-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211050236050.27141-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S264848AbSKJLwW>; Sun, 10 Nov 2002 06:52:22 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:19727 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S264847AbSKJLwV>; Sun, 10 Nov 2002 06:52:21 -0500
+Date: Sun, 10 Nov 2002 12:58:00 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: !(smbfs && O_LARGEFILE)
+In-Reply-To: <Pine.LNX.4.44.0211071832180.484-100000@filesrv1.baby-dragons.com>
+Message-ID: <Pine.LNX.4.44.0211101255050.8114-100000@cola.enlightnet.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 7 Nov 2002, Mr. James W. Laferriere wrote:
 
-> Index: linux-2.5.45-ac1/CREDITS
-> ===================================================================
-> RCS file: /build/cvsroot/linux-2.5.45-ac1/CREDITS,v
-> retrieving revision 1.1.1.1
-> diff -u -r1.1.1.1 CREDITS
-> --- linux-2.5.45-ac1/CREDITS	5 Nov 2002 04:46:15 -0000	1.1.1.1
-> +++ linux-2.5.45-ac1/CREDITS	5 Nov 2002 07:35:32 -0000
-> @@ -2226,6 +2226,15 @@
->  S: Lafayette, Indiana 47905
->  S: USA
->  
-> +N: Zwane Mwaikambo
-> +E: zwane@linuxpower.ca
-> +W: http://function.linuxpower.ca
-> +D: Various driver hacking
-> +D: Lowlevel x86 kernel hacking
-> +D: General debugging
-> +S: (ask for current address)
-> +S: Tanzania
-> +
+> 
+> 	Hello Urban ,  Have your 0[0-2]-smbfs-2.4.18-* &
+> 	smbfs-2.4.18-uid32.patch been put into 2.4.20-rc1 or
+> 	some simular version of them ?  My main concern it the
+> 	lfs(Large file support ???) .  Tia , JimL
 
-If you want people to ask for current address, just don't put any S:
-there...
+No. It's in 2.5 but I don't think it has been tested by enough people to 
+get into 2.4 yet.
 
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+/Urban
+

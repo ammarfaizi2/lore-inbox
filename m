@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275812AbSIUC3b>; Fri, 20 Sep 2002 22:29:31 -0400
+	id <S275814AbSIUCaT>; Fri, 20 Sep 2002 22:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275814AbSIUC3b>; Fri, 20 Sep 2002 22:29:31 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:30195 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S275812AbSIUC3S>; Fri, 20 Sep 2002 22:29:18 -0400
-Date: Fri, 20 Sep 2002 22:34:24 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-ns83820@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] ns83820.c v0.20 -- a brown paper bag edition
-Message-ID: <20020920223424.B30874@redhat.com>
+	id <S275815AbSIUCaS>; Fri, 20 Sep 2002 22:30:18 -0400
+Received: from n1x6.imsa.edu ([143.195.1.6]:8337 "EHLO mail.imsa.edu")
+	by vger.kernel.org with ESMTP id <S275814AbSIUC3n>;
+	Fri, 20 Sep 2002 22:29:43 -0400
+Date: Fri, 20 Sep 2002 21:34:50 -0500
+From: Maciej Babinski <maciej@imsa.edu>
+To: linux-kernel@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Subject: PROBLEM: 2.5.37 IDE boot hang
+Message-ID: <20020920213450.A10144@imsa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,1123 +19,995 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Marcelo et al,
-
-Ummm, I screwed up.  The v0.19 patch for ns83820.c I sent yesterday killed 
-the ability of the driver to receive packets.  Instead, apply this shiny 
-new ns83820.c v0.20 patch that has all the amazing goodness of 0.19, plus 
-the ability to receive packets!
-
-		-ben (who probably needs to go do something 
-		      normal people consider fun now)
--- 
-GMS rules.  Really!
+Hello, with kernel 2.5.37, I get the following messages on boot,
+and nearly immediately after init starts running starup scripts,
+the system hangs with no error message. The last thing I see is
+devfsd starting up, right at the top of the boot scripts.  I have
+two ide disks (hda and hdc), as well as a cdrom drive (hdd).
 
 
-diff -urN v2.4.20-pre7/drivers/net/ns83820.c test-pre7/drivers/net/ns83820.c
---- v2.4.20-pre7/drivers/net/ns83820.c	Fri Aug  9 13:49:47 2002
-+++ test-pre7/drivers/net/ns83820.c	Fri Sep 20 23:20:32 2002
-@@ -1,9 +1,9 @@
--#define _VERSION "0.18"
-+#define _VERSION "0.20"
- /* ns83820.c by Benjamin LaHaise with contributions.
-  *
-  * Questions/comments/discussion to linux-ns83820@kvack.org.
-  *
-- * $Revision: 1.34.2.16 $
-+ * $Revision: 1.34.2.23 $
-  *
-  * Copyright 2001 Benjamin LaHaise.
-  * Copyright 2001, 2002 Red Hat.
-@@ -57,6 +57,12 @@
-  *	20020310	0.17	speedups
-  *	20020610	0.18 -	actually use the pci dma api for highmem
-  *			     -	remove pci latency register fiddling
-+ *			0.19 -	better bist support
-+ *			     -	add ihr and reset_phy parameters
-+ *			     -	gmii bus probing
-+ *			     -	fix missed txok introduced during performance
-+ *				tuning
-+ *			0.20 -	fix stupid RFEN thinko.  i am such a smurf.
-  *
-  * Driver Overview
-  * ===============
-@@ -101,10 +107,16 @@
- #include <linux/compiler.h>
- #include <linux/prefetch.h>
- #include <linux/ethtool.h>
-+#include <linux/timer.h>
- 
- #include <asm/io.h>
- #include <asm/uaccess.h>
- 
-+/* Global parameters.  See MODULE_PARM near the bottom. */
-+static int ihr = 2;
-+static int reset_phy = 0;
-+static int lnksts = 0;		/* CFG_LNKSTS bit polarity */
-+
- /* Dprintk is used for more interesting debug events */
- #undef Dprintk
- #define	Dprintk			dprintk
-@@ -126,7 +138,7 @@
- 
- /* Must not exceed ~65000. */
- #define NR_RX_DESC	64
--#define NR_TX_DESC	64
-+#define NR_TX_DESC	128
- 
- /* not tunable */
- #define REAL_RX_BUF_SIZE (RX_BUF_SIZE + 14)	/* rx/tx mac addr + type */
-@@ -138,6 +150,9 @@
- 
- #define CR_TXE		0x00000001
- #define CR_TXD		0x00000002
-+/* Ramit : Here's a tip, don't do a RXD immediately followed by an RXE
-+ * The Receive engine skips one descriptor and moves
-+ * onto the next one!! */
- #define CR_RXE		0x00000004
- #define CR_RXD		0x00000008
- #define CR_TXR		0x00000010
-@@ -145,8 +160,21 @@
- #define CR_SWI		0x00000080
- #define CR_RST		0x00000100
- 
--#define PTSCR_EEBIST_EN	0x00000002
--#define PTSCR_EELOAD_EN	0x00000004
-+#define PTSCR_EEBIST_FAIL       0x00000001
-+#define PTSCR_EEBIST_EN         0x00000002
-+#define PTSCR_EELOAD_EN         0x00000004
-+#define PTSCR_RBIST_FAIL        0x000001b8
-+#define PTSCR_RBIST_DONE        0x00000200
-+#define PTSCR_RBIST_EN          0x00000400
-+#define PTSCR_RBIST_RST         0x00002000
-+
-+#define MEAR_EEDI		0x00000001
-+#define MEAR_EEDO		0x00000002
-+#define MEAR_EECLK		0x00000004
-+#define MEAR_EESEL		0x00000008
-+#define MEAR_MDIO		0x00000010
-+#define MEAR_MDDIR		0x00000020
-+#define MEAR_MDC		0x00000040
- 
- #define ISR_TXDESC3	0x40000000
- #define ISR_TXDESC2	0x20000000
-@@ -202,6 +230,8 @@
- #define CFG_DUPSTS	0x10000000
- #define CFG_TBI_EN	0x01000000
- #define CFG_MODE_1000	0x00400000
-+/* Ramit : Dont' ever use AUTO_1000, it never works and is buggy.
-+ * Read the Phy response and then configure the MAC accordingly */
- #define CFG_AUTO_1000	0x00200000
- #define CFG_PINT_CTL	0x001c0000
- #define CFG_PINT_DUPSTS	0x00100000
-@@ -230,22 +260,29 @@
- #define EXTSTS_TCPPKT	0x00080000
- #define EXTSTS_IPPKT	0x00020000
- 
--#define SPDSTS_POLARITY	(CFG_SPDSTS1 | CFG_SPDSTS0 | CFG_DUPSTS)
-+#define SPDSTS_POLARITY	(CFG_SPDSTS1 | CFG_SPDSTS0 | CFG_DUPSTS | (lnksts ? CFG_LNKSTS : 0))
- 
- #define MIBC_MIBS	0x00000008
- #define MIBC_ACLR	0x00000004
- #define MIBC_FRZ	0x00000002
- #define MIBC_WRN	0x00000001
- 
-+#define PCR_PSEN	(1 << 31)
-+#define PCR_PS_MCAST	(1 << 30)
-+#define PCR_PS_DA	(1 << 29)
-+#define PCR_STHI_8	(3 << 23)
-+#define PCR_STLO_4	(1 << 23)
-+#define PCR_FFHI_8K	(3 << 21)
-+#define PCR_FFLO_4K	(1 << 21)
-+#define PCR_PAUSE_CNT	0xFFFE
-+
- #define RXCFG_AEP	0x80000000
- #define RXCFG_ARP	0x40000000
- #define RXCFG_STRIPCRC	0x20000000
- #define RXCFG_RX_FD	0x10000000
- #define RXCFG_ALP	0x08000000
- #define RXCFG_AIRL	0x04000000
--#define RXCFG_MXDMA	0x00700000
--#define RXCFG_MXDMA0	0x00100000
--#define RXCFG_MXDMA64	0x00600000
-+#define RXCFG_MXDMA512	0x00700000
- #define RXCFG_DRTH	0x0000003e
- #define RXCFG_DRTH0	0x00000002
- 
-@@ -354,23 +391,22 @@
- #define desc_addr_set(desc, addr)				\
- 	do {							\
- 		u64 __addr = (addr);				\
--		desc[BUFPTR] = cpu_to_le32(__addr);		\
--		desc[BUFPTR+1] = cpu_to_le32(__addr >> 32);	\
-+		(desc)[0] = cpu_to_le32(__addr);		\
-+		(desc)[1] = cpu_to_le32(__addr >> 32);		\
- 	} while(0)
- #define desc_addr_get(desc)					\
--		(((u64)le32_to_cpu(desc[BUFPTR+1]) << 32)	\
--		     | le32_to_cpu(desc[BUFPTR]))
-+		(((u64)le32_to_cpu((desc)[1]) << 32)		\
-+		     | le32_to_cpu((desc)[0]))
- #else
- #define HW_ADDR_LEN	4
--#define desc_addr_set(desc, addr)	(desc[BUFPTR] = cpu_to_le32(addr))
--#define desc_addr_get(desc)		(le32_to_cpu(desc[BUFPTR]))
-+#define desc_addr_set(desc, addr)	((desc)[0] = cpu_to_le32(addr))
-+#define desc_addr_get(desc)		(le32_to_cpu((desc)[0]))
- #endif
- 
--#define LINK		0
--#define BUFPTR		(LINK + HW_ADDR_LEN/4)
--#define CMDSTS		(BUFPTR + HW_ADDR_LEN/4)
--#define EXTSTS		(CMDSTS + 4/4)
--#define DRV_NEXT	(EXTSTS + 4/4)
-+#define DESC_LINK		0
-+#define DESC_BUFPTR		(DESC_LINK + HW_ADDR_LEN/4)
-+#define DESC_CMDSTS		(DESC_BUFPTR + HW_ADDR_LEN/4)
-+#define DESC_EXTSTS		(DESC_CMDSTS + 4/4)
- 
- #define CMDSTS_OWN	0x80000000
- #define CMDSTS_MORE	0x40000000
-@@ -426,18 +462,19 @@
- 
- 	spinlock_t	tx_lock;
- 
--	long		tx_idle;
--
- 	u16		tx_done_idx;
- 	u16		tx_idx;
- 	volatile u16	tx_free_idx;	/* idx of free desc chain */
- 	u16		tx_intr_idx;
- 
-+	atomic_t	nr_tx_skbs;
- 	struct sk_buff	*tx_skbs[NR_TX_DESC];
- 
- 	char		pad[16] __attribute__((aligned(16)));
- 	u32		*tx_descs;
- 	dma_addr_t	tx_phy_descs;
-+
-+	struct timer_list	tx_watchdog;
- };
- 
- //free = (tx_done_idx + NR_TX_DESC-2 - free_idx) % NR_TX_DESC
-@@ -458,33 +495,15 @@
-  * conditions, still route realtime traffic with as low jitter as
-  * possible.
-  */
--#ifdef USE_64BIT_ADDR
--static inline void build_rx_desc64(struct ns83820 *dev, u32 *desc, u64 link, u64 buf, u32 cmdsts, u32 extsts)
--{
--	desc[0] = link;
--	desc[1] = link >> 32;
--	desc[2] = buf;
--	desc[3] = buf >> 32;
--	desc[5] = extsts;
--	mb();
--	desc[4] = cmdsts;
--}
--
--#define build_rx_desc	build_rx_desc64
--#else
--
--static inline void build_rx_desc32(struct ns83820 *dev, u32 *desc, u32 link, u32 buf, u32 cmdsts, u32 extsts)
-+static inline void build_rx_desc(struct ns83820 *dev, u32 *desc, dma_addr_t link, dma_addr_t buf, u32 cmdsts, u32 extsts)
- {
--	desc[0] = cpu_to_le32(link);
--	desc[1] = cpu_to_le32(buf);
--	desc[3] = cpu_to_le32(extsts);
-+	desc_addr_set(desc + DESC_LINK, link);
-+	desc_addr_set(desc + DESC_BUFPTR, buf);
-+	desc[DESC_EXTSTS] = extsts;
- 	mb();
--	desc[2] = cpu_to_le32(cmdsts);
-+	desc[DESC_CMDSTS] = cmdsts;
- }
- 
--#define build_rx_desc	build_rx_desc32
--#endif
--
- #define nr_rx_empty(dev) ((NR_RX_DESC-2 + dev->rx_info.next_rx - dev->rx_info.next_empty) % NR_RX_DESC)
- static inline int ns83820_add_rx_skb(struct ns83820 *dev, struct sk_buff *skb)
- {
-@@ -717,7 +736,7 @@
- 		phy_intr(dev);
- 
- 		/* Okay, let it rip */
--		spin_lock(&dev->misc_lock);
-+		spin_lock_irq(&dev->misc_lock);
- 		dev->IMR_cache |= ISR_PHY;
- 		dev->IMR_cache |= ISR_RXRCMP;
- 		//dev->IMR_cache |= ISR_RXERR;
-@@ -731,7 +750,7 @@
- 
- 		writel(dev->IMR_cache, dev->base + IMR);
- 		writel(1, dev->base + IER);
--		spin_unlock(&dev->misc_lock);
-+		spin_unlock_irq(&dev->misc_lock);
- 
- 		kick_rx(dev);
- 
-@@ -788,7 +807,7 @@
- 	else
- 		kick_rx(dev);
- 	if (dev->rx_info.idle)
--		Dprintk("BAD\n");
-+		printk(KERN_DEBUG "%s: BAD\n", dev->net_dev.name);
- }
- 
- /* rx_irq
-@@ -820,14 +839,14 @@
- 	dprintk("walking descs\n");
- 	next_rx = info->next_rx;
- 	desc = info->next_rx_desc;
--	while ((CMDSTS_OWN & (cmdsts = le32_to_cpu(desc[CMDSTS]))) &&
-+	while ((CMDSTS_OWN & (cmdsts = le32_to_cpu(desc[DESC_CMDSTS]))) &&
- 	       (cmdsts != CMDSTS_OWN)) {
- 		struct sk_buff *skb;
--		u32 extsts = le32_to_cpu(desc[EXTSTS]);
--		dma_addr_t bufptr = desc_addr_get(desc);
-+		u32 extsts = le32_to_cpu(desc[DESC_EXTSTS]);
-+		dma_addr_t bufptr = desc_addr_get(desc + DESC_BUFPTR);
- 
- 		dprintk("cmdsts: %08x\n", cmdsts);
--		dprintk("link: %08x\n", cpu_to_le32(desc[LINK]));
-+		dprintk("link: %08x\n", cpu_to_le32(desc[DESC_LINK]));
- 		dprintk("extsts: %08x\n", extsts);
- 
- 		skb = info->skbs[next_rx];
-@@ -881,8 +900,13 @@
- {
- 	struct ns83820 *dev = (void *)_dev;
- 	rx_irq(dev);
--	writel(0x002, dev->base + IHR);
--	writel(dev->IMR_cache | ISR_RXDESC, dev->base + IMR);
-+	writel(ihr, dev->base + IHR);
-+
-+	spin_lock_irq(&dev->misc_lock);
-+	dev->IMR_cache |= ISR_RXDESC;
-+	writel(dev->IMR_cache, dev->base + IMR);
-+	spin_unlock_irq(&dev->misc_lock);
-+
- 	rx_irq(dev);
- 	ns83820_rx_kick(dev);
- }
-@@ -891,8 +915,8 @@
-  */
- static inline void kick_tx(struct ns83820 *dev)
- {
--	dprintk("kick_tx(%p): tx_idle=%ld, tx_idx=%d free_idx=%d\n",
--		dev, dev->tx_idle, dev->tx_idx, dev->tx_free_idx);
-+	dprintk("kick_tx(%p): tx_idx=%d free_idx=%d\n",
-+		dev, dev->tx_idx, dev->tx_free_idx);
- 	writel(CR_TXE, dev->base + CR);
- }
- 
-@@ -903,14 +927,16 @@
- {
- 	u32 cmdsts, tx_done_idx, *desc;
- 
-+	spin_lock_irq(&dev->tx_lock);
-+
- 	dprintk("do_tx_done(%p)\n", dev);
- 	tx_done_idx = dev->tx_done_idx;
- 	desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
- 
- 	dprintk("tx_done_idx=%d free_idx=%d cmdsts=%08x\n",
--		tx_done_idx, dev->tx_free_idx, le32_to_cpu(desc[CMDSTS]));
-+		tx_done_idx, dev->tx_free_idx, le32_to_cpu(desc[DESC_CMDSTS]));
- 	while ((tx_done_idx != dev->tx_free_idx) &&
--	       !(CMDSTS_OWN & (cmdsts = le32_to_cpu(desc[CMDSTS]))) ) {
-+	       !(CMDSTS_OWN & (cmdsts = le32_to_cpu(desc[DESC_CMDSTS]))) ) {
- 		struct sk_buff *skb;
- 		unsigned len;
- 		dma_addr_t addr;
-@@ -929,13 +955,14 @@
- 		dprintk("done(%p)\n", skb);
- 
- 		len = cmdsts & CMDSTS_LEN_MASK;
--		addr = desc_addr_get(desc);
-+		addr = desc_addr_get(desc + DESC_BUFPTR);
- 		if (skb) {
- 			pci_unmap_single(dev->pci_dev,
- 					addr,
- 					len,
- 					PCI_DMA_TODEVICE);
- 			dev_kfree_skb_irq(skb);
-+			atomic_dec(&dev->nr_tx_skbs);
- 		} else
- 			pci_unmap_page(dev->pci_dev, 
- 					addr,
-@@ -944,7 +971,7 @@
- 
- 		tx_done_idx = (tx_done_idx + 1) % NR_TX_DESC;
- 		dev->tx_done_idx = tx_done_idx;
--		desc[CMDSTS] = cpu_to_le32(0);
-+		desc[DESC_CMDSTS] = cpu_to_le32(0);
- 		mb();
- 		desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
- 	}
-@@ -957,6 +984,7 @@
- 		netif_start_queue(&dev->net_dev);
- 		netif_wake_queue(&dev->net_dev);
- 	}
-+	spin_unlock_irq(&dev->tx_lock);
- }
- 
- static void ns83820_cleanup_tx(struct ns83820 *dev)
-@@ -966,12 +994,19 @@
- 	for (i=0; i<NR_TX_DESC; i++) {
- 		struct sk_buff *skb = dev->tx_skbs[i];
- 		dev->tx_skbs[i] = NULL;
--		if (skb)
-+		if (skb) {
-+			u32 *desc = dev->tx_descs + (i * DESC_SIZE);
-+			pci_unmap_single(dev->pci_dev,
-+					desc_addr_get(desc + DESC_BUFPTR),
-+					le32_to_cpu(desc[DESC_CMDSTS]) & CMDSTS_LEN_MASK,
-+					PCI_DMA_TODEVICE);
-+			dev_kfree_skb_irq(skb);
- 			dev_kfree_skb(skb);
-+			atomic_dec(&dev->nr_tx_skbs);
-+		}
- 	}
- 
- 	memset(dev->tx_descs, 0, NR_TX_DESC * DESC_SIZE * 4);
--	set_bit(0, &dev->tx_idle);
- }
- 
- /* transmit routine.  This code relies on the network layer serializing
-@@ -985,7 +1020,7 @@
- 	struct ns83820 *dev = (struct ns83820 *)_dev;
- 	u32 free_idx, cmdsts, extsts;
- 	int nr_free, nr_frags;
--	unsigned tx_done_idx;
-+	unsigned tx_done_idx, last_idx;
- 	dma_addr_t buf;
- 	unsigned len;
- 	skb_frag_t *frag;
-@@ -1004,7 +1039,7 @@
- 		netif_start_queue(&dev->net_dev);
- 	}
- 
--	free_idx = dev->tx_free_idx;
-+	last_idx = free_idx = dev->tx_free_idx;
- 	tx_done_idx = dev->tx_done_idx;
- 	nr_free = (tx_done_idx + NR_TX_DESC-2 - free_idx) % NR_TX_DESC;
- 	nr_free -= 1;
-@@ -1058,15 +1093,16 @@
- 
- 		dprintk("frag[%3u]: %4u @ 0x%08Lx\n", free_idx, len,
- 			(unsigned long long)buf);
-+		last_idx = free_idx;
- 		free_idx = (free_idx + 1) % NR_TX_DESC;
--		desc[LINK] = cpu_to_le32(dev->tx_phy_descs + (free_idx * DESC_SIZE * 4));
--		desc_addr_set(desc, buf);
--		desc[EXTSTS] = cpu_to_le32(extsts);
-+		desc[DESC_LINK] = cpu_to_le32(dev->tx_phy_descs + (free_idx * DESC_SIZE * 4));
-+		desc_addr_set(desc + DESC_BUFPTR, buf);
-+		desc[DESC_EXTSTS] = cpu_to_le32(extsts);
- 
- 		cmdsts = ((nr_frags|residue) ? CMDSTS_MORE : do_intr ? CMDSTS_INTR : 0);
- 		cmdsts |= (desc == first_desc) ? 0 : CMDSTS_OWN;
- 		cmdsts |= len;
--		desc[CMDSTS] = cpu_to_le32(cmdsts);
-+		desc[DESC_CMDSTS] = cpu_to_le32(cmdsts);
- 
- 		if (residue) {
- 			buf += len;
-@@ -1088,15 +1124,22 @@
- 		nr_frags--;
- 	}
- 	dprintk("done pkt\n");
--	dev->tx_skbs[free_idx] = skb;
--	first_desc[CMDSTS] |= cpu_to_le32(CMDSTS_OWN);
-+
-+	spin_lock_irq(&dev->tx_lock);
-+	dev->tx_skbs[last_idx] = skb;
-+	first_desc[DESC_CMDSTS] |= cpu_to_le32(CMDSTS_OWN);
- 	dev->tx_free_idx = free_idx;
-+	atomic_inc(&dev->nr_tx_skbs);
-+	spin_unlock_irq(&dev->tx_lock);
-+
- 	kick_tx(dev);
- 
- 	/* Check again: we may have raced with a tx done irq */
- 	if (stopped && (dev->tx_done_idx != tx_done_idx) && start_tx_okay(dev))
- 		netif_start_queue(&dev->net_dev);
- 
-+	/* set the transmit start time to catch transmit timeouts */
-+	dev->net_dev.trans_start = jiffies;
- 	return 0;
- }
- 
-@@ -1190,6 +1233,7 @@
- 	spin_unlock(&dev->misc_lock);
- }
- 
-+static void ns83820_do_isr(struct ns83820 *dev, u32 isr);
- static void ns83820_irq(int foo, void *data, struct pt_regs *regs)
- {
- 	struct ns83820 *dev = data;
-@@ -1200,7 +1244,11 @@
- 
- 	isr = readl(dev->base + ISR);
- 	dprintk("irq: %08x\n", isr);
-+	ns83820_do_isr(dev, isr);
-+}
- 
-+static void ns83820_do_isr(struct ns83820 *dev, u32 isr)
-+{
- #ifdef DEBUG
- 	if (isr & ~(ISR_PHY | ISR_RXDESC | ISR_RXEARLY | ISR_RXOK | ISR_RXERR | ISR_TXIDLE | ISR_TXOK | ISR_TXDESC))
- 		Dprintk("odd isr? 0x%08x\n", isr);
-@@ -1214,7 +1262,12 @@
- 
- 	if ((ISR_RXDESC | ISR_RXOK) & isr) {
- 		prefetch(dev->rx_info.next_rx_desc);
--		writel(dev->IMR_cache & ~(ISR_RXDESC | ISR_RXOK), dev->base + IMR);
-+
-+		spin_lock_irq(&dev->misc_lock);
-+		dev->IMR_cache &= ~(ISR_RXDESC | ISR_RXOK);
-+		writel(dev->IMR_cache, dev->base + IMR);
-+		spin_unlock_irq(&dev->misc_lock);
-+
- 		tasklet_schedule(&dev->rx_tasklet);
- 		//rx_irq(dev);
- 		//writel(4, dev->base + IHR);
-@@ -1246,12 +1299,11 @@
- 			printk(KERN_ALERT "%s: BUG -- txdp out of range\n", dev->net_dev.name);
- 			dev->tx_idx = 0;
- 		}
--		if (dev->tx_idx != dev->tx_free_idx)
--			writel(CR_TXE, dev->base + CR);
--			//kick_tx(dev);
--		else
--			dev->tx_idle = 1;
--		mb();
-+		/* The may have been a race between a pci originated read
-+		 * and the descriptor update from the cpu.  Just in case, 
-+		 * kick the transmitter if the hardware thinks it is on a 
-+		 * different descriptor than we are.
-+		 */
- 		if (dev->tx_idx != dev->tx_free_idx)
- 			kick_tx(dev);
- 	}
-@@ -1259,12 +1311,38 @@
- 	/* Defer tx ring processing until more than a minimum amount of
- 	 * work has accumulated
- 	 */
--	if ((ISR_TXDESC | ISR_TXIDLE) & isr)
-+	if ((ISR_TXDESC | ISR_TXIDLE | ISR_TXOK | ISR_TXERR) & isr) {
- 		do_tx_done(dev);
- 
-+		/* Disable TxOk if there are no outstanding tx packets.
-+		 */
-+		if ((dev->tx_done_idx == dev->tx_free_idx) &&
-+		    (dev->IMR_cache & ISR_TXOK)) {
-+			spin_lock_irq(&dev->misc_lock);
-+			dev->IMR_cache &= ~ISR_TXOK;
-+			writel(dev->IMR_cache, dev->base + IMR);
-+			spin_unlock_irq(&dev->misc_lock);
-+		}
-+	}
-+
-+	/* The TxIdle interrupt can come in before the transmit has
-+	 * completed.  Normally we reap packets off of the combination
-+	 * of TxDesc and TxIdle and leave TxOk disabled (since it 
-+	 * occurs on every packet), but when no further irqs of this 
-+	 * nature are expected, we must enable TxOk.
-+	 */
-+	if ((ISR_TXIDLE & isr) && (dev->tx_done_idx != dev->tx_free_idx)) {
-+		spin_lock_irq(&dev->misc_lock);
-+		dev->IMR_cache |= ISR_TXOK;
-+		writel(dev->IMR_cache, dev->base + IMR);
-+		spin_unlock_irq(&dev->misc_lock);
-+	}
-+
-+	/* MIB interrupt: one of the statistics counters is about to overflow */
- 	if (unlikely(ISR_MIB & isr))
- 		ns83820_mib_isr(dev);
- 
-+	/* PHY: Link up/down/negotiation state change */
- 	if (unlikely(ISR_PHY & isr))
- 		phy_intr(dev);
- 
-@@ -1289,6 +1367,7 @@
- 	struct ns83820 *dev = (struct ns83820 *)_dev;
- 
- 	/* FIXME: protect against interrupt handler? */
-+	del_timer_sync(&dev->tx_watchdog);
- 
- 	/* disable interrupts */
- 	writel(0, dev->base + IMR);
-@@ -1302,13 +1381,76 @@
- 
- 	synchronize_irq();
- 
-+	spin_lock_irq(&dev->misc_lock);
- 	dev->IMR_cache &= ~(ISR_TXURN | ISR_TXIDLE | ISR_TXERR | ISR_TXDESC | ISR_TXOK);
-+	spin_unlock_irq(&dev->misc_lock);
-+
- 	ns83820_cleanup_rx(dev);
- 	ns83820_cleanup_tx(dev);
- 
- 	return 0;
- }
- 
-+static void ns83820_do_isr(struct ns83820 *dev, u32 isr);
-+static void ns83820_tx_timeout(struct net_device *_dev)
-+{
-+	struct ns83820 *dev = (struct ns83820 *)_dev;
-+        u32 tx_done_idx, *desc;
-+	long flags;
-+
-+	__save_flags(flags);
-+	__cli();
-+
-+	tx_done_idx = dev->tx_done_idx;
-+	desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
-+
-+	printk(KERN_INFO "%s: tx_timeout: tx_done_idx=%d free_idx=%d cmdsts=%08x\n",
-+		dev->net_dev.name,
-+		tx_done_idx, dev->tx_free_idx, le32_to_cpu(desc[DESC_CMDSTS]));
-+
-+#if defined(DEBUG)
-+	{
-+		u32 isr;
-+		isr = readl(dev->base + ISR);
-+		printk("irq: %08x imr: %08x\n", isr, dev->IMR_cache);
-+		ns83820_do_isr(dev, isr);
-+	}
-+#endif
-+
-+	do_tx_done(dev);
-+
-+	tx_done_idx = dev->tx_done_idx;
-+	desc = dev->tx_descs + (tx_done_idx * DESC_SIZE);
-+
-+	printk(KERN_INFO "%s: after: tx_done_idx=%d free_idx=%d cmdsts=%08x\n",
-+		dev->net_dev.name,
-+		tx_done_idx, dev->tx_free_idx, le32_to_cpu(desc[DESC_CMDSTS]));
-+
-+	__restore_flags(flags);
-+}
-+
-+static void ns83820_tx_watch(unsigned long data)
-+{
-+	struct ns83820 *dev = (void *)data;
-+
-+#if defined(DEBUG)
-+	printk("ns83820_tx_watch: %u %u %d\n",
-+		dev->tx_done_idx, dev->tx_free_idx, atomic_read(&dev->nr_tx_skbs)
-+		);
-+#endif
-+
-+	if (time_after(jiffies, dev->net_dev.trans_start + 1*HZ) &&
-+	    dev->tx_done_idx != dev->tx_free_idx) {
-+		printk(KERN_DEBUG "%s: ns83820_tx_watch: %u %u %d\n",
-+			dev->net_dev.name,
-+			dev->tx_done_idx, dev->tx_free_idx,
-+			atomic_read(&dev->nr_tx_skbs));
-+		ns83820_tx_timeout(&dev->net_dev);
-+	}
-+
-+	mod_timer(&dev->tx_watchdog, jiffies + 2*HZ);
-+}
-+
- static int ns83820_open(struct net_device *_dev)
- {
- 	struct ns83820 *dev = (struct ns83820 *)_dev;
-@@ -1326,7 +1468,7 @@
- 
- 	memset(dev->tx_descs, 0, 4 * NR_TX_DESC * DESC_SIZE);
- 	for (i=0; i<NR_TX_DESC; i++) {
--		dev->tx_descs[(i * DESC_SIZE) + LINK]
-+		dev->tx_descs[(i * DESC_SIZE) + DESC_LINK]
- 				= cpu_to_le32(
- 				  dev->tx_phy_descs
- 				  + ((i+1) % NR_TX_DESC) * DESC_SIZE * 4);
-@@ -1338,9 +1480,11 @@
- 	writel(0, dev->base + TXDP_HI);
- 	writel(desc, dev->base + TXDP);
- 
--//printk("IMR: %08x / %08x\n", readl(dev->base + IMR), dev->IMR_cache);
-+	init_timer(&dev->tx_watchdog);
-+	dev->tx_watchdog.data = (unsigned long)dev;
-+	dev->tx_watchdog.function = ns83820_tx_watch;
-+	mod_timer(&dev->tx_watchdog, jiffies + 2*HZ);
- 
--	set_bit(0, &dev->tx_idle);
- 	netif_start_queue(&dev->net_dev);	/* FIXME: wait for phy to come up */
- 
- 	return 0;
-@@ -1350,15 +1494,6 @@
- 	return ret;
- }
- 
--#if 0	/* FIXME: implement this! */
--static void ns83820_tx_timeout(struct net_device *_dev)
--{
--	struct ns83820 *dev = (struct ns83820 *)_dev;
--
--	printk("ns83820_tx_timeout\n");
--}
--#endif
--
- static void ns83820_getmac(struct ns83820 *dev, u8 *mac)
- {
- 	unsigned i;
-@@ -1392,6 +1527,7 @@
- 	u8 *rfcr = dev->base + RFCR;
- 	u32 and_mask = 0xffffffff;
- 	u32 or_mask = 0;
-+	u32 val;
- 
- 	if (dev->net_dev.flags & IFF_PROMISC)
- 		or_mask |= RFCR_AAU | RFCR_AAM;
-@@ -1404,10 +1540,225 @@
- 		and_mask &= ~RFCR_AAM;
- 
- 	spin_lock_irq(&dev->misc_lock);
--	writel((readl(rfcr) & and_mask) | or_mask, rfcr);
-+	val = (readl(rfcr) & and_mask) | or_mask;
-+	/* Ramit : RFCR Write Fix doc says RFEN must be 0 modify other bits */
-+	writel(val & ~RFCR_RFEN, rfcr);
-+	writel(val, rfcr);
- 	spin_unlock_irq(&dev->misc_lock);
- }
- 
-+static void ns83820_run_bist(struct ns83820 *dev, const char *name, u32 enable, u32 done, u32 fail)
-+{
-+	int timed_out = 0;
-+	long start;
-+	u32 status;
-+	int loops = 0;
-+
-+	dprintk("%s: start %s\n", dev->net_dev.name, name);
-+
-+	start = jiffies;
-+
-+	writel(enable, dev->base + PTSCR);
-+	for (;;) {
-+		loops++;
-+		status = readl(dev->base + PTSCR);
-+		if (!(status & enable))
-+			break;
-+		if (status & done)
-+			break;
-+		if (status & fail)
-+			break;
-+		if ((jiffies - start) >= HZ) {
-+			timed_out = 1;
-+			break;
-+		}
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(1);
-+	}
-+
-+	if (status & fail)
-+		printk(KERN_INFO "%s: %s failed! (0x%08x & 0x%08x)\n",
-+			dev->net_dev.name, name, status, fail);
-+	else if (timed_out)
-+		printk(KERN_INFO "%s: run_bist %s timed out! (%08x)\n",
-+			dev->net_dev.name, name, status);
-+
-+	dprintk("%s: done %s in %d loops\n", dev->net_dev.name, name, loops);
-+}
-+
-+static void ns83820_mii_write_bit(struct ns83820 *dev, int bit)
-+{
-+	/* drive MDC low */
-+	dev->MEAR_cache &= ~MEAR_MDC;
-+	writel(dev->MEAR_cache, dev->base + MEAR);
-+	readl(dev->base + MEAR);
-+
-+	/* enable output, set bit */
-+	dev->MEAR_cache |= MEAR_MDDIR;
-+	if (bit)
-+		dev->MEAR_cache |= MEAR_MDIO;
-+	else
-+		dev->MEAR_cache &= ~MEAR_MDIO;
-+
-+	/* set the output bit */
-+	writel(dev->MEAR_cache, dev->base + MEAR);
-+	readl(dev->base + MEAR);
-+
-+	/* Wait.  Max clock rate is 2.5MHz, this way we come in under 1MHz */
-+	udelay(1);
-+
-+	/* drive MDC high causing the data bit to be latched */
-+	dev->MEAR_cache |= MEAR_MDC;
-+	writel(dev->MEAR_cache, dev->base + MEAR);
-+	readl(dev->base + MEAR);
-+
-+	/* Wait again... */
-+	udelay(1);
-+}
-+
-+static int ns83820_mii_read_bit(struct ns83820 *dev)
-+{
-+	int bit;
-+
-+	/* drive MDC low, disable output */
-+	dev->MEAR_cache &= ~MEAR_MDC;
-+	dev->MEAR_cache &= ~MEAR_MDDIR;
-+	writel(dev->MEAR_cache, dev->base + MEAR);
-+	readl(dev->base + MEAR);
-+
-+	/* Wait.  Max clock rate is 2.5MHz, this way we come in under 1MHz */
-+	udelay(1);
-+
-+	/* drive MDC high causing the data bit to be latched */
-+	bit = (readl(dev->base + MEAR) & MEAR_MDIO) ? 1 : 0;
-+	dev->MEAR_cache |= MEAR_MDC;
-+	writel(dev->MEAR_cache, dev->base + MEAR);
-+
-+	/* Wait again... */
-+	udelay(1);
-+
-+	return bit;
-+}
-+
-+static unsigned ns83820_mii_read_reg(struct ns83820 *dev, unsigned phy, unsigned reg)
-+{
-+	unsigned data = 0;
-+	int i;
-+
-+	/* read some garbage so that we eventually sync up */
-+	for (i=0; i<64; i++)
-+		ns83820_mii_read_bit(dev);
-+
-+	ns83820_mii_write_bit(dev, 0);	/* start */
-+	ns83820_mii_write_bit(dev, 1);
-+	ns83820_mii_write_bit(dev, 1);	/* opcode read */
-+	ns83820_mii_write_bit(dev, 0);
-+
-+	/* write out the phy address: 5 bits, msb first */
-+	for (i=0; i<5; i++)
-+		ns83820_mii_write_bit(dev, phy & (0x10 >> i));
-+
-+	/* write out the register address, 5 bits, msb first */
-+	for (i=0; i<5; i++)
-+		ns83820_mii_write_bit(dev, reg & (0x10 >> i));
-+
-+	ns83820_mii_read_bit(dev);	/* turn around cycles */
-+	ns83820_mii_read_bit(dev);
-+
-+	/* read in the register data, 16 bits msb first */
-+	for (i=0; i<16; i++) {
-+		data <<= 1;
-+		data |= ns83820_mii_read_bit(dev);
-+	}
-+
-+	return data;
-+}
-+
-+static unsigned ns83820_mii_write_reg(struct ns83820 *dev, unsigned phy, unsigned reg, unsigned data)
-+{
-+	int i;
-+
-+	/* read some garbage so that we eventually sync up */
-+	for (i=0; i<64; i++)
-+		ns83820_mii_read_bit(dev);
-+
-+	ns83820_mii_write_bit(dev, 0);	/* start */
-+	ns83820_mii_write_bit(dev, 1);
-+	ns83820_mii_write_bit(dev, 0);	/* opcode read */
-+	ns83820_mii_write_bit(dev, 1);
-+
-+	/* write out the phy address: 5 bits, msb first */
-+	for (i=0; i<5; i++)
-+		ns83820_mii_write_bit(dev, phy & (0x10 >> i));
-+
-+	/* write out the register address, 5 bits, msb first */
-+	for (i=0; i<5; i++)
-+		ns83820_mii_write_bit(dev, reg & (0x10 >> i));
-+
-+	ns83820_mii_read_bit(dev);	/* turn around cycles */
-+	ns83820_mii_read_bit(dev);
-+
-+	/* read in the register data, 16 bits msb first */
-+	for (i=0; i<16; i++)
-+		ns83820_mii_write_bit(dev, (data >> (15 - i)) & 1);
-+
-+	return data;
-+}
-+
-+static void ns83820_probe_phy(struct ns83820 *dev)
-+{
-+	static int first;
-+	int i;
-+#define MII_PHYIDR1	0x02
-+#define MII_PHYIDR2	0x03
-+
-+#if 0
-+	if (!first) {
-+		unsigned tmp;
-+		ns83820_mii_read_reg(dev, 1, 0x09);
-+		ns83820_mii_write_reg(dev, 1, 0x10, 0x0d3e);
-+
-+		tmp = ns83820_mii_read_reg(dev, 1, 0x00);
-+		ns83820_mii_write_reg(dev, 1, 0x00, tmp | 0x8000);
-+		udelay(1300);
-+		ns83820_mii_read_reg(dev, 1, 0x09);
-+	}
-+#endif
-+	first = 1;
-+
-+	for (i=1; i<2; i++) {
-+		int j;
-+		unsigned a, b;
-+		a = ns83820_mii_read_reg(dev, i, MII_PHYIDR1);
-+		b = ns83820_mii_read_reg(dev, i, MII_PHYIDR2);
-+
-+		//printk("%s: phy %d: 0x%04x 0x%04x\n",
-+		//	dev->net_dev.name, i, a, b);
-+
-+		for (j=0; j<0x16; j+=4) {
-+			dprintk("%s: [0x%02x] %04x %04x %04x %04x\n",
-+				dev->net_dev.name, j,
-+				ns83820_mii_read_reg(dev, i, 0 + j),
-+				ns83820_mii_read_reg(dev, i, 1 + j),
-+				ns83820_mii_read_reg(dev, i, 2 + j),
-+				ns83820_mii_read_reg(dev, i, 3 + j)
-+				);
-+		}
-+	}
-+	{
-+		unsigned a, b;
-+		/* read firmware version: memory addr is 0x8402 and 0x8403 */
-+		ns83820_mii_write_reg(dev, 1, 0x16, 0x000d);
-+		ns83820_mii_write_reg(dev, 1, 0x1e, 0x810e);
-+		a = ns83820_mii_read_reg(dev, 1, 0x1d);
-+
-+		ns83820_mii_write_reg(dev, 1, 0x16, 0x000d);
-+		ns83820_mii_write_reg(dev, 1, 0x1e, 0x810e);
-+		b = ns83820_mii_read_reg(dev, 1, 0x1d);
-+		dprintk("version: 0x%04x 0x%04x\n", a, b);
-+	}
-+}
-+
- static int __devinit ns83820_init_one(struct pci_dev *pci_dev, const struct pci_device_id *id)
- {
- 	struct ns83820 *dev;
-@@ -1415,6 +1766,7 @@
- 	int err;
- 	int using_dac = 0;
- 
-+	/* See if we can set the dma mask early on; failure is fatal. */
- 	if (TRY_DAC && !pci_set_dma_mask(pci_dev, 0xffffffffffffffff)) {
- 		using_dac = 1;
- 	} else if (!pci_set_dma_mask(pci_dev, 0xffffffff)) {
-@@ -1443,7 +1795,7 @@
- 
- 	err = pci_enable_device(pci_dev);
- 	if (err) {
--		printk(KERN_INFO "ns83820: pci_enable_dev: %d\n", err);
-+		printk(KERN_INFO "ns83820: pci_enable_dev failed: %d\n", err);
- 		goto out_free;
- 	}
- 
-@@ -1461,6 +1813,7 @@
- 	dprintk("%p: %08lx  %p: %08lx\n",
- 		dev->tx_descs, (long)dev->tx_phy_descs,
- 		dev->rx_info.descs, (long)dev->rx_info.phy_descs);
-+
- 	/* disable interrupts */
- 	writel(0, dev->base + IMR);
- 	writel(0, dev->base + IER);
-@@ -1479,45 +1832,47 @@
- 		goto out_unmap;
- 	}
- 
--	if(register_netdev(&dev->net_dev)) goto out_unmap;
-+	err = register_netdev(&dev->net_dev);
-+	if (err) {
-+		printk(KERN_INFO "ns83820: unable to register netdev: %d\n", err);
-+		goto out_unmap;
-+	}
-+
-+	printk("%s: ns83820.c: 0x22c: %08x, subsystem: %04x:%04x\n",
-+		dev->net_dev.name, le32_to_cpu(readl(dev->base + 0x22c)),
-+		pci_dev->subsystem_vendor, pci_dev->subsystem_device);
- 
- 	dev->net_dev.open = ns83820_open;
- 	dev->net_dev.stop = ns83820_stop;
- 	dev->net_dev.hard_start_xmit = ns83820_hard_start_xmit;
--	dev->net_dev.change_mtu = ns83820_change_mtu;
- 	dev->net_dev.get_stats = ns83820_get_stats;
- 	dev->net_dev.change_mtu = ns83820_change_mtu;
- 	dev->net_dev.set_multicast_list = ns83820_set_multicast;
- 	dev->net_dev.do_ioctl = ns83820_ioctl;
--	//FIXME: dev->net_dev.tx_timeout = ns83820_tx_timeout;
-+	dev->net_dev.tx_timeout = ns83820_tx_timeout;
-+	dev->net_dev.watchdog_timeo = 5 * HZ;
- 
- 	pci_set_drvdata(pci_dev, dev);
- 
- 	ns83820_do_reset(dev, CR_RST);
- 
--	dprintk("start bist\n");
--	writel(PTSCR_EEBIST_EN, dev->base + PTSCR);
--	do {
--		schedule();
--	} while (readl(dev->base + PTSCR) & PTSCR_EEBIST_EN);
--	dprintk("done bist\n");
--
--	dprintk("start eeload\n");
--	writel(PTSCR_EELOAD_EN, dev->base + PTSCR);
--	do {
--		schedule();
--	} while (readl(dev->base + PTSCR) & PTSCR_EELOAD_EN);
--	dprintk("done eeload\n");
-+	/* Must reset the ram bist before running it */
-+	writel(PTSCR_RBIST_RST, dev->base + PTSCR);
-+	ns83820_run_bist(dev, "sram bist",   PTSCR_RBIST_EN,
-+			 PTSCR_RBIST_DONE, PTSCR_RBIST_FAIL);
-+	ns83820_run_bist(dev, "eeprom bist", PTSCR_EEBIST_EN, 0,
-+			 PTSCR_EEBIST_FAIL);
-+	ns83820_run_bist(dev, "eeprom load", PTSCR_EELOAD_EN, 0, 0);
- 
- 	/* I love config registers */
- 	dev->CFG_cache = readl(dev->base + CFG);
- 
- 	if ((dev->CFG_cache & CFG_PCI64_DET)) {
--		printk("%s: detected 64 bit PCI data bus.\n",
-+		printk(KERN_INFO "%s: detected 64 bit PCI data bus.\n",
- 			dev->net_dev.name);
- 		/*dev->CFG_cache |= CFG_DATA64_EN;*/
- 		if (!(dev->CFG_cache & CFG_DATA64_EN))
--			printk("%s: EEPROM did not enable 64 bit bus.  Disabled.\n",
-+			printk(KERN_INFO "%s: EEPROM did not enable 64 bit bus.  Disabled.\n",
- 				dev->net_dev.name);
- 	} else
- 		dev->CFG_cache &= ~(CFG_DATA64_EN);
-@@ -1529,6 +1884,11 @@
- 			  CFG_EXTSTS_EN   | CFG_EXD         | CFG_PESEL;
- 	dev->CFG_cache |= CFG_REQALG;
- 	dev->CFG_cache |= CFG_POW;
-+	dev->CFG_cache |= CFG_TMRTEST;
-+
-+	/* When compiled with 64 bit addressing, we must always enable
-+	 * the 64 bit descriptor format.
-+	 */
- #ifdef USE_64BIT_ADDR
- 	dev->CFG_cache |= CFG_M64ADDR;
- #endif
-@@ -1540,7 +1900,8 @@
- 
- 	/* setup optical transceiver if we have one */
- 	if (dev->CFG_cache & CFG_TBI_EN) {
--		printk("%s: enabling optical transceiver\n", dev->net_dev.name);
-+		printk(KERN_INFO "%s: enabling optical transceiver\n",
-+			dev->net_dev.name);
- 		writel(readl(dev->base + GPIOR) | 0x3e8, dev->base + GPIOR);
- 
- 		/* setup auto negotiation feature advertisement */
-@@ -1560,6 +1921,14 @@
- 	writel(dev->CFG_cache, dev->base + CFG);
- 	dprintk("CFG: %08x\n", dev->CFG_cache);
- 
-+	if (reset_phy) {
-+		printk(KERN_INFO "%s: resetting phy\n", dev->net_dev.name);
-+		writel(dev->CFG_cache | CFG_PHY_RST, dev->base + CFG);
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout((HZ+99)/100);
-+		writel(dev->CFG_cache, dev->base + CFG);
-+	}
-+
- #if 0	/* Huh?  This sets the PCI latency register.  Should be done via 
- 	 * the PCI layer.  FIXME.
- 	 */
-@@ -1572,7 +1941,9 @@
- 	 * can be transmitted is 8192 - FLTH - burst size.
- 	 * If only the transmit fifo was larger...
- 	 */
--	writel(TXCFG_CSI | TXCFG_HBI | TXCFG_ATP | TXCFG_MXDMA1024
-+	/* Ramit : 1024 DMA is not a good idea, it ends up banging 
-+	 * some DELL and COMPAQ SMP systems */
-+	writel(TXCFG_CSI | TXCFG_HBI | TXCFG_ATP | TXCFG_MXDMA512
- 		| ((1600 / 32) * 0x100),
- 		dev->base + TXCFG);
- 
-@@ -1582,12 +1953,15 @@
- 	writel(0x000, dev->base + IHR);
- 
- 	/* Set Rx to full duplex, don't accept runt, errored, long or length
--	 * range errored packets.  Set MXDMA to 0 => 1024 word burst
-+	 * range errored packets.  Use 512 byte DMA.
- 	 */
-+	/* Ramit : 1024 DMA is not a good idea, it ends up banging 
-+	 * some DELL and COMPAQ SMP systems 
-+	 * Turn on ALP, only we are accpeting Jumbo Packets */
- 	writel(RXCFG_AEP | RXCFG_ARP | RXCFG_AIRL | RXCFG_RX_FD
- 		| RXCFG_STRIPCRC
--		| RXCFG_ALP
--		| (RXCFG_MXDMA0 * 0) | 0, dev->base + RXCFG);
-+		//| RXCFG_ALP
-+		| (RXCFG_MXDMA512) | 0, dev->base + RXCFG);
- 
- 	/* Disable priority queueing */
- 	writel(0, dev->base + PQCR);
-@@ -1597,13 +1971,23 @@
- 	 * revision of the chip does not properly accept IP fragments
- 	 * at least for UDP.
- 	 */
-+	/* Ramit : Be sure to turn on RXCFG_ARP if VLAN's are enabled, since
-+	 * the MAC it calculates the packetsize AFTER stripping the VLAN
-+	 * header, and if a VLAN Tagged packet of 64 bytes is received (like
-+	 * a ping with a VLAN header) then the card, strips the 4 byte VLAN
-+	 * tag and then checks the packet size, so if RXCFG_ARP is not enabled,
-+	 * it discrards it!.  These guys......
-+	 */
- 	writel(VRCR_IPEN | VRCR_VTDEN, dev->base + VRCR);
- 
- 	/* Enable per-packet TCP/UDP/IP checksumming */
- 	writel(VTCR_PPCHK, dev->base + VTCR);
- 
--	/* Disable Pause frames */
--	writel(0, dev->base + PCR);
-+	/* Ramit : Enable async and sync pause frames */
-+	/* writel(0, dev->base + PCR); */
-+	writel((PCR_PS_MCAST | PCR_PS_DA | PCR_PSEN | PCR_FFLO_4K |
-+		PCR_FFHI_8K | PCR_STLO_4 | PCR_STHI_8 | PCR_PAUSE_CNT),
-+		dev->base + PCR);
- 
- 	/* Disable Wake On Lan */
- 	writel(0, dev->base + WCSR);
-@@ -1631,6 +2015,10 @@
- 		(dev->net_dev.features & NETIF_F_HIGHDMA) ? "h,sg" : "sg"
- 		);
- 
-+#ifdef PHY_CODE_IS_FINISHED
-+	ns83820_probe_phy(dev);
-+#endif
-+
- 	return 0;
- 
- out_unmap:
-@@ -1670,7 +2058,7 @@
- }
- 
- static struct pci_device_id ns83820_pci_tbl[] __devinitdata = {
--	{ 0x100b, 0x0022, PCI_ANY_ID, PCI_ANY_ID, 0, 0, },
-+	{ 0x100b, 0x0022, PCI_ANY_ID, PCI_ANY_ID, 0, .driver_data = 0, },
- 	{ 0, },
- };
- 
-@@ -1703,5 +2091,14 @@
- 
- MODULE_DEVICE_TABLE(pci, ns83820_pci_tbl);
- 
-+MODULE_PARM(lnksts, "i");
-+MODULE_PARM_DESC(lnksts, "Polarity of LNKSTS bit");
-+
-+MODULE_PARM(ihr, "i");
-+MODULE_PARM_DESC(ihr, "Time in 100 us increments to delay interrupts (range 0-127)");
-+
-+MODULE_PARM(reset_phy, "i");
-+MODULE_PARM_DESC(reset_phy, "Set to 1 to reset the PHY on startup");
-+
- module_init(ns83820_init);
- module_exit(ns83820_exit);
+...
+ide: Assuming 33Mhz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller at PCI slot 00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+	ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+	ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: WDC AC21600H, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: Maxtor 92041U4, ATA DISK drive
+hdd: CD-ROM 32X/AKU, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+PIIX4: IDE controller at PCI slot 00:07.1
+PCI: Unable ro reserve I/O region #5:10@f000 for device 00:07.1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: port 0x0170 already claimed by ide1
+PIIX4: neither IDE port enabled (BIOS)
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+hda: 3173184 sectors (1625 MB) w/128KiB Cache, CHS=787/64/63
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+hdc: host protected area => 1
+hdc: 40020624 sectors (20491 MB) w/512KiB Cache, CHS=39703/16/63
+ /devide/host0/bus1/target0/lun0: p1 p3
+.....
+
+
+My .config
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+CONFIG_M586MMX=y
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+# CONFIG_HUGETLB_PAGE is not set
+# CONFIG_SMP is not set
+# CONFIG_PREEMPT is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_UP_IOAPIC is not set
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+
+#
+# Power management options (ACPI, APM)
+#
+
+#
+# ACPI Support
+#
+# CONFIG_ACPI is not set
+# CONFIG_PM is not set
+# CONFIG_APM is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=m
+CONFIG_CARDBUS=y
+# CONFIG_I82092 is not set
+CONFIG_I82365=m
+# CONFIG_TCIC is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+
+#
+# Executable file formats
+#
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+# CONFIG_PARPORT_SERIAL is not set
+CONFIG_PARPORT_PC_FIFO=y
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_PC_PCMCIA is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+# CONFIG_PARPORT_1284 is not set
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=m
+CONFIG_ISAPNP=m
+# CONFIG_PNPBIOS is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+# CONFIG_BLK_DEV_INITRD is not set
+
+#
+# ATA/ATAPI/MFM/RLL device support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_BLK_DEV_GENERIC is not set
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+# CONFIG_IDEDMA_PCI_AUTO is not set
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NFORCE is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_AUTO is not set
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI device support
+#
+# CONFIG_SCSI is not set
+
+#
+# Old non-SCSI/ATAPI CD-ROM drives
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK_DEV is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+# CONFIG_IPV6 is not set
+
+#
+#    SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IPV6_SCTP__=y
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_LLC is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DEV_APPLETALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+CONFIG_HP100=m
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_E100 is not set
+# CONFIG_LNE390 is not set
+# CONFIG_FEALNX is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_NE3210 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_8139CP is not set
+# CONFIG_8139TOO is not set
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_SUNDANCE_MMIO is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_VIA_RHINE_MMIO is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_E1000_NAPI is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+CONFIG_NET_RADIO=y
+# CONFIG_STRIP is not set
+# CONFIG_ARLAN is not set
+# CONFIG_AIRONET4500 is not set
+# CONFIG_AIRONET4500_NONCS is not set
+# CONFIG_AIRONET4500_PROC is not set
+# CONFIG_WAVELAN is not set
+# CONFIG_AIRO is not set
+CONFIG_HERMES=m
+# CONFIG_PLX_HERMES is not set
+# CONFIG_PCI_HERMES is not set
+# CONFIG_PCMCIA_NETWAVE is not set
+# CONFIG_PCMCIA_WAVELAN is not set
+CONFIG_PCMCIA_HERMES=m
+# CONFIG_AIRO_CS is not set
+CONFIG_NET_WIRELESS=y
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Tulip family network device support
+#
+CONFIG_NET_TULIP=y
+CONFIG_DE2104X=m
+CONFIG_TULIP=m
+# CONFIG_TULIP_MWI is not set
+# CONFIG_TULIP_MMIO is not set
+# CONFIG_DE4X5 is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_PCMCIA_XIRCOM is not set
+# CONFIG_PCMCIA_XIRTULIP is not set
+
+#
+# PCMCIA network device support
+#
+# CONFIG_NET_PCMCIA is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN_BOOL is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+# CONFIG_INPUT_EVBUG is not set
+CONFIG_GAMEPORT=m
+CONFIG_SOUND_GAMEPORT=m
+CONFIG_GAMEPORT_NS558=m
+# CONFIG_GAMEPORT_L4 is not set
+# CONFIG_GAMEPORT_EMU10K1 is not set
+# CONFIG_GAMEPORT_VORTEX is not set
+# CONFIG_GAMEPORT_FM801 is not set
+# CONFIG_GAMEPORT_CS461x is not set
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+CONFIG_INPUT_JOYSTICK=y
+CONFIG_JOYSTICK_ANALOG=m
+# CONFIG_JOYSTICK_A3D is not set
+# CONFIG_JOYSTICK_ADI is not set
+# CONFIG_JOYSTICK_COBRA is not set
+# CONFIG_JOYSTICK_GF2K is not set
+# CONFIG_JOYSTICK_GRIP is not set
+# CONFIG_JOYSTICK_GRIP_MP is not set
+# CONFIG_JOYSTICK_GUILLEMOT is not set
+# CONFIG_JOYSTICK_INTERACT is not set
+# CONFIG_JOYSTICK_SIDEWINDER is not set
+# CONFIG_JOYSTICK_TMDC is not set
+# CONFIG_JOYSTICK_IFORCE is not set
+# CONFIG_JOYSTICK_WARRIOR is not set
+# CONFIG_JOYSTICK_MAGELLAN is not set
+# CONFIG_JOYSTICK_SPACEORB is not set
+# CONFIG_JOYSTICK_SPACEBALL is not set
+# CONFIG_JOYSTICK_STINGER is not set
+# CONFIG_JOYSTICK_TWIDDLER is not set
+# CONFIG_JOYSTICK_DB9 is not set
+# CONFIG_JOYSTICK_GAMECON is not set
+# CONFIG_JOYSTICK_TURBOGRAFX is not set
+CONFIG_INPUT_JOYDUMP=m
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_TOUCHSCREEN_GUNZE is not set
+# CONFIG_INPUT_MISC is not set
+# CONFIG_INPUT_PCSPKR is not set
+# CONFIG_INPUT_UINPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=m
+# CONFIG_SERIAL_8250_CONSOLE is not set
+# CONFIG_SERIAL_8250_CS is not set
+CONFIG_SERIAL_8250_EXTENDED=y
+# CONFIG_SERIAL_8250_MANY_PORTS is not set
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+# CONFIG_SERIAL_8250_DETECT_IRQ is not set
+# CONFIG_SERIAL_8250_MULTIPORT is not set
+# CONFIG_SERIAL_8250_RSA is not set
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+# CONFIG_LP_CONSOLE is not set
+CONFIG_PPDEV=m
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+# CONFIG_GEN_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+
+#
+# PCMCIA character devices
+#
+# CONFIG_SYNCLINK_CS is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_QFMT_V1 is not set
+# CONFIG_QFMT_V2 is not set
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+CONFIG_REISERFS_PROC_INFO=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+CONFIG_HFS_FS=m
+# CONFIG_BFS_FS is not set
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=m
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+# CONFIG_CRAMFS is not set
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+# CONFIG_JFS_FS is not set
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_MINIX_FS=y
+# CONFIG_VXFS_FS is not set
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_DEBUG is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+# CONFIG_DEVFS_DEBUG is not set
+# CONFIG_DEVPTS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_XFS_RT is not set
+# CONFIG_XFS_QUOTA is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+CONFIG_ZISOFS_FS=m
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-2"
+CONFIG_NLS_CODEPAGE_437=m
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+CONFIG_NLS_CODEPAGE_852=m
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+CONFIG_NLS_CODEPAGE_1250=m
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=m
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+
+#
+# Open Sound System
+#
+CONFIG_SOUND_PRIME=m
+# CONFIG_SOUND_BT878 is not set
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_MIDI_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_RME96XX is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+# CONFIG_MIDI_VIA82CXXX is not set
+CONFIG_SOUND_OSS=m
+# CONFIG_SOUND_TRACEINIT is not set
+# CONFIG_SOUND_DMAP is not set
+# CONFIG_SOUND_AD1816 is not set
+# CONFIG_SOUND_SGALAXY is not set
+CONFIG_SOUND_ADLIB=m
+# CONFIG_SOUND_ACI_MIXER is not set
+# CONFIG_SOUND_CS4232 is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_GUS is not set
+# CONFIG_SOUND_VMIDI is not set
+# CONFIG_SOUND_TRIX is not set
+CONFIG_SOUND_MSS=m
+CONFIG_SOUND_MPU401=m
+# CONFIG_SOUND_NM256 is not set
+CONFIG_SOUND_MAD16=m
+CONFIG_MAD16_OLDCARD=y
+# CONFIG_SOUND_PAS is not set
+# CONFIG_PAS_JOYSTICK is not set
+# CONFIG_SOUND_PSS is not set
+# CONFIG_SOUND_SB is not set
+# CONFIG_SOUND_AWE32_SYNTH is not set
+# CONFIG_SOUND_WAVEFRONT is not set
+# CONFIG_SOUND_MAUI is not set
+CONFIG_SOUND_YM3812=m
+# CONFIG_SOUND_OPL3SA1 is not set
+# CONFIG_SOUND_OPL3SA2 is not set
+# CONFIG_SOUND_YMFPCI is not set
+# CONFIG_SOUND_YMFPCI_LEGACY is not set
+# CONFIG_SOUND_UART6850 is not set
+# CONFIG_SOUND_AEDSP16 is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# Advanced Linux Sound Architecture
+#
+# CONFIG_SND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_SOFTWARE_SUSPEND is not set
+CONFIG_DEBUG_KERNEL=y
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_IOVIRT is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+
+#
+# Security options
+#
+CONFIG_SECURITY_CAPABILITIES=y
+
+#
+# Library routines
+#
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y

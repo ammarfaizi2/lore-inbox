@@ -1,42 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318862AbSHEUNq>; Mon, 5 Aug 2002 16:13:46 -0400
+	id <S318867AbSHEUOX>; Mon, 5 Aug 2002 16:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318864AbSHEUNo>; Mon, 5 Aug 2002 16:13:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:20468 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318862AbSHEUNj>; Mon, 5 Aug 2002 16:13:39 -0400
-Subject: Re: Linux 2.4.19-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jt@hpl.hp.com
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020805200418.GA10287@bougret.hpl.hp.com>
-References: <20020805174646.GH10011@bougret.hpl.hp.com>
-	<1028579501.18478.74.camel@irongate.swansea.linux.org.uk> 
-	<20020805200418.GA10287@bougret.hpl.hp.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 22:35:57 +0100
-Message-Id: <1028583357.18156.78.camel@irongate.swansea.linux.org.uk>
+	id <S318868AbSHEUOX>; Mon, 5 Aug 2002 16:14:23 -0400
+Received: from h-64-105-137-168.SNVACAID.covad.net ([64.105.137.168]:61636
+	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318867AbSHEUOT>; Mon, 5 Aug 2002 16:14:19 -0400
+Date: Mon, 5 Aug 2002 13:17:40 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: mporter@mvista.com
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
+Message-ID: <20020805131740.A2433@baldur.yggdrasil.com>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 21:04, Jean Tourrilhes wrote:
-st tell me which way around you want to do it
-> 
-> 	Well, I was mostly talking of 2.5.X, and as far a I know
-> Marcelo is still not doing it.
 
-I've not been able to boot 2.5.30 so I've been working on 2.4 
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 	I was planning to send my IrDA fixes today (or tommorow), they
-> are already on my web pages but I need to test them again, so if you
-> want to do it yourself maybe you can wait pre2. But that depend on
-> what Marcelo is doing with my patches.
+	I want to replace all statements in the kernel of the form
+BUG_ON(condition1 || condition2) with:
 
-I can merge the __FUNCTION__ stuff once you sync with Marcelo, won't be
-a  problem
+			BUG_ON(condition1);
+			BUG_ON(condition2);
 
+	I was recently bitten by a very sporadic BUG_ON(cond1 || cond2)
+statement and was quite annoyed at the greatly reduced opportunity to
+debug the problem.  Make these changes and someone who experiences
+the problem may be able to provide slightly more useful information.
+
+	There are only three other places in the kernel besides the
+bug I tripped (Matt Dharm and Greg Kroah-Hartmann have already accepted
+the patch that I submitted for that one, in drivers/usb/storage).  They
+are:
+
+	2 in arch/arm/mach-iop310/iq80310-pci.c
+	12 in fs/ntfs/
+	23 in fs/partitions/ldm.c
+
+	Here is the patch for linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c.
+
+	Please let me know if you are going to shepherd this patch to
+Linus's linux-2.5 tree, if you want me to submit it to Linus or
+someone else, or if there is some other way you'd like me to proceed.
+
+	Thanks for your work on Linux on ARM.
+
+-- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="arm.diff"
+
+--- linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c	2002-08-01 14:16:18.000000000 -0700
++++ linux/arch/arm/mach-iop310/iq80310-pci.c	2002-08-05 12:44:20.000000000 -0700
+@@ -65,7 +65,8 @@
+ {
+ 	irq_table *pci_irq_table;
+ 
+-	BUG_ON(pin < 1 || pin > 4);
++	BUG_ON(pin < 1);
++	BUG_ON(pin > 4);
+ 
+ 	if (!system_rev) {
+ 		pci_irq_table = pci_pri_d_irq_table;
+@@ -102,7 +103,8 @@
+ {
+ 	irq_table *pci_irq_table;
+ 
+-	BUG_ON(pin < 1 || pin > 4);
++	BUG_ON(pin < 1);
++	BUG_ON(pin > 4);
+ 
+ 	if (!system_rev) {
+ 		pci_irq_table = pci_sec_d_irq_table;
+
+--PNTmBPCT7hxwcZjr--

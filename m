@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272510AbTGZOlT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272549AbTGZOkv
+	id S270148AbTGZP2N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 11:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270140AbTGZPZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:40:51 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:23882 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272530AbTGZOcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:51 -0400
-Date: Sat, 26 Jul 2003 16:51:59 +0200
-Message-Id: <200307261451.h6QEpxKM002478@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k ret_from_fork
+	Sat, 26 Jul 2003 11:25:10 -0400
+Received: from mail.gmx.net ([213.165.64.20]:57526 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S270164AbTGZPXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 11:23:00 -0400
+Date: Sat, 26 Jul 2003 21:08:11 +0530
+From: Apurva Mehta <apurva@gmx.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Random Oopses on 2.6.0-test1-mm2
+Message-ID: <20030726153811.GC1327@home.woodlands>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030726071801.GB1358@home.woodlands> <1059209649.577.4.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059209649.577.4.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Revert to 2.4 behavior in ret_from_fork (always call schedule_tail,
-regardless of CONFIG_SMP), as suggested by Andreas Schwab.
+* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> [26-07-2003 14:44]:
+> On Sat, 2003-07-26 at 09:18, Apurva Mehta wrote:
+> > Hi, 
+> > 
+> > I get random oopses while using 2.6.0-test1-mm2. I have attached the
+> > oops message and also the ksymoops output. I get the same behaviour
+> > with the 08int patch applied also. The OOPs message attached was
+> > obtained on a 2.6.0-test1-mm2-08int.
+> 
+> Please, try the following patch...
 
-This removes the warnings from sched.c (from Sam Creasey).
+Yes, that seems to have fixed the problem. So far, I see a definite
+improvement over the vanilla 2.6.0-test1. 
 
---- linux-2.6.x/arch/m68k/kernel/entry.S	Tue May 27 19:02:32 2003
-+++ linux-m68k-2.6.x/arch/m68k/kernel/entry.S	Fri Jul 18 16:23:57 2003
-@@ -68,11 +68,13 @@
- 	addql	#4,%sp
- 	jra	ret_from_exception
- 
--	| schedule_tail is only used with CONFIG_SMP
-+        | After a fork we jump here directly from resume,
-+	| so that %d1 contains the previous task
-+	| schedule_tail now used regardless of CONFIG_SMP
- ENTRY(ret_from_fork)
--#ifdef CONFIG_SMP
-+	movel	%d1,%sp@-
- 	jsr	schedule_tail
--#endif
-+	addql	#4,%sp
- 	jra	ret_from_exception
- 
- badsys:
+But Ingo's patch made the vanilla 2.6.0-test1 awesome under really
+heavy load. I basically was compiling 2.6.0-test1-mm2-O8 from scratch
+and the system was (almost) as responsive as if there was no load, with
+no audio skipping. That was the first real improvement I have seen
+over the vanilla 2.4.21... Will keep you'll posted at how
+2.6.0-test1-mm2-O8int compares..
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	- Apurva

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTFOS31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 14:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFOS30
+	id S262601AbTFOS3O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 14:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFOS14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 14:29:26 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:43341 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262598AbTFOS2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 14:28:09 -0400
-Date: Sun, 15 Jun 2003 20:38:40 +0200
-Message-Id: <200306151838.h5FIcefR008316@callisto.of.borg>
+	Sun, 15 Jun 2003 14:27:56 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:15165 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262584AbTFOS0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 14:26:19 -0400
+Date: Sun, 15 Jun 2003 20:36:52 +0200
+Message-Id: <200306151836.h5FIaqv2008285@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>, perex@suse.cz
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] NCR53C9x compile fix
+Subject: [PATCH] Isapnp warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NCR53C9x SCSI: Fix compilation after breakage in 2.5.71
+Isapnp: Kill warning if CONFIG_PCI is not set
 
---- linux-2.5.x/drivers/scsi/NCR53C9x.c	Sun Jun 15 10:04:26 2003
-+++ linux-m68k-2.5.x/drivers/scsi/NCR53C9x.c	Sun Jun 15 11:49:32 2003
-@@ -893,7 +893,7 @@
- int esp_proc_info(struct Scsi_Host *shost, char *buffer, char **start, off_t offset, int length,
- 		  int inout)
- {
--	struct NCR_ESP *esp = (struct NCR_ESP *) SCpnt->device->host->hostdata;
-+	struct NCR_ESP *esp = (struct NCR_ESP *)shost->hostdata;
+--- linux-2.5.x/drivers/pnp/resource.c	Tue May 27 19:03:04 2003
++++ linux-m68k-2.5.x/drivers/pnp/resource.c	Sun Jun  8 13:31:20 2003
+@@ -97,7 +97,9 @@
  
- 	if(inout)
- 		return -EINVAL; /* not yet */
+ int pnp_add_irq_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data)
+ {
++#ifdef CONFIG_PCI
+ 	int i;
++#endif
+ 	struct pnp_resources *res;
+ 	struct pnp_irq *ptr;
+ 	res = pnp_find_resources(dev,depnum);
 
 Gr{oetje,eeting}s,
 

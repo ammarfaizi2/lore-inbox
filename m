@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292848AbSB0Wq1>; Wed, 27 Feb 2002 17:46:27 -0500
+	id <S293007AbSB0XBU>; Wed, 27 Feb 2002 18:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293029AbSB0Wp7>; Wed, 27 Feb 2002 17:45:59 -0500
-Received: from mail.shorewall.net ([206.124.146.177]:38150 "EHLO
-	mail.shorewall.net") by vger.kernel.org with ESMTP
-	id <S293028AbSB0Wpa>; Wed, 27 Feb 2002 17:45:30 -0500
-From: "Tom Eastep" <teastep@shorewall.net>
-To: "'James Cassidy'" <jcassidy@cs.kent.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
-Date: Wed, 27 Feb 2002 14:45:31 -0800
-Organization: Shoreline Firewall
-Message-ID: <000e01c1bfe0$76103e00$0501a8c0@ursa>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-In-Reply-To: <20020227223301.GA632@qfire.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S293028AbSB0XBI>; Wed, 27 Feb 2002 18:01:08 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:11182 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S293024AbSB0XAx>; Wed, 27 Feb 2002 18:00:53 -0500
+Date: Thu, 28 Feb 2002 00:00:46 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Bjorn Wesen <bjorn.wesen@axis.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What is TCPRenoRecoveryFail ?
+Message-ID: <20020228000046.A26358@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Bjorn Wesen <bjorn.wesen@axis.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020227152705.A18366@outpost.ds9a.nl> <Pine.LNX.3.96.1020227153315.18713F-101000@fafner.axis.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1020227153315.18713F-101000@fafner.axis.se>; from bjorn.wesen@axis.com on Wed, Feb 27, 2002 at 06:33:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 27, 2002 at 06:33:43PM +0000, Bjorn Wesen wrote:
 
-
-> -----Original Message-----
-> From: James Cassidy [mailto:jcassidy@qfire.net] On Behalf Of 
-> James Cassidy
-> Sent: Wednesday, February 27, 2002 2:33 PM
-> To: Tom Eastep
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing 
-> Video Problems
+> > Please show a tcpdump -v of this happening, including the initial SYN
+> > packets. I strongly suspect something in your network of mucking with TCP
+> > options.
 > 
+> Ok this is mangled by the email client but i attached the binary dump of
+> the relevant packets. The dump is taken on the windows machine, which
+> complicates the analysis because perhaps the network card itself is
+> screwing up, but that is a low probability because all succeeding
+
+This dump is somewhat inconclusive. I miss the SYN packets, but I'm
+especially interested in this bit:
+
+> 23:46:43.011000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: . [tcp
+> sum ok] 7300:8760(1460) ack 1 win 5840 (DF) (ttl 64, id 37963, len 1500)
+> 23:46:43.011000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
+> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55373, len 40)
+> 23:46:43.011000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: . [tcp
+> sum ok] 8760:10220(1460) ack 1 win 5840 (DF) (ttl 64, id 37964, len 1500)
+> 23:46:43.011000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
+> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55629, len 40)
+> 23:46:43.012000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: P [tcp
+> sum ok] 10220:11680(1460) ack 1 win 5840 (DF) (ttl 64, id 37965, len 1500)
+> 23:46:43.012000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
+> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55885, len 40)
 > 
-> 	Odd, I have had constant problems with crashes when 
-> ever I stressed
-> my memory system with Athlon kernel selected in the kernel 
-> config. Same
-> machine,  Compaq Presario 700 series.
+> .. long timeout here until the server finally gives up the connection ..
 
-Mine is not a 700 -- it is Presario 5108US Desktop.
+how does this continue? I see the linux machine continuing to send data with
+higher sequence numbers, but how does it end? It looks like the linux
+machine never sent anything beyond 11680, relative.
 
-> Usually a kernel 
-> compile was enough
-> to cause an opps on one of these kernels. 
-> 	When the path in 2.4.18 in pre1 or pre2 don't remember, 
-> it fixed the
-> problem on my Compaq Presario 700. I've been running the 2.4.18 series
-> since the patch was added and as of today I have not 
-> experienced another
-> opps of this kind with the Athlon option enabled in the kernel.
-> 
+To know more, dump at both ends. I really think something in between is
+messing up - either a network adaptor or a ""smart"" network element.
 
-Your system appears to be one of the ones for which the workaround is
-effective. Mine on the other hand works fine without the workaround and
-has problems when the workaround is activated.
+Regards,
 
--Tom
---
-Tom Eastep   \ Shorewall -- iptables made easy
-AIM: tmeastep \ http://www.shorewall.net
-ICQ: #60745924 \ teastep@shorewall.net 
+bert
 
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

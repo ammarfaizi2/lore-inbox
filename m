@@ -1,44 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318249AbSHZUNH>; Mon, 26 Aug 2002 16:13:07 -0400
+	id <S318230AbSHZUX0>; Mon, 26 Aug 2002 16:23:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318250AbSHZUNH>; Mon, 26 Aug 2002 16:13:07 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37893 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318249AbSHZUNG>; Mon, 26 Aug 2002 16:13:06 -0400
-Date: Mon, 26 Aug 2002 21:17:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG/PATCH] : bug in tty_default_put_char()
-Message-ID: <20020826211721.G4763@flint.arm.linux.org.uk>
-References: <20020826180749.GA8630@bougret.hpl.hp.com> <1030388224.2797.2.camel@irongate.swansea.linux.org.uk> <20020826185930.GA8749@bougret.hpl.hp.com> <1030388847.2776.15.camel@irongate.swansea.linux.org.uk>
+	id <S318242AbSHZUX0>; Mon, 26 Aug 2002 16:23:26 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59909
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S318230AbSHZUXY>; Mon, 26 Aug 2002 16:23:24 -0400
+Subject: Re: [PATCH] per-arch load balancing
+From: Robert Love <rml@tech9.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020826211159.A6186@infradead.org>
+References: <1030392283.1020.407.camel@phantasy> 
+	<20020826211159.A6186@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Aug 2002 16:27:36 -0400
+Message-Id: <1030393657.861.440.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1030388847.2776.15.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 26, 2002 at 08:07:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 08:07:27PM +0100, Alan Cox wrote:
-> On Mon, 2002-08-26 at 19:59, Jean Tourrilhes wrote:
-> > 	Just check drivers/char/n_tty.c for every occurence of
-> > put_char() and be scared. The problem is to find a practical solution.
-> > 	For myself, I've added some clever workaround in IrCOMM to
-> > accept data before full setup.
-> 
-> Sure making it return the right errors doesnt fix anything, but it
-> allows you to fix some of it bit by bit. 
+On Mon, 2002-08-26 at 16:11, Christoph Hellwig wrote:
 
-put_char() is not allowed to fail since the caller should have already
-checked for buffer space via the write_room() method.
+> Can we have a asm/sched.h instead?  especially if we might add additional
+> per-arch scheduler bits.  Also I think a asm-generic version is better than
+> linux/smp_balance.h + the ARCH_HAS_SMP_BALANCE hack.  I'd prefer if you
+> would move the #include ontop ot sched.c, too - includes in the middle of
+> a file are really messy.
 
-All places look adequately protected in n_tty.c, so I'm not currently
-sure how Jean's users are seeing this condition; I'd need to have a
-BUG() showing the call trace of such an event happening.
+These are all good ideas.  Here we go again:
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+This patch implements per-arch scheduler support with specific support
+(currently) for per-arch load balancing.  We implement an
+asm-generic/sched.h with default methods.  Each architecture needs to
+define its own asm/sched.h but by default it would just include
+asm-generic/sched.h.
+
+Better?
+
+	Robert Love
+
+diff -urN linux-2.5.31/include/asm-generic/sched.h linux/include/asm-generic/sched.h
+--- linux-2.5.31/include/asm-generic/sched.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-generic/sched.h	Mon Aug 26 16:20:50 2002
+@@ -0,0 +1,14 @@
++#ifndef _LINUX_SCHED_H
++#define _LINUX_SCHED_H
++
++/*
++ * include/asm-generic/sched.h - generic and default versions of per-arch
++ * scheduler bits
++ */
++
++/*
++ * per-architecture load balancing logic, e.g. for hyperthreading
++ */
++#define arch_load_balance(x, y)		(0)
++
++#endif /* _LINUX_SCHED_H */
+diff -urN linux-2.5.31/include/asm-i386/sched.h linux/include/asm-i386/sched.h
+--- linux-2.5.31/include/asm-i386/sched.h	Wed Dec 31 19:00:00 1969
++++ linux/include/asm-i386/sched.h	Mon Aug 26 16:22:33 2002
+@@ -0,0 +1,7 @@
++#ifndef _I386_SCHED_H
++#define _I386_SCHED_H
++
++/* nothing to see here, move along */
++#include <asm-generic/sched.h>
++
++#endif /* _I386_SCHED_H */
+diff -urN linux-2.5.31/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.31/kernel/sched.c	Sat Aug 10 21:41:24 2002
++++ linux/kernel/sched.c	Mon Aug 26 16:21:35 2002
+@@ -29,6 +29,7 @@
+ #include <linux/security.h>
+ #include <linux/notifier.h>
+ #include <linux/delay.h>
++#include <asm/sched.h>
+ 
+ /*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+@@ -639,6 +640,12 @@
+ 	runqueue_t *busiest, *rq_src;
+ 
+ 	/*
++	 * Handle architecture-specific balancing, such as hyperthreading.
++	 */
++	if (arch_load_balance(this_cpu, idle))
++		return NULL;
++
++	/*
+ 	 * We search all runqueues to find the most busy one.
+ 	 * We do this lockless to reduce cache-bouncing overhead,
+ 	 * we re-check the 'best' source CPU later on again, with
 

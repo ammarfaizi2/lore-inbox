@@ -1,253 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTCEWsr>; Wed, 5 Mar 2003 17:48:47 -0500
+	id <S266961AbTCEW4s>; Wed, 5 Mar 2003 17:56:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbTCEWsr>; Wed, 5 Mar 2003 17:48:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23273 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266805AbTCEWsh>; Wed, 5 Mar 2003 17:48:37 -0500
-Date: Wed, 5 Mar 2003 23:59:01 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: CaT <cat@zip.com.au>, laforge@netfilter.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove all ipv6_ext_hdr's from ip6tables
-Message-ID: <20030305225901.GP20423@fs.tum.de>
-References: <20030305153259.GE2075@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030305153259.GE2075@zip.com.au>
-User-Agent: Mutt/1.4i
+	id <S266965AbTCEW4s>; Wed, 5 Mar 2003 17:56:48 -0500
+Received: from dsl-fl-207-34-65-6-cgy.nucleus.com ([207.34.65.6]:63222 "EHLO
+	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id <S266961AbTCEW4r>;
+	Wed, 5 Mar 2003 17:56:47 -0500
+Message-ID: <3E66842F.9020000@WirelessNetworksInc.com>
+Date: Wed, 05 Mar 2003 16:11:43 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux vs Windows temperature anomaly
+References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain> <20030305205032.GD2958@atrey.karlin.mff.cuni.cz> <p05210507ba8c20241329@[10.2.0.101]>
+In-Reply-To: <p05210507ba8c20241329@[10.2.0.101]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Mar 2003 23:07:17.0189 (UTC) FILETIME=[F76C9750:01C2E36B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 02:32:59AM +1100, CaT wrote:
 
->...
-> net/ipv6/netfilter/ip6t_dst.o: In function `ipv6_ext_hdr':
-> net/ipv6/netfilter/ip6t_dst.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
-> net/ipv6/netfilter/ip6t_rt.o(.text+0x0): first defined here
->...
 
-I don't understand why someone added an ipv6_ext_hdr to every single 
-file instead of using the ip6t_ext_hdr that is already present in 
-ip6_tables.c. The patch below fixes this problem.
+Jonathan Lundell wrote:
+> We've been seeing a curious phenomenon on some PIII/ServerWorks CNB30-LE 
+> systems.
+> 
+> The systems fail at relatively low temperatures. While the failures are 
+> So, the puzzle: what might account for temperature sensitivity, of all 
+> things, under Linux 2.4.9-31 (RH 7.2), but not Win2K?
 
-cu
-Adrian
+Linux is more 'busy' than windoze and I have heard of boxes frying when 
+running Linux.   The solution is to find a better motherboard 
+manufacturer...
 
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c.old	2003-03-05 23:30:00.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ah.c	2003-03-05 23:30:43.000000000 +0100
-@@ -26,17 +26,6 @@
-        __u32   spi;
- };
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /* Returns 1 if the spi is matched by the range, 0 otherwise */
- static inline int
- spi_match(u_int32_t min, u_int32_t max, u_int32_t spi, int invert)
-@@ -79,7 +68,7 @@
-        len = skb->len - ptr;
-        temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-                struct ipv6_opt_hdr *hdr;
- 
-               DEBUGP("ipv6_ah header iteration \n");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c.old	2003-03-05 23:30:44.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_dst.c	2003-03-05 23:31:01.000000000 +0100
-@@ -29,17 +29,6 @@
- #define DEBUGP(format, args...)
- #endif
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /*
-  * (Type & 0xC0) >> 6
-  * 	0	-> ignorable
-@@ -84,7 +73,7 @@
-        len = skb->len - ptr;
-        temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-                struct ipv6_opt_hdr *hdr;
- 
-               DEBUGP("ipv6_opts header iteration \n");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c.old	2003-03-05 23:31:02.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_esp.c	2003-03-05 23:31:22.000000000 +0100
-@@ -23,17 +23,6 @@
- 	__u32   spi;
- };
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /* Returns 1 if the spi is matched by the range, 0 otherwise */
- static inline int
- spi_match(u_int32_t min, u_int32_t max, u_int32_t spi, int invert)
-@@ -74,7 +63,7 @@
- 	len = skb->len - ptr;
- 	temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-         	struct ipv6_opt_hdr *hdr;
-         	int hdrlen;
- 
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c.old	2003-03-05 23:31:23.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_frag.c	2003-03-05 23:31:45.000000000 +0100
-@@ -44,17 +44,6 @@
-        __u32   id;
- };
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /* Returns 1 if the id is matched by the range, 0 otherwise */
- static inline int
- id_match(u_int32_t min, u_int32_t max, u_int32_t id, int invert)
-@@ -93,7 +82,7 @@
-        len = skb->len - ptr;
-        temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-                struct ipv6_opt_hdr *hdr;
- 
-               DEBUGP("ipv6_frag header iteration \n");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c.old	2003-03-05 23:31:45.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_hbh.c	2003-03-05 23:32:01.000000000 +0100
-@@ -29,17 +29,6 @@
- #define DEBUGP(format, args...)
- #endif
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /*
-  * (Type & 0xC0) >> 6
-  * 	0	-> ignorable
-@@ -84,7 +73,7 @@
-        len = skb->len - ptr;
-        temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-                struct ipv6_opt_hdr *hdr;
- 
-               DEBUGP("ipv6_opts header iteration \n");
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c.old	2003-03-05 23:32:02.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_ipv6header.c	2003-03-05 23:32:26.000000000 +0100
-@@ -24,17 +24,6 @@
- #define DEBUGP(format, args...)
- #endif
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- static int
- ipv6header_match(const struct sk_buff *skb,
- 		 const struct net_device *in,
-@@ -95,7 +84,7 @@
- 
- 	temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-         	struct ipv6_opt_hdr *hdr;
-         	int hdrlen;
- 
---- linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c.old	2003-03-05 23:32:26.000000000 +0100
-+++ linux-2.5.64-notfull/net/ipv6/netfilter/ip6t_rt.c	2003-03-05 23:32:40.000000000 +0100
-@@ -21,17 +21,6 @@
- #define DEBUGP(format, args...)
- #endif
- 
--int ipv6_ext_hdr(u8 nexthdr)
--{
--        return ( (nexthdr == NEXTHDR_HOP)       ||
--                 (nexthdr == NEXTHDR_ROUTING)   ||
--                 (nexthdr == NEXTHDR_FRAGMENT)  ||
--                 (nexthdr == NEXTHDR_AUTH)      ||
--                 (nexthdr == NEXTHDR_ESP)       ||
--                 (nexthdr == NEXTHDR_NONE)      ||
--                 (nexthdr == NEXTHDR_DEST) );
--}
--
- /* Returns 1 if the id is matched by the range, 0 otherwise */
- static inline int
- segsleft_match(u_int32_t min, u_int32_t max, u_int32_t id, int invert)
-@@ -71,7 +60,7 @@
-        len = skb->len - ptr;
-        temp = 0;
- 
--        while (ipv6_ext_hdr(nexthdr)) {
-+        while (ip6t_ext_hdr(nexthdr)) {
-                struct ipv6_opt_hdr *hdr;
- 
-               DEBUGP("ipv6_rt header iteration \n");
---- linux-2.5.64-notfull/include/linux/netfilter_ipv6/ip6_tables.h.old	2003-03-05 23:36:49.000000000 +0100
-+++ linux-2.5.64-notfull/include/linux/netfilter_ipv6/ip6_tables.h	2003-03-05 23:49:51.000000000 +0100
-@@ -449,6 +449,9 @@
- 				  struct ip6t_table *table,
- 				  void *userdata);
- 
-+/* Check for an extension */
-+extern int ip6t_ext_hdr(u8 nexthdr);
-+
- #define IP6T_ALIGN(s) (((s) + (__alignof__(struct ip6t_entry)-1)) & ~(__alignof__(struct ip6t_entry)-1))
- 
- #endif /*__KERNEL__*/
+Cheers,
+-- 
+
+------------------------------------------------------------------------
+Herman Oosthuysen
+B.Eng.(E), Member of IEEE
+Wireless Networks Inc.
+http://www.WirelessNetworksInc.com
+E-mail: Herman@WirelessNetworksInc.com
+Phone: 1.403.569-5687, Fax: 1.403.235-3965
+------------------------------------------------------------------------
+
+

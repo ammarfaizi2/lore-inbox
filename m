@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275178AbRIZNSO>; Wed, 26 Sep 2001 09:18:14 -0400
+	id <S275173AbRIZNVe>; Wed, 26 Sep 2001 09:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275179AbRIZNSE>; Wed, 26 Sep 2001 09:18:04 -0400
-Received: from heffalump.fnal.gov ([131.225.9.20]:8311 "EHLO fnal.gov")
-	by vger.kernel.org with ESMTP id <S275178AbRIZNRz>;
-	Wed, 26 Sep 2001 09:17:55 -0400
-Date: Wed, 26 Sep 2001 08:18:22 -0500 (CDT)
-From: vkuznet <vkuznet@fnal.gov>
-Subject: problem with 2.4.8 and "Checking root filesystem"
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.33.0109260811240.2579-100000@vk-clued0.fnal.gov>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	id <S275179AbRIZNVY>; Wed, 26 Sep 2001 09:21:24 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:54284 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S275173AbRIZNVI>;
+	Wed, 26 Sep 2001 09:21:08 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: New generic HDLC available
+In-Reply-To: <m3bsoumbtv.fsf@intrepid.pm.waw.pl>
+	<3BAA0465.C02DFEB7@cyclades.com>
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 26 Sep 2001 15:11:39 +0200
+In-Reply-To: "Daniela P. R. Magri Squassoni"'s message of "Thu, 20 Sep 2001 11:59:49 -0300"
+Message-ID: <m34rpqrt9w.fsf@intrepid.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-I'm trying to install kernel 2.4.8 with Alan's patches (AC) plus XFS.
-I took vanilla kernel, applied all patches and build successfully
-kernel. When I reboot system, kernel was loaded and on my RedHat 7.1
-booting sequence stopped at
-Checking root filesystem...
-and wait forever. It doesn't try to invoke fsck for root file system,
-just wait for something. Reading Documentation/Changes for new kernel
-I check out that have all appropriate packages (all needed vesions
-of e2fsprogs, etc.) Any idea what happens and how to fix?
 
-System Dual PIII, SCSI disks (Adaptec AIC7xxx), root on ext2, the rest on xfs.
+"Daniela P. R. Magri Squassoni" <daniela@cyclades.com> writes:
 
-I'll appreciate if you personally CC'ed the answers/comments to my Email
-since I'm still not in kernel mailing list.
+> Are there any news about the inclusion of these changes in the kernel?
 
-Regards,
-Valentin.
-
+I hope so. However, dscc4.c uses the old version. While I think it's
+easy to port it to the new one (it should simplify the code in fact),
+it has to be done.
+-- 
+Krzysztof Halasa
+Network Administrator

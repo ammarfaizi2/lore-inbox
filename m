@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbTCJRVa>; Mon, 10 Mar 2003 12:21:30 -0500
+	id <S261382AbTCJRRx>; Mon, 10 Mar 2003 12:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbTCJRVa>; Mon, 10 Mar 2003 12:21:30 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:22405 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S261369AbTCJRV3>; Mon, 10 Mar 2003 12:21:29 -0500
-Date: Mon, 10 Mar 2003 09:31:56 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, akpm@digeo.com,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030310173154.GN2835@ca-server1.us.oracle.com>
-References: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl> <20030308005333.GF23071@kroah.com> <20030308073407.A24272@infradead.org> <20030308192908.GB26374@kroah.com> <20030308194331.A31291@infradead.org> <20030308214130.GK2835@ca-server1.us.oracle.com> <20030308215239.A782@infradead.org> <20030308221651.GL2835@ca-server1.us.oracle.com> <20030308222151.A1384@infradead.org>
+	id <S261384AbTCJRRx>; Mon, 10 Mar 2003 12:17:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58248 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261382AbTCJRRw>;
+	Mon, 10 Mar 2003 12:17:52 -0500
+Date: Mon, 10 Mar 2003 17:28:32 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: ioctl32 cleanup -- rest of architectures
+Message-ID: <20030310172832.GG5278@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030308222151.A1384@infradead.org>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 10:21:51PM +0000, Christoph Hellwig wrote:
-> Damn, to you actually read what I wrote in all previous mails?  THE MAJOR/MINOR
-> SPLIT IS GONE FOR BLOCK DEVICES.  There are just ranges, the only difference
-> with a bigger dev_t is that the total amount of claimed space can be bigger.
 
-	I understand what you've read.  I've merely been telling you
-that there aren't enough ranges for the number of disks we'd like to
-handle.  Never mind that a larger dev_t is significantly clearer, or
-that a large minor space can help us move to a single disk major if we
-want to go there.
+Could you cc myself or parisc-linux@parisc-linux.org in future please?
 
-> So if you need so damn lot why don't you start auditing the character drivers
-> now instead of whining?  
+first, you've called it `compact_sys_ioctl' -- it should be `compat_sys_ioctl'.
+it's compatible, not really small ;-)
 
-	I've been in contact with Andreas.  I've been trying to get
-stuff tested.  I'm ready to commit resources with tons of disks to
-test as soon as the code is capable.  I'm not whining, I'm active.
-Please, you're a smart guy, let's keep this civil.
+second, you've not changed the definition in arch/parisc/kernel/syscall.S:
 
-Joel
+-	ENTRY_DIFF(ioctl)
++	ENTRY_COMP(ioctl)
 
 -- 
-
-"Nothing is wrong with California that a rise in the ocean level
- wouldn't cure."
-        - Ross MacDonald
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

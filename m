@@ -1,99 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbUJWMnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbUJWMut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbUJWMnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 08:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUJWMnF
+	id S261158AbUJWMut (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 08:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUJWMut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 08:43:05 -0400
-Received: from ctb-mesg5.saix.net ([196.25.240.77]:65526 "EHLO
-	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S261157AbUJWMmg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 08:42:36 -0400
-Subject: Re: 2.6.10-rc1 initramfs busted [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041023133120.A28178@flint.arm.linux.org.uk>
-References: <20041023133120.A28178@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RYoc8T2XDFtQNOS/jIQf"
-Date: Sat, 23 Oct 2004 14:42:08 +0200
-Message-Id: <1098535328.668.13.camel@nosferatu.lan>
+	Sat, 23 Oct 2004 08:50:49 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35245 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261158AbUJWMuq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 08:50:46 -0400
+Date: Sat, 23 Oct 2004 14:51:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
+Message-ID: <20041023125104.GA10883@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <32871.192.168.1.5.1098491242.squirrel@192.168.1.5> <20041023102909.GD30270@elte.hu> <32880.192.168.1.5.1098534617.squirrel@192.168.1.5>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32880.192.168.1.5.1098534617.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-RYoc8T2XDFtQNOS/jIQf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-On Sat, 2004-10-23 at 13:31 +0100, Russell King wrote:
-> A build using O=3D does this:
->=20
->   HOSTCC  usr/gen_init_cpio
->   GEN_INITRAMFS_LIST usr/initramfs_list
-> Using shipped usr/initramfs_list
->   CPIO    usr/initramfs_data.cpio
-> ERROR: unable to open 'usr/initramfs_list': No such file or directory
->=20
-> Usage:
->         ./usr/gen_init_cpio <cpio_list>
->=20
-> <cpio_list> is a file containing newline separated entries that
-> describe the files to be included in the initramfs archive:
->=20
-> The source tree contains this in usr:
->=20
-> -rw-r--r--  1 rmk rmk 1657 Oct 23 11:41 Makefile
-> -rw-r--r--  1 rmk rmk 8335 Oct 23 11:41 gen_init_cpio.c
-> -rw-r--r--  1 rmk rmk 1024 Aug  1  2003 initramfs_data.S
-> -rw-r--r--  1 rmk rmk  146 Oct 23 11:41 initramfs_list
->=20
-> and the build tree usr contains:
->=20
-> -rwxr-xr-x  1 rmk rmk 10834 Oct 23 13:29 gen_init_cpio
-> -rw-r--r--  1 rmk rmk     0 Oct 23 13:29 initramfs_data.cpio
->=20
-> Running with V=3D1 shows:
->=20
-> make -f /home/rmk/build/linux-v2.6-local/scripts/Makefile.build obj=3Dusr
->   echo Using shipped usr/initramfs_list
-> Using shipped usr/initramfs_list
->   ./usr/gen_init_cpio usr/initramfs_list > usr/initramfs_data.cpio
-> ERROR: unable to open 'usr/initramfs_list': No such file or directory
->=20
-> so it's referencing the wrong directory.
->=20
+> > does the patch below help?
 
-Yep.  Please see the
+> Nope. Same result:
 
- [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs image=
- updates
+> SysRq : <3>BUG: sleeping function called from invalid context IRQ 1(776)
+> at kernel/mutex.c:37
+> in_atomic():0 [00000000], irqs_disabled():1
 
-thread for latest patch to fix this and other issues.  There are some
-other patches floating around that is slightly smaller, but I would
-appreciate testing and feedback.
+interrupts are disabled. You used a -RT-U10.2/3 kernel, and have 
+CONFIG_REALTIME enabled, right? Do you have this in 
+drivers/net/netconsole.c, line 77:
 
+ #ifdef PREEMPT_REALTIME
+         /*
+          * A bit hairy. Netconsole uses mutexes (indirectly) and
+          * thus must have interrupts enabled:
+          */
+         local_irq_enable();
+ #endif
 
-Cheers,
+correct? Could you do this a few lines below:
 
---=20
-Martin Schlemmer
+                WARN_ON_RT(irqs_disabled());
+                netpoll_send_udp(&np, msg, frag);
+                WARN_ON_RT(irqs_disabled());
 
+to figure out who disables interrupts. Also, could you add the same two
+lines to net/core/netpoll.c, line 83:
 
---=-RYoc8T2XDFtQNOS/jIQf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+        WARN_ON_RT(irqs_disabled());
+        np->dev->poll_controller(np->dev);
+        WARN_ON_RT(irqs_disabled());
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+and send me either the full bootlog, or the _first_ such BUG message
+you'll be getting. Which network controller is this?
 
-iD8DBQBBelGgqburzKaJYLYRAt8UAKCbx9DhtoidqVakISOygjC8m2AyegCeL1r1
-DFv2Ly0jWQxmVXMKbZ70FUM=
-=P52V
------END PGP SIGNATURE-----
-
---=-RYoc8T2XDFtQNOS/jIQf--
-
+	Ingo

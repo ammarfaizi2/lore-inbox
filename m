@@ -1,223 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265302AbUEZGDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUEZGJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265302AbUEZGDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 02:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUEZGDS
+	id S265315AbUEZGJl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 02:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265312AbUEZGJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 02:03:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:12169 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265255AbUEZGDJ (ORCPT
+	Wed, 26 May 2004 02:09:41 -0400
+Received: from null.rsn.bth.se ([194.47.142.3]:64207 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S265311AbUEZGJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 02:03:09 -0400
-Subject: Re: [PATCH] (signoff) ppc64: Fix possible race with set_pte on a
-	present PTE
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       bcrl@kvack.org, linux-mm@kvack.org,
-       Linux Arch list <linux-arch@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405252151100.15534@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>
-	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	 <1085371988.15281.38.camel@gaston>
-	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	 <1085373839.14969.42.camel@gaston>
-	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	 <20040525034326.GT29378@dualathlon.random>
-	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	 <20040525153501.GA19465@foobazco.org>
-	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	 <20040525102547.35207879.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-	 <20040525105442.2ebdc355.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-	 <1085521251.24948.127.camel@gaston>
-	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
-	 <1085522860.15315.133.camel@gaston>
-	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
-	 <1085530867.14969.143.camel@gaston>
-	 <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>
-	 <1085541906.14969.412.camel@gaston>
-	 <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
-	 <1085546780.5584.19.camel@gaston>
-	 <Pine.LNX.4.58.0405252151100.15534@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1085551152.6320.38.camel@gaston>
+	Wed, 26 May 2004 02:09:36 -0400
+Subject: Re: [PATCH 3/4] Consolidate sys32 select
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: =?iso-8859-1?Q? David_S=2E_Miller ?= <davem@redhat.com>,
+       linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
+In-Reply-To: <26879984$108552555440b3ce3274ba74.46765993@config21.schlund.de>
+References: <26879984$108552555440b3ce3274ba74.46765993@config21.schlund.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-O5w4U+wR40VlljcC40Fp"
+Message-Id: <1085551771.969.109.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 15:59:15 +1000
-Content-Transfer-Encoding: 7bit
+Date: Wed, 26 May 2004 08:09:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Same with signoff :)
 
-Ok, here it is. I blasted ptep_establish completely and the macro
-thing and changed the function to ptep_set_access_flags() which
-becomes also responsible for the flush if necesary.
+--=-O5w4U+wR40VlljcC40Fp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Overall, I feel it's more consistent this way with the other stuff
-in there.
+On Wed, 2004-05-26 at 01:10, Arnd Bergmann wrote:
+> Martin Josefsson <gandalf@wlug.westbo.se> schrieb am 26.05.2004,
+> 00:29:13:
+>=20
+> > You mean in compat_sys_select() ?
+> > compat_ptr() takes an u32 as argument, needs casting, ugly.
+> > But you want it done that way?
+>=20
+> When using compat_ptr properly, you don't need any casts,
+> see the patch below (the patch is probably messed up by my=20
+> broken mailer, but you get the picture).
 
-I did the ppc64 impl, the x86 one (hope I got it right). I still need to
-do ppc32 and I suppose s390 must be fixed now that ptep_estabish is gone
-but I'll leave that to someone who understand something about these things ;)
+Yes,  my brain didn't go the extra distance, davem responded before I
+could get to bed and I just had to respond :)
 
-Here it is, boots on g5 :
+Your patch will fix the problem, I don't even need to test it.
+Thanks, looking forward to see a fix in mainline :)
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> =3D=3D=3D=3D=3D fs/compat.c 1.24 vs edited =3D=3D=3D=3D=3D
+> --- 1.24/fs/compat.c	Sat May 22 06:31:47 2004
+> +++ edited/fs/compat.c	Wed May 26 00:57:49 2004
+> @@ -1300,13 +1300,15 @@
+> =20
+>  asmlinkage long
+>  compat_sys_select(int n, compat_ulong_t __user *inp, compat_ulong_t
+> __user *outp,
+> -		compat_ulong_t __user *exp, struct compat_timeval __user *tvp)
+> +		compat_ulong_t __user *exp, compat_uptr_t utv)
+>  {
+>  	fd_set_bits fds;
+> +	struct compat_timeval __user *tvp;
+>  	char *bits;
+>  	long timeout;
+>  	int ret, size, max_fdset;
+> =20
+> +	tvp =3D compat_ptr(utv);
+>  	timeout =3D MAX_SCHEDULE_TIMEOUT;
+>  	if (tvp) {
+>  		time_t sec, usec;
+--=20
+/Martin
 
---- 1.5/include/asm-generic/pgtable.h	2004-05-26 06:04:54 +10:00
-+++ edited/include/asm-generic/pgtable.h	2004-05-26 15:37:02 +10:00
-@@ -1,24 +1,11 @@
- #ifndef _ASM_GENERIC_PGTABLE_H
- #define _ASM_GENERIC_PGTABLE_H
- 
--#ifndef __HAVE_ARCH_PTEP_ESTABLISH
--
--#ifndef ptep_update_dirty_accessed
--#define ptep_update_dirty_accessed(__ptep, __entry, __dirty) set_pte(__ptep, __entry)
--#endif
--
--/*
-- * Establish a new mapping:
-- *  - flush the old one
-- *  - update the page tables
-- *  - inform the TLB about the new one
-- *
-- * We hold the mm semaphore for reading and vma->vm_mm->page_table_lock
-- */
--#define ptep_establish(__vma, __address, __ptep, __entry, __dirty)	\
--do {									\
--	ptep_update_dirty_accessed(__ptep, __entry, __dirty);		\
--	flush_tlb_page(__vma, __address);				\
-+#ifndef __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
-+#define ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
-+do {				  					  \
-+	set_pte(__ptep, __entry);					  \
-+	flush_tlb_page(__vma, __address);				  \
- } while (0)
- #endif
- 
-===== include/asm-i386/pgtable.h 1.45 vs edited =====
---- 1.45/include/asm-i386/pgtable.h	2004-05-26 06:04:54 +10:00
-+++ edited/include/asm-i386/pgtable.h	2004-05-26 15:34:57 +10:00
-@@ -325,9 +325,13 @@
-  * bit at the same time.
-  */
- #define update_mmu_cache(vma,address,pte) do { } while (0)
--#define ptep_update_dirty_accessed(__ptep, __entry, __dirty)	\
--	do {							\
--		if (__dirty) set_pte(__ptep, __entry);		\
-+#define  __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
-+#define ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
-+	do {								  \
-+		if (__dirty) {						  \
-+			set_pte(__ptep, __entry);		  	  \
-+			flush_tlb_page(__vma, __address);		  \
-+		}							  \
- 	} while (0)
- 
- /* Encode and de-code a swap entry */
-===== include/asm-ppc64/pgtable.h 1.33 vs edited =====
---- 1.33/include/asm-ppc64/pgtable.h	2004-05-23 07:56:24 +10:00
-+++ edited/include/asm-ppc64/pgtable.h	2004-05-26 15:32:38 +10:00
-@@ -306,7 +306,10 @@
- 	return old;
- }
- 
--/* PTE updating functions */
-+/* PTE updating functions, this function puts the PTE in the
-+ * batch, doesn't actually triggers the hash flush immediately,
-+ * you need to call flush_tlb_pending() to do that.
-+ */
- extern void hpte_update(pte_t *ptep, unsigned long pte, int wrprot);
- 
- static inline int ptep_test_and_clear_young(pte_t *ptep)
-@@ -318,7 +321,7 @@
- 	old = pte_update(ptep, _PAGE_ACCESSED);
- 	if (old & _PAGE_HASHPTE) {
- 		hpte_update(ptep, old, 0);
--		flush_tlb_pending();	/* XXX generic code doesn't flush */
-+		flush_tlb_pending();
- 	}
- 	return (old & _PAGE_ACCESSED) != 0;
- }
-@@ -396,10 +399,34 @@
-  */
- static inline void set_pte(pte_t *ptep, pte_t pte)
- {
--	if (pte_present(*ptep))
-+	if (pte_present(*ptep)) {
- 		pte_clear(ptep);
-+		flush_tlb_pending();
-+	}
- 	*ptep = __pte(pte_val(pte)) & ~_PAGE_HPTEFLAGS;
- }
-+
-+/* Set the dirty and/or accessed bits atomically in a linux PTE, this
-+ * function doesn't need to flush the hash entry
-+ */
-+#define __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
-+static inline void __ptep_set_access_flags(pte_t *ptep, pte_t entry, int dirty)
-+{
-+	unsigned long bits = pte_val(entry) &
-+		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW);
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__(
-+	       "1:     ldarx   %0,0,%3\n\
-+                or      %0,%2,%0\n\
-+                stdcx.  %0,0,%3\n\
-+                bne-    1b"
-+	:"=&r" (tmp), "=m" (*ptep)
-+	:"r" (bits), "r" (ptep)
-+	:"cc");
-+}
-+#define  ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
-+        __ptep_set_access_flags(__ptep, __entry, __dirty)
- 
- /*
-  * Macro to mark a page protection value as "uncacheable".
-===== mm/memory.c 1.177 vs edited =====
---- 1.177/mm/memory.c	2004-05-26 05:37:09 +10:00
-+++ edited/mm/memory.c	2004-05-26 15:35:40 +10:00
-@@ -1004,7 +1004,11 @@
- 	flush_cache_page(vma, address);
- 	entry = maybe_mkwrite(pte_mkdirty(mk_pte(new_page, vma->vm_page_prot)),
- 			      vma);
--	ptep_establish(vma, address, page_table, entry, 1);
-+
-+	/* Get rid of the old entry, replace with new */
-+	ptep_clear_flush(vma, address, page_table);
-+	set_pte(page_table, entry);
-+
- 	update_mmu_cache(vma, address, entry);
- }
- 
-@@ -1056,7 +1060,7 @@
- 			flush_cache_page(vma, address);
- 			entry = maybe_mkwrite(pte_mkyoung(pte_mkdirty(pte)),
- 					      vma);
--			ptep_establish(vma, address, page_table, entry, 1);
-+       			ptep_set_access_flags(vma, address, page_table, entry, 1);
- 			update_mmu_cache(vma, address, entry);
- 			pte_unmap(page_table);
- 			spin_unlock(&mm->page_table_lock);
-@@ -1646,7 +1650,7 @@
- 		entry = pte_mkdirty(entry);
- 	}
- 	entry = pte_mkyoung(entry);
--	ptep_establish(vma, address, pte, entry, write_access);
-+	ptep_set_access_flags(vma, address, pte, entry, write_access);
- 	update_mmu_cache(vma, address, entry);
- 	pte_unmap(pte);
- 	spin_unlock(&mm->page_table_lock);
+--=-O5w4U+wR40VlljcC40Fp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAtDSbWm2vlfa207ERAgUBAKCQJe65Ix2fWrvj8HB/adXLkPuYMACfUSwG
+T0nbXipob+aBCzSEe5plwzI=
+=0RgW
+-----END PGP SIGNATURE-----
+
+--=-O5w4U+wR40VlljcC40Fp--

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272582AbRISXIt>; Wed, 19 Sep 2001 19:08:49 -0400
+	id <S272889AbRISXOt>; Wed, 19 Sep 2001 19:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274250AbRISXId>; Wed, 19 Sep 2001 19:08:33 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:9476 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S274256AbRISXH3>;
-	Wed, 19 Sep 2001 19:07:29 -0400
-Date: Thu, 20 Sep 2001 01:07:29 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Liakakis Kostas <kostas@skiathos.physics.auth.gr>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <3E975341CB7@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0109200105300.25500-100000@Expansa.sns.it>
+	id <S274256AbRISXOj>; Wed, 19 Sep 2001 19:14:39 -0400
+Received: from anime.net ([63.172.78.150]:50183 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S272889AbRISXOg>;
+	Wed, 19 Sep 2001 19:14:36 -0400
+Date: Wed, 19 Sep 2001 16:14:52 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: John Alvord <jalvo@mbay.net>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Arjan van de Ven <arjanv@redhat.com>,
+        Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <a68iqtovbjt57qqqv1mkrmdsujhu2k3ebu@4ax.com>
+Message-ID: <Pine.LNX.4.30.0109191611010.30343-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 19 Sep 2001, John Alvord wrote:
+> >Until we have a straight answer what the hell this bit does, its a very
+> >bad idea to put it into *production kernel*.
+> Of course the BIOS versions made exactly that change...
 
+1) We dont know if all "fixed" BIOS versions do it
+2) We dont know if all motherboards do it
+3) We dont have enough data points to determine if this is a "real fix" yet.
+4) We dont know if they do it under all circumstances
+   (eg do they read SPD and set it in some situations and not others)
+   It may even be CPU rev specific.
 
-On Wed, 19 Sep 2001, Petr Vandrovec wrote:
+IMHO its *FAR* too premature to be rolling this into production kernels
+based on the scant evidence we have so far.
 
-> On 19 Sep 01 at 17:31, Liakakis Kostas wrote:
-> >
-> > It seems to fix the stability problem. We don;t know why, but
-> > experimetation shows that those _with_ the problem are relieved. This is
-> > fine! We are happy with it.
-> >
-> > We write to a register marked as "don't write" by Via. This is potentialy
-> > dangerous in ways we don't know yet.
->
-> Just small question - you are saying that your KT133A works fine with
-> 0x89... Two questions then - Do you have more than 256MB in your box?
-> And second one: Do you have one, two, or three memory modules installed
-> on the board?
->
-> If your answer is <=256MB, one module, no surprise then, as AFAIK nobody
-> with such config suffers from the problem. But checking also number of
-> memory modules looks more like black magic that anything else.
-> Hopefully VIA will answer...
-Just to add a curiosity. Abit KT7A MBs do not accept all 256 MB modules.
-with some of them they do see just 128 MB, and anyway systems are stable,
-but of course systems managers get unhappy.
-This should be because of modules density...
+-Dan
 
-OK, this was OT but maybe some of you had this experience.
-
-Luigi
-
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

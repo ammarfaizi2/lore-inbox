@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130000AbQKCAbz>; Thu, 2 Nov 2000 19:31:55 -0500
+	id <S129544AbQKCAcf>; Thu, 2 Nov 2000 19:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130013AbQKCAbq>; Thu, 2 Nov 2000 19:31:46 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:24069 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129544AbQKCAbd>;
-	Thu, 2 Nov 2000 19:31:33 -0500
-Message-ID: <3A0206CF.81023491@mandrakesoft.com>
-Date: Thu, 02 Nov 2000 19:29:03 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S130013AbQKCAc0>; Thu, 2 Nov 2000 19:32:26 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:46852 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129544AbQKCAbw>;
+	Thu, 2 Nov 2000 19:31:52 -0500
+Date: Thu, 2 Nov 2000 23:32:17 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Narancs 1 <narancs1@externet.hu>
+Cc: Brett <bpemberton@dingoblue.net.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, kraxel@goldbach.in-berlin.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: vesafb doesn't work in 240t10?
+In-Reply-To: <Pine.LNX.4.02.10011021512560.5828-100000@prins.externet.hu>
+Message-ID: <Pine.LNX.4.21.0011022330570.14650-100000@euclid.oak.suse.com>
 MIME-Version: 1.0
-To: Rob Landley <telomerase@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 255.255.255.255 won't broadcast to multiple NICs
-In-Reply-To: <20001102235538.25699.qmail@web5205.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> Under 2.2.16, broadcast packets addressed to
-> 255.255.255.255 do not go out to all interfaces in a
-> machine with multiple network cards.  They're getting
-> routed out the default gateway's interface instead.
 
-Are the network cards on the same network?
+> What fb driver would support it?
 
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+I seen a i810 fbdev driver before but I haven't see any updates to it in a
+awhile.
+
+> does vga16 support 1024x768?
+
+No. vga16 supports standard vga graphics modes (ie 640x480 16 colors).
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

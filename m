@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135596AbREBPVK>; Wed, 2 May 2001 11:21:10 -0400
+	id <S135588AbREBPed>; Wed, 2 May 2001 11:34:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135594AbREBPUu>; Wed, 2 May 2001 11:20:50 -0400
-Received: from NO-SPAM.it.helsinki.fi ([128.214.205.34]:46075 "EHLO
-	no-spam.it.helsinki.fi") by vger.kernel.org with ESMTP
-	id <S135588AbREBPUo>; Wed, 2 May 2001 11:20:44 -0400
-Date: Wed, 2 May 2001 18:17:55 +0300 (EEST)
-Message-Id: <200105021517.f42FHtn29038@no-spam.it.helsinki.fi>
-From: Robert Holmberg <robert.holmberg@helsinki.fi>
-To: linux-kernel@vger.kernel.org
-Subject: TV viewing broken in 2.4.4 (and 2.4.3)
-X-Mailer: Cronos II 0.2.2 (gnome-libs 1.2.13; Linux 2.4.3; i586)
+	id <S135589AbREBPeW>; Wed, 2 May 2001 11:34:22 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:41478 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S135588AbREBPeC>; Wed, 2 May 2001 11:34:02 -0400
+Message-ID: <3AF028D3.8EE24BE1@beam.demon.co.uk>
+Date: Wed, 02 May 2001 16:33:40 +0100
+From: Terry Barnaby <terry@beam.demon.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Problem with map_user_kiobuf() not mapping to physical memory
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When my tv picture gets over a certain size, say when I enter fullscreen mode using xawtv or just resize my window over a certain point, most of the picture turns black and I get only a small strip of tv picture to the left of xawtv's window. TV was working well under 2.4.2.
+We are developing a Linux driver which allows a device to read/write
+directly
+into a processes virtual memory space.
+I have a question on using map_user_kiobuf() as we are having problems.
+I was under the impression that if I used map_user_kiobuf() this would
+map
+the users virtual address space into locked physical memory pages so
+that
+I/O could be performed.
+However, I note that if the user just mallocs memory and does not access
+it
+(No physical memory pages created) and then passes this virtual address
+space
+to the driver which performs a map_user_kiobuf() on it, the resulting
+kiobuf
+structure has all of the pagelist[] physical address entries set to the
+same value
+and the maplist[] entries set to 0. The devices access to this memory
+now
+causes system problems.
+Is map_user_kiobuf() working correctly ?
+Should I call some function to map the virtual address space into
+physical memory
+or at least pages before I call map_user_kiobuf() ?
 
-I reported this bug before for 2.4.3 and a patch which fixed (or worked around) this problem was posted. The patch still works for 2.4.4
+Cheers
 
-diff -urN linux/arch/i386/kernel/pci-pc.c
-linux/arch/i386/kernel/pci-pc.c
---- linux/arch/i386/kernel/pci-pc.c Sat Mar 31 00:12:41 2001
-+++ linux/arch/i386/kernel/pci-pc.c Thu Mar 29 05:00:04 2001
-@@ -1035,7 +1035,7 @@
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	pci_fixup_via_acpi },
-  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	pci_fixup_vt8363 },
-  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C691,	pci_fixup_via691 },
-- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C598_1,	pci_fixup_via691_2 },
-+// 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C598_1,	pci_fixup_via691_2 },
-  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	pci_fixup_piix4_acpi },
- 	{ 0 }
- };
+Terry
 
-Since the seems to be a VIA problem: I have a VIA MPV3 motherboard using an AMD K6-2 processor. My TV card is a Hauppage WinTV.
+--
+  Dr Terry Barnaby                     BEAM Ltd
+  Phone: +44 1454 324512               Northavon Business Center, Dean Rd
+  Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
+  Email: terry@beam.demon.co.uk        Web: www.beam.demon.co.uk
+  BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software Dev
+                         "Tandems are twice the fun !"
 
-Robert.
+
+

@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281197AbRKHAno>; Wed, 7 Nov 2001 19:43:44 -0500
+	id <S281203AbRKHApE>; Wed, 7 Nov 2001 19:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281203AbRKHAng>; Wed, 7 Nov 2001 19:43:36 -0500
-Received: from smtp5.wanadoo.es ([62.37.236.139]:1531 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id <S281197AbRKHAnP>;
-	Wed, 7 Nov 2001 19:43:15 -0500
-Date: Thu, 8 Nov 2001 01:36:25 +0100
-From: drizzt.dourden@iname.com
-To: LLX <llx@swissonline.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module Licensing?
-Message-ID: <20011108013625.A3316@menzoberrazan.dhis.org>
-In-Reply-To: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com> <200110311831.f9VIVeR09294@mail.swissonline.ch>
+	id <S281202AbRKHAos>; Wed, 7 Nov 2001 19:44:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63883 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281203AbRKHAog>;
+	Wed, 7 Nov 2001 19:44:36 -0500
+Date: Wed, 07 Nov 2001 16:44:26 -0800 (PST)
+Message-Id: <20011107.164426.35502643.davem@redhat.com>
+To: adilger@turbolabs.com
+Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011107173626.S5922@lynx.no>
+In-Reply-To: <Pine.LNX.4.30.0111080003320.29364-100000@gans.physik3.uni-rostock.de>
+	<20011107.160950.57890584.davem@redhat.com>
+	<20011107173626.S5922@lynx.no>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110311831.f9VIVeR09294@mail.swissonline.ch>; from llx@swissonline.ch on Wed, Oct 31, 2001 at 07:31:40PM +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Decía LLX:
-> > The irrelevance here is IYHO ... it may well be judged that
-> > since these two portions of the work need each other in order
-> > to function, the thing really is one work.
-> 
-> a)
-> vmware for linux needs a linux kernel to work. does that meen
-> you whant to gpl it? 
-> 
-> b)
-> you can write abstraction modules for different os's. and the 
-> non-gpl module works with all of them. so my module does not
-> need the linux abstraction module it also works with the free-
-> BSD module. the only #ifdef in my module will be around the 
-> module registration code. or i write a propriatary loader,
-> so that even the same binary works for different os's
-> 
+   From: Andreas Dilger <adilger@turbolabs.com>
+   Date: Wed, 7 Nov 2001 17:36:27 -0700
 
-And you can use a big array with your binary code and made the source public:
-/*
-  This code is GPL
-*/
-char *code={big array  of code}
+   No, only a limited number of them cast to a signed value, which means
+   that a large number of them get the comparison wrong in the case of
+   jiffies wrap (where the difference is a large unsigned value, and not
+   a small negative number).
+   
+Why do they these cases that are actually in the code need to cast to
+a signed value to get a correct answer?  They are not like your
+example.
 
+Almost all of these cases are:
 
+	(jiffies - SOME_VALUE_KNOWN_TO_BE_IN_THE_PAST) > 5 * HZ
 
-void do_somenthin(){
-	void (*fun) = code;
-	(*fun)();
-}
+So you say if we don't cast to signed, this won't get it right on
+wrap-around?  I disagree, let's say "long" is 32-bits and jiffies
+wrapped around to "0x2" and SOME_VALUE... is 0xfffffff8.  The
+subtraction above yields 10, and that is what we want.
 
-(well, I dosn't remember the exact sintax of pointer to funtioncs but ... )
+Please show me a bad case where casting to signed is necessary.
 
-You can put the binary driver like "microcode", and GPL
+I actually ran through the tree the other night myself starting to
+convert these things, then I noticed that I couldn't even convince
+myself that the code was incorrect.
 
-
-Saludos
-Drizzt
-
--- 
-... 10 IF "LAS RANAS"="TIENEN PELO" THEN PRINT "Windows is good".
-____________________________________________________________________________
-Drizzt Do'Urden              
-drizzt.dourden@iname.com     
-                             
+Franks a lot,
+David S. Miller
+davem@redhat.com

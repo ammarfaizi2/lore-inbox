@@ -1,99 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131954AbQKZCDD>; Sat, 25 Nov 2000 21:03:03 -0500
+        id <S131850AbQKZCi3>; Sat, 25 Nov 2000 21:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131959AbQKZCCx>; Sat, 25 Nov 2000 21:02:53 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:41214 "EHLO hera.cwi.nl")
-        by vger.kernel.org with ESMTP id <S131954AbQKZCCt>;
-        Sat, 25 Nov 2000 21:02:49 -0500
-Date: Sun, 26 Nov 2000 02:32:39 +0100
+        id <S131986AbQKZCiU>; Sat, 25 Nov 2000 21:38:20 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:56960 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S131850AbQKZCiF>;
+        Sat, 25 Nov 2000 21:38:05 -0500
+Date: Sun, 26 Nov 2000 03:08:02 +0100
 From: Andries Brouwer <aeb@veritas.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: rmk@arm.linux.org.uk, rusty@linuxcare.com.au, linux-kernel@vger.kernel.org,
-        Andries.Brouwer@cwi.nl
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001126023239.B7049@veritas.com>
-In-Reply-To: <20001125211939.A6883@veritas.com> <Pine.LNX.4.21.0011252205500.768-100000@penguin.homenet>
+Message-ID: <20001126030802.C7049@veritas.com>
+In-Reply-To: <20001125211939.A6883@veritas.com> <200011252211.eAPMBIo21200@gondor.apana.org.au> <20001125234624.A7049@veritas.com> <3A20451B.2A69BB75@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011252205500.768-100000@penguin.homenet>; from tigran@veritas.com on Sat, Nov 25, 2000 at 10:27:15PM +0000
+In-Reply-To: <3A20451B.2A69BB75@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Nov 25, 2000 at 06:02:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2000 at 10:27:15PM +0000, Tigran Aivazian wrote:
-: Hello Andries,
+On Sat, Nov 25, 2000 at 06:02:51PM -0500, Jeff Garzik wrote:
+> Andries Brouwer wrote:
+> > In a program source there is information for the compiler
+> > and information for the future me. Removing the " = 0"
+> > is like removing comments. For the compiler the information
+> > remains the same. For the programmer something is lost.
+> 
+> This is pretty much personal opinion :)
+> 
+> The C language is full of implicit as well as explicit features.  You
+> are arguing that using an implicit feature robs the programmer of
+> information.  For you maybe...  For others, no information is lost AND
+> the code is more clean AND the kernel is smaller.  It's just a matter of
+> knowing and internalizing "the rules" in your head.
 
-Hi Tigran,
+Oh Jeff,
 
-: ... I am quite free to _rely_ on this fact and will possibly do so.
+All these really good people, unable to capture a simple idea.
+Let me try one more time.
+There is information. The information is:
+	"this variable needs initialization"
+Now you tell me to know simple rules. OK, I know them.
+But what do they tell me about my variables a and b, where
+a requires initialization and b does not require it?
 
-Yes, you are. But some programmers have learned that it is a good
-idea to code in a way that is informative to the programmer.
+One can write a comment, like
 
-: > Tigran, you like to destabilize Linux.
-: 
-: Oh, Andries, that is insulting. Surely you do not really mean that.
+int a;	/* this variable needs initialization, fortunately
+	   it is already initialized at startup */
+int b;	/* no initialization required */
 
-No insult intended.
-It is just that if there is an abyss somewhere, I like to stay at least
-a meter away from it. Someone else may think that one inch suffices.
-I see you propose a lot of changes that yield a negligable advantage
-and reduce stability a tiny little bit. That is pushing Linux in the
-direction of this abyss. You notice that the view gets better, and I
-get nervous.
+But that is overdoing it, it uglifies the code.
+One can leave the comment out, like
 
-You seem to have these strange ideas. I quoted you
+int a, b;
 
-: It is better for code to be smaller than to be slightly more fool-proof.
+But then next month, when you decide to move this into
+some function
 
-Here is a different one:
+int foo() {
+	int a, b;
+...
 
-: I think that the check for inode->i_op == NULL in various vfs_XXX()
-: functions is bogus, i.e. if it is NULL then it must be a bug in
-: some filesystem's ->read_inode() method and therefore, instead of
-: returning error to userspace we should immediately panic, since
-: it is a kernel bug.
+there is no indication that you need an additional
 
-Does the kernel contain a bug? Panic!  I don't think my alpha would
-have gotten an uptime of 1198 days under that paradigm.
-(I don't think you were serious, but still..)
+	a = 0;
 
-  [I am not so sure why i_op == NULL necessarily is a bug.
-  Sometimes a routine invents a dummy inode just because it is needed
-  in some calling convention, while nothing of this inode is used
-  except for example i_rdev. Maybe it does not occur today, in the
-  filesystems in the 2.4 kernel tree. But such checks: test i_op,
-  then test i_op->function, then call i_op->function() ensure
-  a local correctness. That is what I like.
-  Reading all filesystems in the kernel tree is what I don't like.
-  And there are many filesystems not in the kernel tree.]
-
-This is not to debate this particular case - it is Al's business.
-This is just an example where you want to sacrifice local correctness
-and be satisfied with global correctness.
-
-: "sense of measure"
-
-Yes, well formulated!
-
-But this was a communication to linux-kernel, not an attack.
-It was meant to say two things, namely
-(i) Source code is a communication to programmers and to the compiler.
-It is a bad idea to optimize the communication towards the compiler
-when that is detrimental to the communication towards programmers.
-And (ii) locally correct code is more stable than code that is only
-globally correct.
-
-For me these are truisms, but when Rusty complained about loss of
-information lots of people did not seem to understand what could be meant.
-I took you as my victim because you always seem to take the point
-of view that the code must be perfect, never mind the programmers,
-and that it is a good idea to save a few instructions, never mind
-local correctness. (And also because your old remark quoted above
-still required a reaction.)
-
-No offense intended.
+You see?
+There is real information here. Useful as a reminder.
+Not necessary. The perfect programmer would see
+immediately that the assignment is required, also
+without the reminder. But not everybody is perfect
+all of the time, and sometimes the code involved is
+quite complicated. The tiny convention
+"write an explicit initialization when initialization is needed"
+is helpful. It is a form of program documentation.
 
 Andries
 -

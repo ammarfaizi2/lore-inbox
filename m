@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263730AbTH1DBb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 23:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTH1DBb
+	id S263601AbTH1DSH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 23:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTH1DSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 23:01:31 -0400
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:56985 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id S263730AbTH1DBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 23:01:30 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200308280259.h7S2xFKV031299@wildsau.idv.uni.linz.at>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <Pine.LNX.4.53.0308271123480.659@chaos>
-To: root@chaos.analogic.com
-Date: Thu, 28 Aug 2003 04:59:14 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
+	Wed, 27 Aug 2003 23:18:07 -0400
+Received: from kone17.procontrol.vip.fi ([212.149.71.178]:20415 "EHLO
+	danu.procontrol.fi") by vger.kernel.org with ESMTP id S263601AbTH1DSE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 23:18:04 -0400
+Date: Thu, 28 Aug 2003 06:17:46 +0300
+Subject: Re: Lockless file reading
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: root@chaos.analogic.com, Martin Konold <martin.konold@erfrakon.de>,
+       linux-kernel@vger.kernel.org
+To: Jamie Lokier <jamie@shareable.org>
+From: Timo Sirainen <tss@iki.fi>
+In-Reply-To: <20030828015027.GA4715@mail.jlokier.co.uk>
+Message-Id: <3217CEE6-D906-11D7-A165-000393CC2E90@iki.fi>
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> With your NVRAM drive, it is likely that the drive parameters
-> are 'protected' by a partition table. If you overwrite this
-> partition table, the drive becomes broken. This means that,
-> whatever you do, you can't modify some important portion
-> of that table.
+On Thursday, Aug 28, 2003, at 04:50 Europe/Helsinki, Jamie Lokier wrote:
 
-the contradiction to this is that the flashdisk can be used
-in a "partition-less" state where it is possible to use the
-whole device at one: "mke2fs /dev/sdb". you have to use the
-vendor formating-tool to make the flashdisk look like an USB_FDD
-device. but even in USB_HDD mode with partitions, the partitions
-still look strange, not ending on cylinder boundaries and so on.
+>> 	checksum[0]++;
+>> 	xor = buf[0] ^ checksum[0];
+>
+> Your algorithm isn't going to work if the new value of xor is the same
+> as the old value of xor.
 
-oh my. I guess I gonna contact Panram then and of course,
-thanks for the URL to the USB-snoop utility.
+I was trying to prevent it with the checksum[0]++ .. but yes, you're 
+right.
 
-thx
-h.rosmanith
+I'm sure someone has figured out a way to make a checksum of data that 
+can detect if there's even a single bit wrong, if the checksum is 
+allowed to take as much space as the data itself. I should read more 
+about algorithms..
+
+How about checksum[n] = data[n-1] ^ data[n]? That looks like it would 
+work.
 

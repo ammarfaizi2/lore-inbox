@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVAIEHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVAIEIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVAIEHz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 23:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVAIEHz
+	id S262246AbVAIEIr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 23:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVAIEIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 23:07:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36074 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262245AbVAIEHu (ORCPT
+	Sat, 8 Jan 2005 23:08:47 -0500
+Received: from pat.uio.no ([129.240.130.16]:57293 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262246AbVAIEIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 23:07:50 -0500
-Date: Sat, 8 Jan 2005 20:07:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Mike Waychison <Michael.Waychison@Sun.COM>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
+	Sat, 8 Jan 2005 23:08:40 -0500
+Subject: Re: [RFC] 2.4 and stack reduction patches
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <Pine.LNX.4.58.0501081345440.2386@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0501082004450.2339@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>  <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
-  <1105113998.24187.361.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org> 
- <Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org> <41DEF81B.60905@sun.com>
-  <41DF1F3D.3030006@nortelnetworks.com> <1105220326.24592.98.camel@krustophenia.net>
- <Pine.LNX.4.58.0501081345440.2386@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <1105145706.4000.123.camel@dyn318077bld.beaverton.ibm.com>
+References: <1105112886.4000.87.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050107141224.GF29176@logos.cnet>
+	 <1105134173.4000.105.camel@dyn318077bld.beaverton.ibm.com>
+	 <1105137646.10979.155.camel@lade.trondhjem.org>
+	 <1105145706.4000.123.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Sat, 08 Jan 2005 23:08:15 -0500
+Message-Id: <1105243695.17456.0.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 8 Jan 2005, Linus Torvalds wrote:
+fr den 07.01.2005 Klokka 16:55 (-0800) skreiv Badari Pulavarty:
+> On Fri, 2005-01-07 at 14:40, Trond Myklebust wrote:
 > 
-> Short and sweet: the latency changes are in the noise for SMP, but can be
-> seen on UP. I'll look at it a bit more:  since I had to add the coalescing
-> code anyway, I might also decide to re-use a buffer page rather than free
-> it immediately, since that may help latency for small writes.
+> > 
+> > You're better off using rpc_new_task() in rpc_call_sync(): no kfree()
+> > required, and no rpc_init_task() required.
+> > 
+> 
+> Hmm.. I am trying to do this. Just wanted to double check.
+> 
+> If I don't do kfree(), its gets automatically freed up thro
+> rpc_release_task() correct ?
 
-Side note: the SMP numbers seem to fluctuate wildly making any
-benchmarking a bit suspect. They probably depend very much on just how
-things get scheduled, and on inter-CPU cache behaviour.
+Yes.
 
-In contrast, the UP numbers are a lot more reliable, so I'll try to make
-sure that everything looks good on UP - which definitely means that I'll
-work to make sure that latency looks good too.
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-		Linus

@@ -1,60 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTEOBIC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 21:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTEOBIB
+	id S263464AbTEOBM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 21:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTEOBM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 21:08:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39435 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263282AbTEOBIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 21:08:00 -0400
-Date: Wed, 14 May 2003 18:20:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christopher Hoover <ch@murgatroid.com>
-cc: "'Ulrich Drepper'" <drepper@redhat.com>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
-In-Reply-To: <002201c31a7d$0f3f32a0$175e040f@bergamot>
-Message-ID: <Pine.LNX.4.44.0305141811310.28093-100000@home.transmeta.com>
+	Wed, 14 May 2003 21:12:56 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:42881 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263464AbTEOBMr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 21:12:47 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: anton@samba.org, colpatch@us.ibm.com,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Bill Hartner <bhartner@us.ibm.com>,
+       Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+Subject: [patch] Re: Bug 619 - sched_best_cpu does not pick best cpu (1/1)
+Date: Wed, 14 May 2003 20:29:42 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <3EB70EEC.9040004@us.ibm.com>
+In-Reply-To: <3EB70EEC.9040004@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200305142029.45413.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I believe this will work for ppc64:
 
-On Wed, 14 May 2003, Christopher Hoover wrote:
-> 
-> This a specious argument.  There are many ways one can configure a
-> kernel that will make it fail to boot or run user space properly.
+[root@hearse root]#   diffstat patch-nr_cpus_node-ppc64-2.5.69
+ arch/ppc64/mm/numa.c         |    6 +++++-
+ include/asm-ppc64/mmzone.h   |    1 +
+ include/asm-ppc64/topology.h |    5 +++++
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
-Not very many, and some of them have been removed.
 
-For example, CONFIG_FILTER no longer exists. Why? Because it was too easy 
-to create a kernel on which dhcp no longer worked, and the advantage of 
-making it a config option was minimal.
-
-Yes, CONFIG_NET and CONFIG_SYSVIPC are still there. And everybody turns
-them on, and they really are only useful for very embedded platforms. But
-at least turning them off saves huge amounts of memory for those
-platforms, something that isn't true of futexes.
-
-Apart from those options? Not many I can see. CONFIG_PACKET perhaps,
-although even that tends to break only very specialized applications.
-
-The rule should _not_ be "what can we make optional". The rule should be 
-"this must be made optional because there is a big advantage doing it that 
-way, and it's specialized".
-
-Futexes may be specialized today, but that's only because you have to run 
-a modern glibc to see them. But once you do that, they are not specialized 
-at all.
-
-Btw, the fact that futexes don't work without CONFIG_MMU is a bug not in
-futexes, but it the MMU-less code. The no-mmu version of "follow_page" is
-just wrong and badly implemented, and there's nothing to say that futexes
-aren't useful without a MMU. 
-
-			Linus
+diff -Naur 2.5.69-bk-5-8-2003-numa/arch/ppc64/mm/numa.c 
+2.5.69-bk-5-8-2003-numa-nrcpusnode/arch/ppc64/mm/numa.c
+--- 2.5.69-bk-5-8-2003-numa/arch/ppc64/mm/numa.c	2003-05-14 18:11:35.000000000 
+-0700
++++ 2.5.69-bk-5-8-2003-numa-nrcpusnode/arch/ppc64/mm/numa.c	2003-05-14 
+18:18:06.000000000 -0700
+@@ -25,6 +25,7 @@
+ int numa_memory_lookup_table[MAX_MEMORY >> MEMORY_INCREMENT_SHIFT] =
+ 	{ [ 0 ... ((MAX_MEMORY >> MEMORY_INCREMENT_SHIFT) - 1)] = -1};
+ unsigned long numa_cpumask_lookup_table[MAX_NUMNODES];
++int nr_cpus_in_node[MAX_NUMNODES] = { [0 ... (MAX_NUMNODES -1)] = 0};
+ 
+ struct pglist_data node_data[MAX_NUMNODES];
+ bootmem_data_t plat_node_bdata[MAX_NUMNODES];
+@@ -33,7 +34,10 @@
+ {
+ 	dbg("cpu %d maps to domain %d\n", cpu, node);
+ 	numa_cpu_lookup_table[cpu] = node;
+-	numa_cpumask_lookup_table[node] |= 1UL << cpu;
++	if (!(numa_cpumask_lookup_table[node] & 1UL << cpu)) {
++		numa_cpumask_lookup_table[node] |= 1UL << cpu;
++		nr_cpus_in_node[node]++;
++	}
+ }
+ 
+ static int __init parse_numa_properties(void)
+diff -Naur 2.5.69-bk-5-8-2003-numa/include/asm-ppc64/mmzone.h 
+2.5.69-bk-5-8-2003-numa-nrcpusnode/include/asm-ppc64/mmzone.h
+--- 2.5.69-bk-5-8-2003-numa/include/asm-ppc64/mmzone.h	2003-04-24 
+14:17:14.000000000 -0700
++++ 2.5.69-bk-5-8-2003-numa-nrcpusnode/include/asm-ppc64/mmzone.h	2003-05-14 
+18:07:35.000000000 -0700
+@@ -21,6 +21,7 @@
+ extern int numa_cpu_lookup_table[];
+ extern int numa_memory_lookup_table[];
+ extern unsigned long numa_cpumask_lookup_table[];
++extern int nr_cpus_in_node[];
+ 
+ #define MAX_MEMORY (1UL << 41)
+ /* 256MB regions */
+diff -Naur 2.5.69-bk-5-8-2003-numa/include/asm-ppc64/topology.h 
+2.5.69-bk-5-8-2003-numa-nrcpusnode/include/asm-ppc64/topology.h
+--- 2.5.69-bk-5-8-2003-numa/include/asm-ppc64/topology.h	2003-05-14 
+11:03:10.000000000 -0700
++++ 2.5.69-bk-5-8-2003-numa-nrcpusnode/include/asm-ppc64/topology.h	2003-05-14 
+18:08:38.000000000 -0700
+@@ -6,6 +6,11 @@
+ 
+ #ifdef CONFIG_NUMA
+ 
++static inline int nr_cpus_node(int node)
++{
++	return nr_cpus_in_node[node];
++}
++
+ static inline int cpu_to_node(int cpu)
+ {
+ 	int node;
 

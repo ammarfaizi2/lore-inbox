@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTFXORI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 10:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTFXORI
+	id S262145AbTFXOdb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 10:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFXOdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 10:17:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26800 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262090AbTFXORF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 10:17:05 -0400
-Message-ID: <3EF860A7.5000102@pobox.com>
-Date: Tue, 24 Jun 2003 10:31:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom bcm 4401
-References: <20030623151040.135133f9.skraw@ithnet.com> <1056377068.13529.41.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1056377068.13529.41.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jun 2003 10:33:31 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51368 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262145AbTFXOd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 10:33:29 -0400
+Date: Tue, 24 Jun 2003 16:47:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: Testing IDE-TCQ and Taskfile - doesn't work nicely:)
+Message-ID: <20030624144730.GW7383@suse.de>
+References: <Pine.SOL.4.30.0306232315480.8078-200000@mion.elka.pw.edu.pl> <3EF86019.3090608@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF86019.3090608@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2003-06-23 at 14:10, Stephan von Krawczynski wrote:
-> 
->>Hello all,
->>
->>does anybody know what drivers are available for BCM4401 network cards? Are
->>they somehow compatible to whatever?
+On Tue, Jun 24 2003, Jeff Garzik wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> >TCQ shouldn't be enabled on hdc, you have two drives on second ide
+> >channel and current TCQ driver design allows only one drive per channel,
+> >so proper fix is to not enable TCQ :-).
 > 
 > 
-> There is a broadcom b44 driver in -ac, but it needs a lot more cleaning
-> up or rewriting before it goes anywhere further
+> IMO the best rule is "enable TCQ if and only if 100% of the channel 
+> supports TCQ".
+> 
+> So, two drives on the same channel can do TCQ, if and only if they both 
+> support TCQ.  That's a big benefit of bus release, after all, 
+> simultaneously servicing multiple drives.  The device-select and service 
+> interrupt semantics are annoying but doable.
 
+ide-tcq is even more restrictive now, it only enables TCQ if the drive
+is alone on the channel. Feel free to write the device select code if
+you want, I'm not mucking more with the bastard that is ide tcq.
 
-What cleaning needs to be done?
-
-AFAIK, I need only to fix a phy-related bug, and b44 will be working 
-nicely.  (I have test h/w, too)
-
-	Jeff
-
-
+-- 
+Jens Axboe
 

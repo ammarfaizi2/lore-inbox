@@ -1,82 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267720AbTAaITS>; Fri, 31 Jan 2003 03:19:18 -0500
+	id <S267721AbTAaI0q>; Fri, 31 Jan 2003 03:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267721AbTAaITS>; Fri, 31 Jan 2003 03:19:18 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:7428 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S267720AbTAaITR>;
-	Fri, 31 Jan 2003 03:19:17 -0500
-Date: Fri, 31 Jan 2003 11:23:54 +0300
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] export boottime gdt from i386/kernel/trampoline.S
-Message-ID: <20030131082354.GA9682@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S267725AbTAaI0q>; Fri, 31 Jan 2003 03:26:46 -0500
+Received: from ims21.stu.nus.edu.sg ([137.132.14.228]:26266 "EHLO
+	ims21.stu.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S267721AbTAaI0p> convert rfc822-to-8bit; Fri, 31 Jan 2003 03:26:45 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: PROBLEM: Unexpected EOF when unzipping kernel source 2.4.18
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Fri, 31 Jan 2003 16:36:06 +0800
+Message-ID: <720FB032F37C0D45A11085D881B033684CBC40@MBXSRV24.stu.nus.edu.sg>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROBLEM: Unexpected EOF when unzipping kernel source 2.4.18
+thread-index: AcLJA8xQzghI4ZOmRASRpsQaCZ7Jng==
+From: "Eng Se-Hsieng" <g0202512@nus.edu.sg>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 31 Jan 2003 08:36:07.0140 (UTC) FILETIME=[CC6A5240:01C2C903]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[1.] One line summary of the problem: Unexpected EOF in archive of linux
+kernel 2.4.18
+[2.] Full description of the problem/report: 
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+linux/arch/sh/mm/cache-sh4.c
+gzip: stdin: unexpected end of file
+linux/arch/sh/mm/clear_page.S
+linux/arch/sh/mm/copy_page.S
+tar: Unexpected EOF in archive
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now.
 
-Hi all,
+[3.] Keywords (i.e., modules, networking, kernel): kernel
+[4.] Kernel version (from /proc/version): :Linux version 2.4.18-3
+[5.] Output of Oops.. message (if applicable) with symbolic information
+resolved (see Documentation/oops-tracing.txt) 
+[6.] A small shell script or example program which triggers the problem
+(if possible) 
 
-this trivial patch (against 2.5.59) renames gdt_48 to boot_gdt and 
-makes it global, idt_48 is renamed to for consistency sake.
+tar zxpvf linux-2.4.18.tar.gz
 
-This patch allows visws subarch to use boottime gdt for starting boot cpu.
 
-Please consider applying.
+As such, make xconfig gives me the following errors
 
-Best regards.
+Make -C scripts kconfig.tk
+Make: *** scripts: No such file or directory. Stop.
+Make: *** [xconfig[ Error 2
 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+Please help. Thank you.
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-boot_gdt
-
-diff -urN -X /usr/share/dontdiff linux-2.5.59.vanilla/arch/i386/kernel/trampoline.S linux-2.5.59/arch/i386/kernel/trampoline.S
---- linux-2.5.59.vanilla/arch/i386/kernel/trampoline.S	Wed Jan 15 20:37:20 2003
-+++ linux-2.5.59/arch/i386/kernel/trampoline.S	Sun Jan 19 18:43:10 2003
-@@ -46,8 +46,8 @@
- 	movl	$0xA5A5A5A5, trampoline_data - r_base
- 				# write marker for master knows we're running
- 
--	lidt	idt_48 - r_base	# load idt with 0, 0
--	lgdt	gdt_48 - r_base	# load gdt with whatever is appropriate
-+	lidt	boot_idt - r_base	# load idt with 0, 0
-+	lgdt	boot_gdt - r_base	# load gdt with whatever is appropriate
- 
- 	xor	%ax, %ax
- 	inc	%ax		# protected mode (PE) bit
-@@ -57,7 +57,7 @@
- 	ljmpl	$__BOOT_CS, $0x00100000
- 			# jump to startup_32 in arch/i386/kernel/head.S
- 
--idt_48:
-+boot_idt:
- 	.word	0			# idt limit = 0
- 	.word	0, 0			# idt base = 0L
- 
-@@ -65,8 +65,8 @@
- # NOTE: here we actually use CPU#0's GDT - but that is OK, we reload
- # the proper GDT shortly after booting up the secondary CPUs.
- #
--
--gdt_48:
-+	.globl boot_gdt
-+boot_gdt:
- 	.word	__BOOT_DS + 7			# gdt limit
- 	.long	boot_gdt_table-__PAGE_OFFSET	# gdt base = gdt (first SMP CPU)
- 
-
---vkogqOf2sHV7VnPd--
+Regards,
+Se-Hsieng

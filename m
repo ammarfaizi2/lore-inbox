@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUHJFEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUHJFFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267429AbUHJFEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 01:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267428AbUHJFEY
+	id S267433AbUHJFFB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 01:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUHJFE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 01:04:24 -0400
-Received: from digitalimplant.org ([64.62.235.95]:24210 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S267429AbUHJFEP
+	Tue, 10 Aug 2004 01:04:59 -0400
+Received: from mx15.sac.fedex.com ([199.81.195.17]:47112 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S267428AbUHJFEz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 01:04:15 -0400
-Date: Mon, 9 Aug 2004 22:03:33 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org, "" <benh@kernel.crashing.org>,
-       "" <david-b@pacbell.net>
-Subject: Re: [RFC] Fix Device Power Management States
-In-Reply-To: <20040809212949.GA1120@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
- <20040809113829.GB9793@elf.ucw.cz> <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net>
- <20040809212949.GA1120@elf.ucw.cz>
+	Tue, 10 Aug 2004 01:04:55 -0400
+Date: Tue, 10 Aug 2004 13:02:07 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Pavel Machek <pavel@suse.cz>, Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+In-Reply-To: <20040809201556.GB9677@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>
+References: <20040714114135.GA25175@elf.ucw.cz>
+ <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com>
+ <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/10/2004
+ 01:04:46 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/10/2004
+ 01:04:49 PM,
+	Serialize complete at 08/10/2004 01:04:49 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 9 Aug 2004, Pavel Machek wrote:
+On Mon, 9 Aug 2004, Tomas Szepe wrote:
 
-> Well, "no DMA" needs to be part of definition, too, because some
-> devices (USB) do DMA only if they have nothing to do.
+> ipw2100 0.51 from ipw2100.sf.net builds using gcc-2.95.3 "out of the box."
 
-I don't understand; that doesn't sound healthy.
+Well, this is really good news!
 
-> if something like this gets merged, it will immediately break swsusp
-> because initially no drivers will have "stop" methods.
->
-> Passing system state down to drivers and having special "quiesce"
-> (as discussed in rather long thread) state has advantage of
-> automagicaly working on drivers that ignore u32 parameter of suspend
-> callback (and that's most of them). David's patches do not bring us
-> runtime suspend capabilities, but do not force us to go through all
-> the drivers, either...
+I just downloaded 0.51 compiled with gcc-2.95.3 and got it working on my 
+IBM X31 with WEP. Even better, 0.51 doesn't need hostap-driver.
 
-Nothing is free. ;)
+Looks good.
 
-We've been talking about creating and merging a sane power management
-model for 3+ years now. It's always been known that the drivers will have
-to be modified to support a sane model. It's a fact of life. At some
-point, we have to bite the bullet and do the work. I see that time rapidly
-approaching.
+Thanks,
+Jeff
 
-I do not intend to merge a patch that will break swsusp in a stable
-kernel. However, we do have this wonderful thing called the -mm tree in
-which we can a) evolve the model, b) get large testing coverage and c)
-solicit driver fixes.
-
-Once the swsusp consolidation is merged upstream, I will merge a new
-device power model in -mm, and we can start working on the drivers. How
-does that sound?
-
-
-	Pat

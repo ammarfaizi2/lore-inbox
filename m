@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBIHKt>; Fri, 9 Feb 2001 02:10:49 -0500
+	id <S129030AbRBIHSJ>; Fri, 9 Feb 2001 02:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129030AbRBIHKk>; Fri, 9 Feb 2001 02:10:40 -0500
-Received: from mhub5.tc.umn.edu ([160.94.218.235]:24553 "EHLO mhub5.tc.umn.edu")
-	by vger.kernel.org with ESMTP id <S129026AbRBIHKX>;
-	Fri, 9 Feb 2001 02:10:23 -0500
-From: "David Carlson" <thecubic@bigfoot.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: multiple 3c509 problems
-Date: Fri, 9 Feb 2001 01:12:27 -0600
-Message-Id: <GPEELJPKKIFGMCOACOLLEELCCDAA.thecubic@bigfoot.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129626AbRBIHR7>; Fri, 9 Feb 2001 02:17:59 -0500
+Received: from beops-jg2.office.be.uu.net ([194.7.16.143]:48257 "HELO
+	dhcp194-7-17-95.office.uunet.be") by vger.kernel.org with SMTP
+	id <S129030AbRBIHRu>; Fri, 9 Feb 2001 02:17:50 -0500
+From: "Jan Gyselinck" <jan.gyselinck@be.uu.net>
+Date: Fri, 9 Feb 2001 08:04:54 +0100
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: DNS goofups galore...
+Message-ID: <20010209080454.A17656@beops-jg2.be.uu.net>
+In-Reply-To: <95ulrk$aik$1@forge.intermeta.de> <Pine.LNX.4.10.10102081346001.16513-100000@innerfire.net> <95v8am$k6o$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <95v8am$k6o$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Feb 08, 2001 at 02:58:30PM -0800
+Organization: UUNET
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I've been experiencing numerous problems with the 3c509 driver in 2.4.1.
-When I force it to go to both cards (ether=10,0x300,eth0
-ether=11,0x210,eth1), they both act strange (and also claim to be BNC when
-they are both TP).  The link light at the hub flashes three times
-repeatedly.
+On Thu, Feb 08, 2001 at 02:58:30PM -0800, H. Peter Anvin wrote:
+> Followup to:  <Pine.LNX.4.10.10102081346001.16513-100000@innerfire.net>
+> By author:    Gerhard Mack <gmack@innerfire.net>
+> In newsgroup: linux.dev.kernel
+> >
+> > Thanklfully bind 9 barfs if you even try this sort of thing.
+> > 
+> 
+> Personally I find it puzzling what's wrong with MX -> CNAME at all; it
+> seems like a useful setup without the pitfalls that either NS -> CNAME
+> or CNAME -> CNAME can cause (NS -> CNAME can trivially result in
+> irreducible situations; CNAME -> CNAME would require a link maximum
+> count which could result in obscure breakage.)
+> 
+> 	-hpa
 
-Donald Becker thinks it is a problem specific to the conversion to 2.4
+There's not really something wrong with MX's pointing to CNAME's.  It's just that some mailservers could (can?) not handle this.  So if you want to be able to receive mail from all kinds of mailservers, don't use CNAME's for MX's.
 
-Dave Carlson
+Regards
 
+
+Jan Gyselinck
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

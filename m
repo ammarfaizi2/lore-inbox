@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279617AbRKAT3Q>; Thu, 1 Nov 2001 14:29:16 -0500
+	id <S279615AbRKAT3q>; Thu, 1 Nov 2001 14:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279615AbRKAT25>; Thu, 1 Nov 2001 14:28:57 -0500
-Received: from ns.suse.de ([213.95.15.193]:12813 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279614AbRKAT2q>;
-	Thu, 1 Nov 2001 14:28:46 -0500
-Date: Thu, 1 Nov 2001 20:28:45 +0100
-From: Andi Kleen <ak@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: Andi Kleen <ak@suse.de>, joris@deadlock.et.tudelft.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-Message-ID: <20011101202845.A10648@wotan.suse.de>
-In-Reply-To: <20011101192153.A30903@wotan.suse.de> <200111011856.VAA27068@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <200111011856.VAA27068@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Nov 01, 2001 at 09:56:34PM +0300
+	id <S279614AbRKAT32>; Thu, 1 Nov 2001 14:29:28 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:54256 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S279616AbRKAT3O>; Thu, 1 Nov 2001 14:29:14 -0500
+Date: Thu, 1 Nov 2001 19:28:13 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Peter Jones <pjones@redhat.com>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0111011126200.9216-100000@lacrosse.corp.redhat.com>
+Message-ID: <Pine.LNX.4.33.0111011927380.7987-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 09:56:34PM +0300, A.N.Kuznetsov wrote:
-> Hello!
-> 
-> > When you e.g. have a TCP sniffer it makes sense to only bind it to ETH_P_IP.
-> 
-> For what purpose? To add a small underdeveloped copy of BPF?
+On Thu, 1 Nov 2001, Peter Jones wrote:
 
-Just to have an symmetric API. Everything else is too ugly to explain 
-in manpages ;)
+> Oh, I'm sorry.  You said "2.8" last time and I assumed you meant
+> 0.2.8.  How interesting...
 
-> To summarize: I wanted to see a patch allowing to detect that
-> nobody listens on outpu (or even splitting input and output ptype_all.)
+No, you're right, it's 0.2.8. Slip of the fingers..
 
-That would require changing/breaking PF_PACKET, no? 
+> In any event, the answer is "use _NE", I think.
 
--Andi
+Yep. Thanks.
+
+-- 
+Come the revolution, humourless gits'll be first up against the wall.
+
+http://www.tahallah.demon.co.uk
+

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUE0PjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUE0PpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbUE0PjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbUE0PjQ
+	id S264811AbUE0PpN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUE0PpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:39:16 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6039
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264809AbUE0PjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:39:14 -0400
-Date: Thu, 27 May 2004 17:39:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Brian Gerst <bgerst@didntduck.org>, Ingo Molnar <mingo@elte.hu>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Arjan van de Ven <arjanv@redhat.com>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040527153908.GJ3889@dualathlon.random>
-References: <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040527124551.GA12194@elte.hu> <20040527135930.GC3889@dualathlon.random> <40B5F8C0.2010005@didntduck.org> <20040527145033.GF3889@dualathlon.random> <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
+	Thu, 27 May 2004 11:45:13 -0400
+Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:48652 "EHLO
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S264811AbUE0PpK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 11:45:10 -0400
+Subject: Process hangs on blk_congestion_wait copying large file to cifs
+	filesystem
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Graycell
+Date: Thu, 27 May 2004 16:45:06 +0100
+Message-Id: <1085672706.4350.9.camel@taz.graycell.biz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 1.5.8 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 May 2004 15:41:19.0648 (UTC) FILETIME=[0E299A00:01C44401]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 07:55:36AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 27 May 2004, Andrea Arcangeli wrote:
-> >
-> > On Thu, May 27, 2004 at 10:18:40AM -0400, Brian Gerst wrote:
-> > > The problem on i386 (unlike x86-64) is that the thread_info struct sits 
-> > > at the bottom of the stack and is referenced by masking bits off %esp. 
-> > > So the stack size must be constant whether in process context or IRQ 
-> > > context.
-> > 
-> > so what, that's a minor implementation detail, pda is a software thing.
-> 
-> "minor implementation detail"?
-> 
-> You need to get to the thread info _some_ way, and you need to get to it
-> _fast_. There are really no sane alternatives. I certainly do not want to
-> play games with segments.
+Hi,
+I'm trying to copy a large file (200Mb or bigger) from an ext3
+filesystem to a windows share mounted using CIFS and the cp process
+hangs, sometimes for a long time (several minutes).
+Calling ps, I can see that it's blocking on blk_congestion_wait.
 
-If the page is "even" the thread_info is at the top of the stack. If the
-page is "odd" the thread_info is at the bottom of the stack (or the
-other way around depending what you mean with "odd" and "even").
+Trying to edit a file on the same ext3 filesystem using vi blocks on the
+same function. However, during that that same time that vi and cp were
+blocked, I was able to do a "find /usr/share/doc" and it completed
+normally, in a few seconds.
 
-the per-cpu irq stack will have the thread_info at both the top and the
-bottom of the 8k naturally aligned order1 compound page. The regular
-kernel stack will have it at the top or the bottom depending if it's odd
-or even.
+Eventually the copy succeeds but it takes a long time (20 minutes to
+copy 200Mb) and the computer is unusable during most of that time.
 
-this should allow 8k irqstack and bh stack fine at in-cpu-core speed w/o
-segments or similar.
+This is copying from my laptop (IDE disk), the network card is a RTL8139
+using 8139cp drivers.
 
-The only downside is that itadds a branch to current_thread_info that
-will have to check the 12th bitflag in the esp before doing andl, the
-second downside is having to update two thread_info during irq, instead
-of just one.
+Is someone seeing a similiar problem? What extra info is needed to debug
+it?
 
-It would be probably better if the thread_info was just a pointer to a
-"pda" instead of being the PDA itself so there are just two writes into
-the kernel stack for every irq. In x86-64 this is much more natural
-since the pda-pointer is in the cpu 64bit %gs register and that saves a
-branch and defereference on the stack for every "current" invocation,
-and two writes for every first-irq or first-bh. 
+Thanks
+-- 
+Nuno Ferreira
+

@@ -1,83 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUGEELa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUGEES1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265920AbUGEELa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 00:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUGEELa
+	id S265932AbUGEES1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 00:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUGEES1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 00:11:30 -0400
-Received: from wblv-239-160.telkomadsl.co.za ([165.165.239.160]:56961 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265920AbUGEEL1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 00:11:27 -0400
-Subject: Re: [2.4] lockup on boot with 2.4.26
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040705002845.GB20847@logos.cnet>
-References: <1088979352.9568.9.camel@nosferatu.lan>
-	 <20040705002845.GB20847@logos.cnet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RZwElCCRu0VmbwfkmvN4"
-Message-Id: <1089000649.9568.15.camel@nosferatu.lan>
+	Mon, 5 Jul 2004 00:18:27 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2293 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265932AbUGEESW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 00:18:22 -0400
+Date: Fri, 2 Jul 2004 18:45:28 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Cc: linux-osdl@osdl.org
+Subject: Re: [PATCH 4/22] Splice ioctx runlist for fairness
+Message-ID: <20040702131528.GD4374@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20040702130030.GA4256@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 05 Jul 2004 06:10:50 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702130030.GA4256@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
+> The patchset contains modifications and fixes to the AIO core
+> to support the full retry model, an implementation of AIO
+> support for buffered filesystem AIO reads and O_SYNC writes
+> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
+> an implementation of AIO reads and writes to pipes (from
+> Chris Mason) and AIO poll (again from Chris Mason).
+> 
+> Full retry infrastructure and fixes
+> [1] aio-retry.patch
+> [2] 4g4g-aio-hang-fix.patch
+> [3] aio-retry-elevated-refcount.patch
+> [4] aio-splice-runlist.patch
+> 
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
---=-RZwElCCRu0VmbwfkmvN4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+From: Suparna Bhattacharya <suparna@in.ibm.com>
 
-On Mon, 2004-07-05 at 02:28, Marcelo Tosatti wrote:
-> On Mon, Jul 05, 2004 at 12:15:52AM +0200, Martin Schlemmer wrote:
-> > Hi
-> >=20
-> > I have tried to update my gateway's kernel to 2.4.26 (Been running
-> > happily on 2.4.17, but a bit _old_, so finally decided this weekend
-> > to try and update it).   At boot though it only gets to:
-> >=20
-> > --
-> > Uncompressing kernel... booting linux...
-> > --
-> >=20
-> > and then locks hard (the capslock and scroll lock leds lids)
-> >=20
-> > Its an old P3 450 on an Asus P2B (BX440 chipset).  .config is pretty
-> > much the same as for the 2.4.17 kernel.
-> >=20
-> > I did have grsecurity initially applied, but I tried on an vanilla
-> > kernel as well (besides some netfiler POM patches, but they are all
-> > modules).  I also tried to disable acpi.
-> >=20
-> > Any suggestions would be appreciated.  .config attached.
->=20
-> Hi Martin,=20
->=20
-> I do not know the answer for your problem but I'll try to help.
->=20
-> Can you do a binary search and find out which v2.4 kernel stops working?=20
->=20
-> You can start with 2.4.21, see if that works, if so, try 2.4.23, etc?=20
+This patch tries be a little fairer across multiple io contexts in handling
+retries, helping make sure progress happens uniformly across different io
+contexts (especially if they are acting on independent queues).
 
-Sure, will do and let you know, thanks.
+It splices the ioctx runlist before processing it in __aio_run_iocbs.  If
+new iocbs get added to the ctx in meantime, it queues a fresh workqueue
+entry instead of handling them righaway, so that other ioctxs' retries get
+a chance to be processed before the newer entries in the queue.
+
+This might make a difference in a situation where retries are getting
+queued very fast on one ioctx, while the workqueue entry for another ioctx
+is stuck behind it.  I've only seen this occasionally earlier and can't
+recreate it consistently, but may be worth trying out.
 
 
---=20
-Martin Schlemmer
+ aio.c |   26 ++++++++++++++++++++------
+ 1 files changed, 20 insertions(+), 6 deletions(-)
 
---=-RZwElCCRu0VmbwfkmvN4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA6NTJqburzKaJYLYRAm9cAJ9eDKq/qz6OClqJDa6A7+fnrZn5uACfVecg
-V9uVVQTeHc8CxA7SlaVSVno=
-=iIuK
------END PGP SIGNATURE-----
-
---=-RZwElCCRu0VmbwfkmvN4--
-
+--- linux-2.6.7/fs/aio.c	2004-06-23 15:42:43.791869120 -0700
++++ aio/fs/aio.c	2004-06-23 15:43:58.833461064 -0700
+@@ -761,13 +761,15 @@ out:
+  * Assumes it is operating within the aio issuer's mm
+  * context. Expects to be called with ctx->ctx_lock held
+  */
+-static void __aio_run_iocbs(struct kioctx *ctx)
++static int __aio_run_iocbs(struct kioctx *ctx)
+ {
+ 	struct kiocb *iocb;
+ 	int count = 0;
++	LIST_HEAD(run_list);
+ 
+-	while (!list_empty(&ctx->run_list)) {
+-		iocb = list_entry(ctx->run_list.next, struct kiocb,
++	list_splice_init(&ctx->run_list, &run_list);
++	while (!list_empty(&run_list)) {
++		iocb = list_entry(run_list.next, struct kiocb,
+ 			ki_run_list);
+ 		list_del(&iocb->ki_run_list);
+ 		/*
+@@ -780,6 +782,9 @@ static void __aio_run_iocbs(struct kioct
+ 		count++;
+  	}
+ 	aio_run++;
++	if (!list_empty(&ctx->run_list))
++		return 1;
++	return 0;
+ }
+ 
+ /*
+@@ -791,9 +796,15 @@ static void __aio_run_iocbs(struct kioct
+  */
+ static inline void aio_run_iocbs(struct kioctx *ctx)
+ {
++	int requeue;
++
+ 	spin_lock_irq(&ctx->ctx_lock);
+-	__aio_run_iocbs(ctx);
+- 	spin_unlock_irq(&ctx->ctx_lock);
++	
++	requeue = __aio_run_iocbs(ctx);
++	spin_unlock_irq(&ctx->ctx_lock);
++	if (requeue)
++		queue_work(aio_wq, &ctx->wq);
++
+ }
+  
+ /*
+@@ -809,14 +820,17 @@ static void aio_kick_handler(void *data)
+ {
+ 	struct kioctx *ctx = data;
+ 	mm_segment_t oldfs = get_fs();
++	int requeue;
+ 
+ 	set_fs(USER_DS);
+ 	use_mm(ctx->mm);
+ 	spin_lock_irq(&ctx->ctx_lock);
+-	__aio_run_iocbs(ctx);
++	requeue =__aio_run_iocbs(ctx);
+  	unuse_mm(ctx->mm);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 	set_fs(oldfs);
++	if (requeue)
++		queue_work(aio_wq, &ctx->wq);
+ }
+  
+ 

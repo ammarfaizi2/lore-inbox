@@ -1,144 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTIVTBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 15:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTIVTBK
+	id S262339AbTIVTH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIVTH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 15:01:10 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:34689 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263268AbTIVTA4
+	Mon, 22 Sep 2003 15:07:27 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:49323 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262339AbTIVTHZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 15:00:56 -0400
-Date: Mon, 22 Sep 2003 20:00:54 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-Message-ID: <20030922190054.GC27209@mail.jlokier.co.uk>
-References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk> <20030922162602.GB27209@mail.jlokier.co.uk> <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 22 Sep 2003 15:07:25 -0400
+Date: Mon, 22 Sep 2003 12:07:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Subject: Re: [PATCH] Add 'make uImage' for PPC32
+Message-ID: <20030922190723.GN7443@ip68-0-152-218.tc.ph.cox.net>
+References: <20030922182928.GM7443@ip68-0-152-218.tc.ph.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030922182928.GM7443@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few architectures define in[bwl]_p & out[bwl]_p differently from
-in[bwl] and out[bwl].  These are:
+On Mon, Sep 22, 2003 at 11:29:28AM -0700, Tom Rini wrote:
 
-	i386 (all machines)
-		- four methods are offered; the normal one is 1 write to port
-		  0x80.  The others are selected by manually editing a file.
-		- The port 0x80 is hard-coded in assembly language in
-		  <asm-i386/floppy.h>, although that code is no longer used.
+> Hello.  The following BK patch adds support for a 'uImage' target on
+> PPC32.  This will create an image for the U-Boot (and formerly
+> PPCBoot) firmware.  The patch adds a scripts/mkuboot.sh as a wrapper for
+> the U-Boot mkimage program.  We put mkuboot.sh into scripts/ because
+> U-Boot works on a number of other platforms, and it's likely that they
+> will add a uImage target at some point.  Please apply.
 
-	m68k
-		- A delay is done for some machines.  It is a write
-		  to port 0x80.
+And since I don't use U-Boot I didn't fully test this until I did the
+2.6 forward port (coming soon), so the following is also needed to get
+all of the dependancies correct.  Please apply.
 
-	MIPS
-		- normally disabled, but can be enabled if CONF_SLOWDOWN_IO
-		  is manually edited in a file.  It is a write to port
-		  0x80.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/
 
-	PPC64
-		- the input operations don't have a delay
-		- the output operations have a udelay(1), _before_ the I/O.
-		- PPC (32 bit) doesn't have delays at all
+This BitKeeper patch contains the following changesets:
+trini@kernel.crashing.org|ChangeSet|20030922190523|00073
 
-	SH (all machines except ec3104)
-		- only byte-size access has the delay method,
-		  except on the "overdrive" where all sizes have it.
-		- delay is done by a special I/O operation,
-		  ctrl_inw(0xa0000000)
-		- one SH board uses udelay(10) for the delay.
-		- another SH board has a funky single delay after
-		  insw/insl/outsw/outsl (but not insb/outsb), using a
-		  different special I/O, ctrl_inb(0xba000000).
+# ID:	torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+# User:	trini
+# Host:	kernel.crashing.org
+# Root:	/home/trini/work/kernel/pristine/linux-2.4
 
-	x86_64
-		- four methods just like i386
+# Patch vers:	1.3
+# Patch type:	REGULAR
 
-Some of the architectures _call_ the _p operators even for some
-architecture-specific devices, even though those operators don't have
-a delay.
+== ChangeSet ==
+torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+trini@kernel.crashing.org|ChangeSet|20030922180348|00070
+D 1.1133 03/09/22 12:05:23-07:00 trini@kernel.crashing.org +1 -0
+B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+C
+c PPC32: Fix dependancies on uImage.
+K 73
+P ChangeSet
+------------------------------------------------
 
-The m68k implementation is nice: it defines a function called
-isa_delay(), which contains the delay which is done after the I/O by
-_p operations.
+0a0
+> torvalds@athlon.transmeta.com|arch/ppc/boot/Makefile|20020205174025|54177|a1ccc61f9b0e318d trini@kernel.crashing.org|arch/ppc/boot/Makefile|20030922190513|45691
 
-IMHO, it would be nice if all architectures simply provided an
-appropriate isa_delay() function, and the _p I/O operators were simply
-removed.  That would make the intent of drivers using those operators
-a little clearer, too.
+== arch/ppc/boot/Makefile ==
+torvalds@athlon.transmeta.com|arch/ppc/boot/Makefile|20020205174025|54177|a1ccc61f9b0e318d
+trini@kernel.crashing.org|arch/ppc/boot/Makefile|20030922180241|43396
+D 1.12 03/09/22 12:05:13-07:00 trini@kernel.crashing.org +2 -2
+B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+C
+c Make uImage depend on $(MKIMAGE) and don't use $< but
+c images/vmlinux.gz instead.
+K 45691
+O -rw-rw-r--
+P arch/ppc/boot/Makefile
+------------------------------------------------
 
+D65 1
+I65 1
+uImage: $(MKIMAGE) images/vmlinux.gz
+D69 1
+I69 1
+	-d images/vmlinux.gz images/vmlinux.UBoot
 
-Devices
-=======
-
-I think they're all ISA devices, or emulations of them.
-
-Unfortunately, a _lot_ of drivers in the kernel use the _p I/O
-operators so it's not possible to look for a few special quirky
-devices.  I suspect that in many cases, the _p operators are not
-required but have been used for safety.  There is no harm in this of
-course.
-
-Alan mentioned the PIT timer chip and keyboard which appear on x86
-machines as being specifically quirky.
-
-I find it interesting, but awfully difficult to know whether it's
-"correct", that the i386 PIT code uses inb/outb for some operations
-and inb_p/outb_p for some others.
-
-Alan Cox wrote:
-> On Llu, 2003-09-22 at 17:26, Jamie Lokier wrote:
-> > What sort of timer chip problems do you see?  Is it something that can
-> > be auto-detected, so that timer chip accesses can be made faster on
-> > boards where that is fine?
-> 
-> CS5520 is one example. Also VIA VP2 seems to care but only very very
-> occasionally. On my 386 board its reliably borked without the delays
-> (not sure what chipset and its ISA so harder to tell)
-
-Yeah, but what's the problem and can it be detected? :)
-
-> > I've also seen much DOS code that didn't have extra delays for
-> > keyboard I/Os.  What sort of breakage did you observe with the
-> > keyboard?
-> 
-> DEC laptops hang is the well known example of that one.
-> 
-> I'm *for* making this change to udelay, it just has to start up with a
-> suitably pessimal udelay assumption until calibrated.
-
-I'm wondering if there's a way to detect how much udelay is needed on
-a particular board, and reduce or remove it on boards where it isn't
-needed.
-
-udelay() is also unreliable nowadays, due to CPUs changing clock
-speeds according to the whims of the BIOS.  On laptops, even the rdtsc
-rate varies.  If the delay is critical to system reliability for
-unknown reasons, then switching to udelay() removes some of that "we
-always did this and it fixed the unknown problems" legacy driver safety
-
-Unfortunately, there are a lot of drivers, and a lot of x86
-arch-specific code, which use the delay operaters.  There's no real
-way to verify that all the drivers are fine when the delay is reduced
-or removed.
-
-The delay should only be effective for ISA devices.  I wonder if it
-makes sense to separate the delay into an isa_delay() or io_delay()
-function, sprinkled into source where the _p operators currently
-appear, to make it clearer where the delays should appear.
-
-In the i386 floppy driver, for example, it's clear why the delay is
-there in one part of the virtual DMA loop and not the other: to allow
-a device time to propagate a state change.  That also explains the
-need for a delay after writing to port 0x42 of the PIT but not after
-writing port 0x43.  I think calls to isa_delay() would make the intent
-there a little clearer.
-
--- Jamie
+# Patch checksum=258c7251

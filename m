@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282467AbRKZUWm>; Mon, 26 Nov 2001 15:22:42 -0500
+	id <S282472AbRKZUWl>; Mon, 26 Nov 2001 15:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282481AbRKZUWc>; Mon, 26 Nov 2001 15:22:32 -0500
-Received: from schwerin.p4.net ([195.98.200.5]:38170 "EHLO schwerin.p4.net")
-	by vger.kernel.org with ESMTP id <S282467AbRKZUWX>;
-	Mon, 26 Nov 2001 15:22:23 -0500
-Message-ID: <3C02A4D8.5010405@p4all.de>
-Date: Mon, 26 Nov 2001 21:23:52 +0100
-From: Michael Dunsky <michael.dunsky@p4all.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: de, en
+	id <S282467AbRKZUWd>; Mon, 26 Nov 2001 15:22:33 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52999 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S282472AbRKZUWY>; Mon, 26 Nov 2001 15:22:24 -0500
+Date: Mon, 26 Nov 2001 15:15:33 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andi Kleen <ak@muc.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Severe Linux 2.4 kernel memory leakage
+In-Reply-To: <m3lmgug4vl.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.3.96.1011126150917.27112F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: "Elgar, Jeremy" <JElgar@ndsuk.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Mixing Patches: pre-emptive + xfs
-In-Reply-To: <F128989C2E99D4119C110002A507409801C53035@topper.hrow.ndsuk.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elgar, Jeremy wrote:
+On Sun, 25 Nov 2001, Andi Kleen wrote:
 
-> Hello
-> Just wondering if anyone has try using these two patches together (or is
-> this a really bad idea)
+> "Peter T. Breuer" <ptb@it.uc3m.es> writes:
 > 
-> I'm thinking of adding the pre-emptive patch to my laptop and desk top.
+> > "A month of sundays ago Chris Chabot wrote:"
+> > > The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
+> > > 2.4.9 upto 2.4.15, in all situations the same problem appeared.
+> > > 
+> > > The problem is that when the box boots up, it uses about 60Mb of memory.
+> > > However after only 1 1/2 days, the memory usage is already around 430Mb
+> > > (!!). (this is ofcource used - buffers - cache, as displayed by 'free').
+> > 
+> > I also have this problem. Unknown circumstances provoke it. Kernel
+> > 2.4.9 to 2.4.13.  When it occurs I lose about 30MB a day.
 > 
-> Cheers
-> 
-> Jeremy
-> 
-> (BTW both are 2.4.14)
+> Compare snapshots of /proc/slabinfo before and after.
 
+This may be useful, but I've never seen anything like that magnitude of
+usage, either on dns servers (some of mine are up ~150 days), or usenet
+servers (several about to hit the 497 day problem). It will be
+insteresting to see what's reported, though.
+ 
+> It may be completely harmless; e.g. a slab cache. free is unfortunately 
+> quite misleading with newer kernels; it doesn't give information about
+> many important caches (e.g. not about the slab caches) 
 
-Well - it works.
-
-I have both patches runnig here (installed the xfs-patches and after 
-that the preempt-2.4.14-2 - only 2 or 3 minor offsets while patching).
-System "feels" fluid now - but my UT crashes hard while using that 
-kernel :( Seems it doesn't like it. But while normal work no problems 
-detected until now...
-
-ciao
-
-Michael
-
-
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

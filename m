@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282894AbRK0J41>; Tue, 27 Nov 2001 04:56:27 -0500
+	id <S274789AbRK0Jxz>; Tue, 27 Nov 2001 04:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282893AbRK0JzK>; Tue, 27 Nov 2001 04:55:10 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:35557 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282892AbRK0Jym>;
-	Tue, 27 Nov 2001 04:54:42 -0500
-Date: Tue, 27 Nov 2001 12:52:26 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-In-Reply-To: <1006831902.842.0.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain>
+	id <S282071AbRK0Jwr>; Tue, 27 Nov 2001 04:52:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54028 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274789AbRK0JwW>; Tue, 27 Nov 2001 04:52:22 -0500
+Subject: Re: Linux 2.4.16
+To: anuradha@gnu.org (Anuradha Ratnaweera)
+Date: Tue, 27 Nov 2001 10:00:45 +0000 (GMT)
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (lkml),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), editors@newsforge.com,
+        lwn@lwn.net
+In-Reply-To: <20011127083530.A13584@bee.lk> from "Anuradha Ratnaweera" at Nov 27, 2001 08:35:30 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E168f2k-0000Sc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > final:
+> > - Fix 8139too oops				(Philipp Matthias Hahn)
+> 
+> Won't that be a good idea to keep the -final the same as the last -pre?
 
-On 26 Nov 2001, Robert Love wrote:
-
-> Attached is my procfs-based implementation of a user interface for
-> getting and setting a task's CPU affinity.  Patch is against 2.4.16.
-
-two comments. First, this has already been done - Andrew Morton has
-written such a patch.
-
-Second, as i've repeatedly said it, it's a failure to do this over /proc.
-What if /proc is not mounted? What if the process is in a chroot()
-environment, should it not be able to set its own affinity? This is a
-fundamental limitation of your approach, and *if* we want to export the
-cpus_allowed affinity to user-space (which is up to discussion), then the
-right way (TM) to do it is via a syscall.
-
-	Ingo
-
+When the patch is totally obvious and there is a need to get a release out -
+not really.

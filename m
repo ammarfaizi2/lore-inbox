@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUDGXOs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 19:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDGXOs
+	id S261206AbUDGXNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 19:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUDGXNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 19:14:48 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:8597 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261232AbUDGXOm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 19:14:42 -0400
-Date: Wed, 07 Apr 2004 16:13:30 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org, geert@linux-m68k.org
-cc: hannal@us.ibm.com, greg@kroah.com, noring@nocrew.org, lars@nocrew.org,
-       tomas@nocrew.org
-Subject: [PATCH 2.6] add class support to dsp56k.c 
-Message-ID: <61760000.1081379610@dyn318071bld.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 7 Apr 2004 19:13:33 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:5014 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261206AbUDGXNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 19:13:32 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Date: Thu, 8 Apr 2004 09:13:22 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16500.35602.13336.290506@cse.unsw.edu.au>
+Cc: Gewj <geweijin@sinosoft.com.cn>, linux-kernel@vger.kernel.org
+Subject: Re: A puzzling thing about RAID5: syslogd write the log success but another process can not read the /var/log/messages
+In-Reply-To: message from Lars Marowsky-Bree on Wednesday April 7
+References: <407400F1.8090809@sinosoft.com.cn>
+	<20040407145126.GA23517@marowsky-bree.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday April 7, lmb@suse.de wrote:
+> On 2004-04-07T21:24:01,
+>    Gewj <geweijin@sinosoft.com.cn> said:
+> 
+> > hammm,tonight is funny because I got a puzzling thing just as....
+> > 
+> > my setup is a two-scsi-disk raid5 configuration...
+> 
+> Impossible. RAID5 requires at least three disks.
 
-Here is a patch that adds sysfs class support to /drivers/char/dsp56k.c
+Wrong.  RAID5 works fine with just two drives.  Try it.
 
-I dont have the hardware or a cross compiler... If someone could test it
-I would appreciate it.
+NeilBrown
 
-Thanks.
-
-Hanna
-IBM Linux Technology Center
------
-diff -Nrup linux-2.6.5/drivers/char/dsp56k.c linux-2.6.5p/drivers/char/dsp56k.c
---- linux-2.6.5/drivers/char/dsp56k.c	2004-04-03 19:37:07.000000000 -0800
-+++ linux-2.6.5p/drivers/char/dsp56k.c	2004-04-07 14:44:28.000000000 -0700
-@@ -35,6 +35,7 @@
- #include <linux/init.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
-+#include <linux/device.h>
- 
- #include <asm/atarihw.h>
- #include <asm/traps.h>
-@@ -149,6 +150,8 @@ static struct dsp56k_device {
- 	int tx_wsize, rx_wsize;
- } dsp56k;
- 
-+static struct class_simple *dsp56k_class;
-+
- static int dsp56k_reset(void)
- {
- 	u_char status;
-@@ -502,6 +505,8 @@ static char banner[] __initdata = KERN_I
- 
- static int __init dsp56k_init_driver(void)
- {
-+	int err = 0;
-+
- 	if(!MACH_IS_ATARI || !ATARIHW_PRESENT(DSP56K)) {
- 		printk("DSP56k driver: Hardware not present\n");
- 		return -ENODEV;
-@@ -511,12 +516,28 @@ static int __init dsp56k_init_driver(voi
- 		printk("DSP56k driver: Unable to register driver\n");
- 		return -ENODEV;
- 	}
-+	dsp56k_class = class_simple_create(THIS_MODULE, "dsp56k");
-+	if (IS_ERR(dsp56k_class)) {
-+		err = PTR_ERR(dsp56k_class);
-+		goto out_chrdev;
-+	}
-+	class_simple_device_add(dsp56k_class, MKDEV(DSP56K_MAJOR, 0), NULL, "dsp56k");
- 
--	devfs_mk_cdev(MKDEV(DSP56K_MAJOR, 0),
-+	err = devfs_mk_cdev(MKDEV(DSP56K_MAJOR, 0),
- 		      S_IFCHR | S_IRUSR | S_IWUSR, "dsp56k");
-+	if(err)
-+		goto out_class;
- 
- 	printk(banner);
--	return 0;
-+	goto out;
-+
-+out_class:
-+	class_simple_device_remove(MKDEV(DSP56K_MAJOR, 0));
-+	class_simple_destroy(dsp56k_class);
-+out_chrdev:
-+	unregister_chrdev(DSP56K_MAJOR, "sdp56k");
-+out:
-+	return err;
- }
- module_init(dsp56k_init_driver);
- 
-@@ -524,6 +545,8 @@ static void __exit dsp56k_cleanup_driver
- {
- 	unregister_chrdev(DSP56K_MAJOR, "dsp56k");
- 	devfs_remove("dsp56k");
-+	class_simple_device_remove(MKDEV(DSP56K_MAJOR, 0));
-+	class_simple_destroy(dsp56k_class);
- }
- module_exit(dsp56k_cleanup_driver);
- 
+(I admit that there isn't a lot of point doing raid5 with two drives
+as raid1 should provide identical functionality with better
+performance, but it makes an interesting base-line for performances
+tests on N-drive arrays).
 

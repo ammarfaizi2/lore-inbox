@@ -1,100 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUHABLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUHABO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264577AbUHABLy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 21:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUHABLy
+	id S264702AbUHABO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 21:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUHABO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 21:11:54 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31748 "EHLO
+	Sat, 31 Jul 2004 21:14:26 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33028 "EHLO
 	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264577AbUHABLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 21:11:51 -0400
+	id S264702AbUHABOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 21:14:23 -0400
 Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
 From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
 To: Lee Revell <rlrevell@joe-job.com>
-Cc: Shane Shrybman <shrybman@aei.ca>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091320373.20819.74.camel@mindpipe>
+Cc: Shane Shrybman <shrybman@aei.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1091321213.20819.85.camel@mindpipe>
 References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
 	 <1091209106.2356.3.camel@mars>
 	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
-	 <1091232345.1677.20.camel@mindpipe>
-	 <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
-	 <1091246222.1677.65.camel@mindpipe>
-	 <1091319840.2386.3.camel@teapot.felipe-alfaro.com>
-	 <1091320373.20819.74.camel@mindpipe>
+	 <1091232345.1677.20.camel@mindpipe>  <1091246064.2389.9.camel@mars>
+	 <1091246621.1677.71.camel@mindpipe>
+	 <1091267282.1768.8.camel@teapot.felipe-alfaro.com>
+	 <1091296615.1677.283.camel@mindpipe>
+	 <1091320571.2445.6.camel@teapot.felipe-alfaro.com>
+	 <1091321213.20819.85.camel@mindpipe>
 Content-Type: text/plain
-Date: Sun, 01 Aug 2004 03:11:31 +0200
-Message-Id: <1091322692.1860.5.camel@teapot.felipe-alfaro.com>
+Date: Sun, 01 Aug 2004 03:14:01 +0200
+Message-Id: <1091322842.1860.8.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 1.5.91 (1.5.91-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 20:32 -0400, Lee Revell wrote:
-> On Sat, 2004-07-31 at 20:24, Felipe Alfaro Solana wrote:
-> > On Fri, 2004-07-30 at 23:57 -0400, Lee Revell wrote:
-> > > On Fri, 2004-07-30 at 21:13, Felipe Alfaro Solana wrote:
-> > > > On Fri, 2004-07-30 at 20:05 -0400, Lee Revell wrote:
-> > > > > On Fri, 2004-07-30 at 19:21, Felipe Alfaro Solana wrote:
-> > > > > > On Fri, 2004-07-30 at 13:38 -0400, Shane Shrybman wrote:
-> > > > > > 
-> > > > > > > > M5 does that differently, yes - so could you try it? If you still get
-> > > > > > > > problems, does this fix it:
-> > > > > > > 
-> > > > > > > Ok, M5 locked up the whole machine within a few seconds of starting X.
-> > > > > > 
-> > > > > > Me too, with voluntary-preempt=3... It seems I can trigger this randomly
-> > > > > > by heavily moving the mouse around while logging in into my KDE session.
-> > > > > > 
-> > > > > > However, with voluntary-preempt=2 I've been unable to lock the machine
-> > > > > > yet.
-> > > > > 
-> > > > > It looks like this is a mouse problem, I have a PS/2 keyboard and USB
-> > > > > mouse and have not had any problems yet with M5.  I also found that with
-> > > > > L2, I could toggle Caps Lock fast enough to get significantly 'ahead' of
-> > > > > it, this no longer happens with M5.
-> > > > 
-> > > > I have a PS/2 keyboard and a USB mouse.
-> > > 
-> > > Weird.  This is my setup also, and I have had no problems since
-> > > installing M5.
-> > > 
-> > > Try:
-> > > 
-> > >         Option          "NoAccel"
-> > > 
-> > > in section "Device" of your XF86Config.  Also try commenting out:
-> > > 
-> > > 	Load		"dri"
-> > > 
-> > > in the "Module" section.
-> > > 
-> > > This will ensure that the X server is not accessing hardware directly. 
-> > > Normally this should not be a problem but a buggy video driver can cause
-> > > problems.  On my machine, having 2D acceleration enabled caused
-> > > interrupts from other devices to be lost when dragging a window.
-> > > 
-> > > Also, is the machine pingable after it locks up?
+On Sat, 2004-07-31 at 20:46 -0400, Lee Revell wrote:
+
+> > OK, OK :-) I've been running 2.6.8-rc2-mm1-M5 with ACPI but without APIC
+> > for more than ten minutes), compiling kernels, sending mails with
+> > Evolution and it hasn't locked up yet. Crossfingers. Should we report
+> > this to Ingo and Andrew?
 > > 
-> > Curiously, the machine is pingable, but I can't ssh/telnet into it: no
-> > data is received from the locked machine.
+> > Anyways, I'll keep on running this puppy to see if this behavior is
+> > consistent.
+> > 
+> > # grep . /proc/irq/*/*/threaded
+> > /proc/irq/11/eth0/threaded:1
+> > /proc/irq/12/Intel 82801BA-ICH2/threaded:1
+> > /proc/irq/14/ide0/threaded:1
+> > /proc/irq/15/ide1/threaded:1
+> > /proc/irq/1/i8042/threaded:1
+> > /proc/irq/5/uhci_hcd/threaded:1
+> > /proc/irq/8/rtc/threaded:1
+> > /proc/irq/9/acpi/threaded:1
+> > /proc/irq/9/uhci_hcd/threaded:!
+> > 
+> > # grep . /proc/sys/kernel/*_preemption
+> > /proc/sys/kernel/voluntary_preemption:3
+> > /proc/sys/kernel/preemption:1
 > 
-> Hmm.  Maybe the problem is filesystem or disk related.  Is your root
-> partition on IDE or SCSI?  It could be a SCSI problem.
+> The next thing I was going to suggest was the software RAID.  You appear
+> to have a RAID 0 or 1 with one disk on irq14 and one on irq15.  I am not
+> sure how interrupts are handled by Linux IDE RAID, but it seems like
+> this would be tricky.  I bet the threading is screwing up the
+> synchronization between the devices, and you end up with one waiting
+> forever for the other - the possibilities for lockup are endless.
 
-No SCSI. Only 2 IDE drives, 1 ATAPI DVD and 1 ATAPI CD-RW.
-
-> Are you running software or hardware RAID?
-
-No.
-
-> This is the same behavior you get when, for example, a disk dies.
-
-I have 2 identical UDMA 120GB Seagate disks which are 1 month old, so I
-guess it's not a problem with bad hardware.
-
-It turns out that my lock ups where related to APIC. Disabling APIC
-seems to get rid of those lock ups.
+No, I'm not using any kind of RAID (eiher HW or SW) at all. Simply, two
+identical, independent 120GB drives that only have one thing in common:
+they are attached to the same IDE channel (the primary IDE channel). The
+CD/RW and DVD are attached to the secondary IDE channel.
 

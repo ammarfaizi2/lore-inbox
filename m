@@ -1,91 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUGZVaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGZV34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUGZVaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUGZVaJ
+	id S262380AbUGZV34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGZV34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:30:09 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:55305 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S265487AbUGZV36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:29:58 -0400
-Message-ID: <410577D4.1010800@zero10.demon.co.uk>
-Date: Mon, 26 Jul 2004 22:29:56 +0100
-From: DaMouse <damouse@zero10.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.6+ (Windows/20040706)
-X-Accept-Language: en-us, en
+	Mon, 26 Jul 2004 17:29:56 -0400
+Received: from posti6.jyu.fi ([130.234.4.43]:58823 "EHLO posti6.jyu.fi")
+	by vger.kernel.org with ESMTP id S262380AbUGZV2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 17:28:25 -0400
+Date: Tue, 27 Jul 2004 00:28:04 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Francois Romieu <romieu@fr.zoreil.com>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <Robert.Olsson@data.slu.se>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <20040726095505.2ddb3bec@dell_ss3.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0407270021200.11416-100000@silmu.st.jyu.fi>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Checked: by miltrassassin
+	at posti6.jyu.fi; Tue, 27 Jul 2004 00:28:07 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps the answer is a CONFIG_USERCONFIG or similar like in the car scenario,
-those who like to take tools with them to fiddle and those who just like to drive.
+On Mon, 26 Jul 2004, Stephen Hemminger wrote:
 
--DaMouse
+>>>> I haven't been able to reproduce this with normal www-browsing or 
+>>>> ssh-connections but it's always reproducible when my eth0 is under heavy 
+>>>> load.
+>>> I guess it can be reproduced even if the binary (nvidia ?) module is never
+>>> loaded after boot, right ?
 
-Previous Messages:
+>> After 24 hours of hard working I can answer yes to this question. 
+>> Now I can reproduce this from 2 to 15 minutes with 2 cp-processes from 
+>> samba->workstation->nfs, some software building with make -j 3, playing 
+>> some mp3 via nfs to notice when kernel goes down.. =) and so on..
 
-On Monday 26 of July 2004 20:45, Adam Kropelin wrote:
-> On Mon, Jul 26, 2004 at 03:53:09PM +0200, R. J. Wysocki wrote:
-> > On Monday 26 of July 2004 13:47, Nick Piggin wrote:
-> > > Con Kolivas wrote:
-> > > > Nick Piggin wrote:
-> > > >> Con Kolivas wrote:
-> > > >>> In my ideal, nonsensical, impossible to obtain world we have an
-> > > >>> autoregulating operating system that doesn't need any knobs.
-> > > >>
-> > > >> Some thinks are fundamental tradeoffs that can't be autotuned.
-> > > >>
-> > > >> Latency vs throughput comes up in a lot of places, eg. timeslices.
-> > > >>
-> > > >> Maximum throughput via effective use of swap, versus swapping as
-> > > >> a last resort may be another.
-> > > >
-> > > > As I said... it was ideal, nonsensical, and impossible. Doesn't sound
-> > > > like you're arguing with me.
-> > >
-> > > No, you're right. My ideal operating system knows what the user
-> > > wants too ;)
-> >
-> > Well, what I hate about various computer programs is that they seem to
-> > assume to know what I (the USER) want and they don't let me do anything
-> > else that they "know" what I should/would do. ;-)
-> >
-> > > Most of the time though, you are right. The quality/desirability of an
-> > > implementation will be inversely proportional to the number of knobs
-> > > sticking out of it (with bonus points for those that are meaningful to
-> > > 2 people on the planet).
-> >
-> > Can you please tell me why you think that the least tunable
-> > implementation should be the best/most desirable one?  I always prefer
-> > the most tunable implementations which is quite opposite to what you have
-> > said, but this is my personal opinion, of course.
->
-> The implementation with the least *need* for tuning is the most
-> desirable. I, for one, don't care if there are a dozen knobs as long as
-> 99% of users don't have to touch them. But if common usage scenarios
-> require turning knobs to get reasonable performance, the algorithm is
-> lacking.
+>> After that ksoftirqd takes almost all the cpu-time and the network is not 
+>> working at all.
 
-I agree in 100%.
+> Is network traffic still coming in? 
 
-> Thanks to fuel injection and engine management I can drive from LA to
-> Denver and not need to tweak my carburator half way up the Rockies.
-> I've given up some chances for tuning, but overall I'm better off. If
-> you want to stick a trimpot or ten out the side of the engine management
-> computer so true gearheads can tweak another couple HP or MPG out of the
-> engine, great. But don't expect me to fiddle with it every time driving
-> conditions change; it's not an excuse to make the management algorithms
-> inadequate for common driving patterns.
+At least tcpdump doesn't say anything, I can only see only arp-packets 
+which my computer (not other computer's arp-packets) has made but no 
+response to those.
 
-I didn't mean that.  Actually, I was trying to say that an additional "knob" 
-(or "knobs") might be useful in determining the "common settings" acceptable 
-for the 99% of users.  Then, it could be "hidden" (which I wouldn't do, but 
-well ...).
-Yours,
-rjw
+> or perhaps there is a network packet that causes some soft irq to go 
+> into an infinite loop. The recent iptables bug with ip options would be 
+> an example.
+
+That would make sense but Robert Olsson had some knowledge of this and 
+said that this issue is probably the same that they have discussed in OSL.
+
+--
+Pasi Sjöholm
+
 

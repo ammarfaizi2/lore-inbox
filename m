@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271641AbRIBQnb>; Sun, 2 Sep 2001 12:43:31 -0400
+	id <S271644AbRIBQ5z>; Sun, 2 Sep 2001 12:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271642AbRIBQnL>; Sun, 2 Sep 2001 12:43:11 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:27921 "EHLO
+	id <S271645AbRIBQ5p>; Sun, 2 Sep 2001 12:57:45 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:49681 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271641AbRIBQnF>; Sun, 2 Sep 2001 12:43:05 -0400
+	id <S271644AbRIBQ5c>; Sun, 2 Sep 2001 12:57:32 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Igor Mozetic <igor.mozetic@uni-mb.si>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.9 SMP] alloc_pages failed
-Date: Sun, 2 Sep 2001 18:50:16 +0200
+To: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Rik`s ac12-pmap2 vs ac12-vanilla perfcomp
+Date: Sun, 2 Sep 2001 19:04:32 +0200
 X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <15250.12448.265829.457034@ravan.camtp.uni-mb.si>
-In-Reply-To: <15250.12448.265829.457034@ravan.camtp.uni-mb.si>
+Cc: riel@surriel.com
+In-Reply-To: <200109021710.f82HAbD00606@vegae.deep.net>
+In-Reply-To: <200109021710.f82HAbD00606@vegae.deep.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20010902164323Z16375-32383+3004@humbolt.nl.linux.org>
+Message-Id: <20010902165742Z16375-32383+3005@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 2, 2001 03:14 pm, Igor Mozetic wrote:
-> My box is dual Xeon 550, Intel C440GX+, 2GB RAM, AIC7XXX.
-> Last night I got log full of the following:
+On September 2, 2001 07:10 pm, Samium Gromoff wrote:
+>    No flames please - i know these were low VM loads, i did this just to know 
+> how big is test rmaps maitenance overhead. It shows us that even on low VM
+> load there is a huge win in using rmap. And the win increases with the VM load.
+>    Algo:
+>       - booted ac12
+>       - performed test A 7 times, then test B 7 times.
+>       - booted ac12-pmap2
+>       - performed test A 7 times, then test B 7 times.
 > 
-> Sep  2 04:00:46 jerolim kernel: __alloc_pages: 0-order allocation failed.
-> Sep  2 04:00:47 jerolim last message repeated 208 times
-> Sep  2 04:00:47 jerolim kernel: ed.
+>       * each test was done 7 times, with the lowest and highest thrown away.
+>       * due to high values of data and streaming usage pattern caching was 
+>  unable to affect results, so it was ignored.
+> 
+> test A:
+> "time find / -xdev" + (standard junk eating ~6% cpu (top procinfo))
+>   descr: extremely low VM load, mostly IO dependent
+> 
+> test B:
+> "time find / -xdev | grep --regexp="\/" | xargs echo" + background mpg123 +
+>  + standard junk described above
+>   descr: low, although higher than A, vm load (nearly absolutely no swap)
 
-Could you please apply this patch so we can see which kind of allocation is
-failing (patch -p0):
+It's nice to see these tests aren't running any slower (and not crashing!)
+but as I understand it, reverse mapping is a win only for shared mmaps and
+swapping, which you aren't doing.  So it's not clear what effect is being
+measured.
 
---- ../2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
-+++ ./mm/page_alloc.c	Wed Aug 29 23:47:39 2001
-@@ -493,6 +493,9 @@
- 		}
- 
- 		/* XXX: is pages_min/4 a good amount to reserve for this? */
-+		if (z->free_pages < z->pages_min / 3 && (gfp_mask & __GFP_WAIT) &&
-+				!(current->flags & PF_MEMALLOC))
-+			continue;
- 		if (z->free_pages < z->pages_min / 4 &&
- 				!(current->flags & PF_MEMALLOC))
- 			continue;
+One thing that goes away with rmaps is the need to scan process page tables.
+It's possible that this takes enough load off L1 cache to produce the effects
+you showed, though it would be surprising.
 
+(Note that I'm in the "reverse maps are good" camp, and I think Rik's design 
+is fundamentally correct.)
 
-On the assumption it's an atomic allocation, chould you try this patch and 
-see if it reduces the frequency:
-
---- 2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
-+++ 2.4.9/mm/page_alloc.c	Mon Aug 20 22:05:40 2001
-@@ -502,7 +502,8 @@
- 	}
- 
- 	/* No luck.. */
--	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
-+	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed 
-(gfp=0x%x/%i).\n",
-+		order, gfp_mask, !!(current->flags & PF_MEMALLOC));
- 	return NULL;
- }
- 
-
+--
+Daniel

@@ -1,144 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUBGUeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 15:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUBGUeI
+	id S265960AbUBGUed (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 15:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUBGUed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 15:34:08 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:27579 "EHLO
+	Sat, 7 Feb 2004 15:34:33 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:29627 "EHLO
 	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265928AbUBGUc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 15:32:58 -0500
+	id S265960AbUBGUdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 15:33:01 -0500
 From: Michael Frank <mhf@linuxmail.org>
-Date: Sun, 8 Feb 2004 04:27:20 +0800
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.2: Shutdown kernel on zone-alignment failure
+Date: Sun, 8 Feb 2004 04:30:52 +0800
 User-Agent: KMail/1.5.4
 X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Disposition: inline
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.2: Add user friendliness to highmem= option
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402080427.20647.mhf@linuxmail.org>
+Content-Disposition: inline
+Message-Id: <200402080430.52947.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
 
-Enclosed is a patch for x86 to make highmem= option easier to use.
+The following is applicable to all architectures using zones.
 
-- Automates alignment of highmem zone
-- Fixes invalid highmem settings whether too small or to large
-- Adds entry in kernel-parameters.txt
+When zone alignment goes wrong, a message is printed:
+        BUG: wrong zone alignment, it will crash 
 
-Highmem emulation can be used on any machine with at least 72MB RAM.
+_BUT_ kernel runs until it dies of the alignment problems - it took me 
+hours until I found the message after looking elsewhere ;)
 
-The patch does not add to bloat as it is part of __init code.
+This patch: 
 
-Please consider applying it as it makes this option quite usable
+- Should zone alignment fail, it will force a BUG() once the BUG handler inits
+- Improves the messages of zone init to help debug zone alignment problems
 
 Regards
 Michael
 
+Example invalid zone alignment after disabling auto-alignment:
 
-no highmem option
-
-0MB HIGHMEM available.
-495MB LOWMEM available.
+300MB HIGHMEM available.
+195MB LOWMEM available.
 On node 0 totalpages: 126960, zones aligned at: 0x400000
   DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 122864 pages, LIFO batch:16, physical start address at: 0x1000000
+  Normal zone: 46064 pages, LIFO batch:11, physical start address at: 0x1000000
+  HighMem zone: 76800 pages, LIFO batch:16, physical start address at: 0xc3f0000
+  HighMem zone: FATAL ERROR invalid zone alignment at: 0x3f0000 - will force kernel BUG
+DMI 2.3 present.
+Building zonelist for node : 0
+Kernel command line: vga=0xf07 root=/dev/hda4 console=tty0 console=ttyS0,115200n8r devfs=nomount nousb acpi=off init=/bin/bash highmem=300m
+Initializing CPU#0
+PID hash table entries: 2048 (order 11: 16384 bytes)
+Detected 2399.836 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x60
+Memory: 498216k/507840k available (1930k kernel code, 8600k reserved, 990k data, 160k init, 307200k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 4734.97 BogoMIPS
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+------------[ cut here ]------------
+kernel BUG at init/main.c:464!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c03de5e7>]    Not tainted
+EFLAGS: 00010202
+EIP is at start_kernel+0x14f/0x190
+eax: cc3e7a60   ebx: 00010809   ecx: c044af48   edx: cc3e7ad0
+esi: 00099800   edi: c0105000   ebp: 0008e000   esp: c03ddff8
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c03dc000 task=c035e7e0)
+Stack: c0406ea0 c010017e
+Call Trace:
 
-highmem=1m
-
-Warning highmem=1MB is too small and has been adjusted to: 8MB.
-Warning bad highmem zone alignment 0x3f0000, highmem size will be adjusted.
-Warning lowmem size adjusted  for zone alignment to: 488MB.
-Warning highmem size adjusted for zone alignment to: 7MB.
-7MB HIGHMEM available.
-488MB LOWMEM available.
-On node 0 totalpages: 126960, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 120832 pages, LIFO batch:16, physical start address at: 0x1000000
-  HighMem zone: 2032 pages, LIFO batch:1, physical start address at: 0x1e800000
-
-highmem=300m
-
-Warning bad highmem zone alignment 0x3f0000, highmem size will be adjusted.
-Warning lowmem size adjusted  for zone alignment to: 196MB.
-Warning highmem size adjusted for zone alignment to: 299MB.
-299MB HIGHMEM available.
-196MB LOWMEM available.
-On node 0 totalpages: 126960, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 46080 pages, LIFO batch:11, physical start address at: 0x1000000
-  HighMem zone: 76784 pages, LIFO batch:16, physical start address at: 0xc400000
-
-highmem=450m
-
-Warning highmem size adjusted for a minimum of 64MB lowmem to: 431MB.
-431MB HIGHMEM available.
-64MB LOWMEM available.
-On node 0 totalpages: 126960, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 12288 pages, LIFO batch:3, physical start address at: 0x1000000
-  HighMem zone: 110576 pages, LIFO batch:16, physical start address at: 0x4000000
-
-highmem=5000m
-
-Warning highmem=5000MB is bigger than available 495MB and will be adjusted.
-Warning highmem size adjusted for a minimum of 64MB lowmem to: 431MB.
-431MB HIGHMEM available.
-64MB LOWMEM available.
-On node 0 totalpages: 126960, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 12288 pages, LIFO batch:3, physical start address at: 0x1000000
-  HighMem zone: 110576 pages, LIFO batch:16, physical start address at: 0x4000000
-
-mem=80m highmem=1m
-
-Warning highmem=1MB is too small and has been adjusted to: 8MB.
-8MB HIGHMEM available.
-72MB LOWMEM available.
-On node 0 totalpages: 20480, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 14336 pages, LIFO batch:3, physical start address at: 0x1000000
-  HighMem zone: 2048 pages, LIFO batch:1, physical start address at: 0x4800000
-
-mem=80m highmem=300m
-
-Warning highmem=300MB is bigger than available 80MB and will be adjusted.
-Warning highmem size adjusted for a minimum of 64MB lowmem to: 16MB.
-16MB HIGHMEM available.
-64MB LOWMEM available.
-On node 0 totalpages: 20480, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 12288 pages, LIFO batch:3, physical start address at: 0x1000000
-  HighMem zone: 4096 pages, LIFO batch:1, physical start address at: 0x4000000
-
-mem=71m highmem=1m
-
-Error highmem support requires at least 72MB but only 71MB are available.
-0MB HIGHMEM available.
-71MB LOWMEM available.
-On node 0 totalpages: 18176, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 14080 pages, LIFO batch:3, physical start address at: 0x1000000
-
-mem=72m highmem=10m
-
-Warning highmem size adjusted for a minimum of 64MB lowmem to: 8MB.
-8MB HIGHMEM available.
-64MB LOWMEM available.
-On node 0 totalpages: 18432, zones aligned at: 0x400000
-  DMA zone: 4096 pages, LIFO batch:1, physical start address at: 0x0
-  Normal zone: 12288 pages, LIFO batch:3, physical start address at: 0x1000000
-  HighMem zone: 2048 pages, LIFO batch:1, physical start address at: 0x4000000
-
-highmem=13m - note this is for testing only ;)
-
+Code: 0f 0b d0 01 7b 3f 2e c0 e8 80 95 00 00 e8 6f 23 00 00 e8 c2
+ <0>Kernel panic: Attempted to kill the idle task!
+In idle task - not syncing
 
 diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.6.2-Vanilla/arch/i386/kernel/setup.c linux-2.6.2-mhf177/arch/i386/kernel/setup.c
 --- linux-2.6.2-Vanilla/arch/i386/kernel/setup.c	2004-02-06 19:36:54.000000000 +0800

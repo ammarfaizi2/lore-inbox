@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRA2U50>; Mon, 29 Jan 2001 15:57:26 -0500
+	id <S129431AbRA2VC1>; Mon, 29 Jan 2001 16:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRA2U5Q>; Mon, 29 Jan 2001 15:57:16 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:29551
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129101AbRA2U5I>; Mon, 29 Jan 2001 15:57:08 -0500
-Date: Mon, 29 Jan 2001 21:56:54 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-Message-ID: <20010129215654.D603@jaquet.dk>
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> <Pine.LNX.4.31.0101292041390.22513-100000@athlon.local> <MKWhxB.A.jLF.Gfdd6@dinero.interactivesi.com>
+	id <S129878AbRA2VCH>; Mon, 29 Jan 2001 16:02:07 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:40781 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129431AbRA2VCA>; Mon, 29 Jan 2001 16:02:00 -0500
+Date: Mon, 29 Jan 2001 23:01:47 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Knowing what options a kernel was compiled with
+Message-ID: <20010129230147.H1002@niksula.cs.hut.fi>
+In-Reply-To: <4461B4112BDB2A4FB5635DE1995874320223F3@mail0.myrio.com> <032601c08a36$0c8d5570$0100a8c0@homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <MKWhxB.A.jLF.Gfdd6@dinero.interactivesi.com>; from ttabi@interactivesi.com on Mon, Jan 29, 2001 at 02:51:18PM -0600
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <032601c08a36$0c8d5570$0100a8c0@homeip.net>; from eccesys@topmail.de on Mon, Jan 29, 2001 at 08:56:12PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 02:51:18PM -0600, Timur Tabi wrote:
-> ** Reply to message from davej@suse.de on Mon, 29 Jan 2001 20:44:55 +0000 (GMT)
-> 
-> 
-> > make pdfdocs
-> 
-> [ttabi@one DocBook]$ make pdfdocs
-> Makefile:140: /Rules.make: No such file or directory
+On Mon, Jan 29, 2001 at 08:56:12PM -0000, you [mirabilos] claimed:
+> From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
+> > Should someone submit a patch to copy the .config to a standard location as
+> > part of "make install" or "make modules_install"? If included in the
+> > official sources, that good example would encourage the distribution
+> > maintainers do the same. 
 
-You have to be in the top level directory, not the DocBook one.
+I find this neat:
 
-> 
-> There's no Rules.make anywhere on my hard drive.
+http://www.it.uc3m.es/~ptb/proconfig/
 
-Made by 'make config'?
+It created /proc/config entry with obvious functionality, but wastes
+pretty little ram.
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
 
-"God prevent we should ever be twenty years without a revolution." 
-  -- Thomas Jefferson
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

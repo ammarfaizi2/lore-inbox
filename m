@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSGDW3z>; Thu, 4 Jul 2002 18:29:55 -0400
+	id <S314634AbSGDW5N>; Thu, 4 Jul 2002 18:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSGDW3y>; Thu, 4 Jul 2002 18:29:54 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:63496 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315276AbSGDW3y>;
-	Thu, 4 Jul 2002 18:29:54 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: writing to serial console 
-In-reply-to: Your message of "Thu, 04 Jul 2002 10:14:50 EST."
-             <20020704151450.75171.qmail@mail.com> 
+	id <S314680AbSGDW5M>; Thu, 4 Jul 2002 18:57:12 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:30992 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314634AbSGDW5L>; Thu, 4 Jul 2002 18:57:11 -0400
+Message-Id: <200207042259.g64MxdH03605@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Andre Hedrick <andre@linux-ide.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
+       sullivan@austin.ibm.com
+Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot! 
+In-Reply-To: Message from Andre Hedrick <andre@linux-ide.org> 
+   of "Thu, 04 Jul 2002 15:20:10 PDT." <Pine.LNX.4.10.10207041517530.19028-100000@master.linux-ide.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Jul 2002 08:32:16 +1000
-Message-ID: <17985.1025821936@ocs3.intra.ocs.com.au>
+Date: Thu, 04 Jul 2002 18:59:39 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Jul 2002 10:14:50 -0500, 
-"Lee Chin" <leechin@mail.com> wrote:
->I'm trying to write status messages to the serial console as the kernel boots up.  I tried writing to ttyS0 in main.c, but the kernel crashes with a paging violation.  Is there an easy way to do this?
+andre@linux-ide.org said:
+> The whole reason for my replacement was to add driverfs to IDE and
+> remove devfs and ultimately "de-gooch" the kernel.  So we are nearly
+> 100 patches in and the primary reason for ousting is still a failure,
+> NICE! 
 
-printk() and a serial console.  Console output does not occur until
-console_init().  To debug problems that occur before console_init(),
-see these patches.
+Well, perhaps we have slightly different agendas.  I think driverfs will solve 
+a whole series of enumeration and mapping problems that occur in the SCSI 
+mid-layer and which get especially tortuous with Fibre Channel.  I also think 
+it will help us bring the SCSI and IDE views closer together.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101072840225142&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102386369913669&w=2
+I persuaded Linus to put the SCSI driverfs patches in the kernel even though I 
+knew they touched more than SCSI (the partitions code) and were not as modular 
+as I would have liked.  The reason is that we need to get as much visibility 
+on this as possible before the code freeze.  I'm fully prepared to sort out 
+any problems with this as they arise (and indeed the panic is already fixed).
+
+I believe it's a variation of a principle attributable to a wise Australian:  
+get the right solution in, even if not quite the right implementation.  That 
+way, everyone will be extrememly motivated to help produce the right 
+implementation.
+
+James
+
 

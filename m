@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbVCMEUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVCMEKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbVCMEUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 23:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVCMELx
+	id S262699AbVCMEKg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 23:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVCMEIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 23:11:53 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:62129 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262736AbVCMD7y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 22:59:54 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: [PATCH 0/5] I8K driver facelift
-Date: Sat, 12 Mar 2005 22:59:49 -0500
-User-Agent: KMail/1.7.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Massimo Dal Zotto <dz@debian.org>
-References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com>
-In-Reply-To: <4233B65A.4030302@tuxrocks.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Sat, 12 Mar 2005 23:08:35 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18182 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262708AbVCMDyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 22:54:43 -0500
+Date: Sun, 13 Mar 2005 04:54:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Carsten Paeth <calle@calle.de>, kkeil@suse.de, kai.germaschewski@gmx.de,
+       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/isdn/hardware/avm/: misc cleanups
+Message-ID: <20050313035441.GY3814@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503122259.52855.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 March 2005 22:41, Frank Sorenson wrote:
-> Dmitry Torokhov wrote:
-> | Hi,
-> |
-> | here are some changes that freshen I8K driver (Dell Inspiron/Latitude
-> | platform driver). The patches have been tested on Inspiron 8100.
-> <snip>
-> | Please consider for inclusion.
-> |
-> | Thanks!
-> 
-> These patches look pretty good.  A few comments (with a patch--tested on
-> my Inspiron 9200):
-> 
-> - The "return i8k_smm(&regs) < 0 ? : regs.eax;" construction is nice and
-> tidy, but it isn't passing on the return value of the called function,
-> and is returning TRUE or 1 on failure.  This makes it difficult to check
-> the return value for valid data.  Old behavior returned negative, so
-> I'll return -1.
+This patch contains the following cleanups:
+- make some needlessly global functions static
+- b1dma.c __init/__exit the functions b1dma_{init,exit}
 
-Hi,
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Actually I am not sure what I was thinkinhg when I wrtote it, the correct
-version should be "return i8k_smm(&regs) ? : regs.eax;" since i8k_smm
-return 0 on success.
+---
 
-I will think about dynamically adding attributes...
+This patch was already sent on:
+- 6 Feb 2005
 
--- 
-Dmitry
+ drivers/isdn/hardware/avm/b1dma.c |    4 ++--
+ drivers/isdn/hardware/avm/c4.c    |    6 +++---
+ drivers/isdn/hardware/avm/t1isa.c |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+--- linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/b1dma.c.old	2005-02-05 15:40:43.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/b1dma.c	2005-02-05 15:42:32.000000000 +0100
+@@ -955,7 +955,7 @@
+ EXPORT_SYMBOL(b1dma_send_message);
+ EXPORT_SYMBOL(b1dmactl_read_proc);
+ 
+-int b1dma_init(void)
++static int __init b1dma_init(void)
+ {
+ 	char *p;
+ 	char rev[32];
+@@ -972,7 +972,7 @@
+ 	return 0;
+ }
+ 
+-void b1dma_exit(void)
++static void __exit b1dma_exit(void)
+ {
+ }
+ 
+--- linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/c4.c.old	2005-02-05 15:42:47.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/c4.c	2005-02-05 15:43:16.000000000 +0100
+@@ -885,7 +885,7 @@
+ }
+ 
+ 
+-void c4_reset_ctr(struct capi_ctr *ctrl)
++static void c4_reset_ctr(struct capi_ctr *ctrl)
+ {
+ 	avmcard *card = ((avmctrl_info *)(ctrl->driverdata))->card;
+ 	avmctrl_info *cinfo;
+@@ -933,7 +933,7 @@
+ /* ------------------------------------------------------------- */
+ 
+ 
+-void c4_register_appl(struct capi_ctr *ctrl,
++static void c4_register_appl(struct capi_ctr *ctrl,
+ 				u16 appl,
+ 				capi_register_params *rp)
+ {
+@@ -978,7 +978,7 @@
+ 
+ /* ------------------------------------------------------------- */
+ 
+-void c4_release_appl(struct capi_ctr *ctrl, u16 appl)
++static void c4_release_appl(struct capi_ctr *ctrl, u16 appl)
+ {
+ 	avmctrl_info *cinfo = (avmctrl_info *)(ctrl->driverdata);
+ 	avmcard *card = cinfo->card;
+--- linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/t1isa.c.old	2005-02-05 15:43:33.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/isdn/hardware/avm/t1isa.c	2005-02-05 15:43:41.000000000 +0100
+@@ -328,7 +328,7 @@
+ 	return 0;
+ }
+ 
+-void t1isa_reset_ctr(struct capi_ctr *ctrl)
++static void t1isa_reset_ctr(struct capi_ctr *ctrl)
+ {
+ 	avmctrl_info *cinfo = (avmctrl_info *)(ctrl->driverdata);
+ 	avmcard *card = cinfo->card;
+

@@ -1,188 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275214AbTHAMo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 08:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275216AbTHAMo0
+	id S275216AbTHAMta (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 08:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275217AbTHAMta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 08:44:26 -0400
-Received: from host-64-179-20-100.man.choiceone.net ([64.179.20.100]:2565 "EHLO
-	Odyssey.Home.4Dicksons.Org") by vger.kernel.org with ESMTP
-	id S275214AbTHAMoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 08:44:22 -0400
-Message-ID: <3F2A6087.3060801@RedHat.com>
-Date: Fri, 01 Aug 2003 08:43:51 -0400
-From: Steve Dickson <SteveD@RedHat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>,
-       Chip Salzenberg <chip@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@RedHat.com>
-Subject: Re: nfs-utils-1.0.5 is not backwards compatible with 2.4
-References: <3F294DE3.9020304@RedHat.com> <16169.54918.472349.928145@gargle.gargle.HOWL>
-In-Reply-To: <16169.54918.472349.928145@gargle.gargle.HOWL>
-Content-Type: multipart/mixed;
- boundary="------------090601090606060000030302"
+	Fri, 1 Aug 2003 08:49:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43529 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275216AbTHAMt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 08:49:27 -0400
+Date: Fri, 1 Aug 2003 13:49:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matias Alejo Garcia <linux@matiu.com.ar>
+Cc: Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Crash when inserting a PCMCIA CF card
+Message-ID: <20030801134921.A23190@flint.arm.linux.org.uk>
+Mail-Followup-To: Matias Alejo Garcia <linux@matiu.com.ar>,
+	Kernel <linux-kernel@vger.kernel.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+References: <1059130704.1379.7.camel@runner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1059130704.1379.7.camel@runner>; from linux@matiu.com.ar on Fri, Jul 25, 2003 at 06:58:25AM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090601090606060000030302
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Jul 25, 2003 at 06:58:25AM -0400, Matias Alejo Garcia wrote:
+> Hi,
+> When I insert a SanDisk o Ridata CompactFlash card to the PCMCIA adapter
+> (this used to work OK in 2.4.20), the load of the module ide-cs dumps a
+> Call Trace, then, if I eject the CF card, the system crash. (see below)
+> 
+> Is there a patch for this? I am sure the problem is in ide-cs, others
+> pcmcia cards are working OK.
+> 
+> Thanks. Matias
+> Logs:(starting when I load cardctl and ds/yenta_socket/pcmcia_core,
+> the problem is at 6:33:13, when I insert the CF card)
 
-Neil Brown wrote:
+This looks like some problem with either the partition handling code
+or the IDE code - it looks like hdc1 was created or registered twice.
 
->On Thursday July 31, SteveD@redhat.com wrote:
->  
->
->>Hey Neil,
->>
->>It seems in nfs-utils-1.05 (actually it happen in 1.0.4)
->>the NFSEXP_CROSSMNT define was changed to 0x4000 and the
->>NFSEXP_NOHIDE define (which is not supported in 2.4) took
->>over the 0x0200 bit.. This breaks backwards compatibly with
->>1.0.3 and the 2.4 kernels...
->>
->>So could please add this patch that simply switchs the bits
->>so NFSEXP_CROSSMNT stays the same and the new NFSEXP_NOHIDE define
->>gets the higher bit?
->>    
->>
->
->I'll tell you the full story and let you suggest what, if any, source
->code changes are really needed.
->
->Once upon a time (2.2 era) there was this export flag called
->NFSEXP_CROSSMNT and "crossmnt" which was un-implemented.  I guess it
->was a hang over from the user-space nfsd and was probably meant to say
->"mount points in this filesystem can be crossed".   But as there was
->no code and no documentation, one couldn't be sure. 
->
->In the kernel nfs server at the time, the concept of "crossmnt" was
->effectively unimplementable (due the the way the export table was set
->up and the way file handles were managed).
->A closely related concept was implementable.  This concept is given
->the name "nohide" in Irix and possibly others.  This is a flag set on
->the child filesystem (rather than the parent) and says that the child
->should not be 'hiden' when the mountpoint in the parent is accessed.
->
->So, I used the NFSEXP_CROSSMNT flag to implement nohide (it was one of
->my earliest nfsd patches I think) and told nfs-utils that it could use
->the name "nohide" to refer to this new flag.
->
->So for sometime, NFSEXP_CROSSMNT, "nohide", 0x0200 meant
->"this child filesystem should be visible from the parent".
->
->Possibly this was a mistake.  Possibly I should have used a different
->flag or at least changed the name, but I didn't.
->
->As part of the substatial rewrite that went into 2.6, it is possible
->to implement "crossmnt" type semantics sensibly.  When a mountpoint is
->'crossed' (by a LOOKUP operation) the kernel can ask user-space to
->provide export information for that filesystem and act according to
->the response. (This is not completely implemented in nfs-utils 1.0.5,
->though it should work to some extent.  I hope to figure out the
->remaining details and get it working before 1.1.0).
->
->So I needed a new flag, and chose 0x4000.  This flag can be set on the
->parent and says that all mount points should be crossed (if possible).
->
->The most obvious name for this flag was NFSEXP_CROSSMNT which was
->currently inuse as a misnomer for the nohide option.
->So I renamed the old NFSEXP_CROSSMNT to NFSEXP_NOHIDE, both in
->nfs-utils and in the kernel.
->I then added the new flags 0x4000 named NFSEXP_CROSSMNT with the
->textual representation "crossmnt".
->
->As far as I can tell, the only incompatability that this will cause is
->if some code outside of the kernel and outside of nfs-utils uses the
->header files from either the kernel or nfs-utils.  Such code will get
->a new value for NFSEXP_CROSSMNT if it changes it's header files.   I
->don't know if there is any such code, but if there is  I apoligise for
->breaking it and suggest that the best fix is to not use the header
->file it was using but it explicitly include the values for NFSEXP_* in
->that code.
->
->Let me know if there is some issue that this does not sufficiently
->clear up.
->
-I see your point...  I guess I didn't realize that  the "nohide" option  
-(that the user
-sees) has been using the NFSEXP_CROSSMNT define this whole time....
+> ...
+> Jul 25 06:33:16 runner kernel: hdc: 62720 sectors (32 MB) w/1KiB Cache, CHS=490/4/32
+> Jul 25 06:33:16 runner kernel:  hdc: hdc1
+> Jul 25 06:33:17 runner kernel:  hdc: hdc1
+> Jul 25 06:33:17 runner kernel: kobject_register failed for hdc1 (-17)
+> Jul 25 06:33:17 runner kernel: Call Trace:
+> Jul 25 06:33:17 runner kernel:  [<c01ee01a>] kobject_register+0x50/0x5a
+> Jul 25 06:33:17 runner kernel:  [<c018a5d2>] register_disk+0x136/0x13e
+> Jul 25 06:33:17 runner kernel:  [<c023a960>] add_disk+0x4e/0x5e
+> Jul 25 06:33:17 runner kernel:  [<c023a8ec>] exact_match+0x0/0x8
+> Jul 25 06:33:17 runner kernel:  [<c023a8f4>] exact_lock+0x0/0x1e
+> Jul 25 06:33:17 runner kernel:  [<c0255362>] idedisk_attach+0x12c/0x1ac
+> Jul 25 06:33:17 runner kernel:  [<c0250c76>] ata_attach+0x96/0x1b2
+> Jul 25 06:33:17 runner kernel:  [<c024a777>] ideprobe_init+0xdf/0xfb
+> Jul 25 06:33:17 runner kernel:  [<c024f201>] ide_probe_module+0xd/0x10
+> Jul 25 06:33:17 runner kernel:  [<c024feda>] ide_register_hw+0x154/0x186
+> Jul 25 06:33:17 runner kernel:  [<e0902260>] idecs_register+0x5e/0x70 [ide_cs]
+> Jul 25 06:33:17 runner kernel:  [<e093aace>] CardServices+0x208/0x351 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09330b4>] set_cis_map+0x40/0x10c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e090277e>] ide_config+0x50c/0x854 [ide_cs]
+> Jul 25 06:33:17 runner kernel:  [<e09332a1>] read_cis_mem+0x121/0x18c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09330b4>] set_cis_map+0x40/0x10c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09332a1>] read_cis_mem+0x121/0x18c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933545>] read_cis_cache+0xdf/0x16a [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933e45>] pcmcia_get_tuple_data+0x91/0x96 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0935065>] pcmcia_parse_tuple+0x109/0x16e [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e093516c>] read_tuple+0xa2/0xa4 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<e0933d63>] pcmcia_get_next_tuple+0x231/0x282 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09338b4>] pcmcia_get_first_tuple+0xa0/0x138 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<c022c559>] scrup+0x12f/0x13a
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<c0231398>] poke_blanked_console+0x5c/0x76
+> Jul 25 06:33:17 runner kernel:  [<c0230737>] vt_console_print+0x213/0x302
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<e09330b4>] set_cis_map+0x40/0x10c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09332a1>] read_cis_mem+0x121/0x18c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09332a1>] read_cis_mem+0x121/0x18c [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933545>] read_cis_cache+0xdf/0x16a [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933e45>] pcmcia_get_tuple_data+0x91/0x96 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0935065>] pcmcia_parse_tuple+0x109/0x16e [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e093516c>] read_tuple+0xa2/0xa4 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<e0933d63>] pcmcia_get_next_tuple+0x231/0x282 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e09338b4>] pcmcia_get_first_tuple+0xa0/0x138 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933545>] read_cis_cache+0xdf/0x16a [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0933d63>] pcmcia_get_next_tuple+0x231/0x282 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e093528c>] pcmcia_validate_cis+0x11e/0x1ea [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<c0159fc3>] wake_up_buffer+0xf/0x26
+> Jul 25 06:33:17 runner kernel:  [<c019f1cb>] do_get_write_access+0x2cb/0x5e8
+> Jul 25 06:33:17 runner kernel:  [<e0902c55>] ide_event+0x67/0xea [ide_cs]
+> Jul 25 06:33:17 runner kernel:  [<e0939676>] pcmcia_register_client+0x1c8/0x1fe [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<c0193d5e>] ext3_mark_iloc_dirty+0x28/0x36
+> Jul 25 06:33:17 runner kernel:  [<e08f27ba>] yenta_set_mem_map+0x1e0/0x232 [yenta_socket]
+> Jul 25 06:33:17 runner kernel:  [<c0190d19>] ext3_splice_branch+0x123/0x1da
+> Jul 25 06:33:17 runner kernel:  [<e093aa67>] CardServices+0x1a1/0x351 [pcmcia_core]
+> Jul 25 06:33:17 runner kernel:  [<e0902110>] ide_attach+0x110/0x150 [ide_cs]
+> Jul 25 06:33:17 runner kernel:  [<e0902bee>] ide_event+0x0/0xea [ide_cs]
+> Jul 25 06:33:17 runner kernel:  [<e08fe3bf>] get_pcmcia_driver+0x3f/0x5a [ds]
+> Jul 25 06:33:17 runner kernel:  [<e08fd4b0>] bind_request+0x180/0x214 [ds]
+> Jul 25 06:33:17 runner kernel:  [<e08fe069>] ds_ioctl+0x5eb/0x6ec [ds]
+> Jul 25 06:33:17 runner kernel:  [<c029f95a>] sock_def_readable+0x82/0x84
+> Jul 25 06:33:17 runner kernel:  [<c0303be9>] unix_dgram_sendmsg+0x36b/0x56c
+> Jul 25 06:33:17 runner kernel:  [<c029c39a>] sock_sendmsg+0x9e/0xca
+> Jul 25 06:33:17 runner kernel:  [<c0170d18>] alloc_inode+0x1c/0x148
+> Jul 25 06:33:17 runner kernel:  [<c0171cde>] iget_locked+0x96/0xc0
+> Jul 25 06:33:17 runner kernel:  [<c01840b9>] proc_read_inode+0x17/0x3c
+> Jul 25 06:33:17 runner kernel:  [<c013d531>] find_get_page+0x29/0x64
+> Jul 25 06:33:17 runner kernel:  [<c013e8d6>] filemap_nopage+0x26c/0x384
+> Jul 25 06:33:17 runner kernel:  [<c014125f>] __rmqueue+0xcb/0x11c
+> Jul 25 06:33:17 runner kernel:  [<c0141671>] buffered_rmqueue+0xd1/0x192
+> Jul 25 06:33:17 runner kernel:  [<c0141671>] buffered_rmqueue+0xd1/0x192
+> Jul 25 06:33:17 runner kernel:  [<c0149762>] zap_pmd_range+0x48/0x64
+> Jul 25 06:33:17 runner kernel:  [<c01497c7>] unmap_page_range+0x49/0x88
+> Jul 25 06:33:17 runner kernel:  [<c01498c8>] unmap_vmas+0xc2/0x22e
+> Jul 25 06:33:17 runner kernel:  [<c014d2d1>] unmap_region+0x9b/0xde
+> Jul 25 06:33:17 runner kernel:  [<c014d1d0>] unmap_vma+0x40/0x7e
+> Jul 25 06:33:17 runner kernel:  [<c014d22a>] unmap_vma_list+0x1c/0x28
+> Jul 25 06:33:17 runner kernel:  [<c014d600>] do_munmap+0x166/0x1ce
+> Jul 25 06:33:17 runner kernel:  [<c016a6d1>] sys_ioctl+0xf3/0x27a
+> Jul 25 06:33:17 runner kernel:  [<c010b22b>] syscall_call+0x7/0xb
 
-And I also agree with you if somebody is directly using the bits instead of
-the "nohide" ascii representation they are on there own since there is no
-real export API per say....
-
-But just to make the clean up complete, wouldn't the attached patch be
-needed in the 2.4 kernel if  nfs-utils-1.0.5 was going to be used?
-
-SteveD
-
-
-
-
-
---------------090601090606060000030302
-Content-Type: text/plain;
- name="linux-2.4-nfsd-nohide.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.4-nfsd-nohide.patch"
-
---- linux-2.4/fs/nfsd/vfs.c.diff	2003-07-31 10:35:27.000000000 -0400
-+++ linux-2.4/fs/nfsd/vfs.c	2003-08-01 08:32:06.000000000 -0400
-@@ -82,7 +82,7 @@ static struct raparms *		raparm_cache;
-  * N.B. After this call _both_ fhp and resfh need an fh_put
-  *
-  * If the lookup would cross a mountpoint, and the mounted filesystem
-- * is exported to the client with NFSEXP_CROSSMNT, then the lookup is
-+ * is exported to the client with NFSEXP_NOHIDE, then the lookup is
-  * accepted as it stands and the mounted directory is
-  * returned. Otherwise the covered directory is returned.
-  * NOTE: this mountpoint crossing is not supported properly by all
-@@ -116,7 +116,7 @@ nfsd_lookup(struct svc_rqst *rqstp, stru
- 			dentry = dget(dparent);
- 		else if (dparent != exp->ex_dentry)
- 			dentry = dget(dparent->d_parent);
--		else if (!EX_CROSSMNT(exp))
-+		else if (!EX_NOHIDE(exp))
- 			dentry = dget(dparent); /* .. == . just like at / */
- 		else {
- 			/* checking mountpoint crossing is very different when stepping up */
---- linux-2.4/fs/nfsd/export.c.diff	2003-07-31 10:35:27.000000000 -0400
-+++ linux-2.4/fs/nfsd/export.c	2003-08-01 08:27:27.000000000 -0400
-@@ -640,7 +640,7 @@ struct flags {
- 	{ NFSEXP_UIDMAP, {"uidmap", ""}},
- 	{ NFSEXP_KERBEROS, { "kerberos", ""}},
- 	{ NFSEXP_SUNSECURE, { "sunsecure", ""}},
--	{ NFSEXP_CROSSMNT, {"nohide", ""}},
-+	{ NFSEXP_NOHIDE, {"nohide", ""}},
- 	{ NFSEXP_NOSUBTREECHECK, {"no_subtree_check", ""}},
- 	{ NFSEXP_NOAUTHNLM, {"insecure_locks", ""}},
- #ifdef MSNFS
---- linux-2.4/include/linux/nfsd/export.h.diff	2003-07-31 10:36:23.000000000 -0400
-+++ linux-2.4/include/linux/nfsd/export.h	2003-08-01 08:31:15.000000000 -0400
-@@ -35,7 +35,7 @@
- #define NFSEXP_UIDMAP		0x0040
- #define NFSEXP_KERBEROS		0x0080		/* not available */
- #define NFSEXP_SUNSECURE	0x0100
--#define NFSEXP_CROSSMNT		0x0200
-+#define NFSEXP_NOHIDE		0x0200
- #define NFSEXP_NOSUBTREECHECK	0x0400
- #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
- #define NFSEXP_MSNFS		0x1000	/* do silly things that MS clients expect */
-@@ -80,7 +80,7 @@ struct svc_export {
- #define EX_SECURE(exp)		(!((exp)->ex_flags & NFSEXP_INSECURE_PORT))
- #define EX_ISSYNC(exp)		(!((exp)->ex_flags & NFSEXP_ASYNC))
- #define EX_RDONLY(exp)		((exp)->ex_flags & NFSEXP_READONLY)
--#define EX_CROSSMNT(exp)	((exp)->ex_flags & NFSEXP_CROSSMNT)
-+#define EX_NOHIDE(exp)	((exp)->ex_flags & NFSEXP_NOHIDE)
- #define EX_SUNSECURE(exp)	((exp)->ex_flags & NFSEXP_SUNSECURE)
- #define EX_WGATHER(exp)		((exp)->ex_flags & NFSEXP_GATHERED_WRITES)
- 
-
---------------090601090606060000030302--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

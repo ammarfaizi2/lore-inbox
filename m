@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266013AbRGKULZ>; Wed, 11 Jul 2001 16:11:25 -0400
+	id <S266051AbRGKUJF>; Wed, 11 Jul 2001 16:09:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266066AbRGKULP>; Wed, 11 Jul 2001 16:11:15 -0400
-Received: from cmr1.ash.ops.us.uu.net ([198.5.241.39]:50614 "EHLO
-	cmr1.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
-	id <S266013AbRGKUK5>; Wed, 11 Jul 2001 16:10:57 -0400
-Message-ID: <3B4CB2E2.53CDD714@uu.net>
-Date: Wed, 11 Jul 2001 16:11:14 -0400
-From: Alex Deucher <adeucher@UU.NET>
-Organization: UUNET
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: UP IO-APIC and APM
+	id <S266013AbRGKUIz>; Wed, 11 Jul 2001 16:08:55 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:48798 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266051AbRGKUIx>; Wed, 11 Jul 2001 16:08:53 -0400
+Date: Thu, 12 Jul 2001 01:43:28 +0530
+From: Dipankar Sarma <dipankar@sequent.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: mike.anderson@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010712014328.A14094@in.ibm.com>
+Reply-To: dipankar@sequent.com
+In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com> <20010711090257.B27097@us.ibm.com> <20010711212022.H712@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010711212022.H712@suse.de>; from axboe@suse.de on Wed, Jul 11, 2001 at 09:20:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the uniprocessor IO-APIC support work with APM?  I'm considering
-trying it, but I'd like to make sure it works with APM since SMP does
-not work with APM.
+On Wed, Jul 11, 2001 at 09:20:22PM +0200, Jens Axboe wrote:
+> True. In theory it would be possible to do request slot stealing from
+> idle queues, in fact it's doable without adding any additional overhead
+> to struct request. I did discuss this with [someone, forgot who] last
+> year, when the per-queue slots where introduced.
+> 
+> I'm not sure I want to do this though. If you have lots of disks, then
+> yes there will be some wastage if they are idle. IMO that's ok. What's
+> not ok and what I do want to fix is that slower devices get just as many
+> slots as a 15K disk for instance. For, say, floppy or CDROM devices we
+> really don't need to waste that much RAM. This will change for 2.5, not
+> before.
 
+Unless there is some serious evidence substantiating the need for
+stealing request slots from other devices to avoid starvation, it
+makes sense to avoid it and go for a simpler scheme. I suspect that device
+type based slot allocation should just suffice.
 
-Thanks,
-
-Alex
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@sequent.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

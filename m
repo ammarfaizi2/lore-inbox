@@ -1,193 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbTJCDMe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 23:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTJCDMe
+	id S263623AbTJCDHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 23:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTJCDHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 23:12:34 -0400
-Received: from mail3.autocontactor.com ([66.70.73.213]:35593 "HELO
-	mail3.autocontactor.com") by vger.kernel.org with SMTP
-	id S263626AbTJCDM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 23:12:29 -0400
-Message-ID: <325480-22003105331715109@mail3.autocontactor.com>
-Reply-To: allenjesson--13575793@autocontactor.com
-From: "A Gift Of Poetry" <allenjesson--13575793@autocontactor.com>
-X-SentTo: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Subject: Footprints In Your Inbox - Welcome !
-Date: Thu, 2 Oct 2003 23:17:15 -0400
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
+	Thu, 2 Oct 2003 23:07:54 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:64692 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263623AbTJCDHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 23:07:50 -0400
+Subject: Re: Broken ACPI in kernels > 2.5.69, blows up upon boot
+From: Len Brown <len.brown@intel.com>
+To: Paulo Andre <fscked@netvisao.pt>
+Cc: acpi-support@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20031002214729.11c85558.fscked@netvisao.pt>
+References: <20031002214729.11c85558.fscked@netvisao.pt>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065150392.5327.106.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 02 Oct 2003 23:06:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+Hi Paulo,
 
-Welcome ! Thanks for signing up ! (If you have recently requested a poem I have,
-as my way of saying thank you, subscribed you automatically). 
+This looks different from other failures I've seen in bugzilla.  Is it
+possible for you to try the latest kernel (2.4 or 2.6 will do -- they
+have the same ACPI code) and drop the info below into bugzilla?
 
-This is the first in a series of stories selected from Footprints, proudly
-brought to you by Allen Jesson and A Gift Of Poetry. 
+thanks,
+-Len
+---
 
-Please feel free to visit www.agiftofpoetry.com as often as you like. As a
-subscriber, you are also entitled to some valuable bonuses, details of which are
-at the end of this message.
+Please file a bug at http://bugzilla.kernel.org/
+Category: Power Management
+Component: ACPI
 
-Dream Of A Day - An inspiring poem from a daughter to her Mom 
+Please attach the output from dmesg -s40000 or the serial console log
 
-I will be married to Peter on July 21st of 2001. I would like you to write me a
-poem because I feel that it will be more personalized.  I will read my mother
-this poem on my wedding day at the reception.  I would like to share with my
-family and friends how wonderful my mother is and how grateful I am for all that
-she has done for me throughout the years.  My mom has been my inspiration through
-out my life.  She has shown me the love that two people can have for one another.
-That it is for better or for worse and in sickness and in health, through her
-marriage with my father.  My father passed away in January of 2001.  My mother
-never left my father's side throughout his last six years battling with cancer. 
-She was there until the very end when she told him to let go and go be with his
-diseased loved one's where there's only happiness, no more pain.  It wasn't until
-that point, with my mother by his side comforting him, did he finally pass on. 
-There love for one another was so beautiful and inspiring.  I want my mother to
-realize how much she inspires me.  How grateful I am that she is always there for
-me when I need her the most.  I want her to realize that even though she has lost
-the love of her life that the lord will give her the strength to get though the
-hard times. That I will always be here for her as she was for my father. Whether
-she needs a shoulder to cry on, some one to
-listen, someone to laugh with, or someone to take care of her.  She is my mother
-forever and I will give her all the love and support she has given me. As a
-little girl I always dreamed of the day that my father would walk me down the
-isle.  I would give him a kiss and tell him how much I loved him.  I thought of
-all the wonderful things he would tell me on that day.  My mother and I will be
-lighting a candle at the ceremony to signify my father's presence there in
-spirit.  I know that my father will be looking down on me as I exchange my vows. 
-I only pray that he is happy and proud of his little girl.  In the poem I would
-like to remind my mother that my father will be there that day.  That he wouldn't
-want us to greave because he is not here.  
-Instead, he would like my mom to be as proud and happy as his little girl on her
-wedding day. I want my mom to be proud of me.  I hope that she can understand
-that I am who I am as a result of all that my mother and father have taught me. 
-I want in my marriage to be as happy as my parents.  I hope that I can take all
-that I've learned from them and be the best wife and mother that I can possibly
-be.  I hope that this is enough for you.  Feel free to e-mail me if you have any
-questions for me. Thank you so much, Sandy Davison 
- 
-Dream Of A Day 
-  
-When I was a little girl, 
-I always dreamed of this day, 
-I knew the words off by heart, 
-I knew exactly what I would say. 
-  
-And I imagined my Daddy, 
-walking me down that aisle, 
-I could see the look on his face, 
-I could see the pride in his smile. 
-  
-But life doesn't always run to plan, 
-I guess that's plain to see, 
-and some things just go and happen, 
-some things are just meant to be. 
-  
-But this is  meant to be a happy day, 
-happier for others than for some, 
-and I just wanted to share some thoughts, 
-because I wanted to tell you about my Mom: 
-  
-My mother has been my inspiration, 
-she has guided me throughout my life, 
-and there are some words that I need to say, 
-especially now that I'm a wife :) 
-  
-You've always been there for me, 
-just when I needed you the most, 
-and in a moment, we'll drink to you, 
-in a moment, to you we shall raise a toast. 
-  
-Because you have shown me what love is for, 
-and the love that two people can have for one another, 
-you have shown me how to be a devoted wife, 
-and of course, how to be a wonderful mother. 
-  
-Those six years were very tough, 
-but that's just when the tough got going, 
-and you showed Dad all of your love, 
-and gee, you did a lot of showing !
+Please attach the output from dmidecode, available in /usr/sbin/, or
+here: http://www.nongnu.org/dmidecode/
 
-Even though you've lost the love of your life, 
-(and this is one of those meaningful rhymes), 
-The Lord will give you all of His strength, 
-to get you through your more difficult times. 
-  
-And I will also always be there for you, 
-if you ever need a shoulder or a helping hand, 
-divided we shall fall and be conquered, 
-but together and united we will make a stand. 
-  
-And if you need someone to just sit and listen, 
-then I'll be there just for you, 
-because after everything you've done for me, 
-this is the very least that I can do. 
-  
-Today, I felt my father's spirit, 
-I could feel him proudly looking on, 
-I could feel his love for us all, 
-I could feel where his love brightly shone. 
-  
-He just wants you to be happy, 
-I know this from deep inside my heart, 
-and he knows that he will love you forever, 
-and he knows that you'll never truly part. 
-  
-And all that he will ever wish, 
-and this my dearest wish too, 
-is that I have such a wonderful marriage, 
-and that I'm loved as much as he loved you. 
-  
-And today, my Daddy's spirit was with me, 
-and he did indeed walk me down that aisle, 
-and I imagined the look upon his face, 
-and yes, it was a very proud smile. 
-    
-Copyright Allen Jesson :) 2001 
-www.agiftofpoetry.com 
- 
+Please attach the output from acpidmp, available in /usr/sbin/, or in
+here: 
+http://www.intel.com/technology/iapc/acpi/downloads/pmtools-20010730.tar.gz
 
-'Thank you so much for the poem.  I won't need you to make any changes.  It's
-perfect!  I think my mom will be very happy with it. I would like the background
-of the boy and girl kissing.  I have no problem with you publishing and putting
-the poem on your website.  There's no need to change the names.  I would also
-appreciate it if you would autograph it.  Yes, I would like the original.  Again,
-thank you so much.  You have helped me with a perfect gift of love for my mother
-on my wedding day, and for that I am very grateful.'
-                                                         Sandy Davison
-
-OK - That's it for today - I hope you enjoyed it. I'll be back in touch shortly
-with the next story. Please feel free to visit www.agiftofpoetry.com in the
-meantime. Also, I would appreciate it if you would forward this message onto any
-family or friends you think may be interested in these stories. Thanks. 
-
-Best regards
-Allen Jesson
-www.agiftofpoetry.com
-
-PS If you would like to have your own poem written, I have recently expanded the
-payment options so that you can now save 12% off the regular prices. You can also
-spread the payment out over 6 months if you want to. Full details can be found
-here:
-
-http://www.agiftofpoetry.com/payment_page.htm
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-
-As an added bonus (and exclusive to subscribers of Footprints), you can also
-receive one of three valuable bonuses when you place your order. Details can be
-found here:
-
-http://www.agiftofpoetry.com/order_form_footprints.htm
-
-Please do not delay as I'm not sure how long this offer will last !
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Please attach the output from lspci -vv
 
 
 
@@ -195,12 +56,134 @@ Please do not delay as I'm not sure how long this offer will last !
 
 
 
-
-If you no longer wish to receive communication from us:
-http://www.1automationwiz.com/app/r.asp?ID=13575793&ARID=26725
-
-To update your contact information:
-http://www.1automationwiz.com/app/r.asp?c=1&ID=13575793
-
-
+On Thu, 2003-10-02 at 16:47, Paulo Andre wrote:
+> Hi Len, list..
+> 
+> I've been experiencing a most unfortunate problem using ACPI since
+> kernel 2.5.70. I simply cannot boot a kernel with ACPI support, it
+> oopses right upon boot when initializing ACPI and that's it. I've
+> emailed about this a few months ago, when it was still Andy Grover
+> maintaining ACPI and we got to no conclusive answer. I have a hard time
+> believing my BIOS is fscked as far as ACPI is concerned considering it
+> worked flawlessly in 2.5.69 (the kernel I'm still using..) and before.
+> 
+> Anyway, this is a Fujitsu Siemens E-7110 laptop and this breaks in every
+> kernel starting from 2.5.70 up until 2.6.0-test6 with the latest acpi
+> batch applied.
+> 
+> Here's the output from the serial console:
+> 
+> >> cut here
+> 
+>  ACPI: RSDP (v000 FUJ                        ) @ 0x000f62c0
+>   ACPI: RSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feeba1f
+>   ACPI: FADT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feefb8c
+>   ACPI: DSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x00000000
+>   ACPI: BIOS passes blacklist
+>   ACPI: MADT not present
+>   Building zonelist for node : 0
+>   Kernel command line: BOOT_IMAGE=l260p1 ro root=305
+>   console=ttyS0,38400n8 console=tty0 Local APIC disabled by BIOS --
+>   reenabling. Found and enabled local APIC!
+>   Initializing CPU#0
+>   PID hash table entries: 2048 (order 11: 16384 bytes)
+>   Detected 930.413 MHz processor.
+>   Console: colour VGA+ 80x25
+>   Calibrating delay loop... 1839.10 BogoMIPS
+>   Memory: 510088k/523776k available (4302k kernel code, 12808k
+>   reserved, 1594k data, 244k
+>  init, 0k highmem)
+>   Security Scaffold v1.0.0 initialized
+>   Capability LSM initialized
+>   Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+>   Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+>   Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+>   - /dev
+>   - /dev/console
+>   - /root
+>   CPU: L1 I cache: 16K, L1 D cache: 16K
+>   CPU: L2 cache: 512K
+>   Intel machine check architecture supported.
+>   Intel machine check reporting enabled on CPU#0.
+>   Enabling fast FPU save and restore... done.
+>   Enabling unmasked SIMD FPU exception support... done.
+>   Checking 'hlt' instruction... OK.
+>   POSIX conformance testing by UNIFIX
+>   CPU0: Intel(R) Pentium(R) III Mobile CPU       933MHz stepping 01
+>   per-CPU timeslice cutoff: 1462.52 usecs.
+>   task migration cache decay timeout: 2 msecs.
+>   SMP motherboard not detected.
+>   enabled ExtINT on CPU#0
+>   ESR value before enabling vector: 00000000
+>   ESR value after enabling vector: 00000000
+>   Using local APIC timer interrupts.
+>   calibrating APIC timer ...
+>   ..... CPU clock speed is 235.0889 MHz.
+>   ..... host bus clock speed is 132.0844 MHz.
+>   Starting migration thread for cpu 0
+>   CPUS done 32
+>   Initializing RT netlink socket
+>   PCI: PCI BIOS revision 2.10 entry at 0xfd97e, last bus=4
+>   PCI: Using configuration type 1
+>   mtrr: v2.0 (20020519)
+>   BIO: pool of 256 setup, 15Kb (60 bytes/bio)
+>   biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
+>   biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
+>   biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
+>   biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
+>   biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
+>   biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
+>   ACPI: Subsystem revision 20030619
+>   ACPI: Interpreter enabled
+>   ACPI: Using PIC for interrupt routing
+>   ACPI: PCI Root Bridge [PCI0] (00:00)
+>   PCI: Probing PCI hardware (bus 00)
+>   Transparent bridge - Intel Corp. 82801BAM/CAM PCI Bri
+>   Unable to handle kernel NULL pointer dereference at virtual address
+>   00000007
+>    printing eip:
+>   c02a622c
+>   *pde = 00000000
+>   Oops: 0000 [#1]
+>   CPU:    0
+>   EIP:    0060:[<c02a622c]    Not tainted
+>   EFLAGS: 00010246
+>   EIP is at acpi_ns_map_handle_to_node+0x1a/0x22
+>   eax: 00000000   ebx: c167ef40   ecx: dfeddde4   edx: 00000007
+>   esi: 00000000   edi: dfeddde4   ebp: dfedddb8   esp: dfedddb8
+>   ds: 007b   es: 007b   ss: 0068
+>   Process swapper (pid: 1, threadinfo=dfedc000 task=dfedf8c0)
+>   Stack: dfedddd0 c02a5c3f 00000007 c167ef40 00000000 c167ef50 dfeddef8
+>   c02b0ac0 
+>          00000007 dfeddde4 dfeddde4 00000100 dfedddec 00000000 00000000
+>          00000000 00000000 00000000 00000000 00000000 00000000 00000000
+>          00000000 00000000 
+>   Call Trace:
+>    [<c02a5c3f] acpi_ns_handle_to_pathname+0x11/0x4a
+>    [<c02b0ac0] acpi_pci_bind_root+0xa5/0xd5
+>    [<c02afd0d] acpi_pci_root_add+0x177/0x1c9
+>    [<c02b190e] acpi_bus_driver_init+0x2d/0x8f
+>    [<c02b1c5d] acpi_bus_find_driver+0x86/0xe6
+>    [<c02b212c] acpi_bus_add+0x127/0x155
+>    [<c02b2254] acpi_bus_scan+0xfa/0x145
+>    [<c06dbc38] acpi_scan_init+0x51/0x79
+>    [<c06c6a1b] do_initcalls+0x2b/0xa0
+>    [<c0137732] init_workqueues+0x12/0x29
+>    [<c01050da] init+0x5a/0x1f0
+>    [<c0105080] init+0x0/0x1f0
+>    [<c01091e9] kernel_thread_helper+0x5/0xc
+>   
+>   Code: 80 3a aa 0f 44 c2 5d c3 55 89 e5 8b 45 08 5d c3 55 89 e5 ff 
+>    <0Kernel panic: Attempted to kill init!
+> 
+> << cut here
+> 
+> I've tried to look into the code but newbie as I am, no conclusion was
+> reached. Is there any idea what may have provoked this sudden break up?
+> 
+> Feel free to ask me for more details if need be.
+> 
+> Thanks in advance,
+> 
+> 		Paulo
 

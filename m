@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbUAIACE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 19:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUAIAAN
+	id S265045AbUAHX6r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 18:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUAHX6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 19:00:13 -0500
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:34182 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265404AbUAHX7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 18:59:23 -0500
-Subject: Re: [Dri-devel] 2.4.23: user/kernel pointer bugs
-	(drivers/char/vt.c, drivers/char/drm/gamma_dma.c)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: marcelo.tosatti@cyclades.com, faith@valinux.com,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073592494.18588.77.camel@dooby.cs.berkeley.edu>
-References: <1073592494.18588.77.camel@dooby.cs.berkeley.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1073605921.13007.68.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 8 Jan 2004 18:58:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35008 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265045AbUAHX6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 18:58:34 -0500
+Date: Thu, 8 Jan 2004 15:59:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ramon.rey@hispalinux.es
+Cc: ramon.rey@augcyl.org, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [2.6.1-rc2-mm1][BUG] Badness in unblank_screen at
+ drivers/char/vt.c:2793
+Message-Id: <20040108155940.68ab047a.akpm@osdl.org>
+In-Reply-To: <1073605532.1070.6.camel@debian>
+References: <1073605532.1070.6.camel@debian>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 08 Jan 2004 23:52:02 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-01-08 at 20:08, Robert T. Johnson wrote:
-> Both of these bugs look exploitable.  The vt.c patch is
-> self-explanatory.  
+Ramon Rey Vicente <ramon.rey@augcyl.org> wrote:
+>
+> ...
+> Jan  8 23:12:29 debian kernel: Badness in unblank_screen at drivers/char/vt.c:2793
+> Jan  8 23:12:29 debian kernel: Call Trace:
+> Jan  8 23:12:29 debian kernel:  [unblank_screen+250/288] unblank_screen+0xfa/0x120
+> Jan  8 23:12:29 debian kernel:  [bust_spinlocks+37/96] bust_spinlocks+0x25/0x60
+> Jan  8 23:12:29 debian kernel:  [die+120/224] die+0x78/0xe0
+> Jan  8 23:12:29 debian kernel:  [do_invalid_op+145/160] do_invalid_op+0x91/0xa0
+> Jan  8 23:12:29 debian kernel:  [try_to_unmap_one+456/480] try_to_unmap_one+0x1c8/0x1e0
+> Jan  8 23:12:29 debian kernel:  [slab_destroy+170/256] slab_destroy+0xaa/0x100
+> Jan  8 23:12:29 debian kernel:  [free_pages_bulk+350/640] free_pages_bulk+0x15e/0x280
+> Jan  8 23:12:29 debian kernel:  [free_hot_cold_page+224/256] free_hot_cold_page+0xe0/0x100
+> Jan  8 23:12:29 debian kernel:  [error_code+47/64] error_code+0x2f/0x40
+> Jan  8 23:12:29 debian kernel:  [try_to_unmap_one+456/480] try_to_unmap_one+0x1c8/0x1e0
+> Jan  8 23:12:29 debian kernel:  [try_to_unmap+322/384] try_to_unmap+0x142/0x180
+> Jan  8 23:12:29 debian kernel:  [shrink_list+579/1408] shrink_list+0x243/0x580
+> Jan  8 23:12:29 debian kernel:  [do_timer+197/224] do_timer+0xc5/0xe0
+> Jan  8 23:12:29 debian kernel:  [do_softirq+140/160] do_softirq+0x8c/0xa0
+> Jan  8 23:12:29 debian kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+> Jan  8 23:12:29 debian kernel:  [__pagevec_release+24/64] __pagevec_release+0x18/0x40
+> Jan  8 23:12:29 debian kernel:  [shrink_cache+409/864] shrink_cache+0x199/0x360
+> Jan  8 23:12:29 debian kernel:  [shrink_zone+107/128] shrink_zone+0x6b/0x80
+> Jan  8 23:12:29 debian kernel:  [balance_pgdat+359/480] balance_pgdat+0x167/0x1e0
+> Jan  8 23:12:29 debian kernel:  [kswapd+254/288] kswapd+0xfe/0x120
+> Jan  8 23:12:29 debian kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
+> Jan  8 23:12:29 debian kernel:  [ret_from_fork+6/32] ret_from_fork+0x6/0x20
+> Jan  8 23:12:29 debian kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
+> Jan  8 23:12:29 debian kernel:  [kswapd+0/288] kswapd+0x0/0x120
+> Jan  8 23:12:29 debian kernel:  [kernel_thread_helper+5/36] kernel_thread_helper+0x5/0x24
+> Jan  8 23:12:29 debian kernel: 
+> Jan  8 23:12:29 debian kernel:  <6>note: kswapd0[8] exited with preempt_count 1
 > 
-> In gamma_dma.c, argument "d" to gamma_dma_priority() points to a
-> structure copied from userspace (see gamma_dma()).  That means that
-> d->send_indices is a pointer under user control, so it shouldn't be
-> dereferenced.  The patch just safely copies the contents to a kernel
-> buffer and uses that instead.  Ditto for d->send_sizes.
 
-Fortunately (in this case) Gamma hasn't worked since about 1999. The SiS
-DRM driver in XFree 4.4 snapshot is also exploitable although the 4.3
-one seems ok. If you feed the memory allocator random crap it oopses.
-With 4.3.x (ie the code in 2.4.x) it doesn't oops but requires sis_fb.
-With 4.3.99... it oopses if I dont have sisfb.
+Ben, your debug stuff tripped up when we were oopsing.  bust_spinlocks()
+calls unblank_screen() without console_sem.  I'll change it to
 
-> Also, I notice the drm code uses it's own memory allocation wrappers.  I
-> don't know all the details of the drm code, so I just used kmalloc. 
-> You'll probably want to change those two calls after applying the
-> patch.  Sorry for the inconvenience.
+	WARN_ON(!is_console_locked() && !oops_in_progress);
 
-It comes out as kmalloc, but its done so it will be portable to other
-systems. So on *BSD it comes out appropriately too.
+(Weren't you going to update that patch anyway?)
 
-Incidentally the gamme code appears to have maths overflow problems in
-the kmalloc paths too.
+As for the oops itself: 2.6.1-rc2-mm1 VM is kaput, sorry.  It works OK here
+without the fremap changes.
 

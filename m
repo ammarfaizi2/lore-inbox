@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129204AbQKBTVh>; Thu, 2 Nov 2000 14:21:37 -0500
+	id <S129247AbQKBTXh>; Thu, 2 Nov 2000 14:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129378AbQKBTV1>; Thu, 2 Nov 2000 14:21:27 -0500
-Received: from web9904.mail.yahoo.com ([216.136.129.247]:20744 "HELO
-	web9904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129204AbQKBTVP>; Thu, 2 Nov 2000 14:21:15 -0500
-Message-ID: <20001102192108.85567.qmail@web9904.mail.yahoo.com>
-Date: Thu, 2 Nov 2000 11:21:08 -0800 (PST)
-From: Ivo Zivkov <izivkov@yahoo.com>
-Subject: Floating point emulation problem
-To: linux-kernel@vger.kernel.org
+	id <S129376AbQKBTX1>; Thu, 2 Nov 2000 14:23:27 -0500
+Received: from ra.lineo.com ([204.246.147.10]:6051 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S129247AbQKBTXR>;
+	Thu, 2 Nov 2000 14:23:17 -0500
+Message-ID: <3A01BDCD.FCBCFFF8@Rikers.org>
+Date: Thu, 02 Nov 2000 12:17:33 -0700
+From: Tim Riker <Tim@Rikers.org>
+Organization: Riker Family (http://rikers.org/)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-705367418-973192868=:83031"
+To: Andi Kleen <ak@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux?
+In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> <E13rPhi-0001ng-00@the-village.bc.nu> <20001102201836.A14409@gruyere.muc.suse.de>
+X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 11/02/2000
+ 12:23:13 PM,
+	Serialize complete at 11/02/2000 12:23:13 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-705367418-973192868=:83031
-Content-Type: text/plain; charset=us-ascii
+Andi Kleen wrote:
+> 
+> On Thu, Nov 02, 2000 at 07:07:12PM +0000, Alan Cox wrote:
+> > > 1. There are architectures where some other compiler may do better
+> > > optimizations than gcc. I will cite some examples here, no need to argue
+> >
+> > I think we only care about this when they become free software.
+> 
+> SGI's pro64 is free software and AFAIK is able to compile a kernel on IA64.
+> It is also not clear if gcc will ever produce good code on IA64.
+> 
+> -Andi
 
-
-Dear List,
-
-I am running kernel 2.2.5-15. I am trying to calculate sin(0.9), and it crashes on a 386 board with no f/p hardware. The message I get is:
-
-"Unable to handle kernel paging request at virtual address 7f3c0070......"
-
-The interesting thing is sin(0.8) works fine. On a Pentium the program executes fine for all values.
-
-I tried in 2 different 386 boards, and I get the same problem. The program was compiled on R.H.6.0, and "libm" was present on the 386. I even linked the program statically to eliminate any library dependencies. 
-
-This seems like a common problem, and easy to reproduce. Anybody had the same experience?
-
-please reply to mailto:izivkov@yahoo.com
-
-Regards,
-
-Ivo
-
- 
-
-
-
----------------------------------
-Do You Yahoo!?
->From homework help to love advice, Yahoo! Experts has your answer.
---0-705367418-973192868=:83031
-Content-Type: text/html; charset=us-ascii
-
-<FONT size=2>
-<P>Dear List,</P>
-<P>I am running kernel 2.2.5-15. I am trying to calculate sin(0.9), and it crashes on a 386 board with no f/p hardware. The message I get is:</P>
-<P>"Unable to handle kernel paging request at virtual address 7f3c0070......"</P>
-<P>The interesting thing is sin(0.8) works fine. On a Pentium the program executes fine for all values.</P>
-<P>I tried in 2 different 386 boards, and I get the same problem. The program was compiled on R.H.6.0, and "libm" was present on the 386. I even linked the program statically to eliminate any library dependencies. </P>
-<P>This seems like a common problem, and easy to reproduce. Anybody had the same experience?</P>
-<P>please reply to <A href="mailto:izivkov@yahoo.com">mailto:izivkov@yahoo.com</A></P>
-<P>Regards,</P>
-<P>Ivo</P>
-<P>&nbsp;</P></FONT><p><br><hr size=1><b>Do You Yahoo!?</b><br>
->From homework help to love advice, <a href="http://experts.yahoo.com/">Yahoo! Experts</a> has your answer.
---0-705367418-973192868=:83031--
+A grand example I should have included. Thanx! Last I knew the status
+was that SGI had built the kernel with thier compiler, by adding gcc
+syntax into it, but had not reached the point where the kernel would
+run. Perhaps they have gotten past this. Since I'm no longer involved in
+the Trillian (read ia64 Linux Project) mailing lists or weekly phone
+calls I have been out of this loop for a month or so.
+-- 
+Tim Riker - http://rikers.org/ - short SIGs! <g>
+All I need to know I could have learned in Kindergarten
+... if I'd just been paying attention.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

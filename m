@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269489AbTCDOU3>; Tue, 4 Mar 2003 09:20:29 -0500
+	id <S269498AbTCDOYa>; Tue, 4 Mar 2003 09:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269490AbTCDOU3>; Tue, 4 Mar 2003 09:20:29 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2464
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269489AbTCDOU2>; Tue, 4 Mar 2003 09:20:28 -0500
-Subject: Re: eepro100 ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030304141109.GI646@rdlg.net>
-References: <20030304141109.GI646@rdlg.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046792123.10855.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 04 Mar 2003 15:35:24 +0000
+	id <S269499AbTCDOYa>; Tue, 4 Mar 2003 09:24:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:7597 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S269498AbTCDOY2>;
+	Tue, 4 Mar 2003 09:24:28 -0500
+Date: Tue, 4 Mar 2003 08:10:55 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: Greg KH <greg@kroah.com>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Displaying/modifying PCI device id tables via sysfs
+In-Reply-To: <1046753776.12441.92.camel@iguana>
+Message-ID: <Pine.LNX.4.33.0303040805000.992-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-04 at 14:11, Robert L. Harris wrote:
-> in my dmesg log.  Out of curiosity I tried with the alternate driver and
-> that seems to have gone away.  Is one depreciated or are they both
-> viable and just different?   The help message doesn't really say much on
-> the topic.
-> 
-> < >     EtherExpressPro/100 support (eepro100, original Becker driver)
-> < >     EtherExpressPro/100 support (e100, Alternate Intel driver)
 
-e100 is intels own driver which was initially proprietary but has since been
-cleaned up a lot and relicensed GPL, then merged with the kernel. The e100
-driver is probably the best driver to be using nowdays although both should
-work reliably
+> then there needs to be a simple way in sysfs to export an attribute
+> hierarchy, beneath an object in the kobject hierarchy.  Right now it's
+> assumed that each kobject can have multiple attributes, but all are at a
+> single level.  Pat, is this hard to do?
+
+It's 1 kobject == 1 sysfs directory. I recommend putting a kobject into 
+the ID structure and registering it (by the PCI core) once the driver has 
+been registered. Then, create files for each of the static IDs. 
+
+When new IDs are added, I don't see why you need to differentiate between 
+them in userspace. Couldn't you have e.g.:
+
+/sys/bus/pci/drivers/3c59x/
+`-- id
+    |-- 0
+    |-- 1
+    `-- new_id
+
+Then, when someone writes a new ID, have:
+
+/sys/bus/pci/drivers/3c59x/
+`-- id
+    |-- 0
+    |-- 1
+    |-- 2
+    `-- new_id
+
+Internally, we of course need to treat them differently, but to the user, 
+they're just IDs the driver supports..
+
+	-pat
 

@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVCHC0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVCHCav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVCHC0b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 21:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVCHCZr
+	id S261845AbVCHCav (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 21:30:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVCHCaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 21:25:47 -0500
-Received: from fire.osdl.org ([65.172.181.4]:16593 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261932AbVCHCRp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 21:17:45 -0500
-Date: Mon, 7 Mar 2005 18:16:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: vandrove@vc.cvut.cz, cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: XScale 8250 patches cause malfunction on AMD-8111
-Message-Id: <20050307181651.4a87651d.akpm@osdl.org>
-In-Reply-To: <20050307213148.B29948@flint.arm.linux.org.uk>
-References: <20050307174506.GA9659@vana.vc.cvut.cz>
-	<20050307195654.GA9394@vana.vc.cvut.cz>
-	<20050307213148.B29948@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Mar 2005 21:30:01 -0500
+Received: from innocence.nightwish.hu ([217.20.130.196]:60044 "EHLO
+	innocence.nightwish.hu") by vger.kernel.org with ESMTP
+	id S261939AbVCHC1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 21:27:54 -0500
+Subject: Re: NMI watchdog question
+From: Pallai Roland <dap@mail.index.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Mar 2005 03:28:52 +0100
+Message-Id: <1110248933.8018.229.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Mon, Mar 07, 2005 at 08:56:54PM +0100, Petr Vandrovec wrote:
->  > Well, problem is not in bit 6 in IER, but in bit 6 in high divisor byte,
->  > as DLAB is set to one from previous probe.  This simple clear of LCR
->  > register fixes problem with (probably all 16550A) chips being detected
->  > as XScale, and in addition to it it does not switch my 115200Bd serial
->  > line to 7Bd mode (0x4001 divisor) anymore.
-> 
->  Good catch, thanks.  I'd preferably like to see Chris Wedgwood test this
->  before applying it - I'm sure it'll fix his problem as well, but I'd
->  like to be sure.
 
-It fixes it on my box.  Thanks, all.
+>> On Mon, 2005-03-07 at 11:16 +0100, Mikael Pettersson wrote:
+>> Please try nmi_watchdog=2.
+> 
+> tried, doesn't work.. much less NMI interrupts in /proc/interrupts this
+> time
+
+ although, nmi_watchdog=1 works well when this crazy module loaded
+
+ may it be a hardware bug?  or maybe a usual thing that the low-level
+drivers can put the hardware to such a situation when NMI's are stopped
+or the nmi_die message can't get out?   (sorry for this newbie question
+and thanks for your replies)
+
+
+== nofuture.c:
+
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+
+int deadlock_init(void)
+{
+    local_irq_disable();
+    while ("I want to loop!")
+    ;
+
+    return 0;
+}
+
+module_init(deadlock_init);
+
+
+
+--
+ d
+

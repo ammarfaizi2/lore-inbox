@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262369AbTCMOSG>; Thu, 13 Mar 2003 09:18:06 -0500
+	id <S262354AbTCMOZC>; Thu, 13 Mar 2003 09:25:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbTCMOSG>; Thu, 13 Mar 2003 09:18:06 -0500
-Received: from pusa.informat.uv.es ([147.156.10.98]:38857 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP
-	id <S262369AbTCMOSF>; Thu, 13 Mar 2003 09:18:05 -0500
-Date: Thu, 13 Mar 2003 15:28:44 +0100
-To: Srihari Vijayaraghavan <harisri@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: OFFTOPIC: Re: Request for help - tcpdump on many ethernet cards simulateneously
-Message-ID: <20030313142844.GA22679@pusa.informat.uv.es>
-References: <200303140051.19453.harisri@bigpond.com>
+	id <S262364AbTCMOZC>; Thu, 13 Mar 2003 09:25:02 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10446
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262354AbTCMOZB>; Thu, 13 Mar 2003 09:25:01 -0500
+Subject: Re: Linux BUG: Memory Leak
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James Stevenson <james@stev.org>
+Cc: pd dd <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       William Stearns <wstearns@pobox.com>
+In-Reply-To: <01fa01c2e96c$a6a50e90$0cfea8c0@ezdsp.com>
+References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
+	 <01fa01c2e96c$a6a50e90$0cfea8c0@ezdsp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047570229.25948.39.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200303140051.19453.harisri@bigpond.com>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 13 Mar 2003 15:43:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 12:51:19AM +1100, Srihari Vijayaraghavan wrote:
-[...]
-> What I am really worried about is kernel may start dropping the packets after 
-> few hours/days and/or tcpdump/kernel may not be able to keep up with the 
-> network load due to IO load on the hard drives, memory pressure etc.. 
+On Thu, 2003-03-13 at 14:27, James Stevenson wrote:
+> correct me if i am wrong here but i know alot of students
+> who use linux todo serious stuff and get really pissed off have to
+> reboot into windows to play games because they dont work
+> under windows and for various other things that also cause
+> problems in linux. Actually quite alot of them end up
+> dumping linux because any of the serious games wont work on there
+> system because they would have to tear much of it apart toget
+> them to work.
+> 
+> this isnt a serious problem then ?
 
-find a libpcap using CONFIG_PACKET_MMAP, and you will probably forget about
-drops IMHO
+Ignore the trolls, thank you
 
-if you do find it, please let me now
-
-I'm currently using pandora's monitor modified libpcap.... GREAT
-
-I think that Linux is the only OS that provides user space buffers to packet
-capture... am I wrong?
-
-Maybe this is an offtopic on this mailing list... 
-...so this is my first and last mail about it here.
-
-	Ulisses
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 

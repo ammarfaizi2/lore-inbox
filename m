@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRKMPsX>; Tue, 13 Nov 2001 10:48:23 -0500
+	id <S278633AbRKMTkQ>; Tue, 13 Nov 2001 14:40:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273902AbRKMPsN>; Tue, 13 Nov 2001 10:48:13 -0500
-Received: from NO-SPAM.it.helsinki.fi ([128.214.205.34]:44776 "EHLO
-	no-spam.it.helsinki.fi") by vger.kernel.org with ESMTP
-	id <S273622AbRKMPsC>; Tue, 13 Nov 2001 10:48:02 -0500
-Subject: [Probably OT] Re: Odd partition overlapping problem
-From: Robert Holmberg <robert.holmberg@helsinki.fi>
+	id <S278615AbRKMTkG>; Tue, 13 Nov 2001 14:40:06 -0500
+Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:24817 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S278604AbRKMTju>; Tue, 13 Nov 2001 14:39:50 -0500
+Date: Tue, 13 Nov 2001 14:39:48 -0500
+From: Ben Collins <bcollins@debian.org>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011113165624.A28398@cyclone.neutech.fi>
-In-Reply-To: <Pine.OSF.4.30.0111131627170.14606-100000@sirppi.helsinki.fi> 
-	<20011113165624.A28398@cyclone.neutech.fi>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 13 Nov 2001 17:51:35 -0500
-Message-Id: <1005691896.2073.2.camel@localhost>
+Subject: Differences between 2.2.x and 2.4.x initrd
+Message-ID: <20011113143947.F329@visi.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-11-13 at 09:56, Tontsan Botti Account wrote:
-> The problem is most likely the LBA partition format. Win98 sees
-> the disk somehow diffrently. I had the same prob with my laptop. 
-> After changing the type to non LBA one it worked for me..
+I've come across a difference in how initrd is handled in 2.2.x and
+2.4.x. This related directly to TILO (sparc TFTP image with ramdisk).
 
-Alright, I'll try this. Thanks.
+Basically what we have is a kernel image with ramdisk and initrd
+enabled, and a root disk image slapped on the end that is loaded via
+initrd.
 
-Please cc to me, I'm not on the list,
+On 2.2.x, this works without problems; the ramdisk is loaded, and
+/sbin/init is executed. However, with 2.4.x, it's quite different.
 
-Robert
+It loads the initial ramdisk, mounts it fine, tries to execute /linuxrc
+(same as in 2.2.x, but it isn't there, so it continues), and then
+complains with this:
 
+VFS: Mounted root (ext2 filesystem).
+VFS: Cannot open root device "" or 02:00
+
+For some reason it is trying to mount /dev/fd, and totally forgets
+about /dev/ram. If I pass root=/dev/ram to the command line, it works
+fine, but I don't want to have to do this :)
+
+I can't seem to find the relevant place where this broke. Any ideas?
+
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

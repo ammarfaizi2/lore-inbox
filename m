@@ -1,193 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262682AbTCPPmH>; Sun, 16 Mar 2003 10:42:07 -0500
+	id <S262680AbTCPPtr>; Sun, 16 Mar 2003 10:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262683AbTCPPmH>; Sun, 16 Mar 2003 10:42:07 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:3049 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262682AbTCPPmA>;
-	Sun, 16 Mar 2003 10:42:00 -0500
-Date: Sun, 16 Mar 2003 16:52:48 +0100 (CET)
-From: Manfred Spraul <manfred@colorfullife.com>
-X-X-Sender: manfred@dbl.q-ag.de
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] O(1) proc_pid_readdir
-Message-ID: <Pine.LNX.4.44.0303161645030.27928-100000@dbl.q-ag.de>
+	id <S262681AbTCPPtr>; Sun, 16 Mar 2003 10:49:47 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:10727 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262680AbTCPPtp>;
+	Sun, 16 Mar 2003 10:49:45 -0500
+Date: Sun, 16 Mar 2003 17:00:11 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] sched-2.5.64-bk10-D0
+In-Reply-To: <Pine.LNX.4.44.0303161213200.4930-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303161657420.7403-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a proposal to get rid of the quadratic behaviour of 
-proc_pid_readir(): Instead of storing the task number in f_pos and walking 
-tasks by tasklist order, the pid is stored in f_pos and the tasks are 
-walked by (hash-mangled) pid order.
 
---
-	Manfred
-<<
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 5
-//  SUBLEVEL = 64
-//  EXTRAVERSION = -ac4
---- 2.5/include/linux/sched.h	2003-02-26 19:08:43.000000000 +0100
-+++ build-2.5/include/linux/sched.h	2003-03-16 13:47:59.000000000 +0100
-@@ -507,6 +507,7 @@
- 
- extern struct   mm_struct init_mm;
- 
-+extern int find_next_pid(int pid);
- extern struct task_struct *find_task_by_pid(int pid);
- extern void set_special_pids(pid_t session, pid_t pgrp);
- extern void __set_special_pids(pid_t session, pid_t pgrp);
---- 2.5/kernel/pid.c	2003-01-15 20:30:27.000000000 +0100
-+++ build-2.5/kernel/pid.c	2003-03-16 15:41:43.000000000 +0100
-@@ -172,13 +172,22 @@
- 	if (pid)
- 		atomic_inc(&pid->count);
- 	else {
-+		struct list_head *elem, *bucket;
-+
- 		pid = &task->pids[type].pid;
- 		pid->nr = nr;
- 		atomic_set(&pid->count, 1);
- 		INIT_LIST_HEAD(&pid->task_list);
- 		pid->task = task;
- 		get_task_struct(task);
--		list_add(&pid->hash_chain, &pid_hash[type][pid_hashfn(nr)]);
-+		bucket = &pid_hash[type][pid_hashfn(nr)];
-+		__list_for_each(elem, bucket) {
-+			struct pid *walk;
-+			walk = list_entry(elem, struct pid, hash_chain);
-+			if (walk->nr > nr)
-+		       		break;
-+		}
-+		list_add_tail(&pid->hash_chain, elem);
- 	}
- 	list_add_tail(&task->pids[type].pid_chain, &pid->task_list);
- 	task->pids[type].pidptr = pid;
-@@ -221,6 +230,42 @@
- 	free_pidmap(nr);
+the attached patch is ontop of the previous -C4 scheduler patch, it
+removes/fixes a few whitespaces and removes the MAX_PRIO setting in the
+init task path which is unnecessary and which might even lead to bugs -
+MAX_PRIO is outside the valid range and technically the init thread is not
+an idle thread yet at this point.
+
+	Ingo
+
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -846,7 +846,7 @@ void sched_balance_exec(void)
  }
  
-+/**
-+ * find_next_pid - Returns the pid of next task.
-+ * @pid: Starting point for the search.
-+ *
-+ * Returns the pid number of the task that follows behind
-+ * "pid". The function works even if the input pid value
-+ * is not valid anymore.
-+ */
-+ int find_next_pid(int pid)
-+{
-+	struct list_head *elem, *bucket;
-+       
-+	if(!pid) {
-+		bucket = &pid_hash[PIDTYPE_PID][0];
-+	} else {
-+		bucket = &pid_hash[PIDTYPE_PID][pid_hashfn(pid)];
-+	}
-+	read_lock(&tasklist_lock);
-+next_chain:
-+	__list_for_each(elem, bucket) {
-+		struct pid *walk;
-+		walk = list_entry(elem, struct pid, hash_chain);
-+		if (walk->nr > pid) {
-+			pid = walk->nr;
-+			read_unlock(&tasklist_lock);
-+			return pid;
-+		}
-+	}
-+	pid = 0;
-+	bucket++;
-+	if (bucket < &pid_hash[PIDTYPE_PID][1<<pidhash_shift])
-+		goto next_chain;
-+	read_unlock(&tasklist_lock);
-+	return -1;
-+}
-+
- task_t *find_task_by_pid(int nr)
+ /*
+- * Find the busiest node. All previous node loads contribute with a 
++ * Find the busiest node. All previous node loads contribute with a
+  * geometrically deccaying weight to the load measure:
+  *      load_{t} = load_{t-1}/2 + nr_node_running_{t}
+  * This way sudden load peaks are flattened out a bit.
+@@ -854,7 +854,7 @@ void sched_balance_exec(void)
+ static int find_busiest_node(int this_node)
  {
- 	struct pid *pid = find_pid(PIDTYPE_PID, nr);
---- 2.5/fs/proc/base.c	2003-02-21 17:53:10.000000000 +0100
-+++ build-2.5/fs/proc/base.c	2003-03-16 15:40:20.000000000 +0100
-@@ -1148,62 +1148,37 @@
+ 	int i, node = -1, load, this_load, maxload;
+-	
++
+ 	this_load = maxload = (this_rq()->prev_node_load[this_node] >> 1)
+ 		+ atomic_read(&node_nr_running[this_node]);
+ 	this_rq()->prev_node_load[this_node] = this_load;
+@@ -1194,8 +1194,8 @@ void scheduler_tick(int user_ticks, int 
+ 	runqueue_t *rq = this_rq();
+ 	task_t *p = current;
+ 
+- 	if (rcu_pending(cpu))
+- 		rcu_check_callbacks(cpu, user_ticks);
++	if (rcu_pending(cpu))
++		rcu_check_callbacks(cpu, user_ticks);
+ 
+ 	if (p == rq->idle) {
+ 		/* note: this timer irq context must be accounted for as well */
+@@ -1353,7 +1353,7 @@ switch_tasks:
+ 	if (likely(prev != next)) {
+ 		rq->nr_switches++;
+ 		rq->curr = next;
+-	
++
+ 		prepare_arch_switch(rq, next);
+ 		prev = context_switch(rq, prev, next);
+ 		barrier();
+@@ -1483,7 +1483,7 @@ void __wake_up_sync(wait_queue_head_t *q
  }
  
- #define PROC_NUMBUF 10
--#define PROC_MAXPIDS 20
--
--/*
-- * Get a few pid's to return for filldir - we need to hold the
-- * tasklist lock while doing this, and we must release it before
-- * we actually do the filldir itself, so we use a temp buffer..
-- */
--static int get_pid_list(int index, unsigned int *pids)
--{
--	struct task_struct *p;
--	int nr_pids = 0;
--
--	index--;
--	read_lock(&tasklist_lock);
--	for_each_process(p) {
--		int pid = p->pid;
--		if (!pid)
--			continue;
--		if (--index >= 0)
--			continue;
--		pids[nr_pids] = pid;
--		nr_pids++;
--		if (nr_pids >= PROC_MAXPIDS)
--			break;
--	}
--	read_unlock(&tasklist_lock);
--	return nr_pids;
--}
- 
- int proc_pid_readdir(struct file * filp, void * dirent, filldir_t filldir)
+ #endif
+- 
++
+ void complete(struct completion *x)
  {
--	unsigned int pid_array[PROC_MAXPIDS];
- 	char buf[PROC_NUMBUF];
- 	unsigned int nr = filp->f_pos - FIRST_PROCESS_ENTRY;
--	unsigned int nr_pids, i;
-+	int pid;
+ 	unsigned long flags;
+@@ -1567,7 +1567,7 @@ long interruptible_sleep_on_timeout(wait
+ void sleep_on(wait_queue_head_t *q)
+ {
+ 	SLEEP_ON_VAR
+-	
++
+ 	current->state = TASK_UNINTERRUPTIBLE;
  
- 	if (!nr) {
- 		ino_t ino = fake_ino(0,PROC_PID_INO);
- 		if (filldir(dirent, "self", 4, filp->f_pos, ino, DT_LNK) < 0)
- 			return 0;
- 		filp->f_pos++;
--		nr++;
-+		nr = 1;
- 	}
-+	pid = nr - 1;
-+	for (;;) {
-+		unsigned long i, j;
-+		ino_t ino;
+ 	SLEEP_ON_HEAD
+@@ -1578,7 +1578,7 @@ void sleep_on(wait_queue_head_t *q)
+ long sleep_on_timeout(wait_queue_head_t *q, long timeout)
+ {
+ 	SLEEP_ON_VAR
+-	
++
+ 	current->state = TASK_UNINTERRUPTIBLE;
  
--	nr_pids = get_pid_list(nr, pid_array);
--
--	for (i = 0; i < nr_pids; i++) {
--		int pid = pid_array[i];
--		ino_t ino = fake_ino(pid,PROC_PID_INO);
--		unsigned long j = PROC_NUMBUF;
-+		pid = find_next_pid(pid);
-+		if (pid < 0)
-+			break;
+ 	SLEEP_ON_HEAD
+@@ -2472,12 +2472,12 @@ spinlock_t kernel_flag __cacheline_align
  
--		do buf[--j] = '0' + (pid % 10); while (pid/=10);
-+		i = pid;
-+	       	j = PROC_NUMBUF;
-+		do buf[--j] = '0' + (i % 10); while (i/=10);
- 
-+		ino = fake_ino(pid,PROC_PID_INO);
- 		if (filldir(dirent, buf+j, PROC_NUMBUF-j, filp->f_pos, ino, DT_DIR) < 0)
- 			break;
--		filp->f_pos++;
-+		filp->f_pos = pid + 1 + FIRST_PROCESS_ENTRY;
- 	}
- 	return 0;
+ static void kstat_init_cpu(int cpu)
+ {
+-        /* Add any initialisation to kstat here */
+-        /* Useful when cpu offlining logic is added.. */
++	/* Add any initialisation to kstat here */
++	/* Useful when cpu offlining logic is added.. */
  }
-<<
+ 
+ static int __devinit kstat_cpu_notify(struct notifier_block *self,
+-                                unsigned long action, void *hcpu)
++					unsigned long action, void *hcpu)
+ {
+ 	int cpu = (unsigned long)hcpu;
+ 	switch(action) {
+@@ -2489,7 +2489,7 @@ static int __devinit kstat_cpu_notify(st
+ 	}
+ 	return NOTIFY_OK;
+ }
+- 
++
+ static struct notifier_block __devinitdata kstat_nb = {
+ 	.notifier_call  = kstat_cpu_notify,
+ 	.next           = NULL,
+@@ -2498,7 +2498,7 @@ static struct notifier_block __devinitda
+ __init static void init_kstat(void) {
+ 	kstat_cpu_notify(&kstat_nb, (unsigned long)CPU_UP_PREPARE,
+ 			(void *)(long)smp_processor_id());
+-	register_cpu_notifier(&kstat_nb);  
++	register_cpu_notifier(&kstat_nb);
+ }
+ 
+ void __init sched_init(void)
+@@ -2538,7 +2538,6 @@ void __init sched_init(void)
+ 	rq->idle = current;
+ 	set_task_cpu(current, smp_processor_id());
+ 	wake_up_forked_process(current);
+-	current->prio = MAX_PRIO;
+ 
+ 	init_timers();
+ 
 

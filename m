@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132084AbRCVQkh>; Thu, 22 Mar 2001 11:40:37 -0500
+	id <S132088AbRCVQlR>; Thu, 22 Mar 2001 11:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132085AbRCVQk1>; Thu, 22 Mar 2001 11:40:27 -0500
-Received: from pop.gmx.net ([194.221.183.20]:35237 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S132084AbRCVQkO>;
-	Thu, 22 Mar 2001 11:40:14 -0500
-Date: Thu, 22 Mar 2001 14:15:07 +0100
-From: "Manfred H. Winter" <mahowi@gmx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [2.4.3-pre6] error in "aic7xxx/aicasm"
-Message-ID: <20010322141507.A29689@marvin.mahowi.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.4.3-pre2 i686
+	id <S132079AbRCVQlI>; Thu, 22 Mar 2001 11:41:08 -0500
+Received: from [212.171.206.242] ([212.171.206.242]:2308 "HELO
+	linux.ik5bcu.ampr.org") by vger.kernel.org with SMTP
+	id <S132086AbRCVQkx>; Thu, 22 Mar 2001 11:40:53 -0500
+Message-ID: <XFMail.20010322174115.ik5bcu@tin.it>
+X-Mailer: XFMail 1.4.7p2 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Thu, 22 Mar 2001 17:41:15 +0100 (CET)
+From: Marco Calistri <ik5bcu@tin.it>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18-modules belonging?
+Cc: linux-newbie@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,I'am going into these problems:
 
-When I try to build the new aic7xxx modules in kernel 2.4.3-pre6 it
-stops at "/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm":
+Mar 22 10:24:15 linux modprobe: modprobe: Can't locate module sound-slot-0
+Mar 22 10:24:15 linux modprobe: modprobe: Can't locate module sound-service-0-0
 
-+++ 
+Wonder the above modules belong to which SOUND_CONFIGURE.
 
-make -C aic7xxx modules
-make[3]: Entering directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx'
-yacc  aicasm/aicasm_gram.y
-mv -f y.tab.c aicasm/aicasm_gram.c
-lex  -t aicasm/aicasm_scan.l > aicasm/aicasm_scan.c
-make -C aicasm
-make[4]: Entering directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm'
-gcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
-aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
-aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
-aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
-aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
-aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
-aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
-make[4]: *** [aicasm] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm'
-make[3]: *** [aicasm/aicasm] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx'
-make[2]: *** [_modsubdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers'
-make: *** [_mod_drivers] Error 2
+I'am using 2.2.18 and playmidi runs ok but RealPlayer reports
+that could not open audio device :resource is busy.
 
-+++ 
-
-The header files it complains about are there.
-
-Bye,
-
-Manfred
 -- 
- /"\                        | PGP-Key available at Public Key Servers
- \ /  ASCII ribbon campaign | or at "http://www.mahowi.de/"
-  X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
- / \  and postings          | GPG: 0x88BC3576 * ICQ: 61597169
+Regards,: Marco Calistri <ik5bcu@tin.it>
+gpg key available on http://www.qsl.net/ik5bcu
+Xfmail 1.4.7p2 on linux RedHat 6.2
+

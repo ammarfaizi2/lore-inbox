@@ -1,87 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278708AbRJTAls>; Fri, 19 Oct 2001 20:41:48 -0400
+	id <S278707AbRJTBGU>; Fri, 19 Oct 2001 21:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278707AbRJTAl1>; Fri, 19 Oct 2001 20:41:27 -0400
-Received: from octopus.harvestroad.com.au ([203.103.97.30]:65284 "EHLO
-	tetra.cab.ambinet.com.au") by vger.kernel.org with ESMTP
-	id <S278706AbRJTAlY>; Fri, 19 Oct 2001 20:41:24 -0400
-Message-ID: <3BD0C752.F1A001F1@ambinet.com.au>
-Date: Sat, 20 Oct 2001 08:37:38 +0800
-From: Casper Boon <casper@ambinet.com.au>
-Organization: Ambinet Systems
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@redhat.com
-Subject: A Little patch for DTC SCSI Controller
-Content-Type: text/plain; charset=us-ascii
+	id <S278709AbRJTBGL>; Fri, 19 Oct 2001 21:06:11 -0400
+Received: from zero.tech9.net ([209.61.188.187]:56850 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S278707AbRJTBF7>;
+	Fri, 19 Oct 2001 21:05:59 -0400
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+From: Robert Love <rml@tech9.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "M. Edward Borasky" <znmeb@aracnet.com>,
+        "Linux-Kernel@Vger. " "Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011020003812Z16243-4005+727@humbolt.nl.linux.org>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBKEOIDOAA.znmeb@aracnet.com> 
+	<20011020003812Z16243-4005+727@humbolt.nl.linux.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 19 Oct 2001 21:05:29 -0400
+Message-Id: <1003539951.939.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TWIMC
+On Fri, 2001-10-19 at 20:38, Daniel Phillips wrote:
+> Keep in mind that once you start exposing tuning parameters you tend to get 
+> lots of user programs out there that break without the parameters, or if the 
+> parameters don't behave the same way across versions.  Official tuning 
+> parameters also get in the way of trying out new algorithms, which might not 
+> even support the old tweaks, for example.
 
-The patch below is for the DTC3x80 controller which stopped working
-under
-2.4 series.  The change is only to the header and changes readb to
-isa_readb
-and writeb to isa_writeb.  Without this patch the kernel panics at
-startup.
+Agreed.  They also encourage people to write algorithms that are
+suboptimal, but perform OK with proper tuning.  This, imho, is the
+biggest argument against.
 
+	Robert Love
 
-========================================================================
-Casper A. Boon                                     casper@ambinet.com.au
-Ambinet Systems                                             0417 171 505
-========================================================================
-
-diff -u linux-2.4.10/drivers/scsi/dtc.h
-linux-2.4.10-cab/drivers/scsi/dtc.h
---- linux-2.4.10/drivers/scsi/dtc.h     Tue Sep 19 05:12:01 2000
-+++ linux-2.4.10-cab/drivers/scsi/dtc.h Sat Oct 13 18:09:01 2001
-@@ -80,29 +80,29 @@
- #define DTC_address(reg) (base + DTC_5380_OFFSET + reg)
- 
- #define
-dbNCR5380_read(reg)                                              \
--    (rval=readb(DTC_address(reg)), \
-+    (rval=isa_readb(DTC_address(reg)), \
-      (((unsigned char) printk("DTC : read register %d at addr %08x is:
-%02x\n"\
-     , (reg), (int)DTC_address(reg), rval)), rval ) )
- 
- #define dbNCR5380_write(reg, value) do
-{                                  \
-     printk("DTC : write %02x to register %d at address %08x\n",        
-\
-             (value), (reg), (int)DTC_address(reg));     \
--    writeb(value, DTC_address(reg));} while(0)
-+    isa_writeb(value, DTC_address(reg));} while(0)
- 
- 
- #if !(DTCDEBUG & DTCDEBUG_TRANSFER) 
--#define NCR5380_read(reg) (readb(DTC_address(reg)))
--#define NCR5380_write(reg, value) (writeb(value, DTC_address(reg)))
-+#define NCR5380_read(reg) (isa_readb(DTC_address(reg)))
-+#define NCR5380_write(reg, value) (isa_writeb(value, DTC_address(reg)))
- #else
--#define NCR5380_read(reg) (readb(DTC_address(reg)))
-+#define NCR5380_read(reg) (isa_readb(DTC_address(reg)))
- #define xNCR5380_read(reg)                                            
-\
-     (((unsigned char) printk("DTC : read register %d at address
-%08x\n"\
--    , (reg), DTC_address(reg))), readb(DTC_address(reg)))
-+    , (reg), DTC_address(reg))), isa_readb(DTC_address(reg)))
- 
- #define NCR5380_write(reg, value) do {                                
-\
-     printk("DTC : write %02x to register %d at address %08x\n",       
-\
-            (value), (reg), (int)DTC_address(reg));     \
--    writeb(value, DTC_address(reg));} while(0)
-+    isa_writeb(value, DTC_address(reg));} while(0)
- #endif
- 
- #define NCR5380_intr dtc_intr

@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbULGAXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbULGA3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbULGAXH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULGAWr
+	id S261711AbULGA3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 19:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbULGA3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:22:47 -0500
-Received: from main.gmane.org ([80.91.229.2]:6803 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261711AbULGAVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:21:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 6 Dec 2004 19:29:23 -0500
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:927 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S261711AbULGA3V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 19:29:21 -0500
+Date: Mon, 06 Dec 2004 19:29:18 -0500
+From: FoObArf00@netscape.net
 To: linux-kernel@vger.kernel.org
-From: Jon Masters <jonathan@jonmasters.org>
-Subject: Re: Booting 2.6.10-rc3
-Date: Tue, 07 Dec 2004 00:13:57 +0000
-Organization: World Organi[sz]ation Of Broken Dreams
-Message-ID: <cp2sk5$61r$2@sea.gmane.org>
-References: <1102256916.29858.210104494@webmail.messagingengine.com>   <41B36A5D.50901@verizon.net> <1102322642.18071.210148617@webmail.messagingengine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: apogee.jonmasters.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
-In-Reply-To: <1102322642.18071.210148617@webmail.messagingengine.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Cc: kernelnewbies@nl.linux.org
+Subject: IGMP packets?
+MIME-Version: 1.0
+Message-ID: <123E01F1.3018C387.023DF18B@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 66.146.57.210
+X-AOL-Language: english
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anandraj wrote:
+I have been trying to analyze igmp packets (queries, reports) with ttl of 1 ,of course, in the kernel and ran into a weird situation.  Only when an interface is in promiscuous mode (i.e. tcpdump), the igmp packets get to ip_rcv on ip_input.c.  I was wondering if someone can point in the right direction on how/where to get the these packets when not doing a tcpdump.  Thanks 
 
-> Now it works after makingsome changes in the grub.conf
-> 
-> all i did was, in the grub.conf changed the 
-> 
-> kernel /vmlinuz-2.6.10-rc3 ro root=LABLE=/ rhgb quiet
-> 
-> to 
-> 
-> kernel /vmlinuz-2.6.10-rc3
-> 
-> but, i have no idea , this works!
-> can anybody shed some light on this ?
+__________________________________________________________________
+Switch to Netscape Internet Service.
+As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
 
-There's a repeated typo in your root=LABLE=/ entry, since it should be 
-LABEL instead of LABLE.
+Netscape. Just the Net You Need.
 
-That entry tells the kernel to look for a filesystem which contains a 
-label in its superblock that matches the one you gave via grub.
-
-Cheers,
-
-Jon.
-
-
+New! Netscape Toolbar for Internet Explorer
+Search from anywhere on the Web and block those annoying pop-ups.
+Download now at http://channels.netscape.com/ns/search/install.jsp

@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265947AbUA2MvI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 07:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUA2MvI
+	id S266093AbUA2NDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 08:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUA2NDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 07:51:08 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:13725 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265947AbUA2MvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 07:51:06 -0500
-Message-ID: <401901B5.5080306@samwel.tk>
-Date: Thu, 29 Jan 2004 13:51:01 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Micha Feigin <michf@post.tau.ac.il>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle
- disks? (to allow spin-downs)
-References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com> <4016B3F0.1060804@samwel.tk> <4017B98C.2040603@isg.de> <20040128230609.GE3975@luna.mooo.com>
-In-Reply-To: <20040128230609.GE3975@luna.mooo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+	Thu, 29 Jan 2004 08:03:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9228 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266093AbUA2NC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 08:02:56 -0500
+Date: Thu, 29 Jan 2004 13:02:51 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PC300 update
+Message-ID: <20040129130251.A23935@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet> <20040128212115.A2027@infradead.org> <Pine.LNX.4.58L.0401282203170.2163@logos.cnet> <20040129090222.A20867@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040129090222.A20867@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jan 29, 2004 at 09:02:22AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha Feigin wrote:
->>My curiosity isn't completely gone, though, so maybe one day I'll try to
->>find out who-is-trying-to-read-what, "find -atime ..." didn't reveal the 
->>secret
->>yet.
-> 
-> It might help you find the culprit. There is a laptopmode patch
-> for 2.6. If you echo a number n larger then 1 into
-> /proc/sys/vm/laptopmode it will dump the first n disk accesses to the
-> console (The docs that come with the patch have the complete
-> description).
+On Thu, Jan 29, 2004 at 09:02:22AM +0000, Russell King wrote:
+> If _any_ PCI ID table which is part registered as part of a driver is
+> marked using __devinitdata or __initdata, this will either cause the
+> kernel to read invalid data (possibly entering a long loop) or oops.
 
-This was true in the first version (for /proc/sys/vm/block_dump, not 
-laptop_mode), however, this approach was then shot down in favor of a 
-simple on/off flag.
+After doing some more digging, I don't think __devinitdata is a problem
+anymore.
 
---Bart
+There seem to be two scenarios where we look at the PCI device ID tables:
+
+- when a new PCI device is added
+- when the drivers newid file is written to
+
+The first case should only ever occur if CONFIG_HOTPLUG is set (and
+indeed we only compile PCMCIA/Cardbus if it is.)
+
+The second case is disabled if CONFIG_HOTPLUG is not set.
+
+Therefore, I think marking PCI device ID tables with __devinitdata
+should theoretically be fine, but marking them with __initdata is
+most definitely unsafe.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbTGFQdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 12:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266694AbTGFQdK
+	id S266684AbTGFQcA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 12:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266691AbTGFQcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 12:33:10 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:40075 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S266691AbTGFQdE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 12:33:04 -0400
-Date: Sun, 06 Jul 2003 09:47:20 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: gigag@bezeqint.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for 3.5/0.5 address space split
-Message-ID: <26930000.1057510039@[10.10.2.4]>
-In-Reply-To: <bac2312a.9f399e92.8177000@mas3.bezeqint.net>
-References: <bac2312a.9f399e92.8177000@mas3.bezeqint.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 6 Jul 2003 12:32:00 -0400
+Received: from granite.he.net ([216.218.226.66]:65286 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S266684AbTGFQb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 12:31:59 -0400
+Date: Sun, 6 Jul 2003 09:46:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: kobjects, sysfs and the driver model make my head hurt
+Message-ID: <20030706164626.GA17596@kroah.com>
+References: <20030706163353.GU23597@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030706163353.GU23597@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could anybody point out to patches available for 3.5/0.5 address 
-> space split for 2.4 and 2.5 kernels?
+On Sun, Jul 06, 2003 at 05:33:53PM +0100, Matthew Wilcox wrote:
+> 
+> struct kobject * kobject_get(struct kobject * kobj)
+> {
+> 	if (kobj) {
+> 		WARN_ON(!atomic_read(&kobj->refcount));
+> 		atomic_inc(&kobj->refcount);
+> 	}
+> 	return kobj;
+> }
 
-It's in 2.4-aa and 2.5-mjb trees. 2.5 has the added feature that it
-can now do that for PAE (> 4GB) machines (from Dave Hansen). 
+That's nice.  Remember, we used to have a lock in there, that's why the
+code doesn't look that clean after it was removed.
 
-> Any other working options? I managed to compile 2.4.21 kernel 
-> with 1/3 split, but not with 0.5/3.5. The last one simply doesn't 
-> boot. What could I be doing wrong?
+> But why return anything?  Which looks clearer?
+> 
+> (a)	kobj = kobject_get(kobj);
 
-You can chage PAGE_OFFSET yourself, but there's a few places to change
-it ... do a grep -r for "C0000000", and hack all those - one of them
-is in some .lds file or something, I forget.
+This is the way to call kobject_get(), as the object we get after the
+function returns is the one we can then safely use.
 
-M.
+> The first one makes me think that kobject_get might return a different
+> kobject than the one I passed in.  That doesn't make much sense.
 
+Think of it as, "now we can use this kobject, not the one before calling
+kobject_get()".
+
+thanks,
+
+greg k-h

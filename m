@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269818AbUIDGxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269827AbUIDHgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269818AbUIDGxL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 02:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269825AbUIDGxL
+	id S269827AbUIDHgo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 03:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbUIDHgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 02:53:11 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:43739 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S269818AbUIDGxF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 02:53:05 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Thomas Winischhofer <thomas@winischhofer.net>, adaplas@pol.net
-Subject: Re: [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
-Date: Sat, 4 Sep 2004 14:53:01 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200409041108.40276.adaplas@hotpop.com> <41393829.6020302@winischhofer.net>
-In-Reply-To: <41393829.6020302@winischhofer.net>
+	Sat, 4 Sep 2004 03:36:44 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:21937 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S269827AbUIDHgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 03:36:43 -0400
+Message-ID: <41397086.3020509@tungstengraphics.com>
+Date: Sat, 04 Sep 2004 08:36:38 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, Alex Deucher <alexdeucher@gmail.com>,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+References: <Pine.LNX.4.58.0409040107190.18417@skynet>	 <a728f9f904090317547ca21c15@mail.gmail.com>	 <Pine.LNX.4.58.0409040158400.25475@skynet>	 <9e4733910409032051717b28c0@mail.gmail.com>	 <Pine.LNX.4.58.0409040548490.25475@skynet> <9e47339104090323047b75dbb2@mail.gmail.com>
+In-Reply-To: <9e47339104090323047b75dbb2@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409041453.01644.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 September 2004 11:36, Thomas Winischhofer wrote:
-> > 5. Because driver initialization will be dependent on the link order,
-> > hardware that depends on other subsystems (agpgart, usb, serial, etc) may
-> > choose to initialize after the subsystems they depend on.
-> >
-> > Signed-off-by: Antonino Daplas <adaplas@pol.net>
->
-> I don't really see a benefit but it's ok with me.
->
+Jon Smirl wrote:
 
-Mainly cleanup, but also point #5.  The i810fb, for instance, depends on agpgart, but
-agpgart gets initialized way after fbdev.  The workaround is for i810fb to explicitly
-call intel_agp_init().  Besides the ugliness, forcibly initializing the agpgart subsystem
-out of sequence may cause problems.
+> Would this work? drm/shared and drm/bsd directories are BSD licensed.
+> drm/linux is GPL licensed.
 
-With this change, in theory, I can move i810fb's link order so it gets initialized after
-agpgart.
+This just isn't true.  What on earth makes you think this?  Read the license 
+before you make these sorts of comments, you dweeb.  There shouldn't be any 
+GPL code in there at all.
 
-> (Thanks for considering the "unified" nature of sisfb, by the way. Very
-> considarate. Very much appreciated.)
->
-> I assume that you tested this stuff before posting it here.
-
-Yes, with hardware that I have.  I did try to at least compile test what I can.
-
-Tony
-
-
+Keith

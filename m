@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUFHP3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUFHPhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbUFHP3h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 11:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUFHP3g
+	id S265227AbUFHPhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 11:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUFHPhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 11:29:36 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:7603 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S265225AbUFHP3f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 11:29:35 -0400
-From: Mark Gross <mgross@linux.jf.intel.com>
-Organization: Intel
-To: Pavel Machek <pavel@ucw.cz>
-Subject: swsusp "not enough swap space" 2.6.5-mm6.
-Date: Tue, 8 Jun 2004 08:29:35 -0700
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Tue, 8 Jun 2004 11:37:36 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:2494 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S265222AbUFHPhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 11:37:33 -0400
+Message-ID: <40C5DD8E.8DD37D16@nospam.org>
+Date: Tue, 08 Jun 2004 17:38:54 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406080829.35120.mgross@linux.intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Who owns those locks ?
+References: <40A1F4BE.4A298352@nospam.org> <200406070906.54132.bjorn.helgaas@hp.com> <40C572C8.20B13640@nospam.org> <200406080905.52673.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bjorn Helgaas wrote:
+> 
+> On Tuesday 08 June 2004 2:03 am, Zoltan Menyhart wrote:
+> > - You keep my code, it is correct for a memory size up to 16 Tbytes.
+> 
+> Many if not most large machines have sparse address spaces,
+> so you may have memory at an address that will cause a
+> problem even if the actual amount of memory is much smaller.
+> 
+> The main point is that I wouldn't want a time bomb that
+> will silently fail when somebody happens to boot on such
+> a machine.  Whether that's avoided by a "miraculous" bit,
+> throwing away problem pages at boot-time, avoiding task
+> allocation at specific addresses, etc.,  is secondary.
 
-I'm sorry for not having more information, but the failing computer is my home 
-laptop (I'll get more details after work or I'll bring it in tomorrow for 
-more details).
+I see.
+No use to make it too much complicated.
+There is always the option CONFIG_DEBUG_SPINLOCK.
 
-Anyway, this thing does software suspend using the 2.6.2-mm1 kernel, and last 
-night I was updating it to 2.6.5-mm6, and I started getting these not enough 
-disk space errors.
+On our no-more-than-512-Gbyte-machine, this small stuff
+"saved my life" twice.
+I just wanted to share it...
 
-I found your bug fix patch, 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107806008626357&w=2
- and checked that it is included in the 2.6.5-mm6 kernel I'm using.
+Regards,
 
-Without more information does this problem ring any bells?
-
-Can you recommend a "good" kernel version that does reliable swsusp?
-
---mgross
-
+Zoltán

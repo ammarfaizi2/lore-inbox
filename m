@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULZDgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbULZEPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbULZDgl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 22:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbULZDgl
+	id S261610AbULZEPp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 23:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbULZEPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 22:36:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261608AbULZDgk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 22:36:40 -0500
-Date: Sat, 25 Dec 2004 19:36:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: Ho ho ho - Linux v2.6.10
-In-Reply-To: <41CE282C.3010606@tmr.com>
-Message-ID: <Pine.LNX.4.58.0412251934090.2353@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
- <41CE282C.3010606@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Dec 2004 23:15:45 -0500
+Received: from [143.247.20.203] ([143.247.20.203]:29861 "EHLO
+	cgx-mail.capitalgenomix.com") by vger.kernel.org with ESMTP
+	id S261610AbULZEPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 23:15:40 -0500
+Date: Sat, 25 Dec 2004 23:16:10 -0500
+From: sean@cgx-mail.capitalgenomix.com
+To: Jim Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Understanding how kernel functions works and adding new one
+Message-ID: <20041226041610.GA23636@cgx-mail.capitalgenomix.com>
+References: <72c6e3790412242020482eadbe@mail.gmail.com> <31f2b71904122501096a8b787@mail.gmail.com> <41CD67D8.6080001@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41CD67D8.6080001@verizon.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 25 Dec 2004, Bill Davidsen wrote:
+On Sat, Dec 25, 2004 at 08:15:04AM -0500, Jim Nelson wrote:
 > 
-> Alas, It sort-of boots but is terminally slow. I see the log with 
-> endless repetitions of "irq 18 nobody cared" and some trace, then 
-> "disabling irq 18." Unfortunately it lies, after about 20MB of this I 
-> decided it had no real intention of disabling irq 18 and tried to stop 
-> it. After ten minutes I had to pull the plug and it's still cleaning 
-> filesystems.
+> There are a number of good books written on the kernel - Linux Device 
+> Drivers is due to have its third edition released in February.  I'm glad - 
+> my second edition copy is starting to look a little ragged from constant 
+> reference.
 
-Can you send a (normal) dmesg output for this machine, and describe what 
-is normally on irq18?
+In addition to this book, another one that I have found to be an
+excellent source is, Understanding the Linux Kernel.  There's a second
+edition available now here:
+http://www.amazon.com/exec/obidos/tg/detail/-/0596002130/ref=pd_qpt_gw_2/103-9996868-5870242 and I imagine that another will be released in the not too distance
+future, which will cover the 2.6 kernel.  It wouldn't surprise me if
+somebody here is inside information on a new edition.
 
-It _sounds_ like it's a confusion between level and edge, with the usual 
-suspects. Does it go away if you disable acpi?
+Good luck,
 
-		Linus
+-- 
+Sean

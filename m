@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbULOVD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbULOVM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbULOVD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 16:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbULOVDz
+	id S262497AbULOVM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 16:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbULOVM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 16:03:55 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:4590 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262492AbULOVDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 16:03:49 -0500
-Date: Wed, 15 Dec 2004 14:03:46 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cu, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       bjorn.helgaas@hp.com
-Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
-Message-ID: <20041215210346.GK9923@schnapps.adilger.int>
-Mail-Followup-To: Jesse Barnes <jbarnes@engr.sgi.com>,
-	linux-pci@atrey.karlin.mff.cu, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-	bjorn.helgaas@hp.com
-References: <200412140941.56116.jbarnes@engr.sgi.com> <200412150927.51733.jbarnes@engr.sgi.com>
+	Wed, 15 Dec 2004 16:12:57 -0500
+Received: from bay14-f13.bay14.hotmail.com ([64.4.49.13]:30274 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262497AbULOVMy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 16:12:54 -0500
+Message-ID: <BAY14-F1340F1BEA5470EBDE3DD2095AD0@phx.gbl>
+X-Originating-IP: [80.15.132.11]
+X-Originating-Email: [tonyosborne_a@hotmail.com]
+From: "tony osborne" <tonyosborne_a@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: tonyosborne_a@hotmail.com
+Subject: OS I/O operations concepts
+Date: Wed, 15 Dec 2004 21:10:03 +0000
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x1F0m3RQhDZyj8sd"
-Content-Disposition: inline
-In-Reply-To: <200412150927.51733.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 15 Dec 2004 21:11:01.0474 (UTC) FILETIME=[947E3420:01C4E2EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---x1F0m3RQhDZyj8sd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I wish to be personally CC'ed the answers/comments posted to the list in 
+response to this post
 
-On Dec 15, 2004  09:27 -0800, Jesse Barnes wrote:
-> +write
-> +  Legacy I/O port space reads and writes must also be to a file
-> +  position >64k--the kernel will route them to the target device.
+I have some questions regarding the I/O file operations efficiency.
 
-Shouldn't that be < 64k based on the description of lseek?
+1-)
+Consider I/O operations involving the disk. Assume that I write periodically 
+one Byte in the file after executing one processing block of code. Does this 
+mean that at each of these periods, that only Byte will be stored in the 
+disk despite its slow access time, or instead it will be stored in the 
+memory buffer (of what size?) first then moved into the disk once the buffer 
+is full?
 
-> +lseek
-> +  Can be used to set the current file position.  Note that the file
-> +  size is limited to 64k as that's how big legacy I/O space is.
+What about the disk bitmap and the one loaded into the memory. Will this be 
+updated at each Byte write operation? This will slow down extremely the 
+system speed.
 
-> +ioctl
-> +  Note that not all architectures support the *_MMAP_* or *_RW_* ioctl
-> +  commands.  If they're not supported, ioctl will return -EINVAL.
+Should the programmer force the second option (by using BufferOutputStream 
+as in java) or is it done automatically by the JVM or OS?
 
-Shouldn't they return -ENOTTY?  That indicates to the caller that the
-ioctl isn't handled, vs -EINVAL which indicates bad value being passed
-(e.g. bad write size).
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+(I am taking Java only as an example, same hold for C++ and othe r 
+languages)
 
 
---x1F0m3RQhDZyj8sd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I have read also that writing and reading should be done on chunks of 256 
+(512,1024) bytes since the disk sector is of this size. Should I specify 
+explicitly the buffer size or will it be handled automatically by the JVM or 
+OS?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Say I have a stream of X bytes, should write it into the disk per once, or 
+instead repetitively on X/256 bytes size ?
 
-iD8DBQFBwKaypIg59Q01vtYRAoh8AKDmi9a8/dvTmXLivSzSXUPFDWZrHwCeOmpR
-dnDEkYV/qdZa16A2p71gpqs=
-=y7d8
------END PGP SIGNATURE-----
 
---x1F0m3RQhDZyj8sd--
+2-)
+I/O controller privileges
+
+Does the I/O controller (once the device driver installed) full privileges 
+as the main CPU when on kernel mode?
+
+will the driver code be loaded at the top of the kernel code adress space on 
+the memory?
+
+
+3-)   asyncronous I/O operations
+
+i am looking for good tutorial on how asynchrnous I/O operations is 
+implemented by OS?
+will there be re-ordering of the code sequence execution
+
+
+is Java system.in.read (system.out.println) synchronous or asynchronous I/O 
+Op
+
+
+thanks for your assistance
+
+_________________________________________________________________
+Express yourself with cool new emoticons http://www.msn.co.uk/specials/myemo
+

@@ -1,127 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVCIHTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVCIHVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbVCIHTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 02:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVCIHTt
+	id S262185AbVCIHVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 02:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVCIHT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 02:19:49 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:17861 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262058AbVCIHTX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 02:19:23 -0500
-Date: Tue, 8 Mar 2005 23:19:11 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
-Subject: --update-- Re: [CHECKER] crash after fsync causing serious FS
- corruptions (ext2, 2.6.11)
-In-Reply-To: <20050308123109.GA7005@thunk.org>
-Message-ID: <Pine.GSO.4.44.0503082304490.29715-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Mar 2005 02:19:59 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:55264 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262094AbVCIHTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 02:19:43 -0500
+Date: Wed, 9 Mar 2005 08:19:42 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
+Message-ID: <20050309071942.GA28231@isilmar.linta.de>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>
+References: <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de> <1110347109.32524.56.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110347109.32524.56.camel@gaston>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the mouth.)  It is *expected* behaviour, yes, and it is mitigated by
-> two factors.  (1) Metadata for ext2 is synced out every 5 seconds,
-> while data is synced out every 60, so the max window for this race
-> described above is 5 seconds, and in practice rarely shows up if you
-> are not using fsync.  (2) Unlike BSD's fsck, when a block is owned by
-> two different files, we offer an option to clone the affected files so
-> data isn't lost, while BSD's fsck shoots both files and asks questions
-> later.
+On Wed, Mar 09, 2005 at 04:45:09PM +1100, Benjamin Herrenschmidt wrote:
+> On Wed, 2005-03-09 at 00:16 +0100, Dominik Brodowski wrote:
+> > > Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> > > >
+> > > > Most pcmcia devices are matched to drivers using "product ID strings"
+> > > >  embedded in the devices' Card Information Structures, as "manufactor ID /
+> > > >  card ID" matches are much less reliable. Unfortunately, these strings cannot
+> > > >  be passed to userspace for easy userspace-based loading of appropriate
+> > > >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
+> > > >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
+> > > > 
+> > > >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
+> > > 
+> > > What is the difficulty in passing these strings via /sbin/hotplug arguments?
+> > 
+> > The difficulty is that extracting and evaluating them breaks the wonderful 
+> > bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
+> > ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
+> > strings may contain spaces and other "strange" characters. The latter may be 
+> > worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
+> > clean because of this MODNAME implementation:
+> 
+> Same goes with Open Firmware match strings that we are about to pass
+> down to userspace as well. Hotplug will have to learn to deal with
+> those.
 
-FiSC detects another related warning: a file's data are not what they
-should be after fsync.  Turns out that e2fsck -y clears invalid indirect
-blocks before it clones the shared blocks, causing file to lose data when
-these invalid blocks are also shared blocks.  Considering the following
-case:
+Hotplug isn't the tricky part. file2alias is. Any idea on how to do that?
 
-file A has block 100 as indirect block on disk
-file B has block 100 as data block, and user writes garbage to block 100,
-then fsync(B).
-
-Now clearing block 100 before cloning in e2fsck would cause file B to
-loose its data block.  Possible fix would be to clone duplicate blocks
-before clear invalid blocks?  Any thoughts?  Or user has to run e2fsck
-twice in this case?
-
-to reproduce the warning, get http://fisc.stanford.edu/bug5/crash.c. it
-uses fixed mount point /mnt/sbd0.
-
-e2fsck output:
-e2fsck 1.36 (05-Feb-2005)
-/dev/ide/host0/bus0/target0/lun0/part9 was not cleanly unmounted, check
-forced.
-Pass 1: Checking inodes, blocks, and sizes
-Inode 12 has illegal block(s).  Clear? yes
-
-Illegal block #-2 (2517328384) in inode 12.  CLEARED.
-Inode 12, i_blocks is 24, should be 16.  Fix? yes
-
-Duplicate blocks found... invoking duplicate block passes.
-Pass 1B: Rescan for duplicate/bad blocks
-Duplicate/bad block(s) in inode 12: 22 25 26 27
-Duplicate/bad block(s) in inode 13: 22
-Duplicate/bad block(s) in inode 16: 25 26 27
-Pass 1C: Scan directories for inodes with dup blocks.
-Pass 1D: Reconciling duplicate blocks
-(There are 3 inodes containing duplicate/bad blocks.)
-
-File ... (inode #12, mod time Tue Mar  8 21:32:38 2005)
-  has 4 duplicate block(s), shared with 2 file(s):
-	... (inode #16, mod time Tue Mar  8 21:32:40 2005)
-	... (inode #13, mod time Tue Mar  8 21:32:39 2005)
-Clone duplicate/bad blocks? yes
-
-File ... (inode #13, mod time Tue Mar  8 21:32:39 2005)
-  has 1 duplicate block(s), shared with 1 file(s):
-	... (inode #12, mod time Tue Mar  8 21:32:38 2005)
-Duplicated blocks already reassigned or cloned.
-
-File ... (inode #16, mod time Tue Mar  8 21:32:40 2005)
-  has 3 duplicate block(s), shared with 1 file(s):
-	... (inode #12, mod time Tue Mar  8 21:32:38 2005)
-Duplicated blocks already reassigned or cloned.
-
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-Pass 4: Checking reference counts
-Unattached inode 12
-Connect to /lost+found? yes
-
-Inode 12 ref count is 2, should be 1.  Fix? yes
-
-Unattached inode 13
-Connect to /lost+found? yes
-
-Inode 13 ref count is 2, should be 1.  Fix? yes
-
-Unattached inode 16
-Connect to /lost+found? yes
-
-Inode 16 ref count is 2, should be 1.  Fix? yes
-
-Pass 5: Checking group summary information
-Free blocks count wrong for group #0 (28, counted=24).
-Fix? yes
-
-Free blocks count wrong (28, counted=24).
-Fix? yes
-
-Inode bitmap differences:  -(14--15)
-Fix? yes
-
-Free inodes count wrong for group #0 (0, counted=2).
-Fix? yes
-
-Directories count wrong for group #0 (4, counted=2).
-Fix? yes
-
-Free inodes count wrong (0, counted=2).
-Fix? yes
-
--Junfeng
-
-
+	Dominik

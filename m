@@ -1,58 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266827AbRIDSyX>; Tue, 4 Sep 2001 14:54:23 -0400
+	id <S266864AbRIDTCo>; Tue, 4 Sep 2001 15:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266864AbRIDSyN>; Tue, 4 Sep 2001 14:54:13 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:529 "EHLO freeside.toyota.com")
-	by vger.kernel.org with ESMTP id <S266827AbRIDSyF>;
-	Tue, 4 Sep 2001 14:54:05 -0400
-Message-ID: <3B952359.84FFC7C7@lexus.com>
-Date: Tue, 04 Sep 2001 11:54:17 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-CC: Christopher Friesen <cfriesen@nortelnetworks.com>,
-        Fred <fred@arkansaswebs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Should I use Linux to develop driver for specialized ISA card?
-In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball> <3B950034.17909E5D@nortelnetworks.com> <200109041823.f84INqE13918@maild.telia.com>
+	id <S267043AbRIDTCf>; Tue, 4 Sep 2001 15:02:35 -0400
+Received: from ma-northadams1a-387.bur.adelphia.net ([24.52.175.131]:260 "EHLO
+	ma-northadams1a-387.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S266864AbRIDTCU>; Tue, 4 Sep 2001 15:02:20 -0400
+Date: Tue, 4 Sep 2001 15:02:38 -0400
+From: Eric Buddington <eric@ma-northadams1a-387.bur.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9-ac5: acpi BUG
+Message-ID: <20010904150238.A128@ma-northadams1a-387.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Larsson wrote:
+Andy and whoever else cares,
 
-> 1) Why shouldn't the low-latency patches work for another architecture?
-> Andrew Morton might be interested to fix other architectures too.
-> (but most patches are not in architecture specific code)
->
-> 2) Montavistas reschedulable kernel is a very interesting approach, newly
-> released an update by Robert Love
->   http://kpreempt.sourceforge.net/
->   http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-preempt-kernel-1
-> (there are still some spikes, but the floor is smooth)
->
-> But note you with both approaches you want to run the latency critical process
-> with a higher priority, and probably with the memory locked down.
->
-> See example code (latencytest) at:
->  http://www.gardena.net/benno/linux/audio/
-> (but there is no need to run at the maximum possible priority since your
->  process will be alone anyway...)
+This is similar (identical?) to previous failures I've had. This is
+100% repeatable, even with acpi=off. The system is a K6-II. I have an
+almost identical kernel running on my PII Omnibook with no such
+problem.
 
-Just a data point here -
+-Eric
 
-The Andrew Morton patches have worked well for
-me here - I test it often with quake 3 arena, and am
-currently on 2.4.10-pre4 -
+-------------------------------------------------
+ksymoops 2.4.1 on i586 2.4.3-ac3.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /packages/linux/2.4.9-ac5/k6/lib/modules/2.4.9-ac5 (specified)
+     -m /packages/linux/2.4.9-ac5/k6/boot/System.map (specified)
 
-I was never successful in getting the kernel to
-compile and run with any of the the other low
-latency patches floating around -
+No modules in ksyms, skipping objects
+kernel BUG at sched.c:712!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0113e2d>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010082
+eax: 0000001b   ebx: c1218000   ecx: 00000001   edx: 00000ae6
+esi: c1219dc0   edi: c0190340   ebp: c1219d84   esp: c1219d58
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c1219000)
+Stack: c024b86f 000002c8 c024b856 c1219dc0 c1218000 00000000 c1218000 00000711 
+       c1218000 c1219dc0 c0190340 c1219e7c c0106f45 00000711 c0189b10 c7fa2540 
+       c1219dc0 c0190340 c1219e7c 00000008 00000018 00000018 00000078 c01054ed 
+Call Trace: [<c0190340>] [<c0106f45>] [<c0189b10>] [<c0190340>] [<c01054ed>] 
+   [<c0189c5e>] [<c0189b10>] [<c0189d9c>] [<c019039a>] [<c0190340>] [<c018fc2f>] 
+   [<c018fba8>] [<c0190cdb>] [<c01895fc>] [<c0108329>] [<c01895f0>] [<c01084b6>] 
+   [<c010a6c4>] [<c018973a>] [<c0192d0a>] [<c01927ed>] [<c0192447>] [<c019151d>] 
+   [<c0190efe>] [<c01903c5>] [<c0190360>] [<c018faa7>] [<c018c830>] [<c01a1b15>] 
+   [<c0105000>] [<c0105053>] [<c0105000>] [<c01054f6>] [<c0105040>] 
+Code: 0f 0b 83 c4 0c 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 
 
-cu
+>>EIP; c0113e2d <schedule+5d/400>   <=====
+Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+Trace; c0106f45 <reschedule+5/10>
+Trace; c0189b10 <acpi_os_queue_exec+0/e0>
+Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+Trace; c01054ed <kernel_thread+1d/30>
+Trace; c0189c5e <acpi_os_schedule_exec+6e/120>
+Trace; c0189b10 <acpi_os_queue_exec+0/e0>
+Trace; c0189d9c <acpi_os_queue_for_execution+8c/160>
+Trace; c019039a <acpi_ev_global_lock_handler+3a/50>
+Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+Trace; c018fc2f <acpi_ev_fixed_event_dispatch+3f/d0>
+Trace; c018fba8 <acpi_ev_fixed_event_detect+58/a0>
+Trace; c0190cdb <acpi_ev_sci_handler+1b/30>
+Trace; c01895fc <acpi_irq+c/10>
+Trace; c0108329 <handle_IRQ_event+39/80>
+Trace; c01895f0 <acpi_irq+0/10>
+Trace; c01084b6 <do_IRQ+56/a0>
+Trace; c010a6c4 <call_do_IRQ+5/11>
+Trace; c018973a <acpi_os_out16+a/10>
+Trace; c0192d0a <acpi_hw_low_level_write+19a/1b0>
+Trace; c01927ed <acpi_hw_register_write+9d/260>
+Trace; c0192447 <acpi_hw_register_bit_access+2e7/3f0>
+Trace; c019151d <acpi_enable_event+6d/c0>
+Trace; c0190efe <acpi_install_fixed_event_handler+7e/a0>
+Trace; c01903c5 <acpi_ev_init_global_lock_handler+15/30>
+Trace; c0190360 <acpi_ev_global_lock_handler+0/50>
+Trace; c018faa7 <acpi_ev_initialize+47/60>
+Trace; c018c830 <acpi_enable_subsystem+60/b0>
+Trace; c01a1b15 <acpi_init+135/180>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105053 <init+13/140>
+Trace; c0105000 <_stext+0/0>
+Trace; c01054f6 <kernel_thread+26/30>
+Trace; c0105040 <init+0/140>
+Code;  c0113e2d <schedule+5d/400>
+00000000 <_EIP>:
+Code;  c0113e2d <schedule+5d/400>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0113e2f <schedule+5f/400>
+   2:   83 c4 0c                  add    $0xc,%esp
+Code;  c0113e32 <schedule+62/400>
+   5:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
+Code;  c0113e35 <schedule+65/400>
+   8:   5b                        pop    %ebx
+Code;  c0113e36 <schedule+66/400>
+   9:   5e                        pop    %esi
+Code;  c0113e37 <schedule+67/400>
+   a:   5f                        pop    %edi
+Code;  c0113e38 <schedule+68/400>
+   b:   5d                        pop    %ebp
+Code;  c0113e39 <schedule+69/400>
+   c:   c3                        ret    
+Code;  c0113e3a <schedule+6a/400>
+   d:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
+Code;  c0113e40 <schedule+70/400>
+  13:   8b 00                     mov    (%eax),%eax
 
-jjs
-
+ <0>Kernel panic: Aiee, killing interrupt handler!

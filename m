@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUH3TxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268916AbUH3Ty7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268884AbUH3TxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUH3TxB
+	id S268916AbUH3Ty7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUH3Tya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:53:01 -0400
-Received: from av8-1-sn2.hy.skanova.net ([81.228.8.110]:6869 "EHLO
-	av8-1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S268884AbUH3Ts2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:48:28 -0400
-Message-ID: <41338487.2050007@df.lth.se>
-Date: Mon, 30 Aug 2004 21:48:23 +0200
-From: Johan Billing <billing@df.lth.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040821
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: CD-ripping using ioctl() does not work when DMA is disabled (ide-cd)
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Aug 2004 15:54:30 -0400
+Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7042 "EHLO
+	zion.localdomain") by vger.kernel.org with ESMTP id S268883AbUH3Twj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:52:39 -0400
+Subject: [patch 2/2] Set-cflags-before-including-arch-Makefile
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Mon, 30 Aug 2004 21:48:38 +0200
+Message-Id: <20040830194838.3F2B37D87@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.6.8, my old TEAC CD-532E-A CD-ROM is blacklisted and DMA is 
-automatically disabled. When I try to rip an audio CD using cdparanoia, 
-all I get is a silent wav file full of zeroes. I know that there was 
-some discussions about this on the list during the summer in conjunction 
-with the "dropping to single frame DMA" issue, but I think I have some 
-new information to add...
 
-I investigated the cdparanoia source a bit and was able to pinpoint the 
-problem a bit more. cdparanoia uses the ioctl() interface with 
-CDROMREADAUDIO to read data from the CD and normally tries to read 6 or 
-8 frames at a time. The problem is that only the first read frame 
-contains valid data, the others are blank and only contain zeroes. If I 
-disable error correction and only read one frame at a time ("cdparanoia 
--n1 -Z") it seems to work fine. If I defy the blacklist and turn DMA on 
-using "hdparm -d1", cdparanoia can read multiple frames without any 
-problems.
+Please note that this patch, even if UML-related, should be immediately
+discussed for merging in mainline, if possible. The UML patch to handle
+this has therefore been separated.
 
-So in conclusion, this seems to be a problem that only occurs when 
-reading multiple frames using ioctl() with DMA off. I hope that this 
-will help find and fix the problem.
+---Patch purpose:
+If arch/$(ARCH)/Makefile is included before adding -O2 (and the rest) to
+CFLAGS, I must duplicate the addition of it to USER_CFLAGS for UML.
+So let's fix this.
 
-/Johan
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
+ uml-linux-2.6.8.1-paolo/Makefile |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+diff -puN Makefile~Set-cflags-before-including-arch-Makefile Makefile
+--- uml-linux-2.6.8.1/Makefile~Set-cflags-before-including-arch-Makefile	2004-08-29 14:40:49.665661448 +0200
++++ uml-linux-2.6.8.1-paolo/Makefile	2004-08-29 14:40:49.668660992 +0200
+@@ -428,15 +428,6 @@ else
+ include/linux/autoconf.h: ;
+ endif
+ 
+-include $(srctree)/arch/$(ARCH)/Makefile
+-
+-# Default kernel image to build when no specific target is given.
+-# KBUILD_IMAGE may be overruled on the commandline or
+-# set in the environment
+-# Also any assingments in arch/$(ARCH)/Makefiel take precedence over
+-# this default value
+-export KBUILD_IMAGE ?= vmlinux
+-
+ # The all: target is the default when no target is given on the
+ # command line.
+ # This allow a user to issue only 'make' to build a kernel including modules
+@@ -460,6 +451,15 @@ endif
+ # warn about C99 declaration after statement
+ CFLAGS += $(call check_gcc,-Wdeclaration-after-statement,)
+ 
++include $(srctree)/arch/$(ARCH)/Makefile
++
++# Default kernel image to build when no specific target is given.
++# KBUILD_IMAGE may be overruled on the commandline or
++# set in the environment
++# Also any assingments in arch/$(ARCH)/Makefiel take precedence over
++# this default value
++export KBUILD_IMAGE ?= vmlinux
++
+ #
+ # INSTALL_PATH specifies where to place the updated kernel and system map
+ # images.  Uncomment if you want to place them anywhere other than root.
+_

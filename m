@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVCDA1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVCDA1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262649AbVCDA1W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCDAGx
+	id S262617AbVCDA1X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVCDAHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:06:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:26824 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262750AbVCCX2i (ORCPT
+	Thu, 3 Mar 2005 19:07:14 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:33499 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262748AbVCCXeY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:28:38 -0500
-Date: Thu, 3 Mar 2005 15:28:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: vonbrand@inf.utfsm.cl, jgarzik@pobox.com, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050303152825.08e7e4c6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
-References: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl>
-	<Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Mar 2005 18:34:24 -0500
+In-Reply-To: <4737.10.10.10.24.1109878529.squirrel@linux1>
+References: <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <20050303165533.GQ28536@shell0.pdx.osdl.net> <20050303170336.GL19505@suse.de> <Pine.LNX.4.58.0503030952120.25732@ppc970.osdl.org> <4737.10.10.10.24.1109878529.squirrel@linux1>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C02F958C-8C3C-11D9-858B-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org,
+       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
+       "David S. Miller" <davem@davemloft.net>, Greg KH <greg@kroah.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: RFD: Kernel release numbering
+Date: Thu, 3 Mar 2005 18:34:13 -0500
+To: Sean <seanlkml@sympatico.ca>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> Now, I haven't actually gotten any complaints about 2.6.11 (apart from 
-> "gcc4 still has problems" with fairly trivial solutions)
+On Mar 03, 2005, at 14:35, Sean wrote:
+> Wait a second though, this tree will be branched from the development
+> mainline.   So it will contain many patches that entered with less
+> testing.   What will be the policy for dealing with regressions 
+> relative
+> to the previous $sucker release caused by huge patches that entered via
+> the development tree?   Is reverting them prohibited because of the 
+> patch
+> size?
 
-There have been quite a few.  Mainly driver stuff again:
+I can see two conflicting desires in this discussion, the desire to 
+continue
+development to avoid patch backlog, and the desire to slow down and 
+stabilize
+to provide a sane release-candidate and release scheme.  Could the two
+desires somehow be both resolved simultaneously?
 
-Subject: Re: [BUG] 2.4.27 - 2.4.29 tar: /dev/nst0: Warning: Cannot seek: Illegal seekg
-Subject: PCMCIA breaks suspend-to-(disk|ram) with 2.6.11
-Subject:  2.6.11: iostat values broken ?
-Subject: 2.6.11: suspending laptop makes system randomly unstable
-Subject: [Bugme-new] [Bug 4281] New: ALPS Touchpad Tap-to-Click Broken
-Subject: [Bugme-new] [Bug 4282] New: ALSA driver in Linux 2.6.11 causes a kernel panic when loading the EMU10K1 driver
-Subject: [Bugme-new] [Bug 4283] New: weird messages after normal kernel messages with enabled netconsole
-Subject: 2.6.11 (stable and -rc) ACPI breaks USB
+Perhaps instead of forking when 2.6.A is released, Linux could fork 
+earlier,
+after the 2.6.A-bk series.  After the fork, the main tree would become 
+the
+new 2.6.A+1-bk, and the forked tree would become 2.6.A+1-pre.  Then the 
+final
+stabilization and patches could continue while normal kernel development
+moves on.  The latest kernel could take advantage of patches to the 
+release
+kernel, but would be able to maintain the steady patch stream.  The 
+release
+kernel could be managed by the previously mentioned "sucker", and could 
+go
+through a more-stabilizing and better tested Release Candidate series, 
+and
+then maintain post-release bugfixes.  When 2.6.A+1-pre is released, then
+all upstream development on the forked 2.6.A-post tree would cease.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 
-The biggest problem is the new ACPI-based i8042 probing on Dells.  I'm
-kicking myself over that because we *knew* the damn thing was busted, and
-people kept on having to add i8042.noacpi=1.  We now have a three-line
-work-around-it-until-we-fix-it-for-real patch.

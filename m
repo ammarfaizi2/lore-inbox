@@ -1,54 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUGIPGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUGIPJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUGIPGi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 11:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbUGIPGi
+	id S264980AbUGIPJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 11:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbUGIPJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 11:06:38 -0400
-Received: from opersys.com ([64.40.108.71]:28430 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S264953AbUGIPFn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 11:05:43 -0400
-Message-ID: <40EEB311.2090607@opersys.com>
-Date: Fri, 09 Jul 2004 11:00:33 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 9 Jul 2004 11:09:09 -0400
+Received: from pri-dns1.mtco.com ([207.179.200.251]:3235 "HELO
+	pri-dns1.mtco.com") by vger.kernel.org with SMTP id S264980AbUGIPIm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 11:08:42 -0400
+From: Tom Felker <tcfelker@mtco.com>
+To: tfavre@mandrakesoft.com
+Subject: Re: 2.6.7 : kernel panic while ripping CD
+Date: Fri, 9 Jul 2004 10:08:44 -0500
+User-Agent: KMail/1.6.2
+Cc: <linux-kernel@vger.kernel.org>
+References: <200407091157.20508.tfavre@mandrakesoft.com>
+In-Reply-To: <200407091157.20508.tfavre@mandrakesoft.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Robert Wisniewski <bob@watson.ibm.com>,
-       "'Tom Zanussi'" <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: About the usefulness of kernel tracing
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407091008.44875.tcfelker@mtco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 09 July 2004 4:57 am, Thibauld Favre wrote:
+> Hi,
+>
+> When I rip a CD (I use kaudiocreator), I cannot rip all tracks in one go.
+> When I do so, after a while (as far as I can say there's no logic) I can
+> hear the CDrom drive stop and the ripping stalls. If I kill the process
+> that stalled (the only thing I can do), then I get a bad kernel panic. So
+> basically, when the ripping stalls I'm done ! I can continue working
+> without problems but as soon as I want to close kaudiocreator : badaboom.
+>
+> I first thought it could come from kaudiocreator but then I realized that
+> my CDrom drive was generating errors. Here's a summary of the interesting
+> parts (the full dmesg and lsmod output can be found as attachments).
+>
+> ----------------------------------------------------------------
+> hdc: UJDA745 DVD/CDRW, ATAPI CD/DVD-ROM drive
+> [...]
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>   Vendor: MATSHITA  Model: UJDA745 DVD/CDRW  Rev: 1.02
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> [...]
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> spurious 8259A interrupt: IRQ7.
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> sr0: CDROM not ready.  Make sure there is a disc in the drive.
+> hdc: irq timeout: status=0xd0 { Busy }
+> hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+> hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdc: status error: error=0x00
+> hdc: drive not ready for command
+> hdc: lost interrupt
+> hdc: lost interrupt
+> hdc: DMA disabled
+> hdc: ATAPI reset complete
+> scsi: Device offlined - not ready after error recovery: host 0 channel 0 id
+> 8 lun 0
+> scsi: Device offlined - not ready after error recovery: host 0 channel 0 id
+> 8 lun 0
+> sr0: CDROM (ioctl) error, command: 0x42 02 40 01 00 00 00 00 10 00
+> sr: sense =  0  0
+> Non-extended sense class 0 code 0x0
+> Raw sense data:0x00 0x00 0x00 0x00
+> sr0: CDROM (ioctl) error, command: 0x42 02 40 01 00 00 00 00 10 00
+> sr: sense =  0  0
+> Non-extended sense class 0 code 0x0
+> Raw sense data:0x00 0x00 0x00 0x00
+> ------------------------------------------------------------------------
+>
+> I use a Debian unstable on a T40p laptop with a self compiled 2.6.7 kernel.
+> I access my CD-rom drive through /dev/sr0 I'd like to be able to help
+> further but I don't know what might interest you. Just ask me if you need
+> more info...
+>
+> Thanks a lot,
+>
+> Thibauld Favre
 
-As I noted when discussing this with Andrew, we've been trying to get
-LTT into the kernel for the past five (5) years. During that time we've
-repeatedly encountered the same type of arguments for not including it,
-and have provided proof as to why those arguments are not substantiated.
-Lately I've at least got Andrew to admit that there were no maintenance
-issues with the LTT trace statements (given that they've literally
-remained unchanged ever since LTT was introduced.) In an effort to
-address the issues regarding the usefulness of such a tool, I direct
-those interested to this article on DTrace, a trace utility for Solaris:
-http://www.theregister.co.uk/2004/07/08/dtrace_user_take/
+On 2.6 you're not really supposed to do IDE-SCSI emulation anymore.  Most 
+software can now use the plain IDE interface, just by telling it to 
+use /dev/hdc.  So try compiling ide-scsi as a module or not at all and not 
+loading it.  This may not solve the problem, but it might make error recovery 
+cleaner.
 
-<rant>
-With LTT and DProbes, we've basically got almost everything this tool
-claims to provide, save that we would be even further down the road if
-we did not need to spend so much time updating patches ...
-</rant>
-
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Tom Felker, <tcfelker@mtco.com>
+<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
 
+The ability to monopolize a market is insignificant next to the power of the 
+source.

@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUIECXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUIEC1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265973AbUIECXR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 22:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUIECXR
+	id S265977AbUIEC1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 22:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUIEC1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 22:23:17 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:44228 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S265973AbUIECXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 22:23:14 -0400
-Message-ID: <413A789C.9000501@upb.de>
-Date: Sun, 05 Sep 2004 04:23:24 +0200
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: de, en
+	Sat, 4 Sep 2004 22:27:48 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:33801 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S265977AbUIEC1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 22:27:45 -0400
+Message-ID: <413A799C.1000505@tequila.co.jp>
+Date: Sun, 05 Sep 2004 11:27:40 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: why do i get "Stale NFS file handle" for hours?
-References: <chdp06$e56$1@sea.gmane.org>	 <1094348385.13791.119.camel@lade.trondhjem.org>  <413A7119.2090709@upb.de> <1094349744.13791.128.camel@lade.trondhjem.org>
-In-Reply-To: <1094349744.13791.128.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: external firewire dvd writer
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
-	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-MailScanner-From: skoehler@upb.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I agree, but you simply admit that the NFS client doesn't seem to know, 
->>when the server was restart. The simpliest thing i can imagine, is that 
->>the NFS server generates a random integer-value at start, and transmits 
->>it along with ESTALE. If the integer-value is different from the 
->>integer-value the server send while mounting the FS, than the kernel has 
->>to remount it transparently. This is a simple thing so that a client can 
->>safely determine, if the server has been restarted, or not, and it only 
->>adds 4 byte to some nfs-packets.
-> 
-> No.... The simplest thing is for the server to actually abide by the
-> RFCs and not generate filehandles that change on reboot.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, that sounds complicated, but if it would work, than it would be very 
-nice indeed.
+Hi,
 
-> NFSv4 is the ONLY version of the protocol that actually supports the
-> concept of filehandles that have a finite lifetime.
+I have an external Pioneer DVD writer which I connect via Firewire to my
+laptop. So when I turn it on I get this in my dmesg:
 
-But NFSv4 is still exprerimental :-( and i think the client don't have 
-NFSv4 support too.
+drivers/usb/input/hid-input.c: event field not found
+ieee1394: Error parsing configrom for node 0-00:1023
+ieee1394: Error parsing configrom for node 0-01:1023
+ieee1394: Error parsing configrom for node 0-02:1023
+ieee1394: The root node is not cycle master capable; selecting a new
+root node and resetting...
+ieee1394: Node added: ID:BUS[0-00:1023]  GUID[00e03600500008f2]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+ieee1394: Node changed: 0-01:1023 -> 0-02:1023
+ieee1394: sbp2: Error reconnecting to SBP-2 device - reconnect failed
+ieee1394: sbp2: Logged out of SBP-2 device
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: Node 0-01:1023: Max speed [S400] - Max payload [2048]
+scsi2 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+~  Vendor: PIONEER   Model: DVD-RW  DVR-105   Rev: 1.20
+~  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi generic sg2 at scsi2, channel 0, id 0, lun 0,  type 5
 
->>In my case, if the nfs directory is mounted to /mnt/nfs, i can't even do 
->>a simple "cd /mnt/nfs" without getting the "stale nfs handle" - even if 
->>i use a different shell. I always thought, that the "cd /mnt/nfs" should 
->>work, since the shell will aquire a new handle, but it doesn't work :-(
-> 
-> It won't if the root filehandle is broken too. That is the standard way
-> of telling the NFS client that the administrator has revoked our access
-> to the filesystem.
-> 
-> The solution is simple here: fix the broken server...
+Problem now is, that it stays on /dev/sg2. There is no more mapping. The
+output of sg_map is this:
 
-Sorry? Why is my server broken? I'm using kernel 2.6.8.1 with nfs-utils 
-1.0.6 on my server, and i don't see, what should be broken.
+pluto:~# sg_map
+/dev/sg0  /dev/sda
+/dev/sg1  /dev/sdb
+/dev/sg2
 
-Thx
-   Sven
+[sg0 is the internal Sony Memory Stick reader, sg1 is an external Maxtor
+200 GB Firewire HD]
+
+So is there anything wrong with hotswap? or which part doesn't make the
+connection from sg2 to any cd device. The problem is, which just sg2 I
+(as user) can't do much as sg2 is just root rw ...
+
+lg, clemens
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBOnmbjBz/yQjBxz8RAhroAKCr9mWlvGP45irNS6KrKYf2UGEvxgCgtjTu
+XDk09VpXU9lq8j82/ZvwSlw=
+=AAH7
+-----END PGP SIGNATURE-----

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317653AbSGUH7e>; Sun, 21 Jul 2002 03:59:34 -0400
+	id <S318215AbSGWWUE>; Tue, 23 Jul 2002 18:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317657AbSGUH7e>; Sun, 21 Jul 2002 03:59:34 -0400
-Received: from [218.13.253.244] ([218.13.253.244]:63982 "EHLO edf")
-	by vger.kernel.org with ESMTP id <S317653AbSGUH7d>;
-	Sun, 21 Jul 2002 03:59:33 -0400
-Message-Id: <1027238647.433@0.0.1>
-Date: Sun, 21 Jul 2002 16:04:07 0800
+	id <S318217AbSGWWUE>; Tue, 23 Jul 2002 18:20:04 -0400
+Received: from node-c-3f09.a2000.nl ([62.194.63.9]:3845 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S318215AbSGWWUE>;
+	Tue, 23 Jul 2002 18:20:04 -0400
+From: "Donald Phiri" <dld_phiri@lycos.com>
+Date: Tue, 23 Jul 2002 06:31:56
 To: linux-kernel@vger.kernel.org
-From: "sanry" <sanry@21cn.com>
-Subject: =?ISO-8859-1?Q?=B1=BE=D4=C2=CC=D8=BB=DD=CD=C6=BC=F6=D6=C7=C7=BF=D0=CD=D6=F7=BB=FA=D7=E2=D3=C3=A3=AC=B9=BA=CD=EA=BC=B4=D6=B9=A3=A1?=
+Subject: Strictly Private.
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"; format=flowed
-X-OriginalArrivalTime: 21 Jul 2002 08:04:07.0453 (UTC) FILETIME=[300DD4D0:01C2308D]
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020723222004Z318215-685+16770@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-本月特惠推荐智强型主机租用，购完即止！
+Gooday,
 
-主机存放于广东超级数据港，2XGE光纤直连ChinaNET骨干网，稳定、
-高速，评为国家甲级机房！
+With warm heart my friend, I send you my greetings, and I hope this letter meets you in good time. 
 
-时创网络数据中心（http://idc.001isp.com) 本月特惠推出2U主机
-p4，2G，1024内存，超强动力！
+It will be surprising  to you to receive this proposal from me since you do not know me personally. However, I am sincerely seeking your confidence in this transaction, which I propose with my free mind and as a person of intergrity. I have kept it to myself for a long time, and now I need to act, as time is not on my side. I want you to open-heartedly read through and give me your most needed support. I got your address from an internet directory, in my search for a contact. I apologize if this is not acceptable to you. The purpose of this letter is to seek your most needed assistance. 
 
-以下为服务器的配置情况：
-P4 2.0A CPU
-1024MB DDR
-60GB EIDE Drive
-DUAL 10/100Mbps BASE-T
-2U  月租1890元
+My name is Donald Phiri, the farm supervisor and personal assistant to Mr. David Stevens, a very popular and rich farmer from Macheke, Zimbabwe. My master was murdered in cold blood in my presence on 15 of April 2001, due to the land dispute and political situation in my country, as a result of my master's financial support for the MDC (Movement for Democratic Change), the main opposition party to President Mugabe's party,  Zimbabwe African National Union Patriotic Front (ZANU-PF) . For more information on my master's murder, you may check the Amnesty International Country Report on Zimbabwe for the year 2001.
 
-本月主机租用惊喜优惠价格，购完即止！
-详细请见http://idc.001isp.com ，欢迎咨询、选购！
+When the pressure on white farmers started in Zimbabwe due to the support given to the war veterans by President Mugabe to invade farms and force out white farmers, my master forsaw the danger ahead, he then closed his major bank accounts, and together, we went to Johannesburg, South Africa to deposit the sum of $14.5 million (Fourten million, five hundred thousand USdollars), in a private security company, for safety. This money was deposited in a box in my name, as my master was being secretive with his name, as the South African government of Thambo Mbeki is in support of President Mugabe's actions. The box is labeled as gemstones. My master had planned to use this money  for the purchase of lands, new machines and chemicals for establishment of new farms in Botswana. He has used this company in the past to move money for the purchase of tractors and farm equipment from Europe. My master is divorced, and his wife Valerie, and only child, Diana have relocated to Bradford, England for 9years now. 
 
-珠海时创网络
-QQ在线咨询：107929341 108786612
-电话咨询：0756--2125563 2125523 2125583
-传真： 0756--2229669
-邮件支持：support@todaynic.com
+I am currently in the Netherlands where I am seeking political asylum. I have now decided to transfer my  master's  money into an account for security and safety reasons. This is why I am anxiously and humbly seeking for your genuine assistance in transfering this money into an account without the knowledge of my government who are bent on taking everything my master left. You have to understand that this decision taken by me entrusts so much to you.
+
+If you accept to assist me, all I want you to do for me, is to make an arrangements with the security company to clear the box containing the money from their office here in the Netherlands, and then we will transfer the money into an account. You may open a new account for this purpose. I have applied to the security company to transfer the box from South Africa to their branch here, which they have done. 
+
+To legally process the claim of the box, I will contact a lawyer to help me prepare a change of ownership and letter of authority to enable them recognise you as my representative, and deliver the box to you. I have with me, the certificate used to deposit the box, which we will need for claiming the box. 
+
+For valuable assistance, I am offering you 10%($1,450,000) of the total money. I have also set aside 1%($145,000) of this money for all kinds of expenses that come our way in the process of this transaction, and 4%($580,000), will be given to Charity in my master's name I will give 25% ($3,625,000) to Valerie and Diana, after my share of the money has been transfered back to me. When they grant my asylum application, my share of the money (85%), will be transfered back to me, into an account I will solely own. I also intend to start up a business then. If you have knowledge of farming business in your country, or other areas of possible business investment that I may be interested in, please inform me, so that my some of my share of the money can be invested for the time being.
+
+Please, I want to you maintain absolute secrecy for the purpose of this transaction due to my safety and successful conclusion of the transaction. 
+
+I look forward to your reply and co-operation, and I am sure it will be nice to extend ties with you.
+
+Yours sincerely,
+Donald Phiri. 
 
 

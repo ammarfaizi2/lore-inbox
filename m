@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTJFOz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTJFOz7
+	id S262195AbTJFO4G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTJFO4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:55:59 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:10635 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262176AbTJFOz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:55:58 -0400
-MIME-Version: 1.0
+	Mon, 6 Oct 2003 10:56:06 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:48657 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262195AbTJFO4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:56:03 -0400
+Date: Mon, 6 Oct 2003 15:55:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] s390 (2/7): common i/o layer.
+Message-ID: <20031006155559.A21462@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <OF79F7FC5D.894CD912-ONC1256DB7.0051545B-C1256DB7.00516DD4@de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16257.33403.756457.433093@gargle.gargle.HOWL>
-Date: Mon, 6 Oct 2003 16:55:55 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Otavio Salvador <otavio@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6-bk7: kernel freeze if try to change to console
-In-Reply-To: <87vfr2ttev.fsf@retteb.casa>
-References: <87d6db2gw0.fsf@retteb.casa>
-	<16257.17952.546250.954616@gargle.gargle.HOWL>
-	<87vfr2ttev.fsf@retteb.casa>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF79F7FC5D.894CD912-ONC1256DB7.0051545B-C1256DB7.00516DD4@de.ibm.com>; from schwidefsky@de.ibm.com on Mon, Oct 06, 2003 at 04:49:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otavio Salvador writes:
- > Mikael Pettersson <mikpe@csd.uu.se> writes:
- > 
- > > Otavio Salvador writes:
- > >  > Folks,
- > >  > 
- > >  > I'm using kernel 2.6.0-test6-bk7 and have some problems. If I try to
- > >  > change to console from X my system freeze. I'm including my .config
- > >  > file bellow.
- > >
- > > I have a hunch but I need to see your boot dmesg log to confirm.
- > > Please post it.
- > 
- > Hello,
- > 
- > Here is it.
+On Mon, Oct 06, 2003 at 04:49:25PM +0200, Martin Schwidefsky wrote:
+> > > Just checked. You right about chp_release which should do
+> > > a kfree on the struct channel_path object. But the two
+> > > other release functions are really dummy functions because
+> > > cu3088_root_dev and iucv_root are static structures.
+> >
+> > Even in that case you're screwed in case they are in modules..
+> 
+> Why? The root device are registered in the module init function
+> and unregistered in the module exit function. I fail to see the
+> problem.
 
-Ok now I'm confused. The .config you posted earlier stated that
-you had both UP_APIC and APM_DISPLAY_BLANK enabled. Your dmesg
-log indicates that you're running on a 1.6GHz Athlon-XP, but
-there's no mention of APIC anything in the dmesg log.
+You can still have a reference to the object when the module is unloaded.
 
-So either your Athlon has had its local APIC disabled, or you
-changed the .config to exclude UP_APIC.
-
-In any case, APM_DISPLAY_BLANK is known to sometimes lock up when it
-blanks the console (e.g., when X exists). This is because some graphics
-card BIOSen can't handle local APIC interrupts (e.g., the timer).
-The workaround is to disable either APM_DISPLAY_BLANK or UP_APIC.
-
-/Mikael
+unregistered != last reference is gone

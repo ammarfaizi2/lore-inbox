@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266079AbRF1SSP>; Thu, 28 Jun 2001 14:18:15 -0400
+	id <S266083AbRF1SZf>; Thu, 28 Jun 2001 14:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266078AbRF1SSJ>; Thu, 28 Jun 2001 14:18:09 -0400
-Received: from [209.60.162.25] ([209.60.162.25]:17349 "EHLO wien.coactive.com")
-	by vger.kernel.org with ESMTP id <S266079AbRF1SRY>;
-	Thu, 28 Jun 2001 14:17:24 -0400
-Date: Thu, 28 Jun 2001 11:17:15 -0700 (PDT)
-From: Christoph Zens <czens@coactive.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: chuckw@altaserv.net, Aaron Lehmann <aaronl@vitelus.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Vipin Malik <vipin.malik@daniel.com>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106281057170.15199-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0106281111490.19351-100000@rumba.coactive.com>
+	id <S266085AbRF1SZZ>; Thu, 28 Jun 2001 14:25:25 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:10756 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266083AbRF1SZT>;
+	Thu, 28 Jun 2001 14:25:19 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106281825.f5SIPIA386711@saturn.cs.uml.edu>
+Subject: Re: [PATCH] User chroot
+To: sean@dev.sportingbet.com (Sean Hunter)
+Date: Thu, 28 Jun 2001 14:25:18 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010628084703.B27891@dev.sportingbet.com> from "Sean Hunter" at Jun 28, 2001 08:47:03 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sean Hunter writes:
+> On Wed, Jun 27, 2001 at 04:55:56PM -0400, Albert D. Cahalan wrote:
 
-> Also, in printk's, you waste run-time memory, and you bloat up the need
-> for the log size. Both of which are _technical_ reasons not to do it.
-> 
-> Small is beuatiful.
+>> ln /dev/zero /tmp/zero
+>> ln /dev/hda ~/hda
+>> ln /dev/mem /var/tmp/README
+>
+> None of these (of course) work if you use mount options to
+> restrict device nodes on those filesystems.
 
-I totally agree. If you want to use Linux for a small and low cost
-embedded system, you can't afford loads of RAM and FLASH space.
-Small is the _key_ for those systems.
+In which case, you can't boot. Think about it.
 
-> 
-> 		Linus
-> 
-> 
-> To unsubscribe from this list: send the line "unsubscribe jffs-dev" in
-> the body of a message to majordomo@axis.com
-> 
+Never mind the method. One way or another, it is very often
+possible for a normal users to set up a chroot environment
+with the device files that are needed. Maybe they do something
+obscene with the admin. :-) So chroot() is useful for users.
 
--- 
-Christoph Zens
-czens@coactive.com
-(415)-289-7765
+In my case, I _am_ the admin and I just don't want to run
+every damn little test program and hack as root.
 

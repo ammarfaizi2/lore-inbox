@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUHaMIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268063AbUHaMIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUHaMIg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268061AbUHaMIg
+	id S268063AbUHaMIm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268061AbUHaMIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:08:36 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:61871 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268055AbUHaMEe (ORCPT
+	Tue, 31 Aug 2004 08:08:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:10398 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268063AbUHaMH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:04:34 -0400
-Date: Tue, 31 Aug 2004 14:06:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andy Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] lazy I/O bitmap copy for i386 (ver 2) ...
-Message-ID: <20040831120611.GA14466@elte.hu>
-References: <Pine.LNX.4.58.0408241113370.2026@bigblue.dev.mdolabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408241113370.2026@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 31 Aug 2004 08:07:57 -0400
+Date: Tue, 31 Aug 2004 14:07:38 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] arm Kconfig fixes
+In-Reply-To: <20040828214344.GM21964@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0408311348510.981@scrub.home>
+References: <200408280309.i7S39PPv000756@hera.kernel.org> <20040828210533.GD6301@redhat.com>
+ <20040828221345.A11901@infradead.org> <20040828211717.GF6301@redhat.com>
+ <20040828222206.A11969@infradead.org> <20040828214344.GM21964@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Davide Libenzi <davidel@xmailserver.org> wrote:
+On Sat, 28 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> The following patch implements the lazy I/O bitmap copy for the i386
-> architecture. It uses an invalid bitmap offset inside the TSS to
-> eventually handle the correct bitmap update in the GPF handler. The
-> logic is the same of the first version, plus the usage of
-> get/put_cpu() (thx Brian) and the nesting over the latest Ingo
-> variable bitmap bits.
+> BTW, AFAICS a legitimate form of negative dependency is && (!FOO || BROKEN)
+> and it's common enough to consider adding a separate
+> 	broken if <expression>
+> to config language.  It would be interpreted as && (!<expr> || BROKEN) added
+> to dependencies, but would document the situation better.
 
-your patch looks good to me. I believe the killer argument is what you
-mentioned previously, that a single GFP is cheaper than a single I/O op,
-so even the worst-case (an I/O app doing precisely one I/O op during its
-scheduling atom - very unlikely) shouldnt degrade all that much. The
-patch is a speedup in every other case.
+It looks ok, but the part I wouldn't like is to hardcode this into the 
+parser, if someone comes up with a decent syntax to define this 
+dynamically, it would be ok with me.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+bye, Roman

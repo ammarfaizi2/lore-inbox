@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbTBOLta>; Sat, 15 Feb 2003 06:49:30 -0500
+	id <S261742AbTBOL5m>; Sat, 15 Feb 2003 06:57:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbTBOLta>; Sat, 15 Feb 2003 06:49:30 -0500
-Received: from mail.hometree.net ([212.34.181.120]:10697 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S261527AbTBOLt3>; Sat, 15 Feb 2003 06:49:29 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Sparc IDE in 2.4.20
-Date: Sat, 15 Feb 2003 11:59:24 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b2la2s$v55$4@tangens.hometree.net>
-References: <200302142131.h1ELVX4U004986@darkstar.example.net> <3E4D7297.8060200@domdv.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1045310364 31909 212.34.181.4 (15 Feb 2003 11:59:24 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 15 Feb 2003 11:59:24 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	id <S261836AbTBOL5m>; Sat, 15 Feb 2003 06:57:42 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:35231 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S261742AbTBOL5l>; Sat, 15 Feb 2003 06:57:41 -0500
+Date: Sat, 15 Feb 2003 13:07:21 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030215120721.GA10021@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de> <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk> <20030214203151.GL20159@fs.tum.de> <20030214234517.GA4333@bjl1.jlokier.co.uk> <20030214235724.GA24139@work.bitmover.com> <b2l9d1$v55$3@tangens.hometree.net> <20030215115022.B18281@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030215115022.B18281@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz <ast@domdv.de> writes:
+On Sat, 15 February 2003 11:50:22 +0000, Christoph Hellwig wrote:
+> On Sat, Feb 15, 2003 at 11:47:45AM +0000, Henning P. Schmiedehausen wrote:
+> > Linus, please consider this a request to drop BK _right now_ and
+> > change to another SCM for kernel development. I hate working under a
+> > threat.
+> 
+> So don't use BK.  Why do you care what other people use?
 
->Got a nifty little SunBlade 100 on my desk at work, though it is running 
->Solaris. This system has IDE disks so there must be more than one IDE 
->capable Sparc on this planet :-)
+Before:
+Linus used some homegrown scripts between releases.
+People had no way to look into his machine meanwhile.
+Linus accepted patches through email.
 
-It's sparc64. I fell into this trap, too. :-) (Having an Ultra AXE
-humming along under Solaris 8).
+After:
+Linus uses some non-free tool between releases.
+Some people have no way to look into his machine meanwhile.
+Linus accepts patches through email.
 
-	Regards
-		Henning
+Don't you see how much better things were before? ;-)
+
+Jörn
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

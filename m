@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289125AbSAGFYw>; Mon, 7 Jan 2002 00:24:52 -0500
+	id <S289126AbSAGF1M>; Mon, 7 Jan 2002 00:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289126AbSAGFYm>; Mon, 7 Jan 2002 00:24:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4054 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S289125AbSAGFYc>;
-	Mon, 7 Jan 2002 00:24:32 -0500
-Date: Mon, 7 Jan 2002 00:24:26 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate fixes
-In-Reply-To: <3C390DAA.3339768C@zip.com.au>
-Message-ID: <Pine.GSO.4.21.0201070021320.4370-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289127AbSAGF1C>; Mon, 7 Jan 2002 00:27:02 -0500
+Received: from f164.pav1.hotmail.com ([64.4.31.164]:65034 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S289126AbSAGF05>;
+	Mon, 7 Jan 2002 00:26:57 -0500
+X-Originating-IP: [128.107.253.38]
+From: "Eyal Sohya" <linuz_kernel_q@hotmail.com>
+To: oxymoron@waste.org, phillips@bonn-fries.net
+Cc: rgooch@ras.ucalgary.ca, alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk,
+        riel@conectiva.com.br, dana.lacoste@peregrine.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Date: Mon, 07 Jan 2002 05:26:51 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F164WzlyJrTqk27I0t10001b281@hotmail.com>
+X-OriginalArrivalTime: 07 Jan 2002 05:26:51.0381 (UTC) FILETIME=[E92A4250:01C1973B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Why does'nt linus keep his sources in a cvs tree
+so the rest of the folks can read it from there ?
 
-On Sun, 6 Jan 2002, Andrew Morton wrote:
+he can still have the write access to the tree
+exclusively.
 
-> Andrea Arcangeli wrote:
-> > 
-> > I prefer my fix that simply recalls the ->truncate callback if -ENOSPC
-> > is returned by prepare_write. vmtruncate seems way overkill,
-> 
-> No opinion on that here.  This is what was in -ac.  Perhaps Al can
-> comment?
+We can keep patches in some kind of database as well
+so they dont get lost, linus can mark them rejected/applied
+e.t.c e.t.c.
 
-a) It's obviously correct
-b) it's a friggin error-handling path and I'll take correctness over
-anything here.
+Just thinking aloud.
 
-Keep in mind that you want to zero the area out, so at the very least
-truncate_inode_pages() + ->truncate() are needed.  And locking/ordering
-consideration here are tricky enough to make duplicating them a Bad
-Thing(tm).
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

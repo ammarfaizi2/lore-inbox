@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318020AbSIAVY1>; Sun, 1 Sep 2002 17:24:27 -0400
+	id <S318035AbSIAVZb>; Sun, 1 Sep 2002 17:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318035AbSIAVY1>; Sun, 1 Sep 2002 17:24:27 -0400
-Received: from [216.38.156.94] ([216.38.156.94]:33286 "EHLO
-	mail.networkfab.com") by vger.kernel.org with ESMTP
-	id <S318020AbSIAVYZ>; Sun, 1 Sep 2002 17:24:25 -0400
-Date: Sun, 1 Sep 2002 14:28:34 -0700
-From: Dmitri <dmitri@users.sourceforge.net>
-To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3x SMP boot prob
-Message-ID: <20020901212834.GC1470@usb.networkfab.com>
-Mail-Followup-To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.BSF.4.44.0209012207000.988-100000@e0-0.zab2.int.zabbadoz.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
-Content-Disposition: inline
-In-Reply-To: <Pine.BSF.4.44.0209012207000.988-100000@e0-0.zab2.int.zabbadoz.net>
-User-Agent: Mutt/1.4i
+	id <S318062AbSIAVZb>; Sun, 1 Sep 2002 17:25:31 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:36037 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S318035AbSIAVZa>; Sun, 1 Sep 2002 17:25:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+Date: Sun, 1 Sep 2002 23:32:25 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+References: <3D644C70.6D100EA5@zip.com.au> <E17lEDR-0004Qq-00@starship> <3D712682.66E2D3B2@zip.com.au>
+In-Reply-To: <3D712682.66E2D3B2@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020901212943Z16578-4014+1360@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 31 August 2002 22:26, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > Manfred suggested an approach to de-racing this race using
+> > atomic_dec_and_lock, which needs to be compared to the current approach.
+> 
+> Could simplify things, but not all architectures have an optimised
+> version.  So ia64, mips, parisc and s390 would end up taking
+> the lru lock on every page_cache_release.
 
---xesSdrSSBC0PokLI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've put some more thought into this and I don't see any real problem with 
+the atomic_dec_and_lock strategy.  The only efficiency drawback is the extra 
+locked cmpxchg on every page count dec, and that most likely tips the 
+efficiency advantage ever so slightly in favor of my current strategy.
 
-Quoting Bjoern A. Zeeb <bzeeb-lists@lists.zabbadoz.net>:
+Something else I like about the current strategy is the way the trylock 
+avoids contention - if shrink_cache is active it just leaves the page on the 
+lru for collection later.  Sweeping up the orphans is efficient, since the 
+lru lock is batched by shrink_cache.
 
-> bad: schedule() with irqs disabled!
-> d7fcdf70 c0315af6 c02e2900 c011d42e 0000000a 00000400 c0253f1f d7fcdfa8
->        00000000 00000000 00000001 c029e2f9 c0253f08 00000001 00000000 d7f=
-ce9e0
->        00000000 00000000 00000000 00000000 c02a0c15 00000282 c02869bc d7f=
-d1f7c
-> Call Trace: [<c011d42e>] [<c011d420>]
+I think I may be even able to make this all work without holding the extra 
+count, but I'll treat that as a background project.  The important thing is, 
+the page reaping cycle was never correct before, now it just might be.
 
-I saw similar problems yesterday, on 2.5.32 SMP, freshly pulled from
-bk://linuxusb.bkbits.net/usb-2.5. They are still in the log, and if anyone
-is interested I can find them and run them through ksymoops. I actually
-did that quickly when I saw them first, but I didn't save the decoded
-trace.
+I'm looking at your spinlock_irq now and thinking the _irq part could 
+possibly be avoided.  Can you please remind me of the motivation for this - 
+was it originally intended to address the same race we've been working on 
+here?
 
-Dmitri
+I can see the advantage of being able to take the lru lock from interrupt 
+context, but we may be able to achieve the intended effect with a trylock.
 
---=20
-163. When planning an expedition, I will choose a route for my forces
-  that does not go through thick, leafy terrain conveniently located
-  near the rebel camp.
-  ("Evil Overlord" by Peter Anspach and John VanSickl)
-
---xesSdrSSBC0PokLI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9coaCXksyLpO6T4IRAhS0AJsH77z6hyDPe/92qPFonriAz1+IxACgh+32
-g18X4rCq2DG1Xc6Zgkm742w=
-=xt+1
------END PGP SIGNATURE-----
-
---xesSdrSSBC0PokLI--
+-- 
+Daniel

@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261449AbSJACeE>; Mon, 30 Sep 2002 22:34:04 -0400
+	id <S261458AbSJACmM>; Mon, 30 Sep 2002 22:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSJACeE>; Mon, 30 Sep 2002 22:34:04 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:26325 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261449AbSJACeC>;
-	Mon, 30 Sep 2002 22:34:02 -0400
-Subject: [PATCH] linux-2.5.39_timer-changes_A3 (1/3 - infrastructure)
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 30 Sep 2002 19:34:34 -0700
-Message-Id: <1033439675.1013.64.camel@cog>
+	id <S261459AbSJACmL>; Mon, 30 Sep 2002 22:42:11 -0400
+Received: from dp.samba.org ([66.70.73.150]:13704 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261458AbSJACmK>;
+	Mon, 30 Sep 2002 22:42:10 -0400
+Date: Tue, 1 Oct 2002 12:47:39 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] Squash warnings in fs/partitions/check.c
+Message-ID: <20021001024739.GP10265@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Dave, all,
+Linus, please apply.  This removes a bundle of unused variables from
+fs/partitions/check.c:devfs_create_cdrom().  Some of them,
+confusingly, were unused because they were overriden by variables with
+the same name in an inner scope.
 
-	This is part 1 of 3 of my timer-changes patch. Nothing new in this
-release, but I broke it up considerably to try to aid people who might
-attempt to read over it. 
+diff -urN /home/dgibson/kernel/linuxppc-2.5/fs/partitions/check.c linux-bluefish/fs/partitions/check.c
+--- /home/dgibson/kernel/linuxppc-2.5/fs/partitions/check.c	2002-10-01 10:17:33.000000000 +1000
++++ linux-bluefish/fs/partitions/check.c	2002-10-01 12:42:28.000000000 +1000
+@@ -338,10 +338,6 @@
+ static void devfs_create_cdrom(struct gendisk *dev)
+ {
+ #ifdef CONFIG_DEVFS_FS
+-	int pos = 0;
+-	devfs_handle_t dir, slave;
+-	unsigned int devfs_flags = DEVFS_FL_DEFAULT;
+-	char dirname[64], symlink[16];
+ 	char vname[23];
+ 
+ 	if (!cdroms)
 
-As I've said before, this collection of patches breaks up the i386
-time.c using a timer_ops structure to abstract away the different time
-sources used (such as TSC, PIT, and in the future HPET, cyclone,
-ACPIpm). 
 
-Part 1 is just the infrastructure required (struct timer_ops,
-select_timer()), and changes no existing code.
-
-Please apply.
-
-thanks
--john
-
-diff -Nru a/arch/i386/kernel/timer.c b/arch/i386/kernel/timer.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timer.c	Mon Sep 30 19:14:54 2002
-@@ -0,0 +1,26 @@
-+#include <linux/kernel.h>
-+#include <asm/timer.h>
-+
-+/* list of externed timers */
-+/* eg: extern struct timer_opts timer_XXX*/;
-+
-+/* list of timers, ordered by preference */
-+struct timer_opts* timers[] = {
-+	/* eg: &timer_XXX */
-+};
-+
-+#define NR_TIMERS (sizeof(timers)/sizeof(timers[0]))
-+
-+/* iterates through the list of timers, returning the first 
-+ * one that initializes successfully.
-+ */
-+struct timer_opts* select_timer(void)
-+{
-+	int i;
-+	/* find most preferred working timer */
-+	for(i=0; i < NR_TIMERS; i++)
-+		if(timers[i]->init())
-+			return timers[i];
-+	panic("select_timer: Cannot find a suitable timer\n");
-+	return 0;
-+}
-diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/timer.h	Mon Sep 30 19:14:54 2002
-@@ -0,0 +1,14 @@
-+#ifndef _ASMi386_TIMER_H
-+#define _ASMi386_TIMER_H
-+
-+struct timer_opts{
-+	/* probes and initializes timer. returns 1 on sucess, 0 on failure */
-+	int (*init)(void);
-+	/* called by the timer interrupt */
-+	void (*mark_offset)(void);
-+	/* called by gettimeofday. returns # ms since the last timer interrupt */
-+	unsigned long (*get_offset)(void);
-+};
-+
-+struct timer_opts* select_timer(void);
-+#endif
-
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

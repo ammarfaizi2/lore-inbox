@@ -1,98 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265633AbTAXXEG>; Fri, 24 Jan 2003 18:04:06 -0500
+	id <S265857AbTAXXMB>; Fri, 24 Jan 2003 18:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTAXXEG>; Fri, 24 Jan 2003 18:04:06 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:4834 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265633AbTAXXEE>;
-	Fri, 24 Jan 2003 18:04:04 -0500
-Subject: Re: [RFC][PATCH] linux-2.5.59_lost-tick_A0
-From: Stephen Hemminger <shemminger@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1043189962.15683.82.camel@w-jstultz2.beaverton.ibm.com>
-References: <1043189962.15683.82.camel@w-jstultz2.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1043449992.10150.29.camel@dell_ss3.pdx.osdl.net>
+	id <S265843AbTAXXMB>; Fri, 24 Jan 2003 18:12:01 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:41604 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S265857AbTAXXMA>;
+	Fri, 24 Jan 2003 18:12:00 -0500
+Date: Sat, 25 Jan 2003 01:21:10 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Corey Minyard <minyard@acm.org>
+Cc: Mark Mielke <mark@mark.mielke.cc>, Dan Kegel <dank@kegel.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: debate on 700 threads vs asynchronous code
+Message-ID: <20030124232110.GN787@mea-ext.zmailer.org>
+References: <Pine.LNX.4.44.0301232144470.8203-100000@coffee.psychology.mcmaster.ca> <3E30F79D.6050709@kegel.com> <20030124082610.GA12781@mark.mielke.cc> <3E31C3FA.1060302@acm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 24 Jan 2003 15:13:13 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E31C3FA.1060302@acm.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor nit: detect_lost_tick could be static and inline.
+On Fri, Jan 24, 2003 at 04:53:46PM -0600, Corey Minyard wrote:
+...
+> I would disagree.  One thread per connection is easier to conceptually 
+> understand.  In my experience, an event-driven model (which is what you 
+> end up with if you use one or a few threads) is actually easier to 
+> correctly implement and it tends to make your code more modular and 
+> portable.
 
-On Tue, 2003-01-21 at 14:59, john stultz wrote:
-> All,
-> 	This patch addresses the following problem: Linux cannot properly
-> handle the case where interrupts are disabled for longer then two ticks.
-> 
-> Quick background: 
-> 	gettimeofday() calculates wall time using roughly the following
-> equation: xtime + (jiffies - wall_jiffies) + timer->get_offset()
-> 
-> When a tick is lost, the system is able to compensate short-term because
-> even though jiffies is not incremented, timer->get_offset() (which is
-> hardware based) continues to increase. However this falls apart, because
-> if after 3 or so lost-ticks an interrupt does occur, jiffies is
-> incremented only once and we reset timer->get_offset() effectively
-> loosing the time we had been compensating for. This causes brief
-> inconsistencies in time, in addition to causing system time to drift
-> behind that of other systems.
-> 
-> This patch solves the problem by checking when an interrupt occurs if
-> timer->get_offset() is a value greater then 2 ticks. If so, it
-> increments jiffies appropriately. 
-> 
-> Comments, flames and suggestions are requested and welcome.
-> 
-> thanks
-> -john
-> 
-> diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-> --- a/arch/i386/kernel/time.c	Tue Jan 21 14:14:18 2003
-> +++ b/arch/i386/kernel/time.c	Tue Jan 21 14:14:18 2003
-> @@ -265,6 +265,21 @@
->  #endif
->  }
->  
-> +/*Lost tick detection and compensation*/
-> +void detect_lost_tick(void)
-> +{
-> +	/*read time since last interrupt*/
-> +	unsigned long delta = timer->get_offset();
-> +
-> +	/*check if delta is greater then two ticks*/
-> +	if(delta > 2*(1000000/HZ)){
-> +		/*calculate number of missed ticks*/
-> +		delta = delta/(1000000/HZ)-1;
-> +		jiffies += delta;
-> +	}
-> +		
-> +}
-> +
->  /*
->   * This is the same as the above, except we _also_ save the current
->   * Time Stamp Counter value at the time of the timer interrupt, so that
-> @@ -281,6 +296,7 @@
->  	 */
->  	write_lock(&xtime_lock);
->  
-> +	detect_lost_tick();
->  	timer->mark_offset();
->   
->  	do_timer_interrupt(irq, NULL, regs);
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Stephen Hemminger <shemminger@osdl.org>
-Open Source Devlopment Lab
+  An old thing from early annals of computer science (I browsed Knuth's
+"The Art" again..) is called   Coroutine.
 
+Gives you "one thread per connection" programming model, but without
+actual multiple scheduling threads in the kernel side.
+
+Simplest coroutine implementations are truly simple.. Pagefull of C.
+Knuth shows it with very few MIX (assembly) instructions.
+
+Throwing in non-blocking socket/filedescriptor access, and in event
+of "EAGAIN", coroutine-yielding to some other coroutine, does complicate
+things, naturally.
+
+Good coder finds balance in between various methods, possibly uses
+both coroutine "userspace threads", and actual kernel threads.
+
+Doing coroutine library all in portable C (by means of setjmp()/longjmp())
+is possible, but not very efficient.  A bit of assembly helps a lot.
+
+> -Corey
+
+/Matti Aarnio

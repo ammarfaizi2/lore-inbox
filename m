@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264754AbTF3Sg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 14:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbTF3Sg1
+	id S264672AbTF3Ska (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 14:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTF3Ska
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 14:36:27 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:48870 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S264754AbTF3SgT convert rfc822-to-8bit
+	Mon, 30 Jun 2003 14:40:30 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:61067 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264672AbTF3Sk2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 14:36:19 -0400
-content-class: urn:content-classes:message
+	Mon, 30 Jun 2003 14:40:28 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 30 Jun 2003 11:46:55 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Mike Galbraith <efault@gmx.de>
+cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+In-Reply-To: <5.2.0.9.2.20030630133424.00cfe800@pop.gmx.net>
+Message-ID: <Pine.LNX.4.55.0306301141570.3519@bigblue.dev.mcafeelabs.com>
+References: <200306301535.49732.kernel@kolivas.org> <200306281516.12975.kernel@kolivas.org>
+ <200306291457.40524.kernel@kolivas.org> <200306301535.49732.kernel@kolivas.org>
+ <5.2.0.9.2.20030630133424.00cfe800@pop.gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] ethtool_ops
-Date: Mon, 30 Jun 2003 11:46:16 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107DA41@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] ethtool_ops
-Thread-Index: AcM/JQbIMszpaCqQS+WgOt2bqBeAkAAERo+Q
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Matthew Wilcox" <willy@debian.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-X-OriginalArrivalTime: 30 Jun 2003 18:46:17.0164 (UTC) FILETIME=[E3A728C0:01C33F37]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jun 06, 2003 at 01:17:46PM -0700, Feldman, Scott wrote:
-> > * On get_gregs, for example, would it make sense to ->get_drvinfo
-> >   so you'll know regdump_len and therefore can kmalloc an 
-> ethtool_regs
-> >   with enough space to pass to ->get_regs?  Keep the kmalloc and
-> >   kfree together.  Same for self_test, get_strings, and get_stats.
-> >   For get_strings, size = max{n_stats, testinfo_len)*sizeof(u64).
-> 
-> That would be one possibility, but get_drvinfo is quite 
-> heavyweight. I think I'd prefer to not do that unless there's 
-> a strong feeling about thing.
+On Mon, 30 Jun 2003, Mike Galbraith wrote:
 
-I'm pretty sure you want to do this.  The less work done in the drivers,
-the better.  See Jeff's response on this as well.
- 
-> > * Can we get an HAVE_ETHTOOL_OPS defined in netdevice.h to support
-> >   backward compat?
-> 
-> I'm hoping to avoid that by getting compatibility code merged 
-> into 2.4.22.
+> At 11:39 AM 6/30/2003 +0200, Marc-Christian Petersen wrote:
+>
+> >Please, can we invite Ingo to this thread? I think it is now _really_ the
+> >time
+> >to get this fixed up :)
+>
+> The giants all seem to be busy... are munchkins stackable? ;-)
 
-I'm not sure what compatibility code you're referring to.  We need to
-target older kernels with the same code base, so a simple
-HAVE_ETHTOOL_OPS would make this easy.  I'd really like to move over to
-ethtool_ops for e100/e1000/ixgb, but it's problematic if we need to
-manage multiple code bases.
+Ingo, when you come back from Mars :) ... what has been changed from the
+very first versions of 2.5.x ? I was able to run unrealistic `make -j`
+(among other crap) and still have a liquid desktop back then ...
 
--scott
+
+
+- Davide
+

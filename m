@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286206AbRLTH5a>; Thu, 20 Dec 2001 02:57:30 -0500
+	id <S286207AbRLTILu>; Thu, 20 Dec 2001 03:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286207AbRLTH5V>; Thu, 20 Dec 2001 02:57:21 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:54022
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S286206AbRLTH5O>; Thu, 20 Dec 2001 02:57:14 -0500
-Message-Id: <5.1.0.14.2.20011220024656.01e0cd20@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 20 Dec 2001 02:51:42 -0500
-To: "David S. Miller" <davem@redhat.com>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-Cc: Mika.Liljeberg@welho.com, kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
-        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
-In-Reply-To: <20011219.234020.98861143.davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
- <3C1FA558.E889A00D@welho.com>
- <20011218.122813.63057831.davem@redhat.com>
- <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
+	id <S286209AbRLTILl>; Thu, 20 Dec 2001 03:11:41 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:18054 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S286207AbRLTIL3>;
+	Thu, 20 Dec 2001 03:11:29 -0500
+Date: Thu, 20 Dec 2001 10:11:18 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: davem@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: proposal: feed smaller mailing lists into linux-kernel, add linux-kernel-core and linux-kernel-bugs
+Message-ID: <20011220101118.G1870@mea-ext.zmailer.org>
+In-Reply-To: <20011220020131.A4484@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011220020131.A4484@redhat.com>; from bcrl@redhat.com on Thu, Dec 20, 2001 at 02:01:32AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:40 PM 12/19/2001 -0800, David S. Miller wrote:
->They should trap on it or handle it, silent "garbage" is really not
->nice behavior.
+On Thu, Dec 20, 2001 at 02:01:32AM -0500, Benjamin LaHaise wrote:
+> Hello Dave,
+> 
+> In light of some of the earlier comments in the various threads, I'd like to
+> start feeding postings from linux-mm and linux-aio back into linux-kernel 
+> to encourage more widespread distribution of highly specific mumblings to the 
+> community at large.  Along this lines, I also would like a couple of more 
+> specific mailing lists to be added: linux-kernel-core and linux-kernel-bugs 
+> to help readers in classifying the traffic.  Thoughts?
 
-hah, I wish. The ARM7 has seven "exception" vectors -- that's it.
+    If there *really* are people who want to get it all,
+    we could create a digested   linux-all  list.
 
-0x00 = RESET
-0x04 = Undefined instruction
-0x08 = Software interrupt (SWI instruction, used to escape the restricted 
-USR cpu mode)
-0x0C = Data abort (a very very very much lesser form of an access 
-violation; accessing memory that's physically not there)
-0x10 = Prefetch abort (a data abort that happens trying to read the next 
-instruction)
-0x14 = IRQ  <-  these two can't really even count as exceptions!
-0x18 = FIQ  <-  which makes for five...
-0x1C = <-
-0x20 = <- Oh, yeah, and two "reserved" fields which aren't likely to ever 
-be used.
+    On the other hand, they can do like I do:  subscribe
+    all interesting into separate addresses (aliases),
+    which go into separate folders.
 
-Anyway, this is a bit off-topic now.
+    As things are, people who are using Yahoo or Hotmail,
+    or whatever Mail-ISP thing out there are usually
+    being bounced (and removed) because of the very high
+    traffic volume at linux-kernel overflowing their
+    mailboxes already.  (Digest won't help them there.)
 
+> 		-ben
+> -- 
+> Fish.
 
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+/Matti Aarnio  --  co-postmaster of vger.kernel.org
+                   occasional linux kernel hacker

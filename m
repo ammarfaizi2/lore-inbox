@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281285AbRKETWZ>; Mon, 5 Nov 2001 14:22:25 -0500
+	id <S281286AbRKETXx>; Mon, 5 Nov 2001 14:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281286AbRKETWN>; Mon, 5 Nov 2001 14:22:13 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:26634 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S281285AbRKETWF>; Mon, 5 Nov 2001 14:22:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S281287AbRKETXn>; Mon, 5 Nov 2001 14:23:43 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:24325 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP
+	id <S281286AbRKETXb>; Mon, 5 Nov 2001 14:23:31 -0500
+Date: Mon, 05 Nov 2001 12:23:30 -0700
 To: linux-kernel@vger.kernel.org
-Subject: task `ifconfig' exit_signal 17 in reparent_to_init
-Date: Mon, 5 Nov 2001 21:21:58 +0000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01110521215800.00884@nemo>
 Content-Transfer-Encoding: 7BIT
+User-Agent: IMHO/0.98.2 (Webmail for Roxen)
+From: Ben Carrell <ben@xmission.com>
+MIME-Version: 1.0
+X-Originating-IP: [155.99.222.28]
+Subject: 2.4.13-ac8 =?iso-8859-1?q?changelog=3F?=
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E160pLG-0003vD-00@mail.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.13. In my bootscript messages I see
+The change log for the -ac series has only entries for up to -ac7 on
+2.4.13... Is this by design or has it not been updated for -ac8?
 
-* Configuring loopback: 127.0.0.1
-* Attempting to configure eth0 by contacting a DHCP server...
-dhcpcd: your IP address = 172.16.42.84
-* Configuring eth1: 172.16.241.2
-- ifconfig eth1
-task `ifconfig' exit_signal 17 in reparent_to_init   <-----
+See the changelog at:
+http://www.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.13/no
+tes.2413
 
-Dunno is it normal or what, thought somebody will find this info useful...
-eth1 is configured and working fine (I'm connecting to NFS server over it).
---
-vda

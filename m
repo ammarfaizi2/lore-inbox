@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUGRUI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264492AbUGRUKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUGRUI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 16:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUGRUI3
+	id S264492AbUGRUKe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 16:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUGRUKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 16:08:29 -0400
-Received: from wblv-254-37.telkomadsl.co.za ([165.165.254.37]:20352 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S261239AbUGRUI1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 16:08:27 -0400
-Subject: Re: [PATCH] inotify 0.5
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       nautilus-list@gnome.org
-In-Reply-To: <1090180960.5399.0.camel@vertex>
-References: <1090180167.5079.21.camel@vertex>
-	 <1090180432.5281.37.camel@nosferatu.lan>  <1090180960.5399.0.camel@vertex>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4jqxf0R10mhvorqEFX1i"
-Message-Id: <1090181465.5281.41.camel@nosferatu.lan>
+	Sun, 18 Jul 2004 16:10:34 -0400
+Received: from admingilde.org ([213.95.21.5]:3248 "EHLO admingilde.org")
+	by vger.kernel.org with ESMTP id S264492AbUGRUK0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 16:10:26 -0400
+Date: Sun, 18 Jul 2004 22:10:14 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: linux-kernel CVS gateway?
+Message-ID: <20040718201014.GA8291@admingilde.org>
+Mail-Followup-To: Kasper Sandberg <lkml@metanurb.dk>,
+	LKML Mailinglist <linux-kernel@vger.kernel.org>
+References: <20040717213703.GE5464@admingilde.org> <1090142336.15165.1.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 18 Jul 2004 22:11:05 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Content-Disposition: inline
+In-Reply-To: <1090142336.15165.1.camel@localhost>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.6+20040523i
+X-Hashcash: 0:040718:lkml@metanurb.dk:df35e34e4cada859
+X-Hashcash: 0:040718:linux-kernel@vger.kernel.org:498a12cd26f29aa9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-4jqxf0R10mhvorqEFX1i
-Content-Type: text/plain
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2004-07-18 at 22:02, John McCutchan wrote:
-> On Sun, 2004-07-18 at 15:53, Martin Schlemmer wrote:
-> > On Sun, 2004-07-18 at 21:49, John McCutchan wrote:
-> >=20
-> > > I plan on adding an inotify backend to gamin soon.
-> > >=20
-> >=20
-> > What about support for fam?
->=20
-> I have been getting the impression that fam is going to be replaced by
-> gamin.
->=20
+hi :)
 
-Right, but kde also works with fam, and I assume the gamin support
-will only be in 2.[78] gnome-vfs?  Also, it would be nice to test
-currently with fam enabled stuff, as I want to remember inotify
-do not have issues with locking mounts like dnotify have?  Or is
-it rather a fam-related issue ?
+On Sun, Jul 18, 2004 at 11:18:56AM +0200, Kasper Sandberg wrote:
+> they are using bitkeeper
 
-
-Thanks,
+sure, but Larry announced the CVS gateway some months ago...
+now that I wanted to give it a try, it doesn't exist anymore :(
 
 --=20
-Martin Schlemmer
+Martin Waitz
 
---=-4jqxf0R10mhvorqEFX1i
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA+tlZqburzKaJYLYRApddAJ4qjHwmg9DvbyIfAzf4gjElCy9IXACghYRA
-TPCFun/TFyu5BEI3IdF0qoo=
-=Uvl2
+iD8DBQFA+tkmj/Eaxd/oD7IRAn+zAJ0cWAXWd/sLw+1H+iUgbIE6P1A5NwCff9f4
+/Rp3wb9SxKIn27KL6QohHes=
+=FfBd
 -----END PGP SIGNATURE-----
 
---=-4jqxf0R10mhvorqEFX1i--
+--u3/rZRmxL6MmkK24--
 

@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbUKEJti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbUKEJtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbUKEJti (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 04:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUKEJti
+	id S262637AbUKEJtm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 04:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUKEJtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 04:49:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:35752 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262635AbUKEJtT (ORCPT
+	Fri, 5 Nov 2004 04:49:42 -0500
+Received: from gyre.foreca.com ([193.94.59.26]:48847 "EHLO gyre.weather.fi")
+	by vger.kernel.org with ESMTP id S262637AbUKEJtX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 04:49:19 -0500
-Date: Fri, 5 Nov 2004 10:49:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Mark_H_Johnson@raytheon.com, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.11 (oops)
-Message-ID: <20041105094917.GA3585@elte.hu>
-References: <OF88A40911.ECF57E25-ON86256F42.006C01DC-86256F42.006C0216@raytheon.com> <20041104195206.GB11672@elte.hu> <1099620674.3137.98.camel@cmn37.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099620674.3137.98.camel@cmn37.stanford.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 5 Nov 2004 04:49:23 -0500
+Date: Fri, 5 Nov 2004 11:49:10 +0200 (EET)
+From: =?ISO-8859-1?Q?Jaakko_Hyv=E4tti?= <jaakko@hyvatti.iki.fi>
+X-X-Sender: jaakko@gyre.weather.fi
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and nfsd do not work under load (Re: x86_64, LOCKUP on
+ CPU0, kjournald)
+In-Reply-To: <20041101013150.2ab0aaa5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0411031652550.14341@gyre.weather.fi>
+References: <Pine.LNX.4.58.0410260818560.3400@gyre.weather.fi>
+ <Pine.LNX.4.58.0411010847180.2172@gyre.weather.fi> <20041101013150.2ab0aaa5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Nov 2004, Andrew Morton wrote:
+> I'd suggest that you either recompile this vendor kernel with
+> CONFIG_DEBUG_SLAB=y or try a later kernel.org kernel and see if it's fixed.
 
-* Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+  A funny detail.  CONFIG_DEBUG_SLAB=y makes kernel.org 2.6.9 refuse
+rlogin and telnet connections, I suppose because of problems with pty
+allocations.  Cannot find any debug anywhere about this.  Ssh and console
+logins work.  So I cannot enable CONFIG_DEBUG_SLAB.  Will proceed with
+2.6.9 though.  I'll report when it hangs if it hangs.
 
-> I'm getting this on my athlon64 test machine with V0.7.11:
+Jaakko
 
-> EIP is at acpi_bus_register_driver+0x40/0x63
-
-does vanilla 2.6.10-rc1-mm2 boot fine?
-
-	Ingo
+-- 
+Foreca Ltd                                           Jaakko.Hyvatti@foreca.com
+Pursimiehenkatu 29-31 B, FIN-00150 Helsinki, Finland     http://www.foreca.com

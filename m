@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265828AbTGCKYW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 06:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbTGCKYW
+	id S265797AbTGCKYw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 06:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbTGCKYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 06:24:22 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:44025 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S265828AbTGCKYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 06:24:21 -0400
-Subject: Re: dmesg problem in 2.5.73
-From: Martin Schlemmer <azarah@gentoo.org>
-To: John Covici <covici@ccs.covici.com>
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3he64c7qo.fsf@ccs.covici.com>
-References: <m3he64c7qo.fsf@ccs.covici.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057228803.5499.243.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 03 Jul 2003 12:40:04 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 06:24:52 -0400
+Received: from catv-50622120.szolcatv.broadband.hu ([80.98.33.32]:49298 "EHLO
+	catv-50622120.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S265797AbTGCKYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 06:24:49 -0400
+Message-ID: <3F0407D1.8060506@freemail.hu>
+Date: Thu, 03 Jul 2003 12:39:13 +0200
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, hu
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.74-mm1
+Content-Type: multipart/mixed;
+ boundary="------------050200080000050701060906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-03 at 10:52, John Covici wrote:
-> Hi.  I have a weird problem -- maybe its iptables, but I am using the
-> log target and they print at legvel 4, but I only want level 3 or
-> less to print on the console, so I did 'dmesg -n 3' but I am still
-> getting the iptables messages.
-> 
-> I thought I could do this all with syslog.conf, but that has never
-> worked.
-> 
+This is a multi-part message in MIME format.
+--------------050200080000050701060906
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Changing DEFAULT_CONSOLE_LOGLEVEL (?) has been broken since
-2.5.70 or 2.5.71.  I checked kernel/printk.c, etc, but could
-not see anything that was causing this.
+Hi,
 
-
-Regards,
+fs/jfs/xattr.c does not compile after applying your .74-mm1
+because of a simple typo. Fix is attached.
 
 -- 
-Martin Schlemmer
+Best regards,
+Zoltán Böszörményi
 
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
+
+
+--------------050200080000050701060906
+Content-Type: text/plain;
+ name="jfs-xattr-typo-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="jfs-xattr-typo-fix.patch"
+
+--- fs/jfs/xattr.c~	2003-07-03 12:35:32.000000000 +0200
++++ fs/jfs/xattr.c	2003-07-03 12:35:32.000000000 +0200
+@@ -1028,7 +1028,7 @@
+ 	err = __jfs_listxattr(dentry->d_inode, data, buf_size);
+ 	up(&dentry->d_inode->i_sem);
+ 
+-	rerturn err;
++	return err;
+ }
+ 
+ int jfs_removexattr(struct dentry *dentry, const char *name)
+
+--------------050200080000050701060906--
 

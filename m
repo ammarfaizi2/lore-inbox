@@ -1,132 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVCGWmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCHBlC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVCGWmh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 17:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVCGWl7
+	id S261276AbVCHBlC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 20:41:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVCHBgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:41:59 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55030 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261810AbVCGVsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:48:13 -0500
-Date: Mon, 7 Mar 2005 13:48:08 -0800
-From: Frank Rowand <frowand@mvista.com>
-Message-Id: <200503072148.j27Lm8Hs006322@localhost.localdomain>
-To: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: [PATCH 3/5] ppc RT: ppc_mcount.patch
+	Mon, 7 Mar 2005 20:36:54 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:4164 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261825AbVCGWvV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 17:51:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=nfJwLbiB74dm580hxryNceCVSEfIiVzPP5DrX2TcYxxLUHvPwzON4o3x5QfSmxLkxkc8Nq7zu1CoqvIFVHC/APQj1SqRNFT3xtEiOUpE8i0paJMCEDwNFPNkKvHu/kX1ECG4nyZxOMSk8yX8vaZY5FWSyifLXKCow9mT7sLbomo=
+Message-ID: <29495f1d05030714515c44caf2@mail.gmail.com>
+Date: Mon, 7 Mar 2005 14:51:21 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: johnpol@2ka.mipt.ru
+Subject: Re: [8/many] acrypto: crypto_dev.c
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
+       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050308021431.1313971a@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <11102278542733@2ka.mipt.ru> <1110227854480@2ka.mipt.ru>
+	 <29495f1d0503071440562f054@mail.gmail.com>
+	 <20050308021431.1313971a@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Source: MontaVista Software, Inc.
-Signed-off-by: Frank Rowand <frowand@mvista.com>
+On Tue, 8 Mar 2005 02:14:31 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> On Mon, 7 Mar 2005 14:40:52 -0800
+> Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> 
+> > On Mon, 7 Mar 2005 23:37:34 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > --- /tmp/empty/crypto_dev.c     1970-01-01 03:00:00.000000000 +0300
+> > > +++ ./acrypto/crypto_dev.c      2005-03-07 20:35:36.000000000 +0300
+> > > @@ -0,0 +1,421 @@
+> > > +/*
+> > > + *     crypto_dev.c
+> >
+> > <snip>
+> >
+> > > +                       while (atomic_read(&__dev->refcnt)) {
 
-Index: linux-2.6.10/arch/ppc/kernel/entry.S
-===================================================================
---- linux-2.6.10.orig/arch/ppc/kernel/entry.S
-+++ linux-2.6.10/arch/ppc/kernel/entry.S
-@@ -1018,3 +1018,85 @@ machine_check_in_rtas:
- 	/* XXX load up BATs and panic */
- 
- #endif /* CONFIG_PPC_OF */
-+
-+#ifdef CONFIG_MCOUNT
-+
-+/*
-+ * mcount() is not the same as _mcount().  The callers of mcount() have a
-+ * normal context.  The callers of _mcount() do not have a stack frame and
-+ * have not saved the "caller saves" registers.
-+ */
-+_GLOBAL(mcount)
-+	stwu	r1,-16(r1)
-+	mflr	r3
-+	lis	r5,mcount_enabled@ha
-+	lwz	r5,mcount_enabled@l(r5)
-+	stw	r3,20(r1)
-+	cmpwi	r5,0
-+	beq	1f
-+	/* r3 contains lr (eip), put parent lr (parent_eip) in r4 */
-+	lwz	r4,16(r1)
-+	lwz	r4,4(r4)
-+	bl	__trace
-+1:
-+	lwz	r0,20(r1)
-+	mtlr	r0
-+	addi	r1,r1,16
-+	blr
-+
-+/*
-+ * The -pg flag, which is specified in the case of CONFIG_MCOUNT, causes the
-+ * C compiler to add a call to _mcount() at the start of each function preamble,
-+ * before the stack frame is created.  An example of this preamble code is:
-+ * 
-+ * 	mflr    r0
-+ * 	lis     r12,-16354
-+ * 	stw     r0,4(r1)
-+ * 	addi    r0,r12,-19652
-+ * 	bl      0xc00034c8 <_mcount>
-+ * 	mflr    r0
-+ * 	stwu    r1,-16(r1)
-+ */
-+_GLOBAL(_mcount)
-+#define M_STK_SIZE 48
-+	/* Would not expect to need to save cr, but glibc version of */
-+	/* _mcount() does, so cautiously saving it here too.         */
-+	stwu	r1,-M_STK_SIZE(r1)
-+	stw	r3, 12(r1)
-+	stw	r4, 16(r1)
-+	stw	r5, 20(r1)
-+	stw	r6, 24(r1)
-+	mflr	r3		/* will use as first arg to __trace() */
-+	mfcr	r4
-+	lis	r5,mcount_enabled@ha
-+	lwz	r5,mcount_enabled@l(r5)
-+	cmpwi	r5,0
-+	stw	r3, 44(r1)	/* lr */
-+	stw	r4,  8(r1)	/* cr */
-+	stw	r7, 28(r1)
-+	stw	r8, 32(r1)
-+	stw	r9, 36(r1)
-+	stw	r10,40(r1)
-+	beq	1f
-+	/* r3 contains lr (eip), put parent lr (parent_eip) in r4 */
-+	lwz	r4,M_STK_SIZE+4(r1)
-+	bl	__trace
-+1:
-+	lwz	r8,  8(r1)	/* cr */
-+	lwz	r9, 44(r1)	/* lr */
-+	lwz	r3, 12(r1)
-+	lwz	r4, 16(r1)
-+	lwz	r5, 20(r1)
-+	mtcrf	0xff,r8
-+	mtctr	r9
-+	lwz	r0, 52(r1)
-+	lwz	r6, 24(r1)
-+	lwz	r7, 28(r1)
-+	lwz	r8, 32(r1)
-+	lwz	r9, 36(r1)
-+	lwz	r10,40(r1)
-+	addi	r1,r1,M_STK_SIZE
-+	mtlr	r0
-+	bctr
-+
-+#endif /* CONFIG_MCOUNT */
-Index: linux-2.6.10/arch/ppc/boot/Makefile
-===================================================================
---- linux-2.6.10.orig/arch/ppc/boot/Makefile
-+++ linux-2.6.10/arch/ppc/boot/Makefile
-@@ -11,6 +11,15 @@
- #
- 
- CFLAGS	 	+= -fno-builtin -D__BOOTER__ -Iarch/$(ARCH)/boot/include
-+
-+ifdef CONFIG_MCOUNT
-+# do not trace the boot loader
-+nullstring :=
-+space      := $(nullstring) # end of the line
-+pg_flag     = $(nullstring) -pg # end of the line
-+CFLAGS     := $(subst ${pg_flag},${space},${CFLAGS})
-+endif
-+
- HOSTCFLAGS	+= -Iarch/$(ARCH)/boot/include
- 
- BOOT_TARGETS	= zImage zImage.initrd znetboot znetboot.initrd
+<snip>
+
+> > > +                               set_current_state(TASK_UNINTERRUPTIBLE);
+> > > +                               schedule_timeout(HZ);
+> >
+> > I don't see any wait-queues in the immediate area of this code. Can
+> > this be an ssleep(1)?
+> 
+> Yes, you are right, this loop just spins until all pending sessions
+> are removed from given crypto device, so it can just ssleep(1) here.
+
+Would you like me to send an incremental patch or will you be changing
+it yourself?
+
+Thanks,
+Nish

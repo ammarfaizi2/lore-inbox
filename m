@@ -1,106 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQL1I3m>; Thu, 28 Dec 2000 03:29:42 -0500
+	id <S129525AbQL1In6>; Thu, 28 Dec 2000 03:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQL1I3c>; Thu, 28 Dec 2000 03:29:32 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:47121 "EHLO smtp2.free.fr")
-	by vger.kernel.org with ESMTP id <S129391AbQL1I3T>;
-	Thu, 28 Dec 2000 03:29:19 -0500
-To: alan@lxorguk.ukuu.org.uk
-Subject: [patch] megaraid in 2.2.18 : correctly identify NetRaid cards
-Message-ID: <977990332.3a4af2bc18914@imp.free.fr>
-Date: Thu, 28 Dec 2000 08:58:52 +0100 (MET)
-From: Willy Tarreau <wtarreau@free.fr>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 195.6.58.78
+	id <S129552AbQL1Inh>; Thu, 28 Dec 2000 03:43:37 -0500
+Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:7154 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S129525AbQL1Inf>; Thu, 28 Dec 2000 03:43:35 -0500
+From: brian@worldcontrol.com
+Date: Thu, 28 Dec 2000 00:19:49 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Which resource is temporarily unavailable
+Message-ID: <20001228001949.A7365@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+I'm getting
 
-As previously discussed, I've slighlty arranged the version identification
-code in the 2.2.18 megaraid driver so that it correcly sees bios and firmware
-versions on a netraid. Without the patch, I only get smileys and hieroglyphs
-because the version is interpreted as a string which it is not, on the netraid.
+zsh: fork failed: resource temporarily unavailable
 
-On the netraid I have here, the fourth byte in the version is always 0x20, which
-I used to identify the version coding because on a megaraid, I have a number
-here instead. I'd like people who also have a netraid to test if this is enough
-to catch their bios and firmware releases too.
+on a machine.  It has 510 processes which are mostly
+asleep, running under various user ids.
 
-Here comes the small patch. Please note that I extended the version length to
-8 bytes to conform to the syntax the bios uses : letter.2digits.2digits
-The old undefined code under #ifdef HP has been removed since it was buggy
-anyway (char >> 8 always gives 0 ...)
+Multiple user accounts get the error when it occurs, though
+root seems to continue to work fine.
 
-Regards,
-Willy
+How do I determine which resource is the problem so I can
+fix the shortage?
 
---- linux/drivers/scsi/megaraid.h-orig	Wed Dec 27 16:08:26 2000
-+++ linux/drivers/scsi/megaraid.h	Wed Dec 27 16:08:00 2000
-@@ -639,8 +639,8 @@
-     u32 nWriteBlocks[FC_MAX_LOGICAL_DRIVES];
-     u32 nInterrupts;
-     /* Host adapter parameters */
--    u8 fwVer[7];
--    u8 biosVer[7];
-+    u8 fwVer[8];
-+    u8 biosVer[8];
- 
-     struct Scsi_Host *host;
- 
---- linux/drivers/scsi/megaraid.c-orig	Wed Dec 27 13:22:27 2000
-+++ linux/drivers/scsi/megaraid.c	Wed Dec 27 16:02:27 2000
-@@ -1767,27 +1767,25 @@
-   if (megaCfg->host->can_queue >= MAX_COMMANDS) {
-     megaCfg->host->can_queue = MAX_COMMANDS-1;
-   }
-+  if ((megaCfg->productInfo.FwVer[3] == 0x20) &&
-+      (megaCfg->productInfo.BiosVer[3] == 0x20)) {
-+	/* use HP firmware and bios version encoding */
-+	  sprintf (megaCfg->fwVer, "%c.%02x.%02x",
-+		   megaCfg->productInfo.FwVer[2],
-+		   megaCfg->productInfo.FwVer[1],
-+		   megaCfg->productInfo.FwVer[0]);
-+	  sprintf (megaCfg->biosVer, "%c.%02x.%02x",
-+		   megaCfg->productInfo.BiosVer[2],
-+		   megaCfg->productInfo.BiosVer[1],
-+		   megaCfg->productInfo.BiosVer[0]);
-+  }
-+  else {
-+	  memcpy (megaCfg->fwVer, (char *)megaCfg->productInfo.FwVer, 4);
-+	  megaCfg->fwVer[4] = 0;
- 
--#ifdef HP			/* use HP firmware and bios version encoding */
--  sprintf (megaCfg->fwVer, "%c%d%d.%d%d",
--	   megaCfg->productInfo.FwVer[2],
--	   megaCfg->productInfo.FwVer[1] >> 8,
--	   megaCfg->productInfo.FwVer[1] & 0x0f,
--	   megaCfg->productInfo.FwVer[2] >> 8,
--	   megaCfg->productInfo.FwVer[2] & 0x0f);
--  sprintf (megaCfg->biosVer, "%c%d%d.%d%d",
--	   megaCfg->productInfo.BiosVer[2],
--	   megaCfg->productInfo.BiosVer[1] >> 8,
--	   megaCfg->productInfo.BiosVer[1] & 0x0f,
--	   megaCfg->productInfo.BiosVer[2] >> 8,
--	   megaCfg->productInfo.BiosVer[2] & 0x0f);
--#else
--  memcpy (megaCfg->fwVer, (char *)megaCfg->productInfo.FwVer, 4);
--  megaCfg->fwVer[4] = 0;
--
--  memcpy (megaCfg->biosVer, (char *)megaCfg->productInfo.BiosVer, 4);
--  megaCfg->biosVer[4] = 0;
--#endif
-+	  memcpy (megaCfg->biosVer, (char *)megaCfg->productInfo.BiosVer, 4);
-+	  megaCfg->biosVer[4] = 0;
-+  }
- 
-   printk ("megaraid: [%s:%s] detected %d logical drives" CRLFSTR,
-           megaCfg->fwVer,
+System is Linux 2.2.18 with 384MB RAM.
+
+Thanks,
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

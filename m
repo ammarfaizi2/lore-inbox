@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317606AbSFMNYY>; Thu, 13 Jun 2002 09:24:24 -0400
+	id <S317604AbSFMNav>; Thu, 13 Jun 2002 09:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317610AbSFMNYX>; Thu, 13 Jun 2002 09:24:23 -0400
-Received: from maild.telia.com ([194.22.190.101]:58066 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S317606AbSFMNYV>;
-	Thu, 13 Jun 2002 09:24:21 -0400
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-Date: Thu, 13 Jun 2002 15:24:14 +0200
-User-Agent: KMail/1.4.5
-In-Reply-To: <Pine.GSO.4.21.0206122016140.16357-100000@weyl.math.psu.edu> <3D08583F.B40A4AFD@aitel.hist.no>
+	id <S317610AbSFMNau>; Thu, 13 Jun 2002 09:30:50 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.82.13]:10368 "EHLO
+	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S317604AbSFMNat>; Thu, 13 Jun 2002 09:30:49 -0400
+From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+To: "'Helge Hafting'" <helgehaf@aitel.hist.no>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: The buggy APIC of the Abit BP6
+Date: Thu, 13 Jun 2002 15:30:20 +0200
+Message-ID: <003601c212de$77316240$020da8c0@nitemare>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200206131524.14495.roger.larsson@skelleftea.mail.telia.com>
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <3D08603E.91DE5C75@aitel.hist.no>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 June 2002 10.30, Helge Hafting wrote:
-> Alexander Viro wrote:
-> > 
-> > On Wed, 12 Jun 2002, Benjamin LaHaise wrote:
-> > 
-> > > On Wed, Jun 12, 2002 at 06:26:55PM -0400, Alexander Viro wrote:
-> > > > Not realistic - we have a recursion through the ->follow_link(), and
-> > > > a lot of stuff can be called from ->follow_link().  We _do_ have a
-> > > > limit on depth of recursion here, but it won't be fun to deal with.
-> > >
-> > > Perfection isn't what I'm looking for, rather just an approximation.
-> > > Any tool would have to give up on non-trivial recursion, or have
-> > 
-> > ... in which case it will be useless - anything callable from path_walk()
-> > will be out of its scope and that's a fairly large part of VFS, 
-filesystems,
-> > VM and upper halves of block devices.
+Helge Hafting wrote:
+
+> > Jun 12 23:47:56 radium kernel: unexpected IRQ trap at vector 7d
+> > Jun 12 23:47:56 radium kernel: unexpected IRQ trap at vector 7d
 > 
-> The automated checker may use hard-coded limits for recursions with
-> limited depth.  If follow_link stops after n iterations, tell
-> the checker about it and it will use that in its computations.
+> It _can_ be solved - rebooting cures it, so assuming the problem
+> is autodetectable it _can_ be solved by doing whatever it is
+> a reboot (or driver reload) does to the APIC.
 
-Alexander Viro <viro@math.psu.edu> wrote:
-> (link_path_walk->do_follow_link->foofs_follow_link->
-> vfs_follow_link->link_path_walk)
+True.
 
-It would not need to follow the recursion at all.
+> My guess is that the APIC setup for that IRQ have to be reprogrammed.
+> you could do that as a quirk for the BP6.
+> The first question is if there is a reliable way to detect this
+> condition.  "No interrupts from a device" could simply mean that
+> it isn't used much at the time.  You get a unexpected IRQ trap - do
+> the problem always manifest itself this way?
 
-A simple warning "vfs_follow_link makes a recursive call back
-to link_path_walk, stack space needed for each recursion is N bytes"
+Yes, I always get the "unexpected IRQ trap at vector 7d" message. This
+is the same message even with different NICs (though they were placed in
+the same PCI slot). About 30-120 seconds after this message (depending
+on some driver timeout value I guess) the NETDEV watchdog kicks in with
+a "eth0: transmit timed out".
 
-/RogerL
+> The second question is if all the PCI card drivers out there
+> survive a lost interrupt handled outside the driver.  
+> If not, you have to close+reopen the device, and that involves
+> userspace.
+> A network card will need reinitialization, a disk controller
+> remounting...
+
+That could indeed be a problem. But this will become clear pretty soon
+once this APIC reprogramming workaround is actually implemented in the
+kernel. Then I will be able to test that. Any ideas how this workaround
+in the kernel would look like?
+
+Thanks for the help,
+- Robbert Kouprie
 

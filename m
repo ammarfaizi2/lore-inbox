@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUDPVwq (ORCPT <rfc822;willy@w.ods.org>);
+	id S263878AbUDPVwq (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 16 Apr 2004 17:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbUDPVun
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbUDPVuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:50:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54955 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263863AbUDPVrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:47:24 -0400
-Date: Fri, 16 Apr 2004 14:49:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: maryedie@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DBT3-pgsql large performance improvement 2.6.6-rc1
-Message-Id: <20040416144943.3fc5744a.akpm@osdl.org>
-In-Reply-To: <1082134307.16437.461.camel@localhost>
-References: <1082134307.16437.461.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Apr 2004 17:50:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35712 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263772AbUDPVtO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:49:14 -0400
+Message-ID: <408054C9.5070202@pobox.com>
+Date: Fri, 16 Apr 2004 17:48:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: viro@parcelfarce.linux.theplanet.co.uk,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: baycom_par dereference before check.
+References: <20040416212004.GO20937@redhat.com> <20040416212541.GH24997@parcelfarce.linux.theplanet.co.uk> <20040416212738.GQ20937@redhat.com>
+In-Reply-To: <20040416212738.GQ20937@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mary Edie Meredith <maryedie@osdl.org> wrote:
->
-> Performance in DBT-3 (using PostgreSQL) has vastly
-> improved for _both in the "power" portion (single 
-> process/query) and in the "throughput" portion of 
-> the test (when the test is running multiple processes) 
-> on our 4-way(4GB) and 8-way(8GB) STP systems as 
-> compared 2.6.5  kernel results.
+Dave Jones wrote:
+> On Fri, Apr 16, 2004 at 10:25:41PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
-> Using the default DBT-3 options (ie using LVM, ext2, 
-> PostgreSQL version 7.4.1) 
+>  > > +++ linux-2.6.5/drivers/net/hamradio/baycom_par.c	2004-04-16 22:19:33.000000000 +0100
+>  > > @@ -272,9 +272,13 @@
+>  > >  static void par96_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+>  > >  {
+>  > >  	struct net_device *dev = (struct net_device *)dev_id;
+>  > > -	struct baycom_state *bc = netdev_priv(dev);
+>  > > +	struct baycom_state *bc;
+>  > >  
+>  > > -	if (!dev || !bc || bc->hdrv.magic != HDLCDRV_MAGIC)
+>  > > +	if (!dev)
+>  > > +		return;
+>  > > +
+>  > > +	bc = netdev_priv(dev);
+>  > 
+>  > That's OK - netdev_priv(p) just adds a constant offset to p; no problem
+>  > with doing that to NULL.
 > 
-> Note: Bigger numbers are better.
-> 
-> Kernel....Runid..CPUs.Power..%incP.Thruput %incT 
-> 2.6.5     291308   4  97.08  base   120.46  base   
-> 2.6.6-rc1 291876   4  146.11 50.5%  222.94 85.1%
-> 
-> Kernel....Runid..CPUs.Power..%incP..Thruput %incT
-> 2.6.5     291346   8  101.08  base   138.95 base
-> 2.6.6-rc1 291915   8  151.69  50.1%  273.69 97.0%
-> 
-> So the improvement is between 50% and 97%!
+> Good point. Still doesn't strike me as particularly nice though.
 
-How odd.
 
-> Profile 2.6.5 8way throughput phase:
-> http://khack.osdl.org/stp/291346/profile/after_throughput_test_1-tick.sort
-> Profile 2.6.6-r1 8way throughput phase:
-> http://khack.osdl.org/stp/291915/profile/after_throughput_test_1-tick.sort
+I would rather just remove the checks completely.  The success of any of 
+those checks is a BUG() condition that should never occur.
 
-Odder.  do_anonymous_page() is doing 10x more work in 2.6.6-rc1.  And the
-CPU scheduler cost has fallen a lot.
+	Jeff
 
-Frankly, I can't think of anything in 2.6.6-rc1 which would cause either of
-these things!
 
-> What I notice is that radix_tree_lookup is in 
-> the top 20 in the 2.6.5 profile, but not in 
-> 2.6.6-rc1.  Could theradix tree changes be 
-> responsible for this?
-
-I would certainly expect 2x or even higher throughput increases from either
-the writeback changes or the ext2&ext3 fsync changes.
-
-> DBT-3 is a read mostly DSS workload and the throughput 
-> phase  is where we run multiple query streams (as 
-> many as we have CPUs).  In this workload, the database 
-> is stored on a file system, but it is small relative 
-> to the amount of memory (4GB and 8GB).  It almost 
-> completely caches in page cache early on.   So there 
-> is some physical IO in the first few minutes, but very 
-> little to none in the remainder. 
-
-But you're not doing a significant amount of writing during the test, so
-scrub that theory.
-
-Do you have full reports anywhere?  I'd be interested in seeing a vmstat
-trace from the entire run, both 2.6.5 and 2.6.6-rc1.
 

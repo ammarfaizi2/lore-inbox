@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbUBXRA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:00:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUBXRA4
+	id S262312AbUBXRB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbUBXRBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:00:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5308 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262304AbUBXRAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:00:53 -0500
-From: john cherry <cherry@osdl.org>
-Date: Tue, 24 Feb 2004 09:00:51 -0800
-Message-Id: <200402241700.i1OH0pA08275@build-000.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA64 (2.6.3 - 2004-02-23.17.30) - 30 New warnings (gcc 3.3.1)
+	Tue, 24 Feb 2004 12:01:48 -0500
+Received: from smtp14.fre.skanova.net ([195.67.227.31]:46301 "EHLO
+	smtp14.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S262296AbUBXRBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:01:43 -0500
+Cc: linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Promise SATA driver
+References: <200402241110.07526.andrew@walrond.org> <20040224154446.GA28720@ee.oulu.fi> <403B73E3.80100@pobox.com> <200402241630.36105.andrew@walrond.org> <403B8028.1060700@pobox.com>
+Message-ID: <opr3vv7qk4uwbm4s@localhost>
+From: Henrik Gustafsson <henrik.gustafsson@fnord.se>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 24 Feb 2004 18:00:52 +0100
+In-Reply-To: <403B8028.1060700@pobox.com>
+User-Agent: Opera7.20/Win32 M2 build 3144
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
-kernel/sys.c:255: warning: function declaration isn't a prototype
-kernel/sys.c:256: warning: function declaration isn't a prototype
-kernel/sys.c:257: warning: function declaration isn't a prototype
-kernel/sys.c:258: warning: function declaration isn't a prototype
-kernel/sys.c:259: warning: function declaration isn't a prototype
-kernel/sys.c:260: warning: function declaration isn't a prototype
-kernel/sys.c:261: warning: function declaration isn't a prototype
-kernel/sys.c:262: warning: function declaration isn't a prototype
-kernel/sys.c:265: warning: function declaration isn't a prototype
-kernel/sys.c:266: warning: function declaration isn't a prototype
-kernel/sys.c:267: warning: function declaration isn't a prototype
-{standard input}:24118: Warning: This is the location of the conflicting usage
-{standard input}:24120: Warning: Only the first path encountering the conflict is reported
-{standard input}:24120: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
-{standard input}:24968: Warning: This is the location of the conflicting usage
-{standard input}:24970: Warning: Only the first path encountering the conflict is reported
-{standard input}:24970: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
-{standard input}:25721: Warning: This is the location of the conflicting usage
-{standard input}:25723: Warning: Only the first path encountering the conflict is reported
-{standard input}:25723: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
-{standard input}:26616: Warning: This is the location of the conflicting usage
-{standard input}:26618: Warning: Only the first path encountering the conflict is reported
-{standard input}:26618: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
-{standard input}:30687: Warning: This is the location of the conflicting usage
-{standard input}:30689: Warning: Only the first path encountering the conflict is reported
-{standard input}:30689: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
-{standard input}:32389: Warning: This is the location of the conflicting usage
-{standard input}:32391: Warning: Only the first path encountering the conflict is reported
-{standard input}:32391: Warning: Use of 'mov' may violate WAW dependency 'GR%, % in 1 - 127' (impliedf), specific resource number is 14
+On Tue, 24 Feb 2004 11:47:36 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+
+> Andrew Walrond wrote:
+>> I take it the software raid thing wasn't part of the gpl'ed driver, and 
+>> isn't something that is likely to happen?
+>
+>
+> In 2.4, RAID0 and RAID1 are supported via the pdcraid driver.
+>
+> In 2.6, Promise software RAID support does not exist.  In conversations 
+> with Promise, we all agreed to encourage and support the standard Linux 
+> RAID, md.
+>
+> 	Jeff
+
+Does that apply to the FastTrack S150 SX4 aswell? The hardware XOR-engine 
+will not be used?
+What about the onboard cache?
+
+// Henrik Gustafsson

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278541AbRJ1PvA>; Sun, 28 Oct 2001 10:51:00 -0500
+	id <S278555AbRJ1QPw>; Sun, 28 Oct 2001 11:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278539AbRJ1Pul>; Sun, 28 Oct 2001 10:50:41 -0500
-Received: from scully.zoominternet.net ([63.67.120.3]:13828 "HELO
-	scully.zoominternet.net") by vger.kernel.org with SMTP
-	id <S278541AbRJ1Puf> convert rfc822-to-8bit; Sun, 28 Oct 2001 10:50:35 -0500
+	id <S278556AbRJ1QPm>; Sun, 28 Oct 2001 11:15:42 -0500
+Received: from vti01.vertis.nl ([145.66.4.26]:32522 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S278555AbRJ1QPb>;
+	Sun, 28 Oct 2001 11:15:31 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Mike Cole <roach@netacs.net>
-Reply-To: roach@netacs.net
-To: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
-Subject: Re: AAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHH!
-Date: Sun, 28 Oct 2001 10:56:56 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <1004243645.1081.448.camel@thanatos>
-In-Reply-To: <1004243645.1081.448.camel@thanatos>
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: iptables and tcpdump
+Date: Sun, 28 Oct 2001 17:10:41 -0800
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
+Message-Id: <01102817104101.01788@home01>
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011028155040Z278541-17408+6672@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you forgot to include the <jmt> tag. 
+Hi!
 
+I've been "tcpdumping" traffic that passes through a NAT box based on
+netfilter. Everything works wonderful, but tcpdump presents confusing data.
+With the help of google I found out that tcpdump sees the data right after
+the NF_IP_PRE_ROUTING and the NF_IP_POST_ROUTING hooks. This explains it all,
+but results in a new question: why does tcpdump "see" the data after the
+NF_IP_PRE_ROUTING hook instead of before, which more accurately reflects the
+data that's on the wire?
 
-<jmt>these are not the messages you are looking for </jmt> 
+I can imagine this has been explained before, but I haven't found the full
+explanation. Could someone enlighten me?
 
+Another thing is /proc/net/ip_conntrack. It shows also some confusing
+information like this:
 
-On Sunday 28 October 2001 12:34 am, Thomas Hood wrote:
-> M. Edward Borasky wrote:
-> > Dang! I'm in Oregon ... now you gotta kill me :-).
->
-> Yesssss ...  but how?  (drums fingers)
->
-> But wait, what am I thinking?  Am I sliding down the
-> slipperly slope of crime so quickly?  This is how Osama
-> Bin Laden got started you know: with a pirated copy of
-> DOS 3.2 on his old Osborne.  It wasn't too long after
-> that that he was first seen in the company of Bert.
->
-> I think what I'll do is send out a GPL.  I've been told
-> it's a destroyer of intellectual property, so maybe it
-> will erase your memory that they have seen these messages.
->
-> GPL GPL GPL
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+icmp 1 29 src=145.66.17.200 dst=10.13.92.231 ... [UNREPLIED]
+src=130.130.92.231 dst=145.66.17.200 ...
+
+One half shows an unNATted dst, the second half shows the NATted src.
+Logically speaking they should match but now they don't.
+
+So everything works fine, but it's presented in a confusing way (tcpdump,
+ip_conntrack). This may be intentionally but it seems a little accidentally
+to me.
+
+Rolf
+
+-------------------------------------------------------

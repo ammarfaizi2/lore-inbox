@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279067AbRJ2IAx>; Mon, 29 Oct 2001 03:00:53 -0500
+	id <S279074AbRJ2IuC>; Mon, 29 Oct 2001 03:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279069AbRJ2IAm>; Mon, 29 Oct 2001 03:00:42 -0500
-Received: from f05s15.cac.psu.edu ([128.118.141.58]:32762 "EHLO
-	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
-	id <S279067AbRJ2IA1>; Mon, 29 Oct 2001 03:00:27 -0500
-Message-ID: <3BDD0D0E.6000609@stones.com>
-Date: Mon, 29 Oct 2001 03:02:22 -0500
-From: Justin Mierta <Crazed_Cowboy@stones.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.5) Gecko/20011011
-X-Accept-Language: en-us
+	id <S279075AbRJ2Itx>; Mon, 29 Oct 2001 03:49:53 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:128 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S279074AbRJ2Ito>; Mon, 29 Oct 2001 03:49:44 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] tmpfs symlink size bug
+In-Reply-To: <20011028103826.A17842@gondor.apana.org.au>
+Organisation: SAP LinuxLab
+Date: 29 Oct 2001 09:49:30 +0100
+Message-ID: <m3wv1ej0f9.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, hahn@physics.mcmaster.ca,
-        alan@lxorguk.ukuu.org.uk, lung@theuw.net
-Subject: Re: ECS k7s5a motherboard doesnt work
-In-Reply-To: <E15xzhf-0000tl-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here's some more info for everyone trying to help:
-redhat says (at some point) that it insmod'd sis900, not the sis5513 
-that mark had suggested, and the sis735 that everything says is actually 
-in the motherboard.  (i have to assume the sis900 was ide, because it 
-didnt tell me anything more useful than "insmod sis900" and that it worked)
+Hi Herbert,
 
-however, the messages i'm seeing are something like this:
-hda atapi: reset complete
-irq timeout: complete status = 0xC0   { busy }       (sometimes thats 0xD0)
+On Sun, 28 Oct 2001, Herbert Xu wrote:
+> Since 2.4.12 the size of symlinks on tmpfs has been off by one.  The
+> following patch corrects that error.
 
-then there's a few lines every now and then saying "drive not ready for 
-command" and "I/O error"
+Thanks for spotting. I prefer the following patch.
 
-any suggestions?
+Alan, Linus, please apply.
 
-justin
+Greetings
+		Christoph
 
+--- 2.4.13/mm/shmem.c	Sun Oct 28 16:59:03 2001
++++ t2.4.13/mm/shmem.c	Mon Oct 29 09:45:51 2001
+@@ -1151,16 +1151,16 @@
+ 	if (error)
+ 		return error;
+ 
+-	len = strlen(symname) + 1;
+-	if (len > PAGE_CACHE_SIZE)
++	len = strlen(symname);
++	if (len >= PAGE_CACHE_SIZE)
+ 		return -ENAMETOOLONG;
+ 		
+ 	inode = dentry->d_inode;
+ 	info = SHMEM_I(inode);
+ 	inode->i_size = len;
+-	if (len <= sizeof(struct shmem_inode_info)) {
++	if (len < sizeof(struct shmem_inode_info)) {
+ 		/* do it inline */
+-		memcpy(info, symname, len);
++		memcpy(info, symname, len + 1);
+ 		inode->i_op = &shmem_symlink_inline_operations;
+ 	} else {
+ 		spin_lock (&shmem_ilock);
+@@ -1173,7 +1173,7 @@
+ 			return PTR_ERR(page);
+ 		}
+ 		kaddr = kmap(page);
+-		memcpy(kaddr, symname, len);
++		memcpy(kaddr, symname, len + 1);
+ 		kunmap(page);
+ 		SetPageDirty(page);
+ 		UnlockPage(page);
 

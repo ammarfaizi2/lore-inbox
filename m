@@ -1,69 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVATTEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVATTJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbVATTEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVATTD6
+	id S261849AbVATTJU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVATTJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:03:58 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31683 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261711AbVATTBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:01:50 -0500
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [PATCH 0/29] overview
-References: <20050120102223.B14297@almesberger.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Jan 2005 12:00:08 -0700
-In-Reply-To: <20050120102223.B14297@almesberger.net>
-Message-ID: <m1vf9s3ozr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Jan 2005 14:09:05 -0500
+Received: from de01egw01.freescale.net ([192.88.165.102]:62615 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261849AbVATTHR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:07:17 -0500
+In-Reply-To: <20050120154420.D13242@flint.arm.linux.org.uk>
+References: <20050120154420.D13242@flint.arm.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: serial8250_init and platform_device
+Date: Thu, 20 Jan 2005 13:06:55 -0600
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+Russell,
 
-> [ Re-sent - seems that one of my MTAs got confused and garbled most
->   of the addresses. ]
-> 
-> Eric W. Biederman wrote:
-> > - This code needs to sit in a development tree for a little while 
-> >   to shake out whatever bugs still linger from my massive refactoring.
-> 
-> I think there will be plenty of driver issues to address. However,
-> pretty much all alternatives to kexec-based crash dumps (minus the
-> firmware-based ones that reset everything but memory, of course)
-> will suffer from the same problems - they may just be a little
-> better at not noticing them.
+I think this all makes sense to me.  I'm just wondering why we would 
+have a platform device register in a system for 'legacy ISA' when we 
+know the system doesnt have any ports that will fit the category.
 
-Doubtless.  So far I only have 1 e1000 driver issue.  The IBM guys
-were tracking an issue with one of the aic7xxx cards.  But those kinds
-of issues seem to be fairly rare right now :) 
- 
-> > In the interests of full disclosure my main interesting is using the
-> > kernel as a bootloader for other kernels
-> 
-> Me too :-) I'm a bit concerned that kexec has been hovering outside
-> the mainline kernel for so long. This keeps the threshold for new
-> work on the boot process high, delaying experiments and, ultimately,
-> progress. 
+As you show in example #2 you have
 
-To some extent.  It is worth noting that the first 13 of my patches
-are not core functionality they are bug fixes or feature enhancements
-of code that simply have come to be associated with the work on kexec.
+.../devices/platform/serial82500
+.../devices/platform/serial8250
 
-Which is why I put them first in the list of things so it is clear
-they don't depend on the core kexec code.  So some work in that
-area seems to be happening and from what I have heard about ppc64
-kexec support has been a motivating reason to clean up their boot
-process some more.
+why have the 'serial8250' if you know your system doesnt have any ports 
+that will exist there?
 
-The nice thing at this point I think one more cycle through the
-development process and we should have a fairly well defined and
-working mechanism for taking crash dumps.  With the remaining work
-left simply to porting it.
+- kumar
 
-Eric
+On Jan 20, 2005, at 9:44 AM, Russell King wrote:
+
+> On Thu, Jan 20, 2005 at 09:23:56AM -0600, Kumar Gala wrote:
+>  > No problem, let me try to clarify.  I'm trying to figure out in the 
+> ARM
+>  > case if there are 2 platform_devices that are registered and if 
+> this is
+> > the desired behavior (and if so why?).
+>
+> Yes.  The first (by serial8250_init) is the ISA compatibility platform
+>  device, which registers the "old" static list of serial devices found
+>  in include/asm-*/serial.h.
+>
+> The second registers a platform device which contains the 8250 serial
+>  devices for the particular platform.
+>
+> > In serial8250_init() we call platform_device_register_simple(), this
+> > will be one registration of a serial8250 device.  In my example of
+> > vr1000, arch/arm/mach-s3c2410/cpu.c:s3c_arch_init() calls
+> > platform_device_register, the 2nd time a serial8250 device is
+> > registered.
+>
+> Correct.
+>
+> > > We then register the device driver, which allows us to pick up on 
+> the
+>  > >  platform devices.  This causes the placeholder registrations to 
+> be
+>  > >  reassigned to the platform devices on a first come first served 
+> basis
+>  > >  via the standard registration call serial8250_register_port().
+> >
+> > I'm not following you here, its not clear if you mean we have 2
+> > platform devices registered in the system, but only one actually has
+> > serial ports that are registered.
+>
+> We have two platform devices registered - one representing the
+>  compatibility devices, and one (or more) representing the platform's
+>  own devices.
+>
+> To illustrate this, let's assume your architecture always has ports at
+>  a fixed set of addresses, and then has a set of platform specific 
+> ports.
+>  You may wish to have one platform device for the platform common 
+> serial
+>  devices which always gets registered.  Your platform specific
+>  initialisation code could then register another platform device which
+>  contains details of the platform specific serial devices.
+>
+> > If you are using SERIAL_PORT_DFNS,
+>  > it will be the platform_device created in serial8250_init(), if you 
+> are
+> > not it will be the platform_device created elsewhere?
+>
+> Initially, all serial devices are attached to the platform device
+>  created in serial8250_init(), whether or not they are listed in
+>  SERIAL_PORT_DFNS or not.  Serial devices not listed in 
+> SERIAL_PORT_DFNS
+> remain in an unconfigured state.
+>
+> When the 8250 platform device driver is registered, serial devices
+>  are "stolen" from this "private" platform device, and are owned by
+>  the platform device which registered them.
+>
+> Lets take some examples:
+>
+> 1. SERIAL_PORT_DFNS contains port at 0x3f8, irq4, and we have space for
+>     4 serial ports.  No other platform devices are registered.
+>
+> # cat /proc/tty/driver/serial
+> serinfo:1.0 driver revision:
+>  0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
+>  1: uart:unknown port:00000000 irq:0
+>  2: uart:unknown port:00000000 irq:0
+>  3: uart:unknown port:00000000 irq:0
+>  # tree /sys/class/tty/ttyS*
+> /sys/class/tty/ttyS0
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+> /sys/class/tty/ttyS1
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+> /sys/class/tty/ttyS2
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+> /sys/class/tty/ttyS3
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+>
+> 2. SERIAL_PORT_DFNS contains port at 0x3f8, irq4, and we have space for
+>     4 serial ports.  A platform device also describing 0x3f8, irq 4 is
+>     registered.
+>
+> # cat /proc/tty/driver/serial
+> serinfo:1.0 driver revision:
+>  0: uart:16550A port:000003F8 irq:4 tx:0 rx:0
+>  1: uart:unknown port:00000000 irq:0
+>  2: uart:unknown port:00000000 irq:0
+>  3: uart:unknown port:00000000 irq:0
+>  # tree /sys/class/tty/ttyS*
+> /sys/class/tty/ttyS0
+> |-- dev
+>  |-- device -> ../../../devices/platform/serial82500
+> `-- driver -> ../../../bus/platform/drivers/serial8250
+> /sys/class/tty/ttyS1
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+> /sys/class/tty/ttyS2
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+> /sys/class/tty/ttyS3
+> |-- dev
+>  `-- device -> ../../../devices/platform/serial8250
+>
+> 3. SERIAL_PORT_DFNS is empty, otherwise the same as case (2).  Results
+>     are identical to case (2).
+>
+> HTH.
+>
+> -- 
+> Russell King
+>   Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+>                  2.6 Serial core
+

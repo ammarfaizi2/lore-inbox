@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315335AbSEUSEl>; Tue, 21 May 2002 14:04:41 -0400
+	id <S315406AbSEUSHD>; Tue, 21 May 2002 14:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315338AbSEUSEk>; Tue, 21 May 2002 14:04:40 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:54533 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315335AbSEUSEj>;
-	Tue, 21 May 2002 14:04:39 -0400
-Date: Tue, 21 May 2002 11:03:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Devera <devik@cdi.cz>
-Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Oops report USB-OHCI
-Message-ID: <20020521180344.GE1295@kroah.com>
-In-Reply-To: <Pine.LNX.4.44.0205211644080.12674-200000@luxik.cdi.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 23 Apr 2002 15:02:47 -0700
+	id <S315411AbSEUSHD>; Tue, 21 May 2002 14:07:03 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20231 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315406AbSEUSG6>; Tue, 21 May 2002 14:06:58 -0400
+Date: Tue, 21 May 2002 14:03:17 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Michael Hoennig <michael@hostsharing.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: suid bit on directories
+In-Reply-To: <20020520231526.12e24b48.michael@hostsharing.net>
+Message-ID: <Pine.LNX.3.96.1020521135800.1427B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 04:48:35PM +0200, Martin Devera wrote:
-> The Oops from ksymoops is attached. There is one warning
-> but the System.map was correct (I tested twice).
-> The problem is repetable - I tested on 3 computers. It occured
-> with two types of phillips camera and with modem.
-> On UHCI it works, with OHCO - Opti chipset is fails.
-> Kernel 2.4.18, no patches. Tested on Pentium and PII computers.
-> There is
-> kernel BUG at usb-ohci.h:464!
-> always before Oops. It seems definitely to be bug in kernel.
-> Probably TD/ED memory is freed twice ..
+On Mon, 20 May 2002, Michael Hoennig wrote:
 
-Does this problem also happen on 2.4.19-pre8?
+> Anyway, when I find time in the next weeks, I will try this patch and post
+> it.  I will do it as a mount option.  Nobody is forced to use it ;-)
 
-thanks,
+If I might offer a suggestion, that requires a patched mount command, etc.
+I would offer as an alternative implementation which might be both easier
+to do and more useful in testing. Make the capability an option in the
+kernel, and then require that it be enabled in /proc/sys with default off.
+Think TCP_SYN_COOKIES or similar. That way you can have a single patch set
+for the kernel only, and no one can possibly "stumble on it" and complain.
+Also, you can disable without reboot or remount after testing.
 
-greg k-h
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUENQ6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUENQ7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUENQ6c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 12:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUENQ6c
+	id S261763AbUENQ7G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 12:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUENQ7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 12:58:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18587 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261745AbUENQ6b (ORCPT
+	Fri, 14 May 2004 12:59:06 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:28429 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261763AbUENQ7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 12:58:31 -0400
-Date: Fri, 14 May 2004 09:58:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Martijn Sipkema <m.j.w.sipkema@student.tudelft.nl>
-Cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: POSIX message queues should not allocate memory on send
-Message-ID: <20040514095830.F22989@build.pdx.osdl.net>
-References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com> <000601c439a3$f793af40$161b14ac@boromir>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 May 2004 12:59:03 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH] befs (1/5): LBD support
+Date: Fri, 14 May 2004 20:58:13 +0400
+User-Agent: KMail/1.6.1
+Cc: Will Dyson <will_dyson@pobox.com>, linux-kernel@vger.kernel.org
+References: <200405132232.09816.rathamahata@php4.ru> <200405142009.36776.rathamahata@php4.ru> <20040514163355.GC23863@wohnheim.fh-wedel.de>
+In-Reply-To: <20040514163355.GC23863@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000601c439a3$f793af40$161b14ac@boromir>; from m.j.w.sipkema@student.tudelft.nl on Fri, May 14, 2004 at 12:09:46PM +0100
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200405142058.13743.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martijn Sipkema (m.j.w.sipkema@student.tudelft.nl) wrote:
-> You are correct; defaults are indeed needed. The current default value
-> for mq_msgsize seems rather large considering that mq_msgsize*mq_maxmsg
-> bytes will have to be allocated on queue creation. If variable sized large
-> payload messages are needed one might consider using shared memory in
-> combination with a message queue.
+On Friday 14 May 2004 20:33, Jörn Engel wrote:
+> On Fri, 14 May 2004 20:09:36 +0400, Sergey S. Kostyliov wrote:
+> > On Friday 14 May 2004 19:22, Will Dyson wrote:
+> > > 
+> > >   Are you interested in taking over official maintainership?
+> > 
+> > Yes, I am interested. How do you like this patch?
+> 
+> Good to know.  How do you like this patch?
 
-The defaults have been reduced in -mm tree which should make it to
-mainline in relative near future.
+This one seems obviously correct. Applied. Thank you!
 
-#define DFLT_MSGMAX	10	/* max number of messages in each queue */
-#define DFLT_MSGSIZEMAX	8192	/* max message size */
-
-> My main point was that mq_send()/mq_timedsend() may not return ENOMEM
-> and I am positive I did not misread the standard on that.
-
-I'm not sure it's that clear, however, we somewhat adhered to this
-principle when adding rlimits to mqueues, so rlimit checks are enforced
-on mq_open() as if whole thing was pre-allocated.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

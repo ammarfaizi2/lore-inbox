@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbRDDBVU>; Tue, 3 Apr 2001 21:21:20 -0400
+	id <S131730AbRDDBxq>; Tue, 3 Apr 2001 21:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131730AbRDDBVK>; Tue, 3 Apr 2001 21:21:10 -0400
-Received: from [204.244.205.25] ([204.244.205.25]:29008 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S131724AbRDDBUv>;
-	Tue, 3 Apr 2001 21:20:51 -0400
-Subject: Re: goodbye
-From: Michael Peddemors <michael@linuxmagic.com>
-To: Rik van Riel <riel@conectiva.com.br>
+	id <S132729AbRDDBxg>; Tue, 3 Apr 2001 21:53:36 -0400
+Received: from cy57850-a.rdondo1.ca.home.com ([24.5.132.106]:63500 "HELO
+	firewall.philstone.com") by vger.kernel.org with SMTP
+	id <S131730AbRDDBx2>; Tue, 3 Apr 2001 21:53:28 -0400
+Date: Tue, 03 Apr 2001 18:50:22 -0700
+From: Christopher Smith <x@xman.org>
+To: Fabio Riccardi <fabio@chromium.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9 - Preview Release)
-Date: 03 Apr 2001 18:14:33 -0700
-Mime-Version: 1.0
-Message-Id: <20010404012102Z131724-406+7418@vger.kernel.org>
+Subject: Re: a quest for a better scheduler
+Message-ID: <101220000.986349022@hellman>
+In-Reply-To: <3ACA7629.E8C54D13@chromium.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86 Demo)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This would be a shame, as he has been a valuable resource..
-Why has the list become more restrictive?
+--On Tuesday, April 03, 2001 18:17:30 -0700 Fabio Riccardi 
+<fabio@chromium.com> wrote:
+> Alan Cox wrote:
+> Indeed, I'm using RT sigio/sigwait event scheduling, bare clone threads
+> and zero-copy io.
 
-I think that this is one list where we have to keep the ability to post
-from individuals separate from the need to make sure that their ISP or
-company is compliant to a set a of rules..  The LKML can't toe the
-strictest of lines, without loosing some possibly valuable
-contributors..
+Fabio, I'm working on a similar solution, although I'm experimenting with 
+SGI's KAIO patch to see what it can do. I've had to patch the kernel to 
+implement POSIX style signal dispatch symantics (so that the thread which 
+posted an I/O request doesn't have to be the one which catches the signal). 
+Are you taking a similar approach, or is the lack of this behavior the 
+reason you are using so many threads?
 
-On 03 Apr 2001 18:01:42 -0300, Rik van Riel wrote:
-> Hi,
-> 
-> this will be my last email to linux-kernel for a while since
-> davem and matti are using DUL on vger.kernel.org
-> 
-> If you need to know something, don't count on me posting
-> anything here. For memory management things, please use
-> linux-mm@kvack.org instead.
-> 
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
->               http://www.surriel.com/
-> http://www.conectiva.com/     http://distro.conectiva.com.br/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-WizardInternet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
-
+--Chris

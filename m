@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVCLPdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVCLPvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVCLPdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 10:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVCLPdj
+	id S261763AbVCLPvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 10:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVCLPvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 10:33:39 -0500
-Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:12488 "EHLO
-	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261939AbVCLPct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 10:32:49 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] DVD-RAM support for pktcdvd
-From: Peter Osterlund <petero2@telia.com>
-Date: 12 Mar 2005 16:32:45 +0100
-Message-ID: <m31xak98wy.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 12 Mar 2005 10:51:40 -0500
+Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:58240 "EHLO
+	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261763AbVCLPvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 10:51:36 -0500
+Date: Sat, 12 Mar 2005 15:51:29 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm3
+In-Reply-To: <6.2.1.2.2.20050313011529.01c77168@tornado.reub.net>
+Message-ID: <Pine.LNX.4.60.0503121549460.26553@hermes-1.csi.cam.ac.uk>
+References: <20050312034222.12a264c4.akpm@osdl.org>
+ <6.2.1.2.2.20050313011529.01c77168@tornado.reub.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes it possible to use the packet writing driver with
-DVD-RAM discs. The pktcdvd driver is not needed for writing to DVD-RAM
-discs but it can improve write performance. Polgár István reports:
+On Sun, 13 Mar 2005, Reuben Farrelly wrote:
+> At 12:42 a.m. 13/03/2005, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/
+> > - A new version of the "acpi poweroff fix".  People who were having trouble
+> >   with ACPI poweroff, please test and report.
+> > 
+> > - A very large update to the CFQ I/O scheduler.  Treat with caution, run
+> >   benchmarks.  Remember that the I/O scheduler can be selected on a per-disk
+> >   basis with
+> > 
+> >         echo as > /sys/block/sda/queue/scheduler
+> >         echo deadline > /sys/block/sda/queue/scheduler
+> >         echo cfq > /sys/block/sda/queue/scheduler
+> > 
+> > - video-for-linux update
+> 
+> 
+> Ugh, NTFS is br0ken:
 
-	I wrote 178716Kb data to DVD-RAM without pktcdvd driver within
-	4.54 minutes. With pktcdvd driver it took me 2.33 minutes.
+Thanks for the report.  All the below were already fixed in my tree except 
+for the mark_page_accessed() one which is now fixed (needs include 
+linux/swap.h).
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+Best regards,
 
- linux-petero/Documentation/cdrom/packet-writing.txt |    8 ++++++++
- linux-petero/drivers/block/pktcdvd.c                |    9 +++++++--
- 2 files changed, 15 insertions(+), 2 deletions(-)
+	Anton
 
-diff -puN drivers/block/pktcdvd.c~packet-dvd-ram drivers/block/pktcdvd.c
---- linux/drivers/block/pktcdvd.c~packet-dvd-ram	2005-03-11 22:24:02.000000000 +0100
-+++ linux-petero/drivers/block/pktcdvd.c	2005-03-11 22:24:02.000000000 +0100
-@@ -1421,8 +1421,8 @@ static int pkt_set_write_settings(struct
- 	char buffer[128];
- 	int ret, size;
- 
--	/* doesn't apply to DVD+RW */
--	if (pd->mmc3_profile == 0x1a)
-+	/* doesn't apply to DVD+RW or DVD-RAM */
-+	if ((pd->mmc3_profile == 0x1a) || (pd->mmc3_profile == 0x12))
- 		return 0;
- 
- 	memset(buffer, 0, sizeof(buffer));
-@@ -1536,6 +1536,7 @@ static int pkt_good_disc(struct pktcdvd_
- 			break;
- 		case 0x1a: /* DVD+RW */
- 		case 0x13: /* DVD-RW */
-+		case 0x12: /* DVD-RAM */
- 			return 0;
- 		default:
- 			printk("pktcdvd: Wrong disc profile (%x)\n", pd->mmc3_profile);
-@@ -1601,6 +1602,9 @@ static int pkt_probe_settings(struct pkt
- 		case 0x13: /* DVD-RW */
- 			printk("pktcdvd: inserted media is DVD-RW\n");
- 			break;
-+		case 0x12: /* DVD-RAM */
-+			printk("pktcdvd: inserted media is DVD-RAM\n");
-+			break;
- 		default:
- 			printk("pktcdvd: inserted media is CD-R%s\n", di.erasable ? "W" : "");
- 			break;
-@@ -1893,6 +1897,7 @@ static int pkt_open_write(struct pktcdvd
- 	switch (pd->mmc3_profile) {
- 		case 0x13: /* DVD-RW */
- 		case 0x1a: /* DVD+RW */
-+		case 0x12: /* DVD-RAM */
- 			DPRINTK("pktcdvd: write speed %ukB/s\n", write_speed);
- 			break;
- 		default:
-diff -puN Documentation/cdrom/packet-writing.txt~packet-dvd-ram Documentation/cdrom/packet-writing.txt
---- linux/Documentation/cdrom/packet-writing.txt~packet-dvd-ram	2005-03-11 22:24:02.000000000 +0100
-+++ linux-petero/Documentation/cdrom/packet-writing.txt	2005-03-11 22:24:02.000000000 +0100
-@@ -62,6 +62,14 @@ generates aligned writes.
- 	# mount /dev/pktcdvd/dev_name /cdrom -t udf -o rw,noatime
- 
- 
-+Packet writing for DVD-RAM media
-+--------------------------------
-+
-+DVD-RAM discs are random writable, so using the pktcdvd driver is not
-+necessary. However, using the pktcdvd driver can improve performance
-+in the same way it does for DVD+RW media.
-+
-+
- Notes
- -----
- 
-_
+>   CC [M]  fs/ntfs/attrib.o
+> fs/ntfs/attrib.c: In function 'ntfs_attr_make_non_resident':
+> fs/ntfs/attrib.c:1295: warning: implicit declaration of function
+> 'ntfs_cluster_alloc'
+> fs/ntfs/attrib.c:1296: error: 'DATA_ZONE' undeclared (first use in this
+> function)
+> fs/ntfs/attrib.c:1296: error: (Each undeclared identifier is reported only
+> once
+> fs/ntfs/attrib.c:1296: error: for each function it appears in.)
+> fs/ntfs/attrib.c:1296: warning: assignment makes pointer from integer without
+> a cast
+> fs/ntfs/attrib.c:1435: warning: implicit declaration of function
+> 'flush_dcache_mft_record_page'
+> fs/ntfs/attrib.c:1436: warning: implicit declaration of function
+> 'mark_mft_record_dirty'
+> fs/ntfs/attrib.c:1443: warning: implicit declaration of function
+> 'mark_page_accessed'
+> fs/ntfs/attrib.c:1521: warning: implicit declaration of function
+> 'ntfs_cluster_free_from_rl'
+> make[2]: *** [fs/ntfs/attrib.o] Error 1
+> make[1]: *** [fs/ntfs] Error 2
+> make: *** [fs] Error 2
+> 
+> Compile goes through to completion fine if I back out bk-ntfs.patch.
+> 
+> Using gcc-4, but this problem did not exist in -mm2.
 
+No, the relevant code didn't exist then either.  I only wrote it last 
+week...
+
+Best regards,
+
+	Anton
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

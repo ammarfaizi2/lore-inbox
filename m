@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262659AbRFQTKr>; Sun, 17 Jun 2001 15:10:47 -0400
+	id <S262616AbRFQTLR>; Sun, 17 Jun 2001 15:11:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262622AbRFQTKj>; Sun, 17 Jun 2001 15:10:39 -0400
-Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:9220
-	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
-	id <S262616AbRFQTKZ>; Sun, 17 Jun 2001 15:10:25 -0400
-Date: Sun, 17 Jun 2001 16:09:57 -0300 (BRT)
-From: Christian Robottom Reis <kiko@async.com.br>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: <eepro100@scyld.com>, <saw@saw.sw.com.sg>, <linux-kernel@vger.kernel.org>,
-        Jeff Chua <jchua@fedex.com>
-Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
-In-Reply-To: <003e01c0f745$3e0cbc40$a35812bc@corp.fedex.com>
-Message-ID: <Pine.LNX.4.32.0106171608580.140-100000@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262660AbRFQTLJ>; Sun, 17 Jun 2001 15:11:09 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:384 "HELO spiral.extreme.ro")
+	by vger.kernel.org with SMTP id <S262622AbRFQTK7>;
+	Sun, 17 Jun 2001 15:10:59 -0400
+Date: Sun, 17 Jun 2001 22:12:39 +0300
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 VM & swap question
+Message-ID: <20010617221239.B1027@spiral.extreme.ro>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010617104836.B11642@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010617104836.B11642@opus.bloom.county>; from trini@kernel.crashing.org on Sun, Jun 17, 2001 at 10:48:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jun 2001, Jeff Chua wrote:
+On Sun, Jun 17, 2001 at 10:48:36AM -0700, Tom Rini wrote:
+> 'lo all.  I've got a question about swap and RAM requirements in 2.4.  Now,
+> when 2.4.0 was kicked out, the fact that you need swap=2xRAM was mentioned.
+> But what I'm wondering is what exactly are the limits on this.  Right now
+> I've got an x86 box w/ 128ram and currently 256swap.  When I had 128, I'd get
+> low on ram/swap after some time in X, and doing this seems to 'fix' it, in
+> 2.4.4.  However, I've also got 2 PPC boxes, both with 256:256 in 2.4.  One
+> of which never has X up, but lots of other activity, and swap usage seems
+> to be about the same as 2.2.x (right now 'free' says i'm ~40MB into swap,
+> 18day+ uptime).  The other box is a laptop and has X up when it's awake and
+> that too doesn't seem to have any problem.  So what exactly is the real
+> minium swap ammount?
 
-> Try to add "options eepro100 options=0" to your /etc/modules.conf
-> to default the speed to 10Mbps if you're using 10BaseT.
-
-I'm not using modules for this driver (can't see the point, really); does
-this fix anything if I change it to 0x20 for 100BaseT?
-
-Take care,
---
-/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
-~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
+I doubt there is a limit. I think 'it depends on what you're planning
+to do' is the correct answer. For a blank router, 32mb ram/64 swap can
+be enough, for a web/database server, you need more, etc.
 

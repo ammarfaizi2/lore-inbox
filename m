@@ -1,285 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314485AbSFENi5>; Wed, 5 Jun 2002 09:38:57 -0400
+	id <S315424AbSFENtB>; Wed, 5 Jun 2002 09:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSFENi4>; Wed, 5 Jun 2002 09:38:56 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:5561 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314485AbSFENiv>; Wed, 5 Jun 2002 09:38:51 -0400
-Date: Wed, 5 Jun 2002 15:38:34 +0200
-From: Andi Kleen <ak@muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Call for testers - fixed RAID5 XOR functions
-Message-ID: <20020605153834.A15485@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S315427AbSFENtB>; Wed, 5 Jun 2002 09:49:01 -0400
+Received: from [168.210.128.30] ([168.210.128.30]:50957 "EHLO
+	vodagpmail.vodacom.co.za") by vger.kernel.org with ESMTP
+	id <S315424AbSFENs7>; Wed, 5 Jun 2002 09:48:59 -0400
+Message-ID: <B9DBA43EAABED211BF140008C7FA5DF9015A9AD1@vodast.vodacom.co.za>
+From: Jean Marais <jean.marais@vodacom.co.za>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Trying to vfree() nonexistent vm area (c38a5000) ....etc
+Date: Wed, 5 Jun 2002 15:46:34 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-While porting xor.h to x86-64 I noticed that the accelerated RAID-5 XOR
-functions for i386 used incorrect inline assembly. The were clobbering
-upto 7 registers without gcc telling it. It is pure luck that it worked
-so far, although I'm dubious about it for the versions with 4 and 5 inputs
-(has that been really tested? - they clobber 5 or 6 registers and unless it 
-was pure luck that the caller had some dead registers in one particular
-compiler output it must have caused data corruptions) 
+Hi
 
-I unfortunately don't have a RAID-5 so I cannot test. From visual inspection
-the new assembly seems to be correct. I would be grateful if someone with
-RAID-5 could test it by doing some writes and then removing one disk and
-testing recovery. Best would be tests with 3,4,5,6 disks, but only specific
-cases will do also. 
+Just some info in case it helps. Not detailed, but I'm a busy guy... just in
+case this helps.
 
-I did also align the XMM saves on 16 bytes to save a few cycles.
+This is with 2.4.18-3
 
-Here is the patch for 2.4.19pre9 (but should apply to most 2.4 and 2.5) 
+I ran the Oracle installer and it failed for some reason. Nevermind - some
+compat libs missing. It happened twice, that's mine to fix. When I exit it
+it gives me the 
+	Jun  5 09:05:55 rlpc kernel: Trying to vfree() nonexistent vm area
+(c38a5000)
+and a while later the rest. top doesn't work anymore after that and I
+rebooted. The whole thing happened again.
 
--Andi
+I upgraded to 
+	Jun  5 14:09:15 rlpc kernel: Linux version 2.4.18-4
+(bhcompile@daffy.perf.redhat.com) (gcc version 2.96 20000731 (Red Hat Linux
+7.3 2.96-110)) #1 Thu May 2 18:10:25 EDT 2002
+and then the only the
+	Jun  5 15:39:36 rlpc kernel: Trying to vfree() nonexistent vm area
+(c38a2000)
+happened.
 
---- linux-2.4.19pre9/include/asm-i386/xor.h	Fri Sep 14 23:25:21 2001
-+++ linux-2.4.19pre9-work/include/asm-i386/xor.h	Wed Jun  5 15:06:40 2002
-@@ -76,9 +76,9 @@
- 	"       addl $128, %2         ;\n"
- 	"       decl %0               ;\n"
- 	"       jnz 1b                ;\n"
--       	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2)
-+	:
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -126,9 +126,9 @@
- 	"       addl $128, %3         ;\n"
- 	"       decl %0               ;\n"
- 	"       jnz 1b                ;\n"
--       	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3)
-+	:
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -181,14 +181,15 @@
- 	"       addl $128, %4         ;\n"
- 	"       decl %0               ;\n"
- 	"       jnz 1b                ;\n"
--       	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
-+	:
- 	: "memory");
- 
- 	FPU_RESTORE;
- }
- 
-+
- static void
- xor_pII_mmx_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
- 	      unsigned long *p3, unsigned long *p4, unsigned long *p5)
-@@ -198,7 +199,11 @@
- 
- 	FPU_SAVE;
- 
-+	/* need to save/restore p4/p5 manually otherwise gcc's 10 argument
-+	   limit gets exceeded (+ counts as two arguments) */
- 	__asm__ __volatile__ (
-+		"  pushl %4\n"
-+		"  pushl %5\n"
- #undef BLOCK
- #define BLOCK(i) \
- 	LD(i,0)					\
-@@ -241,9 +246,11 @@
- 	"       addl $128, %5         ;\n"
- 	"       decl %0               ;\n"
- 	"       jnz 1b                ;\n"
--       	:
--	: "g" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
-+	"	popl %5\n"
-+	"	popl %4\n"
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3)
-+	: "r" (p4), "r" (p5) 
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -297,9 +304,9 @@
- 	"       addl $64, %2         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	: 
--	: "r" (lines),
--	  "r" (p1), "r" (p2)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2)
-+	:
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -355,9 +362,9 @@
- 	"       addl $64, %3         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	: 
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3)
-+	:
- 	: "memory" );
- 
- 	FPU_RESTORE;
-@@ -422,9 +429,9 @@
- 	"       addl $64, %4         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	: 
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
-+	:
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -439,7 +446,10 @@
- 
- 	FPU_SAVE;
- 
-+	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
- 	__asm__ __volatile__ (
-+	"	pushl %4\n"
-+	"	pushl %5\n"        	
- 	" .align 32,0x90             ;\n"
- 	" 1:                         ;\n"
- 	"       movq   (%1), %%mm0   ;\n"
-@@ -498,9 +508,11 @@
- 	"       addl $64, %5         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	: 
--	: "g" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
-+	"	popl %5\n"
-+	"	popl %4\n"
-+	: "+g" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3)
-+	: "r" (p4), "r" (p5)
- 	: "memory");
- 
- 	FPU_RESTORE;
-@@ -554,6 +566,8 @@
- 		: "r" (cr0), "r" (xmm_save)	\
- 		: "memory")
- 
-+#define ALIGN16 __attribute__((aligned(16)))
-+
- #define OFFS(x)		"16*("#x")"
- #define PF_OFFS(x)	"256+16*("#x")"
- #define	PF0(x)		"	prefetchnta "PF_OFFS(x)"(%1)		;\n"
-@@ -575,7 +589,7 @@
- xor_sse_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
- {
-         unsigned long lines = bytes >> 8;
--	char xmm_save[16*4];
-+	char xmm_save[16*4] ALIGN16;
- 	int cr0;
- 
- 	XMMS_SAVE;
-@@ -616,9 +630,9 @@
-         "       addl $256, %2           ;\n"
-         "       decl %0                 ;\n"
-         "       jnz 1b                  ;\n"
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2)
- 	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2)
-         : "memory");
- 
- 	XMMS_RESTORE;
-@@ -629,7 +643,7 @@
- 	  unsigned long *p3)
- {
-         unsigned long lines = bytes >> 8;
--	char xmm_save[16*4];
-+	char xmm_save[16*4] ALIGN16;
- 	int cr0;
- 
- 	XMMS_SAVE;
-@@ -677,9 +691,9 @@
-         "       addl $256, %3           ;\n"
-         "       decl %0                 ;\n"
-         "       jnz 1b                  ;\n"
-+	: "+r" (lines),
-+	  "+r" (p1), "+r"(p2), "+r"(p3)
- 	:
--	: "r" (lines),
--	  "r" (p1), "r"(p2), "r"(p3)
-         : "memory" );
- 
- 	XMMS_RESTORE;
-@@ -690,7 +704,7 @@
- 	  unsigned long *p3, unsigned long *p4)
- {
-         unsigned long lines = bytes >> 8;
--	char xmm_save[16*4];
-+	char xmm_save[16*4] ALIGN16;
- 	int cr0;
- 
- 	XMMS_SAVE;
-@@ -745,9 +759,9 @@
-         "       addl $256, %4           ;\n"
-         "       decl %0                 ;\n"
-         "       jnz 1b                  ;\n"
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
- 	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
-         : "memory" );
- 
- 	XMMS_RESTORE;
-@@ -758,12 +772,15 @@
- 	  unsigned long *p3, unsigned long *p4, unsigned long *p5)
- {
-         unsigned long lines = bytes >> 8;
--	char xmm_save[16*4];
-+	char xmm_save[16*4] ALIGN16;
- 	int cr0;
- 
- 	XMMS_SAVE;
- 
-+	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
-         __asm__ __volatile__ (
-+		" pushl %4\n"
-+		" pushl %5\n"
- #undef BLOCK
- #define BLOCK(i) \
- 		PF1(i)					\
-@@ -820,9 +837,11 @@
-         "       addl $256, %5           ;\n"
-         "       decl %0                 ;\n"
-         "       jnz 1b                  ;\n"
--	:
--	: "r" (lines),
--	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
-+	"	popl %5\n"	
-+	"	popl %4\n"	
-+	: "+r" (lines),
-+	  "+r" (p1), "+r" (p2), "+r" (p3)
-+	: "r" (p4), "r" (p5)
- 	: "memory");
- 
- 	XMMS_RESTORE;
+FUNNY CONFIGURATION ... MAYBE
 
+	RAID0 OVER TWO IDE DISKS FOR SWAP + ANOTHER NORMAL SWAP ON 1 OF THE
+DISKS
+
+
+Jun  3 10:54:15 rlpc kernel: Linux version 2.4.18-3
+(bhcompile@stripples.devel.redhat.com) (gcc version 2.96 20000731 (Red Hat
+Linux 7.3 2.96-110)) #1 Thu Apr 18 07:31:07 EDT 2002
+.
+.
+.
+
+Jun  5 09:05:55 rlpc kernel: Trying to vfree() nonexistent vm area
+(c38a5000)
+Jun  5 09:12:58 rlpc login(pam_unix)[3492]: session opened for user oracle
+by LOGIN(uid=0)
+Jun  5 09:12:58 rlpc  -- oracle[3492]: LOGIN ON tty3 BY oracle
+Jun  5 09:16:48 rlpc kernel: Unable to handle kernel paging request at
+virtual address c38a5080
+Jun  5 09:16:48 rlpc kernel:  printing eip:
+Jun  5 09:16:48 rlpc kernel: c010c42d
+Jun  5 09:16:48 rlpc kernel: *pde = 010b9067
+Jun  5 09:16:48 rlpc kernel: *pte = 00000000
+Jun  5 09:16:48 rlpc kernel: Oops: 0002
+Jun  5 09:16:48 rlpc kernel: soundcore autofs ne 8390 ipchains ide-cd cdrom
+usb-uhci usbcore ext3 jbd raid1
+Jun  5 09:16:48 rlpc kernel: CPU:    0
+Jun  5 09:16:48 rlpc kernel: EIP:    0010:[<c010c42d>]    Not tainted
+Jun  5 09:16:48 rlpc kernel: EFLAGS: 00010202
+Jun  5 09:16:48 rlpc kernel: 
+Jun  5 09:16:48 rlpc kernel: EIP is at write_ldt [kernel] 0x201 (2.4.18-3)
+Jun  5 09:16:48 rlpc kernel: eax: 00100000   ebx: 00000000   ecx: 00000001
+edx: 0850f283
+Jun  5 09:16:48 rlpc kernel: esi: f9d80004   edi: c38a5080   ebp: ffffffea
+esp: c1f13f88
+Jun  5 09:16:48 rlpc kernel: ds: 0018   es: 0018   ss: 0018
+Jun  5 09:16:48 rlpc kernel: Process jre (pid: 3597, stackpage=c1f13000)
+Jun  5 09:16:48 rlpc kernel: Stack: c1f66760 00000010 0883f9d8 00000004
+00000041 bdbffaf4 00000010 bdbffb20 
+Jun  5 09:16:48 rlpc kernel:        bdbffac8 c010c4a1 bdbffaf4 00000010
+00000000 c1f12000 c01085f7 00000011 
+Jun  5 09:16:48 rlpc kernel:        bdbffaf4 00000010 00000010 bdbffb20
+bdbffac8 0000007b 0000002b 0000002b 
+Jun  5 09:16:48 rlpc kernel: Call Trace: [<c010c4a1>] sys_modify_ldt
+[kernel] 0x55 
+Jun  5 09:16:48 rlpc kernel: [<c01085f7>] system_call [kernel] 0x33 
+Jun  5 09:16:48 rlpc kernel: 
+Jun  5 09:16:48 rlpc kernel: 
+Jun  5 09:16:48 rlpc kernel: Code: 89 37 89 57 04 31 ed 8b 04 24 83 c0 1c e8
+65 86 10 00 83 c4 

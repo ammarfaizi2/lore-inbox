@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbSK0T4k>; Wed, 27 Nov 2002 14:56:40 -0500
+	id <S264730AbSK0UBM>; Wed, 27 Nov 2002 15:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264733AbSK0T4j>; Wed, 27 Nov 2002 14:56:39 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:26119 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264724AbSK0T4h>; Wed, 27 Nov 2002 14:56:37 -0500
-Date: Wed, 27 Nov 2002 20:03:48 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Patch/resubmit(2.5.49): Use struct io_restrictions in blkdev.h
-Message-ID: <20021127200348.A2394@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Adam J. Richter" <adam@yggdrasil.com>, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20021127114940.A5693@baldur.yggdrasil.com>
+	id <S264739AbSK0UBM>; Wed, 27 Nov 2002 15:01:12 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:59012 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264730AbSK0UBK>;
+	Wed, 27 Nov 2002 15:01:10 -0500
+Subject: [Announce] OSDL Scalable Test Platform Release 2.00
+From: Craig Thomas <craiger@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Bryce Harrington <bryce@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 27 Nov 2002 12:08:30 -0800
+Message-Id: <1038427710.11153.22.camel@bullpen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021127114940.A5693@baldur.yggdrasil.com>; from adam@yggdrasil.com on Wed, Nov 27, 2002 at 11:49:40AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 11:49:40AM -0800, Adam J. Richter wrote:
-> 	Here is an updated version of the patch.  The struct
-> io_restrictions declaration is in <linux/device-mapper.h> so that the
-> device-mapper user level utilities compile properly (device-mapper.h
-> is written to support inclusion by user level programs).
+OSDL has released a new version of the Scalable Test Platform, an
+automated test environment that allows a developer to test kernel
+patches on a variety of hardware platforms against a number of
+performance tests. 
 
-They shouldn't include it anyway.  Please put it into a proper place.
+The code and documentation is at:
+
+http://sourceforge.net/projects/stp/
+
+OSDL's instance of STP is at:
+
+http://www.osdl.org/stp.
+ 
+Types of tests to exercise a kernel patch include:
+ 
+    * memory stress 
+    * scheduler
+    * file system
+    * database
+    * system calls
+    * synthetic microbenchmarks
+
+Changes to the new release include the following:
+ 
+    * New installation toolkit
+    * Major revision to backend
+    * Minor bug fixes to web interface
+    * Much new documentation on Web and in kit
+ 
+We encourage the community to use the framework at OSDL to test your
+patches.  Become an OSDL associate (free signup) at www.osdl.org
+and take advantage of the the various platforms offered in the lab.
+
+-- 
+Craig Thomas
 

@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264008AbTDWLvX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 07:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbTDWLvX
+	id S263156AbTDWMKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 08:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264011AbTDWMKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 07:51:23 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52352
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264008AbTDWLvW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 07:51:22 -0400
-Subject: Re: [PATCH] M68k IDE updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Richard Zidlicky <rz@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linus Torvalds <torvalds@transmeta.com>, paulus@samba.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030423112700.GA973@linux-m68k.org>
-References: <Pine.GSO.4.21.0304221802570.16017-100000@vervain.sonytel.be>
-	 <20030423112700.GA973@linux-m68k.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1051095870.2065.84.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 23 Apr 2003 08:10:24 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:2738 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263156AbTDWMKX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 08:10:23 -0400
+Date: Wed, 23 Apr 2003 15:22:26 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Nir Livni <nir_l3@netvision.net.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FileSystem Filter Driver
+Message-ID: <20030423122226.GL11931@actcom.co.il>
+References: <000501c30983$1ffb8950$ade1db3e@pinguin> <20030423010518.GA6009@wind.cocodriloo.com> <000d01c30992$c35e7ad0$4ee1db3e@pinguin>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Apr 2003 12:04:31 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tDYGg60iReQ7u8wj"
+Content-Disposition: inline
+In-Reply-To: <000d01c30992$c35e7ad0$4ee1db3e@pinguin>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-23 at 12:27, Richard Zidlicky wrote:
-> It seems that Geert´ idea would fit neatly into the current IDE 
-> system. Endianness of on disk data and drive control data are
-> clearly different things. A while ago Andre suggested to switch
-> the transport based on opcode to make it work, it might be even
-> more straightforward to set some flag when the handler is selected
-> or take a distinct handler altogether (ide_cmd_type_parser or
-> ide_handler_parser).
 
-Thats over complicating stuff I think.
+--tDYGg60iReQ7u8wj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Otoh trying to solve that with loopback would mean new kernels 
-> wouldn´t even see the partition table of old installed harddisks
-> on some machines. 
+On Wed, Apr 23, 2003 at 02:20:38PM +0200, Nir Livni wrote:
 
-Which is a real pain. I think its the right 2.5 answer. I'm not happy
-about breaking that (even if its only for the m68k userbase in 2.4)
-either.
+> My goal is to write a driver that runs above the filesystem driver, and
+> filters calls to this driver.
+> Actually, it should pass all calls to the filesystem driver, except very =
+few
+> that it should fail for "Access Denied". Are there any simple examples for
+> that matter ?
 
-I don't think command parsing is the right place. Turn your IDE layer
-"right endian" and most stuff begins to look a lot saner already. 
-The "fixing" needs to be happening at the top of the IDE layer not
-in the driver itself. For 2.5 that ought to be loopback or similar
-for 2.4 it makes sense I think to effectively implement an endian
-switcher without loopback for compatibility.
+A. Sounds like it could be implemented using the LSM (linux security
+modules) framework, assuming the appropriate hooks are in place.=20
 
+B. The May 2003 Linux Journal issue has an article on "Writing
+Stackable Filesystems" by Erez Zadok, which might fit your needs
+better.
+
+Hope this helps,=20
+Muli.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--tDYGg60iReQ7u8wj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+poWBKRs727/VN8sRAsDIAJ9phsaklpa53TXZI2Ky4+y5fqjvvQCeLGEl
+hJQoojHVnmdMD4wEg7fvPLo=
+=qlG2
+-----END PGP SIGNATURE-----
+
+--tDYGg60iReQ7u8wj--

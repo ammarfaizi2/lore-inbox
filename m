@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbTKEWxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 17:53:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTKEWxr
+	id S263258AbTKEWsK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 17:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTKEWsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 17:53:47 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:12416
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263267AbTKEWxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 17:53:46 -0500
-Date: Wed, 5 Nov 2003 17:53:11 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Chad Kitching <CKitching@powerlandcomputers.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: BK2CVS problem
-In-Reply-To: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com>
-Message-ID: <Pine.LNX.4.53.0311051752380.6824@montezuma.fsmlabs.com>
-References: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com>
+	Wed, 5 Nov 2003 17:48:10 -0500
+Received: from cdc868fe.powerlandcomputers.com ([205.200.104.254]:61477 "EHLO
+	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
+	id S263258AbTKEWsK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 17:48:10 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: RE: BK2CVS problem
+Date: Wed, 5 Nov 2003 16:48:09 -0600
+Message-ID: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: BK2CVS problem
+Thread-Index: AcOj7Yv1O/FR9KK7QbyxMAFsH5DDrwAAUHPg
+From: "Chad Kitching" <CKitching@powerlandcomputers.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Nov 2003, Chad Kitching wrote:
-
-> From: Zwane Mwaikambo
-> > > +       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
-> > > +                       retval = -EINVAL;
-> > 
-> > That looks odd
-> > 
+From: Zwane Mwaikambo
+> > +       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
+> > +                       retval = -EINVAL;
 > 
-> Setting current->uid to zero when options __WCLONE and __WALL are set?  The 
-> retval is dead code because of the next line, but it looks like an attempt
-> to backdoor the kernel, does it not?
+> That looks odd
+> 
 
-Yes, i was more meaning to say 'that looks like fun', good times, good 
-times.
+Setting current->uid to zero when options __WCLONE and __WALL are set?  The 
+retval is dead code because of the next line, but it looks like an attempt
+to backdoor the kernel, does it not?

@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbSJHPXI>; Tue, 8 Oct 2002 11:23:08 -0400
+	id <S261294AbSJHP2h>; Tue, 8 Oct 2002 11:28:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261228AbSJHPXI>; Tue, 8 Oct 2002 11:23:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:740 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261211AbSJHPXH>; Tue, 8 Oct 2002 11:23:07 -0400
-Date: Tue, 8 Oct 2002 12:05:34 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: procps-list@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] procps 2.0.10
-In-Reply-To: <20021008145340.GE1560@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44L.0210081204000.1909-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261295AbSJHP2g>; Tue, 8 Oct 2002 11:28:36 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:17916 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261294AbSJHP2g>; Tue, 8 Oct 2002 11:28:36 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 8 Oct 2002 09:31:50 -0600
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
+Message-ID: <20021008153150.GG3045@clusterfs.com>
+Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <E17ybuZ-0003tz-00@starship> <3DA1D30E.B3255E7D@digeo.com> <3DA1D969.8050005@nortelnetworks.com> <3DA1E250.1C5F7220@digeo.com> <3DA2E385.A16F9325@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA2E385.A16F9325@aitel.hist.no>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, J.A. Magallon wrote:
+On Oct 08, 2002  15:54 +0200, Helge Hafting wrote:
+> Andrew Morton wrote:
+> > Part of the problem here is that it has got worse over time.  The
+> > size of a blockgroup is hardwired to blocksize*bits-in-a-byte*blocksize.
+> > But disks keep on getting bigger.  Five years ago (when, presumably, this
+> > algorithm was designed), a typical partition had, what?  Maybe four
+> > blockgroups?  Now it has hundreds, and so the "levelling" is levelling
+> > across hundreds of blockgroups and not just a handful.
+> 
+> If having only "a few" block groups really work better 
+> (even for todays bigger disks) then bigger
+> block groups seems like a solution.
+> 
+> changing the on-disk format might not be popular, but there
+> is no need for that.  Simply regard several on-disk block
+> groups as a bigger "allocation group" when using the above
+> algorithm.  This should be perfectly backwards compatible.
 
-> >should always be 0.0% and it always is 0.0% here.
-> >
-> >I have no idea why it's displaying a wrong value on your
-> >system, unless you somehow managed to run against a wrong
-> >libproc.so (shouldn't happen).
->
-> It looks like the 2 first screenshots show buggy data:
+We already have plans for something like this - a "meta blockgroup".
+This will help us with several things, actually, so it is likely to
+be implemented.
 
-Yup, that's the bug I fixed friday.  Wait a moment, I fixed
-it for five_cpu_numbers(), but probably not for the SMP CPU
-code in top.c itself ...
-
-I'll fix this one after lunch.
-
-thanks,
-
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

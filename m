@@ -1,112 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbTKYN1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 08:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTKYN1W
+	id S262558AbTKYNeV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 08:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTKYNeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 08:27:22 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:51934 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S262540AbTKYN1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 08:27:19 -0500
-Message-ID: <3FC358B5.3000501@softhome.net>
-Date: Tue, 25 Nov 2003 14:27:17 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 08:34:21 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:32651 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262558AbTKYNeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 08:34:19 -0500
+Date: Tue, 25 Nov 2003 13:34:01 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-rc5
+In-Reply-To: <Pine.LNX.4.44.0311250940190.1451-100000@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0311251333200.22457@student.dei.uc.pt>
+References: <Pine.LNX.4.44.0311250940190.1451-100000@logos.cnet>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
-Content-Type: multipart/mixed;
- boundary="------------070701020502080301010707"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070701020502080301010707
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello!
+It's not on kernel.org yet...
+Did you forgot to upload it again? O:-)
 
-   I just wondering: do last three stable branches of LK able to return 
-malloc()==NULL and/or ENOMEM?
+Marcos Marado
 
-   2.2: I cannot test this stuff right now - but it was hanging hard on 
-"for (;;) memset(malloc(N), 0, N);" So we do not have NULL from malloc().
-   2.4: same behaviour if OOM disabled. But by default (OOM even has no 
-configuration entry - so always on) it just kills offending process. No 
-NULL pointer either.
-   2.6: the same as 2.4 with oom killer (default conf). I have no test 
-system to check 2.6. w/o oom killer.
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
-   Resume: we malloc() never returns NULL. so man-pages are incorrect ;-)
-   [ AFAIK only kmalloc(GFP_ATOMIC) can potentially return NULL - but I 
-didn't yet tested my modules under memory pressure. TODO. ]
+On Tue, 25 Nov 2003, Marcelo Tosatti wrote:
 
-   Most interesting thing is that on 2.4 "for(;;) malloc(N)" able to 
-allocate about 1.8GB of memory on system with only 256M of physical RAM. 
-Laghtingly fast. Then malloc() returns NULL. Good signs.
-   But as soon as I will put "memset()" -  app will be killed or box 
-will go bananas. Neither of this two things are appropriate. Especially 
-when applications are tuned to handle memmory allocation errors.
+>
+>
+> Hi,
+>
+> Yet another thing showed up (possible data corruption on x86-64), so here
+> goes -rc5.
+>
+>
+> Summary of changes from v2.4.23-rc4 to v2.4.23-rc5
+> ============================================
+>
+> Andi Kleen:
+>   o Fix 32bit truncate64 on x86-64
+>
+> Marcelo Tosatti:
+>   o Felix Radensky: Remove debugging printk from agpgart
+>   o Changed EXTRAVERSION to -rc5
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-   Can anyone comment on this?
-
-   Does any one has patches with replacement VM? I'm very interesting in 
-knowing all aspect of VM<->block layer<->rest of the kernel integration.
-
-   Pointers to on-line memory management algorithms will be valuable 
-too, if some one knows any.
-
-P.S. I know about linux-mm.org - out-dated, but I do read it right now. 
-Any other pointers will be appreciated.
-But looks like general Linux crowd is satisfied with current (and past) 
-status of MM...
-
-P.P.S. Small memory eating app is attached. lines 16 & 17 (for() loop) 
-used to touch every kbyte of memory to make it really allocated.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  Because the kernel depends on it existing. "init"          |_|*|_|
-  literally _is_ special from a kernel standpoint,           |_|_|*|
-  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
-  that would be a great name for a rock band).
-                                 -- Linus Torvalds
-
---------------070701020502080301010707
-Content-Type: text/plain;
- name="malloc.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="malloc.c"
-
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#define CHUNK_SIZE	(1<<16)
-
-int main()
-{
-	char *b;
-	unsigned long sz = 0;
-	for (;;) {
-		fprintf(stderr, "alloc ");
-		if ((b = malloc( CHUNK_SIZE ))) {
-			unsigned int i;
-			sz += CHUNK_SIZE;
-			for (i=0; i<(CHUNK_SIZE>>10); ++i)
-				b[i<<10] = '0';
-		} else
-			exit(1);
-		fprintf(stderr, "done. [%lu%s]\n", sz>>10, "k");
-	}
-}
-
-
---------------070701020502080301010707--
+iD8DBQE/w1pOmNlq8m+oD34RAhE5AKCXsmUR1AM6Is76HSO6VxUma9O9TwCdFEvo
+p11Y6XEbIxeVDUYTAB+xdXo=
+=ggWy
+-----END PGP SIGNATURE-----
 

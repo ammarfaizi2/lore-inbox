@@ -1,452 +1,231 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266269AbRGDBPy>; Tue, 3 Jul 2001 21:15:54 -0400
+	id <S266489AbRGDCUB>; Tue, 3 Jul 2001 22:20:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbRGDBPh>; Tue, 3 Jul 2001 21:15:37 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:9875 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S266269AbRGDBPX>;
-	Tue, 3 Jul 2001 21:15:23 -0400
-Date: Wed, 4 Jul 2001 03:15:18 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200107040115.DAA526392.aeb@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: [PATCH] cleanup
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	id <S266487AbRGDCTx>; Tue, 3 Jul 2001 22:19:53 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:45168 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S266485AbRGDCTk>; Tue, 3 Jul 2001 22:19:40 -0400
+Date: Tue, 3 Jul 2001 22:19:36 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <mike@bigstorage.com>, <kevin@bigstorage.com>
+Subject: [PATCH] 64 bit scsi read/write
+In-Reply-To: <20010703065312.J4841@vestdata.no>
+Message-ID: <Pine.LNX.4.33.0107032211120.30968-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I saw someone who estimated the value of all Linux source code
-by counting source code lines. This patch lowers that estimate.
-No behaviour is changed (intentionally).
+On Tue, 3 Jul 2001, Ragnar Kjørstad wrote:
 
-Andries
+> What about LVM?
 
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/tmscsim.c ./linux/drivers/scsi/tmscsim.c
---- ../linux-2.4.6-pre9/linux/drivers/scsi/tmscsim.c	Fri Apr 27 23:07:19 2001
-+++ ./linux/drivers/scsi/tmscsim.c	Wed Jul  4 02:51:48 2001
-@@ -1350,84 +1350,7 @@
-     return(0);
- }
- 
--/* We ignore mapping problems, as we expect everybody to respect 
-- * valid partition tables. Waiting for complaints ;-) */
--
- #ifdef CONFIG_SCSI_DC390T_TRADMAP
--/* 
-- * The next function, partsize(), is copied from scsicam.c.
-- *
-- * This is ugly code duplication, but I didn't find another way to solve it:
-- * We want to respect the partition table and if it fails, we apply the 
-- * DC390 BIOS heuristic. Too bad, just calling scsicam_bios_param() doesn't do
-- * the job, because we don't know, whether the values returned are from
-- * the part. table or determined by setsize(). Unfortunately the setsize() 
-- * values differ from the ones chosen by the DC390 BIOS.
-- *
-- * Looking forward to seeing suggestions for a better solution! KG, 98/10/14
-- */
--#include <asm/unaligned.h>
--
--/*
-- * Function : static int partsize(struct buffer_head *bh, unsigned long 
-- *     capacity,unsigned int *cyls, unsigned int *hds, unsigned int *secs);
-- *
-- * Purpose : to determine the BIOS mapping used to create the partition
-- *	table, storing the results in *cyls, *hds, and *secs 
-- *
-- * Returns : -1 on failure, 0 on success.
-- *
-- */
--
--static int partsize(struct buffer_head *bh, unsigned long capacity,
--    unsigned int  *cyls, unsigned int *hds, unsigned int *secs) {
--    struct partition *p, *largest = NULL;
--    int i, largest_cyl;
--    int cyl, ext_cyl, end_head, end_cyl, end_sector;
--    unsigned int logical_end, physical_end, ext_physical_end;
--    
--
--    if (*(unsigned short *) (bh->b_data+510) == 0xAA55) {
--	for (largest_cyl = -1, p = (struct partition *) 
--    	    (0x1BE + bh->b_data), i = 0; i < 4; ++i, ++p) {
--    	    if (!p->sys_ind)
--    	    	continue;
--    	    cyl = p->cyl + ((p->sector & 0xc0) << 2);
--    	    if (cyl > largest_cyl) {
--    	    	largest_cyl = cyl;
--    	    	largest = p;
--    	    }
--    	}
--    }
--
--    if (largest) {
--    	end_cyl = largest->end_cyl + ((largest->end_sector & 0xc0) << 2);
--    	end_head = largest->end_head;
--    	end_sector = largest->end_sector & 0x3f;
--
--    	physical_end =  end_cyl * (end_head + 1) * end_sector +
--    	    end_head * end_sector + end_sector;
--
--	/* This is the actual _sector_ number at the end */
--	logical_end = get_unaligned(&largest->start_sect)
--			+ get_unaligned(&largest->nr_sects);
--
--	/* This is for >1023 cylinders */
--        ext_cyl= (logical_end-(end_head * end_sector + end_sector))
--                                        /(end_head + 1) / end_sector;
--	ext_physical_end = ext_cyl * (end_head + 1) * end_sector +
--            end_head * end_sector + end_sector;
--
--    	if ((logical_end == physical_end) ||
--	    (end_cyl==1023 && ext_physical_end==logical_end)) {
--    	    *secs = end_sector;
--    	    *hds = end_head + 1;
--    	    *cyls = capacity / ((end_head + 1) * end_sector);
--    	    return 0;
--    	}
--    }
--    return -1;
--}
- 
- /***********************************************************************
-  * Function:
-@@ -1440,46 +1363,38 @@
-  * Note:
-  *   In contrary to other externally callable funcs (DC390_), we don't lock
-  ***********************************************************************/
--int DC390_bios_param (Disk *disk, kdev_t devno, int geom[])
-+int DC390_bios_param (Disk *disk, kdev_t dev, int *geom)
+Errr, I'll refrain from talking about LVM.
+
+> We'll see what we can do to test the scsi-code. Please send it to us
+> when you have code. I guess there are fixes for both generic-scsi code
+> and for each controller, right? What controllers are you planning on
+> fixing first?
+> What tests do you recommend?
+> mkfs on a big device, and then putting >2TB data on it?
+
+Here's the [completely untested] generic scsi fixup, but I'm told that
+some controllers will break with it.  Give it a whirl and let me know how
+many pieces you're left holding. =)  Please note that msdos partitions do
+*not* work on devices larger than 2TB, so you'll have to use the scsi disk
+directly.  This patch applies on top of v2.4.6-pre8-largeblock4.diff.
+
+Testing wise, I'm looking for tests on ext2, the block device and raw
+devices that write out enough data to fill the device and then reads the
+data back looking for any corruption.  There are a few test programs I've
+got to this end, but I need to clean them up before releasing them.  If
+anyone wants to help sort out issues on other filesystems, I'll certainly
+track patches and feedback.  Cheers,
+
+		-ben
+
+.... ~/patches/v2.4.6-pre8-lb-scsi.diff ....
+diff -ur lb-2.4.6-pre8/drivers/scsi/scsi.h lb-2.4.6-pre8.scsi/drivers/scsi/scsi.h
+--- lb-2.4.6-pre8/drivers/scsi/scsi.h	Tue Jul  3 01:31:47 2001
++++ lb-2.4.6-pre8.scsi/drivers/scsi/scsi.h	Tue Jul  3 22:03:16 2001
+@@ -351,7 +351,7 @@
+ #define DRIVER_MASK         0x0f
+ #define SUGGEST_MASK        0xf0
+
+-#define MAX_COMMAND_SIZE    12
++#define MAX_COMMAND_SIZE    16
+ #define SCSI_SENSE_BUFFERSIZE   64
+
+ /*
+@@ -613,6 +613,7 @@
+ 	unsigned expecting_cc_ua:1;	/* Expecting a CHECK_CONDITION/UNIT_ATTN
+ 					 * because we did a bus reset. */
+ 	unsigned device_blocked:1;	/* Device returned QUEUE_FULL. */
++	unsigned sixteen:1;		/* use 16 byte read / write */
+ 	unsigned ten:1;		/* support ten byte read / write */
+ 	unsigned remap:1;	/* support remapping  */
+ 	unsigned starved:1;	/* unable to process commands because
+diff -ur lb-2.4.6-pre8/drivers/scsi/sd.c lb-2.4.6-pre8.scsi/drivers/scsi/sd.c
+--- lb-2.4.6-pre8/drivers/scsi/sd.c	Tue Jul  3 22:08:28 2001
++++ lb-2.4.6-pre8.scsi/drivers/scsi/sd.c	Tue Jul  3 22:05:46 2001
+@@ -277,11 +277,12 @@
+
+ static int sd_init_command(Scsi_Cmnd * SCpnt)
  {
-     int heads, sectors, cylinders;
--    PACB pACB = (PACB) disk->device->host->hostdata;
--    struct buffer_head *bh;
--    int ret_code = -1;
--    int size = disk->capacity;
--
--    if ((bh = bread(MKDEV(MAJOR(devno), MINOR(devno)&~0xf), 0, 1024)))
--    {
--	/* try to infer mapping from partition table */
--	ret_code = partsize (bh, (unsigned long) size, (unsigned int *) geom + 2,
--			     (unsigned int *) geom + 0, (unsigned int *) geom + 1);
--	brelse (bh);
--    }
--    if (ret_code == -1)
--    {
--	heads = 64;
--	sectors = 32;
--	cylinders = size / (heads * sectors);
--
--	if ( (pACB->Gmode2 & GREATER_1G) && (cylinders > 1024) )
--	{
--		heads = 255;
--		sectors = 63;
--		cylinders = size / (heads * sectors);
--	}
--
--	geom[0] = heads;
--	geom[1] = sectors;
--	geom[2] = cylinders;
-+    PACB pACB;
-+    unsigned long size = disk->capacity;
-+
-+    if (scsi_bios_param_from_MBR(dev, size, geom) == 0)
-+	    return 0;
-+
-+    heads = 64;
-+    sectors = 32;
-+    cylinders = size / (heads * sectors);
-+
-+    pACB = (PACB) disk->device->host->hostdata;
-+
-+    if ( (pACB->Gmode2 & GREATER_1G) && (cylinders > 1024) ) {
-+	    heads = 255;
-+	    sectors = 63;
-+	    cylinders = size / (heads * sectors);
-     }
- 
--    return (0);
-+    geom[0] = heads;
-+    geom[1] = sectors;
-+    geom[2] = cylinders;
-+
-+    return 0;
- }
- #else
--int DC390_bios_param (Disk *disk, kdev_t devno, int geom[])
-+int DC390_bios_param (Disk *disk, kdev_t dev, int *geom)
- {
--    return scsicam_bios_param (disk, devno, geom);
--};
-+    return scsicam_bios_param (disk, dev, geom);
-+}
+-	int dev, devm, block, this_count;
++	int dev, devm, this_count;
+ 	Scsi_Disk *dpnt;
+ #if CONFIG_SCSI_LOGGING
+ 	char nbuff[6];
  #endif
- 
- 
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/BusLogic.c ./linux/drivers/scsi/BusLogic.c
---- ../linux-2.4.6-pre9/linux/drivers/scsi/BusLogic.c	Sun Nov 12 04:01:11 2000
-+++ ./linux/drivers/scsi/BusLogic.c	Wed Jul  4 02:51:48 2001
-@@ -4127,7 +4127,7 @@
-   /*
-     Attempt to read the first 1024 bytes from the disk device.
-   */
--  BufferHead = bread(MKDEV(MAJOR(Device), MINOR(Device) & ~0x0F), 0, 1024);
-+  BufferHead = scsi_get_block_zero(Device);
-   if (BufferHead == NULL) return 0;
-   /*
-     If the boot sector partition table flag is valid, search for a partition
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/aic7xxx/aic7xxx_linux.c ./linux/drivers/scsi/aic7xxx/aic7xxx_linux.c
---- ../linux-2.4.6-pre9/linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Sun May 20 21:11:39 2001
-+++ ./linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Wed Jul  4 02:51:48 2001
-@@ -2669,34 +2669,29 @@
-  * Return the disk geometry for the given SCSI device.
-  */
- int
--ahc_linux_biosparam(Disk *disk, kdev_t dev, int geom[])
-+ahc_linux_biosparam(Disk *disk, kdev_t dev, int *geom)
- {
- 	int	heads;
- 	int	sectors;
- 	int	cylinders;
--	int	ret;
- 	int	extended;
- 	struct	ahc_softc *ahc;
--	struct	buffer_head *bh;
-+	unsigned long size = disk->capacity;
- 
--	ahc = *((struct ahc_softc **)disk->device->host->hostdata);
--	bh = bread(MKDEV(MAJOR(dev), MINOR(dev) & ~0xf), 0, 1024);
-+	if (scsi_bios_param_from_MBR(dev, size, geom) == 0)
-+		return 0;
- 
--	if (bh) {
--		ret = scsi_partsize(bh, disk->capacity,
--				    &geom[2], &geom[0], &geom[1]);
--		brelse(bh);
--		if (ret != -1)
--			return (ret);
--	}
- 	heads = 64;
- 	sectors = 32;
- 	cylinders = disk->capacity / (heads * sectors);
- 
-+	ahc = *((struct ahc_softc **)disk->device->host->hostdata);
++	blkoff_t block;
+
+ 	devm = SD_PARTITION(SCpnt->request.rq_dev);
+ 	dev = DEVICE_NR(SCpnt->request.rq_dev);
+@@ -289,7 +290,7 @@
+ 	block = SCpnt->request.sector;
+ 	this_count = SCpnt->request_bufflen >> 9;
+
+-	SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = %d, block = %d\n", devm, block));
++	SCSI_LOG_HLQUEUE(1, printk("Doing sd request, dev = %d, block = %"BLKOFF_FMT"\n", devm, block));
+
+ 	dpnt = &rscsi_disks[dev];
+ 	if (devm >= (sd_template.dev_max << 4) ||
+@@ -374,7 +375,21 @@
+
+ 	SCpnt->cmnd[1] = (SCpnt->lun << 5) & 0xe0;
+
+-	if (((this_count > 0xff) || (block > 0x1fffff)) || SCpnt->device->ten) {
++	if (SCpnt->device->sixteen) {
++		SCpnt->cmnd[0] += READ_16 - READ_6;
++		SCpnt->cmnd[2] = (unsigned char) (block >> 56) & 0xff;
++		SCpnt->cmnd[3] = (unsigned char) (block >> 48) & 0xff;
++		SCpnt->cmnd[4] = (unsigned char) (block >> 40) & 0xff;
++		SCpnt->cmnd[5] = (unsigned char) (block >> 32) & 0xff;
++		SCpnt->cmnd[6] = (unsigned char) (block >> 24) & 0xff;
++		SCpnt->cmnd[7] = (unsigned char) (block >> 16) & 0xff;
++		SCpnt->cmnd[8] = (unsigned char) (block >> 8) & 0xff;
++		SCpnt->cmnd[9] = (unsigned char) block & 0xff;
++		SCpnt->cmnd[10] = (unsigned char) (this_count >> 24) & 0xff;
++		SCpnt->cmnd[11] = (unsigned char) (this_count >> 16) & 0xff;
++		SCpnt->cmnd[12] = (unsigned char) (this_count >> 8) & 0xff;
++		SCpnt->cmnd[13] = (unsigned char) this_count & 0xff;
++	} else if (SCpnt->device->ten || (this_count > 0xff) || (block > 0x1fffff)) {
+ 		if (this_count > 0xffff)
+ 			this_count = 0xffff;
+
+@@ -882,14 +897,61 @@
+ 		 */
+ 		rscsi_disks[i].ready = 1;
+
+-		rscsi_disks[i].capacity = 1 + ((buffer[0] << 24) |
+-					       (buffer[1] << 16) |
+-					       (buffer[2] << 8) |
+-					       buffer[3]);
++		rscsi_disks[i].capacity = buffer[0];
++		rscsi_disks[i].capacity <<= 8;
++		rscsi_disks[i].capacity |= buffer[1];
++		rscsi_disks[i].capacity <<= 8;
++		rscsi_disks[i].capacity |= buffer[2];
++		rscsi_disks[i].capacity <<= 8;
++		rscsi_disks[i].capacity |= buffer[3];
++		rscsi_disks[i].capacity += 1;
+
+ 		sector_size = (buffer[4] << 24) |
+ 		    (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
+
 +
- 	if (disk->device->channel == 0)
- 		extended = (ahc->flags & AHC_EXTENDED_TRANS_A) != 0;
- 	else
- 		extended = (ahc->flags & AHC_EXTENDED_TRANS_B) != 0;
++		/* Is this disk larger than 32 bits? */
++		if (rscsi_disks[i].capacity == 0x100000000) {
++			cmd[0] = READ_CAPACITY;
++			cmd[1] = (rscsi_disks[i].device->lun << 5) & 0xe0;
++			cmd[1] |= 0x2;	/* Longlba */
++			memset((void *) &cmd[2], 0, 8);
++			memset((void *) buffer, 0, 8);
++			SRpnt->sr_cmd_len = 0;
++			SRpnt->sr_sense_buffer[0] = 0;
++			SRpnt->sr_sense_buffer[2] = 0;
 +
- 	if (extended && cylinders >= 1024) {
- 		heads = 255;
- 		sectors = 63;
-@@ -2705,7 +2700,7 @@
- 	geom[0] = heads;
- 	geom[1] = sectors;
- 	geom[2] = cylinders;
--	return (0);
-+	return 0;
- }
- 
- /*
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/aic7xxx_old.c ./linux/drivers/scsi/aic7xxx_old.c
---- ../linux-2.4.6-pre9/linux/drivers/scsi/aic7xxx_old.c	Tue Jul  3 20:41:38 2001
-+++ ./linux/drivers/scsi/aic7xxx_old.c	Wed Jul  4 02:51:48 2001
-@@ -11994,29 +11994,21 @@
-  *   Return the disk geometry for the given SCSI device.
-  *-F*************************************************************************/
- int
--aic7xxx_biosparam(Disk *disk, kdev_t dev, int geom[])
-+aic7xxx_biosparam(Disk *disk, kdev_t dev, int *geom)
- {
--  int heads, sectors, cylinders, ret;
-+  int heads, sectors, cylinders;
-   struct aic7xxx_host *p;
--  struct buffer_head *bh;
- 
--  p = (struct aic7xxx_host *) disk->device->host->hostdata;
--  bh = bread(MKDEV(MAJOR(dev), MINOR(dev)&~0xf), 0, 1024);
--
--  if ( bh )
--  {
--    ret = scsi_partsize(bh, disk->capacity, &geom[2], &geom[0], &geom[1]);
--    brelse(bh);
--    if ( ret != -1 )
--      return(ret);
--  }
-+  if (scsi_bios_param_from_MBR(dev, disk->capacity, geom) == 0)
-+	  return 0;
-   
-   heads = 64;
-   sectors = 32;
-   cylinders = disk->capacity / (heads * sectors);
- 
--  if ((p->flags & AHC_EXTEND_TRANS_A) && (cylinders > 1024))
--  {
-+  p = (struct aic7xxx_host *) disk->device->host->hostdata;
++			SRpnt->sr_data_direction = SCSI_DATA_READ;
++			scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
++				    8, SD_TIMEOUT, MAX_RETRIES);
 +
-+  if ((p->flags & AHC_EXTEND_TRANS_A) && (cylinders > 1024)) {
-     heads = 255;
-     sectors = 63;
-     cylinders = disk->capacity / (heads * sectors);
-@@ -12026,7 +12018,7 @@
-   geom[1] = sectors;
-   geom[2] = cylinders;
- 
--  return (0);
-+  return 0;
- }
- 
- /*+F*************************************************************************
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/scsi.h ./linux/drivers/scsi/scsi.h
---- ../linux-2.4.6-pre9/linux/drivers/scsi/scsi.h	Sat May 26 03:02:21 2001
-+++ ./linux/drivers/scsi/scsi.h	Wed Jul  4 02:39:42 2001
-@@ -443,9 +443,11 @@
- /*
-  * Prototypes for functions in scsicam.c
-  */
--extern int  scsi_partsize(struct buffer_head *bh, unsigned long capacity,
--                    unsigned int *cyls, unsigned int *hds,
--                    unsigned int *secs);
-+extern struct buffer_head *scsi_get_block_zero(kdev_t dev);
-+extern int scsi_bios_param_from_MBR(kdev_t dev, unsigned long size, int *ip);
-+extern int scsi_partsize(struct buffer_head *bh, unsigned long capacity,
-+			 unsigned int *cyls, unsigned int *hds,
-+			 unsigned int *secs);
- 
- /*
-  * Prototypes for functions in scsi_dma.c
-diff -u --recursive --new-file ../linux-2.4.6-pre9/linux/drivers/scsi/scsicam.c ./linux/drivers/scsi/scsicam.c
---- ../linux-2.4.6-pre9/linux/drivers/scsi/scsicam.c	Fri Nov 19 04:09:14 1999
-+++ ./linux/drivers/scsi/scsicam.c	Wed Jul  4 02:51:48 2001
-@@ -23,60 +23,73 @@
- #include "sd.h"
- #include <scsi/scsicam.h>
- 
--static int setsize(unsigned long capacity, unsigned int *cyls, unsigned int *hds,
--		   unsigned int *secs);
-+static int setsize(unsigned long capacity, unsigned int *cyls,
-+		   unsigned int *hds, unsigned int *secs);
- 
-+struct buffer_head *
-+scsi_get_block_zero(kdev_t dev) {
-+	int ma, mi, block;
++			/* cool!  64 bit goodness... */
++			if (!SRpnt->sr_result) {
++				rscsi_disks[i].capacity = buffer[0];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[1];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[2];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[3];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[4];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[5];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[6];
++				rscsi_disks[i].capacity <<= 8;
++				rscsi_disks[i].capacity |= buffer[7];
++				rscsi_disks[i].capacity += 1;
 +
-+	ma = MAJOR(dev);
-+	mi = (MINOR(dev) & ~0xf);
++				sector_size = (buffer[8] << 24) |
++				    (buffer[9] << 16) | (buffer[10] << 8) |
++				     buffer[11];
 +
-+	block = 1024; 
-+	if(blksize_size[ma])
-+		block = blksize_size[ma][mi];
-+		
-+	return bread(MKDEV(ma,mi), 0, block);
-+}
- 
- /*
-- * Function : int scsicam_bios_param (Disk *disk, int dev, int *ip)
-+ * Return: 0: OK
-+ *        -1: cannot determine geometry
-+ *        -2: cannot read disk
-+ */
-+#define DISK_READ_ERROR	(-2)
++				SRpnt->sr_device->sixteen = 1;
++			}
++		}
 +
-+int
-+scsi_bios_param_from_MBR(kdev_t dev, unsigned long size, int *ip) {
-+	int rc = DISK_READ_ERROR;
-+	struct buffer_head *bh;
-+
-+	bh = scsi_get_block_zero(dev);
-+	if (bh) {
-+		rc = scsi_partsize(bh, size, ip + 2, ip + 0, ip + 1);
-+		brelse(bh);
-+	}
-+	return rc;
-+}
-+
-+/*
-+ * Function : int scsicam_bios_param (Disk *disk, kdev_t dev, int *ip)
-  *
-  * Purpose : to determine the BIOS mapping used for a drive in a 
-  *      SCSI-CAM system, storing the results in ip as required
-  *      by the HDIO_GETGEO ioctl().
-  *
-- * Returns : -1 on failure, 0 on success.
-- *
-+ * Returns : -1 on failure (cannot read MBR), 0 on success
-  */
- 
--int scsicam_bios_param(Disk * disk,	/* SCSI disk */
--		       kdev_t dev,	/* Device major, minor */
--		  int *ip /* Heads, sectors, cylinders in that order */ )
-+int scsicam_bios_param(Disk *disk, kdev_t dev,
-+		       int *ip /* heads, sectors, cylinders in that order */ )
- {
--	struct buffer_head *bh;
--	int ret_code;
--	int size = disk->capacity;
--	unsigned long temp_cyl;
--
--	int ma = MAJOR(dev);
--	int mi = (MINOR(dev) & ~0xf);
--
--	int block = 1024; 
-+	int rc;
-+	unsigned long size = disk->capacity;
- 
--	if(blksize_size[ma])
--		block = blksize_size[ma][mi];
--		
--	if (!(bh = bread(MKDEV(ma,mi), 0, block)))
-+	rc = scsi_bios_param_from_MBR(dev, size, ip);
-+	if (rc == DISK_READ_ERROR)
- 		return -1;
- 
--	/* try to infer mapping from partition table */
--	ret_code = scsi_partsize(bh, (unsigned long) size, (unsigned int *) ip + 2,
--		       (unsigned int *) ip + 0, (unsigned int *) ip + 1);
--	brelse(bh);
--
--	if (ret_code == -1) {
--		/* pick some standard mapping with at most 1024 cylinders,
--		   and at most 62 sectors per track - this works up to
--		   7905 MB */
--		ret_code = setsize((unsigned long) size, (unsigned int *) ip + 2,
--		       (unsigned int *) ip + 0, (unsigned int *) ip + 1);
--	}
-+	/* pick some standard mapping with at most 1024 cylinders,
-+	   and at most 62 sectors per track - this works up to 7905 MB */
-+	rc = setsize(size, ip + 2, ip + 0, ip + 1);
-+
- 	/* if something went wrong, then apparently we have to return
- 	   a geometry with more than 1024 cylinders */
--	if (ret_code || ip[0] > 255 || ip[1] > 63) {
-+	if (rc || ip[0] > 255 || ip[1] > 63) {
- 		ip[0] = 64;
- 		ip[1] = 32;
--		temp_cyl = size / (ip[0] * ip[1]);
--		if (temp_cyl > 65534) {
-+		if (size / (64 * 32) > 65534) {
- 			ip[0] = 255;
- 			ip[1] = 63;
+ 		if (sector_size == 0) {
+ 			sector_size = 512;
+ 			printk("%s : sector size 0 reported, assuming 512.\n",
+@@ -930,7 +992,7 @@
+ 			 */
+ 			int m;
+ 			int hard_sector = sector_size;
+-			int sz = rscsi_disks[i].capacity * (hard_sector/256);
++			blkoff_t sz = rscsi_disks[i].capacity * (hard_sector/256);
+
+ 			/* There are 16 minors allocated for each major device */
+ 			for (m = i << 4; m < ((i + 1) << 4); m++) {
+@@ -938,7 +1000,7 @@
+ 			}
+
+ 			printk("SCSI device %s: "
+-			       "%d %d-byte hdwr sectors (%d MB)\n",
++			       "%"BLKOFF_FMT" %d-byte hdwr sectors (%"BLKOFF_FMT" MB)\n",
+ 			       nbuff, rscsi_disks[i].capacity,
+ 			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
  		}
-@@ -110,10 +123,6 @@
- 		     (0x1BE + bh->b_data), i = 0; i < 4; ++i, ++p) {
- 			if (!p->sys_ind)
- 				continue;
--#ifdef DEBUG
--			printk("scsicam_bios_param : partition %d has system \n",
--			       i);
--#endif
- 			cyl = p->cyl + ((p->sector & 0xc0) << 2);
- 			if (cyl > largest_cyl) {
- 				largest_cyl = cyl;
-@@ -128,11 +137,6 @@
- 
- 		if (end_head + 1 == 0 || end_sector == 0)
- 			return -1;
--
--#ifdef DEBUG
--		printk("scsicam_bios_param : end at h = %d, c = %d, s = %d\n",
--		       end_head, end_cyl, end_sector);
--#endif
- 
- 		physical_end = end_cyl * (end_head + 1) * end_sector +
- 		    end_head * end_sector + end_sector;
+diff -ur lb-2.4.6-pre8/drivers/scsi/sd.h lb-2.4.6-pre8.scsi/drivers/scsi/sd.h
+--- lb-2.4.6-pre8/drivers/scsi/sd.h	Tue Jul  3 01:31:47 2001
++++ lb-2.4.6-pre8.scsi/drivers/scsi/sd.h	Tue Jul  3 22:03:16 2001
+@@ -26,7 +26,7 @@
+ extern struct hd_struct *sd;
+
+ typedef struct scsi_disk {
+-	unsigned capacity;	/* size in blocks */
++	u64 capacity;	/* size in blocks */
+ 	Scsi_Device *device;
+ 	unsigned char ready;	/* flag ready for FLOPTICAL */
+ 	unsigned char write_prot;	/* flag write_protect for rmvable dev */
+diff -ur lb-2.4.6-pre8/include/scsi/scsi.h lb-2.4.6-pre8.scsi/include/scsi/scsi.h
+--- lb-2.4.6-pre8/include/scsi/scsi.h	Thu May  3 11:22:20 2001
++++ lb-2.4.6-pre8.scsi/include/scsi/scsi.h	Tue Jul  3 18:06:43 2001
+@@ -78,6 +78,9 @@
+ #define MODE_SENSE_10         0x5a
+ #define PERSISTENT_RESERVE_IN 0x5e
+ #define PERSISTENT_RESERVE_OUT 0x5f
++#define READ_16               0x88
++#define WRITE_16              0x8a
++#define WRITE_VERIFY_16       0x8e
+ #define MOVE_MEDIUM           0xa5
+ #define READ_12               0xa8
+ #define WRITE_12              0xaa
+

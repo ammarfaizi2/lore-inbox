@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVBUQop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVBUQrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVBUQop (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 11:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVBUQop
+	id S262035AbVBUQrU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 11:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVBUQrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 11:44:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:41197 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262034AbVBUQol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 11:44:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=pGEoRUHniS3pRQc+tWzZvcfq1l1Ne7ZJAYG1kf8m1UMYfssewD26I1wOmCuCKByLbkOkt2eLpbG05xJm+o8fViKB50ijUumT+01Xw5OseDjdelql+OSTuM15/7pFdDkwPujvrxYR/aprY41jvqvYOlxaSeVuoW8Xne1A3+qAm2c=
-Message-ID: <93ca30670502210844578dce95@mail.gmail.com>
-Date: Mon, 21 Feb 2005 10:44:38 -0600
-From: Alex Adriaanse <alex.adriaanse@gmail.com>
-Reply-To: Alex Adriaanse <alex.adriaanse@gmail.com>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: Odd data corruption problem with LVM/ReiserFS
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <4219C811.5070906@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 11:47:20 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:31177 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262035AbVBUQrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 11:47:05 -0500
+Message-ID: <4219CA64.8020402@comcast.net>
+Date: Mon, 21 Feb 2005 11:47:48 +0000
+From: Doug McLain <nostar@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040618
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: PALFFY Daniel <dpalffy-lists@rainstorm.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: sata_sil data corruption
+References: <Pine.LNX.4.58.0412281319001.5054@rainstorm.org> <421778E4.8060705@pobox.com> <Pine.LNX.4.58.0502211219250.23186@rainstorm.org> <4219A3AD.1000002@comcast.net> <421A0990.7070506@pobox.com> <4219C543.8030903@comcast.net> <20050221162923.GA29621@havoc.gtf.org>
+In-Reply-To: <20050221162923.GA29621@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <93ca3067050220212518d94666@mail.gmail.com>
-	 <4219C811.5070906@domdv.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005 12:37:53 +0100, Andreas Steinmetz <ast@domdv.de> wrote:
-> Alex Adriaanse wrote:
-> > As far as I can tell all the directories are still intact, but there
-> > was a good number of files that had been corrupted.  Those files
-> > looked like they had some chunks removed, and some had a bunch of NUL
-> > characters (in blocks of 4096 characters).  Some files even had chunks
-> > of other files inside of them!
+Jeff Garzik wrote:
+Been there done that, all on this list actually.  Bios upgrade, bios 
+reset, new cable, different drive, correct functionality in windows, and 
+now the drive and cable ahave found their home in my other PC, a kt600 
+board using the sata_via driver, where it works flawlessly.  I'm not 
+even interested in using the sata interface on this machine anymore, but 
+I still try to make an effort whenever possible to contribute byt 
+reporting bugs.  So many people with so many different hardware 
+combinations, sometimes it takes the right combination of 
+hardware/software to reveal a bug.  That being said, if you want to 
+investigate further, I can provide any information you want. If you want 
+to ignore it, thats fine too.  Evidence strongly leans towards a driver 
+bug though.
+
+I also noticed that I get oops now sometimes even with no drive 
+attatched at all
+
+What is a blacklist entry?  A combination of drive/controller that is 
+determined to be incompatable together? I would assume for a drive to 
+make it to a blacklists it would have to be incompatable regardless of 
+OS right?  The drive in question is a WD2000JD
+
+Doug
 > 
-> I can second that. I had the same experience this weekend on a
-> md/dm/reiserfs setup. The funny thing is that e.g. find reports I/O
-> errors but if you then run tar on the tree you eventually get the
-> correct data from tar. Then run find again and you'll again get I/O errors.
-The weird thing is I did not see any I/O errors in my logs, and
-running find on /var worked without a problem.  By the way, did you
-take any DM snapshots when you experienced that corruption?
+> In this case, the bug _reports_ are hard to find.
+> 
+> Each case with sata_sil is either solved with a BIOS update, a
+> blacklist entry, or new cables.  Just read through bugzilla.kernel.org.
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
+
+-- 
+http://nostar.net/

@@ -1,93 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315410AbSFTSSE>; Thu, 20 Jun 2002 14:18:04 -0400
+	id <S315412AbSFTSXA>; Thu, 20 Jun 2002 14:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315411AbSFTSSE>; Thu, 20 Jun 2002 14:18:04 -0400
-Received: from holomorphy.com ([66.224.33.161]:47807 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315410AbSFTSSC>;
-	Thu, 20 Jun 2002 14:18:02 -0400
-Date: Thu, 20 Jun 2002 11:17:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] scheduler bits from 2.5.23-dj1
-Message-ID: <20020620181729.GY22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20020620172059.GW22961@holomorphy.com> <Pine.LNX.4.44.0206201929310.9805-100000@e2>
+	id <S315414AbSFTSW7>; Thu, 20 Jun 2002 14:22:59 -0400
+Received: from zok.sgi.com ([204.94.215.101]:33683 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315413AbSFTSW6>;
+	Thu, 20 Jun 2002 14:22:58 -0400
+Date: Thu, 20 Jun 2002 11:22:55 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] SGI VISWS support for 2.5
+Message-ID: <20020620182255.GA66157@sgi.com>
+Mail-Followup-To: Andrey Panin <pazke@orbita1.ru>,
+	linux-kernel@vger.kernel.org
+References: <20020620112608.GA303@pazke.ipt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206201929310.9805-100000@e2>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20020620112608.GA303@pazke.ipt>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 07:31:18PM +0200, Ingo Molnar wrote:
-> looks good to me - what do you think about my other pidhash suggestion:
+Thanks for doing this.  I'm checking it out now on a 320.
 
-An excellent idea. I didn't go all the way and make the pidhash entirely
-private to fork.c but taking find_task_by_pid() out-of-line is implemented
-in the following, built atop the prior patch. I can also privatize the
-pidhash entirely if that's wanted.
+Jesse
+
+On Thu, Jun 20, 2002 at 03:26:08PM +0400, Andrey Panin wrote:
+> Hi all,
+> 
+> attached patch is a forward port of latest (2.4.17) visws patch from 
+> sourceforge. It's mostly trivial textual merge. Builds, unteseted.
+> 
+> Please take a look at it.
+> 
+> -- 
+> Andrey Panin            | Embedded systems software engineer
+> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
 
 
-Cheers,
-Bill
 
-diff -urN linux-2.5.23-virgin/include/linux/sched.h linux-2.5.23-wli/include/linux/sched.h
---- linux-2.5.23-virgin/include/linux/sched.h	Thu Jun 20 10:53:42 2002
-+++ linux-2.5.23-wli/include/linux/sched.h	Thu Jun 20 10:55:18 2002
-@@ -459,19 +459,7 @@
- 	list_del(&p->pidhash_list);
- }
- 
--static inline task_t *find_task_by_pid(int pid)
--{
--	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
--
--	list_for_each(p, pid_list) {
--		task_t *t = list_entry(p, task_t, pidhash_list);
--
--		if(t->pid == pid)
--			return t;
--	}
--
--	return NULL;
--}
-+extern task_t *find_task_by_pid(int pid);
- 
- /* per-UID process charging. */
- extern struct user_struct * alloc_uid(uid_t);
-diff -urN linux-2.5.23-virgin/kernel/fork.c linux-2.5.23-wli/kernel/fork.c
---- linux-2.5.23-virgin/kernel/fork.c	Thu Jun 20 10:53:42 2002
-+++ linux-2.5.23-wli/kernel/fork.c	Thu Jun 20 10:55:55 2002
-@@ -69,6 +69,21 @@
- 		INIT_LIST_HEAD(&pidhash[i]);
- }
- 
-+task_t *find_task_by_pid(int pid)
-+{
-+	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
-+
-+	list_for_each(p, pid_list) {
-+		task_t *t = list_entry(p, task_t, pidhash_list);
-+
-+		if(t->pid == pid)
-+			return t;
-+	}
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL(find_task_by_pid);
-+
- rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
- 
- void add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait)

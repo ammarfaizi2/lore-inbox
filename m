@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269063AbUHMK3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUHMK3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269063AbUHMK3x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269059AbUHMK1i
+	id S269059AbUHMK3y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUHMK1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:27:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:26002 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269058AbUHMKXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:23:54 -0400
-Date: Fri, 13 Aug 2004 03:23:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>, Keith Owens <kaos@ocs.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-Message-ID: <20040813102334.GD11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-References: <23701.1092268910@ocs3.ocs.com.au> <20040812010115.GY11200@holomorphy.com> <Pine.LNX.4.58.0408112133470.2544@montezuma.fsmlabs.com> <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com> <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com> <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com> <20040813100540.GC11200@holomorphy.com>
+	Fri, 13 Aug 2004 06:27:18 -0400
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:52263
+	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S269059AbUHMKXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:23:15 -0400
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml@lpbproduction.scom, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040813101928.GE8135@elte.hu>
+References: <20040726082330.GA22764@elte.hu>
+	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
+	 <200408122149.41490.lkml@lpbproductions.com>
+	 <1092390820.6815.11.camel@twins>  <20040813101928.GE8135@elte.hu>
+Content-Type: text/plain
+Date: Fri, 13 Aug 2004 12:23:03 +0200
+Message-Id: <1092392583.17555.1.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040813100540.GC11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 1.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 01:01:16AM -0700, William Lee Irwin III wrote:
->>>>>               text    data     bss     dec     hex filename
->>>>> mainline: 19973522        6607761 1878448 28459731        1b242d3 vmlinux
->>>>> cool:     19839487        6585707 1878448 28303642        1afe11a vmlinux
->>>>> C-func:   19923848        6582771 1878384 28385003        1b11eeb vmlinux
+On Fri, 2004-08-13 at 12:19 +0200, Ingo Molnar wrote:
+> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> 
+> > > arch/i386/kernel/traps.c: In function `do_nmi':
+> > > arch/i386/kernel/traps.c:539: error: syntax error before "do"
+> 
+> > This fixes it.
+> > 
+> > --- ./include/asm-i386/hardirq.h~       2004-08-13 11:17:38.668333125 +0200
+> > +++ ./include/asm-i386/hardirq.h        2004-08-13 11:51:40.835968747 +0200
+> > @@ -73,7 +73,7 @@
+> >  #define hardirq_endlock()      do { } while (0)
+> >  
+> >  #define irq_enter()            add_preempt_count(HARDIRQ_OFFSET)
+> > -#define nmi_enter()            (irq_enter())
+> > +#define nmi_enter()            irq_enter()
+> 
+> yep - thx, this fix too will be in -O7. It seems this compilation error
+> only happens with older gcc and i'm using 3.3.
+> 
+> 	Ingo
+FYI,
 
-On Fri, Aug 13, 2004 at 02:16:40AM -0700, William Lee Irwin III wrote:
->>>> unlock:    19895498        6582746 1878384 28356628        1b0b014 vmlinux
+peter@twins ~ $ gcc --version
+gcc (GCC) 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-On Fri, Aug 13, 2004 at 02:30:02AM -0700, William Lee Irwin III wrote:
->>> unlock-irq: 19889858        6582721 1878384 28350963        1b099f3 vmlinux
+and it hits here too.
 
-On Fri, Aug 13, 2004 at 02:46:14AM -0700, William Lee Irwin III wrote:
->> read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-On Fri, Aug 13, 2004 at 03:05:40AM -0700, William Lee Irwin III wrote:
-> irqrestore:   19855759        6582442 1878384 28316585        1b013a9 vmlinux
-
-Reinlining read_unlock_irq() also yields:
-rdunlockirq:    19855255        6582369 1878384 28316008        1b01168 vmlinux
-
-
--- wli

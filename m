@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUFBV2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUFBVdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbUFBV2e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFBV2d
+	id S262425AbUFBVdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFBVc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:28:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25479 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264239AbUFBV1f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:27:35 -0400
-Date: Wed, 2 Jun 2004 17:26:23 -0400
-From: Alan Cox <alan@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: PATCH: Submission of via "velocity(tm)" series adapter driver
-Message-ID: <20040602212623.GA13285@devserv.devel.redhat.com>
-References: <20040602201315.GA10339@devserv.devel.redhat.com> <40BE3F00.4090408@pobox.com> <20040602211646.GA9419@devserv.devel.redhat.com> <40BE458D.4050408@pobox.com>
+	Wed, 2 Jun 2004 17:32:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45069 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262425AbUFBVcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 17:32:31 -0400
+Date: Wed, 2 Jun 2004 22:32:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Zabolotny <zap@homelink.ru>, Todd Poynor <tpoynor@mvista.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: two patches - request for comments
+Message-ID: <20040602223219.B9322@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Andrew Zabolotny <zap@homelink.ru>,
+	Todd Poynor <tpoynor@mvista.com>, linux-kernel@vger.kernel.org
+References: <20040529012030.795ad27e.zap@homelink.ru> <40B7B659.9010507@mvista.com> <20040529121059.3789c355.zap@homelink.ru> <40BCE28A.1050601@mvista.com> <20040602010036.440fc5b4.zap@homelink.ru> <20040602171542.GL7829@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40BE458D.4050408@pobox.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040602171542.GL7829@kroah.com>; from greg@kroah.com on Wed, Jun 02, 2004 at 10:15:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 05:24:29PM -0400, Jeff Garzik wrote:
-> Alan Cox wrote:
-> >Most of our drivers don't work bigendian. If you want it bigendian you
+On Wed, Jun 02, 2004 at 10:15:42AM -0700, Greg KH wrote:
+> On Wed, Jun 02, 2004 at 01:00:36AM +0400, Andrew Zabolotny wrote:
+> > 
+> > In theory, if we would use the standard power interface, it could use the
+> > different levels of power saving, e.g. 0 - controller and LCD on, 1,2 - LCD
+> > off, controller on, 3,4 - both off.
 > 
-> As an additional rebuttal, most of the PCI drivers people care about do 
-> work on big-endian...
+> Please use the standard power interface, and use the standard levels of
+> power state.  That's why we _have_ this driver model in the first
+> place...
 
-This one probably does, but if not then either
+It /doesn't/ make any sense to in this case.  We're talking effectively
+about the LCD panel attributes, not a device as such.
 
-a) Someone fixes it or
-b) It gets merged anyway and the other 99.99999% of the user base don't have
-   to suffer in the meantime.
+IOW:
+- LCD backlight brightness
+- LCD backlight on/off
+- LCD panel power on/off
 
-I really don't care. I'm sure all the vendors can merge it directly.
+Typically, the last item needs to be closely controlled in relation to
+the LCD controller itself, and it just does not make sense to separate
+the LCD panel power control from the controller itself in the device
+model.  In fact, exposing the LCD panel power control independent of
+the LCD controller state can lead to cases where you end up destroying
+your LCD panel - there is a very defined sequence to power up/down
+these things to avoid degredation.
 
+However, the issue is that all of the three things can be handled
+god-knows-which-way on any platform, even when they're using the
+same LCD controllers.  So we need a way for platform/machine specific
+code to provide the information so that the LCD controller can
+correctly handle these settings on blank, etc.
+
+Hope this provides some extra reasoning why using the device model
+for these attributes is wrong.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

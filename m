@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbUJ0XHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbUJ0UMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbUJ0XHj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUJ0W5y
+	id S262657AbUJ0UMg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbUJ0UHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:57:54 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:30880 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262748AbUJ0WyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:54:08 -0400
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@tux.tmfweb.nl
-Cc: Paulo Marques <pmarques@grupopie.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041027213807.GA9334@nospam.com>
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
-	 <417FB7BA.9050005@grupopie.com>  <20041027213807.GA9334@nospam.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098913837.7783.8.camel@localhost.localdomain>
+	Wed, 27 Oct 2004 16:07:02 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31636 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262674AbUJ0UGH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:06:07 -0400
+Date: Wed, 27 Oct 2004 22:01:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041027200114.GA22209@elte.hu>
+References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Oct 2004 22:50:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-27 at 22:38, Rutger Nijlunsing wrote:
-> So you've got the _disadvantages_ of a slow clock (programs run
-> slower), and not the _advantages_ (power consumption is same as idle
-> CPU and not lower, temperature is same as idle CPU and not lower).
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> On RT-V0.4.1, xruns seems slighly reduced, but plenty enough for my
+> taste.
 > 
-> But why does the P4 have such a mode? It uses this mode during thermal
-> throttling to get to the 'idle' temperature.
+> Running jackd -R with 6 fluidsynth instances gives me 0 (zero) xruns
+> on RT-U3, but more than 20 (twenty) on RT-V0.4.1, under a 5 minute
+> time frame. It was 30 (thirty something) on RT-V0.4, but overall
+> "feel" is about the same.
 
-It isn't obvious how you software idle a PIV - "hlt" at least does not
-seem to do that.
+does the wakeup tracer show any high latency?
 
-> Therefore, p4-clockmod is completely misnamed: it's _not_ a cpufreq
-> driver in the sense that it does not change the frequency.
-
-It performs a similar function less efficiently. Lots of older chipsets
-for K6 and the like also only support this form of clock control.
-
-Alan
-
+	Ingo

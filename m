@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317984AbSGWHti>; Tue, 23 Jul 2002 03:49:38 -0400
+	id <S317985AbSGWHyQ>; Tue, 23 Jul 2002 03:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317985AbSGWHti>; Tue, 23 Jul 2002 03:49:38 -0400
-Received: from employees.nextframe.net ([212.169.100.200]:34040 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S317984AbSGWHti>; Tue, 23 Jul 2002 03:49:38 -0400
-Date: Tue, 23 Jul 2002 10:03:32 +0200
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-Message-ID: <20020723100332.A103@sexything>
-Reply-To: morten.helgesen@nextframe.net
-References: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+	id <S317986AbSGWHyQ>; Tue, 23 Jul 2002 03:54:16 -0400
+Received: from pat.uio.no ([129.240.130.16]:16091 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317985AbSGWHyP>;
+	Tue, 23 Jul 2002 03:54:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: odd memory corruption in 2.5.27?
+Date: Tue, 23 Jul 2002 09:57:19 +0200
+User-Agent: KMail/1.4.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alexander Viro <viro@math.psu.edu>
+References: <Pine.LNX.4.44.0207230824590.32636-100000@linux-box.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.44.0207230824590.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207230957.19812.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> IDE 99 which is included in 2.5.27 introduced really nasty bug.
-> Possible lockups and data corruption. Please do not.
+On Tuesday 23 July 2002 08:26, Zwane Mwaikambo wrote:
+> Hi Trond, Arnaldo, Al
+> 	I tried reproducing using a local filesystem and couldn't
+> (machine survived 3 make -j10 kernel compiles). Here is another oops for
+> the collection. Al i'll remove you from further CCs now.
+>
+> client: 2.5.27-serial, 3c905B
+> server: 2.4.19-pre5-ac3, 3c905B
+> connection: 100Mb/FD
+>
+> I got this message before it oopsed;
+> RPC: garbage, exit EIO
 
-Could you please elaborate a bit ? 
+Just means that some RPC message reply from the server was crap. We should 
+deal fine with that sort of thing...
 
-> 
-> Regards
-> --
-> Bartlomiej
+AFAICS The Oops itself happened deep down in the socket layer in the part 
+which has to do with reassembling fragments into packets. The garbage 
+collector tried to release a fragment that had timed out and Oopsed.
 
--- 
+Suggests either memory corruption or else that the networking driver is doing 
+something odd ('cos at that point in the socket layer *only* the driver + the 
+fragment handler should have touched the skb).
 
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
+Cheers,
+  Trond

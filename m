@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281181AbRK3Xak>; Fri, 30 Nov 2001 18:30:40 -0500
+	id <S281184AbRK3XcK>; Fri, 30 Nov 2001 18:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281191AbRK3Xaa>; Fri, 30 Nov 2001 18:30:30 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:1548 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S281184AbRK3XaV>;
-	Fri, 30 Nov 2001 18:30:21 -0500
-Date: Fri, 30 Nov 2001 15:26:59 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] 2.5.1-pre4 scsi.c/scsi_lib.c
-Message-ID: <Pine.LNX.4.33L2.0111301523490.6115-100000@dragon.pdx.osdl.net>
+	id <S281192AbRK3Xb5>; Fri, 30 Nov 2001 18:31:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56583 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281191AbRK3Xbf>; Fri, 30 Nov 2001 18:31:35 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch] smarter atime updates
+Date: 30 Nov 2001 15:31:18 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9u94s6$er5$1@cesium.transmeta.com>
+In-Reply-To: <20011130145223.Q15936@lynx.no> <Pine.LNX.4.33.0111301349230.1185-100000@penguin.transmeta.com> <20011130143011.A20179@netnation.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to 2.5.1-pre4 fixes error in scsi_lib.c
-and warnings in scsi.c.
+Followup to:  <20011130143011.A20179@netnation.com>
+By author:    Simon Kirby <sim@netnation.com>
+In newsgroup: linux.dev.kernel
+> 
+> I've always thought filesystems should mount with noatime,nodiratime by
+> default and only actually update atime if specifically mounted with
+> "atime", as it's so rarely used.  Out of all of the servers here, none
+> actually use atime (every file system on _every_ server is mounted
+> noatime,nodiratime).  It's such a waste and just sounds fundamentally
+> broken to issue a write because somebody read from a file.
+> 
+> ...But there's probably some POSIX standard which would make such a
+> change illegal.  Blah blah...
+> 
+> (Not to say that atime isn't useful, but in most cases where it might be
+> useful, it is so easily broken by backup processes, etc., that it really
+> wants to be a different sort of mechanism.)
+> 
 
-I haven't seen these corrections yet...
+Edit /etc/fstab and be happy.  I'm sorry, but you even know why your
+request is unacceptable.
 
-~Randy
-
-
---- linux/drivers/scsi/scsi.c.org	Fri Nov 30 11:50:11 2001
-+++ linux/drivers/scsi/scsi.c	Fri Nov 30 15:15:19 2001
-@@ -2430,7 +2430,7 @@
- 		for (SDpnt = shpnt->host_queue; SDpnt; SDpnt = SDpnt->next) {
- 			for (SCpnt = SDpnt->device_queue; SCpnt; SCpnt = SCpnt->next) {
- 				/*  (0) h:c:t:l (dev sect nsect cnumsec sg) (ret all flg) (to/cmd to ito) cmd snse result %d %x      */
--				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4ld %4ld %4ld %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
-+				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4ld %4ld %4d %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
- 				       i++,
-
- 				       SCpnt->host->host_no,
-@@ -2476,12 +2476,12 @@
- 					entry = queue_head->next;
- 					do {
- 						req = blkdev_entry_to_request(entry);
--						printk("(%s %d %ld %ld %ld) ",
-+						printk("(%s %d %lu %lu %u) ",
- 						   kdevname(req->rq_dev),
- 						       req->cmd,
- 						       req->sector,
- 						       req->nr_sectors,
--						req->current_nr_sectors);
-+						       req->current_nr_sectors);
- 					} while ((entry = entry->next) != queue_head);
- 					printk("\n");
- 				}
---- linux/drivers/scsi/scsi_lib.c.org	Fri Nov 30 11:50:11 2001
-+++ linux/drivers/scsi/scsi_lib.c	Fri Nov 30 13:53:03 2001
-@@ -582,7 +582,7 @@
- 	 */
- 	if (good_sectors > 0) {
- 		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, %d sectors done.\n",
--					      req->nr_sectors good_sectors));
-+					      req->nr_sectors, good_sectors));
- 		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n ", SCpnt->use_sg));
-
- 		req->errors = 0;
-
+	-hpa
 -- 
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

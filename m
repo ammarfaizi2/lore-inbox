@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132777AbRDQXM2>; Tue, 17 Apr 2001 19:12:28 -0400
+	id <S132829AbRDQXPi>; Tue, 17 Apr 2001 19:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132807AbRDQXMT>; Tue, 17 Apr 2001 19:12:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53778 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132777AbRDQXMF>; Tue, 17 Apr 2001 19:12:05 -0400
-Subject: Re: IP Acounting Idea for 2.5
-To: md-linux-kernel@logi.cc (Manfred Bartz)
-Date: Wed, 18 Apr 2001 00:13:30 +0100 (BST)
+	id <S132807AbRDQXP2>; Tue, 17 Apr 2001 19:15:28 -0400
+Received: from unthought.net ([212.97.129.24]:10907 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S132829AbRDQXPO>;
+	Tue, 17 Apr 2001 19:15:14 -0400
+Date: Wed, 18 Apr 2001 01:15:13 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Phil <philippe.amelant@free.fr>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010417225850.15245.qmail@logi.cc> from "Manfred Bartz" at Apr 18, 2001 08:58:49 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14pef6-0003Vj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Ide performance (was RAID0 Performance problems)
+Message-ID: <20010418011513.B23123@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Phil <philippe.amelant@free.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <3ADCBAA3.8F78775A@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <3ADCBAA3.8F78775A@free.fr>; from philippe.amelant@free.fr on Tue, Apr 17, 2001 at 11:50:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Fix your userspace applications to behave correctly.  If _you_
-> > require your userspace applications to not clear counters, then fix
-> > the application.
+On Tue, Apr 17, 2001 at 11:50:27PM +0200, Phil wrote:
+> Le 15 Apr 2001 21:08:04 +0200, Andreas Peter a écrit :
+> > Hi,
+> > I've posted about performance problems with my RAID0 setup.
+> > RAID works fine, but it's too slow.
 > 
-> You are confused.  What would you say if a close() by another,
+> Hi
+> 
+> I have the same problem, but i think it 's a BX chipset related problem.
 
-No he isnt confused, you are trying to dictate policy.
+I have two SMP machines running RAID-0 on a BX chipset, without any
+performance problems (~30-40 MB/sec on two disks, ~90MB/sec on five)
 
-> unrelated application closed all open descriptors for that file,
-> including the one you just opened?  Just fix your applications?
+Kernel 2.4.3
 
-That would be a bug. The standards and common sense say so, but your argument
-is more akin to 'if I delete a file in one app it hurts when I try and use
-it in another'.
+> 
+> I Have a BP6 whit a BX chipset and a htp 366 chipset.
+> on a single device, hdparm report ~ 18/19 MB/s
 
+Mine are Asus P2B-D boards
 
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

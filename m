@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbTINDoS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 23:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTINDoR
+	id S262285AbTINDmX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 23:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTINDmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 23:44:17 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:15883 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262286AbTINDoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 23:44:17 -0400
-Subject: Re: PCMCIA in 2.6.0-test5
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Philip Clark <pclark@SLAC.Stanford.EDU>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <x34y8ws47an.fsf@bbrcu5.slac.stanford.edu>
-References: <x34y8ws47an.fsf@bbrcu5.slac.stanford.edu>
-Content-Type: text/plain
-Message-Id: <1063511052.1299.0.camel@teapot.felipe-alfaro.com>
+	Sat, 13 Sep 2003 23:42:23 -0400
+Received: from codepoet.org ([166.70.99.138]:11681 "EHLO mail.codepoet.org")
+	by vger.kernel.org with ESMTP id S262285AbTINDmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 23:42:17 -0400
+Date: Sat, 13 Sep 2003 21:42:18 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Timothy Miller <miller@techsource.com>,
+       David Schwartz <davids@webmaster.com>,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+Message-ID: <20030914034218.GA18627@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Timothy Miller <miller@techsource.com>,
+	David Schwartz <davids@webmaster.com>,
+	Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+References: <20030914015719.GA16947@codepoet.org> <Pine.LNX.4.10.10309131934360.16744-100000@master.linux-ide.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 14 Sep 2003 05:44:13 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10309131934360.16744-100000@master.linux-ide.org>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-09-14 at 01:06, Philip Clark wrote:
-> Does anyone know of problems with pcmcia in test5? When I moved from
-> test4 -> test5 there are now problems and I get "no sockets found"
-> messages when I try to start pcmcia. If I do lspci then it detects the
-> cardbus bridge no problem. Is anyone out there having similar problems? 
+On Sat Sep 13, 2003 at 07:40:52PM -0700, Andre Hedrick wrote:
+> 
+> Please Erik,
+> 
+> Go have your "DADDY" write another legal letter for you and send it my
+> way.  I will be happy to shove it down your pie hole.
 
-Have you tried with the latest -bk snapshot? I had problems with PCMCIA
-on my laptop that have been resolved in -bk3.
+Your intellect is truly dizzying.  I am left stunned by your
+carefully reasoned arguments.
 
+> There is a difference in blanket theift of the kernel API and any court
+> will point out that "fair usage" is proper.
+
+"fair usage" != "derivitive works" as any court will point out.
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

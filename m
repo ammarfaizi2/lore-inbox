@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263969AbTE3ULw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 16:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTE3ULw
+	id S264012AbTE3UQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 16:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTE3UQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 16:11:52 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:28804 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S263969AbTE3ULu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 16:11:50 -0400
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function
-	declarations.
-From: Steven Cole <elenstev@mesatop.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030530201429.GA3308@wohnheim.fh-wedel.de>
-References: <1054324633.3754.119.camel@spc9.esa.lanl.gov>
-	 <20030530201429.GA3308@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1054326307.3751.124.camel@spc9.esa.lanl.gov>
+	Fri, 30 May 2003 16:16:55 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:47576 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264012AbTE3UQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 16:16:54 -0400
+Date: Fri, 30 May 2003 13:30:15 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "John Stoffel" <stoffel@lucent.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+Message-Id: <20030530133015.4f305808.akpm@digeo.com>
+In-Reply-To: <16087.47491.603116.892709@gargle.gargle.HOWL>
+References: <20030529012914.2c315dad.akpm@digeo.com>
+	<20030529042333.3dd62255.akpm@digeo.com>
+	<16087.47491.603116.892709@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 30 May 2003 14:25:07 -0600
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 May 2003 20:30:14.0356 (UTC) FILETIME=[4680E140:01C326EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-30 at 14:14, Jörn Engel wrote:
-> On Fri, 30 May 2003 13:57:13 -0600, Steven Cole wrote:
-> > 
-> > Maybe the following should be unnecessary after all these years since
-> > the ANSI C standard was introduced, but several files associated with
-> > zlib were using the old-style function declaration.
-> > 
-> > So, here is a proposed addition to CodingStyle, just to make it clear.
+"John Stoffel" <stoffel@lucent.com> wrote:
+>
+> >>>>> "Andrew" == Andrew Morton <akpm@digeo.com> writes:
 > 
-> In the case of the zlib, just leave it as it is.  The less changes we
-> make, to easier it is to merge upstream changes into the kernel.
+> >> . A couple more locking mistakes in ext3 have been fixed.
 > 
-> Jörn
+> Andrew> But not all of them.  The below is needed on SMP.
+> 
+> Any hint on when -mm3 will be out,
 
-Whoops, sorry.  Linus started the old-style to new-style conversion in
-zlib_inflate a few days ago, and I've sent Linus several patches
-finishing the job in zlib_deflate and elsewhere.  Some are already in
-the tree.
+About ten hours hence, probably.
 
-Steven
+> and if it will include the RAID1 patches?
+
+I have a raid0 patch from Neil, but no raid1 patch.  I saw one drift past,
+from Zwane (I think), but wasn't sure that it worked.  If someone has a
+raid1 fix, please send it.
+
+> I haven't had time to play with -mm2, and all the stuff
+> floating by about problems has made me a bit hesitant to try it out.
+
+Welll ext3 has been a bit bumpy of course.  It's getting better, but I
+haven't yet been able to give it a 12-hour bash on the 4-way.  Last time I
+tried a circuit breaker conked; it lasted three hours but even ext3 needs
+electricity.  But three hours is very positive - it was hard testing.
+
+I'm not testing RAID at present, partly because I'm too stoopid to
+understand mdadm and partly because the box-with-18-disks heats the room up
+too much.  This needs to change, because of possible interaction between
+the IO scheduler work and software RAID.
 

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263744AbUC3Qn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 11:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUC3Qn0
+	id S263738AbUC3QnO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 11:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUC3QnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 11:43:26 -0500
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:10507
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263740AbUC3QnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 11:43:20 -0500
-Date: Tue, 30 Mar 2004 08:38:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Bogus LBA48 drives
-In-Reply-To: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.10.10403300821520.11654-100000@master.linux-ide.org>
+	Tue, 30 Mar 2004 11:43:14 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:51375 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263738AbUC3QnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 11:43:13 -0500
+Message-ID: <4069A359.7040908@nortelnetworks.com>
+Date: Tue, 30 Mar 2004 11:42:01 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Willy Tarreau <willy@w.ods.org>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local> <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk> <Pine.LNX.4.53.0403300814350.5311@chaos> <20040330142215.GA21931@alpha.home.local> <Pine.LNX.4.53.0403300943520.6151@chaos> <20040330150949.GA22073@alpha.home.local> <Pine.LNX.4.53.0403301019570.6451@chaos> <20040330161431.GA22272@alpha.home.local>
+In-Reply-To: <20040330161431.GA22272@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Willy Tarreau wrote:
 
-Actually this issue an errata correction in ATA-6 and changed in ATA-7.
+> In what I described, a 386 target would be compiled with -march=i386,
+> but the cmpxchg() FUNCTION will still reference the cmpxchg op-code
+> in the __asm__ statement, and this is perfectly valid. In this case,
+> only callers of the cmpxchg() FUNCTION will have a chance to use it.
+> And at the moment, the only client seems to be ACPI.
 
-48-bit command set support is different than capacity.
+Will the assembler even let you compile the cmpxchg asm instruction if 
+you're building for i386?
 
-A fix that address the erratium is prefered, just need to take some time
-to read it.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Tue, 30 Mar 2004, Geert Uytterhoeven wrote:
-
-> 
-> Apparently some IDE drives (e.g. a pile of 80 GB ST380020ACE drives I have
-> access to) advertise to support LBA48, but don't, causing kernels that support
-> LBA48 (i.e. anything newer than 2.4.18, including 2.4.25 and 2.6.4) to fail on
-> them.  Older kernels (including 2.2.20 on the Debian woody CDs) work fine.
-> 
-> One problem with those drives is that the lba_capacity_2 field in their drive
-> identification is set to 0, making the IDE driver think the disk is 0 bytes
-> large. At first I tried modifying the driver to use lba_capacity if
-> lba_capacity_2 is set to 0, but this caused disk errors. So it looks like those
-> drives don't support the increased transfer size of LBA48 neither.
-> 
-> I added a workaround for these drives to both 2.4.25 and 2.6.4. I'll send
-> patches in follow-up emails.
-> 
-> BTW, this problem (incl. a small patch to fix it for 2.4.19, which doesn't work
-> on 2.4.25 anymore) was reported a while ago by JunHyeok Heo, cfr.
-> http://www.cs.helsinki.fi/linux/linux-kernel/2002-42/0312.html
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> 
+Chris
 

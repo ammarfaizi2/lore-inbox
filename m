@@ -1,82 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268644AbTGLWfa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268676AbTGLWf3
+	id S268701AbTGLWi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbTGLWi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:35:29 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:48645 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S268644AbTGLWfR (ORCPT
+	Sat, 12 Jul 2003 18:38:27 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:58846 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S268701AbTGLWi0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:35:17 -0400
-Message-ID: <3F1090BA.9050706@c-zone.net>
-Date: Sat, 12 Jul 2003 15:50:34 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 914] New: "bad: scheduling while atomic!" flood after IDE error
-References: <166680000.1058017544@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Jul 2003 18:38:26 -0400
+Date: Sun, 13 Jul 2003 00:51:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030712225143.GA1508@elf.ucw.cz>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307121734.29941.dtor_core@ameritech.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-This looks suspiciously like what used to be reported as a "lost 
-interrupt" in earlier kernels.  It typically starts with a hardware 
-problem, such as cable overheating (my personal favorite).
+> > > - user can abort at any time during suspend (oh, I forgot, I wanted
+> > > to...) by just pressing Escape
+> >
+> > That seems like missfeature. We don't want joe random user that is at
+> > the console to prevent suspend by just pressing Escape. Maybe magic
+> > key to do that would be acceptable...
+> 
+> In case when suspending (and interrupting suspend) matters most - 
+> laptops - Joe random user is the only user present. I myself would
+> rather have an option to press ESC than remember what SysRq really 
+> maps to as by the time I would figure that out the laptop would already
+> be suspended.
+> 
+> IMHO, an option to use ESC, probably compile time option, is a good 
+> thing.
 
+No more compile time options, thanks.
 
-Martin J. Bligh wrote:
+And no escape. Doing something from keyboard is *ugly*. Magic sysrq is
+ugly, too, but its usefull enough to outweight that.
 
-> http://bugme.osdl.org/show_bug.cgi?id=914
-> 
->            Summary: "bad: scheduling while atomic!" flood after IDE error
->     Kernel Version: 2.5.75
->             Status: NEW
->           Severity: normal
->              Owner: alan@lxorguk.ukuu.org.uk
->          Submitter: rl@hellgate.ch
-> 
-> 
-> This problem has been reported on LKML for 2.5.74. I think I have seen it
-> at least with 2.5.73, too. The system looks okay, then, usually hours later
-> (if at all, it's a rare event), something freezes the system for several
-> seconds and triggers a flood of those call traces (many of them per second).
-> It seems an IDE error causes it.
-> 
-> A 2.5.75 trace (the call stack is always the same):
-> 
-> Jul 12 13:08:47 [kernel] hda: dma_timer_expiry: dma status == 0x61
-> Jul 12 13:09:02 [kernel] hda: timeout waiting for DMA
-> Jul 12 13:09:03 [kernel] ide0: reset: success
-> Jul 12 13:09:03 [kernel] bad: scheduling while atomic!
->                 - Last output repeated 103 times -
-> Jul 12 13:09:51 [kernel] Call Trace:
-> Jul 12 13:09:51 [kernel]  [<c0107000>] default_idle+0x0/0x40
-> Jul 12 13:09:51 [kernel]  [<c011f4a0>] schedule+0x500/0x510
-> Jul 12 13:09:51 [kernel]  [<c010706a>] poll_idle+0x2a/0x40
-> Jul 12 13:09:51 [kernel]  [<c01180e3>] apm_cpu_idle+0xa3/0x140
-> Jul 12 13:09:51 [kernel]  [<c0118040>] apm_cpu_idle+0x0/0x140
-> Jul 12 13:09:51 [kernel]  [<c0107000>] default_idle+0x0/0x40
-> Jul 12 13:09:51 [kernel]  [<c01070b8>] cpu_idle+0x38/0x40
-> Jul 12 13:09:51 [kernel]  [<c0105000>] rest_init+0x0/0x30
-> Jul 12 13:09:51 [kernel]  [<c0380738>] start_kernel+0x138/0x140
-> Jul 12 13:09:51 [kernel]  [<c03804c0>] unknown_bootoption+0x0/0x100
-> Jul 12 13:09:51 [kernel] bad: scheduling while atomic!
->                 - Last output repeated 144 times -
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
+Hmm, I noticed that I'm making same mistake with shift during
+powerdown. I guess I should kill that hack.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

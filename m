@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbSKNRZE>; Thu, 14 Nov 2002 12:25:04 -0500
+	id <S265139AbSKNR0D>; Thu, 14 Nov 2002 12:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265139AbSKNRZE>; Thu, 14 Nov 2002 12:25:04 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:6607 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S265135AbSKNRZD>; Thu, 14 Nov 2002 12:25:03 -0500
-Date: Thu, 14 Nov 2002 10:31:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-rc1-ac2
-Message-ID: <20021114173152.GA605@opus.bloom.county>
-References: <200211141622.gAEGMhX17361@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211141622.gAEGMhX17361@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+	id <S265140AbSKNR0D>; Thu, 14 Nov 2002 12:26:03 -0500
+Received: from otter.mbay.net ([206.55.237.2]:41226 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S265139AbSKNR0B>;
+	Thu, 14 Nov 2002 12:26:01 -0500
+Date: Thu, 14 Nov 2002 09:32:33 -0800 (PST)
+From: John Alvord <jalvo@mbay.net>
+To: Andi Kleen <ak@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: module mess in -CURRENT
+In-Reply-To: <p731y5owj0x.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.20.0211140929080.28420-100000@otter.mbay.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 11:22:43AM -0500, Alan Cox wrote:
-> 
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out, - indicates stuff not relevant to the main tree]
-> 
-> Linux 2.4.20-rc1-ac2
-> o	Ptrace NT flag fix				(Andrea Arcangeli)
-> o	lcall NT clear fixes				(Petr Vandrovec)
+On 14 Nov 2002, Andi Kleen wrote:
 
-Is the patch from Andrea needed in addition to Petr's patch?  If I
-followed the thread right it looks like Andrea later said that it wasn't
-needed (and I've locally tested both test cases with just Petr's patch
-with nothing bad seeming to happen).
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > (There are some other patches I'm still thinking about, notably kprobes
+> > and posix timers, but other than that my plate is fairly empty froma
+> > feature standpoint. And the kexec stuff I want others to test, at least
+> > now it's palatable to me).
+> 
+> How about the nanosecond stat stuff? It is needed for reliable make.
+> 
+> If I sent you a patch would you still consider it? It is not that intrusive, 
+> but needs straightforward editing in all file systems.
+> 
+Owens' kbuild-2.5 handled it a different way and didn't need exact
+timings. That is especially important since nanosecond time accuracy is
+impossible if you are handling a collection of machines doing the
+work. NTP is accurate, but not that accurate.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+john
+

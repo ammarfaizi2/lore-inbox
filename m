@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbUCEQr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 11:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUCEQr5
+	id S262649AbUCEQvB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 11:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUCEQvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 11:47:57 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:60103 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262645AbUCEQrz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 11:47:55 -0500
-Date: Fri, 5 Mar 2004 17:49:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: andrea@suse.de, peter@mysql.com, akpm@osdl.org, riel@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305164902.GA17745@elte.hu>
-References: <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu> <p73ad2v47ik.fsf@brahms.suse.de> <20040305162319.GA16835@elte.hu> <20040310142125.6f448d28.ak@suse.de>
+	Fri, 5 Mar 2004 11:51:01 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:24519 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262649AbUCEQuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 11:50:54 -0500
+Date: Fri, 5 Mar 2004 08:50:48 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: linux-kernel@vger.kernel.org, David Mosberger <davidm@napali.hpl.hp.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: binutils 2.15.90.0.1 break ia64 kernel crosscompiling
+Message-ID: <20040305165048.GA15858@lucon.org>
+References: <20040305142725.GA20926@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040310142125.6f448d28.ak@suse.de>
+In-Reply-To: <20040305142725.GA20926@MAIL.13thfloor.at>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I will make a new release to fix it.
 
-* Andi Kleen <ak@suse.de> wrote:
 
-> > > [...] Only drawback is that if a timer tick is delayed for too long it
-> > > won't fix that, but I guess that's reasonable for a 1s resolution.
-> > 
-> > what do you mean by delayed?
+H.J.
+---
+On Fri, Mar 05, 2004 at 03:27:25PM +0100, Herbert Poetzl wrote:
 > 
-> Normal gettimeofday can "fix" lost timer ticks because it computes the
-> true offset to the last timer interrupt using the TSC or other means.
-> xtime is always the last tick without any correction. If it got
-> delayed too much the result will be out of date.
-
-yeah - i doubt the softirq delay is a real issue.
-
-	Ingo
+> Hi Folks!
+> 
+> upgraded my Cross Compiling Toolchain[1] to binutils 2.15.90.0.1, 
+> recompiled gcc 3.3.3 (just to make sure), and now linux 2.6.3
+> doesn't compile for ia64 anymore ...
+> 
+> here is th funny part of the complete error log[2]
+> 
+> ------------------------------------------------------------------
+>   {standard input}: Assembler messages:
+>   {standard input}:1268: Internal error!
+>   Assertion failure in md_assemble at config/tc-ia64.c line 10013.
+>   Please report this bug.
+> ------------------------------------------------------------------
+> 
+> so we are now down from 6 to 5 of 20 archs which compile 2.6.3
+> with default config, will soon try with 2.6.4-rc*
+> 
+>                     linux-2.6.3                 linux-2.4.25
+>                     config  build       config  dep     kernel  modules
+>                     
+> alpha/alpha:        OK      OK          OK      OK      OK      OK
+> arm/arm:            FAILED  FAILED      OK      OK      FAILED  FAILED
+> cris/cris:          FAILED  FAILED      OK      FAILED  FAILED  FAILED
+> hppa/parisc:        OK      FAILED      OK      OK      FAILED  FAILED
+> hppa64/parisc:      OK      FAILED      OK      OK      FAILED  FAILED
+> i386/i386:          OK      OK          OK      OK      OK      OK
+> ia64/ia64:          OK      FAILED      OK      OK      FAILED  FAILED
+> m68k/m68k:          OK      FAILED      OK      OK      OK      OK
+> mips/mips:          OK      FAILED      OK      OK      FAILED  FAILED
+> mips64/mips:        OK      FAILED      OK      OK      FAILED  FAILED
+> ppc/ppc:            OK      FAILED      OK      OK      OK      OK
+> ppc64/ppc64:        OK      OK          OK      FAILED  FAILED  OK
+> s390/s390:          OK      FAILED      OK      OK      FAILED  FAILED
+> s390x/s390:         OK      FAILED      OK      OK      OK      OK
+> sh/sh:              OK      FAILED      OK      FAILED  FAILED
+> sh64/sh:            OK      FAILED      OK      OK      FAILED  FAILED
+> sparc/sparc:        OK      FAILED      OK      OK      FAILED  FAILED
+> sparc64/sparc64:    OK      OK          OK      OK      OK      OK
+> v850/v850:          FAILED  FAILED      FAILED  FAILED  FAILED  FAILED
+> x86_64/x86_64:      OK      OK          OK      OK      OK      OK
+> 
+> 
+> best,
+> Herbert
+> 
+> [1] http://vserver.13thfloor.at/Stuff/Cross/
+> [2] http://vserver.13thfloor.at/Stuff/Cross/LOGS-2.6.3-gcc3.3.3-binutils2.15.90.0.1/ia64-build.err

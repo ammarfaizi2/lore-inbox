@@ -1,344 +1,597 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUG0Hs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUG0IAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266308AbUG0Hs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 03:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUG0Hs2
+	id S266319AbUG0IAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 04:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUG0IAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 03:48:28 -0400
-Received: from science.horizon.com ([192.35.100.1]:37675 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S266308AbUG0HsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 03:48:14 -0400
-Date: 27 Jul 2004 07:48:13 -0000
-Message-ID: <20040727074813.4596.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.8-rc2 4K stack overflow
-Cc: linux@horizon.com
+	Tue, 27 Jul 2004 04:00:48 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24723 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266319AbUG0H7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 03:59:46 -0400
+Message-ID: <41060B62.1060806@suse.de>
+Date: Tue, 27 Jul 2004 09:59:30 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+References: <40FD23A8.6090409@suse.de>	<20040725182006.6c6a36df.akpm@osdl.org>	<4104E421.8080700@suse.de>	<20040726131807.47816576.akpm@osdl.org>	<4105FE68.7040506@suse.de> <20040727002409.68d49d7c.akpm@osdl.org>
+In-Reply-To: <20040727002409.68d49d7c.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------050100050603030302000002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a crash report.  Machine locked hard - no caps lock, no ping.
+This is a multi-part message in MIME format.
+--------------050100050603030302000002
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Machine mostly idle.  Amanda network backup was running, but not daily cron.
+Andrew Morton wrote:
+> Hannes Reinecke <hare@suse.de> wrote:
+> 
+>> Given enough processes in the waitqueue, the number of currently running 
+>> processes effectively determines the number of processes to be started.
+>> And as those processes are already running, I don't see an effective 
+>> procedure how we could _reduce_ the number of processes to be started.
+> 
+> 
+> By reducing the number of processes which can concurrently take the
+> semaphore?  Confused.
+> 
+Well, case in point: let's say we have khelper_max = 10, ten processes 
+currently running, 15 processes in the waitqueue.
+How can I reduce the number of concurrently running processes?
+(Obviously not for the currently running processes, but for those in the 
+waitqueue).
+If I were to use down() as per your suggestion, I would have to use 
+another helper thread as down() will block. Otherwise I will block the 
+calling function (e.g. sysctl).
+This just leads to added complexity; can't say I like it.
 
-Backtrace copied by hand. (I didn't copy the leading addresses.)
-FWIW, only one partition (a RAID-0 non-critical data partition) is
-mounted with ext2.
+But then, your call. If you say 'use semaphores' I will do it.
 
-.config follows.  Compiler is GCC 3.3.4 (Debian 3.3.4-3)  Hardware is
-Intel Celeron, 440BX motherboard.
+Patch (for the semaphore version) is attached.
 
-Hopefully it helps someone.  I don't have frame pointers enabled, so I
-assume the confusing bits of the backtrace are clutter misidentified as
-a return address.
+Cheers,
 
-<top of visible screen>
-do_exit+0x76/0x2c0
-die+0xc5/0xd0
-do_page_fault+0x0/0x528
-do_page_fault+0x277/0x528
-scrup+0xf3/0x110
-vt_console_printf+0x1e7/0x2e0
-do_page_fault+0x0/0x527
-error_code+0x2d/0x38
-mm_release+0x38/0xa0
-common_interrupt+0x18/0x20
-do_exit+0x76/0x2c0
-die+0xc5/0xd0
-do_invalid_op+0x0/0xb0
-do_invalid_op+0xac/0xb0
-free_pages_bulk+0x205/0x220
-free_hot_cold_page+0xbd/0xe0
-zap_pte_range+0x14b/0x240
-zap_pmd_range+0x4b/0x70
-unmap_page_range+0x3d/0x70
-unmap_vmas+0xfe/0x1b0
-exit_mmap+0x69/0x130
-mmput+0x40/0x60
-do_exit+0x11b/0x2c0
-die+0xc5/0xd0
-do_invalid_op+0x0/0xb0
-do_invalid_op+0xac/0xb0
-buffered_rmqueue+0xfc/0x150
-ext2_alloc_branch+0x2d/0x1f0
-ext2_get_block+0x297/0x320
-error_code+0x2d/0x38
-buffered_rmqueue+0xfc/0x150
-__alloc_pages+0x9f/0x320
-find_lock_page+0x19/0x90
-generic_file_aio_write_nolock+0x2b8/0x9c0
-buffered_rmqueue+0xc5/0x150
-do_select+0x18a/0x2b0
-generic_file_write_nolock+0x5a/0x80
-do_sync_read+0x6d/0xa0
-generic_file_write+0x3e/0x60
-vfs_write+0xb0/0x110
-sys_write+0x38/0x60
-syscall_call+0x7/0xb
-Code: 8b 46 14 48 7e 52 31 d2 b8 00 f0 ff ff 89 93 5c 01 00 00 89
- <1>Unable to handle kernel NULL pointer dereferencedo_IRQ: Stack overflow: 316
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
 
+--------------050100050603030302000002
+Content-Type: text/x-patch;
+ name="khelper_restrict_maxnum_semaphore.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="khelper_restrict_maxnum_semaphore.patch"
 
-And here is 'grep [A-Z] .config':
+diff -u --recursive linux-2.6.8-rc1/include/linux/sysctl.h linux-2.6.8-rc1.hotplug/include/linux/sysctl.h
+--- linux-2.6.8-rc1/include/linux/sysctl.h	2004-07-11 19:34:39.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/include/linux/sysctl.h	2004-07-21 10:22:15.000000000 +0200
+@@ -133,6 +133,7 @@
+ 	KERN_NGROUPS_MAX=63,	/* int: NGROUPS_MAX */
+ 	KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
+ 	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
++	KERN_KHELPER_MAX=66,    /* int: max # of concurrent khelper threads */
+ };
+ 
+ 
+diff -u --recursive linux-2.6.8-rc1/init/main.c linux-2.6.8-rc1.hotplug/init/main.c
+--- linux-2.6.8-rc1/init/main.c	2004-07-11 19:33:56.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/init/main.c	2004-07-23 09:43:35.000000000 +0200
+@@ -93,6 +93,7 @@
+ extern void populate_rootfs(void);
+ extern void driver_init(void);
+ extern void prepare_namespace(void);
++extern void usermodehelper_init(void);
+ 
+ #ifdef CONFIG_TC
+ extern void tc_init(void);
+@@ -598,7 +599,9 @@
+  */
+ static void __init do_basic_setup(void)
+ {
+-	driver_init();
++	/* drivers will send hotplug events */
++	init_workqueues();
++	usermodehelper_init();
+ 
+ #ifdef CONFIG_SYSCTL
+ 	sysctl_init();
+@@ -607,7 +610,8 @@
+ 	/* Networking initialization needs a process context */ 
+ 	sock_init();
+ 
+-	init_workqueues();
++	driver_init();
++
+ 	do_initcalls();
+ }
+ 
+diff -u --recursive linux-2.6.8-rc1/kernel/kmod.c linux-2.6.8-rc1.hotplug/kernel/kmod.c
+--- linux-2.6.8-rc1/kernel/kmod.c	2004-07-11 19:34:19.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/kernel/kmod.c	2004-07-27 10:42:49.000000000 +0200
+@@ -17,6 +17,9 @@
+ 
+ 	call_usermodehelper wait flag, and remove exec_usermodehelper.
+ 	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
++
++	resource management for call_usermodehelper
++	Hannes Reinecke <hare@suse.de> Jul 2004
+ */
+ #define __KERNEL_SYSCALLS__
+ 
+@@ -41,6 +44,10 @@
+ extern int max_threads;
+ 
+ static struct workqueue_struct *khelper_wq;
++int khelper_max = 50;
++static struct semaphore khelper_sem = __SEMAPHORE_INITIALIZER(khelper_sem, 50);
++
++#define DEBUG_KHELPER
+ 
+ #ifdef CONFIG_KMOD
+ 
+@@ -67,16 +74,12 @@
+ {
+ 	va_list args;
+ 	char module_name[MODULE_NAME_LEN];
+-	unsigned int max_modprobes;
+ 	int ret;
+ 	char *argv[] = { modprobe_path, "-q", "--", module_name, NULL };
+ 	static char *envp[] = { "HOME=/",
+ 				"TERM=linux",
+ 				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
+ 				NULL };
+-	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
+-#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+-	static int kmod_loop_msg;
+ 
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+@@ -95,21 +98,11 @@
+ 	 *
+ 	 * "trace the ppid" is simple, but will fail if someone's
+ 	 * parent exits.  I think this is as good as it gets. --RR
++	 *
++	 * Resource checking is now implemented in 
++	 * call_usermodehelper --hare
+ 	 */
+-	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
+-	atomic_inc(&kmod_concurrent);
+-	if (atomic_read(&kmod_concurrent) > max_modprobes) {
+-		/* We may be blaming an innocent here, but unlikely */
+-		if (kmod_loop_msg++ < 5)
+-			printk(KERN_ERR
+-			       "request_module: runaway loop modprobe %s\n",
+-			       module_name);
+-		atomic_dec(&kmod_concurrent);
+-		return -ENOMEM;
+-	}
+-
+ 	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
+-	atomic_dec(&kmod_concurrent);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(request_module);
+@@ -175,13 +168,166 @@
+ 	do_exit(0);
+ }
+ 
++/* 
++ * Worker to adapt the number of khelper processes.
++ * down() might block, so we need a separate thread ...
++ */
++void khelper_modify_number(void *data)
++{
++	struct subprocess_info *sub_info = data;
++	int i, diff = sub_info->wait;
++	
++	if (khelper_max > 0) {
++		printk(KERN_INFO "khelper: max %d concurrent processes\n",
++		       khelper_max);
++	} else {
++		printk(KERN_INFO "khelper: delaying events\n");
++	}
++	/* Notify calling process */
++	sub_info->retval = 0;
++	complete(sub_info->complete);
++
++	/* Do the actual work and wait if neccessary */
++	if (diff < 0) {
++		for (i = 0; i > diff; i--)
++			down(&khelper_sem);
++	} else {
++		for (i = 0; i < diff; i++)
++			up(&khelper_sem);
++	}
++}
++
++/* simple wrapper to wake any sleeping processes */
++void khelper_notify(int diff)
++{
++	pid_t pid;
++	DECLARE_COMPLETION(done);
++	struct subprocess_info sub_info = {
++		.complete	= &done,
++		.path		= path,
++		.argv		= argv,
++		.envp		= envp,
++		.wait		= diff,
++		.retval		= 0,
++	};
++
++	pid = kernel_thread(khelper_modify_number, sub_info,
++			    CLONE_FS | CLONE_FILES | SIGCHLD);
++
++	if (pid >= 0)
++		wait_for_completion(&done);
++}
++
++/* 
++ * The process args are only valid until call_usermodehelper
++ * returns, so we have to copy them to somewhere safe.
++ */
++void khelper_copy_info(struct subprocess_info *orig, 
++		       struct subprocess_info *new)
++{
++	int i, l;
++	char *p;
++
++	new->path = kmalloc(4096, GFP_KERNEL);
++	if (!new->path)
++	    return;
++	memset(new->path, 0, 4096);
++	p = new->path;
++	strcpy(p, orig->path);
++	p += strlen(p);
++	p++;
++	new->argv = (char **)p;
++	i = 0;
++	l = 0;
++	while (orig->envp[i]) {
++		l += strlen(orig->envp[i]) + 1;
++		i++;
++	}
++	if ( i > 7 )
++		i = 7;
++	p += sizeof(char *) * (i + 1);
++
++	i = 0;
++	while (orig->argv[i] && i < 7) {
++		strcpy(p, orig->argv[i]);
++		new->argv[i] = p;
++		p += strlen(p);
++		*p++ = '\0';
++		i++;
++	}
++	new->argv[i] = NULL;
++
++	i = 0;
++	l = 0;
++	while (orig->envp[i]) {
++		l += strlen(orig->envp[i]) + 1;
++		i++;
++	}
++	if ( i > 31 )
++		i = 31;
++	new->envp = (char **)p;
++	p += sizeof(char *) * (i + 1);
++
++	i = 0;
++	while (orig->envp[i] && i < 31) {
++		strcpy(p, orig->envp[i]);
++		new->envp[i] = p;
++		p += strlen(p);
++		*p++ = '\0';
++		i++;
++	}
++	new->envp[i] = NULL;
++}
++
+ /* Keventd can't block, but this (a child) can. */
+ static int wait_for_helper(void *data)
+ {
+-	struct subprocess_info *sub_info = data;
++	struct subprocess_info *sub_info = data, stored_info;
+ 	pid_t pid;
+ 	struct k_sigaction sa;
++	int flags = SIGCHLD, retval;
++	char *ev_descr;
+ 
++	/* Copy process info, we might need it later on */
++	khelper_copy_info(sub_info, &stored_info);
++	if (!stored_info.path) {
++		sub_info->retval = -ENOMEM;
++		complete(sub_info->complete);
++		return 0;
++	}
++
++	stored_info.wait = sub_info->wait;
++#ifdef DEBUG_KHELPER
++	/* Debug info */
++	if (stored_info.wait) {
++		ev_descr = stored_info.argv[3];
++	} else {
++		ev_descr = stored_info.envp[3] + 7;
++	}
++#endif
++	if (down_trylock(&khelper_sem)) {
++		/* 
++		 * We have exceeded the maximum number of
++		 * concurrent kmod invocations. Delay this process
++		 * until enough resources are available again.
++		 */
++#ifdef DEBUG_KHELPER
++		printk(KERN_INFO "khelper: delay event %s (current %d, max %d)\n",
++		       ev_descr, atomic_read(&khelper_sem.count), khelper_max);
++#endif
++		/* Notify the caller */
++		stored_info.wait = -1;
++		sub_info->retval = -EAGAIN;
++		complete(sub_info->complete);
++		
++		/* Wait until the semaphore is available again */
++		down(&khelper_sem);
++	}
++	/* Do the real action */
++#ifdef DEBUG_KHELPER
++	printk(KERN_INFO "khelper: exec event %s (current %d, max %d)\n",
++	       ev_descr, atomic_read(&khelper_sem.count), khelper_max);
++#endif
+ 	/* Install a handler: if SIGCLD isn't handled sys_wait4 won't
+ 	 * populate the status, but will return -ECHILD. */
+ 	sa.sa.sa_handler = SIG_IGN;
+@@ -190,23 +336,75 @@
+ 	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+ 	allow_signal(SIGCHLD);
+ 
+-	pid = kernel_thread(____call_usermodehelper, sub_info, SIGCHLD);
++	if (stored_info.wait < 1) {
++		/* CLONE_VFORK: wait until the usermode helper has execve'd
++		 * successfully We need the data structures to stay around
++		 * until that is done.  */
++		flags |= CLONE_VFORK;
++	}
++
++	pid = kernel_thread(____call_usermodehelper, &stored_info, flags);
+ 	if (pid < 0) {
+-		sub_info->retval = pid;
+-	} else {
++#ifdef DEBUG_KHELPER
++		printk(KERN_INFO "khelper: exec event %s failed (%d)\n",
++		       ev_descr, pid);
++#endif
++		kfree(stored_info.path);
++		if (stored_info.wait >= 0) {
++			sub_info->retval = pid;
++			complete(sub_info->complete);
++		}
++		/* Bail out */
++		if (atomic_read(&khelper_sem.count) < khelper_max)
++			up(&khelper_sem);
++		return 0;
++	}
++	/* 
++	 * usermodehelper started successfully
++	 * We always block for the child to exit as we want to
++	 * keep track of the number of currently running processes.
++	 */
++
++	if (stored_info.wait == 0) {
+ 		/*
+-		 * Normally it is bogus to call wait4() from in-kernel because
+-		 * wait4() wants to write the exit code to a userspace address.
+-		 * But wait_for_helper() always runs as keventd, and put_user()
+-		 * to a kernel address works OK for kernel threads, due to their
+-		 * having an mm_segment_t which spans the entire address space.
+-		 *
+-		 * Thus the __user pointer cast is valid here.
++		 * For asynchronous events notify the caller
++		 * immediately, but wait for the event to finish.
+ 		 */
+-		sys_wait4(pid, (int __user *) &sub_info->retval, 0, NULL);
++		complete(sub_info->complete);
+ 	}
+ 
+-	complete(sub_info->complete);
++	/*
++	 * Normally it is bogus to call wait4() from in-kernel because
++	 * wait4() wants to write the exit code to a userspace address.
++	 * But wait_for_helper() always runs as keventd, and put_user()
++	 * to a kernel address works OK for kernel threads, due to their
++	 * having an mm_segment_t which spans the entire address space.
++	 *
++	 * Thus the __user pointer cast is valid here.
++	 */
++	sys_wait4(pid, (int __user *) &retval, 0, NULL);
++	
++	if (stored_info.wait > 0) {
++		/* 
++		 * For synchronous events we can return the exit
++		 * status of the child.
++		 */
++		sub_info->retval = retval;
++		complete(sub_info->complete);
++	}
++	
++	kfree(stored_info.path);
++
++	/* 
++	 * Check whether the maximum number of threads have
++	 * been reache and wake any sleeping kmod invocations
++	 * if there are enough resources available.
++	 * We have to test here as khelper_max might have been
++	 * changed per sysctl() whilst we have been sleeping.
++	 */
++	if (atomic_read(&khelper_sem.count) < khelper_max)
++		up(&khelper_sem);
++
+ 	return 0;
+ }
+ 
+@@ -216,21 +414,13 @@
+ 	struct subprocess_info *sub_info = data;
+ 	pid_t pid;
+ 
+-	/* CLONE_VFORK: wait until the usermode helper has execve'd
+-	 * successfully We need the data structures to stay around
+-	 * until that is done.  */
+-	if (sub_info->wait)
+-		pid = kernel_thread(wait_for_helper, sub_info,
+-				    CLONE_FS | CLONE_FILES | SIGCHLD);
+-	else
+-		pid = kernel_thread(____call_usermodehelper, sub_info,
+-				    CLONE_VFORK | SIGCHLD);
++	pid = kernel_thread(wait_for_helper, sub_info,
++			    CLONE_FS | CLONE_FILES | SIGCHLD);
+ 
+ 	if (pid < 0) {
+ 		sub_info->retval = pid;
+ 		complete(sub_info->complete);
+-	} else if (!sub_info->wait)
+-		complete(sub_info->complete);
++	}
+ }
+ 
+ /**
+@@ -272,10 +462,39 @@
+ }
+ EXPORT_SYMBOL(call_usermodehelper);
+ 
+-static __init int usermodehelper_init(void)
++void __init usermodehelper_init(void)
+ {
+ 	khelper_wq = create_singlethread_workqueue("khelper");
+ 	BUG_ON(!khelper_wq);
+-	return 0;
++
++	/*
++	 * Limit the max number of concurrent processes
++	 * to something sane; 10 - max_threads/2 seems ok.
++	 */
++	if (khelper_max > max_threads/2)
++		khelper_max = max_threads/2;
++	if (khelper_max < 0)
++		khelper_max = 0;
++
++	if (khelper_max > 0) {
++		printk(KERN_INFO "khelper: max %d concurrent processes\n",
++		       khelper_max);
++	} else {
++		printk(KERN_INFO "khelper: delaying events\n");
++	}
++	atomic_set(&khelper_sem.count, khelper_max);
++}
++
++/*
++ * We want to restrict the maximum number of concurrent processes
++ * to max_threads / 2; however, at this time max_threads is not 
++ * yet initialised. So we will do the real check in usermodehelper_init().
++ */
++static int __init khelper_setup(char *s)
++{
++	get_option(&s, &khelper_max);
++
++	return 1;
+ }
+-core_initcall(usermodehelper_init);
++__setup("khelper_max=", khelper_setup);
++
+diff -u --recursive linux-2.6.8-rc1/kernel/sysctl.c linux-2.6.8-rc1.hotplug/kernel/sysctl.c
+--- linux-2.6.8-rc1/kernel/sysctl.c	2004-07-11 19:33:55.000000000 +0200
++++ linux-2.6.8-rc1.hotplug/kernel/sysctl.c	2004-07-27 10:12:59.000000000 +0200
+@@ -77,6 +77,7 @@
+ #ifdef CONFIG_HOTPLUG
+ extern char hotplug_path[];
+ #endif
++extern int khelper_max;
+ #ifdef CONFIG_CHR_DEV_SG
+ extern int sg_big_buff;
+ #endif
+@@ -124,6 +125,8 @@
+ 		       ctl_table *, void **);
+ static int proc_doutsstring(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer, size_t *lenp);
++static int proc_dointvec_khelper(ctl_table *table, int write, struct file *filp,
++				 void __user *buffer, size_t *lenp);
+ 
+ static ctl_table root_table[];
+ static struct ctl_table_header root_table_header =
+@@ -387,6 +390,14 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++	{
++		.ctl_name	= KERN_KHELPER_MAX,
++		.procname	= "khelper_max",
++		.data		= &khelper_max,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec_khelper,
++	},
+ #ifdef CONFIG_KMOD
+ 	{
+ 		.ctl_name	= KERN_MODPROBE,
+@@ -1670,6 +1681,51 @@
+ 				do_proc_dointvec_minmax_conv, &param);
+ }
+ 
++extern void khelper_notify(int);
++
++static int do_proc_dointvec_khelper_conv(int *negp, unsigned long *lvalp, 
++					 int *valp, 
++					 int write, void *data)
++{
++	struct do_proc_dointvec_minmax_conv_param *param = data;
++	if (write) {
++		int val = *negp ? -*lvalp : *lvalp;
++		int old = *valp;
++
++		if ((param->min && *param->min > val) ||
++		    (param->max && *param->max < val))
++		    return -EINVAL;
++		*valp = val;
++
++		/* Notify any sleeping processes */
++		khelper_notify(val - old);
++	} else {
++		int val = *valp;
++		if (val < 0) {
++			*negp = -1;
++			*lvalp = (unsigned long)-val;
++		} else {
++			*negp = 0;
++			*lvalp = (unsigned long)val;
++		}
++	}
++	return 0;
++}
++
++static int proc_dointvec_khelper(ctl_table *table, int write, struct file *filp,
++				 void __user *buffer, size_t *lenp)
++{
++	int khelper_max = max_threads / 2;
++
++	struct do_proc_dointvec_minmax_conv_param param = {
++		.min = (int *)&zero,
++		.max = (int *)&khelper_max,
++	};
++    
++	return do_proc_dointvec(table,write,filp,buffer,lenp,
++				do_proc_dointvec_khelper_conv, &param);
++}
++
+ static int do_proc_doulongvec_minmax(ctl_table *table, int write,
+ 				     struct file *filp,
+ 				     void __user *buffer, size_t *lenp,
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=15
-CONFIG_HOTPLUG=y
-CONFIG_IKCONFIG=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MSR=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_REGPARM=y
-CONFIG_ACPI_BOOT=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_PCMCIA=y
-CONFIG_PCMCIA_DEBUG=y
-CONFIG_YENTA=y
-CONFIG_CARDBUS=y
-CONFIG_PCMCIA_PROBE=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_BUSLOGIC=y
-CONFIG_SCSI_OMIT_FLASHPOINT=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_NET_IPIP=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_INET_IPCOMP=y
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_RECENT=y
-CONFIG_IP_NF_MATCH_ECN=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_ECN=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_ULOG=y
-CONFIG_IP_NF_TARGET_NOTRACK=y
-CONFIG_IP_NF_RAW=y
-CONFIG_IP_NF_MATCH_ADDRTYPE=y
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NET_SCH_HFSC=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_NETEM=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_TULIP_NAPI=y
-CONFIG_TULIP_NAPI_HW_MITIGATION=y
-CONFIG_NET_RADIO=y
-CONFIG_PCMCIA_WAVELAN=y
-CONFIG_PCMCIA_NETWAVE=y
-CONFIG_PCMCIA_RAYCS=y
-CONFIG_AIRO=y
-CONFIG_HERMES=y
-CONFIG_PCMCIA_HERMES=y
-CONFIG_AIRO_CS=y
-CONFIG_NET_WIRELESS=y
-CONFIG_NET_PCMCIA=y
-CONFIG_PPP=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="cp437"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRYPTO_TEA=y
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRC_CCITT=y
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
+--------------050100050603030302000002--

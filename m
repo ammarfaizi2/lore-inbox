@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264116AbTDWQai (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264118AbTDWQai
+	id S264122AbTDWQdz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264123AbTDWQdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:30:38 -0400
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:6927 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S264116AbTDWQag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:30:36 -0400
-Date: Wed, 23 Apr 2003 10:17:42 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org, Kendrick Smith <kmsmith@umich.edu>,
-       Andy Adamson <andros@umich.edu>, nfs@lists.sourceforge.net
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Fix C99 initializers in fs/nfs/nfs4proc.c
-Message-ID: <20030423151742.GA5681@debian>
+	Wed, 23 Apr 2003 12:33:54 -0400
+Received: from almesberger.net ([63.105.73.239]:6661 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S264122AbTDWQdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 12:33:35 -0400
+Date: Wed, 23 Apr 2003 13:45:30 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Julien Oster <frodoid@frodoid.org>
+Cc: Robert Love <rml@tech9.net>, Julien Oster <frodo@dereference.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel ring buffer accessible by users
+Message-ID: <20030423134530.C3557@almesberger.net>
+References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org> <1051031876.707.804.camel@localhost> <20030423125602.B1425@almesberger.net> <20030423160556.GA30306@frodo.midearth.frodoid.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030423160556.GA30306@frodo.midearth.frodoid.org>; from frodoid@frodoid.org on Wed, Apr 23, 2003 at 06:05:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Julien Oster wrote:
+> Of course one could say "then let's just stop writing out anything in
+> the kernel buffer that COULD be sensitive", but I think this would
+> actually castrate the meaning of such a buffer.
 
-Here's a small patch that fixes missing '=' characters from the
-initializers. The patch is against the current BK.
+It's also bad security design to try to plug hundreds of potential
+leaks, instead of the one common channel they share.
 
-Art Haas
+> And there's stillt he possibility to tweak the permissions for
+> dmesg so that only a certain group (staff, operator, adm...) can execute
+> it, but then setuid root.
 
-===== fs/nfs/nfs4proc.c 1.20 vs edited =====
---- 1.20/fs/nfs/nfs4proc.c	Mon Apr  7 17:47:19 2003
-+++ edited/fs/nfs/nfs4proc.c	Wed Apr 23 10:11:43 2003
-@@ -572,10 +572,10 @@
- 	u32                     f_bmres[2];
- 	u32                     d_bmres[2];
- 	struct nfs_fattr        d_attr = {
--		.valid          0,
-+		.valid          = 0,
- 	};
- 	struct nfs_fattr        f_attr = {
--		.valid          0,
-+		.valid          = 0,
- 	};
- 	struct nfs4_getattr     f_getattr = {
- 		.gt_bmval       = nfs4_fattr_bitmap,
+Yes, but you'll get quite a few objections to adding yet another
+suid root program :-)
+
+- Werner
+
 -- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
- -- Theodore Roosevelt, Kansas City Star, 1918
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,53 +1,221 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313767AbSEMOJz>; Mon, 13 May 2002 10:09:55 -0400
+	id <S314052AbSEMOIo>; Mon, 13 May 2002 10:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313731AbSEMOJy>; Mon, 13 May 2002 10:09:54 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:55022 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S313767AbSEMOJx>; Mon, 13 May 2002 10:09:53 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <qwwu1pw4rkp.fsf@decibel.fi.muni.cz> 
-To: Petr Konecny <pekon@informatics.muni.cz>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, hpa@zytor.com,
-        Corey Minyard <cminyard@mvista.com>, paulus@samba.org
-Subject: Re: zisofs data corruption in 2.4.19-pre7-ac2 
+	id <S314056AbSEMOIn>; Mon, 13 May 2002 10:08:43 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:22022 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314052AbSEMOIk>; Mon, 13 May 2002 10:08:40 -0400
+Date: Mon, 13 May 2002 16:08:21 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marcus Alanen <maalanen@ra.abo.fi>
+Cc: matthias.andree@gmx.de, riel@conectiva.com.br,
+        Johnny Mnemonic <johnny@themnemonic.org>, linux-kernel@vger.kernel.org,
+        Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020513140821.GB5134@louise.pinerecords.com>
+In-Reply-To: <20020513120953.GD4258@louise.pinerecords.com> <Pine.LNX.4.44.0205131556550.23542-100000@tuxedo.abo.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 May 2002 15:09:25 +0100
-Message-ID: <11532.1021298965@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 18:42)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Somebody make the mode changeable via command-line option...
 
-pekon@informatics.muni.cz said:
-> I think I discovered an obscure bug in zisofs in 2.4.19-pre7-ac2. It
-> manifests thus: 
+Done... in a slightly different manner :)
 
-> $ cat /mnt/cdimage/7x14.pbm 
-> cat: data: Input/output error
-> and the following (single) line gets logged:
-> zisofs: zisofs_inflate returned 3, inode = 47342, index = 0, fpage = 0,
->   xpage = 0, avail_in = 0, avail_out = 1890, ai = 2024, ao = 4096 
+cl:
+- clean up
+- indentation
+- CMODE environment variable
 
-OK, apply this and both ppp_deflate and zisofs should be happy. 
-
---- lib/zlib_inflate/inflate.c.orig	Mon May 13 14:40:26 2002
-+++ lib/zlib_inflate/inflate.c	Mon May 13 14:40:46 2002
-@@ -110,7 +110,7 @@
- 
- #undef NEEDBYTE
- #undef NEXTBYTE
--#define NEEDBYTE {if(z->avail_in==0)goto empty;r=f;}
-+#define NEEDBYTE {if(z->avail_in==0)goto empty;r=trv;}
- #define NEXTBYTE (z->avail_in--,z->total_in++,*z->next_in++)
- 
- int ZEXPORT zlib_inflate(z, f)
+./fmt /usr/src/ChangeLog-2.5.14			gives output in orig. mode
+CMODE=2 ./fmt /usr/src/ChangeLog-2.5.14		gives output in orig. mode
+CMODE=1 ./fmt /usr/src/ChangeLog-2.5.14		gives output in full mode
+CMODE=0 ./fmt /usr/src/ChangeLog-2.5.14		gives output in terse mode
 
 
---
-dwmw2
+#!/usr/bin/perl -w
+#
+# This Perl script is meant to simplify/beautify BK ChangeLogs
+# for the linux kernel.
+#
+# (C) Copyright 2002 by Matthias Andree <matthias.andree@gmx.de>,
+#			Marcus Alanen <maalanen@abo.fi>,
+#			Tomas Szepe <szepe@pinerecords.com>
+#
+# Version 0.90.
+#
+# ------------------------------------------------------------------
+# Distribution of this script is permitted under the terms of the
+# GNU General Public License (GNU GPL) v2.
+# ------------------------------------------------------------------
+#
+# This program expects its input in the following format:
+# (E-Mail Addresses MUST NOT bear leading whitespace!)
+#
+# <email@ddr.ess>
+#	changelog text
+#	more changelog text
+# <email@ddr.ess>
+#	yet another changelog
+# <another@add.ress>
+#	changelog #3
+#	more lines
+#
+# Groups and sorts the entries by email address:
+#
+# another@add.ress:
+#	changelog #3
+# email@ddr.ess
+#	changelog text
+#	yet another changelog
+#
+# There are three different modes:
+# - Short mode (one changelog == one line)
+# - Full mode (changelogs separated by dashed line)
+# - Original mode (one line consisting of changelog and author)
+#
+# Where possible, also adds the real name of the author using
+# a static hash %addresses
+#
 
+use strict;
 
+# CMODE environment variable selects output mode:
+# 0 for short, 1 for full, 2 for "original changelog"
+# (default is 2 if $CMODE unset)
+#
+my $mode = 2;
+foreach my $en (keys(%ENV)) {
+	if ($en eq "CMODE") {
+		$mode = $ENV{CMODE};
+		if ($mode ne "0" && $mode ne "1" && $mode ne "2") {
+			print "CMODE has to be 0 for short, 1 for full, 2 for orig. Undefined defaults to 2.\n";
+			die();
+		}
+	}
+}
+
+# minimum space between entry and author for the original mode
+my $space = 5;
+
+# the key is the email address in ALL LOWER CAPS!
+# the value is the real name of the person
+my %addresses = (
+	'aia21@cantab.net' => 'Anton Altaparmakov',
+	'ak@muc.de' => 'Andi Kleen',
+	'akpm@zip.com.au' => 'Andrew Morton',
+	'alan@lxorguk.ukuu.org.uk' => 'Alan Cox',
+	'andrea@suse.de' => 'Andrea Arcangeli',
+	'ankry@green.mif.pg.gda.pl' => 'Andrzej Krzysztofowicz',
+	'axboe@suse.de' => 'Jens Axboe',
+	'bgerst@didntduck.org' => 'Brian Gerst',
+	'dalecki@evision-ventures.com' => 'Martin Dalecki',
+	'davem@redhat.com' => 'David S. Miller',
+	'davidel@xmailserver.org' => 'Davide Libenzi',
+	'green@namesys.com' => 'Oleg Drokin',
+	'hch@infradead.org' => 'Christoph Hellwig',
+	'jgarzik@mandrakesoft.com' => 'Jeff Garzik',
+	'jsimmons@heisenberg.transvirtual.com' => 'James Simmons',
+	'jsimmons@transvirtual.com' => 'James Simmons',
+	'kaos@ocs.com.au' => 'Keith Owens',
+	'lm@bitmover.com' => 'Larry McVoy',
+	'manfred@colorfullife.com' => 'Manfred Spraul',
+	'neilb@cse.unsw.edu.au' => 'Neil Brown',
+	'paulus@samba.org' => 'Paul Mackerras',
+	'perex@suse.cz' => 'Jaroslav Kysela',
+	'rgooch@ras.ucalgary.ca' => 'Richard Gooch',
+	'rmk@arm.linux.org.uk' => 'Russell King',
+	'szepe@pinerecords.com' => 'Tomas Szepe',
+	'torvalds@transmeta.com' => 'Linus Torvalds',
+	'viro@math.psu.edu' => 'Alexander Viro',
+	'~~~~~~thisentrylastforconvenience~~~~~' => 'Cesar Brutus Anonymous'
+);
+
+my %people = ();
+my $addr = "";
+my @cur = ();
+
+sub append_item()
+{
+	if (!$addr) {
+		return;
+	}
+	if (!$people{$addr}) {
+		@{$people{$addr}} = ();
+	}
+	push @{$people{$addr}}, [@cur];
+
+	@cur = ();
+}
+
+# get name associated to an email address
+sub rmap_address
+{
+	my @o = map {defined $addresses{lc $_} ? $addresses{lc $_} : $_ } @_;
+	return wantarray ? @o : $o[0];
+}
+
+sub print_items($)
+{
+	my $person = $_[0];
+	my $realname = rmap_address($person);
+	my @items = @{$people{$person}};
+	# Vain attempt to sort patches from one address
+	@items = sort @items;
+	if ($mode == 0 or $mode == 1) {
+		if ($realname ne $person) {
+			print "$realname ";
+		}
+		print "<$person>\n";
+	}
+	while ($_ = shift @items) {
+		if ($mode == 0) {
+			print "\to " . @$_[0];
+		} elsif ($mode == 1) {
+			print "\t------------------------------------------------------------\n";
+			foreach $_ (@$_) {
+				print "\t$_";
+			}
+		} elsif ($mode == 2) {
+			$_ = @$_[0];
+			chop;
+			$_ = "o $_";
+			# Split it onto two lines if necessary
+			if (length("$_ . $realname") > 76 - $space) {
+				print ("$_\n" . " " x (76-length($realname)) . "$realname\n");
+			} else {
+				print ("$_" . " " x (76-length($realname)-length($_)) . "$realname\n");
+			}
+		}
+	}
+}
+
+while (<>)
+{
+	# Match address
+	if (/^<([^>]+)>/) {
+		# Add old item (if any) before beginning new
+		append_item();
+		$addr = $1;
+	} elsif ($addr) {
+		# Add line to patch
+		s/^\s*(.*)\s*$/$1/;
+		$_ =~ s/\[?PATCH\]?\s*//i;
+		push @cur, "$_\n";
+	} else {
+		# Header information
+		print;
+	}
+}
+append_item();
+
+# Print the information
+foreach $addr (sort keys %people) {
+	print_items($addr);
+	if ($mode != 2) { print "\n"; }
+}

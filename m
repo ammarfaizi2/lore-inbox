@@ -1,55 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315603AbSENKvI>; Tue, 14 May 2002 06:51:08 -0400
+	id <S315606AbSENKzg>; Tue, 14 May 2002 06:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSENKvH>; Tue, 14 May 2002 06:51:07 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:10485 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S315603AbSENKvG>; Tue, 14 May 2002 06:51:06 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 14 May 2002 04:49:22 -0600
-To: Oliver Feiler <kiza@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 errors with 2.4.18
-Message-ID: <20020514104922.GR12975@turbolinux.com>
-Mail-Followup-To: Oliver Feiler <kiza@gmx.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CD6AE7A.FBEB5726@delusion.de> <200205141238.11104.kiza@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S315608AbSENKzf>; Tue, 14 May 2002 06:55:35 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:53192 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S315606AbSENKze>;
+	Tue, 14 May 2002 06:55:34 -0400
+Date: Tue, 14 May 2002 11:55:43 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: "Hans K. Rosbach" <hk@circlestorm.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Initrd or Cdrom as root
+In-Reply-To: <016f01c1fb33$d97baef0$8f2b76d9@dead2>
+Message-ID: <Pine.LNX.4.33.0205141151230.1724-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 14, 2002  12:38 +0200, Oliver Feiler wrote:
-> On Monday 06 May 2002 18:25, Udo A. Steinberg wrote:
-> > Hi,
-> >
-> > With Linux 2.4.18, I'm getting multiple of the following error:
-> >
-> > EXT3-fs error (device ide0(3,2)): ext3_readdir: bad entry in directory
-> > #1966094: rec_len % 4 != 0 - offset=0, inode=3180611420, rec_len=53134,
-> > name_len=138
-> 
-> Hi,
-> 
-> I experienced the same problem with ext3 + 2.4.18 on a RAID-1. Out of nowhere 
-> the following error popped up in the syslog, no other surrounding error 
-> messages. The fs was mounted read-only automatically. After reboot and fsck 
-> there were /a lot/ of errors on the disk. Virtually all errors fsck knows I 
-> think. :)  After fsck ran multiple times on the disk, lost+found was filled 
-> with stuff from all accross the disk, but other than that the fs seems to 
-> have survived it.
+On Tue, 14 May 2002, Hans K. Rosbach wrote:
 
-There have been several reports of strange ext3 errors when running on
-MD RAID.  I don't know if anyone is looking into this yet.
+> Is there any way to dynamically load initrd or cdrom permanently as
+> the root fs when booting from cdrom?
+>
+> My problem is that I need a reliable way to ALWAYS find the correct
+> device to mount. Is there any way to make the kernel automagically
+> mount the cdrom it booted from?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+yes, just pass rootcd=1 as a boot command line option with the hack below
+applied. Make sure that cdrom support is always compiled statically,
+otherwise it will break.
+
+--- 2418-/drivers/cdrom/cdrom.c	Fri Nov 16 18:14:08 2001
++++ 2418-rootparam/drivers/cdrom/cdrom.c	Tue Mar 12 00:29:54 2002
+@@ -2480,6 +2480,11 @@
+         return proc_dostring(ctl, write, filp, buffer, lenp);
+ }
+
++kdev_t get_cdrom_dev(void)
++{
++	return topCdromPtr ? topCdromPtr->dev : 0;
++}
++
+ /* Unfortunately, per device settings are not implemented through
+    procfs/sysctl yet. When they are, this will naturally disappear. For now
+    just update all drives. Later this will become the template on which
+--- 2418-/init/main.c	Mon Feb 25 19:38:13 2002
++++ 2418-rootparam/init/main.c	Tue Mar 12 00:29:54 2002
+@@ -311,6 +311,16 @@
+
+ __setup("root=", root_dev_setup);
+
++static int rootcd_enable __initdata = 0;
++
++static int __init rootcd_setup(char *str)
++{
++	get_option(&str, &rootcd_enable);
++	return 1;
++}
++
++__setup("rootcd=", rootcd_setup);
++
+ static int __init checksetup(char *line)
+ {
+ 	struct kernel_param *p;
+@@ -772,6 +782,10 @@
+ 	rd_load();
+ #endif
+
++	if (rootcd_enable) {
++		extern kdev_t get_cdrom_dev(void);
++		ROOT_DEV = get_cdrom_dev();
++	}
+ 	/* Mount the root filesystem.. */
+ 	mount_root();
+
 

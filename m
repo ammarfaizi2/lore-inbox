@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315917AbSEGRn6>; Tue, 7 May 2002 13:43:58 -0400
+	id <S315918AbSEGRt1>; Tue, 7 May 2002 13:49:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315918AbSEGRn5>; Tue, 7 May 2002 13:43:57 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:3779 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315917AbSEGRn5>; Tue, 7 May 2002 13:43:57 -0400
-Date: Tue, 7 May 2002 11:43:35 -0600
-Message-Id: <200205071743.g47HhZd30932@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: benh@kernel.crashing.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205071021290.2509-100000@home.transmeta.com>
+	id <S315919AbSEGRt0>; Tue, 7 May 2002 13:49:26 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:1796 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315918AbSEGRtZ>;
+	Tue, 7 May 2002 13:49:25 -0400
+Date: Tue, 7 May 2002 09:49:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: torvalds@transmeta.com, mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI reorg changes for 2.5.14
+Message-ID: <20020507164942.GA626@kroah.com>
+In-Reply-To: <20020506222506.GA8718@kroah.com> <20020507201511.A766@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 09 Apr 2002 15:41:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Tue, 7 May 2002 benh@kernel.crashing.org wrote:
-> >
-> > One interesting thing here would be to have some optional link between
-> > the bus-oriented device tree and the function-oriented tree (ie. devfs
-> > or simply /dev).
+On Tue, May 07, 2002 at 08:15:11PM +0400, Ivan Kokshaysky wrote:
+> On Mon, May 06, 2002 at 03:25:07PM -0700, Greg KH wrote:
+> > Here is a series of changesets that reorganize the core and i386 PCI
+> > files.  It splits the current big files up into smaller pieces,
+> > according to the different function and platform type (removing lots of
+> > #ifdefs in the process.)  Pat Mochel did 99.9% of this work, and I've
+> > tested it out and forward ported it to your most recent kernel version.
 > 
-> There isn't any 1:1 thing - the device/bus-oriented one should _not_
-> show virtual things like partitions etc that have no relevance for a
-> driver, while /dev (and thus devfs) obviously think that that is the
-> important part, much more important than how we actually got to the
-> device.
+> There are missing #includes which will break compilation on some non-x86
+> platforms. With following patch this compiles and works on alpha.
 
-Actually, I've always said that I think devfs should care about both
-views. And that's why I think putting the driver tree (ala driverfs)
-in devfs, and making the device-oriented part of the tree be symlinks
-into the bus-oriented tree, is a good idea.
+I've added this patch, and both Pat and I moved the files into the
+different directory name.  I'll test this all out and send an updated
+patch later today.
 
-> I think we need to have some way of getting a mapping from /dev ->
-> devicefs, but I don't think that has to be a filesystem thing (it
-> might even be as simple as just one ioctl or new system call: 'get
-> the "path" of this device').
+thanks,
 
-Fugly. What's wrong with readlink(2) as this "magic syscall"?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+greg k-h

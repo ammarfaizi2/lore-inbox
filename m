@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130650AbRCFMeZ>; Tue, 6 Mar 2001 07:34:25 -0500
+	id <S130620AbRCFMbz>; Tue, 6 Mar 2001 07:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130647AbRCFMeP>; Tue, 6 Mar 2001 07:34:15 -0500
-Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:8939 "EHLO
-	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
-	id <S130636AbRCFMeF>; Tue, 6 Mar 2001 07:34:05 -0500
-Message-ID: <3AA4D92D.CDDB764D@ftel.co.uk>
-Date: Tue, 06 Mar 2001 12:33:49 +0000
-From: Paul Flinders <P.Flinders@ftel.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+	id <S130636AbRCFMbp>; Tue, 6 Mar 2001 07:31:45 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:45840 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S130620AbRCFMbk>;
+	Tue, 6 Mar 2001 07:31:40 -0500
+Date: Tue, 06 Mar 2001 13:31:15 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: make checkconfig results on linux 2.4.3-pre2
+To: linux-kernel@vger.kernel.org
+Message-id: <3AA4D893.DB8A09B@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Schwab <schwab@suse.de>
-CC: Jeff Mcadams <jeffm@iglou.com>, Rik van Riel <riel@conectiva.com.br>,
-        John Kodis <kodis@mail630.gsfc.nasa.gov>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, bug-bash@gnu.org
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010305095512.A30787@tux.gsfc.nasa.gov>
-		<Pine.LNX.4.21.0103051224450.5591-100000@imladris.rielhome.conectiva>
-		<20010305105943.A25964@iglou.com> <3AA3BC4E.FA794103@ftel.co.uk>
-		<jeae70m97e.fsf@hawking.suse.de> <3AA3EEDF.D0547D4@dawa.demon.co.uk> <jeae6zkwmy.fsf@hawking.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
+FYI :
 
-> Paul Flinders <paul@dawa.demon.co.uk> writes:
->
-> |> Andreas Schwab wrote:
-> |>
-> |> > This [isspace('\r') == 1] has no significance here.  The right thing to
-> |>
-> |> > look at is $IFS, which does not contain \r by default.  The shell only splits
-> |>
-> |> > words by "IFS whitespace", and the kernel should be consistent with it:
-> |> >
-> |> > $ echo -e 'ls foo\r' | sh
-> |> > ls: foo: No such file or directory
-> |>
-> |> The problem with that argument is that #!<interpreter> can be applied
-> |> to more than just shells which understand $IFS, so which environment
-> |> variable does the kernel pick?
->
-> The kernel should use the same default value of IFS as the Bourne shell,
-> ie. the same value you'll get with /bin/sh -c 'echo "$IFS"'.  This is
-> independent of any settings in the environment.
->
-> |> It's a difficult one - logically white space should terminate the interpreter
->
-> No, IFS-whitespace delimits arguments in the Bourne shell.
+[root@localhost linux]# make checkconfig
+find * -name '*.[hcS]' -type f -print | sort | xargs perl -w scripts/checkconfig.pl
+arch/cris/kernel/head.S: 34: need CONFIG_CRIS_LOW_MAP.
+drivers/char/ip2.c: 9: <linux/config.h> not needed.
+drivers/pcmcia/hd64465_ss.c: 33: <linux/config.h> not needed.
+drivers/scsi/aic7xxx/aic7xxx_linux.c: 160: need CONFIG_AIC7XXX_RESET_DELAY.
+drivers/scsi/aic7xxx/aic7xxx_linux.c: 172: need CONFIG_AIC7XXX_PROC_STATS.
+drivers/scsi/aic7xxx/aic7xxx_linux.c: 234: need CONFIG_AIC7XXX_CMDS_PER_DEVICE.
+drivers/scsi/aic7xxx/aic7xxx_linux.c: 1043: need CONFIG_PCI.
+include/asm-ppc/tqm8xx.h: 69: need CONFIG_TQM8xxL.
+include/asm-ppc/tqm8xx.h: 72: need CONFIG_TQM860.
+net/lapb/lapb_iface.c: 18: <linux/config.h> not needed.
+[root@localhost linux]# head Makefile
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 3
+EXTRAVERSION =-pre2
 
-Way back whenever processing #! was moved from the
-shell to the kernel** this argument would have made sense -
-today I'm not so sure.
 
-But I'm quite happy for the kernel to use just space and
-tab if it wishes, or anything else for that matter but it _is_
-confusing that the error code doesn't distinguish problems
-with the script from problems with the interpreter.
+someone should also  run 'make checkhelp' ...
+reports a LOT of missing help text
 
-**Did linux ever rely on the shell for this?
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

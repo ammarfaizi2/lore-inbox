@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUHIQNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUHIQRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266721AbUHIQNM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUHIQMh
+	id S266666AbUHIQRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUHIQRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:12:37 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.105]:60177 "EHLO
-	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S266725AbUHIQIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:08:31 -0400
-Date: Mon, 9 Aug 2004 11:07:43 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix CCISS with PROC_FS=n
-Message-ID: <20040809160743.GB4770@beardog.cca.cpqcorp.net>
-References: <20040809153446.GS26174@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809153446.GS26174@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 9 Aug 2004 12:17:21 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:38377 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S266684AbUHIQRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 12:17:12 -0400
+Date: Mon, 9 Aug 2004 12:17:10 -0400 (EDT)
+From: Eric Lammerts <eric@lammerts.org>
+X-X-Sender: eric@vivaldi.madbase.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
+       albert@users.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic /dev security hole?
+In-Reply-To: <1092062974.14153.26.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408091203160.8353@vivaldi.madbase.net>
+References: <20040808162115.GA7597@kroah.com>  <1091969260.5759.125.camel@cube>
+  <20040808175834.59758fc0.Ballarin.Marc@gmx.de>  <20040808162115.GA7597@kroah.com>
+  <20040809000727.1eaf917b.Ballarin.Marc@gmx.de> 
+ <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
+ <1092062974.14153.26.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 05:34:46PM +0200, Adrian Bunk wrote:
-> I got the following compile error in 2.6.8-rc3-mm2 with 
-> CONFIG_PROC_FS=n:
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x1b221c): In function `do_cciss_intr':
-> : undefined reference to `complete_scsi_command'
-> drivers/built-in.o(.text+0x1b2d18): In function `cciss_init_one':
-> : undefined reference to `cciss_scsi_setup'
-> drivers/built-in.o(.text+0x1b2fd3): In function `cciss_remove_one':
-> : undefined reference to `cciss_unregister_scsi'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> The following patch fixes this issue:
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-> 
-> --- linux-2.6.8-rc3-mm2-full/drivers/block/cciss.c.old	2004-08-09 17:26:58.000000000 +0200
-> +++ linux-2.6.8-rc3-mm2-full/drivers/block/cciss.c	2004-08-09 17:27:14.000000000 +0200
-> @@ -185,10 +185,11 @@
->          }
->          return c;
->  }
-> -#ifdef CONFIG_PROC_FS
->  
->  #include "cciss_scsi.c"		/* For SCSI tape support */
 
-We use /proc to hook into the SCSI subsystem. If you do not build /proc support
-into your kernel then you should also disable tape support in the driver. 
+On Mon, 9 Aug 2004, Alan Cox wrote:
+> On Llu, 2004-08-09 at 05:40, Eric Lammerts wrote:
+> > Just an idea for a fix for this problem: If udev would change the
+> > permissions to 000 and ownership to root.root just before it unlinks
+> > the device node, the copy would become useless.
+>
+> Unfortunately not the whole story. The permissions are checked at open
+> time not on read/write/ioctl so once I have the device opened you
+> lose.
 
-Thanks,
-mikem
->  
-> +#ifdef CONFIG_PROC_FS
-> +
->  /*
->   * Report information about this controller.
->   */
-> 
+It's only meant as a fix for the hardlink trick, not against the open
+file descriptor trick. About the latter, if someone still has the
+device opened, how can it go away? And if it doesn't go away, how can
+udev create a new node with the same major/minor?
+
+Eric

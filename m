@@ -1,32 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVAJRnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVAJRpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVAJRnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVAJRni
+	id S262355AbVAJRpb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVAJRoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:43:38 -0500
-Received: from fsmlabs.com ([168.103.115.128]:17885 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262330AbVAJRXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:23:08 -0500
-Date: Mon, 10 Jan 2005 10:23:22 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Roland Dreier <roland@topspin.com>
-cc: greg@kroah.com, linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [PATCH] PCI: Clean up printks in msi.c
-In-Reply-To: <52sm59yzsx.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com>
-References: <52sm59yzsx.fsf@topspin.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jan 2005 12:44:32 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58579 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262355AbVAJRVE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 12:21:04 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI patches for 2.6.10
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <11053776562882@kroah.com>
+Date: Mon, 10 Jan 2005 09:20:56 -0800
+Message-Id: <11053776562762@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jan 2005, Roland Dreier wrote:
+ChangeSet 1.1938.439.48, 2005/01/09 23:00:42-08:00, greg@kroah.com
 
-> Add "PCI:" prefixes and fix up the formatting and grammar of printks
-> in drivers/pci/msi.c.  The main motivation was to fix the shouting
-> "MSI INIT SUCCESS" message printed when an MSI-using driver is first
-> started, but while we're at it we might as well tidy up all the messages.
+PCI Hotplug: remove my old email address
 
-I reckon just get rid of that MSI init success message entirely.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ MAINTAINERS |    1 -
+ 1 files changed, 1 deletion(-)
+
+
+diff -Nru a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS	2005-01-10 08:58:28 -08:00
++++ b/MAINTAINERS	2005-01-10 08:58:28 -08:00
+@@ -1713,7 +1713,6 @@
+ PCI HOTPLUG CORE
+ P:	Greg Kroah-Hartman
+ M:	greg@kroah.com
+-M:	gregkh@us.ibm.com
+ S:	Supported
+ 
+ PCI HOTPLUG COMPAQ DRIVER
+

@@ -1,101 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285893AbRLHKap>; Sat, 8 Dec 2001 05:30:45 -0500
+	id <S285899AbRLHK6W>; Sat, 8 Dec 2001 05:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285895AbRLHKag>; Sat, 8 Dec 2001 05:30:36 -0500
-Received: from mail-7.tiscalinet.it ([195.130.225.153]:26480 "EHLO
-	mail.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S285893AbRLHKaa>; Sat, 8 Dec 2001 05:30:30 -0500
-From: Alessandro Amici <amici@tiscalinet.it>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] devfs support in char/raw.c
-Date: Sat, 8 Dec 2001 11:31:35 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: alexamici@tiscalinet.it
+	id <S285901AbRLHK6M>; Sat, 8 Dec 2001 05:58:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31749 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285899AbRLHK6C>; Sat, 8 Dec 2001 05:58:02 -0500
+Subject: Re: Would the father of init_mem_lth please stand up
+To: zaitcev@redhat.com (Pete Zaitcev)
+Date: Sat, 8 Dec 2001 11:07:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+In-Reply-To: <20011207234048.A31442@devserv.devel.redhat.com> from "Pete Zaitcev" at Dec 07, 2001 11:40:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_N8T0NISFB94OUWGSP0WB"
-Message-Id: <20011208103135.7DA0EE005@alan.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16CfK5-000135-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Really someone needs slapping across. What kind of code is that
+> (in 2.5.1-pre6):
 
---------------Boundary-00=_N8T0NISFB94OUWGSP0WB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Whoever merged that crap also wants a good kicking. First we have the joke
+ps/2 merge, now this. Is Linus trying to force someone to take over or is
+small children combined with a pending christmas really the doom that some
+folks claim 8)
 
-[please cc me on reply]
+> I stringly urge Linus to drop this so-called "cleanup" from 2.5.1.
+> 
+> No doubt, the existing code was bad. I fixed it somewhat for 2.4,
+> and am feeding it to Marcelo. I can forward-port that to 2.5
+> if anyone is interested.
 
-Hi,
+Did you clean it up as far as making the disks an array of pointers not
+of objects ?
 
-the following patch enables devfs support for the raw devices.
-It is a blatant cut-and-copy from other drivers, and it passed the
-basic tests I could figure out (mainly xine dvd raw access) - with and
-without devfs.
-
-Without devfs I find the raw devices under /dev on my Debian box,
-but man raw(8) itself introduces the /dev/raw/ directory.
-So, the proposed devices naming scheme is:
-
-/dev/raw/rawctl
-/dev/raw/raw1
-...
-/dev/raw/raw64
-
-I would like to submit the patch to the maintainer, but I failed to
-find who he is! (Stephen Tweedie?)
-
-Alessandro
-
-
-
-
-
---------------Boundary-00=_N8T0NISFB94OUWGSP0WB
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="patch-2.4.16-raw_devfs"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="patch-2.4.16-raw_devfs"
-
---- drivers/char/raw.c-orig	Sun Sep 23 05:35:43 2001
-+++ drivers/char/raw.c	Fri Dec  7 19:45:30 2001
-@@ -15,6 +15,7 @@
- #include <linux/raw.h>
- #include <linux/capability.h>
- #include <linux/smp_lock.h>
-+#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- 
- #define dprintk(x...) 
-@@ -51,10 +52,26 @@
- static int __init raw_init(void)
- {
- 	int i;
--	register_chrdev(RAW_MAJOR, "raw", &raw_fops);
-+	devfs_handle_t devfs_handle;
-+	char name_buf[8];
-+
-+	if (devfs_register_chrdev(RAW_MAJOR, "raw", &raw_fops))
-+		printk("unable to get major %d for raw devs\n", RAW_MAJOR);
-+
-+	devfs_handle = devfs_mk_dir(NULL, "raw", NULL);
-+	devfs_register (devfs_handle, "rawctl", DEVFS_FL_DEFAULT,
-+			RAW_MAJOR, 0, S_IFCHR | S_IRUGO | S_IWUGO,
-+			&raw_fops, NULL);
- 
- 	for (i = 0; i < 256; i++)
- 		init_MUTEX(&raw_devices[i].mutex);
-+
-+	for (i = 1; i < 64; i++) {
-+		sprintf(name_buf, "raw%d", i);
-+		devfs_register (devfs_handle, name_buf, DEVFS_FL_DEFAULT,
-+				RAW_MAJOR, i, S_IFCHR | S_IRUGO | S_IWUGO,
-+				&raw_fops, NULL);
-+	}
- 
- 	return 0;
- }
-
---------------Boundary-00=_N8T0NISFB94OUWGSP0WB--
+Alan

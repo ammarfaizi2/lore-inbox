@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVACS4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVACS4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbVACS4w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVACRtz
+	id S261777AbVACS4J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVACSwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 12:49:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29201 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261764AbVACRoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 12:44:08 -0500
-Date: Mon, 3 Jan 2005 18:44:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+	Mon, 3 Jan 2005 13:52:44 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51986 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261769AbVACS1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 13:27:23 -0500
+Date: Mon, 3 Jan 2005 18:27:01 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: drzeus-wbsd@drzeus.cx, Andrew Morton <akpm@osdl.org>,
+       Pierre Ossman <drzeus-list@drzeus.cx>, wbsd-devel@list.drzeus.cx,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix inlining related build failures in mxser.c
-Message-ID: <20050103174403.GI2980@stusta.de>
-References: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412241306340.19395@yvahk01.tjqt.qr> <Pine.LNX.4.61.0412241431580.3707@dragon.hygekrogen.localhost> <87zn03u7h8.fsf@deneb.enyo.de>
+Subject: Re: [PATCH] Fix warning in wbsd (fwd)
+Message-ID: <20050103182701.B3442@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, drzeus-wbsd@drzeus.cx,
+	Andrew Morton <akpm@osdl.org>,
+	Pierre Ossman <drzeus-list@drzeus.cx>, wbsd-devel@list.drzeus.cx,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050103180559.GN2980@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87zn03u7h8.fsf@deneb.enyo.de>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050103180559.GN2980@stusta.de>; from bunk@stusta.de on Mon, Jan 03, 2005 at 07:05:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 24, 2004 at 02:54:43PM +0100, Florian Weimer wrote:
-> * Jesper Juhl:
+On Mon, Jan 03, 2005 at 07:05:59PM +0100, Adrian Bunk wrote:
+> The patch forwarded below by Pierre Ossman <drzeus-list@drzeus.cx> still
+> applies and compiles against 2.6.10-mm1.
 > 
-> >> Add -funit-at-a-time to the CFLAGS, and the compiler is happy.
-> >> 
-> > But, does unit-at-a-time work reliably for all compilers on all archs back 
-> > to and including gcc 2.95.3 ? 
-> 
-> Unit-at-a-time is only available in GCC 3.4 and above.
-> Function-at-a-time will still be supported in GCC 4.0, but this
-> version will use unit-at-a-time by default (if optimization is
-> enable).
+> Please apply.
 
-unit-at-a-time is already enabled at -O2 in 3.4 .
-
-The kernel Makefile explicitely disables it on i386.
-
-cu
-Adrian
+Please don't - I'll apply it via my MMC tree shortly.  I want to kill
+data->req, so it makes sense to wrap this up into that series of changes.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

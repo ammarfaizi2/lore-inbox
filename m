@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318988AbSHSTKS>; Mon, 19 Aug 2002 15:10:18 -0400
+	id <S318990AbSHSTRZ>; Mon, 19 Aug 2002 15:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318989AbSHSTKS>; Mon, 19 Aug 2002 15:10:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:33472 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318988AbSHSTKS>;
-	Mon, 19 Aug 2002 15:10:18 -0400
-Date: Mon, 19 Aug 2002 21:15:31 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: george anzinger <george@mvista.com>
-Cc: Dave McCracken <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
-In-Reply-To: <3D613F20.9E5E3B84@mvista.com>
-Message-ID: <Pine.LNX.4.44.0208192115001.31716-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318992AbSHSTRZ>; Mon, 19 Aug 2002 15:17:25 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6137 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318990AbSHSTRY>; Mon, 19 Aug 2002 15:17:24 -0400
+Subject: Re: IDE-flash device and hard disk on same controller
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Heater, Daniel (IndSys, " "GEFanuc, VMIC)" 
+	<Daniel.Heater@gefanuc.com>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'andre@linux-ide.org'" <andre@linux-ide.org>,
+       "Warner, Bill (IndSys, " "GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
+In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC1463@vacho6misge.cho.ge.com>
+References: <A9713061F01AD411B0F700D0B746CA6802FC1463@vacho6misge.cho.ge.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 19 Aug 2002 20:21:00 +0100
+Message-Id: <1029784860.19375.47.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-19 at 19:31, Heater, Daniel (IndSys, GEFanuc, VMIC)
+wrote:
+> One solution may be to remove this test from the IDE subsystem and force
+> users with buggy hardware to explicitly  disable probing for a second
+> device.  I think the parameters hdx=none or hdx=noprobe should work for
+> them.
 
-On Mon, 19 Aug 2002, george anzinger wrote:
-
-> The current way its done, a child can not get the pid of its father and
-> thus would NEED to know it was being traced in order to do anything that
-> required such. [...]
-
-what do you mean by this? sys_getppid() uses ->real_parent so it gets the 
-proper PID.
-
-	Ingo
+I'm inclined to agree about this in the absence of very good reasons why
+not. The combination is found on several systems nowdays
 

@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJSScc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 14:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTJSScc
+	id S262041AbTJSSdT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 14:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJSSdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 14:32:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12525 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262033AbTJSScb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 14:32:31 -0400
-Date: Sun, 19 Oct 2003 11:32:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-Id: <20031019113248.17eb0a5c.akpm@osdl.org>
-In-Reply-To: <668910000.1066578207@[10.10.2.4]>
-References: <20031015225055.GS17986@fs.tum.de>
-	<20031015161251.7de440ab.akpm@osdl.org>
-	<20031015232440.GU17986@fs.tum.de>
-	<20031015165205.0cc40606.akpm@osdl.org>
-	<20031018102127.GE12423@fs.tum.de>
-	<649730000.1066491920@[10.10.2.4]>
-	<20031018102402.3576af6c.akpm@osdl.org>
-	<20031018174434.GJ12423@fs.tum.de>
-	<20031018105733.380ea8d2.akpm@osdl.org>
-	<668910000.1066578207@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 19 Oct 2003 14:33:19 -0400
+Received: from pool-162-84-134-188.ny5030.east.verizon.net ([162.84.134.188]:28665
+	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
+	id S262041AbTJSSdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 14:33:13 -0400
+Subject: Linux-2.6.0-test8, e1000 timeouts.
+From: Paul Blazejowski <paulb@blazebox.homeip.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XHTjUdsa4+mM6bGNG9TV"
+Message-Id: <1066588403.1232.57.camel@blaze.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (Slackware Linux)
+Date: Sun, 19 Oct 2003 14:33:23 -0400
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-beta; AVE: 6.22.0.1; VDF: 6.22.0.9; host: blazebox.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
->  > It would take a quite a lot of work to measure this properly.  A simple A/B
->  > comparison doesn't cut it.
-> 
->  So why are we changing it then? ;-)
 
-It is very easy to demonstrate that it saves 300 kilobytes of memory.
+--=-XHTjUdsa4+mM6bGNG9TV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Hello folks,
+
+I keep getting timeouts before my Intel NIC is offered a lease from DHCP
+server.
+
+Kernel 2.4.22/2.4.23-pre7 and 2.6.0-test1-7/mm worked fine with the same
+configuration/hardware.
+
+The NIC is onboard Intel OEM chip on GIGABYTE 7NNXP Nforce2 board.
+
+System is Slackware Linux 9.1
+GCC 3.2.3
+module-init-tools version 0.9.14
+Linux blaze 2.6.0-test8 #1 Sat Oct 18 01:25:35 EDT 2003 i686 unknown
+unknown GNU/Linux
+
+Here's a snip from dmesg:
+
+Intel(R) PRO/1000 Network Driver - version 5.2.20-k1
+Copyright (c) 1999-2003 Intel Corporation.
+eth0: Intel(R) PRO/1000 Network Connection
+e1000: eth0 NIC Link is Up 100 Mbps Full Duplex
+NETDEV WATCHDOG: eth0: transmit timed out
+e1000: eth0 NIC Link is Up 100 Mbps Full Duplex
+
+lsmod : e1000                  84032  0
+
+I can provide more info upon request.
+
+Paul B.
+
+
+
+--=-XHTjUdsa4+mM6bGNG9TV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/ktjyo0/Ad0tTwzgRAg5hAKC6ICqz2sT5o317NtHuxfcvrRmqbgCfVfOt
+JJNb2OwCPOzkQ9iRD2eElZU=
+=bdag
+-----END PGP SIGNATURE-----
+
+--=-XHTjUdsa4+mM6bGNG9TV--

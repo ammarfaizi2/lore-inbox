@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVCJHOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVCJHUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVCJHOY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 02:14:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVCJHOY
+	id S262230AbVCJHUw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 02:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCJHUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 02:14:24 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44001 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262165AbVCJHOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 02:14:18 -0500
-To: dipankar@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Dave Anderson <anderson@redhat.com>,
-       gdb <gdb@sources.redhat.com>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: Query: Kdump: Core Image ELF Format
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-	<m1br9um313.fsf@ebiederm.dsl.xmission.com>
-	<1110350629.31878.7.camel@wks126478wss.in.ibm.com>
-	<m1ll8wlx82.fsf@ebiederm.dsl.xmission.com>
-	<20050309150644.GA4663@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Mar 2005 00:11:10 -0700
-In-Reply-To: <20050309150644.GA4663@in.ibm.com>
-Message-ID: <m17jkgkmb5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Mar 2005 02:20:52 -0500
+Received: from gate.crashing.org ([63.228.1.57]:58057 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262230AbVCJHUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 02:20:44 -0500
+Subject: Re: [PATCH 2/2] No-exec support for ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: Jake Moilanen <moilanen@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <20050310032507.GC20789@austin.ibm.com>
+References: <20050308165904.0ce07112.moilanen@austin.ibm.com>
+	 <20050308171326.3d72363a.moilanen@austin.ibm.com>
+	 <20050310032507.GC20789@austin.ibm.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 18:15:34 +1100
+Message-Id: <1110438934.32524.203.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> writes:
-
-> On Wed, Mar 09, 2005 at 07:17:49AM -0700, Eric W. Biederman wrote:
-
-> > Beyond that I prefer a little command line tool that will do the
-> > ELF64 to ELF32 conversion and possibly add in the kva mapping to
-> > make the core dump usable with gdb.  Doing it in a separate tool
-> > means it is the developer who is doing the analysis who cares
-> > not the user who is capturing the system core dump.
+On Wed, 2005-03-09 at 21:25 -0600, Olof Johansson wrote:
+> Hi,
 > 
-> Well, as a kernel developer, I am both :) For me, having to install
-> half-a-dozen different command line tools to get and analyze a crash dump
-> is a PITA, not to mention potential version mismatches. As someone
-> who would like very much to use crash dump for debugging, I would
-> much rather be able to force a dump and then use gdb for
-> a quick debug. I agree that a customer would see a different
-> situation. It would be nice if we can cater to both the kinds.
+> On Tue, Mar 08, 2005 at 05:13:26PM -0600, Jake Moilanen wrote:
+> > diff -puN arch/ppc64/mm/hash_utils.c~nx-kernel-ppc64 arch/ppc64/mm/hash_utils.c
+> > --- linux-2.6-bk/arch/ppc64/mm/hash_utils.c~nx-kernel-ppc64	2005-03-08 16:08:57 -06:00
+> > +++ linux-2.6-bk-moilanen/arch/ppc64/mm/hash_utils.c	2005-03-08 16:08:57 -06:00
+> > @@ -89,12 +90,23 @@ static inline void loop_forever(void)
+> >  		;
+> >  }
+> >  
+> > +int is_kernel_text(unsigned long addr)
+> > +{
+> > +	if (addr >= (unsigned long)_stext && addr < (unsigned long)__init_end)
+> > +		return 1;
+> > +
+> > +	return 0;
+> > +}
+> 
+> This is used in two files, but never declared extern in the second file
+> (iSeries_setup.c). Should it go in a header file as a static inline
+> instead?
 
-Crash dumps seem to be a when all else fails kind of solution.  Or
-something to make a detailed record of what happened so information
-can be logged.
+Yes, I think it should.
 
-I think are differences are largely a matter of emphasis.  I worry
-about the end user and the whole cycle.  For that we need a fixed
-simple crash dump format whit no knobs bells or whistles, that can
-be given to developers and eventually supported natively by all of
-the tools.
+> There also seems to be a local static is_kernel_text() in kallsyms that
+> overlaps (but it's not identical). Removing that redundancy can be taken
+> care of as a janitorial patch outside of the noexec stuff.
+> 
+> 
+> 
+> -Olof
+> _______________________________________________
+> Linuxppc64-dev mailing list
+> Linuxppc64-dev@ozlabs.org
+> https://ozlabs.org/cgi-bin/mailman/listinfo/linuxppc64-dev
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-I doubt tweaking gdb so it can handle a 64bit ELF core dump even
-on 32bit architectures would be very hard.  Once that is in place
-the 64->32bit conversion doesn't matter.  The virtual addresses
-matter a little more although I am more inclined to teach gdb
-about the physical and virtual address differences of whole machine
-crash dumps.
-
-I do agree that the ability to tweak things in the short term
-to work like a process that does not have the virtual/physical address
-distinction is useful.  
-
-The issue of tool versioning problems is bogus.  That is solved
-by simply picking a good interface between tools and sticking
-with it.  Occasionally there will be paradigm shifts (like threading)
-that will cause change, but generally everything will stay the same.
-In addition if tools are distributed together it does not matter,
-if there are several of them because there is only one update.
-
-Eric

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVAZXkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVA0CpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262504AbVAZXkC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVAZXjJ
+	id S261960AbVA0CpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVAZXnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:39:09 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:10697 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261597AbVAZSWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:22:40 -0500
-Date: Wed, 26 Jan 2005 10:22:27 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       anil.s.keshavamurthy@intel.com
-Subject: Re: [PATCH] unexport register_cpu and unregister_cpu
-Message-ID: <20050126102226.A27022@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <1106722547.9855.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1106722547.9855.36.camel@localhost.localdomain>; from nathanl@austin.ibm.com on Wed, Jan 26, 2005 at 12:55:47AM -0600
+	Wed, 26 Jan 2005 18:43:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17112 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261804AbVAZSyV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 13:54:21 -0500
+Date: Wed, 26 Jan 2005 13:54:11 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: linux-os <linux-os@analogic.com>
+cc: Bryn Reeves <breeves@redhat.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James Antill <james.antill@redhat.com>
+Subject: Re: don't let mmap allocate down to zero
+In-Reply-To: <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0501261353260.5677@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> 
+ <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com> 
+ <41F7D4B0.7070401@nortelnetworks.com> <1106762261.10384.30.camel@breeves.surrey.redhat.com>
+ <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.61.0501261353262.5677@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 12:55:47AM -0600, Nathan Lynch wrote:
-> http://linus.bkbits.net:8080/linux-2.5/cset@4180a2b7mi2fzuNQDBOQY7eMAkns8g?nav=index.html|src/|src/drivers|src/drivers/base|related/drivers/base/cpu.c
-> 
-> This changeset introduced exports for register_cpu and unregister_cpu
-> right after 2.6.10.  As far as I can tell these are not called from any
-> code which can be built as a module, and I can't think of a good reason
-> why any out of tree code would use them.  Unless I've missed something,
-> can we remove them before 2.6.11?
+On Wed, 26 Jan 2005, linux-os wrote:
 
-	No this is not correct. ACPI processor.ko driver which supports
-physical CPU hotplug needs register_cpu() and unregister_cpu() functions
-for dynamically hotadd/hotremove support of the processors.
+> Wrong! A returned value of 0 is perfectly correct for mmap()
+> when mapping a fixed address. The attached code shows it working
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Please see drivers/acpi/processor_core.c  
-	acpi_processor_hotadd_init() -> arch_register_cpu() ->
-		->register_cpu().
+The code that is patched is only run in case of a non-MAP_FIXED
+mmap() call...
 
--Anil
-
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

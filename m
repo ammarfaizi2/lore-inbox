@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbUCMVn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 16:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUCMVn6
+	id S263196AbUCMVwY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 16:52:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbUCMVwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 16:43:58 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:7572 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S263193AbUCMVn4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 16:43:56 -0500
-Message-ID: <40538091.9050707@zytor.com>
-Date: Sat, 13 Mar 2004 13:43:45 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
+	Sat, 13 Mar 2004 16:52:24 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:128 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S263196AbUCMVwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 16:52:11 -0500
+Date: Sat, 13 Mar 2004 16:54:34 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Marek Szuba <scriptkiddie@wp.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4, or what I still don't quite like about the new stable
+ branch
+In-Reply-To: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
+Message-ID: <Pine.LNX.4.58.0403131642270.4325@dust.p68.rivermarket.wintek.com>
+References: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386 very early memory detection cleanup patch breaks the build
-References: <1079198139.2512.19.camel@mulgrave>
-In-Reply-To: <1079198139.2512.19.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> The attached should fix it again.
+On Sat, 13 Mar 2004, Marek Szuba wrote:
 
-Could you perhaps describe which architecture this is a problem on, and 
-what its entry condition looks like?
+[Snip]
 
-> This tampering with the trampoline was extraneous to the actual patch. 
-> The rule should be that if you don't understand what something is doing,
-> don't try to fix it.
+> 4. Module autounloading. Is it actually possible? Will it be possible?
+> If not, why? The old method of periodically invoking "modprobe -ras" via
+> cron doesn't seem to accomplish anything and I really liked the idea of
+> keeping only the required modules in memory at any given moment without
+> having to log in as root to unload the unneeded ones - after all, if the
+> autoloader can only add them what's the point of not going the
+> monolithic way? The docs on the new approach towards modules are
+> virtually nonexistent in the kernel source package and while I suppose I
+> could simply write a script which would scan the list of
+> currently-loaded modules for the unused ones and remove them one by one,
+> but this approach feels terribly crude comparing with the elegance of
+> the old solution. I use module-init-tools-3.0, a serious improvement
+> over 0.9.15 if I may say so but, unless I'm thinking about it with
+> completely wrong base assumptions, still far from perfect.
 
-I removed it because I removed the VISWS dependency, thus making it 
-redundant.  What you seem to be saying is that the dependency should 
-have been on SMP not X86_SMP; if that's the issue then please make it so.
+Safe module unloading is a very difficult problem.  So much so that
+disallowing unloading modules completely has been discussed in the past.  
+Digging around an lkml archive for more info on why module unloading is
+inherently problematic, and not at all easy to do (well, not at all easy
+to do well) is recommended.
 
-I think you just needed to apply your own rule to the above statement.
-
-> In this case CONFIG_X86_TRAMPOLINE is needed for the subarch's that
-> provide their own SMP code but still use the standard trampoline.  I
-> always thought the visws used the trampoline even in UP boot, but if it
-> doesn't, just take out the X86_VISWS dependency.
-
-It doesn't anymore.  The only reason it did was because of stupid 
-partitioning between head.S and trampoline.S, which the patch cleans up.
-
-	-hpa
+-- 
+Alex Goddard
+agoddard at purdue dot edu

@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUIOOBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266460AbUIOOGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUIOOBD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUION7G
+	id S266460AbUIOOGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUIOOFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:59:06 -0400
-Received: from pyxis.pixelized.ch ([213.239.200.113]:13960 "EHLO
-	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S266465AbUIONzt
+	Wed, 15 Sep 2004 10:05:55 -0400
+Received: from mail.bifgv.com.br ([200.243.172.130]:2191 "EHLO
+	mail.bifgv.com.br") by vger.kernel.org with ESMTP id S266155AbUIOODl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:55:49 -0400
-Message-ID: <414849CE.8080708@debian.org>
-Date: Wed, 15 Sep 2004 15:55:26 +0200
-From: "Giacomo A. Catenazzi" <cate@debian.org>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 10:03:41 -0400
+Message-ID: <00b101c49b2d$12bf7f70$0700a8c0@ti10>
+From: "Rodrigo FGV" <rodrigof@bifgv.com.br>
+To: <linux-kernel@vger.kernel.org>
+References: <2EHyq-5or-39@gated-at.bofh.it> <m34qlzbqy6.fsf@averell.firstfloor.org>
+Subject: Re: [patch] tune vmalloc size
+Date: Wed, 15 Sep 2004 11:05:36 -0300
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Marco d'Itri" <md@Linux.IT>, linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com>
-In-Reply-To: <20040914230409.GA23474@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-bifgv.com.br-MailScanner-Information: Please contact the ISP for more information
+X-bifgv.com.br-MailScanner: Found to be clean
+X-MailScanner-From: rodrigof@bifgv.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Sitting and waiting is a band-aid, I agree.  That's why we created the
-> /etc/dev.d/ notifier system to fix this issue (that is there for systems
-> that don't even use udev.)
-
-Hello Greg!
-
-[note that I really appreciate udev].
-
-You said me to use dev.d, but really I don't see it as a working
-solution. Maybe because I missinterpreted the documentation,
-so maybe you can give me some hints.
-
-Real case: distribution boot script.
-It should work with non udev kernel, udev non modular kernel and
-udev very modular kernel. The script load (directly or not) a module
-and need the device impelmented by module.
-
-Old behaviour (modprobe "waits" for the creation of device):
-normal init.d script, with normal boot priorities.
-
-New behaviour (dev.d). What I should do?
-My init.d script is loaded with priority XX, so
-I require that dev.d on my device is executed after
-boot priority XX (else I don't have the needed
-functionalities), also in case of non-udev or non modular kernel.
-How should I implement script in dev.d/?
-
-I see some design problems in dev.d/, or am I wrong?
-
-ciao
-	cate
+How i know the best value to set vmalloc, it's full size of ram????
+----- Original Message ----- 
+From: "Andi Kleen" <ak@muc.de>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>; <kkeil@suse.de>
+Sent: Wednesday, September 15, 2004 10:29 AM
+Subject: Re: [patch] tune vmalloc size
 
 
-PS: - What are the best (on topic) mailing list?
-     - What do other distributions?
+> Ingo Molnar <mingo@elte.hu> writes:
+>
+> > there are a few devices that use lots of ioremap space. vmalloc space is
+> > a showstopper problem for them.
+> >
+> > this patch adds the vmalloc=<size> boot parameter to override
+> > __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+> > doubles the size.
+>
+> Ah, Karsten Keil did a similar patch some months ago. There is
+> clearly a need.
+>
+> But I think this should be self tuning instead. For a machine with
+> less than 900MB of memory the vmalloc area can be automagically increased,
+> growing into otherwise unused address space.
+>
+> This way many users wouldn't need to specify weird options.  So far
+> most machines still don't have more than 512MB.
+>
+> -Andi
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

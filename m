@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267736AbTB1KYf>; Fri, 28 Feb 2003 05:24:35 -0500
+	id <S267765AbTB1Kal>; Fri, 28 Feb 2003 05:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267765AbTB1KYf>; Fri, 28 Feb 2003 05:24:35 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:58889 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267736AbTB1KYe>; Fri, 28 Feb 2003 05:24:34 -0500
-Date: Fri, 28 Feb 2003 11:36:36 +0100
-From: binary man <the_binary_man@yahoo.fr>
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mouse generating two mouse click events instead of one
-Message-Id: <20030228113636.5987ef86.the_binary_man@yahoo.fr>
-In-Reply-To: <20030228063734.31846.qmail@linuxmail.org>
-References: <20030228063734.31846.qmail@linuxmail.org>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267771AbTB1Kal>; Fri, 28 Feb 2003 05:30:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:42508 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267765AbTB1Kak>;
+	Fri, 28 Feb 2003 05:30:40 -0500
+Date: Fri, 28 Feb 2003 11:40:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: Paul Menage <pmenage@ensim.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, lse-tech@sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] New dcache / inode hash tuning patch
+Message-ID: <20030228104056.GA1647@wotan.suse.de>
+References: <p73n0kg7qi7.fsf@amdsimf.suse.de> <E18ohjj-0005ls-00@pmenage-dt.ensim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18ohjj-0005ls-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003 07:37:34 +0100
-"Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> wrote:
+On Fri, Feb 28, 2003 at 02:27:27AM -0800, Paul Menage wrote:
+> >But for lookup walking even one cache line - the one containing d_hash -
+> >should be needed. Unless d_hash is unlucky enough to cross a cache
+> >line for its two members ... but I doubt that.
+> 
+> No, but on a 32-byte cache line system, d_parent, d_hash and d_name are
+> all on different cache lines, and they're used when checking each entry.
 
-> ----- Original Message ----- 
-> From: Grzegorz Jaskiewicz <gj@pointblue.com.pl> 
-> Date: 27 Feb 2003 23:46:37 +0000  
-> To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 
-> Subject: Re: Mouse generating two mouse click events instead of one 
->  
-> > On Thu, 2003-02-27 at 22:33, Felipe Alfaro Solana wrote: 
-> > this often happends when you have two inputs in XFree86 config pointing 
-> > to the same device. 
->  
-> But I don't... :-( 
-> More ideas ;-) 
-> -- 
-Perhaps you use /dev/gpmdata as device for X, but you don't use "MouseSystems" as protocol ( always for X) ?
-Or perhaps you use gpm, but it isn't correctly configured ? Does your mouse works correctly on console ?
-Or perhaps your mouse is broken ;)
+... and dcache RCU checks d_bucket and d_move_count too in the hash 
+walking loop.
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+
+> On 64-byte systems, d_parent and d_hash will be on the same line, but
+> d_name is still on a separate line and d_name.hash gets checked before
+> d_parent. So bringing these three fields on to the same cacheline
+> would theoretically be a win.
+
+Ok you're right. Optimizing the layout a bit would be probably a good 
+idea. I won't include it in the hash patchkit for now to not do too
+many things with the same patch.
+
+-Andi

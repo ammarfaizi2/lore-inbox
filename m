@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131140AbRCQTDW>; Sat, 17 Mar 2001 14:03:22 -0500
+	id <S131734AbRCQTFL>; Sat, 17 Mar 2001 14:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131734AbRCQTDM>; Sat, 17 Mar 2001 14:03:12 -0500
-Received: from Xenon.Stanford.EDU ([171.64.66.201]:4586 "EHLO
-	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S131140AbRCQTDF>; Sat, 17 Mar 2001 14:03:05 -0500
-Date: Sat, 17 Mar 2001 11:02:15 -0800
-From: Andy Chou <acc@CS.Stanford.EDU>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
-        mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] 120 potential dereference to invalid pointers errors for linux 2.4.1
-Message-ID: <20010317110215.A21529@Xenon.Stanford.EDU>
-Reply-To: acc@CS.Stanford.EDU
-In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU> <20010317043154.B67406@sfgoth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.1.1i
-In-Reply-To: <20010317043154.B67406@sfgoth.com>; from mitch@sfgoth.com on Sat, Mar 17, 2001 at 04:31:54AM -0800
+	id <S131737AbRCQTFB>; Sat, 17 Mar 2001 14:05:01 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:47560 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131734AbRCQTEp>;
+	Sat, 17 Mar 2001 14:04:45 -0500
+Date: Sat, 17 Mar 2001 14:04:02 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Aaron Lunansky <alunansky@rim.net>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'kees@shoen.nl'" <kees@shoen.nl>
+Subject: Re: [OT] how to catch HW fault
+In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8104D4AA30@xch01ykf.rim.net>
+Message-ID: <Pine.SGI.4.31L.02.0103171401430.313157-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [BUG] fore200e_kmalloc can return NULL
-> > /u2/acc/oses/linux/2.4.1/drivers/atm/fore200e.c:2032:fore200e_get_esi: ERROR:NULL:2020:2032: Using unknown ptr "prom" illegally! set by 'fore200e_kmalloc':2020
-> 
-> I don't see the bug - there is an explicit "if(!prom) return -ENOMEM;" after
-> the allocation.  It looks fine to me.
+On Sat, 17 Mar 2001, Aaron Lunansky wrote:
 
-We checked 2.4.1; it appears that by 2.4.2 someone had already fixed it :)
+> It could very well be your ram (I don't suspect the cpu). If you can, try a
+> different stick of ram.
 
--Andy
+I've found a good exercise for exercising memory faults is to recompile
+the kernel with a -j16 flag; and in a second virtual console, do something
+like dd if=/dev/hda of=/dev/null bs=2048k
+
+Either the kernel compile will fail with a sig11, or the dd will fail and
+lock the system, in my experience.
+
+I've used this method, crudely, to chase down memory problems in systems
+using 256-512MB ram.
+
+YMMV.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

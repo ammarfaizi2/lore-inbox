@@ -1,863 +1,850 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbUARSig (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 13:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUARShv
+	id S263014AbUARSn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 13:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUARSnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 13:37:51 -0500
-Received: from mail.convergence.de ([212.84.236.4]:45548 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262888AbUARSfi
+	Sun, 18 Jan 2004 13:43:00 -0500
+Received: from mail.convergence.de ([212.84.236.4]:47340 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263014AbUARSfm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 13:35:38 -0500
+	Sun, 18 Jan 2004 13:35:42 -0500
 To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
        hunold@linuxtv.org
 From: Michael Hunold <hunold@linuxtv.org>
-Subject: [PATCH 2/5] Update saa7146 driver
-In-Reply-To: <10744509221553@convergence.de>
-Message-Id: <1074450922352@convergence.de>
+Subject: [PATCH 5/5] TTUSB DVB driver update
+In-Reply-To: <10744509243070@convergence.de>
+Message-Id: <10744509281247@convergence.de>
 X-Mailer: gregkh_patchbomb_levon_offspring_mihu_extended
-Date: Sun, 18 Jan 2004 13:35:38 -0500
+Date: Sun, 18 Jan 2004 13:35:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] fix memory leak in page table handling
-- [DVB] minor coding style changes
-- [DVB] add simple resource management for video dmas (borrowed from saa7134)
-- [DVB] use resource management to lock video and vbi access which sometimes share the same video dmas
-- [DVB] honour return codes of extension functions in various places, when resources could not be locked
-- [DVB] remove remains of dead code which were commented out anyway 
-- [DVB] add new flag FORMAT_IS_PLANAR to indicate planar capture formats, needed for resource allocation
-diff -uraNbBw xx-linux-2.6.1-mm4/include/media/saa7146.h linux-2.6.1-mm4.patched/include/media/saa7146.h
---- xx-linux-2.6.1-mm4/include/media/saa7146.h	2004-01-16 19:49:14.000000000 +0100
-+++ linux-2.6.1-mm4.patched/include/media/saa7146.h	2004-01-03 23:30:38.000000000 +0100
-@@ -67,6 +67,8 @@
- 	dma_addr_t	dma;
- 	/* used for offsets for u,v planes for planar capture modes */
- 	unsigned long	offset;
-+	/* used for custom pagetables (used for example by budget dvb cards) */
-+	struct scatterlist *slist;
+- [DVB] TTUSB-DEC update by Alex Woods:
+        - fix USB timeout bug under 2.6
+        - change some variable names to make it clearer what we are dealing with (PVA).
+	- support DEC2540-t and add info on it to the ttusb-dec docs.
+	- add model number returned from DEC2540-t firmware.
+	- add a module option to get the raw AVPES packets from the dvr device.
+	- send audio packets to their filter rather than the videos.
+	- handle the new empty packets that appear with the 2.16 firmware.
+	- extra error checks.
+	- handle the new firmwares that change the devices' USB IDs.
+	- tidy up the STB initialisation process a little.
+	- apply Hans-Frieder Vogt's patch for calculating firmware CRCs.
+- [DVB] make TTUSB budget card depend on USB subsystem
+diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/dvb/ttusb-budget/Kconfig linux-2.6.1-mm4.patched/drivers/media/dvb/ttusb-budget/Kconfig
+--- xx-linux-2.6.1-mm4/drivers/media/dvb/ttusb-budget/Kconfig	2004-01-16 19:48:22.000000000 +0100
++++ linux-2.6.1-mm4.patched/drivers/media/dvb/ttusb-budget/Kconfig	2004-01-09 20:27:29.000000000 +0100
+@@ -1,6 +1,6 @@
+ config DVB_TTUSB_BUDGET
+ 	tristate "Technotrend/Hauppauge Nova-USB devices"
+-	depends on DVB_CORE
++	depends on DVB_CORE && USB
+ 	help
+ 	  Support for external USB adapters designed by Technotrend and
+ 	  produced by Hauppauge, shipped under the brand name 'Nova-USB'.
+diff -urabBw xx-linux-2.6.1-mm4/drivers/media/dvb/ttusb-dec/ttusb_dec.c linux-2.6.1-mm4.usb/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+--- xx-linux-2.6.1-mm4/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2004-01-16 19:48:22.000000000 +0100
++++ linux-2.6.1-mm4.usb/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2004-01-18 15:32:39.000000000 +0100
+@@ -20,9 +20,9 @@
+  */
+ 
+ #include <asm/semaphore.h>
++#include <linux/crc32.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+@@ -39,6 +39,7 @@
+ #include "dvb_net.h"
+ 
+ static int debug = 0;
++static int output_pva = 0;
+ 
+ #define dprintk	if (debug) printk
+ 
+@@ -46,34 +47,44 @@
+ 
+ #define COMMAND_PIPE		0x03
+ #define RESULT_PIPE		0x84
+-#define STREAM_PIPE		0x88
++#define IN_PIPE			0x88
++#define OUT_PIPE		0x07
+ 
+ #define COMMAND_PACKET_SIZE	0x3c
+ #define ARM_PACKET_SIZE		0x1000
+ 
+ #define ISO_BUF_COUNT		0x04
+ #define FRAMES_PER_ISO_BUF	0x04
+-#define ISO_FRAME_SIZE		0x0380
++#define ISO_FRAME_SIZE		0x03FF
+ 
+-#define	MAX_AV_PES_LENGTH	6144
++#define	MAX_PVA_LENGTH		6144
+ 
+ #define LOF_HI			10600000
+ #define LOF_LO			9750000
+ 
+ enum ttusb_dec_model {
+ 	TTUSB_DEC2000T,
++	TTUSB_DEC2540T,
+ 	TTUSB_DEC3000S
  };
  
- struct saa7146_pci_extension_data {
-diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/common/saa7146_core.c linux-2.6.1-mm4.patched/drivers/media/common/saa7146_core.c
---- xx-linux-2.6.1-mm4/drivers/media/common/saa7146_core.c	2004-01-16 19:48:22.000000000 +0100
-+++ linux-2.6.1-mm4.patched/drivers/media/common/saa7146_core.c	2004-01-09 20:27:26.000000000 +0100
-@@ -137,7 +137,6 @@
- 
- char *saa7146_vmalloc_build_pgtable(struct pci_dev *pci, long length, struct saa7146_pgtable *pt)
- {
--	struct scatterlist *slist = NULL;
- 	int pages = (length+PAGE_SIZE-1)/PAGE_SIZE;
- 	char *mem = vmalloc_32(length);
- 	int slen = 0;
-@@ -146,35 +145,36 @@
- 		return NULL;
- 	}
- 
--	if (!(slist = vmalloc_to_sg(mem, pages))) {
-+	if (!(pt->slist = vmalloc_to_sg(mem, pages))) {
- 		vfree(mem);
- 		return NULL;
- 	}
- 
- 	if (saa7146_pgtable_alloc(pci, pt)) {
--		kfree(slist);
-+		kfree(pt->slist);
-+		pt->slist = NULL;
- 		vfree(mem);
- 		return NULL;
- 	}
- 	
--	slen = pci_map_sg(pci,slist,pages,PCI_DMA_FROMDEVICE);
--	if (0 != saa7146_pgtable_build_single(pci, pt, slist, slen)) {
-+	slen = pci_map_sg(pci,pt->slist,pages,PCI_DMA_FROMDEVICE);
-+	if (0 != saa7146_pgtable_build_single(pci, pt, pt->slist, slen)) {
- 		return NULL;
- 	}
- 
--	/* fixme: here's a memory leak: slist never gets freed by any other
--	   function ...*/
- 	return mem;
- }
- 
- void saa7146_pgtable_free(struct pci_dev *pci, struct saa7146_pgtable *pt)
- {
--//fm	DEB_EE(("pci:%p, pt:%p\n",pci,pt));
--
- 	if (NULL == pt->cpu)
- 		return;
- 	pci_free_consistent(pci, pt->size, pt->cpu, pt->dma);
- 	pt->cpu = NULL;
-+	if (NULL != pt->slist) {
-+		kfree(pt->slist);
-+		pt->slist = NULL;
-+	}
- }
- 
- int saa7146_pgtable_alloc(struct pci_dev *pci, struct saa7146_pgtable *pt)
-@@ -182,11 +182,8 @@
-         u32          *cpu;
-         dma_addr_t   dma_addr;
- 
--//fm	DEB_EE(("pci:%p, pt:%p\n",pci,pt));
--
- 	cpu = pci_alloc_consistent(pci, SAA7146_PGTABLE_SIZE, &dma_addr);
- 	if (NULL == cpu) {
--//fm		ERR(("pci_alloc_consistent() failed."));
- 		return -ENOMEM;
- 	}
- 	pt->size = SAA7146_PGTABLE_SIZE;
-diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/common/saa7146_fops.c linux-2.6.1-mm4.patched/drivers/media/common/saa7146_fops.c
---- xx-linux-2.6.1-mm4/drivers/media/common/saa7146_fops.c	2004-01-16 19:48:22.000000000 +0100
-+++ linux-2.6.1-mm4.patched/drivers/media/common/saa7146_fops.c	2004-01-03 22:59:11.000000000 +0100
-@@ -2,6 +2,65 @@
- 
- #define BOARD_CAN_DO_VBI(dev)   (dev->revision != 0 && dev->vv_data->vbi_minor != -1) 
- 
-+/****************************************************************************/
-+/* resource management functions, shamelessly stolen from saa7134 driver */
+ enum ttusb_dec_packet_type {
+-	PACKET_AV_PES,
+-	PACKET_SECTION
++	TTUSB_DEC_PACKET_PVA,
++	TTUSB_DEC_PACKET_SECTION,
++	TTUSB_DEC_PACKET_EMPTY
++};
 +
-+int saa7146_res_get(struct saa7146_fh *fh, unsigned int bit)
-+{
-+	struct saa7146_dev *dev = fh->dev;
-+	struct saa7146_vv *vv = dev->vv_data;
-+	
-+	if (fh->resources & bit)
-+		/* have it already allocated */
-+		return 1;
-+
-+	/* is it free? */
-+	DEB_D(("getting lock...\n"));
-+	down(&dev->lock);
-+	DEB_D(("got lock\n"));
-+	if (vv->resources & bit) {
-+		DEB_D(("locked! vv->resources:0x%02x, we want:0x%02x\n",vv->resources,bit));
-+		/* no, someone else uses it */
-+		up(&dev->lock);
-+		return 0;
-+	}
-+	/* it's free, grab it */
-+	fh->resources  |= bit;
-+	vv->resources |= bit;
-+	DEB_D(("res: get %d\n",bit));
-+	up(&dev->lock);
-+	return 1;
-+}
-+
-+int saa7146_res_check(struct saa7146_fh *fh, unsigned int bit)
-+{
-+	return (fh->resources & bit);
-+}
-+
-+int saa7146_res_locked(struct saa7146_dev *dev, unsigned int bit)
-+{
-+	struct saa7146_vv *vv = dev->vv_data;
-+	return (vv->resources & bit);
-+}
-+
-+void saa7146_res_free(struct saa7146_fh *fh, unsigned int bits)
-+{
-+	struct saa7146_dev *dev = fh->dev;
-+	struct saa7146_vv *vv = dev->vv_data;
-+
-+	if ((fh->resources & bits) != bits)
-+		BUG();
-+
-+	DEB_D(("getting lock...\n"));
-+	down(&dev->lock);
-+	DEB_D(("got lock\n"));
-+	fh->resources  &= ~bits;
-+	vv->resources &= ~bits;
-+	DEB_D(("res: put %d\n",bits));
-+	up(&dev->lock);
-+}
-+
-+
- /********************************************************************************/
- /* common dma functions */
- 
-@@ -216,29 +275,32 @@
- 	}
- 	memset(fh,0,sizeof(*fh));
- 	
--	// FIXME: do we need to increase *our* usage count?
--
--	if( 0 == try_module_get(dev->ext->module)) {
--		result = -EINVAL;
--		goto out;
--	}
--
- 	file->private_data = fh;
- 	fh->dev = dev;
- 	fh->type = type;
- 
- 	if( fh->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
- 		DEB_S(("initializing vbi...\n"));
--		saa7146_vbi_uops.open(dev,file);
-+		result = saa7146_vbi_uops.open(dev,file);
- 	} else {
- 		DEB_S(("initializing video...\n"));
--		saa7146_video_uops.open(dev,file);
-+		result = saa7146_video_uops.open(dev,file);
-+	}
-+	
-+	if (0 != result) {
-+		goto out;
-+	}
-+
-+	if( 0 == try_module_get(dev->ext->module)) {
-+		result = -EINVAL;
-+		goto out;
- 	}
- 
- 	result = 0;
- out:
- 	if( fh != 0 && result != 0 ) {
- 		kfree(fh);
-+		file->private_data = NULL;
- 	}
- 	up(&saa7146_devices_lock);
-         return result;
-diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/common/saa7146_hlp.c linux-2.6.1-mm4.patched/drivers/media/common/saa7146_hlp.c
---- xx-linux-2.6.1-mm4/drivers/media/common/saa7146_hlp.c	2004-01-16 19:48:22.000000000 +0100
-+++ linux-2.6.1-mm4.patched/drivers/media/common/saa7146_hlp.c	2004-01-04 17:20:31.000000000 +0100
-@@ -152,8 +152,7 @@
- 	if( 1 == xpsc ) {
- 		xacm = 1;
- 		dcgx = 0;
--	}
--	else {
-+	} else {
- 		xacm = 0;
- 		/* get best match in the table of attenuations
- 		   for horizontal scaling */
-@@ -268,8 +267,7 @@
- 		ype = ysci / 16;
- 		ypo = ype + (ysci / 64);
- 		
--	}
--	else {
-+	} else {
- 		yacm = 1;	
- 
- 		/* calculate scaling increment */
-@@ -285,8 +283,7 @@
- 						... */
- 		if ( ysci < 512) {
- 			yacl = 0;
--		}
--		else {
-+		} else {
- 			yacl = ( ysci / (1024 - ysci) );
- 		}
- 
-@@ -488,33 +485,31 @@
-  	saa7146_write(dev, MC2, (MASK_05 | MASK_21));
-  
-  	/* disable video dma2 */
--	saa7146_write(dev, MC1, (MASK_21));
-+	saa7146_write(dev, MC1, MASK_21);
- }
- 
--static void saa7146_set_clipping_rect(struct saa7146_dev *dev, struct saa7146_fh *fh)
-+static void saa7146_set_clipping_rect(struct saa7146_fh *fh)
- {
-+	struct saa7146_dev *dev = fh->dev;
- 	enum v4l2_field field = fh->ov.win.field;
--	int clipcount = fh->ov.nclips;
--	
- 	struct	saa7146_video_dma vdma2;
--
--	u32 clip_format	= saa7146_read(dev, CLIP_FORMAT_CTRL);
--	u32 arbtr_ctrl	= saa7146_read(dev, PCI_BT_V1);
--
--	// fixme: is this used at all? SAA7146_CLIPPING_RECT_INVERTED;
--	u32 type = SAA7146_CLIPPING_RECT;
-+	u32 clip_format;
-+	u32 arbtr_ctrl;
- 
- 	/* check clipcount, disable clipping if clipcount == 0*/
--	if( clipcount == 0 ) {
-+	if( fh->ov.nclips == 0 ) {
- 		saa7146_disable_clipping(dev);
- 		return;
- 	}
- 
-+	clip_format = saa7146_read(dev, CLIP_FORMAT_CTRL);
-+	arbtr_ctrl = saa7146_read(dev, PCI_BT_V1);
-+
- 	calculate_clipping_registers_rect(dev, fh, &vdma2, &clip_format, &arbtr_ctrl, field);
- 
- 	/* set clipping format */
- 	clip_format &= 0xffff0008;
--	clip_format |= (type << 4);
-+	clip_format |= (SAA7146_CLIPPING_RECT << 4);
- 
- 	/* prepare video dma2 */
- 	saa7146_write(dev, BASE_EVEN2,		vdma2.base_even);
-@@ -660,25 +655,28 @@
- 	vv->current_hps_sync = sync;
- } 
- 
--/* reprogram hps, enable(1) / disable(0) video */
--void saa7146_set_overlay(struct saa7146_dev *dev, struct saa7146_fh *fh, int v)
-+int saa7146_enable_overlay(struct saa7146_fh *fh)
- {
-+	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
- 
--	/* enable ? */
--	if( 0 == v) {
--		/* disable video dma1 */
--      		saa7146_write(dev, MC1, MASK_22);
--		return;
--	}
--
- 	saa7146_set_window(dev, fh->ov.win.w.width, fh->ov.win.w.height, fh->ov.win.field);
- 	saa7146_set_position(dev, fh->ov.win.w.left, fh->ov.win.w.top, fh->ov.win.w.height, fh->ov.win.field);
- 	saa7146_set_output_format(dev, vv->ov_fmt->trans);
--	saa7146_set_clipping_rect(dev, fh);
-+	saa7146_set_clipping_rect(fh);
- 
- 	/* enable video dma1 */
- 	saa7146_write(dev, MC1, (MASK_06 | MASK_22));
-+	return 0;
-+}		
-+
-+void saa7146_disable_overlay(struct saa7146_fh *fh)
-+{
-+	struct saa7146_dev *dev = fh->dev;
-+
-+	/* disable clipping + video dma1 */
-+ 	saa7146_disable_clipping(dev);
-+	saa7146_write(dev, MC1, MASK_22);
- }		
- 
- void saa7146_write_out_dma(struct saa7146_dev* dev, int which, struct saa7146_video_dma* vdma) 
-@@ -692,15 +690,8 @@
- 	/* calculate starting address */
- 	where  = (which-1)*0x18;
- 
--/*
--	if( 0 != (dev->ext_vv_data->flags & SAA7146_EXT_SWAP_ODD_EVEN)) {
--		saa7146_write(dev, where, 	vdma->base_even);
--		saa7146_write(dev, where+0x04, 	vdma->base_odd);
--	} else {
--*/
- 		saa7146_write(dev, where, 	vdma->base_odd);
- 		saa7146_write(dev, where+0x04, 	vdma->base_even);
--//	}
- 	saa7146_write(dev, where+0x08, 	vdma->prot_addr);
- 	saa7146_write(dev, where+0x0c, 	vdma->pitch);
- 	saa7146_write(dev, where+0x10, 	vdma->base_page);
-@@ -937,7 +928,7 @@
- 	}	
- 
- 	saa7146_write_out_dma(dev, 1, &vdma1);
--	if( sfmt->swap != 0 ) {
-+	if( (sfmt->flags & FORMAT_BYTE_SWAP) != 0 ) {
- 		saa7146_write_out_dma(dev, 3, &vdma2);
- 		saa7146_write_out_dma(dev, 2, &vdma3);
- 	} else {
-@@ -955,13 +946,6 @@
- 	unsigned long e_wait = vv->current_hps_sync == SAA7146_HPS_SYNC_PORT_A ? CMD_E_FID_A : CMD_E_FID_B;
- 	unsigned long o_wait = vv->current_hps_sync == SAA7146_HPS_SYNC_PORT_A ? CMD_O_FID_A : CMD_O_FID_B;
- 
--/*
--	if( 0 != (dev->ext_vv_data->flags & SAA7146_EXT_SWAP_ODD_EVEN)) {
--		unsigned long tmp = e_wait;
--		e_wait = o_wait;
--		o_wait = tmp;
--	}
--*/
- 	/* wait for o_fid_a/b / e_fid_a/b toggle only if rps register 0 is not set*/
- 	WRITE_RPS0(CMD_PAUSE | CMD_OAN | CMD_SIG0 | o_wait);
- 	WRITE_RPS0(CMD_PAUSE | CMD_OAN | CMD_SIG0 | e_wait);
-@@ -1038,7 +1022,6 @@
- 
- 	saa7146_set_window(dev, buf->fmt->width, buf->fmt->height, buf->fmt->field);
- 	saa7146_set_output_format(dev, sfmt->trans);
--	saa7146_disable_clipping(dev);
- 
- 	if ( vv->last_field == V4L2_FIELD_INTERLACED ) {
- 	} else if ( vv->last_field == V4L2_FIELD_TOP ) {
-diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/common/saa7146_vbi.c linux-2.6.1-mm4.patched/drivers/media/common/saa7146_vbi.c
---- xx-linux-2.6.1-mm4/drivers/media/common/saa7146_vbi.c	2004-01-16 19:48:22.000000000 +0100
-+++ linux-2.6.1-mm4.patched/drivers/media/common/saa7146_vbi.c	2004-01-03 22:15:07.000000000 +0100
-@@ -366,7 +367,7 @@
- 	init_waitqueue_head(&vv->vbi_wq);
- }
- 
--static void vbi_open(struct saa7146_dev *dev, struct file *file)
-+static int vbi_open(struct saa7146_dev *dev, struct file *file)
- {
- 	struct saa7146_fh *fh = (struct saa7146_fh *)file->private_data;
- 	
-@@ -375,6 +376,12 @@
- 	
- 	DEB_VBI(("dev:%p, fh:%p\n",dev,fh));
- 
-+	ret = saa7146_res_get(fh, RESOURCE_DMA3_BRS);
-+	if (0 == ret) {
-+		DEB_S(("cannot get vbi RESOURCE_DMA3_BRS resource\n"));
-+		return -EBUSY;
-+	}
-+
- 	/* adjust arbitrition control for video dma 3 */
- 	arbtr_ctrl &= ~0x1f0000;
- 	arbtr_ctrl |=  0x1d0000;
-@@ -419,6 +426,7 @@
- 
- 	/* upload brs register */
- 	saa7146_write(dev, MC2, (MASK_08|MASK_24));		
-+	return 0;		
- }
- 
- static void vbi_close(struct saa7146_dev *dev, struct file *file)
-@@ -430,6 +438,7 @@
- 	if( fh == vv->vbi_streaming ) {
- 		vbi_stop(fh, file);
- 	}
-+	saa7146_res_free(fh, RESOURCE_DMA3_BRS);
- }
- 
- static void vbi_irq_done(struct saa7146_dev *dev, unsigned long status)
-diff -uraNbBw xx-linux-2.6.1-mm4/drivers/media/common/saa7146_video.c linux-2.6.1-mm4.patched/drivers/media/common/saa7146_video.c
---- xx-linux-2.6.1-mm4/drivers/media/common/saa7146_video.c	2004-01-16 19:48:22.000000000 +0100
-+++ linux-2.6.1-mm4.patched/drivers/media/common/saa7146_video.c	2004-01-16 18:21:55.000000000 +0100
-@@ -12,48 +12,55 @@
- 		.pixelformat	= V4L2_PIX_FMT_RGB332,
- 		.trans 		= RGB08_COMPOSED,
- 		.depth		= 8,
-+		.flags		= 0,
- 	}, {
--		.name 		= "RGB-16 (5/B-6/G-5/R)", 	/* really? */
-+		.name 		= "RGB-16 (5/B-6/G-5/R)",
- 		.pixelformat	= V4L2_PIX_FMT_RGB565,
- 		.trans 		= RGB16_COMPOSED,
- 		.depth		= 16,
-+		.flags		= 0,
- 	}, {
- 		.name 		= "RGB-24 (B-G-R)",
- 		.pixelformat	= V4L2_PIX_FMT_BGR24,
- 		.trans 		= RGB24_COMPOSED,
- 		.depth		= 24,
-+		.flags		= 0,
- 	}, {
- 		.name 		= "RGB-32 (B-G-R)",
- 		.pixelformat	= V4L2_PIX_FMT_BGR32,
- 		.trans 		= RGB32_COMPOSED,
- 		.depth		= 32,
-+		.flags		= 0,
- 	}, {
- 		.name 		= "Greyscale-8",
- 		.pixelformat	= V4L2_PIX_FMT_GREY,
- 		.trans 		= Y8,
- 		.depth		= 8,
-+		.flags		= 0,
- 	}, {
- 		.name 		= "YUV 4:2:2 planar (Y-Cb-Cr)",
- 		.pixelformat	= V4L2_PIX_FMT_YUV422P,
- 		.trans 		= YUV422_DECOMPOSED,
- 		.depth		= 16,
--		.swap		= 1,
-+		.flags		= FORMAT_BYTE_SWAP|FORMAT_IS_PLANAR,
- 	}, {
- 		.name 		= "YVU 4:2:0 planar (Y-Cb-Cr)",
- 		.pixelformat	= V4L2_PIX_FMT_YVU420,
- 		.trans 		= YUV420_DECOMPOSED,
- 		.depth		= 12,
--		.swap		= 1,
-+		.flags		= FORMAT_BYTE_SWAP|FORMAT_IS_PLANAR,
- 	}, {
- 		.name 		= "YUV 4:2:0 planar (Y-Cb-Cr)",
- 		.pixelformat	= V4L2_PIX_FMT_YUV420,
- 		.trans 		= YUV420_DECOMPOSED,
- 		.depth		= 12,
-+		.flags		= FORMAT_IS_PLANAR,
- 	}, {
- 		.name 		= "YUV 4:2:2 (U-Y-V-Y)",
- 		.pixelformat	= V4L2_PIX_FMT_UYVY,
- 		.trans 		= YUV422_COMPOSED,
- 		.depth		= 16,
-+		.flags		= 0,
- 	}
++enum ttusb_dec_interface {
++	TTUSB_DEC_INTERFACE_INITIAL,
++	TTUSB_DEC_INTERFACE_IN,
++	TTUSB_DEC_INTERFACE_OUT
  };
  
-@@ -243,13 +250,13 @@
- {
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
--	int err = 0;
-+	int ret = 0, err = 0;
+ struct ttusb_dec {
+ 	enum ttusb_dec_model		model;
+ 	char				*model_name;
+ 	char				*firmware_name;
++	int				can_playback;
  
- 	DEB_EE(("dev:%p, fh:%p\n",dev,fh));
+ 	/* DVB bits */
+ 	struct dvb_adapter		*adapter;
+@@ -93,8 +104,9 @@
+ 	u8			trans_count;
+ 	unsigned int		command_pipe;
+ 	unsigned int		result_pipe;
+-	unsigned int		stream_pipe;
+-	int			interface;
++	unsigned int			in_pipe;
++	unsigned int			out_pipe;
++	enum ttusb_dec_interface	interface;
+ 	struct semaphore	usb_sem;
  
- 	/* check if we have overlay informations */
- 	if( NULL == fh->ov.fh ) {
--		DEB_D(("not overlay data available. try S_FMT first.\n"));
-+		DEB_D(("no overlay data available. try S_FMT first.\n"));
- 		return -EAGAIN;
- 	}
+ 	void			*iso_buffer;
+@@ -103,19 +115,20 @@
+ 	int			iso_stream_count;
+ 	struct semaphore	iso_sem;
  
-@@ -280,7 +287,11 @@
- 		fh->ov.win.w.left,fh->ov.win.w.top,
- 		vv->ov_fmt->name,v4l2_field_names[fh->ov.win.field]));
- 	
--	saa7146_set_overlay(dev, fh, 1);
-+	if (0 != (ret = saa7146_enable_overlay(fh))) {
-+		vv->ov_data = NULL;
-+		DEB_D(("enabling overlay failed: %d\n",ret));
-+		return ret;
+-	u8				packet[MAX_AV_PES_LENGTH + 4];
++	u8				packet[MAX_PVA_LENGTH + 4];
+ 	enum ttusb_dec_packet_type	packet_type;
+ 	int				packet_state;
+ 	int				packet_length;
+ 	int				packet_payload_length;
++	u16				next_packet_id;
+ 
+-	int				av_pes_stream_count;
++	int				pva_stream_count;
+ 	int				filter_stream_count;
+ 
+ 	struct dvb_filter_pes2ts	a_pes2ts;
+ 	struct dvb_filter_pes2ts	v_pes2ts;
+ 
+-	u8			v_pes[16 + MAX_AV_PES_LENGTH];
++	u8			v_pes[16 + MAX_PVA_LENGTH];
+ 	int			v_pes_length;
+ 	int			v_pes_postbytes;
+ 
+@@ -123,6 +136,8 @@
+ 	struct tasklet_struct	urb_tasklet;
+ 	spinlock_t		urb_frame_list_lock;
+ 
++	struct dvb_demux_filter	*audio_filter;
++	struct dvb_demux_filter	*video_filter;
+ 	struct list_head	filter_info_list;
+ 	spinlock_t		filter_info_list_lock;
+ 
+@@ -167,6 +182,22 @@
+ 		FE_CAN_HIERARCHY_AUTO,
+ };
+ 
++static void ttusb_dec_set_model(struct ttusb_dec *dec,
++				enum ttusb_dec_model model);
++
++static u16 crc16(u16 crc, const u8 *buf, size_t len)
++{
++	u16 tmp;
++
++	while (len--) {
++		crc ^= *buf++;
++		crc ^= (u8)crc >> 4;
++		tmp = (u8)crc;
++		crc ^= (tmp ^ (tmp << 1)) << 4;
 +	}
- 
- 	return 0;
++	return crc;
++}
++
+ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
+ 				  int param_length, const u8 params[],
+ 				  int *result_length, u8 cmd_result[])
+@@ -234,11 +265,57 @@
+ 	}
  }
-@@ -290,7 +301,7 @@
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
  
--	DEB_EE(("saa7146.o: saa7146_stop_preview()\n"));
-+	DEB_EE(("dev:%p, fh:%p\n",dev,fh));
- 
- 	/* check if overlay is running */
- 	if( 0 == vv->ov_data ) {
-@@ -300,11 +311,11 @@
- 
- 	if( fh != vv->ov_data->fh ) {
- 		DEB_D(("overlay is active, but for another open.\n"));
--		return -EBUSY;
-+		return 0;
- 	}
- 
--	saa7146_set_overlay(dev, fh, 0);
- 	vv->ov_data = NULL;
-+	saa7146_disable_overlay(fh);
- 	
- 	return 0;
- }
-@@ -675,21 +686,37 @@
- {
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
-+	struct saa7146_format *fmt = NULL;
- 	unsigned long flags;
-+	unsigned int resource;
-+	int ret = 0;
- 
- 	DEB_EE(("dev:%p, fh:%p\n",dev,fh));
- 
- 	if( fh == vv->streaming ) {
- 		DEB_S(("already capturing.\n"));
--		return 0;
-+		return -EBUSY;
- 	}
- 	if( vv->streaming != 0 ) {
- 		DEB_S(("already capturing, but in another open.\n"));
- 		return -EBUSY;
- 	}
- 
--	/* fixme: check for planar formats here, if we will interfere with
--	   vbi capture for example */	
-+	fmt = format_by_fourcc(dev,fh->video_fmt.pixelformat);
-+	/* we need to have a valid format set here */
-+	BUG_ON(NULL == fmt);
+-static int ttusb_dec_av_pes2ts_cb(void *priv, unsigned char *data)
++static int ttusb_dec_get_stb_state (struct ttusb_dec *dec, unsigned int *mode,
++				    unsigned int *model, unsigned int *version)
++{
++	u8 c[COMMAND_PACKET_SIZE];
++	int c_length;
++	int result;
++	unsigned int tmp;
 +
-+	if (0 != (fmt->flags & FORMAT_IS_PLANAR)) {
-+		resource = RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP|RESOURCE_DMA3_BRS;
-+	} else {
-+		resource = RESOURCE_DMA1_HPS;
-+	}
++	dprintk("%s\n", __FUNCTION__);
 +
-+	ret = saa7146_res_get(fh, resource);
-+	if (0 == ret) {
-+		DEB_S(("cannot get capture resource %d\n",resource));
-+		return -EBUSY;
-+	}
- 
- 	spin_lock_irqsave(&dev->slock,flags);
- 
-@@ -708,8 +735,10 @@
- {
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
-+	struct saa7146_format *fmt = NULL;
- 	unsigned long flags;
--	
-+	unsigned int resource;
-+	u32 dmas = 0;
- 	DEB_EE(("dev:%p, fh:%p\n",dev,fh));
- 
- 	if( vv->streaming != fh ) {
-@@ -717,6 +746,19 @@
- 		return -EINVAL;
- 	}
- 
-+	fmt = format_by_fourcc(dev,fh->video_fmt.pixelformat);
-+	/* we need to have a valid format set here */
-+	BUG_ON(NULL == fmt);
++	result = ttusb_dec_send_command(dec, 0x08, 0, NULL, &c_length, c);
++	if (result)
++		return result;
 +
-+	if (0 != (fmt->flags & FORMAT_IS_PLANAR)) {
-+		resource = RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP|RESOURCE_DMA3_BRS;
-+		dmas = MASK_22 | MASK_21 | MASK_20;
-+	} else {
-+		resource = RESOURCE_DMA1_HPS;
-+		dmas = MASK_20;
-+	}
-+	saa7146_res_free(fh, resource);
-+
- 	spin_lock_irqsave(&dev->slock,flags);
- 
- 	/* disable rps0  */
-@@ -725,14 +767,8 @@
- 	/* disable rps0 irqs */
- 	IER_DISABLE(dev, MASK_27);
- 
--	// fixme: only used formats here!
--	/* fixme: look at planar formats here, especially at the
--	   shutdown of planar formats! */
--
- 	/* shut down all used video dma transfers */
--	/* fixme: what about the budget-dvb cards? they use
--	   video-dma3, but video_end should not get called anyway ...*/
--	saa7146_write(dev, MC1, 0x00700000);
-+	saa7146_write(dev, MC1, dmas);
- 
- 	vv->streaming = NULL;
- 
-@@ -849,8 +883,12 @@
- 			return -EINVAL;
- 		}
- 		
--		down(&dev->lock);
-+		/* planar formats are not allowed for overlay video, clipping and video dma would clash */
-+		if (0 != (fmt->flags & FORMAT_IS_PLANAR)) {
-+			DEB_S(("planar pixelformat '%4.4s' not allowed for overlay\n",(char *)&fmt->pixelformat));
++	if (c_length >= 0x0c) {
++		if (mode != NULL) {
++			memcpy(&tmp, c, 4);
++			*mode = ntohl(tmp);
 +		}
++		if (model != NULL) {
++			memcpy(&tmp, &c[4], 4);
++			*model = ntohl(tmp);
++		}
++		if (version != NULL) {
++			memcpy(&tmp, &c[8], 4);
++			*version = ntohl(tmp);
++		}
++		return 0;
++	} else {
++		return -1;
++	}
++}
++
++static int ttusb_dec_audio_pes2ts_cb(void *priv, unsigned char *data)
+ {
+-	struct dvb_demux_feed *dvbdmxfeed = (struct dvb_demux_feed *)priv;
++	struct ttusb_dec *dec = (struct ttusb_dec *)priv;
  
-+		down(&dev->lock);
- 		if( vv->ov_data != NULL ) {
- 			ov_fh = vv->ov_data->fh;
- 			saa7146_stop_preview(ov_fh);
-@@ -1002,7 +1044,9 @@
- 			return -EBUSY;
+-	dvbdmxfeed->cb.ts(data, 188, 0, 0, &dvbdmxfeed->feed.ts, DMX_OK);
++	dec->audio_filter->feed->cb.ts(data, 188, 0, 0,
++				       &dec->audio_filter->feed->feed.ts,
++				       DMX_OK);
++
++	return 0;
++}
++
++static int ttusb_dec_video_pes2ts_cb(void *priv, unsigned char *data)
++{
++	struct ttusb_dec *dec = (struct ttusb_dec *)priv;
++
++	dec->video_filter->feed->cb.ts(data, 188, 0, 0,
++				       &dec->video_filter->feed->feed.ts,
++				       DMX_OK);
+ 
+ 	return 0;
+ }
+@@ -262,64 +339,69 @@
+ 	ttusb_dec_send_command(dec, 0x50, sizeof(b), b, NULL, NULL);
+ 
+ 		dvb_filter_pes2ts_init(&dec->a_pes2ts, dec->pid[DMX_PES_AUDIO],
+-				       ttusb_dec_av_pes2ts_cb, dec->demux.feed);
++			       ttusb_dec_audio_pes2ts_cb, dec);
+ 		dvb_filter_pes2ts_init(&dec->v_pes2ts, dec->pid[DMX_PES_VIDEO],
+-				       ttusb_dec_av_pes2ts_cb, dec->demux.feed);
++			       ttusb_dec_video_pes2ts_cb, dec);
+ 	dec->v_pes_length = 0;
+ 	dec->v_pes_postbytes = 0;
+ }
+ 
+-static void ttusb_dec_process_av_pes(struct ttusb_dec * dec, u8 * av_pes,
+-				     int length)
++static void ttusb_dec_process_pva(struct ttusb_dec *dec, u8 *pva, int length)
+ {
+ 	if (length < 8) {
+ 		printk("%s: packet too short - discarding\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+-	if (length > 8 + MAX_AV_PES_LENGTH) {
++	if (length > 8 + MAX_PVA_LENGTH) {
+ 		printk("%s: packet too long - discarding\n", __FUNCTION__);
+ 		return;
+ 	}
+ 
+-	switch (av_pes[2]) {
++	switch (pva[2]) {
+ 
+ 	case 0x01: {		/* VideoStream */
+-			int prebytes = av_pes[5] & 0x03;
+-			int postbytes = (av_pes[5] & 0x0c) >> 2;
++		int prebytes = pva[5] & 0x03;
++		int postbytes = (pva[5] & 0x0c) >> 2;
+ 			u16 v_pes_payload_length;
+ 
++		if (output_pva) {
++			dec->video_filter->feed->cb.ts(pva, length, 0, 0,
++				&dec->video_filter->feed->feed.ts, DMX_OK);
++			return;
++		}
++
+ 			if (dec->v_pes_postbytes > 0 &&
+ 			    dec->v_pes_postbytes == prebytes) {
+ 				memcpy(&dec->v_pes[dec->v_pes_length],
+-				       &av_pes[12], prebytes);
++			       &pva[12], prebytes);
+ 
+ 				dvb_filter_pes2ts(&dec->v_pes2ts, dec->v_pes,
+ 					  dec->v_pes_length + prebytes, 1);
+ 			}
+ 
+-			if (av_pes[5] & 0x10) {
++		if (pva[5] & 0x10) {
+ 				dec->v_pes[7] = 0x80;
+ 				dec->v_pes[8] = 0x05;
+ 
+-			dec->v_pes[9] = 0x21 | ((av_pes[8] & 0xc0) >> 5);
+-				dec->v_pes[10] = ((av_pes[8] & 0x3f) << 2) |
+-						 ((av_pes[9] & 0xc0) >> 6);
++			dec->v_pes[9] = 0x21 | ((pva[8] & 0xc0) >> 5);
++			dec->v_pes[10] = ((pva[8] & 0x3f) << 2) |
++					 ((pva[9] & 0xc0) >> 6);
+ 				dec->v_pes[11] = 0x01 |
+-						 ((av_pes[9] & 0x3f) << 2) |
+-						 ((av_pes[10] & 0x80) >> 6);
+-				dec->v_pes[12] = ((av_pes[10] & 0x7f) << 1) |
+-						 ((av_pes[11] & 0xc0) >> 7);
+-			dec->v_pes[13] = 0x01 | ((av_pes[11] & 0x7f) << 1);
++					 ((pva[9] & 0x3f) << 2) |
++					 ((pva[10] & 0x80) >> 6);
++			dec->v_pes[12] = ((pva[10] & 0x7f) << 1) |
++					 ((pva[11] & 0xc0) >> 7);
++			dec->v_pes[13] = 0x01 | ((pva[11] & 0x7f) << 1);
+ 
+-				memcpy(&dec->v_pes[14], &av_pes[12 + prebytes],
++			memcpy(&dec->v_pes[14], &pva[12 + prebytes],
+ 			       length - 12 - prebytes);
+ 			dec->v_pes_length = 14 + length - 12 - prebytes;
+ 			} else {
+ 				dec->v_pes[7] = 0x00;
+ 				dec->v_pes[8] = 0x00;
+ 
+-			memcpy(&dec->v_pes[9], &av_pes[8], length - 8);
++			memcpy(&dec->v_pes[9], &pva[8], length - 8);
+ 			dec->v_pes_length = 9 + length - 8;
+ 			}
+ 
+@@ -344,13 +426,19 @@
  		}
  
-+		DEB_D(("before getting lock...\n"));
- 		down(&dev->lock);
-+		DEB_D(("got lock\n"));
+ 	case 0x02:		/* MainAudioStream */
+-		dvb_filter_pes2ts(&dec->a_pes2ts, &av_pes[8], length - 8,
+-				  av_pes[5] & 0x10);
++		if (output_pva) {
++			dec->audio_filter->feed->cb.ts(pva, length, 0, 0,
++				&dec->audio_filter->feed->feed.ts, DMX_OK);
++			return;
++		}
++
++		dvb_filter_pes2ts(&dec->a_pes2ts, &pva[8], length - 8,
++				  pva[5] & 0x10);
+ 		break;
  
- 		if( vv->ov_data != NULL ) {
- 			ov_fh = vv->ov_data->fh;
-@@ -1047,22 +1095,33 @@
- 		if( 0 != on ) {
- 			if( vv->ov_data != NULL ) {
- 				if( fh != vv->ov_data->fh) {
-+					DEB_D(("overlay already active in another open\n"));
- 					return -EAGAIN;
+ 	default:
+-		printk("%s: unknown AV_PES type: %02x.\n", __FUNCTION__,
+-		       av_pes[2]);
++		printk("%s: unknown PVA type: %02x.\n", __FUNCTION__,
++		       pva[2]);
+ 		break;
+ 	}
+ }
+@@ -385,6 +473,7 @@
+ {
+ 	int i;
+ 	u16 csum = 0;
++	u16 packet_id;
+ 
+ 	if (dec->packet_length % 2) {
+ 		printk("%s: odd sized packet - discarding\n", __FUNCTION__);
+@@ -399,18 +488,34 @@
+ 		return;
+ 	}
+ 
++	packet_id = dec->packet[dec->packet_length - 4] << 8;
++	packet_id += dec->packet[dec->packet_length - 3];
++
++	if ((packet_id != dec->next_packet_id) && dec->next_packet_id) {
++		printk("%s: warning: lost packets between %u and %u\n",
++		       __FUNCTION__, dec->next_packet_id - 1, packet_id);
++	}
++
++	if (packet_id == 0xffff)
++		dec->next_packet_id = 0x8000;
++	else
++		dec->next_packet_id = packet_id + 1;
++
+ 	switch (dec->packet_type) {
+-	case PACKET_AV_PES:
+-		if (dec->av_pes_stream_count)
+-			ttusb_dec_process_av_pes(dec, dec->packet,
++	case TTUSB_DEC_PACKET_PVA:
++		if (dec->pva_stream_count)
++			ttusb_dec_process_pva(dec, dec->packet,
+ 						 dec->packet_payload_length);
+ 		break;
+ 
+-	case PACKET_SECTION:
++	case TTUSB_DEC_PACKET_SECTION:
+ 		if (dec->filter_stream_count)
+ 			ttusb_dec_process_filter(dec, dec->packet,
+ 						 dec->packet_payload_length);
+ 		break;
++
++	case TTUSB_DEC_PACKET_EMPTY:
++		break;
+ 	}
+ }
+ 
+@@ -459,15 +564,25 @@
+ 		case 4:
+ 			dec->packet[dec->packet_length++] = *b++;
+ 
+-			if (dec->packet_length == 3) {
++			if (dec->packet_length == 2) {
+ 				if (dec->packet[0] == 'A' &&
+ 				    dec->packet[1] == 'V') {
+-					dec->packet_type = PACKET_AV_PES;
++					dec->packet_type =
++						TTUSB_DEC_PACKET_PVA;
+ 					dec->packet_state++;
+ 				} else if (dec->packet[0] == 'S') {
+-					dec->packet_type = PACKET_SECTION;
++					dec->packet_type =
++						TTUSB_DEC_PACKET_SECTION;
+ 					dec->packet_state++;
++				} else if (dec->packet[0] == 0x00) {
++					dec->packet_type =
++						TTUSB_DEC_PACKET_EMPTY;
++					dec->packet_payload_length = 2;
++					dec->packet_state = 7;
+ 			} else {
++					printk("%s: unknown packet type: "
++					       "%02x%02x\n", __FUNCTION__,
++					       dec->packet[0], dec->packet[1]);
+ 					dec->packet_state = 0;
  				}
  			}
+@@ -478,13 +593,14 @@
+ 		case 5:
+ 			dec->packet[dec->packet_length++] = *b++;
+ 
+-			if (dec->packet_type == PACKET_AV_PES &&
++			if (dec->packet_type == TTUSB_DEC_PACKET_PVA &&
+ 			    dec->packet_length == 8) {
+ 				dec->packet_state++;
+ 				dec->packet_payload_length = 8 +
+ 					(dec->packet[6] << 8) +
+ 					dec->packet[7];
+-			} else if (dec->packet_type == PACKET_SECTION &&
++			} else if (dec->packet_type ==
++					TTUSB_DEC_PACKET_SECTION &&
+ 				   dec->packet_length == 5) {
+ 				dec->packet_state++;
+ 				dec->packet_payload_length = 5 +
+@@ -521,7 +637,7 @@
+ 
+ 			dec->packet[dec->packet_length++] = *b++;
+ 
+-			if (dec->packet_type == PACKET_SECTION &&
++			if (dec->packet_type == TTUSB_DEC_PACKET_SECTION &&
+ 			    dec->packet_payload_length % 2)
+ 				tail++;
+ 
+@@ -627,10 +742,9 @@
+ 		urb->dev = dec->udev;
+ 		urb->context = dec;
+ 		urb->complete = ttusb_dec_process_urb;
+-		urb->pipe = dec->stream_pipe;
++		urb->pipe = dec->in_pipe;
+ 		urb->transfer_flags = URB_ISO_ASAP;
+ 		urb->interval = 1;
+-
+ 		urb->number_of_packets = FRAMES_PER_ISO_BUF;
+ 		urb->transfer_buffer_length = ISO_FRAME_SIZE *
+ 					      FRAMES_PER_ISO_BUF;
+@@ -668,12 +782,36 @@
+  * for a short period, so it's important not to call this function just before
+  * trying to talk to it.
+  */
+-static void ttusb_dec_set_streaming_interface(struct ttusb_dec *dec)
++static int ttusb_dec_set_interface(struct ttusb_dec *dec,
++				   enum ttusb_dec_interface interface)
+ {
+-	if (!dec->interface) {
+-		usb_set_interface(dec->udev, 0, 8);
+-		dec->interface = 8;
++	int result = 0;
++	u8 b[] = { 0x05 };
 +
-+			if (0 == saa7146_res_get(fh, RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP)) {
-+				DEB_D(("cannot get overlay resources\n"));
-+				return -EBUSY;
++	if (interface != dec->interface) {
++		switch (interface) {
++		case TTUSB_DEC_INTERFACE_INITIAL:
++			result = usb_set_interface(dec->udev, 0, 0);
++			break;
++		case TTUSB_DEC_INTERFACE_IN:
++			result = ttusb_dec_send_command(dec, 0x80, sizeof(b),
++							b, NULL, NULL);
++			if (result)
++				return result;
++			result = usb_set_interface(dec->udev, 0, 7);
++			break;
++		case TTUSB_DEC_INTERFACE_OUT:
++			result = usb_set_interface(dec->udev, 0, 1);
++			break;
++		}
++
++		if (result)
++			return result;
++
++		dec->interface = interface;
+ 	}
++
++	return 0;
+ }
+ 
+ static int ttusb_dec_start_iso_xfer(struct ttusb_dec *dec)
+@@ -688,6 +826,10 @@
+ 	if (!dec->iso_stream_count) {
+ 		ttusb_dec_setup_urbs(dec);
+ 
++		dec->packet_state = 0;
++		dec->v_pes_postbytes = 0;
++		dec->next_packet_id = 0;
++
+ 		for (i = 0; i < ISO_BUF_COUNT; i++) {
+ 			if ((result = usb_submit_urb(dec->iso_urb[i],
+ 						     GFP_ATOMIC))) {
+@@ -703,9 +845,6 @@
+ 				return result;
+ 			}
+ 		}
+-
+-		dec->packet_state = 0;
+-		dec->v_pes_postbytes = 0;
+ 	}
+ 
+ 	dec->iso_stream_count++;
+@@ -720,6 +859,7 @@
+ 	struct dvb_demux *dvbdmx = dvbdmxfeed->demux;
+ 	struct ttusb_dec *dec = dvbdmx->priv;
+ 	u8 b0[] = { 0x05 };
++	int result = 0;
+ 
+ 	dprintk("%s\n", __FUNCTION__);
+ 
+@@ -742,12 +882,14 @@
+ 		dprintk("  pes_type: DMX_TS_PES_VIDEO\n");
+ 		dec->pid[DMX_PES_PCR] = dvbdmxfeed->pid;
+ 		dec->pid[DMX_PES_VIDEO] = dvbdmxfeed->pid;
++		dec->video_filter = dvbdmxfeed->filter;
+ 		ttusb_dec_set_pids(dec);
+ 		break;
+ 
+ 	case DMX_TS_PES_AUDIO:
+ 		dprintk("  pes_type: DMX_TS_PES_AUDIO\n");
+ 		dec->pid[DMX_PES_AUDIO] = dvbdmxfeed->pid;
++		dec->audio_filter = dvbdmxfeed->filter;
+ 		ttusb_dec_set_pids(dec);
+ 		break;
+ 
+@@ -772,12 +914,12 @@
+ 
+ 	}
+ 
+-	ttusb_dec_send_command(dec, 0x80, sizeof(b0), b0, NULL, NULL);
+-
+-	dec->av_pes_stream_count++;
+-	ttusb_dec_start_iso_xfer(dec);
++	result = ttusb_dec_send_command(dec, 0x80, sizeof(b0), b0, NULL, NULL);
++	if (result)
++		return result;
+ 
+-	return 0;
++	dec->pva_stream_count++;
++	return ttusb_dec_start_iso_xfer(dec);
+ }
+ 
+ static int ttusb_dec_start_sec_feed(struct dvb_demux_feed *dvbdmxfeed)
+@@ -827,9 +969,7 @@
+ 			dvbdmxfeed->priv = finfo;
+ 
+ 			dec->filter_stream_count++;
+-			ttusb_dec_start_iso_xfer(dec);
+-
+-			return 0;
++			return ttusb_dec_start_iso_xfer(dec);
+ 		}
+ 
+ 		return -EAGAIN;
+@@ -872,7 +1012,7 @@
+ 
+ 	ttusb_dec_send_command(dec, 0x81, sizeof(b0), b0, NULL, NULL);
+ 
+-	dec->av_pes_stream_count--;
++	dec->pva_stream_count--;
+ 
+ 	ttusb_dec_stop_iso_xfer(dec);
+ 
+@@ -991,7 +1131,8 @@
+ 
+ 	dec->command_pipe = usb_sndbulkpipe(dec->udev, COMMAND_PIPE);
+ 	dec->result_pipe = usb_rcvbulkpipe(dec->udev, RESULT_PIPE);
+-	dec->stream_pipe = usb_rcvisocpipe(dec->udev, STREAM_PIPE);
++	dec->in_pipe = usb_rcvisocpipe(dec->udev, IN_PIPE);
++	dec->out_pipe = usb_sndisocpipe(dec->udev, OUT_PIPE);
+ 
+ 	ttusb_dec_alloc_iso_urbs(dec);
+ }
+@@ -1001,14 +1142,16 @@
+ 	int i, j, actual_len, result, size, trans_count;
+ 	u8 b0[] = { 0x00, 0x00, 0x00, 0x00,
+ 		    0x00, 0x00, 0x00, 0x00,
+-		    0x00, 0x00 };
++		    0x61, 0x00 };
+ 	u8 b1[] = { 0x61 };
+ 	u8 b[ARM_PACKET_SIZE];
++	char idstring[21];
+ 	u8 *firmware = NULL;
+ 	size_t firmware_size = 0;
+-	u32 firmware_csum = 0;
++	u16 firmware_csum = 0;
++	u16 firmware_csum_ns;
+ 	u32 firmware_size_nl;
+-	u32 firmware_csum_nl;
++	u32 crc32_csum, crc32_check, tmp;
+ 	const struct firmware *fw_entry = NULL;
+ 
+ 	dprintk("%s\n", __FUNCTION__);
+@@ -1022,20 +1165,33 @@
+ 	firmware = fw_entry->data;
+ 	firmware_size = fw_entry->size;
+ 
+-	switch (dec->model) {
+-		case TTUSB_DEC2000T:
+-			firmware_csum = 0x1bc86100;
+-			break;
+-
+-		case TTUSB_DEC3000S:
+-			firmware_csum = 0x00000000;
+-			break;
+-	}
++	if (firmware_size < 60) {
++		printk("%s: firmware size too small for DSP code (%u < 60).\n",
++			__FUNCTION__, firmware_size);
++		return -1;
++	}
++
++	/* a 32 bit checksum over the first 56 bytes of the DSP Code is stored
++	   at offset 56 of file, so use it to check if the firmware file is
++	   valid. */
++	crc32_csum = crc32(~0L, firmware, 56) ^ ~0L;
++	memcpy(&tmp, &firmware[56], 4);
++	crc32_check = htonl(tmp);
++	if (crc32_csum != crc32_check) {
++		printk("%s: crc32 check of DSP code failed (calculated "
++		       "0x%08x != 0x%08x in file), file invalid.\n",
++			__FUNCTION__, crc32_csum, crc32_check);
++		return -1;
++	}
++	memcpy(idstring, &firmware[36], 20);
++	idstring[20] = '\0';
++	printk(KERN_INFO "ttusb_dec: found DSP code \"%s\".\n", idstring);
+ 
+ 	firmware_size_nl = htonl(firmware_size);
+ 	memcpy(b0, &firmware_size_nl, 4);
+-	firmware_csum_nl = htonl(firmware_csum);
+-	memcpy(&b0[6], &firmware_csum_nl, 4);
++	firmware_csum = crc16(~0, firmware, firmware_size) ^ ~0;
++	firmware_csum_ns = htons(firmware_csum);
++	memcpy(&b0[6], &firmware_csum_ns, 2);
+ 
+ 	result = ttusb_dec_send_command(dec, 0x41, sizeof(b0), b0, NULL, NULL);
+ 
+@@ -1077,20 +1233,56 @@
+ 
+ static int ttusb_dec_init_stb(struct ttusb_dec *dec)
+ {
+-	u8 c[COMMAND_PACKET_SIZE];
+-	int c_length;
+ 	int result;
++	unsigned int mode, model, version;
+ 
+ 	dprintk("%s\n", __FUNCTION__);
+ 
+-	result = ttusb_dec_send_command(dec, 0x08, 0, NULL, &c_length, c);
++	result = ttusb_dec_get_stb_state(dec, &mode, &model, &version);
+ 
+ 	if (!result) {
+-		if (c_length != 0x0c || (c_length == 0x0c && c[9] != 0x63))
+-			return ttusb_dec_boot_dsp(dec);
++		if (!mode) {
++			if (version == 0xABCDEFAB)
++				printk(KERN_INFO "ttusb_dec: no version "
++				       "info in Firmware\n");
++			else
++				printk(KERN_INFO "ttusb_dec: Firmware "
++				       "%x.%02x%c%c\n",
++				       version >> 24, (version >> 16) & 0xff,
++				       (version >> 8) & 0xff, version & 0xff);
++
++			result = ttusb_dec_boot_dsp(dec);
++			if (result)
++				return result;
+ 		else
++				return 1;
++		} else {
++			/* We can't trust the USB IDs that some firmwares
++			   give the box */
++			switch (model) {
++			case 0x00070008:
++				ttusb_dec_set_model(dec, TTUSB_DEC3000S);
++				break;
++			case 0x00070009:
++				ttusb_dec_set_model(dec, TTUSB_DEC2000T);
++				break;
++			case 0x00070011:
++				ttusb_dec_set_model(dec, TTUSB_DEC2540T);
++				break;
++			default:
++				printk(KERN_ERR "%s: unknown model returned "
++				       "by firmware (%08x) - please report\n",
++				       __FUNCTION__, model);
++				return -1;
++				break;
 +			}
 +
- 			spin_lock_irqsave(&dev->slock,flags);
- 			err = saa7146_start_preview(fh);
- 			spin_unlock_irqrestore(&dev->slock,flags);
--		} else {
-+			return err;
-+		}
-+		
- 			if( vv->ov_data != NULL ) {
- 				if( fh != vv->ov_data->fh) {
-+				DEB_D(("overlay is active, but in another open\n"));
- 					return -EAGAIN;
- 				}
- 			}
- 			spin_lock_irqsave(&dev->slock,flags);
- 			err = saa7146_stop_preview(fh);
- 			spin_unlock_irqrestore(&dev->slock,flags);
--		}
-+		/* free resources */
-+		saa7146_res_free(fh, RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP);
- 		return err;
++			if (version >= 0x01770000)
++				dec->can_playback = 1;
++
+ 			return 0;
  	}
- 	case VIDIOC_REQBUFS: {
-@@ -1093,7 +1152,13 @@
- 		int *type = arg;
- 		DEB_D(("VIDIOC_STREAMON, type:%d\n",*type));
- 
--		if( 0 != (err = video_begin(fh))) {
-+		if( fh == vv->streaming ) {
-+			DEB_D(("already capturing.\n"));
-+			return 0;
-+		}
-+
-+		err = video_begin(fh);
-+		if( 0 != err) {
- 				return err;
- 			}
- 		err = videobuf_streamon(file,q);
-@@ -1103,6 +1168,12 @@
- 		int *type = arg;
- 
- 		DEB_D(("VIDIOC_STREAMOFF, type:%d\n",*type));
-+
-+		if( fh != vv->streaming ) {
-+			DEB_D(("this open is not capturing.\n"));
-+			return -EINVAL;
-+		}
-+
- 		err = videobuf_streamoff(file,q);
- 		video_end(fh, file);
- 		return err;
-@@ -1309,7 +1380,7 @@
- }
- 
- 
--static void video_open(struct saa7146_dev *dev, struct file *file)
-+static int video_open(struct saa7146_dev *dev, struct file *file)
- {
- 	struct saa7146_fh *fh = (struct saa7146_fh *)file->private_data;
- 	struct saa7146_format *sfmt;
-@@ -1329,6 +1400,8 @@
- 			    sizeof(struct saa7146_buf));
- 
- 	init_MUTEX(&fh->video_q.lock);
-+
-+	return 0;
- }
- 
- 
-@@ -1381,15 +1454,25 @@
- 
- 	DEB_EE(("called.\n"));
- 
-+	/* fixme: should we allow read() captures while streaming capture? */
-+	if( 0 != vv->streaming ) {
-+		DEB_S(("already capturing.\n"));
-+		return -EBUSY;
 +	}
-+
-+	/* stop any active overlay */
- 	if( vv->ov_data != NULL ) {
- 		ov_fh = vv->ov_data->fh;
- 		saa7146_stop_preview(ov_fh);
-+		saa7146_res_free(ov_fh, RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP);
- 		restart_overlay = 1;
- 	}
+ 	else
+ 		return result;
+ }
+@@ -1101,7 +1293,8 @@
  
--	if( 0 != video_begin(fh)) {
--		return -EAGAIN;
-+	ret = video_begin(fh);
-+	if( 0 != ret) {
-+		goto out;
- 	}
-+
- 	ret = videobuf_read_one(file,&fh->video_q , data, count, ppos);
- 	video_end(fh, file);
+ 	dprintk("%s\n", __FUNCTION__);
  
-@@ -1393,8 +1476,13 @@
- 	ret = videobuf_read_one(file,&fh->video_q , data, count, ppos);
- 	video_end(fh, file);
+-	if ((result = dvb_register_adapter(&dec->adapter, dec->model_name)) < 0) {
++	if ((result = dvb_register_adapter(&dec->adapter,
++					   dec->model_name)) < 0) {
+ 		printk("%s: dvb_register_adapter failed: error %d\n",
+ 		       __FUNCTION__, result);
  
-+out:
- 	/* restart overlay if it was active before */
- 	if( 0 != restart_overlay ) {
-+		if (0 == saa7146_res_get(ov_fh, RESOURCE_DMA1_HPS|RESOURCE_DMA2_CLP)) {
-+			DEB_D(("cannot get overlay resources again!\n"));
-+			BUG();
-+		}
- 		saa7146_start_preview(ov_fh);
- 	}
- 	
-diff -uraNbBw xx-linux-2.6.1-mm4/include/media/saa7146_vv.h linux-2.6.1-mm4.patched/include/media/saa7146_vv.h
---- xx-linux-2.6.1-mm4/include/media/saa7146_vv.h	2004-01-16 19:49:14.000000000 +0100
-+++ linux-2.6.1-mm4.patched/include/media/saa7146_vv.h	2004-01-09 20:27:29.000000000 +0100
-@@ -26,12 +26,15 @@
- 	u32 num_line_byte;
- };
+@@ -1449,18 +1638,6 @@
+ {
+ 	dec->i2c_bus.adapter = dec->adapter;
  
-+#define FORMAT_BYTE_SWAP	0x1
-+#define FORMAT_IS_PLANAR	0x2
-+
- struct saa7146_format {
- 	char	*name;
--	int   	pixelformat;
-+	u32   	pixelformat;
- 	u32	trans;
- 	u8	depth;
--	int	swap;
-+	u8	flags;
- };
- 
- struct saa7146_standard
-@@ -97,6 +100,8 @@
- 	struct videobuf_queue	vbi_q;
- 	struct v4l2_vbi_format	vbi_fmt;
- 	struct timer_list	vbi_read_timeout;
-+
-+	unsigned int resources;	/* resource management for device open */
- };
- 
- struct saa7146_vv
-@@ -136,6 +141,8 @@
- 	int 	current_hps_sync;
- 
- 	struct saa7146_dma	d_clipping;	/* pointer to clipping memory */
-+
-+	unsigned int resources;	/* resource management for device */
- };
- 
- #define SAA7146_EXCLUSIVE	0x1
-@@ -149,7 +156,6 @@
- };
- 
- /* flags */
--// #define SAA7146_EXT_SWAP_ODD_EVEN	0x1     /* needs odd/even fields swapped */
- #define SAA7146_USE_PORT_B_FOR_VBI	0x2     /* use input port b for vbi hardware bug workaround */
- 
- struct saa7146_ext_vv
-@@ -171,7 +177,7 @@
- 
- struct saa7146_use_ops  {
-         void (*init)(struct saa7146_dev *, struct saa7146_vv *);
--        void(*open)(struct saa7146_dev *, struct file *);
-+        int(*open)(struct saa7146_dev *, struct file *);
-         void (*release)(struct saa7146_dev *, struct file *);
-         void (*irq_done)(struct saa7146_dev *, unsigned long status);
- 	ssize_t (*read)(struct file *, char *, size_t, loff_t *);
-@@ -189,9 +195,10 @@
- int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv);
- int saa7146_vv_release(struct saa7146_dev* dev);
- 
+-	switch (dec->model) {
+-		case TTUSB_DEC2000T:
+-			dec->frontend_info = &dec2000t_frontend_info;
+-			dec->frontend_ioctl = ttusb_dec_2000t_frontend_ioctl;
+-			break;
 -
- /* from saa7146_hlp.c */
--void saa7146_set_overlay(struct saa7146_dev *dev, struct saa7146_fh *fh, int v);
-+int saa7146_enable_overlay(struct saa7146_fh *fh);
-+void saa7146_disable_overlay(struct saa7146_fh *fh);
-+
- void saa7146_set_capture(struct saa7146_dev *dev, struct saa7146_buf *buf, struct saa7146_buf *next);
- void saa7146_write_out_dma(struct saa7146_dev* dev, int which, struct saa7146_video_dma* vdma) ;
- void saa7146_set_hps_source_and_sync(struct saa7146_dev *saa, int source, int sync);
-@@ -205,6 +212,16 @@
- /* from saa7146_vbi.c */
- extern struct saa7146_use_ops saa7146_vbi_uops;
+-		case TTUSB_DEC3000S:
+-			dec->frontend_info = &dec3000s_frontend_info;
+-			dec->frontend_ioctl = ttusb_dec_3000s_frontend_ioctl;
+-			break;
+-	}
+-
+ 	dvb_register_frontend(dec->frontend_ioctl, &dec->i2c_bus, (void *)dec,
+ 			      dec->frontend_info);
+ }
+@@ -1509,15 +1686,15 @@
  
-+/* resource management functions */
-+int saa7146_res_get(struct saa7146_fh *fh, unsigned int bit);
-+int saa7146_res_check(struct saa7146_fh *fh, unsigned int bit);
-+int saa7146_res_locked(struct saa7146_dev *dev, unsigned int bit);
-+void saa7146_res_free(struct saa7146_fh *fh, unsigned int bits);
+ 	switch (id->idProduct) {
+ 		case 0x1006:
+-			dec->model = TTUSB_DEC3000S;
+-			dec->model_name = "DEC3000-s";
+-		dec->firmware_name = "dvb-ttusb-dec-3000s-2.15a.fw";
++		ttusb_dec_set_model(dec, TTUSB_DEC3000S);
+ 			break;
+ 
+ 		case 0x1008:
+-			dec->model = TTUSB_DEC2000T;
+-			dec->model_name = "DEC2000-t";
+-		dec->firmware_name = "dvb-ttusb-dec-2000t-2.15a.fw";
++		ttusb_dec_set_model(dec, TTUSB_DEC2000T);
++		break;
 +
-+#define RESOURCE_DMA1_HPS	0x1
-+#define RESOURCE_DMA2_CLP	0x2
-+#define RESOURCE_DMA3_BRS	0x4
++	case 0x1009:
++		ttusb_dec_set_model(dec, TTUSB_DEC2540T);
+ 			break;
+ 	}
+ 
+@@ -1536,7 +1713,7 @@
+ 
+ 	dec->active = 1;
+ 
+-	ttusb_dec_set_streaming_interface(dec);
++	ttusb_dec_set_interface(dec, TTUSB_DEC_INTERFACE_IN);
+ 
+ 	return 0;
+ }
+@@ -1560,15 +1737,45 @@
+ 	kfree(dec);
+ }
+ 
++static void ttusb_dec_set_model(struct ttusb_dec *dec,
++				enum ttusb_dec_model model)
++{
++	dec->model = model;
 +
- /* saa7146 source inputs */
- #define SAA7146_HPS_SOURCE_PORT_A	0x00
- #define SAA7146_HPS_SOURCE_PORT_B	0x01
++	switch (model) {
++	case TTUSB_DEC2000T:
++		dec->model_name = "DEC2000-t";
++		dec->firmware_name = "dvb-ttusb-dec-2000t.fw";
++		dec->frontend_info = &dec2000t_frontend_info;
++		dec->frontend_ioctl = ttusb_dec_2000t_frontend_ioctl;
++		break;
++
++	case TTUSB_DEC2540T:
++		dec->model_name = "DEC2540-t";
++		dec->firmware_name = "dvb-ttusb-dec-2540t.fw";
++		dec->frontend_info = &dec2000t_frontend_info;
++		dec->frontend_ioctl = ttusb_dec_2000t_frontend_ioctl;
++		break;
++
++	case TTUSB_DEC3000S:
++		dec->model_name = "DEC3000-s";
++		dec->firmware_name = "dvb-ttusb-dec-3000s.fw";
++		dec->frontend_info = &dec3000s_frontend_info;
++		dec->frontend_ioctl = ttusb_dec_3000s_frontend_ioctl;
++		break;
++	}
++}
++
+ static struct usb_device_id ttusb_dec_table[] = {
+ 	{USB_DEVICE(0x0b48, 0x1006)},	/* DEC3000-s */
+ 	/*{USB_DEVICE(0x0b48, 0x1007)},	   Unconfirmed */
+ 	{USB_DEVICE(0x0b48, 0x1008)},	/* DEC2000-t */
++	{USB_DEVICE(0x0b48, 0x1009)},	/* DEC2540-t */
+ 	{}
+ };
+ 
+ static struct usb_driver ttusb_dec_driver = {
+-      .name		= DRIVER_NAME,
++	.name		= "ttusb-dec",
+       .probe		= ttusb_dec_probe,
+       .disconnect	= ttusb_dec_disconnect,
+       .id_table		= ttusb_dec_table,
+@@ -1602,3 +1809,5 @@
+ 
+ MODULE_PARM(debug, "i");
+ MODULE_PARM_DESC(debug, "Debug level");
++MODULE_PARM(output_pva, "i");
++MODULE_PARM_DESC(output_pva, "Output PVA from dvr device");
 
 

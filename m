@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbUKLAin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbUKLAp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbUKLAin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLAfu
+	id S262409AbUKLAp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbUKLAmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 19:35:50 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20715 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262439AbUKLAeT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 19:34:19 -0500
-Date: Thu, 11 Nov 2004 16:28:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-Message-ID: <20041112002841.GB11595@kroah.com>
-References: <1099346276148@kroah.com> <10993462773570@kroah.com> <20041102223229.A10969@flint.arm.linux.org.uk> <20041107152805.B4009@flint.arm.linux.org.uk> <20041110013700.GF9496@kroah.com> <16785.33677.704803.889900@cargo.ozlabs.ibm.com> <20041110083629.A17555@flint.arm.linux.org.uk> <16786.35271.622222.193502@cargo.ozlabs.ibm.com>
+	Thu, 11 Nov 2004 19:42:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63973 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262451AbUKLAjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 19:39:44 -0500
+Date: Thu, 11 Nov 2004 16:39:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org, gniibe@fsij.org
+Subject: Re: [PATCH 2.6.10-rc1 1/2] [m32r] Update for m32r-g00ff
+Message-Id: <20041111163927.1edcd1c9.akpm@osdl.org>
+In-Reply-To: <20041111.221223.596521517.takata.hirokazu@renesas.com>
+References: <20041111.221136.576022723.takata.hirokazu@renesas.com>
+	<20041111.221223.596521517.takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16786.35271.622222.193502@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 08:36:07AM +1100, Paul Mackerras wrote:
-> Russell King writes:
-> 
-> > On Wed, Nov 10, 2004 at 01:57:17PM +1100, Paul Mackerras wrote:
-> > > So we can get a driver's probe method called concurrently with its
-> > > bus's suspend or resume method.
-> > 
-> > If correct, we probably have rather a lot of buggy drivers, because
-> > I certainly was not aware that this could happen.  I suspect the
-> > average driver writer also would not be aware of that.
-> 
-> No doubt.  I'd still like to hear from Greg or Pat about what the
-> concurrency rules are supposed to be, or were intended to be.
+Hirokazu Takata <takata@linux-m32r.org> wrote:
+>
+>  - Position-independent zImage support;
+>    this aims at removing constraints of zImage(vmlinuz)'s location.
 
-They are still under flux as to what they should be :)
+This generates a reject against Linus's current tree, in
+arch/m32r/boot/compressed/Makefile
 
-I'm currently working on reworking all of the locking in the driver
-core, to document, and fix the number of issues that suspend, and
-manual disconnect, and manual attach are causing.  It should also fix
-the issue that I know you want Russell, namely adding a new device from
-a probe() callback.
+Please always generate diffs against current bitkeeper, or against the
+latest diff from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
+2.6.10-rc1 is too old: we're currently showing a ten megabyte diff against
+2.6.10-rc1.
 
-See the other threads about manual disconnect in the driver model on
-lkml for some other details.  I'll post more here when I have some
-working code.
 
-thanks,
+I resolved the reject as below.  It might be wrong.
 
-greg k-h
+--- 25/arch/m32r/boot/compressed/Makefile~m32r-update-for-m32r-g00ff	2004-11-11 16:35:23.789252008 -0800
++++ 25-akpm/arch/m32r/boot/compressed/Makefile	2004-11-11 16:35:23.800250336 -0800
+@@ -5,10 +5,10 @@
+ #
+ 
+ targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o \
+-		   m32r-sio.o piggy.o vmlinux.lds
++		   piggy.o vmlinux.lds
+ EXTRA_AFLAGS	:= -traditional
+ 
+-OBJECTS = $(obj)/head.o $(obj)/misc.o $(obj)/m32r_sio.o
++OBJECTS = $(obj)/head.o $(obj)/misc.o
+ 
+ #
+ # IMAGE_OFFSET is the load offset of the compression loader
+@@ -28,6 +28,8 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+ $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,gzip)
+ 
++CFLAGS_misc.o += -fpic
++
+ LDFLAGS_piggy.o := -r --format binary --oformat elf32-m32r-linux -T
+ OBJCOPYFLAGS += -R .empty_zero_page
+ 
+

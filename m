@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbULHVeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbULHVic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbULHVeD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 16:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbULHVeD
+	id S261368AbULHVic (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 16:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbULHVic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 16:34:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58301 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261366AbULHVeA (ORCPT
+	Wed, 8 Dec 2004 16:38:32 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:7614 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261368AbULHVi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 16:34:00 -0500
-Date: Wed, 8 Dec 2004 13:33:59 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: FoObArf00@netscape.net
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: IGMP packets?
-Message-ID: <20041208133359.Z2357@build.pdx.osdl.net>
-References: <00640596.1F2101FF.023DF18B@netscape.net>
+	Wed, 8 Dec 2004 16:38:29 -0500
+Subject: RE: Figuring out physical memory regions from a kernel module
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C20596063B@azsmsx406>
+References: <C863B68032DED14E8EBA9F71EB8FE4C20596063B@azsmsx406>
+Content-Type: text/plain
+Message-Id: <1102541907.883.18.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <00640596.1F2101FF.023DF18B@netscape.net>; from FoObArf00@netscape.net on Wed, Dec 08, 2004 at 03:58:29PM -0500
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 08 Dec 2004 13:38:28 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* FoObArf00@netscape.net (FoObArf00@netscape.net) wrote:
-> I have 3 machines.  A (eth0) is connected to B (eth1) with a cross over
-> cable and B (eth0) and C (eth0) are on a switch.  I want to forward the
-> igmp queries and reports that A (eth1) generates when joining/leaving a
-> multicast group on B (eth1) from B(eth0) to C (eth0).  I put the code to
-> do this on different places such as ip_rcv, ip_route_input, etc and no
-> luck.  The weird thing is that it works when I do a tcpdump on B's eth1.
+On Wed, 2004-12-08 at 13:26, Hanson, Jonathan M wrote:
+> [Jon M. Hanson] Even looking at the implementation of the crashdump
+> code, I still encounter the same problem I've run into up until now: the
+> crashdump code is a part of the kernel so it has access to all of the
+> kernel's data structures and functions; as a kernel module, I'm
+> hamstrung by what is exported by the kernel. I know that I can modify
+> the kernel to export whatever I want but I don't want to have to do
+> that. I want to be able to run my kernel module without having to patch
+> the kernel itself.
 
-Sounds like B(eth1) is filtering the packets.  Does it also work if you
-enable IFF_ALLMULTI on eth1 (instead of IFF_PROMISC)?  Also, what kernel
-are you using?  Does a group join on A generate a v1 or v3 report?
+There's some design effort not to expose kernel *internals* to modules. 
+Seems like your module requirements are different from the current
+design direction of the kernel.
 
-thanks,
--chris
+-- Dave
+

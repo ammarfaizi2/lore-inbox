@@ -1,91 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262495AbTCRTtr>; Tue, 18 Mar 2003 14:49:47 -0500
+	id <S262554AbTCRTwj>; Tue, 18 Mar 2003 14:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262515AbTCRTtr>; Tue, 18 Mar 2003 14:49:47 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:25222 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262495AbTCRTtp>; Tue, 18 Mar 2003 14:49:45 -0500
-Date: Tue, 18 Mar 2003 15:03:39 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Steve Lee <steve@tuxsoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux-2.4.20 modem control
-In-Reply-To: <001a01c2ed85$66ac5b00$0201a8c0@pluto>
-Message-ID: <Pine.LNX.4.53.0303181437560.27964@chaos>
-References: <001a01c2ed85$66ac5b00$0201a8c0@pluto>
+	id <S262557AbTCRTwj>; Tue, 18 Mar 2003 14:52:39 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:65432 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S262554AbTCRTwh>; Tue, 18 Mar 2003 14:52:37 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Brian Gerst <bgerst@didntduck.org>
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Date: Tue, 18 Mar 2003 21:03:23 +0100
+User-Agent: KMail/1.5
+Cc: Kevin Pedretti <ktpedre@sandia.gov>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_Mu3d+dqmGEEdqwK";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200303182103.24316.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003, Steve Lee wrote:
 
-> Please excuse my lack of understanding.  My dial-in box (using mgetty)
-> is running on a dual Athlon 1900 MP system.  Previous system was a dual
-> P3 450.  I've called into the Athlon system multiple times a day for
-> almost a year now, the previous system, for several years.  What issue
-> should I be seeing?  At times, I send some files home and when I get
-> home I'll have to manually reset the modem (reset button), however,
-> mgetty resets and is ready to answer again.  I have mgetty configured to
-> skip the first call, then answer with the modem if another call happens
-> within 45 seconds.
+--Boundary-02=_Mu3d+dqmGEEdqwK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+Am Dienstag, 18. M=E4rz 2003 20:21 schrieb Linus Torvalds:
+> On Tue, 18 Mar 2003, Brian Gerst wrote:
+> > Here's a few more data points:
 >
-> Steve
+> Ok, this shows the behaviour I was trying to explain:
+> > vendor_id       : AuthenticAMD
+> > cpu family      : 5
+> > model           : 8
+> > model name      : AMD-K6(tm) 3D processor
+> > stepping        : 12
+> > cpu MHz         : 451.037
+> > empty overhead=3D105 cycles
+> > load overhead=3D-2 cycles
+> > I$ load overhead=3D30 cycles
+> > I$ load overhead=3D90 cycles
+> > I$ store overhead=3D95 cycles
+>
+> ie loading from the same cacheline shows bad behaviour, most likely due to
+> cache line exclusion. Does anybody have an original Pentium to see if I
+> remember that one right?
 
-My modem is initialized upon boot using a program that writes
-the correct initialization strings to it so it will answer on
-the first ring as long as DTR is high. This is never changed
-nor touched until the next boot. FYI the correct settings are
-not set into the modem's NVRAM (using AT&W) because the NVRAM
-will wear out and not retain any settings. I ran BBS systems
-since CP/M days so I know how to set up a modem. The terminal
-driver is set at a high-speed with hardware flow-control. The
-speed is never changed either.
+Yes, you are right!
+=46or an old Pentium-I with 133MHz (running FreeBSD, so I cannot provide=20
+cpuinfo-data :-( ) I get following:
 
-A terminal driver `agetty` is set up in /etc/inittab to handle
-logins. The speed is set to the same high-speed as in above. The
-getty is set to leave the driver speed alone (no auto-baud). You
-can use mgetty agetty, etc. They all work the same. You just don't
-use mingetty because it doesn't "do" modems.
+empty overhead=3D73 cycles
+load overhead=3D0 cycles
+I$ load overhead=3D88 cycles
+I$ load overhead=3D96 cycles
+I$ store overhead=3D72 cycles
 
-I dial up from home (or duplicate it from my office so I can
-see and measure what happends). The modem answers and synchronizes.
-Once the getty's open() succeeds, it writes the contents of
-/etc/issue out the modem and presents me with a login prompt.
+And just to provide data for the AMD K6-III :
 
-I log-in. Fine. Wonderful. Great. It works! NOT! Now log out.
-Do you have the "NO CARRIER" message from your modem? No. You
-get the damn login prompt again because the terminal didn't
-hang up. So, you type "+++", get your "Ok", and enter ATH. You
-forced a hang-up. The modem, 66 miles away in your office, will
-never answer again. It is now permanently off-line because
-your getty is waiting for an open() which will never happen
-because DTR went low on the forced disconnect and only something
-that opens O_NONBLOCK will ever open the terminal to raise the
-DTR so it will answer calls again.
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 9
+model name      : AMD-K6(tm) 3D+ Processor
+stepping        : 1
+cpu MHz         : 450.791
+cache size      : 256 KB
 
-You can configure your modem to ignore DTR. If you do, you will
-invite every kid in the neighborhood to become root because you
-can (read will) end up with a live shell connected to the modem.
+empty overhead=3D142 cycles
+load overhead=3D89 cycles
+I$ load overhead=3D95 cycles
+I$ load overhead=3D99 cycles
+I$ store overhead=3D91 cycles
 
-It is necessary that, upon the final close, a terminal defined
-to be a modem (not CLOCAL, with HUPCL enabled), lower DTR for
-at least a few hundred milliseconds. It must then raise DTR
-before the final close() returns to the caller. That way, when
-the next instance of a getty gets control from init, its DTR
-is enabled, waiting for another call. All these getties sleep
-(block) in open().
+       Thomas
+--Boundary-02=_Mu3d+dqmGEEdqwK
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-The temporary work-around is to modify a getty so it opens
-the modem non-blocking, hangs up (lowers DTR), then raises
-DTR, then closes(). After that, it can sleep in a blocking-
-open for the next caller.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+iD8DBQA+d3uMYAiN+WRIZzQRAthOAKDwxj4nHLhiCUjyCz+QsKAuJidmpQCgoHnq
+wbFQZLfikzL6W8YiLSDio/g=
+=kxea
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_Mu3d+dqmGEEdqwK--
 

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262777AbSIPShO>; Mon, 16 Sep 2002 14:37:14 -0400
+	id <S262785AbSIPSkW>; Mon, 16 Sep 2002 14:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSIPShO>; Mon, 16 Sep 2002 14:37:14 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:38673
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262777AbSIPShN>; Mon, 16 Sep 2002 14:37:13 -0400
-Subject: Re: BUG(): sched.c: Line 944 - 2.5.35
-From: Robert Love <rml@tech9.net>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, spstarr@sh0n.net, venom@sns.it
-In-Reply-To: <200209161636.JAA02714@adam.yggdrasil.com>
-References: <200209161636.JAA02714@adam.yggdrasil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 14:42:13 -0400
-Message-Id: <1032201735.1010.7.camel@phantasy>
-Mime-Version: 1.0
+	id <S262792AbSIPSkW>; Mon, 16 Sep 2002 14:40:22 -0400
+Received: from host-65-162-110-4.intense3d.com ([65.162.110.4]:2822 "EHLO
+	exchusa03.intense3d.com") by vger.kernel.org with ESMTP
+	id <S262785AbSIPSkV>; Mon, 16 Sep 2002 14:40:21 -0400
+Message-ID: <23B25974812ED411B48200D0B77407170133CBFD@exchusa03.intense3d.com>
+From: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Debugging modules with kgdb - single stepping issues
+Date: Mon, 16 Sep 2002 13:45:13 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 12:36, Adam J. Richter wrote:
+Hi,
 
-> 	When I see this problem at boot, preempt_count() returns 0x4000000
-> (PREEMPT_ACTIVE) and kernel_locked() returns 0.
-> 
-> 	I don't understand the semantics of PREEMPT_ACTIVE to know
-> whether to
-> 
-> 	(1) change the test back to using in_interrupt instead of in_atomic, or
-> 	(2) change the definition of in_atomic(), or
-> 	(3) look for a bug somewhere else.
+I'm not sure if kernel debugger issues are inappropriate on this 
+list, but I'd think most of you would have used kgdb at one time 
+or another.
 
-There are two problems: First, PREEMPT_ACTIVE is indeed set on entry to
-schedule() from preempt_schedule() so we need to check for that too. 
-Second, the BUG() is catching a bit of issues... you want something
-like:
+I have a kgdb setup (kernel 2.4.18-5 patched with the 2.4.18 kgdb) 
+and I'm debugging a module.   I notice that I can add break points,
+and stop execution, however I'm not able to step into the code.
+The module has been compiled with gdb symbols (-g).  I've used the 
+loadmodule.sh script to load the module.  I'm using the gdb (5.2.1).
 
--	if (unlikely(in_atomic()))
--		BUG();
-+	if (unlikely(in_atomic() && preempt_count() != PREEMPT_ACTIVE)) {
-+		printk(KERN_ERR "schedule() called while non-atomic!\n");
-+		show_stack(NULL);
-+	}
+One thing to note though, is I'm debugging a DRM kernel module which 
+resides it's own Xfree tree.  But it's a kernel module and I don't believe 
+that should be the problem.
 
-I will send a patch to Linus.
+Any thoughts?  What am I missing?  I'd appreciate any suggestions!
 
-> 	However, I know experimentally that changing the test back to
-> using in_interrupt() results in a possibly unrelated BUG() at line 279
-> of rmap.c:
+Please CC your replies as I'm not subscribed to the list. 
 
-This is unrelated.
-
-	Robert Love
-
+Thanks,
+Bhavana

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbUBWFvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 00:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbUBWFvP
+	id S261830AbUBWFyg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 00:54:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbUBWFyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 00:51:15 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:13843 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261823AbUBWFvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 00:51:11 -0500
-Date: Mon, 23 Feb 2004 06:44:35 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Michael <leahcim@ntlworld.com>
+	Mon, 23 Feb 2004 00:54:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59306 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261830AbUBWFyS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 00:54:18 -0500
+Date: Mon, 23 Feb 2004 05:54:15 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Mike Strosaker <strosake@austin.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ALSA] emu10k1 driver oops loading large soundfont 2.6.3
-Message-ID: <20040223054435.GA7785@alpha.home.local>
-References: <40398E3C.7020900@ntlworld.com>
+Subject: Re: [PATCH] arch-specific callout in panic()
+Message-ID: <20040223055415.GY31035@parcelfarce.linux.theplanet.co.uk>
+References: <40398BFE.1040300@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40398E3C.7020900@ntlworld.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <40398BFE.1040300@austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 05:23:08AM +0000, Michael wrote:
-> please CC: me on replies
+On Sun, Feb 22, 2004 at 11:13:34PM -0600, Mike Strosaker wrote:
+> Hello, All:
 > 
-> In struct snd_emu10k1_memblk in include/sound/emu10k1.h first_page and 
-> last_page are defined as short.
+> There are some ppc64-specific actions that should be taken upon a
+> kernel panic.  Rather than adding a new #ifdef in panic(), it seems to
+> me that it would be worthwhile to add a single callout, and move the
+> arch-specific code out to the arch subtrees.  Does this seem reasonable,
+> or should another #ifdef be added in panic() to perform the ppc64-
+> specific actions?
 
-Thanks a lot !
+Don't do it that way.  Add a weak alias to empty function and override it
+on ppc64 by defining a function with the same name.
 
-I've had this problem for about a year, making it impossible to load a
-full fluidr3 sound font at once. I've searched for the cause of the problem,
-but didn't find anything and concluded that it should have been a hardware
-limitation, which in fact was not !
-
-Great catch !
-
-Cheers,
-Willy
-
+See how cond_syscall() is done - similar trick will work here.  There's
+no need to mess with the architectures that do not use your hook.

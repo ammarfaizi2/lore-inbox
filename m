@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbTDYXEH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 19:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDYXEH
+	id S264547AbTDYXFq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 19:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTDYXFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 19:04:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43787 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263741AbTDYXEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 19:04:06 -0400
-Message-ID: <3EA9C19E.9020205@zytor.com>
-Date: Fri, 25 Apr 2003 16:15:42 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
-Subject: Re: TASK_UNMAPPED_BASE & stack location
-References: <459930000.1051302738@[10.10.2.4]> <b8c7no$u59$1@cesium.transmeta.com> <1750000.1051305030@[10.10.2.4]> <3EA9B061.600@techsource.com> <3280000.1051308382@[10.10.2.4]>
-In-Reply-To: <3280000.1051308382@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Apr 2003 19:05:45 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:55983 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264547AbTDYXFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 19:05:41 -0400
+Subject: Re: [PATCH 2.5.68 2/2] i_size atomic access
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030425035727.6f107236.akpm@digeo.com>
+References: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net>
+	 <20030424180503.2c2a8bea.akpm@digeo.com>
+	 <20030425014208.GC26194@dualathlon.random>
+	 <20030425035727.6f107236.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051312669.2446.85.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 25 Apr 2003 16:17:49 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>>128Mb of it? The bottom page, or even a few Mb, sure ... 
->>>but 128Mb seems somewhat excessive ..
->>> 
->>>
->>
->>Considering that your process space is 4gig, and that that 128Mb doesn't
->>really exist anywhere (no RAM, no page table entries, nothing), it's
->>really not excessive.  
+On Fri, 2003-04-25 at 03:57, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > On Thu, Apr 24, 2003 at 06:05:03PM -0700, Andrew Morton wrote:
+> > > And if the race _does_ hit, what is the effect?  Assuming stat() was fixed
+> > > with i_sem, I don't think the race has a very serious effect.  We won't
+> > 
+> > writepage needs it too to avoid returning -EIO and I doubt you want to
+> > take the i_sem in writepage
 > 
+> Well the -EIO thing is bogus really, but yes.  The writepage will not hit
+> disk *at all*.  That's a problem.
 > 
-> I need the virtual space.
+> We modify i_size in very few places - an alternative might be to maintain a
+> parallel unsigned long i_size>>PAGE_CACHE_SIZE in the inode and use that in
+> critical places.  Sounds messy though.
 > 
+> Ho hum.  ugh.
 
-As far as I know, you're perfectly free to move the stack whereever you
-feel like, as long as you map the space first, copy the contents and set
-%esp.  mremap() is useful for this.
+It is problems like this that worry me.  Wouldn't this cause silent data
+corruption?  My stat() test just shows the window is small but there.
+Of course, I would also prefer that stat() always gives the right
+answer.  Taking i_sem in sys_stat() would add more overhead to
+sys_stat() and it would write the inode cache line.
 
-	-hpa
+The overhead on reading i_size is an extra 4-bytes and and 2 rmb()s
+and this in only on preempt or SMP.  Also, i_size_read() only reads
+the inode fields, so on SMP it does not bounce the cache lines around.
+
+The overhead on the write side is very small with just the updates to
+the sequence value.
+
+I ran some bonnie++ tests on 2-proc machines and did not notice any
+difference between 2.5.68 and 2.5.68-isize.
+
+The i_size patch fixes the file systems that use the generic interfaces
+and added i_size_write()s for ext3.  I wanted to get these changes in
+before checking and fixing all the other file systems.
+
+I'll see if I can think up a test to see the problem shows up somewhere
+besides sys_stat.  Any ideas?
+
+Any ideas on tests to run to measure the overhead of this patch?
+
+Thanks,
+
+-- 
+Daniel McNeil <daniel@osdl.org>
 

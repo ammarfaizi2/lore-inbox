@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbUKTKjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbUKTKmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbUKTKjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 05:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKTKjC
+	id S261676AbUKTKmO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 05:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUKTKmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 05:39:02 -0500
-Received: from ems.hclinsys.com ([203.90.70.242]:32004 "EHLO ems.hclinsys.com")
-	by vger.kernel.org with ESMTP id S261687AbUKTKgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 05:36:09 -0500
-Subject: on the concept of COW
-From: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1100947100.4038.41.camel@myLinux>
+	Sat, 20 Nov 2004 05:42:13 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:28168 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261676AbUKTKlq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 05:41:46 -0500
+Date: Sat, 20 Nov 2004 11:41:41 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Len Brown <len.brown@intel.com>
+Cc: LM Sensors <sensors@stimpy.netroedge.com>,
+       David Shaohua <shaohua.li@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.28 breaks lm_sensors
+Message-Id: <20041120114141.3e0f5f47.khali@linux-fr.org>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 20 Nov 2004 16:08:21 +0530
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Marcelo, hi all,
 
- When a process forks, every resource of the parent, including the
-virtual memory is copied to the child process. The copying of VM uses
-copy-on-write(COW). I know that COW comes when a write request comes,
-and then the copy is made. Now my query follows:
+We have been having reports that recent changes in the ACPI subsystem of
+the Linux 2.4 kernel are breaking lm_sensors on a fairly large number of
+systems. In particular, 2.4.28 is affected.
+http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=1761
+http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=1819
+http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=1820
 
-How will the copy be distributed. Whether giving the child process a new
-copy of VM be permanent or whether they will be merged anywhere? And
-shouldn't the operations/updations by one process be visible to the
-other which inherited the copy of the same VM?
+I did not report earlier because I thought the problem would be fixed by
+the ACPI folks before 2.4.28 would be released. Unfortunately it wasn't.
 
-How can this work? Can someone please help me on this regard?
+The problem is already known, was reported for 2.6 kernels 4 months ago
+and fixed there by David Shaohua. See this kernel bug report for the
+detail of symptoms and the solution:
+http://bugzilla.kernel.org/show_bug.cgi?id=3049
+
+Applying the proposed patch to a 2.4.28 kernel make lm_sensors work
+again on affected systems, while not causing trouble to unaffected ones
+as far as I can tell.
+
+Len, David, any reason not to apply the same fix to the 2.4 tree?
+
+Thanks,
 
 -- 
-With regards,
-
-Jagadeesh Bhaskar P
-R&D Engineer
-HCL Infosystems Ltd
-Pondicherry
-INDIA
-
+Jean Delvare
+http://khali.linux-fr.org/

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbUCEJsN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUCEJsN
+	id S262292AbUCEJuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbUCEJuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:48:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62215 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262291AbUCEJsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:48:11 -0500
-Date: Fri, 5 Mar 2004 09:48:07 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Matthias Urlichs <smurf@smurf.noris.de>,
-       =?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@pp.fishpool.fi>
-Subject: Re: [PATCH] For test only: pmac_zilog fixes (cups lockup at boot):
-Message-ID: <20040305094807.E22156@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	"debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Matthias Urlichs <smurf@smurf.noris.de>,
-	=?iso-8859-1?Q?Martin-=C9ric_Racine?= <q-funk@pp.fishpool.fi>
-References: <1078473270.5703.57.camel@gaston> <20040305085838.B22156@flint.arm.linux.org.uk> <1078477504.5700.69.camel@gaston> <20040305092422.C22156@flint.arm.linux.org.uk> <1078478951.5698.82.camel@gaston>
+	Fri, 5 Mar 2004 04:50:46 -0500
+Received: from main.gmane.org ([80.91.224.249]:64927 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262292AbUCEJup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 04:50:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Per Andreas Buer <perbu@linpro.no>
+Subject: Re: [Jfs-discussion] Re: Desktop Filesystem Benchmarks in 2.6.3
+Date: Thu, 04 Mar 2004 21:43:44 +0100
+Organization: -
+Message-ID: <PERBUMSGID-ul6y8qgibr3.fsf@nfsd.linpro.no>
+References: <4044119D.6050502@andrew.cmu.edu> <40453538.8050103@animezone.org>
+ <20040303014115.GP19111@khan.acc.umu.se>
+ <200403030700.57164.robin.rosenberg.lists@dewire.com>
+ <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+ <1078411067.40473f3b6b835@webmail.uni-konstanz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1078478951.5698.82.camel@gaston>; from benh@kernel.crashing.org on Fri, Mar 05, 2004 at 08:29:12PM +1100
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: nfsd.linpro.no
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+Cancel-Lock: sha1:luoBCwtb7BbeF7Jayc3TnI6bGw8=
+Cc: ext2-devel@sourceforge.net, Ext3-users@redhat.com,
+       jfs-discussion@www-124.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 08:29:12PM +1100, Benjamin Herrenschmidt wrote:
-> 
-> > Yes, I know - but the point is its impossible to review, and I think
-> > you at least have an extra level of locking which isn't needed.
-> > 
-> > But I wouldn't know because of the huge number of changes which make
-> > it impossible to read.
-> 
-> That semaphore locking is only used to guard open/close against the
-> power management callback. It greatly simplify the deal with the shared
-> irq (the irq is shared between both ports). It's not used during
-> normal operations.
+Pascal Gienger <pascal.gienger@uni-konstanz.de> writes:
 
-Err.  What power management callback?  Are you not using uart_suspend_port
-and uart_resume_port?
+> 2. Speaking for servers, we live in a RAID and/or SAN-world. The media
+> error issue is a non-issue.
 
-These functions do all the locking for you already - using state->sem.
-
-Like I said, I can't see the twigs for the forest due to the shear
-noise caused by the up -> uap change.
+If your cooling system stops you will experience media errors. A
+filesystem which detects this halts the kernel really helps.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+There are only 10 different kinds of people in the world, 
+those who understand binary, and those who don't.
+

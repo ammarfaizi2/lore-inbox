@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPS7S>; Thu, 16 Nov 2000 13:59:18 -0500
+	id <S129091AbQKPS7r>; Thu, 16 Nov 2000 13:59:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQKPS7I>; Thu, 16 Nov 2000 13:59:08 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6890 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129076AbQKPS6v>;
-	Thu, 16 Nov 2000 13:58:51 -0500
-Date: Thu, 16 Nov 2000 13:28:47 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Eric Paire <paire@ri.silicomp.fr>
-Subject: Re: [BUG] Inconsistent behaviour of rmdir
-In-Reply-To: <Pine.LNX.4.21.0011161904580.30811-100000@sisley.ri.silicomp.fr>
-Message-ID: <Pine.GSO.4.21.0011161317120.13047-100000@weyl.math.psu.edu>
+	id <S130512AbQKPS7m>; Thu, 16 Nov 2000 13:59:42 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:4102 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S129091AbQKPS7X>;
+	Thu, 16 Nov 2000 13:59:23 -0500
+Message-ID: <3A14275E.99DF4D89@mandrakesoft.com>
+Date: Thu, 16 Nov 2000 13:28:46 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: PATCH: 8139too kernel thread
+In-Reply-To: <Pine.LNX.4.10.10011161008060.2513-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> But yes, on 2.4.x the cost of threads is fairly low. The biggest cost by
+> far is probably the locking needed for the scheduler etc, and there the
+> best rule of thumb is probably to see whether the driver really ends up
+> being noticeably simpler.
+
+My main motivations for moving media selection from a timer into a
+kernel thread are:
+* the timer oftens takes a loooong time to run (some drivers have extra
+junk in the timer funcs that really should be in a kthread anyway),  and
+* do_ioctl, which calls the mdio_xxx functions, holds rtnl_lock, which
+is a semaphore.  the kernel thread can easily acquire this semaphore
+too, a timer can't.
+
+I agree that it needs to be examined on a case-by-case basis.  Better
+hardware, where MDIO access is just a few bus reads/writes, probably
+doesn't need a kernel thread.
+
+Finally, for most net drivers, media selection occurs once every 60
+seconds or so, not a big impact even on 2.2.x...
 
 
-On Thu, 16 Nov 2000, Jean-Marc Saffroy wrote:
+> The event stuff that we are discussing for pcmcia may make all of this
+> moot, maybe media selection is the perfect example of how to do the very
+> same thing. I'll forward Jeff the emails on that.
 
-> On Thu, 16 Nov 2000, Linus Torvalds wrote:
-> 
-> > The cwd is not the problem. The '.' is.
-> > 
-> > The reason for that check is that allowing "rmdir(".")" confuses a lot of
-> > UNIX programs, because it wasn't traditionally allowed.
-> 
-> This is a point I don't understand here : do you mean that they are
-> confused if they can rmdir "." but not if they can rmdir their cwd
-> differently ? What's the difference ?
+I think I'm already on the CC list.
 
-rmdir() is _not_ "kill the directory identified by name and remove all
-links to it". It's "remove a given link and .. in directory pointed
-by it, then schedule directory for removal".
+I'm confused here though....   How does tq_context apply here?  Your
+suggested direction of tq_context seems ok, but I don't see how it
+applies to situations where polling needs to occur, like where yenta
+polls when request_irq fails, or when net drivers poll media selection
+here.
 
-BTW, cwd is irrelevant - /tmp/foo/. would demonstrate the same behaviour.
+Regards,
 
-It becomes really obvious when you look at rename() - you act on links,
-not on inodes. The only reason why we could try to overload that for
-directories was that there is a special link - one from the parent.
-However, _finding_ said link in race-free way is extremely nasty.
-Especially for cases like /tmp/foo/. where /tmp/foo is a symlink to
-/tmp/bar/baz. AFAIK Linux was the only system that tried to be smart
-in that area. And that attempt was _not_ successful - there were rather
-interesting races around the thing. Besides, we clearly violated
-all relevant standards - rmdir() and rename() are required to fail
-if the last component of name happens to "." or "..".
+	Jeff
 
+
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

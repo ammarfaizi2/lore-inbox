@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbRLTGZN>; Thu, 20 Dec 2001 01:25:13 -0500
+	id <S284958AbRLTGad>; Thu, 20 Dec 2001 01:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286171AbRLTGZD>; Thu, 20 Dec 2001 01:25:03 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:36017 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S286179AbRLTGYz>;
-	Thu, 20 Dec 2001 01:24:55 -0500
-Subject: Re: [PATCH] New per-cpu patch v2.5.1
-From: Robert Love <rml@tech9.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
+	id <S286171AbRLTGaX>; Thu, 20 Dec 2001 01:30:23 -0500
+Received: from harddata.com ([216.123.194.198]:29194 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S284958AbRLTGaR>;
+	Thu, 20 Dec 2001 01:30:17 -0500
+Date: Wed, 19 Dec 2001 23:30:04 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16GwUZ-0004xr-00@wagner.rustcorp.com.au>
-In-Reply-To: <E16GwUZ-0004xr-00@wagner.rustcorp.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 20 Dec 2001 01:24:45 -0500
-Message-Id: <1008829509.1213.8.camel@phantasy>
+Subject: Re: 2.4.17-rc1 does not boot my Alphas
+Message-ID: <20011219233004.A9573@mail.harddata.com>
+In-Reply-To: <20011216160404.A2945@mail.harddata.com> <200112181535.fBIFZEH16236@pinkpanther.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112181535.fBIFZEH16236@pinkpanther.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 18, 2001 at 03:35:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-20 at 01:15, Rusty Russell wrote:
-> After some discussion, this may be a more sane (untested) per-cpu area
-> patch.  It dynamically allocated the sections (and discards the
-> original), which would allow (future) NUMA people to make sure their
-> CPU area is allocated near them.
+On Tue, Dec 18, 2001 at 03:35:13PM +0000, Alan Cox wrote:
+Michal Jaegermann wrote:
+> > A kernel with the highest version which I managed to boot so far,
+> > on both machines, is 2.4.13-ac8.
 > 
-> Comments welcome,
+> Those and more went into 2.4.16+ so I believe that its probably a new 
+> breakage not a lost diff
 
-Would the next step be to find the various per-CPU data in the kernel
-and convert it to your new form?  I.e., is this a general purpose
-interface for per-CPU data structures, or am I missing something?
+After a long head scratching and a number of tests it looks to me
+now that this was a false alarm.  Something seems to be funky with
+these new 1500's (caches?).  2.4.17rc2 recompiled with the same
+configuration, both generic and a board specific kind, but compiled
+on UP1100 does boot UP1100 and it seems to be ok.  At least I can
+recompile another kernel while using it. :-)  Unfortunately I do not
+have an access to these 1500's anymore so I cannot check if these
+new binaries change anything there.  If you wonder about compiler
+and binutils versions in all tests they were the same (gcc version 2.96
+20000731 (Red Hat Linux 7.1 2.96-87)) with this exception that in
+one test i used _also_ a pretty old egcs and 2.4.17rc2 and this
+kernel, recompiled on UP1100, behaved too.
 
-If it is, this is a good idea.  Other Unices have this (IRIX comes to
-mind).  One of the biggest advantages, IMO, is simply the readability --
-data structures that are per-CPU have varying methods of creation and
-referencing.  The implicit locking (i.e., none) can be unclear.
+To make waters considerable more muddy 2.4.9-12 binaries from Red Hat
+updates to 7.1 distribution, which definitely were compiled somewhere
+else, not once managed to finish booting UP1500.  UP1100 booted that
+way, although this was possible, was behaving "strange" throwing
+some "machine checks" and weird oopses.  This may mean that a hardware
+is broken but it may also mean that this particular kernel is stomping
+on some memory areas where it should not.  It is rather the second
+as I did not observe anything of that sort with other kernels I am
+using there.
 
-Bring everything together can be a good thing.
-
-	Robert Love
-
+  Michal
+  michal@harddata.com

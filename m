@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267329AbTAGHmS>; Tue, 7 Jan 2003 02:42:18 -0500
+	id <S267330AbTAGHmg>; Tue, 7 Jan 2003 02:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267330AbTAGHmS>; Tue, 7 Jan 2003 02:42:18 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:6609 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267329AbTAGHmS>; Tue, 7 Jan 2003 02:42:18 -0500
-Date: Tue, 7 Jan 2003 08:50:47 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20 IDE for 2.4.21-pre3
-Message-ID: <20030107075047.GT5984@louise.pinerecords.com>
-References: <20030107020729.GS5984@louise.pinerecords.com> <Pine.LNX.4.10.10301062003140.421-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10301062003140.421-100000@master.linux-ide.org>
+	id <S267331AbTAGHmf>; Tue, 7 Jan 2003 02:42:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26632 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267330AbTAGHme>; Tue, 7 Jan 2003 02:42:34 -0500
+Date: Mon, 6 Jan 2003 23:45:55 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+cc: Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Define hash_mem in lib/hash.c to apply hash_long to an
+ arbitraty piece of memory.
+In-Reply-To: <1041924803.27637.3.camel@ixodes.goop.org>
+Message-ID: <Pine.LNX.4.44.0301062341210.1394-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [andre@linux-ide.org]
+
+On 6 Jan 2003, Jeremy Fitzhardinge wrote:
 > 
-> I placed this on k.o for you and listed this email as the origin of the
-> work.  I am assuming this is okay.  If not please let me know.
+> I think they have a different set of design requirements.  They're both
+> designed to not only generate hashes, but make the hashes
+> cryptographically strong (ie, impossible to generate collisions with
+> less effort than brute force).  They're naturally slower than a simple
+> hash, so you'd only use them if you need the stronger requirements.
 
-Thanks a lot, Andre.  Can I send further diffs of this kind to you?
+The filesystem hashes also have another design criteria: they need to 
+reliably give the _same_ hash on different machines.
 
-I'm removing the patch from my web now, as it's available from
-http://www.[country].kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.21/
+In particular, the suggested hash_mem() thing is endian-unsafe, meaning
+that it will give different answers on an x86 than on a sparc CPU, for
+example. Which can be ok if the only thing you care about is some
+temporary hash, but is unacceptable for a lot of uses. The filesystem
+hashes (well, at least some of them) are also designed to hash out files
+on the disk, which means that they _have_ to be the same regardless of
+architecture, or you can't move disks between machines.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Quite frankly, I think the suggested hash_mem() is too special-cased to
+make any sense as a generic function. The endian problems means that it
+_isn't_ really generic anyway, and as such it might as well just be some
+internal nfs helper function rather than something in <linux/string.h>
+
+		Linus
+
+

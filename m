@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbUAIPQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 10:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAIPQ1
+	id S262123AbUAIPXg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 10:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAIPXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 10:16:27 -0500
-Received: from h80ad25ea.async.vt.edu ([128.173.37.234]:3715 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261974AbUAIPPe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 10:15:34 -0500
-Message-Id: <200401091515.i09FFSDM030918@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What SCSI in the IBM? 
-In-Reply-To: Your message of "Fri, 09 Jan 2004 10:05:12 EST."
-             <20040109150512.GF24295@rdlg.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040109150512.GF24295@rdlg.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-159057904P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 9 Jan 2004 10:23:36 -0500
+Received: from [212.239.224.221] ([212.239.224.221]:37252 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262123AbUAIPXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 10:23:13 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item returned -28
+Date: Fri, 9 Jan 2004 16:22:41 +0100
+User-Agent: KMail/1.5.4
+Cc: reiserfs-list@namesys.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 09 Jan 2004 10:15:28 -0500
+Content-Disposition: inline
+Message-Id: <200401091622.41352.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-159057904P
-Content-Type: text/plain; charset=us-ascii
+Hello list,
 
-On Fri, 09 Jan 2004 10:05:12 EST, "Robert L. Harris" <Robert.L.Harris@rdlg.net>  said:
+Today I discovered I could no longer create files on one of my boxes, which 
+still runs 2.4.18 (box is too far away to upgrade right now). It gives me 
+'disk full' messages.
 
-> The network cards in this IBM came up great once I found the right port.
-> Now though I'm trying to find what SCSI driver to use. 
+The following message is all over my logs since January 3:
 
-What IBM?  Laptop? PC? Netfinity? RS6K? e/i/p/z-series?
+vs-2120: add_save_link: insert_item returned -28
 
---==_Exmh_-159057904P
-Content-Type: application/pgp-signature
+I can't seem to find much on this issue, is this a bug in reiserfs (which is 
+fixed in a later version)? Is something wrong with the fs itself?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Thanks for answers.
 
-iD8DBQE//sWQcC3lWbTT17ARAmnRAKC8iyt39QdoF1Jz1wSL1sDtOtCddwCgsJ6M
-lDJq9tMIDamKuMrn9596f6k=
-=J/8e
------END PGP SIGNATURE-----
+[I'm not subscribed @ reiserfs-list, so please cc me with answers from that 
+list]
 
---==_Exmh_-159057904P--
+Jan
+-- 
+It is exactly because a man cannot do a thing that he is a proper judge of it.
+		-- Oscar Wilde
+

@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUIOHhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUIOHjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUIOHhb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 03:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUIOHhb
+	id S262574AbUIOHjh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 03:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUIOHjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 03:37:31 -0400
-Received: from hippo.ethikrat.org ([194.95.188.1]:34757 "EHLO hippo.bbaw.de")
-	by vger.kernel.org with ESMTP id S262418AbUIOHh3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 03:37:29 -0400
-Date: Wed, 15 Sep 2004 09:36:35 +0200
-From: Lars =?ISO-8859-15?Q?T=E4uber?= <taeuber@bbaw.de>
-To: linux-kernel@vger.kernel.org
-Subject: cdrom recognition on kernel 2.6.8.1
-Message-Id: <20040915093635.1a8f08ff.taeuber@bbaw.de>
-Reply-To: Lars =?ISO-8859-15?Q?T=E4uber?= 
-	  <taeuber@informatik.hu-berlin.de>
-Organization: Berlin-Brandenburgische Akademie der Wissenschaften
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.27.0.10; VDF: 6.27.0.59; host: bbaw.de)
+	Wed, 15 Sep 2004 03:39:37 -0400
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:21961
+	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S262574AbUIOHjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 03:39:35 -0400
+Message-ID: <4147F1B4.1060009@ppp0.net>
+Date: Wed, 15 Sep 2004 09:39:32 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Hockin <thockin@hockin.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+References: <20040915011146.GA27782@hockin.org> <1095214229.20763.6.camel@localhost> <20040915031706.GA909@hockin.org> <20040915034229.GA30747@kroah.com> <20040915044830.GA4919@hockin.org> <20040915050904.GA682@kroah.com> <20040915062129.GA9230@hockin.org> <4147E525.4000405@ppp0.net> <20040915064735.GA11272@hockin.org> <4147E649.1060306@ppp0.net> <20040915065515.GA11587@hockin.org>
+In-Reply-To: <20040915065515.GA11587@hockin.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo everybody,
+re-added lkml cc
 
-I'm not subscribed to this list! But I read the archive from time to time.
+Tim Hockin wrote:
+> Take another example:  ECC.  I'd love to spit out ECC messages in a
+> standard way.  I've got some code in devel to do better ECC handling.  But
+> you have to spit out the CPU and the address, at least, and possibly more.
 
-In my linux box is a teac IDE CD-Rom drive. This is only recognised when no audio cd is in the drive while booting.
-Is this a drive failure, or a kernel failure?
+Well, time for /sys/devices/memory/memory<n>/. That would perhaps also 
+be suitable for numa which want to know which memory module is near 
+which cpu. So you could have symbolic links in /sys/devices/cpu/cpu<n> 
+to the corresponding memory modules.
 
-I didn't find any other on the net with the same problem. So hopefully someone of you can explain?
-
-............
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
-NFORCE3-150: chipset revision 165
-NFORCE3-150: not 100% native mode: will probe irqs later
-NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-libata version 1.02 loaded.
-sata_sil version 0.54
-ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 11 (level, low) -> IRQ 11
-............
-
-
-
-best regards
-Lars Täuber
+Jan

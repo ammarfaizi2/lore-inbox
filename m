@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVCMACR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbVCMAE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbVCMACR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 19:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVCMACR
+	id S262462AbVCMAE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 19:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVCMACX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 19:02:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:9896 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262466AbVCMACI (ORCPT
+	Sat, 12 Mar 2005 19:02:23 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12968 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262554AbVCMACL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 19:02:08 -0500
-Date: Sat, 12 Mar 2005 12:36:42 -0800
+	Sat, 12 Mar 2005 19:02:11 -0500
+Date: Sat, 12 Mar 2005 12:49:56 -0800
 From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] be more verbose in gen-devlist
-Message-ID: <20050312203642.GC11865@kroah.com>
-References: <20050311192858.GA11077@suse.de>
+To: Dave Jones <davej@redhat.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: AGP bogosities
+Message-ID: <20050312204956.GD11865@kroah.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <20050311021248.GA20697@redhat.com> <16944.65532.632559.277927@cargo.ozlabs.ibm.com> <20050311022332.GB20697@redhat.com> <1110508824.32556.320.camel@gaston> <20050311024953.GE20697@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050311192858.GA11077@suse.de>
+In-Reply-To: <20050311024953.GE20697@redhat.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 08:28:58PM +0100, Olaf Hering wrote:
+On Thu, Mar 10, 2005 at 09:49:53PM -0500, Dave Jones wrote:
+> On Fri, Mar 11, 2005 at 01:40:24PM +1100, Benjamin Herrenschmidt wrote:
+>  > 
+>  > > After it does that pci_dev_put on the from, it does another pci_dev_get
+>  > > on 'dev', which is what my put was releasing.
+>  > > 
+>  > > Or am I terribly confused ?
+>  > 
+>  > Well, pci_get_class() put's the passed-in device and get's() the
+>  > returned one. So if you run it in a loop, you should never have to
+>  > either get or put. When you exit the loop with a valid pci_dev, though,
+>  > you should definitely put() it after you're done with it, but this is
+>  > something that should be done only for that specific instance and after
+>  > you are finished with it...
 > 
-> gen-devlist should print how many bytes will be cut off and pci.ids
-> entry. Also print the removed '[more blah]' part.
-> 
-> Signed-off-by: Olaf Hering <olh@suse.de>
-> 
-> --- ../linux-2.6.10/drivers/pci/gen-devlist.c	2004-12-24 22:34:45.000000000 +0100
-> +++ ./drivers/pci/gen-devlist.c	2005-03-11 20:10:11.542098265 +0100
-> @@ -72,9 +72,19 @@ main(void)
->  						/* Too long, try cutting off long description */
->  						bra = strchr(c, '[');
->  						if (bra && bra > c && bra[-1] == ' ')
-> +#if 0
-> +						{
-> +							fprintf(stderr, "Line %d: cut off '%s' from line:\n", lino, bra);
-> +							fprintf(stderr, " '%s'\n", c);
->  							bra[-1] = 0;
-> +							fprintf(stderr, " '%s'\n", c);
-> +						}
-> +#else
-> +							bra[-1] = 0;
-> +#endif
+> Yeah. Makes perfect sense now I've had it spelled out for me :-)
+> I think Linus is right though that some extra bullet-proofing in kref_put
+> to BUG() if it goes negative would've caught this.  I wonder if anyone
+> else has fallen into this trap.
 
-Why #if this?  Why not just always do this?
+It can't go negative.  If it hits zero, the object is freed and cleaned
+up.  If you have slab debugging enabled, the next time you try to access
+this pointer, boom.
+
+So no atomic negative checks will help with kref/kobject code, sorry.
 
 thanks,
 

@@ -1,79 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268618AbRG3OjF>; Mon, 30 Jul 2001 10:39:05 -0400
+	id <S268811AbRG3Og1>; Mon, 30 Jul 2001 10:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268800AbRG3Oiz>; Mon, 30 Jul 2001 10:38:55 -0400
-Received: from egghead.curl.com ([216.230.83.4]:7429 "HELO egghead.curl.com")
-	by vger.kernel.org with SMTP id <S268618AbRG3Oio>;
-	Mon, 30 Jul 2001 10:38:44 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mason@suse.com (Chris Mason), cw@f00f.org (Chris Wedgwood),
-        linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <E15RDVj-0003oi-00@the-village.bc.nu>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 30 Jul 2001 10:38:52 -0400
-In-Reply-To: <E15RDVj-0003oi-00@the-village.bc.nu>
-Message-ID: <s5g8zh6pjlv.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S268800AbRG3OgP>; Mon, 30 Jul 2001 10:36:15 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:39944 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S268618AbRG3Of7>;
+	Mon, 30 Jul 2001 10:35:59 -0400
+Date: Mon, 30 Jul 2001 16:35:35 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+cc: Steffen Persvold <sp@scali.no>, Gav <gavbaker@ntlworld.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VIA KT133A / athlon / MMX
+In-Reply-To: <Pine.LNX.4.33.0107301213440.15803-100000@druid.if.uj.edu.pl>
+Message-ID: <Pine.LNX.4.33.0107301619570.11467-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+I have this bios setting enabled, and no problems at all on two of my
+athlons with VIA KT133A, kernel 2.4.7.
 
-> > Chris Mason <mason@suse.com> writes:
-> > 
-> > > Correct, in the current 2.4.x code, its a quirk.  fsync(any object) ==
-> > > fsync(all pending metadata, including renames).
-> > 
-> > This does not help.  The MTAs are doing fsync() on the temporary file
-> > and then using the *subsequent* rename() as the committing operation.
-> 
-> Which is quaint, because as we've pointed out repeatedly to you rename
-> is not an atomic operation. Even on a simple BSD or ext2 style fs it can
-> be two directory block writes,  metadata block writes, a bitmap write
-> and a cylinder group write.
+>From this full discussion comes out a big confusion.
 
-But not on a journalling filesystem.  I assume that a journal "commit"
-is atomic.  If it is not, then fsync() on the directory does not solve
-the problem either.
+For what I saw, many  VIA KT133A do work well, many other
+give problems to their sysadmins. but the chipset is almost the same,
+and the processors are quite the same (they are all athlon, I read no
+bug reports about duron).
 
-Put another way, I am suggesting a mount-time or directory option to
-effectively cause rename() and link() to automatically be followed by
-an fsync() of the containing directory.  (Actually, from this
-perspective, maybe you could fix the MTA in user space with LD_PRELOAD
-hackery or somesuch.  Hm...)
+this is enought for me to get confused.
 
-> > It would be nice to have an option (on either the directory or the
-> > mountpoint) to cause all metadata updates to commit to the journal
-> > without causing all operations to be fully synchronous.  This would
-> 
-> You mean fsync() on the directory. 
+My production systems do use scsi disks, and i can understand
+they donot have troubles (adaptec 2940, 2980 29160....).
+But also the ones with IDE disks are working quite well (some using
+ata33, others ata100).
+I NEVER used DDRAM, just normal SDRAM 133 Mhz.
 
-In other words, "Get the MTA authors to change their code."  That is a
-nice little war, but it is fought at the expense of users who just
-want to use the code provided by their vendor and have it work.
+So I was thinking to FSB. All my systems with ide disks have 200MhzFSB,
+(while my latest production systems do have 266 MhzFSB). Maybe a 266
+MhzFSB is just too mutch stress
+for some via chipset. But i see no clear logic when problems do appear,
+or any big difference with systems that are rock solid.
 
-The situation is this:
+lets' try to make a point to see a logic for those instabilities...
 
-  The relevant standards (POSIX, SuS, etc.) provide no way to perform
-  reliable transactions on a file system.
+which kind of hardware bug is this, if the same chipset can work or not
+depending  if you are lucky? or a full stock of chipset is buggy and
+with a certain HW configuration you will see the bug or
+what?
 
-  BSD provides one solution, which is synchronous metatdata.  (I am
-  assuming modern BSDs already deal with the multiple-disk-block
-  problem to make these transactions properly atomic.  Is this
-  assumption false?)
+Luigi
 
-  Linux provides a different solution, which is fsync() on the
-  directory.
+On Mon, 30 Jul 2001, Maciej Zenczykowski wrote:
 
-  All MTAs, and other apps besides, currently use the BSD solution for
-  reliable transactions.
+> > Hmm, I think "DRAM Prefetch" is the one you _don't_ want to turn on, because (and correct
+> > me if i'm wrong) it's causing all the problems with the IDE controller (data trashing).
+>
+> I think it was IDE Prefetch that should be off (I had this problem on a
+> AMD 486DX4-133 with Award Bios, turning it on trashed the boot record in
+> minutes (and many other sectors on the disk too).
+>
+> Anyone here care to give a link to that program to enable DRAM Prefetch?
+> My sister has a Duron 750w with VIA motherboard and music and sound pop on
+> any graphics changes, maybe this is it?
+>
+> Regards,
+>
+> Maciej Zenczykowski
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Is it really so absurd to ask Linux to provide efficient support of
-the BSD semantics as an option?
-
- - Pat

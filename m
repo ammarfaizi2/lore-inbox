@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbUBIBYL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 20:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUBIBYL
+	id S264574AbUBIBXO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 20:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUBIBXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 20:24:11 -0500
-Received: from [217.157.19.70] ([217.157.19.70]:23827 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S264604AbUBIBYB (ORCPT
+	Sun, 8 Feb 2004 20:23:14 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:2281 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264574AbUBIBXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 20:24:01 -0500
-From: Thomas Horsten <thomas@horsten.com>
-To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.) BIOS RAID development
-Date: Mon, 9 Feb 2004 01:23:52 +0000
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Feb 2004 20:23:13 -0500
+Date: Mon, 9 Feb 2004 02:23:11 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: psmouse.c, throwing 3 bytes away
+Message-ID: <20040209012311.GA18896@ucw.cz>
+References: <200402041820.39742.wnelsonjr@comcast.net> <200402070911.42569.murilo_pontes@yahoo.com.br> <20040209004812.GA18512@ucw.cz> <200402090113.23609.ctpm@rnl.ist.utl.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402090123.52765.thomas@horsten.com>
+In-Reply-To: <200402090113.23609.ctpm@rnl.ist.utl.pt>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Feb 09, 2004 at 01:13:23AM +0000, Claudio Martins wrote:
+> 
+>   Just FYI:
+> 
+>   CC      drivers/input/serio/i8042.o
+> drivers/input/serio/i8042.c: In function `i8042_interrupt':
+> drivers/input/serio/i8042.c:378: warning: `data' might be used uninitialized 
+> in this function
 
-I've started a mailing list for those interested in the development of a Linux 
-driver supporting Medley RAID (the BIOS/software RAID used by the Silicon 
-Image 3112 and some CMD chipsets).
+It can't be used uninitalized. I've fixed this in my tree already, just
+ignore the warning for the time being.
 
-My main goal is that I want autodetection for these drives to work in 2.6 
-(like the ataraid framework in 2.4), but also to leverage the code in the 
-existing MD and DM drivers as far as possilble. This currently works in the 
-current 2.4 kernels, thanks to Arjan van de Ven's ataraid framework, which my 
-Medley driver for 2.4 uses.
-
-The reason I insist on autodetection is that I think it's important that if 
-the BIOS will reckognise the drive without additional intervention, so will 
-Linux. This will make the entry route for newbies much simpler.
-
-If you are interested in taking part in the discussions/development of the 2.6 
-driver for Medley RAID (and other BIOS "wholedisk" RAID arrays, such as 
-Highpoint), I would ask you to join this list.
-
-On the new list we'll also welcome support questions for the 2.4 Medley driver 
-and other related issues. I expect this to be a low volume list.
-
-You can find more information about how to subscribe at 
-http://lists.infowares.com/cgi-bin/listinfo/medley
-
-More informateion about the 2.4 driver, and the patch source, is at 
-http://www.infowares.com/linux/
-
-// Thomas
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

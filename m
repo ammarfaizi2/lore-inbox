@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVCNAB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVCNAFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVCNAB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:01:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVCNAB4
+	id S261594AbVCNAFf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVCNAFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:01:56 -0500
-Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:59063 "EHLO
-	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261592AbVCNABy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:01:54 -0500
-MIME-Version: 1.0
+	Sun, 13 Mar 2005 19:05:35 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:27571 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261594AbVCNAF0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 19:05:26 -0500
+Date: Mon, 14 Mar 2005 01:05:27 +0100
+From: maximilian attems <janitor@sternwelten.at>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>
+Subject: [patch] teles3 eliminate bad section references
+Message-ID: <20050314000527.GA13729@sputnik.stro.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16948.54411.754999.668332@wombat.chubb.wattle.id.au>
-Date: Mon, 14 Mar 2005 11:02:19 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: User mode drivers: part 1, interrupt handling (patch for	2.6.11)
-In-Reply-To: <1110568448.15927.74.camel@localhost.localdomain>
-References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-	<1110568448.15927.74.camel@localhost.localdomain>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix teles3 section references:
+  convert __initdata to __devinitdata.
 
-On Gwe, 2005-03-11 at 03:36, Peter Chubb wrote:
-> +static irqreturn_t irq_proc_irq_handler(int irq, void *vidp, struct pt_regs *regs)
-> +{
-> + 	struct irq_proc *idp = (struct irq_proc *)vidp;
-> + 
-> + 	BUG_ON(idp->irq != irq);
-> + 	disable_irq_nosync(irq);
-> + 	atomic_inc(&idp->count);
-> + 	wake_up(&idp->q);
-> + 	return IRQ_HANDLED;
-
-Alan> You just deadlocked the machine in many configurations. You can't use
-Alan> disable_irq for this trick you have to tell the kernel how to handle it.
-
-
-Can you elaborate, please?  In particular, why doesn't essentially the
-same action (disabling an interrupt before the EOI) in
-note_interrupt() not lock up the machine?
-
-I can see there'd be problems if the code allowed shared interrupts,
-but it doesn't.
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 000011ab R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 000011ba R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 000011e0 R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 000011fd R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 0000128c R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 00001294 R_386_32
+.init.data
+Error: ./drivers/isdn/hisax/teles3.o .text refers to 000012a6 R_386_32
+.init.data
 
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Signed-off-by: maximilian attems <janitor@sternwelten.at>
+
+
+diff -pruN -X dontdiff linux-2.6.11-bk8/drivers/isdn/hisax/teles3.c
+linux-2.6.11-bk8-max/drivers/isdn/hisax/teles3.c
+--- linux-2.6.11-bk8/drivers/isdn/hisax/teles3.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.11-bk8-max/drivers/isdn/hisax/teles3.c	2005-03-14 00:47:32.000000000 +0100
+@@ -254,7 +254,7 @@ Teles_card_msg(struct IsdnCardState *cs,
+ 
+ #ifdef __ISAPNP__
+ 
+-static struct isapnp_device_id teles_ids[] __initdata = {
++static struct isapnp_device_id teles_ids[] __devinitdata = {
+ 	{ ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2110),
+ 	  ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2110), 
+ 	  (unsigned long) "Teles 16.3 PnP" },
+@@ -267,7 +267,7 @@ static struct isapnp_device_id teles_ids
+ 	{ 0, }
+ };
+ 
+-static struct isapnp_device_id *ipid __initdata = &teles_ids[0];
++static struct isapnp_device_id *ipid __devinitdata = &teles_ids[0];
+ static struct pnp_card *pnp_c __devinitdata = NULL;
+ #endif
+ 

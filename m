@@ -1,30 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbULRUbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULRUi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbULRUbd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 15:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbULRUbc
+	id S261227AbULRUi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 15:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbULRUiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 15:31:32 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:16351 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261165AbULRUbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 15:31:32 -0500
-Message-ID: <41C493A2.30703@f2s.com>
-Date: Sat, 18 Dec 2004 20:31:30 +0000
-From: Ian Molton <spyro@f2s.com>
-Organization: The Dragon Roost
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 18 Dec 2004 15:38:24 -0500
+Received: from main.gmane.org ([80.91.229.2]:25507 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261227AbULRUiP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 15:38:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arm26 arch and include updates
-References: <41C2559C.2010209@f2s.com>
-In-Reply-To: <41C2559C.2010209@f2s.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Joseph Seigh" <jseigh_02@xemaps.com>
+Subject: Re: What does atomic_read actually do?
+Date: Sat, 18 Dec 2004 15:43:52 -0500
+Message-ID: <opsi707edhs29e3l@grunion>
+References: <opsi7o5nqfs29e3l@grunion>  <1103394867.4127.18.camel@laptopd505.fenrus.org> <opsi7xcuizs29e3l@grunion> <1103399680.4127.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.ne.client2.attbi.com
+User-Agent: Opera M2/7.54 (Win32, build 3865)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any takers? I know I dont get a massive amount of time to work on this 
-but it would be nice to keep what I have in sync with the tree when 
-others make global changes.
+On Sat, 18 Dec 2004 20:54:40 +0100, Arjan van de Ven <arjan@infradead.org>  
+wrote:
+
+> On Sat, 2004-12-18 at 14:20 -0500, Joseph Seigh wrote:
+>> I mean atomic in the either old or new sense.  I'm wondering what
+>> guarantees
+>> the atomicity.  Not the C standard.  I can see the gcc compiler uses a  
+>> MOV
+>> instruction to load the atomic_t from memory which is guaranteed atomic  
+>> by
+>> the architecture if aligned properly.  But gcc does that for any old int
+>> as far as I can see, so why use atomic_read?
+>
+> it does so on *x86
+
+Is this documented for gcc anywhere?  Just because it does so doesn't
+mean it's guaranteed.
+
+Joe Seigh
+

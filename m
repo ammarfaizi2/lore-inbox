@@ -1,43 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291473AbSBUJ7h>; Thu, 21 Feb 2002 04:59:37 -0500
+	id <S291452AbSBUJ7r>; Thu, 21 Feb 2002 04:59:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291565AbSBUJ7c>; Thu, 21 Feb 2002 04:59:32 -0500
-Received: from [210.19.28.11] ([210.19.28.11]:4480 "EHLO dZuRa.Vault-ID.com")
-	by vger.kernel.org with ESMTP id <S291449AbSBUJ6R>;
-	Thu, 21 Feb 2002 04:58:17 -0500
-Date: Thu, 21 Feb 2002 17:55:37 +0800
-From: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.5final compile error
-Message-Id: <20020221175537.4b499781.Corporal_Pisang@Counter-Strike.com.my>
-Organization: CS Malaysia
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-User-Agent: Half Life (Build 1760)
-X-Operating-System: FreeBSD 5.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S291565AbSBUJ7l>; Thu, 21 Feb 2002 04:59:41 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:2710 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S291452AbSBUJ7U>; Thu, 21 Feb 2002 04:59:20 -0500
+Date: Thu, 21 Feb 2002 11:48:26 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
+In-Reply-To: <3C74C05A.900A30FE@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0202211134080.7649-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 21 Feb 2002, Jeff Garzik wrote:
+> > #include <asm/system.h>
+> > #include <linux/notifier.h>
+> > #include <linux/reboot.h>
+> > #include <linux/init.h>
+> 
+> try deleting all includes and rebuild this list from scratch... I'll bet
+> it can be made smaller.
 
-I get this compile error while compiling 2.5.5final.
+Will do.
 
-make[4]: Entering directory `/usr/src/linux/drivers/video/riva'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=fbdev  -c -o fbdev.o fbdev.c
-fbdev.c: In function `riva_set_fbinfo':
-fbdev.c:1814: incompatible types in assignment
-make[4]: *** [fbdev.o] Error 1
-make[4]: Leaving directory `/usr/src/linux/drivers/video/riva'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/src/linux/drivers/video/riva'
-make[2]: *** [_subdir_riva] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/video'
-make[1]: *** [_subdir_video] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+> > static int sc1200wdt_release(struct inode *inode, struct file *file)
+> > {
+> >         lock_kernel();
+> > 
+> >         /* Disable it on the way out */
+> >         sc1200wdt_write_data(WDTO, 0);
+> >         up(&open_sem);
+> > 
+> >         unlock_kernel();
+> > 
+> >         printk(KERN_INFO PFX "Watchdog disabled\n");
+> >         MOD_DEC_USE_COUNT;
+> > 
+> >         return 0;
+> > }
+> 
+> are you certain we need lock_kernel(), unlock_kernel() here?
+> especially with a semaphore...
+
+I'll remove the lock/unlock_kernel from there and shuffle the semaphore 
+around.
+
+> > static struct file_operations sc1200wdt_fops =
+> > {
+> >         owner:          THIS_MODULE,
+> >         write:          sc1200wdt_write,
+> >         ioctl:          sc1200wdt_ioctl,
+> >         open:           sc1200wdt_open,
+> >         release:        sc1200wdt_release,
+> > };
+> 
+> I noticed wdt_pci.c implements ->read, too, why not here as well?
+
+Hmm i see wdt_pci uses its read call for getting temperature status, the 
+only thing i can report back is the status of the watchdog, and that i 
+currently send back via an ioctl call (WDIOC_GETSTATUS). The chip i have a 
+datasheet for doesn't have temperature reporting via watchdog, but there 
+are bits (supported by lmsensors) which can do that.
+
+> Look at how i810_rng does its PCI probe.  [I'm guessing]  Surely this
+> SC1200 hardware has _some_ sort of identifier, like a list of commonly
+> found PCI host bridges, that is better than the simple request_region()
+> provided.
+
+Its an ISAPNP device so we can probe like that (logical device 8), this 
+particular module doesn't have PnP support (i was gonna add it later), i 
+was wondering wether there was a possible non PnP probe we could do.
+
+> Overall, looks good... nice, clean driver.
+
+Thanks, but i think i wasted my time on this one, there is a driver for 
+most of the SC1200 bits (including watchdog) at http://www.nano-system.com/scx200
+
+Cheers,
+	Zwane Mwaikambo
 
 
--Ubaida-
+

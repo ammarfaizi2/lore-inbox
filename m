@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTDHO5j (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTDHO5j (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:57:39 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:12497 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S261823AbTDHO5i (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 10:57:38 -0400
-Subject: 2.5.67 buffer layer error at fs/buffer.c:127
-From: Steven Cole <elenstev@mesatop.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049814538.32665.1115.camel@spc9.esa.lanl.gov>
+	id S261824AbTDHPAz (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 11:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTDHPAz (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 11:00:55 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:32484 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261824AbTDHPAy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 11:00:54 -0400
+Date: Tue, 8 Apr 2003 11:12:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rusty Russell <rusty@rustcorp.com.au>,
+       zwane@linuxpower.ca,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org
+Subject: Re: SET_MODULE_OWNER?
+Message-ID: <20030408151226.GA30285@gtf.org>
+References: <20030408035210.02D142C06E@lists.samba.org> <1049802672.8120.14.camel@dhcp22.swansea.linux.org.uk> <20030408144644.GB30142@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 08 Apr 2003 09:08:58 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030408144644.GB30142@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get this on booting 2.5.67.
-This is always logged as the last message to
-/var/log/messages on bootup.
- 
-System is PIII, UP. Kernel PREEMPT. 
+On Tue, Apr 08, 2003 at 03:46:44PM +0100, Jamie Lokier wrote:
+> Alan Cox wrote:
+> > > Unless you can come up with a real *reason*, I'll move it back under
+> > > "deprecated" and start substituting.
+> > 
+> > Thats fun, and the rest of us can play submit patches to substitute it
+> > back. 
+> 
+> If Jeff's drivers are using <kcompat>, can't kcompat provide the macro
+> for 2.4 and 2.5 kernels in the same way it does for 2.2 kernels?
 
->From dmesg:
+No.  Because Rusty wanted to replace a "func_call()" object with a
+direct reference to a structure.  Direct struct member references is the
+big issue that we are trying to _avoid_, because they are the single
+most painful issue to deal with, WRT source back-compat.  You can ifdef
+around a function quite easily, but not a direct struct member use.
 
-buffer layer error at fs/buffer.c:127
-Call Trace:
- [<c0148170>] __wait_on_buffer+0xe0/0xf0
- [<c0117010>] autoremove_wake_function+0x0/0x50
- [<c0117010>] autoremove_wake_function+0x0/0x50
- [<c014a0dd>] __block_prepare_write+0x13d/0x490
- [<c01821b0>] ext3_mark_inode_dirty+0x50/0x60
- [<c018d1ba>] start_this_handle+0x9a/0x1c0
- [<c014acc4>] block_prepare_write+0x34/0x50
- [<c017f2b0>] ext3_get_block+0x0/0xb0
- [<c017f962>] ext3_prepare_write+0x92/0x1b0
- [<c017f2b0>] ext3_get_block+0x0/0xb0
- [<c012e4d9>] generic_file_aio_write_nolock+0x359/0xa10
- [<c01496bc>] __find_get_block+0x7c/0x120
- [<c01815f3>] ext3_get_inode_loc+0xf3/0x1a0
- [<c0181908>] ext3_read_inode+0x1f8/0x360
- [<c012eca1>] generic_file_aio_write+0x71/0x90
- [<c017cf14>] ext3_file_write+0x44/0xe0
- [<c0146deb>] do_sync_write+0x8b/0xc0
- [<c0154108>] link_path_walk+0x608/0x900
- [<c018c85f>] ext3_permission+0x1f/0x30
- [<c015359a>] permission+0x3a/0x40
- [<c0147b15>] get_empty_filp+0x75/0xf0
- [<c0154d1d>] open_namei+0x9d/0x420
- [<c01460de>] dentry_open+0x16e/0x180
- [<c0145f68>] filp_open+0x68/0x70
- [<c0146ede>] vfs_write+0xbe/0x130
- [<c0146720>] generic_file_llseek+0x0/0xd0
- [<c0146fee>] sys_write+0x3e/0x60
- [<c01092bb>] syscall_call+0x7/0xb
+To give another concrete example, I was able to take a 2.4 PCI driver
+and make it work under 2.2 transparently, with a single exception:  The
+"driver_data" member of the new struct pci_dev.  Drivers were directly
+referencing that, which was a new addition in 2.4.x (really 2.3.x).  So,
+I created the abstraction wrappers pci_[gs]et_drvdata(), which does
+nothing but a simple C assignment (or read, for _get_).  The addition of
+this wrapper removed the need for nasty ifdefs in the drivers for 2.2
+versus 2.4, and make it possible for the kernel source to continue to be
+readable, "pretty", and ifdef-free.
+
+	Jeff
 
 
 

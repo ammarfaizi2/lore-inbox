@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUI0PwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUI0Pvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUI0PwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 11:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUI0PwU
+	id S266511AbUI0Pvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 11:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUI0Pvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 11:52:20 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:3014 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266512AbUI0PwO (ORCPT
+	Mon, 27 Sep 2004 11:51:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3478 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266511AbUI0PvY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 11:52:14 -0400
-Subject: Re: 2.6.8.1: xtime value may become incorrect
-From: john stultz <johnstul@us.ibm.com>
-To: Vladimir Grouzdev <vladimir.grouzdev@Jaluna.COM>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <41583036.9010907@jaluna.com>
-References: <41583036.9010907@jaluna.com>
-Content-Type: text/plain
-Message-Id: <1096300338.4249.16.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 27 Sep 2004 08:52:18 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Sep 2004 11:51:24 -0400
+Date: Mon, 27 Sep 2004 11:51:12 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+cc: "akpm@osdl.org" <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SELinux performance improvement with RCU
+In-Reply-To: <200409271057.i8RAvcA1007873@mailsv.bs1.fc.nec.co.jp>
+Message-ID: <Xine.LNX.4.44.0409271146550.21876-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-27 at 08:22, Vladimir Grouzdev wrote:
->     The xtime value may become incorrect when the
->     update_wall_time(ticks) function is called with "ticks" > 1.
->     In such a case, the xtime variable is updated multiple times
->     inside the loop but it is normalized only once outside of
->     the loop.
+On Mon, 27 Sep 2004, Kaigai Kohei wrote:
 
-Vladimir, 
-	This looks like a good patch to me. If no one else has any complaints,
-send it on to Andrew.
+> Because this patch depends on two external function: atomic_inc_return()
+> and list_replace_rcu(), I was waiting for those functions to be merged
+> into 2.6.9-rc2-mm2 tree.
+> Please apply this.
 
-thanks!
--john
+Kaigai, 
+
+Have you addressed the lockups which Stephen Smalley reported to you when 
+testing this code?
+
+You also have not addressed issues raised regarding low end performance.
+
+Also, the patch has not been fully vetted by the maintainers (Stephen and
+myself).
+
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
 

@@ -1,65 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbUC3IFL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 03:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUC3IFL
+	id S263366AbUC3ILv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 03:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUC3ILv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 03:05:11 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:40623 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263371AbUC3IFD (ORCPT
+	Tue, 30 Mar 2004 03:11:51 -0500
+Received: from holomorphy.com ([207.189.100.168]:8352 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263366AbUC3ILp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 03:05:03 -0500
-Date: Tue, 30 Mar 2004 10:05:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
-       jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040330080530.GA22195@elte.hu>
-References: <20040329084531.GB29458@wotan.suse.de> <4068066C.507@yahoo.com.au> <20040329080150.4b8fd8ef.ak@suse.de> <20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de> <4068B692.9020307@yahoo.com.au> <20040330083450.368eafc6.ak@suse.de> <40691BCE.2010302@yahoo.com.au> <205870000.1080630837@[10.10.2.4]> <4069223E.9060609@yahoo.com.au>
+	Tue, 30 Mar 2004 03:11:45 -0500
+Date: Tue, 30 Mar 2004 00:11:42 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: remove bitmap_shift_*() bitmap length limits
+Message-ID: <20040330081142.GL791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040330065152.GJ791@holomorphy.com> <20040330073604.GK791@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4069223E.9060609@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040330073604.GK791@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 29, 2004 at 11:36:04PM -0800, William Lee Irwin III wrote:
+> An updated userspace test harness properly more demonstrating the
+> zeroed tail preconditions/postconditions properties is included as a
+> MIME attachment. The bitmap code requires no changes. This is merely a
+> more adequate testcase.
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+The new testcase found issues with unaligned bitmap lengths. Fixed patch
+below;
 
-> Maybe balance on clone would be beneficial if we only balance onto
-> CPUs which are idle or very very imbalanced. Basically, if you are
-> very sure that it is going to be balanced off anyway, it is probably
-> better to do it at clone.
 
-balancing threads/processes is not a problem, as long as it happens
-within the rules of normal balancing.
-
-ie. 'new context created' (on exec, fork or clone) is just an event that
-impacts the load scenario, and which might trigger rebalancing.
-
-_if_ the sharing between various contexts is very high and it's actually
-faster to run them all single-threaded, then the application writer can
-bind them to one CPU, via the affinity syscalls. But the scheduler
-cannot know this advance.
-
-so the cleanest assumption, from the POV of the scheduler, is that
-there's no sharing between contexts. Things become really simple once
-this assumption is made.
-
-and frankly, it's much easier to argue with application developers whose
-application scales badly and thus the scheduler over-distributes it,
-than with application developers who's application scales badly due to
-the scheduler.
-
-	Ingo
+Index: mm5-2.6.5-rc2/lib/bitmap.c
+===================================================================
+--- mm5-2.6.5-rc2.orig/lib/bitmap.c	2004-03-29 17:44:14.000000000 -0800
++++ mm5-2.6.5-rc2/lib/bitmap.c	2004-03-30 00:09:21.000000000 -0800
+@@ -12,8 +12,6 @@
+ #include <asm/bitops.h>
+ #include <asm/uaccess.h>
+ 
+-#define MAX_BITMAP_BITS	512U	/* for ia64 NR_CPUS maximum */
+-
+ int bitmap_empty(const unsigned long *bitmap, int bits)
+ {
+ 	int k, lim = bits/BITS_PER_LONG;
+@@ -72,7 +70,7 @@
+ EXPORT_SYMBOL(bitmap_complement);
+ 
+ /*
+- * bitmap_shift_write - logical right shift of the bits in a bitmap
++ * bitmap_shift_right - logical right shift of the bits in a bitmap
+  *   @dst - destination bitmap
+  *   @src - source bitmap
+  *   @nbits - shift by this many bits
+@@ -85,15 +83,32 @@
+ void bitmap_shift_right(unsigned long *dst,
+ 			const unsigned long *src, int shift, int bits)
+ {
+-	int k;
+-	DECLARE_BITMAP(__shr_tmp, MAX_BITMAP_BITS);
+-
+-	BUG_ON(bits > MAX_BITMAP_BITS);
+-	bitmap_clear(__shr_tmp, bits);
+-	for (k = 0; k < bits - shift; ++k)
+-		if (test_bit(k + shift, src))
+-			set_bit(k, __shr_tmp);
+-	bitmap_copy(dst, __shr_tmp, bits);
++	int k, lim = BITS_TO_LONGS(bits), left = bits % BITS_PER_LONG;
++	int off = shift/BITS_PER_LONG, rem = shift % BITS_PER_LONG;
++	unsigned long mask = (1UL << left) - 1;
++	for (k = 0; off + k < lim; ++k) {
++		unsigned long upper, lower;
++
++		/*
++		 * If shift is not word aligned, take lower rem bits of
++		 * word above and make them the top rem bits of result.
++		 */
++		if (!rem || off + k + 1 >= lim)
++			upper = 0;
++		else {
++			upper = src[off + k + 1];
++			if (off + k + 1 == lim - 1 && left)
++				upper &= mask;
++		}
++		lower = src[off + k];
++		if (left && off + k == lim - 1)
++			lower &= mask;
++		dst[k] = upper << (BITS_PER_LONG - rem) | lower >> rem;
++		if (left && k == lim - 1)
++			dst[k] &= mask;
++	}
++	if (off)
++		memset(&dst[lim - off], 0, off*sizeof(unsigned long));
+ }
+ EXPORT_SYMBOL(bitmap_shift_right);
+ 
+@@ -111,15 +126,28 @@
+ void bitmap_shift_left(unsigned long *dst,
+ 			const unsigned long *src, int shift, int bits)
+ {
+-	int k;
+-	DECLARE_BITMAP(__shl_tmp, MAX_BITMAP_BITS);
+-
+-	BUG_ON(bits > MAX_BITMAP_BITS);
+-	bitmap_clear(__shl_tmp, bits);
+-	for (k = bits; k >= shift; --k)
+-		if (test_bit(k - shift, src))
+-			set_bit(k, __shl_tmp);
+-	bitmap_copy(dst, __shl_tmp, bits);
++	int k, lim = BITS_TO_LONGS(bits), left = bits % BITS_PER_LONG;
++	int off = shift/BITS_PER_LONG, rem = shift % BITS_PER_LONG;
++	for (k = lim - off - 1; k >= 0; --k) {
++		unsigned long upper, lower;
++
++		/*
++		 * If shift is not word aligned, take upper rem bits of
++		 * word below and make them the bottom rem bits of result.
++		 */
++		if (rem && k > 0)
++			lower = src[k - 1];
++		else
++			lower = 0;
++		upper = src[k];
++		if (left && k == lim - 1)
++			upper &= (1UL << left) - 1;
++		dst[k + off] = lower  >> (BITS_PER_LONG - rem) | upper << rem;
++		if (left && k + off == lim - 1)
++			dst[k + off] &= (1UL << left) - 1;
++	}
++	if (off)
++		memset(dst, 0, off*sizeof(unsigned long));
+ }
+ EXPORT_SYMBOL(bitmap_shift_left);
+ 

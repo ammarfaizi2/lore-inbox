@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267989AbUHKLlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUHKLmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267989AbUHKLlY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 07:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUHKLlY
+	id S268024AbUHKLmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 07:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHKLmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 07:41:24 -0400
-Received: from users.linvision.com ([62.58.92.114]:28610 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S267989AbUHKLlB (ORCPT
+	Wed, 11 Aug 2004 07:42:52 -0400
+Received: from [220.91.48.222] ([220.91.48.222]:7951 "EHLO auroraadvisors.com")
+	by vger.kernel.org with ESMTP id S268024AbUHKLmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 07:41:01 -0400
-Date: Wed, 11 Aug 2004 13:41:00 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Paul Jackson <pj@sgi.com>, Eric Masson <cool_kid@future-ericsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fork and Exec a process within the kernel
-Message-ID: <20040811114100.GB10047@harddisk-recovery.nl>
-References: <4117E68A.4090701@future-ericsoft.com> <20040809161003.554a5de1.pj@sgi.com> <4118E822.3000303@future-ericsoft.com> <20040810092116.7dfe118c.pj@sgi.com> <Pine.LNX.4.53.0408101456260.13579@chaos> <20040811095139.GA10047@harddisk-recovery.com> <Pine.LNX.4.53.0408110721540.15879@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0408110721540.15879@chaos>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Wed, 11 Aug 2004 07:42:43 -0400
+From: "Jake Waters" <jwaters_wo@gcr1.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <5ce401c47f9b$f0b45018$d516a916@fekxkf>
+Subject: =?ISO-8859-1?B?UGxlYXNlIGRvbid0IGZvcmdldA==?=
+Date: Wed, 11 Aug 2004 12:07:50 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 07:24:42AM -0400, Richard B. Johnson wrote:
-> On Wed, 11 Aug 2004, Erik Mouw wrote:
-> > Please don't mislead newbies, Richard. /dev/console is NOT a link to
-> > /dev/tty0, it's a completely different device:
-> >
-> > erik@abra2:~ >ls -l /dev/console
-> > crw-------    1 root     tty        5,   1 Apr  7 09:13 /dev/console
-> > erik@abra2:~ >ls -l /dev/tty0
-> > crw-------    1 root     tty        4,   0 Feb 10  2000 /dev/tty0
-> >
-> 
-> Bullshit. I know how to use `file`.
-> 
-> Script started on Wed Aug 11 07:21:39 2004
-> # file /dev/console
-> /dev/console: symbolic link to /dev/tty0
+Hello,
 
-It might be a symlink on your machine, but that doesn't mean it's the
-right way. For almost 7 years, /dev/console is a separate device, not a
-symlink. Here's the relevant section from Documentation/devices.txt:
+Ra[t]es dropped last week ... Jump on it!
+Need more of these? $$$$ JustR-efin-ance your house/prop and you can get it
 
-  The console device, /dev/console, is the device to which system
-  messages should be sent, and on which logins should be permitted in
-  single-user mode.  Starting with Linux 2.1.71, /dev/console is managed
-  by the kernel; for previous versions it should be a symbolic link to
-  either /dev/tty0, a specific virtual console such as /dev/tty1, or to
-  a serial port primary (tty*, not cu*) device, depending on the
-  configuration of the system.
+Use this for the site: http://holdtiff.com/prime/dWorld/
 
-Linux-2.1.71 was released on December 4, 1997. In your signature you
-claim to run linux-2.4.26. Please update your system.
+You must visit the link  in 24 hrs to confirm your eligibility. 
 
 
-Erik
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Sincerely,
+
+Shawn Davis
+Account Manager
+Holland Holdings Co.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The Organization for Security and Cooperation in Europe was invited to monitor the election by the State Department. The observers will come from the OSCE's Office for Democratic Institutions and Human Rights.It will be the first time such a team has been present for a U.S. presidential election."The U.S. is obliged to invite us, as all OSCE countries should," spokeswoman Urdur Gunnarsdottir said. "It's not legally binding, but it's a political commitment. They signed a document 10 years ago to ask OSCE to observe elections."Thirteen Democratic members of the House of Representatives, raising the specter of possible civil rights violations that they said took place in Florida and elsewhere in the 2000 election, wrote to U.N. Secretary-General Kofi Annan in July, asking him to send observers.After Annan rejected their request, saying the administration must make the application, the Democrats asked Secretary of State Colin Powell to do so.The issue was hotly debated in the House, and Republicans got an amendment to a foreign aid bill that barred federal funds from being used for the United Nations to monitor U.S. elections, The Associated Press reported.In a letter dated July 30 and released last week, 

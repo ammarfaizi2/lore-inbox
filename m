@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbUBZSaT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 13:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUBZSaT
+	id S262876AbUBZSer (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 13:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUBZSer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 13:30:19 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:15030 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S262873AbUBZSaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 13:30:12 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 26 Feb 2004 18:30:10 -0000
-MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems [NOT resolved]
-Message-ID: <403E3B32.1845.1F424323@localhost>
-In-reply-to: <20040226101330.20190d34@dell_ss3.pdx.osdl.net>
-References: <403E34F8.31130.1F29EF00@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Thu, 26 Feb 2004 13:34:47 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:22711 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262876AbUBZSeq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 13:34:46 -0500
+Date: Thu, 26 Feb 2004 11:34:39 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: greg@kroah.com
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Fix dev_printk to work with unclaimed devices
+Message-ID: <20040226183439.GA17722@plexity.net>
+Reply-To: dsaxena@plexity.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Plexity Networks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > yes, that is the pre-NAPI driver. You seem to be the only one having
-> problems with the NAPI driver, so please help getting it fixed.
-> 
 
-OK, please what do I need to do?  I did build with debug, but dmesg 
-gets filled up so fast I have lost the logs.  Also, when I do use the 
-new 8139too.c driver, the box (my gateway) is unusable for any type 
-of network traffic load.
+I need to do some fixup in platform_notify() and when trying to 
+use the dev_* print functions for informational messages, they OOPs 
+b/c the current code assumes that dev->driver exists. This is not the 
+case since platform_notify() is called before a device has been attached
+to any driver. 
 
-So I will need to do it in one hit to grab the info and switch back 
-again.
-
-Thanks for reply - I want to help and reolve this too...
-
-Nick
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble,
-Give a whistle
-And this'll help things turn out for the best."
+--- linux-2.5-bk/include/linux/device.h	2004-02-10 14:51:49.000000000 -0700
++++ linux-2.6-ds/include/linux/device.h	2004-02-26 11:10:38.000000000 -0700
+@@ -395,7 +395,13 @@
+ 
+ /* debugging and troubleshooting/diagnostic helpers. */
+ #define dev_printk(level, dev, format, arg...)	\
+-	printk(level "%s %s: " format , (dev)->driver->name , (dev)->bus_id , ## arg)
++	do {					\
++		if ((dev)->driver) {		\
++			printk(level "%s %s: " format , (dev)->driver->name , (dev)->bus_id , ## arg);				\
++		} else {			\
++			printk(level "%s (Unclaimed %s bus device): " format , (dev)->bus_id, (dev)->bus->name , ## arg);					\
++		}				\
++	} while (0)
+ 
+ #ifdef DEBUG
+ #define dev_dbg(dev, format, arg...)		\
 

@@ -1,122 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270847AbRHSWdw>; Sun, 19 Aug 2001 18:33:52 -0400
+	id <S270841AbRHSWgW>; Sun, 19 Aug 2001 18:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270849AbRHSWdn>; Sun, 19 Aug 2001 18:33:43 -0400
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:15326 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S270847AbRHSWdc>;
-	Sun, 19 Aug 2001 18:33:32 -0400
-Message-Id: <5.1.0.14.2.20010819233252.0276c450@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 19 Aug 2001 23:33:42 +0100
-To: joeja@mindspring.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.4.9 compiler warnings & errors NTFS
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B802776.5F4F39D9@mindspring.com>
+	id <S270848AbRHSWgM>; Sun, 19 Aug 2001 18:36:12 -0400
+Received: from unthought.net ([212.97.129.24]:2222 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S270841AbRHSWf6>;
+	Sun, 19 Aug 2001 18:35:58 -0400
+Date: Mon, 20 Aug 2001 00:36:12 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: David Ford <david@blue-labs.org>
+Cc: otto.wyss@bluewin.ch,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why don't have bits the same rights as humans! (flushing to disk waiting  time)
+Message-ID: <20010820003612.A29624@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	David Ford <david@blue-labs.org>, otto.wyss@bluewin.ch,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B802B68.ADA545DB@bluewin.ch> <3B803AAD.4030505@blue-labs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <3B803AAD.4030505@blue-labs.org>; from david@blue-labs.org on Sun, Aug 19, 2001 at 06:16:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:54 19/08/01, Joe wrote:
->Okay I tried kernel the patch to 2.4.9 (I applied 2.4.8 patch on top of
->a 2.4.7 kernel then 2.4.9 patch).
->
->The NTFS module wont build in 2.4.9.  It seems that there is a missing
->include file in fs/ntfs/unistr.c .  After I added
->
->#include <linux/fs.h>
->
->to the file it seems to have fixed the problem. (patch at bottom of
->mail)
+On Sun, Aug 19, 2001 at 06:16:13PM -0400, David Ford wrote:
+> Mount your floppy synchronous.  Writes won't be buffered then.
 
-Yes. Known problem. This is correct fix. You must be the 50th person 
-sending a patch by now... (-;
+Or use tar on /dev/fd0
 
-Cheers,
+Seriously - many people are not aware of that since they think of floppies
+like filesystems.  But for many purposes tar is exactly what you want - and
+then there's no mounting and un-mounting, no buffered writes, and it may
+even work directly in your HP-UX box too    :)
 
-Anton
-
-
-
->Joe
->
->The following is the error before I added the include:
->
->make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
->namei.c: In function `msdos_lookup':
->namei.c:237: warning: implicit declaration of function `fat_brelse'
->namei.c: In function `msdos_add_entry':
->namei.c:266: warning: implicit declaration of function
->`fat_mark_buffer_dirty'
->unistr.c: In function `ntfs_collate_names':
->unistr.c:99: warning: implicit declaration of function `min'
->unistr.c:99: parse error before `unsigned'
->unistr.c:99: parse error before `)'
->unistr.c:97: warning: `c1' might be used uninitialized in this function
->unistr.c: At top level:
->unistr.c:118: parse error before `if'
->unistr.c:123: warning: type defaults to `int' in declaration of `c1'
->unistr.c:123: `name1' undeclared here (not in a function)
->unistr.c:123: warning: data definition has no type or storage class
->unistr.c:124: parse error before `if'
->make[2]: *** [unistr.o] Error 1
->make[1]: *** [_modsubdir_ntfs] Error 2
->make: *** [_mod_fs] Error 2
->cp: cannot stat `ntfs.o': No such file or directory
->
->
->This is the error after I added the include. (It compiled too)
->
->sym53c8xx.c: In function `ncr_soft_reset':
->sym53c8xx.c:6994: warning: `istat' might be used uninitialized in this
->function
->make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
->namei.c: In function `msdos_lookup':
->namei.c:237: warning: implicit declaration of function `fat_brelse'
->namei.c: In function `msdos_add_entry':
->namei.c:266: warning: implicit declaration of function
->`fat_mark_buffer_dirty'
->dir.c: In function `umsdos_readdir_x':
->dir.c:142: warning: passing arg 3 of `fat_readdir' from incompatible
->pointer type
->dir.c: In function `UMSDOS_readdir':
->dir.c:315: warning: passing arg 5 of `umsdos_readdir_x' from
->incompatible pointer type
->ioctl.c: In function `UMSDOS_ioctl_dir':
->ioctl.c:146: warning: passing arg 3 of `fat_readdir' from incompatible
->pointer type
->rdir.c: In function `UMSDOS_rreaddir':
->rdir.c:70: warning: passing arg 3 of `fat_readdir' from incompatible
->pointer type
->
->################## patch
->
->--- fs/ntfs/unistr.c Sun Aug 19 12:31:03 2001
->+++ linux-test/fs/ntfs/unistr.c Sun Aug 19 13:32:46 2001
->@@ -24,6 +24,8 @@
->  #include <linux/string.h>
->  #include <asm/byteorder.h>
->
->+#include <linux/fs.h>
->+
->  #include "unistr.h"
->  #include "macros.h"
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+If you absolutely must write to a FAT filesystem on the floppy, you can
+use the mtools package (mcopy, mdir, mformat, ...) - again, you won't have to
+mount or unmount, writes are not buffered, etc. etc.
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

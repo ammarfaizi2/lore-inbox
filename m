@@ -1,121 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265675AbUAKAAj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUAKAAj
+	id S265504AbUAKACY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAKACY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:00:39 -0500
-Received: from [200.57.38.4] ([200.57.38.4]:44455 "EHLO gateway.mailvault.com")
-	by vger.kernel.org with ESMTP id S265675AbUAKAAf (ORCPT
+	Sat, 10 Jan 2004 19:02:24 -0500
+Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:51841 "EHLO
+	gnuppy") by vger.kernel.org with ESMTP id S265504AbUAKACW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:00:35 -0500
-Date: Sun, 11 Jan 2004 01:00:33 00100 (CET)
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-From: "Job 317" <job317@mailvault.com>
-Subject: HELP!! 2.6.x build problem with make xconfig
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary = "=_f08c0a35b5c1b72911b4ea5809f6edbf"
-Message-Id: <20040110235440.7962B8400A3@gateway.mailvault.com>
+	Sat, 10 Jan 2004 19:02:22 -0500
+Date: Sat, 10 Jan 2004 16:02:11 -0800
+To: Bernhard Kuhn <bkuhn@metrowerks.com>
+Cc: linux-kernel@vger.kernel.org, "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [announcement, patch] real-time interrupts for the Linux kernel
+Message-ID: <20040111000211.GA3056@gnuppy.monkey.org>
+References: <3FFE078D.20400@metrowerks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FFE078D.20400@metrowerks.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
+On Fri, Jan 09, 2004 at 02:44:45AM +0100, Bernhard Kuhn wrote:
+> Hi everybody!
+> 
+> I hope that i can steal enough of your precious time to get
+> your attention for a new patch that adds hard real time support
+> to the linux kernel (worst case interrupt response time below
+> 5 microseconds):
+> 
+> The proposed "real time interrupt patch" enables the linux
+> kernel for hard-real-time applications such as data aquisition
+> and control loops by adding priorities to interrupts and spinlocks.
+> 
+> The following document will describe the patch in detail and how
+> to install it:
+> 
+> http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040108/README
+...
 
---=_f08c0a35b5c1b72911b4ea5809f6edbf
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Also,
+	http://www.linuxdevices.com/news/NS3235024671.html
 
-Please don't flame me for missing this if it's already buried in the
-archive but I cannot make xconfig, gconfig, or menuconfig with a 2.6.X
-kernel.
+It's kind of a cool patch. I'm surprised that nobody's commented on this
+so far. Basically, if I understand this, this uses IO-APIC hardware
+assistance for getting some notion of prioritized interrupts and a other
+goodies. Just ran into the article now, but the original email post flew
+under my radar. /me reads more
 
-I am using RH 9.0 with all up2dates (including required packages for
-2.6.x kernel build as far as I can tell). Am I missing a symbolic link
-or something?
-
-Here's what I do (as root)...
-
-cd /usr/src
-rm linux linux-2.4 linux-2.6
-tar -zxvf linux-2.6.x.tar.gz
-chown -R 0.0 linux-2.6.x
-ln -fs linux-2.6.x linux
-ln -fs linux-2.4.x linux-2.6    # not sure why I do this anymore
-cd /usr/include
-rm asm linux scsi
-ln -fs /usr/src/linux/include/asm-i386 asm
-ln -fs /usr/src/linux/include/linux linux
-ln -fs /usr/src/linux/include/scsi scsi
-cd /usr/src/linux-2.6.x
-make mrproper xconfig
-
-<!-- My error follows -->
-
-In file included from /usr/include/linux/errno.h:4,
-                 from /usr/include/bits/errno.h:25,
-                 from /usr/include/errno.h:36,
-                 from scripts/kconfig/mconf.c:12:
-/usr/include/asm/errno.h:4:31: asm-generic/errno.h: No such file or
-directory
-scripts/kconfig/mconf.c: In function `exec_conf':
-scripts/kconfig/mconf.c:243: `EINTR' undeclared (first use in this
-function)
-scripts/kconfig/mconf.c:243: (Each undeclared identifier is reported
-only once
-scripts/kconfig/mconf.c:243: for each function it appears in.)
-scripts/kconfig/mconf.c:243: `EAGAIN' undeclared (first use in this
-function)
-make[1]: *** [scripts/kconfig/mconf.o] Error 1
-make: *** [xconfig] Error 2
-
-<!-- If I do a make gconfig, I get the following -->
-
-In file included from /usr/include/gtk-2.0/gtk/gtk.h:90,
-                 from scripts/kconfig/gconf.c:17:
-/usr/include/gtk-2.0/gtk/gtkitemfactory.h:51: warning: function
-declaration isn't a prototype
-scripts/kconfig/images.c:6: warning: `xpm_load' defined but not used
-scripts/kconfig/images.c:36: warning: `xpm_save' defined but not used
-scripts/kconfig/images.c:66: warning: `xpm_back' defined but not used
-scripts/kconfig/images.c:175: warning: `xpm_symbol_no' defined but not
-used
-scripts/kconfig/images.c:192: warning: `xpm_symbol_mod' defined but not
-used
-scripts/kconfig/images.c:209: warning: `xpm_symbol_yes' defined but not
-used
-scripts/kconfig/images.c:226: warning: `xpm_choice_no' defined but not
-used
-scripts/kconfig/images.c:243: warning: `xpm_choice_yes' defined but not
-used
-scripts/kconfig/images.c:277: warning: `xpm_menu_inv' defined but not
-used
-scripts/kconfig/images.c:294: warning: `xpm_menuback' defined but not
-used
-scripts/kconfig/gconf.c:981: warning: `renderer_toggled' defined but not
-used
-In file included from /usr/include/linux/errno.h:4,
-                 from /usr/include/bits/errno.h:25,
-                 from /usr/include/errno.h:36,
-                 from scripts/kconfig/mconf.c:12:
-/usr/include/asm/errno.h:4:31: asm-generic/errno.h: No such file or
-directory
-scripts/kconfig/mconf.c: In function `exec_conf':
-scripts/kconfig/mconf.c:243: `EINTR' undeclared (first use in this
-function)
-scripts/kconfig/mconf.c:243: (Each undeclared identifier is reported
-only once
-scripts/kconfig/mconf.c:243: for each function it appears in.)
-scripts/kconfig/mconf.c:243: `EAGAIN' undeclared (first use in this
-function)
-make[1]: *** [scripts/kconfig/mconf.o] Error 1
-make: *** [gconfig] Error 2
-
-Please help or point me to a FAW or something...
-
-Thanks
-
-JOB
-
---=_f08c0a35b5c1b72911b4ea5809f6edbf--
-
+bill
 

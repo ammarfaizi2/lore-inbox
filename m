@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbTJUUhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTJUUhF
+	id S263334AbTJUUXl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTJUUWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:37:05 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:2736 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263336AbTJUUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:36:57 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: 2.6.0-test8-mm1
-Date: Tue, 21 Oct 2003 22:36:29 +0200
-User-Agent: KMail/1.5.9
-Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20031020185613.7d670975.akpm@osdl.org> <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org> <20031021202310.GA14993@hh.idb.hist.no>
-In-Reply-To: <20031021202310.GA14993@hh.idb.hist.no>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_YjZl/Jtv1E9pek1";
-  charset="iso-8859-1"
+	Tue, 21 Oct 2003 16:22:54 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:54402 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263327AbTJUUVu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 16:21:50 -0400
+Message-Id: <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results are in 
+In-Reply-To: Your message of "Tue, 21 Oct 2003 16:05:15 EDT."
+             <Pine.LNX.4.53.0310211558500.19942@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60> <20031021193128.GA18618@helium.inexs.com>
+            <Pine.LNX.4.53.0310211558500.19942@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-690795902P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200310212236.41476.schlicht@uni-mannheim.de>
+Date: Tue, 21 Oct 2003 16:21:26 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-690795902P
+Content-Type: text/plain; charset=us-ascii
 
---Boundary-02=_YjZl/Jtv1E9pek1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 21 Oct 2003 16:05:15 EDT, "Richard B. Johnson" said:
 
-On Tuesday 21 October 2003 22:23, Helge Hafting wrote:
-> On Tue, Oct 21, 2003 at 06:47:41PM +0100, James Simmons wrote:
-> > Okay I see people are having alot of problems in the -mm tree. I don't
-> > have any problems but I'm working against Linus tree. Could people try
-> > the patch against 2.6.0-test8 and tell me if they still have the same
-> > results.
->
-> This patch was fine.  2.6.0-test8 with this patch booted and
-> looked no different from plain 2.6.0-test8.  I am using it for
-> writing this.  The problems must be in mm1 somehow.
->
-> Helge Hafting
+> If the respondent wants them isolated into a "BADBLOCKS" file,
+> he can make a utility to do that. It's really quite easy because
+> you can raw-read disks under Linux, plus there is already
+> the `badblocks` program that will locate them.
 
-Well here I've got same problems for -test8 + fbdev-patch as with -test8-mm=
-1.=20
-I've compiled the kernel with most DEBUG_* options enabled (all but=20
-DEBUG_INFO and KGDB) and see the same cursor and image corruption as with=20
-=2Dmm1 and the same options enabled.
+Yes, it's trivially easy to figure out that block 193453 on /dev/hdb is bad.
+It's even not too bad to map that to an offset on /dev/hdb4.  Even if you're
+using LVM or DM to map stuff, it's still attackable.  But how do you guarantee
+that block 193453 gets allocated to your badblocks file and not to some other
+file that just tried to extend itself by 32K?
 
-Should I try compiling this kernel without the DEBUG_* options and watch if=
- I=20
-get the invalidate_list Oops again?
 
-I use vesafb on a Nvidia GeForce 2 MX 440 with 64MB Video-RAM.
-
-Regards
-   Thomas
-
---Boundary-02=_YjZl/Jtv1E9pek1
+--==_Exmh_-690795902P
 Content-Type: application/pgp-signature
-Content-Description: signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQA/lZjYYAiN+WRIZzQRArP6AKDS+v3MRHYCcF1RZZrWfzhVn4PtCQCfedlj
-mzpldGtLWRRC1ZwzgrrNNlY=
-=/dzU
+iD8DBQE/lZVGcC3lWbTT17ARAhrvAKCa/KEnOtWQJ8xnj57hnqVm8zNJNACgj72k
+rfyEpErBuEAG/+5ckVKs+uI=
+=0MYH
 -----END PGP SIGNATURE-----
 
---Boundary-02=_YjZl/Jtv1E9pek1--
+--==_Exmh_-690795902P--

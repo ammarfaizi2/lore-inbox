@@ -1,141 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVC3Wvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVC3Www@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVC3Wvr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 17:51:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVC3Wvq
+	id S262447AbVC3Www (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 17:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVC3Www
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 17:51:46 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:63161 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262528AbVC3Wus
+	Wed, 30 Mar 2005 17:52:52 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:47317 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262447AbVC3WwZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 17:50:48 -0500
-Subject: Re: [RFC] Driver States
-From: Adam Belay <abelay@novell.com>
-To: Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-In-Reply-To: <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
-References: <1111963367.3503.152.camel@localhost.localdomain>
-	 <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
+	Wed, 30 Mar 2005 17:52:25 -0500
+Subject: Re: Fw: ext2 corruption - regression between 2.6.9 and 2.6.10
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, bernard@blackham.com.au,
+       ext2-devel@lists.sourceforge.net, matt@ucc.asn.au
+In-Reply-To: <20050330140733.6f2edfdc.akpm@osdl.org>
+References: <20050330140733.6f2edfdc.akpm@osdl.org>
 Content-Type: text/plain
-Date: Wed, 30 Mar 2005 17:45:16 -0500
-Message-Id: <1112222717.3503.213.camel@localhost.localdomain>
+Organization: IBM LTC
+Date: Wed, 30 Mar 2005 14:52:20 -0800
+Message-Id: <1112223141.3628.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 21:57 -0800, Patrick Mochel wrote:
-> On Sun, 27 Mar 2005, Adam Belay wrote:
+I think his patch for ext2 is correct. The corruption on ext3 is not the
+same issue he saw on ext2. I believe that's the race between discard
+reservation and reservation in-use that we already fixed it in 2.6.12-
+rc1.
+
+For the problem related to ext2, at the time when we design reservation
+for ext3, we decide we only need to discard the reservation at the last
+file close, so we have ext3_discard_reservation on iput_final-
+>ext3_clear_inode.
+
+The ext2 handle discard preallocation differently at that time, it
+discard the preallocation at each iput(), not in input_final(), so we
+think it's unnecessary to thrash it so frequently, and the right thing
+to do, as we did for ext3 reservation, discard preallocation on last
+iput(). So we moved the ext2_discard_preallocation from ext2_put_inode(0
+to ext2_clear_inode.
+
+Since ext2 preallocation is doing pre-allocation on disk, so it is
+possible that at the unmount time, someone is still hold the reference
+of the inode, so the preallocation for a file is not discard yet, so we
+still mark those blocks allocated on disk, while they are not actually
+in the inode's block map, so fsck will catch/fix that error later.
+
+This is not a issue for ext3, as ext3 reservation(pre-allocation) is
+done in memory.
+
+> Begin forwarded message:
 > 
-> > Dynamic power management may require devices and drivers to transition
-> > between various physical and logical states.  I would like to start a
-> > discussion on how these might be defined at the bus, driver, and class
-> > levels.
+> Date: Thu, 31 Mar 2005 01:09:15 +0800
+> From: Bernard Blackham <bernard@blackham.com.au>
+> To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+> Cc: matt@ucc.asn.au
+> Subject: ext2 corruption - regression between 2.6.9 and 2.6.10
 > 
-> <snip>
 > 
-> > Bus Level
-> > =========
-> > At the bus level, there are two state attributes, power and
-> > enable/disable.  Enable/disable may mean different things on different
-> > buses, but they generally refer to resource decoding.  A device can only
-> > be enabled during a non-off power state.
+> Whilst trying to stress test a Promise SX8 card, we stumbled across
+> some nasty filesystem corruption in ext2. Our tests involved
+> creating an ext2 partition, mounting, running several concurrent
+> fsx's over it, umounting, and fsck'ing, all scripted[1]. The fsck
+> would always return with errors.
 > 
-> <...>
+> This regression was traced back to a change between 2.6.9 and
+> 2.6.10, which moves the functionality of ext2_put_inode into
+> ext2_clear_inode.  The attached patch reverses this change, and
+> eliminated the source of corruption.
 > 
-> > Driver Level
-> > ============
-> > At the driver level there are two areas of interest, physical and
-> > logical state.  There is an additional concern of transitioning between
-> > these states multiple times.  Because a driver acts as a bridge between
-> > physical and logical components, I think separating these steps seems
-> > natural.
+> Whilst stress tesing the same Promise SX8 card on an ext3 partition
+> (amd64 machine) also with fsx, we encountered a kernel panic who's
+> backtrace looked like:
+>   ext3_discard_reservation
+>   ext3_truncate
+>   .
+>   .
+>   .
+>   do_truncate
+>   sys_ftruncate
+> Could this same change (which was in ext3 also) be responsible for
+> this?
 > 
-> <...>
+> Bernard.
 > 
-> > *attach - allocates data structures, creates sysfs entries, prepares driver
-> >        to handle the hardware.
-> >
-> > *start -  Sets up device resources and configures the hardware.  Loads
-> > firmware, etc.
-> > (physical)
-> >
-> > *open -   engages the hardware, and makes it usable by the class device.
-> > (logical and physical)
-> >
-> > *close -  disengages the hardware, and stops class level access
-> > (logical and physical)
-> >
-> > *stop -   physically disables the hardware
-> > (physical)
-> >
-> > *detach - tears down the driver and releases it from the "struct device"
-> >
+> [1] http://matt.ucc.asn.au/ext2bad/
 > 
-> You have a few things here that can easily conflict, and that will be
-> developed at different paces. I like the direction that it's going, but
-> how do you intend to do it gradually. I.e. what to do first?
-
-I think the first step would be for us to all agree on a design, whether
-it be this one or another, so we can began planning for long term
-changes.
-
-My arguments for these changes are as follows:
-
-     1. If a device has been powered off, powered on, and restored in
-        state, it is identical to a device that the driver is
-        configuring for the first time.  So calling "*start" as part of
-        device resume seems like a logical course of action.
-     2. Being able to start and stop a device is useful outside the
-        realm of power management.  It's required for resource
-        re-balancing.  Also, the user may want to disable a device, but
-        the device must still be able to save state and react correctly
-        during a suspend.  Allowing the user to start and stop drivers
-        gives more flexibility to userspace utilities.  There may be
-        sysfs configuration files that can only be changed when the
-        device isn't active.  Resource configuration cannot be changed
-        when the device is in use.
-     3. *open and *close also might be a possibility.  When a device is
-        put into a lower power state, we want to stop driver timers and
-        prepare the hardware to be inactive, which is exactly the role
-        of "*close".  See the existing code in most net drivers.  I
-        would like to note, however, that this portion of the API is
-        optional, and needs to be looked into further.  I'm considering
-        dropping it in favor of having suspend and resume handle this.
-     4. Having responsibilities at each driver level encourages a
-        layered and object based design, reducing code duplication and
-        complexity.
-
-* "*start" and "*stop" might even be useful for device error detection.
-(Ex. we currently have no notion of starting up a device over again
-after a hardware failure)
-
-I think the next step would be to look at each class subsystem, and
-verify that our proposed API could work well with it.  If it's going to
-change the design of many device drivers, we want to make sure we get it
-right.
-
->From there, the bus level changes could be made, as they would affect
-the least upstream code.  Things like PCI PM could also be improved
-during this stage.  Greg, I know that adding *enable, and *disable to
-"struct bus_type" would be nice for PCI, ACPI, etc, as it would control
-whether resources are decoded and other device initialization
-requirements.  What about external devices such as USB?  Would such as
-interface be useful for other buses?
-
-Next, we could make changes to "struct device_driver".  As to not break
-things, (*start or *attach) and (*stop or *detach) could be temporarily
-mapped to *probe and *remove until everything is fixed up.  This hack
-could be made at the bus level, so the fixes could be applied one bus at
-a time.
-
-The final step would be to introduce "*open and *close", if we decide to
-use them, and also class device *start and *stop.  Pat, do you have any
-comments on adding *start and *stop to class devices?  It seems like an
-interesting possibility to me.
-
-Thanks,
-Adam
-
 

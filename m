@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131492AbRAXM3Z>; Wed, 24 Jan 2001 07:29:25 -0500
+	id <S131786AbRAXMcP>; Wed, 24 Jan 2001 07:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131253AbRAXM3O>; Wed, 24 Jan 2001 07:29:14 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:62214 "EHLO
+	id <S131783AbRAXMcF>; Wed, 24 Jan 2001 07:32:05 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:63238 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S130153AbRAXM3H>; Wed, 24 Jan 2001 07:29:07 -0500
-Date: Wed, 24 Jan 2001 13:27:53 +0100
+	id <S131786AbRAXMby>; Wed, 24 Jan 2001 07:31:54 -0500
+Date: Wed, 24 Jan 2001 13:30:42 +0100
 From: Harald Welte <laforge@gnumonks.org>
 To: Scaramanga <scaramanga@barrysworld.com>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@us5.samba.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Firewall netlink question...
-Message-ID: <20010124132753.U6055@coruscant.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
-	Scaramanga <scaramanga@barrysworld.com>,
-	linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
-In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan>
+Message-ID: <20010124133042.V6055@coruscant.gnumonks.org>
+In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan> <E14Kf9W-0008PJ-00@kabuki.eyep.net> <20010122115826.A11297@lemsip.lan> <20010124042826.A3452@lemsip.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010122102600.A4458@lemsip.lan>; from scaramanga@barrysworld.com on Mon, Jan 22, 2001 at 10:26:00AM +0000
+In-Reply-To: <20010124042826.A3452@lemsip.lan>; from scaramanga@barrysworld.com on Wed, Jan 24, 2001 at 04:28:26AM +0000
 X-Operating-System: 2.4.0-test11p4
 X-Date: Today is Pungenday, the 13rd day of Chaos in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 22, 2001 at 10:26:00AM +0000, Scaramanga wrote:
+On Wed, Jan 24, 2001 at 04:28:26AM +0000, Scaramanga wrote:
 > 
-> Yeah, after some quick googling and freshmeating, i came accross a daemon
-> that picked up these QUEUEd packets and multiplexed them to various child
-> processes, which seemed very innefcient, the documentation said something
-> about QUEUE not being multicast in nature, like the old firewall netlink.
+> On 2001.01.22 11:58:26 +0000 Scaramanga wrote:
+> > I wonder, would there be any interest/point in my NETLINK module, which
+> > provides a backward compatible netlink interface. There are a good few
+> > apps out there which rely on it, and its nice not to have to run a daemon
+> > and install a new library, and re-write them just to continue using them...
+> 
+> Well, here it is, kernel module, and iptables plugin. Emjoy :)
 
-ah... you are referring to my ipqmpd (ip queue multiplex daemon). Yes, it
-is not very efficient. But it is right now the only way to have multiple
-processes using the ip_queue. 
+eeks... a compressed archie including a binary is not what people on 
+linux-kernel usually want to see....
 
-The ideal solution is a queue handler which does in fact handle more than
-one queue from inside the kernel. Unfortunately nobody got around writing
-it yet. 
+anyway - thanks for your contribution. Why didn't you submit this for 
+inclusion into netfilter/iptables CVS patch-o-matic ? We (the netfilter
+people) keep all the new targets/matches/... there and submit approved
+stuff after some time for inclusion to the main kernel.
 
-> What was wrong with the firewall netlink? My re-implementation works great
-> here. I can't see why anything else would be needed, QUEUE seems twice as
-> complex. Unless with QUEUE the userspce applications can make decisions on
-> what to do with the packet? In which case, it would be far too inefficient
-> for an application like mine, where all i need is to be able to read the
-> IP datagrams..
+I'll do some testing and put it into CVS, if you want to.
 
-well... the ip_queue module as opposed to your implementation as iptables
-target has the following advantages:
-
-- can be used from each netfilter-hook attached code (not only from 
-  an ip table)
-- is more generic (you can register different queue handler, ipv6, ...)
-
-btw: please move this discussion to netfilter-devel@lists.samba.org
-
-> Regards
+> // Gianni Tedesco <scaramanga@barrysworld.com>
 
 -- 
 Live long and prosper

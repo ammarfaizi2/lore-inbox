@@ -1,183 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUEEF1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUEEFZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUEEF1v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 01:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEEF1v
+	id S261920AbUEEFZr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 01:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUEEFZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 01:27:51 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18863 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262009AbUEEF1o (ORCPT
+	Wed, 5 May 2004 01:25:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13705 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261920AbUEEFZp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 01:27:44 -0400
-Subject: [PATCH] ppc/ppc64: Cleanup PPC970 CPU initialization
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1083734580.29594.369.camel@gaston>
+	Wed, 5 May 2004 01:25:45 -0400
+Date: Tue, 4 May 2004 22:25:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of
+ mapped pages
+Message-Id: <20040504222524.23a83c02.akpm@osdl.org>
+In-Reply-To: <20040505043115.92441.qmail@web12823.mail.yahoo.com>
+References: <20040504195753.0a9e4a54.akpm@osdl.org>
+	<20040505043115.92441.qmail@web12823.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 05 May 2004 15:23:01 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Shantanu Goel <sgoel01@yahoo.com> wrote:
+>
+> > In this case, given that we have an actively mapped
+>  > MAP_SHARED pagecache
+>  > page, marking it dirty will cause it to be written
+>  > by pdflush.  Even though
+>  > we're not about to reclaim it, and even though the
+>  > process which is mapping
+>  > the page may well modify it again.  This patch will
+>  > cause additional I/O.
+>  > 
+> 
+>  True, but is that really very different from normal
+>  file I/O where we actively balance # dirty pages? 
+>  Also, the I/O will only happen if the dirty thresholds
+>  are exceeded.  It probably makes sense though to skip
+>  SwapCache pages to more closely mimic file I/O
+>  behaviour.
 
-This patch cleans up the code used to initialize the 970 CPU, more
-specifically, it adds support for the 970FX, makes sure we don't
-touch registers we aren't supposed to when running in LPAR mode, and
-stop blindly zeroing out HID4 and HID5, we just clear the bits we really
-want clear in there and leave the rest to the firmware.
+We need to think about why real applications (as opposed to benchmarks) use
+MAP_SHARED.  I suspect many of them will modify pages again and again and
+again.  We really want to avoid writing these pages out until the
+application has truly finished with them.
 
-Ben.
+I think it is probably the case that pages which were dirtied with write(2)
+are much less likely to be redirtied than pages which were dirtied via
+MAP_SHARED.
 
-diff -urN linux-2.5/arch/ppc/kernel/cpu_setup_power4.S linuxppc-2.5-benh/arch/ppc/kernel/cpu_setup_power4.S
---- linux-2.5/arch/ppc/kernel/cpu_setup_power4.S	2004-05-03 09:29:08.000000000 +1000
-+++ linuxppc-2.5-benh/arch/ppc/kernel/cpu_setup_power4.S	2004-05-04 14:34:46.000000000 +1000
-@@ -18,24 +18,37 @@
- #include <asm/offsets.h>
- #include <asm/cache.h>
- 
--_GLOBAL(__power4_cpu_preinit)
-+_GLOBAL(__970_cpu_preinit)
- 	/*
--	 * On the PPC970, we have to turn off real-mode cache inhibit
--	 * early, before we first turn the MMU off.
-+	 * Deal only with PPC970 and PPC970FX.
- 	 */
- 	mfspr	r0,SPRN_PVR
- 	srwi	r0,r0,16
--	cmpwi	r0,0x39
-+	cmpwi	cr0,r0,0x39
-+	cmpwi	cr1,r0,0x3c
-+	cror	4*cr0+eq,4*cr0+eq,4*cr1+eq
- 	bnelr
- 
-+	/* Make sure HID4:rm_ci is off before MMU is turned off, that large
-+	 * pages are enabled with HID4:61 and clear HID5:DCBZ_size and
-+	 * HID5:DCBZ32_ill
-+	 */
- 	li	r0,0
-+	mfspr	r11,SPRN_HID4
-+	rldimi	r11,r0,40,23	/* clear bit 23 (rm_ci) */
-+	rldimi	r11,r0,2,61	/* clear bit 61 (lg_pg_en) */
- 	sync
--	mtspr	SPRN_HID4,r0
-+	mtspr	SPRN_HID4,r11
- 	isync
- 	sync
--	mtspr	SPRN_HID5,r0
-+	mfspr	r11,SPRN_HID5
-+	rldimi	r11,r0,6,56	/* clear bits 56 & 57 (DCBZ*) */
-+	sync
-+	mtspr	SPRN_HID5,r11
- 	isync
-+	sync
- 
-+	/* Setup some basic HID1 features */
- 	mfspr	r0,SPRN_HID1
- 	li	r11,0x1200		/* enable i-fetch cacheability */
- 	sldi	r11,r11,44		/* and prefetch */
-@@ -43,6 +56,8 @@
- 	mtspr	SPRN_HID1,r0
- 	mtspr	SPRN_HID1,r0
- 	isync
-+
-+	/* Clear HIOR */
- 	li	r0,0
- 	sync
- 	mtspr	SPRN_HIOR,0		/* Clear interrupt prefix */
-diff -urN linux-2.5/arch/ppc/kernel/head.S linuxppc-2.5-benh/arch/ppc/kernel/head.S
---- linux-2.5/arch/ppc/kernel/head.S	2004-05-03 09:29:08.000000000 +1000
-+++ linuxppc-2.5-benh/arch/ppc/kernel/head.S	2004-05-04 14:34:46.000000000 +1000
-@@ -153,7 +153,7 @@
-  * like real mode cache inhibit or exception base
-  */
- #ifdef CONFIG_POWER4
--	bl	__power4_cpu_preinit
-+	bl	__970_cpu_preinit
- #endif /* CONFIG_POWER4 */
- 
- #ifdef CONFIG_APUS
-diff -urN linux-2.5/arch/ppc64/kernel/cpu_setup_power4.S linuxppc-2.5-benh/arch/ppc64/kernel/cpu_setup_power4.S
---- linux-2.5/arch/ppc64/kernel/cpu_setup_power4.S	2004-05-03 09:29:08.000000000 +1000
-+++ linuxppc-2.5-benh/arch/ppc64/kernel/cpu_setup_power4.S	2004-05-05 14:54:35.000000000 +1000
-@@ -18,31 +18,53 @@
- #include <asm/offsets.h>
- #include <asm/cache.h>
- 
--_GLOBAL(__power4_cpu_preinit)
-+_GLOBAL(__970_cpu_preinit)
- 	/*
--	 * On the PPC970, we have to turn off real-mode cache inhibit
--	 * early, before we first turn the MMU off.
-+	 * Do nothing if not running in HV mode
-+	 */
-+	mfmsr	r0
-+	rldicl.	r0,r0,4,63
-+	beqlr
-+
-+	/*
-+	 * Deal only with PPC970 and PPC970FX.
- 	 */
- 	mfspr	r0,SPRN_PVR
- 	srwi	r0,r0,16
--	cmpwi	r0,0x39
-+	cmpwi	cr0,r0,0x39
-+	cmpwi	cr1,r0,0x3c
-+	cror	4*cr0+eq,4*cr0+eq,4*cr1+eq
- 	bnelr
- 
-+	/* Make sure HID4:rm_ci is off before MMU is turned off, that large
-+	 * pages are enabled with HID4:61 and clear HID5:DCBZ_size and
-+	 * HID5:DCBZ32_ill
-+	 */
- 	li	r0,0
-+	mfspr	r3,SPRN_HID4
-+	rldimi	r3,r0,40,23	/* clear bit 23 (rm_ci) */
-+	rldimi	r3,r0,2,61	/* clear bit 61 (lg_pg_en) */
- 	sync
--	mtspr	SPRN_HID4,r0
-+	mtspr	SPRN_HID4,r3
- 	isync
- 	sync
--	mtspr	SPRN_HID5,r0
-+	mfspr	r3,SPRN_HID5
-+	rldimi	r3,r0,6,56	/* clear bits 56 & 57 (DCBZ*) */
-+	sync
-+	mtspr	SPRN_HID5,r3
- 	isync
-+	sync
- 
-+	/* Setup some basic HID1 features */
- 	mfspr	r0,SPRN_HID1
--	li	r11,0x1200		/* enable i-fetch cacheability */
--	sldi	r11,r11,44		/* and prefetch */
--	or	r0,r0,r11
-+	li	r3,0x1200		/* enable i-fetch cacheability */
-+	sldi	r3,r3,44		/* and prefetch */
-+	or	r0,r0,r3
- 	mtspr	SPRN_HID1,r0
- 	mtspr	SPRN_HID1,r0
- 	isync
-+
-+	/* Clear HIOR */
- 	li	r0,0
- 	sync
- 	mtspr	SPRN_HIOR,0		/* Clear interrupt prefix */
-diff -urN linux-2.5/arch/ppc64/kernel/head.S linuxppc-2.5-benh/arch/ppc64/kernel/head.S
---- linux-2.5/arch/ppc64/kernel/head.S	2004-05-03 09:29:08.000000000 +1000
-+++ linuxppc-2.5-benh/arch/ppc64/kernel/head.S	2004-05-04 14:06:56.000000000 +1000
-@@ -1469,7 +1469,7 @@
- 	mr	r23,r3			/* Save phys address we are running at */
- 
- 	/* Setup some critical 970 SPRs before switching MMU off */
--	bl	.__power4_cpu_preinit
-+	bl	.__970_cpu_preinit
- 
- 	li	r24,0			/* cpu # */
- 
+One thing you might like to look at is to give these pages another trip
+around the LRU after they have been unmapped from pagetables, and to give
+pdflush a poke.  Add instrumentation to record how many pages end up
+getting written via vmscan's writepage versus via pdflush (use
+current_is_pdflush()).
 
+
+diff -puN mm/vmscan.c~a mm/vmscan.c
+--- 25/mm/vmscan.c~a	2004-05-04 22:21:41.613856240 -0700
++++ 25-akpm/mm/vmscan.c	2004-05-04 22:23:16.016504856 -0700
+@@ -318,7 +318,9 @@ shrink_list(struct list_head *page_list,
+ 				rmap_unlock(page);
+ 				goto keep_locked;
+ 			case SWAP_SUCCESS:
+-				; /* try to free the page below */
++				if (PageDirty(page))
++					goto keep_locked;
++				break;
+ 			}
+ 		}
+ 		rmap_unlock(page);
+
+_
 

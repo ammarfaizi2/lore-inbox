@@ -1,115 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268316AbUH2VYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268322AbUH2V0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268316AbUH2VYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 17:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUH2VYM
+	id S268322AbUH2V0o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 17:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268326AbUH2V0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 17:24:12 -0400
-Received: from holomorphy.com ([207.189.100.168]:38576 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268316AbUH2VX6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 17:23:58 -0400
-Date: Sun, 29 Aug 2004 14:23:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040829212350.GX5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andries Brouwer <Andries.Brouwer@cwi.nl>,
-	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com> <20040829192617.GB24937@apps.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829192617.GB24937@apps.cwi.nl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 29 Aug 2004 17:26:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49892 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268322AbUH2V0a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 17:26:30 -0400
+Message-ID: <413249F7.50904@pobox.com>
+Date: Sun, 29 Aug 2004 17:26:15 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@ximian.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: interrupt cpu time accounting?
+References: <41323FA8.80203@pobox.com> <1093814102.2595.8.camel@localhost>
+In-Reply-To: <1093814102.2595.8.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 11:41:14AM -0700, William Lee Irwin III wrote:
->> I guess I might as well write a diffprof(1) too.
+Robert Love wrote:
+> On Sun, 2004-08-29 at 16:42 -0400, Jeff Garzik wrote:
+> 
+>>Does the kernel scheduler notice when a CPU spends a lot of time doing 
+>>interrupt processing?
+>>
+>>For many network configurations you get the best cache affinity, etc. if 
+>>you lock network interrupts to a single CPU.  However, on a box with 
+>>high network load, that could mean that that CPU is spending more time 
+>>processing interrupts than doing Real Work(tm).
+>>
+>>Will the scheduler "notice" this, and increasingly schedule processes 
+>>away from the interrupt-heavy CPU?
+> 
+> 
+> Nope, not explicitly anyhow.
+> 
+> Implicitly, at least, the load balancer will ensure that the runnable
+> processes on the processor do not get "backed up" due to the delayed
+> processing but you will still have the balanced minimum number of
+> processes there.
 
-On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
-> Thanks!
-> <mutter>
-> Is it really necessary to tell Alessandro Rubini, Stephane Eranian,
-> Andrew Morton, Werner Almesberger, John Levon, Nikita Danilov
-> that their work makes you vomit?
-> Many kernel people have such unpleasant habits.
-> It fully suffices to say that you considered the original code
-> too ugly to fix.
-> </mutter>
-
-It probably qualifies as impolite. I suppose a better way of going
-about this would be saying that the code has accumulated some cruft,
-and then describing the differences in greater detail.
-
-The removal of the multiplier resetting is an oversight; I rarely
-use the feature myself, but upon closer examination, the multiplier
-accepted by write_profile() is not ASCII. I also question the role of a
-profile report extraction utility in alterations of profiling state.
-
-The removal of the reset feature is once again intentional as this
-can be done by echo > /proc/profile.
-
-The removal of the individual bin count reporting is intentional, but
-not a very nice removal, as it's a useful feature and definitely not a
-misfeature. The format of the histogram reporting is, however, not very
-useful as sort(1) etc. don't easily interoperate with it. This should
-be put back for serious use.
-
-The removal of accepting compressed files is once again intentional,
-and replaced with the new feature of accepting '-' as an argument for
-the files operated on so that decompression to pipes may replace it.
-
-The removal of the stepsize reporting was intentional, but again not
-a nice removal.
-
-The removal of reporting zero hit count symbols was intentional, but
-again not nice.
-
-The removal of verbose reporting with text addresses in addition to the
-symbol was intentional, but again not nice.
-
-The removal of -V was intentional, as I consider it bloat.
-
-The removal of the normalized load from the reporting was very
-intentional, as it's pure gibberish.
-
-The difference I cared the most about was algorithmic. A giant memcpy()
-of the profile buffer and making multiple passes over it is ridiculous.
-This was recoded as maintaining a buffer large enough to hold the
-length of the profile buffer spanning symbol currently being examined.
-In this way the memory resources required for it to operate are
-drastically reduced from multiple megabytes to just a few pages.
+What piece of code defines "balanced"?  :)
 
 
-On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
-> <util-linux maintainer>
-> Your code still requires some polishing. No localized messages, etc.
+> I don't know whether the answer is to use cpu affinity and not schedule
+> processes on that processor when you bind interrupts to it, or an
+> automatic algorithm in the load balance for doing it, but that is a neat
+> idea.
 
-I tend to avoid locale bits due to system resource and library
-dependency concerns. I usually try to avoid using (g)libc for similar
-reasons also by making syscalls directly, static linking and so on,
-but expected that would not go over well.
+Less a neat idea, and more IMHO recognition of a problem that needs solving.
 
+I am worried that processes will get starved if one CPU is _heavily_ 
+loaded servicing interrupts, and the others are not.
 
-On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
-> And next, you removed some features, but do not indicate what
-> replacement you see.
-> For example, Andrew added the -M option that sets a frequency.
-> Are you going to contribute a write_profile too?
-> Or do you think nobody should wish to set a frequency?
-> </util-linux maintainer>
+Regards,
 
-I wasn't really expecting much to come of it besides prodding people
-to clean up bloat. The reduced functionality alone likely precludes it
-from consideration for inclusion. Supposing that there is greater
-interest, which I don't expect, I can fix these things up and so on.
+	Jeff
 
 
--- wli

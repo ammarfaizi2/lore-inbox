@@ -1,83 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272628AbRHaIAB>; Fri, 31 Aug 2001 04:00:01 -0400
+	id <S272630AbRHaIIL>; Fri, 31 Aug 2001 04:08:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272630AbRHaH7w>; Fri, 31 Aug 2001 03:59:52 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:42764 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S272628AbRHaH7p>;
-	Fri, 31 Aug 2001 03:59:45 -0400
-X-Envelope-From: news@bytesex.org
+	id <S272632AbRHaIIC>; Fri, 31 Aug 2001 04:08:02 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:18960 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272630AbRHaIHt>; Fri, 31 Aug 2001 04:07:49 -0400
+From: Joerg Plate <plate@psyche.kn-bremen.de>
 To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-Date: 31 Aug 2001 07:22:11 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrn9ouep3.4d6.kraxel@bytesex.org>
-In-Reply-To: <20010830.161453.130817352.davem@redhat.com> from "David S. Miller" at Aug 30, 2001 04:14:53 PM <E15cbGc-00027M-00@the-village.bc.nu>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 999242531 4602 127.0.0.1 (31 Aug 2001 07:22:11 GMT)
-User-Agent: slrn/0.9.7.0 (Linux)
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <20010831044247.B811@gondor.com>
+	<3B8EFF67.9010409@digitalaudioresources.org>
+In-Reply-To: <3B8EFF67.9010409@digitalaudioresources.org> (David Hollister's
+ message of "Thu, 30 Aug 2001 20:07:19 -0700")
+Reply-To: Joerg Plate <520028810828-0001@t-online.de>
+X-Face: @mmL&kd08o2u)0J<d~VvEtt<bdXk~1GLsP1pg(3tah|4MVl<2T|%EyJjM*b~M/WB#OSY}|[
+ ZG[V9Y{vly)Ub4R)I[m=O}C8T(^)yM~NEl7MBYDZIYEO<!yy04``w=CF4O&-6gSYg9JI-h+'c:XxM"
+ bRo4nfUQw:wzJ&XJgI9Iv$y
+Date: Fri, 31 Aug 2001 10:08:04 +0200
+Message-ID: <87vgj4649n.fsf@psyche.kn-bremen.de>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.5 (artichoke)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > If mmap()'ing the frame buffer and passing this into read() is how
-> > this will be done, it simply won't work.  That's the point I'm trying
-> > to make.
->  
->  That isnt done anyway - the card executes a risc instruction set for the
->  DMA engine specifying which to skip and draw. So you feed it a base
->  physical address for the fb via ioctl (yes this needs to be a pci device
->  bar and offset I suspect) and then tell it about the fb layout and the like
 
-current bttv tries to find a PCI device for the given physical address by
-walking all PCI devices, then check whenever the address falls into one of the
-dev->resource memory ranges.  Works fine on i386, but I'm not sure whenever
-this works on other platforms, where phys == bus isn't true.
+> It seems to work somewhat better for some if you set your BIOS to the
+> conservative settings, but that didn't help me. I have an Epox 8KTA3+
+> (Via KT133A) w/ a 1.4GHz Athlon and 512MB memory.
 
-Right now it only sanity-checks the given physical address this way (see
-below), but of course I could also pass the found pci_dev to some pci->pci
-API.
+I'm using an Epox 8KT3+ (VIA KT133A) motherboard, too. The processor is a
+1.333GHz Athlon and I never had problems with the optimisation (CONFIG_MK7=y).
 
-What addresses are in dev->resource?  Physical?  Bus address?  Are they
-unique?
+-- 
+"I'm working on it."  <http://www.psyche.kn-bremen.de/>
 
-  Gerd
-
----------------------------- cut here -------------------------
-static int
-find_videomem(unsigned long from, unsigned long to)
-{
-        struct pci_dev *dev = NULL;
-        int i,match,found;
-
-        found = 0;
-        dprintk(KERN_DEBUG "bttv: checking video framebuffer address"
-                " (%lx-%lx)\n",from,to);
-        pci_for_each_dev(dev) {
-                if (dev->class != PCI_CLASS_NOT_DEFINED_VGA &&
-                    dev->class >> 16 != PCI_BASE_CLASS_DISPLAY)
-                        continue;
-                dprintk(KERN_DEBUG
-                        "  pci display adapter %04x:%04x at %02x:%02x.%x\n",
-                        dev->vendor,dev->device,dev->bus->number,
-                        PCI_SLOT(dev->devfn),PCI_FUNC(dev->devfn));
-                for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
-                        if (!(dev->resource[i].flags & IORESOURCE_MEM))
-                                continue;
-                        if (dev->resource[i].flags & IORESOURCE_READONLY)
-                                continue;
-                        match = (from >= dev->resource[i].start) &&
-                                (to-1 <= dev->resource[i].end);
-                        if (match)
-                                found = 1;
-                        dprintk(KERN_DEBUG "    memory at %08lx-%08lx%s\n",
-                                dev->resource[i].start,
-                                dev->resource[i].end,
-                                match ? "  (check passed)" : "");
-                }
-        }
-        return found;
-}
+1998: U.S.Congress abolished Free Speech by replacing First Amendment with DMCA.

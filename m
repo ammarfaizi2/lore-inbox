@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274887AbTGaV2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274878AbTGaV2J
+	id S274889AbTGaVal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTGaV2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:28:09 -0400
-Received: from AMarseille-201-1-5-189.w217-128.abo.wanadoo.fr ([217.128.250.189]:25127
-	"EHLO gaston") by vger.kernel.org with ESMTP id S274877AbTGaV0c
+	Thu, 31 Jul 2003 17:28:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:34969 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S274877AbTGaV2L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:26:32 -0400
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <3F291857.1030803@pacbell.net>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
-	 <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net>
-	 <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net>
-	 <20030731094904.GC464@elf.ucw.cz>  <3F291857.1030803@pacbell.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059686740.2420.158.camel@gaston>
+	Thu, 31 Jul 2003 17:28:11 -0400
+Date: Fri, 1 Aug 2003 03:01:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rusty@rustcorp.com.au, andrea@suse.de, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com
+Subject: Re: [PATCH] RCU: Reduce size of rcu_head 1 of 2
+Message-ID: <20030731213103.GB17709@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030731185806.GC1990@in.ibm.com> <20030731134954.54108d95.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 31 Jul 2003 23:25:41 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030731134954.54108d95.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-31 at 15:23, David Brownell wrote:
-> Pavel Machek wrote:
-> > Hi!
-> > 
-> > 
-> >> - APM uses the pm_*() calls for a vetoable check,
-> >>   never issues SAVE_STATE, then goes POWER_DOWN.
-> > 
-> > 
-> > I remember the reason... SAVE_STATE expects user processes to be
-> > stopped, which is not the case in APM. Perhaps that is easy to fix
-> > these days...
-> > 							Pavel
+On Thu, Jul 31, 2003 at 01:49:54PM -0700, Andrew Morton wrote:
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> >
+> > I have merged Rusty's original patch for reducing the size of
+> > rcu_heads by splitting the two main changes into two patches.
 > 
+> There are probably a lot of data structures in which we could save 4 (or 8)
+> bytes by converting things from doubly linked to singly linked.
 > 
-> That SAVE_STATE restriction doesn't seem to be documented...
+> And that's good, but given that at this time we are concentrating 100% on
+> stabilising 2.6 (aren't we?) I'll be letting these patches slide, thanks.
 
-Because it is plain wrong ;)
+The linked-list change is internal enough for a future backport from
+2.7. The only concern here is the change in call_rcu() API. What would
+be a good way to manage that ?
 
-Ben.
-
+Thanks
+Dipankar

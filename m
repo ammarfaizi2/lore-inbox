@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbRFLXFQ>; Tue, 12 Jun 2001 19:05:16 -0400
+	id <S263836AbRFLXG0>; Tue, 12 Jun 2001 19:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263761AbRFLXFG>; Tue, 12 Jun 2001 19:05:06 -0400
-Received: from firewall.ocs.com.au ([203.34.97.9]:22771 "EHLO ocs4.ocs-net")
-	by vger.kernel.org with ESMTP id <S263760AbRFLXEw>;
-	Tue, 12 Jun 2001 19:04:52 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Daniel Stone <daniel@kabuki.sfarc.net>
-cc: Daniel Podlejski <underley@underley.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: XFS and Alan kernel tree 
-In-Reply-To: Your message of "Wed, 13 Jun 2001 08:25:52 +1000."
-             <20010613082551.A3032@kabuki.openfridge.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Jun 2001 09:03:16 +1000
-Message-ID: <13436.992386996@ocs4.ocs-net>
+	id <S263834AbRFLXGR>; Tue, 12 Jun 2001 19:06:17 -0400
+Received: from [205.185.57.35] ([205.185.57.35]:13843 "EHLO mail.promise.com")
+	by vger.kernel.org with ESMTP id <S263793AbRFLXF5>;
+	Tue, 12 Jun 2001 19:05:57 -0400
+Reply-To: <craigl@promise.com>
+From: "Craig Lyons" <craigl@promise.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Getting A Patch Into The Kernel
+Date: Tue, 12 Jun 2001 15:34:43 -0700
+Message-ID: <005101c0f38f$e2000960$bd01a8c0@promise.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001 08:25:52 +1000, 
-Daniel Stone <daniel@kabuki.sfarc.net> wrote:
->On Sat, May 05, 2001 at 11:08:16PM +0200, Daniel Podlejski wrote:
->> I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
->> Patch against Alan tree is avaliable at:
->
->Hi Daniel,
->I've got a KDB patch against a relatively recent 2.4.5-ac6, but are you
->still continuing your porting effort to the -ac series?
+Hello,
 
-kdb v1.8-2.4.5-ac6 works for -ac6 through -ac13.  None of the changes
-in that series affect kdb.
+My name is Craig Lyons and I am the marketing manager at Promise Technology.
+We have a question and are hoping you can point us in the right direction.
+In the 2.4 kernel there is support for some of our products (Ultra 66, Ultra
+100, etc.). As you may or may not know, our Ultra family of controllers
+(which are just standard IDE controllers and do not have RAID) use the same
+ASIC on them as our FastTrak RAID controllers do. The 2.4 kernel will
+recognize our Ultra family of controllers, but there is a problem in that a
+FastTrak will not be recognized as a FastTrak, but as an Ultra.
+Consequently, the array on the FastTrak is not recognized as an array, but
+instead each disk is seen individually, and the users data cannot be
+properly accessed. We have a patch that fixes this and are wondering if it
+is possible to get this patch into the kernel, and if so, how this would be
+done?
 
-There have been some significant changes to page I/O handling in
-2.4.6-pre[12] which are reflected in the XFS CVS tree.  -ac13 is still
-using the old page_launder() code which is not as clean.  In addition
-kdb for Linus's and AC's trees has diverged quite a bit because of the
-console and NMI cleanup in -ac.  Fitting XFS from CVS into -ac13 will
-be very nasty, you might want to wait until AC syncs to Linus's kernel
-or Linus takes some of the -ac changes.
+I apologize if this is the incorrect e-mail to be making this request to. If
+this is not the correct address to be posting this message, any assistance
+as to where it should be directed would be greatly appreciated.
+
+Regards,
+
+Craig
+
+
+Craig Lyons
+Marketing Manager
+Promise Technology
+1460 Koll Circle
+San Jose, CA 95112
+USA
+Voice - 408-452-0948 ext. 241
+Fax - 408-452-1534
+craigl@promise.com
+http:\\www.promise.com
 

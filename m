@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbTFWQJj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 12:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbTFWQI3
+	id S264795AbTFWQGg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 12:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbTFWQEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 12:08:29 -0400
-Received: from relay.pair.com ([209.68.1.20]:11019 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S264806AbTFWQHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 12:07:05 -0400
-X-pair-Authenticated: 65.247.36.27
-Subject: Re: O(1) scheduler & interactivity improvements
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056363509.587.13.camel@teapot.felipe-alfaro.com>
-References: <1056298069.601.18.camel@teapot.felipe-alfaro.com>
-	 <3EF6B5D4.10501@aitel.hist.no>
-	 <1056363509.587.13.camel@teapot.felipe-alfaro.com>
+	Mon, 23 Jun 2003 12:04:38 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17105
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264908AbTFWQEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 12:04:11 -0400
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hps@intermeta.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <bd78qm$7is$1@tangens.hometree.net>
+References: <20030620001217.G6248@almesberger.net>
+	 <20030620120910.3f2cb001.skraw@ithnet.com>
+	 <20030620142436.GB14404@work.bitmover.com>
+	 <20030620143012.GC14404@work.bitmover.com>
+	 <20030620163349.GG17563@work.bitmover.com>
+	 <20030621142048.2ae63afa.skraw@ithnet.com>
+	 <20030621133831.GA10089@work.bitmover.com>
+	 <1056358467.29264.41.camel@passion.cambridge.redhat.com>
+	 <20030623132231.GC6715@work.bitmover.com>
+	 <3EF70EF8.3050107@coyotegulch.com>
+	 <20030623150616.GA20103@work.bitmover.com>
+	 <bd78qm$7is$1@tangens.hometree.net>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1056385266.1968.22.camel@athena.fprintf.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 23 Jun 2003 12:21:07 -0400
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056384967.13529.74.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jun 2003 17:16:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 06:18, Felipe Alfaro Solana wrote:
+On Llu, 2003-06-23 at 17:11, Henning P. Schmiedehausen wrote:
+> SAP is doing exactly what Scott is doing on a little larger base. They
+> have a product with a bazillion of levers and controls and they sell
+> you services to adapt their product on your needs. Things you could do
+> yourself if you have five years' time to read all the manuals.
+> 
+> So your argument simply doesn't hold. SAP is not exactly a "small
+> custom shop".
 
-> If a process has received user
-> input in the past, ir's pretty probable that the process is an
-> interactive one.
+And lots of stuff that is *far* easier to operate and reliable has
+active support companies for a variety of reasons. Its cost effective to
+aggregate knowledge for example. Not every house has its own plumber,
+electrician and painter for the same reasons.
 
-<snip>
+I know people who support TeX profitably. So the support business works
+for software that basically has no bugs. 
 
-> So then, why I can easily starve the X11 server (which should be marked
-> interactive), Evolution or OpenOffice simply by running "while true; do
-> a=2; done". Why don't they get an increased priority boost to stop the
-> from behaving so jerky?
-
-You're own metric will kill you here.  You're while true; loop is
-running in the shell, which is interactive (it has accepted user in put
-in the past) and can therefore easily starve anything else.  You need a
-an easy way to make an interactive process non-interactive, and that's
-what these threads are all about, making interactive threads
-non-interactive (and the other way around) in a fashion that maximises
-the user experience.  A history of user input is not necessarily a good
-metric, as many non-interactive CPU hogs start out life as interactive
-threads (like your loop above).
--- 
-Daniel Gryniewicz <dang@fprintf.net>
+Alan
 

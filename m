@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbRBLOlR>; Mon, 12 Feb 2001 09:41:17 -0500
+	id <S129327AbRBLOm1>; Mon, 12 Feb 2001 09:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129327AbRBLOlI>; Mon, 12 Feb 2001 09:41:08 -0500
-Received: from mirasta.antefacto.net ([193.120.245.10]:47374 "EHLO
-	mirasta.antefacto.net") by vger.kernel.org with ESMTP
-	id <S129069AbRBLOk6>; Mon, 12 Feb 2001 09:40:58 -0500
-From: Stephane Dudzinski <stephane@antefacto.com>
-Reply-To: stephane@antefacto.com
-To: linux-kernel@vger.kernel.org
-Subject: Bug in i810 kernel module
-Date: Mon, 12 Feb 2001 14:40:56 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: stephane@antefacto.com
+	id <S129404AbRBLOmR>; Mon, 12 Feb 2001 09:42:17 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:56328 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S129327AbRBLOl6>; Mon, 12 Feb 2001 09:41:58 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E95260@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'myg@nolab.conman.org'" <myg@nolab.conman.org>
+Cc: Peter Jarrett <Peterj@ami.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Bug in AMI Raid controller, Linux 2.4
+Date: Mon, 12 Feb 2001 09:37:26 -0500
 MIME-Version: 1.0
-Message-Id: <0102121440560G.00759@steph>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+	This is because the 2.2.XX contains the a later version of the
+driver when compared to 2.4.1 kernel. I have submitted to Linus and Alan the
+1.14g version of the driver which works for 2.2.XX and contains special code
+for 2.4.XX kernels.
+	As the file is too large for me post to LKML i have submitted the
+patch to Linus and Alan which i guess will be in the next incremental
+release of both 2.2.19 and 2.4.1-pre?
+	Thanks,
+	Venkatesh
 
-I would like to submit the following bug to the list.
-
-I've compiled the brand new 2.4.1 with the i810 module (the one which plays 
-mp3s 15% faster than the usual speed). I did a hack modifying this line into :
-/usr/src/linux/drivers/sound/i810_audio.c and modified the clocking as 
-follows : 
-
-static unsigned int clocking=41194;
-
-I don't think this why i got this behavior but using xmms sucked 98% of the 
-CPU time reading either mp3s or ogg files. Something is definitly wrong with 
-this driver as ALSA ones work just fine (xmms then uses only 0.5% of the CPU 
-time).
-
-hope it is useful.
-Cheers
-Steph
-
--- 
-Email sent with RH 7.0 running kernel 241
-"Go away or I will replace you with a very small shell script" - ThinkGeek
-Mailto:stephane@antefacto.com
-Phone:8586009
-
+> -----Original Message-----
+> From: Mark Grosberg [mailto:myg@nolab.conman.org]
+> Sent: Saturday, February 10, 2001 8:39 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Bug in AMI Raid controller, Linux 2.4
+> 
+> 
+> 
+> Hello all, forgive me if this has already been discovered...
+> 
+> I think I have found a bug in the AMI Megatrends RAID controller driver,
+> scsi/megaraid.c.
+> 
+> If I look in the old, 2.2.x code, in the routine mega_findCard, I find:
+> 
+>     if (flag != BOARD_QUARTZ) {
+>       /* Request our IO Range */
+>       if (check_region (megaBase, 16)) {
+>         printk (KERN_WARNING "megaraid: Couldn't register I/O range!" ...
+>         scsi_unregister (host);
+>         continue;
+>       }
+>      request_region (megaBase, 16, "megaraid");
+> 
+> And in the 2.4.1 code, same routine, I find:
+> 
+>          if (flag != BOARD_QUARTZ) {
+>       /* Request our IO Range */
+>       if (request_region (megaBase, 16, "megaraid")) {
+>         printk (KERN_WARNING "megaraid: Couldn't register I/O range!" ...
+>         scsi_unregister (host);
+>         continue;
+>       }
+>     }
+> 
+> I think the code is missing a "!" in front of request_region(). It seems
+> that the 2.4.1 kernel does not recognize my RAID controller where as
+> 2.2.x does. 
+> 
+> L8r,
+> Mark G.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

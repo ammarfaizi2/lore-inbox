@@ -1,51 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268708AbTBZKlc>; Wed, 26 Feb 2003 05:41:32 -0500
+	id <S268710AbTBZKmu>; Wed, 26 Feb 2003 05:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268709AbTBZKlc>; Wed, 26 Feb 2003 05:41:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:5063 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268708AbTBZKlb>;
-	Wed, 26 Feb 2003 05:41:31 -0500
-Date: Wed, 26 Feb 2003 02:52:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: jsherman@stuy.edu, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
-Message-Id: <20030226025216.114d4f2c.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0302252059370.1430-100000@localhost.localdomain>
-References: <20030224212530.GA631@j0nah.ath.cx>
-	<Pine.LNX.4.44.0302252059370.1430-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268711AbTBZKmu>; Wed, 26 Feb 2003 05:42:50 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:7553 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S268710AbTBZKmr>; Wed, 26 Feb 2003 05:42:47 -0500
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [PATCH][2.5] fix preempt-issues with smp_call_function()
+Date: Wed, 26 Feb 2003 11:52:45 +0100
+User-Agent: KMail/1.5
+Cc: torvalds@transmeta.com, hugh@veritas.com, linux-kernel@vger.kernel.org
+References: <200302251908.55097.schlicht@uni-mannheim.de> <20030226111905.GA32415@suse.de> <20030226022819.44e1873a.akpm@digeo.com>
+In-Reply-To: <20030226022819.44e1873a.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_DyJX+1xlWmxP1wo";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Feb 2003 10:51:41.0504 (UTC) FILETIME=[0B9D4400:01C2DD85]
+Message-Id: <200302261152.51479.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+
+--Boundary-02=_DyJX+1xlWmxP1wo
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+Dave Jones <davej@codemonkey.org.uk> wrote:
+> btw, (unrelated) shouldn't smp_call_function be doing magick checks
+> with cpu_online() ?
+
+Andrew Morton wrote:
+> Looks OK?  It sprays the IPI out to all the other CPUs in cpu_online_map,
+> and waits for num_online_cpus()-1 CPUs to answer.
 >
-> On Mon, 24 Feb 2003, Jonah Sherman wrote:
-> 
-> > I have come across a bug in the loop driver.  To reproduce this bug,
-> > simply do:
-> ...
-> I can't reproduce this, and I don't understand it: please help me!
+> All very racy in the presence of CPUs going offline, but that's all over
+> the place.  Depends how the offlining will be done I guess.
 
-Well I can't make it happen either now.  It went pop first time I tried it
-yesterday.
+Well, now I see the check for num_online_cpus() !=3D 1 in smp_call_function=
+(),=20
+too, so the check in on_each_cpu() is not needed and possibly better this=20
+patch should apply to the include/linux/smp.h file...
 
-That being said, I can still trigger it by mmapping /dev/loop0 MAP_SHARED and
-dirtying it all.  That triggers the problematic PF_MEMALLOC path much more easily.
+  Thomas
 
-	mem=256M
-	losetup /dev/loop0 /dev/hda5
-	usemem  -m 300 -f /dev/loop0
-	<oops>
+=2D-- linux-2.5.63/include/linux/smp.h.orig       Mon Feb 24 20:05:33 2003
++++ linux-2.5.63/include/linux/smp.h    Wed Feb 26 11:41:45 2003
+@@ -10,9 +10,10 @@
 
-(gdb) p/x lo->lo_flags
-$3 = 0x0
+ #ifdef CONFIG_SMP
 
-Userspace is passing in lo_encrypt_type == 0, so loop_init_xfer() never calls the transfer
-init function.
++#include <linux/preempt.h>
+ #include <linux/kernel.h>
+ #include <linux/compiler.h>
+=2D#include <linux/threads.h>
++#include <linux/thread_info.h>
+ #include <asm/smp.h>
+ #include <asm/bug.h>
+
+@@ -54,6 +55,24 @@
+                              int retry, int wait);
+
+ /*
++ * Call a function on all processors
++ */
++static inline int on_each_cpu(void (*func) (void *info), void *info,
++                             int retry, int wait)
++{
++       int ret;
++
++       preempt_disable();
++
++       ret =3D smp_call_function(func, info, retry, wait);
++       func(info);
++
++       preempt_enable();
++
++       return ret;
++}
++
++/*
+  * True once the per process idle is forked
+  */
+ extern int smp_threads_ready;
+@@ -96,6 +115,7 @@
+ #define hard_smp_processor_id()                        0
+ #define smp_threads_ready                      1
+ #define smp_call_function(func,info,retry,wait)        ({ 0; })
++#define on_each_cpu(func,info,retry,wait)      ({ func(info); 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
+ #define cpu_online_map                         1
+
+--Boundary-02=_DyJX+1xlWmxP1wo
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+XJyDYAiN+WRIZzQRAvasAJ9q/oCm7lSxL1IsoZs51yb0ag0trACgn/gQ
+x17Jq8JVAeK3RDClpXmNlVs=
+=8t1Q
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_DyJX+1xlWmxP1wo--
 

@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267592AbUHPMVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUHPMVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267592AbUHPMVP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267580AbUHPMUv
+	id S267571AbUHPMVU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUHPMU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:20:51 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:57559 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S267571AbUHPMSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:18:32 -0400
-Message-ID: <4120A612.2000600@tungstengraphics.com>
-Date: Mon, 16 Aug 2004 13:18:26 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: DRM and 2.4 ...
-References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com> <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com> <20040816101426.GB31696@devserv.devel.redhat.com> <Pine.LNX.4.58.0408161137330.21177@skynet> <41209DBB.1060909@tungstengraphics.com> <20040816115813.GD13029@devserv.devel.redhat.com>
-In-Reply-To: <20040816115813.GD13029@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 08:20:56 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:26117 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267576AbUHPMU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:20:28 -0400
+Date: Mon, 16 Aug 2004 13:20:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+Message-ID: <20040816132022.A10567@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@linux.ie>,
+	torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org> <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org> <Pine.LNX.4.58.0408161019040.21177@skynet> <20040816105014.A9367@infradead.org> <1092654719.20523.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1092654719.20523.18.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 16, 2004 at 12:12:00PM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, Aug 16, 2004 at 12:42:51PM +0100, Keith Whitwell wrote:
+On Mon, Aug 16, 2004 at 12:12:00PM +0100, Alan Cox wrote:
+> On Llu, 2004-08-16 at 10:50, Christoph Hellwig wrote:
+> > no, now you're acting like an even more broken driver, preventing a fbdev
+> > driver to be loaded afterwards and doing all kinds of funny things.  Please
+> > revert to the old method until you have a common pci_driver for fbdev and dri.
 > 
->>Dave's hit the nail on the head here.  If you'd like some changes, feel 
->>free to make suggestions.
-> 
-> 
-> once the new intel DRM driver hits Linus' tree I want to start an experiment
-> to make it look like a linux driver.. (I'm waiting for that driver since
-> most of my hw is intel gfx based)
+> fbdev and DRI are not functional together in the general case. They
+> sometimes happen to work by luck. fbdev and X for that matter are
+> generally incompatible except unaccelerated.
 
-Fair enough.  Hopefully that will include Dave's changes as well, as they're 
-going to resolve a lot of the issues that I find make DRM difficult to work with.
-
-Keith
+Works fine on all my pmacs here.  In fact X works only on fbdev for
+full features.
 

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbSI3VnR>; Mon, 30 Sep 2002 17:43:17 -0400
+	id <S261359AbSI3Vol>; Mon, 30 Sep 2002 17:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSI3VnR>; Mon, 30 Sep 2002 17:43:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22709 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261346AbSI3VnM>;
-	Mon, 30 Sep 2002 17:43:12 -0400
-Date: Mon, 30 Sep 2002 14:41:44 -0700 (PDT)
-Message-Id: <20020930.144144.25095563.davem@redhat.com>
-To: perex@suse.cz
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA update [10/10] - 2002/08/05
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0209302327500.503-100000@pnote.perex-int.cz>
-References: <20020930.135203.110291802.davem@redhat.com>
-	<Pine.LNX.4.33.0209302327500.503-100000@pnote.perex-int.cz>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261360AbSI3Vok>; Mon, 30 Sep 2002 17:44:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27155 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261359AbSI3Voj>;
+	Mon, 30 Sep 2002 17:44:39 -0400
+Message-ID: <3D98C6ED.7090009@pobox.com>
+Date: Mon, 30 Sep 2002 17:49:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK/GNU] net driver 2.4.x series 7
+References: <3D97942E.90106@pobox.com> <20020930213812.GA2185@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jaroslav Kysela <perex@suse.cz>
-   Date: Mon, 30 Sep 2002 23:29:30 +0200 (CEST)
+J.A. Magallon wrote:
+> On 2002.09.30 Jeff Garzik wrote:
+> 
+>>(just for historical reference)
+>>
+> 
+> 
+>>From this (ahd looking to the files) I guesst they are in -pre8 already,
+> isn't it ?
 
-   On Mon, 30 Sep 2002, David S. Miller wrote:
-   
-   > I sent this stuff to Linus seperately last night to save time.
-   
-   I need to redo next 7 patches because your update :-(
-   My fault, I should be faster.
 
-Sorry for the conflict, but I have been waiting for almost 2 months
-for my SBUS diffs to show up in the tree so I could merge in my
-Sparc drivers.
+yep...  I have them separated out locally, so people can cherry pick and 
+test individual patches if they wish...
+

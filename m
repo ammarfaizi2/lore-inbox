@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275057AbTHGEwg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 00:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275058AbTHGEwg
+	id S275062AbTHGFML (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275066AbTHGFML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 00:52:36 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43656
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S275057AbTHGEwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 00:52:34 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Daniel Phillips <phillips@arcor.de>, Ed Sweetman <ed.sweetman@wmich.edu>,
-       Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Wed, 6 Aug 2003 17:28:04 -0400
-User-Agent: KMail/1.5
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <3F2264DF.7060306@wmich.edu> <200307271046.30318.phillips@arcor.de>
-In-Reply-To: <200307271046.30318.phillips@arcor.de>
+	Thu, 7 Aug 2003 01:12:11 -0400
+Received: from anumail2.anu.edu.au ([150.203.2.42]:31107 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S275062AbTHGFMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:12:10 -0400
+Message-ID: <3F31DF98.6020908@cyberone.com.au>
+Date: Thu, 07 Aug 2003 15:11:52 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Con Kolivas <kernel@kolivas.org>
+CC: Cliff White <cliffw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.0-test2-mm3 osdl-aim-7 regression
+References: <200308061910.h76JAYw16323@mail.osdl.org> <200308071240.54863.kernel@kolivas.org>
+In-Reply-To: <200308071240.54863.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308061728.04447.rob@landley.net>
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-2.8)
+X-Spam-Tests: DATE_IN_PAST_06_12,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_00_01,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 July 2003 11:46, Daniel Phillips wrote:
+Con Kolivas wrote:
 
-> The definition of a realtime scheduler is that the worst case latency is
-> bounded.  The current crop of interactive tweaks do not do that.  So we
-> need a scheduler with a bounded worst case.  Davide Libenzi's recent patch
-> that implements a new SCHED_SOFTRR scheduler policy, usable by non-root
-> users, provides such a bound.  Please don't lose sight of the fact that
-> this is the correct solution to the problem, and that interactive tweaking,
-> while it may produce good results for some or even most users in some or
-> even most situations, will never magically transform Linux into an
-> operating system that an audiophile could love.
-
-Thinking out loud for a bit, please tell me if I'm wrong about SCHED_SOFTRR...
-
-Whatever the policy is, there's only so many ticks to go around and there is 
-an overload for which it will fail.  No resource allocation scheme can 
-prevent starvation if there simply isn't enough of the resource to go around.
-
-So, how does SCHED_SOFTRR fail?  Theoretically there is a minimum timeslice 
-you can hand out, yes?  And an upper bound on scheduling latency.  So 
-logically, there is some maximum number "N" of SCHED_SOFTRR tasks running at 
-once where you wind up round-robining with minimal timeslices and the system 
-is saturated.  At N+1, you fall over.  (And in reality, there are interrupts 
-and kernel threads and other things going on that get kind of cramped 
-somewhere below N.)
-
-In theory, the real benefit of SCHED_SOFTRR is that an attempt to switch to it 
-can fail with -EMYBRAINISMELTING up front, so you know when it won't work at 
-the start, rather than having it glitch halfway through the run.  At which 
-point half the fun becomes policy decisions about how to allocate the finite 
-number of SCHED_SOFTRR slots between however many users are trying to use the 
-system, which gets into Alan Cox's accounting work...
-
-Sorry if this is old hat; I'm still a week and change behind on the list, but 
-catching up... :)
-
-Rob
+>On Thu, 7 Aug 2003 05:10, Cliff White wrote:
+>
+>>>Binary searching (insert gratuitous rant about benchmarks that take more
+>>>than two minutes to complete) reveals that the slowdown is due to
+>>>sched-2.6.0-test2-mm2-A3.
+>>>
+>
+>This is most likely the round robinning of tasks every 25ms. The extra 
+>overhead of nanosecond timing I doubt could make that size difference (but I 
+>could be wrong). There is some tweaking of this round robinning in my code 
+>which may help this, but it won't bring it back up to original performance I 
+>believe. Two things to try are add my patches up to O12.3int first to see how 
+>much (if at all!) it helps, and change TIMESLICE_GRANULARITY in sched.c to 
+>(MAX_TIMESLICE) which basically disables it completely. If there is still  a 
+>drop in performance with this, the remainder is the extra locking/overhead in 
+>nanosecond timing.
+>
+>
+What is the need for this round robining? Don't processes get a calculated
+timeslice anyway?
 
 

@@ -1,101 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272828AbRIIRHr>; Sun, 9 Sep 2001 13:07:47 -0400
+	id <S272860AbRIIRJR>; Sun, 9 Sep 2001 13:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272819AbRIIRHh>; Sun, 9 Sep 2001 13:07:37 -0400
-Received: from arioch.oche.de ([194.94.252.126]:42508 "HELO arioch.oche.de")
-	by vger.kernel.org with SMTP id <S272872AbRIIRH2>;
-	Sun, 9 Sep 2001 13:07:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Athlon/K7-Opimisation problems
-Mail-Copies-To: never
-From: Carsten Leonhardt <leo@debian.org>
-Date: 09 Sep 2001 19:07:39 +0200
-Message-ID: <87g09w70o4.fsf@cymoril.oche.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Copyleft)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272853AbRIIRJH>; Sun, 9 Sep 2001 13:09:07 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:48436 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272819AbRIIRJB>; Sun, 9 Sep 2001 13:09:01 -0400
+Subject: Re: Feedback on preemptible kernel patch
+From: Robert Love <rml@tech9.net>
+To: iafilius@xs4all.nl
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1000010407.840.35.camel@phantasy>
+In-Reply-To: <Pine.LNX.4.33.0109081920540.3542-100000@sjoerd.sjoerdnet> 
+	<1000010407.840.35.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Date: 09 Sep 2001 13:09:43 -0400
+Message-Id: <1000055386.15956.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan,
 
-here's my data regarding the K7 optimisation problem.
+the following patch was written by Manfred Spraul to fix your highmem
+bug.  I haven't had a chance to go over it, but I would like it if you
+could test it.  It can't hurt.  Patch it on top of the preempt patch and
+enable CONFIG_PREEMPT, CONFIG_HIGHMEM, and CONFIG_HIGHMEM_DEBUG.
 
-Until last week I had a 1GHz Athlon with 133MHz FSB. I then bought a
-1.4GHz Athlon, again 133MHz FSB.
-
-I never had any problems with the 1GHz processor, but as soon as I
-stuck the 1.4GHz processor in, the kernel oopsed itself to
-oblivion. (That was with kernel 2.4.5-ac5, approximately)
-
-I also noticed that the computer booted ok with the Debian
-bootfloppies, which use a kernel compiled for i386. So after several
-kernel compile/boot cycles, I found out that I had to disable K7
-optimisation to make the system boot again.
-
-The mainboard is a Tyan Trinity KT-A (S2390B) with a VIA KT133A
-chipset.
-
-After reading here that it may be the PSU, I upgraded my 300W PSU to a
-431W Enermax, which made no difference.
-
-The only difference I can make out between the working and the
-non-working CPU is the internal clockspeed of the CPU and the
-stepping (old: 2, new: 4).
-
-Appended is the output of /proc/cpuinfo (I sold the old CPU, but the
-guy who bought it sent me the output).
-
-I really hope this helps someone. If anyone needs any more data, or
-wants me to test something, contact me.
+let me know what happens...any relevant messages, etc. please pass
+along. if it does work, id be curious if they are any slowdowns
 
 
-Yours,
- leo
+--- highmem.h.prev      Sun Sep  9 08:59:04 2001
++++ highmem.h   Sun Sep  9 09:00:07 2001
+@@ -88,6 +88,7 @@
+        if (page < highmem_start_page)
+                return page_address(page);
+
++       ctx_sw_off();
+        idx = type + KM_TYPE_NR*smp_processor_id();
+        vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+#if HIGHMEM_DEBUG
+@@ -119,6 +120,7 @@
+        pte_clear(kmap_pte-idx);
+        __flush_tlb_one(vaddr);
+#endif
++       ctx_sw_on();
+}
+
+#endif /* __KERNEL__ */
 
 
 
-Old CPU:
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1012.530
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr 6 mce cx8 sep mtrr pge 14 cmov
-pat 17 psn mmxext mmx fxsr 3dnowext 3dnow
-bogomips        : 2018.51
-
-New CPU:
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 4
-cpu MHz         : 1400.098
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2791.83

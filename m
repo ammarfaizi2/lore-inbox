@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314601AbSDTKLt>; Sat, 20 Apr 2002 06:11:49 -0400
+	id <S314605AbSDTKme>; Sat, 20 Apr 2002 06:42:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314602AbSDTKLs>; Sat, 20 Apr 2002 06:11:48 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:2539 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314601AbSDTKLr>;
-	Sat, 20 Apr 2002 06:11:47 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S314606AbSDTKmd>; Sat, 20 Apr 2002 06:42:33 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4618 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S314605AbSDTKmd> convert rfc822-to-8bit; Sat, 20 Apr 2002 06:42:33 -0400
+Date: Sat, 20 Apr 2002 03:41:17 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
+Subject: update for {Re: [PATCHSET] Linux 2.4.19-pre7-jam1, -jam2}
+In-Reply-To: <20020419232633.GA1775@werewolf.able.es>
+Message-ID: <Pine.LNX.4.10.10204200335390.19117-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15553.12447.849592.261245@argo.ozlabs.ibm.com>
-Date: Sat, 20 Apr 2002 19:10:55 +1000 (EST)
-To: "David S. Miller" <davem@redhat.com>
-Cc: peterson@austin.ibm.com, anton@au.ibm.com, mj@suse.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: PowerPC Linux and PCI
-In-Reply-To: <20020419.143839.15920500.davem@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
 
->    From: James L Peterson <peterson@austin.ibm.com>
->    Date: Fri, 19 Apr 2002 16:37:03 -0500
+
+http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.6.patch.bz2
+
+fixes hpt372
+migration towards modular chipsets
+devfs ide-scsi
+more but can not remember
+little uglyer but will collapse clean.
+
+thanks for testing...
+
+
+On Sat, 20 Apr 2002, J.A. Magallon wrote:
+
 > 
->    if (pci_read_config_dword(temp, PCI_VENDOR_ID, &l))
->      return NULL;
->         ....
->      memcpy(dev, temp, sizeof(*dev));
->     dev->vendor = l & 0xffff;
->     dev->device = (l >> 16) & 0xffff;
->    
->    It seems to me this is incorrect for a big-endian machine
->    (like PowerPC).  If we read the two 16-bit parts out of the
->    first 32-bit part, we will end up with:
+> On 2002.04.19 Heinz Diehl wrote:
+> >On Thu Apr 18 2002, J.A. Magallon wrote:
+> >
+> >> >I also changed '#if 1' to '#if 0' as Andre mentioned but it has no effect,
+> >> >my machine hangs at boot time....
+> >
+> >> It worked for me, just booted fine with hdparm included...
+> >
+> >I just merged "ide-2.4.19-p7.all.convert.5.patch" into my tree, and now
+> >it works also for me. With former versions my machine hung at boot time,
+> >wether #if 0 or 1 was set.
+> >
 > 
-> pci_read_config_dword should do the byte swapping on &l for
-> the caller, fix your pci_{read,write}_config_*() arch implementation.
+> Just a 'me too'. Patch -5 booted fine, I have put a -jam2 in the usual place:
+> 
+> 
+> -- 
+> J.A. Magallon                           #  Let the source be with you...        
+> mailto:jamagallon@able.es
+> Mandrake Linux release 8.3 (Cooker) for i586
+> Linux werewolf 2.4.19-pre7-jam2 #1 SMP sáb abr 20 00:20:15 CEST 2002 i686
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It does, that's why it all works. :)  James Peterson seems to have
-missed this fact, hence his confusion.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Paul.

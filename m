@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269287AbRGaNXV>; Tue, 31 Jul 2001 09:23:21 -0400
+	id <S269290AbRGaN3b>; Tue, 31 Jul 2001 09:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269289AbRGaNXM>; Tue, 31 Jul 2001 09:23:12 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:60554 "HELO
+	id <S269291AbRGaN3V>; Tue, 31 Jul 2001 09:29:21 -0400
+Received: from [47.129.117.131] ([47.129.117.131]:62090 "HELO
 	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S269287AbRGaNW7>; Tue, 31 Jul 2001 09:22:59 -0400
-Message-ID: <3B66B13B.28BD0324@nortelnetworks.com>
-Date: Tue, 31 Jul 2001 09:23:07 -0400
+	id <S269290AbRGaN3L>; Tue, 31 Jul 2001 09:29:11 -0400
+Message-ID: <3B66B2AF.43D1197E@nortelnetworks.com>
+Date: Tue, 31 Jul 2001 09:29:19 -0400
 From: Chris Friesen <cfriesen@nortelnetworks.com>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tulip driver still broken
-In-Reply-To: <20010731001907.A21982@hostmaster.org>
+To: subhash.sutrave@oracle.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about gettimeofday
+In-Reply-To: <3B65F3A2.DC5F7E37@oracle.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Thomas Zehetbauer wrote:
+Subhash S wrote:
 > 
-> My genuine digital network interface card ceased to work with the tulip
-> driver contained in kernel revisions >= 2.4.4 and the development driver from
-> sourceforge.net.
+> Hi All,
+> 
+> In my application I use gettimeofday very frequently, as it is system
+> call on linux it is expensive, where as on Solaris it is not so. Could
+> you please tell me how solaris is implemented the function gettimeofday.
 
-How is the sourceforge driver different than the one at www.scyld.com?
+While I can't tell you how Solaris implemented it, I can say that in general if
+you want very frequent timing access you're probably better off using inline
+assembly to get at some processor-specific timer.  On a 400Mhz G4, the
+difference was about a microsecond for gettimeofday() vs about 25 nanoseconds
+for the assembly code.
+
 
 -- 
 Chris Friesen                    | MailStop: 043/33/F10  

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311268AbSCSOUZ>; Tue, 19 Mar 2002 09:20:25 -0500
+	id <S311272AbSCSOWG>; Tue, 19 Mar 2002 09:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311264AbSCSOUP>; Tue, 19 Mar 2002 09:20:15 -0500
-Received: from dc-mx08.cluster0.hsacorp.net ([209.225.8.18]:15000 "EHLO
-	dc-mx08.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S311267AbSCSOUD>; Tue, 19 Mar 2002 09:20:03 -0500
-Message-Id: <3.0.3.32.20020319082013.00e41d30@pop.charter.net>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 3.0.3 (32)
-Date: Tue, 19 Mar 2002 08:20:13 -0600
-To: Mike Dresser <mdresser_l@windsormachine.com>,
-        Rik van Riel <riel@conectiva.com.br>
-From: Pete Cervasio <cervasio@charter.net>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
-  Configure.help
-Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203181358540.25105-100000@router.windsormac
- hine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S311267AbSCSOVz>; Tue, 19 Mar 2002 09:21:55 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:48792 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S311269AbSCSOVB>;
+	Tue, 19 Mar 2002 09:21:01 -0500
+Date: Tue, 19 Mar 2002 09:20:25 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reading your email via tcpdump
+In-Reply-To: <Pine.LNX.4.10.10203191009290.5694-100000@mikeg.wen-online.de>
+Message-ID: <Pine.SGI.4.31L.02.0203190915250.7550126-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:00 PM 3/18/2002 -0500, Mike Dresser wrote:
->On Mon, 18 Mar 2002, Rik van Riel wrote:
->
->> > The unit here is B, which does conflict with the unit bel, but is
->> > widely used to mean byte in computer contexts.
->>
->> Also, the kilobell is highly unlikely to be used ;)
->>
->> Rik
->
->Dunno about that, the S/N ratio on slashdot seems to get into the kB's
->somedays.
->
+Sorry, I lost track of attributions. Need more coffee,
 
-Your threshold is set too high.  Read at -1 for megabels.  ;)
 
-Best regards,
-Pete C.
+> > 16:42:49.412862 10.0.0.101.netbios-dgm > 10.255.255.255.netbios-dgm:
+> > >>> NBT UDP PACKET(138) Res=0x1102 ID=0x54 IP=10.0.0.101 Port=138 Length=193
+> > Res2=0x0
+> > SourceName=T1H6I3          NameType=0x00 (Workstation)
+> > DestName=
+> > SMB PACKET: SMBunknown (REQUEST)
+> > SMB Command   =  0x43
+> > Error class   =  0x46
+> > Error code    =  20550
+> > Flags1        =  0x45
+> > Flags2        =  0x4E
+> > Tree ID       =  17990
+> > Proc ID       =  18000
+> > UID           =  16720
+> > MID           =  16707
+> > Word Count    =  66
+> > SMBError = ERROR: Unknown error (70,20550)
 
-------------------------------------------------------------------------
-Your Leaping Tiger kung-fu is no match for my Frightened Piglet style!
-------------------------------------------------------------------------
+This looks like standard SMB garbage. It probably repeats on a regular
+basis. From what I remember, I think it is a Windows box browsing
+the network trying to discover other SMB boxes, finding a 'master
+browser', and other such stuff.
+
+I see it all the time when there are Windows machines about, and I'm
+running tcpdump.
+
+I imagine that someone who knows better, such as the Samba guys, would be
+able to tell you exactly whats going on, and maybe some other interesting
+tidbits of information.
+
+(I hate SMB ... its really chatty ...)
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- User Error #2361: Please insert coffee and try again.
 

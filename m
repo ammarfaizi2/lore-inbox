@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265380AbRF0TUl>; Wed, 27 Jun 2001 15:20:41 -0400
+	id <S265376AbRF0TXv>; Wed, 27 Jun 2001 15:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265379AbRF0TUb>; Wed, 27 Jun 2001 15:20:31 -0400
-Received: from mail1.dexterus.com ([212.95.255.99]:65287 "EHLO
-	mail1.dexterus.com") by vger.kernel.org with ESMTP
-	id <S265376AbRF0TUU>; Wed, 27 Jun 2001 15:20:20 -0400
-Message-ID: <007401c0ff3e$488a43d0$470c0a0a@DEVPC01>
-From: "Vincent Sweeney" <v.sweeney@dexterus.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <kdc@nh.ultranet.com>, <linux-scalability@citi.umich.edu>
-Subject: PATCH (2.4.5): /dev/poll support
-Date: Wed, 27 Jun 2001 20:20:53 +0100
+	id <S265382AbRF0TXl>; Wed, 27 Jun 2001 15:23:41 -0400
+Received: from web4001.mail.yahoo.com ([216.115.104.35]:2313 "HELO
+	web4001.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265376AbRF0TX2>; Wed, 27 Jun 2001 15:23:28 -0400
+Message-ID: <20010627192327.23875.qmail@web4001.mail.yahoo.com>
+Date: Wed, 27 Jun 2001 12:23:27 -0700 (PDT)
+From: Prasad Koya <kdp102@yahoo.com>
+Subject: BSD sockets with sys_socketcall 
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+How does socket(), bind() and other BSD socket API
+calls in user applications are handled by system
+socketcall(). Does the compiler (say gcc) substitute
+socket() in user app with socketcall(SYS_SOCKET,..)?
 
-more knowledgable than me can 
+Also, why don't I see _syscallN() macro for socketcall
+or any other BSD socket calls? 
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
+I'd greatly appreciate your help.
 
-iQA/AwUBOzoyDz8f58rgPfa4EQIQRwCgxPE/JcNHuegj9fEklY7uhJr8O5UAnAtq
-W46SBMHzCtsQYznIaKHFB8a+
-=UaUj
------END PGP SIGNATURE-----
+Please CC to kdp102@yahoo.com as I don't subscribe to
+the mailing list.
+
+Thanks
 
 
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

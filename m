@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSFET72>; Wed, 5 Jun 2002 15:59:28 -0400
+	id <S316195AbSFEUAd>; Wed, 5 Jun 2002 16:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSFET71>; Wed, 5 Jun 2002 15:59:27 -0400
-Received: from ns.suse.de ([213.95.15.193]:29711 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316161AbSFET71>;
-	Wed, 5 Jun 2002 15:59:27 -0400
-Date: Wed, 5 Jun 2002 21:59:27 +0200
-From: Dave Jones <davej@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow mpage.c to build
-Message-ID: <20020605215927.I16262@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Andrew Morton <akpm@zip.com.au>, Russell King <rmk@arm.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020605160547.C10293@flint.arm.linux.org.uk> <3CFE6B31.39EC2719@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316204AbSFEUAc>; Wed, 5 Jun 2002 16:00:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:30444 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316195AbSFEUAa>; Wed, 5 Jun 2002 16:00:30 -0400
+Date: Wed, 5 Jun 2002 22:00:24 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Henrique Gobbi <henrique@cyclades.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Conflicting symbols of zlib (jffs2 and ppp_deflate)
+In-Reply-To: <02060512070101.28263@henrique.cyclades.com.br>
+Message-ID: <Pine.NEB.4.44.0206052158050.11522-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 12:49:05PM -0700, Andrew Morton wrote:
+On Wed, 5 Jun 2002, Henrique Gobbi wrote:
 
- > /usr/src/25/include/linux/bio.h
- >  /usr/src/25/include/asm/io.h
- >   /usr/src/25/include/linux/vmalloc.h
- >    /usr/src/25/include/linux/mm.h
-                                ^^^^^
-This bugger should be high on the list of include files that need
-feeding through the include-chopper-upper.
+> Hello !!!
 
- >     /usr/src/25/include/linux/swap.h
- >      /usr/src/25/include/linux/kdev_t.h
- > Lovely, isn't it?
+Hi Henrique,
 
-Wouldn't be so bad if it were an isolated case..
-Hopefully by the time we get to 2.6, a lot of this
-'include by implication' nonsense can be cleaned up some more.
+> I've found out something that probably is a bug. I've tried to compile a
+> kernel using the generic ppp (and the ppp_deflate module) and the jffs2 file
+> system.
+>...
+> I'd like to know if anyone (ppp and jffs2 guys) have a solution for this
+> problem or at least a suggestion. Any comment will be very welcomed.
 
-        Dave.
+this is a well-known issue. David Woodhouse developed a patch that is in
+the -ac kernels since 2.4.19pre2-ac4 to fix this issue.
+
+> thanks
+> henrique
+
+cu
+Adrian
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVAQNzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVAQN6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbVAQNzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 08:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVAQNzV
+	id S262803AbVAQN6X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 08:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVAQN6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 08:55:21 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:60368 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262802AbVAQNzM (ORCPT
+	Mon, 17 Jan 2005 08:58:23 -0500
+Received: from ns1.q-leap.de ([153.94.51.193]:15271 "EHLO mail.q-leap.de")
+	by vger.kernel.org with ESMTP id S262803AbVAQN5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 08:55:12 -0500
-Date: Mon, 17 Jan 2005 14:54:51 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Karim Yaghmour <karim@opersys.com>
-cc: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <41EADA11.70403@opersys.com>
-Message-ID: <Pine.LNX.4.61.0501171403490.30794@scrub.home>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
- <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
- <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
- <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
- <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
- <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
- <41EADA11.70403@opersys.com>
+	Mon, 17 Jan 2005 08:57:32 -0500
+Message-ID: <41EBC449.3090503@q-leap.com>
+Date: Mon, 17 Jan 2005 14:57:29 +0100
+From: Peter Kruse <pk@q-leap.com>
+Organization: Q-Leap Networks GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random packets loss under x86_64 - routing?
+References: <41E7E6D7.10303@q-leap.com> <Pine.LNX.4.61.0501141129260.5840@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0501141129260.5840@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Sun, 16 Jan 2005, Karim Yaghmour wrote:
+thanks for your reply
 
-> > You can make it even simpler by dropping this completely. Every buffer is 
-> > simply a list of events and you can let ltt write periodically a timer 
-> > event. In userspace you can randomly seek at buffer boundaries and search 
-> > for the timer events. It will require a bit more work for userspace, but 
-> > even large amount of tracing data stays managable.
+linux-os wrote:
+  >
+> When they 'disappear', use `arp -d hostname` to delete the
+> entry from the ARP tables. Then see if you can ping it.
+> It is possible that the destination machine got re-routed
+> and the new router's HW address wasn't updated in the
+> ARP tables. If this is the case, I don't know hot to 'fix'
+> it, but it's a new data-point. When you have dynamic routing,
+> there needs to be some way to update the ARP tables even though
+> they eventually expire.
+
+There is no router between sender and destination host,
+they are on the same subnet and connected on the same switch.
+
+> The fact that `ping -r` works seems to show that the ARP table
+> has stale entries in it.
 > 
-> We already do write a heartbeat event periodically to have readable
-> traces in the case where the lower 32 bits of the TSC wrap-around.
-> 
-> As I mentioned elsewhere, please don't think of this in terms of
-> kbs or mbs of data. What we're talking about here is gbs if not
-> 100gbs of data. Having to start reading each sub-buffer until you
-> hit a heartbeat really is a killer for such large traces. If there
-> was a significant impact on relayfs for having this I would have
-> understood the argument, but relayfs needs to do buffer-management
-> anyway, so I don't see that much complexity being added by allowing
-> the channel user to ask relayfs for delimiters.
 
-Periodically can also mean a buffer start call back from relayfs 
-(although that would mean the first entry is not guaranteed) or a 
-(per cpu) eventcnt from the subsystem. The amount of needed search would 
-be limited. The main point is from the relayfs POV the buffer structure 
-has always the same (simple) structure.
-You have to be more specific, what's so special about this amount of data. 
-You likely want to (incrementally) build an index file, so you don't have 
-to repeat the searches, but even with your current format you would 
-benefit from such an index file.
+Even directly after reboot when the arp table is empty?
 
-> > Userspace can then easily restore the original order of events.
-> 
-> As above, restoring the original order of events is fine if you are
-> looking at mbs or kbs of data. It's just totally unrealistic for
-> the amounts of data we want to handle.
+	Peter
 
-Why is it "totally unrealistic"?
-
-> But like I said earlier, the added relayfs mode (kdebug) would allow
-> for exactly what you are suggesting:
-> 	event_id = atomic_inc_return(&event_cnt);
-
-Actually that would be already too much for low level kernel debugging.
-Why do you want to put this into relayfs?
-What are the _specific_ reasons you need these various modes, why can't 
-you build any special requirements on top of a very light weight relay 
-mechanism?
-
-bye, Roman
+-- 
+Peter Kruse <pk@q-leap.com>, Chief Software Architect
+Q-Leap Networks GmbH
+phone: +497071-703171, mobile: +49172-6340044

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbTDNJGK (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTDNJGK (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 05:06:10 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:51658 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id S262889AbTDNJGI (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 05:06:08 -0400
-Subject: Re: [PATCH] M68k IDE updates
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050311961.5575.47.camel@zion.wanadoo.fr>
+	id S262885AbTDNJDF (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTDNJDF (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 05:03:05 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:15724 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262885AbTDNJDE (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 05:03:04 -0400
+Date: Mon, 14 Apr 2003 02:14:48 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: maneesh@in.ibm.com
+Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] dentry_stat fix
+Message-Id: <20030414021448.08ff05a5.akpm@digeo.com>
+In-Reply-To: <20030414144417.A27092@in.ibm.com>
+References: <20030414144417.A27092@in.ibm.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 14 Apr 2003 11:19:21 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Apr 2003 09:14:48.0466 (UTC) FILETIME=[4C304F20:01C30266]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-14 at 10:39, Geert Uytterhoeven wrote:
+Maneesh Soni <maneesh@in.ibm.com> wrote:
+>
+> This patch the corrects the dentry_stat.nr_unused calculation.
 
-> Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> on-disk data to be that way, for compatibility with e.g. TOS.
+OK, I didn't even know we had a bug in there...
 
-Some designers need to be shot...
+btw, can you explain to me why shrink_dcache_anon() and select_parent() are
+putting dentries at the wrong end of dentry_unused?
 
-What about optionally making fix_drive_id a platoform hook
-(like it was, but with a reasonable default) to avoid clobbering
-the common code with those #ifdefs ?
+Do these dentries have DCACHE_REFERENCED set?
 
-Ben.
+Why shouldn't they get a full two rounds of aging?
 
+It is not clear what's going on in there.  Thanks.

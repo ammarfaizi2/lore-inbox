@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSKMUhx>; Wed, 13 Nov 2002 15:37:53 -0500
+	id <S262662AbSKMUho>; Wed, 13 Nov 2002 15:37:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262730AbSKMUhx>; Wed, 13 Nov 2002 15:37:53 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:41386 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262664AbSKMUhw>; Wed, 13 Nov 2002 15:37:52 -0500
-Subject: RE: FW: i386 Linux kernel DoS (clarification)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Leif Sawyer <lsawyer@gci.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <76C6E114FA8@vcnet.vc.cvut.cz>
-References: <76C6E114FA8@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Nov 2002 21:10:14 +0000
-Message-Id: <1037221814.12445.126.camel@irongate.swansea.linux.org.uk>
+	id <S262664AbSKMUho>; Wed, 13 Nov 2002 15:37:44 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:25092 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262662AbSKMUhn>; Wed, 13 Nov 2002 15:37:43 -0500
+Message-Id: <200211132044.gADKiHi02548@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Grant Grundler <grundler@dsl2.external.hp.com>
+cc: Bjorn Helgaas <bjorn_helgaas@hp.com>, Greg KH <greg@kroah.com>,
+       Miles Bader <miles@gnu.org>,
+       "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <willy@debian.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, andmike@us.ibm.com, hch@lst.de,
+       linux-kernel@vger.kernel.org, mochel@osdl.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device 
+ interface
+In-Reply-To: Message from Grant Grundler <grundler@dsl2.external.hp.com> 
+   of "Wed, 13 Nov 2002 13:33:21 MST." <20021113203321.DCF174829@dsl2.external.hp.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Nov 2002 15:44:17 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-13 at 20:36, Petr Vandrovec wrote:
-> 2.5.47-current-bk, run as mere user: Kernel panic: Attempted to kill init!
-> Next time I'll trust you.
+grundler@dsl2.external.hp.com said:
+> For device discovery and initialization, the generic PCI code has to
+> muck with PCI specific resources (IO Port, MMIO, and IRQ related stuff
+> primarily). 
 
-It does the lcall
-The lcall takes an exception
-The exception (TF) has NT set
-iret returns via the task linkage
+Oh, I agree.  If we conduct a phased approach to this, what happens initially 
+is that the pci drivers simply pull pci_dev out of the struct device and use 
+it as previously.
 
-I think just clearing the NT bit in both lcall path _and_ in the TF
-exception handler does the trick.
+However, I think the ultimate destination is to see how much of the bus 
+specific stuff we can abstract by throwing an API around it.  I think IRQ, 
+port and mmio are feasible.  Specific knowledge of bus posting et al may not 
+be.
+
+> uhmm...If we are going to touch dma_mask in pci_dev, then just move it
+> to struct device and be done with it. Then fixup pci_set_dma_mask() to
+> do the right thing. 
+
+Well...OK.  The advantage of a pointer in struct device is that the code can 
+be converted as is, and no-one has to muck with the direct accessors of the 
+pci_dev->dma_mask.  However, I'll see how many of them there actually are, its 
+probably just the drivers that transfer the information to 
+blk_queue_bounce_limit.
+
+> Duck! (that's going to get fixed it seems) ;^) 
+
+I thought the 53c700 was working OK?  Richard Hirst did some extensive testing 
+on a parisc with an IO-MMU for me (he caught a lot of early mapping leaks 
+which I fixed).
+
+James
 
 

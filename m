@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAECT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVAECXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVAECT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVAECT6
+	id S262204AbVAECXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVAECXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:19:58 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:29334 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262200AbVAECTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:19:54 -0500
-Message-ID: <41DB4EC7.9070608@yahoo.com.au>
-Date: Wed, 05 Jan 2005 13:19:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] FRV: Change PML4 -> PUD
-References: <18003.1104868971@redhat.com>
-In-Reply-To: <18003.1104868971@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 21:23:14 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:5522 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S262204AbVAECW5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:22:57 -0500
+From: James Nelson <james4765@cwazy.co.uk>
+To: linux-kernel@vger.kernel.org, linuxsh-shmedia-dev@lists.sourceforge.net
+Cc: lethal@linux-sh.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050105022313.22296.30405.46556@localhost.localdomain>
+In-Reply-To: <20050105022304.22296.7672.51691@localhost.localdomain>
+References: <20050105022304.22296.7672.51691@localhost.localdomain>
+Subject: [PATCH /3] sh64: remove cli()/sti() in arch/sh64/kernel/time.c
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 20:22:53 -0600
+Date: Tue, 4 Jan 2005 20:22:53 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> The attached patch changes the PML4 bits of the FRV arch to the new PUD way.
-> 
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-Looks OK... any reason you aren't using the asm-generic folding headers?
-(asm-generic/pgtable-nopmd.h or asm-generic/pgtable-nopud.h). I sent some
-notes to the arch list about getting those working, but apparently it
-hasn't come though yet.
-
-Of course I do think it is sensible that you just get it working first,
-before getting too fancy.
-
-Nick
+diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/sh64/kernel/time.c linux-2.6.10-mm1/arch/sh64/kernel/time.c
+--- linux-2.6.10-mm1-original/arch/sh64/kernel/time.c	2004-12-24 16:34:58.000000000 -0500
++++ linux-2.6.10-mm1/arch/sh64/kernel/time.c	2005-01-04 21:06:31.232945929 -0500
+@@ -424,7 +424,7 @@
+ 	*/
+ 	register unsigned long long  __rtc_irq_flag __asm__ ("r3");
+ 
+-	sti();
++	local_irq_enable();
+ 	do {} while (ctrl_inb(R64CNT) != 0);
+ 	ctrl_outb(RCR1_CIE, RCR1); /* Enable carry interrupt */
+ 
+@@ -443,7 +443,7 @@
+ 		     "getcon	" __CTC ", %0\n\t"
+ 		: "=r"(ctc_val), "=r" (__dummy), "=r" (__rtc_irq_flag)
+ 		: "0" (0));
+-	cli();
++	local_irq_disable();
+ 	/*
+ 	 * SH-3:
+ 	 * CPU clock = 4 stages * loop

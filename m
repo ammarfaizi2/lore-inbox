@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270036AbRHQKGO>; Fri, 17 Aug 2001 06:06:14 -0400
+	id <S270087AbRHQKN1>; Fri, 17 Aug 2001 06:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270042AbRHQKGE>; Fri, 17 Aug 2001 06:06:04 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:55058 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S270036AbRHQKFu>;
-	Fri, 17 Aug 2001 06:05:50 -0400
-Message-ID: <3B7CEC89.642FB425@xss.co.at>
-Date: Fri, 17 Aug 2001 12:06:01 +0200
-From: Daniel Wagner <daniel.wagner@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S270067AbRHQKNS>; Fri, 17 Aug 2001 06:13:18 -0400
+Received: from ny.sm.luth.se ([130.240.3.1]:65526 "EHLO sm.luth.se")
+	by vger.kernel.org with ESMTP id <S270050AbRHQKNH>;
+	Fri, 17 Aug 2001 06:13:07 -0400
+Message-ID: <3B7CEE40.90100@cdt.luth.se>
+Date: Fri, 17 Aug 2001 12:13:20 +0200
+From: James Nord <teilo@cdt.luth.se>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: initrd: couldn't umount
-Content-Type: text/plain; charset=us-ascii
+Subject: K6 sig11 Bug detection.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi.
+Hi,
 
-we try to setup an initrd for diskless nodes, which allows us a
-modular kernelconfiguration (especially the net-drivers). it work
-quite well, but ...
+I have a Debian based system with a custom 2.4.7 kernel compiled with 
+gcc version 2.95.4 20010703 (Debian prerelease)
+(also saw the same with 2.2.10+ gcc 2.95)
 
-the problem is that a "rpciod" kernel-thread references the initrd,
-and so umounting and freeing it, isn't possible.
+The CPU in the machine is a AMD K6 200MHz, and has 64MB of SDRAM
 
-has anybody an idea how to fix this problem, cause it would be nice,
-to free the initrd ram on a diskless node.
+I reomved the heatsink and the serial is Cxxxxxxxx, however in the 
+kernel boot messages I get the following,
 
-this is what comes after processing the initrd:
+Aug 17 09:06:49 phoenix kernel: CPU: Before vendor init, caps: 008001bf 
+008005bf 00000000, vendor = 2
+Aug 17 09:06:49 phoenix kernel: AMD K6 stepping B detected - <6>K6 BUG 
+9016725 20000000 (Report these if test report is incorrect)
+Aug 17 09:06:49 phoenix kernel: AMD K6 stepping B detected - probably OK 
+(after B9730xxxx).
+Aug 17 09:06:49 phoenix kernel: Please see 
+http://www.mygale.com/~poulot/k6bug.html
+Aug 17 09:06:49 phoenix kernel: CPU: L1 I Cache: 32K (32 bytes/line), D 
+cache 32K (32 bytes/line)
+Aug 17 09:06:49 phoenix kernel: CPU: After vendor init, caps: 008001bf 
+008005bf 00000000 00000000
+Aug 17 09:06:49 phoenix kernel: CPU:     After generic, caps: 008001bf 
+008005bf 00000000 00000000
+Aug 17 09:06:49 phoenix kernel: CPU:             Common caps: 008001bf 
+008005bf 00000000 00000000
+Aug 17 09:06:49 phoenix kernel: CPU: AMD-K6tm w/ multimedia extensions 
+stepping 01
 
----
-Looking up port of RPC 100003/2 on 192.168.162.201
-Looking up port of RPC 100005/1 on 192.168.162.201
-VFS: Mounted root (NFS filesystem).
-change_root: old root has d_count=3
-Mounted devfs on /dev
-Trying to unmount old root ... <3>error -16
-Change root to /initrd: error -2
-Freeing unused kernel memory: 56k
-freed                                                                                                    
----
+Is the stepping not the first part of the serial? I have 64MB (the 
+amount that triggers the bug IIRC) in the system and the the kernel and 
+everything else compiles without generating a SIG11.
+
+Is this a false detection or would it be possible that I have a wrongly 
+tagged CPU?
+
+Also the link http://www.mygale.com/~poulot/k6bug.html does not exist.
+
+Please CC replies to me as I am not on the list.
 
 Regards,
-  Daniel
+
+    /James
 
 -- 
-Daniel Wagner                      | mailto:daniel@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+Technology is a word that describes something that doesn't work yet.
+	Douglas Adams
+
+
+

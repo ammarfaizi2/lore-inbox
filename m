@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292633AbSBUQwW>; Thu, 21 Feb 2002 11:52:22 -0500
+	id <S292503AbSBUQzL>; Thu, 21 Feb 2002 11:55:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292503AbSBUQwN>; Thu, 21 Feb 2002 11:52:13 -0500
-Received: from zero.tech9.net ([209.61.188.187]:26635 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292467AbSBUQwJ>;
-	Thu, 21 Feb 2002 11:52:09 -0500
-Subject: Re: 2.5.5 on Sparc, Ughh...
-From: Robert Love <rml@tech9.net>
-To: george anzinger <george@mvista.com>
-Cc: "David S. Miller" <davem@redhat.com>, bruce.holzrichter@monster.com,
-        ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3C74AA0C.A627B561@mvista.com>
-In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F6B@nocmail.ma.tmpw.net>
-	<20020220.083904.74754277.davem@redhat.com>  <3C74AA0C.A627B561@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 21 Feb 2002 11:52:08 -0500
-Message-Id: <1014310329.847.17.camel@phantasy>
-Mime-Version: 1.0
+	id <S292645AbSBUQzB>; Thu, 21 Feb 2002 11:55:01 -0500
+Received: from web20503.mail.yahoo.com ([216.136.226.138]:13829 "HELO
+	web20503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292503AbSBUQyw>; Thu, 21 Feb 2002 11:54:52 -0500
+Message-ID: <20020221165451.18076.qmail@web20503.mail.yahoo.com>
+Date: Thu, 21 Feb 2002 17:54:51 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: BK Kernel Hacking HOWTO
+To: jgarzik@mandrakesoft.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-21 at 03:04, george anzinger wrote:
+> Comments welcome...
 
-> Uh, Dave, could you expound a bit on why you need a preemption lock
-> around the notify parent/ schedule code?  We have not found this to be
-> needed on other archs, but maybe we missed something.
+Jeff, this is a kind initiative from you. I've
+downloaded bk but didn't have time nor
+courage to install it and test it yet, but with
+this documentation, I think I soon will.
 
-2.5 has diverged from the "patch" version of the code.  We removed the
-PREEMPT_ACTIVE flag and thus have a race against parent/wake up.  All
-arches disable preemption there.
+Thanks
+Willy
 
-	Robert Love
 
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTI2LEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 07:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTI2LEo
+	id S262982AbTI2LIK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 07:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbTI2LIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 07:04:44 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:65035 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S262955AbTI2LEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 07:04:43 -0400
-From: Shine Mohamed <shinemohamed_j@naturesoft.net>
-Organization: Naturesoft
-To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL][PATCH] Removed unused symbol from drivers/char/esp.c
-Date: Mon, 29 Sep 2003 16:36:06 +0530
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Sep 2003 07:08:10 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:47002 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262982AbTI2LIH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 07:08:07 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 29 Sep 2003 13:06:37 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] use print_dev_t() for sysfs dev file in videodev.c
+Message-ID: <20030929110637.GA8500@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309291636.06040.shinemohamed_j@naturesoft.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A quick patch to remove unused symbol from drivers/char/esp.c
+Trivial one-liner, $subject says all.
 
---- drivers/char/esp.c.orig     2003-09-29 14:27:46.000000000 +0530
-+++ drivers/char/esp.c  2003-09-29 14:27:59.000000000 +0530
-@@ -2612,7 +2612,7 @@
- static void __exit espserial_exit(void)
+please apply,
+
+  Gerd
+
+--- drivers/media/video/videodev.c.sysfs	2003-09-29 12:39:08.243219904 +0200
++++ drivers/media/video/videodev.c	2003-09-29 12:39:23.531895672 +0200
+@@ -52,7 +52,7 @@
  {
-        unsigned long flags;
--       int e1, e2;
-+       int e1;
-        unsigned int region_start, region_end;
-        struct esp_struct *temp_async;
-        struct esp_pio_buffer *pio_buf;
+ 	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
+ 	dev_t dev = MKDEV(VIDEO_MAJOR, vfd->minor);
+-	return sprintf(buf,"%04x\n",old_encode_dev(dev));
++	return print_dev_t(buf,dev);
+ }
+ 
+ static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
 

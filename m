@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281479AbRKTXST>; Tue, 20 Nov 2001 18:18:19 -0500
+	id <S281463AbRKTXXj>; Tue, 20 Nov 2001 18:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281485AbRKTXSJ>; Tue, 20 Nov 2001 18:18:09 -0500
-Received: from mons.uio.no ([129.240.130.14]:8614 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S281479AbRKTXRw>;
-	Tue, 20 Nov 2001 18:17:52 -0500
-To: "Dan Maas" <dmaas@dcine.com>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S281487AbRKTXXY>; Tue, 20 Nov 2001 18:23:24 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:52745 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S281463AbRKTXWU>;
+	Tue, 20 Nov 2001 18:22:20 -0500
+Date: Wed, 21 Nov 2001 00:20:49 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Swap
-In-Reply-To: <fa.kb6ct7v.pgku0d@ifi.uio.no> <fa.k8qdvcv.184ak2l@ifi.uio.no>
-	<040701c17215$357711c0$1a01a8c0@allyourbase>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 21 Nov 2001 00:17:44 +0100
-In-Reply-To: <040701c17215$357711c0$1a01a8c0@allyourbase>
-Message-ID: <shsitc5kp5z.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+In-Reply-To: <Pine.LNX.3.95.1011120123312.8047A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0111210019590.7168-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dan Maas <dmaas@dcine.com> writes:
 
-     > But NFS still allows atomic rename() right? Isn't it considered
-     > essential to write the new executable or library under a
-     > different name, and then atomically rename() over the old one? 
-     > If you write() directly into the executable, you will get what
-     > you deserve...
 
-Atomic rename works fine, on NFS, so if you just rename the old
-library, you're quite safe. The bugs start to surface if you:
+On Tue, 20 Nov 2001, Richard B. Johnson wrote:
 
-   a) Reuse the the old library's inode by doing something along the
-      lines of open("lib.so",O_TRUNC|O_WRONLY).
-or
-   b) erase the old library.
+> On Tue, 20 Nov 2001, Christopher Friesen wrote:
+>
+> > "Richard B. Johnson" wrote:
+> > >
+> > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> > >
+> > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > > When a page is deleted for one executable (because we can re-read it from
+> > > > > on-disk binary), it is discarded, not paged out.
+> > > >
+> > > > What happens if the on-disk binary has changed since loading the program?
+> > > > -
+> > >
+> > > It can't. That's the reason for `install` and other methods of changing
+> > > execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
+> > > The currently open, and possibly mapped file can be re-named, but it
+> > > can't be overwritten.
+> >
+> > Actually, with NFS (and probably others) it can.  Suppose I change the file on
+> > the server, and it's swapped out on a client that has it mounted.  When it swaps
+> > back in, it can get the new information.
+> >
+> > Chris
+>
+> I note that NFS files don't currently return ETXTBSY, but this is a bug.
+> It is 'known' to the OS that the NFS mounted file-system is busy because
+> you can't unmount the file-system while an executable is running. If
+> you can trash it (as you can on Linux), it is surely a bug.
+>
+In most of the cases, the process on the client simply dies....
 
-Cheers,
-   Trond
+
+

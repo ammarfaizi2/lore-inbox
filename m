@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132139AbRCVSYh>; Thu, 22 Mar 2001 13:24:37 -0500
+	id <S132142AbRCVSYh>; Thu, 22 Mar 2001 13:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132140AbRCVSY2>; Thu, 22 Mar 2001 13:24:28 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:27398 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S132121AbRCVSYS>; Thu, 22 Mar 2001 13:24:18 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Serge Orlov <sorlov@con.mcst.ru>,
-        <linux-kernel@vger.kernel.org>,
-        Jakob Østergaard <jakob@unthought.net>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
-	<vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
-	<15032.1585.623431.370770@pizda.ninka.net>
-	<vbay9ty50zi.fsf@mozart.stat.wisc.edu>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: buhr@cs.wisc.edu's message of "21 Mar 2001 14:19:13 -0600"
-Date: 22 Mar 2001 12:23:15 -0600
-Message-ID: <vbaelvp3bos.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S132124AbRCVSYU>; Thu, 22 Mar 2001 13:24:20 -0500
+Received: from www.wen-online.de ([212.223.88.39]:5136 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S132139AbRCVSWx>;
+	Thu, 22 Mar 2001 13:22:53 -0500
+Date: Thu, 22 Mar 2001 19:22:08 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Thinko in kswapd?
+In-Reply-To: <E14g9X7-00030H-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0103221911230.999-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-buhr@cs.wisc.edu (Kevin Buhr) writes:
-> 
-> "David S. Miller" <davem@redhat.com> writes:
-> > 
-> > It is the garbage collector scheme used for memory allocation in gcc
-> > >=2.96 that triggers the bad cases seen by Serge.
-> 
-> Ahhh!  Thanks for the info.
-> 
-> I'm still happy to help test out the patch, but I guess it's not
-> likely to affect my 2.95.2 numbers much at all.  Maybe I can get a
-> snapshot of GCC 3.0 up and running, though, and test that out.
+On Thu, 22 Mar 2001, Alan Cox wrote:
 
-I pulled the "gcc-3_0-branch" of GCC from CVS and compiled Mozilla
-under a 2.4.2 kernel.  The numbers I saw were:
+> > pull it all right back in again.  It continues through the entire
+> > build with the cost seen in the time numbers.  (the ac20.virgin run
+> > was worse by 30 secs than average, but that doesn't matter much)
+>
+> Using my reference interactive test (An application which renders 3D graphics
+> and generates fairly measurable VM traffic with AGP texture mapping)[1] the
+> graphical flow is noticably stalling where it didn't before.
+>
+> Throughput seems to be up but interactivity is bad.
 
-    real    57m26.850s
-    user    96m57.490s
-    sys     3m16.780s
+If you set the amount that kswapd goes after to be a fraction of
+inactive_target and leave Stephens change in but ensure that a
+schedule happens between loops, IIRC interactive is pretty nice
+while swapping.  (haven't tried that particular variant in a while)
 
-which are almost exactly the same as my GCC 2.95.2 numbers.  When I
-peeked at "/proc/<cc1plus>/maps" a few times, I counted ~150 lines,
-not ~2000.  On another, much smaller block of C++ code, I get similar
-results: no dramatic change in kernel time.
+	-Mike
 
-Either the Mozilla codebase and my other test case don't tickle the
-problem, or something has changed in 3.0's allocation scheme since
-RedHat 2.96 was built.
-
-Kevin <buhr@stat.wisc.edu>

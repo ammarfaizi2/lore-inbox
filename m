@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265532AbUBAWof (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 17:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbUBAWof
+	id S265493AbUBAWw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 17:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUBAWw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 17:44:35 -0500
-Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:43495 "EHLO
-	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265532AbUBAWod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 17:44:33 -0500
-From: Christian Unger <chakkerz@optusnet.com.au>
-Reply-To: chakkerz@optusnet.com.au
-Organization: naiv.sourceforge.net
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Timothy Miller <miller@techsource.com>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-Date: Mon, 2 Feb 2004 09:41:22 +1100
-User-Agent: KMail/1.5.4
-Cc: John Bradford <john@grabjohn.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4017F2C0.4020001@techsource.com> <40195AE0.2010006@techsource.com> <Pine.GSO.4.58.0402011123010.20933@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0402011123010.20933@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Feb 2004 17:52:27 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:47865 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S265493AbUBAWw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 17:52:26 -0500
+Date: Sun, 1 Feb 2004 23:52:24 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: hal daemon and ide-floppy
+Message-ID: <20040201225224.GA4001@werewolf.able.es>
+References: <20040126215036.GA6906@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Message-Id: <200402020941.22607.chakkerz@optusnet.com.au>
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040126215036.GA6906@kroah.com> (from greg@kroah.com on Mon, Jan 26, 2004 at 22:50:36 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ok, so, how about this idea:
-> >
-> > - Small Xilinx FPGA, 16M of RAM, and a DAC on a board.
-> > - AGP 2X
-> > - Up to 2048x2048 resolution at 8, 16, and 32 bpp.
-> > - Acceleration ONLY for solid fills and bitblts on-screen.
->
-> Sounds OK to me.
+Hi all...
 
-Disregarding what i said 5 min ago on modular RAM (sorry ... delusions of 
-grandure).
+It looks like haldaemon is polling my zip to see inserted disks
+(it is the only hadware I have that uses ide-floppy).
+I get a message like this
 
-Would it have to be AGP? afteall the data volumes pumping through that would 
-probably be not that high, and with the PCI express being backwards 
-compatible, this would evade a dying bus.
+Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc =  0, key =  2, asc = 3a, ascq =  0
+Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc = 1b, key =  2, asc = 3a, ascq =  0
+Feb  1 23:50:15 werewolf kernel: hdd: No disk in drive
+
+every 2 seconds, both in messages and syslog.
+They can grow very large after some uptime ;)
+
+What is the policy here ? Kill the message in ide-floppy.c ?
+I suppose there can be some other similat messages around there...
+
+TIA
+
 -- 
-with kind regards,
-  Christian Unger
-
--<< Contact Details >>- < > - < > - < > - < > - < > -<< Naiv Status >>- < > -
-
-  Alt. Email:  chakkerz_dev@optusnet.com.au      |   Stable:    0.2.3 r3
-  ICQ:         204184156                         |   Latest:    0.3.0
-  Mobile:      0402 268904                       |   Current:   0.3.1
-  Web:         http://naiv.sourceforge.net       |   Focus:     File Handling
-
-  "You don't need eyes to see ... You need vision" (Faithless - Revenrence)
-
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.2-rc2-jam1 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

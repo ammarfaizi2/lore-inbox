@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbRC2ISu>; Thu, 29 Mar 2001 03:18:50 -0500
+	id <S132653AbRC2Ixo>; Thu, 29 Mar 2001 03:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132690AbRC2ISd>; Thu, 29 Mar 2001 03:18:33 -0500
-Received: from colorfullife.com ([216.156.138.34]:36624 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132691AbRC2ISU>;
-	Thu, 29 Mar 2001 03:18:20 -0500
-Message-ID: <000401c0b828$bbdf7380$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Cc: <geirt@powertech.no>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)>
-Subject: Re: Serial port latency
-Date: Thu, 29 Mar 2001 09:58:31 +0200
+	id <S132670AbRC2IxZ>; Thu, 29 Mar 2001 03:53:25 -0500
+Received: from dexter.allieddomecq.ro ([212.93.128.30]:1029 "HELO
+	mail.allieddomecq.ro") by vger.kernel.org with SMTP
+	id <S132653AbRC2IxU>; Thu, 29 Mar 2001 03:53:20 -0500
+Date: Thu, 29 Mar 2001 10:54:17 +0300 (EEST)
+From: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
+In-Reply-To: <20010222214308.B14395@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.21md.0103291046060.2103-100000@dexter.allieddomecq.ro>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Pavel Machek" <pavel@suse.cz>
-> > Is the computer otherwise idle?
-> > I've seen one unexplainable report with atm problems that
-disappeared
-> > (!) if a kernel compile was running.
->
-> I've seen similar bugs. If you hook something on schedule_tq and
-forget
-> to set current->need_resched, this is exactly what you get.
->
-I'm running with a patch that printk's if cpu_idle() is called while a
-softirq is pending.
-If I access the floppy on my K6/200 every track triggers the check, and
-sometimes the console blanking code triggers it.
 
-What about creating a special cpu_is_idle() function that the idle
-functions must call before sleeping?
+Just a small adition to the 2.5 whislist:
+Is "hibernation" on linux possible? Ideally it should write out on the /
+running on ext2fs and the new journaling fs's like reiserfs, xfs, etx3 etc
+and not some special filesystem or unpartiotioned space etc. I mean that
+this should be working without the need to repartiotion/reinstall.
+This is something **very** useful for laptop owners, not having to shut 
+down (all) applications when need to grab the laptop and travel.
+Id' like to see this working nice in 2.6.
 
---
-    Manfred
+Best regards,
+r
+
+On Thu, 22 Feb 2001, Pavel Machek wrote:
+
+> Date: Thu, 22 Feb 2001 21:43:08 +0100
+> From: Pavel Machek <pavel@suse.cz>
+> To: Shawn Starr <spstarr@sh0n.net>, lkm <linux-kernel@vger.kernel.org>
+> Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
+> 
+> Hi!
+> 
+> > Any idea if suspend/hybernation will be in future kernels?
+> 
+> I'd like it included, too. Some toshiba laptops support sleep but not
+> suspend, and battery runs out within few hours if it was low before
+> suspend. That's bad.
+> 
+> And the patch was pretty clean last time I checked.
+> 								Pavel
+> -- 
+> I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+> Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

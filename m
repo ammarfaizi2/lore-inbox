@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135670AbRD2CIa>; Sat, 28 Apr 2001 22:08:30 -0400
+	id <S135671AbRD2CKK>; Sat, 28 Apr 2001 22:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135671AbRD2CIV>; Sat, 28 Apr 2001 22:08:21 -0400
-Received: from smarty.smart.net ([207.176.80.102]:46855 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S135670AbRD2CIJ>;
-	Sat, 28 Apr 2001 22:08:09 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200104290209.WAA03368@smarty.smart.net>
-Subject: seeoops, 3k all-Bash ksymoops alternative
-To: linux-kernel@vger.kernel.org
-Date: Sat, 28 Apr 2001 22:09:16 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S135672AbRD2CKA>; Sat, 28 Apr 2001 22:10:00 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:47824 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135671AbRD2CJn>;
+	Sat, 28 Apr 2001 22:09:43 -0400
+Date: Sat, 28 Apr 2001 22:09:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] prune_icache() fix
+Message-ID: <Pine.GSO.4.21.0104282201130.321-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In another few minutes I'll be posting the script itself to
-fa.linux.kernel that produced this....
+	Look and enjoy. If prune_icache() doesn't shoot its goal, it
+tries to sync some dirty inodes and look for freeable ones one more
+time. The sad thing being, counter is not reset on the second pass.
+I.e. you end up with nr_unused decremented by 2 * freed_at_the_first_pass +
+freed_at_the_second_pass.
+	Result: underestimated nr_unused. Since that's what we use for
+determining the pressure on icache...
 
-...................................................................
-FLAGS....                                00010282
-0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0
-  N     O D I T S Z   A   P   C
-  e     v i n r i e   u   a   r
-  s     e r t a g r   x   r   r
-  T     r c E p n o   O   i   y
+	Seeing negative number in /proc/sys/fs/inode-nr is... well, an
+interesting experience.
+ 
+	Please, apply the patch below.
+								Al
+PS: _Ouch_. 6 hours of hunting for this one.
 
-eax:    0000000a
+diff -urN S4/fs/inode.c S4-prune_icache/fs/inode.c
+--- S4/fs/inode.c	Sat Apr 28 02:12:56 2001
++++ S4-prune_icache/fs/inode.c	Sat Apr 28 21:37:25 2001
+@@ -612,12 +612,13 @@
+ {
+ 	LIST_HEAD(list);
+ 	struct list_head *entry, *freeable = &list;
+-	int count = 0, synced = 0;
++	int count, synced = 0;
+ 	struct inode * inode;
+ 
+ 	spin_lock(&inode_lock);
+ 
+ free_unused:
++	count = 0;
+ 	entry = inode_unused.prev;
+ 	while (entry != &inode_unused)
+ 	{
 
-ebx:    c012d175
-c012d175        t       dsH3sm
-ecx:    00000000
-
-edx:    00000004
-
-esi:    c0132696
-c0132690        t       crH3sm
-c01326b0        t       dofileCFA
-edi:    c012d179
-c012d175        t       dsH3sm
-c012f175        t       BYTESH3sm
-ebp:    c012d075
-c012d075        t       psH3sm
-
-STACK TRACE     starting 4 calls out from oops
-
-        c01080d3
-    c01080b0    T       kernel_thread
-c01080e0        T       exit_thread
-
-        c0105000
-    c0105000    T       empty_bad_page
-
-        c012a17d
-    c012a150    T       kspamd
-c012a180        t       rw_swap_page_base
-
-        c012d073
-    c012d06e    t       reepeeetH3sm
-c012d075        t       psH3sm
-....................................................................
-
-It takes 8 seconds on a P166, it's <4k, it's 100% Bash. FLAGS looks funny,
-but I dono. Season to taste.
-
-Rick Hohensee
-www.clienux.com

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSE2UDO>; Wed, 29 May 2002 16:03:14 -0400
+	id <S315469AbSE2UEY>; Wed, 29 May 2002 16:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSE2UDN>; Wed, 29 May 2002 16:03:13 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:6651 "EHLO
-	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S315454AbSE2UDM>; Wed, 29 May 2002 16:03:12 -0400
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE breakage with cdrom in 2.5.18+
-In-Reply-To: <3CF53160.B97CE3E2@delusion.de>
-X-URL: <http://www.linux-mandrake.com/
-Organization: MandrakeSoft
-From: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Date: Wed, 29 May 2002 22:02:23 -0400
-Message-ID: <m2it56jsuo.fsf@vador.mandrakesoft.com>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
- (i386-mandrake-linux-gnu)
-MIME-Version: 1.0
+	id <S315463AbSE2UEY>; Wed, 29 May 2002 16:04:24 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:47631 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S315457AbSE2UEV>;
+	Wed, 29 May 2002 16:04:21 -0400
+Date: Wed, 29 May 2002 15:58:10 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "Rose, Billy" <wrose@loislaw.com>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        "'Karim Yaghmour'" <karim@opersys.com>, yodaiken@fsmlabs.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+Message-ID: <20020529155810.B22536@mark.mielke.cc>
+In-Reply-To: <4188788C3E1BD411AA60009027E92DFD0962E2F2@loisexc2.loislaw.com> <E17D9PC-0006in-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" <reality@delusion.de> writes:
+On Wed, May 29, 2002 at 09:46:46PM +0200, Daniel Phillips wrote:
+> What we're really discussing is whether we're willing to allow patent
+> restrictions to inhibit the growth of Linux in new areas that go beyond
+> its traditional IT role, and further, whether we're willing to accept
+> such restrictions from people or companies that depend on Linux for
+> their sustenance, and who have benefitted from the lack of such
+> restrictions as they wish to impose on others.
 
-> /dev/hde shows packet command errors upon bootup. Any ideas?
+Unless Linux is released under a stricter license, I don't know how much
+effect 'whether we're willing to accept such restrictions' will have.
 
-> hda: IBM-DTLA-307030, ATA DISK drive
-> hdb: IBM-DTLA-307030, ATA DISK drive
-> hde: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
-> ide0 at 0x9400-0x9407,0x9002 on irq 10
-> ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
->  hda: 60036480 sectors w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
->  hda: hda1
->  hdb: 60036480 sectors w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
->  hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 hdb9 hdb10 >
-> hde: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
-> Uniform CD-ROM driver Revision: 3.12
-> hde: packet command error: status=0x51 { DriveReady SeekComplete Error } 
-> hde: packet command error: error=0x54
-> ATAPI device hde:
->   Error: Illegal request -- (Sense key=0x05)
->   Invalid field in command packet -- (asc=0x24, ascq=0x00)
->   The failed "Request Sense" packet command was: 
->   "03 00 00 00 12 00 00 00 00 00 00 00 "
+People can theorize that software patents make no sense, but that opinion
+alone does not invalidate them.
 
-afaic looks "try to detect partitions" lookup that should not had been
-done on cdrom :-(
+mark
 
 -- 
-"j'aime warly qui est beau parce que je l'aime et qu'il est beau" (gc)
-"apres le gps, le ps" (pixel)
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

@@ -1,73 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUGFNZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUGFNkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUGFNZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 09:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUGFNZc
+	id S263875AbUGFNkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 09:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUGFNkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 09:25:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:16783 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263820AbUGFNZa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 09:25:30 -0400
-Date: Tue, 6 Jul 2004 08:24:52 -0500
-From: Jake Moilanen <moilanen@austin.ibm.com>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: nfont@austin.ibm.com, paulus@samba.org, linas@austin.ibm.com,
-       linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
-       strosake@us.ibm.com
-Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
-Message-Id: <20040706082452.5b338da3.moilanen@austin.ibm.com>
-In-Reply-To: <1088789345.26946.9.camel@localhost>
-References: <20040629191046.Q21634@forte.austin.ibm.com>
-	<16610.39955.554139.858593@cargo.ozlabs.ibm.com>
-	<20040701160614.I21634@forte.austin.ibm.com>
-	<16613.15510.325099.273419@cargo.ozlabs.ibm.com>
-	<3EC84E0C-CC32-11D8-BDBD-000A95A0560C@us.ibm.com>
-	<40E58AE9.6050009@austin.ibm.com>
-	<1088789345.26946.9.camel@localhost>
-Organization: LTC
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 Jul 2004 09:40:25 -0400
+Received: from relay01a.clb.oleane.net ([213.56.31.145]:13958 "EHLO
+	relay01a.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S263881AbUGFNkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 09:40:20 -0400
+Message-ID: <40EAABC2.8060703@eve-team.com>
+Date: Tue, 06 Jul 2004 15:40:18 +0200
+From: Frederic Dumoulin <frederic_dumoulin@eve-team.com>
+Organization: EVE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Frederic Dumoulin <frederic_dumoulin@eve-team.com>
+Subject: PCI device driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Fri, 2004-07-02 at 11:18, Nathan Fontenot wrote:
-> > > I asked about this before, and was told that there is no way to
-> > > determine the severity of an event without doing full parsing of the
-> > > binary data. I'd be thrilled to be wrong...
-> >
-> > Gettting the severity of an RTAS event is possible, and not too
-> > difficult.  Check out asm-ppc64/rtas.h for a definition of the
-> > RTAS event header (struct rtas_error_log).  All RTAS events have the
-> > same initial header containing the severity of the event.
-> 
-> Great! Of course that won't help much if we get repeating "important"
-> events that aren't even interesting much less important, but it's worth
-> trying to printk only the important ones and leave the rest to netlink.
-> 
-> Note that currently we printk them all as KERN_DEBUG messages. Although
-> they aren't spewed to console, they still take up (lots of) space in the
-> printk buffer, and dmesg is still afflicted too...
-> 
+Hi,
 
-The original "plan" for error logging was to eventually take out the
-printk's all together once we could get ela (the userspace daemon
-responsible for parsing error messages and routing them appropriately)
-into all distros. We didn't want the possibility of a customer losing a
-vital message by not having ela installed.  
+I've got several questions about PCI device driver (some of them have
+nothing to do with kernel, but one never knows, maybe somone can help
+me or give me the address of the right mailing list):
 
-I would propose the making the printk's of the messages a kernel config
-option.  Then the distros could turn it on or off depending on if they
-are packaging ela.  All messages should still go to userspace though.
-This will alleviate the spamming of the printk buffer.
 
-I have no problems in moving communication between kernel and userspace
-to netlink.  Whomever makes the change needs to keep Mike Strosaker and
-Nathan Fontenot informed since they are maintaining the user space
-counterpart. 
 
-Thanks,
-Jake
+1) In my driver, I allocate memory for the dma.
+
+What are the difference between the following methods :
+     * kmalloc (PAGE_SIZE, GFP_KERNEL | GFP_ATOMIC | GFP_DMA)
+     * __get_dma_pages (GFP_KERNEL | GFP_ATOMIC | GFP_DMA, 1)
+     * pci_alloc_consistent (pci_device, PAGE_SIZE, &buffer_phys)
+
+On the performance point of view, is there any difference between
+consistent and streaming DMA mappings?
+
+
+
+2) I'd like to have information about the master write latency.
+
+When I launch a master write access, I'm doing a software polling on
+the PC memory in order to know when the data is present. I measure
+this time with the RDTSC Pentium instruction and it give me about 1.3
+us, with an oscilloscope I can see that the data "leave" the PCI after
+only 0.550us!
+
+Where is my data during those 0.7us?
+How can I reduce this latency?
+
+How can I use the function "ioremap_nocache"? (I can't see any difference with ioremap)
+
+
+
+3) I'd like to have information about the use of the CACHE_LINE_SIZE
+register.
+
+When this register is used?
+     only when using master write and invalidate commands
+     or also in slave read / write accesses
+
+I'm trying to increase the performance of my slave read accesses
+I try to force the CACHE_LINE_SIZE register with
+$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE
+02:0a.0:0c = 00
+$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE=10
+02:0a.0:0c 10
+$ setpci -v -s 02:0a.0 CACHE_LINE_SIZE
+02:0a.0:0c = 00
+
+
+I've got the same problem with the COMMAND register when I try to set
+the FAST_BACK_TO_BACK bit, or the PREFETCH bit in the BASE_ADDRESS_0
+register.
+
+
+How can I overwrite the configuration set by the PCI board?
+(I cannot configurate all the PCI registers in my IP)
+
+
+
+4) I try to modify the Memory Type Range Register.
+
+I use the /proc/mtrr system file :
+$ echo "base=0xfd000000 size=0x01000000 type=write-combining" >>
+/proc/mtrr
+$ cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
+reg01: base=0x10000000 ( 256MB), size= 128MB: write-back, count=1
+reg02: base=0x18000000 ( 384MB), size=   1MB: write-back, count=1
+reg03: base=0x18000000 ( 384MB), size=   1MB: uncachable, count=1
+reg04: base=0xfd000000 (4048MB), size=  16MB: write-combining, count=1
+
+If I re-do the same operation, count=2
+What is the use of "count"? The speed doesn't seem to be increased if count = 1 or 2.
+
+Which type is the best for simple memory slave read / write and master
+write accesses?
+
+I don't know how to have the longest burst as possible in slave read?
+
+
+
+
+Thanks for your help
+
+Best regards
+
+
+
+Frederic

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266431AbUFUTwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266436AbUFUUBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266431AbUFUTwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 15:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266440AbUFUTwZ
+	id S266436AbUFUUBS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266440AbUFUUBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 15:52:25 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:34125 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S266431AbUFUTwW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 15:52:22 -0400
-Message-ID: <40D73C6A.1090005@microgate.com>
-Date: Mon, 21 Jun 2004 14:52:10 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: da-x@colinux.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
-References: <20040621063845.GA6379@callisto.yi.org>	<20040620235824.5407bc4c.akpm@osdl.org>	<20040621073644.GA10781@callisto.yi.org>	<20040621003944.48f4b4be.akpm@osdl.org>	<20040621082430.GA11566@callisto.yi.org>	<40D6F986.3010904@microgate.com> <20040621114605.4df2c05e.akpm@osdl.org>
-In-Reply-To: <20040621114605.4df2c05e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Jun 2004 16:01:18 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:23731 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S266436AbUFUUBM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:01:12 -0400
+Subject: Re: [PATCH] 2.4.27-rc1 i386 and x86_64 ACPI mpparse timer bug
+From: Len Brown <len.brown@intel.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200406202355.i5KNtPdp021261@harpo.it.uu.se>
+References: <200406202355.i5KNtPdp021261@harpo.it.uu.se>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1087848051.4319.202.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Jun 2004 16:00:51 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Thanks Mikael, Hans, you got it right.
 
-> Paul Fulghum <paulkf@microgate.com> wrote:
->> Which would be better?
->> 1. Ignore this
->> 2. Fix conditional debug output to check
->>     for ldisc.chars_in_buffer==NULL
->> 3. Remove conditional debug output
+-Len
+
+On Sun, 2004-06-20 at 19:55, Mikael Pettersson wrote:
+> 2.4.27-rc1 reintroduced the double-speed timer ACPI bug.
+> Both x86-64 and i386 are affected.
 > 
-> Option 1 is quite valid.  There are no bugs here, yes?
+> The patch below fixes it on my box. It's a backport of a
+> patch Hans-Frieder Vogt made for 2.6.7-bk2, extended to
+> also handle i386.
+> 
+> /Mikael Pettersson
+> 
+> diff -ruN linux-2.4.27-rc1/arch/i386/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c
+> --- linux-2.4.27-rc1/arch/i386/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
+> +++ linux-2.4.27-rc1.mpparse-fix/arch/i386/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
+> @@ -1211,7 +1211,7 @@
+>  
+>  		for (idx = 0; idx < mp_irq_entries; idx++)
+>  			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+> -				(mp_irqs[idx].mpc_dstapic == ioapic) &&
+> +				(mp_irqs[idx].mpc_dstapic == mp_ioapics[ioapic].mpc_apicid) &&
+>  				(mp_irqs[idx].mpc_srcbusirq == i ||
+>  				mp_irqs[idx].mpc_dstirq == i))
+>  					break;
+> diff -ruN linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c
+> --- linux-2.4.27-rc1/arch/x86_64/kernel/mpparse.c	2004-06-21 00:39:30.000000000 +0200
+> +++ linux-2.4.27-rc1.mpparse-fix/arch/x86_64/kernel/mpparse.c	2004-06-21 00:50:01.000000000 +0200
+> @@ -866,7 +866,7 @@
+>  
+>  		for (idx = 0; idx < mp_irq_entries; idx++)
+>  			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+> -				(mp_irqs[idx].mpc_dstapic == ioapic) &&
+> +				(mp_irqs[idx].mpc_dstapic == intsrc.mpc_dstapic) &&
+>  				(mp_irqs[idx].mpc_srcbusirq == i ||
+>  				mp_irqs[idx].mpc_dstirq == i))
+>  					break;
 
-If the debug output is enabled and
-a line discipline other than N_TTY is used,
-then you get an oops when the NULL method
-is called.
-
-Since the debug output is not enabled by
-default, and is probably never really used,
-it is not a significant bug.
-
-I thought it might be worth eliminating or
-correcting the debug outputs since they seem
-to get cloned into new serial drivers.
-It is certainly not a big problem.
-
-> If someone for some reason wants to clean all this up, the best way would
-> be to require that ->chars_in_buffer always be valid, hence remove all
-> those checks.
-
-OK
-
---
-Paul Fulghum
-paulkf@microgate.com

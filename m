@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSGPLnD>; Tue, 16 Jul 2002 07:43:03 -0400
+	id <S315806AbSGPLnJ>; Tue, 16 Jul 2002 07:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSGPLnC>; Tue, 16 Jul 2002 07:43:02 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:44815 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S315779AbSGPLnB>;
-	Tue, 16 Jul 2002 07:43:01 -0400
-Date: Tue, 16 Jul 2002 13:47:47 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Joerg Schilling <schilling@fokus.gmd.de>, James.Bottomley@steeleye.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020716114747.GL18432@marowsky-bree.de>
-References: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
-Mime-Version: 1.0
+	id <S315856AbSGPLnI>; Tue, 16 Jul 2002 07:43:08 -0400
+Received: from daimi.au.dk ([130.225.16.1]:20154 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S315806AbSGPLnG>;
+	Tue, 16 Jul 2002 07:43:06 -0400
+Message-ID: <3D340775.7F7AAFB9@daimi.au.dk>
+Date: Tue, 16 Jul 2002 13:45:57 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc1-ac5
+References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-07-16T13:28:19,
-   Joerg Schilling <schilling@fokus.gmd.de> said:
+DMA is still broken on the ALI15X3 IDE controller.
+Does anybody know what the problem could be
+? The
+problem was introduced by this patch:
 
-> Why should the character interface be connected to the block layer?
-> This would contradict UNIX rules.
+http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
+http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
 
-How would it? At some layer, the two are merged anyway (for example, at least
-on disk you'll have blocks again). Doing it up high means more unified code
-below.
+But it is a 700K patch, without knowing a little
+more about what is going on I'd have a hard time
+finding the problem in that patch.
 
-> AFAIK, tagged command queuing is a SCSI specific property, why should this
-> be part of a generif block layer?
-
-That is not true. Late IDE also has this, and systems like drbd - which
-currently uses a quite clever heuristic to deduce barriers - could also
-utilize this input.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Symptoms are:
+- DMA does not get enabled at boot.
+- Manually switching on DMA will cause all disk
+  access to hang, the IDE led stays light until
+  IDE is initialized at next boot.
 
 -- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
-
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

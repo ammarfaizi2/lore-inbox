@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269848AbUJMVKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269854AbUJMVNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269848AbUJMVKd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 17:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUJMVKd
+	id S269854AbUJMVNr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 17:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269858AbUJMVNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 17:10:33 -0400
-Received: from mx1.magmacom.com ([206.191.0.217]:4774 "EHLO mx1.magmacom.com")
-	by vger.kernel.org with ESMTP id S269848AbUJMVKP (ORCPT
+	Wed, 13 Oct 2004 17:13:46 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:12718 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S269854AbUJMVNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 17:10:15 -0400
-Subject: Re: Clock inaccuracy seen on NVIDIA nForce2 systems
+	Wed, 13 Oct 2004 17:13:25 -0400
+Subject: Re: Gnome-2.8 stoped working on kernel-2.6.9-rc4-mm1
 From: Jesse Stockall <stockall@magma.ca>
-To: Andy Currid <ACurrid@nvidia.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45AC2@hqemmail02.nvidia.com>
-References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45AC2@hqemmail02.nvidia.com>
+To: Stef van der Made <svdmade@planet.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <416D923B.3030404@planet.nl>
+References: <Pine.LNX.4.58.0410131204580.31327@danga.com>
+	 <416D8999.7080102@pobox.com> <Pine.LNX.4.58.0410131302190.31327@danga.com>
+	 <416D8C33.9080401@osdl.org>  <416D923B.3030404@planet.nl>
 Content-Type: text/plain
-Message-Id: <1097701839.5500.111.camel@homer.blizzard.org>
+Message-Id: <1097702032.5500.115.camel@homer.blizzard.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 13 Oct 2004 17:10:39 -0400
+Date: Wed, 13 Oct 2004 17:13:52 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-13 at 16:30, Andy Currid wrote:
-> A possible cause of this behavior is a clock synchronization issue that
-> can arise on some nForce2 systems when interrupts are routed through the
-> IOAPIC, and Spread Spectrum (SS) clocking is enabled. Under certain
-> conditions, this can cause the IOAPIC to issue multiple interrupts to
-> the CPU when it should have issued only one.
-> 
-> If you are experiencing clock inaccuracy on nForce2 hardware, take the
-> following steps to determine if this issue may be the cause:
-> 
-> 1. Determine if the hardware you are using may be affected by this
->    problem. The problem is limited to MCP2 and MCP2-T hardware; it does
->    not affect MCP2-S or any nForce3 hardware. MCP2 and MCP2-T hardware
->    may be identified by the PCI device ID of the ISA bridge, which is
->    0x0060 for these devices.
-> 
->    To read the bridge device ID, use 'lspci -n -s 0:1.0' . The output
->    should be of the form '0000:00:01.0 Class 0601: 10de:0060 (rev a3)'.
->    The device ID of the bridge in this example is "0060" following the
->    NVIDIA PCI vendor ID "10de".
-> 
->    If your ISA bridge device ID is not 0x0060, then this issue is not
->    the cause of any clock inaccuracy you are experiencing.
-
-lspci -n -s 0:1.0
-
-output:  0000:00:01.0 Class 0601: 10de:0060 (rev a3)
-
-> 
-> 2. Otherwise, examine the output from 'cat /proc/interrupts'. If IRQ0
->    (the timer) is shown to be in PIC mode rather than IOAPIC mode, then
->    this issue is not the cause of any clock inaccuracy you are
->    experiencing.
+On Wed, 2004-10-13 at 16:38, Stef van der Made wrote:
+> I'm trying to get kernel-2.6.9-rc4-mm1 to work with gnome-2.8. While 
+> 2.6.9-rc4 works fine with gnome-2.8 the mm1 version has an issue. Any 
+> process that I'm trying to start that uses gnome libraries crashes 
+> immediatly after startup. Mozilla, nautilus and gnome terminal to name a 
+> few. The reason for using mm1 is that I'm using reiser4 for one of my 
+> partitions.
 > 
 
-cat /proc/interrupts
+Hi
 
-output: 0:  179117760    IO-APIC-edge  timer
+I had the same issue,
 
-> 3. Otherwise, reboot your system and enter BIOS SETUP. Check if your
->    BIOS has a Front Side Bus (FSB) Spread Spectrum (SS) clocking option.
->    On many systems, this option is located in the "Advanced Chipset
->    Features" menu. If the option is present and enabled, disable it.
->    Boot Linux and observe the system clock over several hours to verify
->    if this has improved its accuracy.
-> 
+here's a fix
+cd /usr/src/linux-2.6.9-rc4-mm1
+wget
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/optimize-profile-path-slightly.patch
+patch -R -p1 < optimize-profile-path-slightly.patch
 
-Both Front Side Bus and AGP spread spectrum are disabled.
-
-The system is running 2.6.9-rc4 and has been up for 2 days. I'm showing
-an offset of -32 seconds and growing.
-	
 Jesse
 
 -- 

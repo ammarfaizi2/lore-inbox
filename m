@@ -1,89 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbUKODeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbUKODhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbUKODeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:34:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbUKOCj7
+	id S261508AbUKODhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbUKODgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 21:39:59 -0500
-Received: from ozlabs.org ([203.10.76.45]:63666 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261477AbUKOCiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:38:05 -0500
-MIME-Version: 1.0
+	Sun, 14 Nov 2004 22:36:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18439 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261476AbUKOChD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 21:37:03 -0500
+Date: Mon, 15 Nov 2004 03:22:31 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: osst@riede.org
+Cc: osst-users@lists.sourceforge.net, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI osst.c: make some code static
+Message-ID: <20041115022231.GV2249@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16792.5879.951131.956305@cargo.ozlabs.ibm.com>
-Date: Mon, 15 Nov 2004 13:39:51 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: benh@kernel.crashing.org, Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix pmac_zilog.c so it compiles again
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that pmac_zilog.c got missed in the dev.power_state to
-dev.power.power_state conversion.  This patch makes that change, and
-also fixes a problem where it would not compile if CONFIG_MAGIC_SYSRQ
-was set but CONFIG_SERIAL_CORE_CONSOLE was not.
+The patch below makes some needlessly global code static.
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-diff -urN linux-2.5/drivers/serial/pmac_zilog.c test-pmac/drivers/serial/pmac_zilog.c
---- linux-2.5/drivers/serial/pmac_zilog.c	2004-11-08 18:37:52.000000000 +1100
-+++ test-pmac/drivers/serial/pmac_zilog.c	2004-11-15 10:05:35.000000000 +1100
-@@ -273,7 +273,7 @@
- 			uap->flags &= ~PMACZILOG_FLAG_BREAK;
- 		}
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/osst.c.old	2004-11-13 22:44:39.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/osst.c	2004-11-13 22:44:59.000000000 +0100
+@@ -24,7 +24,7 @@
+ */
  
--#ifdef CONFIG_MAGIC_SYSRQ
-+#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_SERIAL_CORE_CONSOLE)
- #ifdef USE_CTRL_O_SYSRQ
- 		/* Handle the SysRq ^O Hack */
- 		if (ch == '\x0f') {
-@@ -289,7 +289,7 @@
- 			if (swallow)
- 				goto next_char;
-  		}
--#endif /* CONFIG_MAGIC_SYSRQ */
-+#endif /* CONFIG_MAGIC_SYSRQ && CONFIG_SERIAL_CORE_CONSOLE */
+ static const char * cvsid = "$Id: osst.c,v 1.70 2003/12/23 14:22:12 wriede Exp $";
+-const char * osst_version = "0.99.1";
++static const char * osst_version = "0.99.1";
  
- 		/* A real serial line, record the character and status.  */
- 		if (drop)
-@@ -1603,7 +1603,7 @@
- 		return 0;
- 	}
+ /* The "failure to reconnect" firmware bug */
+ #define OSST_FW_NEED_POLL_MIN 10601 /*(107A)*/
+@@ -164,7 +164,7 @@
+ static int osst_probe(struct device *);
+ static int osst_remove(struct device *);
  
--	if (pm_state == mdev->ofdev.dev.power_state || pm_state < 2)
-+	if (pm_state == mdev->ofdev.dev.power.power_state || pm_state < 2)
- 		return 0;
- 
- 	pmz_debug("suspend, switching to state %d\n", pm_state);
-@@ -1647,7 +1647,7 @@
- 
- 	pmz_debug("suspend, switching complete\n");
- 
--	mdev->ofdev.dev.power_state = pm_state;
-+	mdev->ofdev.dev.power.power_state = pm_state;
- 
- 	return 0;
- }
-@@ -1663,7 +1663,7 @@
- 	if (uap == NULL)
- 		return 0;
- 
--	if (mdev->ofdev.dev.power_state == 0)
-+	if (mdev->ofdev.dev.power.power_state == 0)
- 		return 0;
- 	
- 	pmz_debug("resume, switching to state 0\n");
-@@ -1716,7 +1716,7 @@
- 
- 	pmz_debug("resume, switching complete\n");
- 
--	mdev->ofdev.dev.power_state = 0;
-+	mdev->ofdev.dev.power.power_state = 0;
- 
- 	return 0;
- }
+-struct scsi_driver osst_template = {
++static struct scsi_driver osst_template = {
+ 	.owner			= THIS_MODULE,
+ 	.gendrv = {
+ 		.name		=  "osst",
+

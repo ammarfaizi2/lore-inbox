@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261558AbREUQXz>; Mon, 21 May 2001 12:23:55 -0400
+	id <S261561AbREUQ0P>; Mon, 21 May 2001 12:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261561AbREUQXp>; Mon, 21 May 2001 12:23:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57092 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261558AbREUQXe>; Mon, 21 May 2001 12:23:34 -0400
-Subject: Re: ACPI - console problems 2.4.4
-To: npapadon@yahoo.com (Nick Papadonis)
-Date: Mon, 21 May 2001 17:19:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3ae46fzgs.fsf@yahoo.com> from "Nick Papadonis" at May 21, 2001 12:17:55 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261563AbREUQ0F>; Mon, 21 May 2001 12:26:05 -0400
+Received: from hamachi.synopsys.com ([204.176.20.26]:63467 "EHLO
+	hamachi.synopsys.com") by vger.kernel.org with ESMTP
+	id <S261561AbREUQZy>; Mon, 21 May 2001 12:25:54 -0400
+Message-ID: <3B094183.24148B9D@Synopsys.COM>
+Date: Mon, 21 May 2001 18:25:39 +0200
+From: Harald Dunkel <harri@synopsys.COM>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Giant disk on 2.2.17: Any concerns?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E151sPS-0000Sf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is anyone having problems with ACPI causing console problems in kernel
-> 2.4.4 w/ Intel's patches?   When watching my system boot over the
-> serial console, things work fine.  When looking at my VAIO-FX140's
-> LCD, my console no longer updates after ACPI starts initializing _INI methods.
+Hi folks,
 
-Generally a good rule is 'dont bother with ACPI'. But do let Andrew Grover
-know how it fails on your box
+For running some kind of database application (ClearCase 4.1) I would 
+like to attach an external RAID array with 6*30GByte to a RedHat 6.2 
+machine, using kernel 2.2.17. I don't expect huge files (maximum file 
+size should be about 250MByte), but a lot of middle size files and 
+millions of tiny files.
+
+Will this work? 
+
+Do you expect any problems with the partition table?
+
+
+Many thanx in advance
+
+Harri

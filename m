@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVDEIS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDEISl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVDEIS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVDEIQF
+	id S261642AbVDEISl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDEIOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 04:16:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:24002 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261582AbVDEIF3 convert rfc822-to-8bit
+	Tue, 5 Apr 2005 04:14:30 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:41145 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261650AbVDEILf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 04:05:29 -0400
-Date: Tue, 5 Apr 2005 01:05:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.12-rc2-mm1
-Message-Id: <20050405010517.461ea273.akpm@osdl.org>
-In-Reply-To: <42524576.8040007@ens-lyon.org>
-References: <20050405000524.592fc125.akpm@osdl.org>
-	<425240C5.1050706@ens-lyon.org>
-	<20050405004519.4be75785.akpm@osdl.org>
-	<42524576.8040007@ens-lyon.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 5 Apr 2005 04:11:35 -0400
+Subject: Re: Netlink Connector / CBUS
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, Netlink List <netdev@oss.sgi.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       James Morris <jmorris@redhat.com>, rml@novell.com,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+In-Reply-To: <1112686480.28858.17.camel@uganda>
+References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
+	 <1112686480.28858.17.camel@uganda>
+Date: Tue, 05 Apr 2005 10:11:23 +0200
+Message-Id: <1112688683.8456.10.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 05/04/2005 10:21:14,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 05/04/2005 10:21:15,
+	Serialize complete at 05/04/2005 10:21:15
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+On Tue, 2005-04-05 at 11:34 +0400, Evgeniy Polyakov wrote:
+> On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
 >
-> Andrew Morton a écrit :
-> > Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-> > 
-> >>Andrew Morton a écrit :
-> >> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/
-> >>
-> >> Hi Andrew,
-> >>
-> >> printk timing seems broken.
-> >> It always shows [ 0.000000] on my Compaq Evo N600c.
-> > 
-> > 
-> > What sort of CPU does that thing have?  Please share the /proc/cpuinfo
-> > output.
+> >In fact to this day I still don't understand what problems this thing is
+> >meant to solve.
 > 
-> It's a Mobile Pentium 3:
-> 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 11
-> model name      : Intel(R) Pentium(R) III Mobile CPU      1000MHz
-> stepping        : 1
-> cpu MHz         : 996.763
-> cache size      : 512 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
-> cmov pat pse36 mmx fxsr sse
-> bogomips        : 1977.25
+> Hmm, what else can I add to my words?
+> May be checking the size of the code needed to broadcast kobject changes
+> in kobject_uevent.c for example...
+> Netlink socket allocation + skb handling against call to cn_netlink_send().
 
-Mobile p3 has a TSC, doesn't it?  Confused.
+And It's the same for the fork connector. It allows to send a message to
+a user space application when a fork occurs by adding only one line (two
+with the #include) in the kernel/fork.c file. Thus, the netlink
+connector is a very simple and fast mechanism when you need to send a
+small amount of information from kernel space to user space.
 
-Anyway,
+Regards,
+Guillaume
 
-> > Does reverting
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/broken-out/sched-x86-sched_clock-to-use-tsc-on-config_hpet-or-config_numa-systems.patch
-> > fix it?
-> 
-> Yes!
-> 
-
-Ingo broke my kernel!

@@ -1,65 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269318AbUICGQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269119AbUICG0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269318AbUICGQs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 02:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269062AbUICGQs
+	id S269119AbUICG0e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 02:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUICG0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 02:16:48 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:20166 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269018AbUICGQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 02:16:09 -0400
-Message-ID: <41380C2C.1030609@namesys.com>
-Date: Thu, 02 Sep 2004 23:16:12 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: viro@parcelfarce.linux.theplanet.co.uk,
-       Frank van Maarseveen <frankvm@xs4all.nl>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Christoph Hellwig <hch@lst.de>, fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <4137B5F5.8000402@slaphack.com>
-In-Reply-To: <4137B5F5.8000402@slaphack.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Sep 2004 02:26:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:21676 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269119AbUICG0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 02:26:30 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Eric St-Laurent <ericstl34@sympatico.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+In-Reply-To: <1094181447.4815.6.camel@orbiter>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+	 <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
+	 <1094162812.1347.54.camel@krustophenia.net>
+	 <20040902221402.GA29434@elte.hu>
+	 <1094171082.19760.7.camel@krustophenia.net>
+	 <1094181447.4815.6.camel@orbiter>
+Content-Type: text/plain
+Message-Id: <1094192788.19760.47.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 03 Sep 2004 02:26:29 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think streams are a good thing, I think that all of the 
-different pieces of additional functionality necessary to emulate them 
-with files and directories are a good thing.
+On Thu, 2004-09-02 at 23:17, Eric St-Laurent wrote:
+> > Judging from these graphs, all of the latency issues are solved, at
+> > least on my UP hardware, and the latencies seem to be getting very close
+> > to the limits of what the hardware can do:
+> > 
+> > http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/jack-test-1
+> > 
+> > The worst case latency is only 160 usecs, and the vast majority fall
+> > into the pattern from 0 to 120 usecs.  All of the spikes above 120 are
+> > almost certainly caused by netdev_max_backlog.  However these are not
+> > long enough to cause any problems with my workload; the lowest practical
+> > latency for audio work is around 0.66 ms (32 frames at 48khz). 
+> 
+> Lee,
+> 
+> A few weeks ago you wrote that "the worst latency I was able to trigger
+> was 46 usecs", now it's 160 usecs.
+> 
+> Ingo has done much work on his patches since then.
+> 
+> Why the worst latency is higher now? I presume that the latency
+> measurements technique are more accurate and the 46 usecs was
+> inaccurate?
+> 
+> Ref: http://uwsg.indiana.edu/hypermail/linux/kernel/0407.3/0994.html
+> 
 
-Keeping streams out of linux was one of the (less important) ideas 
-behind reiser4.  Streams are a rigid hack.  The toolkit that can emulate 
-them, is useful, and the perceived importance of that emulation will 
-fade as people start to use the toolkit for things that are much more 
-fun than streams.
+Yup, due to my incomplete understanding of the jackd code, my initial
+measurements were measuring the time it took to run one process cycle
+(basically a NOOP if there are no clients), rather than the actual time
+jackd spent in poll() between cycles.
 
-I agree with most of the rest of what you say though David.
+This did have the effect of measuring the scueduler latency, but I
+believe it was being measured indirectly via cache effects - the longer
+it had been since jackd last ran, the colder the cachelines touched by
+the last cycle.
 
-Hans
+Since I am using a patch to jackd to measure these latencies, which will
+be merged in the near future, it's more important for me that the patch
+accurately reflect the latencies jackd users will see than it is for the
+new, accurate results to be compatible with the old.
+
+All datasets for -O and earlier use the old code:
+
+	http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-O5
+
+This one uses the initial version of the new code, measuring the time
+jackd spends in poll().  The bimodal distribution is due to my sound
+card having two different interrupt sources for capture and playback. 
+So one of the spikes represent the elapsed time between the capture
+interrupt and the playback interrupt, and the other the time between the
+playback interrupt and the next capture interrupt:
+	
+	http://krustophenia.net/testresults.php?dataset=2.6.8.1-P0
 
 
-David Masover wrote:
+-Q and later use the current method, which is like the above except the
+second hump is discarded, as it is a function of the scheduling latency
+and the period size rather than just the scheduling latency:
 
-> File-as-a-dir has numerous advantages, but enough have been discussed.
-> Short list is image mounts, tarballs, streams, metas, and namespace
-> unification.  Longer list and explanations can be found if you RTFA.
+	http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+So, don't be fooled by the numbers, the newest version of the patch is
+in fact the best.  I have been meaning to go back and measure the
+current patches with the old code but it's pretty low priority...
+
+Lee
+
+
+
 

@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267489AbSKQLRR>; Sun, 17 Nov 2002 06:17:17 -0500
+	id <S267409AbSKQLP3>; Sun, 17 Nov 2002 06:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267490AbSKQLRR>; Sun, 17 Nov 2002 06:17:17 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:27282 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S267489AbSKQLRP>;
-	Sun, 17 Nov 2002 06:17:15 -0500
-Date: Sun, 17 Nov 2002 13:40:38 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
+	id <S267484AbSKQLP3>; Sun, 17 Nov 2002 06:15:29 -0500
+Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:27404 "EHLO
+	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S267409AbSKQLP1>; Sun, 17 Nov 2002 06:15:27 -0500
+Date: Sun, 17 Nov 2002 09:22:13 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Luca Barbieri <ldb@ldb.ods.org>
-Subject: [patch] threading fix, tid-2.5.47-A3
-Message-ID: <Pine.LNX.4.44.0211171314200.7001-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] smbfs: fix up header file cleanups
+Message-ID: <20021117112213.GB28051@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-the attached patch (against BK-curr) implements another threading related
-detail, it changes the way TID setting/clearing works. These changes fix a
-weakness of NPTL's handling of the "initial thread", noticed by Luca
-Barbieri.
+	Please pull from:
 
-the problem is the following: the 'initial thread', ie. the 'process',
-does not have any ->user_tid value set. But still it's a generic thread
-that can be pthread_join()-ed upon. (but pthread_join() does not work, the
-kernel does not do the futex wakeup because ->user_tid is NULL.)
+master.kernel.org:/home/acme/BK/includes-2.5
 
-the solution is to add a new syscall that sets the current->user_tid
-address. This new syscall is used by glibc's exec() implementation.  
-Another change is to make CLONE_SETTID work even if CLONE_VM is not used.
-This means that the TID must be set in the child's address space, not in
-the parent's address space. I've also merged SETTID and CLEARTID, the two
-should always be used together by any new-style threading abstraction.
+	In this tree there will be several similar changesets.
 
-the sys_set_tid_address() syscall returns the current TID, which is used
-by glibc to set the TID address in the parent's context. (this is cheaper
-than to do a put_user() in kernel-space.)
+- Arnaldo
 
-to implement the above semantics i've used the schedule_tail() callback to
-do the TID setting in the child's context - doing it a'la
-ptrace_writedata() / access_process_vm() would be way too expensive. It
-looks a bit ugly to do the TID setting both in schedule_tail() and
-do_fork(), and to do the CLONE_VM check, but the correct (and generic)  
-solution
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-In future glibc versions every process and thread will have a nonzero
-user_tid address, so the callback is necessary.
+===================================================================
 
-Ulrich Drepper has changed glibc/NPTL to use these new semantics and the
-initial thread now works fine. Also, i've compressed the CLONE flags to
-remove the CLONE_CLEARTID hole, since NPTL is the only one using them
-currently.
 
-(the patch has no effect on old-style threading libraries.)
+ChangeSet@1.852, 2002-11-17 09:19:49-02:00, acme@conectiva.com.br
+  Fix up after header file cleanups: add <linux/mount.h> to
+  smbfs that got it implicitly before.
 
-	Ingo
 
+ inode.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+
+diff -Nru a/fs/smbfs/inode.c b/fs/smbfs/inode.c
+--- a/fs/smbfs/inode.c	Sun Nov 17 09:20:34 2002
++++ b/fs/smbfs/inode.c	Sun Nov 17 09:20:34 2002
+@@ -22,6 +22,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/nls.h>
+ #include <linux/seq_file.h>
++#include <linux/mount.h>
+ 
+ #include <linux/smb_fs.h>
+ #include <linux/smbno.h>
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.852
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch19294
+M'XL(`()[UST``]V4;VO;,!#&7T>?XB`O1VR=+#NQ64K6[B\M+&3T`\C2.3:U
+MK6#+60O^\-6RM1UI1EG9J]D2!M_I])R>'YK"=4]=-E&Z(3:%S[9WV43;EK2K
+M]BK0M@GRS@<VUOI`6-J&PO/+L&IU/1CJ9R*(F0^OE=,E[*GKLPD&T>,?=[>C
+M;++Y\.GZZMV&L>42+DK5;ND;.5@NF;/=7M6F7RE7UK8-7*?:OB%WV'A\3!T%
+MY\*_,<XC'B<C)ES.1XT&44DDPX5<))+]Z&%UK/VH"B+._4Q1CLAEG++W@,$B
+M%L!%B!CB''B:89K)=,9%QCF<+`IO$&:<G<._;>"":?A8W<*P`U4XZJ`D9?RG
+MJ&H"79-JAUV?@3(&WM95.]R&C1U:%Y1G7HA?VS=YT8,KE8.M=5#YT>SJ2E>N
+MOH.<"MM1P"[!-SY/V/K)"C;[RX<QKC@[>Z']H@\/BCPMUE"@?S^%-%J,`B.Y
+M&*DP>;$046HH+O*"3I_XZ6(/;DHY)C)*Y8&PX\R707N=4)9O/>]N92K3.C/H
+MF\!VVS_HY-POC(6W/O'%X@-UD7P&G?Q_H?OISU>8==\/PT.T?F;5*T#\(B0@
+?F_ZZD(XE/MU-NB1]TP_-$@N5)+%$=@_%$&*8^P0`````
+`
+end

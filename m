@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265387AbTFSD47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 23:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbTFSDz2
+	id S265399AbTFSEVj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 00:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265420AbTFSEVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 23:55:28 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:53124 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S265374AbTFSDyj (ORCPT
+	Thu, 19 Jun 2003 00:21:31 -0400
+Received: from users.ccur.com ([208.248.32.211]:37706 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S265399AbTFSEV3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 23:54:39 -0400
-Date: Wed, 18 Jun 2003 23:45:31 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.72
-Message-ID: <20030618234531.GF333@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030618234418.GC333@neo.rr.com>
+	Thu, 19 Jun 2003 00:21:29 -0400
+Date: Thu, 19 Jun 2003 00:34:41 -0400
+From: "'joe.korty@ccur.com'" <joe.korty@ccur.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Andrew Morton'" <akpm@digeo.com>,
+       "'george anzinger'" <george@mvista.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta sks
+Message-ID: <20030619043441.GA1304@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030618234418.GC333@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1417  -> 1.1418 
-#	drivers/pnp/pnpbios/core.c	1.31    -> 1.32   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/18	ambx1@neo.rr.com	1.1418
-# [PNP] PnPBIOS resource setting fix
-# 
-# If a device is disabled when initially read, its blank resource data will not
-# be cleared and the pnp layer will assume incorrectly that the device has
-# already been configured.  This patch resolves the issue by initializing the
-# resource table if the device is found to be disabled.
-# --------------------------------------------
-#
-diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
---- a/drivers/pnp/pnpbios/core.c	Wed Jun 18 23:01:51 2003
-+++ b/drivers/pnp/pnpbios/core.c	Wed Jun 18 23:01:51 2003
-@@ -935,6 +935,10 @@
- 		dev->capabilities |= PNP_REMOVABLE;
- 	dev->protocol = &pnpbios_protocol;
- 
-+	/* clear out the damaged flags */
-+	if (!dev->active)
-+		pnp_init_resources(&dev->res);
-+
- 	pnp_add_device(dev);
- 	pnpbios_interface_attach_device(node);
- 
+On Wed, Jun 18, 2003 at 06:44:42PM -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> Now that we are at that, it might be wise to add a higher-than-anything
+> priority that the kernel code can use (what would be 100 for user space,
+> but off-limits), so even FIFO 99 code in user space cannot block out
+> the migration thread, keventd and friends.
+
+
+I would prefer users have the ability to put one or two truly critical RT
+tasks above keventd & family.  Such tasks would have to follow certain rules
+.. run & sleep quick .. limited or no device IO ..  most communication to
+other tasks through shared memory .. possibly others.
+
+There are those willing to follow whatever rules necessary & split up their
+application into tasks any which way in order to get high responsiveness to a
+critical but small part of their application.  If you follow the rules, you
+should be allowed to put a carefully crafted task above the system daemons
+(with the possible exception of the migration daemon).
+
+Joe

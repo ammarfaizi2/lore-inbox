@@ -1,93 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbULUPcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbULUPtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbULUPcl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 10:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbULUPcl
+	id S261773AbULUPtI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 10:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbULUPtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 10:32:41 -0500
-Received: from mail45.messagelabs.com ([140.174.2.179]:20185 "HELO
-	mail45.messagelabs.com") by vger.kernel.org with SMTP
-	id S261770AbULUPce convert rfc822-to-8bit (ORCPT
+	Tue, 21 Dec 2004 10:49:08 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:34458 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261773AbULUPtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 10:32:34 -0500
-X-VirusChecked: Checked
-X-Env-Sender: justin.piszcz@mitretek.org
-X-Msg-Ref: server-10.tower-45.messagelabs.com!1103643152!8622536!1
-X-StarScan-Version: 5.4.2; banners=-,-,-
-X-Originating-IP: [66.10.26.57]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ATARAID and KERNEL-2.6.9
-Date: Tue, 21 Dec 2004 10:32:30 -0500
-Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC41BF@email1.mitretek.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ATARAID and KERNEL-2.6.9
-Thread-Index: AcTncQmDkcBj5TYUR7OEM3YTwSJ1CgAASVtg
-From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-To: "Sasa Ostrouska" <sasa.ostrouska@volja.net>,
-       <linux-kernel@vger.kernel.org>
+	Tue, 21 Dec 2004 10:49:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=IOvYvXL4r5PfgVuMrGYRnC4yJCx9g5ucv6A3OcVXHVs2gCM1QfcjIJLc7XKGsEu8H4eK8S+6TX+1e/nCLSjIgnUdJoC4CGmu0ZbDSbtoNJltDNABmo4cGn4aPAllxdg3d2Vl4qWc6ky/dVEF9tXgEGqGPAATv+W3uUaIpvA/efw=
+Message-ID: <7d92433304122107491b8b624a@mail.gmail.com>
+Date: Tue, 21 Dec 2004 10:49:04 -0500
+From: Dan Sturtevant <sturtx@gmail.com>
+Reply-To: Dan Sturtevant <sturtx@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: fork/clone external to a process?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The boot device is in a RAID-based configuration?
+Hi,
 
-If this is the case, I believe you need to setup an initrd img and setup
-LILO accordingly.
+Is there any clean way to fork a process from outside the process itself?
 
+I'm running a commercial application that I only have a binary copy
+of.  All the usual Posix fork stuff only works from inside the running
+process.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Sasa Ostrouska
-Sent: Tuesday, December 21, 2004 10:19 AM
-To: linux-kernel@vger.kernel.org
-Subject: ATARAID and KERNEL-2.6.9
+Is there any reason it's not possible to do so?  Obviously threading
+and file desciptors open a whole can of worms, but in the base case,
+is it possible?
 
-Dear Sirs,
+Thanks in advance, and sorry if it's a stupid question.
 
-        I have a little problem or maybe big one. I try to 
-put to work the kernel-2.6.9 on my machine. I have a slackware
-current install and the following hardware.
-
-AMD Athlon 
-512MB RAM
-HPT 370 RAID controller 
-and 2 HDD in RAID1
-
-So when I start the kernel-ataraid-2.4.27 everything works OK.
-When I start the installed kernel-2.6.9 I get the following error
-message:
-
-VFS: Cannot openroot device "7203" or unknown-block(114,3)
-Please append a correct "root=" option 
-Kernel panic: VFS: Unable to mount root fs on unknown-block(114,3)
-
-On my lilo.conf is root=/dev/ataraid/d0p3 
-as this is the / partition. 
-
-I tried to put the root=/dev/hde at the lilo prompt but no 
-success. 
-I tried many many forums but nobody was able to answer me. So 
-my last sollution is you and I will very very apreciate it if 
-you can give me some hints how to do it. I append you also a
-dmesg from the 2.4.27 kernel. 
-
-Many thanks in advance for your help !!!
-
-Best Regards
-Sasa Ostrouska
-
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Dan Sturtevant

@@ -1,150 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVCCXaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVCCXap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbVCCXaq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 18:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVCCX3g
+	id S262679AbVCCXap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVCCXaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 18:29:36 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:53494 "EHLO
+	Thu, 3 Mar 2005 18:30:07 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:56054 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262747AbVCCXWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262749AbVCCXWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 3 Mar 2005 18:22:34 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][25/26] IB/mthca: implement query of device caps
-In-Reply-To: <2005331520.i9PPmMDNBr0DxH5I@topspin.com>
+Subject: [PATCH][23/26] IB/mthca: mem-free multicast table
+In-Reply-To: <2005331520.ADYAIRdSQBiHhYiD@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Thu, 3 Mar 2005 15:20:28 -0800
-Message-Id: <2005331520.mctunM7QrSZHM8mX@topspin.com>
+Message-Id: <2005331520.kVkmRDQ3e4IStEy9@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 23:20:28.0613 (UTC) FILETIME=[964A0F50:01C52047]
+X-OriginalArrivalTime: 03 Mar 2005 23:20:28.0488 (UTC) FILETIME=[9636FC80:01C52047]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+Tie up one last loose end by mapping enough context memory to cover
+the whole multicast table during initialization, and then enable
+mem-free mode.  mthca now supports enough of mem-free mode so that
+IPoIB works with a mem-free HCA.
 
-Set device_cap_flags field in mthca's query_device method.
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cmd.h	2005-01-25 20:48:02.000000000 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_cmd.h	2005-03-03 14:13:03.934043620 -0800
-@@ -95,7 +95,21 @@
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:02.565340719 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:03.005245231 -0800
+@@ -207,8 +207,9 @@
  };
  
- enum {
--	DEV_LIM_FLAG_SRQ = 1 << 6
-+	DEV_LIM_FLAG_RC                 = 1 << 0,
-+	DEV_LIM_FLAG_UC                 = 1 << 1,
-+	DEV_LIM_FLAG_UD                 = 1 << 2,
-+	DEV_LIM_FLAG_RD                 = 1 << 3,
-+	DEV_LIM_FLAG_RAW_IPV6           = 1 << 4,
-+	DEV_LIM_FLAG_RAW_ETHER          = 1 << 5,
-+	DEV_LIM_FLAG_SRQ                = 1 << 6,
-+	DEV_LIM_FLAG_BAD_PKEY_CNTR      = 1 << 8,
-+	DEV_LIM_FLAG_BAD_QKEY_CNTR      = 1 << 9,
-+	DEV_LIM_FLAG_MW                 = 1 << 16,
-+	DEV_LIM_FLAG_AUTO_PATH_MIG      = 1 << 17,
-+	DEV_LIM_FLAG_ATOMIC             = 1 << 18,
-+	DEV_LIM_FLAG_RAW_MULTI          = 1 << 19,
-+	DEV_LIM_FLAG_UD_AV_PORT_ENFORCE = 1 << 20,
-+	DEV_LIM_FLAG_UD_MULTI           = 1 << 21,
+ struct mthca_mcg_table {
+-	struct semaphore   sem;
+-	struct mthca_alloc alloc;
++	struct semaphore   	sem;
++	struct mthca_alloc 	alloc;
++	struct mthca_icm_table *table;
  };
  
- struct mthca_dev_lim {
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:03.005245231 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:03.932044054 -0800
-@@ -218,6 +218,7 @@
- 
- 	int          	 hca_type;
- 	unsigned long	 mthca_flags;
-+	unsigned long    device_cap_flags;
- 
- 	u32              rev_id;
- 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:13:03.005245231 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:13:03.933043837 -0800
-@@ -171,6 +171,33 @@
- 	mdev->limits.reserved_uars      = dev_lim->reserved_uars;
- 	mdev->limits.reserved_pds       = dev_lim->reserved_pds;
- 
-+	/* IB_DEVICE_RESIZE_MAX_WR not supported by driver.
-+	   May be doable since hardware supports it for SRQ.
-+
-+	   IB_DEVICE_N_NOTIFY_CQ is supported by hardware but not by driver.
-+
-+	   IB_DEVICE_SRQ_RESIZE is supported by hardware but SRQ is not
-+	   supported by driver. */
-+	mdev->device_cap_flags = IB_DEVICE_CHANGE_PHY_PORT |
-+		IB_DEVICE_PORT_ACTIVE_EVENT |
-+		IB_DEVICE_SYS_IMAGE_GUID |
-+		IB_DEVICE_RC_RNR_NAK_GEN;
-+
-+	if (dev_lim->flags & DEV_LIM_FLAG_BAD_PKEY_CNTR)
-+		mdev->device_cap_flags |= IB_DEVICE_BAD_PKEY_CNTR;
-+
-+	if (dev_lim->flags & DEV_LIM_FLAG_BAD_QKEY_CNTR)
-+		mdev->device_cap_flags |= IB_DEVICE_BAD_QKEY_CNTR;
-+				
-+	if (dev_lim->flags & DEV_LIM_FLAG_RAW_MULTI)
-+		mdev->device_cap_flags |= IB_DEVICE_RAW_MULTI;
-+
-+	if (dev_lim->flags & DEV_LIM_FLAG_AUTO_PATH_MIG)
-+		mdev->device_cap_flags |= IB_DEVICE_AUTO_PATH_MIG;
-+
-+	if (dev_lim->flags & DEV_LIM_FLAG_UD_AV_PORT_ENFORCE)
-+		mdev->device_cap_flags |= IB_DEVICE_UD_AV_PORT_ENFORCE;
-+
- 	if (dev_lim->flags & DEV_LIM_FLAG_SRQ)
- 		mdev->mthca_flags |= MTHCA_FLAG_SRQ;
- 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-03-03 14:13:02.566340502 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-03-03 14:13:03.933043837 -0800
-@@ -43,6 +43,8 @@
- 	struct ib_smp *in_mad  = NULL;
- 	struct ib_smp *out_mad = NULL;
- 	int err = -ENOMEM;
-+	struct mthca_dev* mdev = to_mdev(ibdev);
-+
- 	u8 status;
- 
- 	in_mad  = kmalloc(sizeof *in_mad, GFP_KERNEL);
-@@ -50,7 +52,7 @@
- 	if (!in_mad || !out_mad)
- 		goto out;
- 
--	props->fw_ver        = to_mdev(ibdev)->fw_ver;
-+	props->fw_ver              = mdev->fw_ver;
- 
- 	memset(in_mad, 0, sizeof *in_mad);
- 	in_mad->base_version       = 1;
-@@ -59,7 +61,7 @@
- 	in_mad->method         	   = IB_MGMT_METHOD_GET;
- 	in_mad->attr_id   	   = IB_SMP_ATTR_NODE_INFO;
- 
--	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
-+	err = mthca_MAD_IFC(mdev, 1, 1,
- 			    1, NULL, NULL, in_mad, out_mad,
- 			    &status);
- 	if (err)
-@@ -69,10 +71,11 @@
- 		goto out;
+ struct mthca_dev {
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:12:57.858362446 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:13:03.005245231 -0800
+@@ -412,8 +412,29 @@
+ 		goto err_unmap_eqp;
  	}
  
--	props->vendor_id      = be32_to_cpup((u32 *) (out_mad->data + 36)) &
-+	props->device_cap_flags = mdev->device_cap_flags;
-+	props->vendor_id        = be32_to_cpup((u32 *) (out_mad->data + 36)) &
- 		0xffffff;
--	props->vendor_part_id = be16_to_cpup((u16 *) (out_mad->data + 30));
--	props->hw_ver         = be16_to_cpup((u16 *) (out_mad->data + 32));
-+	props->vendor_part_id   = be16_to_cpup((u16 *) (out_mad->data + 30));
-+	props->hw_ver           = be16_to_cpup((u16 *) (out_mad->data + 32));
- 	memcpy(&props->sys_image_guid, out_mad->data +  4, 8);
- 	memcpy(&props->node_guid,      out_mad->data + 12, 8);
++	/*
++	 * It's not strictly required, but for simplicity just map the
++	 * whole multicast group table now.  The table isn't very big
++	 * and it's a lot easier than trying to track ref counts.
++	 */
++	mdev->mcg_table.table = mthca_alloc_icm_table(mdev, init_hca->mc_base,
++						      MTHCA_MGM_ENTRY_SIZE,
++						      mdev->limits.num_mgms +
++						      mdev->limits.num_amgms,
++						      mdev->limits.num_mgms +
++						      mdev->limits.num_amgms,
++						      0);
++	if (!mdev->mcg_table.table) {
++		mthca_err(mdev, "Failed to map MCG context memory, aborting.\n");
++		err = -ENOMEM;
++		goto err_unmap_cq;
++	}
++
+ 	return 0;
+ 
++err_unmap_cq:
++	mthca_free_icm_table(mdev, mdev->cq_table.table);
++
+ err_unmap_eqp:
+ 	mthca_free_icm_table(mdev, mdev->qp_table.eqp_table);
+ 
+@@ -587,7 +608,7 @@
+ 		goto err_uar_free;
+ 	}
+ 
+-       err = mthca_init_pd_table(dev);
++	err = mthca_init_pd_table(dev);
+ 	if (err) {
+ 		mthca_err(dev, "Failed to initialize "
+ 			  "protection domain table, aborting.\n");
+@@ -635,13 +656,6 @@
+ 
+ 	mthca_dbg(dev, "NOP command IRQ test passed\n");
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
+-		mthca_warn(dev, "Sorry, native MT25208 mode support is not complete, "
+-			   "aborting.\n");
+-		err = -ENODEV;
+-		goto err_cmd_poll;
+-	}
+-
+ 	err = mthca_init_cq_table(dev);
+ 	if (err) {
+ 		mthca_err(dev, "Failed to initialize "
+@@ -704,7 +718,7 @@
+ 
+ err_uar_table_free:
+ 	mthca_cleanup_uar_table(dev);
+-       return err;
++	return err;
+ }
+ 
+ static int __devinit mthca_request_regions(struct pci_dev *pdev,
+@@ -814,6 +828,7 @@
+ 				    const struct pci_device_id *id)
+ {
+ 	static int mthca_version_printed = 0;
++	static int mthca_memfree_warned = 0;
+ 	int ddr_hidden = 0;
+ 	int err;
+ 	struct mthca_dev *mdev;
+@@ -893,6 +908,10 @@
+ 	mdev->pdev     = pdev;
+ 	mdev->hca_type = id->driver_data;
+ 
++	if (mdev->hca_type == ARBEL_NATIVE && !mthca_memfree_warned++)
++		mthca_warn(mdev, "Warning: native MT25208 mode support is incomplete.  "
++			   "Your HCA may not work properly.\n");
++
+ 	if (ddr_hidden)
+ 		mdev->mthca_flags |= MTHCA_FLAG_DDR_HIDDEN;
  
 

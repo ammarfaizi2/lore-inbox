@@ -1,49 +1,405 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293342AbSB1SVS>; Thu, 28 Feb 2002 13:21:18 -0500
+	id <S293402AbSB1SkD>; Thu, 28 Feb 2002 13:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293651AbSB1SQC>; Thu, 28 Feb 2002 13:16:02 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:12046 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293627AbSB1SNv>; Thu, 28 Feb 2002 13:13:51 -0500
-Message-ID: <3C7E732E.1030602@evision-ventures.com>
-Date: Thu, 28 Feb 2002 19:13:02 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S293670AbSB1SjW>; Thu, 28 Feb 2002 13:39:22 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:52488 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S293664AbSB1Si1>; Thu, 28 Feb 2002 13:38:27 -0500
+Date: Thu, 28 Feb 2002 10:38:20 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: davej@suse.de
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] q40fb ported to new api.
+Message-ID: <Pine.LNX.4.10.10202281036400.9321-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Pavel Machek <pavel@ucw.cz>, Andries.Brouwer@cwi.nl,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
-In-Reply-To: <UTC200202241352.g1ODqeb08003.aeb@apps.cwi.nl> <3C79435E.8030208@evision-ventures.com> <20020228094444.GB750@elf.ucw.cz> <3C7E3C71.6050604@evision-ventures.com> <3C7E7083.169836E1@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Martin Dalecki wrote:
-> 
->>Pavel Machek wrote:
->>
->>>I run 2.4.x on 486sx, which is .... pretty close to 386. 386 support
->>>is not going to get dropped anytime soon...
->>>
-> 
->>Well the 486sx is the same die as 486 with coproc disabled. And in
->>contrast the the 386 the 486 is a scalar, tough not super-scalar CPU.
->>(This is what this "pipline stuff" and multiple pipeline stuff is about ;-).
->>
->>Please trust me they are *not* very similar from CPU design point
->>of view. They are only similar on the command set level.
->>Anyway just to put it straight: Your system certainly won't be affected
->>by the removal.
->>
-> 
-> Regardless, 386 support should not go away...
 
-It won't! The issue does have nothing to do with the CPU in
-the system. What goes away is a misguided attempt to treat an
-AT computer like a 8088 class early PC. OK?
+Please test this driver so it can be included into the dave jones tree. It
+is against 2.5.5-dj1
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+
+--- linux-2.5.5-dj2/drivers/video/q40fb.c	Tue Feb 26 16:04:26 2002
++++ linux/drivers/video/q40fb.c	Thu Feb 28 11:33:22 2002
+@@ -1,3 +1,15 @@
++/* 
++ * linux/drivers/video/q40fb.c -- Q40 frame buffer device
++ *
++ * Copyright (C) 2001 
++ *
++ *      Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>
++ *
++ *  This file is subject to the terms and conditions of the GNU General Public
++ *  License. See the file COPYING in the main directory of this archive for
++ *  more details.
++ */
++
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+ #include <linux/string.h>
+@@ -9,179 +21,54 @@
+ 
+ #include <asm/uaccess.h>
+ #include <asm/setup.h>
++#include <asm/segment.h>
+ #include <asm/system.h>
+-/*#include <asm/irq.h>*/
+ #include <asm/q40_master.h>
+ #include <linux/fb.h>
+ #include <linux/module.h>
+ #include <asm/pgtable.h>
+ 
+ #include <video/fbcon.h>
+-#include <video/fbcon-cfb16.h>
+-
+-#define FBIOSETSCROLLMODE   0x4611
+ 
+ #define Q40_PHYS_SCREEN_ADDR 0xFE800000
+ 
+ static u16 pseudo_palette[17];
++static struct fb_info fb_info;
++static struct display display;
+ 
+-/* frame buffer operations */
++static struct fb_fix_screeninfo q40fb_fix __initdata = {
++    "Q40", (unsigned long) NULL, 1024*1024, FB_TYPE_PACKED_PIXELS, 0,
++    FB_VISUAL_TRUECOLOR, 0, 0, 0, 1024*2, (unsigned long) NULL, 0, FB_ACCEL_NONE
++};
+ 
+-static int q40fb_get_fix(struct fb_fix_screeninfo *fix, int con,
+-			struct fb_info *info);
+-static int q40fb_get_var(struct fb_var_screeninfo *var, int con,
+-			struct fb_info *info);
+-static int q40fb_set_var(struct fb_var_screeninfo *var, int con,
+-			struct fb_info *info);
+-static int q40fb_get_cmap(struct fb_cmap *cmap,int kspc,int con,
+-			 struct fb_info *info);
+-static int q40fb_setcolreg(unsigned regno, unsigned red, unsigned green,
+-			   unsigned blue, unsigned transp,
+-			   const struct fb_info *info);
++static struct fb_var_screeninfo q40fb_var __initdata = {
++    /* 1024x512, 16 bpp */
++    1024, 512, 1024, 512, 0, 0, 16, 0,
++    {6, 5, 0}, {11, 5, 0}, {0, 6, 0}, {0, 0, 0},
++    0, FB_ACTIVATE_NOW, 230, 300, 0, 0, 0, 0, 0, 0, 0, 0,
++    0, FB_VMODE_NONINTERLACED
++};
+ 
+-static int q40con_switch(int con, struct fb_info *info);
+-static int q40con_updatevar(int con, struct fb_info *info);
++/* frame buffer operations */
++int q40fb_init(void);
+ 
+-static void q40fb_set_disp(int con, struct fb_info *info);
++static int q40fb_setcolreg(unsigned regno, unsigned red, unsigned green,
++                           unsigned blue, unsigned transp,
++                           struct fb_info *info);
+ 
+-static struct display disp[MAX_NR_CONSOLES];
+-static struct fb_info fb_info;
+ static struct fb_ops q40fb_ops = {
+ 	owner:		THIS_MODULE,
+-	fb_get_fix:	q40fb_get_fix,
+-	fb_get_var:	q40fb_get_var,
+-	fb_set_var:	q40fb_set_var,
+-	fb_get_cmap:	q40fb_get_cmap,
+-	fb_set_cmap:	fbgen_set_cmap,
++	fb_get_fix:	gen_get_fix,
++	fb_get_var:	gen_get_var,
++	fb_set_var:	gen_set_var,
++	fb_get_cmap:	gen_get_cmap,
++	fb_set_cmap:	gen_set_cmap,
+ 	fb_setcolreg:	q40fb_setcolreg,
+ };
+ 
+-static char q40fb_name[]="Q40";
+-
+-static int q40fb_get_fix(struct fb_fix_screeninfo *fix, int con,
+-			struct fb_info *info)
+-{
+-	memset(fix, 0, sizeof(struct fb_fix_screeninfo));
+-
+-	strcpy(fix->id,"Q40");
+-	fix->smem_start = info->screen_base;
+-	fix->smem_len=1024*1024;
+-	fix->type=FB_TYPE_PACKED_PIXELS;
+-	fix->type_aux=0;
+-	fix->visual=FB_VISUAL_TRUECOLOR;  /* good approximation so far ..*/;
+-	fix->xpanstep=0;
+-	fix->ypanstep=0;
+-	fix->ywrapstep=0;
+-        fix->line_length=1024*2;
+-
+-	/* no mmio,accel ...*/
+-
+-	return 0;
+-
+-}
+-        
+-static int q40fb_get_var(struct fb_var_screeninfo *var, int con,
+-			struct fb_info *info)
+-{
+-	memset(var, 0, sizeof(struct fb_var_screeninfo));
+-
+-	var->xres=1024;
+-	var->yres=512;
+-	var->xres_virtual=1024;
+-	var->yres_virtual=512;
+-	var->xoffset=0;
+-	var->yoffset=0;
+-	var->bits_per_pixel=16;
+-	var->grayscale=0;
+-	var->nonstd=0;
+-	var->activate=FB_ACTIVATE_NOW;
+-	var->height=230;     /* approx for my 17" monitor, more important */
+-	var->width=300;      /* than the absolute values is the unusual aspect ratio*/
+-
+-	var->red.offset=6; /*6*/
+-	var->red.length=5;
+-	var->green.offset=11; /*11*/
+-	var->green.length=5;
+-	var->blue.offset=0;
+-	var->blue.length=6;
+-	var->transp.length=0;
+-
+-	var->pixclock=0;
+-	var->left_margin=0;
+-	var->right_margin=0;
+-	var->hsync_len=0;
+-	var->vsync_len=0;
+-	var->sync=0;
+-	var->vmode=FB_VMODE_NONINTERLACED;
+-
+-	return 0;
+-
+-}
+-
+-static int q40fb_set_var(struct fb_var_screeninfo *var, int con,
+-			struct fb_info *info)
+-{
+-	if(var->xres!=1024) 
+-		return -EINVAL;
+-	if(var->yres!=512)
+-		return -EINVAL;
+-	if(var->xres_virtual!=1024)
+-		return -EINVAL;
+-	if(var->yres_virtual!=512)
+-		return -EINVAL;
+-	if(var->xoffset!=0)
+-		return -EINVAL;
+-	if(var->yoffset!=0)
+-		return -EINVAL;
+-	if(var->bits_per_pixel!=16)
+-		return -EINVAL;
+-	if(var->grayscale!=0)
+-		return -EINVAL;
+-	if(var->nonstd!=0)
+-		return -EINVAL;
+-	if(var->activate!=FB_ACTIVATE_NOW)
+-		return -EINVAL;
+-	if(var->pixclock!=0)
+-		return -EINVAL;
+-	if(var->left_margin!=0)
+-		return -EINVAL;
+-	if(var->right_margin!=0)
+-		return -EINVAL;
+-	if(var->hsync_len!=0)
+-		return -EINVAL;
+-	if(var->vsync_len!=0)
+-		return -EINVAL;
+-	if(var->sync!=0)
+-		return -EINVAL;
+-	if(var->vmode!=FB_VMODE_NONINTERLACED)
+-		return -EINVAL;
+-
+-	return 0;
+-
+-}
+-
+-static int q40_getcolreg(unsigned regno, unsigned *red, unsigned *green,
+-			 unsigned *blue, unsigned *transp,
+-			 struct fb_info *info)
+-{
+-    /*
+-     *  Read a single color register and split it into colors/transparent.
+-     *  The return values must have a 16 bit magnitude.
+-     *  Return != 0 for invalid regno.
+-     */
+-    if (regno>=16) return 1;
+-
+-    *transp=0;
+-    *green = ((info->pseudo_palette[regno]>>11) & 31)<<11;
+-    *red   = ((info->pseudo_palette[regno]>>6) & 31)<<11;
+-    *blue  = ((info->pseudo_palette[regno]) & 63)<<10;
+-
+-    return 0;
+-}
+-
+ static int q40fb_setcolreg(unsigned regno, unsigned red, unsigned green,
+-			   unsigned blue, unsigned transp,
+-			   const struct fb_info *info)
++		  	   unsigned blue, unsigned transp,
++			   struct fb_info *info)
+ {
+     /*
+      *  Set a single color register. The values supplied have a 16 bit
+@@ -189,118 +76,54 @@
+      *  Return != 0 for invalid regno.
+      */
+   
+-  red>>=11;
+-  green>>=11;
+-  blue>>=10;
++    red>>=11;
++    green>>=11;
++    blue>>=10;
+ 
+     if (regno < 16) {
+-      info->pseudo_palette[regno] = ((red & 31) <<6) |
+-	                         ((green & 31) << 11) |
+-	                         (blue & 63);
++	info->pseudo_palette[regno] = ((red & 31) <<6) |
++	                              ((green & 31) << 11) |
++	                         	(blue & 63);
+     }
+     return 0;
+ }
+ 
+-static int q40fb_get_cmap(struct fb_cmap *cmap, int kspc, int con,
+-			 struct fb_info *info)
+-{
+-#if 1
+-	if (con == info->currcon) /* current console? */
+-		return fb_get_cmap(cmap, kspc, q40_getcolreg, info);
+-	else if (fb_display[con].cmap.len) /* non default colormap? */
+-		fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
+-	else
+-		fb_copy_cmap(fb_default_cmap(1<<fb_display[con].var.bits_per_pixel),
+-			     cmap, kspc ? 0 : 2);
+-	return 0;
+-#else
+-	printk(KERN_ERR "get cmap not supported\n");
+-
+-	return -EINVAL;
+-#endif
+-}
+-
+-static void q40fb_set_disp(int con, struct fb_info *info)
+-{
+-  struct fb_fix_screeninfo fix;
+-  struct display *display;
+-
+-  q40fb_get_fix(&fix, con, info);
+-
+-  if (con>=0)
+-    display = &fb_display[con];
+-  else 	
+-    display = &disp[0];
+-
+-  if (con<0) con=0;
+-
+-   display->visual = fix.visual;
+-   display->type = fix.type;
+-   display->type_aux = fix.type_aux;
+-   display->ypanstep = fix.ypanstep;
+-   display->ywrapstep = fix.ywrapstep;
+-   display->can_soft_blank = 0;
+-   display->inverse = 0;
+-   display->line_length = fix.line_length;
+-
+-   display->scrollmode = SCROLL_YREDRAW;
+-
+-#ifdef FBCON_HAS_CFB16
+-   display->dispsw = &fbcon_cfb16;
+-   disp->dispsw_data = info->pseudo_palette;
+-#else
+-   display->dispsw = &fbcon_dummy;
+-#endif
+-}
+-  
+-int __init q40fb_init(void)
++int q40fb_init(void)
+ {
+-
+         if ( !MACH_IS_Q40)
+ 	  return -ENXIO;
+-#if 0
+-        fb_info.screen_base = kernel_map(Q40_PHYS_SCREEN_ADDR, 1024*1024,
+-					   KERNELMAP_NO_COPYBACK, NULL);
+-#else
+-	fb_info.screen_base = Q40_PHYS_SCREEN_ADDR; /* mapped in q40/config.c */
+-#endif
+-
+-	fb_info.changevar=NULL;
+-	strcpy(&fb_info.modename[0],q40fb_name);
+-	fb_info.fontname[0]=0;
+-	fb_info.pseudo_palette = pseudo_palette;
+-	fb_info.disp=disp;
+-	fb_info.switch_con=&q40con_switch;
+-	fb_info.updatevar=&q40con_updatevar;
++
++	/* mapped in q40/config.c */
++	q40fb_fix.smem_start = Q40_PHYS_SCREEN_ADDR;
++	
++	fb_info.var = q40fb_var;
++	fb_info.fix = q40fb_fix;
+ 	fb_info.node = NODEV;
+ 	fb_info.fbops = &q40fb_ops;
+ 	fb_info.flags = FBINFO_FLAG_DEFAULT;  /* not as module for now */
+-	
+-	master_outb(3,DISPLAY_CONTROL_REG);
++	fb_info.pseudo_palette = pseudo_palette;	
++   	fb_info.screen_base = (char *) q40fb_fix.smem_start;
++
++	/* The below feilds will go away !!!! */
++	fb_info.currcon		= -1;
++	strcpy(fb_info.modename, fb_info.fix.id);
++	fb_info.disp		= &display;
++	fb_info.switch_con	= gen_switch;
++	fb_info.updatevar	= gen_update_var;
++	fb_alloc_cmap(&fb_info.cmap, 16, 0);
+ 
+-        q40fb_get_var(&disp[0].var, 0, &fb_info);
+-	q40fb_set_disp(-1, &fb_info);
++        gen_set_var(&fb_info.var, -1, &fb_info);
++	
++	master_outb(3, DISPLAY_CONTROL_REG);
+ 
+ 	if (register_framebuffer(&fb_info) < 0) {
+-		printk(KERN_ERR "unable to register Q40 frame buffer\n");
++		printk(KERN_ERR "Unable to register Q40 frame buffer\n");
+ 		return -EINVAL;
+ 	}
+ 
+         printk(KERN_INFO "fb%d: Q40 frame buffer alive and kicking !\n",
+ 	       GET_FB_IDX(fb_info.node));
+ 	return 0;
+-}	
+-
+-	
+-static int q40con_switch(int con, struct fb_info *info)
+-{ 
+-	info->currcon=con;
+-	return 0;
+-}
+-
+-static int q40con_updatevar(int con, struct fb_info *info)
+-{
+-	return 0;
+ }
+ 
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL");	
 

@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbUKHJnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUKHJjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbUKHJnV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKHJnP
+	id S261830AbUKHJjc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUKHJi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:43:15 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35806 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261817AbUKHJkq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:40:46 -0500
-X-Envelope-From: kraxel@bytesex.org
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Gregoire Favre <Gregoire.Favre@freesurf.ch>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why my computer freeze completely with xawtv ?
-References: <20041107224621.GB5360@magma.epfl.ch>
-	<418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch>
-	<418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch>
-	<418EBFE5.5080903@kolivas.org>
-	<Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 08 Nov 2004 10:17:39 +0100
-In-Reply-To: <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
-Message-ID: <87bre88zt8.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 8 Nov 2004 04:38:58 -0500
+Received: from mail.gmx.net ([213.165.64.20]:33727 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261802AbUKHJfl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 04:35:41 -0500
+Date: Mon, 8 Nov 2004 10:35:38 +0100 (MET)
+From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
+To: linux-kernel@vger.kernel.org, kai@germaschewski.name, sam@ravnborg.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] fix for pseudo symbol swapping with scripts/kallsyms - linu
+ Re: [PATCH] fix for pseudo symbol swapping with scripts/kallsyms - linux-2.6.10-rc1-bk12 & gcc 3.4.2
+X-Priority: 3 (Normal)
+X-Authenticated: #15156664
+Message-ID: <13418.1099906538@www39.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski <kangur@polcom.net> writes:
+Sam,
 
-> I am seeing the same problem with my bttv card. It was present in the
-> 2.4 day and is present to this day. There are some kernels that are
-> more probable to hang while others are less. It does not depend on -ck
-> or any other patchset or scheduling. I reported it to bttv maintainer
-> year or two ago, but it looks like he is very unresponsive. :-)
+i tried out your 2nd patch in a "prooven to be bad" configuration.
+The extra ALIGN(8) statement caused the listed symbols 
+beeing swapped on the first and any further ld cycle. 
+In other words the consecutive checks did succeed.
 
-Well, if it happens almost independant of the kernel/driver version it
-most likely is buggy hardware.  I can't do much about it ...
+For completeness here is a short excerpt of the System.map:
 
-Well known example are some via chipsets which have trouble with
-multiple devices doing DMA at the same time (those tend to run stable
-with bttv once you've turned off ide-dma ...).
+c03495a0 T __down                                                           
+   
+c03495a0 T __sched_text_start                                               
+   
+c0349680 T __down_interruptible                                             
+   
+c034979c T __down_failed
 
-Getting broken hardware run stable and fast is black magic.  You can
-try these (if that happens to help we can put that info into the pci
-quirks btw.):
+Thanks for your assistance, lets hope that solution will
+make it into the bitkeeper repository in the not so far future.
 
-  eskarina kraxel ~# modinfo bttv | grep "pci config"
-  parm: vsfx:set VSFX pci config bit [yet another chipset flaw workaround]
-  parm: triton1:set ETBF pci config bit [enable bug compatibility for triton1 + others]
+-Alex.
 
-Otherwise BIOS updates, obscure BIOS settings, shuffling cards in PCI
-slots, enable/disable ACPI and/or APIC, whatelse may or may not help.
-
-See also Documentation/video4linux/bttv/README.freeze
-
-good luck,
-
-  Gerd
+> This patch is better - we cannot define sections within sections.         
+ 
+>                                                                           
+ 
+> Sam
 
 -- 
-#define printk(args...) fprintf(stderr, ## args)
+Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++
+

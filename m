@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264287AbUDVQZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264468AbUDVQe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264287AbUDVQZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 12:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbUDVQZv
+	id S264468AbUDVQe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 12:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUDVQe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 12:25:51 -0400
-Received: from mail.ccur.com ([208.248.32.212]:44813 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S264287AbUDVQZs (ORCPT
+	Thu, 22 Apr 2004 12:34:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23246 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264468AbUDVQez (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 12:25:48 -0400
-Date: Thu, 22 Apr 2004 12:25:44 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Matthew Dobson <colpatch@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0 of 17] cpumask v4 - bitmap and cpumask cleanup
-Message-ID: <20040422162544.GA17611@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040421232247.22ffe1f2.pj@sgi.com>
+	Thu, 22 Apr 2004 12:34:55 -0400
+Date: Thu, 22 Apr 2004 09:28:53 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Kieran <kieran@ihateaol.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       jejb <james.bottomley@steeleye.com>
+Subject: Re: Why is CONFIG_SCSI_QLA2X_X always enabled?
+Message-Id: <20040422092853.55d0b011.rddunlap@osdl.org>
+In-Reply-To: <4087E95F.5050409@ihateaol.co.uk>
+References: <4087E95F.5050409@ihateaol.co.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
- This patch gets the new bitmap stuff to compile and pass a boot-test
-on Opteron.
+On Thu, 22 Apr 2004 16:48:47 +0100 Kieran wrote:
 
-I especially like the cleaned-up, orthogonal API and your addition of
-the missing bitmap_andnot() function.  Good work!
+| This has been bugging me for a while.. on pretty much all 2.6 kernel 
+| configs I've done, the .config has had CONFIG_SCSI_QLA2XXX=y in it, 
+| regardless of whether or not I have any other SCSI stuff compiled in. Is 
+| there a reason for this, or is it a bug?
 
-Regards,
-Joe
-"Money can buy bandwidth, but latency is forever" -- John Mashey
+A nuisance or annoyance perhaps.  Here's a patch for it.
 
 
-diff -ura 2.6.5-pj/arch/x86_64/kernel/smpboot.c 2.6.5-pj2/arch/x86_64/kernel/smpboot.c
---- 2.6.5-pj/arch/x86_64/kernel/smpboot.c	2004-04-03 22:38:26.000000000 -0500
-+++ 2.6.5-pj2/arch/x86_64/kernel/smpboot.c	2004-04-22 12:06:02.209264270 -0400
-@@ -827,7 +827,7 @@
- 		if (apicid == boot_cpu_id)
- 			continue;
+// linux-266-rc2
+// Make SCSI_QLA2XXX config option changeable/selectable
+
+diffstat:=
+ drivers/scsi/qla2xxx/Kconfig |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+
+diff -Naurp ./drivers/scsi/qla2xxx/Kconfig~scsi_qla2 ./drivers/scsi/qla2xxx/Kconfig
+--- ./drivers/scsi/qla2xxx/Kconfig~scsi_qla2	2004-04-20 15:54:24.000000000 -0700
++++ ./drivers/scsi/qla2xxx/Kconfig	2004-04-22 09:39:03.000000000 -0700
+@@ -1,6 +1,5 @@
+ config SCSI_QLA2XXX
+-	tristate
+-	default (SCSI && PCI)
++	tristate "Configure QLogic 21xx/22xx/23xx/63xx host adapters"
+ 	depends on SCSI && PCI
  
--		if (!cpu_isset(apicid, phys_cpu_present_map))
-+		if (!physid_isset(apicid, phys_cpu_present_map))
- 			continue;
- 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
- 			continue;
-diff -ura 2.6.5-pj/include/asm-x86_64/smp.h 2.6.5-pj2/include/asm-x86_64/smp.h
---- 2.6.5-pj/include/asm-x86_64/smp.h	2004-04-22 12:19:58.665010667 -0400
-+++ 2.6.5-pj2/include/asm-x86_64/smp.h	2004-04-22 11:43:49.190316603 -0400
-@@ -60,7 +60,6 @@
- 
- extern cpumask_t cpu_callout_map;
- #define cpu_possible_map cpu_callout_map
--#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
- 
- static inline int num_booting_cpus(void)
- {
-@@ -85,7 +84,6 @@
- 
- #define safe_smp_processor_id() (disable_apic ? 0 : x86_apicid_to_cpu[hard_smp_processor_id()])
- 
--#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
- #endif /* !ASSEMBLY */
- 
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
+ config SCSI_QLA21XX

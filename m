@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268156AbTBYWMz>; Tue, 25 Feb 2003 17:12:55 -0500
+	id <S268339AbTBYWYn>; Tue, 25 Feb 2003 17:24:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268255AbTBYWMz>; Tue, 25 Feb 2003 17:12:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8719 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268156AbTBYWMy>; Tue, 25 Feb 2003 17:12:54 -0500
+	id <S268341AbTBYWYn>; Tue, 25 Feb 2003 17:24:43 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:34314 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S268339AbTBYWYm>; Tue, 25 Feb 2003 17:24:42 -0500
+Date: Tue, 25 Feb 2003 14:34:48 -0800
+From: "'jw schultz'" <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Horrible L2 cache effects from kernel compile
-Date: Tue, 25 Feb 2003 22:18:09 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b3gq31$2h8$1@penguin.transmeta.com>
-References: <3E5BB7EE.5090301@colorfullife.com>
-X-Trace: palladium.transmeta.com 1046211762 7552 127.0.0.1 (25 Feb 2003 22:22:42 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 25 Feb 2003 22:22:42 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Subject: Re: statistics for this mailinglist
+Message-ID: <20030225223448.GA10713@pegasys.ws>
+Mail-Followup-To: 'jw schultz' <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20030225003325.GA5283@pegasys.ws> <001e01c2dd00$8574d480$3640a8c0@boemboem>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001e01c2dd00$8574d480$3640a8c0@boemboem>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3E5BB7EE.5090301@colorfullife.com>,
-Manfred Spraul  <manfred@colorfullife.com> wrote:
->
->Are you sure that this will help?
+On Tue, Feb 25, 2003 at 08:02:18PM +0100, Folkert van Heusden wrote:
+> > And it wouldn't hurt to aggregate versions.  This is really
+> > just a top-6 list.
+> >  1]  476 Mutt (most common versions versions)
+> >  2]   60 ELM [version 2.5 PL6]
+> >  3]   55 Mulberry/2.2.1 (Linux/x86)
+> >  4]   42 Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+> >  5]   42 Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+> >  6]   41 Ximian Evolution 1.2.1 (1.2.1-4)
+> 
+> Problem is: what part is version-information and what is name?
+> For Mutt 1.0, ELM 3.6 it's clear; it's the number part.
+> But what about:
+> FlokEdit peanutbutterrelease
+> FlokEdit RMDrelease
 
-It might, under some loads.
+I would expect it to take a few regexes but so far $mta =~ s/\W.*$//
+would do the trick to produce Mutt, ELM, Mulberry, Sylpheed,
+Mew, Ximian and even FlokEdit.
 
-However, I don't think it's a long-term solution, since the hashing will
-mean that for any reasonably spread out load you _will_ always walk all
-dentries.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-So the long-term solution is to either use a local lookup (which we
-ended up doing for the page cache) _or_ to limit the number of dentries
-themselves some way.  The latter sounds like a bad idea.
-
->Btw, has anyone tried to replaced the global dcache with something 
->local, perhaps a tree instead of d_child, and then lookup in d_child_tree?
-
-I'd love to see somebody try.  The main worry is the overhead required
-per directory dentry and keeping it scalable.  The dentry tree _will_ be
-quickly populated and one common case is a few huge directories, yet at
-the same time for most dentries there won't be any children at all or
-very few of them). 
-
-Right now the "child" list is just a simple linked list, and changing
-that to something more complex might make it possible to get rid of the
-hash entirely. But increasing the size of individual dentries is a bad
-idea, so it would have to be something fairly smart.
-
-			Linus
+		Remember Cernan and Schmitt

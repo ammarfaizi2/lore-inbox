@@ -1,92 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263106AbTIAASc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTIAASc
+	id S263123AbTIAAZy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 20:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTIAAZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:18:32 -0400
-Received: from ethlife-a.ethz.ch ([129.132.202.7]:3559 "HELO ethlife.ethz.ch")
-	by vger.kernel.org with SMTP id S263106AbTIAASa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:18:30 -0400
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Mon, 1 Sep 2003 02:18 +0200
-Subject: cryptoloop on 2.4.22/ppc doesn't work
-To: linux-kernel@vger.kernel.org
-From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S263106AbTIAASa/20030901001830Z+208687@vger.kernel.org>
+	Sun, 31 Aug 2003 20:25:54 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:2001 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S263123AbTIAAZv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 20:25:51 -0400
+Date: Sun, 31 Aug 2003 17:25:43 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030901002543.GD18458@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>,
+	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901001819.GC29239@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Mon, Sep 01, 2003 at 01:18:19AM +0100, Jamie Lokier wrote:
+>   Every 19 seconds on average, 24x7, a new HTTP connection.
 
-I cannot seem to get crypto loopback to run.
+Wrong.  Every 19 seconds is a new BK connection.  The HTTP connections are
+at least an order of magnitude more frequent.  And increasing, more and 
+more people are becoming aware that the source is there and you can 
+point to it.
 
-This is 2.4.22 + patch-cryptoloop-jari-2.4.22.0 + 2.4.22-ben1 (but the
-latter does not touch any of the crypto or loop devices), all from
-kernel.org.
+>   That's one connection every 1.9 seconds.
 
-Linux lombi 2.4.22-ben1 #4 Son Aug 31 22:58:54 MEST 2003 ppc unknown
+Ha.  Don't I wish.  Peak connection rates are a lot higher than that.  
 
-root@lombi root# LANG=C losetup -e blowfish /dev/loop1 christest 
-Password :
-The cipher does not exist, or a cipher module needs to be loaded into the kernel
-ioctl: LOOP_SET_STATUS: Invalid argument
+> Trivial ;)  Or disable bkbits.net during Larry's working day. ;)
 
-root@lombi root# LANG=C losetup -e aes /dev/loop1 christest 
-The cipher does not exist, or a cipher module needs to be loaded into the kernel
-ioctl: LOOP_SET_STATUS: Invalid argument
-
-root@lombi root# stat christest | grep Blocks
-  Size: 20971520  	Blocks: 41008      IO Block: 4096   Regular File
-
-while the modules listed below are loaded.
-
-This is Debian woody, /sbin/losetup from mount package 2.11m-1
-
-Why doesn't it work?
-
-Thanks,
-Christian.
-
-
-
-root@lombi root# lsmod
-Module                  Size  Used by    Not tainted
-twofish                37552   0 
-sha512                  9536   0  (unused)
-sha256                  8352   0  (unused)
-sha1                    6016   0  (unused)
-serpent                19232   0  (unused)
-md4                     2816   0  (unused)
-md5                     3584   0  (unused)
-crypto_null             1008   0  (unused)
-des                    10768   0  (unused)
-cryptoloop              1664   0  (unused)
-mol                    43828   1 
-aes                    27528   0 
-blowfish                9776   0 
-loop                   12084   0  (autoclean) [cryptoloop]
-sch_ingress             1952   1  (autoclean)
-cls_u32                 5908   5  (autoclean)
-sch_sfq                 4144   3  (autoclean)
-sch_cbq                14992   1  (autoclean)
-ipt_REJECT              3984  44  (autoclean)
-ipt_MASQUERADE          1664   1  (autoclean)
-iptable_filter          1888   1  (autoclean)
-iptable_nat            18484   1  (autoclean) [ipt_MASQUERADE]
-ip_conntrack           20724   1  (autoclean) [ipt_MASQUERADE iptable_nat]
-ip_tables              14512   6  [ipt_REJECT ipt_MASQUERADE iptable_filter iptable_nat]
-ds                      8608   1 
-yenta_socket           12496   1 
-pcmcia_core            44128   0  [ds yenta_socket]
-usb-ohci               23136   0  (unused)
-bmac                   14244   1 
-ethertap                3468   1 
-dmasound_pmac          70656   1 
-i2c-core               14248   0  [dmasound_pmac]
-dmasound_core          13448   1  [dmasound_pmac]
-soundcore               4504   3  [dmasound_core]
-
+It's not my working day or the other people who work locally, all our
+phones are on a 100Mbit switched net to the 3com before it goes out on
+POTS.  It's the remote people.  And half our company is currently remote.
+I could write a book on how well remote does and doesn't work.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

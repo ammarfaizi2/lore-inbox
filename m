@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262182AbSJAQuG>; Tue, 1 Oct 2002 12:50:06 -0400
+	id <S262193AbSJARuK>; Tue, 1 Oct 2002 13:50:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262176AbSJAQtT>; Tue, 1 Oct 2002 12:49:19 -0400
-Received: from gate.perex.cz ([194.212.165.105]:36615 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S262173AbSJAQsr>;
-	Tue, 1 Oct 2002 12:48:47 -0400
-Date: Tue, 1 Oct 2002 18:50:20 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2nd ALSA update [7/12] - 2002/08/26
-Message-ID: <Pine.LNX.4.33.0210011848520.20016-100000@pnote.perex-int.cz>
+	id <S262195AbSJARuK>; Tue, 1 Oct 2002 13:50:10 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:22411 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S262193AbSJARuJ>; Tue, 1 Oct 2002 13:50:09 -0400
+Date: Tue, 1 Oct 2002 12:55:25 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+In-Reply-To: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210011251050.10307-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Oct 2002, Ingo Molnar wrote:
 
-A big one. Please, download it here:
-ftp://ftp.alsa-project.org/pub/kernel-patches/set#2/7.patch
+> 2) driver fixes.
+> 
+> i have converted almost every affected driver to the new framework. This
+> cleaned up tons of code. I also fixed a number of drivers that were still
+> using BHs (these drivers did not compile in 2.5.40).
 
-						Jaroslav
+I'm possibly messing things up here, but doesn't it generally make more 
+sense to convert tq_immediate users to tasklets instead of work queues?
 
-ChangeSet@1.650, 2002-10-01 14:17:46+02:00, perex@suse.cz
-  ALSA update 2002/08/26 :
-    - AC'97 codec
-      - added ac97_can_amap() condition
-      - removed powerup/powerdown sequence when sample rate is changed
-      - added ac97_is_rev22 check function
-      - added AC97_EI_* defines
-      - available rates are in array
-    - CS46xx
-      - improved the SCB link mechanism
-      - SMP deadlock should have been fixed now
-    - OSS mixer emulation
-      - added the proc interface for the configuration of OSS mixer volumes
-    - rawmidi midlevel
-      - removed unused snd_rawmidi_transmit_reset and snd_rawmidi_receive_reset functions
-    - USB MIDI driver
-      - integration of USB MIDI driver into USB audio driver by Clemens
-    - intel8x0 - the big intel8x0 driver update
-      - added support for ICH4
-      - rewrited I/O (the third AC'97 codec registers are available only through memory)
-      - code cleanups
-      - ALI5455 specific code
-      - added proc interface
-    - VIA686, VIA8233
-      - set the max periods to 128
+tq_immediate users do not need process context, and one use I'm familiar 
+with is basically doing bottom half interrupt processing, e.g. in lots of 
+places in the ISDN code. Introducing a context switch for no obvious gain 
+there seems rather pointless to me?
 
+The same may be true for the tq_timer users as well?
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+--Kai
+
 

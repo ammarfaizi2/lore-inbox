@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbTFQDGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 23:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTFQDGQ
+	id S264500AbTFQEVD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 00:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTFQEVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 23:06:16 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:1007 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264542AbTFQDGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 23:06:14 -0400
-Date: Tue, 17 Jun 2003 08:54:08 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: John Myers <jgmyers@netscape.com>
-Cc: Daniel McNeil <daniel@osdl.org>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-Message-ID: <20030617085408.A1934@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com>
+	Tue, 17 Jun 2003 00:21:03 -0400
+Received: from h80ad2689.async.vt.edu ([128.173.38.137]:29568 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264500AbTFQEVB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 00:21:01 -0400
+Message-Id: <200306170434.h5H4YZPZ003025@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Janice Girouard <girouard@us.ibm.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Daniel Stekloff <stekloff@us.ibm.com>, janiceg@us.ibm.com,
+       jgarzik@pobox.com, Larry Kessler <lkessler@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: patch for common networking error messages 
+In-Reply-To: Your message of "Mon, 16 Jun 2003 21:12:50 CDT."
+             <OFCA1A4F38.D782F1D3-ON85256D48.000A5CED@us.ibm.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <OFCA1A4F38.D782F1D3-ON85256D48.000A5CED@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EEE6FD9.2050908@netscape.com>; from jgmyers@netscape.com on Mon, Jun 16, 2003 at 06:33:13PM -0700
+Content-Type: multipart/signed; boundary="==_Exmh_218344882P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 Jun 2003 00:34:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 06:33:13PM -0700, John Myers wrote:
-> 
-> Daniel McNeil wrote:
-> 
-> >Are there other error return values where it should jump to the
-> >aio_put_req()?  Should the check be:
-> >  
-> >
-> The situation is much worse.  The io_submit_one() code in 2.5.71 
-> distinguishes between conditions where io_submit should fail (which goto 
-> out_put_req) and conditions where the queued operation completes 
-> immediately (which result in a call to aio_complete()).  The patch in 
-> 2.5.71-mm1 which separates out aio_setup_iocb() loses track of this 
-> distinction, mishandling any case where the queued operation completes 
-> immediately.  Aio poll, for instance, depends on being able to indicate 
-> immediate completion.
+--==_Exmh_218344882P
+Content-Type: text/plain; charset=us-ascii
 
-The code for aio_read/write does distinguish between these cases.
-- if you spot a case where it doesn't do let me know.
-aio_setup_iocb() just sets up the method after performing the 
-specified checks. Its aio_run_iocb() which actually executes it.
+On Mon, 16 Jun 2003 21:12:50 CDT, Janice Girouard said:
 
-> 
-> So the part of aio-01-retry.patch that splits out aio_setup_iocb() is 
-> completely broken.
-> 
+> Okay.  That solves the issue of events generated in a plethora of formats
+> for the same event.  Any suggestions on what should be included in this new
+> family?  I can present a patch to suggest a starting point. However, it
+> would be great to hear from everyone that has any initial thoughts.
 
-Actually, looking closer, I think its just aio poll that's 
-incorrectly merged here. The right way to implement aio poll in
-the new model would have been to setup a retry method for it
-in aio_setup_iocb(), not run generic_aio_poll() directly there.
+Well, at the risk of torquing off any SCO supporters, I'd suggest a quick
+peek over at the general design of the AIX errpt/trace systems - in both
+cases, data comes out of the kernel in a formatted binary stream, and then
+a 'template' file is used to drive the parsing of the formatted data.
 
-Regards
-Suparna
+Quite slick overall, and nicely extensible - you add a new kernel subsystem
+that has more trace points, you just tack its templates onto the end of
+the format file and you're good to go....
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+(And SCO can't even claim that's their code - it's pretty obvious the
+parentage of the AIX errpt/trace logging is the OS/VS1 and MVS SMF logging
+features :)
 
+
+--==_Exmh_218344882P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+7ppacC3lWbTT17ARAnRPAJ4tmv1gOrC3xPdA/9RRB6aIc+ox4wCg3Y3M
+ALPo18K54qzckAkE1Xa7B4g=
+=00MR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_218344882P--

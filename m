@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUGGPrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUGGPrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUGGPrF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUGGPrF
+	id S264908AbUGGPrk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUGGPrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:47:05 -0400
-Received: from warsl404pip7.highway.telekom.at ([195.3.96.91]:29757 "HELO
-	email11.aon.at") by vger.kernel.org with SMTP id S264902AbUGGPrB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:47:01 -0400
-Message-ID: <40EC1AF3.9050002@yahoo.de>
-Date: Wed, 07 Jul 2004 17:46:59 +0200
-From: Wiesner Thomas <w15mail@yahoo.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.4) Gecko/20030619 Netscape/7.1 (ax)
-X-Accept-Language: de-de, de
+	Wed, 7 Jul 2004 11:47:40 -0400
+Received: from mail024.syd.optusnet.com.au ([211.29.132.242]:53898 "EHLO
+	mail024.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264908AbUGGPrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 11:47:35 -0400
+Message-ID: <40EC1B0A.8090802@kolivas.org>
+Date: Thu, 08 Jul 2004 01:47:22 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Announcement of HTML-Index of linux-2.6.4/Documentation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: Re: 2.6.7-ck5
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
+In-Reply-To: <40EC1930.7010805@comcast.net>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig9CCB896881A56EEE4B97511F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Announcement of HTML-Index of linux-2.6.4/Documentation
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9CCB896881A56EEE4B97511F
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I had some spare time and decided to make a bash script which generates
-(with the help of some description files) a nice HTML Index for
-linux-2.6.4/Documentation to give it a better look. (I think it would be
-interesting for kernel-hq.)
+John Richard Moser wrote:
+> Very nice, Con.  I've been using ck1 and ck3 with pax applied, and
+> finding performance to be exceptional.  I'll merge current 2.6.7-pax
+> with this and test it out right away.
 
-I did it for 2.6.4, because I had the tarball of it on my hdd. I have a 56k
-modem which doesn´t make downloading kernel source fun. (I know that 
-there are
-patches, but I´m too lazy.). But it should work with nearly any source 
-version
-(should work even "stand alone") but then you have broken links.
+Great! The ck4 performance was actually substantially better than ck3 
+(on the desktop) so here's hoping you enjoy ck5 which basically performs 
+the same.
 
-The package is not a patch, but a tarball, because I only needed to add 
-files
-and not to change any existing.
+> 
+> When do you think the staircase, batch, and isometric scheduling will
+> reach mainline-quality?  Do you think you'll be ready to ask Andrew to
+> merge it soon, or will it be a while before it's quite ready for that?
 
-You can get the tarball at:
-   http://members.aon.at/gwiesner/misc/2_6-html-doc-index.tar.gz
+Well I think they're all ready for prime time now, I just dont think 
+prime time is ready for it. This is too large a change for mainline 2.6 
+which keeps -ck in business ;)
 
-Install it by typing:
-   cd /usr/src/linux-2.6.4   # or whatever dir
-   cd Documentation
-   tar -xzf 2_6-html-doc-index.tar.gz
+> How about autoregulated swappiness, which seems to be very efficient at
+> its job?
 
-To generate the HTML files run:
-   ./mkhtmlindex.sh
+It's been around for quite a while, and akpm has not expressed any 
+interest in it so I think this will only ever flounder in the -ck domain.
 
-The script will generate a index.html in Documentation
-and a index.html in every subdirectory of it. (not recursive, only 1 level)
+Cheers,
+Con
 
-The descriptions of the files are in the files.desc and dirs.desc files.
+P.S. You seem to have preempted the arrival of my -ck5 announcement to 
+lkml, as will this response. lkml does that sometimes...
+P.P.S. It's "isochronous scheduling" :P Means "same time".
 
-I would be nice to get some feedback.
+--------------enig9CCB896881A56EEE4B97511F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-BTW: This is my first contribution and please CC me, as I´m not in the list.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFA7BsMZUg7+tp6mRURArDDAJ4nEURB+CJ1L4EhUlFzMPmVbtdJ2gCgkNOT
+qJs0EfOz18Evw6WB6Rn6YrU=
+=6hBV
+-----END PGP SIGNATURE-----
 
-      Wiesner Thomas
-
+--------------enig9CCB896881A56EEE4B97511F--

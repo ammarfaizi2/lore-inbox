@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbUC0CVj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 21:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUC0CVj
+	id S261629AbUC0CZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 21:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUC0CZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 21:21:39 -0500
-Received: from nils.bezeqint.net ([192.115.104.5]:16347 "EHLO
-	nils.bezeqint.net") by vger.kernel.org with ESMTP id S261651AbUC0CVg
+	Fri, 26 Mar 2004 21:25:55 -0500
+Received: from painless.aaisp.net.uk ([217.169.20.17]:42452 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261629AbUC0CZw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 21:21:36 -0500
-Date: Sat, 27 Mar 2004 04:21:25 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
-Message-ID: <20040327022125.GA2174@luna.mooo.com>
-Mail-Followup-To: Suspend development list <swsusp-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040323233228.GK364@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz> <200403250857.08920.matthias.wieser@hiasl.net>
-	 <1080247142.6679.3.camel@calvin.wpcb.org.au> <20040325222745.GE2179@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040325222745.GE2179@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 26 Mar 2004 21:25:52 -0500
+Message-ID: <4064E81C.1000802@rgadsdon2.giointernet.co.uk>
+Date: Sat, 27 Mar 2004 02:34:04 +0000
+From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
+X-Accept-Language: en-gb, en, en-us
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2 - panic when slocate.cron job accesses firewire disk
+ (untainted)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 11:27:45PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > By the way, here's an example where having the /proc interface is a good
-> > thing: which do you use? zip compression, lzf compression or no
-> > compression? Until recently I always used lzf compression. I just
-> 
-> We should select one, and drop the others.
-> 
-> gzip is useless for almost everyone -> gets little testing -> is
-> probably broken.
-> 
-> > upgraded my laptop's hard drive, and found I wasn't getting the
-> > performance improvements in suspending I expected. It turns out that the
-> > CPU is now the limiting factor. Because I had the /proc interface, I
-> > could easily adjust the debug settings to show me throughput and then
-> > try a couple of suspend cycles with compression enabled and with it
-> > disabled. Without the /proc interface, I would have had to have
-> > recompiled the kernel to switch settings. (I didn't try gzip because I
-> > knew it wasn't going to be a contender for me).
-> 
-> Kernel could automagically select the right one.. But I'd prefer for
-> only "non compressed" part to reach mainline for 2.6. Feature freeze
+Still the same result (panic) _without_ any nvidia and vmware 'taint':
+(Thanks to Denis Vlasenko for pointing this out..)
+------------------------------------------------------------------------
+EFLAGS: 00010047 (2.6.5-rc2)
+EIP is at hpsb_packet_sent+0x27/0x90 [ieeeI394]
+eax: 00100100 ebx: f6158000 ecx: e0ba4860 edx: 00200200
+esi: 00000001 edi: e0ba4860 ebp: f615a060 esp: c1a3fefc
+ds: 007b es: 007b ss: 0068
+Process swapper (pid: 0, threadinfo=cla3e000 task=f7f7dI50)
+Stack: f615a1a4 f890a9e8 f6158000 e0ba4860 00000001 f89e49b0 f615a1d0 
+00000282
+        f615a1e4 00000000 c1a3e000 c04c55c0 c0124c03 f615a1a4 00000001 
+c0495fa8
+        0000000a 00000046 c0124937 c0495fa8 c1a3e000 c1a3e000 00000009 
+00000020
+Call Trace:
+[<f890age8>] dma trm tasklet+0xa8/0x1b0 [ohci1394]
+[<f8ge49b0>] abort timedouts+0x0/0x160 [ieee1394]
+[<c0124c03>] tasklet_action+0x73/0xe0
+[<c0124937>] do_softirq+0xc7/0xd0
+[<c018b77b>] do_IRQ+0x13b/0x1a0
+[<c01089a8)] common_interrupt+0x18/0x20
+[<c8186970)] default_idle+0x0/0x40
+[<c810699c)] default_idle+0x2c/0x40
+[<c8106a2b)] cpu_idle+0x3b/0x50
+[<c8120bb8)] printk+0x178/0x1f0
 
-That would mean that most people around would want to patch their
-kernel considering the speed increase and the saved space (which
-converts to needing less swap) considering most people get 30%-50%
-compression rate, which translates to quite a bit with laptops with 1G
-ram being no too uncommon these days.
+Code: 09 50 04 89 02 c7 41 04 00 02 20 00 c7 01 00 01 10 00 c6 41
+<0>Kernel panic: Fatal exception In Interrupt
+In Interrupt handler - not syncing
+-------------------------------------------------------------------
 
-You shouldn't be to extreme in you eagerness to trim things. You should
-always take in mind what would be good for the user, not only the
-developer.
+Robert Gadsdon.
 
-> was few months ago, and "adding possibility to compress swsusp data"
-> does not sound like a bugfix to me...
-> 								Pavel
-> -- 
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-> _______________________________________________
-> swsusp-devel mailing list
-> swsusp-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/swsusp-devel
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+
+Denis Vlasenko wrote:
+
+ > On Tuesday 23 March 2004 03:25, Robert Gadsdon wrote:
+ >
+ >> I get the following when the slocate.cron job accesses the first of 3
+ >> 120GB firewire disks:
+ >> -------------------------------------------------------------
+ >> EIP:   0060:[<f89e3a27>]   Tainted:  P
+ >
+ >
+ >                              ^^^^^^^^^^^
+ > Can you reproduce with non-tainted setup?

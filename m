@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVANBSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVANBFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVANBSO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVANBGF
+	id S261773AbVANBFG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVANAwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:06:05 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60941
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261749AbVANBBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:01:19 -0500
-Date: Fri, 14 Jan 2005 02:01:32 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
+	Thu, 13 Jan 2005 19:52:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50048 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261752AbVANAwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:52:30 -0500
+Date: Fri, 14 Jan 2005 00:52:17 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: lcall disappeared? kernel CVS destabilized?
-Message-ID: <20050114010132.GJ5949@dualathlon.random>
+Cc: Dave <dave.jiang@gmail.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com,
+       mporter@kernel.crashing.org
+Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
+Message-ID: <20050114005216.GM26051@parcelfarce.linux.theplanet.co.uk>
+References: <8746466a050113152636f49d18@mail.gmail.com> <20050113162309.2a125eb1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050113162309.2a125eb1.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm porting the seccomp patch to 2.6.10, do you have an idea where lcall
-(i.e. call gates for binary compatibility with other OS) went? I can't
-find it anywhere. Looks like it was dropped but I must be sure of that,
-and especially I must be sure that you don't add it again without me
-noticing that I had to patch it ;). Is lcall definitely dead code that I
-can forget about or am I missing something? Thanks.
+On Thu, Jan 13, 2005 at 04:23:09PM -0800, Andrew Morton wrote:
+> +#if BITS_PER_LONG == 64			
+> 	return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#else
+> +	return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#endif
+> 
+> We really should find a way of avoiding this.  Even if it is
+> 
+> #if BITS_PER_LONG == 64
+> #define resource_to_ptr(r) ((void *)(r))
+> #else
+> #define resource_to_ptr(r) ((void *)((u32)r))
+> #endif
+> 
+> in a header file somewhere.  Open-coding the decision all over the place is
+> unsightly.
 
-Kernel CVS is broken here, it doesn't even show me the changeset where
-lcall disappeared, this returns nothing obvious:
-
-	cvsps -g -r v2_6_8 -f arch/i386/kernel/entry.S
-
-If I use cvsps -x --bkcvs the changesets are screwed.
-
-Note that the entry.S of the kernel CVS has not the lcall, it's
-magically forgetting to show me a chageset, and I doubt cvsps is to
-blame here, since it was working well for a long time before the thing
-destabilized.
-
-Can somebody confirm the kernel CVS is unstable or am I the only one
-having deep troubles?
+This is wrong anyway - ioremap() on these will give you __iomem pointers,
+but cast like that looks very bogus.

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267442AbTAVMGv>; Wed, 22 Jan 2003 07:06:51 -0500
+	id <S267446AbTAVMKL>; Wed, 22 Jan 2003 07:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267441AbTAVMGu>; Wed, 22 Jan 2003 07:06:50 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:20172 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S267442AbTAVMGu>; Wed, 22 Jan 2003 07:06:50 -0500
-To: Andries.Brouwer@cwi.nl
-Cc: ALESSANDRO.SUARDI@oracle.com, efault@gmx.de, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 3c509.c
-References: <UTC200301221110.h0MBAHL28375.aeb@smtp.cwi.nl>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 22 Jan 2003 13:13:23 +0100
-Message-ID: <wrpiswhidr0.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <UTC200301221110.h0MBAHL28375.aeb@smtp.cwi.nl>
+	id <S267448AbTAVMKL>; Wed, 22 Jan 2003 07:10:11 -0500
+Received: from k100-145.bas1.dbn.dublin.eircom.net ([159.134.100.145]:9481
+	"EHLO corvil.com.") by vger.kernel.org with ESMTP
+	id <S267446AbTAVMKK>; Wed, 22 Jan 2003 07:10:10 -0500
+Message-ID: <3E2E8B76.5000805@Linux.ie>
+Date: Wed, 22 Jan 2003 12:15:50 +0000
+From: Padraig@Linux.ie
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: jamal <hadi@cyberus.ca>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: ok, which wise guy did this?
+References: <20030122064047.D41405@shell.cyberus.ca>
+In-Reply-To: <20030122064047.D41405@shell.cyberus.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andries" == Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
+jamal wrote:
+> I just booted my spanking new P4 HT PC last night using 2.5.58
+> and to my dissapointment the enumeration of the ethx devices is
+> reversed. I have 5 ethernet ports on this; eth0-4 on 2.4.x are now listed
+> as eth4-0. This is rude.
 
-Andries> I forgot to mention the conclusion of (3): inserting code
-Andries> in the Boomerang driver to print ethN and MAC address
-Andries> made immediately clear what happened: eth0 and eth1 had
-Andries> been interchanged.
+If you depend on the order then you must explicitly name the devices
+like you want. I've done something like this in the past.
 
-That's also an effect of the Space.c removal...
-This is a lot more tricky to solve, apart from using modules.
+ip link set dev eth0 name interface-1
+ip link set dev eth1 name interface-2
 
-        M.
--- 
-Places change, faces change. Life is so very strange.
+I guess you could use a temp name and keep the eth[0-4]
+naming if you prefer.
+
+Pádraig.
+

@@ -1,106 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264613AbRFYPL7>; Mon, 25 Jun 2001 11:11:59 -0400
+	id <S264618AbRFYPQJ>; Mon, 25 Jun 2001 11:16:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264618AbRFYPLu>; Mon, 25 Jun 2001 11:11:50 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:26549 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S264613AbRFYPLd>; Mon, 25 Jun 2001 11:11:33 -0400
-Date: Mon, 25 Jun 2001 08:13:06 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Rob Landley <landley@webofficenow.com>
-cc: Mike Castle <dalgoda@ix.netcom.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <0106241044060C.01519@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0106250806150.21085-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264622AbRFYPQA>; Mon, 25 Jun 2001 11:16:00 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:29958 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S264618AbRFYPPv>; Mon, 25 Jun 2001 11:15:51 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac12 kernel oops
+Reply-To: klink@clouddancer.com
+Message-Id: <20010625151549.7ED6F784D9@mail.clouddancer.com>
+Date: Mon, 25 Jun 2001 08:15:49 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Rob Landley wrote:
+Why the symbol mismatch?  Why ignore /proc over the System.map?
 
-> On Saturday 23 June 2001 23:07, Mike Castle wrote:
-> > On Sat, Jun 23, 2001 at 09:41:29PM -0500, Wayne.Brown@altec.com wrote:
-> > > Ah, yes, the RT/PC.  That brings back some fond memories.  My first
-> > > exposure to Unix was with AIX on the RT.  I still have some of those
-> > > weird-sized RT AIX manuals around somewhere...
-> >
-> > We always ran AOS on RT's.  Actually, the server was the only RT, the rest
-> > were some other model that was basically a PS/2 (286) that booted DOS, then
-> > booted the other same chip that the RT used that was on a daughter card.
-> >
-> > AOS was basically IBM's version of BSD.  Academic Operating System.
->
-> Now if somebody here could just point me to a decent reference on A/UX -
-> Apple's mid-80's version of Unix (for the early macintosh, I believe...)
->
-> A big thing I'm trying to show in my book is that Unix has been, for almost
-> thirty years, the standard against which everything else was compared.  Even
-> when it wasn't what people were directly using it's what the techies were
-> thinking about when they designed their other stuff.  (That and the Xerox
-> Parc work...)
->
-> Let's see, the real earthquakes in the computing world (off the top of my
-> head) are:
+The system had very little running (because of prior lockups) during
+the morning SQL activity. About 3/4 of a megabyte was being added to
+the SQL databases, and that activity had been going on for 45 minutes
+prior to the oops.  No X, and I was reading email as the only other
+load.  Daemons: postfix, raid5, xntpd, syslog, cron & kernel.  SMP
+kernel, built with gcc 2.95.3 released 20010315.
 
-1937 claude shannon A Symbolic Analysis of Relay and Switching Circuits,"
-
-1948 claude shannon A mathematical theory of information.
-
-without those you're kind in trouble on the computing front...
-
-> MIT: project whirlwind (which got computing off of vacuum tubes, spawned DEC,
-> and Minsky's hacker lab.  Gurus too numerous to mention.)
->
-> Bell Labs: (the transistor, and 20 years later Unix.  Gurus ken thompson,
-> dennis ritchie, the three transistor guys, ).
->
-> DARPA: (Arpanet (BBN), funded project MAC at MIT, and Multics which brought
-> the MIT stuff to bell labs.)
->
-> Xerox Parc (WIMP interface, WYSIWYG word processing/printing/desktop
-> publishing, object oriented programming,
->
-> The integrated circuit/microchip (Texas Instruments' manufacturing
-> innovation, which led to the Intel 4004, which eventually led to the Altair,
-> which led to the personal computer.  Moore's Law would probably be the theme
-> here...)
->
-> The whole free software thing (Berkeley in the 70's to early 80's, Stallman
-> and the FSF taking over from there.  And Andrew Tanenbaum's Minix, which
-> spawned Linux...)
->
-> Huh, I'd have to mention IBM (forget the PC, how about the winchester
-> drive?), and of course the AT&T breakup (a negative earthquake, but big
-> anyway, sort of leading to the commercialization of the software side of
-> things, although Gates was trying that already.  AT&T just removed a lot of
-> the roadblocks by shattering the opposition for a while.)
->
-> Alright, I need to sit down and make an outline and a timeline.   I admit
-> this...  (Collecting the data is the easy part.  ORGANIZING this fermenting
-> heap of disconnected facts and observations is the hard part...)
->
-> > mrc
->
-> Rob
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+At the time of the oops, there is an cron task that feeds postfix,
+which deposits the email into a 3 meg file.
 
 
+
+------------------------------------------------------------------
+
+ksymoops 2.4.1 on i686 2.4.5-ac12.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.5-ac12/ (default)
+     -m /System.map-2.4.5-ac12 (specified)
+
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01aad00, System.map says c014cba0.  Ignoring ksyms_base entry
+Unable to handle kernel NULL pointer dereference at virtual address 00000015
+c0147e62
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0147e62>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010206
+eax: 00000005   ebx: c6ef1800   ecx: c021ed64   edx: c2910000
+esi: c021ee80   edi: 0000000b   ebp: c5e2f340   esp: c601fea4
+ds: 0018   es: 0018   ss: 0018
+Process ps (pid: 10454, stackpage=c601f000)
+Stack: c0144eae c6ef1800 c2910000 c7ff6000 c0148ffd c6ef1800 c021f1c0 c5e2f3a4 
+       c01f79b8 c0149246 c7ff6000 c2910000 0000000b fffffff4 c1e85220 c601e000 
+       c5e2f340 ffffffea c013abae c1e85220 c5e2f340 c601ff34 00000000 c1e85220 
+Call Trace: [<c0144eae>] [<c0148ffd>] [<c0149246>] [<c013abae>] [<c013b2eb>] 
+   [<c013bb4e>] [<c014392a>] [<c012fe23>] [<c013013e>] [<c0106c63>] 
+Code: f0 ff 48 10 8b 42 24 80 48 14 08 52 e8 0d ff ff ff 83 c4 04 
+
+>>EIP; c0147e62 <proc_delete_inode+32/48>   <=====
+Trace; c0144eae <iput+ba/178>
+Trace; c0148ffd <proc_pid_make_inode+ad/b8>
+Trace; c0149246 <proc_base_lookup+86/23c>
+Trace; c013abae <real_lookup+7a/108>
+Trace; c013b2eb <path_walk+58f/7c4>
+Trace; c013bb4e <open_namei+86/598>
+Trace; c014392a <destroy_inode+1a/20>
+Trace; c012fe23 <filp_open+3b/5c>
+Trace; c013013e <sys_open+36/cc>
+Trace; c0106c63 <system_call+33/38>
+Code;  c0147e62 <proc_delete_inode+32/48>
+0000000000000000 <_EIP>:
+Code;  c0147e62 <proc_delete_inode+32/48>   <=====
+   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
+Code;  c0147e66 <proc_delete_inode+36/48>
+   4:   8b 42 24                  mov    0x24(%edx),%eax
+Code;  c0147e69 <proc_delete_inode+39/48>
+   7:   80 48 14 08               orb    $0x8,0x14(%eax)
+Code;  c0147e6d <proc_delete_inode+3d/48>
+   b:   52                        push   %edx
+Code;  c0147e6e <proc_delete_inode+3e/48>
+   c:   e8 0d ff ff ff            call   ffffff1e <_EIP+0xffffff1e> c0147d80 <de_put+0/b0>
+Code;  c0147e73 <proc_delete_inode+43/48>
+  11:   83 c4 04                  add    $0x4,%esp
+
+
+1 warning issued.  Results may not be reliable.

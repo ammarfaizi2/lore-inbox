@@ -1,75 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUBNKgU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 05:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUBNKgU
+	id S261775AbUBNLQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 06:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUBNLQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 05:36:20 -0500
-Received: from pat.uio.no ([129.240.130.16]:7056 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261595AbUBNKgS (ORCPT
+	Sat, 14 Feb 2004 06:16:40 -0500
+Received: from mail.gmx.net ([213.165.64.20]:53474 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261775AbUBNLQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 05:36:18 -0500
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.6.3-rc2-mm1
-References: <20040212015710.3b0dee67.akpm@osdl.org>
-	<1076630675.6006.6.camel@moria.arnor.net>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Sat, 14 Feb 2004 11:36:09 +0100
-In-Reply-To: <1076630675.6006.6.camel@moria.arnor.net> (Torrey Hoffman's
- message of "Thu, 12 Feb 2004 16:04:35 -0800")
-Message-ID: <wxxisiaeyna.fsf@nommo.uio.no>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
+	Sat, 14 Feb 2004 06:16:38 -0500
+X-Authenticated: #4512188
+Message-ID: <402E0386.5090004@gmx.de>
+Date: Sat, 14 Feb 2004 12:16:22 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+To: ross@datscreative.com.au
+CC: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au> <200402141124.50880.ross@datscreative.com.au>
+In-Reply-To: <200402141124.50880.ross@datscreative.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Torrey Hoffman <thoffman@arnor.net> writes:
-
-> On Thu, 2004-02-12 at 01:57, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc2/2.6.3-rc2-mm1/
+>>>But it doesn't work in the sense of cooling my machine down. Though 
+>>>athcool reports disconnect is activated it behaves like it is not, ie, 
+>>>turning disconnect off makes no difference in temperatures. Your old 
+>>>tack patch in conjunction with 2.6.2-rc1 (linus) works like a charm, ie 
+>>>no lock-ups and less temp.
+>>>
+>>
+>>Thanks Prakash for testing it and spotting thermal problem.
+>>
+>>Here are some temperatures from my machine read from the bios on reboot.
+>>I gave it minimal activity for the minutes prior to reboot.
+>>
+>>Win98, 47C
+>>XPHome, 42C
+>>Patched Linux 2.4.24 (1000Hz), 40C
+>>Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
+>>
+>>Sorry, I will have to go through my latest patch and see why the temp differs
+>>so much between 2.4 and 2.6. I currently use patched 2.4.24 with Suse 8.2 for
+>>convenience. When it stopped the lockups on 2.6 I thought the 2.6 was
+>>working the same way. 
+>>
 > 
-> [... list of many patches]
 > 
-> > bk-ieee1394.patch
+> Found the problem for 2.6
 > 
-> I reported a bug in 2.6.2-rc3-mm1 and was asked to retest... result
-> is it's still broken.  The result is the same - even a little worse
-> now, it won't get as far as running init so I have no log to post.
+> After fixing it the 2.6 temperature is
+> Patched Linux 2.6.3-rc1-mm1, 38C
+> Ambient today is 1C cooler also.
 
-  I'm seeing the same bug, and I have ieee1394 as a module.  I can
-  help to debug this if need be.
+Yes, I am just trying your new patch, and it works! Furthermore it seems 
+to have less ipact on system performance than the tack one, as now 
+hdparm reports the same figures as without using APIC. Well done!
 
-> This machine has no serial port and I haven't tried the network
-> logging stuff yet...
-> 
-> But the oops looked very similar.  At least the function names and the
-> references to ieee1394 are the same.  The 2.6.2-rc3-mm1 oops was:
-> 
-> > ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00508d0000f42af5]
-> > Badness in kobject_get at lib/kobject.c:431
-> > Call Trace:
-> >  [<c02078dc>] kobject_get+0x3c/0x50
-> >  [<c0272fd1>] get_device+0x11/0x20
-> >  [<c0273c68>] bus_for_each_dev+0x78/0xd0
-> >  [<fc876185>] nodemgr_node_probe+0x45/0x100 [ieee1394]
-> >  [<fc876030>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
-> >  [<fc87654b>] nodemgr_host_thread+0x14b/0x180 [ieee1394]
-> >  [<fc876400>] nodemgr_host_thread+0x0/0x180 [ieee1394]
-> >  [<c010b285>] kernel_thread_helper+0x5/0x10
+Have you read the post  from Mathieu about his finding of APIC and 8254 
+timer not being sync, which causes lock-ups? Maybe there should be the 
+correct way of fixing it. Furthermore I saw this in latest ACPI update:
+[ACPI] nforce2 timer lockup from Maciej W. Rozycki
 
-  yup.  this is _very_ familiar.  I have the same problem with
-  2.6.3-rc2-mm1.  I also have some devfs problems that I can't quite
-  pinpoint so I've rolled back to 2.6.2-mm1.
- 
-  [ ... ]
+Is this the fix or something else?
 
--- 
-Terje
+Cheers,
+
+Prakash

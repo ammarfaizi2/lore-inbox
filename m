@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbTBLMsu>; Wed, 12 Feb 2003 07:48:50 -0500
+	id <S267065AbTBLMsB>; Wed, 12 Feb 2003 07:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267076AbTBLMsu>; Wed, 12 Feb 2003 07:48:50 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:64908 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267078AbTBLMsr>;
-	Wed, 12 Feb 2003 07:48:47 -0500
-Date: Wed, 12 Feb 2003 12:54:26 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Message-ID: <20030212125426.GA3770@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jamie Lokier <jamie@shareable.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <629040000.1045013743@flay> <20030212025902.GA14092@codemonkey.org.uk> <20030212042143.GB9273@bjl1.jlokier.co.uk>
+	id <S267078AbTBLMsB>; Wed, 12 Feb 2003 07:48:01 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:7916 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267065AbTBLMsA>; Wed, 12 Feb 2003 07:48:00 -0500
+Date: Wed, 12 Feb 2003 13:57:29 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: [patch] fix missing cfi_cmdset_0020 in drivers/mtd/chips/Makefile
+Message-ID: <20030212125728.GA22472@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030212042143.GB9273@bjl1.jlokier.co.uk>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 04:21:43AM +0000, Jamie Lokier wrote:
+Hi!
 
- > > I feel I'm missing something obvious here, but is this part the
- > > low-hanging fruit that it seems ?
- > You have eliminated one MSR write very cleanly, although there are
- > still a few unnecessary conditionals when compared with grabbing a
- > whole branch of the fruit tree, as it were.
- > 
- > That leaves the other MSR write, which is also unnecessary.
+This patch is needed for pre4 and pre4-ac3. It appears to be missing
+from cvs as well, David. I'll apply it later today.
 
-Removing that one didn't seem quite so easy, so I wussed out.
-
-		Dave
+Jörn
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong
+
+diff -Naur linux-2.4.21-pre4-ac3/drivers/mtd/chips/Makefile scratch/drivers/mtd/chips/Makefile
+--- linux-2.4.21-pre4-ac3/drivers/mtd/chips/Makefile	Wed Feb 12 13:42:01 2003
++++ scratch/drivers/mtd/chips/Makefile	Wed Feb 12 13:42:29 2003
+@@ -17,7 +17,6 @@
+ obj-$(CONFIG_MTD)		+= chipreg.o
+ obj-$(CONFIG_MTD_AMDSTD)	+= amd_flash.o 
+ obj-$(CONFIG_MTD_CFI)		+= cfi_probe.o
++obj-$(CONFIG_MTD_CFI_STAA)	+= cfi_cmdset_0020.o
+ obj-$(CONFIG_MTD_CFI_AMDSTD)	+= cfi_cmdset_0002.o
+ obj-$(CONFIG_MTD_CFI_INTELEXT)	+= cfi_cmdset_0001.o
+ obj-$(CONFIG_MTD_GEN_PROBE)	+= gen_probe.o

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278073AbRJZJVt>; Fri, 26 Oct 2001 05:21:49 -0400
+	id <S278082AbRJZJel>; Fri, 26 Oct 2001 05:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278076AbRJZJV3>; Fri, 26 Oct 2001 05:21:29 -0400
-Received: from [213.237.118.153] ([213.237.118.153]:19584 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S278073AbRJZJVT>;
-	Fri, 26 Oct 2001 05:21:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
+	id <S278086AbRJZJeb>; Fri, 26 Oct 2001 05:34:31 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:64932 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S278085AbRJZJe2>; Fri, 26 Oct 2001 05:34:28 -0400
+Date: Fri, 26 Oct 2001 05:35:03 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: kernel compiler
-Date: Fri, 26 Oct 2001 11:18:46 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <E15wmgp-0005E8-00@the-village.bc.nu> <3BD841B7.5060405@toughguy.net> <20011026001354.C2245@werewolf.able.es>
-In-Reply-To: <20011026001354.C2245@werewolf.able.es>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15x38c-0000Dh-00@Princess>
+Message-ID: <20011026053503.U25384@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <E15wmgp-0005E8-00@the-village.bc.nu> <3BD841B7.5060405@toughguy.net> <20011026001354.C2245@werewolf.able.es> <E15x38c-0000Dh-00@Princess>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15x38c-0000Dh-00@Princess>; from linux@sneulv.dk on Fri, Oct 26, 2001 at 11:18:46AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 October 2001 00:13, J . A . Magallon wrote:
-> On 20011025 Lost Logic wrote:
-> >GCC 3.0 Produces slower code, eh?  I was of the understanding that it
-> >contained many more optimizations than previous versions...???
-> >
-> >Any way, I've been able to run my system based entirely on a fairly
-> >recent GCC CVS-3.02 snapshot, including kernels, and everything EXCEPT
-> >for glibc which is specifically incompatible according to the GNU folks.
-> >
-> >By way of information however, neither of the GCC 3.0 releases (3.0.0 or
-> >3.0.1) work at all on my system, and I cannot get a kernel to function
-> >at better than -O2 (not that I could get that to work in 2.95.* or
-> >2.96.* either).
->
-> -O3 activates -finline-functions:
-> `-finline-functions'
->      Integrate all simple functions into their callers.  The compiler
->      heuristically decides which functions are simple enough to be worth
->      integrating in this way.
->
->      If all calls to a given function are integrated, and the function
->      is declared `static', then the function is normally not output as
->      assembler code in its own right.
->
-> Last paragraph is the key. Perhaps previous gcc'd did not all his work
-> as the manual says (ie, did not kill the non-inline version, bug),
-> but people has got used to the bug, and see it as a feature.
+On Fri, Oct 26, 2001 at 11:18:46AM +0200, Allan Sandfeld wrote:
+> > Last paragraph is the key. Perhaps previous gcc'd did not all his work
+> > as the manual says (ie, did not kill the non-inline version, bug),
+> > but people has got used to the bug, and see it as a feature.
+> 
+> I believe '-fkeep-inline-functions' is your friend in this case. I haven't 
+> tested it though on the kernel.
 
-I believe '-fkeep-inline-functions' is your friend in this case. I haven't 
-tested it though on the kernel.
+Definitely not. -fkeep-inline-functions will not only prevent in compiler
+eyes unused static functions from beeing optimized away, but you'll get tons
+of code you really don't need.
+__attribute__((used)) is what you can use in current gcc trunk to just say
+the compiler that it should not optimize away a particular function even if
+it seems to be unused at -O3 (e.g. it might be referenced from inline assembly,
+whatever).
+No matter what, using -O3 for kernel builds is a bad idea, in vast majority
+functions which make sense to be inlined are in the kernel marked so with
+inline keyword, and the rest does not. With -O3 for kernel you just get
+bigger code with no gains (if there are some gains somewhere, then it should
+be considered to be marked inline on a case by case basis).
 
-regards
-`Allan
-
+	Jakub

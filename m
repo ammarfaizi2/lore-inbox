@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267257AbTBKHco>; Tue, 11 Feb 2003 02:32:44 -0500
+	id <S267312AbTBKHkX>; Tue, 11 Feb 2003 02:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267276AbTBKHcn>; Tue, 11 Feb 2003 02:32:43 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:49573 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267257AbTBKHck>; Tue, 11 Feb 2003 02:32:40 -0500
-Message-Id: <200302110742.h1B7gQqE011999@eeyore.valparaiso.cl>
-To: David Schwartz <davids@webmaster.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms 
-In-Reply-To: Your message of "Mon, 10 Feb 2003 13:33:20 PST."
-             <20030210213349.AAA18154@shell.webmaster.com@whenever> 
-Date: Tue, 11 Feb 2003 08:42:26 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S267313AbTBKHkW>; Tue, 11 Feb 2003 02:40:22 -0500
+Received: from matrix01.home.net.pl ([212.85.112.31]:54790 "HELO
+	matrix01.home.net.pl") by vger.kernel.org with SMTP
+	id <S267312AbTBKHkW>; Tue, 11 Feb 2003 02:40:22 -0500
+Message-ID: <3E48AB27.20203@post.pl>
+Date: Tue, 11 Feb 2003 08:49:59 +0100
+From: "Leonard Milcin, Jr" <thervoy@post.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: linux-kernel@vger.kernel.org, laforge@gnumonks.org
+Subject: Re: [FWD: NAT counting]
+References: <DD755978BA8283409FB0087C39132BD1A07CC8@fmsmsx404.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 10 Feb 2003 11:42:45 -0600, Oliver Xymoron wrote:
-> >I certainly agree, but the problem is the NDA puts the shoe on the
-> >other foot and now it's the customer that has to consult a lawyer or
-> >risk a nuisance suit before proceeding. So while it may not forbid, >it
-> >certainly discourages and impedes. Let me point out that I never saw
-> >the NDA in question but said coworker was sufficiently intimidated >by
-> >it that he was unwilling to give me a copy of the kernel and gcc
-> >sources because of it.
+Luck, Tony wrote:
+ > (...)
+ > The fact that someone can deduce how many hosts are hidden behind
+ > a NAT gateway may, or may not, be a bug ... depending on whether you
+ > think that the NAT is supposed to keep this number a secret.  But there
+ > (...)
 
-> 	I believe such a provision would, unfortunately, by considered 
-> legally enforceable. The rationale would be that the rights you (the 
-> recipient of the derived work) have under the GPL would only apply if 
-> the distributor were bound by the GPL. The only way the distributor 
-> could be bound by the GPL was if he or she did something that he 
-> didn't have the right to do without the GPL to give him or her such a 
-> right.
+Sometimes it is desirable to hide the true number of hosts behind the 
+NAT. For example in home-made Linux NAT Gateways where few people share 
+the same internet connections even if ISP doesn't allow sharing 
+connection ;)
 
-The GPL gives me the right to distribute modified versions _only if I
-comply with the GPL_. And GPL forbids further restrictions when
-distributing.
 
-If your bizarre interpretation was right, no software licence at all would
-have any validity. In particular, I'd be more than very surprised if the
-GPL was so sloppily written. It was written with the input of eminent
-lawyers, after all.
 
-IANAL, etc.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264854AbSLUV2q>; Sat, 21 Dec 2002 16:28:46 -0500
+	id <S265037AbSLUVjH>; Sat, 21 Dec 2002 16:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbSLUV2q>; Sat, 21 Dec 2002 16:28:46 -0500
-Received: from 0x503e3f58.boanxx7.adsl-dhcp.tele.dk ([80.62.63.88]:8680 "HELO
-	mail.hswn.dk") by vger.kernel.org with SMTP id <S264854AbSLUV2q>;
-	Sat, 21 Dec 2002 16:28:46 -0500
-Date: Sat, 21 Dec 2002 22:36:51 +0100
-From: Henrik =?iso-8859-1?Q?St=F8rner?= <henrik@hswn.dk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-ac2: sound problems when using realplayer
-Message-ID: <20021221213651.GA3354@hswn.dk>
+	id <S265008AbSLUVjH>; Sat, 21 Dec 2002 16:39:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60386 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264986AbSLUVjG>;
+	Sat, 21 Dec 2002 16:39:06 -0500
+Date: Sat, 21 Dec 2002 13:41:33 -0800 (PST)
+Message-Id: <20021221.134133.123990503.davem@redhat.com>
+To: gibbs@scsiguy.com
+Cc: wli@holomorphy.com, janetmor@us.ibm.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <4085892704.1040483953@aslan.scsiguy.com>
+References: <223910000.1040435985@aslan.btc.adaptec.com>
+	<1040443851.1441.0.camel@rth.ninka.net>
+	<4085892704.1040483953@aslan.scsiguy.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just got a new motherboard based on the KT400 chipset (Soltek
-SL75-FRV, in case it matters). With 2.4.20-ac2, sound works 
-fine, except when using RealPlayer for streaming audio or
-video. I get tons of this message:
+   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+   Date: Sat, 21 Dec 2002 08:19:13 -0700
+   
+   I think that if you look here, I put more information
+   into BK than most people.
 
-Assertion failed! val <= (chan->frag_size * chan->frag_number),via82cxxx_audio.c,via_dsp_ioctl,line=3065
+When I read you say that you split the changesets into individual
+precise changes in perforce, and you're not willing to translate
+that into individual BK changesets, that is what makes me say
+that you aren't using the tool properly.
 
-and the resulting audio is pretty horrible (it stutters, stops,
-pauses, repeats fragments etc).
+Have a look at my changesets sometime, Justin.  Just adding a missing
+include, that's a changeset.  That's the kind of thing I look for, and
+when I get more changes than that in a patch I have to integrate, I
+tend to cringe.
 
-Kernel config: 
-
-CONFIG_SOUND=m
-CONFIG_SOUND_VIA82CXXX=m
-CONFIG_MIDI_VIA82CXXX=y
-
-
-If you need any other info, let me know.
-
--- 
-Henrik Storner <henrik@hswn.dk> 

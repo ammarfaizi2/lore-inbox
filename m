@@ -1,92 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313563AbSHXUxo>; Sat, 24 Aug 2002 16:53:44 -0400
+	id <S293680AbSHXUw6>; Sat, 24 Aug 2002 16:52:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSHXUxn>; Sat, 24 Aug 2002 16:53:43 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30986
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S313563AbSHXUxl>; Sat, 24 Aug 2002 16:53:41 -0400
-Date: Sat, 24 Aug 2002 13:56:42 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: IDE janitoring comments
-In-Reply-To: <20020824222830.14052@192.168.4.1>
-Message-ID: <Pine.LNX.4.10.10208241356310.20141-100000@master.linux-ide.org>
+	id <S313563AbSHXUw5>; Sat, 24 Aug 2002 16:52:57 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34055 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S293680AbSHXUw5>; Sat, 24 Aug 2002 16:52:57 -0400
+Date: Sat, 24 Aug 2002 17:56:51 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+cc: conman@kolivas.net, <linux-kernel@vger.kernel.org>
+Subject: Re: Combined performance patches update for 2.4.19
+In-Reply-To: <20020824185838.2961.qmail@linuxmail.org>
+Message-ID: <Pine.LNX.4.44L.0208241753490.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 Aug 2002, Paolo Ciarrocchi wrote:
+> From: conman@kolivas.net
+>
+> > > Sure, but your "performance" approach is really intersting! Do you use a
+> > > benchmark?
+> >
+> > I don't really have the time to benchmark these things any more than "it feels
+> > faster". Really I'm spending way too much time on this as it is and I'm not
+> > remotely any authority on what benchmarks to use.
+>
+> Maybe I can find the time to run a few tests, can anyone suggest me an
+> "intersting" test?
 
-I have part of cris fixed
+Bob Matthews has a benchmark called irman, which tries to measure
+response time during a number of background loads.
 
-On Sun, 25 Aug 2002, Benjamin Herrenschmidt wrote:
+I'm not sure it is too interesting in this case, though. People
+don't really care about the exact latency of sub-millisecond
+responses (should be the vast majority) but about the few times
+per minute where their mp3 skips.
 
-> >>  - Do we really want to keep all those _P versions around ?
-> >> A quick grep showed _only_ by the non-portable x86 specific
-> >> recovery timer stuff that taps ISA timers (well, I think ports
-> >> 0x40 and 0x43 and an ISA timer). I would strongly suggest to
-> >
-> >I'd like to keep them around for the moment. They should be using
-> >udelay() but thats a general issue with _p inb/outb etc.
-> 
-> I don't think we need them at all in hwif (see below)
-> 
-> >> After much thinking about the above, I came to the conslusion
-> >> we probably want to just kill all the IN_BYTE, OUT_BYTE, etc.
-> >
-> >Agreed entirely
-> >
-> >
-> >> Also, getting rid of the _P version would make things a lot
-> >> easier as well here too.
-> >
-> >What currently uses the _P versions ?
-> 
-> Ok, I looked and found out that those are used by 
-> 
->  - some weird stuff in ide.c tapping IO ports at 0x40 and 0x43 that
-> I assume is a timer. (Can someone make sure that code don't get used
-> on anything but legacy x86 ?).
-> 
->  - a couple of interface drivers like cmd640 tapping the PCI config
-> IO stuffs for probing.
-> 
-> In all cases, I firmly beleive those are way outside of the domain
-> of application of the hwif-> abstraction. Those are code that knows
-> it's tapping legacy stuff on a IO port, and can/should directly use
-> the in/out_p function. I don't think those have anything to do in
-> hwif. All that should be in hwif is what is needed by the generic
-> code to tap the IDE registers themselves.
-> 
-> Do you agree ? (I'd love to get rid of them :)
-> 
-> If you agree, I'll send you a patch tomorrow along with the fixing
-> of ide-pmac that will do
-> 
->  - Remove the _P versions from hwif->iops
->  - slightly change ide-iops to define both sets of iops, one set
->    providing PIO ops using directly in/outx & int/outsx, and one
->    set providing MMIO ops using directly read/writex
-> 
-> Anybody that need different routines for the generic IDE code to
-> tap the taskfile (or eventually DMA) registers (typically cris
-> arch) will provide it's own set of routines to hwif. I can probably
-> fix cris (though I don't know anything about that arch, but the
-> code seem obvious enough), and i'll rely on you to fix m86k :)
-> 
-> 
-> Ben.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Simple averages won't show the mp3 skips, because the number of
+fast responses are bound to be hundreds of thousands of times
+more common then the "mp3 skipping hickups".
 
-Andre Hedrick
-LAD Storage Consulting Group
+Maybe the histogram mode of irman might show something useful ?
+
+(then again, maybe it doesn't ... haven't tried yet)
+
+http://people.redhat.com/bmatthews/irman/
+
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

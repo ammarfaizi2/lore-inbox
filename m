@@ -1,27 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290285AbSAXH07>; Thu, 24 Jan 2002 02:26:59 -0500
+	id <S290292AbSAXINt>; Thu, 24 Jan 2002 03:13:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290286AbSAXH0u>; Thu, 24 Jan 2002 02:26:50 -0500
-Received: from web20107.mail.yahoo.com ([216.136.226.44]:23057 "HELO
-	web20107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S290285AbSAXH0g>; Thu, 24 Jan 2002 02:26:36 -0500
-Message-ID: <20020124072635.53391.qmail@web20107.mail.yahoo.com>
-Date: Wed, 23 Jan 2002 23:26:35 -0800 (PST)
-From: David Beckett <kufcffo@yahoo.com>
-Subject: RE: White paper on the linux VM?
+	id <S290295AbSAXINl>; Thu, 24 Jan 2002 03:13:41 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:61406 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S290292AbSAXINb>; Thu, 24 Jan 2002 03:13:31 -0500
+Date: 24 Jan 2002 08:59:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
+Message-ID: <8HSVvR$1w-B@khms.westfalen.de>
+In-Reply-To: <a2kac1$m0a$1@cesium.transmeta.com>
+Subject: Re: Why not "attach" patches?
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <a2kac1$m0a$1@cesium.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found this: http://www.nks.net/linux-vm.html
-I hope it helps. 
-Sincerly,
-David Beckett
+hpa@zytor.com (H. Peter Anvin)  wrote on 22.01.02 in <a2kac1$m0a$1@cesium.transmeta.com>:
 
-__________________________________________________
-Do You Yahoo!?
-Great stuff seeking new owners in Yahoo! Auctions! 
-http://auctions.yahoo.com
+> The common ground most people seems to be able to accept is:
+>
+> a. Go ahead and make patches as attachments, if your MUA makes it easier;
+> b. Be bloody certain they're text/plain attachments.
+
+... and that they have Content-Transfer-Encoding: 7bit or 8bit.
+
+*Not* quoted-printable or base64.
+
+Which means that you lose if the patch contains chars whose 8th bit is  
+set, if any MTA between you and Linus/Alan/etc. doesn't like that. Which  
+is not quite unlikely. (But most MUAs won't allow you to send something  
+like that anyway.)
+
+MfG Kai

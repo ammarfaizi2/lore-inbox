@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVAMBw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVAMBw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVAMBw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVAMBwW
+	id S261357AbVAMBw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 20:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVAMBv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:52:22 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60605 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261357AbVALVBh (ORCPT
+	Wed, 12 Jan 2005 20:51:57 -0500
+Received: from news.cistron.nl ([62.216.30.38]:47002 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261457AbVALVUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:01:37 -0500
-Date: Wed, 12 Jan 2005 13:01:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: debugfs directory structure
-Message-ID: <20050112210136.GC12319@kroah.com>
-References: <52d5watlqs.fsf@topspin.com>
+	Wed, 12 Jan 2005 16:20:21 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: High write latency, iowait, slow writes 2.6.9
+Date: Wed, 12 Jan 2005 21:20:18 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <cs44ai$oet$1@news.cistron.nl>
+References: <41E4BB99.90908@zanfx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52d5watlqs.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1105564818 25053 62.216.29.200 (12 Jan 2005 21:20:18 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:50:51PM -0800, Roland Dreier wrote:
-> Hi Greg,
-> 
-> Now that debugfs is merged into Linus's tree, I'm looking at using it
-> to replace the IPoIB debugging pseudo-filesystem (ipoib_debugfs).
+In article <41E4BB99.90908@zanfx.com>,
+Paul A. Sumner <paul@zanfx.com> wrote:
+>I have a new server that during big io tasks, e.g., bonnie++ and
+>tiobench testing, becomes very unresponsive. Both bonnie++ and tiobench
+>show good read performance, but the write performance lags, max
+>latencies are into the *minutes* and it experiences extended high
+>iowait. I'm guessing the iowait may not be a real problem. The machine
+>is as follows:
 
-Great!
+Try another IO scheduler (boot with elevator=deadline or elevator=cfq
+ on the kernel command line)
 
-> Is
-> there any guidance on what the structure of debugfs should look like?
-> Right now I'm planning on putting all the debug info files under an
-> ipoib/ top level directory.  Does that sound reasonable?
+Mike.
 
-Anarchy rules in debugfs.  Do what you want.  If you stomp over someone
-else's stuff, I expect complaints and maybe someone will have to
-arbitrate, but odds are that will ever happen is pretty slim.
-
-So yes, ipoib/ in the top level sounds just fine.
-
-thanks,
-
-greg k-h

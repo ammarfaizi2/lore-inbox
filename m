@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271765AbRHURv7>; Tue, 21 Aug 2001 13:51:59 -0400
+	id <S271767AbRHURzt>; Tue, 21 Aug 2001 13:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271767AbRHURvt>; Tue, 21 Aug 2001 13:51:49 -0400
-Received: from ip-a1-37024.keycomm.it ([62.152.37.24]:35174 "EHLO
-	gauss.campana.vi.it") by vger.kernel.org with ESMTP
-	id <S271765AbRHURvh>; Tue, 21 Aug 2001 13:51:37 -0400
-Date: Tue, 21 Aug 2001 19:52:46 +0200
-From: Ottavio Campana <bott@iol.it>
-To: linux-kernel@vger.kernel.org
-Subject: esssolo1 driver strange behaviuor
-Message-ID: <20010821195246.A1681@campana.vi.it>
+	id <S271768AbRHURzj>; Tue, 21 Aug 2001 13:55:39 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:40199 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271767AbRHURz3>;
+	Tue, 21 Aug 2001 13:55:29 -0400
+Date: Tue, 21 Aug 2001 19:55:25 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
+Message-Id: <20010821195525.05d0f8bf.skraw@ithnet.com>
+In-Reply-To: <20010821172029Z16065-32384+285@humbolt.nl.linux.org>
+In-Reply-To: <20010820230909.A28422@oisec.net>
+	<20010821150202Z16034-32383+699@humbolt.nl.linux.org>
+	<15234.37073.974320.621770@abasin.nj.nec.com>
+	<20010821172029Z16065-32384+285@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux gauss 2.2.19 
-X-Organization: Lega per la soppressione del Visual Basic
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, 21 Aug 2001 19:26:58 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-I just  compiled linux  2.4.9 on my  laptop. It has  got a  solo-1 based
-sound card. I've tried to compile  the kernel with the static support of
-the card  and, for  it is  a laptop and  it hasn't  got any  gameport, I
-didn't selected any joystick support.
+> On August 21, 2001 06:48 pm, Sven Heinicke wrote:
+> > Yes, highmem was on, the stystem got 4G of memory.  I turned off
+> > highmem and got no messages apart from one:
+> > 
+> > Aug 21 07:29:19 ps1 kernel: (scsi0:A:0:0): Locking max tag count at 64
+> > 
+> > which I was getting before.
+> >
+> > Disk access is faster then before but still slower then the IDE
+> > drive.  Any ideas?
+> 
+> Two separate problems, I think.  I don't know anything about the aic7xxx 
+> driver but I can take a look at the highmem problem.  First, can you try
+> it with highmem enabled, on a recent -ac kernel, say 2.4.8-ac7.
 
-The   kernel   cannot   compile,   I've   got   a   linking   error   in
-/usr/src/linux/drivers/sound/soundcore.o  because  it  cannot  find  the
-functions  gameport_register_port and  gameport_unregister_port  . If  I
-compile the driver as a module it is compiled succesfully and it works.
+Ok, Daniel, here are the results of the german jury :-) (EU insider joke)
 
-I've looked at /usr/src/linux/drivers/sound/esssolo1.c and commented out
-the two lines (2378 and 2423)  that call the 2 functions for registering
-and unregistering  the gameport and  the driver compiles  statically and
-works.
+Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
+Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
 
-I know this  is just a little hack,  but I want to bring note  to you of
-this problem that I have found even with earlier 2.4 kernels (I've tryed
-2.4.5 , 2.4.6 and 2.4.8).
+And what may be of big interest for Justin: I am using the _old_ AIC7xxx driver. 
 
-I hope this email could be useful otherwise please excuse me.
+The problem can quite easily be produced on my side. All you need is a (problem) host with NFS-server running and a client system. Then simply copy a lot of big files to the server. If you now go and read CD on the server you are in big trouble:
+cpu load is shot through the ceiling and you cannot even type chars in a shell after about 3 minutes. Remember I am sitting in front of a dual P-III 1GHz with 1 GB of RAM and U160 SCSI, I simply cannot believe this. I have never seen such a thing under 2.2.
 
-Bye
+Regards,
+Stephan
 
-PS: I don't have got the time  for following the mailing list so can you
-please cc any reply to bott@iol.it? Thank you.
-
--- 
-Non c'è più forza nella normalità, c'è solo monotonia.
+PS: I try to disable HighMem next.

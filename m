@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUHaGxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUHaGxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267164AbUHaGxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 02:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUHaGxN
+	id S266903AbUHaGxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 02:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUHaGxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 02:53:13 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:37555 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266885AbUHaGwi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 02:52:38 -0400
-Date: Tue, 31 Aug 2004 08:53:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com, tytso@mit.edu
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-Message-ID: <20040831065327.GA30631@elte.hu>
-References: <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093934448.5403.4.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 31 Aug 2004 02:53:30 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:13466 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266905AbUHaGwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 02:52:44 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <41341F08.7050401@namesys.com>
+Date: Mon, 30 Aug 2004 23:47:36 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: flx@msu.ru, Rik van Riel <riel@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com> <412F7D63.4000109@namesys.com> <20040829150041.GD9471@alias> <4133CA74.6070906@slaphack.com>
+In-Reply-To: <4133CA74.6070906@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Masover wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+>
+>
+> And I did mention before about how it'd be nice for it to be an fs 
+> chunk...
 
-> On Mon, 2004-08-30 at 05:06, Ingo Molnar wrote:
-> > i've uploaded -Q5 to:
-> > 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q5
-> 
-> This fixes the PS/2 issue.  Entropy rekeying is still a big problem:
-> 
-> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-bk4-Q5#/var/www/2.6.9-rc1-bk4-Q5/trace3.txt
+Please define fs chunk. My mind has an open door.;-)
 
-ok. It seems the random driver is _mostly_ in shape latency-wise, except
-the IP rekeying visible in the above trace. To solve this problem, could
-you try the patch below, ontop of -Q5? It moves the random seed
-generation outside of the spinlock - AFAICS the spinlock is only needed
-to protect the IP sequence counter itself.
+>
+> Imagine 5000 tiny little files that, by the time reiser's done with
+> them, fit inside 5 blocks or so. It's insanely cheaper to copy the five
+> blocks than to tar them up. It also means that we don't have to worry
+> about supporting tar on other platforms -- if they don't have reiser4,
+> they need a separate converter. If apps are going to use reiser4
+> metadata for anything significant, they probably would link against some
+> sort of userland implementation of reiser4 as a Windows library, say, to
+> access the files elsewhere.
+>
+> That's extreme, but you get the idea.
 
-	Ingo
-
---- linux/drivers/char/random.c.orig
-+++ linux/drivers/char/random.c
-@@ -2226,17 +2226,18 @@ static unsigned int ip_cnt;
- 
- static void rekey_seq_generator(void *private_)
- {
--	struct keydata *keyptr;
-+	struct keydata *keyptr, tmp;
- 	struct timeval 	tv;
- 
- 	do_gettimeofday(&tv);
-+	get_random_bytes(tmp.secret, sizeof(tmp.secret));
- 
- 	spin_lock_bh(&ip_lock);
- 	keyptr = &ip_keydata[ip_cnt&1];
- 
- 	keyptr = &ip_keydata[1^(ip_cnt&1)];
- 	keyptr->rekey_time = tv.tv_sec;
--	get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
-+	memcpy(keyptr->secret, tmp.secret, sizeof(keyptr->secret));
- 	keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
- 	mb();
- 	ip_cnt++;

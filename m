@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264101AbRFLDDT>; Mon, 11 Jun 2001 23:03:19 -0400
+	id <S264146AbRFLDJT>; Mon, 11 Jun 2001 23:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264146AbRFLDDJ>; Mon, 11 Jun 2001 23:03:09 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:8447 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264101AbRFLDDD>; Mon, 11 Jun 2001 23:03:03 -0400
-Message-ID: <3B258479.472F5C91@uow.edu.au>
-Date: Tue, 12 Jun 2001 12:54:49 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
+	id <S264157AbRFLDJJ>; Mon, 11 Jun 2001 23:09:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46345 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264146AbRFLDJG>; Mon, 11 Jun 2001 23:09:06 -0400
+Date: Mon, 11 Jun 2001 22:33:38 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Didier CONTIS <didier@ece.gatech.edu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Pb of __alloc_pages
+In-Reply-To: <GGEBJOIKMBAKLHABNEAPCEJCCDAA.didier@ece.gatech.edu>
+Message-ID: <Pine.LNX.4.21.0106112227550.6617-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: softirq bugs in pre2
-In-Reply-To: <20010611193703.S5468@athlon.random> <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+
+On Mon, 11 Jun 2001, Didier CONTIS wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> On Mon, 11 Jun 2001, Andrea Arcangeli wrote:
-> >
-> > Since I mentioned the copy-user latency fixes (even if offtopic with the
-> > above) this is the URL for trivial merging:
+> I am building a Beowulf cluster using Dell PowerEdge 1400SC
+> (2x800Mhz, 1GB of ram, 9GB Ultra160) and using kernel 2.4.5
 > 
-> The copy-user latency fixes only make sense for out-of-line copies. If
-> we're going to have a conditional function call to "schedule()", we do not
-> want to inline the dang thing any more - we've just destroyed our register
-> set etc anyway.
+> I several of my nodes I am getting the following errors:
+> 
+> Jun 10 00:19:32 grendel16 kernel: __alloc_pages: 0-order allocation
+> failed.
+> Jun 10 00:19:32 grendel16 last message repeated 12 times
+> Jun 10 00:19:36 grendel16 kernel: ed.
+> Jun 10 00:19:36 grendel16 kernel: __alloc_pages: 0-order allocation
+> failed.
+> Jun 10 00:19:55 grendel16 last message repeated 363 times
+> Jun 10 00:23:32 grendel16 kernel: VFS: file-max limit 8192 reached
+> 
+> Below is the output of cat /proc/slabinfo
+> 
+> I was wondering if someone could help me debug this one.
+> 
+> Thanks in advance for any help,
 
-It's overkill.  This adds many hundreds of scheduling points
-to the kernel, of which we need only five.  It makes more
-sense to simply open-code those five.
+Could you please try 2.4.6pre1 or higher? 
 
-- generic_file_read/write
-- read /dev/zero, /dev/mem
-- memcpy_to_iovec()
+Since you seem to have an IO intensive workload (right?), pre1 should
+throttle those IO allocations and avoid the extreme memory shortage. 
 
-This will by no means provide a low-latency kernel, but it will
-fix the most common causes of poor interactivity in normal
-use.
+Thanks 
 
-Just doing generic_file_read/write would suffice, actually.

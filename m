@@ -1,97 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312464AbSDJOjG>; Wed, 10 Apr 2002 10:39:06 -0400
+	id <S312570AbSDJOrd>; Wed, 10 Apr 2002 10:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313175AbSDJOjF>; Wed, 10 Apr 2002 10:39:05 -0400
-Received: from coltrane.siteprotect.com ([64.26.16.13]:46009 "EHLO
-	coltrane.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S312464AbSDJOjF>; Wed, 10 Apr 2002 10:39:05 -0400
-From: "Rob Hall" <rob@compuplusonline.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.7,8-pre2 and USB
-Date: Wed, 10 Apr 2002 10:47:50 -0400
-Message-ID: <BBENIHKKLAMLHIECFJEPIEADCBAA.rob@compuplusonline.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <BBENIHKKLAMLHIECFJEPGEPOCAAA.rob@compuplusonline.com>
-Importance: Normal
+	id <S313175AbSDJOrc>; Wed, 10 Apr 2002 10:47:32 -0400
+Received: from [195.157.147.30] ([195.157.147.30]:53514 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S312570AbSDJOrb>; Wed, 10 Apr 2002 10:47:31 -0400
+Date: Wed, 10 Apr 2002 15:49:38 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Christoph Rohland <cr@sap.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Geoffrey Gallaway <geoffeg@sin.sloth.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Ramdisks and tmpfs problems
+Message-ID: <20020410154938.G4493@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Christoph Rohland <cr@sap.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Geoffrey Gallaway <geoffeg@sin.sloth.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020409144639.A14678@sin.sloth.org> <20020410084505.A4493@dev.sportingbet.com> <200204101028.g3AAS2X05866@Port.imtp.ilyichevsk.odessa.ua> <20020410114521.C4493@dev.sportingbet.com> <m3662zzs6y.fsf@linux.wdf.sap-ag.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 10, 2002 at 01:52:37PM +0200, Christoph Rohland wrote:
+> Hi Sean,
+> 
+> On Wed, 10 Apr 2002, Sean Hunter wrote:
+> >> /dev is for devices, why do you use it for mounting filesystems?
+> > 
+> > Normally yes, but the tmpfs provides posix shared memory semantics
+> > and thus /dev/shm is the "normal" place to mount it.  Don't blame
+> > me.
+> 
+> Yes, and he does not want to use it for POSIX shared mem, but as a
+> local filesystem. So he should mount it where he needs it and
+> definitely not misunse the posix mount for different things.
 
-	Sorry guys,
-	I was late getting home last night. I got my system backup and running to a
-degree, and I'll send off my .config when I get home tonight after class.
+The whole point was that he was doing extra copies and mount/unmounts that he
+didn't need.   He couldn't just mount it in /etc/ in the first place because he
+needed to copy stuff from the underlying fs that was there onto the tmpfs.
 
-Thanks
---
-Rob Hall
+point -------------------------->
+<------------- Christoph Rohland
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rob Hall
-Sent: Tuesday, April 09, 2002 5:59 PM
-To: Greg KH
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.5.7,8-pre2 and USB
+Which is why I proposed two mounts:
 
+(1) A mount under /dev/shm reflecting its nature and role as providing posix
+shared mem (convenient because its not /etc where he already _has_ files)
 
-Yes, it also happened if I just compiled USB core support in. I would try it
-again, but I broke my system upgrading glibc over the weekend(don't ask, I'm
-just going to build LFS). I think I have my .config saved, I'll send it when
-I get home this evening. When I had core and HC support built into the
-kernel, I also had full HID, usb-serial for handspring visors, usb mass
-storage, and joystick support. The same configuration has worked flawlessly
-on 2.4.x.
+(2) A bind mount under /etc reflecting its nature and role as providing a
+ram-based file system (convenient because that's where he actually wants the fs
+to be)
 
-Thanks!
---
-Rob Hall
+I just suggested that by mounting it what has been established as the canonical
+place for mounting tmpfs and using a bind mount he doesn't need the extra
+copies/mounts.
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com]
-Sent: Tuesday, April 09, 2002 5:40 PM
-To: Rob Hall
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7,8-pre2 and USB
+Sheesh.  Next thing you'll be asking if a filesystem can have buddha nature.
 
-
-On Tue, Apr 09, 2002 at 05:44:17PM -0400, Rob Hall wrote:
-> I've tried both the OHCI and the OHCI-HCD drivers... But it's not getting
-> that far... the core is what's locking the system up. I probably should
-have
-> been more specific on that. If I load the USB core as a module after init
-> fires off, then USB works fine... if I compile it into the kernel, the USB
-> core locks the machine down right after detecting my PnP BIOS. It doesn't
-> get far enough to put anything into the system log.
-
-Ah, ok.  Haven't heard of this problem before.  The USB core doesn't
-touch any hardware, but only initializes a few things, and adds a filesystem
-to the kernel if you've selected it as a option.
-
-Does it also happen if you only build the USB core into the kernel, yet
-leave the host controllers and other drivers as modules?
-
-Have you selected any USB drivers to be compiled into the kernel?
-
-Can you send me your .config?
-
-thanks,
-
-greg k-h
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Sean "Mu" Hunter

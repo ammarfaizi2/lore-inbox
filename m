@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUCKT5e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 14:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUCKT5e
+	id S261687AbUCKUEq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbUCKUEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 14:57:34 -0500
-Received: from tag.witbe.net ([81.88.96.48]:54030 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261685AbUCKT5d (ORCPT
+	Thu, 11 Mar 2004 15:04:46 -0500
+Received: from smtp.netcabo.pt ([212.113.174.9]:27253 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S261689AbUCKUEl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 14:57:33 -0500
-Message-Id: <200403111957.i2BJvWA29773@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: <Valdis.Kletnieks@vt.edu>, "'pg smith'" <pete@linuxbox.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: LKM rootkits in 2.6.x 
-Date: Thu, 11 Mar 2004 20:57:25 +0100
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 11 Mar 2004 15:04:41 -0500
+Date: Thu, 11 Mar 2004 20:04:00 +0000
+From: backblue <backblue@netcabo.pt>
+To: Craig Bradney <cbradney@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: a7n8x-x & i2c
+Message-Id: <20040311200400.37337424.backblue@netcabo.pt>
+In-Reply-To: <1078953283.8828.24.camel@athlonxp.bradney.info>
+References: <20040310185047.454779fc.backblue@netcabo.pt>
+	<1078945499.8828.10.camel@athlonxp.bradney.info>
+	<20040310195608.54635d8b.backblue@netcabo.pt>
+	<1078953283.8828.24.camel@athlonxp.bradney.info>
+X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <200403111939.i2BJdxrx004553@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcQHoQUa8lUwoGkSQLCJpBcB9039NwAAfHJA
+X-OriginalArrivalTime: 11 Mar 2004 20:04:22.0240 (UTC) FILETIME=[0B834600:01C407A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If i run sensors-detect, it doesn't detect any chips, does a7n8x-x should work?
+
+On Wed, 10 Mar 2004 22:14:43 +0100
+Craig Bradney <cbradney@zip.com.au> wrote:
+
+> Ok, thought you might have had the nForce2 bug issue as well. Perhaps
+> you haave already patched for that.
 > 
-> Subject: Announcing full functional adore-ng rootkit for 2.6 Kernel
-> From: stealth <stealth@segfault.net>
-> Date: Thu, 11 Mar 2004 10:27:00 +0000
-> To: bugtraq@securityfocus.com
+> Craig
 > 
-> Hi,
+> On Wed, 2004-03-10 at 20:56, backblue wrote:
+> > It only crashes with i2c, the kernel it's working nicelly, at the moment, but without i2c, if i compile it with i2c build in, it crashes.
+> > 
+> > On Wed, 10 Mar 2004 20:05:00 +0100
+> > Craig Bradney <cbradney@zip.com.au> wrote:
+> > 
+> > > Hi,
+> > > 
+> > > > I have compiled 2.6.3, with i2c suporte for my chipset "nforce2" to the board asus a7n8x-x, but, it crashes my box all the time, dont know why!
+> > > > But it only crashes after login and a couple of minutes working...
+> > > > any one know womething about this?
+> > > 
+> > > Is the crash only with i2c or are you just trying linux on this board?
+> > > 
+> > > Craig
+> > > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
 > 
-> At http://stealth.7350.org/rootkits/adore-ng-0.41.tgz you find
-> the complete port of adore-ng for the Linux kernel 2.6. All
-> of the stuff you know from earlier kernel 2.4 versions such
-
->From the FEATURES file :
- o does not utilize sys_call_table but VFS layer
-
-Seems to be that easy... Should we hide VFS layer now :-)
-
-Regards,
-Paul
-
-

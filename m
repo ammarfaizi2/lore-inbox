@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129322AbQKOEzu>; Tue, 14 Nov 2000 23:55:50 -0500
+	id <S129121AbQKOFCA>; Wed, 15 Nov 2000 00:02:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129079AbQKOEzj>; Tue, 14 Nov 2000 23:55:39 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59403 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129047AbQKOEz0>;
-	Tue, 14 Nov 2000 23:55:26 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011150425.eAF4P3l135592@saturn.cs.uml.edu>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-To: rothwell@holly-springs.nc.us (Michael Rothwell)
-Date: Tue, 14 Nov 2000 23:25:02 -0500 (EST)
-Cc: Josue.Amaro@oracle.com, linux-kernel@vger.kernel.org,
-        unlisted-recipients:;;;@holly-springs.nc.us; (no To-header on input)
-In-Reply-To: <3A117311.8DC02909@holly-springs.nc.us> from "Michael Rothwell" at Nov 14, 2000 12:14:57 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129170AbQKOFBu>; Wed, 15 Nov 2000 00:01:50 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:38928 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129121AbQKOFBf>;
+	Wed, 15 Nov 2000 00:01:35 -0500
+To: Val Henson <vhenson@esscom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] acenic driver update
+In-Reply-To: <200011140031.TAA13437@plonk.linuxcare.com> <20001114184505.X18364@esscom.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 15 Nov 2000 05:31:27 +0100
+In-Reply-To: Val Henson's message of "Tue, 14 Nov 2000 18:45:05 -0700"
+Message-ID: <d3aeb1yhy8.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rothwell writes:
+>>>>> "Val" == Val Henson <vhenson@esscom.com> writes:
 
-> 1) Convenient remote terminal use. 
->
-> Telnet, ssh, X windows, rsh, vnc, "screen," ethernet,
-> serial, etc. I think we have this one.
+Val> Jes, I just downloaded the 0.48 acenic driver and it still has a
+Val> reproducible null dereference bug.  Anyone can oops their machine
+Val> by doing:
 
-Nope: /dev/audio, /dev/cdrom, /dev/floppy, fonts, etc.
+Bugger I think I lost your patch in the noise. Sorry about that, it'll
+be in the next version.
 
-Also one would want a local window manager for performance,
-but this tends to interfere with starting apps on the other
-system.
+Val> ifconfig <gige> mtu 9000 ping -f -s 60000 <remote gige host>
+Val> ifconfig <gige> mtu 1500 ping -f -s 60000 <remote gige host>
 
-> 4) A high reliability internal file system. 
+Val> I don't have a fix for this.
 
-Now we want it distributed, with version control, with
-mirroring onto N of M machines and migration toward usage...
+Hmmm could be a firmware issue, I'll need to look at it. It is however
+a kind of bug that only root can cause deliberately. Doing ifconfig
+mtu foo ; ifconfig mtu bar is a little far from normal operation ;-)
 
-> 5) Support for selective information sharing. 
->
-> Linux has a rather poor security model -- the Unix one.
-> It needs ACLs no only on filesystem objects, but on other
-> OS features as well; such as the ability to use network
-> interfaces, packet types, display ACLs, console ACLs, etc.
-
-It would have been nice to have just put 2 entries right
-in the inode years ago. With the KISS method, we'd be using
-ACLs right now. Even just a list of UIDs that would share
-permission bits with the file's GID would be very useful.
-I just want to share a file with one other person!
+Thanks
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

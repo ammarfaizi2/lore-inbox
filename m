@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTLLVeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 16:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTLLVeY
+	id S262050AbTLLV23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 16:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTLLV1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 16:34:24 -0500
-Received: from mail.kroah.org ([65.200.24.183]:58509 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262074AbTLLVeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 16:34:16 -0500
-Date: Fri, 12 Dec 2003 13:32:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: David T Hollis <dhollis@davehollis.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: udev for dummies
-Message-ID: <20031212213247.GB24643@kroah.com>
-References: <20031211221604.GA2939@werewolf.able.es> <1071183521.5900.36.camel@dhollis-lnx.kpmg.com> <3FD92CA4.20606@nortelnetworks.com>
+	Fri, 12 Dec 2003 16:27:46 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:63641
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S262038AbTLLV1b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 16:27:31 -0500
+Date: Fri, 12 Dec 2003 16:35:45 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 and IDE "geometry"
+Message-ID: <20031212163545.A26866@animx.eu.org>
+References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD92CA4.20606@nortelnetworks.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20031212194439.GB11215@win.tue.nl>; from Andries Brouwer on Fri, Dec 12, 2003 at 08:44:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 09:49:08PM -0500, Chris Friesen wrote:
-> David T Hollis wrote:
-> >On Thu, 2003-12-11 at 17:16, J.A. Magallon wrote:
+> > Is there anyway to get kernel 2.6 to use the geometry
+> > the bios has for an IDE drive?
 > 
-> >>What am I missing / misunderstanding ?
+> The kernel does not use any geometry.
+
+This I know, however, the kernel in the past has the geometry from the BIOS
+
+> > I have a installation setup that installs a non-linux os and I partition the
+> > drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
+> > as # cylinders/16 heads/63 sectors.
 > 
-> >You may be overthinking it a bit.  I just set up udev on my box and it's
-> >working quite well.  It's not really intending to completely replace
-> >/dev, rather it provides a dynamic device structure based on hotplugged
-> >devices.
-> 
-> Greg can speak to this better than I, but udev is most certainly 
-> intended to completely replace /dev.  The thing is that not everything 
-> exports the required information in /sys just yet.
+> Aha. So your real question is:
+> "Is there any way to get *fdisk to use my favorite geometry?"
+> The answer is: all common fdisk versions allow you to set the geometry.
 
-Yes, this is true.
+I realize this too, however, I need it to happen automatically and be
+consistent with the bios idea of the disk.
 
-thanks,
-
-greg k-h
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

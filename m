@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314444AbSFISfL>; Sun, 9 Jun 2002 14:35:11 -0400
+	id <S314448AbSFISuG>; Sun, 9 Jun 2002 14:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314458AbSFISfK>; Sun, 9 Jun 2002 14:35:10 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:60088
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S314444AbSFISfI>; Sun, 9 Jun 2002 14:35:08 -0400
-Date: Sun, 9 Jun 2002 11:34:00 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas
-Message-ID: <20020609183400.GU14252@opus.bloom.county>
-In-Reply-To: <20020609175804.B8761@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314451AbSFISuF>; Sun, 9 Jun 2002 14:50:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11269 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314448AbSFISuE>; Sun, 9 Jun 2002 14:50:04 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch] fat/msdos/vfat crud removal
+Date: 9 Jun 2002 11:49:47 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ae080b$6bk$1@cesium.transmeta.com>
+In-Reply-To: <87r8jhc685.fsf@devron.myhome.or.jp> <200206090709.g5979iK439624@saturn.cs.uml.edu> <20020609114638.J13140@suse.de> <m18z5owd9f.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 05:58:04PM +0100, Russell King wrote:
-
-> With the latest kbuild version in 2.5.21, we are unable to build the
-> following files:
+Followup to:  <m18z5owd9f.fsf@frodo.biederman.org>
+By author:    ebiederm@xmission.com (Eric W. Biederman)
+In newsgroup: linux.dev.kernel
+>
+> Dave Jones <davej@suse.de> writes:
 > 
-[snip]
-> linux/drivers/scsi/53c7,8xx.c
-> linux/drivers/scsi/53c7,8xx.h
-> linux/drivers/scsi/53c7,8xx.scr
+> > On Sun, Jun 09, 2002 at 03:09:44AM -0400, Albert D. Cahalan wrote:
+> > 
+> >  > There has been talk of removing __KERNEL__ usage from
+> >  > some of the header files.
+> > 
+> > Where? If anything we need to increase __KERNEL__ usage in headers.
+> > We export far too much crap which makes no sense to userspace.
+> 
+> So we should just remove __KERNEL__ altogether.  And say with 2.5.x
+> nothing is exported.  Which pretty much has been the official policy
+> since user space started using glibc.
+> 
+> #include <linux/*>
+> and 
+> #include <asm/*>
+> are no longer supported.
+> 
 
-How about we remove these alltogether?  The ncr53c8xx and sym-2 drivers
-both support the 53c810, 53c825, and 53c820 devices and there's a 'common'
-53c7xx backend which handles the 53c700, 53x700-66 53c710 and 53c720
-chipsets that the 53c7,8xx driver handles.  The only minor issue is that
-if there's any ISA (PCI?) cards with these chipsets would need a new
-front-end to detect the cards.
+In theory, perhaps.  There is plenty that just really can't be done
+that way, especially stuff which deals with ioctls and their
+structures.
 
+It makes more sense to constrain what is exported to a minimum, but
+actually have it be usable.
+
+	-hpa
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

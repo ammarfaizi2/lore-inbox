@@ -1,80 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290356AbSBORxG>; Fri, 15 Feb 2002 12:53:06 -0500
+	id <S290370AbSBOR6Q>; Fri, 15 Feb 2002 12:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290361AbSBORxA>; Fri, 15 Feb 2002 12:53:00 -0500
-Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:52118 "EHLO
-	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S290356AbSBORwo>; Fri, 15 Feb 2002 12:52:44 -0500
-Message-ID: <3C6D4A58.6070401@wanadoo.fr>
-Date: Fri, 15 Feb 2002 18:50:16 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
+	id <S290344AbSBOR6H>; Fri, 15 Feb 2002 12:58:07 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:58499 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S290417AbSBOR5w>;
+	Fri, 15 Feb 2002 12:57:52 -0500
+Date: Fri, 15 Feb 2002 09:57:42 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+        <linux-usb-devel@lists.sourceforge.net>
 Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
-In-Reply-To: <3C6D2130.1020103@wanadoo.fr> <20020215155636.GB1695@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3C6D4A58.6070401@wanadoo.fr>
+Message-ID: <Pine.LNX.4.33.0202150956400.829-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Feb 15, 2002 at 03:54:40PM +0100, Pierre Rousselet wrote:
-> 
->>with 2.5.5-pre1 usb-uhci module can't unload. rmmod hangs, leaving the 
->>system unstable. in one circumstance the box freezed with an oops 
->>involving swapper pid0 . this doesn't happen with 2.5.4
->>
-> 
-> Try this (untested, I haven't rebooted yet) patch:
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> 
-> diff -Nru a/drivers/usb/usb.c b/drivers/usb/usb.c
-> --- a/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
-> +++ b/drivers/usb/usb.c	Thu Feb 14 22:47:21 2002
-> @@ -1979,11 +1979,11 @@
->  				if (driver->owner)
->  					__MOD_DEC_USE_COUNT(driver->owner);
->  				/* if driver->disconnect didn't release the interface */
-> -				if (interface->driver) {
-> -					put_device (&interface->dev);
-> +				if (interface->driver)
->  					usb_driver_release_interface(driver, interface);
-> -				}
->  			}
-> +			/* remove our device node for this interface */
-> +			put_device(&interface->dev);
->  		}
->  	}
->  
-> 
-> 
-no, it doesn't solve the problem. i would like to test it whith 
-preemtible kernel not set but it doesn't boot.
 
-with both 2.5.4 and 2.5.5-pre1 when loading usb-uhci usb.c reports 2 
-devices :
-device 1 : USB UHCI Root Hub
-device 2 : Alcatel Speed Touch USB (the driver module and firmware are 
-not loaded at this stage)
+> no, it doesn't solve the problem. i would like to test it whith 
+> preemtible kernel not set but it doesn't boot.
 
-when rmmoding usb-uhci with 2.5.4 usb.c reports:
-usb.c: USB disconnect on device 1
-usb.c: USB disconnect on device 2
+While Greg's patch did fix part of the problem, the rest of it was on my 
+end. Could you try this patch, and see if helps?
 
-with 2.5.5-pre1
-usb.c: USB disconnect on device 1
-  and nothing else.
-Pierre
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+Thanks,
+
+	-pat
+
+===== fs/driverfs/inode.c 1.14 vs edited =====
+--- 1.14/fs/driverfs/inode.c	Wed Feb 13 15:27:02 2002
++++ edited/fs/driverfs/inode.c	Fri Feb 15 09:53:44 2002
+@@ -585,29 +585,6 @@
+ }
+ 
+ /**
+- * __remove_file - remove a regular file in the filesystem
+- * @dentry:	dentry of file to remove
+- *
+- * Call unlink to remove the file, and dput on the dentry to drop
+- * the refcount.
+- */
+-static void __remove_file(struct dentry * dentry)
+-{
+-	dget(dentry);
+-	down(&dentry->d_inode->i_sem);
+-
+-	vfs_unlink(dentry->d_parent->d_inode,dentry);
+-
+-	up(&dentry->d_inode->i_sem);
+-	dput(dentry);
+-
+-	/* remove reference count from when file was created */
+-	dput(dentry);
+-
+-	put_mount();
+-}
+-
+-/**
+  * driverfs_remove_file - exported file removal
+  * @dir:	directory the file supposedly resides in
+  * @name:	name of the file
+@@ -617,14 +594,12 @@
+  */
+ void driverfs_remove_file(struct driver_dir_entry * dir, const char * name)
+ {
+-	struct dentry * dentry;
+ 	struct list_head * node;
+ 
+ 	if (!dir->dentry)
+ 		return;
+ 
+-	dentry = dget(dir->dentry);
+-	down(&dentry->d_inode->i_sem);
++	down(&dir->dentry->d_inode->i_sem);
+ 
+ 	node = dir->files.next;
+ 	while (node != &dir->files) {
+@@ -633,14 +608,13 @@
+ 		entry = list_entry(node,struct driver_file_entry,node);
+ 		if (!strcmp(entry->name,name)) {
+ 			list_del_init(node);
+-
+-			__remove_file(entry->dentry);
++			vfs_unlink(entry->dentry->d_parent->d_inode,entry->dentry);
++			put_mount();
+ 			break;
+ 		}
+ 		node = node->next;
+ 	}
+-	up(&dentry->d_inode->i_sem);
+-	dput(dentry);
++	up(&dir->dentry->d_inode->i_sem);
+ }
+ 
+ /**
+@@ -669,15 +643,14 @@
+ 		entry = list_entry(node,struct driver_file_entry,node);
+ 
+ 		list_del_init(node);
+-
+-		__remove_file(entry->dentry);
+-
++		vfs_unlink(dentry->d_inode,entry->dentry);
++		put_mount();
+ 		node = dir->files.next;
+ 	}
++	up(&dentry->d_inode->i_sem);
+ 
+ 	vfs_rmdir(dentry->d_parent->d_inode,dentry);
+ 	up(&dentry->d_parent->d_inode->i_sem);
+-	up(&dentry->d_inode->i_sem);
+ 	dput(dentry);
+  done:
+ 	put_mount();
 

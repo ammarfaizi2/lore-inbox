@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319156AbSIDM1t>; Wed, 4 Sep 2002 08:27:49 -0400
+	id <S319163AbSIDMbj>; Wed, 4 Sep 2002 08:31:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319158AbSIDM1s>; Wed, 4 Sep 2002 08:27:48 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:55737 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S319156AbSIDM1p>; Wed, 4 Sep 2002 08:27:45 -0400
-Subject: ip_conntrack_hash() problem
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Netfilter Mailing List <netfilter-devel@lists.netfilter.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Patrick Schaaf <bof@bof.de>,
-       Harald Welte <laforge@gnumonks.org>, Andreas Kleen <ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Sep 2002 14:33:41 +0200
-Message-Id: <1031142822.3314.116.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
+	id <S319164AbSIDMbj>; Wed, 4 Sep 2002 08:31:39 -0400
+Received: from mail.hometree.net ([212.34.181.120]:31450 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S319163AbSIDMbi>; Wed, 4 Sep 2002 08:31:38 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: 2.4.18 & 2.4.19 IDE chipset clash? Promise PDC20267/SvrWks CSB5
+Date: Wed, 4 Sep 2002 12:36:12 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <al4uns$ibm$1@forge.intermeta.de>
+References: <1031109167.4925.38.camel@eljefe.wsm.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1031142972 2709 212.34.181.4 (4 Sep 2002 12:36:12 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 4 Sep 2002 12:36:12 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Johnson <jeff@wsm.com> writes:
 
-I posted a patch to netfilter-devel a week ago that fixes a severe
-performance problem with ip_conntrack_hash() (see below).
-Harald rejected it (sort of), telling me I should have read past threads
-about the hash function first. 
+>Greetings,
 
-http://marc.theaimsgroup.com/?l=netfilter-devel&m=103054090215896&w=2
+>	I am trying to get a kernel running on an Intel SCB2 board. It has
+>onboard Promise PDC20267 RAID and Serverworks IDE controllers. The
+>problem I am seeing is when Promise support is compiled into the kernel
+>the Serverworks IDE chip will appear but fail to become available. The
+>CDROM drive attached to the Serverworks chip is never visible. If I
+>disable the Promise chip in the board's bios and boot the same kernel
+>the serverworks IDE attaches and the CDROM shows up and can be accessed.
 
-I think I have to insist on this, though.
+You must force the Promise IDE support. And you should use an -ac
+kernel because the Promise RAID support there is much better.
 
-Although it certainly isn't the "optimal" hash function for
-ip_conntrack, it fixes a problem that leads to extremely unbalanced
-hashing in some situations, in particular in a simple
-client<->router<->webserver scenario. 
-
-In that case, all connection tuples from server to client, i.e. 50% of
-all tuples, end up in the same bucket(!), as I showed in my posting to
-netfilter-devel.
-
-This happens if the hash size is a power of 2, which is the default on
-most newer machines.
-
-The fix is rather trivial (mainly the port numbers are accounted for
-outside the ntohl() function), and therefore I'd like to ask again that
-it be applied.
-
-Unless I am mistaken, the past discussions were mainly concerned with
-fine-tuning of the hash function, which is a topic my patch doesn't
-address, and can easily be done on top of it.
-
-Regards,
-Martin
-
+	Regards
+		Henning
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-
-
-
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

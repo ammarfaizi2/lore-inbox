@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUFKQwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUFKQxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUFKQwV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUFKQt7
+	id S264225AbUFKQxS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUFKQwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:49:59 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:20639 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S264226AbUFKQt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:49:26 -0400
-Date: Fri, 11 Jun 2004 10:52:24 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
-Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and later)
-Message-ID: <20040611165224.GA11945@bounceswoosh.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
-References: <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de> <20040611161701.GB11095@bounceswoosh.org> <40C9DE7F.8040002@pobox.com>
+	Fri, 11 Jun 2004 12:52:50 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:32148 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264225AbUFKQuf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:50:35 -0400
+Date: Fri, 11 Jun 2004 18:50:20 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Dave Jones <davej@redhat.com>, Chris Mason <mason@suse.com>,
+       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in reiserfs
+Message-ID: <20040611165020.GC11755@wohnheim.fh-wedel.de>
+References: <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com> <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com> <20040610223532.GB3340@wohnheim.fh-wedel.de> <40C91DA0.6060705@namesys.com> <20040611134621.GA3633@wohnheim.fh-wedel.de> <40C9DE9F.90901@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <40C9DE7F.8040002@pobox.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40C9DE9F.90901@namesys.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 11 at 12:31, Jeff Garzik wrote:
->If queued-FUA is out of the question, this seems quite reasonable.  It 
->appears to achieve the commit-block semantics described for barrier 
->operation, AFAICS.
+On Fri, 11 June 2004 09:32:31 -0700, Hans Reiser wrote:
+> >
+> Reiser4 is going to obsolete V3 in a few weeks.  V3 will be retained for 
+> compatibility reasons only, as V4 blows it away in performance.
 
-Queued FUA shouldn't be out of the question.
+About three years ago, I switched from reiserfs to ext3.  And still, I
+have some old reiserfs partitions around that I use.  Either I'm quite
+unusual or reiser3 will stay around for a while. :)
 
-However, Queued FUA requires waiting for the queue to drain before
-sending more commands, since a pair of queued FUA commands doesn't
-guarantee the ordering of those two commands, which may or may not be
-acceptable semantics.
+> You are right though that OpenBSD does some things better.
 
-The barrier operation is basically a queueing-friendly flush+FUA,
-which may be better...  it lets the driver keep the queue in the drive
-full, and also allows writes other than the commit block to not be
-done as FUA operations, which is potentially faster.  THe bigger the
-ratio of data to commit block, the better the performance would be
-with a barrier operation vs a purely queued FUA workload.
+For sure.  And still, I use and develop for Linux.
 
---eric
+Jörn
 
 -- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVCDMGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVCDMGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262895AbVCDMGV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVCDLzI
+	id S262848AbVCDMGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVCDLyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:55:08 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:29676 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S262906AbVCDLbG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:31:06 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+	Fri, 4 Mar 2005 06:54:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5340 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262903AbVCDLae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:30:34 -0500
+Date: Fri, 4 Mar 2005 03:29:52 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050304112649.GQ1345@elf.ucw.cz>
-References: <1109811404.5918.80.camel@tyrosine>
-	 <20050304112649.GQ1345@elf.ucw.cz>
-Date: Fri, 04 Mar 2005 11:30:57 +0000
-Message-Id: <1109935857.5918.99.camel@tyrosine>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, hugang@soulinfo.com
+Subject: Re: swsusp: use non-contiguous memory on resume
+Message-Id: <20050304032952.4b2e456b.akpm@osdl.org>
+In-Reply-To: <20050304110154.GK1345@elf.ucw.cz>
+References: <20050304095934.GA1731@elf.ucw.cz>
+	<20050304021347.1b3e0122.akpm@osdl.org>
+	<20050304102121.GG1345@elf.ucw.cz>
+	<20050304025119.4b3f8aa6.akpm@osdl.org>
+	<20050304110154.GK1345@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: Scheduling while atomic errors on swsusp resume
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 12:26 +0100, Pavel Machek wrote:
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Hi!
+> 
+> > > Problem is that pagedir is allocated as order-8 allocation on resume
+> > >  in -mmX (and linus). Unfortunately, order-8 allocation sometimes
+> > >  fails, and for some people (Rafael, seife :-) it fails way too often.
+> > > 
+> > >  Solution is to change format of pagedir from table to linklist,
+> > >  avoiding high-order alocation. Unfortunately that means changes to
+> > >  assembly, too, as assembly walks the pagedir.
+> > 
+> > Ah.
+> > 
+> > >  (Or maybe Rafael is willing to create -mm version and submit it
+> > >  himself?)
+> > 
+> > No, against -linus, please.  But the chunk in kernel/power/swsusp.c looks
+> > like it came from a diff between -mm and -linus.  Or something.
+> 
+> Yes, I did diff between -mm and -pavel, sorry.
+> 
+> But I can't easily generate diff against -linus because that one is
+> dependend on fixing order-8 allocations during suspend. So I guess
+> I'll just wait until that one propagates into -linus?
+> 								Pavel
 
-> Well, those are warnings, so it still works, right? Aha, "exited with
-> preempt count 1" seems very wrong. Yes, please try this with
-> vanilla. I'm running 2.6.11 with 
-
-Yeah, the resume script crashes, which is a bit of a problem. I'll get
-the user to try with a vanilla kernel, but I'm not having these problems
-with an identical kernel - it seems to be something specific to his
-setup.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+Just generate a patch series?

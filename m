@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVBCF20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVBCFkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262664AbVBCF20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 00:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVBCF20
+	id S262280AbVBCFkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 00:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVBCFkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 00:28:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45003 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262799AbVBCF2S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 00:28:18 -0500
-Date: Thu, 3 Feb 2005 00:28:16 -0500
-From: Dave Jones <davej@redhat.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: fix matroxfb ppc compile.
-Message-ID: <20050203052815.GB10847@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Thu, 3 Feb 2005 00:40:25 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:219 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262602AbVBCFkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 00:40:17 -0500
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH] InfiniBand: add missing break between cases
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 02 Feb 2005 21:40:16 -0800
+Message-ID: <52y8e65hhb.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 03 Feb 2005 05:40:16.0896 (UTC) FILETIME=[D72F5800:01C509B2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Code references these vars even though they don't exist.
-Untested other than compile test.
+From: Libor Michalek <libor@topspin.com>
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Add a missing break statement between RC and UD cases in mthca_post_send().
+This fixes a possible oops for protocols that use the RC transport.
 
---- linux-2.6.10/drivers/video/matrox/matroxfb_base.c~	2005-01-27 20:06:10.000000000 -0500
-+++ linux-2.6.10/drivers/video/matrox/matroxfb_base.c	2005-01-27 20:08:49.000000000 -0500
-@@ -1276,6 +1276,10 @@ static int dfp;				/* "matrox:dfp */
- static int dfp_type = -1;		/* "matrox:dfp:xxx */
- static int memtype = -1;		/* "matrox:memtype:xxx" */
- static char outputs[8];			/* "matrox:outputs:xxx" */
-+#ifdef CONFIG_PPC_PMAC
-+static int vmode;
-+static int cmode;
-+#endif
+Signed-off-by: Libor Michalek <libor@topspin.com>
+Signed-off-by: Roland Dreier <roland@topspin.com>
+
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2005-01-28 11:11:02.000000000 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_qp.c	2005-02-02 21:35:09.683871535 -0800
+@@ -1323,6 +1323,8 @@
+ 				break;
+ 			}
  
- #ifndef MODULE
- static char videomode[64];		/* "matrox:mode:xxxxx" or "matrox:xxxxx" */
-
++			break;
++
+ 		case UD:
+ 			((struct mthca_ud_seg *) wqe)->lkey =
+ 				cpu_to_be32(to_mah(wr->wr.ud.ah)->key);

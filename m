@@ -1,98 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbTDCRxS 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:53:18 -0500
+	id S261545AbTDCRyY 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S261539AbTDCRxS 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:53:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:50839 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id S261525AbTDCRxH 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 12:53:07 -0500
-Date: Thu, 3 Apr 2003 13:07:05 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: my linux does not accept redirects
-In-Reply-To: <Pine.LNX.4.51.0304021727440.2739@dns.toxicfilms.tv>
-Message-ID: <Pine.LNX.4.53.0304031247330.5887@chaos>
-References: <Pine.LNX.4.51.0304021657090.2465@dns.toxicfilms.tv>
- <Pine.LNX.4.53.0304021019210.30327@chaos> <Pine.LNX.4.51.0304021727440.2739@dns.toxicfilms.tv>
+	id S261542AbTDCRyY 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:54:24 -0500
+Received: from postal.sdsc.edu ([132.249.20.114]:18308 "EHLO postal.sdsc.edu")
+	by vger.kernel.org with ESMTP id S261539AbTDCRyC 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 12:54:02 -0500
+Date: Thu, 3 Apr 2003 10:05:27 -0800 (PST)
+From: "Peter L. Ashford" <ashford@sdsc.edu>
+To: Jonathan Vardy <jonathan@explainerdc.com>
+cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: RAID 5 performance problems
+In-Reply-To: <73300040777B0F44B8CE29C87A0782E101FA97B2@exchange.explainerdc.com>
+Message-ID: <Pine.GSO.4.30.0304030858080.20118-100000@multivac.sdsc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, Maciej Soltysiak wrote:
+Jonathan,
 
-> > >
-> > > What could be wrong?
-> > >
-> >
-> > How would it learn? If everybody is going to set their default
-> > route to your box A, and box A routes internally, then box A needs its
-> > default route to go to the internet-box B.
-> >From my investigation i have found that my box stores routes based on
-> icmp redirects (as seen with netstat -C) and it does learn the routes
-> but not for all routes. Please look at this printout:
+> I'm having trouble with getting the right performance out of my software
+> raid 5 system. I've installed Red Hat 9.0 with kernel 2.4.20 compiled
+> myself to match my harware (had the same problem with the default
+> kernel). When I test the raid device's speed using 'hdparm -Tt /dev/hdx'
+> I get this:
 >
-
-No it doesn't! If your box "finds" routes then it has `routed` or
-`gated` installed and running. Otherwise it uses static routes and
-has no way of "learning" anything you didn't tell it.
-
-> <snip>
-> dns.toxicfilms. trek13.sv.av.co nihil.ae.poznan       0      0        4 eth1
-> dns.toxicfilms. nms.cyf-kr.edu. alnair.ae.pozna       0      0        6 eth1
-> <snip>
+> /dev/md0:
+> Timing buffer-cache reads:   128 MB in  1.14 seconds =112.28 MB/sec
+> Timing buffered disk reads:  64 MB in  2.39 seconds = 26.78 MB/sec
 >
-> dns.toxicfilms.tv is my box
+> This is really low for a raid system and I can't figure out what is
+> causing this. I use rounded cables but I also tried the original Promise
+> cables and there was no difference in performance.
+
+The ONLY reason that I can think of to use round cables would be for
+looks.  From a performance or reliability standpoint, they are a waste of
+money.  I routinely build systems with dual 8-channel IDE RAID cards
+(3Ware 7500-8) and 16 disks, and ONLY use flat cables.
+
+> But still the raid performs slow. Does anybody have an idea how I could
+> improve the performance? I've seen raid systems like my own performing
+> much better (speeds of around 80MB/sec). I've added as many specs as I
+> could find below so you can see what my configuration is.
 >
-> nihil.ae.poznan.pl is the router that routes to my other public nets
-> alnair.ae.poznan.pl is the Internet Gateway.
+> The hardware in the machine is as following:
 >
-> Why did not my box learn to send packets to trek13.sv.av.com via alnair ?
+> Maiboard   	: Asus P2B-d dual PII slot 1 with latest bios update
+> Processors 	: 2x Intel PII 350Mhz
+> Memory     	: 512MB SDRam 100Mhz ECC
+> Controller 	: Promise FastTrak100 TX4 with latest firmware update
+> Boot HD	: Maxtor 20GB 5400rpm
+> Raid HD's	: 5x WDC1200BB 120GB 7200rpm ATA100
+
+Your bottlenecks are probably (in order):
+
+1.  Disk controllers (get off the motherboard IDE, dump the FastTrak, use
+	Master only)
+2.  I/O bandwidth (multiple PCI buses)
+3.  Memory bandwidth (switch to something like a P4)
+4.  Disks (this is where your friend's dual Xeon system is)
+
+Your network probably belongs in this list somewhere, but you didn't
+provide enough information for me to determine where it belongs.  The
+necessary information would be the network type, switch/hub, and the type
+and quantity of processing being performed prior to putting the data on
+the net.
+
+> 4 of the raid HD's are connected to the Promise controller and the other
+> raid HD is master on the second onboard IDE channel (udma2/ATA33)
+
+I've NEVER heard that the FastTrak runs fast (I have been told that they
+run VERY slowly).  I've benchmarked RAW disk speeds with an Ultra-100 and
+WD1200JB drives, and gotten 50MB/S from each disk, as opposed to your
+26MB/S (there should be almost no difference for the BB drives).  My
+suggestion would be to remove the FastTrak, and get two Ultra-100s and an
+Ultra-133 (or one Ultra-100 and two Ultra-133s).  Use one disk per channel
+(Master only), and move the system disk onto one of the Promise cards.
+This change should get you up to the performance of your friend's old
+system.
+
+If you switch to a dual bus system, make sure that the two controllers
+with two RAID drives are on separate buses.  In a triple bus system, each
+of the three controllers would be on a different bus (put the NIC with the
+system drive).
+
+An inexpensive P4 Celeron with FAST memory would probably run faster.
+FYI, The primary reason that the large file servers use the dual Xeon
+boards is to get the high memory and I/O bandwidth.  The high CPU
+bandwidth is also useful, primarily with TCP/IP encapsulation.
+
+<SNIP>
+
+> As you see /dev/hdc is on the onboard IDE channel. Tos be certain that
+> this was not the bottleneck, I removed it from the raid so that is runs
+> in degraded mode. This did not change the performance much. Rebuild
+> speed is laso very slow, it is round 6MB/sec.
 >
-
-Because networking doesn't work that way. Packets are routed directly
-to hosts if the host address fits inside the netmask. If the host
-address is outside that network, packets are routed to the default
-address which should be a host or other gatweay that connects with
-the outside world.
-
-If you have multiple isolated subnets, they work the same way.
-However, the host that gets the default-route packets needs to
-further route these packets both internally and externally.
-
-> it's 2.4.20-xfs, no other patches.
-> I am running a similar box on the same net with 2.5.66-mm2 and i do not
-> see this effect, thus i presume, it's not a configuration error.
+> The drives originally came from a friend's file server where they were
+> also employed in a raid configuration. I've compared my results in
+> Bonny++ to his results:
 >
+> My raid:
 
-Then find out what's different. Probably the netmask on one is
-different than on the other. It's the netmask that defines the
-"width" of a network. Any address that fits inside that netmask
-goes directly to a host on that network. Anything that falls
-outside goes out the default route.
+<SNIP>
 
-> Having one default route via Router A (nihil) should cause only one
-> redirect per one connections. But i get flooded for every packet.
->
+14MB/S block write, 30MB/S block read
 
-It will have NO, none, not any, redirects --ever. Redirects are an
-attempt by a host to work around a severe problem. Communications
-(datagram) packets are never redirected, only ICMP or ARP packets.
-The ARP protocol finds the physical address, the IEEE station address
-of a particular host and talks to it using that address. If the
-IP address is behind a router, then the router answers the ARP request
-with its physical address. Therefore, the host communicating with
-an IP address behind a router ends up talking to the router.
+> His raid:
 
+<SNIP>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+99MB/S block write, 178MB/S block read
+
+This MUST have had a better disk controller system AND multiple PCI buses.
+The limit of one PCI bus (32-bit/33MHz, as used by the Promise
+controllers) is 133MB/S, and they are exceeding that.
+
+> His machine has dual P Xeon 2000Mhz processors but that shouldn't be the
+> reason that the results are so different. My processor isn't at 100%
+> while testing. Even his older system which had 80gig drives and dual
+> 500Mhz processors is much faster:
+
+<SNIP>
+
+35MB/S block write, 72MB/S block read
+
+As mentioned above, the CPU isn't the primary limit in I/O.  You have to
+consider I/O bandwidth (number, width and clock of PCI buses), and memory
+bandwidth.
+
+Good luck.
+				Peter Ashford
 

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbRBIU4G>; Fri, 9 Feb 2001 15:56:06 -0500
+	id <S129041AbRBIVCr>; Fri, 9 Feb 2001 16:02:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130439AbRBIUz4>; Fri, 9 Feb 2001 15:55:56 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:61444 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129259AbRBIUzm>;
-	Fri, 9 Feb 2001 15:55:42 -0500
-Message-ID: <004901c092da$7ed9c260$875b1f3e@speedo>
-From: "Duncan Gauld" <dg010a0001@blueyonder.co.uk>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010209144534.B379@bella.auschron.com>
-Subject: Re: booting the 2.4.1 linux kernel... tada,nada
-Date: Fri, 9 Feb 2001 20:54:29 -0000
+	id <S129177AbRBIVCg>; Fri, 9 Feb 2001 16:02:36 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:38318 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129041AbRBIVCX>; Fri, 9 Feb 2001 16:02:23 -0500
+Date: Fri, 9 Feb 2001 21:59:24 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+        mingo@redhat.com
+Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection o
+In-Reply-To: <14FD47597566@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.3.96.1010209215041.13007D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Fri, 9 Feb 2001, Petr Vandrovec wrote:
 
-a couple of things to check here.
-a) when compiling the kernel, did you remember to select the proper CPU in
-the kernel config?
-b) if you are using (for example) an ATI Rage 128 you need to go into
-character devices and say Y to DRI X and ATI Rage 128.
-(I found that the latter idea fixed the same problem on my machine.)
+> >  Why do you need to mask NMI at all? 
+> 
+> Because of you must provide some function which handles NMI, and as
+> you cannot switch IDT and CR3 atomically together, NMI handler has
+> to be on same address in both address spaces - at least temporary. 
 
-I'm a newbie, 12, so hope this helps!
+ Can't it be?
 
-Duncan
+> And in addition NMI handler in VM would have to switch address spaces 
+> back, execute NMI handler, and return CPU/MMU back to previous state - 
+> which may be just in the middle of normal VM<->Linux transition, so 
+> this context switching cannot use any global variable, it must 
+> save complete CPU/MMU state on stack. And it must not use any spinlock.
 
-Lyndsey Simon wrote:
+ Do you need to pass NMIs to VM at all?  NMIs as defined by the PC/AT
+architecture are delivered as a result of memory parity errors or ISA
+IOCHK errors.  Is that functionality really needed in VM?
 
-> [1.] Once I get the loading the kernel message from Lilo I hard crash
-without any error
-> messages.
-> [2.] I had no trouble making the bzImage and have installed it made it and
-installed it
-> three different times from scratch, once using debian's make-kpkg tool,
-but still I get
-> the same outcome - a hard crash with no error messages. I get the Loading
-> Linux.2.4.1........... ok,now booting the kernel and then BANG, I go dead
-with no error
-> message of any kind.
+> If you have any idea how it can be done with NMI unmasked all the way
+> around...
 
-<snip>
+ It depends on the application -- you may avoid problems by careful coding
+and a nested NMI will never happen -- the CPU masks the NMI line
+internally, from accepting an NMI till a subsequent iret. 
 
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

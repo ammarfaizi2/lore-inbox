@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265002AbTGGPb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 11:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbTGGPb4
+	id S267063AbTGGPdy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 11:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267066AbTGGPdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 11:31:56 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:6016 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S265002AbTGGPbz (ORCPT
+	Mon, 7 Jul 2003 11:33:54 -0400
+Received: from ev2.cpe.orbis.net ([209.173.192.122]:47236 "EHLO srv.foo21.com")
+	by vger.kernel.org with ESMTP id S267063AbTGGPdt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 11:31:55 -0400
-Date: Mon, 7 Jul 2003 17:46:28 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
+	Mon, 7 Jul 2003 11:33:49 -0400
+Date: Mon, 7 Jul 2003 10:48:23 -0500
+From: Eric Varsanyi <e0216@foo21.com>
 To: linux-kernel@vger.kernel.org
-Cc: trond.myklebust@fys.uio.no
-Subject: opening symlinks with O_CREAT under latest 2.5.74
-Message-ID: <20030707154628.GA3220@vana.vc.cvut.cz>
+Cc: davidel@xmailserver.org
+Subject: epoll vs stdin/stdout
+Message-ID: <20030707154823.GA8696@srv.foo21.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  couple of things stopped working on my box
-where I have /dev/vc/XX as symlinks to /dev/ttyXX, and some
-things use /dev/vc/XX and some /dev/ttyXX. After last update
-hour ago things which use /dev/vc/XX stopped working for
-non-root - they now fail with EACCES error if they attempt
-to redirect its input or output through '>' or '<>' bash
-redirection operators:
+It seems reasonable to register for read events on stdin and write events
+on stdout.  In an earlier posting on the epoll API it was asserted that 
+anyone registering for events on 2 fd's that shared the same file * was 
+asking for trouble.
 
-$ touch /tmp/xx
-$ ln -s /tmp/xx yy
-$ cat > yy
--bash: yy: Permission denied
+I can imagine many apps that might want to proxy async traffic thru
+stdin/stdout, what is the intended general solution for this with epoll?
 
-Strace says:
+FWIW in my app I'm just assuming that fd0 is a dup of fd1 if EPOLL_CTL_ADD 
+on fd1 fails with EEXISTS, then I EPOLL_CTL_MOD on fd0 to add the write event.
+This seems like a bit of a hack tho.
 
-[pid  3268] open("yy", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = -1 EACCES (Permission denied)
+Example, 2nd ADD fails with EEXIST:
 
-This command succeeds on kernel from thursday. Simillar problem is
-that
+int
+main(int ac, char **av)
+{
+        int pfd;
+        struct epoll_event ev;
 
-$ rm /tmp/xx
-$ ln -s /tmp/xx yy
-$ cat > yy
--bash: yy: No such file or directory
+        pfd = epoll_create(10);
+        ev.events = EPOLLIN | EPOLLET;
+        ev.data.u32 = 0xdeadbee0;
+        if (epoll_ctl(pfd, EPOLL_CTL_ADD, 0, &ev) < 0) {
+                perror("EPOLL_CTL_ADD stdin");
+                exit(1);
+        }
+        ev.events = EPOLLOUT | EPOLLET;
+        ev.data.u32 = 0xdeadbee1;
+        if (epoll_ctl(pfd, EPOLL_CTL_ADD, 1, &ev) < 0) {
+                perror("EPOLL_CTL_ADD stdout");
+                exit(1);
+        }
+}
 
-while it creates /tmp/xx file on older kernels.
-
-  Currently I suspect Trond's LOOKUP_CONTINUE change in 
-'[PATCH] Add open intent information to the 'struct nameidata', but I
-did not tried reverting it yet to find whether it is culprit or no. But
-other changes than these four from Trond looks completely innocent.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
-
-
+-Eric Varsanyi

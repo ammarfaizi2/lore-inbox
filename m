@@ -1,91 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269528AbUHZT5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUHZTxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269528AbUHZT5L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269454AbUHZTzZ
+	id S269516AbUHZTxe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269526AbUHZTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:55:25 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:50953 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269533AbUHZTw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:52:27 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "John Stoffel" <stoffel@lucent.com>, Jamie Lokier <jamie@shareable.org>
+	Thu, 26 Aug 2004 15:50:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36496 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269504AbUHZTrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:47:21 -0400
+Date: Thu, 26 Aug 2004 15:44:53 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
+       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
+       <wichert@wiggy.net>, <jra@samba.org>, <reiser@namesys.com>,
+       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-Date: Thu, 26 Aug 2004 22:51:55 +0300
-User-Agent: KMail/1.5.4
-Cc: Rik van Riel <riel@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-References: <20040826154446.GG5733@mail.shareable.org> <20040826165351.GM5733@mail.shareable.org> <16686.15061.549250.611694@gargle.gargle.HOWL>
-In-Reply-To: <16686.15061.549250.611694@gargle.gargle.HOWL>
+In-Reply-To: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.44.0408261543320.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408262251.55342.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 August 2004 22:32, John Stoffel wrote:
-> Jamie> Rik van Riel wrote:
-> >> And if an unaware application reads the compound file
-> >> and then writes it out again, does the filesystem
-> >> interpret the contents and create the other streams ?
->
-> Jamie> Yes, exactly that.  The streams are created on demand of
-> Jamie> course, and by userspace helpers when that's appropriate which
-> Jamie> I suspect it almost always is.
->
-> So how would a program that converts between a JPEG file (with exif
-> data) and a PNG work, such as ImageMagick?  Are we proposing to teach
-> the VFS (or worse yet each filesystem) how to do this?
->
-> I've been following this discussion a bit and I'm not sure that I've
-> actually seen any concrete examples of where this is a *good* thing to
-> have.  People talk about only having to modify 20 bytes at a time
-> instead of reading and writing 1mb of data.  Isn't that what mmap()
-> does?
->
-> Now I can sorta understand the idea that having a directory look like
-> a file is neat, and certainly simplifies some aspects, but I think
-> that going all the way down to the logical conclusion here is a bit
-> silly.
->
-> To use the principle of blowing things up to make them very large or
-> very small, what happens if I decide that the best idea is to make all
-> files just be directories which contain single byte files?  Isn't that
-> the logical extreme here?  So my 1mb JPEG file is not just some image
-> data and header info in multiple files, but it's really just 1
-> million (ok 1024 * 1024) individual files that the VFS knows how to
-> put together.  Seems like the logical extreme.  Oh wait, maybe we
-> should be exposing a single file per bit instead!
+On Thu, 26 Aug 2004, Linus Torvalds wrote:
 
-It is doable. It doesn't mean we shall do this.
+> So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
+> contains both a standard data stream (the "file" part) _and_ pointers to
+> other named streams (the "directory" part).
 
-I think some reiser4 supporters try to do too much too soon.
-It is more sensible to do it in small steps.
+OK, that makes sense.  
 
-I think we can start small and make all file metadata to be accessible
-via file/meta/{uid,gid,mode,mtime,atime,...}.
+> Hey, think of it as a wave-particle duality. Both "modes" exist at the
+> same time, and cannot be separated from each other. Which one you see
+> depends entirely on your "experiment", ie how you open the file.
 
-Normal tools will be unable to see file/meta/ because file is not
-a directory and file/ is not a directory (i.e. open(O_DIRECTORY)
-will fail on them). Hardlinking to file/meta/* is not allowed.
+Guess I'm scared again now.  We need to make sure that
+backup programs don't fall victim to the uncertainty
+principle ;)
 
-However, file/. _is_ a directory. We can make a tar-like
-tool which can do its work and save/restore metadata along with data
-by just tarring/untarring file/meta/*. Notice how this 'new tar'
-does not need to know about exact kind of metadata supported by fs.
-You can add ACLs to the fs, and this 'new tar' will be able to save/restore
-ACLs. Without any modufications.
-
-Contrast this with existing tar which has hardcoded knowlendge about
-uid,gid,mode,etc...
---
-vda
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

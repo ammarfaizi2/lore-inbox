@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318358AbSHPRIG>; Fri, 16 Aug 2002 13:08:06 -0400
+	id <S318608AbSHPRNk>; Fri, 16 Aug 2002 13:13:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318562AbSHPRIF>; Fri, 16 Aug 2002 13:08:05 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9628 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318358AbSHPRIF>;
-	Fri, 16 Aug 2002 13:08:05 -0400
-Date: Fri, 16 Aug 2002 19:12:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
-In-Reply-To: <20020816173013.A858@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0208161909050.17364-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318626AbSHPRNk>; Fri, 16 Aug 2002 13:13:40 -0400
+Received: from kraid.nerim.net ([62.4.16.95]:26131 "HELO kraid.nerim.net")
+	by vger.kernel.org with SMTP id <S318608AbSHPRNi>;
+	Fri, 16 Aug 2002 13:13:38 -0400
+Date: Fri, 16 Aug 2002 19:19:05 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andreas Tscharner <starfire@dplanet.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Bug in 2.4.19
+Message-Id: <20020816191905.5dbc3a44.khali@linux-fr.org>
+In-Reply-To: <20020816152315.19a44435.starfire@dplanet.ch>
+References: <20020816093847.4ae5544e.khali@linux-fr.org>
+	<20020816152315.19a44435.starfire@dplanet.ch>
+Organization: http://www.linux-fr.org/
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 16 Aug 2002, Jamie Lokier wrote:
-
-> There's no "lock-counter format", because this isn't a lock -- it's a
-> wakeup.  There no need for atomicity either, because the listener only
-> reads, it doesn't write.
-
-well, technically a 'wait until value is 0' thing is of course a counter
-format ...
-
-> Here's a synchronous thread_join-style waiter; it is architecture-neutral:
+> > Second question, are the Zip100-drive-related errors in dmesg
+> > something unusual and thus probably related to the problem?
+> > 
+> > > I/O error: dev 08:00, sector 0
+> > > unable to read partition table
 > 
-> 	while (tid = *tid_address) != 0)
-> 		retval = sys_futex (tid_address, FUTEX_WAIT, tid, 0);
+> No, they are "normal". The ppa driver complains about not having a
+> disk in my ZIP drive
 
-yes, this would work. And the current method of setting the counter to 0
-is arbitrary (and has a 'format') already, so there's no reason we couldnt
-say that the TID cannot be used as a thread-join futex that is zeroed out
-by CLONE_CLEARTID, and any (potential) waiters are woken up.
+Never had such messages with mine, and I wouldn't like them. I wonder
+which software/settings lead to this. "Normal" errors should be
+prevented in a clean manner, IMHO.
 
-i'll try this and send a patch, it's a nice optimization.
-
-	Ingo
-
+-- 
+Jean "Khali" Delvare
+http://www.ensicaen.ismra.fr/~delvare/

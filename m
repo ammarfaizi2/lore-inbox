@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbUCJIDo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbUCJIDn
+	id S262094AbUCJIVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 03:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUCJIVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:03:43 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:58888 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262525AbUCJIC0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:02:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Sasidhar Mukkmalla" <msreddy@guardiansolutions.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Oops and crashes
-Date: Wed, 10 Mar 2004 09:52:42 +0200
-X-Mailer: KMail [version 1.4]
-References: <006301c40619$1cbaa6c0$6a00a8c0@reddy>
-In-Reply-To: <006301c40619$1cbaa6c0$6a00a8c0@reddy>
+	Wed, 10 Mar 2004 03:21:23 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:31372 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262094AbUCJIVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 03:21:22 -0500
+Message-ID: <404ECFE5.7040005@matchmail.com>
+Date: Wed, 10 Mar 2004 00:20:53 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403100952.42522.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: VM patches in 2.6.4-rc1-mm2
+References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org>
+In-Reply-To: <20040303193025.68a16dc4.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 March 2004 22:57, Sasidhar Mukkmalla wrote:
-> Hi,
-> We have many servers running with Intel 2.4GHz processor on ATX MBD 845E
-> chipset. These machines have 512MB ram and two hard drives of 200GB. All
-> are raided at level 1.
->
-> Our systems crash often and these are the messages I got from logs from two
-> different instances of crashes. Both these logs are from the same machine.
-> Any help to fix these problems would be greatly appreciated. Thank you
+Andrew Morton wrote:
+> Mike Fedyk <mfedyk@matchmail.com> wrote:
+>>Most of the previous 2.6 kernels I was running on these servers would be 
+>>lightly hitting swap by now.  This definitely looks better to me.
+> 
+> 
+> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid of stuff,
+> freeing up physical memory.
 
-Kernel version? lsmod? lspci? .config?
+Andrew, it looks like you're right.  This[1] server doesn't seem to be 
+hitting swap enough.  But my other[2] file server is doing great with it 
+on the other hand (though, it hasn't swapped at all).
 
-> LOG 1
->
-> Feb 19 16:12:10 DVRS10-3 kernel: Unable to handle kernel paging request at
-> virtual address 2524
-> 1f1f
-> Feb 19 16:12:10 DVRS10-3 kernel:  printing eip:
-> Feb 19 16:12:10 DVRS10-3 kernel: c013a181
-> Feb 19 16:12:10 DVRS10-3 kernel: *pde = 00000000
-> Feb 19 16:12:10 DVRS10-3 kernel: Oops: 0002
-> Feb 19 16:12:10 DVRS10-3 kernel: softdog parport_pc lp parport
-> iptable_filter ip_tables autofs
-> bttv soundcore i2c-algo-bit i2c-core videodev e100 sg sr_mod microcode
-> ide-scsi scsi_mod ide-cd
+Maybe a little tuning is in order?
 
-Do you really need all these modules in _server_ ?
+Any patches I should try?
 
-> Feb 19 16:12:10 DVRS10-3 kernel: CPU:    0
-> Feb 19 16:12:10 DVRS10-3 kernel: EIP:    0060:[<c013a181>]    Tainted: GF
+Mike
 
-What taints your kernel?
---
-vda
+[1]
+http://www.matchmail.com/stats/lrrd/matchmail.com/srv-lnx2600.matchmail.com-memory.html
+
+[2]
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-memory.html

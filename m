@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264167AbUD0O7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264170AbUD0PCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264167AbUD0O7J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 10:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUD0O7J
+	id S264170AbUD0PCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 11:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUD0PCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 10:59:09 -0400
-Received: from smtp09.auna.com ([62.81.186.19]:65171 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S264162AbUD0O7F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 10:59:05 -0400
-In-Reply-To: <20040427142643.GA10553@merlin.emma.line.org>
-References: <200404261532.37860.dj@david-web.co.uk> <20040426161004.GE5430@merlin.emma.line.org> <20040427131941.GC10264@logos.cnet> <20040427142643.GA10553@merlin.emma.line.org>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6A88E87D-985B-11D8-AA97-000A9585C204@able.es>
-Content-Transfer-Encoding: 7bit
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	J.A.Magallon<jamagallon@able.es>
-				    ^-missing end of mailbox
-Subject: Re: Anyone got aic7xxx working with 2.4.26?
-Date: Tue, 27 Apr 2004 16:59:00 +0200
-From: <jamagallon@able.es>
-To: Matthias Andree <matthias.andree@gmx.de>
-X-Mailer: Apple Mail (2.613)
+	Tue, 27 Apr 2004 11:02:03 -0400
+Received: from gonzo.one-2-one.net ([217.115.142.69]:56741 "EHLO
+	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S264170AbUD0PB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 11:01:58 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Tue, 27 Apr 2004 17:01:44 +0200
+From: stefan.eletzhofer@eletztrick.de
+To: linux-kernel@vger.kernel.org
+Subject: i2c_get_client() missing?
+Message-ID: <20040427150144.GA2517@gonzo.local>
+Reply-To: stefan.eletzhofer@eletztrick.de
+Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: Eletztrick Computing
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I'm in the process of porting my Epson 8564 RTC chip from 2.4 to
+2.6.6-rc2. This is a RTC chip sitting on a I2C bus.
 
-On 27 abr 2004, at 16:26, Matthias Andree wrote:
+The code is here:
+http://213.239.196.168/~seletz/patches/2.6.6-rc2/i2c-rtc8564.patch
+http://213.239.196.168/~seletz/patches/2.6.6-rc2/machine-raalpha-rtc.patch
 
-> On Tue, 27 Apr 2004, Marcelo Tosatti wrote:
->
->> What is the compile error with 2.4-BK-current?
->
-> Well, it used to be one that went away after I typed:
->
-> cp .config /tmp
-> make distclean
-> bk -Ur get -S         # <- this checked out dozens of include files
-> mv /tmp/.config .
-> make oldconfig dep
-> make bzImage modules
->
-> The problem was:
->
-> (1) glibc-devel (SuSE Linux) installs includes into /usr/include/linux.
->     These are older includes (UTS_RELEASE 2.4.20, LINUX_VERSION_CODE
->     132116).
->
-> (2) BK had removed some of the include files in the course of a "bk 
-> pull"
->
-> (3) "make dep" and the kernel stuff picked up the stale includes from
->     /usr/include/linux instead of /space/BK/linux-2.4/include/...
->
+In order to split up functionality (I2C bus access and RTC misc device
+stuff) I wrote two separate modules. In the rtc code module I did a i2c_get_client()
+with the ID of my RTC chip to get a struct i2c_client which I think I need to
+talk to the chip. I've implemented the command callback in my I2C module, which
+I want to call from my RTC module.
 
--nostdinc should be mandatory ?
+Now I find that in 2.6.6-rc2 the i2c_get_client() implementation is missing (the prototype
+is still in linux/i2c.h). Even the docs for i2c_use_client() refer to that function.
 
---
-J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
-werewolf!able!es                       \    It's better when it's free
-MacOS X 10.3.3, Build 7F44, Darwin Kernel Version 7.3.0
+Most probably I'm missing something, but how is one supposed to access a i2c-client's
+command function when i2c_get_client() is missing?
 
+Of course I could just merge these two drivers and forget about separating i2c chip
+access and rtc stuff, but ...
+
+Thanks,
+	Stefan E.
+
+-- 
+Eletztrick Computing - Customized Linux Development
+Stefan Eletzhofer, Marktstrasse 43, DE-88214 Ravensburg
+http://www.eletztrick.de

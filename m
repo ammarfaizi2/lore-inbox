@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287960AbSABUxy>; Wed, 2 Jan 2002 15:53:54 -0500
+	id <S288256AbSACShV>; Thu, 3 Jan 2002 13:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286999AbSABUxr>; Wed, 2 Jan 2002 15:53:47 -0500
-Received: from [195.188.53.98] ([195.188.53.98]:518 "EHLO blueyonder.co.uk")
-	by vger.kernel.org with ESMTP id <S287969AbSABUxV>;
-	Wed, 2 Jan 2002 15:53:21 -0500
-Date: Mon, 24 Dec 2001 13:21:50 +0000
-From: Ian Molton <spyro@armlinux.org>
+	id <S287355AbSACShM>; Thu, 3 Jan 2002 13:37:12 -0500
+Received: from out1.bigplanet.com ([216.169.198.51]:27065 "EHLO
+	out1.bigplanet.com") by vger.kernel.org with ESMTP
+	id <S288279AbSACSg7>; Thu, 3 Jan 2002 13:36:59 -0500
+Date: Sun, 30 Dec 2001 07:39:10 -0500
+From: Andy Gaynor <silver@silver.unix-fu.org>
+Subject: losetuping files in tmpfs fails?
 To: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Message-Id: <20011224132150.776c05ca.spyro@armlinux.org>
-In-Reply-To: <20011222044742.A27630@vega.ipal.net>
-In-Reply-To: <E16H9C4-0005ST-00@sites.inka.de>
-	<Pine.GSO.4.30.0112221113120.2091-100000@balu>
-	<20011222044742.A27630@vega.ipal.net>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.6.6cvs1 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Message-id: <3C2F0AEE.ACABAAFA@silver.unix-fu.org>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a sunny Sat, 22 Dec 2001 04:47:43 -0600 Phil Howard gathered a sheaf of
-electrons and etched in their motions the following immortal words:
+Whilst trying to figure out why my dang stripes won't persist (a separate
+but worrisome issue), I wrote a dittie which creates a couple junk files in
+/tmp (tmpfs), associates loop devices with them, whoops, losetup craps out.
 
-> On Sat, Dec 22, 2001 at 11:24:17AM +0100, Pozsar Balazs wrote:
+  /home/root# losetup -d /dev/loop/5 2>/dev/null # Free /dev/loop/5
 
-> I can understand your point about not jumping into something that will
-> turn out (possibly) to be a big flop and cause new confusion.  However,
-> I'd like to point out that any new idea will _never_ become adopted if
-> everyone takes the position of "I'm not going to do it until most
-> everyone else does first".
+  /home/root# cd /home/root             # Go home
+  /home/root# mount | grep /home        # Filesystem is ...
+  /dev/md/8 on /home type reiserfs (rw) #   reiserfs
+  /home/root# echo foo > foo            # Create file foo
+  /home/root# losetup /dev/loop/5 foo   # Give foo to /dev/loop/5
+  /home/root# losetup -d /dev/loop/5    # Free /dev/loop/5
+  /home/root# rm foo                    # Remove foo
 
-I hope *everyone* takes just that position. MiB GiB. yeah, and I've got a
-miB right here. fractional bits. ha!
+  /home/root# cd /tmp                   # Go to /tmp
+  /tmp# mount | grep tmp                # Filesystem is ...
+  tmpfs on /tmp type tmpfs (rw)         #   tmpfs
+  /tmp# echo foo > foo                  # Create file foo
+  /tmp# losetup /dev/loop/5 foo         # Give foo to /dev/loop/5
+  ioctl: LOOP_SET_FD: Invalid argument  #   DISCO!!!                <o >  <o >
+  /tmp# rm foo                          # Remove foo
 
-fucking moronic is a phrase that springs to mind. probably something an
-accountant thought of whilst twiddling his/her thumbs staring at excel.
+    Version information:
+
+  Distribution: Debian Woody, up-to-date as of a week ago
+  Kernel: Linux 2.4.17
+
+    I don't subscribe to linux-kernel@vger.kernel.org.  If you want me to
+see a message, please mail it to me.  If my site is down, send to
+stupid_email_tricks@mailandnews.com.  And bonk my administrator with a
+wiffle bat.
+
+Regards, [Ag]   Andy Gaynor   silver@silver.unix-fu.org

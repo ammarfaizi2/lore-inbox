@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293478AbSBYToA>; Mon, 25 Feb 2002 14:44:00 -0500
+	id <S293472AbSBYTnk>; Mon, 25 Feb 2002 14:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293476AbSBYTn4>; Mon, 25 Feb 2002 14:43:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10501 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293474AbSBYTnl>;
-	Mon, 25 Feb 2002 14:43:41 -0500
-Message-ID: <3C7A939D.FCAE9096@zip.com.au>
-Date: Mon, 25 Feb 2002 11:42:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Lord <lord@sgi.com>
-CC: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-In-Reply-To: <1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel> <3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel> <3C77F503.1060005@sgi.com.suse.lists.linux.kernel> <p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au> <3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au> <3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au> <3C7A35FF.5040508@sgi.com> <20020225131218.GO11837@suse.de> <3C7A398A.1060300@sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293474AbSBYTnb>; Mon, 25 Feb 2002 14:43:31 -0500
+Received: from 25-VALL-X12.libre.retevision.es ([62.83.208.153]:30480 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S293472AbSBYTnY>; Mon, 25 Feb 2002 14:43:24 -0500
+Date: Mon, 25 Feb 2002 20:42:38 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: linux-kernel@vger.kernel.org
+Cc: Vincent Bernat <bernat@free.fr>
+Subject: Re: static arp table doesn't size up ?
+Message-ID: <20020225204238.A10218@ragnar-hojland.com>
+In-Reply-To: <m34rk5suyk.fsf@neo.loria>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m34rk5suyk.fsf@neo.loria>; from bernat@free.fr on Mon, Feb 25, 2002 at 11:43:15AM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Lord wrote:
+On Mon, Feb 25, 2002 at 11:43:15AM +0100, Vincent Bernat wrote:
+> Hi !
 > 
-> Yep, bio just made it easier to get larger requests.
+> We have a 2.4.16 generic kernel and we run into troubles with arp. We
+> have an ethernet segment of 600+ machines. On one of these machines, I
+> have set up a static arp table by entering every mac-ip couple.
 > 
+> For several days, I have left the ARP learning (ifconfig eth0 arp) and
+> there was no problem. Every 5 minutes, I have checked if there was
+> learned address in the arp cache : there was none, so it didn't learn
+> any new address.
+> 
+> Today, I have switch to a real static arp table (with ifconfig eth0
+> -arp). Randomly, some machines were then unable to ping the
+> host.
+> 
+> After a "ifconfig eth0 arp ; ifconfig eth0 -arp", this some other
+> machine which were unable to ping the host where the first machines
+> are able to do it again. arp table is correct but randomly, some
+> machines are unable to get their echo reply, even if its entry is in
+> the arp table.
+> 
+> Are there known issues about large arp tables ?
 
-Which promptly go kersplat when you feed them into
-submit_bio():
+You may want to try to increment the thresholds for garbage collection in
+net/ipv4/arp.c or play with the userland arpd in case the kernel is having
+problem allocating as many ARP entries as you are using.
 
-     BUG_ON(bio_sectors(bio) > q->max_sectors);
-
-Given that I'm hand-rolling a monster bio, I need to know
-when to wrap it up and send it off, to avoid creating a bio
-which is larger than the target device will accept.  I'm currently
-using the below patch.   Am I right that this is missing API
-functionality, or did I miss something?
-
-Also, I could not find a way of querying the size of the vector
-at *bi_io_vec.  This is also information which would be helpful
-when building large scatter/gather lists.
-
-
-
---- 2.5.5/drivers/block/ll_rw_blk.c~mpio-10-biobits	Mon Feb 25 00:28:21 2002
-+++ 2.5.5-akpm/drivers/block/ll_rw_blk.c	Mon Feb 25 00:28:21 2002
-@@ -1350,6 +1350,28 @@ static void end_bio_bh_io_sync(struct bi
- }
- 
- /**
-+ * bio_max_bytes: return the maximum number of bytes which can be
-+ * placed in a single bio for a particular device.
-+ *
-+ * @dev: the device's kdev_t
-+ *
-+ * Each device has a maximum permissible queue size, and bios may
-+ * not cover more data than that.
-+ *
-+ * Returns -ve on error.
-+ */
-+int bio_max_bytes(kdev_t dev)
-+{
-+	request_queue_t *q;
-+	int ret = -1;
-+
-+	q = blk_get_queue(dev);
-+	if (q)
-+		ret = (q->max_sectors << 9);
-+	return ret;
-+}
-+
-+/**
-  * submit_bio: submit a bio to the block device layer for I/O
-  * @rw: whether to %READ or %WRITE, or maybe to %READA (read ahead)
-  * @bio: The &struct bio which describes the I/O
---- 2.5.5/include/linux/bio.h~mpio-10-biobits	Mon Feb 25 00:28:21 2002
-+++ 2.5.5-akpm/include/linux/bio.h	Mon Feb 25 00:28:21 2002
-@@ -204,5 +204,6 @@ extern struct bio *bio_copy(struct bio *
- extern inline void bio_init(struct bio *);
- 
- extern int bio_ioctl(kdev_t, unsigned int, unsigned long);
-+extern int bio_max_bytes(kdev_t dev);
- 
- #endif /* __LINUX_BIO_H */
-
-
--
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."      [20 pend. Mar 10]

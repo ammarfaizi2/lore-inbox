@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262813AbREVUx1>; Tue, 22 May 2001 16:53:27 -0400
+	id <S262814AbREVU4H>; Tue, 22 May 2001 16:56:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262814AbREVUxR>; Tue, 22 May 2001 16:53:17 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:2412 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262813AbREVUxL>; Tue, 22 May 2001 16:53:11 -0400
-Date: Tue, 22 May 2001 22:52:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-Message-ID: <20010522225231.K15155@athlon.random>
-In-Reply-To: <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522170016.D15155@athlon.random> <20010522132815.A4573@twiddle.net> <3B0ACEB1.F3806F00@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B0ACEB1.F3806F00@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 22, 2001 at 04:40:17PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S262815AbREVUz5>; Tue, 22 May 2001 16:55:57 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:46249 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262814AbREVUzk>;
+	Tue, 22 May 2001 16:55:40 -0400
+Date: Tue, 22 May 2001 22:54:49 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105222054.WAA79836.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
+Subject: Re: [PATCH] struct char_device
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 04:40:17PM -0400, Jeff Garzik wrote:
-> ISA cards can do sg?
+> They are entirely different. Too different sets of operations.
 
-The fact it's sg or single physically consecutive since the first place
-doesn't matter.  The only point here is that from whatever physically
-aligned piece of ram right now you will get a misaligned virtual pci
-address.
+Maybe you didnt understand what I meant.
+both bdev and cdev take care of the correspondence
+device number <---> struct with operations.
 
-Andrea
+The operations are different, but all bdev/cdev code is identical.
+
+So the choice is between two uglies:
+(i) have some not entirely trivial amount of code twice in the kernel
+(ii) have a union at the point where the struct operations
+is assigned.
+
+I preferred the union.
+
+>> And a second remark: don't forget that presently the point where
+>> bdev is introduced is not quite right. We must only introduce it
+>> when we really have a device, not when there only is a device
+>> number (like on a mknod call).
+
+> That's simply wrong. kdev_t is used for unopened objects quite often.
+
+Yes, but that was my design mistake in 1995.
+I think you'll find if you continue on this way,
+as I found and already wrote in kdev_t.h
+that it is bad to carry pointers around for unopened and unknown devices.
+
+So, I think that the setup must be changed a tiny little bit
+and distinguish meaningless numbers from devices.
+
+Andries

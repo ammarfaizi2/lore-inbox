@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287841AbSBRVlE>; Mon, 18 Feb 2002 16:41:04 -0500
+	id <S287862AbSBRVmA>; Mon, 18 Feb 2002 16:42:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSBRVky>; Mon, 18 Feb 2002 16:40:54 -0500
-Received: from 162-39.84.64.covalent.net ([64.84.39.162]:44718 "EHLO
-	doom.sfo.covalent.net") by vger.kernel.org with ESMTP
-	id <S287841AbSBRVkp>; Mon, 18 Feb 2002 16:40:45 -0500
-Date: Mon, 18 Feb 2002 13:40:41 -0800
-From: john <john@zlilo.com>
-To: linux-kernel@vger.kernel.org
-Subject: kupdated using all CPU
-Message-ID: <20020218134041.A2586@doom.sfo.covalent.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Linux: http://zlilo.com/
+	id <S287908AbSBRVlp>; Mon, 18 Feb 2002 16:41:45 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:7940 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S287874AbSBRVl1>; Mon, 18 Feb 2002 16:41:27 -0500
+Date: Mon, 18 Feb 2002 22:41:17 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Tom Holroyd <tomh@po.crl.go.jp>
+cc: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+In-Reply-To: <Pine.LNX.4.44.0202181705080.26361-100000@holly.crl.go.jp>
+Message-ID: <Pine.LNX.4.33.0202182238420.10144-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-ive searched all over and found many references to this problem, but never found an actual solution.
-the problem is that during heavy disk I/O, kupdated will periodically take up ALL the cpu.  like the mouse will stop responding, nothing moves.  the system is frozen until its done doing whatever its doing.
-the problem is mostly evident on large file transfers or doing something like copying a large file or untarring a large tarball, etc.
-i am running 2.4.17 on an IBM R30 thinkpad.  problem occurs on 2.4.16 also.
+On Mon, 18 Feb 2002, Tom Holroyd wrote:
 
-so is there already an answer about this that i just cant find?
-any help appreciated, thanks.
--j
+> After about 50 days of uptime on 2.4.17 on an Alpha, I started getting
+> this message from ps, et al.  The adjtimex program says:
+[...]
+> 50 days is about 4320000000 clock ticks (normally 1024 Hz) which is
+> suspiciously close to 2^32.  Perhaps something is rolling over?
+
+I guess this is a userspace problem, where the tools just use a 32 bit 
+value somewhere.
+To make sure, can you post /proc/uptime and /proc/stat output? Also, is 
+this uniprocessor or SMP?
+
+Tim
+

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264963AbTLWGyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 01:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbTLWGyt
+	id S264966AbTLWHMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 02:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbTLWHMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 01:54:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45710 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264963AbTLWGyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 01:54:47 -0500
-Date: Mon, 22 Dec 2003 22:54:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bernardo Innocenti <bernie@develer.com>
-Cc: mtd@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix static build of drivers/mtd/chips/jedec_probe.c
-Message-Id: <20031222225442.764d8d0e.akpm@osdl.org>
-In-Reply-To: <3FE7D92A.1090205@develer.com>
-References: <3FE7D92A.1090205@develer.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 Dec 2003 02:12:09 -0500
+Received: from [203.81.192.10] ([203.81.192.10]:50881 "EHLO
+	ns3.worldcall.net.pk") by vger.kernel.org with ESMTP
+	id S264966AbTLWHMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 02:12:06 -0500
+Message-ID: <008601c3c924$13555170$23c051cb@ns3.worldcall.net.pk>
+From: "Muhammad Talha" <talha@worldcall.net.pk>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel 2.6.0 compilation help
+Date: Tue, 23 Dec 2003 12:12:02 +0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernardo Innocenti <bernie@develer.com> wrote:
->
-> Hello,
-> 
-> one liner fix for building jedec_probe statically in m68knommu and possibly other archs.
-> 
-> Applies to 2.6.0.
-> 
-> 
-> --- drivers/mtd/chips/jedec_probe.c	2003-12-23 06:50:51.842514068 +0100
-> +++ drivers/mtd/chips/jedec_probe.c.orig	2003-12-23 06:51:15.512685112 +0100
-> @@ -8,7 +8,6 @@
->  
->  #include <linux/config.h>
->  #include <linux/module.h>
-> -#include <linux/init.h>
->  #include <linux/types.h>
->  #include <linux/kernel.h>
->  #include <asm/io.h>
-> 
+Dear all
 
-Inclusion of init.h shouldn't break anything.   What is the error?
+i have Red Hat 9 i am trying to install kernel 2.6.0 . kernel seems to
+compiled ok but does not boot
+give following error at boot all drive are detected before boot.
+
+module-init-tools 0.9.9 installed
+ext3 filesystem support was build in the kernel
+aslo /dev file system support buildin
+my root parttion is /dev/sda1 ( ext3)
+my .config
+
+http://mail.magic.net.pk/kernel/.config
+
+
+Error Message ##
+
+VFS: Cannot open root device "sda1" or unknown-block(0,0)
+Please append a correct "root="boot option
+Kernel Panic : VFS Uanble to mount root fs on unknown-block(0,0)
+
+i have following Hardware
+
+Intel Entry level Server motherboard
+Pentitum III 1266 MHz processor
+2 GB RAM
+3 SCSI hard drive
+no ide drive
+
+i have tried many time with different option but with no luck
+
+Thanks waiting for your reply
+
+Talha
 

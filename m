@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270585AbRIFMqq>; Thu, 6 Sep 2001 08:46:46 -0400
+	id <S270619AbRIFMrG>; Thu, 6 Sep 2001 08:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270523AbRIFMqh>; Thu, 6 Sep 2001 08:46:37 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35936 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S270585AbRIFMqS>; Thu, 6 Sep 2001 08:46:18 -0400
-Date: Thu, 6 Sep 2001 07:46:37 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200109061246.HAA61789@tomcat.admin.navo.hpc.mil>
-To: kubla@sciobyte.de, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Subject: Re: [OFFTOPIC] Secure network fileserving Linux <-> Linux
-Cc: joe@mathewson.co.uk, linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S270523AbRIFMq4>; Thu, 6 Sep 2001 08:46:56 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:1037 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S270619AbRIFMqs>; Thu, 6 Sep 2001 08:46:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 14:53:58 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0109060930580.31200-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109060930580.31200-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906124700Z16067-32383+3773@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Kubla <kubla@sciobyte.de>:
-On Wed, Sep 05, 2001 at 05:12:48PM -0500, Jesse Pollard wrote:
+On September 6, 2001 02:32 pm, Rik van Riel wrote:
+> > > Lets face it, spinning the washing machine is expensive
+> > > and running less than a full load makes things inefficient ;)
+> >
+> > That makes a good sound bite but doesn't stand up to scrutiny.
+> > It's not a washing machine ;-)
 > 
-> Kerberos won't help either - The only parts of NFS that were kerberized
-> was the initial mount. Everything else uses filehandles/UDP. Encryption
-> doesn't help either - slows the entire network down too much.
+> Two words:  "IO clustering".
 
-I disagree! First of all you can always use NFS over TCP, so much for
-"every thing else uses filehandles/UDP". (No that this improves security,
-but it can improve reliability!)
+Yes, *after* the IO queue is fully loaded that makes sense.  Leaving it 
+partly or fully idle while waiting for it to load up makes no sense at all.
 
-Yes - but it won't work in the environment. As you pointed out, it works
-under Solaris. No MACs, No Linux, and no MS windows (which would likely be
-present in a lab).
+IO clustering will happen naturally after the queue loads up.
 
-Second, without physical security you can't protect the access keys - hence
-no kerberos.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+--
+Daniel

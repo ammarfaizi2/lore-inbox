@@ -1,63 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVAMADR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVAMACS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVAMADR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 19:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVAMADJ
+	id S261370AbVAMACS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 19:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVALX7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 19:03:09 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:46247 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261326AbVAMAAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 19:00:32 -0500
-Message-ID: <032a01c4f902$e1b8ec20$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: "Ian Molton" <spyro@f2s.com>, "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com>
-Subject: Re: MMC Driver RFC
-Date: Wed, 12 Jan 2005 23:58:31 -0000
+	Wed, 12 Jan 2005 18:59:20 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:21923 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261600AbVALX5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 18:57:20 -0500
+Date: Thu, 13 Jan 2005 00:57:16 +0100 (CET)
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.2.27-rc2
+Message-ID: <010501130042170.1701@vobbx.ybpny>
+Organization: Linux-Systeme GmbH
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Molton:
->> That depends whether the hardware already provides 0.5s of debounce
->> already.  Some people do, some people don't.  This is why it needs to
->> be left to the implementation and not a core issue.
->
-> Agreed. IIRC my toshiba PDAs *dont* provide a delay. OTOH they also 
-> provide *two* ways of detecting card presence...
+Hi all,
 
-I hadn't realised some devices had hardware debounce and now agree its not a 
-core problem.
+here goes 2nd release candidate of v2.2.27. It contains security fixes 
+including todays discovered SMP pagefault race, amongst others.
 
-> ISTR seeing a SD card doc at some point
 
-The one I'm aware of is 
-http://www.sdcard.org/sdio/Simplified%20Physical%20Layer%20Specification.PDF 
-.
+2.2.27-rc2
+----------
+o	CAN-2005-0001: fixed expand_stack() SMP race		(Redhat)
+o	CAN-2004-0883, CAN-2004-0949: smbfs: fixed client	(Stefan Esser)
+ 	  overflow. There are two bugs in the handling of SMB
+ 	  responses that result in remote kernel overflows. Due
+ 	  to the nature of the bugs both seem to be very hard
+ 	  to exploit (in the sense of remote code execution or
+ 	  local privilege escalation) but are trivial remote
+ 	  kernel crashes.
+o	rose_rt_ioctl: lack of bounds checking			(Coverity)
+o	sdla_xfer: lack of bounds checking			(Coverity)
+o	coda: bounds checking for tainted scalars		(Coverity)
+o	sendmsg compat wrapper fixes for 64bit compat mode	(Olaf Kirch)
 
-> Well I *know* I never saw the specs from the SD forum. I hacve never 
-> reverse engineered a SDHC core driver either (I have reverse engineered a 
-> chip driver but it contained no SD *protocol* information.
->
-> as such my code should be 100% safe to commit to the kernel.
 
-Having read things and talked to people (both before and since my posts on 
-LKML), that is my conclusion as well.
 
-> PS. Richard - I am here - hope you receive this!
+2.2.27-rc1
+----------
+o	CAN-2004-0497: fixed missing DAC check on sys_chown	(Thomas Biege)
+o	CAN-2004-1016: fixed a buffer overflow vulnerability	(Paul Starzetz)
+ 	  in the "__scm_send" function which handles the sending
+ 	  of UDP network packets. A wrong validity check of the
+ 	  cmsghdr structure allowed a local attacker to modify
+ 	  kernel memory, thus causing an endless loop (DoS) or
+ 	  possibly even root privilege escalation.
+o	CAN-2004-1333: fixed integer overflow in the vc_resize	(Georgi Guninski)
+ 	  function allows local users to cause a denial of
+ 	  service (kernel crash) via a short new screen value,
+ 	  which leads to a buffer overflow. Make sure VC
+ 	  resizing fits in s16.
+o	If the user makes ip_cmsg_send call ip_options_get	(Georgi Guninski)
+ 	  multiple times, we leak kmalloced IP options data.
+o	fixed moxa serial bound checking issue			(Alan Cox)
+o	menu cleanups						(me)
 
-I did. Have my mails to you been getting through?
 
-Richard 
+
+2.2.27-pre2
+-----------
+o	A more correct fix to last mremap (2) bug		(Dan Yefimov/Solar Designer)
+o	renamed imho *bogus* _vsnprintf to vsnprintf		(me)
+o	fixed 'noexec' behaviour (2.4 backport)			(me)
+ 	  from Ulrich Drepper
+
+
+2.2.27-pre1
+-----------
+o	fixed TCP keepalive bug					(Neal Cardwell)
+o       fixed tcp seq nr wrapping bug				(Ulrik De Bie)
+o	added cciss root translation table			(Eduard Bloch)
+o	VIA KL133/KM133 northbridge: vga console going crazy	(Roberto Biancardi)
+o	speedup 'make dep'					(Benoit Poulot-Cazajous)
+o	disabled MCE only on Pentiums by default (2.4 backport)	(Herbert Xu)
+ 	  (boot with 'mce' if your MCE works as expected)
+o	skb_realloc_headroom() panics when new headroom is	(James Morris)
+ 	  smaller than existing headroom
+o	invalid nh.raw use after free				(Julian Anastasov)
+o	fix a local APIC initaliziation ordering bug that	(Andrea Arcangeli)
+ 	  triggers on the P4
+o	TSC calibration must be dynamic and not a compile	(Andrea Arcangeli)
+ 	  time thing because gettimeofday is dynamic and it
+ 	  depends on the TSCs to be in sync
+o	fix deadlock on shutdown in 8139too			(Herbert Xu)
+o	support for ELF executables which use an a.out format	(Solar Designer)
+ 	  interpreter (dynamic linker) moved into a separate
+ 	  configuration option and disabled by default
+o	fixed sys_utimes perm check according to sys_utim	(Al Viro)
+o	show us the saved kernel command line (2.4 backport)	(me)
+o	some whitespace cleanups, some coding style cleanups	(me)
+o	fixed some gcc warnings					(me)
+o	add PCI ID for 82820 NIC to eepro100 network driver	(me)
+o	move 'Network device support' near 'Networking options'	(me)
 

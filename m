@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVAMBw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVALUZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVAMBw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVAMBwF
+	id S261423AbVALUZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVALUYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:52:05 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5156
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261456AbVALVUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:20:19 -0500
-Date: Wed, 12 Jan 2005 22:20:31 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112212031.GE26799@dualathlon.random>
-References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112122711.S24171@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112122711.S24171@build.pdx.osdl.net>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Wed, 12 Jan 2005 15:24:53 -0500
+Received: from alog0297.analogic.com ([208.224.222.73]:15488 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261397AbVALURK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 15:17:10 -0500
+Date: Wed, 12 Jan 2005 15:16:48 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Question regarding ERR in /proc/interrupts.
+In-Reply-To: <Pine.LNX.4.61.0501121410360.11524@p500>
+Message-ID: <Pine.LNX.4.61.0501121454510.11899@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501121410360.11524@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:27:11PM -0800, Chris Wright wrote:
-> The two goals: 1) timely response, fix, dislosure; and 2) not leaving
-> vendors with pants down; don't have to be mutually exclusive.
+On Wed, 12 Jan 2005, Justin Piszcz wrote:
 
-All vendors are normally ready way before the end of the embargo.
-I would suggest the slowest of all vendors will enforce the date (i.e.
-all vendors propose a date, and the longest one will be choosen like a
-reverse auction, the worst offer wins), with a maximum delay of 1 month
-(or whatever else). To guarantee everyone will go as fast as possible
-the date proposed by every different vendor can be published in the
-final report. Just keeping in mind that the more archs involved, the
-more kernels have to be built and the slower will be a vendor. So a
-difference of a few days just to build and test everything is very
-reasonable and not significant, but this will avoid differences of
->1week and it'll avoid the unnecessary delays when everybody is ready to
-publish but nobody can (which personally is the only thing that would
-annoy me if I were a customer). This will also raise the attention and
-it'll increase the stress to get things done ASAP since there'll be a
-reward.  Nothing gets done if there's no reward.
+> Is there anyway to log each ERR to a file or way to find out what caused each 
+> ERR?
+>
+> For example, I know this is the cause of a few of them:
+> spurious 8259A interrupt: IRQ7.
+>
+> But not all 20, is there any available option to do this?
+>
+> $ cat /proc/interrupts
+>           CPU0
+>  0:  887759057          XT-PIC  timer
+>  1:       3138          XT-PIC  i8042
+>  2:          0          XT-PIC  cascade
+>  5:       5811          XT-PIC  Crystal audio controller
+>  9:  265081861          XT-PIC  ide4, eth1, eth2
+> 10:    9087912          XT-PIC  ide6, ide7
+> 11:     837707          XT-PIC  ide2, ide3
+> 12:      13854          XT-PIC  i8042
+> 14:   63373075          XT-PIC  eth0
+> NMI:          0
+> ERR:         20
+>
+
+I'm not sure you really want to do that! The ERR value is a
+spurious interrupt total. You will never learn where
+it comes from because it comes from nowhere, which is
+why it is called "spurious". Spurious interrupts are
+really caused by the CPU, not a particular interrupt
+controller. When the INT line is raised, the hardware
+is supposed to put an address on the bus so the CPU can
+branch to the handler (via some indirection). The
+INT pin to the CPU is supposed to be manipulated
+by a controller, either the PIC or IO-APIC.
+
+Suppose the controller didn't raise an interrupt, but
+the CPU thought it did. In that case, when the CPU signals
+the controller to output the vector, the controller says;
+"Dohhh... WTF. It's not me...". But the CPU needs some
+address to complete the cycle so the controller puts its
+last, lowest priority, vector on the bus to complete the
+cycle. The CPU branches to the code and the code checks
+for a possible printer interrupt (IRQ7). If the printer
+didn't signal, it used to write a nasty-gram to the log
+before acknowledging the interrupt. Recent kernels only
+write such once. However, the number of such instances
+are totaled for your review. If you have a lot of them,
+it generally means you have:
+
+(1) Too much crosstalk on the motherboard.
+(2) Power supplies out of specification.
+(3) Too hot so timing gets skewed.
+(4) Etc.
+
+It's NEVER the interrupt controller! NEVER. The Spurious
+interrupt proves that the controller did its job by completing
+the hardware handshake with the CPU. Don't kill the messenger.
+It's just doing its job!
+
+FYI 20 spurious interrupts out of the bazzillion shown isn't
+too bad. It shows that your hardware isn't perfect.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

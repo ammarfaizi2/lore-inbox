@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267420AbSLEU64>; Thu, 5 Dec 2002 15:58:56 -0500
+	id <S267424AbSLEU65>; Thu, 5 Dec 2002 15:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267424AbSLEU5p>; Thu, 5 Dec 2002 15:57:45 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:15876 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267420AbSLEU5D>;
-	Thu, 5 Dec 2002 15:57:03 -0500
-Date: Wed, 4 Dec 2002 13:59:54 +0100
+	id <S267437AbSLEU5g>; Thu, 5 Dec 2002 15:57:36 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:16644 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267424AbSLEU5H>;
+	Thu, 5 Dec 2002 15:57:07 -0500
+Date: Wed, 4 Dec 2002 14:08:07 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp & acpi_sleep: configuration issues
-Message-ID: <20021204125954.GA8199@elf.ucw.cz>
+Subject: s3 sleep: make it work when kernel is big
+Message-ID: <20021204130807.GA8245@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,108 +21,138 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This moves CONFIG_SOFTWARE_SUSPEND where it belongs, and makes
-ACPI_SLEEP depend on it to prevent compile problems. Please apply,
+When kernel becomes too big, table allocated in acpi.c is no longer
+big enough and machine crashes during acpi_wakeup.S... This fixes
+it and adds safety check for acpi_wakeup's code size. Please apply,
 
-							Pavel
+								Pavel
 
---- clean/arch/i386/Kconfig	2002-11-29 21:16:30.000000000 +0100
-+++ linux-swsusp/arch/i386/Kconfig	2002-11-29 21:29:34.000000000 +0100
-@@ -789,8 +789,6 @@
+
+--- clean/arch/i386/kernel/acpi.c	2002-09-22 23:46:52.000000000 +0200
++++ linux-swsusp/arch/i386/kernel/acpi.c	2002-11-24 20:29:33.000000000 +0100
+@@ -446,72 +446,19 @@
  
- menu "Power management options (ACPI, APM)"
+ #ifdef CONFIG_ACPI_SLEEP
  
--source "drivers/acpi/Kconfig"
+-#define DEBUG
 -
- config PM
- 	bool "Power Management support"
- 	---help---
-@@ -811,6 +809,37 @@
- 	  will issue the hlt instruction if nothing is to be done, thereby
- 	  sending the processor to sleep and saving power.
+-#ifdef DEBUG
+-#include <linux/serial.h>
+-#endif
+-
+ /* address in low memory of the wakeup routine. */
+ unsigned long acpi_wakeup_address = 0;
  
-+config SOFTWARE_SUSPEND
-+	bool "Software Suspend (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL && PM
-+	---help---
-+	  Enable the possibilty of suspendig machine. It doesn't need APM.
-+	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
-+	  (patch for sysvinit needed). 
-+
-+	  It creates an image which is saved in your active swaps. By the next
-+	  booting the, pass 'resume=/path/to/your/swap/file' and kernel will 
-+	  detect the saved image, restore the memory from
-+	  it and then it continues to run as before you've suspended.
-+	  If you don't want the previous state to continue use the 'noresume'
-+	  kernel option. However note that your partitions will be fsck'd and
-+	  you must re-mkswap your swap partitions/files.
-+
-+	  Right now you may boot without resuming and then later resume but
-+	  in meantime you cannot use those swap partitions/files which were
-+	  involved in suspending. Also in this case there is a risk that buffers
-+	  on disk won't match with saved ones.
-+
-+	  SMP is supported ``as-is''. There's a code for it but doesn't work.
-+	  There have been problems reported relating SCSI.
-+
-+	  This option is about getting stable. However there is still some
-+	  absence of features.
-+
-+	  For more information take a look at Documentation/swsusp.txt.
-+
-+source "drivers/acpi/Kconfig"
-+
- config APM
- 	tristate "Advanced Power Management BIOS support"
- 	depends on PM
-@@ -1516,35 +1545,6 @@
+-/* new page directory that we will be using */
+-static pmd_t *pmd;
+-
+-/* saved page directory */
+-static pmd_t saved_pmd;
+-
+-/* page which we'll use for the new page directory */
+-static pte_t *ptep;
+-
+ extern unsigned long FASTCALL(acpi_copy_wakeup_routine(unsigned long));
  
- menu "Kernel hacking"
+-/*
+- * acpi_create_identity_pmd
+- *
+- * Create a new, identity mapped pmd.
+- *
+- * Do this by creating new page directory, and marking all the pages as R/W
+- * Then set it as the new Page Middle Directory.
+- * And, of course, flush the TLB so it takes effect.
+- *
+- * We save the address of the old one, for later restoration.
+- */
+-static void acpi_create_identity_pmd (void)
++static void init_low_mapping(pgd_t *pgd, int pgd_ofs, int pgd_limit)
+ {
+-	pgd_t *pgd;
+-	int i;
+-
+-	ptep = (pte_t*)__get_free_page(GFP_KERNEL);
++	int pgd_ofs = 0;
  
--config SOFTWARE_SUSPEND
--	bool "Software Suspend (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && PM
--	---help---
--	  Enable the possibilty of suspendig machine. It doesn't need APM.
--	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
--	  (patch for sysvinit needed). 
+-	/* fill page with low mapping */
+-	for (i = 0; i < PTRS_PER_PTE; i++)
+-		set_pte(ptep + i, pfn_pte(i, PAGE_SHARED));
 -
--	  It creates an image which is saved in your active swaps. By the next
--	  booting the, pass 'resume=/path/to/your/swap/file' and kernel will 
--	  detect the saved image, restore the memory from
--	  it and then it continues to run as before you've suspended.
--	  If you don't want the previous state to continue use the 'noresume'
--	  kernel option. However note that your partitions will be fsck'd and
--	  you must re-mkswap your swap partitions/files.
+-	pgd = pgd_offset(current->active_mm, 0);
+-	pmd = pmd_alloc(current->mm,pgd, 0);
 -
--	  Right now you may boot without resuming and then later resume but
--	  in meantime you cannot use those swap partitions/files which were
--	  involved in suspending. Also in this case there is a risk that buffers
--	  on disk won't match with saved ones.
+-	/* save the old pmd */
+-	saved_pmd = *pmd;
 -
--	  SMP is supported ``as-is''. There's a code for it but doesn't work.
--	  There have been problems reported relating SCSI.
+-	/* set the new one */
+-	set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(ptep)));
 -
--	  This option is about getting stable. However there is still some
--	  absence of features.
+-	/* flush the TLB */
+-	local_flush_tlb();
+-}
 -
--	  For more information take a look at Documentation/swsusp.txt.
--
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
- 	help
---- clean/drivers/acpi/Kconfig	2002-11-01 00:37:09.000000000 +0100
-+++ linux-swsusp/drivers/acpi/Kconfig	2002-11-23 21:16:32.000000000 +0100
-@@ -58,8 +58,7 @@
+-/*
+- * acpi_restore_pmd
+- *
+- * Restore the old pmd saved by acpi_create_identity_pmd and
+- * free the page that said function alloc'd
+- */
+-static void acpi_restore_pmd (void)
+-{
+-	set_pmd(pmd, saved_pmd);
+-	local_flush_tlb();
+-	free_page((unsigned long)ptep);
++	while ((pgd_ofs < pgd_limit) && (pgd_ofs + USER_PTRS_PER_PGD < PTRS_PER_PGD)) {
++		set_pgd(pgd, *(pgd+USER_PTRS_PER_PGD));
++		pgd_ofs++, pgd++;
++	}
+ }
  
- config ACPI_SLEEP
- 	bool "Sleep States"
--	depends on X86 && ACPI && !ACPI_HT_ONLY
--	default SOFTWARE_SUSPEND
-+	depends on X86 && ACPI && !ACPI_HT_ONLY && SOFTWARE_SUSPEND
- 	---help---
- 	  This option adds support for ACPI suspend states. 
+ /**
+@@ -522,7 +469,11 @@
+  */
+ int acpi_save_state_mem (void)
+ {
+-	acpi_create_identity_pmd();
++#if CONFIG_X86_PAE
++	panic("S3 and PAE do not like each other for now.");
++	return 1;
++#endif
++	init_low_mapping(swapper_pg_dir, 0, USER_PTRS_PER_PGD);
+ 	acpi_copy_wakeup_routine(acpi_wakeup_address);
  
+ 	return 0;
+@@ -542,7 +493,7 @@
+  */
+ void acpi_restore_state_mem (void)
+ {
+-	acpi_restore_pmd();
++	zap_low_mappings();
+ }
+ 
+ /**
+@@ -555,7 +506,10 @@
+  */
+ void __init acpi_reserve_bootmem(void)
+ {
++	extern char wakeup_start, wakeup_end;
+ 	acpi_wakeup_address = (unsigned long)alloc_bootmem_low(PAGE_SIZE);
++	if ((&wakeup_end - &wakeup_start) > PAGE_SIZE)
++		printk(KERN_CRIT "ACPI: Wakeup code way too big, will crash on attempt to suspend\n");
+ 	printk(KERN_DEBUG "ACPI: have wakeup address 0x%8.8lx\n", acpi_wakeup_address);
+ }
+ 
+--- clean/arch/i386/mm/init.c	2002-11-19 16:45:26.000000000 +0100
++++ linux-swsusp/arch/i386/mm/init.c	2002-11-24 20:18:22.000000000 +0100
+@@ -299,7 +299,7 @@
+ #endif
+ }
+ 
+-void __init zap_low_mappings (void)
++void zap_low_mappings (void)
+ {
+ 	int i;
+ 	/*
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

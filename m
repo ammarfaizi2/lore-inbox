@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266162AbRGDTxx>; Wed, 4 Jul 2001 15:53:53 -0400
+	id <S266169AbRGDUCr>; Wed, 4 Jul 2001 16:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266159AbRGDTxo>; Wed, 4 Jul 2001 15:53:44 -0400
-Received: from rail.cita.utoronto.ca ([128.100.76.4]:41934 "EHLO
-	rail.cita.utoronto.ca") by vger.kernel.org with ESMTP
-	id <S266163AbRGDTxa>; Wed, 4 Jul 2001 15:53:30 -0400
-Message-ID: <3B437436.11DB6D9A@cita.utoronto.ca>
-Date: Wed, 04 Jul 2001 15:53:26 -0400
-From: Dmitry Pogosyan <pogosyan@cita.utoronto.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; U; OSF1 V4.0 alpha)
-X-Accept-Language: en
+	id <S266165AbRGDUCh>; Wed, 4 Jul 2001 16:02:37 -0400
+Received: from c009-h019.c009.snv.cp.net ([209.228.34.132]:14549 "HELO
+	c009.snv.cp.net") by vger.kernel.org with SMTP id <S266166AbRGDUCZ>;
+	Wed, 4 Jul 2001 16:02:25 -0400
+X-Sent: 4 Jul 2001 20:02:19 GMT
+Date: Wed, 4 Jul 2001 13:01:54 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: >128 MB RAM stability problems (again)
+In-Reply-To: <994279551.1116.0.camel@tux>
+Message-ID: <Pine.LNX.4.33.0107041259490.252-100000@desktop>
 MIME-Version: 1.0
-To: Hans-Christian Armingeon <linux.johnny@gmx.net>
-CC: joe.mathewson@btinternet.com, Joseph Mathewson <joe@mathewson.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Suitable Athlon Motherboard for Linux
-In-Reply-To: <200107041849.f64InoE12398@ambassador.mathewson.int> <01070421350101.00849@gundi>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Christian Armingeon wrote:
+On 4 Jul 2001, Ronald Bultje wrote:
 
-> On Wednesday,  4. July 2001 20:49, Joseph Mathewson wrote:
-> > Having heard the various horror stories about the VIA PCI data corruption
-> > bugs, and watching one Via based machine destroy itself with a Mandrake 8.0
-> >  2.4.3, I was just wondering if anyone had a suggestion for an Athlon
-> > motherboard that works reliably under Linux (I don't think all the issues
-> > have been cleared up in the kernel yet?).  There must be quite a few Linux
-> > Athlon users out there - what boards are you using and with what success?
-> >
-> > I can't see much alternative to Via chipsets in the Ahtlon market, other
-> > than all-in-one-graphics-sound-network jobbies that, from previous
-> > experience (namely the i810), are also best avoided.
-
-What about Ali chipsets, like in ASUS A7A266  ?
-
+> Hi,
 >
-> >
-> > Joe.
-> >
-> I think the SIS chipset based mainboards will be at a very good performance,
-> even faster than VIA. I read it in the german c't magazine.
->
-> Johnny
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> you might remember an e-mail from me (two weeks ago) with my problems
+> where linux would not boot up or be highly instable on a machine with
+> 256 MB RAM, while it was 100% stable with 128 MB RAM. Basically, I still
+> have this problem, so I am running with 128 MB RAM again.
+
+I suggest you look into the memory settings in your BIOS, and change them
+to the most conservative available.  Or, throw out your memory and buy
+some from a reputable manufacturer.  Your problem is definitely hardware.
+There are racks full of linux machines with more than 128 MB RAM running
+kernel 2.4 all over the world.  I personally installed a dozen.  It always
+works fine.
+
+-jwb
 

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274317AbRITGAT>; Thu, 20 Sep 2001 02:00:19 -0400
+	id <S272758AbRITF6T>; Thu, 20 Sep 2001 01:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274318AbRITGAK>; Thu, 20 Sep 2001 02:00:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38669 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274317AbRITF7v>; Thu, 20 Sep 2001 01:59:51 -0400
-Date: Wed, 19 Sep 2001 22:58:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: pre12 VM doubts and patch
-In-Reply-To: <20010920071240.P720@athlon.random>
-Message-ID: <Pine.LNX.4.33.0109192255360.2852-100000@penguin.transmeta.com>
+	id <S274316AbRITF6J>; Thu, 20 Sep 2001 01:58:09 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:18963 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S272758AbRITF5x>; Thu, 20 Sep 2001 01:57:53 -0400
+Message-ID: <3BA98577.3F0A3D5A@zip.com.au>
+Date: Wed, 19 Sep 2001 22:58:15 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: 2.4.10pre11 vm rewrite fixes for mainline inclusion and testing
+In-Reply-To: <20010918224317.E720@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
->
-> when the page is exclusive we definitely can write to it
+With this patch against -pre12 the BUG()s in shrink_cache()
+go away.
 
-NO!
+--- linux-2.4.10-pre12/mm/vmscan.c	Wed Sep 19 20:47:21 2001
++++ linux-akpm/mm/vmscan.c	Wed Sep 19 22:49:48 2001
+@@ -435,15 +435,20 @@ static int shrink_cache(struct list_head
+ 
+ 			if (try_to_free_buffers(page, gfp_mask)) {
+ 				if (!page->mapping) {
+-					UnlockPage(page);
+-
+ 					/*
+ 					 * Account we successfully freed a page
+ 					 * of buffer cache.
+ 					 */
+ 					atomic_dec(&buffermem_pages);
+ 
++					/*
++					 * We must not allow an anon page
++					 * with no buffers to be visible on
++					 * the LRU, so we unlock the page after
++					 * taking the lru lock
++					 */
+ 					spin_lock(&pagemap_lru_lock);
++					UnlockPage(page);
+ 					__lru_cache_del(page);
+ 
+ 					/* effectively free the page here */
 
-If it is a read-only mapping, we must NOT mark it writable.
 
-The fact is, the page may have been written to earlier, marked read-only
-with mprotect(), and the page is dirty but read-only, and swapping it in
-MUST NOT markt it writable even if it is our last exclusive copy.
+With this patch applied I've had three total system lockups with
+the usual workload.  No diagnostics, no interrupts, NMI watchdog
+doesn't catch it.  Nice.   This is not related to networking; I
+wasn't able to do much network stress testing because the
+darn APIC bug kept biting me.  Grumble.
 
-Which we've gotten wrong for a long time, actually. But you #if 0'ed the
-fix that happened fairly recently.
-
-		Linus
-
+I'll try -pre9.

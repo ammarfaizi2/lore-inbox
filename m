@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSHMKeo>; Tue, 13 Aug 2002 06:34:44 -0400
+	id <S314811AbSHMKnd>; Tue, 13 Aug 2002 06:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314602AbSHMKeo>; Tue, 13 Aug 2002 06:34:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12784 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314548AbSHMKen> convert rfc822-to-8bit; Tue, 13 Aug 2002 06:34:43 -0400
-Date: Tue, 13 Aug 2002 12:38:30 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre2 compile error
-In-Reply-To: <20020813103024.GD31522@stargate.lan>
-Message-ID: <Pine.NEB.4.44.0208131236140.14606-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S314938AbSHMKnd>; Tue, 13 Aug 2002 06:43:33 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:55944 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S314811AbSHMKnc>;
+	Tue, 13 Aug 2002 06:43:32 -0400
+Date: Tue, 13 Aug 2002 13:47:22 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Nandakumar NarayanaSwamy <nanda_kn@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RealTek RTL8139C
+Message-ID: <20020813104722.GA32427@mea-ext.zmailer.org>
+References: <20020813100956.2082.qmail@mailweb33.rediffmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020813100956.2082.qmail@mailweb33.rediffmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, Stephane Wirtel wrote:
+On Tue, Aug 13, 2002 at 10:09:56AM -0000, Nandakumar  NarayanaSwamy wrote:
+> Hi All,
+> 
+> Sorry for disturbing the list again.
+> 
+> I am using RTL8139C in our target board which is based on MIPS 
+> IDT32334 processor.
+...
+> My doubt is whether this 8139too.c is tested with MIPS processors? 
+> Because in one of the article i found that the supported 
+> processors are ARM, i386 etc.
 
-> are you sure about the patch ?
+  ( Are you sure you don't want to use  8139cp.c  driver ? )
 
-It seems to be correct and I can verify both the compile error and that
-this patch fixes it. What do you consider to be wrong?
+  It might.  The issue is most likely the ENDIANITY of command
+  registers, and how they are supported.
 
-> best regards
+  The  i386 is little-endian machine, and most hardware is made for that.
+  However in case of embedded systems, there are very system dependent
+  details no how the host processor accesses PCI-bus, and what happens
+  then...
 
-cu
-Adrian
+  Talk with your harware maker.  At least the  8139*.c  drivers use
+  cpu_to_le32() and friends for these byte-order mapping issues, but
+  if there happens some gratuitious byte-order wrap-around when posting
+  IO from the CPU to the PCI bus, then you have major problems, and
+  will need experienced kernel hacker to get you thru...
 
-> On mar, 13 aoû 2002, Adrian Bunk wrote:
-> > On Tue, 13 Aug 2002, Chad Young wrote:
-> >
-> > > any idea what causes these errors?
-> > >
-> > > make[3]: Entering directory
-> > > `/home/skidley/kernel/linux-2.4.20-pre2/fs/partitions'
-> > > gcc -D__KERNEL__ -I/home/skidley/kernel/linux-2.4.20-pre2/include -Wall
-> > > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> > > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
-> > > -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
-> > > -DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
-> > > check.c: In function `devfs_register_disc':
-> > > check.c:328: structure has no member named `number'
-> > > check.c:329: structure has no member named `number'
-> > > check.c: In function `devfs_register_partitions':
-> > > check.c:361: structure has no member named `number'
-> > >...
-> >
-> > The following patch made by Christoph Hellwig fixes it:
-> >
-> >
-> > --- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
-> > +++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
-> > @@ -62,7 +62,9 @@ struct hd_struct {
-> >  	unsigned long start_sect;
-> >  	unsigned long nr_sects;
-> >  	devfs_handle_t de;              /* primary (master) devfs entry  */
-> > -
-> > +#ifdef CONFIG_DEVFS_FS
-> > +	int number;
-> > +#endif /* CONFIG_DEVFS_FS */
-> >  #ifdef CONFIG_BLK_STATS
-> >  	/* Performance stats: */
-> >  	unsigned int ios_in_flight;
-> >
+  That is, if the CPU does post a big-endian (data byte order) operation
+  into the bus, and the cpu<->bus host-bridge will not do any magic byte-
+  order wrap-around, then the driver should just simply work.
 
+
+  Of course with MIPS processors you can have two different byte-orders
+  active in the system (one at the time, of course).  You need to know
+  which you are using.
+
+
+> Can any body throw some light on this?
+> with best regards,
+> Nanda

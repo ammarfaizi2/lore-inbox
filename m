@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277165AbRJZBsT>; Thu, 25 Oct 2001 21:48:19 -0400
+	id <S277161AbRJZB4a>; Thu, 25 Oct 2001 21:56:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277161AbRJZBsL>; Thu, 25 Oct 2001 21:48:11 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:25304 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S277165AbRJZBsB>;
-	Thu, 25 Oct 2001 21:48:01 -0400
-Date: Fri, 26 Oct 2001 03:48:34 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc-3.0.2 and 2.4.14-pre1
-Message-ID: <20011026034833.H25701@khan.acc.umu.se>
-In-Reply-To: <20011026010432.A1536@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011026010432.A1536@werewolf.able.es>; from jamagallon@able.es on Fri, Oct 26, 2001 at 01:04:32AM +0200
+	id <S277203AbRJZB4U>; Thu, 25 Oct 2001 21:56:20 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:13471 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S277161AbRJZB4E>; Thu, 25 Oct 2001 21:56:04 -0400
+Date: Fri, 26 Oct 2001 10:56:31 +0900
+Message-ID: <6693w4ds.wl@nisaaru.dvs.cs.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Robert Love <rml@tech9.net>
+Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
+        "Michael F. Robbins" <compumike@compumike.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SiS/Trident 4DWave sound driver oops
+In-Reply-To: <1004060759.11258.12.camel@phantasy>
+In-Reply-To: <1004016263.1384.15.camel@tbird.robbins>
+	<7ktjw58u.wl@nisaaru.dvs.cs.fujitsu.co.jp>
+	<1004060759.11258.12.camel@phantasy>
+User-Agent: Wanderlust/2.7.5 (Too Funky) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.7 () APEL/10.3 MULE XEmacs/21.1 (patch 14) (Cuyahoga Valley) (i586-kondara-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 01:04:32AM +0200, J . A . Magallon wrote:
-> Hi.
+
+Hello,
+
+At 25 Oct 2001 21:45:58 -0400,
+Robert Love wrote:
 > 
-> Results of building with 3.0.2
-> - It works
-> - Kernel Sizes:
-> 	903449 Oct 26 00:38 vmlinuz-2.4.14-pre1-beo			(2.96)
-> 	864599 Oct 26 00:25 vmlinuz-2.4.14-pre1-beo.old		(3.0.2)
-
-Aren't these figures swapped in some way? I find it hard to believe
-that 2.96 would produce the 40k bigger kernel.
-
-> - Modules Sizes:
-> 	2750    /lib/modules/2.4.14-pre1-beo
-> 	2758    /lib/modules/2.4.14-pre1-beo.org
-> 	werewolf:/lib/modules# modprobe -l | wc -l
->    	  71
+> On Thu, 2001-10-25 at 21:37, Tachino Nobuhiro wrote:
+> >   Following patch may fix your oops. Please try.
 > 
-> So it looks like the code is not bigger (modules) but some data structure
-> in main kernel...
+> Hm, I don't think so.  The last area is marked zero so code can know
+> when it ends.  This is common practice.
 
-Quite likely due to the 16 bytes alignment that takes place (AFAIK).
+But the code does not use the last area. this is the code in
+ac97_probe_codec().
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+	id1 = codec->codec_read(codec, AC97_VENDOR_ID1);
+	id2 = codec->codec_read(codec, AC97_VENDOR_ID2);
+	for (i = 0; i < ARRAY_SIZE(ac97_codec_ids); i++) {
+		if (ac97_codec_ids[i].id == ((id1 << 16) | id2)) {
+			codec->type = ac97_codec_ids[i].id;
+			codec->name = ac97_codec_ids[i].name;
+			codec->codec_ops = ac97_codec_ids[i].ops;
+			break;
+		}
+	}
+  
+If id1 and id2 happen to be 0, it matches the last entry and codec_ops
+is set to uncertain value(maybe 0). it may cause the oops in ac97_init_mixer().

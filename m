@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSKAARl>; Thu, 31 Oct 2002 19:17:41 -0500
+	id <S265259AbSKAA1j>; Thu, 31 Oct 2002 19:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265490AbSKAARi>; Thu, 31 Oct 2002 19:17:38 -0500
-Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.156]:55517 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S265471AbSKAARg>; Thu, 31 Oct 2002 19:17:36 -0500
-X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
-Date: Thu, 31 Oct 2002 16:23:56 -0800
-From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-To: greg@kroah.com
-Subject: Re: bare pci configuration access functions ?
-Cc: andrew.grover@intel.com, jung-ik.lee@intel.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20021031235457.GF10689@kroah.com>
-References: <20021101083717.IAAOC0A82650.6C9EC293@mvf.biglobe.ne.jp> <20021031235457.GF10689@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.04
-Message-Id: <20021101092358.JADUC0A8264C.1C79D883@mvf.biglobe.ne.jp>
+	id <S265525AbSKAA1j>; Thu, 31 Oct 2002 19:27:39 -0500
+Received: from almesberger.net ([63.105.73.239]:2824 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265259AbSKAA1h>; Thu, 31 Oct 2002 19:27:37 -0500
+Date: Thu, 31 Oct 2002 21:33:45 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Bernhard Kaindl <bk@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       lkcd-general@lists.sourceforge.net
+Subject: Re: [lkcd-devel] Re: What's left over.
+Message-ID: <20021031213345.D2599@almesberger.net>
+References: <20021031160800.M18072@redhat.com> <Pine.LNX.4.33.0210312221490.6945-100000@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0210312221490.6945-100000@wotan.suse.de>; from bk@suse.de on Thu, Oct 31, 2002 at 11:04:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernhard Kaindl wrote:
+> An analogy to doctors, hospitals and patients:
 
-On Thu, 31 Oct 2002 15:54:57 -0800
-Greg KH <greg@kroah.com> wrote:
+I have a simpler medical analogy:
 
-> > That's the way ACPI driver designers took and Linux can benefit
-> > from other OS's feedback in OS-independent part.
-> 
-> Can I ask if any of the development for other OSs has actually helped
-> Linux development?  I'm just curious.
+ - in many cases, all you know is that the patient died
+   (e.g. think of a router - it has no console, no user
+   interacting with it, etc.)
+ - the Oops tells you the the patient died of a heart failure
+   (NULL pointer dereferenced in this or that function, called
+   from ...)
+ - but it's only the autopsy (the crash dump) that reveals that
+   the patient was poisoned, and that this is not a routine
+   case
 
-FreeBSD's acpi project is a good example.
-http://www.jp.freebsd.org/acpi/index.html
-(though this page doesn't seem to reflect recent status)
+I view crash dumps as a tool that helps me imagine what the
+machine was doing. Without that, I can learn many interesting
+things about the code, but I won't necessarily find the actual
+bug.
 
-They share the same code base (OS-independent part) as Linux
-and troubles FreeBSD had are troubles Linux will have or vice versa.
+Examples of non-obvious bugs can be found in the various module
+unload race discussions. There, usually competent people
+suggested incorrect designs, simply because they failed to
+imagine some constellations, and no amount of staring at the
+source could have helped this lack of imagination.
 
-Its mailing-list is based in Japan but most discussions
-are in English and some intel developers are also in the list.
+- Werner
 
-
-AFAIK the aic7xxx driver has similar structure.
-
-Thanks,
 -- 
-KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

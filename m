@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285093AbSBJXXw>; Sun, 10 Feb 2002 18:23:52 -0500
+	id <S284987AbSBJX3W>; Sun, 10 Feb 2002 18:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284794AbSBJXXm>; Sun, 10 Feb 2002 18:23:42 -0500
-Received: from zero.tech9.net ([209.61.188.187]:21515 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284987AbSBJXXa>;
-	Sun, 10 Feb 2002 18:23:30 -0500
-Subject: Re: 2.5.4-pre6 fails to build on UP (sched.c)
-From: Robert Love <rml@tech9.net>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
+	id <S285229AbSBJX3M>; Sun, 10 Feb 2002 18:29:12 -0500
+Received: from iggy.triode.net.au ([203.63.235.1]:27780 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S284987AbSBJX3G>; Sun, 10 Feb 2002 18:29:06 -0500
+Date: Mon, 11 Feb 2002 10:28:29 +1100
+From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C66F7C4.D559680D@oracle.com>
-In-Reply-To: <3C66F7C4.D559680D@oracle.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 10 Feb 2002 18:23:27 -0500
-Message-Id: <1013383408.6783.369.camel@phantasy>
+Subject: Re: ALI 15X3 DMA Freeze
+Message-ID: <20020211102829.B23445@iggy.triode.net.au>
+In-Reply-To: <20020211085956.A23445@iggy.triode.net.au> <Pine.LNX.4.33.0202101817330.31698-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0202101817330.31698-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Sun, Feb 10, 2002 at 06:17:56PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-02-10 at 17:44, Alessandro Suardi wrote:
+Hello Mark,
 
-> It appears that global_irq_holder will only be seen from
->  <asm/hardirq.h> if CONFIG_SMP is defined. I haven't dug
->  deeper to see whether this is due to CONFIG_PREEMPT (to
->  which I said 'Y') or not.
+Thats an interesting point. I do. I always thought
+that Linux supported PNP. Could you tell me a bit
+more about what setting "PNP OS" actually does?
 
-Indeed, there is a compile error if preemption is enabled but SMP is
-not.  I apologize.  Fix is attached.
+Cheers.  Paul
 
-	Robert Love
 
-diff -urN linux-2.5.4-pre6/include/asm-i386/smplock.h linux/include/asm-i386/smplock.h
---- linux-2.5.4-pre6/include/asm-i386/smplock.h	Sun Feb 10 15:35:55 2002
-+++ linux/include/asm-i386/smplock.h	Sun Feb 10 18:15:55 2002
-@@ -15,6 +15,7 @@
- #else
- #ifdef CONFIG_PREEMPT
- #define kernel_locked()		preempt_get_count()
-+#define global_irq_holder	0
- #else
- #define kernel_locked()		1
- #endif
+On Sun, Feb 10, 2002 at 06:17:56PM -0500, Mark Hahn wrote:
+> > PCI: No IRQ known for interrupt pin A of device 00:04.0.
+> 
+> are you sure you don't have the bios set for "PNP OS"?
 

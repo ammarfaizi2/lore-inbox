@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267572AbTACQKC>; Fri, 3 Jan 2003 11:10:02 -0500
+	id <S267564AbTACQIC>; Fri, 3 Jan 2003 11:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267570AbTACQJx>; Fri, 3 Jan 2003 11:09:53 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:40893 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267567AbTACQIV> convert rfc822-to-8bit; Fri, 3 Jan 2003 11:08:21 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <andrew@walrond.org>, Marco Monteiro <masm@acm.org>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Fri, 3 Jan 2003 08:16:50 -0800
-In-Reply-To: <3E158738.4050003@walrond.org>
+	id <S267568AbTACQIB>; Fri, 3 Jan 2003 11:08:01 -0500
+Received: from cliente-217-70-66-35.bragatel.pt ([217.70.66.35]:36480 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267564AbTACQHu>; Fri, 3 Jan 2003 11:07:50 -0500
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Marco Monteiro <masm@acm.org>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E158738.4050003@walrond.org>
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org>
+	 <1041596161.1157.34.camel@fly>  <3E158738.4050003@walrond.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041610571.1156.86.camel@fly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030103161652.AAA2625@shell.webmaster.com@whenever>
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Jan 2003 16:16:11 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-01-03 at 12:51, Andrew Walrond wrote:
+> Yes but....
+> 
+> I develop computer games. The last one I did took a team of 35 people 2 
+> years and cost $X million to develop.
+> 
+> Please explain how I could do this as free software, while still feeding 
+> my people? Am I a bad person charging for my work?
 
-On Fri, 03 Jan 2003 12:51:04 +0000, Andrew Walrond wrote:
+No, not you. Bad is the people you work for: the code you write is not
+yours.
 
->Yes but....
+I don't play games much. But I remember when I did; I know people who
+do, now. I would say that around 95% of the games I see being played are
+pirated. I know person who, without buying a single game have 500+ CDs
+with games. I bought 12 games, until 4 or 5 years ago. Before buying, I
+played each one of them: I liked the game and, naturally, I bought it,
+to support the guys who made it.
 
->I develop computer games. The last one I did took a team of 35 people 2
->years and cost $X million to develop.
+If I see a Free Software game that I like and play, I will support the
+producers. It is not because I don't have the software for free (as in
+'free' bear) that I buy it; I can get any game for free (or for the
+price of the CDs).
 
->Please explain how I could do this as free software, while still feeding
->my people? Am I a bad person charging for my work?
+I believe that other ways of selling Free Software would be as much or
+more profitable for those who make games. (But not for distributors, and
+that is the problem, because they rule the market.) Of course I'm not
+going to tell you what other ways there are, because then you would know
+as much as I and I would lose that advantage. ;) And maybe these other
+ways of selling Free Software could serve as a filter for crappy games,
+which is good.
 
->Really - I want to understand so I too can join this merry band of happy
->people giving everything away for free!
+> Really - I want to understand so I too can join this merry band of happy 
+> people giving everything away for free!
+> 
+> Andrew
 
-	You can't with the GPL, because it presents you with a "take it or leave it" 
-package deal. But you could with a different license.
+You still don't understand the diference between the 'free' and 'Free
+for Freedom'.
 
-	What you do is you base your game off of whatever open source code gets you 
-the furthest. The game itself, of course, is closed source. After your first 
-few months of sales, you contribute some of the code you wrote back to the 
-open source community. 
+-- 
+Marco Monteiro
 
-	Why shouldn't you? It hurts you not one bit and it's free publicity. Heck, 
-after a few year, maybe you open source the whole game.
-
-	The next person to write a game can start where you left off to some extent. 
-He can develop a better game for less money, and he can contribute more code 
-back to the community. Eventually, there may be enough code in the comnunity 
-to develop such complex games entirely open source.
-
-	However, with a license like the GPL, every game has to be developed on a 
-proprietary base. You simply can't afford to put any money into an open 
-source base. So every game has to start back from square one, or the most 
-advanced proprietary base that can be found.
-
-	Everybody loses except the person who makes the proprietary base or engine 
-you started with. I think working to make all software better and cheaper is 
-much more noble goal than working to arm twist other people into giving you 
-their code.
-
-	And the best part is, you can work to strengthen fair use, first sale, and 
-oppose the validity of shrink wrap licenses. You can argue for a narrower 
-definition of a derived work. In fact, you can at least *try* to win the 
-legal war.
-
-	DS
-
-
+"All the world's a stage and most of us are desperately unrehearsed."
+	--Sean O'Casey

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSFMCSK>; Wed, 12 Jun 2002 22:18:10 -0400
+	id <S317406AbSFMCVZ>; Wed, 12 Jun 2002 22:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317405AbSFMCSJ>; Wed, 12 Jun 2002 22:18:09 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:2313 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S317404AbSFMCSH>; Wed, 12 Jun 2002 22:18:07 -0400
-Message-Id: <200206130218.g5D2Hx302994@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Roland Dreier <roland@topspin.com>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4 use __dma_buffer in scsi.h
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Jun 2002 22:17:59 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S317408AbSFMCVY>; Wed, 12 Jun 2002 22:21:24 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:2110 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317406AbSFMCVX>; Wed, 12 Jun 2002 22:21:23 -0400
+Date: Thu, 13 Jun 2002 03:21:22 +0100
+From: Anton Altaparmakov <aia21@mole.bio.cam.ac.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+In-Reply-To: <3D07FFC6.6060004@zytor.com>
+Message-ID: <Pine.SGI.4.33.0206130315110.4638397-100000@mole.bio.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Use __dma_buffer macro to align sense_buffer member of Scsi_Cmnd.
-[...]
+On Wed, 12 Jun 2002, H. Peter Anvin wrote:
+> Anton Altaparmakov wrote:
+> >
+> > allocate_compression_buffers() currently allocates all buffers up
+> > smp_num_cpus which is fine without hotswap cpus. Once hotswap cpus path
+> > goes in, then the allocation will be (pseudo code):
+> >
+> > 	for (i = 0; i < NR_CPUS; i++) {
+> > 		if (cpu_possible(i)) {
+> > 			ntfs_compression_buffer[i] = vmalloc();
+> > 			// TODO handle errors
+> > 		}
+> > 	}
+> >
+> > That means in words that we allocate buffers only once and for all
+> > existing cpu SOCKETS, i.e. including all potentially hotpluggable cpus
+> > which are currently offline. - If someone invents hotpluggable cpu sockets
+> > at some point then they should be burnt at the stake! (-;
+>
+> Note that with my code, you don't allocate any memory until you have
+> actually seen a particular CPU being *used.*  All very simple...
 
-> -       unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];              /* obtained by REQUEST SENSE
-> +       unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE] __dma_buffer;         /* obtained by REQUEST SENSE
+I realise that and I am just saying that doing that is pointless as it
+only introduces overhead at no gain at all. If you  use one cpu you are
+going to use all of them. Snd if you have one compressed file, you are
+going to have lots of them. Frankly, I don't care about hotplug cpus. If
+someone has a hotplug capable motherboard which costs thousands (tens of
+thousands?) of dollars without even starting on the cpus they are not
+going to care if the kernel is wasting a few megabytes of ram here or
+there... And if they do then they should buy more RAM obviously they can
+afford it... What I am worried about is wasting ram on low end systems and
+my approach is just as effective as yours except it incurs less overhead,
+be it only by a few cycles...
 
-This is actually unnecessary.  We've already had this discussion on the parisc 
-mailing lists (over a year ago, I think).
+Anton
 
-The SCSI subsystem is designed with this type of cache incoherency problem in 
-mind.  The Scsi_Cmnd structure has an ownership model to forestall cache line 
-bouncing.  The idea is that when you want to dma to/from components of a 
-Scsi_Cmnd, you can only do it when the ownership is SCSI_OWNER_LOW_LEVEL, 
-which guarantees that nothing in the mid layer will touch the command and 
-trigger an incoherency (at least until it times out).  The low level driver is 
-supposed to know about the cache incoherency problem, and so avoids touching 
-the structure between cache line invalidation/writeback and DMA completion, 
-thus, with a correctly implemented driver, there should be no possibility of 
-DMA corruption.
-
-Each of the Scsi_Cmnd blocks is individually allocated with kmalloc, so 
-they're guaranteed to be non-interfering when it comes to DMA.
-
-Incidentally, if you're really going to insist on padding the structure, some 
-drivers also use the cmnd element to DMA the command from, so that should be 
-aligned as well.  But I think the best course of action is to fix any low 
-level drivers that are not following the cache rules rather than expanding 
-Scsi_Cmnd.
-
-James Bottomley
-
+ps. I am away to catch a plane in a few minutes so won't be replying for a
+while...
 

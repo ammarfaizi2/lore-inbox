@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283505AbRLDUyk>; Tue, 4 Dec 2001 15:54:40 -0500
+	id <S283349AbRLDUxA>; Tue, 4 Dec 2001 15:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283432AbRLDUxH>; Tue, 4 Dec 2001 15:53:07 -0500
-Received: from zero.tech9.net ([209.61.188.187]:53508 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S283524AbRLDUvl>;
-	Tue, 4 Dec 2001 15:51:41 -0500
-Subject: Re: [PATCH] improve spinlock debugging
-From: Robert Love <rml@tech9.net>
-To: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Cc: Manfred Spraul <manfred@colorfullife.com>
-In-Reply-To: <3C0D3283.4DA4DD2B@mvista.com>
-In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com> 
-	<3C0D3283.4DA4DD2B@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 04 Dec 2001 15:51:41 -0500
-Message-Id: <1007499102.1303.24.camel@phantasy>
-Mime-Version: 1.0
+	id <S283424AbRLDUv3>; Tue, 4 Dec 2001 15:51:29 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:18149 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S283477AbRLDUt0> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:49:26 -0500
+Date: Tue, 4 Dec 2001 15:49:14 -0500 (EST)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Oops: 0000 with kernel 2.4.17pre2
+In-Reply-To: <Pine.LNX.4.21.0112041644310.19750-100000@freak.distro.conectiva>
+Message-ID: <Pine.A41.4.21L1.0112041547290.37960-100000@login3.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-12-04 at 15:30, george anzinger wrote:
+Are these the latest (2313) drivers? I saw this last night as well and
+updated to devfs-v199v2 immediately. I've since updated to v199v3 and
+switched to nvgart and will be pushing my system pretty hard over the next
+couple hours to try to reproduce it.
 
-> spin_lockirq
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+
+On Tue, 4 Dec 2001, Marcelo Tosatti wrote:
+
+> On Tue, 4 Dec 2001, Christian Bornträger wrote:
 > 
-> spin_unlock
+> > I found this in my logs.
+> > I have no idea, why the log says not tainted, because I am quite sure that 
+> > the nvidia-driver was loaded at this moment.
+> > It seems that this happened while trying to kill a quake3-session.(I noticed 
+> > today, that there is a linux version..... ;-))
+> > 
+> > I don´t know if I should blame the nvidia-driver, but please have a look at 
+> > it, because there were some other oops messages with 2.4.16 in the LKML.
+> > The call trace has functions of the VM, of the file system layer and reiserfs.
+> > 
+> > 
+> > greetings
+> > 
+> > 4e 08 8b 41 04 89
+> > Dec  4 16:48:12 cubus kernel:  <6>NVRM: AGPGART: freed 16 pages
+> 				    ^^^
+> > Dec  4 16:48:14 cubus kernel:  printing eip:
+> > Dec  4 16:48:14 cubus kernel: e097134a
 > 
-> restore_irq
-
-Given this order, couldn't we _always_ not touch the preempt count since
-irq's are off?
-
-Further, since I doubt we ever see:
-
-	spin_lock_irq
-	restore_irq
-	spin_unlock
-
-and the common use is:
-
-	spin_lock_irq
-	spin_unlock_irq
-
-Isn't it safe to have spin_lock_irq *never* touch the preempt count?
-
-	Robert Love
+> It really seems to be the nvidia driver which is causing problems. 
 

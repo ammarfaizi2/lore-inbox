@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261347AbRE3Rio>; Wed, 30 May 2001 13:38:44 -0400
+	id <S261679AbRE3Ry0>; Wed, 30 May 2001 13:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbRE3Rie>; Wed, 30 May 2001 13:38:34 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26896 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261347AbRE3RiX>; Wed, 30 May 2001 13:38:23 -0400
-Date: Wed, 30 May 2001 13:02:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Steve Whitehouse <Steve@ChyGwyn.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Zerocopy NBD
-In-Reply-To: <200105301715.SAA21607@gw.chygwyn.com>
-Message-ID: <Pine.LNX.4.21.0105301258460.5110-100000@freak.distro.conectiva>
+	id <S261386AbRE3RyQ>; Wed, 30 May 2001 13:54:16 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:10881 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S261639AbRE3RyD>; Wed, 30 May 2001 13:54:03 -0400
+Date: Wed, 30 May 2001 19:53:40 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: "Rose, Daniel" <daniel.rose@datalinesolutions.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: via-rhine DFE-530TX rev A1
+In-Reply-To: <000e01c0e917$60fbacc0$0a01a8c0@w98>
+Message-ID: <Pine.LNX.4.30.0105301945510.5784-100000@cola.teststation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 May 2001, Rose, Daniel wrote:
 
-On Wed, 30 May 2001, Steve Whitehouse wrote:
+> It seems as though my card will not reset anymore after running windows 98,
+> even after a cold boot, and recompiling the kernel. Below is the output of
+> dmesg, lspci -n and ifconfig. Does anyone have any ideas? (please cc
+> replies)
 
-> Hi,
-> 
-> > 
-> > On Wed, 30 May 2001, Steve Whitehouse wrote:
-> > >
-> [info about NBD patch deleted] 
-> > >
-> > Cool. 
-> > 
-> > Are you seeing performance improvements with the patch ?
-> >  
-> 
-> Yes, but my testing is not in anyway complete yet. The only network device
-> I have which is supported by zerocopy is loopback and there appear to be
-> problems with deadlocks when using NBD over loopback. So what I did was to
-> modify the NBD server (the userland one from Pavel Machek's web site)
-> so that it didn't actually do any disk I/O. It still copied the data from
-> the network into a buffer on write and it returns zeroed buffers on read
-> (not that thats important as only the write patch is affected in the patch).
-> 
-> I could then test using dd which is a bit artificial in that it creates
-> large requests giving probably much more data per NBD request than would
-> be usual under a filesystem load and hence also better with the zerocopy
-> patch. A timed dd with 100000 blocks of 1k spent 1.2 secs of system time
-> to do the write with NBD in 2.4.5 and 0.8 secs with my patch.
+Have you tried cutting power to the machine? (ie physically unplugging it)
 
-Copying bunchs of sequential data with 'dd' is OK for testing it ---
-you're trying to measure only device speed, not fs speed. 
+Someone has claimed that the chip may not reset otherwise. As it is
+Wake-On-Lan capable, that sort of makes sense - it needs to be not
+entirely dead.
 
-> Also it may well be possible to adjust the network stack's memory management
-> to give better performance. I upped the values in tcp_[r|w]mem but I've
-> not checked what different vaules would do to those figures.
-> 
-> I want to do some more testing though in case I've made an error somewhere
-> in the method. I'd be particularly interested to hear from someone who
-> has any results for real hardware. If I have time I'll look into whether
-> the eepro100 or SysKonnect GigE cards could be made to support zerocopy
-> as they are the ones I have here,
+> via-rhine.c:v1.08b-LK1.1.8  4/17/2000  Written by Donald Becker
+>   http://www.scyld.com/network/via-rhine.html
+> PCI: Found IRQ 10 for device 00:11.0
+> PCI: The same IRQ used for device 00:07.2
+> eth0: VIA VT6102 Rhine-II at 0xd000, 00:00:00:00:00:00, IRQ 10.
+[snip]
+> 00:11.0 Class 0200: 1106:3065 (rev 42)
 
+Are you sure the card is marked rev-A1 and not rev-B1? I was hoping
+DFE-530TXs with vt6102 were all rev-B1.
+
+Can you check what's printed on the card and send me the markings on the
+main chips?
+(one is probably marked DL10030, DL10030A or possibly vt6102 with a big
+VIA logo)
+
+/Urban
 

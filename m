@@ -1,46 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263759AbSJHUm6>; Tue, 8 Oct 2002 16:42:58 -0400
+	id <S261407AbSJHUke>; Tue, 8 Oct 2002 16:40:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262690AbSJHUmK>; Tue, 8 Oct 2002 16:42:10 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:55306 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263291AbSJHUl7>; Tue, 8 Oct 2002 16:41:59 -0400
-Date: Tue, 8 Oct 2002 21:47:36 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [RFC] [PATCH 3/4] Add extended attributes to ext2/3
-Message-ID: <20021008214736.A22169@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net
-References: <E17yymK-00021n-00@think.thunk.org> <20021008195322.A14585@infradead.org> <200210082114.00576.agruen@suse.de> <20021008202038.A15692@infradead.org> <20021008214143.O2717@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021008214143.O2717@redhat.com>; from sct@redhat.com on Tue, Oct 08, 2002 at 09:41:43PM +0100
+	id <S263143AbSJHTB0>; Tue, 8 Oct 2002 15:01:26 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15120 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262676AbSJHS77>; Tue, 8 Oct 2002 14:59:59 -0400
+Subject: PATCH: fix all the isdn compile mess
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 19:57:04 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17yzXU-0004rw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 09:41:43PM +0100, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Tue, Oct 08, 2002 at 08:20:38PM +0100, Christoph Hellwig wrote:
-> > On Tue, Oct 08, 2002 at 09:14:00PM +0200, Andreas Gruenbacher wrote:
-> > > Users might just fill up all xattr space leaving no space for ACLs (or 
-> > > similar). If user xattrs are disabled this can no longer occur, so some 
-> > > administrators might be happy to have a choice.
-> > 
-> > Umm, that's why we have quota..
-> 
-> It's the per-inode extended attribute space that's at risk here,
-> quotas don't help.
+This doesnt fix all the isdn code but it sorts out the tqueue stuff so we
+are no worse than before
 
-Well, that's a more important problem.  But I doubt a hack to just turn off
-user xattrs is the right fix then.  A static reservation for ACLs or just
-totally separating them (like in XFS) seems more måture.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/eicon/Divas_mod.c linux.2.5.41-ac1/drivers/isdn/eicon/Divas_mod.c
+--- linux.2.5.41/drivers/isdn/eicon/Divas_mod.c	2002-10-07 22:12:23.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/eicon/Divas_mod.c	2002-10-08 00:22:01.000000000 +0100
+@@ -10,7 +10,6 @@
+ #undef N_DATA
+ 
+ #include <linux/kernel.h>
+-#include <linux/tqueue.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/hisax/config.c linux.2.5.41-ac1/drivers/isdn/hisax/config.c
+--- linux.2.5.41/drivers/isdn/hisax/config.c	2002-10-07 22:12:23.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/hisax/config.c	2002-10-08 00:23:59.000000000 +0100
+@@ -1173,7 +1173,6 @@
+ 	cs->tx_skb = NULL;
+ 	cs->tx_cnt = 0;
+ 	cs->event = 0;
+-	cs->tqueue.sync = 0;
+ 	cs->tqueue.data = cs;
+ 
+ 	skb_queue_head_init(&cs->rq);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/hisax/ipacx.c linux.2.5.41-ac1/drivers/isdn/hisax/ipacx.c
+--- linux.2.5.41/drivers/isdn/hisax/ipacx.c	2002-10-07 22:12:23.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/hisax/ipacx.c	2002-10-08 00:26:38.000000000 +0100
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/workqueue.h>
+ #include "hisax_if.h"
+ #include "hisax.h"
+ #include "isdnl1.h"
+@@ -509,7 +510,7 @@
+ {
+ 	printk(KERN_INFO "HiSax: IPACX ISDN driver v0.1.0\n");
+ 
+-	INIT_WORK(&cs->tqueue, (void *)(void *) dch_bh);
++	INIT_WORK(&cs->tqueue, (void *)(void *) dch_bh, cs);
+ 	cs->setstack_d      = dch_setstack;
+   
+ 	cs->dbusytimer.function = (void *) dbusy_timer_handler;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/i4l/isdn_concap.c linux.2.5.41-ac1/drivers/isdn/i4l/isdn_concap.c
+--- linux.2.5.41/drivers/isdn/i4l/isdn_concap.c	2002-10-07 22:12:23.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/i4l/isdn_concap.c	2002-10-07 22:42:38.000000000 +0100
+@@ -19,7 +19,9 @@
+ #include "isdn_net.h"
+ #include <linux/concap.h>
+ #include "isdn_concap.h"
++#include <linux/if_arp.h>
+ 
++#ifdef CONFIG_ISDN_X25
+ 
+ /* The following set of device service operations are for encapsulation
+    protocols that require for reliable datalink semantics. That means:
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/pcbit/callbacks.c linux.2.5.41-ac1/drivers/isdn/pcbit/callbacks.c
+--- linux.2.5.41/drivers/isdn/pcbit/callbacks.c	2002-07-20 20:11:18.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/pcbit/callbacks.c	2002-10-08 00:35:37.000000000 +0100
+@@ -22,7 +22,6 @@
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/mm.h>
+-#include <linux/tqueue.h>
+ #include <linux/skbuff.h>
+ 
+ #include <asm/io.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/pcbit/capi.c linux.2.5.41-ac1/drivers/isdn/pcbit/capi.c
+--- linux.2.5.41/drivers/isdn/pcbit/capi.c	2002-07-20 20:11:29.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/pcbit/capi.c	2002-10-08 00:35:19.000000000 +0100
+@@ -35,7 +35,6 @@
+ #include <linux/slab.h>
+ #include <linux/mm.h>
+ 
+-#include <linux/tqueue.h>
+ #include <linux/skbuff.h>
+ 
+ #include <asm/io.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/pcbit/edss1.c linux.2.5.41-ac1/drivers/isdn/pcbit/edss1.c
+--- linux.2.5.41/drivers/isdn/pcbit/edss1.c	2002-07-20 20:11:07.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/pcbit/edss1.c	2002-10-08 00:35:01.000000000 +0100
+@@ -22,7 +22,6 @@
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/mm.h>
+-#include <linux/tqueue.h>
+ #include <linux/skbuff.h>
+ 
+ #include <linux/timer.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/pcbit/module.c linux.2.5.41-ac1/drivers/isdn/pcbit/module.c
+--- linux.2.5.41/drivers/isdn/pcbit/module.c	2002-07-20 20:11:27.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/pcbit/module.c	2002-10-08 00:34:42.000000000 +0100
+@@ -14,7 +14,6 @@
+ #include <linux/sched.h>
+ #include <linux/string.h>
+ #include <linux/kernel.h>
+-#include <linux/tqueue.h>
+ #include <linux/skbuff.h>
+ 
+ #include <linux/isdnif.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/tpam/tpam_commands.c linux.2.5.41-ac1/drivers/isdn/tpam/tpam_commands.c
+--- linux.2.5.41/drivers/isdn/tpam/tpam_commands.c	2002-07-20 20:11:08.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/tpam/tpam_commands.c	2002-10-08 00:37:51.000000000 +0100
+@@ -14,7 +14,6 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+-#include <linux/tqueue.h>
+ #include <linux/interrupt.h>
+ #include <asm/io.h>
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/tpam/tpam_main.c linux.2.5.41-ac1/drivers/isdn/tpam/tpam_main.c
+--- linux.2.5.41/drivers/isdn/tpam/tpam_main.c	2002-10-07 22:12:23.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/tpam/tpam_main.c	2002-10-08 00:37:12.000000000 +0100
+@@ -14,8 +14,7 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+-#include <linux/tqueue.h>
+-#include <linux/interrupt.h>
++
+ #include <linux/init.h>
+ #include <asm/io.h>
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/isdn/tpam/tpam_nco.c linux.2.5.41-ac1/drivers/isdn/tpam/tpam_nco.c
+--- linux.2.5.41/drivers/isdn/tpam/tpam_nco.c	2002-07-20 20:11:10.000000000 +0100
++++ linux.2.5.41-ac1/drivers/isdn/tpam/tpam_nco.c	2002-10-08 00:37:33.000000000 +0100
+@@ -14,7 +14,6 @@
+ 
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+-#include <linux/tqueue.h>
+ #include <linux/interrupt.h>
+ #include <asm/io.h>
+ 

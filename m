@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVB1N4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVB1OAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVB1N4P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 08:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVB1NzU
+	id S261619AbVB1OAY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVB1N7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 08:55:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25219 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261618AbVB1Nxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 08:53:44 -0500
-Date: Mon, 28 Feb 2005 06:29:01 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: jamal <hadi@cyberus.ca>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       kaigai@ak.jp.nec.com, "David S. Miller" <davem@redhat.com>,
-       jlan@sgi.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       elsa-devel@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-ID: <20050228092901.GE23606@logos.cnet>
-References: <421CEC38.7010008@sgi.com> <421EB299.4010906@ak.jp.nec.com> <20050224212839.7953167c.akpm@osdl.org> <20050227094949.GA22439@logos.cnet> <4221E548.4000008@ak.jp.nec.com> <20050227140355.GA23055@logos.cnet> <42227AEA.6050002@ak.jp.nec.com> <1109575236.8549.14.camel@frecb000711.frec.bull.fr> <20050227233943.6cb89226.akpm@osdl.org> <1109592658.2188.924.camel@jzny.localdomain>
+	Mon, 28 Feb 2005 08:59:40 -0500
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:23184 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S261619AbVB1N4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 08:56:18 -0500
+Date: Mon, 28 Feb 2005 14:56:04 +0100
+From: martin f krafft <madduck@madduck.net>
+To: Pavel Machek <pavel@suse.cz>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp logic error?
+Message-ID: <20050228135604.GA6364@piper.madduck.net>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20050208203950.GA21623@cirrus.madduck.net> <20050226153905.GA8108@localhost.localdomain> <20050227170428.GI1441@elf.ucw.cz> <20050227174309.GA27265@piper.madduck.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
 Content-Disposition: inline
-In-Reply-To: <1109592658.2188.924.camel@jzny.localdomain>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050227174309.GA27265@piper.madduck.net>
+X-OS: Debian GNU/Linux 3.1 kernel 2.6.10-9-amd64-k8 x86_64
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm net ignorant, so just hit me with a cluebat if thats appropriate.
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 28, 2005 at 07:10:58AM -0500, jamal wrote:
-> 
-> Havent seen the beginnings of this thread. But whatever you are trying
-> to do seems to suggest some complexity that you are trying to
-> workaround. What was wrong with just going ahead and just always
-> invoking your netlink_send()? 
+also sprach martin f krafft <madduck@madduck.net> [2005.02.27.1843 +0100]:
+> Please check my first post, if you have the time:
+>=20
+>   http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D110789536921510&w=3D2
 
-What overhead does the netlink_send() impose if there are no listeners? 
+There is also
 
-Sure, it wont go anywhere, but the message will have to be assembled and sent 
-anyway. Correct? 
+  http://thread.gmane.org/gmane.linux.acpi.devel/12540
 
-The way things are now, its necessary to make the decision to invoke or not 
-netlink_send() due to the supposed overhead. 
+with the same conclusion.
 
-Thats what Guillaume is doing, and thats what will have to be done whenever
-one wants to send information through netlink from performance critical paths.
+Maybe 2.6.11-rcX fixes this.
 
-Can't the assembly/etc overhead associated with netlink_send() be avoided
-earlier, approaching zero-cost ? 
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+spamtraps: madduck.bogus@madduck.net
+=20
+"security here. yes, ma'am. yes. groucho glasses. yes, we're on it.
+ c'mon, guys. somebody gave an aardvark a nose-cut: somebody who
+ can't deal with deconstructionist humor. code blue."
+                      -- http://azure.humbug.org.au/~aj/armadillos.txt
 
-Being able to get rid of the decision to invoke or not the sendmsg would be nice.
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-TIA
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFCIyL0IgvIgzMMSnURAg6sAKCCR9FExVDccMWV8fWzUgYL8IaUyQCfYH7m
+NOShu8a4C9XSNooP5C/dC3U=
+=F6gM
+-----END PGP SIGNATURE-----
 
-> If there are nobody in user space (or
-> kernel) listening, it wont go anywhere.
-> 
-> cheers,
-> jamal
-> 
-> On Mon, 2005-02-28 at 02:39, Andrew Morton wrote:
-> > Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
-> > >
-> > >    Ok the protocol is maybe too "basic" but with this mechanism the user
-> > >  space application that uses the fork connector can start and stop the
-> > >  send of messages. This implementation needs somme improvements because
-> > >  currently, if two application are using the fork connector one can
-> > >  enable it and the other don't know if it is enable or not, but the idea
-> > >  is here I think.
-> > 
-> > Yes.  But this problem can be solved in userspace, with a little library
-> > function and a bit of locking.
-> > 
-> > IOW: use the library to enable/disable the fork connector rather than
-> > directly doing syscalls.
-> > 
-> > It has the problem that if a client of that library crashes, the counter
-> > gets out of whack, but really, it's not all _that_ important, and to handle
-> > this properly in-kernel each client would need an open fd against some
-> > object so we can do the close-on-exit thing properly.  You'd need to create
-> > a separate netlink socket for the purpose.
+--u3/rZRmxL6MmkK24--

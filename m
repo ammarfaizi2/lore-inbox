@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263118AbSJGU2Y>; Mon, 7 Oct 2002 16:28:24 -0400
+	id <S262672AbSJGUKn>; Mon, 7 Oct 2002 16:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262764AbSJGU1J>; Mon, 7 Oct 2002 16:27:09 -0400
-Received: from packet.digeo.com ([12.110.80.53]:14007 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262774AbSJGU0Y>;
-	Mon, 7 Oct 2002 16:26:24 -0400
-Message-ID: <3DA1EF3C.65C0073F@digeo.com>
-Date: Mon, 07 Oct 2002 13:31:56 -0700
+	id <S262732AbSJGUJe>; Mon, 7 Oct 2002 16:09:34 -0400
+Received: from packet.digeo.com ([12.110.80.53]:32950 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262672AbSJGUIv>;
+	Mon, 7 Oct 2002 16:08:51 -0400
+Message-ID: <3DA1EB1F.C992353@digeo.com>
+Date: Mon, 07 Oct 2002 13:14:23 -0700
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Phillips <phillips@arcor.de>
 CC: Linus Torvalds <torvalds@transmeta.com>,
-       Daniel Phillips <phillips@arcor.de>,
        "Martin J. Bligh" <mbligh@aracnet.com>,
        Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not3.0 -  
- (NUMA))
-References: <Pine.LNX.4.33.0210071145120.1356-100000@penguin.transmeta.com> <1034021669.26502.19.camel@irongate.swansea.linux.org.uk>
+       linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 
+ -  (NUMA))
+References: <Pine.LNX.4.33.0210071222340.10168-100000@penguin.transmeta.com> <E17ye5U-0003ul-00@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Oct 2002 20:31:56.0184 (UTC) FILETIME=[941F5980:01C26E40]
+X-OriginalArrivalTime: 07 Oct 2002 20:14:23.0822 (UTC) FILETIME=[20DDA6E0:01C26E3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Daniel Phillips wrote:
 > 
-> On Mon, 2002-10-07 at 19:51, Linus Torvalds wrote:
-> > In the meantime, it might just be possible to take a look at the uid, and
-> > if the uid matches use find_group_other, but for non-matching uids use
-> > find_group_dir. That gives a "compact for same users, distribute for
-> > different users" heuristic, which might be acceptable for normal use (and
-> > the theoretical cleanup tool could fix it up).
-> 
-> Factoring the uid/gid/pid in actually may help in other ways. If we are
-> doing it by pid or by uid we will reduce the interleave of multiple
-> files thing you sometimes get
+> This is easy to verify: say you have 100 MB of kernel source stored in, say,
+> 50 different clumps on disk.
 
-Yes, that would help on multiuser setups.  Delayed allocation is
-a great fix for that problem though.
+Disks use segmentation on their readahead buffers.  Typically four-way.
+So they will only buffer four different chunks of disk at a time.
 
-The other obvious heuristic is "if the parent directory was
-created in the last five seconds, use find_group_other()".  But
-that made Linus go "ewwww".
+If you're reading from 50 different places on disk, the disk keeps
+invalidating readahead at the segment level.

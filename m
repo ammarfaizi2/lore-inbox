@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbVCXPqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263097AbVCXPun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbVCXPqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVCXPny
+	id S263097AbVCXPun (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbVCXPr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:43:54 -0500
-Received: from geode.he.net ([216.218.230.98]:51728 "HELO noserose.net")
-	by vger.kernel.org with SMTP id S262798AbVCXPaK (ORCPT
+	Thu, 24 Mar 2005 10:47:28 -0500
+Received: from users.linvision.com ([62.58.92.114]:52105 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262847AbVCXPnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:30:10 -0500
-From: ecashin@noserose.net
-Message-Id: <1111678202.356@geode.he.net>
-Date: Thu, 24 Mar 2005 07:30:02 -0800
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11] aoe [11/12]: add support for disk statistics
-References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
+	Thu, 24 Mar 2005 10:43:24 -0500
+Date: Thu, 24 Mar 2005 16:43:17 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: govind raj <agovinda04@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel crash problem and Madwifi
+Message-ID: <20050324154317.GK7016@harddisk-recovery.com>
+References: <BAY10-F346FCB94AAE3D59115210D6400@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY10-F346FCB94AAE3D59115210D6400@phx.gbl>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 24, 2005 at 08:35:49PM +0530, govind raj wrote:
+> kernel version:2.4.29
+> board :net4521
+> wireless card : Atheros-5212
+> diriver  madwifi-cvs-current.tar.bz2(v 1.30 2005/02/22)
 
-add support for disk statistics
+According to the FAQ at http://www.mattfoster.clara.co.uk/madwifi-1.htm#2 ,
+Madwifi is based on a binary-only module.
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+> I built the customized image  from 2.4.29 and  booted from this image
 
-diff -uprN a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
---- a/drivers/block/aoe/aoe.h	2005-03-10 12:19:54.000000000 -0500
-+++ b/drivers/block/aoe/aoe.h	2005-03-10 12:20:02.000000000 -0500
-@@ -91,6 +91,7 @@ enum {
- 
- struct buf {
- 	struct list_head bufs;
-+	ulong start_time;	/* for disk stats */
- 	ulong flags;
- 	ulong nframesout;
- 	char *bufaddr;
-diff -uprN a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
---- a/drivers/block/aoe/aoeblk.c	2005-03-10 12:20:00.000000000 -0500
-+++ b/drivers/block/aoe/aoeblk.c	2005-03-10 12:20:02.000000000 -0500
-@@ -125,6 +125,7 @@ aoeblk_make_request(request_queue_t *q, 
- 	}
- 	memset(buf, 0, sizeof(*buf));
- 	INIT_LIST_HEAD(&buf->bufs);
-+	buf->start_time = jiffies;
- 	buf->bio = bio;
- 	buf->resid = bio->bi_size;
- 	buf->sector = bio->bi_sector;
-diff -uprN a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
---- a/drivers/block/aoe/aoecmd.c	2005-03-10 12:19:27.000000000 -0500
-+++ b/drivers/block/aoe/aoecmd.c	2005-03-10 12:20:02.000000000 -0500
-@@ -456,6 +456,20 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 	if (buf) {
- 		buf->nframesout -= 1;
- 		if (buf->nframesout == 0 && buf->resid == 0) {
-+			unsigned long duration = jiffies - buf->start_time;
-+			unsigned long n_sect = buf->bio->bi_size >> 9;
-+			struct gendisk *disk = d->gd;
-+
-+			if (bio_data_dir(buf->bio) == WRITE) {
-+				disk_stat_inc(disk, writes);
-+				disk_stat_add(disk, write_ticks, duration);
-+				disk_stat_add(disk, write_sectors, n_sect);
-+			} else {
-+				disk_stat_inc(disk, reads);
-+				disk_stat_add(disk, read_ticks, duration);
-+				disk_stat_add(disk, read_sectors, n_sect);
-+			}
-+			disk_stat_add(disk, io_ticks, duration);
- 			n = (buf->flags & BUFFL_FAIL) ? -EIO : 0;
- 			bio_endio(buf->bio, buf->bio->bi_size, n);
- 			mempool_free(buf, d->bufpool);
+[...]
 
+> Unable to handle kernel paging request at virtual address e49aac30
+> printing eip:
+> c4878019
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c4878019>]    Tainted: P
+
+Yes, tainted by a proprietary licensed module. Sorry, lkml is not able
+to help you with binary-only modules. Ask whoever supplied your driver
+for support.
+
+> EFLAGS: 00010246
+> eax: 0804ab74   ebx: c3d76000   ecx: 00000000   edx: 00000000
+> esi: c3d76000   edi: c3d76348   ebp: c3d76000   esp: c3c09ed0
+> ds: 0018   es: 0018   ss: 0018
+> Process ifconfig (pid: 116, stackpage=c3c09000)
+> Stack: 0804ab74 c3d7615c 00000000 c3c54000 0804ab74 c3d76000 00000000 
+> 00001043
+>      00000000 c01a5484 c3d76000 c3d76000 00001002 c01a66c1 c3d76000 
+> c3c09f54
+>      c3c09f59 c3c2b144 bffffa10 c01dd219 c3d76000 00001043 00000000 
+> 00000000
+> Call Trace:    [<c01a5484>] [<c01a66c1>] [<c01dd219>] [<c019eeca>] 
+> [<c014163e>]
+> [<c0106dc3>]
+
+Next time run the oops through ksymoops. Undecoded oopses are almost
+useless.
+
+
+Erik
 
 -- 
-  Ed L. Cashin <ecashin@coraid.com>
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272405AbTHSRgL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272401AbTHSRf7
+	id S272401AbTHSRgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272375AbTHSRfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:35:59 -0400
-Received: from [63.247.75.124] ([63.247.75.124]:49858 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S272791AbTHSR0w (ORCPT
+	Tue, 19 Aug 2003 13:35:44 -0400
+Received: from mail.kroah.org ([65.200.24.183]:36301 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272603AbTHSR1R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:26:52 -0400
-Date: Tue, 19 Aug 2003 13:26:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
-Message-ID: <20030819172651.GA15781@gtf.org>
-References: <lRjc.6o4.3@gated-at.bofh.it> <3F4120DD.3030108@softhome.net> <20030818190421.GN24693@gtf.org> <200308190832.24744.rob@landley.net>
+	Tue, 19 Aug 2003 13:27:17 -0400
+Date: Tue, 19 Aug 2003 10:23:55 -0700
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/10] 2.6.0-t3: struct C99 initialiser conversion
+Message-ID: <20030819172355.GA4864@kroah.com>
+References: <20030819063727.GL643@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308190832.24744.rob@landley.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030819063727.GL643@zip.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 08:32:24AM -0400, Rob Landley wrote:
-> On Monday 18 August 2003 15:04, Jeff Garzik wrote:
-> 
-> > >    But generally idea is good: keep interface separately from
-> > > implementation.
-> >
-> > No, the idea is to physically separate the headers.
-> >
-> > include/{linux,asm} is currently copied to userspace, hacked a bit,
-> > and then shipped as the "glibc-kernheaders" package.
-> 
-> Or used directly by uclibc (and linux from scratch) to build the library 
-> against.
+On Tue, Aug 19, 2003 at 04:37:27PM +1000, CaT wrote:
+> diff -aur linux.backup/drivers/usb/host/hc_sl811_rh.c linux/drivers/usb/host/hc_sl811_rh.c
+> --- linux.backup/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 15:02:54 2003
+> +++ linux/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 23:57:09 2003
+> @@ -329,7 +329,7 @@
+>  	switch (bmRType_bReq) {
+>  		/* Request Destination:
+>  		   without flags: Device, 
+> -		   RH_INTERFACE: interface, 
+> +		   RH_INTERFACE: interface,
+>  		   RH_ENDPOINT: endpoint,
+>  		   RH_CLASS means HUB here, 
+>  		   RH_OTHER | RH_CLASS  almost ever means HUB_PORT here 
 
-Yes, this is incorrect.
+I think you need to work on your scripts if you thought this was a C99
+"fix".  More like a "delete trailing space" patch...
 
-Kernel developers have been telling people for years, "do not directly
-include kernel headers."
+thanks,
 
-
-> > I would rather that the kernel developers directly maintained this
-> > interface, by updating headers in include/abi, rather than ad-hoc by
-> > distro people.
-> >
-> > 	Jeff
-> 
-> Okay, I'd like to ask about the headers thing:
-> 
-> I've got a project using uclibc, and build it myself, currently against the 
-> 2.4 headers.  What's the plan for 2.6?  Everything I've seen on the subject 
-> is "using kernel headers directly from userspace is evil, even to build your 
-> libc against, but we currently offer no alternative, so go bug your libc 
-> maintainer and have THEM do it..."
-
-Well, do you expect kernel developers to fix up every libc out there?
-That's what libc maintainers exist for.  Distro guys did glibc,
-(glibc-kernheaders) that covers the majority.
-
-In any case, _this thread_ is an attempt to answer your question,
-"what's the plan?"  For 2.6, I don't need include/abi happening.  Way
-too late for that.  For 2.7, IMO we need it...
-
-	Jeff
-
-
-
+greg k-h

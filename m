@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbQJ3S5V>; Mon, 30 Oct 2000 13:57:21 -0500
+	id <S129628AbQJ3S5V>; Mon, 30 Oct 2000 13:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbQJ3S5M>; Mon, 30 Oct 2000 13:57:12 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:47878 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129632AbQJ3S4p>;
-	Mon, 30 Oct 2000 13:56:45 -0500
-Message-ID: <39FDC447.C5DD7864@mandrakesoft.com>
-Date: Mon, 30 Oct 2000 13:56:07 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129632AbQJ3S5O>; Mon, 30 Oct 2000 13:57:14 -0500
+Received: from web10105.mail.yahoo.com ([216.136.130.55]:24585 "HELO
+	web10105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129628AbQJ3S4p>; Mon, 30 Oct 2000 13:56:45 -0500
+Message-ID: <20001030185639.93318.qmail@web10105.mail.yahoo.com>
+Date: Mon, 30 Oct 2000 10:56:39 -0800 (PST)
+From: Al Peat <al_kernel@yahoo.com>
+Subject: hard_sector / hard_nr_sectors
+To: linux-kernel@vger.kernel.org
+Cc: al_kernel@yahoo.com
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        sct@redhat.com
-Subject: Re: [PATCH] kiobuf/rawio fixes for 2.4.0-test10-pre6
-In-Reply-To: <20001027222143.A8059@caldera.de> <200010272123.OAA21478@penguin.transmeta.com> <20001030124513.A28667@caldera.de> <39FDAD99.47FA6A54@mandrakesoft.com> <20001030191712.B27664@caldera.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Oct 30, 2000 at 12:19:21PM -0500, Jeff Garzik wrote:
-> > Take a look at drivers/sound/via82cxxx_audio.c.  How can that mmap be
-> > improved by using kiobufs?
-> 
-> I think so - but you need Stephen's kvmap patch, that is in the same
-> patchset the forward-ported fixes are
-> (at ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/)
-> 
-> An very nice example is included.
+  I was wondering if someone could give me a quick
+overview of the differences between sector/nr_sectors
+and hard_sector/hard_nr_sectors in blk_dev.h's request
+structure, or point me to some
+documentation/discussion on this?
 
-Seen it, re-read my question...
+    Thanks in advance,
+            Al
 
-I keep seeing "audio drivers' mmap" used a specific example of a place
-that would benefit from kiobufs.  The current via audio mmap looks quite
-a bit like mmap_kiobuf and its support code... except without all the
-kiobuf overhead.
-
-My question from above is:  how can the via audio mmap in test10-preXX
-be improved by using kiobufs?  I am not a kiobuf expert, but AFAICS a
-non-kiobuf implementation is better for audio drivers.  (and the via
-audio mmap implementation is what some other audio drivers are about to
-start using...)
-
-I can clearly see that many applications will find kiobufs quite useful
-(learned another from alan just now...), but I do not see that audio
-drivers can benefit from kiobufs at all.  Corrections on this fact are
-requested, as I am hacking audio drivers right now and want to make sure
-I pick the best course of action for the long term.
-
-Regards,
-
-	Jeff
-
-
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Messenger - Talk while you surf!  It's FREE.
+http://im.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

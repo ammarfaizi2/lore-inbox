@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbTFQVPi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 17:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbTFQVPh
+	id S264989AbTFQVRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 17:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbTFQVRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 17:15:37 -0400
-Received: from aneto.able.es ([212.97.163.22]:43970 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264932AbTFQVP0 (ORCPT
+	Tue, 17 Jun 2003 17:17:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8410 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264957AbTFQVRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 17:15:26 -0400
-Date: Tue, 17 Jun 2003 23:29:17 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] db4 for aicasm
-Message-ID: <20030617212917.GA13990@werewolf.able.es>
+	Tue, 17 Jun 2003 17:17:10 -0400
+Date: Tue, 17 Jun 2003 14:25:37 -0700 (PDT)
+Message-Id: <20030617.142537.128617883.davem@redhat.com>
+To: bunk@fs.tum.de
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] net/wireless: make two frequency_list static
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030617211044.GF29247@fs.tum.de>
+References: <20030617211044.GF29247@fs.tum.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+   From: Adrian Bunk <bunk@fs.tum.de>
+   Date: Tue, 17 Jun 2003 23:10:44 +0200
 
-This enables the build of aicasm with db4-devel.
+   the patch below makes both frequency_list static.
+   
+   I've tested the compilation with 2.5.72.
 
---- linux-2.4.21/drivers/scsi/aic7xxx/aicasm/Makefile.orig	2003-06-17 23:26:37.000000000 +0200
-+++ linux-2.4.21/drivers/scsi/aic7xxx/aicasm/Makefile	2003-06-17 23:26:55.000000000 +0200
-@@ -33,7 +33,9 @@
- 	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
- 
- aicdb.h:
--	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
-+	@if [ -e "/usr/include/db4/db_185.h" ]; then		\
-+		echo "#include <db4/db_185.h>" > aicdb.h;	\
-+	 elif [ -e "/usr/include/db3/db_185.h" ]; then		\
- 		echo "#include <db3/db_185.h>" > aicdb.h;	\
- 	 elif [ -e "/usr/include/db2/db_185.h" ]; then		\
- 		echo "#include <db2/db_185.h>" > aicdb.h;	\
---- linux-2.4.21/drivers/scsi/aic79xx/aicasm/Makefile.orig	2003-06-17 23:25:57.000000000 +0200
-+++ linux-2.4.21/drivers/scsi/aic79xx/aicasm/Makefile	2003-06-17 23:26:22.000000000 +0200
-@@ -33,7 +33,9 @@
- 	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
- 
- aicdb.h:
--	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
-+	@if [ -e "/usr/include/db4/db_185.h" ]; then		\
-+		echo "#include <db4/db_185.h>" > aicdb.h;	\
-+	 elif [ -e "/usr/include/db3/db_185.h" ]; then		\
- 		echo "#include <db3/db_185.h>" > aicdb.h;	\
- 	 elif [ -e "/usr/include/db2/db_185.h" ]; then		\
- 		echo "#include <db2/db_185.h>" > aicdb.h;	\
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))
+Applied, thanks.

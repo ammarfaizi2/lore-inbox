@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUBWUNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUBWUNQ
+	id S262017AbUBWUQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUBWUQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:13:16 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:59176 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262030AbUBWUNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:13:11 -0500
-Date: Mon, 23 Feb 2004 12:13:07 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: jamie@shareable.org, hjlipp@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040223121307.36baaf0a.pj@sgi.com>
-In-Reply-To: <20040223173446.GA2830@pclin040.win.tue.nl>
-References: <20040216133418.GA4399@hobbes>
-	<20040222020911.2c8ea5c6.pj@sgi.com>
-	<20040222155410.GA3051@hobbes>
-	<20040222125312.11749dfd.pj@sgi.com>
-	<20040222225750.GA27402@mail.shareable.org>
-	<20040222214457.6f8d2224.pj@sgi.com>
-	<20040223142215.GB30321@mail.shareable.org>
-	<20040223173446.GA2830@pclin040.win.tue.nl>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 23 Feb 2004 15:16:29 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:11586 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262017AbUBWUQT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 15:16:19 -0500
+Date: Mon, 23 Feb 2004 22:17:18 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Question on MODULE_VERSION macro
+Message-ID: <20040223211718.GA7610@mars.ravnborg.org>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20040222232317.GA20083@mars.ravnborg.org> <20040223035321.9C52E2C069@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040223035321.9C52E2C069@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- If there is such nonblank text then for SysVR4,
- SunOS, Solaris, IRIX, HPUX, AIX, Unixware, Linux, OpenBSD, Tru64
- this group consists of precisely one argument.
- FreeBSD, BSD/OS, BSDI split the text
+On Mon, Feb 23, 2004 at 02:51:04PM +1100, Rusty Russell wrote:
+> In message <20040222232317.GA20083@mars.ravnborg.org> you write:
+> > The more correct approach is to list the .o files in the
+> > .mod file. Then in sumversion find the corresponding .file.o.cmd, and parse
+> > up the name of the corresponding source file (listed as the first filename
+> > in the deps_ assignment, and pass this filename to grab_file.
+> 
+> OK, I've implemented that.  It doesn't complain about non-C files,
+> although the parsing might be sub-optimal.
+> 
+> See get_source_name() for new code.  I also put the explicit depend on
+> elfconfig.h in the Makefile.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Took a second look at it.
+The reason why you parse the sourcefile, is to locate files included
+from the local directory.
+But this information is already available in the .module.o.cmd file,
+so no reason to parse that information up from the .c file -
+and eventually having troubles with .s files.
+
+You can get rid of parse_cpp_line(), include_file(),
+and some of the helpers when implementing this algorithm. So all
+in all a good simplification.
+
+Note also that in the original implementation you have missed
+release_file() in a few places. But when you implement the above
+you will hit them.
+
+	Sam

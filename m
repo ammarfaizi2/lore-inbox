@@ -1,24 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTFGGsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 02:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTFGGsw
+	id S262165AbTFGGrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 02:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTFGGrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 02:48:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12931 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262589AbTFGGsv (ORCPT
+	Sat, 7 Jun 2003 02:47:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10627 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262165AbTFGGrU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 02:48:51 -0400
-Date: Fri, 06 Jun 2003 23:59:46 -0700 (PDT)
-Message-Id: <20030606.235946.59661586.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: wa@almesberger.net, linux-kernel@vger.kernel.org
+	Sat, 7 Jun 2003 02:47:20 -0400
+Date: Fri, 06 Jun 2003 23:58:11 -0700 (PDT)
+Message-Id: <20030606.235811.39162108.davem@redhat.com>
+To: wa@almesberger.net
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2) 
+ (take 2)
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200306070047.h570lfsG003377@ginger.cmf.nrl.navy.mil>
-References: <20030606210620.G3232@almesberger.net>
-	<200306070047.h570lfsG003377@ginger.cmf.nrl.navy.mil>
+In-Reply-To: <20030606212026.I3232@almesberger.net>
+References: <20030606125416.C3232@almesberger.net>
+	<200306062354.h56NsWsG002919@ginger.cmf.nrl.navy.mil>
+	<20030606212026.I3232@almesberger.net>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -27,17 +28,31 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Fri, 06 Jun 2003 20:45:51 -0400
-
-   really?  if i remove my ethernet interface i expect all the
-   connections to die.
+   From: Werner Almesberger <wa@almesberger.net>
+   Date: Fri, 6 Jun 2003 21:20:26 -0300
    
-Nope, this actually works.
+   The only thing that worries me in all this is Dave's request to
+   make device destruction asynchronous,
 
-Many a moon ago, we did this wrong and yes the TCP connections
-died.
+Not a request, they already are asynchronous today in 2.5.x
 
-But these days, definitely if you bring the interface back up
-with the same IP addresses, it just works and the connections
-recover.
+unregister_netdevice() rips the device out and returns, and
+the problems we need to fix to make this work %100 are problems
+that exist regardless of whether things operate asynchronously
+or not.
+
+For example, crap like this was always busted:
+
+	rmmod eth0 </proc/sys/net/ipv4/conf/eth0/whatever
+
+and now the asynchornous model forces us to fix this.
+
+Werner, don't turn this into another one of those absolutely
+rediculious discussions about module semantic threads you
+guys all pile-drove into Rusty several months ago.  That stuff
+stunk like pure shit and really unfairly drove Rusty up a wall.
+
+It really showed how pointless linux-kernel discussion can
+be and how much such rediculious discussions can totally impede
+real progress because someone LOUD disagrees with someone's
+game plan.

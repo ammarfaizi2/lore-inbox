@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUFGWCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUFGWH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265098AbUFGWCG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUFGWCG
+	id S265107AbUFGWH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUFGWH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:02:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9189 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265098AbUFGWBx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:01:53 -0400
-Date: Mon, 7 Jun 2004 14:57:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ethtool semantics
-Message-Id: <20040607145723.41da5783.davem@redhat.com>
-In-Reply-To: <20040607212804.GA17012@k3.hellgate.ch>
-References: <20040607212804.GA17012@k3.hellgate.ch>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 18:07:26 -0400
+Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:15853 "EHLO
+	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
+	id S265107AbUFGWHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:07:22 -0400
+Date: Mon, 7 Jun 2004 18:07:14 -0400 (EDT)
+From: Yaoping Ruan <yruan@CS.Princeton.EDU>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: bootup command line list
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD5504@PDSMSX403.ccr.corp.intel.com>
+Message-ID: <Pine.GSO.4.58.0406071804220.11792@bolle.CS.Princeton.EDU>
+References: <3ACA40606221794F80A5670F0AF15F8403BD5504@PDSMSX403.ccr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 23:28:04 +0200
-Roger Luethi <rl@hellgate.ch> wrote:
+Hi:
 
-> What is the correct response if a user passes ethtool speed or duplex
-> arguments while autoneg is on? Some possible answers are:
-> 
-> a) Yell at the user for doing something stupid.
-> 
-> b) Fail silently (i.e. ignore command).
-> 
-> c) Change advertised value accordingly and initiate new negotiation.
-> 
-> d) Consider "autoneg off" implied, force media accordingly.
-> 
-> The ethtool(8) man page I'm looking at doesn't address that question. The
-> actual behavior I've seen is b) which is by far my least preferred
-> solution.
+Thanks for the replies for this thread. Yes, I found useful information
+both in the man page and the txt file. Does anyone by chance know how to
+disable hyper-threading in 2.6.x kernel? In kernels eariler than 2.4.20,
+there was an option called "noht", but it no longer works for latest
+kernels? Is it unsupported or changed to other options?
 
-speed and duplex fields should be silently ignored in this case
+Thanks
+
+-Yaoping
+
+On Fri, 4 Jun 2004, Zhu, Yi wrote:
+
+> Yaoping wrote:
+> > Could anyone let me know where I can find a full list for
+> > bootup command line parameters, such as mem=1G, etc?
+>
+> Documentation/kernel-parameters.txt
+> man bootparam
+>
+> > I'd like to boot a Hyper-threading enabled kernel using only one
+> > processor on a dual-processor system.
+>
+> nosmp
+>
+> > Currently my solution is to physically unplug the secondary CPU.
+> >
+> > Thanks for any suggestion
+> >
+> > -Yaoping
+>
+> Thanks,
+> -yi
+>

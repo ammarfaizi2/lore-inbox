@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282390AbRKXHjt>; Sat, 24 Nov 2001 02:39:49 -0500
+	id <S282389AbRKXHl7>; Sat, 24 Nov 2001 02:41:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282393AbRKXHjj>; Sat, 24 Nov 2001 02:39:39 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:22402 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S282389AbRKXHjd>;
-	Sat, 24 Nov 2001 02:39:33 -0500
-Date: Fri, 23 Nov 2001 13:46:40 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Adam Feuer <adamf@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Gabor Kuti <seasons@falcon.sch.bme.hu>
-Subject: Re: [swsusp] Re: swsusp for 2.4.14
-Message-ID: <20011123134639.A55@toy.ucw.cz>
-In-Reply-To: <20011121164620.D31379@atrey.karlin.mff.cuni.cz> <200111211853.NAA03050@ccure.karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200111211853.NAA03050@ccure.karaya.com>; from jdike@karaya.com on Wed, Nov 21, 2001 at 01:53:13PM -0500
+	id <S282392AbRKXHlw>; Sat, 24 Nov 2001 02:41:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12045 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282389AbRKXHlg>; Sat, 24 Nov 2001 02:41:36 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: ftp.kernel.org back, mirrors.kernel.org still dead
+Date: 23 Nov 2001 23:41:12 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tniuo$kh8$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+We have been able to bring ftp.kernel.org back to life, as well as
+most auxilliary services.  The exception so far is mirrors.kernel.org
+which is still down (this was the RAID that died), however, it
+currently looks like it might be at least partially rescuable.
 
-> > Yep, I'd like to see it. [The way uml is setup with one uml kernel
-> > running in *many* real processes, saving/restoring cpu state is not
-> > going to be easy.]
-> 
-> It won't be horrible.  You have to recreate all the processes (and getting
-> their address spaces mapped correctly should be easy) and get them all
-> ptraced by the tracing thread.  UML processes which are CLONE_VM are also
-> CLONE_VM on the host, so that will take a little bit of care.
+The need for additional space remains, though, even if we can bring
+the remaining RAID back up online.
 
-Yep, its doable, but way harder than other ports where you only have to restore
-CPU registers. And yes it would be cool.
-								Pavel
+Stay tuned...
+
+	-hpa
+
+
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

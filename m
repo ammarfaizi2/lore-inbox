@@ -1,112 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319163AbSHMXBd>; Tue, 13 Aug 2002 19:01:33 -0400
+	id <S319167AbSHMXKj>; Tue, 13 Aug 2002 19:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319158AbSHMXAD>; Tue, 13 Aug 2002 19:00:03 -0400
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:55803 "EHLO
-	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319106AbSHMW7t>; Tue, 13 Aug 2002 18:59:49 -0400
-Date: Tue, 13 Aug 2002 19:03:36 -0400 (EDT)
-From: "Kendrick M. Smith" <kmsmith@umich.edu>
-X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
-To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 18/38: CLIENT: move nfs_async_handle_jukebox() into ->unlink_done()
-Message-ID: <Pine.SOL.4.44.0208131903120.25942-100000@rastan.gpcc.itd.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319106AbSHMXJ3>; Tue, 13 Aug 2002 19:09:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35581 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319155AbSHMXJV>; Tue, 13 Aug 2002 19:09:21 -0400
+Subject: Re: 2.4.20-pre2 NFS OOPS on sparc64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <15705.34786.933680.708535@notabene.cse.unsw.edu.au>
+References: <Pine.GSO.4.43.0208131916340.16824-100000@romulus.cs.ut.ee>
+	<20020813.102737.04335380.davem@redhat.com> 
+	<15705.34786.933680.708535@notabene.cse.unsw.edu.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 14 Aug 2002 00:10:47 +0100
+Message-Id: <1029280247.21007.136.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-08-13 at 23:27, Neil Brown wrote:
+> On Tuesday August 13, davem@redhat.com wrote:
+> >    From: Meelis Roos <mroos@linux.ee>
+> >    Date: Tue, 13 Aug 2002 19:21:30 +0300 (EEST)
+> > 
+> >    2 oopses from stock 2.4.20-pre2 during NFS startup 9mountd etc killed as
+> >    a result). Looks like a bad use of bitops inside sunrpc. egcs64 compiler
+> >    from debian.
+> >    
+> > Neil, sk_flags in struct svc_sock may not be an int, bitops require
+> > "long".
+> 
+> I knew that.... but obviously not at the right time.  Thanks.
+> 
+> Now if only Linus has told me (like you did) instead of just making
+> the change himself in 2.5, I would have got it right in 2.4.
 
-In NFSv3, an RPC is retried if the special error NFSERR_JUKEBOX is
-received.  This generic bit of postprocessing happens invisibly for
-synchronous RPC's, but in the async case, the ->tk_exit callback
-must call nfs_async_handle_jukebox() by hand.
-
-In NFSv4, we also need generic postprocessing of async RPC's, but
-the details are different.  Therefore, we don't want to call
-nfs_async_handle_jukebox(); we want to call a different, NFSv4-specific
-routine.  Therefore, we want to move calls to nfs_async_handle_jukebox()
-out of the "generic" NFS code and into NFSv3-specific routines.  This
-has already been done for async READ and WRITE in the preceding patches,
-but there is still one outstanding case: the async REMOVE in sillyrename.
-
-This patch removes nfs_async_handle_jukebox() from the async sillyrename
-path, and puts in the NFSv3 ->unlink_done() rpc_op.
-
---- old/include/linux/nfs_xdr.h	Sat Aug 10 23:39:47 2002
-+++ new/include/linux/nfs_xdr.h	Tue Aug  6 10:16:09 2002
-@@ -365,7 +365,7 @@ struct nfs_rpc_ops {
- 	int	(*remove)  (struct inode *, struct qstr *);
- 	int	(*unlink_setup)  (struct rpc_message *,
- 			    struct dentry *, struct qstr *);
--	void	(*unlink_done) (struct dentry *, struct rpc_message *);
-+	int	(*unlink_done) (struct dentry *, struct rpc_task *);
- 	int	(*rename)  (struct inode *, struct qstr *,
- 			    struct inode *, struct qstr *);
- 	int	(*link)    (struct inode *, struct inode *, struct qstr *);
---- old/fs/nfs/unlink.c	Wed Jul 24 16:03:31 2002
-+++ new/fs/nfs/unlink.c	Tue Aug  6 10:09:43 2002
-@@ -123,13 +123,12 @@ nfs_async_unlink_done(struct rpc_task *t
- 	struct dentry		*dir = data->dir;
- 	struct inode		*dir_i;
-
--	if (nfs_async_handle_jukebox(task))
--		return;
- 	if (!dir)
- 		return;
- 	dir_i = dir->d_inode;
- 	nfs_zap_caches(dir_i);
--	NFS_PROTO(dir_i)->unlink_done(dir, &task->tk_msg);
-+	if (NFS_PROTO(dir_i)->unlink_done(dir, task))
-+		return;
- 	put_rpccred(data->cred);
- 	data->cred = NULL;
- 	dput(dir);
---- old/fs/nfs/proc.c	Sat Aug 10 23:39:47 2002
-+++ new/fs/nfs/proc.c	Tue Aug  6 10:15:51 2002
-@@ -312,13 +312,16 @@ nfs_proc_unlink_setup(struct rpc_message
- 	return 0;
- }
-
--static void
--nfs_proc_unlink_done(struct dentry *dir, struct rpc_message *msg)
-+static int
-+nfs_proc_unlink_done(struct dentry *dir, struct rpc_task *task)
- {
-+	struct rpc_message *msg = &task->tk_msg;
-+
- 	if (msg->rpc_argp) {
- 		NFS_CACHEINV(dir->d_inode);
- 		kfree(msg->rpc_argp);
- 	}
-+	return 0;
- }
-
- static int
---- old/fs/nfs/nfs3proc.c	Sat Aug 10 23:39:47 2002
-+++ new/fs/nfs/nfs3proc.c	Tue Aug  6 10:15:40 2002
-@@ -387,16 +398,20 @@ nfs3_proc_unlink_setup(struct rpc_messag
- 	return 0;
- }
-
--static void
--nfs3_proc_unlink_done(struct dentry *dir, struct rpc_message *msg)
-+static int
-+nfs3_proc_unlink_done(struct dentry *dir, struct rpc_task *task)
- {
-+	struct rpc_message *msg = &task->tk_msg;
- 	struct nfs_fattr	*dir_attr;
-
-+	if (nfs_async_handle_jukebox(task))
-+		return 1;
- 	if (msg->rpc_argp) {
- 		dir_attr = (struct nfs_fattr*)msg->rpc_resp;
- 		nfs_refresh_inode(dir->d_inode, dir_attr);
- 		kfree(msg->rpc_argp);
- 	}
-+	return 0;
- }
-
- static int
+May be my fault. I fixed it in 2.2 the first time it cropped up and
+apparently forgot to tell you so it propogated
 

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130447AbQKIMbE>; Thu, 9 Nov 2000 07:31:04 -0500
+	id <S130473AbQKIMcF>; Thu, 9 Nov 2000 07:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130473AbQKIMap>; Thu, 9 Nov 2000 07:30:45 -0500
-Received: from 255.255.255.255.in-addr.de ([212.8.197.242]:49677 "HELO
+	id <S130515AbQKIMb4>; Thu, 9 Nov 2000 07:31:56 -0500
+Received: from 255.255.255.255.in-addr.de ([212.8.197.242]:51725 "HELO
 	255.255.255.255.in-addr.de") by vger.kernel.org with SMTP
-	id <S130447AbQKIMaf>; Thu, 9 Nov 2000 07:30:35 -0500
-Date: Thu, 9 Nov 2000 13:30:23 +0100
+	id <S130473AbQKIMbm>; Thu, 9 Nov 2000 07:31:42 -0500
+Date: Thu, 9 Nov 2000 13:31:36 +0100
 From: Lars Marowsky-Bree <lmb@suse.de>
 To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
+Cc: Christoph Rohland <cr@sap.com>, Larry McVoy <lm@bitmover.com>,
+        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re:  [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Message-ID: <20001109133023.A747@marowsky-bree.de>
-In-Reply-To: <80256992.002FE358.00@d06mta06.portsmouth.uk.ibm.com> <qwwvgtxjslr.fsf@sap.com> <3A0A97D0.36C5913B@holly-springs.nc.us>
+Message-ID: <20001109133136.B747@marowsky-bree.de>
+In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com> <3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com> <20001108235312.H22781@work.bitmover.com> <qwwzoj9k02h.fsf@sap.com> <3A0A968B.85A6770E@holly-springs.nc.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.3i
-In-Reply-To: <3A0A97D0.36C5913B@holly-springs.nc.us>; from "Michael Rothwell" on 2000-11-09T07:25:52
+In-Reply-To: <3A0A968B.85A6770E@holly-springs.nc.us>; from "Michael Rothwell" on 2000-11-09T07:20:27
 X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2000-11-09T07:25:52,
+On 2000-11-09T07:20:27,
    Michael Rothwell <rothwell@holly-springs.nc.us> said:
 
-> Why? I think the IBM GKHI code would be of tremendous value. It would
-> make the kernel much more flexible, and for users, much more friendly.
-> No more patch-and-recompile to add a filesystem or whatever. There's no
-> reason to hamstring their efforts because of the possibility of binary
-> modules. The GPL allows that, right? So any developer of binary-only
-> extensions using the GKHI would not be breaking the license agreement, I
-> don't think. There's lots of binary modules right now -- VMWare, Aureal
-> sound card drivers, etc.
+> > I understand that the one size fits all approach has some limitations
+> > if you want to run on PDAs up to big iron. But a framework to overload
+> > core kernel functions with modules smells a lot of binary only, closed
+> > source, vendor specific Linux on high end machines.
+> 
+> Since Linux is GPL, how would you stop this?
 
-And we already refuse to support those kernels - your point being?
+Christoph / SAP is in a rather good position to stop that being supported by
+vendors...
 
-Making this "commonplace" is a nightmare. Go away with that.
+> Same as before -- freedom and low cost. The primary advantae of Linux
+> over other OSes is the GPL. 
 
-> I understand and agree with your desire for full source for everything,
-> but I disagree that we should artificially limit people's ability to use
-> Linux to solve their problems.
-
-I want their solving of their problems not to create problems for me though.
+And that is why that has to govern the kernel and its modules as far as
+possible.
 
 Sincerely,
     Lars Marowsky-Brée <lmb@suse.de>

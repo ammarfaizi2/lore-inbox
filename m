@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319223AbSIKQZ0>; Wed, 11 Sep 2002 12:25:26 -0400
+	id <S319212AbSIKQRT>; Wed, 11 Sep 2002 12:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319224AbSIKQZ0>; Wed, 11 Sep 2002 12:25:26 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:5786 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319223AbSIKQZY>;
-	Wed, 11 Sep 2002 12:25:24 -0400
-Date: Wed, 11 Sep 2002 22:05:14 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Paul McKenney <paul.mckenney@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Read-Copy Update 2.5.34
-Message-ID: <20020911220514.G28198@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020911164940.C28198@in.ibm.com> <Pine.LNX.4.44.0209111323360.12332-100000@localhost.localdomain> <20020911175011.D28198@in.ibm.com> <1031753011.950.106.camel@phantasy>
+	id <S319209AbSIKQPs>; Wed, 11 Sep 2002 12:15:48 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:48887
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319212AbSIKQJZ>; Wed, 11 Sep 2002 12:09:25 -0400
+Subject: Re: ignore pci devices?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Martin Mares <mj@ucw.cz>, Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020911153750.GA8649@bytesex.org>
+References: <20020910134708.GA7836@bytesex.org>
+	<20020910163023.GA3862@ucw.cz>
+	<1031683362.1537.104.camel@irongate.swansea.linux.org.uk>
+	<20020910184128.GA5627@ucw.cz>
+	<1031688912.31787.129.camel@irongate.swansea.linux.org.uk>
+	<20020911122048.GA6863@bytesex.org>
+	<1031747880.2726.40.camel@irongate.swansea.linux.org.uk> 
+	<20020911153750.GA8649@bytesex.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 11 Sep 2002 17:17:39 +0100
+Message-Id: <1031761059.2768.68.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1031753011.950.106.camel@phantasy>; from rml@tech9.net on Wed, Sep 11, 2002 at 10:03:28AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 10:03:28AM -0400, Robert Love wrote:
-> On Wed, 2002-09-11 at 08:20, Dipankar Sarma wrote:
-> 
-> > Not sure how reliable these numbers are.
-> 
-> And how bad is the performance drop from 2.5.34-preempt to
-> 2.5.34-preempt-rcu?
+On Wed, 2002-09-11 at 16:37, Gerd Knorr wrote:
+> guess you mean pci_assign_resource()?  Played with that one, now my
+> /proc/iomem file looks *ahem* intresting.  Is this the bug mentioned
+> above?
 
-Hi Robert,
+Well I've not seen it appear that way but I guess it could do - the old
+code on finding a clash when reserving PCI resources (and you'll tickle
+that anyway with pci_module_init and two candidate drivers) freed
+resources it never allocated.
 
-Here are the detailed results from reflex benchmark all with
-2.5.34 kernel and 4CPU p3 xeon with 1MB L2 cache and 1GB RAM.
+I'd have expected lots of printks first
 
- 		vanilla-preempt	rcu_poll-preempt vanilla  rcu_poll
-		--------------	---------------- -------  --------
-80 , 40 , 		1.593	1.569		 1.545	  1.536
-112 , 40 , 		1.544	1.554		 1.544	  1.535
-144 , 40 , 		1.595	1.552		 1.545    1.586
-176 , 40 , 		1.568	1.605		 1.615	  1.536
-198 , 40 , 		1.562	1.577		 1.582	  1.651
-230 , 40 , 		1.563	1.583		 1.581	  1.554
-244 , 40 , 		1.671	1.638		 1.631	  1.571
-
-
-> 
-> I am glad you guys support kernel preemption (not that you have a chance
-> at this point) but I hope it was not an afterthought.
-> 
-
-Forgot to mention, earlier implementations of RCU like in K42 had complete
-preemption support, so the linux implementation is not really new.
-We added it after preemption support went into Linus' tree.
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

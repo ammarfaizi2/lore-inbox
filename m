@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289039AbSAVAIr>; Mon, 21 Jan 2002 19:08:47 -0500
+	id <S289029AbSAVAKj>; Mon, 21 Jan 2002 19:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289029AbSAVAIh>; Mon, 21 Jan 2002 19:08:37 -0500
-Received: from jalon.able.es ([212.97.163.2]:32739 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289027AbSAVAId>;
-	Mon, 21 Jan 2002 19:08:33 -0500
-Date: Tue, 22 Jan 2002 01:08:21 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-        alad@hss.hns.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] free_swap_and_cache misses
-Message-ID: <20020122010821.A19992@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.21.0201210016040.1153-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0201210016040.1153-100000@localhost.localdomain>; from hugh@veritas.com on lun, ene 21, 2002 at 01:21:29 +0100
-X-Mailer: Balsa 1.3.0
+	id <S289065AbSAVAK2>; Mon, 21 Jan 2002 19:10:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:64954 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289029AbSAVAKW>;
+	Mon, 21 Jan 2002 19:10:22 -0500
+Date: Tue, 22 Jan 2002 03:07:48 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Partha Narayanan <partha@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Performance Results for Ingo's O(1)-scheduler
+In-Reply-To: <OF4544D2BC.16B7A12D-ON85256B48.00817250@raleigh.ibm.com >
+Message-ID: <Pine.LNX.4.33.0201220306070.29113-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20020121 Hugh Dickins wrote:
->free_swap_and_cache() often misses its purpose and leaves freeable page
->in swap and cache.  Wrong in mainline 2.4 and 2.5, but looks okay in -aa
->(so don't bother to apply this if you're now merging that).
->
->Hugh
->
->--- 2.4.18-pre4/mm/swapfile.c	Sun Dec 23 10:47:32 2001
->+++ linux/mm/swapfile.c	Sun Jan 20 23:30:52 2002
->@@ -344,7 +344,7 @@
-> 	if (page) {
-> 		page_cache_get(page);
-> 		/* Only cache user (+us), or swap space full? Free it! */
->-		if (page_count(page) == 2 || vm_swap_full()) {
->+		if (page_count(page) - !!page->buffers == 2 || vm_swap_full()) {
+On Mon, 21 Jan 2002, Partha Narayanan wrote:
 
-Don't you trust too much on precendence, people...?
+> KERNEL              UP          4-way       8-way
+> =========           ======      ======      ======
+> 2.4.17              11005       15894       11595
+> 2.4.17 + D2 patch   10606       23300       29726
+> 2.4.17 + G1 patch   10415       23038       31098
+> 2.4.17 + H6 patch   10914       22270       32300
+> 2.4.17 + H7 patch   11018       23427       31674
+> 2.4.17 + J2 patch   13015       23071       33259
 
--		if (page_count(page) == 2 || vm_swap_full()) {
-+		if ( ((page_count(page) - !!page->buffers) == 2) || vm_swap_full() ) {
+thanks for the testing - i'm happy that it's the kernel with the best
+interactive properties (-J2) that has the best VolanoMark results as well.
 
-Or i'm paranoid.
+	Ingo
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre4-beo #3 SMP Wed Jan 16 02:58:41 CET 2002 i686

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280947AbRKGVmO>; Wed, 7 Nov 2001 16:42:14 -0500
+	id <S280991AbRKGVnO>; Wed, 7 Nov 2001 16:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280954AbRKGVmG>; Wed, 7 Nov 2001 16:42:06 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:63814 "EHLO
+	id <S280981AbRKGVm4>; Wed, 7 Nov 2001 16:42:56 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:64838 "EHLO
 	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S280947AbRKGVlz>; Wed, 7 Nov 2001 16:41:55 -0500
-Date: Wed, 7 Nov 2001 21:40:29 +0000
+	id <S280980AbRKGVmb>; Wed, 7 Nov 2001 16:42:31 -0500
+Date: Wed, 7 Nov 2001 21:41:44 +0000
 From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: "Todd M. Roy" <troy@holstein.com>, rml@tech9.net, mfedyk@matchmail.com,
-        jimmy@mtc.dhs.org, linux-kernel@vger.kernel.org
+To: J Sloan <jjs@lexus.com>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: kernel 2.4.14 compiling fail for loop device
-Message-ID: <20011107214029.A22961@grobbebol.xs4all.nl>
-In-Reply-To: <20011107204946.B13943@grobbebol.xs4all.nl> <0994FB93-D3C4-11D5-A232-00306569F1C6@haque.net>
+Message-ID: <20011107214144.A30679@grobbebol.xs4all.nl>
+In-Reply-To: <0994FB93-D3C4-11D5-A232-00306569F1C6@haque.net> <3BE9A8D2.22D46175@lexus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.16i
-In-Reply-To: <0994FB93-D3C4-11D5-A232-00306569F1C6@haque.net>; from mhaque@haque.net on Wed, Nov 07, 2001 at 04:11:40PM -0500
+In-Reply-To: <3BE9A8D2.22D46175@lexus.com>; from jjs@lexus.com on Wed, Nov 07, 2001 at 01:34:10PM -0800
 X-OS: Linux grobbebol 2.4.13 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 04:11:40PM -0500, Mohammad A. Haque wrote:
+On Wed, Nov 07, 2001 at 01:34:10PM -0800, J Sloan wrote:
+> > I'm a little confused. How did you even get a working kernel (or module)
+> > without removing the lines?
+> >
 > 
-> On Wednesday, November 7, 2001, at 03:49 PM, Roeland Th. Jansen wrote:
-> 
-> > when mounting an EFS cd on the loop it also froze. this is _without_
-> > removing the lines. ...
-> 
-> I'm a little confused. How did you even get a working kernel (or module) 
-> without removing the lines?
+> Probably compiled it modular -
 
-oh sorry, little dazed & confused, this was with 2.4.13 like shown in
-the tagline at that time. just compiled 2.2.14
+that's one thing for sure.
 
 -- 
 Grobbebol's Home                        |  Don't give in to spammers.   -o)

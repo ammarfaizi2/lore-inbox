@@ -1,87 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264042AbUEHSbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264044AbUEHSka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbUEHSbY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 14:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbUEHSbY
+	id S264044AbUEHSka (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 14:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbUEHSk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 14:31:24 -0400
-Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:48906 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S264042AbUEHSbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 14:31:03 -0400
-Date: Sat, 8 May 2004 14:31:03 -0400
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 8 May 2004 14:40:29 -0400
+Received: from topper.inf.ed.ac.uk ([129.215.32.40]:49121 "EHLO
+	topper.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S264044AbUEHSkO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 14:40:14 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16541.10632.528036.544259@toolo.inf.ed.ac.uk>
+Date: Sat, 8 May 2004 19:40:08 +0100
+From: Julian Bradfield <jcb@inf.ed.ac.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-ID: <20040508183103.GA825@samarkand.rivenstone.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040505013135.7689e38d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-In-Reply-To: <20040505013135.7689e38d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
-From: jhf@rivenstone.net (Joseph Fannin)
+Subject: Re: hang with 2.4.26 copying to loopback device
+In-Reply-To: <20040504011947.GC8028@logos.cnet>
+References: <16534.48421.296794.467014@toolo.inf.ed.ac.uk>
+	<20040504011947.GC8028@logos.cnet>
+X-Mailer: VM 7.18 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Please prepare a more complete report with alt+sysrq+p and alt+sysrq+t 
+>output if possible. Attaching a serial console to the box is 
+>very helpful if you dont want to copy the output by hand.
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hm. I don't have suitable cable to hand, and I can't afford at present
+to keep crashing my laptop. However, it appears that the problem can
+be reproduced under UML. So here's what happens there:
 
-On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2=
-=2E6.6-rc3-mm2/
+Setup: kernel 2.4.26 with UML patches, running with a small Debian
+root file system (with devfs). Networked via tun/tap.
 
-> +fix-deadlock-in-journalled-quota-fix.patch
->=20
->  Fix fix-deadlock-in-journalled-quota.patch
+First, remote nfs file system mounted by:
+mount -o nolock iseo.lan:/BACKUPS /mnt/iseo
 
-    This patch seems to be slightly mangled; patch complains if
-fs/dquot.c.orig already exists, though it doesn't seem to create such
-a file in either case.
+Then:
+losetup /dev/loop/0 /mnt/iseo/jcb/feijoa/home.LOOPBACK
+this last being a file of 6GB in size.
 
-> +remove-errno-refs.patch
-> +ia64-remove-errno-refs.patch
->=20
->  Fiddle with kernel syscalls and remove the global `errno' variable.  I
->  actually meant to drop this because we'll be doing it differently.
+Then
+mke2fs /dev/loop/0
+(which is pretty slow under UML, talking NFS over wi-fi!).
+This succeeds.
 
-    I had to back these two patches out to build for ppc:
+Then
+mount /dev/loop/0 /mnt/loop
 
-  LD      .tmp_vmlinux1
-arch/ppc/kernel/built-in.o(.text+0x32a2): In function `execve':
-arch/ppc/kernel/entry.S: undefined reference to `errno'
-arch/ppc/kernel/built-in.o(.text+0x32a6):arch/ppc/kernel/entry.S:
-undefined reference to `errno'
-make: *** [.tmp_vmlinux1] Error 1
+Finally
+dd if=/dev/zero of=/mnt/loop/zeroes
 
-    Probably just another reason to drop them.  I think I'm about to
-find out if I should have backed out the syscall patch too. :)
+After a minute or two, the virtual machine hangs.
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+Sysrq p and t output:
 
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William G. Perry
+SysRq : Show Regs
 
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+EIP: 0023:[<a0199b91>] CPU: 0 Not tainted ESP: 002b:a0217f44 EFLAGS:
+00000286
+    Not tainted
+EAX: fffffffc EBX: a0217f58 ECX: 00000000 EDX: a0214000
+ESI: a0214000 EDI: a0214000 EBP: a0217f60 DS: 002b ES: 002b
+Call Trace: [<a01d9f1d>] [<a01daa9a>] [<a00f8a91>] [<a01d6dcc>]
+[<a011e382>] 
+   [<a011dbc7>] [<a0120000>] [<a00dabbe>] [<a00dadcf>] [<a00db57e>]
+   [<a00e5fe6>] 
+   [<a00e270d>] [<a0184cd8>] [<a0199b91>] [<a00e17de>] [<a0023569>]
+   [<a00ddaf0>] 
+   [<a00ddae6>] [<a0006f63>] [<a01d9fe3>] [<a000c4de>] [<a000253d>]
+   [<a00e57c0>] 
+   [<a00e4701>] [<a00e5848>] [<a00e26f0>] [<a019bd0a>] [<a00e46d0>] 
+SysRq : Show State
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+                         free                        sibling
+  task             PC    stack   pid father child younger older
+init          S A019B024  8588     1      0   144
+(NOTLB)
+keventd       S A019B024 13252     2      1             3
+(L-TLB)
+ksoftirqd_CPU S A019B024 11612     3      1             4     2
+(L-TLB)
+kswapd        D A019B024 10768     4      1             5     3
+(L-TLB)
+bdflush       S A019B024 11308     5      1             6     4
+(L-TLB)
+kupdated      S A019B024 11164     6      1             7     5
+(L-TLB)
+scsi_eh_0     S A019B024 13224     7      1             8     6
+(L-TLB)
+mtdblockd     S A019B024 13316     8      1            99     7
+(L-TLB)
+syslogd       S A019B024 10404    99      1           102     8
+(NOTLB)
+klogd         D A019B024 11356   102      1           110    99
+(NOTLB)
+inetd         S A019B024  3196   110      1           115   102
+(NOTLB)
+atd           S A019B024 11628   115      1           118   110
+(NOTLB)
+cron          S A019B024 10716   118      1           121   115
+(NOTLB)
+bash          S A019B024  8812   121      1   155     122   118
+(NOTLB)
+bash          D A019B024     0   122      1           123   121
+(NOTLB)
+getty         S A019B024  2424   123      1           124   122
+(NOTLB)
+getty         S A019B024  1044   124      1           139   123
+(NOTLB)
+rpciod        D A019B024 10132   139      1           144   124
+(L-TLB)
+loop0         D A019B024 10284   144      1                 139
+(L-TLB)
+dd            D A019B024  8700   155    121
+(NOTLB)
 
-iD8DBQFAnSdnWv4KsgKfSVgRAqwOAJ9Hi2DEoqkS/amOGOBe+33klzTRvwCghdZY
-938dTP1Jfo1NvR2NlY8gf5w=
-=4Wk6
------END PGP SIGNATURE-----
 
---45Z9DzgjV8m4Oswq--
+A few minutes later, even more tasks were in disk wait:
+
+SysRq : Show State
+
+                         free                        sibling
+  task             PC    stack   pid father child younger older
+init          D A019B024  8588     1      0   144
+(NOTLB)
+keventd       S A019B024 13252     2      1             3
+(L-TLB)
+ksoftirqd_CPU S A019B024 11612     3      1             4     2
+(L-TLB)
+kswapd        D A019B024 10768     4      1             5     3
+(L-TLB)
+bdflush       S A019B024 11308     5      1             6     4
+(L-TLB)
+kupdated      S A019B024 11164     6      1             7     5
+(L-TLB)
+scsi_eh_0     S A019B024 13224     7      1             8     6
+(L-TLB)
+mtdblockd     S A019B024 13316     8      1            99     7
+(L-TLB)
+syslogd       D A019B024 10404    99      1           102     8
+(NOTLB)
+klogd         D A019B024 11356   102      1           110    99
+(NOTLB)
+inetd         S A019B024  3196   110      1           115   102
+(NOTLB)
+atd           S A019B024 11628   115      1           118   110
+(NOTLB)
+cron          S A019B024 10716   118      1           121   115
+(NOTLB)
+bash          S A019B024  8812   121      1   155     122   118
+(NOTLB)
+bash          D A019B024     0   122      1           123   121
+(NOTLB)
+getty         S A019B024  2424   123      1           124   122
+(NOTLB)
+getty         S A019B024  1044   124      1           139   123
+(NOTLB)
+rpciod        D A019B024 10132   139      1           144   124
+(L-TLB)
+loop0         D A019B024 10284   144      1                 139
+(L-TLB)
+dd            D A019B024  8700   155    121
+(NOTLB)
+
+
+
+If I go in with gdb, then all the stuck threads say they're at
+0xa019b024 in read () at stats.c:181
+181                     remove_proc_entry("net/rpc", 0);
+
+For example, the  dd  process itself says:
+(gdb) att 10575
+Attaching to program: /scratch/jcb/UML/linux-2.4.26/linux, process
+10575
+0xa019b024 in read () at stats.c:181
+181                     remove_proc_entry("net/rpc", 0);
+(gdb) where
+#0  0xa019b024 in read () at stats.c:181
+#1  0xa1268000 in ?? ()
+#2  0xa00ebe71 in os_read_file (fd=64, buf=0xa12ef8cf, len=1) at
+#file.c:354
+#3  0xa00e3df3 in _switch_to_tt (prev=0xa12ec000, next=0x40)
+    at process_kern.c:66
+
+

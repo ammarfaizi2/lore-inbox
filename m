@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbULAV41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbULAWCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbULAV41 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbULAV41
+	id S261467AbULAWCH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 17:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbULAWCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:56:27 -0500
-Received: from smtp07.web.de ([217.72.192.225]:9396 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S261465AbULAV4X (ORCPT
+	Wed, 1 Dec 2004 17:02:07 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:56798 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261469AbULAV6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:56:23 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-References: <1101763996l.13519l.0l@werewolf.able.es>
-	<Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr>
-	<1101765555l.13519l.1l@werewolf.able.es>
-	<20041130071638.GC10450@suse.de>
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Wed, 01 Dec 2004 22:56:32 +0100
-In-Reply-To: <20041130071638.GC10450@suse.de> (Jens Axboe's message of "Tue,
- 30 Nov 2004 08:16:39 +0100")
-Message-ID: <87eki9bs33.fsf@plailis.daheim.bs>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 1 Dec 2004 16:58:49 -0500
+Date: Wed, 1 Dec 2004 22:58:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041201215837.GA24809@elte.hu>
+References: <17532.195.245.190.94.1101829198.squirrel@195.245.190.94> <20041201103251.GA18838@elte.hu> <32831.192.168.1.5.1101905229.squirrel@192.168.1.5> <20041201154046.GA15244@elte.hu> <20041201160632.GA3018@elte.hu> <20041201162034.GA8098@elte.hu> <33059.192.168.1.5.1101927565.squirrel@192.168.1.5> <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu> <32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
 
-> On Mon, Nov 29 2004, J.A. Magallon wrote:
->> dev=ATAPI uses ide-scsi interface, through /dev/sgX. And:
->> 
->> > scsibus: -1 target: -1 lun: -1
->> > Warning: Using ATA Packet interface.
->> > Warning: The related Linux kernel interface code seems to be unmaintained.
->> > Warning: There is absolutely NO DMA, operations thus are slow.
->> 
->> dev=ATA uses direct IDE burning. Try that as root. In my box, as root:
->
-> Oh no, not this again... Please check the facts: the ATAPI method uses
-> the SG_IO ioctl, which is direct-to-device. It does _not_ go through
-> /dev/sgX, unless you actually give /dev/sgX as the device name. It has
-> nothing to do with ide-scsi. Period.
->
-> ATA uses CDROM_SEND_PACKET. This has nothing to do with direct IDE
-> burning, it's a crippled interface from the CDROM layer that should not
-> be used for anything.  scsi-linux-ata.c should be ripped from the
-> cdrecord sources, or at least cdrecord should _never_ select that
-> transport for 2.6 kernels. For 2.4 you are far better off using
-> ide-scsi.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Are you sure you don't mix ATA with ATAPI? I think ATA is equivalent to
-dev=/dev/hdX. 
+> >> up. (can the soundcard period size / buffering be reduced further, to
+> >> make it more sensitive to scheduling latencies?)
+> >
+> 
+> OK.
+> 
+> A couple of hours later, as I thrown in some more jack clients into
+> the picture, the XRUNs started to appear, but very discrete still.
 
-regards
-Markus
+just curious, what type of CPU load did this create - over 50%?
 
+	Ingo

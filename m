@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292407AbSCICNd>; Fri, 8 Mar 2002 21:13:33 -0500
+	id <S292391AbSCICSX>; Fri, 8 Mar 2002 21:18:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292408AbSCICNO>; Fri, 8 Mar 2002 21:13:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34316 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292407AbSCICNE>; Fri, 8 Mar 2002 21:13:04 -0500
-Date: Fri, 8 Mar 2002 18:12:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <20020308235510.EBDF83FE06@smtp.linux.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203081802540.5197-100000@penguin.transmeta.com>
+	id <S292395AbSCICSN>; Fri, 8 Mar 2002 21:18:13 -0500
+Received: from 213-98-126-44.uc.nombres.ttd.es ([213.98.126.44]:14730 "HELO
+	mitica.trasno.org") by vger.kernel.org with SMTP id <S292391AbSCICSD>;
+	Fri, 8 Mar 2002 21:18:03 -0500
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [bkpatch] do_mmap cleanup
+In-Reply-To: <20020308185350.E12425@redhat.com>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <20020308185350.E12425@redhat.com>
+Date: 09 Mar 2002 03:15:38 +0100
+Message-ID: <m2y9h2mqph.fsf@trasno.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "benjamin" == Benjamin LaHaise <bcrl@redhat.com> writes:
 
-On Fri, 8 Mar 2002, Hubertus Franke wrote:
-> >
-> > The point being that the difference between a "decl" and a "lock ;  decl"
-> > is about 1:12 or so in performance.
->
-> I am no expert in architecture, but if its done through the cache coherency 
-> mechanism, the overhead shouldn't be 12:1. You simply mark the cache line as 
-> part of you instruction to avoid a cache line transfer. How can that be 12 
-> times slower.  .. Ready to be educated....
+benjamin> diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+benjamin> --- a/include/linux/mm.h	Fri Mar  8 18:46:34 2002
+benjamin> +++ b/include/linux/mm.h	Fri Mar  8 18:46:34 2002
+benjamin> @@ -492,20 +492,11 @@
+benjamin> extern int do_munmap(struct mm_struct *, unsigned long, size_t);
+benjamin> +extern long sys_munmap(unsigned long, size_t);
 
-A lock in a SMP system also needs to synchronize the instruction stream,
-and not let stores move "out" from the locked region.
+Please, don't do that, export another function that does exactly that.
+sys_munmap is declared as asmlinkage, and some architectures (at
+least ppc used to have) need especial code to be able to call
+asmlinkage functions from inside the kernel.
 
-On a UP system, this all happens automatically (well, getting it to happen
-right is obviously one of the big issues in an out-of-order CPU core, but
-it's a very fundamental part of the core, so it's "free" in the sense that
-if it isn't done, the CPU simply doesn't work).
+Declaring a __sys_munmap() that does the work and is exported and then
+sys_munmap to be only the syscall entry is better.
 
-On SMP, it's a memory barrier. This is why a "lock ; decl" is more
-expensive than a "decl" - it's the implied memory ordering constraints (on
-other architectures they are explicit). On an intel CPU, this basically
-means that the pipeline is drained, so a locked instruction takes roughly
-12 cycles on a PPro core (AMD's K7 core seems to be rather more graceful
-about this one). I haven't timed a P4 lately, I think it's worse.
+asmlinkage long sys_munmap(unsigned long addr, size_t len)
 
-Other architectures do the memory ordering explicitly, and some are
-better, some are worse. But it always costs you _something_.
 
-		Linus
+ 
+Later, Juan.
 
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbTACSPH>; Fri, 3 Jan 2003 13:15:07 -0500
+	id <S267617AbTACSVN>; Fri, 3 Jan 2003 13:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267616AbTACSPG>; Fri, 3 Jan 2003 13:15:06 -0500
-Received: from 177-2.SPEEDe.golden.net ([216.75.177.2]:58121 "EHLO
-	thebeever.com") by vger.kernel.org with ESMTP id <S267615AbTACSPF>;
-	Fri, 3 Jan 2003 13:15:05 -0500
-Date: Fri, 3 Jan 2003 13:24:14 -0500
-From: Richard Baverstock <beaver@gto.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AGPGART for VIA vt8235, kernel 2.4.21-pre2
-Message-Id: <20030103132414.2bbeae17.beaver@gto.net>
-In-Reply-To: <20030103180008.GB10327@codemonkey.org.uk>
-References: <20030102145346.27a21ed9.beaver@gto.net>
-	<20030103171617.B4502@ucw.cz>
-	<20030103122216.39cedd3f.beaver@gto.net>
-	<20030103174323.GA10327@codemonkey.org.uk>
-	<20030103180008.GB10327@codemonkey.org.uk>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267618AbTACSVN>; Fri, 3 Jan 2003 13:21:13 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22791
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267617AbTACSVM>; Fri, 3 Jan 2003 13:21:12 -0500
+Date: Fri, 3 Jan 2003 10:29:03 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Marco Monteiro <masm@acm.org>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <Pine.LNX.4.10.10301030959390.421-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10301031025280.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Jan 2003, Andre Hedrick wrote:
 
-> Actually, the P4X400 won't work in current situations.
-> I'll bet if you put an AGPx8 card in there, it'll do the same
-> "change into AGP3.0 mode" trick that the KT400 does.
-> I'll move onto that after I finish up the KT400 GART driver.
+> On Fri, 3 Jan 2003, Larry McVoy wrote:
 > 
+> > > Remember that the next time you buy a chipset that is not supported.
+> > > I will look for a check in the mail from you to pay for the support
+> > > services.
+> > 
+> > Andre, Andre, Andre.  Have I taught you nothing?!?  Accept no checks,
+> > only small unmarked bills in a brown paper bag.
+> 
+> Yeah, well I already did work for the SPOOKS of the cloak-n-dagger world
+> the help deal with world terrorism and have yet to be paid!  I do
+> electronic wire transfers in two stages now.
 
+I should mention it is The Department of Treasury's Criminal Investigation
+Division of the Internal Revenue Service who can not pay their BILLS!
+This is in concert with all the partners in the Intelligence gathering
+communitities, who are indirectly to blame for not paying their bills.
 
-I'm not using an AGPx8 card however, so that may have changed things. (Geforce 4 Ti).
-Thanks :)
+Then again who cares.
 
-Rich
+Later!
+
+Andre Hedrick
+LAD Storage Consulting Group
 

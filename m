@@ -1,155 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbUCLCPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 21:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUCLCPQ
+	id S261906AbUCLCTz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 21:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUCLCTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 21:15:16 -0500
-Received: from zero.aec.at ([193.170.194.10]:39686 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261909AbUCLCOh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 21:14:37 -0500
-To: Sid Boyce <sboyce@blueyonder.co.uk>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1 entry.S errors x86_64
-References: <1yJYn-3Hl-21@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 18 Mar 2004 14:39:36 +0100
-In-Reply-To: <1yJYn-3Hl-21@gated-at.bofh.it> (Sid Boyce's message of "Fri,
- 12 Mar 2004 02:50:11 +0100")
-Message-ID: <m3oequff53.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 11 Mar 2004 21:19:55 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21007
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261906AbUCLCTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 21:19:53 -0500
+Date: Fri, 12 Mar 2004 03:20:36 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312022036.GP30940@dualathlon.random>
+References: <20040311135608.GI30940@dualathlon.random> <Pine.LNX.4.44.0403112043420.2120-100000@localhost.localdomain> <20040312014710.GO30940@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040312014710.GO30940@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce <sboyce@blueyonder.co.uk> writes:
-> previous .cfi_startproc
-> arch/x86_64/kernel/entry.S:873: Error: no such instruction: `r8,3*8-(9*8+0)'
-> arch/x86_64/kernel/entry.S:873: Error: CFI instruction used without
-> previous .cfi_startproc
-> etc.
+On Fri, Mar 12, 2004 at 02:47:10AM +0100, Andrea Arcangeli wrote:
+> my patch is not stable yet, it crashes during swapping and the debugging
+> code catches bug even before swapping (which is good):
 
-This patch should fix it. It has a few unrelated changes, but 
-I'm too lazy to untangle them now.
+I fixed some more bugs (s/index/private), it's not stable yet but some basic
+swapping works now (there is probably some issue with shared swapcache
+still, since ps just oopsed, and ps may be sharing-cow swapcache through
+fork).
 
-Or alternatively disable CONFIG_DEBUG_INFO
+ 0  0      0 408712   7800  41160    0    0     0     0 1131    46  0  0 95  5
+ 0  0      0 408712   7800  41160    0    0     0     0 1102    64  0  0 100  0
+ 0  0      0 408712   7800  41160    0    0     0     0 1090    40  0  0 100  0
+ 0  0      0 408712   7800  41160    0    0     0     0 1107    84  0  0 100  0
+ 0  0      0 408712   7808  41152    0    0     0    84 1101    66  0  0 100  0
+ 0  0      0 408712   7808  41152    0    0     0     0 1096    52  0  0 100  0
+ 1  0      0 264808   7808  41152    0    0     0     0 1093    49  5 16 79  0
+ 1  0      0  51636   7808  41152    0    0     0     0 1083    34  5 20 75  0
+ 1  1    128   2384    212  14068    0  128     0   204 1106   178  1  7 73 19
+ 1  2  82824   2332    200   2136   32 82668    40 82668 1221  1955  1 12 49 38
+ 1  2 130000   2448    208   1868   32 47048   312 47048 1184   782  0  5 60 35
+ 0  3 178700   1676    208   2428 10388 48700 11000 48700 1536  1291  0  4 55 40
+ 0  3 205996   1780    216   1992 4264 27224  4424 27224 1312   549  1  4 41 55
+ 2  2 238900   4148    240   2388   88 32980   684 32984 1190  1380  1  6 23 69
+ 0  3 295124   1996    244   2392   92 56148   232 56148 1223   149  1  6 38 54
+ 0  2 315204   2036    244   2356    0 19972     0 19972 1172    55  1  2 52 45
+ 1  0 334052   3924    264   2592  192 18720   372 18720 1205   154  0  1 35 63
+ 0  3 377208   2324    264   1928   64 42984    64 42984 1249   208  2  6 39 53
+ 0  1 389856   3408    264   2032  128 12680   224 12680 1187   159  0  1 60 38
+ 0  0 374032 263036    316   3504  920    0  2464     0 1258   224  0  2 76 23
+ 0  0 374032 263036    316   3504    0    0     0     0 1087    27  0  0 100  0
+ 0  0 374032 263036    316   3504    0    0     0     0 1083    25  0  0 100  0
+ 0  0 374032 263040    316   3504    0    0     0     0 1086    25  0  0 100  0
+ 0  0 374032 263040    316   3504    0    0     0     0 1084    27  0  0 100  0
+ 0  0 374032 263128    316   3504    0    0     0     0 1086    23  0  0 100  0
+ 0  0 374032 263164    316   3472   32    0    32     0 1086    23  0  0 100  0
+ 0  0 374032 263212    316   3508   32    0    32     0 1086    25  0  0 100  0
 
--Andi
-
-Clean up stack switching handling for IST exceptions.
-
-Pass right pt_regs to die_chain functions.
-
-Add missing cfi mnemonics to fix CONFIG_DEBUG_INFO compilation.
-
-diff -X ../KDIFX -burpN linux-2.6.4-x86_64-1/arch/x86_64/kernel/entry.S linux-2.6.4-amd64/arch/x86_64/kernel/entry.S
---- linux-2.6.4-x86_64-1/arch/x86_64/kernel/entry.S	2004-03-18 14:32:08.000000000 +0100
-+++ linux-2.6.4-amd64/arch/x86_64/kernel/entry.S	2004-03-18 14:27:29.000000000 +0100
-@@ -803,9 +803,6 @@ ENTRY(debug)
- 	pushq $0
- 	CFI_ADJUST_CFA_OFFSET 8		
- 	paranoidentry do_debug
--paranoid_stack_switch:	
--	testq %rax,%rax
--	jz paranoid_exit
- 	/* switch back to process stack to restore the state ptrace touched */
- 	movq %rax,%rsp	
- 	jmp paranoid_exit
-@@ -870,8 +867,11 @@ ENTRY(reserved)
- 
- 	/* runs on exception stack */
- ENTRY(double_fault)
-+	CFI_STARTPROC
- 	paranoidentry do_double_fault
--	jmp paranoid_stack_switch
-+	movq %rax,%rsp
-+	jmp paranoid_exit
-+	CFI_ENDPROC
- 
- ENTRY(invalid_TSS)
- 	errorentry do_invalid_TSS
-@@ -881,8 +881,11 @@ ENTRY(segment_not_present)
- 
- 	/* runs on exception stack */
- ENTRY(stack_segment)
-+	CFI_STARTPROC
- 	paranoidentry do_stack_segment
--	jmp paranoid_stack_switch
-+	movq %rax,%rsp
-+	jmp paranoid_exit
-+	CFI_ENDPROC
- 
- ENTRY(general_protection)
- 	errorentry do_general_protection
-diff -X ../KDIFX -burpN linux-2.6.4-x86_64-1/arch/x86_64/kernel/traps.c linux-2.6.4-amd64/arch/x86_64/kernel/traps.c
---- linux-2.6.4-x86_64-1/arch/x86_64/kernel/traps.c	2004-03-18 14:32:08.000000000 +0100
-+++ linux-2.6.4-amd64/arch/x86_64/kernel/traps.c	2004-03-18 01:00:40.000000000 +0100
-@@ -477,15 +477,17 @@ DO_ERROR_INFO(17, SIGBUS, "alignment che
- DO_ERROR(18, SIGSEGV, "reserved", reserved)
- 
- #define DO_ERROR_STACK(trapnr, signr, str, name) \
--asmlinkage unsigned long do_##name(struct pt_regs * regs, long error_code) \
-+asmlinkage void *do_##name(struct pt_regs * regs, long error_code) \
- { \
- 	struct pt_regs *pr = ((struct pt_regs *)(current->thread.rsp0))-1; \
- 	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) == NOTIFY_BAD) \
--		return 0; \
--	if (regs->cs & 3) \
-+		return regs; \
-+	if (regs->cs & 3) { \
- 		memcpy(pr, regs, sizeof(struct pt_regs)); \
-+		regs = pr; \
-+	} \
- 	do_trap(trapnr, signr, str, regs, error_code, NULL); \
--	return (regs->cs & 3) ? (unsigned long)pr : 0;		\
-+	return regs;		\
- }
- 
- DO_ERROR_STACK(12, SIGBUS,  "stack segment", stack_segment)
-@@ -605,16 +607,18 @@ asmlinkage void default_do_nmi(struct pt
- }
- 
- /* runs on IST stack. */
--asmlinkage unsigned long do_debug(struct pt_regs * regs, unsigned long error_code)
-+asmlinkage void *do_debug(struct pt_regs * regs, unsigned long error_code)
- {
--	struct pt_regs *processregs;
-+	struct pt_regs *pr;
- 	unsigned long condition;
- 	struct task_struct *tsk = current;
- 	siginfo_t info;
- 
--	processregs = (struct pt_regs *)(current->thread.rsp0)-1;
--	if (regs->cs & 3)
--		memcpy(processregs, regs, sizeof(struct pt_regs));
-+	pr = (struct pt_regs *)(current->thread.rsp0)-1;
-+	if (regs->cs & 3) {
-+		memcpy(pr, regs, sizeof(struct pt_regs));
-+		regs = pr;
-+	}	
- 
- #ifdef CONFIG_CHECKING
-        { 
-@@ -673,8 +677,7 @@ asmlinkage unsigned long do_debug(struct
- clear_dr7:
- 	asm volatile("movq %0,%%db7"::"r"(0UL));
- 	notify_die(DIE_DEBUG, "debug", regs, condition, 1, SIGTRAP);
--out:
--	return (regs->cs & 3) ? (unsigned long)processregs : 0;
-+	return regs;
- 
- clear_TF_reenable:
- 	printk("clear_tf_reenable\n");
-@@ -685,8 +688,7 @@ clear_TF:
- 	if (notify_die(DIE_DEBUG, "debug2", regs, condition, 1, SIGTRAP) 
- 	    != NOTIFY_BAD)
- 	regs->eflags &= ~TF_MASK;
--	
--	goto out;
-+	return regs;	
- }
- 
- /*
-
+I uploaded a new anon_vma patch in the same directory with the fixes to make
+the basic swapping work. Tomorrow I'll look into the ps oops and into
+heavey cow loads.

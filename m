@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRKYNib>; Sun, 25 Nov 2001 08:38:31 -0500
+	id <S273622AbRKYNlB>; Sun, 25 Nov 2001 08:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273622AbRKYNiQ>; Sun, 25 Nov 2001 08:38:16 -0500
-Received: from pc1-camc3-0-cust88.cam.cable.ntl.com ([80.2.244.88]:27777 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S280892AbRKYNh4>;
-	Sun, 25 Nov 2001 08:37:56 -0500
-From: arjan@fenrus.demon.nl
-To: james_m_davies@yahoo.com (James Davies)
-Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011125132713Z280878-17408+19757@vger.kernel.org>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E167zTW-0002SK-00@fenrus.demon.nl>
-Date: Sun, 25 Nov 2001 13:37:38 +0000
+	id <S280609AbRKYNkv>; Sun, 25 Nov 2001 08:40:51 -0500
+Received: from dialin-145-254-223-057.arcor-ip.net ([145.254.223.57]:2291 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S273622AbRKYNkp>; Sun, 25 Nov 2001 08:40:45 -0500
+Date: Sun, 25 Nov 2001 14:40:38 +0100
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Sven.Riedel@tu-clausthal.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux and RS/6000 250
+Message-ID: <20011125144038.C5506@duron.intern.kubla.de>
+In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de> <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de>
+User-Agent: Mutt/1.3.23i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011125132713Z280878-17408+19757@vger.kernel.org> you wrote:
+On Sun, Nov 25, 2001 at 02:28:47PM +0100, Jochen Friedrich wrote:
+> Hi Sven,
+> 
+> > I've uh "inherited" an elderly RS/6000 250 and wanted to install linux
+> > on it. Googleing for this machine and linux turns up information that it
+> > is not possible. Yet, this information is a tad older (one to two years
+> > old), so I wondered if anything changed in that regard -
+> > apparently PPC in combination with the MCA bus were not supported.
+> 
+> I own a couple of them and currently run AIX 4.3.3 on all of them.
+> However, i heared, that the support from IBM is to be discontinued next
+> year and i would ^love^to run Linux on them if at all possible :-)
 
-> You can also download a kernel RPM. the latest one released by redhat is 
-> 2.4.13, and it is pretty much guaranteed to work with your current system and 
-> not break anything. It is also be patched with ext3 support. 
+Add a 350 from me.  But the problem is not just the PPC/MCA combination,
+but also the CPU. It's Power, not PowerPC!
 
-Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
-2.4.13-something....
+Dominik Kubla
+-- 
+ScioByte GmbH    Zum Schiersteiner Grund 2     55127 Mainz (Germany)
+Phone: +49 700 724 629 83                    Fax: +49 700 724 629 84
+1024D/717F16BB    A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbRFBWiK>; Sat, 2 Jun 2001 18:38:10 -0400
+	id <S262020AbRFBWpk>; Sat, 2 Jun 2001 18:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261968AbRFBWhu>; Sat, 2 Jun 2001 18:37:50 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:52166 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261950AbRFBWht>;
-	Sat, 2 Jun 2001 18:37:49 -0400
-Date: Sat, 2 Jun 2001 15:37:03 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tim Hockin <thockin@sun.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alan@redhat.com
-Subject: Re: [PATCH] HPT370 misc (for real this time)
-In-Reply-To: <3B16F12A.61ABCF06@sun.com>
-Message-ID: <Pine.LNX.4.10.10106021536240.10960-100000@master.linux-ide.org>
+	id <S262019AbRFBWpa>; Sat, 2 Jun 2001 18:45:30 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18193 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261988AbRFBWpR>; Sat, 2 Jun 2001 18:45:17 -0400
+Subject: Re: Date goes four times faster!
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Sat, 2 Jun 2001 23:43:27 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <E156K3F-0002FV-00@the-village.bc.nu> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Jun 03, 2001 12:51:49 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E156K7D-0002Fn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I use your -ac series ever (did I? :-) but I am under the impression that my 
+> hardware clock (date in the long run) is running (little) to fast.
 
-+               p += sprintf(p, "\nController: %d\n", i);
-+               p += sprintf(p, "Chipset: HPT%s\n", chipset_nums[class_rev]);
-+               p += sprintf(p, "Bus speed: %d MHz\n", dev->bus->bus_speed);
-                                                       ^^^^^^^^^^^^^^^^^^^
+Well that would probably imply the clock is out on the machine - which with
+modern systems is not that unusual.  You can tune the clock slide with adjtimex
+> 
+> Athlon I 550 (0.25 µm)
+> MSI MS-6167 (AMD Irongate C4) --- Yes, Alan the very first one...;-)
 
-DNE -- Does Not Exist
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller (rev 23)
 
-+               p += sprintf(p, "--------------- Primary Channel "
-+                               "--------------- Secondary Channel "
-+                               "--------------\n");
-+
+and my clock does behave..
 
+> ACPI anabled...
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Brave man 8)
+
+Alan
 

@@ -1,151 +1,310 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265806AbUACAtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 19:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUACAtp
+	id S265800AbUACAtU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 19:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265806AbUACAtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 19:49:45 -0500
-Received: from moutng.kundenserver.de ([212.227.126.185]:13262 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265806AbUACAtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 19:49:36 -0500
-From: Christian Trefzer <ctrefzer@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] IMQ port to 2.6.0
-Date: Sat, 3 Jan 2004 01:48:37 +0100
-User-Agent: KMail/1.5.4
+	Fri, 2 Jan 2004 19:49:20 -0500
+Received: from mx15.sac.fedex.com ([199.81.197.54]:48137 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S265800AbUACAtB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 19:49:01 -0500
+Date: Sat, 3 Jan 2004 08:35:12 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Jens Axboe <axboe@suse.de>
+cc: Michael Hunold <hunold@convergence.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GetASF failed on DVD authentication
+In-Reply-To: <20040102163024.GS5523@suse.de>
+Message-ID: <Pine.LNX.4.58.0401030830360.407@boston.corp.fedex.com>
+References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
+ <20040102103949.GL5523@suse.de> <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
+ <3FF5986C.8060806@convergence.de> <20040102161813.GA21852@suse.de>
+ <20040102163024.GS5523@suse.de>
 MIME-Version: 1.0
-Message-Id: <200401030148.17358.ctrefzer@web.de>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_mFh9/8xiqLuyqZo"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:09e594b18ddbe36227f84519c7cfcca7
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
+ 08:48:39 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
+ 08:48:53 AM,
+	Serialize complete at 01/03/2004 08:48:53 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_mFh9/8xiqLuyqZo
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, 2 Jan 2004, Jens Axboe wrote:
+
+> BTW Jeff, I'd still very much like to see the usb-storage log from when
+> sr gets loaded. Even though it's fine to kill the CDC_DVD checks, it
+> would still be a good idea to fix why the capabilities check fails. That
+> is the real bug.
+
+Below is the "debug" messages for usb-storage ...
+
+The log showed "Illegal Request: invalid command operation code" when I
+issued "tstdvd".
 
 
-OK folks, hit me -- I tried to port the Intermediate Queueing Device driver 
-(IMQ) to the 2.6.x kernel series. It's my first submission / patch / whatever 
-to the linux kernel, so any hint will be appreciated.
-
-The diff was made against vanilla 2.6.0, but can be applied without a hitch to 
-2.6.1-rc1 as well. The further one compiles with two warnings in imq.c which 
-is actually left unchanged, as it seemed to be written somewhat clean, as far 
-as the 2.6 driver issues are concerned.
-Runtime testing will follow tomorrow, for both 2.6.0 and 2.6.1-rc1. But just 
-in case someone wants to break his/her box while I'm asleep, here goes the 
-diff. The true credits are due to someone else, of course...
-
-imq.c reads:
-Authors:	Patrick McHardy, <kaber@trash.net>
-		The first version was written by Martin Devera, <devik@cdi.cz>
-Credits:	Jan Rafaj <imq2t@cedric.vabo.cz>
-		 - Update patch to 2.4.21
-		Sebastian Strollo <sstrollo@nortelnetworks.com>
-		 - Fix "Dead-loop on netdevice imq"-issue
-
-Have fun, and blame (but please don't sue) me for any mess contained herein...
+Thanks,
+Jeff
 
 
+*********  starting usb ...
+Jan  3 08:11:07 boston kernel: PCI: Setting latency timer of device 00:1f.6 to 64
+Jan  3 08:11:33 boston kernel: PCI: Setting latency timer of device 00:1d.0 to 64
+Jan  3 08:11:34 boston kernel: usb.c: kmalloc IF f6d8a280, numif 1
+Jan  3 08:11:34 boston kernel: usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+Jan  3 08:11:34 boston kernel: usb.c: USB device number 1 default language ID 0x0
+Jan  3 08:11:34 boston kernel: hub.c: standalone hub
+Jan  3 08:11:34 boston kernel: hub.c: ganged power switching
+Jan  3 08:11:34 boston kernel: hub.c: global over-current protection
+Jan  3 08:11:34 boston kernel: hub.c: Port indicators are not supported
+Jan  3 08:11:34 boston kernel: hub.c: power on to power good time: 2ms
+Jan  3 08:11:34 boston kernel: hub.c: hub controller current requirement: 0mA
+Jan  3 08:11:34 boston kernel: hub.c: port removable status: RR
+Jan  3 08:11:34 boston kernel: hub.c: local power source is good
+Jan  3 08:11:34 boston kernel: hub.c: no over-current condition exists
+Jan  3 08:11:34 boston kernel: hub.c: enabling power on all ports
+Jan  3 08:11:34 boston kernel: usb.c: hub driver claimed interface f6d8a280
+Jan  3 08:11:34 boston kernel: usb.c: kusbd: /sbin/hotplug add 1
+Jan  3 08:11:34 boston kernel: usb.c: kusbd policy returned 0xfffffffe
+Jan  3 08:11:34 boston kernel: PCI: Setting latency timer of device 00:1d.1 to 64
+Jan  3 08:11:34 boston kernel: usb.c: kmalloc IF f6d8a3a0, numif 1
+Jan  3 08:11:34 boston kernel: usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+Jan  3 08:11:34 boston kernel: usb.c: USB device number 1 default language ID 0x0
+Jan  3 08:11:34 boston kernel: hub.c: standalone hub
+Jan  3 08:11:34 boston kernel: hub.c: ganged power switching
+Jan  3 08:11:34 boston kernel: hub.c: global over-current protection
+Jan  3 08:11:34 boston kernel: hub.c: Port indicators are not supported
+Jan  3 08:11:34 boston kernel: hub.c: power on to power good time: 2ms
+Jan  3 08:11:34 boston kernel: hub.c: hub controller current requirement: 0mA
+Jan  3 08:11:34 boston kernel: hub.c: port removable status: RR
+Jan  3 08:11:34 boston kernel: hub.c: local power source is good
+Jan  3 08:11:34 boston kernel: hub.c: no over-current condition exists
+Jan  3 08:11:34 boston kernel: hub.c: enabling power on all ports
+Jan  3 08:11:34 boston kernel: usb.c: hub driver claimed interface f6d8a3a0
+Jan  3 08:11:34 boston kernel: usb.c: kusbd: /sbin/hotplug add 1
+Jan  3 08:11:34 boston kernel: usb.c: kusbd policy returned 0xfffffffe
+Jan  3 08:11:34 boston kernel: PCI: Setting latency timer of device 00:1d.2 to 64
+Jan  3 08:11:34 boston kernel: hub.c: port 1, portstatus 100, change 0, 12 Mb/s
+Jan  3 08:11:34 boston kernel: hub.c: port 2, portstatus 101, change 1, 12 Mb/s
+Jan  3 08:11:34 boston kernel: hub.c: port 2 connection change
+Jan  3 08:11:34 boston kernel: hub.c: port 2, portstatus 101, change 1, 12 Mb/s
+Jan  3 08:11:34 boston kernel: usb.c: kmalloc IF f6d8a4c0, numif 1
+Jan  3 08:11:34 boston kernel: usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+Jan  3 08:11:34 boston kernel: usb.c: USB device number 1 default language ID 0x0
+Jan  3 08:11:34 boston kernel: hub.c: standalone hub
+Jan  3 08:11:34 boston kernel: hub.c: ganged power switching
+Jan  3 08:11:34 boston kernel: hub.c: global over-current protection
+Jan  3 08:11:34 boston kernel: hub.c: Port indicators are not supported
+Jan  3 08:11:34 boston kernel: hub.c: power on to power good time: 2ms
+Jan  3 08:11:34 boston kernel: hub.c: hub controller current requirement: 0mA
+Jan  3 08:11:34 boston kernel: hub.c: port removable status: RR
+Jan  3 08:11:34 boston kernel: hub.c: local power source is good
+Jan  3 08:11:34 boston kernel: hub.c: no over-current condition exists
+Jan  3 08:11:34 boston kernel: hub.c: enabling power on all ports
+Jan  3 08:11:34 boston kernel: usb.c: hub driver claimed interface f6d8a4c0
+Jan  3 08:11:34 boston kernel: usb.c: kusbd: /sbin/hotplug add 1
+Jan  3 08:11:34 boston kernel: usb.c: kusbd policy returned 0xfffffffe
+Jan  3 08:11:34 boston kernel: hub.c: port 2, portstatus 101, change 0, 12 Mb/s
+Jan  3 08:11:34 boston last message repeated 3 times
+Jan  3 08:11:34 boston kernel: hub.c: port 2, portstatus 103, change 0, 12 Mb/s
+Jan  3 08:11:34 boston kernel: usb.c: kmalloc IF f6d8a560, numif 1
+Jan  3 08:11:34 boston kernel: usb.c: new device strings: Mfr=73, Product=87, SerialNumber=107
+Jan  3 08:11:34 boston kernel: usb.c: USB device number 2 default language ID 0x409
+Jan  3 08:11:34 boston kernel: usb-storage: act_altsettting is 0
+Jan  3 08:11:34 boston kernel: usb-storage: id_index calculated to be: 86
+Jan  3 08:11:34 boston kernel: usb-storage: Array length appears to be: 88
+Jan  3 08:11:34 boston kernel: usb-storage: USB Mass Storage device detected
+Jan  3 08:11:34 boston kernel: usb-storage: Endpoints: In: 0xf6dfd574 Out: 0xf6dfd560 Int: 0xf6dfd588 (Period 16)
+Jan  3 08:11:34 boston kernel: usb-storage: New GUID 093b002011100e00004b6be4
+Jan  3 08:11:34 boston kernel: usb-storage: GetMaxLUN command result is 1, data is 0
+Jan  3 08:11:34 boston kernel: usb-storage: Transport: Bulk
+Jan  3 08:11:34 boston kernel: usb-storage: Protocol: Transparent SCSI
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Command INQUIRY (6 bytes)
+Jan  3 08:11:34 boston kernel: usb-storage: 12 00 00 00 ff 00 00 00 5a 07 00 00
+Jan  3 08:11:34 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x1 Trg 0 LUN 0 L 255 F 128 CL 6
+Jan  3 08:11:34 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:11:34 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
+Jan  3 08:11:34 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
+Jan  3 08:11:34 boston kernel: usb-storage: Bulk data transfer result 0x1
+Jan  3 08:11:34 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:11:34 boston kernel: usb-storage: clearing endpoint halt for pipe 0xc0010280
+Jan  3 08:11:34 boston kernel: usb-storage: usb_stor_clear_halt: result=0
+Jan  3 08:11:34 boston kernel: usb-storage: Attempting to get CSW (2nd try)...
+Jan  3 08:11:34 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:11:34 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1 R 159 Stat 0x0
+Jan  3 08:11:34 boston kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2 - was 0
+Jan  3 08:11:34 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad LUN (0/1)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (1/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (2/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (3/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (4/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (5/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (6/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:11:34 boston kernel: usb-storage: Bad target number (7/0)
+Jan  3 08:11:34 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:11:34 boston kernel: WARNING: USB Mass Storage data integrity not assured
+Jan  3 08:11:34 boston kernel: USB Mass Storage device found at 2
+Jan  3 08:11:34 boston kernel: usb.c: usb-storage driver claimed interface f6d8a560
+Jan  3 08:11:34 boston kernel: usb.c: kusbd: /sbin/hotplug add 2
+Jan  3 08:11:34 boston kernel: usb.c: kusbd policy returned 0xfffffffe
+Jan  3 08:11:34 boston kernel: hub.c: port 1, portstatus 100, change 0, 12 Mb/s
+Jan  3 08:11:34 boston kernel: hub.c: port 2, portstatus 103, change 0, 12 Mb/s
 
---Boundary-00=_mFh9/8xiqLuyqZo
-Content-Type: application/x-gzip;
-  name="linux-2.6.0-imq-1.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="linux-2.6.0-imq-1.diff.gz"
 
-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
-BsTzOwAA
-
---Boundary-00=_mFh9/8xiqLuyqZo--
+*********  issuing "tstdvd" ...
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command MODE_SENSE (6 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 1a 00 2a 00 80 00 5d f9 41 54 62 f9
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x2 Trg 0 LUN 0 L 128 F 128 CL 6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 128 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 0/128
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x1
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: clearing endpoint halt for pipe 0xc0010280
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_clear_halt: result=0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW (2nd try)...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x2 R 128 Stat 0x1
+Jan  3 08:17:48 boston kernel: usb-storage: -- transport indicates command failure
+Jan  3 08:17:48 boston kernel: usb-storage: Issuing auto-REQUEST_SENSE
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x3 Trg 0 LUN 0 L 18 F 128 CL 6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x3 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: -- Result from auto-sense is 0
+Jan  3 08:17:48 boston kernel: usb-storage: -- code: 0x70, key: 0x5, ASC: 0x20, ASCQ: 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Illegal Request: invalid command operation code
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x2
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 00 00 00 00 00 00 00 00 d3 87 10 c0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x4 Trg 0 LUN 0 L 0 F 0 CL 6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x4 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command READ_TOC (10 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 43 00 00 00 00 00 00 00 0c 40 00 00
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x5 Trg 0 LUN 0 L 12 F 128 CL 10
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 12 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 12/12
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x5 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command READ_TOC (10 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 43 00 00 00 00 00 00 00 0c 00 8e f6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x6 Trg 0 LUN 0 L 12 F 128 CL 10
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 12 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 12/12
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x6 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command READ_TOC (10 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 43 00 00 00 00 00 01 00 0c 00 8e f6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x7 Trg 0 LUN 0 L 12 F 128 CL 10
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 12 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 12/12
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x7 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command READ_CAPACITY (10 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 bd f6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x8 Trg 0 LUN 0 L 8 F 128 CL 10
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
+Jan  3 08:17:48 boston kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk data transfer result 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x8 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 00 00 00 00 00 00 2c c0 00 d0 2c c0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0x9 Trg 0 LUN 0 L 0 F 0 CL 6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0x9 R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
+Jan  3 08:17:48 boston kernel: usb-storage: queuecommand() called
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread awakened.
+Jan  3 08:17:48 boston kernel: usb-storage: Command ALLOW_MEDIUM_REMOVAL (6 bytes)
+Jan  3 08:17:48 boston kernel: usb-storage: 1e 00 00 00 00 00 8e f6 00 00 00 00
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command S 0x43425355 T 0xa Trg 0 LUN 0 L 0 F 0 CL 6
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk command transfer result=0
+Jan  3 08:17:48 boston kernel: usb-storage: Attempting to get CSW...
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status result = 0
+Jan  3 08:17:48 boston kernel: usb-storage: Bulk status Sig 0x53425355 T 0xa R 0 Stat 0x0
+Jan  3 08:17:48 boston kernel: usb-storage: scsi cmd done, result=0x0
+Jan  3 08:17:48 boston kernel: usb-storage: *** thread sleeping.
 

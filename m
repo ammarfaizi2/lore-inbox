@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbUKBNOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbUKBNQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbUKBNOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 08:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUKBNKt
+	id S261527AbUKBNQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 08:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbUKBNK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 08:10:49 -0500
-Received: from [212.209.10.221] ([212.209.10.221]:3029 "EHLO krynn.se.axis.com")
-	by vger.kernel.org with ESMTP id S262977AbUKBNFM (ORCPT
+	Tue, 2 Nov 2004 08:10:26 -0500
+Received: from [212.209.10.221] ([212.209.10.221]:5845 "EHLO krynn.se.axis.com")
+	by vger.kernel.org with ESMTP id S262979AbUKBNFM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 2 Nov 2004 08:05:12 -0500
 From: "Mikael Starvik" <mikael.starvik@axis.com>
 To: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: [PATCH 8/10] CRIS architecture update - Move drivers
-Date: Tue, 2 Nov 2004 14:04:51 +0100
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C748C@exmail1.se.axis.com>
+Subject: [PATCH 10/10] CRIS architecture update - Update MAINTAINERS
+Date: Tue, 2 Nov 2004 14:04:55 +0100
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C748E@exmail1.se.axis.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01E0_01C4C0E4.EC093780"
+	boundary="----=_NextPart_000_01E6_01C4C0E4.EE7ECB60"
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook, Build 10.0.6626
@@ -27,39 +27,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_01E0_01C4C0E4.EC093780
+------=_NextPart_000_01E6_01C4C0E4.EE7ECB60
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-This is a shell script to move drivers from arch/cris/arch-v10/drivers to
-e.g. drivers/net/cris/v10. This must be applied after patch 1-7 and before
-patch 9.
-
-Let me know if you prefer this as a big diff instead.
+I have been acting maintainer for almost 2 years know so I think its about
+time...
 
 Signed-Off-By: starvik@axis.com
 
 /Mikael
 
-------=_NextPart_000_01E0_01C4C0E4.EC093780
+------=_NextPart_000_01E6_01C4C0E4.EE7ECB60
 Content-Type: application/octet-stream;
-	name="move_cris_269.sh"
+	name="cris269_10.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="move_cris_269.sh"
+	filename="cris269_10.patch"
 
-#!/bin/sh=0A=
-mkdir -p drivers/ide/cris/v10=0A=
-mkdir -p drivers/net/cris/v10=0A=
-mkdir -p drivers/serial/cris/v10=0A=
-mkdir -p drivers/usb/host/cris/v10=0A=
-mv arch/cris/arch-v10/drivers/ide.c drivers/ide/cris/v10=0A=
-mv arch/cris/arch-v10/drivers/ethernet.c drivers/net/cris/v10=0A=
-mv arch/cris/arch-v10/drivers/serial.* drivers/serial/cris/v10=0A=
-mv arch/cris/arch-v10/drivers/usb-host.* drivers/usb/host/cris/v10=0A=
-=0A=
-=0A=
+--- 269_clean/MAINTAINERS	Tue Oct 19 15:06:54 2004=0A=
++++ 269_modified/MAINTAINERS	Tue Nov  2 13:51:48 2004=0A=
+@@ -559,8 +559,8 @@=0A=
+ S:     Orphan=0A=
+ =0A=
+ CRIS PORT=0A=
+-P:	Bjorn Wesen=0A=
+-M:	bjornw@axis.com=0A=
++P:	Mikael Starvik=0A=
++M:	starvik@axis.com=0A=
+ L:	dev-etrax@axis.com=0A=
+ W:	http://developer.axis.com=0A=
+ S:	Maintained=0A=
 
-------=_NextPart_000_01E0_01C4C0E4.EC093780--
+------=_NextPart_000_01E6_01C4C0E4.EE7ECB60--
 

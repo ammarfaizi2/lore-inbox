@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277722AbRKADAc>; Wed, 31 Oct 2001 22:00:32 -0500
+	id <S277703AbRKACyb>; Wed, 31 Oct 2001 21:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277723AbRKADAW>; Wed, 31 Oct 2001 22:00:22 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13060 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277722AbRKADAF>;
-	Wed, 31 Oct 2001 22:00:05 -0500
-Date: Thu, 1 Nov 2001 01:00:40 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andreas Palsson <did@algonet.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recommendations for beginners
-Message-ID: <20011101010040.G9019@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andreas Palsson <did@algonet.se>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.10.10111010044440.21380-100000@kairos>
+	id <S277708AbRKACyL>; Wed, 31 Oct 2001 21:54:11 -0500
+Received: from c1419467-a.sttln1.wa.home.com ([65.4.225.76]:47488 "EHLO
+	zarathustra.saavie.org") by vger.kernel.org with ESMTP
+	id <S277703AbRKACx7>; Wed, 31 Oct 2001 21:53:59 -0500
+Date: Wed, 31 Oct 2001 18:53:59 -0800
+From: Neil Spring <nspring@saavie.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TCP ECN bits and TCP_RESERVED_BITS macro
+Message-ID: <20011031185358.A997@cs.washington.edu>
+In-Reply-To: <20011031152717.A25584@morinfr.org> <20011031154305.A11081@cs.washington.edu> <20011101033221.A627@morinfr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.10.10111010044440.21380-100000@kairos>
+In-Reply-To: <20011101033221.A627@morinfr.org>
 User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Nov 01, 2001 at 12:57:00AM +0100, Andreas Palsson escreveu:
-> I would like to give it a try to contribute to the Linux-kernel.
-> And as many other beginners I look for a place to start.
-> 
-> Can any experienced developers give suggestions on code which is
-> unmaintained/bitrot and needs to be cleaned/fixed/foo?
+> Dans un message du 31 oct ? 15:43, Neil Spring ?crivait :
+> > The line in your patch:
+> > > -#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH)|TCP_FLAG_ECE|TCP_FLAG_CWR)
+> > > +#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH))
+> >
+> > is, I believe, a very bad idea.  This preprocessor constant
+>
+> Well it is not. 
 
-http://kerneljanitors.org 8)
+You're absolutely right.  And it is more clean, even if
+it confused me at first.  Thanks for the explanation.
 
-- Arnaldo
+-neil
+nethack told me to be careful, full moon tonight, but I
+didn't listen.
+
+

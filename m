@@ -1,102 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319383AbSH3AfA>; Thu, 29 Aug 2002 20:35:00 -0400
+	id <S319472AbSH3AxI>; Thu, 29 Aug 2002 20:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319461AbSH3AfA>; Thu, 29 Aug 2002 20:35:00 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:11535 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S319383AbSH3Ae5>; Thu, 29 Aug 2002 20:34:57 -0400
-Date: Thu, 29 Aug 2002 17:39:13 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020830003913.GC24307@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <1030577178.7190.85.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208281633410.27728-100000@home.transmeta.com>
+	id <S319483AbSH3AxI>; Thu, 29 Aug 2002 20:53:08 -0400
+Received: from B54f6.pppool.de ([213.7.84.246]:24718 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S319472AbSH3AxH>; Thu, 29 Aug 2002 20:53:07 -0400
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+From: Daniel Egger <degger@fhm.edu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208300113150.8911-100000@serv>
+References: <Pine.LNX.4.44.0208300113150.8911-100000@serv>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-ghThdq02ZZKYrmMbtlfu"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 30 Aug 2002 03:01:00 +0200
+Message-Id: <1030669261.5756.20.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208281633410.27728-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 04:49:45PM -0700, Linus Torvalds wrote:
-> 
-> On 29 Aug 2002, Alan Cox wrote:
-> > 
-> > One of the policies I need from the kernel is "run at the frequency I
-> > told you to run". Its a policy, its not the general case policy. The
-> > /proc file is that policy.
-> 
-> That's ok, but the current code DOES NOT DO THAT.
-> 
-> The current code has no support at all for the notion of policies, and 
-> gives absolutely _zero_ support for it. It blindly assumes that the CPU 
-> can (and should) run at one frequency, and as long as it does that, I 
-> don't want it in the kernel.
-> 
-> > cpufreq is cpu speed control not power management policy. I agree
-> > entirely that most people should not be using echo "500" >/proc/... as a
-> > power management policy. 
-> > 
-> > Likewise /dev/hda is not a file system and peopel should not be using dd
-> > to store there files.
-> 
-> You've had that argument before, and it was bogus then - and it is bogus 
-> now.
-> 
-> Exactly because some chips _need_ to have the policy passed down, the 
-> lowest levels need to be able to pass it down.
-> 
-> It is _then_ ok to say that "if you do a 'echo 500 > /proc/cpu/freq', that
-> will also imply a policy of a fixed frequency". But if the frequency
-> setting code does not allow for any policy interface AT ALL, then it is
-> fundamentally broken.
-> 
-> That's my beef with it. We should not have "generic" interfaces that are
-> known to be fundamentally broken. As it is, the code - as designed - is
-> useless for a growing class of devices.
-> 
-> Think of it as a layering issue:
->  - user level policy
->  - kernel interface (possibly many - for different policies)
->  - low-level driver
-> 
-> Ok?
-> 
-> Now, what the current patches do is (a) one kernel interface (the 
-> fixed-frequency one) and (b) low-level drivers.
-> 
-> The kernel interface is fine - it doesn't do what I think many people 
-> might want to do, but it's simple and I agree that other policies can be 
-> implemented with other interfaces. Fine. 
-> 
-> But the fact that low-level drivers don't even support the notion of a 
-> policy means that they are useless for any other interface. And I'm saying 
-> that it's a clear design bug, and for no good reason. 
 
-As a user (for the sake of argument) i don't want to see an
-uneccesary proliferation of interfaces.  There is no reason
-why the interface cannot be made policy aware from the
-beginning even if it starts out only supporting the one
-policy of fixed.
+--=-ghThdq02ZZKYrmMbtlfu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Something like 'echo "fixed 500M" >/proc/cpu/freak'
-would allow the addition of new policies without having to
-add new interfaces.  Notice that i give the policy as the
-first parameter.  Each policy should register itself with
-its callbacks (read, write, ?).
+Am Fre, 2002-08-30 um 01.16 schrieb Roman Zippel:
 
-Probably should have a something like /proc/filesystems
-that reports supported policies since supportable
-policies would vary according to hardware + emulation.
+> It's for m68k and ppc Amigas, but I don't think two separate drivers are
+> needed.
 
+Are there native PPC Amigas which have the Gayle? IIRC only the 1200s
+and the 4000s had the Gayle...
+=20
+--=20
+Servus,
+       Daniel
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+--=-ghThdq02ZZKYrmMbtlfu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-		Remember Cernan and Schmitt
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9bsPMchlzsq9KoIYRAolTAJ4hOfLtIQV/OrEz+3r8dQDrKuYmvgCeLpgq
+UfAGmM3ApXdnQbG6npDoGm8=
+=Z2sT
+-----END PGP SIGNATURE-----
+
+--=-ghThdq02ZZKYrmMbtlfu--
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbVAQWDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVAQWDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbVAQWDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbVAQWCu
+	id S262914AbVAQWDh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:03:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVAQV7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:02:50 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:660 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262914AbVAQVtX convert rfc822-to-8bit
+	Mon, 17 Jan 2005 16:59:43 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52620 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262911AbVAQVtV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:49:23 -0500
-Cc: galak@somerset.sps.mot.com
-Subject: [PATCH] I2C-MPC: use wait_event_interruptible_timeout between transactions
-In-Reply-To: <11059983962750@kroah.com>
+	Mon, 17 Jan 2005 16:49:21 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Cleanups to the eeprom driver
+In-Reply-To: <11059983951840@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 17 Jan 2005 13:46:36 -0800
-Message-Id: <11059983961556@kroah.com>
+Date: Mon, 17 Jan 2005 13:46:35 -0800
+Message-Id: <1105998395257@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,106 +24,111 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2329.2.10, 2005/01/14 14:44:42-08:00, galak@somerset.sps.mot.com
+ChangeSet 1.2329.2.6, 2005/01/14 14:43:10-08:00, khali@linux-fr.org
 
-[PATCH] I2C-MPC: use wait_event_interruptible_timeout between transactions
+[PATCH] I2C: Cleanups to the eeprom driver
 
-Use wait_event_interruptible_timeout so we dont waste time waiting between
-transactions like we use to.  Also, we use the adapters timeout so the
-ioctl cmd I2C_TIMEOUT will now work.
+Here comes a cleanup patch to the i2c eeprom client driver:
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+* Get rid of the unused i2c_client client_id.
+* Get rid of the redundant non-ISA bus check.
+* Fix the adapter capability check. We were previously using
+  capabilities without checking if they were supported. Document
+  which capabilities are required and which are optional.
+* Reorder things a bit. In particular, wait to have a valid client
+  before we bother checking if this is a Vaio EEPROM.
+* Use strlcpy instead of strncpy, because I Heard It Was Better (TM) and
+  all other chip drivers use it.
+* Take benefit of the auto-increment feature of EEPROMs to speed up the
+  Vaio check.
+* Display an information message when a Vaio EEPROM is detected.
+
+Tested successfully on my laptop, which happens to be a Vaio.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/busses/i2c-mpc.c |   36 +++++++++++++++---------------------
- 1 files changed, 15 insertions(+), 21 deletions(-)
+ drivers/i2c/chips/eeprom.c |   47 +++++++++++++++++++++------------------------
+ 1 files changed, 22 insertions(+), 25 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c	2005-01-17 13:19:57 -08:00
-+++ b/drivers/i2c/busses/i2c-mpc.c	2005-01-17 13:19:57 -08:00
-@@ -6,7 +6,7 @@
-  * MPC107/Tsi107 PowerPC northbridge and processors that include
-  * the same I2C unit (8240, 8245, 85xx). 
-  *
-- * Release 0.6
-+ * Release 0.7
-  *
-  * This file is licensed under the terms of the GNU General Public
-  * License version 2. This program is licensed "as is" without any
-@@ -75,7 +75,6 @@
+diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
+--- a/drivers/i2c/chips/eeprom.c	2005-01-17 13:20:34 -08:00
++++ b/drivers/i2c/chips/eeprom.c	2005-01-17 13:20:34 -08:00
+@@ -78,8 +78,6 @@
+ 	.detach_client	= eeprom_detach_client,
+ };
  
- static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+-static int eeprom_id;
+-
+ static void eeprom_update_client(struct i2c_client *client, u8 slice)
  {
--	DECLARE_WAITQUEUE(wait, current);
- 	unsigned long orig_jiffies = jiffies;
- 	u32 x;
- 	int result = 0;
-@@ -92,28 +91,22 @@
- 		x = readb(i2c->base + MPC_I2C_SR);
- 		writeb(0, i2c->base + MPC_I2C_SR);
- 	} else {
--		set_current_state(TASK_INTERRUPTIBLE);
--		add_wait_queue(&i2c->queue, &wait);
--		while (!(i2c->interrupt & CSR_MIF)) {
--			if (signal_pending(current)) {
--				pr_debug("I2C: Interrupted\n");
--				result = -EINTR;
--				break;
--			}
--			if (time_after(jiffies, orig_jiffies + timeout)) {
--				pr_debug("I2C: timeout\n");
--				result = -EIO;
--				break;
--			}
--			msleep_interruptible(jiffies_to_msecs(timeout));
-+		/* Interrupt mode */
-+		result = wait_event_interruptible_timeout(i2c->queue, 
-+			(i2c->interrupt & CSR_MIF), timeout * HZ);
+ 	struct eeprom_data *data = i2c_get_clientdata(client);
+@@ -165,16 +163,14 @@
+ 	struct eeprom_data *data;
+ 	int err = 0;
+ 
+-	/* Make sure we aren't probing the ISA bus!! This is just a safety check
+-	   at this moment; i2c_detect really won't call us. */
+-#ifdef DEBUG
+-	if (i2c_is_isa_adapter(adapter)) {
+-		dev_dbg(&adapter->dev, " eeprom_detect called for an ISA bus adapter?!?\n");
+-		return 0;
+-	}
+-#endif
+-
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++	/* There are three ways we can read the EEPROM data:
++	   (1) I2C block reads (faster, but unsupported by most adapters)
++	   (2) Consecutive byte reads (100% overhead)
++	   (3) Regular byte data reads (200% overhead)
++	   The third method is not implemented by this driver because all
++	   known adapters support at least the second. */
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA
++					    | I2C_FUNC_SMBUS_BYTE))
+ 		goto exit;
+ 
+ 	/* OK. For now, we presume we have a valid client. We now create the
+@@ -197,26 +193,27 @@
+ 	/* prevent 24RF08 corruption */
+ 	i2c_smbus_write_quick(new_client, 0);
+ 
+-	data->nature = UNKNOWN;
+-	/* Detect the Vaio nature of EEPROMs.
+-	   We use the "PCG-" prefix as the signature. */
+-	if (address == 0x57) {
+-		if (i2c_smbus_read_byte_data(new_client, 0x80) == 'P' && 
+-		    i2c_smbus_read_byte_data(new_client, 0x81) == 'C' && 
+-		    i2c_smbus_read_byte_data(new_client, 0x82) == 'G' &&
+-		    i2c_smbus_read_byte_data(new_client, 0x83) == '-')
+-			data->nature = VAIO;
+-	}
+-
+ 	/* Fill in the remaining client fields */
+-	strncpy(new_client->name, "eeprom", I2C_NAME_SIZE);
+-	new_client->id = eeprom_id++;
++	strlcpy(new_client->name, "eeprom", I2C_NAME_SIZE);
+ 	data->valid = 0;
+ 	init_MUTEX(&data->update_lock);
++	data->nature = UNKNOWN;
+ 
+ 	/* Tell the I2C layer a new client has arrived */
+ 	if ((err = i2c_attach_client(new_client)))
+ 		goto exit_kfree;
 +
-+		if (unlikely(result < 0))
-+			pr_debug("I2C: wait interrupted\n");
-+		else if (unlikely(!(i2c->interrupt & CSR_MIF))) {
-+			pr_debug("I2C: wait timeout\n");
-+			result = -ETIMEDOUT;
- 		}
--		set_current_state(TASK_RUNNING);
--		remove_wait_queue(&i2c->queue, &wait);
-+
- 		x = i2c->interrupt;
- 		i2c->interrupt = 0;
- 	}
++	/* Detect the Vaio nature of EEPROMs.
++	   We use the "PCG-" prefix as the signature. */
++	if (address == 0x57) {
++		if (i2c_smbus_read_byte_data(new_client, 0x80) == 'P'
++		 && i2c_smbus_read_byte(new_client) == 'C'
++		 && i2c_smbus_read_byte(new_client) == 'G'
++		 && i2c_smbus_read_byte(new_client) == '-')
++			dev_info(&new_client->dev, "Vaio EEPROM detected, "
++				"enabling password protection\n");
++			data->nature = VAIO;
++	}
  
--	if (result < -0)
-+	if (result < 0)
- 		return result;
- 
- 	if (!(x & CSR_MCF)) {
-@@ -165,7 +158,7 @@
- 		     const u8 * data, int length, int restart)
- {
- 	int i;
--	unsigned timeout = HZ;
-+	unsigned timeout = i2c->adap.timeout;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
- 	/* Start with MEN */
-@@ -193,7 +186,7 @@
- static int mpc_read(struct mpc_i2c *i2c, int target,
- 		    u8 * data, int length, int restart)
- {
--	unsigned timeout = HZ;
-+	unsigned timeout = i2c->adap.timeout;
- 	int i;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
-@@ -302,6 +295,7 @@
- 	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
- 		return -ENOMEM;
- 	}
-+	memset(i2c, 0, sizeof(*i2c));
- 	i2c->ocpdef = ocp->def;
- 	init_waitqueue_head(&i2c->queue);
- 
+ 	/* create the sysfs eeprom file */
+ 	sysfs_create_bin_file(&new_client->dev.kobj, &eeprom_attr);
 

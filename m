@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286005AbRLTDjz>; Wed, 19 Dec 2001 22:39:55 -0500
+	id <S286004AbRLTDkd>; Wed, 19 Dec 2001 22:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286004AbRLTDjo>; Wed, 19 Dec 2001 22:39:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42764 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285994AbRLTDjf>; Wed, 19 Dec 2001 22:39:35 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: gcc 3.0.2/kernel details (-O issue)
-Date: 19 Dec 2001 19:39:25 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vrmhd$mf9$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10112192037490.3265-100000@luxik.cdi.cz> <1008792213.806.36.camel@phantasy> <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
+	id <S285992AbRLTDkO>; Wed, 19 Dec 2001 22:40:14 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29189 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286007AbRLTDj5>;
+	Wed, 19 Dec 2001 22:39:57 -0500
+Date: Thu, 20 Dec 2001 01:39:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <linux-mm@kvack.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH *] 2.4.16-rmap-6
+Message-ID: <Pine.LNX.4.33L.0112200121290.15741-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
-By author:    Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-In newsgroup: linux.dev.kernel
-> 
-> It doesn't change syntax, but anything lower than -O1 simply doesn't
-> inline functions with an "inline" attribute. The result is that the
-> inline functions in header files won't get inlined and the compiler
-> will complain about missing functions at link time (or module insert
-> time).
-> 
-> I'm actually surprised that 2.2 can be compiled with -O, AFAIK
-> linux-2.2 also has a lot of inline functions in headers. I know from
-> experience that -Os works for 2.4 kernels on ARM, I haven't tested it
-> with 2.2 or x86.
-> 
+Hi,
 
--O is -O1.  If you turn on the optimizer at all you get inlining.
+The 6th version of the reverse mapping based VM is now available.
+This is an attempt at making a more robust and flexible VM
+subsystem, while cleaning up a lot of code at the time. The patch
+is available from:
 
-	-hpa
+	   http://surriel.com/patches/2.4/2.4.16-rmap-6
+and        http://linuxvm.bkbits.net/
+
+
+The big TODO items for the _next_ release are:
+  - integrate some of wli's pigmem stuff
+  - fix page_launder() so it doesn't submit the whole
+    inactive_dirty list for writeout in one go
+
+
+Changelog:
+
+rmap 6:
+  - make the active and inactive_dirty list per zone,
+    this is finally possible because we can free pages
+    based on their physical address                    (William Lee Irwin)
+  - cleaned up William's code a bit                                   (me)
+  - turn some defines into inlines and move those to
+    mm_inline.h (the includes are a mess ...)                         (me)
+  - improve the VM balancing a bit                                    (me)
+  - add back inactive_target to /proc/meminfo                         (me)
+rmap 5:
+  - fixed recursive buglet, introduced by directly
+    editing the patch for making rmap 4 ;)))                          (me)
+rmap 4:
+  - look at the referenced bits in page tables                        (me)
+rmap 3:
+  - forgot one FASTCALL definition                                    (me)
+rmap 2:
+  - teach try_to_unmap_one() about mremap()                           (me)
+  - don't assign swap space to pages with buffers                     (me)
+  - make the rmap.c functions FASTCALL / inline                       (me)
+rmap 1:
+  - fix the swap leak in rmap 0                           (Dave McCracken)
+rmap 0:
+  - port of reverse mapping VM to 2.4.16                              (me)
+
+regards,
+
+Rik
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

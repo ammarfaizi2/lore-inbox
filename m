@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVBQXLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVBQXN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVBQXLq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:11:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBQXJN
+	id S261229AbVBQXN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVBQXMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:09:13 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:24720 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261226AbVBQXDr (ORCPT
+	Thu, 17 Feb 2005 18:12:32 -0500
+Received: from mail.tmr.com ([216.238.38.203]:61445 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261225AbVBQXJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:03:47 -0500
-Date: Fri, 18 Feb 2005 00:03:42 +0100
-From: Andi Kleen <ak@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] page table iterators
-Message-ID: <20050217230342.GA3115@wotan.suse.de>
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>
+	Thu, 17 Feb 2005 18:09:36 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: possible leak in kernel 2.6.10-ac12
+Date: Thu, 17 Feb 2005 18:14:03 -0500
+Organization: TMR Associates, Inc
+Message-ID: <cv37ig$54m$4@gatekeeper.tmr.com>
+References: <4213D70F.20104@arrakis.dhis.org><4213D70F.20104@arrakis.dhis.org> <200502161835.26047.kernel-stuff@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108680578.5665.14.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1108681105 5270 192.168.12.100 (17 Feb 2005 22:58:25 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <200502161835.26047.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I though about both ways yesterday, and in the end, I prefer Nick stuff,
-> at least for now. It gives us also more flexibility to change gory
-> implementation details in the future. I still have to run it through a
-> bit of torture testing though.
+Parag Warudkar wrote:
+> On Wednesday 16 February 2005 06:28 pm, Pedro Venda wrote:
+> 
+>>Having upgraded most of them to 2.6.10-ac12, one of them showed a linear
+>>growth of used memory over the last 7 days, after the first 2.6.10-ac12
+>>boot. It came to a point that it started swapping and the swap usage too
+>>started to grow linearly.
+> 
+> 
+> cat /proc/slabinfo please. I am also seeing similar symptoms (although that is 
+> with 2.6.11-rc4 there is a possibility of a common bug) here and I seem to 
+> have linearly growing size-64 in slabinfo.
 
-They're really solving different problems. My code is just aimed
-at getting x86-64 fork/exec/etc. as fast as before 4level again
-(currently they are significantly slower because they have to walk
-a lot more page tables) 
+There has been discussion in another thread about a leak related to 
+network activity. You might find more information there, subject 
+contains "NOT BIO" if it helps.
 
-The problem is that the index based approach (I think you have to use
-indexes for this, pointers get very messy) probably does not 
-fit very well into Nick's complex macros.  
-
-Nick's macros are essentially just code transformations with
-some micro optimizations. 
-
-That's not bad, but it won't give you the big speedups 
-the lazy walking approach will give.
-
-And to be honest we only have about 6 or 7 of these walkers
-in the whole kernel. And 90% of them are in memory.c
-While doing 4level I think I changed all of them around several
-times and it wasn't that big an issue.  So it's not that we
-have a big pressing problem here... 
-
--Andi
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

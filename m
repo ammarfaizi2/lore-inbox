@@ -1,84 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275012AbRKAKUq>; Thu, 1 Nov 2001 05:20:46 -0500
+	id <S278649AbRKAK0q>; Thu, 1 Nov 2001 05:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278649AbRKAKUh>; Thu, 1 Nov 2001 05:20:37 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:22957 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S275012AbRKAKUS>; Thu, 1 Nov 2001 05:20:18 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Thu, 1 Nov 2001 21:20:02 +1100 (EST)
-MIME-Version: 1.0
+	id <S278652AbRKAK0g>; Thu, 1 Nov 2001 05:26:36 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:11274 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S278649AbRKAK03>; Thu, 1 Nov 2001 05:26:29 -0500
+Date: Thu, 1 Nov 2001 11:26:28 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: xircom_cb and promiscious mode
+Message-ID: <20011101112628.A30743@torres.ka0.zugschlus.de>
+In-Reply-To: <Pine.LNX.4.33.0110181958290.10380-100000@prague.clic.cs.columbia.edu> <3BCF6F2E.DF35CC26@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15329.8658.642254.284398@notabene.cse.unsw.edu.au>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.4.14-pre6
-In-Reply-To: message from Linus Torvalds on Wednesday October 31
-In-Reply-To: <Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BCF6F2E.DF35CC26@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Oct 18, 2001 at 08:09:18PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday October 31, torvalds@transmeta.com wrote:
+On Thu, Oct 18, 2001 at 08:09:18PM -0400, Jeff Garzik wrote:
+> Shaya Potter wrote:
+> > other thing is, xircom_tulip_cb used to work on my system (2.4.10) (xircom
+> > realport card, rebranded for IBM), but with 2.4.12-ac3, it can't seem to
+> > drive the card.  it loads fine, detects the card, but no blinky lights.
 > 
-> We have actually talked about some higher-level ordering of the dirty list
-> for at least five years, but nobody has ever done it. And I bet you $5
-> that you'll get (a) better throughput than by making the queues longer and
-> (b) you'll have fine latency while you write and (c) that you want to
-> order the write-queue anyway for filesystems that care about ordering.
+> It's critical that you get xircom_tulip_cb.c from 2.4.13-pre3. 
+> 2.4.12-ac3 does not the long-needing-to-be-applied fixes that are now in
+> 2.4.13-pre3's copy of the driver.
 > 
+> Ion (ionut@cs.columbia.edu) did the changes, so he is pretty close to
+> you if you need debugging, too <g>
 
-But what is the "right" order. A raid5 array might well respond to a
-different ordering that an JBOD.
+I am quite interested in the problems that arise with the xircom
+cardbus ethernet cards, since I have difficulties with them as well.
+However, my problems are not solved by setting promisc mode.
 
-I've thought a bit about how to best give blocks to RAID5 so that they
-can be written efficiently.  I suspect the issues are similar for
-normal disk io:
+When I try to transmit larger amounts of data (such as scp'ing a 30 MB
+file over from a different machine on the LAN), network transfer
+stalls. I can abort the user space program, but the network link is
+gone. This can be reproduced with:
 
-Currently the device (or block-device-layer) doesn't see a block until
-the upper levels really want the IO to happen.  There is a little bit
-of a grace period betwen the submit_bh and the run_task_queue(&tq_disk) 
-when re-ordering can happen, but it isn't very long.  There is a bit
-more grace time while waiting to get a turn on the device.  But it is
-still a lot less time than the amount of time that most buffers are
-sitting around in cache.
+- kernel 2.4.13, using pcmcia-cs drivers 3.1.25
+- kernel 2.4.13, using pcmcia-cs drivers 3.1.29
+- kernel 2.4.13, using kernel driver xircom_tulip_cb
+- kernel 2.4.13-ac5, using kernel driver xircom_tulip_cb
+- kernel 2.4.13-ac5, using kernel driver xircom_cb
 
-What I would like is that as soon as a buffer was marked "dirty", it 
-would get passed down to the driver (or at least to the
-block-device-layer) with something like 
-    submit_bh(WRITEA, bh);
-i.e. a write ahead. (or is it write-behind...)
-The device handler (the elevator algorithm for normal disks, other
-code for other devices) could keep them ordered in whatever way it
-chooses, and feed them into the queues at some appropriate time.
+I am using Debian/GNU Linux unstable/sid.
 
-The submit_bh(WRITE, bh) would then push the buffer out if it hadn't
-gone already.
+I tried this with two different RealPort 2 CardBus Ethernet R2BE100,
+and an older RealPort CardBus Ethernet RBE100. I am currently in no
+position of trying a different notebook, since the machine in question
+(a Maxdata Artist Eton Pro from 1999, most probably a chicony OEM
+product) is the only CardBus-able Linux notebook around. All three
+Xircom Cards work fine with Windows 98 on that box, and an even older
+16 bit Xircom RealPort card works fine with Linux.
 
-The elevator code could possibly keep two sorted lists: one of WRITEA
-(or READA) requests and one of WRITE (or READ) requests.
-It processes the second merging in some of the first as it goes.
-Maybe capping it to 2 -ahead blocks for every immediate block.
-Probably also allowing for larger numbers of -ahead blocks if they are
-contiguous with an immediate block.
+Is it possible that I am doing something wrong?
 
-RAID5 would do something a bit different.  Possibly whenever it wanted
-to write a stripe, it would hunt though the -ahead list (sort of like
-the 2.2 code did) for other blocks that could be proactive added to
-the stripe.
+2.4.13-ac5 has the patched xircom_tulip_cb from 2.4.13-pre3?
 
+Any hints will be appreciated.
 
-This would allow a nice ordering of write-behind (and read-ahead)
-requests but give the driver control of latency by allowing it to
-limit the extent to which write-behind/read-ahead blocks can usurp the
-position of other blocks.
+Greetings
+Marc
 
-Does that make any sense?  Is it conceptually simple enough?
-
-NeilBrown
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

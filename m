@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270793AbTGPNIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 09:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTGPNIy
+	id S270809AbTGPNSg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 09:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270812AbTGPNSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 09:08:54 -0400
-Received: from h74.falconstor.com ([63.122.122.74]:4406 "EHLO
-	exchange1.FalconStor.Net") by vger.kernel.org with ESMTP
-	id S270793AbTGPNIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 09:08:52 -0400
-Message-ID: <E79B8AB303080F4096068F046CD1D89B01247A59@exchange1.FalconStor.Net>
-From: Ron Niles <Ron.Niles@falconstor.com>
-To: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>
-Subject: RE: Question about free_one_pgd() changes in these 3.5G patches
-Date: Wed, 16 Jul 2003 09:23:43 -0400
+	Wed, 16 Jul 2003 09:18:36 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:51341 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S270809AbTGPNSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 09:18:33 -0400
+Message-ID: <3F15540E.2040405@alpha.dyndns.org>
+Date: Wed, 16 Jul 2003 06:33:02 -0700
+From: Mark McClelland <mark@alpha.dyndns.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030707
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Greg KH <greg@kroah.com>
+CC: Gerd Knorr <kraxel@bytesex.org>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com>
+In-Reply-To: <20030715212714.GB5458@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, 15 Jul 2003, Ron Niles wrote:
->> 
->> 	/*
->> 	 * Beware if changing the loop below.  It once used int j,
->> 	 *	for (j = 0; j < PTRS_PER_PMD; j++)
->> 	 *		free_one_pmd(pmd+j);
->> 	 * but some older i386 compilers (e.g. egcs-2.91.66, gcc-2.95.3)
->> 	 * terminated the loop with a _signed_ address comparison
->> 	 * using "jle", when configured for HIGHMEM64GB (X86_PAE).
->> 	 * If also configured for 3GB of kernel virtual address space,
->> 	 * if page at physical 0x3ffff000 virtual 0x7ffff000 is used as
->> 	 * a pmd, when that mm exits the loop goes on to free "entries"
->> 	 * found at 0x80000000 onwards.  The loop below compiles instead
->> 	 * to be terminated by unsigned address comparison using "jb". 
->> 
->> 	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) {
->> 		prefetchw(md+(PREFETCH_STRIDE/16));
->> 		free_one_pmd(md);
->>  	}
->> 
->> The comment (found in the AA patch) makes no sense to me. Since j is an
-int,
->> you would expect the loop to exit with jle. If you want it to exit on jb,
->> just change j to unsigned, right? Also PTRS_PER_PMD is never very large,
->> around 512 I think, so it really doesn't matter unless PTRS_PER_PMD
-exceeds
->> 0x7fffffff, which is really far from reality.
+Greg KH wrote:
+
+>On Tue, Jul 15, 2003 at 04:31:19PM +0200, Gerd Knorr wrote:
+>  
 >
->That comment (and the rewritten loop) originally came from me.
->I thought it was a champion comment, I'm saddened that you disagree!
+>>Changes required/recommended in video4linux drivers:
+>>
+>>  * some usb webcam drivers (usbvideo.ko, stv680.ko, se401.ko 
+>>    and ov511.ko) use the video_proc_entry() to add additional
+>>    procfs files.  These drivers must be converted to sysfs too
+>>    because video_proc_entry() doesn't exist any more.
+>>    
+>>
 >
->I've tried to cover the point by saying they terminated the loop with
->"a _signed_ address comparison": the loop got optimized in such a way
->that it wasn't testing int j as the C shows, but the address pmd+j.
+>I'd be glad to do this work once your change makes it into the core. 
 >
 
-Thanks, Hugh, it _is_ a champion comment, and it makes perfect sense now
-that
-I understand the compiler-optimized comparison is on pmd+j, not j.
+I can do the ov511 work if you want. I can have it done in two days (or 
+less).
+
+>Is there any need for these drivers to export anything through sysfs now
+>instead of /proc?
+>
+
+Yes, at least with ov511. Some of the info that it puts in /proc is no 
+longer necessary. However, there are various bits of hardware info that 
+still need to get to userspace, for scripts that need to tell otherwise 
+identical (same VID/PID/revision) cameras apart when creating /dev nodes.
+
+Is there a convention for naming driver-specific files in /sys? E.g.: 
+ov511_foo, _foo, etc...? I don't want to pollute the namespace.
+
+>From what I remember, it only looked like debugging and other general info stuff.
+>
+
+There *is* some debugging stuff I would like to keep, at least for now. 
+Approximately half of the bug reports I get are resolved after I see the 
+user's /proc info. Is it acceptable to put it all in one file, since it 
+isn't meant to be machine-parseable anyway? Some of the HCI drivers do 
+that, right?
+
+-- 
+Mark McClelland
+mark@alpha.dyndns.org
+
+

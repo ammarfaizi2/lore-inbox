@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266228AbSKUAce>; Wed, 20 Nov 2002 19:32:34 -0500
+	id <S266183AbSKUAi5>; Wed, 20 Nov 2002 19:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266233AbSKUAce>; Wed, 20 Nov 2002 19:32:34 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6335 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266228AbSKUAcc>;
-	Wed, 20 Nov 2002 19:32:32 -0500
-Date: Wed, 20 Nov 2002 19:39:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: kill i_dev
-In-Reply-To: <UTC200211210007.gAL07Pa07926.aeb@smtp.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0211201936200.6440-100000@steklov.math.psu.edu>
+	id <S266199AbSKUAi5>; Wed, 20 Nov 2002 19:38:57 -0500
+Received: from [155.223.251.1] ([155.223.251.1]:48035 "HELO gatekeeper")
+	by vger.kernel.org with SMTP id <S266183AbSKUAi4>;
+	Wed, 20 Nov 2002 19:38:56 -0500
+From: "Halil Demirezen" <nitrium@bilmuh.ege.edu.tr>
+To: "Rusty Lynch" <rusty@linux.co.intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Coding style question] XXX_register or register_XXX
+Date: Thu, 21 Nov 2002 03:02:06 +0800
+Message-Id: <20021121030206.M48633@bilmuh.ege.edu.tr>
+In-Reply-To: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
+References: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
+X-Mailer: Open WebMail 1.64 20020415
+X-OriginatingIP: 217.131.251.13 (nitrium)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is there an accepted standard on naming for registration functions?  
+> If have a foo object that other things can register and unregister 
+> with, should the function names be:
+> int foo_register(&something);
+> int foo_unregister(&something);
+
+really, that would make the entire kernel code a little 
+simplier to understand.
+On the same way, we can say why there is not an accepted standard on
+naming lock functions, such as
+ 
+   spinlock, rwlock and so on..
+
+That would be more efficient to understand the code...
+However, where is flexibility?
 
 
-On Thu, 21 Nov 2002 Andries.Brouwer@cwi.nl wrote:
-
-> One disadvantage of enlarging the size of dev_t is
-> that struct inode grows. Bad.
-> We used to have i_dev and i_rdev; today i_rdev has split into
-> i_rdev, i_bdev and i_cdev. Bad.
-> 
-> It looks like these four fields can be replaced by a single one,
-> making struct inode smaller. Not bad.
-
-No, they can't.  We _can_ put i_bdev/i_cdev into union and we can
-kill i_dev.  However, rdev and [cb]dev will have to remain separate.
-
-BTW, watch out for socket.c use of ->i_dev.
-
+-hd

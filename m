@@ -1,76 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264135AbTFDVVt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 17:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbTFDVVt
+	id S264138AbTFDVX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 17:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264157AbTFDVXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 17:21:49 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:55058 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S264135AbTFDVVn convert rfc822-to-8bit
+	Wed, 4 Jun 2003 17:23:55 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:60687 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264138AbTFDVWB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 17:21:43 -0400
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4 Labs
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: 2.4.21-rc7 ACPI broken
-Date: Wed, 4 Jun 2003 22:16:14 +0100
-User-Agent: KMail/1.5.2
-References: <F760B14C9561B941B89469F59BA3A847E96F25@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A847E96F25@orsmsx401.jf.intel.com>
-Cc: acpi-support@lists.sourceforge.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Wed, 4 Jun 2003 17:22:01 -0400
+Date: Wed, 4 Jun 2003 23:39:50 +0200
+To: Joe Burks <jburks@wavicle.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why am I getting Kernel Panic VFS cannot mount root fs on 301?
+Message-ID: <20030604213950.GC2436@hh.idb.hist.no>
+References: <200306041412.27897.jburks@wavicle.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306042216.19142@gjs>
+In-Reply-To: <200306041412.27897.jburks@wavicle.org>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Jun 04, 2003 at 02:14:39PM -0700, Joe Burks wrote:
+> Unfortunately I cannot copy the exact text I'm getting, but it is something 
+> similar to that.  Now that I have time again, I desperately need to maintain 
+> drivers/usb/media/vicam.c again and am trying to boot 2.5.70 to do so.  
+> Here's what I've tried:
+> 
+> Freshly installed debian woody
+> Freshly downloaded 2.5.70
+> Downloaded, compiled and installed init-module-utils 0.9.12 from Rusty's site.
+> Downloaded, compiled and installed latest devfsd (although it currently does 
+> not seem to get to a point where this would matter, it never mounts the root 
+> fs in order to start devfsd)
+> Carefully followed instructions in Documentation/filesystems/devfs/README on 
+> setting up devfs for the impatient.
+> Configured kernel, including enabling devfs and devfs_mount.
+> make bzImage modules modules_install install (not in one line, one at  a time)
+> went into lilo.conf and added an append="root=<device>" line, then re-ran 
+> lilo.  (where I say <device> I have tried about 100 different possibilities 
+> ranging from easy ones like /dev/hda1 or /dev/discs/disc0/part1 to 
+> /dev/ide/...)  Obviously I only get the "301" error when the root= line is 
+> missing and I let lilo write that magic value.
+> 
+/dev/hda1 probably won't work, as "hda1" don't exist in devfs until
+devfsd starts.  The "/dev/ide/.../part1" should work though,
+if devfs is configured to mount automatically.
 
-I know that latest acpi patch is against -rc3, but it aply to -rc7 just with 
-one problem in documentation, so i dont care. Anyway, recompilation if it 
-fails:
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-rc7/include -Wall -Wstrict-prototypes 
-- -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
-- -pipe -mpreferred-stack-boundary=2 -march=i686 -falign-functions=0 
-- -falign-jumps=0 -falign-loops=0   -nostdinc -iwithprefix include 
-- -DKBUILD_BASENAME=acpiphp_glue  -c -o acpiphp_glue.o acpiphp_glue.c
-acpiphp_glue.c: In function `find_host_bridge':
-acpiphp_glue.c:815: warning: passing arg 2 of `acpi_get_object_info' from 
-incompatible pointer type
-acpiphp_glue.c:821: error: subscripted value is neither array nor pointer
-acpiphp_glue.c:826: error: incompatible type for argument 1 of `strcmp'
-make[3]: *** [acpiphp_glue.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.21-rc7/drivers/hotplug'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.21-rc7/drivers/hotplug'
-make[1]: *** [_subdir_hotplug] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.21-rc7/drivers'
-make: *** [_dir_drivers] Error 2
+Try to rule out modules problems, make a kernel where
+everything is compiled in.  If you aren't using a initrd
+then at least devfs, the fs used on your root, and the drivers
+for your ide controller _must_ be compiled in because
+modules cannot be loaded until _after_ the root
+fs is mounted.
 
-Any chance to get quick fix of that ?
-Please CC me, i am not subscribed to acpi mailing list.
+I can't help you if you're using an initrd, I don't know
+those.  2.5.70-mm4 and those earlier kernels that don't
+die from RAID problems boot fine for me, with root
+on a RAID-1 consisting of two IDE or SCSI disks.
 
-Thanks
+> No matter what root= line I supplied it just wouldn't boot.  I've also tried 
+> devfs=mount, devfs=nomount all to no solution.  So in frustration I rebuilt 
+> the kernel without devfs, since I figured that is where my problem was, but 
+> the exact error is still occurring.  I tried both leaving in a root= and 
+> removing the root= append line with devfs not installed.
+> 
+> I can still boot fine with whichever kernel woody installed (2.4.16 I think).
+> 
+> I don't think this is a devfs problem.  I think there is some subtle (or maybe 
+> blatantly obvious) kernel option I have not checked which would cause the 
+> whole situation to go away.
 
-> > > Old ACPI code, get patch from http://sf.net/projects/acpi
-> > and report back
-> > > if problems persist.
-> > Any chance to get patch against latest -rc7 ?
-> It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
-> Did it work for you?
+My guess is that the driver for the "301" device (IDE) is
+modular somehow, and this module isn't loaded from some
+initrd when you try to mount root.
 
-- --
-Grzegorz Jaskiewicz
-K4 Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Debian don't _need_ an initrd if you compile the fs and drivers
+into the kernel image as I explained above.  If you use one, you
+need to set it up right.  The initrd must contain necessary modules
+for the kernel you are trying to boot, in this case 2.5.70.
+Also, 2.5.70 needs different modutils than 2.4.16, so debian's
+supplied initrd will perhaps not work with 2.5.70.
 
-iD8DBQE+3mGiqu082fCQYIgRAsBBAJ991RPum0QFcwRVqI8d3KTZp2NI6QCfSjAT
-0obQhDO93Od0EjTHArZjEB0=
-=oJ9C
------END PGP SIGNATURE-----
+If setting up an initrd is hard for you, consider dropping
+it and go for the non-modular solution.
+Stuff not needed for the boot (i.e. usb scanners and such)
+may still be modular if you want them to, as modules & devfsd
+works after the root is mounted. (And if they fail
+you'll be able to work around or fix it at that time.)
+
+Helge Hafting
 

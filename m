@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261956AbRESTDW>; Sat, 19 May 2001 15:03:22 -0400
+	id <S261969AbRESTMg>; Sat, 19 May 2001 15:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261967AbRESTDM>; Sat, 19 May 2001 15:03:12 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:39940 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261956AbRESTC5>;
-	Sat, 19 May 2001 15:02:57 -0400
-Message-ID: <20010519205848.A18081@bug.ucw.cz>
-Date: Sat, 19 May 2001 20:58:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, viro@math.psu.edu
-Subject: mount misbehaviour?
+	id <S261970AbRESTM1>; Sat, 19 May 2001 15:12:27 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:45061 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261969AbRESTMV>; Sat, 19 May 2001 15:12:21 -0400
+Date: Sat, 19 May 2001 23:11:31 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010519231131.A2840@jurassic.park.msu.ru>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010519155502.A16482@athlon.random>; from andrea@suse.de on Sat, May 19, 2001 at 03:55:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, May 19, 2001 at 03:55:02PM +0200, Andrea Arcangeli wrote:
+> Reading the tsunami specs I learnt 1 tlb entry caches 8 pagetables (not 1)
+> so the tlb flush will be invalidate immediatly by any PCI DMA run after
+> the flush on any of the other 7 mappings cached in the same tlb entry.
 
-I just had small surprise with 2.4.0:
+I have neither tsunami docs nor the tsunami box to play with :-(
+so my guesses might be totally wrong...
+But -- assuming that tsunami is similar to cia/pyxis, that is incorrect.
+We're invalidating not the cached ptes, but the TLB tags, with all 4 (on
+pyxis, and 8 on tsunami, I guess) associated ptes. The reason why we
+align new entries at 4*PAGE_SIZE on cia/pyxis is a hardware bug -- if cached
+pte is invalid, it doesn't cause TLB miss. I wouldn't be surprised at all if
+tsunami has the same bug; in this case your fix is urgently needed, of course.
+BTW, look at Richard's code in core_cia.c/verify_tb_operation() for
+"valid tag invalid pte reload" test, it could be easily ported to tsunami.
 
-root@bug:/zip# mount /zip
-root@bug:/zip# ls -al
-total 8
-drwxr-xr-x    2 root     root         4096 Dec  1 08:29 .
-drwxr-xr-x   31 65534    root         4096 Apr 24 20:56 ..
-root@bug:/zip# cd /zip
-root@bug:/zip# ls -al
-total 22182
-drwxr-xr-x    4 root     root        16384 Jan  1  1970 .
-drwxr-xr-x   31 65534    root         4096 Apr 24 20:56 ..
--rw-r--r--    1 root     root     22687788 May 18 11:48 delme.wav
-drwxr-xr-x    2 root     root         2048 May 18 11:30 karantena
-drwxr-xr-x    5 root     root         2048 May  9 14:15 statnice
+> then I also enlarged the pci SG space to 1G beause runing out of entries
+> right now breaks the whole world:
 
-...Mounting directory under me does not seem healthy. cd fixes
-it... Is that okay?
-								Pavel
-PS: Al, would you please add credit line for yourselves?
+It would just delay the painful death, I think ;-)
+I'm almost sure that all these "pci_map_sg failed" reports are caused
+by some buggy driver[s], which calls pci_map_xx() without proper
+pci_unmap_xx(). This is harmless on i386, and on alpha if all IO is going
+through direct-access windows.
+I've got some debugging code checking for this (perhaps it worth
+posting or even porting to i386 ;-)
+For now I can confirm that all drivers I'm currently using are fine
+wrt pci_map/unmap:
+3c59x, tulip, sym53c8xx, IDE.
 
-pavel@bug:/usr/src/linux$ grep Viro CREDITS
-pavel@bug:/usr/src/linux$ grep Viro MAINTAINERS
-pavel@bug:/usr/src/linux$ 
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Ivan.

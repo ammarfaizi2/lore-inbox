@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318780AbSHBLZ3>; Fri, 2 Aug 2002 07:25:29 -0400
+	id <S318778AbSHBL0A>; Fri, 2 Aug 2002 07:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318778AbSHBLZ3>; Fri, 2 Aug 2002 07:25:29 -0400
-Received: from p5085EA05.dip.t-dialin.net ([80.133.234.5]:53889 "EHLO
-	majestix.gallier.de") by vger.kernel.org with ESMTP
-	id <S318774AbSHBLZ1>; Fri, 2 Aug 2002 07:25:27 -0400
-Date: Fri, 2 Aug 2002 13:28:54 +0200 (CEST)
-From: Oliver Joa <ojoa@gatrixx.com>
-X-X-Sender: <olli@majestix.gallier.de>
-To: <linux-net@vger.kernel.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: strange behaviour in TCP-Connect-Handshake
-Message-ID: <Pine.LNX.4.33.0208021323120.7906-100000@majestix.gallier.de>
+	id <S318779AbSHBL0A>; Fri, 2 Aug 2002 07:26:00 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:28943 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S318778AbSHBLZ6>; Fri, 2 Aug 2002 07:25:58 -0400
+Message-ID: <3D4A6D2B.2B1733D9@aitel.hist.no>
+Date: Fri, 02 Aug 2002 13:29:47 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Simmons <jsimmons@transvirtual.com>
+CC: Ivan Gyurdiev <ivangurdiev@attbi.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.30
+References: <Pine.LNX.4.44.0208012302090.29483-100000@www.transvirtual.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Simmons wrote:
+> 
+> > The following trivial patches are still missing from the kernel:
+> >
+> >        - devfs patch to fix the problem with missing virtual consoles - only 0 in
+> > /dev/vc: drivers/char/console.c
+> 
+> Try out my console patch at
+> 
+> http://www.transvirtual.com/~jsimmons/console.diff.gz
+> 
+> Please tell me if it solves the problem. I waiting for someone to say it
+> works then I will push my BK stuff to Linus.
 
-we have found something strange in TCP-Connect-Handshake. Here is the
-tcpdump of a connect:
+The patch works for me.  2.5.30 with this and the compile-fix for devfs
+comes up with /dev/vc/ populated normally.
 
-12:41:27.997216 eth0 < 217.111.11.28.53656 > 10.10.2.10.www: S
-1550641618:1550641618(0) win 5840 <mss 1460,sackOK,timestamp 646924298
-0,nop,wscale 0> (DF)
-
-12:41:27.997243 eth0 > 10.10.2.10.www > 217.111.11.28.53656: .
-281850:281850(0) ack 124 win 32120 <nop,nop,timestamp 88850 648121803>
-(DF)
-
-12:41:27.998085 eth0 < 217.111.11.28.53656 > 10.10.2.10.www: R
-1438731713:1438731713(0) win 0 (DF)
-
-217.111.11.28 sends the syn-packet to 10.10.2.10, and 10.10.2.10 answers
-with a ack-packet, but without the syn-flag set. I thought this might be
-violating the TCP-protcol. It happens 3 to 4 times per second on a
-Squid-Server with lots of Requests (100-200 per second). We use the
-2.4.18-kernel. We have tried a 2.2.20-kernel and it worked normal.
-
-What could be the problem?
-
-many thanks
-
-Oliver
-
-
--- 
-Dipl. Inf. (FH) Oliver Joa
-senior IT-architect
-
-Gatrixx NetSolutions GmbH
-Karl-Goetz-Strasse 5
-97424 Schweinfurt
-Fon +49 9721 797 420
-Fax +49 9383 999-58
-Mobil +49 160 47874 62
-E-Mail ojoa@gatrixx.com, ojoa@gmx.net, oliver@j-o-a.de
-
-Weitere Informationen erhalten Sie unter:
-http://www.gedif.de/
-
-
+Helge Hafting

@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUF3Rus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUF3RzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266786AbUF3Rus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 13:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266788AbUF3Rus
+	id S264763AbUF3RzO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 13:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266781AbUF3RzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 13:50:48 -0400
-Received: from out014pub.verizon.net ([206.46.170.46]:35007 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S266781AbUF3Rui
+	Wed, 30 Jun 2004 13:55:14 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:16355 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S264763AbUF3RxI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 13:50:38 -0400
-Message-Id: <200406301750.i5UHo3FN011419@localhost.localdomain>
-To: Ulrich Drepper <drepper@redhat.com>
+	Wed, 30 Jun 2004 13:53:08 -0400
+Message-Id: <200406301752.i5UHqa1q011464@localhost.localdomain>
+To: Jakub Jelinek <jakub@redhat.com>
 cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK 
-In-reply-to: Your message of "Wed, 30 Jun 2004 10:07:08 PDT."
-             <40E2F33C.90106@redhat.com> 
-Date: Wed, 30 Jun 2004 13:50:03 -0400
+In-reply-to: Your message of "Wed, 30 Jun 2004 12:57:56 EDT."
+             <20040630165756.GX21264@devserv.devel.redhat.com> 
+Date: Wed, 30 Jun 2004 13:52:36 -0400
 From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.152.253.159] at Wed, 30 Jun 2004 12:50:34 -0500
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.152.253.159] at Wed, 30 Jun 2004 12:53:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> this has me thinking. one of the major changes with NPTL is that all
->> threads share the same PID. so how in the world do we ever set the
->> scheduling policy of a single thread (as opposed to something
->> identified by a pid_t) to SCHED_FIFO?
+>On Wed, Jun 30, 2004 at 12:32:03PM -0400, Paul Davis wrote:
+>> >One thing to note is that NPTL defaults to PTHREAD_INHERIT_SCHED
+>> >while LinuxThreads defaults to PTHREAD_EXPLICIT_SCHED.
+>> >So, if you care about what scheduling created threads will have
+>> >and want it to work with both NPTL and LinuxThreads, you want
+>> >pthread_attr_setinheritsched (&attr, PTHREAD_*_SCHED);
+>> >explicitely.
+>> 
+>> But since we always set the scheduling class explicitly, should the
+>> inherited scheduler class make any difference?
 >
->If you have to ask this question than it's no wonder you get erratic
->behavior.  It means you haven't looked at the pthread interface at all.
+>Of course.
 
-thanks, i appreciate the ad hominem remarks. you think we could ever
-get SCHED_FIFO if we were not familiar with these calls? this is
-really unnecessary...
-
-my question wasn't about the pthread API. it was about what kernel API
-was used to implement it. the simple answer would have been that we
-use the TID, not the PID, or to have just pointed me at the source.
-
->And use a recent enough nptl version.   Very early versions didn't have
->any of the scheduler handling implemented.
-
-we already discovered that. the people testing this stuff are using
-the most recent "stable" release of glibc, for the most part.
-
---p
+i understand that in the context of "pthread_attr_*; pthread_create();",
+but we use pthread_create() and then set scheduling class/priority
+within the new thread. Why would INHERIT_SCHED affect that? Does it?

@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129217AbQKHRV2>; Wed, 8 Nov 2000 12:21:28 -0500
+	id <S129111AbQKHR1I>; Wed, 8 Nov 2000 12:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129429AbQKHRVT>; Wed, 8 Nov 2000 12:21:19 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:14599 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129217AbQKHRVF>; Wed, 8 Nov 2000 12:21:05 -0500
-Date: Wed, 8 Nov 2000 09:20:46 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001108092046.A27324@twiddle.net>
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <3A0977A7.53641C52@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3A0977A7.53641C52@mandrakesoft.com>
+	id <S129113AbQKHR06>; Wed, 8 Nov 2000 12:26:58 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37897 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129111AbQKHR0v>; Wed, 8 Nov 2000 12:26:51 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Pentium 4 and 2.4/2.5
+Date: 8 Nov 2000 09:26:41 -0800
+Organization: Transmeta Corporation
+Message-ID: <8uc2ch$g3u$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10011061940200.18160-100000@master.linux-ide.org> <E13t7dG-0007KT-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 10:56:23AM -0500, Jeff Garzik wrote:
-> Setting bit 1 in dev->resource[x].start, below, seems incorrect.  Should
-> you be programming the PCI BAR directly, instead?
+In article <E13t7dG-0007KT-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>Be careful with the intel patches. The ones I've seen so far tried to call the
+>cpu 'if86' breaking several tools that do cpu model checking off uname. They
+>didnt fix the 2GHz CPU limit, they use 'rep nop' in the locks which is
+>explicitly 'undefined behaviour' for non intel processors and they use the
+>TSC without checking it had one.
 
-No, that's the reason this is a quirk.  The hardware is already
-only responding to one and only one address.  The old code did
-exactly the same thing, only not inside the quirk framework,
-which made it kinda harder to figure out what was going on.
+"rep nop" is definitely not undefined behaviour except in some older
+Intel manuals. 
 
-> I wonder about this code:
-> 
-> > +               /* ??? Reserve some resources for CardBus */
-> > +               if (dev->class >> 8 == PCI_CLASS_BRIDGE_CARDBUS) {
-> > +                       io_reserved += 8*1024;
-> > +                       mem_reserved += 32*1024*1024;
-> > +                       continue;
-> > +               }
+Do you actually know of a CPU where it doesn't work? Every single
+intel-compatible CPU I know of has the rep prefixes as no-ops if they
+aren't used (lock -> ILL being a later, documented, addition), and the
+way the prefixes work it almost has to be that way.
 
-Got a better suggestion?  It does seem completely reasonable to
-reserve some address space for a CardBus bridge if we find one.
+As prefixes they can't be part of the instruction, because you can
+legally have other prefixes in between the rep and the real instruction,
+which means that any sane implementation will just set a flag when it
+sees the prefix, and an instruction that doesn't care will just ignore
+the flag.  So you'd almost have to do _extra_ work to make "rep nop"
+fail, even if it used to be specified as "undefined". 
 
+Standard 2.4.x will definitely be using "rep nop" unless somebody can
+show me a CPU where it doesn't work (and even then I probably won't care
+unless that CPU is also SMP-capable).  It's documented by intel these
+days, and it works on all CPU's I've ever heard of, and it even makes
+sense to me (*).
 
-r~
+(*) Well..  More sense than _some_ instruction set extensions I've seen. 
+After all, "repeat no-op" for a longer delay sounds almost logical. 
+Certainly better than that IV == 15 thing, ugh ;)
+
+Also, at least part of the reason Intel removed the TSC check was that
+Linux actually seems to get the extended CPU capability flags wrong,
+overwriting the _real_ capability flags which in turn caused the TSC
+check on Linux to simply not work.  Peter Anvin is working on fixing
+this. I suspect that Linux-2.2 has the same problem.
+
+There's a few other minor details that need to be fixed for Pentium 4
+features (aka " not very well documented errata"), and I think I have
+them all except for waiting for Peter to get the capabilities flag
+handling right.
+
+So I suspect that we'll have good support for Pentium IV soon enough.. 
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

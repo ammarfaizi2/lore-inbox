@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262649AbTJ3Qx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 11:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTJ3Qx3
+	id S262655AbTJ3Qz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 11:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTJ3QzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 11:53:29 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262649AbTJ3Qx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 11:53:28 -0500
-Date: Thu, 30 Oct 2003 16:55:45 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310301655.h9UGtjn5000166@81-2-122-30.bradfords.org.uk>
-To: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20031030151831.GA11311@redhat.com>
-References: <20031030141519.GA10700@redhat.com>
- <3FA128C4.5040502@pobox.com>
- <20031030151831.GA11311@redhat.com>
-Subject: Re: Post-halloween doc updates.
+	Thu, 30 Oct 2003 11:55:25 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:778 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262655AbTJ3QzR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 11:55:17 -0500
+Date: Thu, 30 Oct 2003 11:44:47 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.0-test9
+In-Reply-To: <20031030092045.A18808@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1031030113206.6313A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > >Compiler issues.
->  > >~~~~~~~~~~~~~~~~
->  > >- The recommended compiler (for x86) is still 2.95.3.
->  > 
->  > I'm not sure this is still the case, in practice.  Recent times have 
->  > seen people breaking 2.95.x, which did not support the C99/C++ style of 
->  > mixing variable declarations and code.  People would forget this, and we 
->  > only find out a few days later that the 2.95.x build was broken.
+On Thu, 30 Oct 2003, Russell King wrote:
+
+> On Mon, Oct 27, 2003 at 11:26:44PM +0000, bill davidsen wrote:
+> > If the idea is to tell people to read the post-Halowe'en doc and a year
+> > of LKML, it is much the same as telling people to wait for a
+> > distribution.
 > 
-> *nod*, more and more distros are now shipping gcc3 as their stock compiler,
+> Isn't the purpose of the post-haloween doc to tell people what
+> changed and what needed to be upgraded?  What about the
+> linux/Documentation/Changes file?
 
-That may be partially motivated by the fact that latest GLIBC no
-longer compiles with GCC 2.95.x
+Given that it is a year out of date and general in nature, it's still a
+pretty useful docuement to someone who does a lot of fiddling anyway.
+But what I think would be very useful would be a small (one screen?)
+HTML doc with links to versions which are current today, one page each
+for a few major distros covering tweaks to startup file and the like,
+and a page of things which aren't mentioned in the post Halowe'en doc,
+like the things that aren't available in modules anymore.
 
-> so it's likely at some point things are going to change.
+Anyway, since I found that even my notes were out of date, and I took
+them as I moved machines from 2.5.4x forward to test9, I thought it
+would be useful. I'll probably do something for my friends and clients,
+but it will definitely be Redhat and Slackware only. I see no enthusiasm
+for helping users instead of letting them thrash.
 
-Do you think that GCC > 2.95.x actually produces noticably better code
-though?  I'm not convinced yet, and yet compile times can be a lot
-higher.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-By the way, it might be worth adding something to the input devices
-section suggesting that people try forcing set 3 if they have a
-keyboard which has keys that are not independently usable, and it's
-not a regression since 2.4.  I have such a keyboard, and I saw a post
-recently describing similar behavior with a VMS keyboard.
-
-John.

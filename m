@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287283AbRL3AE6>; Sat, 29 Dec 2001 19:04:58 -0500
+	id <S287289AbRL3AWx>; Sat, 29 Dec 2001 19:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287280AbRL3AEs>; Sat, 29 Dec 2001 19:04:48 -0500
-Received: from bitmover.com ([192.132.92.2]:59048 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S287270AbRL3AEn>;
-	Sat, 29 Dec 2001 19:04:43 -0500
-Date: Sat, 29 Dec 2001 16:04:42 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-Message-ID: <20011229160442.E21760@work.bitmover.com>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011229153518.B21760@work.bitmover.com> <Pine.LNX.4.43.0112291739140.18183-100000@waste.org>
+	id <S287288AbRL3AWg>; Sat, 29 Dec 2001 19:22:36 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4879 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S287286AbRL3AWa>; Sat, 29 Dec 2001 19:22:30 -0500
+Date: Sun, 30 Dec 2001 00:22:03 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: State of the new config & build system
+Message-ID: <20011230002203.E12535@flint.arm.linux.org.uk>
+In-Reply-To: <20011228141211.B15338@thyrsus.com> <Pine.LNX.4.33.0112281408170.23445-100000@penguin.transmeta.com> <20011228173151.B20254@thyrsus.com> <20011229212455.GB21928@cpe-24-221-152-185.az.sprintbbd.net> <20011229174354.B8526@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.43.0112291739140.18183-100000@waste.org>; from oxymoron@waste.org on Sat, Dec 29, 2001 at 05:59:15PM -0600
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011229174354.B8526@thyrsus.com>; from esr@thyrsus.com on Sat, Dec 29, 2001 at 05:43:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 05:59:15PM -0600, Oliver Xymoron wrote:
-> > > > Is it really true that there are any significant number of patches
-> > > > submitted that don't even compile?
-> > >
-> > > No
-> >
-> > OK, so there are no significant numbers of patches that the patchbot will
-> > eliminate, by your admission.
+On Sat, Dec 29, 2001 at 05:43:54PM -0500, Eric S. Raymond wrote:
+> Tom Rini <trini@kernel.crashing.org>:
+> > > unless (ISA or PCI) suppress dependent IDE
+> > 
+> > Just a minor point, but what about non-PCI/ISA ide?
 > 
-> Except for the ones that get garbage collected after each new kernel
-> release WHEN THE VALIDITY OF THE QUEUE IS RECHECKED.
+> The CML1 rules seem to imply that this set is empty.
 
-Which is how many?  Do you have _any_ data which shows that this is going
-to do anything?  Everything I know says that you're in the 1% area.  My
-experience is perhaps different than yours, but I'd like to know why.
+RiscPC:
+  CONFIG_PCI=n
+  CONFIG_ISA=n
+  CONFIG_ARCH_ACORN=y
 
-> > So what's the point?  What is the problem you have solved?  And where's
-> > the code?  This sounds like you have whittled it down to a cgi-script of
-> > about 100 lines of perl.  How about building it and demonstrating the
-> > usefulness rather than telling us how great it is going to be?
-> 
-> The original suggestion (about the possibility of compile-testing patches
-> incrementally) was dependent on kbuild and CML2 being in the kernel
-> already, but I do have a proof-of-concept for the rest in the works.
+Yet, we have in drivers/ide:
+      if [ "$CONFIG_ARCH_ACORN" = "y" ]; then
+         dep_bool '    ICS IDE interface support' CONFIG_BLK_DEV_IDE_ICSIDE $CONFIG_ARCH_ACORN
+         dep_bool '      ICS DMA support' CONFIG_BLK_DEV_IDEDMA_ICS $CONFIG_BLK_DEV_IDE_ICSIDE
+         dep_bool '        Use ICS DMA by default' CONFIG_IDEDMA_ICS_AUTO $CONFIG_BLK_DEV_IDEDMA_ICS
+         define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_ICS
+         dep_bool '    RapIDE interface support' CONFIG_BLK_DEV_IDE_RAPIDE $CONFIG_ARCH_ACORN
+      fi
 
-Great, so set it up, write a parser that grabs all the patches out of the
-list, run them through your system, and report back how much it helps.
-I don't think it will but if it does and you are willing to do the work,
-more power to you.
+So I guess I've found a bug.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

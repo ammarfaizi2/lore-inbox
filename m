@@ -1,104 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129741AbQLAUk2>; Fri, 1 Dec 2000 15:40:28 -0500
+	id <S129719AbQLAU5Y>; Fri, 1 Dec 2000 15:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbQLAUkT>; Fri, 1 Dec 2000 15:40:19 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:59737
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129932AbQLAUkG>; Fri, 1 Dec 2000 15:40:06 -0500
-Date: Fri, 1 Dec 2000 21:09:30 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: vma@iol.unh.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: #ifdef cleanup for drivers/net/fc/iph5526.c (240-test12-pre3)
-Message-ID: <20001201210930.H621@jaquet.dk>
+	id <S129744AbQLAU5N>; Fri, 1 Dec 2000 15:57:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9498 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129719AbQLAU4w>; Fri, 1 Dec 2000 15:56:52 -0500
+Date: Fri, 1 Dec 2000 21:26:28 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Phillip Ezolt <ezolt@perf.zko.dec.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, rth@twiddle.net,
+        Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org,
+        wcarr@perf.zko.dec.com
+Subject: Re: Alpha SCSI error on 2.4.0-test11
+Message-ID: <20001201212628.A9247@inspiron.random>
+In-Reply-To: <20001201203522.B2098@inspiron.random> <Pine.OSF.3.96.1001201145152.32335I-100000@perf.zko.dec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.OSF.3.96.1001201145152.32335I-100000@perf.zko.dec.com>; from ezolt@perf.zko.dec.com on Fri, Dec 01, 2000 at 02:56:43PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Dec 01, 2000 at 02:56:43PM -0500, Phillip Ezolt wrote:
+> What data structure's would I look at?  What should I investigate to
+> verify this?
 
-I recently investigated an 'unused function' warning in iph5526.c. Looking
-at it (both the code causing the warning and the whole driver) convinced
-me that the driver cannot be used without PCI enabled. 
+The relevant code is in arch/alpha/kernel/core_cia.c
 
-I therefore propose that we add a dependency in net/Config.in for this
-driver and clean the driver itself of #ifdef CONFIG_PCI stuff. The patch 
-below does this and additionally some trivial code reordering to elininate
-some further #ifdefs.
+> 	What would I have to do to test this?  I have an ES40 & 3 miata's 
 
-Please comment.
+Does the qlogic driver works well on an ES40 with more than 1G of ram? If
+yes then qlogic driver should be ok.
 
-
---- linux-240-t12-pre3-clean/drivers/net/fc/iph5526.c	Wed Nov 22 22:41:40 2000
-+++ linux/drivers/net/fc/iph5526.c	Fri Dec  1 20:48:16 2000
-@@ -220,32 +220,23 @@
- 
- static void iph5526_timeout(struct net_device *dev);
- 
--#ifdef CONFIG_PCI
- static int iph5526_probe_pci(struct net_device *dev);
--#endif
--
- 
- int __init iph5526_probe(struct net_device *dev)
- {
--#ifdef CONFIG_PCI
- 	if (pci_present() && (iph5526_probe_pci(dev) == 0))
- 		return 0;
--#endif
-     return -ENODEV;
- }
- 
--#ifdef CONFIG_PCI
- static int __init iph5526_probe_pci(struct net_device *dev)
- {
--#ifndef MODULE
--struct fc_info *fi;
--static int count = 0;
--#endif
- #ifdef MODULE
--struct fc_info *fi = (struct fc_info *)dev->priv;
--#endif
--
--#ifndef MODULE
-+	struct fc_info *fi = (struct fc_info *)dev->priv;
-+#else
-+	struct fc_info *fi;
-+	static int count = 0;
-+ 
- 	if(fc[count] != NULL) {
- 		if (dev == NULL) {
- 			dev = init_fcdev(NULL, 0);
-@@ -277,7 +268,6 @@
- 	display_cache(fi);
- 	return 0;
- }
--#endif  /* CONFIG_PCI */
- 
- static int __init fcdev_init(struct net_device *dev)
- {
---- linux-240-t12-pre3-clean/drivers/net/Config.in	Wed Nov 22 22:41:40 2000
-+++ linux/drivers/net/Config.in	Wed Nov 29 20:00:37 2000
-@@ -258,7 +258,7 @@
- 
- bool 'Fibre Channel driver support' CONFIG_NET_FC
- if [ "$CONFIG_NET_FC" = "y" ]; then
--   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI
-+   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI $CONFIG_PCI
- fi
- 
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"The glass is not half full, nor half empty. The glass is just too big."
-  --Anonymous
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

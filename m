@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbULBOME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbULBOUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbULBOME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 09:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbULBOME
+	id S261631AbULBOUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 09:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULBOUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 09:12:04 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:18404 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S261636AbULBOLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 09:11:44 -0500
-Date: Thu, 2 Dec 2004 15:11:32 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cosa.h ioctl numbers
-Message-ID: <20041202141132.GO11992@fi.muni.cz>
-References: <20041202124456.GF11992@fi.muni.cz> <200412021358.00844.arnd@arndb.de> <20041202131224.GI11992@fi.muni.cz> <jeu0r4ajl4.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <jeu0r4ajl4.fsf@sykes.suse.de>
-User-Agent: Mutt/1.4.2i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+	Thu, 2 Dec 2004 09:20:48 -0500
+Received: from dialup-4.246.93.254.Dial1.SanJose1.Level3.net ([4.246.93.254]:8065
+	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
+	id S261631AbULBOUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 09:20:41 -0500
+Message-ID: <41AF24F4.5040800@syphir.sytes.net>
+Date: Thu, 02 Dec 2004 06:21:40 -0800
+From: "C.Y.M" <syphir@syphir.sytes.net>
+Reply-To: syphir@syphir.sytes.net
+Organization: CooLNeT
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: bt8xx cleanup 
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
-: If you want real compatibility you should use size_t, which is what 2.4 is
-: effectively using.
-: 
-	I assume that sizeof(struct .. *) == sizeof(size_t) on i386.
-COSA is an old ISA-based device (out of production now), and I don't think
-it will be ever used in non-i386 machine. In fact it is the first time
-someone tried to use it on 2.6 kernel (and thus I had to fix the driver :-).
+Since you just applied those other cleanups from 2.6.10-rc2-bk15, here 
+is one more you might want to add.  Thanks.
 
--Yenya
+diff -Nru a/drivers/media/dvb/bt8xx/bt878.h 
+b/drivers/media/dvb/bt8xx/bt878.h
+--- a/drivers/media/dvb/bt8xx/bt878.h   2004-10-20 08:19:52 -07:00
++++ b/drivers/media/dvb/bt8xx/bt878.h   2004-11-19 05:52:47 -08:00
+@@ -102,7 +102,7 @@
+         unsigned char revision;
+         unsigned int irq;
+         unsigned long bt878_adr;
+-       unsigned char *bt878_mem; /* function 1 */
++       volatile void __iomem *bt878_mem; /* function 1 */
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+         volatile u32 finished_block;
+         volatile u32 last_block;
+@@ -129,17 +129,17 @@
+  void bt878_stop(struct bt878 *bt);
+
+  #if defined(__powerpc__)       /* big-endian */
+-extern __inline__ void io_st_le32(volatile unsigned *addr, unsigned val)
++extern __inline__ void io_st_le32(volatile unsigned __iomem *addr, 
+unsigned val)
+  {
+         __asm__ __volatile__("stwbrx %1,0,%2":"=m"(*addr):"r"(val),
+                              "r"(addr));
+         __asm__ __volatile__("eieio":::"memory");
+  }
+
+-#define bmtwrite(dat,adr)  io_st_le32((unsigned *)(adr),(dat))
+-#define bmtread(adr)       ld_le32((unsigned *)(adr))
++#define bmtwrite(dat,adr)  io_st_le32((adr),(dat))
++#define bmtread(adr)       ld_le32((adr))
+  #else
+-#define bmtwrite(dat,adr)  writel((dat), (char *) (adr))
++#define bmtwrite(dat,adr)  writel((dat), (adr))
+  #define bmtread(adr)       readl(adr)
+  #endif

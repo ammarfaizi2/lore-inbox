@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290946AbSAaFgt>; Thu, 31 Jan 2002 00:36:49 -0500
+	id <S290956AbSAaFtv>; Thu, 31 Jan 2002 00:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290940AbSAaFg2>; Thu, 31 Jan 2002 00:36:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40205 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290944AbSAaFgT>; Thu, 31 Jan 2002 00:36:19 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: A modest proposal -- We need a patch tracking system.
-Date: 30 Jan 2002 21:36:05 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a3al45$1fs$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33L.0201290902100.32617-100000@imladris.surriel.com> <200201291156.g0TBudE28106@Port.imtp.ilyichevsk.odessa.ua> <3C573428.3000404@fit.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S290953AbSAaFtl>; Thu, 31 Jan 2002 00:49:41 -0500
+Received: from are.twiddle.net ([64.81.246.98]:34455 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S290956AbSAaFti>;
+	Thu, 31 Jan 2002 00:49:38 -0500
+Date: Wed, 30 Jan 2002 21:49:35 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+Message-ID: <20020130214935.A7479@are.twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Richard Henderson <rth@twiddle.net>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
+In-Reply-To: <20020130002204.A4480@are.twiddle.net> <E16W3U9-0004Pd-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16W3U9-0004Pd-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Thu, Jan 31, 2002 at 09:45:45AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C573428.3000404@fit.edu>
-By author:    Kervin Pierre <kpierre@fit.edu>
-In newsgroup: linux.dev.kernel
->
-> Public patch tracking system/queue, maybe something derived from bugzilla.
-> 
-> (i) patches are sent to the maintainer and entered into the system.
-> 
-> (ii) reviewed patches are update appropriately, eg. ( "reject - untidy, 
-> please fix", "accept - expected version 2.4.18pre19" etc. )
-> 
-> (iii) patch versions, updates can be kept, as in mozilla's bugzilla 
-> site.  And comments on that patch can also be kept right along side the 
-> code.
-> 
-> Regardless of wether the current system is changed or not, the linux 
-> kernel would benefit from a central, searchable, public repository of 
-> patches.
-> 
-> The code is available, bugzilla has all this functionality today.
-> 
-> So here's hoping for a patchzilla.kernel.org :)
-> 
+On Thu, Jan 31, 2002 at 09:45:45AM +1100, Rusty Russell wrote:
+> "better".  Believe me, I was fully aware, but I refuse to write such
+> crap unless *proven* to be required.
 
-If Linus et al signs on to the idea, I'm sure we can build it...
+You're going to wait until the compiler generates incorrect
+code for you after knowing that it *probably* will?  Nice.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> I agree that this is much better.  But do not understand what small
+> relocs have to do with simple address arithmetic?  You've always been
+> right before: what am I missing?
+
+"Small" variables may be positioned by the compiler such that
+they are addressable via a 16-bit relocation from some GP register.
+If that variable isn't actually located in the small data area,
+then the 16-bit relocation may overflow, resulting in link errors.
+
+So it isn't a matter of the arithmetic itself, but loading the
+addresses with which to do the arithmetic.
+
+By declaring the variable to be an array of unspecified size,
+you're giving the compiler no information as to the size of the
+variable, and so it cannot assume the variable is located in the
+small data area.
+
+
+r~

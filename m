@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313242AbSERQOA>; Sat, 18 May 2002 12:14:00 -0400
+	id <S313238AbSERQUF>; Sat, 18 May 2002 12:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313254AbSERQN7>; Sat, 18 May 2002 12:13:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61455 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313242AbSERQN7>; Sat, 18 May 2002 12:13:59 -0400
-Date: Sat, 18 May 2002 09:14:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, <rusty@rustcorp.com.au>,
-        <alan@lxorguk.ukuu.org.uk>
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-In-Reply-To: <p733cwpzrp3.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0205180910570.26742-100000@home.transmeta.com>
+	id <S313254AbSERQUE>; Sat, 18 May 2002 12:20:04 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:25732 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id <S313238AbSERQUD>; Sat, 18 May 2002 12:20:03 -0400
+Date: Sat, 18 May 2002 12:19:40 -0400 (EDT)
+From: Paul Faure <paul@engsoc.org>
+X-X-Sender: <paul@lager.engsoc.carleton.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
+In-Reply-To: <E178lM7-0006uZ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0205181216590.16415-100000@lager.engsoc.carleton.ca>
+X-Home-Page: http://www.engsoc.org/
+X-URL: http://www.engsoc.org/
+Organisation: Engsoc Project (www.engsoc.org)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My brother dropped off a network card (smc-ultra) and it works fine with 
+the 2.4.18-4 redhat kernel. If you are still interested in testing the 
+ne.o card with the latest official kernel, I can do it.
 
+Thanks for all your help.
 
-On 18 May 2002, Andi Kleen wrote:
->
-> Are you sure they even exist ?
+On Fri, 17 May 2002, Alan Cox wrote:
 
-Oh, like read() or write() for regular files? Yup, they exist.
+> > hmm, tiny != burst. of course sometime ksoftirqd will kick in when it
+> > notices a burst. But it is irrelevant to this thread about SCHED_FIFO +
+> > ksoftirqd.
+> 
+> Agreed
+> 
+> > If there's SCHED_FIFO app in loop, ksoftirqd never runs and we only rely
+> > on the support from irq that we had in 2.4.0 and previous too.
+> 
+> Yes
+> 
 
-		Linus
+-- 
+Paul N. Faure					613.266.3286
+EngSoc Administrator            		paul-at-engsoc-dot-org
+Chief Technical Officer, CertainKey Inc.	paul-at-certainkey-dot-com
+Carleton University Systems Eng. 4th Year	paul-at-faure-dot-ca
 

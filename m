@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315607AbSFCWMa>; Mon, 3 Jun 2002 18:12:30 -0400
+	id <S315611AbSFCWTx>; Mon, 3 Jun 2002 18:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315611AbSFCWM3>; Mon, 3 Jun 2002 18:12:29 -0400
-Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:4225 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S315607AbSFCWM2>; Mon, 3 Jun 2002 18:12:28 -0400
+	id <S315616AbSFCWTw>; Mon, 3 Jun 2002 18:19:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40975 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315611AbSFCWTv>; Mon, 3 Jun 2002 18:19:51 -0400
+Date: Mon, 3 Jun 2002 15:19:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Mason <mason@suse.com>
+cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [patch 12/16] fix race between writeback and unlink
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CF91E48.C76B34FA@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 03 Jun 2002 18:10:33 -0400
-Message-Id: <1023142233.31475.23.camel@tiny>
-Mime-Version: 1.0
+In-Reply-To: <1023142233.31475.23.camel@tiny>
+Message-ID: <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-06-01 at 15:19, Andrew Morton wrote:
-> Linus Torvalds wrote:
-> > 
-> > On Sat, 1 Jun 2002, Andrew Morton wrote:
-> > >
-> > > So run __iget prior to dropping inode_lock.
-> > 
-> > This part looks horrible:
-> > 
-> > +               spin_unlock(&inode_lock);
-> > +               iput(inode);
-> > +               spin_lock(&inode_lock);
-> 
-> Yup.  The inode refcounting APIs are really awkward.  Note how I recently
-> added dopey code in ext2_put_inode() to only drop the prealloc window on
-> the "final" iput().
 
-Hmmm, a quick glance makes the test in ext2_put_inode look unsafe.
 
-iput calls put_inode before decrementing i_count.  So, nothing stops 5
-iput callers from all deciding i_count > 2 and leaving the preallocation
-blocks hanging.
+On 3 Jun 2002, Chris Mason wrote:
+>
+> Or am I missing something?
 
-Also, a knfsd triggered iget/iput pair should hit the same race with an
-put_inode call.
+No. I think that in the long run we really would want all of the writeback
+preallocation should happen in the "struct file", not in "struct inode".
+And they should be released at file close ("release()"), not at iput()
+time.
 
-Or am I missing something?
+I _think_ that right now nfsd doesn't cache file opens (only inodes), so
+this could be a performance issue for nfsd, but it might be possible to
+change how nfsd acts. And it would be a _lot_ cleaner to do it at the file
+level.
 
--chris
-
+		Linus
 

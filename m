@@ -1,91 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318079AbSIBICW>; Mon, 2 Sep 2002 04:02:22 -0400
+	id <S318184AbSIBIMM>; Mon, 2 Sep 2002 04:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318184AbSIBICW>; Mon, 2 Sep 2002 04:02:22 -0400
-Received: from tidos.tid.es ([193.145.240.2]:16318 "EHLO tid.tid.es")
-	by vger.kernel.org with ESMTP id <S318079AbSIBICU>;
-	Mon, 2 Sep 2002 04:02:20 -0400
-Message-ID: <3D731C59.CA5796CF@tid.es>
-Date: Mon, 02 Sep 2002 10:07:53 +0200
-From: Miguel =?iso-8859-1?Q?Gonz=E1lez=20Casta=F1os?= <mgc@tid.es>
-Organization: Telefonica I+D
-X-Mailer: Mozilla 4.78 [es] (Windows NT 5.0; U)
-X-Accept-Language: es
+	id <S318207AbSIBIMM>; Mon, 2 Sep 2002 04:12:12 -0400
+Received: from p508475D0.dip.t-dialin.net ([80.132.117.208]:52710 "EHLO
+	sol.fo.et.local") by vger.kernel.org with ESMTP id <S318184AbSIBIML>;
+	Mon, 2 Sep 2002 04:12:11 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Mike Isely <isely@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre4-ac1 trashed my system
+References: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
+From: Joachim Breuer <jmbreuer@gmx.net>
+Date: Mon, 02 Sep 2002 10:16:14 +0200
+In-Reply-To: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org> (Andre
+ Hedrick's message of "Fri, 30 Aug 2002 23:24:38 -0700 (PDT)")
+Message-ID: <m33css7qnl.fsf@venus.fo.et.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-redhat-linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: recompiling kernel for a Soltek 75drv4
-Content-Type: multipart/mixed;
- boundary="------------756402CA373264139D327663"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Este es un mensaje de varias partes en formato MIME.
---------------756402CA373264139D327663
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Andre Hedrick <andre@linux-ide.org> writes:
 
-Dear all,
+> On Sat, 31 Aug 2002, Mike Isely wrote:
+>
+>> On Fri, 30 Aug 2002, Andre Hedrick wrote:
+>> 
+>> > When you said you put it on primary channel, I realized that you have a
+>> > system that breaks the rules of Promise and I am not sure.
+>> 
+>> What are the "rules of Promise" or where may I find such information?
+>
+> You do not want to sign the NDA's to get the data sheets, aquire all the
+> hardware to test, generate tables of irregularities, query Promise, and
+> then scratch your head why.
+>
+> I have a FastTrak 100 TX4 the BIOS fails to see beyond 128GB, but in
+> practice it does.
+>
+> The PDC20267 will puke in 48-bit DMA, but run clean in 48-bit PIO :-/
+> Oh but that is the primary channel, Seconday Channel is clean both ways :-\
+>
+> PDC20262 works in 48-bit DMA every where.
+>
+> PDC20265 similar to PDC20267 except yours.
+>
+> Rules are emperical tests and rants back at the OEM, and ....
 
- It is my first post to this mailing list, so I am sorry for my English
-and the possible mistakes that I could make. I have read through the
-information of the FAQs and search a little bit but I have not found an
-answer to my question, so here it goes:
+Another data point: My experiences with 2.4.19-pre4-ac2 are remarkably
+similar to Mike Isley's, but for a few interesting differences:
 
- I have a Red Hat 7.2 linux box as a web server. I am still in the
-proccess of tuning the system.
+- 2.4.18 runs O.K.
+- 2.4.19 hangs when checking for partitions
+- 2.4.19-ac4 hangs, too
+- 2.4.20-pre4 hangs, too
+- 2.4.20-pre4-ac2 does not hang, but shows problems exactly as Mike is
+  describing:
+  - Claims 80pin cable is missing
+  - wrong data read from disk, write based on wrong read trashes fs
 
- It is a:
- AMD K7 Athlon
- two HD IDE 60 Gbs 
- 3Com Network card
- no sound card
- general video card
- Mother board Soltek 75drv4 Chipset VT8367 KT266A
+My hardware:
+o Promise PDC20262 On-Board on a GigaByte GA-6BX7+ (Intel 440BX)
+o Maxtor 120G (4G120J6)
 
- I am compiling a non-modular kernel, due to I do not have so much
-hardware and I have read that this makes the kernel faster. 
+>> > grep "hwif->addressing" pdc202xx.c
+>> > 
+>> > Stub out the three lines.
+>> > 
+>> > Recompile and reboot, it will be fixed
+>> 
+>> Will do.  Thanks.  If you have a more permanent fix you'd like me to 
+>> test, let me know.
+>
+> Oh another dang piece of the puzzle found and it does not fit anywhere!
 
- I have executed a lspci to get the information of the mother board
-shown above. I have downloaded the latest linux stable kernel 2.4.19 and
-I have not found which chipset would be the best to use. 
+Does this fix the bogus 80-pin message or does it just have to do with
+block addressing and thus the "corruption" issue?
 
- By the way I have created a Software RAID-1 with the two IDE hard
-drives. 
+I'm asking because the 20262 seems to break ATAPI devices completely
+once it was in a "wrong" mode. I.e. if my PX-W1610 on the second
+channel is correctly detected as MDMA2 it works, if it is detected as
+something else and I try to tweak it the channel and/or controller
+hangs.
 
- My issue is that when I try to shutdown the system I experimented two
-things:
+Can I somewhere get a complete picture of what is *supposed* to work
+with the '62 and what not?
 
- - The system is not shutdown completely, I got a Power down message and
-I got to power off the PC.
+Thanks a lot!
 
- - When I reboot the system and even when the system is shutting down, I
-have seen messages from the system saying that the RAID is not properly
-switched off dued to not a properly shutdowned system.
 
- I hope I have narrowed enough my question and give enough information
-for you guys.
+So long,
+   Joe
 
- Many thanks in advance
-
- Miguel
---------------756402CA373264139D327663
-Content-Type: text/x-vcard; charset=us-ascii;
- name="mgc.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Tarjeta para Miguel González Castaños
-Content-Disposition: attachment;
- filename="mgc.vcf"
-
-begin:vcard 
-n:González Castaños;Miguel
-tel;work:+34 983 36 79 57
-x-mozilla-html:FALSE
-adr:;;;;;;
-version:2.1
-email;internet:mgc@tid.es
-fn:Miguel González Castaños
-end:vcard
-
---------------756402CA373264139D327663--
-
+-- 
+"I use emacs, which might be thought of as a thermonuclear
+ word processor."
+-- Neal Stephenson, "In the beginning... was the command line"

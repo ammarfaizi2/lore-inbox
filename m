@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265053AbSKAQIR>; Fri, 1 Nov 2002 11:08:17 -0500
+	id <S265072AbSKAQKN>; Fri, 1 Nov 2002 11:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265067AbSKAQIR>; Fri, 1 Nov 2002 11:08:17 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:6917 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S265053AbSKAQIQ>; Fri, 1 Nov 2002 11:08:16 -0500
-Date: Fri, 1 Nov 2002 11:16:20 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: linux-kernel@vger.kernel.org
+	id <S265077AbSKAQKM>; Fri, 1 Nov 2002 11:10:12 -0500
+Received: from codepoet.org ([166.70.99.138]:34454 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S265072AbSKAQJh>;
+	Fri, 1 Nov 2002 11:09:37 -0500
+Date: Fri, 1 Nov 2002 09:16:04 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: What's left over.
-In-Reply-To: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021101161603.GA25306@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <20021031181252.GB24027@tapu.f00f.org> <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com> <20021031194351.GA24676@tapu.f00f.org> <apu6cd$4db$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <apu6cd$4db$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I'm going to say may not be popular, and probably won't win me
-friends, but here it is anyhow:
+On Fri Nov 01, 2002 at 03:25:01PM +0000, Linus Torvalds wrote:
+> funny - I'd be surprised if RL throughput copying back and forth over a
+> PCI bus is more than 25-30MB/s), I suspect that you can do most crypto
+> faster on the CPU directly these days. 
+> 
+> Maybe not. The only numbers I have is the slowness of PCI.
 
-On Fri, 1 Nov 2002, Alexander Viro wrote:
+It may be faster on your beefy 8 CPU boxes.  But many people are
+creating, for example, little wireless access points with 200 Mhz
+StrongArm CPUs and similar little devices that lack the major CPU
+horsepower of big-iron system.  Such boxes would be far better
+off offloading crypto to a little crypto chip, right?
 
-> On Fri, 1 Nov 2002, Patrick Finnegan wrote:
->
-> > No, vendor == people who sold or gave us the softare.  Right now, Linus is
-> > acting like he's a big evil corporation that won't add the change no
-> > matter what we say:
->
-> ... to his tree.  Geez, why could that be?  Maybe because you don't have
-> any rights to decide what patches does anybody else apply to their trees?
->
-> It's not a fscking public service.  Linus has full control over his
-> tree.  You have equally full control over your tree.  Linus can't
-> tell you what patches to apply in your tree.  You can't tell Linus
-> what patches he should apply to his.
+ -Erik
 
-I'm sorry it _is_ a public service.  Once tens of people started
-contributing to it, it became one.  This is like saying that the
-Washington Monument belongs to the peole that maintain it, any building
-belongs to the repair crews and janitors.  I'm not saying that Linus is
-necessarily a janitor, but when you consider how much of the Linux kernel
-that he didn't write, you may relize that it's not just his kernel.  It
-also belongs to every single person that has written even a single
-line of code in it.
-
-BTW, "My opinions do not represent the opinions of my employer" for at
-least this email..
-
-Pat
 --
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
-
-http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
-
-
-
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130335AbRAXBdD>; Tue, 23 Jan 2001 20:33:03 -0500
+	id <S132117AbRAXCGq>; Tue, 23 Jan 2001 21:06:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130613AbRAXBcw>; Tue, 23 Jan 2001 20:32:52 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:48651 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S130335AbRAXBce>;
-	Tue, 23 Jan 2001 20:32:34 -0500
-Message-ID: <3A6E4040.86D750D7@candelatech.com>
-Date: Tue, 23 Jan 2001 19:38:56 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S132360AbRAXCGg>; Tue, 23 Jan 2001 21:06:36 -0500
+Received: from kanga.kvack.org ([216.129.200.3]:65286 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S132117AbRAXCGW>;
+	Tue, 23 Jan 2001 21:06:22 -0500
+Date: Tue, 23 Jan 2001 21:03:09 -0500 (EST)
+From: "Benjamin C.R. LaHaise" <blah@kvack.org>
+To: David Wragg <dpw@doc.ic.ac.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: limit on number of kmapped pages
+In-Reply-To: <y7rofwxeqin.fsf@sytry.doc.ic.ac.uk>
+Message-ID: <Pine.LNX.3.96.1010123205643.7482A-100000@kanga.kvack.org>
 MIME-Version: 1.0
-To: David Weis <djweis@sjdjweis.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: changing mac address of eth alias
-In-Reply-To: <Pine.LNX.4.21.0101231927060.23337-100000@www.sjdjweis.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weis wrote:
+On 24 Jan 2001, David Wragg wrote:
+
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+> > Why do you need such a large buffer? 
 > 
-> what would be required to make the mac address of aliases changable,
-> specifically for something like vrrp that shares a mac address among
-> machines.
-> 
-> dave
+> ext2 doesn't guarantee sustained write bandwidth (in particular,
+> writing a page to an ext2 file can have a high latency due to reading
+> the block bitmap synchronously).  To deal with this I need at least a
+> 2MB buffer.
 
-Not sure you can do that, but you could use an 802.1Q vlan patch
-and set up two different VLANs.  You can now change the MAC
-address on a VLAN with my patch: http://scry.wanfear.com/~greear/vlan.html
+This is the wrong way of going about things -- you should probably insert
+the pages into the page cache and write them into the filesystem via
+writepage.  That way the pages don't need to be mapped while being written
+out.  For incoming data from a network socket, making use of the
+data_ready callbacks and directly copying from the skbs in one pass with a
+kmap of only one page at a time.
 
-Ben
+Maybe I'm guessing incorrect at what is being attempted, but kmap should
+be used sparingly and as briefly as possible.
 
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+		-ben
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290551AbSAYEm6>; Thu, 24 Jan 2002 23:42:58 -0500
+	id <S288925AbSAYEkS>; Thu, 24 Jan 2002 23:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290552AbSAYEmq>; Thu, 24 Jan 2002 23:42:46 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:62606 "EHLO
+	id <S290548AbSAYEkJ>; Thu, 24 Jan 2002 23:40:09 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:32398 "EHLO
 	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S290551AbSAYEme>; Thu, 24 Jan 2002 23:42:34 -0500
-Date: Thu, 24 Jan 2002 23:42:27 -0500
+	id <S288925AbSAYEj4>; Thu, 24 Jan 2002 23:39:56 -0500
+Date: Thu, 24 Jan 2002 23:39:50 -0500
 From: christophe =?iso-8859-15?Q?barb=E9?= 
 	<christophe.barbe.ml@online.fr>
 To: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: usb or video4linux problem
-Message-ID: <20020125044227.GD671@online.fr>
+Message-ID: <20020125043949.GC671@online.fr>
 Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
 In-Reply-To: <20020125032857.GA671@online.fr> <20020125041226.GA22366@kroah.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BRE3mIcgqKzpedwo"
+	protocol="application/pgp-signature"; boundary="hOcCNbCCxyk/YU74"
 Content-Disposition: inline
 In-Reply-To: <20020125041226.GA22366@kroah.com>
 User-Agent: Mutt/1.3.26i
@@ -25,7 +25,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BRE3mIcgqKzpedwo
+--hOcCNbCCxyk/YU74
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -38,74 +38,22 @@ On Thu, Jan 24, 2002 at 08:12:26PM -0800, Greg KH wrote:
 > > activity.
 >=20
 > Does the kernel log show any USB errors, or any USB messages at all?
+
+No message at all and the usb debug kernel option is on.
+
 > What kernel version are you using?
 
-But I see ov511 output (with debug=3D4 option) until the freeze and then
-nothing :
-
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4291] Frame end, c=
-urframe =3D 0, packnum=3D159, hw=3D352, vw=3D288, recvd=3D152631
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4338] Frame start,=
- framenum =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5470] CMCAPTU=
-RE
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5472] frame: =
-0, size: 352x288, format: 7
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5530] VIDIOCM=
-CAPTURE: renewing frame 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_new_frame:4836] ov511->curfr=
-ame =3D 1, framenum =3D 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5550] syncing=
- to frame 1, grabstate =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4291] Frame end, c=
-urframe =3D 1, packnum=3D159, hw=3D352, vw=3D288, recvd=3D152631
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4338] Frame start,=
- framenum =3D 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5470] CMCAPTU=
-RE
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5472] frame: =
-1, size: 352x288, format: 7
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5530] VIDIOCM=
-CAPTURE: renewing frame 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_new_frame:4836] ov511->curfr=
-ame =3D 0, framenum =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5550] syncing=
- to frame 0, grabstate =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4291] Frame end, c=
-urframe =3D 0, packnum=3D159, hw=3D352, vw=3D288, recvd=3D152631
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5470] CMCAPTU=
-RE
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5472] frame: =
-0, size: 352x288, format: 7
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5530] VIDIOCM=
-CAPTURE: renewing frame 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_new_frame:4836] ov511->curfr=
-ame =3D 1, framenum =3D 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5550] syncing=
- to frame 1, grabstate =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4338] Frame start,=
- framenum =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4291] Frame end, c=
-urframe =3D 1, packnum=3D159, hw=3D352, vw=3D288, recvd=3D152631
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_move_data:4338] Frame start,=
- framenum =3D 0
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5470] CMCAPTU=
-RE
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5472] frame: =
-1, size: 352x288, format: 7
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5530] VIDIOCM=
-CAPTURE: renewing frame 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_new_frame:4836] ov511->curfr=
-ame =3D 0, framenum =3D 1
-Jan 24 23:23:53 turing kernel: ov511.c: [ov511_ioctl_internal:5550] syncing=
- to frame 0, grabstate =3D 1
-
-Then the video freeze and I get no more output.
-
+2.4.17
 
 >=20
 > thanks,
->=20
+
+Remember that I see a (I believe related) problem with the usb mouse.
+Suddenly I can't use it. Switching on the console and then back to X
+give me the mouse back.
+
+Christophe
+
 > greg k-h
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -117,11 +65,10 @@ Then the video freeze and I get no more output.
 Christophe Barb=E9 <christophe.barbe@ufies.org>
 GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 
-Cats are rather delicate creatures and they are subject to a good
-many ailments, but I never heard of one who suffered from insomnia.
---Joseph Wood Krutch
+Thousands of years ago, cats were worshipped as gods.
+Cats have never forgotten this. --Anonymous
 
---BRE3mIcgqKzpedwo
+--hOcCNbCCxyk/YU74
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -129,9 +76,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: Pour information voir http://www.gnupg.org
 
-iD8DBQE8UOIzj0UvHtcstB4RAp+rAJ9bgZSgAB9J7oXTfOZbZYZt/zIr3gCeLFrK
-2m2gsvFySk98pv/93PjyHSQ=
-=izo4
+iD8DBQE8UOGVj0UvHtcstB4RAubMAKCJo6QQHE+mHScjmxp65lvZSGaA0ACgljcH
+chhqPtM32i5MimSzsbf723E=
+=taVF
 -----END PGP SIGNATURE-----
 
---BRE3mIcgqKzpedwo--
+--hOcCNbCCxyk/YU74--

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270173AbTGUQA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 12:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270189AbTGUQAZ
+	id S270470AbTGUQKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 12:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270472AbTGUQKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 12:00:25 -0400
-Received: from hell.org.pl ([212.244.218.42]:53518 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S270173AbTGUQAU (ORCPT
+	Mon, 21 Jul 2003 12:10:12 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:43164 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S270470AbTGUQJk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 12:00:20 -0400
-Date: Mon, 21 Jul 2003 18:18:00 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Eric Valette <eric.valette@free.fr>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-       andrew.grover@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if enabing APIC => add this machine to DMI black list
-Message-ID: <20030721161800.GB28083@hell.org.pl>
-Mail-Followup-To: Eric Valette <eric.valette@free.fr>,
-	Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-	andrew.grover@intel.com, acpi-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <200307210114.h6L1El7M018996@harpo.it.uu.se> <3F1B9F37.509@free.fr> <3F1C0DEE.8040509@free.fr>
+	Mon, 21 Jul 2003 12:09:40 -0400
+Date: Tue, 22 Jul 2003 02:24:24 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Kurt Roeckx <Q@ping.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: siginfo pad problem.
+Message-Id: <20030722022424.7480af8e.sfr@canb.auug.org.au>
+In-Reply-To: <20030721142259.GA4315@ping.be>
+References: <20030721142259.GA4315@ping.be>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <3F1C0DEE.8040509@free.fr>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Eric Valette:
-> Come on, APM is a thing from the past and any recent laptop does not 
-> even care of supporting it now that Windows XP is  bundled... And in any 
-> case it is not supported by this particular machine...
+On Mon, 21 Jul 2003 16:23:00 +0200 Kurt Roeckx <Q@ping.be> wrote:
+>
+> It seems the _timer part of siginfo is a little bit broken.
+> 
+> It has:
+>                         char _pad[sizeof( __ARCH_SI_UID_T) - sizeof(int)];
+> 
+> Where __ARCH_SI_UID_T can be a short.
 
-While I agree with your first statement, I must object to the second: this
-laptop, contrary to what the manual says, supports APM quite well indeed.
-Anyway, turning ACPI off is not a solution.
-Best regards,
+Except __ARCH_SI_UID_T is defined to be uid_t everywhere except sparc
+where it is "unsigned int".  In include/linux/types.h, uid_t is typdef'ed
+to be __kernel_uid32_t (in the kernel), so __ARCH_SI_UID_T is always (at
+least) 32 bits.
+
+I was worried about that the first time I saw it as well.
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

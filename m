@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284557AbRLRTfy>; Tue, 18 Dec 2001 14:35:54 -0500
+	id <S284837AbRLRTnd>; Tue, 18 Dec 2001 14:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284766AbRLRTeN>; Tue, 18 Dec 2001 14:34:13 -0500
-Received: from h24-70-162-27.wp.shawcable.net ([24.70.162.27]:11152 "EHLO
-	ubb.apia.dhs.org") by vger.kernel.org with ESMTP id <S284787AbRLRTci>;
-	Tue, 18 Dec 2001 14:32:38 -0500
-Message-Id: <v04003a11b84549aa834a@[24.70.162.28]>
-In-Reply-To: <20011218190621.A28147@buzz.ichilton.local>
-In-Reply-To: <20011215.220646.69411478.davem@redhat.com>
- <20011214181816.B28794@woody.ichilton.co.uk>
- <20011215.220646.69411478.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Organisation: Judean People's Front; Department of Whips, Chains, Thumb-Screws, Six Tons of Whipping Cream, the Entire Soprano Section of the Mormon Tabernacle Choir and Guest Apperances of Eva Peron aka Eric Conspiracy Secret Laboratories
-X-Disclaimer-1: This message has been edited from it's original form by members of the Eric Conspiracy.
-X-Disclaimer-2: There is no Eric Conspiracy.
-X-Not-For-Humans: aardvark@apia.dhs.org and zebra@apia.dhs.org are spamtraps.
-Date: Tue, 18 Dec 2001 13:32:00 -0600
-To: Ian Chilton <ian@ichilton.co.uk>, "David S. Miller" <davem@redhat.com>
-From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
-Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+	id <S284696AbRLRTmQ>; Tue, 18 Dec 2001 14:42:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1041 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284795AbRLRTk3>; Tue, 18 Dec 2001 14:40:29 -0500
+Subject: Re: The direction linux is taking
+To: dana.lacoste@peregrine.com (Dana Lacoste)
+Date: Tue, 18 Dec 2001 19:50:27 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A07@ottonexc1.ottawa.loran.com> from "Dana Lacoste" at Dec 18, 2001 07:18:51 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16GQFw-0008Uh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 1:06 PM -0600 12/18/01, Ian Chilton wrote:
-[...]
->Now when it boots, it says "Kernel command line: root=nfs" but still,
->the kernel does not try and do the IP-Config/bootp stuff so it fails
->saying it can't find the NFS server which is obvious as it doesn't have
->an ip etc...
-[...]
+> > is too noisy and many key people dont read it.
+> 
+> ...but if you are working with the code and you see something change
+> the mailing list is the place to ask, correct?
 
-IP Autoconfig won't be enabled unless you pass ip=auto in the commandline,
-or twiddle with the source to make it default to on.
+Or its submitter - thyats why names in changelogs are so important
 
-I really think it should be a compile-time option to have it default to on,
-but I never figured out who maintains it.
+> > Many kernel bug reports end up invisible to some of the developers.
+> 
+> Many kernel developers don't read LKML.
+> Isn't that their flaw?
 
+Not really. If they read lk they would have no time to fix bugs.
 
-Cheers - Tony 'Nicoya' Mantler :)
+> I sincerely challenge you to propose a method for centralizing
+> bug tracking in the Linux kernel that _can_ be used by the
+> community as a whole.  That means something that Linus would use
+> _and_ somebody who doesn't subscribe to LKML can use to find out
+> why he can't compile loop.o on his redhat 7.0 system with the
+> kernel he got from kernel.org a few weeks ago.
 
-
---
-Tony "Nicoya" Mantler - Renaissance Nerd Extraordinaire - nicoya@apia.dhs.org
-Winnipeg, Manitoba, Canada           --           http://nicoya.feline.pp.se/
-
-
+You don't centralise it. You ensure the data is in common(ish) formats
+and let the search tools improve. Would you build google by making all
+the web run at one site ?

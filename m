@@ -1,31 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130152AbQJaETL>; Mon, 30 Oct 2000 23:19:11 -0500
+	id <S130162AbQJaEUl>; Mon, 30 Oct 2000 23:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130162AbQJaETB>; Mon, 30 Oct 2000 23:19:01 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35969 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130152AbQJaESw>;
-	Mon, 30 Oct 2000 23:18:52 -0500
-Date: Mon, 30 Oct 2000 20:04:34 -0800
-Message-Id: <200010310404.UAA05392@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: caperry@edolnx.net
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <39FE5C09.F1B13725@edolnx.net> (message from Carl Perry on Mon,
-	30 Oct 2000 23:43:37 -0600)
-Subject: Re: Is IPv4 totally broken in 2.4-test
-In-Reply-To: <39FE5C09.F1B13725@edolnx.net>
+	id <S130196AbQJaEUb>; Mon, 30 Oct 2000 23:20:31 -0500
+Received: from dial-09-29-apx-02.btvt.together.net ([209.91.32.29]:18822 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S130162AbQJaEUS>; Mon, 30 Oct 2000 23:20:18 -0500
+Date: Mon, 30 Oct 2000 23:20:00 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Gerhard Fuellgrabe <gerd@cacofonix.harz.de>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Q: ip_masq module for battlecom?
+In-Reply-To: <20001030214820.A13204@cacofonix.fuenet.harz.de>
+Message-ID: <Pine.LNX.4.21.0010302317410.1267-100000@sparrow.websense.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Good evening, Gerhard,
 
-echo "0" >/proc/sys/net/ipv4/tcp_ecn
+On Mon, 30 Oct 2000, Gerhard Fuellgrabe wrote:
 
-Or don't enable CONFIG_INET_ECN in your kernel configuration.
+> in my LAN there are users working on battle.net (Starcraft,
+> Diablo2 etc.). There is a Linux 2.2.14 box routing the LAN
+> with private IP addresses to the internet (with IP masqerading).
+> 
+> A feature that does not work is the battlecom communication. 
+> Is there an ip_masq module available for this (like e.g. 
+> ipv4/ip_masq_cuseeme.o or ipv4/ip_masq_quake.o) or is anybody
+> working on this?
 
-Later,
-David S. Miller
-davem@redhat.com
+	See the "Application Support" link at http://ipmasq.cjb.net for
+information about specific applications under masquerading.
+	Future questions about masquerade support should go to the
+ip-masq mailing list; info on that list can also be found at the above
+link.
+	Best of luck.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	"Put down those Windows disks, Dave..."
+	-- HAL
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

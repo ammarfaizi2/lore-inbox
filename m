@@ -1,143 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUKOXhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUKOXm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbUKOXhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKOXfY
+	id S261648AbUKOXm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKOXkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:35:24 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:62738 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261643AbUKOXdD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:33:03 -0500
-Date: Mon, 15 Nov 2004 23:33:00 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-mm5
-In-Reply-To: <4198EFE5.5010003@aknet.ru>
-Message-ID: <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
-References: <41967669.3070707@aknet.ru> <Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
- <4198EFE5.5010003@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Nov 2004 18:40:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56766 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261648AbUKOXjf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:39:35 -0500
+Date: Mon, 15 Nov 2004 15:43:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] -mm check_rlimit oops on p->signal
+Message-Id: <20041115154346.33089c0b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0411152043250.4131-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0411152043250.4131-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Nov 2004, Stas Sergeev wrote:
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> +	if (likely(p->signal && p->exit_state < EXIT_ZOMBIE)) {
 
-> But there is still something strange.
-> Previously, in 2.6.10-rc1 (and in -mm2
-> either I think) the NMI watchdog was
-> working in both LAPIC and IO-APIC modes.
-> Now - only in LAPIC mode.
-> nmi_watchdog=1 still doesn't work.
-> Any ideas about this?
+Worried.  This places an ordering interpretation on TASK_* and EXIT_* which
+AFAIK hadn't been there beforehand.  If someone later comes along and adds
 
- Interesting -- your local APIC seems to be disabled by the firmware
-(otherwise it would work even without my fix), so how can an I/O APIC
-work?  Bringing it up requires a set of tables in memory describing its
-configuration to have been prepared by the firmware by means of either the
-MPS or the ACPI standard.  Disabling the local APIC likely implies no 
-explicit support for APICs is present in the firmware, so such tables 
-should be absent.
+#define TASK_DOODLING 64
 
-> Just trying to make sure that everything
-> is correct.
+then we lose.
 
- With no APIC messages at all it's hard to decide whether it's correct or 
-not.
+I wonder if for clarity and future-safety we should do something like:
 
-> And btw, dmesg is still silent about a
-> LAPIC. This makes me nervous when I am
-> trying to figure out whether it works or
-> not:) Would be nice to get those prominent
-> messages back, as per 2.6.8.
-
- Someone wasn't as much fond of them as you are and they were removed by
-default.  I'm pissed off, too, but my opinion doesn't matter -- others
-seem to have better skills with their crystal balls.  Please try "debug
-apic=debug" on your command line together with the following patch (the
-"apic=" parameter suffers from the same problem "lapic" and "nolapic"  
-do, but IMO it would be an overkill to move it to parse_cmdline_early()).
-
- If you send me the bootstrap log back I may have a look to see what's 
-wrong about the I/O APIC.
-
-  Maciej
-
-patch-2.6.10-rc1-mm5-i386-apic_printk-0
-diff -up --recursive --new-file linux-2.6.10-rc1-mm5.macro/arch/i386/kernel/apic.c linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c
---- linux-2.6.10-rc1-mm5.macro/arch/i386/kernel/apic.c	2004-11-14 16:01:48.000000000 +0000
-+++ linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c	2004-11-15 00:55:22.000000000 +0000
-@@ -760,9 +760,8 @@ static int __init detect_init_APIC (void
- 		 * APIC only if "lapic" specified.
- 		 */
- 		if (enable_local_apic <= 0) {
--			apic_printk(APIC_VERBOSE,
--				    "Local APIC disabled by BIOS -- "
--				    "you can enable it with \"lapic\"\n");
-+			printk("Local APIC disabled by BIOS -- "
-+			       "you can enable it with \"lapic\"\n");
- 			return -1;
- 		}
- 		/*
-@@ -773,8 +772,7 @@ static int __init detect_init_APIC (void
- 		 */
- 		rdmsr(MSR_IA32_APICBASE, l, h);
- 		if (!(l & MSR_IA32_APICBASE_ENABLE)) {
--			apic_printk(APIC_VERBOSE, "Local APIC disabled "
--					"by BIOS -- reenabling.\n");
-+			printk("Local APIC disabled by BIOS -- reenabling.\n");
- 			l &= ~MSR_IA32_APICBASE_BASE;
- 			l |= MSR_IA32_APICBASE_ENABLE | APIC_DEFAULT_PHYS_BASE;
- 			wrmsr(MSR_IA32_APICBASE, l, h);
-@@ -801,7 +799,7 @@ static int __init detect_init_APIC (void
- 	if (nmi_watchdog != NMI_NONE)
- 		nmi_watchdog = NMI_LOCAL_APIC;
+--- 25/include/linux/sched.h~task-exit_state-clarity	Mon Nov 15 15:40:24 2004
++++ 25-akpm/include/linux/sched.h	Mon Nov 15 15:42:40 2004
+@@ -105,13 +105,20 @@ extern unsigned long nr_iowait(void);
  
--	apic_printk(APIC_VERBOSE, "Found and enabled local APIC!\n");
-+	printk("Found and enabled local APIC!\n");
+ #include <asm/processor.h>
  
- 	apic_pm_activate();
++/*
++ * Tasks whose exit_state is less that TASK_EXIT_MARKER are considered to
++ * be still running.  Tasks whose exit_state is greater than TASK_EXIT_MARKER
++ * are in the process of exitting.  TASK_EXIT_MARKER is never actually set in
++ * task_struct.exit_state.
++ */
+ #define TASK_RUNNING		0
+ #define TASK_INTERRUPTIBLE	1
+ #define TASK_UNINTERRUPTIBLE	2
+ #define TASK_STOPPED		4
+ #define TASK_TRACED		8
+-#define EXIT_ZOMBIE		16
+-#define EXIT_DEAD		32
++#define TASK_EXIT_MARKER	16	
++#define EXIT_ZOMBIE		32
++#define EXIT_DEAD		64
  
-@@ -828,8 +826,8 @@ void __init init_apic_mappings(void)
- 		apic_phys = mp_lapic_addr;
- 
- 	set_fixmap_nocache(FIX_APIC_BASE, apic_phys);
--	apic_printk(APIC_DEBUG, "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
--			apic_phys);
-+	printk(KERN_DEBUG "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
-+	       apic_phys);
- 
- 	/*
- 	 * Fetch the APIC ID of the BSP in case we have a
-@@ -847,21 +845,23 @@ void __init init_apic_mappings(void)
- 			if (smp_found_config) {
- 				ioapic_phys = mp_ioapics[i].mpc_apicaddr;
- 				if (!ioapic_phys) {
--					printk(KERN_ERR "WARNING: bogus zero IO-APIC address found in MPTABLE, disabling IO/APIC support!\n");
--
-+					printk(KERN_ERR
-+					       "WARNING: bogus zero IO-APIC "
-+					       "address found in MPTABLE, "
-+					       "disabling IO/APIC support!\n");
- 					smp_found_config = 0;
- 					skip_ioapic_setup = 1;
- 					goto fake_ioapic_page;
- 				}
- 			} else {
- fake_ioapic_page:
--				ioapic_phys = (unsigned long) alloc_bootmem_pages(PAGE_SIZE);
-+				ioapic_phys = (unsigned long)
-+					      alloc_bootmem_pages(PAGE_SIZE);
- 				ioapic_phys = __pa(ioapic_phys);
- 			}
- 			set_fixmap_nocache(idx, ioapic_phys);
--			apic_printk(APIC_DEBUG, "mapped IOAPIC to "
--					"%08lx (%08lx)\n",
--					__fix_to_virt(idx), ioapic_phys);
-+			printk(KERN_DEBUG "mapped IOAPIC to %08lx (%08lx)\n",
-+			       __fix_to_virt(idx), ioapic_phys);
- 			idx++;
- 		}
- 	}
+ #define __set_task_state(tsk, state_value)		\
+ 	do { (tsk)->state = (state_value); } while (0)
+_
+
+It seems a bit dorky for some reason...

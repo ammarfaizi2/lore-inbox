@@ -1,273 +1,649 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263798AbUD2I1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUD2I3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbUD2I1e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUD2I1e
+	id S263685AbUD2I3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 04:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUD2I3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:27:34 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:19385 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S263696AbUD2IZK
+	Thu, 29 Apr 2004 04:29:31 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:23937 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S263685AbUD2IZO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:25:10 -0400
-Message-ID: <4090BBD9.7050807@watson.ibm.com>
-Date: Thu, 29 Apr 2004 04:24:57 -0400
+	Thu, 29 Apr 2004 04:25:14 -0400
+Message-ID: <4090BBDE.9020201@watson.ibm.com>
+Date: Thu, 29 Apr 2004 04:25:02 -0400
 From: Shailabh Nagar <nagar@watson.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: [PATCH 6/6] CKRM socket accept queue resource controller
+Subject: [PATCH 5/6] CKRM socket_class classtype
 Content-Type: multipart/mixed;
- boundary="------------070600030403030605020809"
+ boundary="------------030104050409020801060509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070600030403030605020809
+--------------030104050409020801060509
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------070600030403030605020809
+--------------030104050409020801060509
 Content-Type: text/plain;
- name="05-socketaq.ckrm-E12.patch"
+ name="04-socketclass.ckrm-E12.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="05-socketaq.ckrm-E12.patch"
+ filename="04-socketclass.ckrm-E12.patch"
 
-diff -Nru a/include/linux/tcp.h b/include/linux/tcp.h
---- a/include/linux/tcp.h	Wed Apr 28 22:41:05 2004
-+++ b/include/linux/tcp.h	Wed Apr 28 22:41:05 2004
-@@ -128,6 +128,10 @@
- #define TCP_INFO		11	/* Information about this connection. */
- #define TCP_QUICKACK		12	/* Block/reenable quick acks */
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+#define TCP_ACCEPTQ_SHARE	13	/* Set accept queue share */
-+#endif
-+
- #define TCPI_OPT_TIMESTAMPS	1
- #define TCPI_OPT_SACK		2
- #define TCPI_OPT_WSCALE		4
-@@ -185,6 +189,18 @@
- 	__u32	tcpi_reordering;
- };
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+
-+#define NUM_ACCEPT_QUEUES	8 	/* Must be power of 2 */
-+
-+struct tcp_acceptq_info {
-+	unsigned char acceptq_shares;
-+	unsigned long acceptq_wait_time;
-+	unsigned int acceptq_qcount;
-+	unsigned int acceptq_count;
-+};
-+#endif
-+
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
-@@ -362,8 +378,9 @@
- 
- 	/* FIFO of established children */
- 	struct open_request	*accept_queue;
--	struct open_request	*accept_queue_tail;
--
-+#ifndef CONFIG_ACCEPT_QUEUES
-+	struct open_request     *accept_queue_tail;
-+#endif
- 	int			write_pending;	/* A write to socket waits to start. */
- 
- 	unsigned int		keepalive_time;	  /* time before keep alive takes place */
-@@ -387,6 +404,22 @@
-                 __u32    rtt;
-                 __u32    rtt_min;          /* minimum observed RTT */
-         } westwood;
-+
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	/* move to listen opt... */
-+	char		class_index;
-+	struct {
-+		struct open_request     *aq_head;
-+		struct open_request     *aq_tail;
-+		unsigned int		 aq_cnt;
-+		unsigned int		 aq_ratio;
-+		unsigned int             aq_count;
-+		unsigned int             aq_qcount;
-+		unsigned int             aq_backlog;
-+		unsigned int             aq_wait_time;
-+		int			 aq_valid;
-+	} acceptq[NUM_ACCEPT_QUEUES];
-+#endif
- };
- 
- /* WARNING: don't change the layout of the members in tcp_sock! */
-diff -Nru a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h	Wed Apr 28 22:41:05 2004
-+++ b/include/net/sock.h	Wed Apr 28 22:41:05 2004
-@@ -245,6 +245,7 @@
- 	struct timeval		sk_stamp;
- 	struct socket		*sk_socket;
- 	void			*sk_user_data;
-+	void                    *sk_ns;        // For use by CKRM
- 	struct module		*sk_owner;
- 	void			*sk_security;
- 	void			(*sk_state_change)(struct sock *sk);
-diff -Nru a/include/net/tcp.h b/include/net/tcp.h
---- a/include/net/tcp.h	Wed Apr 28 22:41:05 2004
-+++ b/include/net/tcp.h	Wed Apr 28 22:41:05 2004
-@@ -642,6 +642,10 @@
- 		struct tcp_v6_open_req v6_req;
- #endif
- 	} af;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	unsigned long acceptq_time_stamp;
-+	int	      acceptq_class;
-+#endif
- };
- 
- /* SLAB cache for open requests. */
-@@ -1691,6 +1695,69 @@
- 	return tcp_win_from_space(sk->sk_rcvbuf); 
- }
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+static inline void tcp_acceptq_removed(struct sock *sk, int class)
-+{
-+	tcp_sk(sk)->acceptq[class].aq_backlog--;
-+}
-+
-+static inline void tcp_acceptq_added(struct sock *sk, int class)
-+{
-+	tcp_sk(sk)->acceptq[class].aq_backlog++;
-+}
-+
-+static inline int tcp_acceptq_is_full(struct sock *sk, int class)
-+{
-+	return tcp_sk(sk)->acceptq[class].aq_backlog >
-+		sk->sk_max_ack_backlog;
-+}
-+
-+static inline void tcp_set_acceptq(struct tcp_opt *tp, struct open_request *req)
-+{
-+	int class = req->acceptq_class;
-+	int prev_class;
-+
-+	if (!tp->acceptq[class].aq_ratio) {
-+		req->acceptq_class = 0;
-+		class = 0;
-+	}
-+
-+	tp->acceptq[class].aq_qcount++;
-+	req->acceptq_time_stamp = jiffies;
-+
-+	if (tp->acceptq[class].aq_tail) {
-+		req->dl_next = tp->acceptq[class].aq_tail->dl_next;
-+		tp->acceptq[class].aq_tail->dl_next = req;
-+		tp->acceptq[class].aq_tail = req;
-+	} else { /* if first request in the class */
-+		tp->acceptq[class].aq_head = req;
-+		tp->acceptq[class].aq_tail = req;
-+
-+		prev_class = class - 1;
-+		while (prev_class >= 0) {
-+			if (tp->acceptq[prev_class].aq_tail)
-+				break;
-+			prev_class--;
-+		}
-+		if (prev_class < 0) {
-+			req->dl_next = tp->accept_queue;
-+			tp->accept_queue = req;
-+		}
-+		else {
-+			req->dl_next = tp->acceptq[prev_class].aq_tail->dl_next;
-+			tp->acceptq[prev_class].aq_tail->dl_next = req;
-+		}
-+	}
-+}
-+static inline void tcp_acceptq_queue(struct sock *sk, struct open_request *req,
-+					 struct sock *child)
-+{
-+	tcp_set_acceptq(tcp_sk(sk),req);
-+	req->sk = child;
-+	tcp_acceptq_added(sk,req->acceptq_class);
-+}
-+
-+#else
- static inline void tcp_acceptq_removed(struct sock *sk)
- {
- 	sk->sk_ack_backlog--;
-@@ -1723,16 +1790,55 @@
- 	req->dl_next = NULL;
- }
- 
-+#endif
-+
- struct tcp_listen_opt
- {
- 	u8			max_qlen_log;	/* log_2 of maximal queued SYNs */
- 	int			qlen;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	int			qlen_young[NUM_ACCEPT_QUEUES];
-+#else
- 	int			qlen_young;
-+#endif
- 	int			clock_hand;
- 	u32			hash_rnd;
- 	struct open_request	*syn_table[TCP_SYNQ_HSIZE];
- };
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+static inline void
-+tcp_synq_removed(struct sock *sk, struct open_request *req)
-+{
-+	struct tcp_listen_opt *lopt = tcp_sk(sk)->listen_opt;
-+
-+	if (--lopt->qlen == 0)
-+		tcp_delete_keepalive_timer(sk);
-+	if (req->retrans == 0)
-+		lopt->qlen_young[req->acceptq_class]--;
-+}
-+
-+static inline void tcp_synq_added(struct sock *sk, struct open_request *req)
-+{
-+	struct tcp_listen_opt *lopt = tcp_sk(sk)->listen_opt;
-+
-+	if (lopt->qlen++ == 0)
-+		tcp_reset_keepalive_timer(sk, TCP_TIMEOUT_INIT);
-+	lopt->qlen_young[req->acceptq_class]++;
-+}
-+
-+static inline int tcp_synq_len(struct sock *sk)
-+{
-+	return tcp_sk(sk)->listen_opt->qlen;
-+}
-+
-+static inline int tcp_synq_young(struct sock *sk, int class)
-+{
-+	return tcp_sk(sk)->listen_opt->qlen_young[class];
-+}
-+
-+#else
-+
- static inline void
- tcp_synq_removed(struct sock *sk, struct open_request *req)
- {
-@@ -1762,6 +1868,7 @@
- {
- 	return tcp_sk(sk)->listen_opt->qlen_young;
- }
-+#endif
- 
- static inline int tcp_synq_is_full(struct sock *sk)
- {
-diff -Nru a/kernel/ckrm/ckrm_listenaq.c b/kernel/ckrm/ckrm_listenaq.c
+diff -Nru a/include/linux/ckrm_net.h b/include/linux/ckrm_net.h
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/kernel/ckrm/ckrm_listenaq.c	Wed Apr 28 22:41:05 2004
-@@ -0,0 +1,503 @@
-+/* ckrm_socketaq.c - accept queue resource controller
++++ b/include/linux/ckrm_net.h	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,41 @@
++/* ckrm_rc.h - Header file to be used by Resource controllers of CKRM
++ *
++ * Copyright (C) Vivek Kashyap , IBM Corp. 2004
++ * 
++ * Provides data structures, macros and kernel API of CKRM for 
++ * resource controllers.
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef _LINUX_CKRM_NET_H
++#define _LINUX_CKRM_NET_H
++
++struct ckrm_sock_class;
++
++struct ckrm_net_struct {
++	int 		 ns_type;                    // type of net class
++	struct sock     *ns_sk;         // pointer to socket
++	pid_t            ns_tgid;       // real process id
++	pid_t            ns_pid;        // calling thread's pid
++	int              ns_family;     // IPPROTO_IPV4 || IPPROTO_IPV6
++					// Currently only IPV4 is supported
++	union {
++		__u32   ns_dipv4;       // V4 listener's address
++	} ns_daddr;
++	__u16 		ns_dport;       // listener's port
++	__u16 ns_sport;                 // sender's port
++	atomic_t ns_refcnt;
++	struct ckrm_sock_class 	*core;		
++	struct list_head       ckrm_link;
++};
++
++#define ns_daddrv4     ns_daddr.ns_dipv4
++
++#endif
+diff -Nru a/kernel/ckrm/ckrm_sockc.c b/kernel/ckrm/ckrm_sockc.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/kernel/ckrm/ckrm_sockc.c	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,554 @@
++/* ckrm_sock.c - Class-based Kernel Resource Management (CKRM)
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
++ *           (C) Shailabh Nagar,  IBM Corp. 2003
++ *           (C) Chandra Seetharaman,  IBM Corp. 2003
++ *	     (C) Vivek Kashyap,	IBM Corp. 2004
++ * 
++ * 
++ * Provides kernel API of CKRM for in-kernel,per-resource controllers 
++ * (one each for cpu, memory, io, network) and callbacks for 
++ * classification modules.
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++/* Changes
++ *
++ * 28 Aug 2003
++ *        Created.
++ * 06 Nov 2003
++ *        Made modifications to suit the new RBCE module.
++ * 10 Nov 2003
++ *        Fixed a bug in fork and exit callbacks. Added callbacks_active and
++ *        surrounding logic. Added task paramter for all CE callbacks.
++ * 23 Mar 2004
++ *        moved to referenced counted class objects and correct locking
++ * 12 Apr 2004
++ *        introduced adopted to emerging classtype interface
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/linkage.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <asm/uaccess.h>
++#include <linux/mm.h>
++#include <asm/errno.h>
++#include <linux/string.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
++#include <linux/module.h>
++#include <linux/ckrm_rc.h>
++#include <linux/parser.h>
++#include <net/tcp.h>
++
++#include <linux/ckrm_net.h>
++
++struct ckrm_sock_class {
++	struct ckrm_core_class core;
++};
++
++static struct ckrm_sock_class  sockclass_dflt_class = {
++};
++
++#define SOCKET_CLASS_TYPE_NAME  "socket_class"
++
++const char *dflt_sockclass_name = SOCKET_CLASS_TYPE_NAME;
++
++static struct ckrm_core_class *sock_alloc_class(struct ckrm_core_class *parent, const char *name);
++static int  sock_free_class(struct ckrm_core_class *core);
++
++static int  sock_forced_reclassify(ckrm_core_class_t *target, const char *resname);
++static int  sock_show_members(struct ckrm_core_class *core, struct seq_file *seq);
++static void sock_add_resctrl(struct ckrm_core_class *core, int resid);
++static void sock_reclassify_class(struct ckrm_sock_class *cls);
++
++struct ckrm_classtype CT_sockclass = {
++	.mfidx          = 1,
++	.name           = SOCKET_CLASS_TYPE_NAME,
++	.typeID         = CKRM_CLASSTYPE_SOCKET_CLASS, 
++	.maxdepth       = 3,                           
++	.resid_reserved = 0,                           
++	.max_res_ctlrs  = CKRM_MAX_RES_CTLRS,        
++	.max_resid      = 0,
++	.bit_res_ctlrs  = 0L,
++	.res_ctlrs_lock = SPIN_LOCK_UNLOCKED,
++	.classes        = LIST_HEAD_INIT(CT_sockclass.classes),
++
++	.default_class  = &sockclass_dflt_class.core,
++	
++	// private version of functions 
++	.alloc          = &sock_alloc_class,
++	.free           = &sock_free_class,
++	.show_members   = &sock_show_members,
++	.forced_reclassify = &sock_forced_reclassify,
++
++	// use of default functions 
++	.show_shares    = &ckrm_class_show_shares,
++	.show_stats     = &ckrm_class_show_stats,
++	.show_config    = &ckrm_class_show_config,
++	.set_config     = &ckrm_class_set_config,
++	.set_shares     = &ckrm_class_set_shares,
++	.reset_stats    = &ckrm_class_reset_stats,
++
++	// mandatory private version .. no dflt available
++	.add_resctrl    = &sock_add_resctrl,	
++};
++
++/* helper functions */
++
++void
++ckrm_ns_hold(struct ckrm_net_struct *ns)
++{
++        atomic_inc(&ns->ns_refcnt);
++        return;
++}
++
++void
++ckrm_ns_put(struct ckrm_net_struct *ns)
++{
++        if (atomic_dec_and_test(&ns->ns_refcnt))
++                kfree(ns);
++
++        return;
++}
++/*
++ * Change the class of a netstruct 
++ *
++ * Change the task's task class  to "newcls" if the task's current 
++ * class (task->taskclass) is same as given "oldcls", if it is non-NULL.
++ *
++ */
++
++static void
++sock_set_class(struct ckrm_net_struct *ns, struct ckrm_sock_class *newcls,
++	      struct ckrm_sock_class *oldcls, enum ckrm_event event)
++{
++	int i;
++	struct ckrm_res_ctlr *rcbs;
++	struct ckrm_classtype *clstype;
++	void  *old_res_class, *new_res_class;
++
++	if ((newcls == oldcls) || (newcls == NULL)) {
++		ns->core = (void *)oldcls;
++		return;
++	}
++
++	class_lock(class_core(newcls));
++	ns->core = newcls;
++	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
++	class_unlock(class_core(newcls));
++
++	clstype = class_isa(newcls);                 
++	for (i = 0; i < clstype->max_resid; i++) {
++		atomic_inc(&clstype->nr_resusers[i]);
++		old_res_class = oldcls ? class_core(oldcls)->res_class[i] : NULL;
++		new_res_class = newcls ? class_core(newcls)->res_class[i] : NULL;
++		rcbs = clstype->res_ctlrs[i];
++		if (rcbs && rcbs->change_resclass && (old_res_class != new_res_class)) 
++			(*rcbs->change_resclass)(ns, old_res_class, new_res_class);
++		atomic_dec(&clstype->nr_resusers[i]);
++	}
++	return;
++}
++
++static void
++sock_add_resctrl(struct ckrm_core_class *core, int resid)
++{
++	struct ckrm_net_struct *ns;
++	struct ckrm_res_ctlr *rcbs;
++
++	if ((resid < 0) || (resid >= CKRM_MAX_RES_CTLRS) || ((rcbs = core->classtype->res_ctlrs[resid]) == NULL)) 
++		return;
++
++	spin_lock(&core->ckrm_lock);
++	list_for_each_entry(ns, &core->objlist, ckrm_link) {
++		if (rcbs->change_resclass)
++			(*rcbs->change_resclass)(ns, NULL, core->res_class[resid]);
++	}
++	spin_unlock(&core->ckrm_lock);
++}
++
++
++/**************************************************************************
++ *                   Functions called from classification points          *
++ **************************************************************************/
++
++static void
++cb_sockclass_listen_start(struct sock *sk)
++{
++	struct ckrm_net_struct *ns = NULL;
++	struct ckrm_sock_class *newcls = NULL;
++	struct ckrm_res_ctlr *rcbs;
++	struct ckrm_classtype *clstype;
++	int i = 0;
++
++	// XXX - TBD ipv6
++	if (sk->sk_family == IPPROTO_IPV6)
++		return;
++
++	// to store the socket address
++	ns = (struct ckrm_net_struct *)
++		kmalloc(sizeof(struct ckrm_net_struct), GFP_ATOMIC);
++	if (!ns)
++		return;
++
++	memset(ns,0, sizeof(ns));
++	INIT_LIST_HEAD(&ns->ckrm_link);
++
++	ns->ns_family = sk->sk_family;
++	if (ns->ns_family == IPPROTO_IPV6)	// IPv6 not supported yet.
++		return;
++
++	ns->ns_daddrv4 = inet_sk(sk)->rcv_saddr;
++	ns->ns_dport = inet_sk(sk)->num;
++		
++	ns->ns_pid = current->pid;
++	ns->ns_tgid = current->tgid;
++
++	ce_protect(&CT_sockclass);
++	CE_CLASSIFY_RET(newcls,&CT_sockclass,CKRM_EVENT_LISTEN_START,ns,current);
++	ce_release(&CT_sockclass);
++
++	if (newcls == NULL)  {
++		newcls = &sockclass_dflt_class;
++		ckrm_core_grab(class_core(newcls));
++	}
++
++	class_lock(class_core(newcls));
++	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
++	ckrm_ns_put(ns);
++	ns->core = newcls;
++	class_unlock(class_core(newcls));
++	
++
++	// the socket is already locked
++	// take a reference on socket on our behalf
++	sock_hold(sk);
++	sk->sk_ns = (void *)ns;
++	ns->ns_sk = sk;
++
++	// modify its shares
++	clstype = class_isa(newcls);
++	for (i = 0; i < clstype->max_resid; i++) {
++		atomic_inc(&clstype->nr_resusers[i]);
++		rcbs = clstype->res_ctlrs[i];
++		if (rcbs && rcbs->change_resclass) {
++			(*rcbs->change_resclass)((void *)ns, 
++					 NULL,class_core(newcls)->res_class[i]);
++		}
++		atomic_dec(&clstype->nr_resusers[i]);
++	}
++	return;
++}
++
++static void
++cb_sockclass_listen_stop(struct sock *sk)
++{
++	struct ckrm_net_struct *ns = NULL;
++	struct ckrm_sock_class *newcls = NULL;
++
++	// XXX - TBD ipv6
++	if (sk->sk_family == IPPROTO_IPV6)
++		return;
++
++	ns =  (struct ckrm_net_struct *)sk->sk_ns;
++	if (!ns) // listen_start called before socket_aq was loaded
++		return;
++
++	newcls = ns->core;
++	if (newcls) {
++		class_lock(class_core(newcls));
++		list_del(&ns->ckrm_link);
++		INIT_LIST_HEAD(&ns->ckrm_link);
++		ckrm_core_drop(class_core(newcls));
++		class_unlock(class_core(newcls));
++	}
++
++	// the socket is already locked
++	sk->sk_ns = NULL;
++	sock_put(sk);
++
++	// Should be the last count and free it
++	ckrm_ns_put(ns);
++	return;
++}
++
++static struct ckrm_event_spec sock_events_callbacks[] = {
++	CKRM_EVENT_SPEC( LISTEN_START, cb_sockclass_listen_start  ),
++	CKRM_EVENT_SPEC( LISTEN_STOP,  cb_sockclass_listen_stop  ),
++	{ -1 }
++};
++
++/**************************************************************************
++ *                  Class Object Creation / Destruction
++ **************************************************************************/
++
++static struct ckrm_core_class *
++sock_alloc_class(struct ckrm_core_class *parent, const char *name)
++{
++	struct ckrm_sock_class *sockcls;
++	sockcls = kmalloc(sizeof(struct ckrm_sock_class), GFP_KERNEL);
++	if (sockcls == NULL) 
++		return NULL;
++
++	ckrm_init_core_class(&CT_sockclass,class_core(sockcls),parent,name);
++
++	ce_protect(&CT_sockclass);
++	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_add)
++		(*CT_sockclass.ce_callbacks.class_add)(name,sockcls);
++	ce_release(&CT_sockclass);
++
++	return class_core(sockcls);
++}
++
++static int
++sock_free_class(struct ckrm_core_class *core)
++{
++	struct ckrm_sock_class *sockcls;
++
++	if (!ckrm_is_core_valid(core)) {
++		// Invalid core
++		return (-EINVAL);
++	}
++	if (core == core->classtype->default_class) {
++		// reset the name tag
++		core->name = dflt_sockclass_name;
++ 		return 0;
++	}
++
++	sockcls = class_type(struct ckrm_sock_class, core);
++
++	ce_protect(&CT_sockclass);
++
++	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_delete)
++		(*CT_sockclass.ce_callbacks.class_delete)(core->name,sockcls);
++
++	sock_reclassify_class ( sockcls );
++
++	ce_release(&CT_sockclass);
++
++	ckrm_release_core_class(core);  // Hubertus .... could just drop the class .. error message
++	return 0;
++}
++
++
++static int                      
++sock_show_members(struct ckrm_core_class *core, struct seq_file *seq) 
++{
++	struct list_head *lh;
++	struct ckrm_net_struct *ns = NULL;
++
++	class_lock(core);
++	list_for_each(lh, &core->objlist) {
++		ns = container_of(lh, struct ckrm_net_struct,ckrm_link);
++		seq_printf(seq, "%d.%d.%d.%d\\%d\n", 
++			   NIPQUAD(ns->ns_daddrv4),ns->ns_dport);
++	}
++	class_unlock(core);
++
++	return 0;
++}
++
++static int
++sock_forced_reclassify_ns(struct ckrm_net_struct *tns, struct ckrm_core_class *core)
++{
++	struct ckrm_net_struct *ns = NULL;
++	struct sock *sk = NULL;
++	struct ckrm_sock_class *oldcls, *newcls;
++	int rc = -EINVAL;
++
++	if (!ckrm_is_core_valid(core)) {
++		return rc;
++	}
++
++	newcls = class_type(struct ckrm_sock_class, core);
++	// lookup the listening sockets
++	// returns with a reference count set on socket
++	sk = tcp_v4_lookup_listener(tns->ns_daddrv4,tns->ns_dport,0);
++	if (!sk) {
++		printk(KERN_INFO "No such listener 0x%x:%d\n",
++				tns->ns_daddrv4, tns->ns_dport);
++		return rc;
++	}
++	lock_sock(sk);
++	if (!sk->sk_ns) {
++		goto out;
++	}
++	ns = sk->sk_ns;
++	ckrm_ns_hold(ns);
++	oldcls = ns->core;
++	if ((oldcls == NULL) || (oldcls == newcls)) {
++		ckrm_ns_put(ns);
++		goto out;
++	}
++
++	// remove the net_struct from the current class
++	class_lock(class_core(oldcls));
++	list_del(&ns->ckrm_link);
++	INIT_LIST_HEAD(&ns->ckrm_link);
++	ns->core = NULL;
++	class_unlock(class_core(oldcls));
++
++	sock_set_class(ns, newcls, oldcls, CKRM_EVENT_MANUAL);
++	ckrm_ns_put(ns);
++	rc = 0;
++out:
++	release_sock(sk);
++	sock_put(sk);
++
++	return rc;
++
++} 
++
++enum sock_target_token_t {
++        IPV4, IPV6, SOCKC_TARGET_ERR
++};
++
++static match_table_t sock_target_tokens = {
++	{IPV4, "ipv4=%s"},
++	{IPV6, "ipv6=%s"},
++        {SOCKC_TARGET_ERR, NULL},
++};
++
++char *
++v4toi(char *s, char c, __u32 *v)
++{
++	unsigned int  k = 0, n = 0;
++
++	while(*s && (*s != c)) {
++		if (*s == '.') {
++			n <<= 8;
++			n |= k;
++			k = 0;
++		}
++		else 
++			k = k *10 + *s - '0';
++		s++;
++	}
++
++	n <<= 8;
++	*v = n | k;
++
++	return s;
++}
++
++static int
++sock_forced_reclassify(struct ckrm_core_class *target,const char *options)
++{	
++	char *p,*p2;
++	struct ckrm_net_struct ns;
++	__u32 v4addr, tmp;
++
++	if (!options)
++		return 1;
++	
++	while ((p = strsep((char**)&options, ",")) != NULL) {
++		substring_t args[MAX_OPT_ARGS];
++		int token;
++		
++		if (!*p)
++			continue;
++		token = match_token(p, sock_target_tokens, args);
++		switch (token) {
++
++		case IPV4:
++
++			p2 = p;
++			while(*p2 && (*p2 != '='))
++				++p2;
++			p2++;
++			p2 = v4toi(p2, '\\',&(v4addr));
++			ns.ns_daddrv4 = htonl(v4addr);
++			ns.ns_family = 4; //IPPROTO_IPV4
++			p2 = v4toi(++p2, ':',&tmp); ns.ns_dport = (__u16)tmp;
++			p2 = v4toi(++p2,'\0',&ns.ns_pid);
++			
++			sock_forced_reclassify_ns(&ns,target);
++			break;
++
++		case IPV6:
++			printk(KERN_INFO "rcfs: IPV6 not supported yet\n");
++			return 0;	
++		default:
++			return 0;
++		}
++	}
++	return 1;
++}	
++
++/*
++ * Listen_aq reclassification.
++ */
++static void
++sock_reclassify_class(struct ckrm_sock_class *cls)
++{
++	struct ckrm_net_struct *ns, *tns;
++	struct ckrm_core_class *core = class_core(cls);
++	LIST_HEAD(local_list);
++
++	if (!cls)
++		return;
++
++	if (!ckrm_validate_and_grab_core(core))
++		return;
++
++	class_lock(core);
++	// we have the core refcnt
++	if (list_empty(&core->objlist)) {
++		class_unlock(core);
++		ckrm_core_drop(core);
++		return;
++	}
++
++	INIT_LIST_HEAD(&local_list);
++	list_splice_init(&core->objlist, &local_list);
++	class_unlock(core);
++	ckrm_core_drop(core);
++	
++	list_for_each_entry_safe(ns, tns, &local_list, ckrm_link) {
++		ckrm_ns_hold(ns);
++		list_del(&ns->ckrm_link);
++		if (ns->ns_sk) {
++			lock_sock(ns->ns_sk);
++			sock_set_class(ns, &sockclass_dflt_class, NULL, CKRM_EVENT_MANUAL);
++			release_sock(ns->ns_sk);
++		}
++		ckrm_ns_put(ns);
++	}
++	return ;
++}
++
++void __init
++ckrm_meta_init_sockclass(void)
++{
++	printk("...... Initializing ClassType<%s> ........\n",CT_sockclass.name);
++	// intialize the default class
++	ckrm_init_core_class(&CT_sockclass, class_core(&sockclass_dflt_class),
++			     NULL,dflt_sockclass_name);
++
++	// register classtype and initialize default task class
++	ckrm_register_classtype(&CT_sockclass);
++	ckrm_register_event_set(sock_events_callbacks);
++
++	// note registeration of all resource controllers will be done later dynamically 
++	// as these are specified as modules
++}
++
++
++
++#if 1
++
++/***************************************************************************************
++ * Debugging Network Classes:  Utility functions
++ **************************************************************************************/
++
++#endif
+diff -Nru a/fs/rcfs/socket_fs.c b/fs/rcfs/socket_fs.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/fs/rcfs/socket_fs.c	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,338 @@
++/* ckrm_socketaq.c 
 + *
 + * Copyright (C) Vivek Kashyap,      IBM Corp. 2004
 + * 
@@ -284,929 +660,326 @@ diff -Nru a/kernel/ckrm/ckrm_listenaq.c b/kernel/ckrm/ckrm_listenaq.c
 + * Initial version
 + */
 +
-+/* Code Description: TBD
-+ *
-+ */
++/*******************************************************************************
++ *  Socket class type
++ *   
++ * Defines the root structure for socket based classes. Currently only inbound
++ * connection control is supported based on prioritized accept queues. 
++ ******************************************************************************/
 +
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <asm/errno.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/ckrm.h>
-+#include <linux/ckrm_rc.h>
++
++#include <linux/rcfs.h>
 +#include <net/tcp.h>
 +
-+#include <linux/ckrm_net.h>
-+
-+#define hnode_2_core(ptr) \
-+                ((ptr) ? container_of(ptr, struct ckrm_core_class, hnode) : NULL)
-+
-+
-+#define CKRM_SAQ_MAX_DEPTH	3 // 0 => /rcfs
-+				  // 1 => socket_aq
-+				  // 2 => socket_aq/listen_class
-+				  // 3 => socket_aq/listen_class/accept_queues
-+				  // 4 => Not allowed
-+
-+typedef struct ckrm_laq_res {
-+	spinlock_t		reslock;
-+	atomic_t		refcnt;
-+	struct ckrm_shares 	shares;
-+	struct ckrm_core_class *core;
-+	struct ckrm_core_class *pcore;
-+	int 			my_depth;
-+	int 			my_id;
-+} ckrm_laq_res_t;
-+
-+static int my_resid = -1;
-+
-+extern	struct ckrm_core_class *rcfs_create_under_netroot(char *, int, int);
-+extern struct ckrm_core_class *rcfs_make_core(struct dentry *, 
-+						struct ckrm_core_class * ) ;
-+
-+void
-+laq_res_hold(struct ckrm_laq_res *res)
-+{
-+        atomic_inc(&res->refcnt);
-+	return;
-+}
-+
-+void
-+laq_res_put(struct ckrm_laq_res *res)
-+{
-+	if (atomic_dec_and_test(&res->refcnt))
-+		kfree(res);
-+	return;
-+}
-+
-+/* Initialize rescls values
-+ */
-+static void
-+laq_res_initcls(void *my_res)
-+{
-+	ckrm_laq_res_t *res = my_res;
-+
-+	res->shares.my_guarantee     = CKRM_SHARE_DONTCARE;
-+	res->shares.my_limit         = CKRM_SHARE_DONTCARE;
-+	res->shares.total_guarantee  = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.max_limit        = CKRM_SHARE_DFLT_MAX_LIMIT;
-+	res->shares.unused_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.cur_max_limit    = 0;
-+}
-+
-+static int 
-+atoi(char *s)
-+{
-+	int k = 0;
-+	while(*s) 
-+		k = *s++ - '0' + (k * 10);
-+	return k;
-+}
-+
-+static char *
-+laq_get_name(struct ckrm_core_class *c)
-+{
-+        char *p = (char *)c->name;
-+
-+        while(*p)
-+                p++;
-+        while( *p != '/' && p != c->name)
-+                p--;
-+
-+        return ++p;
-+}
-+
-+static void *
-+laq_res_alloc(struct ckrm_core_class *core, struct ckrm_core_class *parent)
-+{
-+	ckrm_laq_res_t *res, *pres;
-+	int pdepth;
-+
-+	if (parent)
-+		pres = ckrm_get_res_class(parent, my_resid, ckrm_laq_res_t);
-+	else
-+		pres = NULL;
-+
-+	if (core == core->classtype->default_class)    
-+		pdepth = 1;
-+	else {
-+		if (!parent)
-+			return NULL;
-+		pdepth = 1 + pres->my_depth;
-+	}
-+
-+	res = kmalloc(sizeof(ckrm_laq_res_t), GFP_ATOMIC);
-+	if (res) {
-+		memset(res, 0, sizeof(res));
-+		spin_lock_init(&res->reslock);
-+		laq_res_hold(res);
-+		res->my_depth  = pdepth;
-+		if (pdepth == 2)	// listen class
-+			res->my_id = 0;
-+		else if (pdepth == 3)
-+			res->my_id = atoi(laq_get_name(core));
-+		res->core = core;
-+		res->pcore = parent;
-+
-+		// rescls in place, now initialize contents other than 
-+		// hierarchy pointers
-+		laq_res_initcls(res); // acts as initialising value
-+	}
-+
-+	return res;
-+}
-+
-+static void
-+laq_res_free(void *my_res)
-+{
-+	ckrm_laq_res_t *res = (ckrm_laq_res_t *)my_res;
-+	ckrm_laq_res_t *parent;
-+
-+	if (!res) 
-+		return;
-+
-+	if (res->my_depth != 3) {
-+		kfree(res);
-+		return;
-+	}
-+
-+	parent = ckrm_get_res_class(res->pcore, my_resid, ckrm_laq_res_t);
-+	if (!parent)	// Should never happen
-+		return;
-+
-+	spin_lock(&parent->reslock);
-+	spin_lock(&res->reslock);
-+
-+	// return child's guarantee to parent node
-+	// Limits have no meaning for accept queue control
-+	child_guarantee_changed(&parent->shares, res->shares.my_guarantee, 0);
-+
-+	spin_unlock(&res->reslock);
-+	laq_res_put(res);	
-+	spin_unlock(&parent->reslock);
-+	return;
-+}
-+
-+/**************************************************************************
-+ * 			SHARES					        ***
-+ **************************************************************************/
-+
-+void
-+laq_set_aq_values(ckrm_laq_res_t *my_res, ckrm_laq_res_t *parent, int updatep)
-+{
-+
-+	struct ckrm_net_struct *ns;
-+	struct ckrm_core_class *core = parent->core;
-+	struct tcp_opt *tp;
-+	
-+	if (my_res->my_depth < 2) 
-+		return;
-+	
-+	// XXX Instead of holding a  class_lock introduce a rw
-+	// lock to be write locked by listen callbacks and read locked here.
-+	// - VK
-+	class_lock(core);
-+	list_for_each_entry(ns, &core->objlist,ckrm_link) { 
-+		tp = tcp_sk(ns->ns_sk);
-+		if (updatep)
-+			tp->acceptq[0].aq_ratio =
-+			       parent->shares.total_guarantee/
-+				parent->shares.unused_guarantee;	       
-+
-+		tp->acceptq[my_res->my_id].aq_ratio =
-+		       my_res->shares.total_guarantee/
-+			parent->shares.my_guarantee;	       
-+	}
-+	class_unlock(core);
-+	return;
-+}
-+
-+static int
-+laq_set_share_values(void *my_res, struct ckrm_shares *shares)
-+{
-+	ckrm_laq_res_t *res = my_res;
-+	ckrm_laq_res_t *parent, *child;
-+	struct ckrm_hnode *chnode; 
-+	int rc = 0;
-+
-+	if (!res) 
-+		return -EINVAL;
-+
-+	if (!res->pcore) { 
-+		// something is badly wrong
-+		printk(KERN_ERR "socketaq internal inconsistency\n");
-+		return -EBADF;
-+	}
-+
-+	parent = ckrm_get_res_class(res->pcore, my_resid, ckrm_laq_res_t);
-+	if (!parent)	// socket_class does not have a share interface
-+		return -EINVAL;
-+
-+	// Ensure that we ignore limit values
-+	shares->my_limit = shares->max_limit = CKRM_SHARE_UNCHANGED;
-+
-+	switch (res->my_depth) {
-+
-+	case 0: printk(KERN_ERR "socketaq bad entry\n");
-+		rc = -EBADF;
-+		break;
-+
-+	case 1: // can't be written to. this is internal default.
-+		// return -EINVAL
-+		rc = -EINVAL;
-+		break;
-+
-+	case 2: // nothing to inherit
-+		if (!shares->total_guarantee) {
-+			rc = -EINVAL;
-+			break;
-+		}
-+
-+		ckrm_lock_hier(res->pcore);
-+		spin_lock(&res->reslock);
-+		rc = set_shares(shares, &res->shares, NULL);
-+		if (!rc) {
-+			list_for_each_entry(chnode,
-+					&res->core->hnode.children,siblings){
-+				child=hnode_2_core(chnode)->res_class[my_resid];
-+				laq_set_aq_values(child,res,(child->my_id==1));
-+			}
-+		}
-+		spin_unlock(&res->reslock);
-+		ckrm_unlock_hier(res->pcore);
-+		break;
-+
-+	case 3: // accept queue itself. Check against parent.
-+		ckrm_lock_hier(parent->pcore);
-+		spin_lock(&parent->reslock);
-+		rc = set_shares(shares, &res->shares, &parent->shares);
-+		if (!rc) {
-+			laq_set_aq_values(res,parent,1);
-+		}
-+		spin_unlock(&parent->reslock);
-+		ckrm_unlock_hier(parent->pcore);
-+		break;
-+	}
-+
-+	return rc;
-+}
-+
-+static int
-+laq_get_share_values(void *my_res, struct ckrm_shares *shares)
-+{
-+	ckrm_laq_res_t *res = my_res;
-+
-+	if (!res) 
-+		return -EINVAL;
-+	*shares = res->shares;
-+	return 0;
-+}
-+
-+/**************************************************************************
-+ * 			STATS						***
-+ **************************************************************************/
-+
-+void
-+laq_print_aq_stats(struct seq_file *sfile, struct tcp_acceptq_info *taq, int i)
-+{
-+	seq_printf(sfile, "Class %d connections:\n\taccepted: %u\n\t"
-+			  "queued: %u\n\twait_time: %lu\n\t",
-+			  i, taq->acceptq_count, taq->acceptq_qcount,
-+			  taq->acceptq_wait_time);
-+
-+	if (i)
-+		return;
-+
-+	for (i = 1; i < NUM_ACCEPT_QUEUES; i++) {
-+		taq[0].acceptq_wait_time += taq[i].acceptq_wait_time;
-+		taq[0].acceptq_qcount += taq[i].acceptq_qcount;
-+		taq[0].acceptq_count += taq[i].acceptq_count;
-+	}
-+
-+	seq_printf(sfile, "Totals :\n\taccepted: %u\n\t"
-+			  "queued: %u\n\twait_time: %lu\n",
-+			   taq->acceptq_count, taq->acceptq_qcount,
-+			  taq->acceptq_wait_time);
-+
-+	return;
-+}
-+
-+void
-+laq_get_aq_stats(ckrm_laq_res_t *pres, ckrm_laq_res_t *mres, 
-+					struct tcp_acceptq_info *taq)
-+{
-+	struct ckrm_net_struct *ns;
-+	struct ckrm_core_class *core = pres->core;
-+	struct tcp_opt *tp;
-+	int a = mres->my_id;
-+	int z;
-+
-+	if (a == 0)
-+		z = NUM_ACCEPT_QUEUES;
-+	else
-+		z = a+1;
-+
-+	// XXX Instead of holding a  class_lock introduce a rw
-+	// lock to be write locked by listen callbacks and read locked here.
-+	// - VK
-+	class_lock(pres->core);
-+	list_for_each_entry(ns, &core->objlist,ckrm_link) { 
-+		tp = tcp_sk(ns->ns_sk);
-+		for (; a< z; a++) {
-+			taq->acceptq_wait_time += tp->acceptq[a].aq_wait_time;
-+			taq->acceptq_qcount += tp->acceptq[a].aq_qcount;
-+			taq->acceptq_count += tp->acceptq[a].aq_count;
-+			taq++;
-+		}
-+	}
-+	class_unlock(pres->core);
-+}
-+
-+
-+static int  
-+laq_get_stats(void *my_res, struct seq_file *sfile)
-+{
-+	ckrm_laq_res_t *res = my_res;
-+	ckrm_laq_res_t *parent;
-+	struct tcp_acceptq_info taq[NUM_ACCEPT_QUEUES];
-+	int rc = 0;
-+
-+	if (!res) 
-+		return -EINVAL;
-+	
-+	if (!res->pcore) { 
-+		// something is badly wrong
-+		printk(KERN_ERR "socketaq internal inconsistency\n");
-+		return -EBADF;
-+	}
-+
-+	parent = ckrm_get_res_class(res->pcore, my_resid, ckrm_laq_res_t);
-+	if (!parent) {	// socket_class does not have a stat interface
-+		printk(KERN_ERR "socketaq internal fs inconsistency\n");
-+		return -EINVAL;
-+	}
-+
-+	memset(taq, 0, sizeof(struct tcp_acceptq_info) * NUM_ACCEPT_QUEUES);
-+
-+	switch (res->my_depth) {
-+
-+	default:
-+	case 0: printk(KERN_ERR "socket class bad entry\n");
-+		rc = -EBADF;
-+		break;
-+
-+	case 1: // can't be read from. this is internal default.
-+		// return -EINVAL
-+		rc = -EINVAL;
-+		break;
-+
-+	case 2: // return the default and total
-+		ckrm_lock_hier(res->core);	// block any deletes
-+		laq_get_aq_stats(res, res, &taq[0]);
-+		laq_print_aq_stats(sfile, &taq[0], 0);
-+		ckrm_unlock_hier(res->core);	// block any deletes
-+		break;
-+
-+	case 3: 
-+		ckrm_lock_hier(parent->core);	// block any deletes
-+		laq_get_aq_stats(parent, res, &taq[res->my_id]);
-+		laq_print_aq_stats(sfile, &taq[res->my_id], res->my_id);
-+		ckrm_unlock_hier(parent->core);	// block any deletes
-+		break;
-+	}
-+
-+	return rc;
-+}
-+
-+/*
-+ * The network connection is reclassified to this class. Update its shares.
-+ * The socket lock is held. 
-+ */
-+static void
-+laq_change_resclass(void *n, void *old, void *r)
-+{
-+	struct ckrm_net_struct *ns = (struct ckrm_net_struct *)n;
-+	struct ckrm_laq_res *res = (struct ckrm_laq_res *)r;
-+	struct ckrm_hnode  *chnode = NULL;
-+
-+
-+	if (res->my_depth != 2) 
-+		return;	
-+
-+	// a change to my_depth == 3 ie. the accept classes cannot happen.
-+	// there is no target file
-+	if (res->my_depth == 2) { // it is one of the socket classes
-+		struct ckrm_laq_res *reschild;
-+		struct sock *sk = ns->ns_sk; 
-+		struct tcp_opt *tp = tcp_sk(sk);
-+
-+		// share rule: hold parent resource lock. then self.
-+		// However, since my_depth == 1 is a generic class it is not
-+		// needed here. Self lock is enough.
-+		spin_lock(&res->reslock);
-+		tp->acceptq[0].aq_ratio = res->shares.total_guarantee/
-+				res->shares.unused_guarantee;
-+		list_for_each_entry(chnode,&res->core->hnode.children,siblings){
-+			reschild = hnode_2_core(chnode)->res_class[my_resid];
-+
-+			spin_lock(&reschild->reslock);
-+			tp->acceptq[reschild->my_id].aq_ratio=
-+				reschild->shares.total_guarantee/
-+					res->shares.my_guarantee;
-+			spin_unlock(&reschild->reslock);
-+		}
-+		spin_unlock(&res->reslock);
-+	}
-+	
-+	return;
-+}
-+
-+struct ckrm_res_ctlr laq_rcbs = {
-+	.res_name          = "laq",
-+	.resid		   = -1 , // dynamically assigned
-+	.res_alloc         = laq_res_alloc,
-+	.res_free          = laq_res_free,
-+	.set_share_values  = laq_set_share_values,
-+	.get_share_values  = laq_get_share_values,
-+	.get_stats         = laq_get_stats,
-+	.change_resclass   = laq_change_resclass,
-+	//	.res_initcls       = laq_res_initcls,         // LAQ_HUBERTUS: no need for this !!
++extern int rcfs_create(struct inode *,struct dentry *, int, struct nameidata *);
++extern int rcfs_unlink(struct inode *, struct dentry *);
++extern int  rcfs_symlink(struct inode *, struct dentry *, const char *);
++extern int rcfs_mknod(struct inode *, struct dentry *, int mode, dev_t);
++extern int rcfs_mkdir(struct inode *, struct dentry *, int);
++extern int rcfs_rmdir(struct inode *, struct dentry *);
++extern int rcfs_rename(struct inode *, struct dentry *, struct inode *, 
++		struct dentry *);
++
++extern int rcfs_create_coredir(struct inode *, struct dentry *);
++int sock_mkdir(struct inode *, struct dentry *, int mode);
++int sock_rmdir(struct inode *, struct dentry *);
++
++
++int sock_create_noperm(struct inode *, struct dentry *,int, struct nameidata *);
++int sock_unlink_noperm(struct inode *,struct dentry *);
++int sock_mkdir_noperm(struct inode *,struct dentry *,int);
++int sock_rmdir_noperm(struct inode *,struct dentry *);
++int sock_mknod_noperm(struct inode *,struct dentry *,int, dev_t);
++
++void sock_set_directory(void);
++
++extern struct file_operations config_fileops,
++			members_fileops,
++			shares_fileops,
++			stats_fileops,
++			target_fileops;
++
++
++struct inode_operations my_iops = {
++	        .create         = rcfs_create,
++		.lookup         = simple_lookup,
++		.link           = simple_link,
++		.unlink         = rcfs_unlink,
++		.symlink        = rcfs_symlink,
++		.mkdir          = sock_mkdir,
++		.rmdir          = sock_rmdir,
++		.mknod          = rcfs_mknod,
++		.rename         = rcfs_rename,
 +};
 +
-+int __init
-+init_ckrm_laq_res(void)
++struct inode_operations class_iops = {
++	        .create         = sock_create_noperm,
++		.lookup         = simple_lookup,
++		.link           = simple_link,
++		.unlink         = sock_unlink_noperm,
++		.symlink        = rcfs_symlink,
++		.mkdir          = sock_mkdir_noperm,
++		.rmdir          = sock_rmdir_noperm,
++		.mknod          = sock_mknod_noperm,
++		.rename         = rcfs_rename,
++};
++
++struct inode_operations sub_iops = {
++	        .create         = sock_create_noperm,
++		.lookup         = simple_lookup,
++		.link           = simple_link,
++		.unlink         = sock_unlink_noperm,
++		.symlink        = rcfs_symlink,
++		.mkdir          = sock_mkdir_noperm,
++		.rmdir          = sock_rmdir_noperm,
++		.mknod          = sock_mknod_noperm,
++		.rename         = rcfs_rename,
++};
++
++struct rcfs_magf def_magf = {
++	.mode = RCFS_DEFAULT_DIR_MODE,
++	.i_op = &sub_iops,
++	.i_fop = NULL,
++};
++
++struct rcfs_magf sock_rootdesc[] = {
++	{
++	//	.name = should not be set, copy from classtype name,
++		.mode = RCFS_DEFAULT_DIR_MODE,
++		.i_op = &my_iops,
++		//.i_fop   = &simple_dir_operations,
++		.i_fop = NULL,
++	},
++	{
++		.name = "members",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &members_fileops,
++	},
++	{
++		.name = "target",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &target_fileops,
++	},
++};
++
++struct rcfs_magf sock_magf[] = {
++	{
++		.name = "config",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &config_fileops,
++	},
++	{
++		.name = "members",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop =&members_fileops,
++	},
++	{
++		.name = "shares",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &shares_fileops,
++	},
++	{
++		.name = "stats",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &stats_fileops,
++	},
++	{
++		.name = "target",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &target_fileops,
++	},
++};
++
++struct rcfs_magf sub_magf[] = {
++	{
++		.name = "config",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &config_fileops,
++	},
++	{
++		.name = "shares",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &shares_fileops,
++	},
++	{
++		.name = "stats",
++		.mode = RCFS_DEFAULT_FILE_MODE,
++		.i_op = &my_iops,
++		.i_fop = &stats_fileops,
++	},
++};
++
++struct rcfs_mfdesc sock_mfdesc = {
++	.rootmf		= sock_rootdesc,
++	.rootmflen 	= (sizeof(sock_rootdesc)/sizeof(struct rcfs_magf)),
++};
++
++
++#define SOCK_MAX_MAGF (sizeof(sock_magf)/sizeof(struct rcfs_magf))
++#define LAQ_MAX_SUBMAGF (sizeof(sub_magf)/sizeof(struct rcfs_magf))
++
++int 
++sock_rmdir(struct inode *p, struct dentry *me)
 +{
-+	struct ckrm_classtype *clstype;
-+	int resid;
++	struct dentry *mftmp, *mfdentry ;
 +
-+	clstype = ckrm_find_classtype_by_name("socket_class");
-+	if (clstype == NULL) {
-+		printk(KERN_INFO " Unknown ckrm classtype<socket_class>");
-+		return -ENOENT;
++	// delete all magic sub directories
++	list_for_each_entry_safe(mfdentry, mftmp, &me->d_subdirs, d_child) {
++		if (S_ISDIR(mfdentry->d_inode->i_mode))
++			rcfs_rmdir(me->d_inode, mfdentry);
 +	}
++	// delete ourselves
++	rcfs_rmdir(p,me);
 +
-+	if (my_resid == -1) {
-+		resid = ckrm_register_res_ctlr(clstype,&laq_rcbs);
-+		if (resid >= 0)
-+			my_resid = resid;
-+		printk("........init_ckrm_listen_aq_res -> %d\n",my_resid);
-+	}
 +	return 0;
-+
-+}	
-+
-+void __exit
-+exit_ckrm_laq_res(void)
-+{
-+	ckrm_unregister_res_ctlr(&laq_rcbs);
-+	my_resid = -1;
 +}
 +
-+
-+module_init(init_ckrm_laq_res)
-+module_exit(exit_ckrm_laq_res)
-+
-+MODULE_LICENSE("GPL");
-+
-diff -Nru a/net/ipv4/Kconfig b/net/ipv4/Kconfig
---- a/net/ipv4/Kconfig	Wed Apr 28 22:41:05 2004
-+++ b/net/ipv4/Kconfig	Wed Apr 28 22:41:05 2004
-@@ -360,5 +360,28 @@
- 	  
- 	  If unsure, say Y.
- 
-+config ACCEPT_QUEUES 
-+	bool "IP: TCP Multiple accept queues support"
-+	depends on INET && NETFILTER
-+	---help---
-+	  Support multiple accept queues per listening socket. If you say Y
-+	  here, multiple accept queues will be configured per listening
-+	  socket.
-+	  
-+	  Each queue is mapped to a priority class. Incoming connection 
-+	  requests can be classified (see iptables(8), MARK target), depending
-+	  on the packet's src/dest address or other parameters, into one of 
-+	  the priority classes. The requests are then queued to the relevant
-+	  accept queue. 
-+
-+	  Each of the queues can be assigned a weight. The accept()ance 
-+	  of packets is then scheduled in accordance with the weight 
-+	  assigned to the priority class. 
-+	  
-+	  Be sure to enable "Network packet filtering" if you wish
-+	  to use this feature.
-+
-+	  If unsure, say N.
-+
- source "net/ipv4/ipvs/Kconfig"
- 
-diff -Nru a/net/ipv4/tcp.c b/net/ipv4/tcp.c
---- a/net/ipv4/tcp.c	Wed Apr 28 22:41:05 2004
-+++ b/net/ipv4/tcp.c	Wed Apr 28 22:41:05 2004
-@@ -256,6 +256,7 @@
- #include <linux/smp_lock.h>
- #include <linux/fs.h>
- #include <linux/random.h>
-+#include <linux/ckrm.h>
- 
- #include <net/icmp.h>
- #include <net/tcp.h>
-@@ -534,13 +535,34 @@
- 
- int tcp_listen_start(struct sock *sk)
- {
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	int i = 0;
++#ifdef NUM_ACCEPT_QUEUES
++#define LAQ_NUM_ACCEPT_QUEUES NUM_ACCEPT_QUEUES
++#else
++#define LAQ_NUM_ACCEPT_QUEUES 0
 +#endif
- 	struct inet_opt *inet = inet_sk(sk);
- 	struct tcp_opt *tp = tcp_sk(sk);
- 	struct tcp_listen_opt *lopt;
- 
- 	sk->sk_max_ack_backlog = 0;
- 	sk->sk_ack_backlog = 0;
--	tp->accept_queue = tp->accept_queue_tail = NULL;
-+	tp->accept_queue = NULL;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	tp->class_index = 0;
-+	for (i=0; i < NUM_ACCEPT_QUEUES; i++) {
-+		tp->acceptq[i].aq_tail = NULL;
-+		tp->acceptq[i].aq_head = NULL;
-+		tp->acceptq[i].aq_wait_time = 0; 
-+		tp->acceptq[i].aq_qcount = 0; 
-+		tp->acceptq[i].aq_count = 0; 
-+		if (i == 0) {
-+			tp->acceptq[i].aq_valid = 1; 
-+			tp->acceptq[i].aq_ratio = 1; 
-+		}
-+		else {
-+			tp->acceptq[i].aq_valid = 0; 
-+			tp->acceptq[i].aq_ratio = 0; 
-+		}
++
++int
++sock_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++{
++	int retval = 0;
++	int i,j;
++	struct dentry *pentry, *mfdentry;
++
++	if (_rcfs_mknod(dir, dentry, mode | S_IFDIR, 0)) {
++		printk(KERN_ERR "rcfs_mkdir: error reaching parent\n");
++		return retval;
 +	}
-+#endif
- 	tp->syn_wait_lock = RW_LOCK_UNLOCKED;
- 	tcp_delack_init(tp);
- 
-@@ -570,6 +592,10 @@
- 		sk_dst_reset(sk);
- 		sk->sk_prot->hash(sk);
- 
-+#ifdef CONFIG_CKRM
-+		ckrm_cb_listen_start(sk);
-+#endif
++	
++	// Needed if only _rcfs_mknod is used instead of i_op->mkdir
++	dir->i_nlink++;
 +
- 		return 0;
- 	}
- 
-@@ -600,7 +626,18 @@
- 	write_lock_bh(&tp->syn_wait_lock);
- 	tp->listen_opt = NULL;
- 	write_unlock_bh(&tp->syn_wait_lock);
--	tp->accept_queue = tp->accept_queue_tail = NULL;
++	retval = rcfs_create_coredir(dir, dentry);
++	if (retval) 
++		goto mkdir_err;
 +
-+#ifdef CONFIG_CKRM
-+		ckrm_cb_listen_stop(sk);
-+#endif
-+
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	for (i = 0; i < NUM_ACCEPT_QUEUES; i++)
-+		tp->acceptq[i].aq_head = tp->acceptq[i].aq_tail = NULL;
-+#else
-+	tp->accept_queue_tail = NULL;
-+#endif
-+	tp->accept_queue = NULL;
- 
- 	if (lopt->qlen) {
- 		for (i = 0; i < TCP_SYNQ_HSIZE; i++) {
-@@ -646,7 +683,11 @@
- 		local_bh_enable();
- 		sock_put(child);
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+		tcp_acceptq_removed(sk, req->acceptq_class);
-+#else
- 		tcp_acceptq_removed(sk);
-+#endif
- 		tcp_openreq_fastfree(req);
- 	}
- 	BUG_TRAP(!sk->sk_ack_backlog);
-@@ -2230,6 +2271,10 @@
- 	struct open_request *req;
- 	struct sock *newsk;
- 	int error;
-+#ifdef CONFIG_ACCEPT_QUEUES	
-+	int prev_class = 0;
-+	int first;
-+#endif
- 
- 	lock_sock(sk);
- 
-@@ -2243,7 +2288,6 @@
- 	/* Find already established connection */
- 	if (!tp->accept_queue) {
- 		long timeo = sock_rcvtimeo(sk, flags & O_NONBLOCK);
--
- 		/* If this is a non blocking socket don't sleep */
- 		error = -EAGAIN;
- 		if (!timeo)
-@@ -2254,12 +2298,46 @@
- 			goto out;
- 	}
- 
-+#ifndef CONFIG_ACCEPT_QUEUES
- 	req = tp->accept_queue;
- 	if ((tp->accept_queue = req->dl_next) == NULL)
- 		tp->accept_queue_tail = NULL;
- 
-- 	newsk = req->sk;
- 	tcp_acceptq_removed(sk);
-+#else
-+	first = tp->class_index;
-+	/* We should always have  request queued here. The accept_queue
-+	 * is already checked for NULL above.
-+	 */
-+	while(!tp->acceptq[first].aq_head) {
-+		tp->acceptq[first].aq_cnt = 0;
-+		first = (first+1) & ~NUM_ACCEPT_QUEUES; 
++	/* create the default set of magic files */
++	for (i =0; i < SOCK_MAX_MAGF; i++) {
++		mfdentry = rcfs_create_internal(dentry, &sock_magf[i],0);
++		mfdentry->d_fsdata = &RCFS_IS_MAGIC;
++		RCFS_I(mfdentry->d_inode)->core = 
++				RCFS_I(dentry->d_inode)->core;
++		if (sock_magf[i].i_fop)
++			mfdentry->d_inode->i_fop = sock_magf[i].i_fop;
++		if (sock_magf[i].i_op)
++			mfdentry->d_inode->i_op = sock_magf[i].i_op;
 +	}
-+        req = tp->acceptq[first].aq_head;
-+	tp->acceptq[first].aq_qcount--;
-+	tp->acceptq[first].aq_count++;
-+	tp->acceptq[first].aq_wait_time+=(jiffies - req->acceptq_time_stamp);
++	
++	for (i=1; i < LAQ_NUM_ACCEPT_QUEUES; i++) {
++		j = sprintf(def_magf.name, "%d",i);
++		def_magf.name[j] = '\0';
 +
-+	for (prev_class= first-1 ; prev_class >=0; prev_class--)
-+		if (tp->acceptq[prev_class].aq_tail)
-+			break;
-+	if (prev_class>=0)
-+		tp->acceptq[prev_class].aq_tail->dl_next = req->dl_next; 
-+	else 
-+		tp->accept_queue = req->dl_next;
-+
-+	if (req == tp->acceptq[first].aq_tail) 
-+		tp->acceptq[first].aq_head = tp->acceptq[first].aq_tail = NULL;
-+	else
-+		tp->acceptq[first].aq_head = req->dl_next;
-+
-+	if((++(tp->acceptq[first].aq_cnt)) >= tp->acceptq[first].aq_ratio){
-+		tp->acceptq[first].aq_cnt = 0;
-+		tp->class_index = ++first & ~NUM_ACCEPT_QUEUES;
-+	}	
-+	tcp_acceptq_removed(sk, req->acceptq_class);
-+#endif
-+ 	newsk = req->sk;
- 	tcp_openreq_fastfree(req);
- 	BUG_TRAP(newsk->sk_state != TCP_SYN_RECV);
- 	release_sock(sk);
-@@ -2429,6 +2507,49 @@
- 			}
- 		}
- 		break;
-+		
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	case TCP_ACCEPTQ_SHARE:
-+		{
-+			char share_wt[NUM_ACCEPT_QUEUES];
-+			int i,j;
-+
-+			if (sk->sk_state != TCP_LISTEN)
-+				return -EOPNOTSUPP;
-+
-+			if (copy_from_user(share_wt,optval, optlen)) {
-+				err = -EFAULT;
-+				break;
-+			}
-+			j = 0;
-+			for (i = 0; i < NUM_ACCEPT_QUEUES; i++) {
-+				if (share_wt[i]) {
-+					if (!j)
-+						j = share_wt[i];
-+					else if (share_wt[i] < j) {
-+						j = share_wt[i];
-+					}
-+					tp->acceptq[i].aq_valid = 1;
-+				}
-+				else
-+					tp->acceptq[i].aq_valid = 0;
-+					
-+			}
-+			if (j == 0) {
-+				/* Class 0 is always valid. If nothing is 
-+				 * specified set class 0 as 1.
-+				 */
-+				share_wt[0] = 1;
-+				tp->acceptq[0].aq_valid = 1;
-+				j = 1;
-+			}
-+			for (i=0; i < NUM_ACCEPT_QUEUES; i++)  {
-+				tp->acceptq[i].aq_ratio = share_wt[i]/j;
-+				tp->acceptq[i].aq_cnt = 0;
-+			}
++		pentry = rcfs_create_internal(dentry, &def_magf,0);
++		retval = rcfs_create_coredir(dentry->d_inode, pentry);
++		if (retval)
++			goto mkdir_err;
++		for (j=0; j < LAQ_MAX_SUBMAGF; j++) {
++			mfdentry = rcfs_create_internal(pentry, &sub_magf[j],0);
++			mfdentry->d_fsdata = &RCFS_IS_MAGIC;
++			RCFS_I(mfdentry->d_inode)->core = 
++					RCFS_I(pentry->d_inode)->core;
++			if (sub_magf[j].i_fop)
++				mfdentry->d_inode->i_fop = sub_magf[j].i_fop;
++			if (sub_magf[j].i_op)
++				mfdentry->d_inode->i_op = sub_magf[j].i_op;
 +		}
-+		break;
-+#endif
- 
- 	default:
- 		err = -ENOPROTOOPT;
-@@ -2555,6 +2676,41 @@
- 	case TCP_QUICKACK:
- 		val = !tp->ack.pingpong;
- 		break;
-+
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	case TCP_ACCEPTQ_SHARE: {
-+		struct tcp_acceptq_info tinfo[NUM_ACCEPT_QUEUES];
-+		int i;
-+
-+		if (sk->sk_state != TCP_LISTEN)
-+			return -EOPNOTSUPP;
-+
-+		if (get_user(len, optlen))
-+			return -EFAULT;
-+
-+		memset(tinfo, 0, sizeof(tinfo));
-+
-+		for(i=0; i < NUM_ACCEPT_QUEUES; i++) {
-+			tinfo[i].acceptq_wait_time = 
-+				tp->acceptq[i].aq_wait_time/(HZ/USER_HZ);
-+			tinfo[i].acceptq_qcount = tp->acceptq[i].aq_qcount;
-+			tinfo[i].acceptq_count = tp->acceptq[i].aq_count;
-+			if (tp->acceptq[i].aq_valid) 
-+				tinfo[i].acceptq_shares=tp->acceptq[i].aq_ratio;
-+			else
-+				tinfo[i].acceptq_shares = 0;
-+		}
-+
-+		len = min_t(unsigned int, len, sizeof(tinfo));
-+		if (put_user(len, optlen)) 
-+			return -EFAULT;
-+			
-+		if (copy_to_user(optval, (char *)tinfo, len))
-+			return -EFAULT;
-+		
-+		return 0;
++		pentry->d_inode->i_op = &sub_iops;
 +	}
++	dentry->d_inode->i_op = &class_iops;
++	return 0;
++
++mkdir_err:
++	// Needed
++	dir->i_nlink--;
++	return retval;
++}
++#ifndef NUM_ACCEPT_QUEUES
++#define NUM_ACCEPT_QUEUES 0
 +#endif
- 	default:
- 		return -ENOPROTOOPT;
- 	};
-diff -Nru a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
---- a/net/ipv4/tcp_ipv4.c	Wed Apr 28 22:41:05 2004
-+++ b/net/ipv4/tcp_ipv4.c	Wed Apr 28 22:41:05 2004
-@@ -458,7 +458,6 @@
- 	head = &tcp_listening_hash[tcp_lhashfn(hnum)];
- 	if (!hlist_empty(head)) {
- 		struct inet_opt *inet = inet_sk((sk = __sk_head(head)));
--
- 		if (inet->num == hnum && !sk->sk_node.next &&
- 		    (!inet->rcv_saddr || inet->rcv_saddr == daddr) &&
- 		    (sk->sk_family == PF_INET || !ipv6_only_sock(sk)) &&
-@@ -916,7 +915,11 @@
- 	lopt->syn_table[h] = req;
- 	write_unlock(&tp->syn_wait_lock);
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	tcp_synq_added(sk, req);
-+#else
- 	tcp_synq_added(sk);
-+#endif
- }
- 
- 
-@@ -1413,6 +1416,9 @@
- 	__u32 daddr = skb->nh.iph->daddr;
- 	__u32 isn = TCP_SKB_CB(skb)->when;
- 	struct dst_entry *dst = NULL;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	int class = 0;
-+#endif
- #ifdef CONFIG_SYN_COOKIES
- 	int want_cookie = 0;
- #else
-@@ -1437,12 +1443,32 @@
- 		goto drop;
- 	}
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	class = (skb->nfmark <= 0) ? 0 :
-+		((skb->nfmark > NUM_ACCEPT_QUEUES) ? NUM_ACCEPT_QUEUES:
-+		 skb->nfmark);
-+	/*
-+	 * Accept only if the class has shares set or if the default class
-+	 * i.e. class 0 has shares
-+	 */
-+	if (!(tcp_sk(sk)->acceptq[class].aq_valid)) {
-+		if (tcp_sk(sk)->acceptq[0].aq_valid) 
-+			class = 0;
-+		else
-+			goto drop;
++
++char *
++sock_get_name(struct ckrm_core_class *c)
++{
++	char *p = (char *)c->name;
++	
++	while(*p)
++		p++;
++	while( *p != '/' && p != c->name)
++		p--;
++
++	return ++p;
++}
++
++int 
++sock_create_noperm(struct inode *dir,struct dentry *dentry,int mode, struct nameidata *nd)
++{
++	return -EPERM;
++}
++
++int 
++sock_unlink_noperm(struct inode *dir,struct dentry *dentry)
++{
++	return -EPERM;
++}
++
++int 
++sock_mkdir_noperm(struct inode *dir,struct dentry *dentry, int mode)
++{
++	return -EPERM;
++}
++
++int 
++sock_rmdir_noperm(struct inode *dir,struct dentry *dentry)
++{
++	return -EPERM;
++}
++
++int 
++sock_mknod_noperm(struct inode *dir,struct dentry *dentry,int mode, dev_t dev)
++{
++	return -EPERM;
++}
++
++#if 0
++void
++sock_set_directory()
++{
++	struct dentry *pentry, *dentry;
++
++	pentry = rcfs_set_magf_byname("listen_aq", (void *)&my_dir_magf[0]);
++	if (pentry) {
++		dentry = rcfs_create_internal(pentry, &my_dir_magf[1],0);
++		if (my_dir_magf[1].i_fop)
++			dentry->d_inode->i_fop = my_dir_magf[1].i_fop;
++		RCFS_I(dentry->d_inode)->core = 
++				RCFS_I(pentry->d_inode)->core;
++		dentry = rcfs_create_internal(pentry, &my_dir_magf[2],0);
++		if (my_dir_magf[2].i_fop)
++			dentry->d_inode->i_fop = my_dir_magf[2].i_fop;
++		RCFS_I(dentry->d_inode)->core = 
++				RCFS_I(pentry->d_inode)->core;
 +	}
++	else  {
++		printk(KERN_ERR "Could not create /rcfs/listen_aq\n"
++				"Perhaps /rcfs needs to be mounted\n");
++	}
++}
 +#endif
 +
- 	/* Accept backlog is full. If we have already queued enough
- 	 * of warm entries in syn queue, drop request. It is better than
- 	 * clogging syn queue with openreqs with exponentially increasing
- 	 * timeout.
- 	 */
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	if (tcp_acceptq_is_full(sk, class) && tcp_synq_young(sk, class) > 1)
-+#else
- 	if (tcp_acceptq_is_full(sk) && tcp_synq_young(sk) > 1)
-+#endif
- 		goto drop;
- 
- 	req = tcp_openreq_alloc();
-@@ -1472,7 +1498,10 @@
- 	tp.tstamp_ok = tp.saw_tstamp;
- 
- 	tcp_openreq_init(req, &tp, skb);
--
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	req->acceptq_class = class;
-+	req->acceptq_time_stamp = jiffies;
-+#endif
- 	req->af.v4_req.loc_addr = daddr;
- 	req->af.v4_req.rmt_addr = saddr;
- 	req->af.v4_req.opt = tcp_v4_save_options(sk, skb);
-@@ -1567,7 +1596,11 @@
- 	struct tcp_opt *newtp;
- 	struct sock *newsk;
- 
-+#ifdef CONFIG_ACCEPT_QUEUES
-+	if (tcp_acceptq_is_full(sk, req->acceptq_class))
-+#else
- 	if (tcp_acceptq_is_full(sk))
-+#endif
- 		goto exit_overflow;
- 
- 	if (!dst && (dst = tcp_v4_route_req(sk, req)) == NULL)
-diff -Nru a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
---- a/net/ipv4/tcp_minisocks.c	Wed Apr 28 22:41:05 2004
-+++ b/net/ipv4/tcp_minisocks.c	Wed Apr 28 22:41:05 2004
-@@ -787,7 +787,14 @@
- 		newtp->num_sacks = 0;
- 		newtp->urg_data = 0;
- 		newtp->listen_opt = NULL;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+		newtp->accept_queue = NULL;
-+		memset(newtp->acceptq, 0,sizeof(newtp->acceptq));
-+		newtp->class_index = 0;
-+
-+#else
- 		newtp->accept_queue = newtp->accept_queue_tail = NULL;
-+#endif
- 		/* Deinitialize syn_wait_lock to trap illegal accesses. */
- 		memset(&newtp->syn_wait_lock, 0, sizeof(newtp->syn_wait_lock));
- 
-diff -Nru a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
---- a/net/ipv4/tcp_timer.c	Wed Apr 28 22:41:05 2004
-+++ b/net/ipv4/tcp_timer.c	Wed Apr 28 22:41:05 2004
-@@ -498,7 +498,16 @@
- 	 * ones are about to clog our table.
- 	 */
- 	if (lopt->qlen>>(lopt->max_qlen_log-1)) {
-+#ifdef CONFIG_ACCEPT_QUEUES
-+		int young = 0;
-+	       
-+		for(i=0; i < NUM_ACCEPT_QUEUES; i++) 
-+			young += lopt->qlen_young[i];
-+		
-+		young <<= 1;
-+#else
- 		int young = (lopt->qlen_young<<1);
-+#endif
- 
- 		while (thresh > 2) {
- 			if (lopt->qlen < young)
-@@ -524,9 +533,12 @@
- 					unsigned long timeo;
- 
- 					if (req->retrans++ == 0)
--						lopt->qlen_young--;
--					timeo = min((TCP_TIMEOUT_INIT << req->retrans),
--						    TCP_RTO_MAX);
-+#ifdef CONFIG_ACCEPT_QUEUES
-+			         		lopt->qlen_young[req->acceptq_class]--;
-+#else
-+			         		lopt->qlen_young--;
-+#endif
-+					timeo = min((TCP_TIMEOUT_INIT << req->retrans), TCP_RTO_MAX);
- 					req->expires = now + timeo;
- 					reqp = &req->dl_next;
- 					continue;
-@@ -538,7 +550,11 @@
- 				write_unlock(&tp->syn_wait_lock);
- 				lopt->qlen--;
- 				if (req->retrans == 0)
--					lopt->qlen_young--;
-+#ifdef CONFIG_ACCEPT_QUEUES
-+			         		lopt->qlen_young[req->acceptq_class]--;
-+#else
-+			         		lopt->qlen_young--;
-+#endif
- 				tcp_openreq_free(req);
- 				continue;
- 			}
 
---------------070600030403030605020809--
+--------------030104050409020801060509--

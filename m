@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTE3Isj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 04:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTE3Isj
+	id S263487AbTE3JT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 05:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTE3JT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 04:48:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20142 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263493AbTE3Ish (ORCPT
+	Fri, 30 May 2003 05:19:57 -0400
+Received: from [212.6.122.211] ([212.6.122.211]:26505 "EHLO mail3.ewetel.de")
+	by vger.kernel.org with ESMTP id S263487AbTE3JT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 04:48:37 -0400
-Date: Fri, 30 May 2003 02:00:40 -0700 (PDT)
-Message-Id: <20030530.020040.52897577.davem@redhat.com>
-To: alexander.riesen@synopsys.COM
-Cc: scrosby@cs.rice.edu, linux-kernel@vger.kernel.org
-Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030530085901.GB11885@Synopsys.COM>
-References: <oyd3cixc9ev.fsf@bert.cs.rice.edu>
-	<20030529.232440.122068039.davem@redhat.com>
-	<20030530085901.GB11885@Synopsys.COM>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 30 May 2003 05:19:56 -0400
+Date: Fri, 30 May 2003 11:33:07 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: David Wilson <david@uow.edu.au>
+cc: linux-kernel@vger.kernel.org, <axboe@suse.de>
+Subject: Re: capability flag for ATAPI MO (from kernel mailing list)
+In-Reply-To: <20030530015334.GD1120@uow.edu.au>
+Message-ID: <Pine.LNX.4.44.0305301130070.1076-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alex Riesen <alexander.riesen@synopsys.COM>
-   Date: Fri, 30 May 2003 10:59:01 +0200
+On Fri, 30 May 2003, David Wilson wrote:
 
-       static
-       int hash_3(int hi, int c)
-       {
-   	return (hi + (c << 4) + (c >> 4)) * 11;
-       }
-   
-   gcc-3.2.1 -O2 -march=pentium
- ...   
-   It is not guaranteed to be this way on all architectures, of course.
-   But still - no multiplications.
+> Is optical (or CDC_OPTICAL) a good name for this capability?
+> After all, CD CD-R CD-RW DVD DVD+/-R(W) are all optical.
 
-Indeed, I'd missed this.  GCC will emit the constant multiply
-expansion unless the multiply cost is set VERY low.
+Well, I simply used something similar to ide_optical from IDE code, but
+I agree that it's not optimal.
+
+> That said, a better name does not immediately spring to mind
+> (unless MOPTICAL works for you - magneto-optical seems too long).
+
+I'll see what Jens has to say about the name. CDC_MOPTICAL looks ugly
+to me, and CDC_MO too short. Maybe CDC_MO_DRIVE would work if
+CDC_OPTICAL is not acceptable.
+
+-- 
+Ciao,
+Pascal
+

@@ -1,111 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315718AbSENNba>; Tue, 14 May 2002 09:31:30 -0400
+	id <S310835AbSENNdh>; Tue, 14 May 2002 09:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSENNba>; Tue, 14 May 2002 09:31:30 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48644
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315718AbSENNb2>; Tue, 14 May 2002 09:31:28 -0400
-Date: Tue, 14 May 2002 06:27:47 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Neil Conway <nconway.list@ukaea.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.15 IDE 61
-In-Reply-To: <3CE10B2B.822CA194@ukaea.org.uk>
-Message-ID: <Pine.LNX.4.10.10205140610570.15295-100000@master.linux-ide.org>
+	id <S311025AbSENNdg>; Tue, 14 May 2002 09:33:36 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:19725 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310835AbSENNdf>; Tue, 14 May 2002 09:33:35 -0400
+Message-ID: <3CE10362.3090300@evision-ventures.com>
+Date: Tue, 14 May 2002 14:30:26 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Russell King <rmk@arm.linux.org.uk>,
+        Neil Conway <nconway.list@ukaea.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+In-Reply-To: <E177bhp-0007qR-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Arbitrate your incoming interrupts.  In the classic dual interrupt you are
-scott free for the most part, erm interrupt sharing will eat you alive.
-HBA's w/ N channels will eat the BLOCK Layer of lunch and purge it for
-dinner.  If you notice SCSI originally had queues based on the HBA for a
-reason,  one can read all day long form any devices on the chain, but
-issue a write and everything grinds to a halt.
-
-The original taskfile driver was to permit set and go calls of a
-multi-level queues.  It was also to permit fake local tags with additional
-load balancing on the channel w/ mixed devices and/or w/ broken hardware
-force a simplex behavior.
-
-hwif[n].drives[m].queue     \
-			     --- hwif[n].queue
-hwif[n].drives[m+1].queue   /
-							hwgroup.queue
-hwif[n+1].drives[m].queue   \
-			     --- hwif[n+1].queue
-hwif[n+1].drives[m+1].queue /
-
- 
-In the future:
-
-hwif[0].drives[0].queue   <> hwif[0].queue
-hwif[1].drives[0].queue   <> hwif[1].queue
-hwif[2].drives[0].queue   <> hwif[2].queue
-...
-hwif[n-1].drives[0].queue <> hwif[n-1].queue
-hwif[n].drives[0].queue   <> hwif[n].queue
-
-Where "n" ranges from 2->20  all on the same hwgroup.queue
-
-Now how is your spinlock going to process all of those in parallel?
-I can tell you first hand, it can't.
-
-Cheers,
-
-On Tue, 14 May 2002, Neil Conway wrote:
-
-> Alan Cox wrote:
-> > If the queue abstraction is right then the block layer should do all the
-> > synchronization work that is required. 
+Uz.ytkownik Alan Cox napisa?:
+>>>Its possible it can be done with a semaphore but the whole business is
+>>>pretty tricky. IDE command processing occurs a fair bit at interrupt level
+>>>and you definitely don't want to block interrupts for long periods.
+>>
+>>... Becouse the chances are fscking high - that you will miss command
+>>completion interrupts for the "other drive" on the same channel.
 > 
-> I think you're wrong Alan.  Take a good IDE chipset as an example: both
-> channels can be active at the same time, but you still can't talk to one
-> drive while the other drive on the same channel is DMAing.
 > 
-> I'm not a block layer expert, but it appears to me that the block layer
-> only synchronises requests by use of the spinlock.  If I'm right, then
-> the block layer has no way of knowing that hda is DMAing when a request
-> is initiated for hdb.  This was the whole reason (as I see it) that
-> hwgroup->busy existed: to prevent attempts to use the same IDE cable for
-> two things at the same time.
+> The shared IRQ capable IDE ards I am aware of all do have proper tristates
+>  but you still have to handle the edge trigger very carefully.
 > 
-> It doesn't matter how you perform the queue abstraction in this case:
-> the fact that the device+channel+cable is busy in an asynchronous manner
-> makes it impossible for the block layer to deal with this.  [[Or am I
-> way off base?!]]
+> If you can miss a command completion interrupt you have a bug. Since you
+> know each drive on the bus you can poll each afflicted device for interrupts
+> until you reach a point where you completed an entire poll loop and nobody
+> had an IRQ pending.
 > 
-> The right way is the way it is being done at present surely: if the busy
-> flag on the hwgroup is set, then ide_do_request() just returns.  (NB:
-> When I say "right way", I don't mean to imply that the code is elegant,
-> desirable, or even bug-free, just that it correctly handles this busy
-> state.)
+> At that point you know an edge transition has occurred and that a real
+> IRQ will be posted when the next event occurs because that too will cause
+> an edge.
 > 
-> >It may cost a few cycles on the odd
-> > case you can do overlapped command setup but that versus a nasty locking
-> > mess its got to be better to lose those few cycles.
+> A good place for examples of this in the DOS world is things like serial
+> drivers, many of which could handle broken shared IRQ ISA setups correctly
+> using this technique.
 > 
-> Well, Jens and others are busy implementing TCQ where things are just so
-> much easier to fsck up :-))
-> 
-> > I don't even Martin here, the ide locking is currently utterly vile
-> 
-> Agreed, but surely with some concerted effort we can truly fix the IDE
-> code.  Can't be beyond us all can it?
-> 
-> Neil
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> In the case without tristates the stronger driver tends to win the argument
+> about the line in either direction and nothing works at all.
 
-Andre Hedrick
-LAD Storage Consulting Group
+
+Well anyway. What we have right now, looking for the channel perspective,
+is indeed some nIEN tricks done here and there. However the problem is
+that we postpone the disabling of interface interrupts now until the
+time a next request gets queued. In addition the driver is doing quite
+a lot of polling for the next expected interrutp as well.
+
+Right now the consequences are indeed very simple for me. The time I
+started to sanitize the data structures I first had to paint down
+diagram of pointers between them. Now it's simple time to write down
+a state diagram for the IRQ / request handling code paths :-).
+
 

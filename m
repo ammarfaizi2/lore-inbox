@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261639AbRFTPv2>; Wed, 20 Jun 2001 11:51:28 -0400
+	id <S262550AbRFTQDB>; Wed, 20 Jun 2001 12:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261960AbRFTPvJ>; Wed, 20 Jun 2001 11:51:09 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:37809 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S261639AbRFTPvG>; Wed, 20 Jun 2001 11:51:06 -0400
-Date: Wed, 20 Jun 2001 16:52:03 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Tridgell <tridge@valinux.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, davem@redhat.com,
-        zackw@stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
-In-Reply-To: <20010620043348.9B597474B@lists.samba.org>
-Message-ID: <Pine.LNX.4.21.0106201604220.2060-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262564AbRFTQCv>; Wed, 20 Jun 2001 12:02:51 -0400
+Received: from THANK.THUNK.ORG ([216.175.175.163]:27332 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S262550AbRFTQCe>;
+	Wed, 20 Jun 2001 12:02:34 -0400
+Date: Wed, 20 Jun 2001 12:02:13 -0400
+From: Theodore Tso <tytso@valinux.com>
+To: Tony Gale <gale@syntax.dera.gov.uk>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>,
+        Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [Ext2-devel] Re: [UPDATE] Directory index for ext2
+Message-ID: <20010620120213.B22993@think.thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@valinux.com>,
+	Tony Gale <gale@syntax.dera.gov.uk>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Alexander Viro <viro@math.psu.edu>,
+	Andreas Dilger <adilger@turbolinux.com>
+In-Reply-To: <0105311813431J.06233@starship> <993049198.3089.2.camel@syntax.dera.gov.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <993049198.3089.2.camel@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Wed, Jun 20, 2001 at 03:59:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jun 2001, Andrew Tridgell wrote:
-> Davem wrote:
-> >  > The anonymous pipe code in 2.2 does not check the return value of
-> >  > copy_*_user.  This can lead to silent loss of data.
+On Wed, Jun 20, 2001 at 03:59:58PM +0100, Tony Gale wrote:
 > 
-> Linus didn't want to fix it in pipe.c until copy_from_user was fixed
-> on all architectures to zero any parts of the destination that were
-> not written to (due to the source being invalid). He didn't want us to
-> fix just this one case and then forget about fixing the general case
-> by fixing copy_*_user.
+> The main problem I have with this is that e2fsck doesn't know how to
+> deal with it - at least I haven't found a version that will. This makes
+> it rather difficult to use, especially for your root fs.
 
-Thanks for shedding light on this, I was curious about that zeroing.
-Please correct my understanding if I'm wrong to say:
+Getting e2fsck to deal with directory indexing is on my todo list at
+this point.  
 
-1. If all copy_from_user() callers checked the residue returned and
-   acted appropriately, there would be no need for such zeroing;
-2. Usually Linux prefers to fix all the abusers of a macro or
-   function, rather than adding extra safety checks within it;
-3. But here, the security risk, the ease of abuse, and the difficulty
-   in auditing all uses (more each day), led to this zeroing within?
+Daniel, do you have any preliminary patches to start with, or do I
+need to start from scratch?  
 
-May your source never be invalid,
-Hugh
-
+						- Ted

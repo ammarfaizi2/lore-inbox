@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265095AbTA2Hio>; Wed, 29 Jan 2003 02:38:44 -0500
+	id <S265077AbTA2HgT>; Wed, 29 Jan 2003 02:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTA2Hio>; Wed, 29 Jan 2003 02:38:44 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30339
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265095AbTA2Hin>; Wed, 29 Jan 2003 02:38:43 -0500
-Subject: Re: nForce2 IDE UDMA locked to mode 2 on 2.4.21-pre4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Wong <kernelATimplodeDOT!net@gambit.implode.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030129072658.GA790@gambit.implode.net>
-References: <20030129072658.GA790@gambit.implode.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043829731.27265.1.camel@irongate.swansea.linux.org.uk>
+	id <S265093AbTA2HgT>; Wed, 29 Jan 2003 02:36:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49564 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265077AbTA2HgS>;
+	Wed, 29 Jan 2003 02:36:18 -0500
+Date: Tue, 28 Jan 2003 23:32:57 -0800 (PST)
+Message-Id: <20030128.233257.11926946.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
+       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200301290314.GAA31081@sex.inr.ac.ru>
+References: <20030128.160806.13210372.davem@redhat.com>
+	<200301290314.GAA31081@sex.inr.ac.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 29 Jan 2003 08:42:11 +0000
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-29 at 07:26, John Wong wrote:
-> With 2.4.21-pre4, the nForce2 chipset board I have has the IDE detected,
-> but not quite properly.  It seems my UDMA 100 drives as only UDMA 33.
-> When I use hdparm to try to change its mode, it fails with the following
-> error.
+   From: kuznet@ms2.inr.ac.ru
+   Date: Wed, 29 Jan 2003 06:14:55 +0300 (MSK)
+   
+   skb->csum is not used inside TCP when skb->ip_summed==CHECKSUM_HW:
+  ...   
+   So, it is safe to make skb->ip_summed := CHECKSUM_HW any moment when
+   we are lazy to recalculate checksum.
 
-I'm about to send Marcelo the replacement AMD driver that Vojtech wrote which does
-both AMD and the nFarce clone of it. That I hope will make your problem obsolete
+I see, clever trick as I had suspected.
 
+Thanks for the explanation.

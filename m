@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVCBDYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVCBD1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbVCBDYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 22:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCBDYQ
+	id S262157AbVCBD1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 22:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVCBD1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 22:24:16 -0500
-Received: from orb.pobox.com ([207.8.226.5]:55447 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262153AbVCBDYM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 22:24:12 -0500
-Date: Tue, 1 Mar 2005 20:24:00 -0700
-From: Paul Dickson <paul@permanentmail.com>
-To: Baruch Even <baruch@ev-en.org>
-Cc: dickson@permanentmail.com, linux-os@analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Network speed Linux-2.6.10
-Message-Id: <20050301202400.36259d94.paul@permanentmail.com>
-In-Reply-To: <422510BA.1010305@ev-en.org>
-References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>
-	<20050301175143.04cbbe64.dickson@permanentmail.com>
-	<422510BA.1010305@ev-en.org>
-X-Mailer: Sylpheed version 1.9.3 (GTK+ 2.4.14; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Mar 2005 22:27:33 -0500
+Received: from mail.siliconiriver.com.au ([203.34.93.66]:8066 "EHLO
+	mail.siliconriver.com.au") by vger.kernel.org with ESMTP
+	id S262155AbVCBD1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 22:27:00 -0500
+From: Jarne Cook <jcook@siliconriver.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Complicated networking problem
+Date: Wed, 2 Mar 2005 13:27:31 +1000
+User-Agent: KMail/1.7.1
+References: <200502281459.31402.jcook@siliconriver.com.au> <200503010202.j2122b80025303@turing-police.cc.vt.edu> <200502282135.35405.dtor_core@ameritech.net>
+In-Reply-To: <200502282135.35405.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503021327.31429.jcook@siliconriver.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 01:02:50 +0000, Baruch Even wrote:
+On Tuesday 01 March 2005 12:35, you wrote:
+> On Monday 28 February 2005 21:02, Valdis.Kletnieks@vt.edu wrote:
+> > On Mon, 28 Feb 2005 14:59:31 +1000, Jarne Cook said:
+> > > They are both using dhcp to the same simple network.  That's right. 
+> > > Same network.  They both end up with gateway=192.168.0.1,
+> > > netmask=255.255.255.0. But ofcourse they do not have the same IP
+> > > addresses.
+> >
+> > I don't suppose your network people would be willing to change it thusly:
+> >
+> > wired ports:  gateway 192.168.0.1, netmask 255.255.255.128.0
+> > wireless:     gateway 192.168.128.1, netmask 255.255.255.128.0
+> >
+> > Or move the wireless up to 192.168.1.1 if they think that would confuse
+> > things too much.
+> >
+> > There's a limit to how far we should bend over backwards to support
+> > stupid networking decisions. 192.168 *is* a /16, might as well use it. ;)
+> >
+> > If they won't, you're pretty much stuck with binding applications to one
+> > interface or another.
+>
+> If the goal is to primarily use wired link and seamlessly swith to wireless
+> then look into bonding driver in failover mode with wired interface as
+> primary. This way you have only one address and userspace does not notice
+> anything.
 
-> > Might this be related to the broken BicTCP implementations in the 2.6.6+
-> > kernels?  A fix was added around 2.6.11-rc3 or 4.
-> 
-> Unlikely, the problem with BIC would have shown itself only at high 
-> speeds over long latency links, not over a lan connection.
+Damn
 
-I only mentioned the possibility because I saw the same profile given by
-the PDF (the link was mentioned in the patch) while downloading gnoppix
-via my cable modem.  The oscillations of speed varied from 40K to 500+K.
-The average ended up around 270K.  (I was using wget for the download).
+Having to configure the interfaces using bonding was not really the answer I 
+was expecting.
 
-	-Paul
+I did not think linux would be that rigid.  I figured if poodoze is able to do 
+it (seamlessly mind you), surely linux (with some tinkering) would be able to 
+do it also.
 
+The goal was to have the networking on the laptop work as perfectly as 
+crapdoze does.  
+
+Perhaps I should and this topic to my list of software issues that no-one else 
+cares about. "man that list is getting big".  maybe one day I'll develop the 
+balls to get deep into the code.
+
+
+-- 
+Jarne Cook <jcook@siliconriver.com.au>
+Siliconriver.com.au

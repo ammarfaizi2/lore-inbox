@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130915AbQKQTnk>; Fri, 17 Nov 2000 14:43:40 -0500
+	id <S130344AbQKQTnK>; Fri, 17 Nov 2000 14:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131007AbQKQTnb>; Fri, 17 Nov 2000 14:43:31 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:6133 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130915AbQKQTnZ>; Fri, 17 Nov 2000 14:43:25 -0500
-Date: Fri, 17 Nov 2000 17:12:07 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: schwidefsky@de.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-        mingo@chiara.elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Memory management bug
-In-Reply-To: <20001117164422.B27098@athlon.random>
-Message-ID: <Pine.LNX.4.21.0011171706250.371-100000@duckman.distro.conectiva>
+	id <S130441AbQKQTnA>; Fri, 17 Nov 2000 14:43:00 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12551
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130344AbQKQTmv>; Fri, 17 Nov 2000 14:42:51 -0500
+Date: Fri, 17 Nov 2000 11:12:33 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: sorted - was: How to add a drive to DMA black list?
+In-Reply-To: <E13wjAz-0000Uy-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10011171110540.9796-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Andrea Arcangeli wrote:
+On Fri, 17 Nov 2000, Alan Cox wrote:
 
-> Actually memory balancing in 2.4.x doesn't get any information,
-> not even the information about which _classzone_ where to free
-> the memory (NOTE: both 2.2.x and 2.0.x _always_ got the
-> classzone where to free memory at least). This classzone missing
-> information causes resources wastage indeed and I just fixed it
-> several times, BTW.
+> > Then I need to fix that to prevent the bypass that should not happen.
+> 
+> No you need to fix the PIIX tuning hangs people keep reporting 8)
 
-Interesting, I can't remember you sending me any
-patches...
+You can't fix was the docs claim is broken and issuing a channel reset is
+the only way out.  Unfortunate, this is what I am looking at doing :-((
 
-Also, the 2.4 VM (unlike the other VMs) doesn't actually
-FREE memory wrongly (with the exception of buffer cache
-pages from page_launder()) but just moves it to the
-inactive_clean list, from where it will be re-used by one
-of those 99% user level allocations that happen on a typical
-Linux system.
+Cheers,
 
-But, as I said in Ottawa, I wouldn't mind any classzone
-stuff in the new VM, as long as it won't complicate the
-integration of _other_ memory organisations (like NUMA).
-
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

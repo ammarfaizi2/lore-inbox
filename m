@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267351AbUHDRIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUHDRTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267351AbUHDRIG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 13:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267356AbUHDRIG
+	id S267357AbUHDRTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 13:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267339AbUHDRTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 13:08:06 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:64672 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267351AbUHDRID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 13:08:03 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Wed, 4 Aug 2004 10:06:18 -0700
-User-Agent: KMail/1.6.2
-Cc: Jon Smirl <jonsmirl@yahoo.com>, linux-kernel@vger.kernel.org
-References: <E12D1EA555A@vcnet.vc.cvut.cz>
-In-Reply-To: <E12D1EA555A@vcnet.vc.cvut.cz>
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 13:19:47 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33740 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S267357AbUHDRTq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 13:19:46 -0400
+Date: Wed, 4 Aug 2004 19:16:46 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Realtek 8169 NIC driver version
+Message-ID: <20040804191646.A27806@electric-eye.fr.zoreil.com>
+References: <1677288031.20040803142517@yahoo.com.cn> <20040803093606.A4911@electric-eye.fr.zoreil.com> <411114E6.2060407@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408041006.18877.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <411114E6.2060407@myrealbox.com>; from luto@myrealbox.com on Wed, Aug 04, 2004 at 09:55:02AM -0700
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, August 4, 2004 8:57 am, Petr Vandrovec wrote:
-> Test for failure? Test for no ROM devices?
+Andy Lutomirski <luto@myrealbox.com> :
+[...]
+> This one bit me awhile back, too.  Could we just remove that version 
+> number?  (Especially with the latest round of changes, the in-kernel 
+> driver bears little resemblance to Realtek's.)
 
-If we get here, we can be sure there's a ROM device otherwise the 'rom' file 
-wouldn't have been created.
+A patch has been sent to Jeff. If someone wants to see it before it's in
+Jeff's -netdev or -mm, it is available at:
+http://www.fr.zoreil.com/people/francois/misc/r8169-40.patch
 
-> Please read it with readl. At least on my Matrox G550 reading 64KB ROM with
-> byte accesses takes 1334ms, with 16bit accesses 840ms and with
-> 32bit (or 64bit MMX) accesses 551ms. Straight (non-IO aware) memcpy
-> takes 535ms. And put some conditional_schedule()s here, 550ms (or even
-> 34ms for 4KB chunk) is IMHO too long.
-
-memcpy_from_io maybe?  That would probably make the most sense.
-
-Thanks for the comments.  Jon, do you want to respin it?
-
-Thanks,
-Jesse
+--
+Ueimor

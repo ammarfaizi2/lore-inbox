@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUG2QSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUG2QSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267589AbUG2QSD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUG2QR3
+	id S267588AbUG2QSC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbUG2QRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:17:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41619 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267482AbUG2QQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 12:16:32 -0400
-Subject: Re: [PATCH 20/22] AIO poll
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Avi Kivity <avi@exanet.com>
-Cc: jmoyer@redhat.com, suparna@in.ibm.com, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, linux-osdl@osdl.org
-In-Reply-To: <41091FAA.6080409@exanet.com>
-References: <20040702130030.GA4256@in.ibm.com>
-	 <20040702163946.GJ3450@in.ibm.com>
-	 <16649.5485.651481.534569@segfault.boston.redhat.com>
-	 <41091FAA.6080409@exanet.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Sj2FQwNfcHD+EiPFDYFX"
-Organization: Red Hat UK
-Message-Id: <1091117766.2792.14.camel@laptop.fenrus.com>
+	Thu, 29 Jul 2004 12:17:46 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:7074 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S267572AbUG2QQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 12:16:21 -0400
+Date: Thu, 29 Jul 2004 18:14:53 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [2.6.8-rc2][XFS] Page allocation failure
+Message-ID: <20040729161453.GA4239@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040725173022.GA8345@dreamland.darkstar.lan> <20040729010403.GC800@frodo>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 29 Jul 2004 18:16:07 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040729010403.GC800@frodo>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Il Thu, Jul 29, 2004 at 11:04:03AM +1000, Nathan Scott ha scritto: 
+> Hi there,
+> 
+> On Sun, Jul 25, 2004 at 07:30:23PM +0200, Kronos wrote:
+> > ...
+> > It seems that XFS failed an order 5 allocation (not atomic) on the read
+> 
+> Hmm, that file is fragmented up the wazoo for some reason
+> (see the xfs_bmap -vv output on the file).  Any chance you
+> know how it was written originally?
 
---=-Sj2FQwNfcHD+EiPFDYFX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think it was written by azureus (bt client), it creates a sparse file
+and writes small blocks (usally 256KB) when they are downloaded (in
+radom order). The partition had 1GB free (of 10GB) and I run xfs_fsr at
+night.
 
-On Thu, 2004-07-29 at 18:02, Avi Kivity wrote:
-> Jeff Moyer wrote:
->=20
-> >What are the barriers to getting the AIO poll support into the kernel?  =
-I
-> >think if we have AIO support at all, it makes sense to add this.
-> > =20
-> >
-> I second the motion. I don't see how one can write a server which uses=20
-> both networking and block aio without aio poll.
+> In particular, was it written with O_SYNC set?  (or via a sync NFS
+> mount?).
 
-one could try to use epoll and fix it to be usable for disk io too ;)
+I don't think so, I gave a look at sources it seems using memory mapped
+files.
 
---=-Sj2FQwNfcHD+EiPFDYFX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBCSLGxULwo51rQBIRAszxAJ9NmANR1mLCC0xTHRICTqN4yej0dgCeJgZ5
-FzQIrGDnWVuFM+Y7XOXn2XA=
-=81yu
------END PGP SIGNATURE-----
-
---=-Sj2FQwNfcHD+EiPFDYFX--
-
+Luca
+-- 
+Home: http://kronoz.cjb.net
+"La mia teoria scientifica preferita e` quella secondo la quale gli 
+ anelli di Saturno sarebbero interamente composti dai bagagli andati 
+ persi nei viaggi aerei." -- Mark Russel

@@ -1,83 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbULWJCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbULWJFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbULWJCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbULWJCo
+	id S261181AbULWJFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 04:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbULWJFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:02:44 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:60174 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261180AbULWJCd convert rfc822-to-8bit (ORCPT
+	Thu, 23 Dec 2004 04:05:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53222 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261181AbULWJFp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:02:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: mingo@redhat.com
-Subject: Re: 2.6.x BUGs at boot time (APIC related)
-Date: Thu, 23 Dec 2004 11:02:09 +0000
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
-References: <200412221731.20105.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200412221731.20105.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 23 Dec 2004 04:05:45 -0500
+Date: Thu, 23 Dec 2004 10:05:05 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, "Li, Shaohua" <shaohua.li@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: the patch of restore-pci-config-space-on-resume break S1 on ASUS2400 NE
+Message-ID: <20041223090505.GA7251@devserv.devel.redhat.com>
+References: <3ACA40606221794F80A5670F0AF15F84069D51E8@pdsmsx403>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84069D51E8@pdsmsx403>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 December 2004 17:31, Denis Vlasenko wrote:
-> This is happening on a "HP Compaq dc7100 CMT"
-> (I believe it is a model number - taken from the label on the box).
->
-> Both 2.6.9 and 2.6.10-rc3 are dying this way:
->
-> [top of visible screen]
-> I/O APIC #1 Version 17 at 0xFEC00000
-> Enabled APIC mode: Flat. Using 1 I/O APICs
-> ...
-> [unrelated stuff (dentry cache size etc...)]
-> ...
-> Enabling fast FPU save & restore ...done
-> Enabling unmasked SIMD FPU exception support ...done
-> Checking 'hlt' instruction ..OK
-> ------------------------
-> kernel BUG at arch/i386/kernel/apic.c:388! [:366! for 2.6.9]
->
->
-> Code:
-> ....
-> void __init setup_local_APIC (void)
-> {
->         ...
->         /*
->          * Double-check whether this APIC is really registered.
->          */
->         if (!apic_id_registered())
->                 BUG();   <=========================
+On Thu, Dec 23, 2004 at 04:51:09PM +0800, Yu, Luming wrote:
+>  Hi,
+> 
+> Since 2.6.7, the Changes for drivers/pci/pci-driver.c@1.37 make my
+> ASUS 2400NE hang on S1 resume. 
 
-Tested with noapic nolapic boot params. Still happens.
+we need to figure out which device can't take the pci config space
+restore...
 
-Call chain is init() -> APIC_init_uniprocessor() ->
-->  setup_local_APIC(). I am a bit suspicious why
-APIC_init_uniprocessor() does not bail out
-if enable_local_apic<0 (i.e. if I boot with "nolapic"):
-
-int __init APIC_init_uniprocessor (void)
-{
-        if (enable_local_apic < 0)
-                clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-		<===== missing "return -1"?
-
-        if (!smp_found_config && !cpu_has_apic)
-                return -1;
-...
-        verify_local_APIC();
-
-        connect_bsp_APIC();
-
-        phys_cpu_present_map = physid_mask_of_physid(boot_cpu_physical_apicid);
-
-        setup_local_APIC();  <=== will die there
-
---
-vda

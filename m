@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267114AbSKSHAa>; Tue, 19 Nov 2002 02:00:30 -0500
+	id <S267119AbSKSHGF>; Tue, 19 Nov 2002 02:06:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267116AbSKSHAa>; Tue, 19 Nov 2002 02:00:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65035 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267114AbSKSHA3>; Tue, 19 Nov 2002 02:00:29 -0500
-Date: Mon, 18 Nov 2002 23:03:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dax Kelson <dax@gurulabs.com>
-cc: "Grover, Andrew" <andrew.grover@intel.com>, <pavel@ucw.cz>,
-       <vojtech@suse.cz>, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BK current compile failure
-In-Reply-To: <1037683446.1530.9.camel@mentor>
-Message-ID: <Pine.LNX.4.44.0211182252280.24793-100000@home.transmeta.com>
+	id <S267129AbSKSHGB>; Tue, 19 Nov 2002 02:06:01 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:51181
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267119AbSKSHF7>; Tue, 19 Nov 2002 02:05:59 -0500
+Date: Tue, 19 Nov 2002 02:15:55 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ian Morgan <imorgan@webcon.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH][2.4-AC] export smp_num_siblings
+In-Reply-To: <Pine.LNX.4.44.0211181835470.6121-100000@light.webcon.net>
+Message-ID: <Pine.LNX.4.44.0211190214260.1538-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Nov 2002, Ian Morgan wrote:
 
-On 18 Nov 2002, Dax Kelson wrote:
->
-> Linus, do you want compile failure reports like below?
+> > > c0292e28 D smp_num_siblings
+> > > 
+> > > Any clues?
+> > 
+> > Is CONFIG_SMP set?
+> 
+> Yup.
 
-Well, I certainly prefer not to, simply because you might as well send 
-them to linux-kernel and get it resolved that way by some random person 
-who just happens to be awake.
+Can you give this a try.
 
-It looks like 
+Index: linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 i386_ksyms.c
+--- linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c	18 Nov 2002 01:39:49 -0000	1.1.1.1
++++ linux-2.4.20-rc1-ac4/arch/i386/kernel/i386_ksyms.c	19 Nov 2002 07:11:43 -0000
+@@ -131,6 +131,7 @@
+ EXPORT_SYMBOL(cpu_data);
+ EXPORT_SYMBOL(kernel_flag_cacheline);
+ EXPORT_SYMBOL(smp_num_cpus);
++EXPORT_SYMBOL(smp_num_siblings);
+ EXPORT_SYMBOL(cpu_online_map);
+ EXPORT_SYMBOL_NOVERS(__write_lock_failed);
+ EXPORT_SYMBOL_NOVERS(__read_lock_failed);
 
- - an ACPI configuration bug, where CONFIG_ACPI_SLEEP is allowed even
-   though CONFIG_SOFTWARE_SUSPEND is not enabled.
-
- - keyboard.c and parts of VT not depending on CONFIG_INPUT
-
- - device mapper using vcalloc() even though no such function has ever 
-   existed in the kernel (it's vmalloc + memset()).
-
-and I think the only way to fix these things is to publicly shame 
-maintainers into fixing the stuff they maintain.
-
-		Linus
-
----
-> arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
-> arch/i386/kernel/built-in.o(.data+0x1304): undefined reference to `save_processor_state'
-> arch/i386/kernel/built-in.o(.data+0x130a): undefined reference to `saved_context_esp'
-....
-
-> drivers/built-in.o: In function `kd_nosound':
-> drivers/built-in.o(.text+0x420ea): undefined reference to `input_event'
-> drivers/built-in.o(.text+0x4210c): undefined reference to `input_event'
-....
-> drivers/built-in.o: In function `kd_mksound':
-> drivers/built-in.o(.text+0x421ab): undefined reference to `input_event'
-> drivers/built-in.o: In function `kbd_bh':
-> drivers/built-in.o(.text+0x42f07): undefined reference to `input_event'
-> drivers/built-in.o(.text+0x42f2a): undefined reference to `input_event'
-....
-> drivers/built-in.o: In function `alloc_targets':
-> drivers/built-in.o(.text+0x8d0a7): undefined reference to `vcalloc'
-> drivers/built-in.o: In function `setup_indexes':
-> drivers/built-in.o(.text+0x8dabb): undefined reference to `vcalloc'
+-- 
+function.linuxpower.ca
 

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266412AbUALQFP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 11:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266433AbUALQFO
+	id S266205AbUALPyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 10:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266223AbUALPyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 11:05:14 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:32384 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266412AbUALQFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 11:05:03 -0500
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, Martin Peschke3 <MPESCHKE@de.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Peter Yao <peter@exavio.com.cn>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-In-Reply-To: <1073922773.3114.275.camel@compaq.xsintricity.com>
-References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
-	<20040112141330.GH24638@suse.de>
-	<1073920110.3114.268.camel@compaq.xsintricity.com>
-	<1073921054.2186.16.camel@mulgrave>  <20040112154345.GE1255@suse.de> 
-	<1073922773.3114.275.camel@compaq.xsintricity.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 12 Jan 2004 11:04:17 -0500
-Message-Id: <1073923459.2186.23.camel@mulgrave>
-Mime-Version: 1.0
+	Mon, 12 Jan 2004 10:54:14 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:20979 "EHLO
+	mail46.fg.online.no") by vger.kernel.org with ESMTP id S266205AbUALPyI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 10:54:08 -0500
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] ALSA 1.0.1
+References: <Pine.LNX.4.58.0401082059300.13704@pnote.perex-int.cz>
+From: Harald Arnesen <harald@skogtun.org>
+Date: Mon, 12 Jan 2004 16:53:54 +0100
+In-Reply-To: <Pine.LNX.4.58.0401082059300.13704@pnote.perex-int.cz> (Jaroslav
+ Kysela's message of "Thu, 8 Jan 2004 21:15:07 +0100 (CET)")
+Message-ID: <87ptdpf9il.fsf@basilikum.skogtun.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 10:52, Doug Ledford wrote:
-> Well, the scsi-dledford-2.4 tree is intended to be someplace I can put
-> all the stuff I'm having to carry forward in our kernels, so that's
-> distinctly different than a driver update only tree.  I could do that
-> separately and I have no problem doing that.
+Jaroslav Kysela <perex@suse.cz> writes:
 
-I'll take that as a "yes" then ;-)
+> Hello all,
+>
+> The ALSA 1.0.1 code for 2.6 kernels is available. I think that this update
+> might be included into -mm or standard 2.6 kernels.
+>
+>   - ICE1712 driver updated
 
-Thanks for doing this, beacuse I really wasn't looking forward to trying
-to sort it all out.
+Still doesn't work on my TerraTec 6fire LT.
 
->  As for the other stuff,
-> I'm not pushing to necessarily get any of my changes into mainline.  I
-> would be happy if they make it there sometime as that would relieve load
-> off of me, but at the same time I *am* making some changes to the core
-> code (sorry Jens, but there are some ways in which the 2.4 core scsi
-> code is just too broken to believe and leaving it broken just means
-> dealing with everyone that points it out in bugzilla entries) and I know
-> people are loath to change core code in mainline, so I kinda figured a
-> lot of that stuff would either A) stay separate or B) only after myself
-> and other interested parties agree on a patch and that patch is widely
-> tested and known good then maybe it might get moved over, up to Marcelo.
+>From dmesg after "modprobe snd-1712":
 
-I trust your judgement about this, so it sounds like we have the
-beginnings of a good working model for 2.4
-
-James
-
-
+request_module: failed /sbin/modprobe -- snd-card-0. error = 256
+unable to send register 0x7f byte to CS8427
+unable to find CS8427 signature (expected 0x71, read 0xfffffffb), initialization is not completed
+CS8427 initialization failed
+ICE1712: probe of 0000:00:11.0 failed with error -14
+-- 
+Hilsen Harald.

@@ -1,91 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267187AbUBMTXw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 14:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267188AbUBMTXw
+	id S267183AbUBMTac (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 14:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbUBMTac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 14:23:52 -0500
-Received: from mail.siemenscom.com ([12.146.131.10]:39646 "EHLO
-	mail.siemenscom.com") by vger.kernel.org with ESMTP id S267187AbUBMTXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 14:23:49 -0500
-Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F0BB@stca204a.bus.sc.rolm.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'Maciej Zenczykowski'" <maze@cela.pl>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: your mail
-Date: Fri, 13 Feb 2004 11:23:44 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 13 Feb 2004 14:30:32 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:56736 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S267183AbUBMTa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 14:30:27 -0500
+Date: Fri, 13 Feb 2004 12:30:46 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
+Message-ID: <20040213193046.GA17790@bounceswoosh.org>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	Timothy Miller <miller@techsource.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <402C0D0F.6090203@techsource.com> <20040213055350.GG29363@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20040213055350.GG29363@alpha.home.local>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By the way shouldn't a munmap call really free the memory. I have an strace
-showing that the process calls munmap a lot but I do not seeany gaps in the
-map file
+On Fri, Feb 13 at  6:53, Willy Tarreau wrote:
+>It depends on the disk too. Lots of disks (specially IDE) are far slower
+>on writes than they are on reads.
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+This may be a function of the operating system or the filesystem, but
+it isn't necessarilly an artifact of the drives themselves.  With both
+read and write caching enabled, random writes will always be faster
+than random reads from the drive perspective.
 
+Even with queueing enabled (legacy TCQ or Native-SATA "NCQ"), your
+ability to reorder reads is limited in ATA to 32 tags, while the
+ability to reorder cached writes is limited only by buffer size and
+cache granularity...  the absolute worst-case write performance should
+be the same as read performance.
 
------Original Message-----
-From: Bloch, Jack 
-Sent: Friday, February 13, 2004 2:14 PM
-To: 'Maciej Zenczykowski'
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: your mail
-
-
-Yes, your assumtion about the 1GB is correct.
-
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+--eric
 
 
------Original Message-----
-From: Maciej Zenczykowski [mailto:maze@cela.pl]
-Sent: Friday, February 13, 2004 1:11 PM
-To: Bloch, Jack
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 
-
-The deleted marks in question mean that the file in question has been 
-unlinked (rm'ed), however it is still being used and the inode in question 
-still exists.  This memory is in use and thus validly takes up mapping 
-space.  You'd need to unmap inorder to free that memory.  Deleting a file 
-does not delete that file until _all_ processes close and unmap any 
-references to it.  What's more worrying is the large area of unmapped 
-memory below 1GB (0x40000000), wonder why it doesn't get allocated?  But I 
-think the answer is that the standard allocator only searches 1GB..3GB for 
-free areas...
-
-Cheers,
-MaZe.
-
-On Fri, 13 Feb 2004, Bloch, Jack wrote:
-
-> I am running a 2.4.19 Kernel and have a problem where a process is using
-the
-> up to the 0xC0000000 of space. It is no longer possible for this process
-to
-> get any more memory vi mmap or via shmget. However, when I dump the
-> /procs/#/maps file, I see large chunks of memory deleted. i.e this should
-be
-> freely available to be used by the next call. I do not see these addresses
-> get re-used. The maps file is attached.
-> 
->  <<9369>> 
-> 
-> Jack Bloch 
-> Siemens ICN
-> phone                (561) 923-6550
-> e-mail                jack.bloch@icn.siemens.com
-> 
-> 

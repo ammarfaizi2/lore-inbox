@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVANVGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVANV5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbVANVGa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVANVEC
+	id S262058AbVANV5K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVANV5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:04:02 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:57296 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261999AbVANUzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:55:38 -0500
-Date: Fri, 14 Jan 2005 20:55:10 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Hsu I-Chieh <ejhsu@msn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A question about anonymous page
-In-Reply-To: <BAY5-F7C011AC3F39F654AACBBEA48B0@phx.gbl>
-Message-ID: <Pine.LNX.4.44.0501142043180.2973-100000@localhost.localdomain>
+	Fri, 14 Jan 2005 16:57:09 -0500
+Received: from opersys.com ([64.40.108.71]:47623 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262058AbVANVzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:55:44 -0500
+Message-ID: <41E8419D.2070104@opersys.com>
+Date: Fri, 14 Jan 2005 17:03:09 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <Pine.LNX.4.61.0501140819521.4941@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0501140819521.4941@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005, Hsu I-Chieh wrote:
-> 
-> I want to know if there is any condition that anonymous pages (allocated by 
-> do_anonymous_page) may be mapped in process page tables two or more times.
 
-An anonymous page mapped at different places in a single user address space?
-No (except for the reserved zero page, used on read fault).  But mapped into
-different user address spaces, forked off from a common ancestor?  Yes (and
-might even be at different positions if mremap has been used to move some).
+Zwane Mwaikambo wrote:
+> Just a few things from a quick look;
 
-Unless we have a bug - why do you ask?
+Thanks for the feedback. I've added your suggestions to my to-do list.
 
-Hugh
-
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

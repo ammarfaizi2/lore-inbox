@@ -1,235 +1,560 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVCZFOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCZF0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVCZFOp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 00:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVCZFOp
+	id S262012AbVCZF0I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 00:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCZF0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 00:14:45 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:56213 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261800AbVCZFO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 00:14:28 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-In-Reply-To: <20050325223959.GA24800@elte.hu>
-References: <20050325145908.GA7146@elte.hu>
-	 <1111790009.23430.19.camel@mindpipe>  <20050325223959.GA24800@elte.hu>
-Content-Type: text/plain
-Date: Sat, 26 Mar 2005 00:14:25 -0500
-Message-Id: <1111814065.24049.21.camel@mindpipe>
+	Sat, 26 Mar 2005 00:26:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:55120 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261996AbVCZFYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 00:24:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=cqYESQXU7RFq70xsrYXtUgSFWtsR8P5JyOz/n1iQ9R1wnPvDE0JkfEbB3VWuPXpH6JeSnh7c4TQMK0DI+183Jpw3XiiZnPlg1cK66yKPANydOqgtpadT4s15E+hUYjdG6O60i8yvvBY1N3BDkdbYkUxAF8N5PgCWDSO/G6sMNBg=
+Date: Sat, 26 Mar 2005 14:24:35 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [PATCH libata-dev-2.6] sata_sil: updated mod15write workaround
+Message-ID: <20050326052435.GA25544@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 23:39 +0100, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > On Fri, 2005-03-25 at 15:59 +0100, Ingo Molnar wrote:
-> > > i have released the -V0.7.41-10 Real-Time Preemption patch, which can be 
-> > > downloaded from the usual place:
-> > > 
-> > >    http://redhat.com/~mingo/realtime-preempt/
-> > 
-> > I get zillions of "return type defaults to int" warnings trying to
-> > compile this with PREEMPT_DESKTOP.
-> 
-> i've uploaded -41-11 which should fix it.
-> 
+ Hello, Jeff.
 
-OK.  Any idea about those get_swap_page latencies?  I set the swappiness
-to 100 on both machines, but I only see those on the slower machine.
+ This is the updated version of mod15write workaround.  Changes are
 
-Running for several days with PREEMPT_DESKTOP, on the Athlon XP the
-worst latency I am seeing is ~150 usecs!  But on the C3 its about 4ms:
+ * sg list restoration on completion
+ * debug code to verify sg list doesn't get changed
+ * updated against the latest libata-dev-2.6
+ * more comments
 
-(     ksoftirqd/0-2    |#0): new 16 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 32 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 77 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 86 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 110 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 121 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 131 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 136 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 143 us maximum-latency wakeup.
-(          IRQ 11-1445 |#0): new 172 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 594 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1164 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1255 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1429 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1557 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1680 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1722 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 1944 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2027 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2082 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2107 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2112 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2322 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2339 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2426 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2517 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2707 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2817 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 2874 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3053 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3149 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3225 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3250 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3316 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3636 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3668 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3819 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3953 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 3964 us maximum-latency wakeup.
-(     ksoftirqd/0-2    |#0): new 4104 us maximum-latency wakeup.
+ I think the code is okay, but I left the debug code there just in
+case.  The debug code is inside #ifdef and can be removed easily once
+testing is complete.
 
-The traces look like this:
-
-preemption latency trace v1.1.4 on 2.6.12-rc1-RT-V0.7.41-08
---------------------------------------------------------------------
- latency: 4104 us, #124/124, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1 #P:1)
-    -----------------
-    | task: ksoftirqd/0-2 (uid:0 nice:-10 policy:0 rt_prio:0)
-    -----------------
-
-                 _------=> CPU#            
-                / _-----=> irqs-off        
-               | / _----=> need-resched    
-               || / _---=> hardirq/softirq 
-               ||| / _--=> preempt-depth   
-               |||| /                      
-               |||||     delay             
-   cmd     pid ||||| time  |   caller      
-      \   /    |||||   \   |   /           
-(T1/#0)          kswapd0    66 0 9 00000002 00000000 [0061867425992692] 0.000ms (+914240.345ms): <6177736b> (<00306470>)
-(T1/#2)          kswapd0    66 0 9 00000002 00000002 [0061867425993150] 0.000ms (+0.000ms): __trace_start_sched_wakeup+0x96/0xc0 <c012f806> (try_to_wake_up+0x84/0x140 <c010f9e4>)
-(T1/#3)          kswapd0    66 0 9 00000000 00000003 [0061867425993646] 0.001ms (+0.001ms): wake_up_process+0x1c/0x30 <c010fabc> (do_softirq+0x4b/0x60 <c01047bb>)
-(T6/#4)  kswapd0-66    0dn.2    2us!< (1)
-(T2/#5)  kswapd0-66    0dnh2  975us : do_IRQ+0x2d/0x80 <c010467d> (c014e3c6 0 0)
-(T1/#6)          kswapd0    66 0 5 00000001 00000006 [0061867426579669] 0.976ms (+0.003ms): mask_and_ack_8259A+0xb/0x110 <c010818b> (__do_IRQ+0x8b/0x160 <c01364ab>)
-(T1/#7)          kswapd0    66 0 5 00000001 00000007 [0061867426581623] 0.979ms (+0.000ms): redirect_hardirq+0x8/0x90 <c0136288> (__do_IRQ+0xbc/0x160 <c01364dc>)
-(T1/#8)          kswapd0    66 0 5 00000000 00000008 [0061867426582099] 0.980ms (+0.000ms): handle_IRQ_event+0xe/0xf0 <c013631e> (__do_IRQ+0xea/0x160 <c013650a>)
-(T1/#9)          kswapd0    66 0 5 00000000 00000009 [0061867426582486] 0.981ms (+0.000ms): timer_interrupt+0xb/0x100 <c0106fcb> (handle_IRQ_event+0x61/0xf0 <c0136371>)
-(T1/#10)          kswapd0    66 0 5 00000001 0000000a [0061867426583035] 0.982ms (+0.004ms): mark_offset_tsc+0xe/0x370 <c010c81e> (timer_interrupt+0x24/0x100 <c0106fe4>)
-(T1/#11)          kswapd0    66 0 5 00000001 0000000b [0061867426585820] 0.986ms (+0.000ms): do_timer+0x8/0x20 <c011e718> (timer_interrupt+0x2a/0x100 <c0106fea>)
-(T1/#12)          kswapd0    66 0 5 00000001 0000000c [0061867426586179] 0.987ms (+0.000ms): update_process_times+0xa/0x100 <c011e17a> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#13)          kswapd0    66 0 5 00000001 0000000d [0061867426586521] 0.988ms (+0.000ms): account_system_time+0xa/0xb0 <c011013a> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#14)          kswapd0    66 0 5 00000001 0000000e [0061867426586854] 0.988ms (+0.000ms): acct_update_integrals+0xa/0x60 <c013609a> (account_system_time+0x40/0xb0 <c0110170>)
-(T1/#15)          kswapd0    66 0 5 00000001 0000000f [0061867426587131] 0.989ms (+0.000ms): update_mem_hiwater+0x8/0x50 <c0147b68> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#16)          kswapd0    66 0 5 00000001 00000010 [0061867426587472] 0.989ms (+0.000ms): run_local_timers+0x8/0x20 <c011e298> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#17)          kswapd0    66 0 5 00000001 00000011 [0061867426587879] 0.990ms (+0.000ms): raise_softirq+0xa/0x70 <c011a21a> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#18)          kswapd0    66 0 5 00000001 00000012 [0061867426588355] 0.991ms (+0.000ms): rcu_check_callbacks+0x8/0xc0 <c0126e18> (update_process_times+0x68/0x100 <c011e1d8>)
-(T1/#19)          kswapd0    66 0 5 00000001 00000013 [0061867426588691] 0.991ms (+0.000ms): idle_cpu+0x8/0x20 <c0110c28> (rcu_check_callbacks+0x66/0xc0 <c0126e76>)
-(T1/#20)          kswapd0    66 0 5 00000001 00000014 [0061867426589168] 0.992ms (+0.000ms): scheduler_tick+0xc/0x3e0 <c011024c> (update_process_times+0x6f/0x100 <c011e1df>)
-(T1/#21)          kswapd0    66 0 5 00000001 00000015 [0061867426589501] 0.993ms (+0.001ms): sched_clock+0xe/0xe0 <c010c57e> (scheduler_tick+0x1d/0x3e0 <c011025d>)
-(T1/#22)          kswapd0    66 0 5 00000001 00000016 [0061867426590397] 0.994ms (+0.000ms): run_posix_cpu_timers+0xe/0x1b0 <c012d04e> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#23)          kswapd0    66 0 5 00000001 00000017 [0061867426590838] 0.995ms (+0.001ms): profile_hit+0x9/0x50 <c0115a79> (timer_interrupt+0x4e/0x100 <c010700e>)
-(T1/#24)          kswapd0    66 0 5 00000001 00000018 [0061867426591522] 0.996ms (+0.000ms): note_interrupt+0xb/0x90 <c0136e0b> (__do_IRQ+0x148/0x160 <c0136568>)
-(T1/#25)          kswapd0    66 0 5 00000001 00000019 [0061867426591895] 0.997ms (+0.000ms): end_8259A_irq+0x8/0x40 <c0107f58> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#26)          kswapd0    66 0 5 00000001 0000001a [0061867426592237] 0.997ms (+0.002ms): enable_8259A_irq+0xb/0x80 <c010803b> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#27)          kswapd0    66 0 7 00000002 0000001b [0061867426593509] 0.999ms (+0.000ms): irq_exit+0x8/0x50 <c011a1c8> (do_IRQ+0x60/0x80 <c01046b0>)
-(T1/#28)          kswapd0    66 0 3 00000003 0000001c [0061867426593976] 1.000ms (+0.000ms): do_softirq+0xb/0x60 <c010477b> (irq_exit+0x45/0x50 <c011a205>)
-(T1/#29)          kswapd0    66 0 9 00000000 0000001d [0061867426594452] 1.001ms (+0.001ms): __do_softirq+0xa/0x90 <c011a05a> (do_softirq+0x4b/0x60 <c01047bb>)
-(T6/#30)  kswapd0-66    0dn.2 1002us!< (1)
-(T2/#31)  kswapd0-66    0dnh2 1973us : do_IRQ+0x2d/0x80 <c010467d> (c014e3cc 0 0)
-(T1/#32)          kswapd0    66 0 5 00000001 00000020 [0061867427179407] 1.974ms (+0.002ms): mask_and_ack_8259A+0xb/0x110 <c010818b> (__do_IRQ+0x8b/0x160 <c01364ab>)
-(T1/#33)          kswapd0    66 0 5 00000001 00000021 [0061867427181188] 1.977ms (+0.000ms): redirect_hardirq+0x8/0x90 <c0136288> (__do_IRQ+0xbc/0x160 <c01364dc>)
-(T1/#34)          kswapd0    66 0 5 00000000 00000022 [0061867427181652] 1.978ms (+0.000ms): handle_IRQ_event+0xe/0xf0 <c013631e> (__do_IRQ+0xea/0x160 <c013650a>)
-(T1/#35)          kswapd0    66 0 5 00000000 00000023 [0061867427182012] 1.978ms (+0.000ms): timer_interrupt+0xb/0x100 <c0106fcb> (handle_IRQ_event+0x61/0xf0 <c0136371>)
-(T1/#36)          kswapd0    66 0 5 00000001 00000024 [0061867427182448] 1.979ms (+0.004ms): mark_offset_tsc+0xe/0x370 <c010c81e> (timer_interrupt+0x24/0x100 <c0106fe4>)
-(T1/#37)          kswapd0    66 0 5 00000001 00000025 [0061867427185275] 1.984ms (+0.000ms): do_timer+0x8/0x20 <c011e718> (timer_interrupt+0x2a/0x100 <c0106fea>)
-(T1/#38)          kswapd0    66 0 5 00000001 00000026 [0061867427185625] 1.984ms (+0.000ms): update_process_times+0xa/0x100 <c011e17a> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#39)          kswapd0    66 0 5 00000001 00000027 [0061867427185972] 1.985ms (+0.000ms): account_system_time+0xa/0xb0 <c011013a> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#40)          kswapd0    66 0 5 00000001 00000028 [0061867427186355] 1.986ms (+0.000ms): acct_update_integrals+0xa/0x60 <c013609a> (account_system_time+0x40/0xb0 <c0110170>)
-(T1/#41)          kswapd0    66 0 5 00000001 00000029 [0061867427186720] 1.986ms (+0.000ms): update_mem_hiwater+0x8/0x50 <c0147b68> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#42)          kswapd0    66 0 5 00000001 0000002a [0061867427187061] 1.987ms (+0.000ms): run_local_timers+0x8/0x20 <c011e298> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#43)          kswapd0    66 0 5 00000001 0000002b [0061867427187394] 1.987ms (+0.000ms): raise_softirq+0xa/0x70 <c011a21a> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#44)          kswapd0    66 0 5 00000001 0000002c [0061867427187844] 1.988ms (+0.000ms): rcu_check_callbacks+0x8/0xc0 <c0126e18> (update_process_times+0x68/0x100 <c011e1d8>)
-(T1/#45)          kswapd0    66 0 5 00000001 0000002d [0061867427188177] 1.989ms (+0.000ms): idle_cpu+0x8/0x20 <c0110c28> (rcu_check_callbacks+0x66/0xc0 <c0126e76>)
-(T1/#46)          kswapd0    66 0 5 00000001 0000002e [0061867427188595] 1.989ms (+0.000ms): scheduler_tick+0xc/0x3e0 <c011024c> (update_process_times+0x6f/0x100 <c011e1df>)
-(T1/#47)          kswapd0    66 0 5 00000001 0000002f [0061867427189086] 1.990ms (+0.001ms): sched_clock+0xe/0xe0 <c010c57e> (scheduler_tick+0x1d/0x3e0 <c011025d>)
-(T1/#48)          kswapd0    66 0 5 00000001 00000030 [0061867427189936] 1.992ms (+0.000ms): run_posix_cpu_timers+0xe/0x1b0 <c012d04e> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#49)          kswapd0    66 0 5 00000001 00000031 [0061867427190359] 1.992ms (+0.001ms): profile_hit+0x9/0x50 <c0115a79> (timer_interrupt+0x4e/0x100 <c010700e>)
-(T1/#50)          kswapd0    66 0 5 00000001 00000032 [0061867427191007] 1.993ms (+0.000ms): note_interrupt+0xb/0x90 <c0136e0b> (__do_IRQ+0x148/0x160 <c0136568>)
-(T1/#51)          kswapd0    66 0 5 00000001 00000033 [0061867427191376] 1.994ms (+0.000ms): end_8259A_irq+0x8/0x40 <c0107f58> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#52)          kswapd0    66 0 5 00000001 00000034 [0061867427191718] 1.995ms (+0.002ms): enable_8259A_irq+0xb/0x80 <c010803b> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#53)          kswapd0    66 0 7 00000002 00000035 [0061867427192985] 1.997ms (+0.000ms): irq_exit+0x8/0x50 <c011a1c8> (do_IRQ+0x60/0x80 <c01046b0>)
-(T1/#55)          kswapd0    66 0 9 00000000 00000037 [0061867427194001] 1.998ms (+0.000ms): __do_softirq+0xa/0x90 <c011a05a> (do_softirq+0x4b/0x60 <c01047bb>)
-(T6/#56)  kswapd0-66    0dn.2 1999us!< (1)
-(T2/#57)  kswapd0-66    0dnh2 2971us : do_IRQ+0x2d/0x80 <c010467d> (c014e3cf 0 0)
-(T1/#58)          kswapd0    66 0 5 00000001 0000003a [0061867427779204] 2.972ms (+0.002ms): mask_and_ack_8259A+0xb/0x110 <c010818b> (__do_IRQ+0x8b/0x160 <c01364ab>)
-(T1/#59)          kswapd0    66 0 5 00000001 0000003b [0061867427780963] 2.975ms (+0.000ms): redirect_hardirq+0x8/0x90 <c0136288> (__do_IRQ+0xbc/0x160 <c01364dc>)
-(T1/#60)          kswapd0    66 0 5 00000000 0000003c [0061867427781443] 2.976ms (+0.000ms): handle_IRQ_event+0xe/0xf0 <c013631e> (__do_IRQ+0xea/0x160 <c013650a>)
-(T1/#61)          kswapd0    66 0 5 00000000 0000003d [0061867427781830] 2.976ms (+0.000ms): timer_interrupt+0xb/0x100 <c0106fcb> (handle_IRQ_event+0x61/0xf0 <c0136371>)
-(T1/#62)          kswapd0    66 0 5 00000001 0000003e [0061867427782271] 2.977ms (+0.004ms): mark_offset_tsc+0xe/0x370 <c010c81e> (timer_interrupt+0x24/0x100 <c0106fe4>)
-(T1/#63)          kswapd0    66 0 5 00000001 0000003f [0061867427785062] 2.982ms (+0.000ms): do_timer+0x8/0x20 <c011e718> (timer_interrupt+0x2a/0x100 <c0106fea>)
-(T1/#64)          kswapd0    66 0 5 00000001 00000040 [0061867427785408] 2.982ms (+0.000ms): update_process_times+0xa/0x100 <c011e17a> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#65)          kswapd0    66 0 5 00000001 00000041 [0061867427785750] 2.983ms (+0.000ms): account_system_time+0xa/0xb0 <c011013a> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#66)          kswapd0    66 0 5 00000001 00000042 [0061867427786129] 2.984ms (+0.000ms): acct_update_integrals+0xa/0x60 <c013609a> (account_system_time+0x40/0xb0 <c0110170>)
-(T1/#67)          kswapd0    66 0 5 00000001 00000043 [0061867427786489] 2.984ms (+0.000ms): update_mem_hiwater+0x8/0x50 <c0147b68> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#68)          kswapd0    66 0 5 00000001 00000044 [0061867427786839] 2.985ms (+0.000ms): run_local_timers+0x8/0x20 <c011e298> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#69)          kswapd0    66 0 5 00000001 00000045 [0061867427787172] 2.985ms (+0.000ms): raise_softirq+0xa/0x70 <c011a21a> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#70)          kswapd0    66 0 5 00000001 00000046 [0061867427787626] 2.986ms (+0.000ms): rcu_check_callbacks+0x8/0xc0 <c0126e18> (update_process_times+0x68/0x100 <c011e1d8>)
-(T1/#71)          kswapd0    66 0 5 00000001 00000047 [0061867427787964] 2.987ms (+0.000ms): idle_cpu+0x8/0x20 <c0110c28> (rcu_check_callbacks+0x66/0xc0 <c0126e76>)
-(T1/#72)          kswapd0    66 0 5 00000001 00000048 [0061867427788378] 2.987ms (+0.000ms): scheduler_tick+0xc/0x3e0 <c011024c> (update_process_times+0x6f/0x100 <c011e1df>)
-(T1/#73)          kswapd0    66 0 5 00000001 00000049 [0061867427788711] 2.988ms (+0.001ms): sched_clock+0xe/0xe0 <c010c57e> (scheduler_tick+0x1d/0x3e0 <c011025d>)
-(T1/#74)          kswapd0    66 0 5 00000001 0000004a [0061867427789557] 2.989ms (+0.000ms): run_posix_cpu_timers+0xe/0x1b0 <c012d04e> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#75)          kswapd0    66 0 5 00000001 0000004b [0061867427789989] 2.990ms (+0.001ms): profile_hit+0x9/0x50 <c0115a79> (timer_interrupt+0x4e/0x100 <c010700e>)
-(T1/#76)          kswapd0    66 0 5 00000001 0000004c [0061867427790659] 2.991ms (+0.000ms): note_interrupt+0xb/0x90 <c0136e0b> (__do_IRQ+0x148/0x160 <c0136568>)
-(T1/#77)          kswapd0    66 0 5 00000001 0000004d [0061867427791033] 2.992ms (+0.000ms): end_8259A_irq+0x8/0x40 <c0107f58> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#78)          kswapd0    66 0 5 00000001 0000004e [0061867427791433] 2.992ms (+0.002ms): enable_8259A_irq+0xb/0x80 <c010803b> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#79)          kswapd0    66 0 7 00000002 0000004f [0061867427792705] 2.995ms (+0.000ms): irq_exit+0x8/0x50 <c011a1c8> (do_IRQ+0x60/0x80 <c01046b0>)
-(T1/#80)          kswapd0    66 0 3 00000003 00000050 [0061867427793238] 2.995ms (+0.000ms): do_softirq+0xb/0x60 <c010477b> (irq_exit+0x45/0x50 <c011a205>)
-(T1/#81)          kswapd0    66 0 9 00000000 00000051 [0061867427793742] 2.996ms (+0.000ms): __do_softirq+0xa/0x90 <c011a05a> (do_softirq+0x4b/0x60 <c01047bb>)
-(T6/#82)  kswapd0-66    0dn.2 2997us!< (1)
-(T2/#83)  kswapd0-66    0dnh2 3969us : do_IRQ+0x2d/0x80 <c010467d> (c014e3c6 0 0)
-(T1/#84)          kswapd0    66 0 5 00000001 00000054 [0061867428379021] 3.970ms (+0.003ms): mask_and_ack_8259A+0xb/0x110 <c010818b> (__do_IRQ+0x8b/0x160 <c01364ab>)
-(T1/#85)          kswapd0    66 0 5 00000001 00000055 [0061867428380861] 3.973ms (+0.000ms): redirect_hardirq+0x8/0x90 <c0136288> (__do_IRQ+0xbc/0x160 <c01364dc>)
-(T1/#86)          kswapd0    66 0 5 00000000 00000056 [0061867428381320] 3.974ms (+0.000ms): handle_IRQ_event+0xe/0xf0 <c013631e> (__do_IRQ+0xea/0x160 <c013650a>)
-(T1/#87)          kswapd0    66 0 5 00000000 00000057 [0061867428381680] 3.975ms (+0.000ms): timer_interrupt+0xb/0x100 <c0106fcb> (handle_IRQ_event+0x61/0xf0 <c0136371>)
-(T1/#88)          kswapd0    66 0 5 00000001 00000058 [0061867428382121] 3.975ms (+0.004ms): mark_offset_tsc+0xe/0x370 <c010c81e> (timer_interrupt+0x24/0x100 <c0106fe4>)
-(T1/#89)          kswapd0    66 0 5 00000001 00000059 [0061867428385025] 3.980ms (+0.000ms): do_timer+0x8/0x20 <c011e718> (timer_interrupt+0x2a/0x100 <c0106fea>)
-(T1/#90)          kswapd0    66 0 5 00000001 0000005a [0061867428385375] 3.981ms (+0.000ms): update_process_times+0xa/0x100 <c011e17a> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#91)          kswapd0    66 0 5 00000001 0000005b [0061867428385721] 3.981ms (+0.000ms): account_system_time+0xa/0xb0 <c011013a> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#92)          kswapd0    66 0 5 00000001 0000005c [0061867428386105] 3.982ms (+0.000ms): acct_update_integrals+0xa/0x60 <c013609a> (account_system_time+0x40/0xb0 <c0110170>)
-(T1/#93)          kswapd0    66 0 5 00000001 0000005d [0061867428386469] 3.982ms (+0.000ms): update_mem_hiwater+0x8/0x50 <c0147b68> (update_process_times+0xed/0x100 <c011e25d>)
-(T1/#94)          kswapd0    66 0 5 00000001 0000005e [0061867428386810] 3.983ms (+0.000ms): run_local_timers+0x8/0x20 <c011e298> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#95)          kswapd0    66 0 5 00000001 0000005f [0061867428387139] 3.984ms (+0.000ms): raise_softirq+0xa/0x70 <c011a21a> (update_process_times+0x2d/0x100 <c011e19d>)
-(T1/#96)          kswapd0    66 0 5 00000001 00000060 [0061867428387622] 3.984ms (+0.000ms): rcu_check_callbacks+0x8/0xc0 <c0126e18> (update_process_times+0x68/0x100 <c011e1d8>)
-(T1/#97)          kswapd0    66 0 5 00000001 00000061 [0061867428387958] 3.985ms (+0.000ms): idle_cpu+0x8/0x20 <c0110c28> (rcu_check_callbacks+0x66/0xc0 <c0126e76>)
-(T1/#98)          kswapd0    66 0 5 00000001 00000062 [0061867428388453] 3.986ms (+0.000ms): scheduler_tick+0xc/0x3e0 <c011024c> (update_process_times+0x6f/0x100 <c011e1df>)
-(T1/#99)          kswapd0    66 0 5 00000001 00000063 [0061867428388781] 3.986ms (+0.001ms): sched_clock+0xe/0xe0 <c010c57e> (scheduler_tick+0x1d/0x3e0 <c011025d>)
-(T1/#100)          kswapd0    66 0 5 00000001 00000064 [0061867428389637] 3.988ms (+0.000ms): run_posix_cpu_timers+0xe/0x1b0 <c012d04e> (timer_interrupt+0x44/0x100 <c0107004>)
-(T1/#101)          kswapd0    66 0 5 00000001 00000065 [0061867428390064] 3.988ms (+0.001ms): profile_hit+0x9/0x50 <c0115a79> (timer_interrupt+0x4e/0x100 <c010700e>)
-(T1/#102)          kswapd0    66 0 5 00000001 00000066 [0061867428390703] 3.990ms (+0.000ms): note_interrupt+0xb/0x90 <c0136e0b> (__do_IRQ+0x148/0x160 <c0136568>)
-(T1/#103)          kswapd0    66 0 5 00000001 00000067 [0061867428391076] 3.990ms (+0.000ms): end_8259A_irq+0x8/0x40 <c0107f58> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#104)          kswapd0    66 0 5 00000001 00000068 [0061867428391423] 3.991ms (+0.002ms): enable_8259A_irq+0xb/0x80 <c010803b> (__do_IRQ+0x110/0x160 <c0136530>)
-(T1/#105)          kswapd0    66 0 7 00000002 00000069 [0061867428392667] 3.993ms (+0.000ms): irq_exit+0x8/0x50 <c011a1c8> (do_IRQ+0x60/0x80 <c01046b0>)
-(T1/#106)          kswapd0    66 0 3 00000003 0000006a [0061867428393139] 3.994ms (+0.000ms): do_softirq+0xb/0x60 <c010477b> (irq_exit+0x45/0x50 <c011a205>)
-(T1/#107)          kswapd0    66 0 9 00000000 0000006b [0061867428393628] 3.994ms (+0.000ms): __do_softirq+0xa/0x90 <c011a05a> (do_softirq+0x4b/0x60 <c01047bb>)
-(T6/#108)  kswapd0-66    0dn.2 3995us+< (1)
-(T1/#109)          kswapd0    66 0 2 00000001 0000006d [0061867428448564] 4.086ms (+0.001ms): preempt_schedule+0xa/0x70 <c02a837a> (get_swap_page+0x208/0x290 <c014e488>)
-(T1/#110)          kswapd0    66 0 2 00000000 0000006e [0061867428449351] 4.087ms (+0.000ms): preempt_schedule+0xa/0x70 <c02a837a> (get_swap_page+0xc4/0x290 <c014e344>)
-(T1/#111)          kswapd0    66 0 3 00000000 0000006f [0061867428449864] 4.088ms (+0.000ms): __schedule+0xe/0x710 <c02a7b5e> (preempt_schedule+0x4f/0x70 <c02a83bf>)
-(T1/#112)          kswapd0    66 0 3 00000000 00000070 [0061867428450437] 4.089ms (+0.000ms): profile_hit+0x9/0x50 <c0115a79> (__schedule+0x3a/0x710 <c02a7b8a>)
-(T1/#113)          kswapd0    66 0 3 00000001 00000071 [0061867428450904] 4.090ms (+0.002ms): sched_clock+0xe/0xe0 <c010c57e> (__schedule+0x68/0x710 <c02a7bb8>)
-(T1/#114)          kswapd0    66 0 3 00000002 00000072 [0061867428452321] 4.092ms (+0.000ms): dequeue_task+0xa/0x50 <c010f5ba> (__schedule+0x1ca/0x710 <c02a7d1a>)
-(T1/#115)          kswapd0    66 0 3 00000002 00000073 [0061867428452788] 4.093ms (+0.000ms): recalc_task_prio+0xc/0x1a0 <c010f71c> (__schedule+0x1e4/0x710 <c02a7d34>)
-(T1/#116)          kswapd0    66 0 3 00000002 00000074 [0061867428453289] 4.094ms (+0.000ms): effective_prio+0x8/0x50 <c010f6c8> (recalc_task_prio+0xa6/0x1a0 <c010f7b6>)
-(T1/#117)          kswapd0    66 0 3 00000002 00000075 [0061867428453667] 4.094ms (+0.001ms): enqueue_task+0xa/0x80 <c010f60a> (__schedule+0x1eb/0x710 <c02a7d3b>)
-(T4/#118) [ =>          kswapd0 ] 4.095ms (+0.002ms)
-(T1/#119)            <...>     2 0 1 00000002 00000077 [0061867428455634] 4.098ms (+0.001ms): __switch_to+0xb/0x1a0 <c01013bb> (__schedule+0x329/0x710 <c02a7e79>)
-(T3/#120)    <...>-2     0d..2 4100us : __schedule+0x356/0x710 <c02a7ea6> <kswapd0-66> (74 69): 
-(T1/#121)            <...>     2 0 1 00000001 00000079 [0061867428457287] 4.100ms (+0.000ms): trace_stop_sched_switched+0xa/0x150 <c012f83a> (__schedule+0x38d/0x710 <c02a7edd>)
-(T3/#122)    <...>-2     0d..1 4101us : trace_stop_sched_switched+0x42/0x150 <c012f872> <<...>-2> (69 0):
-(T1/#123)            <...>     2 0 1 00000001 0000007b [0061867428458566] 4.102ms (+0.000ms): trace_stop_sched_switched+0xfe/0x150 <c012f92e> (__schedule+0x38d/0x710 <c02a7edd>)
+ Thanks.
 
 
-vim:ft=help
+ Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-Lee
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/26 14:16:23+09:00 tj@htj.dyndns.org 
+#   cosmetic
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/26 14:13:44+09:00 tj@htj.dyndns.org +17 -4
+#   xxx
+# 
+# ChangeSet
+#   2005/03/26 12:32:07+09:00 tj@htj.dyndns.org 
+#   Merge htj.dyndns.org:/mnt/tj-work/os/ata/libata-dev-2.6
+#   into htj.dyndns.org:/mnt/tj-work/os/ata/libata-work
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/26 12:32:01+09:00 tj@htj.dyndns.org +0 -0
+#   Auto merged
+# 
+# ChangeSet
+#   2005/03/26 12:29:29+09:00 tj@htj.dyndns.org 
+#   sg restoration implemented
+#   M15W_DEBUG
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/26 12:29:21+09:00 tj@htj.dyndns.org +54 -2
+#   sg restoration implemented
+#   M15W_DEBUG
+# 
+# ChangeSet
+#   2005/03/16 08:45:47+09:00 tj@htj.dyndns.org 
+#   comments
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/16 08:45:39+09:00 tj@htj.dyndns.org +36 -10
+#   comments
+# 
+# ChangeSet
+#   2005/03/16 02:14:47+09:00 tj@htj.dyndns.org 
+#   m15w workaround works now
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/16 02:14:40+09:00 tj@htj.dyndns.org +54 -25
+#   m15w workaround works now
+# 
+# ChangeSet
+#   2005/03/15 22:16:44+09:00 tj@htj.dyndns.org 
+#   xxx
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/15 22:16:35+09:00 tj@htj.dyndns.org +89 -36
+#   xxx
+# 
+# ChangeSet
+#   2005/03/15 16:36:29+09:00 tj@htj.dyndns.org 
+#   initial implementaion of mod15write workaround
+# 
+# drivers/scsi/sata_sil.c
+#   2005/03/15 16:36:21+09:00 tj@htj.dyndns.org +139 -11
+#   initial implementaion of mod15write workaround
+# 
+diff -Nru a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
+--- a/drivers/scsi/sata_sil.c	2005-03-26 14:17:50 +09:00
++++ b/drivers/scsi/sata_sil.c	2005-03-26 14:17:50 +09:00
+@@ -71,9 +71,12 @@
+ 
+ static int sil_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
+ static void sil_dev_config(struct ata_port *ap, struct ata_device *dev);
++static void sil_qc_prep (struct ata_queued_cmd *qc);
++static void sil_eng_timeout (struct ata_port *ap);
+ static u32 sil_scr_read (struct ata_port *ap, unsigned int sc_reg);
+ static void sil_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
+ static void sil_post_set_mode (struct ata_port *ap);
++static void sil_host_stop (struct ata_host_set *host_set);
+ 
+ static struct pci_device_id sil_pci_tbl[] = {
+ 	{ 0x1095, 0x3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
+@@ -151,15 +154,16 @@
+ 	.bmdma_start            = ata_bmdma_start,
+ 	.bmdma_stop		= ata_bmdma_stop,
+ 	.bmdma_status		= ata_bmdma_status,
+-	.qc_prep		= ata_qc_prep,
++	.qc_prep		= sil_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+-	.eng_timeout		= ata_eng_timeout,
++	.eng_timeout		= sil_eng_timeout,
+ 	.irq_handler		= ata_interrupt,
+ 	.irq_clear		= ata_bmdma_irq_clear,
+ 	.scr_read		= sil_scr_read,
+ 	.scr_write		= sil_scr_write,
+ 	.port_start		= ata_port_start,
+ 	.port_stop		= ata_port_stop,
++	.host_stop		= sil_host_stop,
+ };
+ 
+ static struct ata_port_info sil_port_info[] = {
+@@ -202,6 +206,53 @@
+ 	/* ... port 3 */
+ };
+ 
++/*
++ * Context to loop over write requests > 15 sectors for Mod15Write bug.
++ *
++ * The following libata layer fields are saved at the beginning and
++ * mangled as necessary.
++ *
++ * qc->sg		: To fool ata_fill_sg().
++ * qc->n_elem		: ditto.
++ * qc->flags		: Except for the last iteration, ATA_QCFLAG_DMAMAP
++ *			  should be off on entering ata_interrupt() such
++ *			  that ata_qc_complete() doesn't call ata_sg_clean()
++ *			  before sil_m15w_chunk_complete(), but the flags
++ *			  should be set for ata_qc_prep() to work.  This flag
++ *			  handling is the hackiest part of this workaround.
++ * qc->complete_fn	: Overrided to sil_m15w_chunk_complete().
++ *
++ * The following cxt fields are used to iterate over write requests.
++ *
++ * next_block		: The starting block of the next chunk.
++ * next_sg		: The first sg entry of the next chunk.
++ * left			: Total bytes left.
++ * cur_sg_ofs		: Number of processed bytes in the first sg entry
++ *			  of this chunk.
++ * next_sg_ofs		: Number of bytes to be processed in the last sg
++ *			  entry of this chunk.
++ * next_sg_len		: Number of bytes to be processed in the first sg
++ *			  entry of the next chunk.
++ */
++#define M15W_DEBUG
++struct sil_m15w_cxt {
++	u64			next_block;
++	struct scatterlist *	next_sg;
++	unsigned int		left;
++	unsigned int		cur_sg_ofs;
++	unsigned int		next_sg_ofs;
++	unsigned int		next_sg_len;
++	int			timedout;
++
++	struct scatterlist *	orig_sg;
++	unsigned int		orig_nelem;
++	unsigned long		orig_flags;
++	ata_qc_cb_t		orig_complete_fn;
++#ifdef M15W_DEBUG
++	struct scatterlist	sg_copy[LIBATA_MAX_PRD];
++#endif
++};
++
+ MODULE_AUTHOR("Jeff Garzik");
+ MODULE_DESCRIPTION("low-level driver for Silicon Image SATA controller");
+ MODULE_LICENSE("GPL");
+@@ -242,6 +293,227 @@
+ 	readl(addr);	/* flush */
+ }
+ 
++static inline u64 sil_m15w_read_tf_block (struct ata_taskfile *tf)
++{
++	u64 block = 0;
++
++	BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
++
++	block |= (u64)tf->lbal;
++	block |= (u64)tf->lbam << 8;
++	block |= (u64)tf->lbah << 16;
++
++	if (tf->flags & ATA_TFLAG_LBA48) {
++		block |= (u64)tf->hob_lbal << 24;
++		block |= (u64)tf->hob_lbam << 32;
++		block |= (u64)tf->hob_lbah << 40;
++	} else
++		block |= (u64)(tf->device & 0xf) << 24;
++
++	return block;
++}
++
++static inline void sil_m15w_rewrite_tf (struct ata_taskfile *tf,
++					u64 block, u16 nsect)
++{
++	BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
++
++	tf->nsect = nsect & 0xff;
++	tf->lbal = block & 0xff;
++	tf->lbam = (block >> 8) & 0xff;
++	tf->lbah = (block >> 16) & 0xff;
++
++	if (tf->flags & ATA_TFLAG_LBA48) {
++		tf->hob_nsect = (nsect >> 8) & 0xff;
++		tf->hob_lbal = (block >> 24) & 0xff;
++		tf->hob_lbam = (block >> 32) & 0xff;
++		tf->hob_lbah = (block >> 40) & 0xff;
++	} else {
++		tf->device &= ~0xf;
++		tf->device |= (block >> 24) & 0xf;
++	}
++}
++
++static void sil_m15w_next(struct ata_queued_cmd *qc)
++{
++	struct sil_m15w_cxt *cxt = qc->private_data;
++	struct scatterlist *sg;
++	unsigned int todo, res, nelem;
++
++	if (qc->sg != cxt->next_sg) {
++		sg_dma_address(qc->sg) -= cxt->cur_sg_ofs;
++		sg_dma_len(qc->sg) += cxt->cur_sg_ofs;
++		cxt->cur_sg_ofs = 0;
++	}
++	cxt->cur_sg_ofs += cxt->next_sg_ofs;
++
++	qc->sg = sg = cxt->next_sg;
++	sg_dma_address(sg) += cxt->next_sg_ofs;
++	sg_dma_len(sg) = cxt->next_sg_len;
++
++	res = todo = min_t(unsigned int, cxt->left, 15 << 9);
++
++	nelem = 0;
++	while (sg_dma_len(sg) <= res) {
++		res -= sg_dma_len(sg);
++		sg++;
++		nelem++;
++	}
++
++	if (todo < cxt->left) {
++		cxt->next_sg = sg;
++		cxt->next_sg_ofs = res;
++		cxt->next_sg_len = sg_dma_len(sg) - res;
++		if (res) {
++			nelem++;
++			sg_dma_len(sg) = res;
++		}
++	} else {
++		cxt->next_sg = NULL;
++		cxt->next_sg_ofs = 0;
++		cxt->next_sg_len = 0;
++	}
++
++	DPRINTK("block=%llu nelem=%u todo=%u left=%u\n",
++		cxt->next_block, nelem, todo, cxt->left);
++
++	qc->n_elem = nelem;
++	sil_m15w_rewrite_tf(&qc->tf, cxt->next_block, todo >> 9);
++	cxt->left -= todo;
++	cxt->next_block += todo >> 9;
++}
++
++static inline void sil_m15w_restore_qc (struct ata_queued_cmd *qc)
++{
++	struct sil_m15w_cxt *cxt = qc->private_data;
++
++	DPRINTK("ENTER\n");
++
++	sg_dma_address(qc->sg) -= cxt->cur_sg_ofs;
++	sg_dma_len(qc->sg) += cxt->cur_sg_ofs;
++	if (cxt->next_sg_ofs)
++		sg_dma_len(cxt->next_sg) += cxt->next_sg_len;
++	qc->sg = cxt->orig_sg;
++	qc->n_elem = cxt->orig_nelem;
++	qc->flags |= cxt->orig_flags;
++	qc->complete_fn = cxt->orig_complete_fn;
++#ifdef M15W_DEBUG
++	{
++		int i, j;
++		for (i = 0; i < qc->n_elem; i++)
++			if (memcmp(&cxt->sg_copy[i], &qc->sg[i],
++				   sizeof(qc->sg[0])))
++				break;
++		if (i < qc->n_elem) {
++			printk(KERN_ERR "sil_m15w: sg mismatch\n");
++			printk(KERN_ERR "orig: ");
++			for (j = 0; j < qc->n_elem; j++)
++				printk("%s%08x:%04u ",
++				       i == j ? "*" : "",
++				       (u32)sg_dma_address(&cxt->sg_copy[j]),
++				       sg_dma_len(&cxt->sg_copy[j]));
++			printk("\n");
++			printk(KERN_ERR "used: ");
++			for (j = 0; j < qc->n_elem; j++)
++				printk("%s%08x:%04u ",
++				       i == j ? "*" : "",
++				       (u32)sg_dma_address(&qc->sg[j]),
++				       sg_dma_len(&qc->sg[j]));
++			printk("\n");
++		}
++	}
++#endif
++}
++
++static int sil_m15w_chunk_complete (struct ata_queued_cmd *qc, u8 drv_stat)
++{
++	struct sil_m15w_cxt *cxt = qc->private_data;
++
++	DPRINTK("ENTER\n");
++
++	if (unlikely(cxt->timedout))
++		drv_stat |= ATA_BUSY;	/* Any better error status? */
++
++	/* Complete the command immediately on error */
++	if (unlikely(drv_stat & (ATA_ERR | ATA_BUSY | ATA_DRQ))) {
++		sil_m15w_restore_qc(qc);
++		ata_qc_complete(qc, drv_stat);
++		return 1;
++	}
++
++	sil_m15w_next(qc);
++	
++	qc->flags |= cxt->orig_flags;
++	ata_qc_prep(qc);
++	qc->flags &= ~ATA_QCFLAG_DMAMAP;
++
++	/* On last iteration, restore fields such that normal
++	 * completion path is run */
++	if (!cxt->left)
++		sil_m15w_restore_qc(qc);
++	sil_ops.qc_issue(qc);
++	return 1;
++}
++
++static void sil_qc_prep (struct ata_queued_cmd *qc)
++{
++	struct sil_m15w_cxt *cxt = qc->private_data;
++
++	if (unlikely(cxt && qc->tf.flags & ATA_TFLAG_WRITE && qc->nsect > 15)) {
++		BUG_ON(cxt->left);
++		if (qc->tf.protocol == ATA_PROT_DMA) {
++			/* Okay, begin mod15write workaround */
++			cxt->next_block = sil_m15w_read_tf_block(&qc->tf);
++			cxt->next_sg = qc->sg;
++			cxt->left = qc->nsect << 9;
++			cxt->cur_sg_ofs = 0;
++			cxt->next_sg_ofs = 0;
++			cxt->next_sg_len = sg_dma_len(qc->sg);
++			cxt->timedout = 0;
++
++			/* Save fields we're gonna mess with.  Read comments
++			 * above struct sil_m15w_cxt for more info. */
++			cxt->orig_sg = qc->sg;
++			cxt->orig_nelem = qc->n_elem;
++			cxt->orig_flags = qc->flags & ATA_QCFLAG_DMAMAP;
++			cxt->orig_complete_fn = qc->complete_fn;
++			qc->complete_fn = sil_m15w_chunk_complete;
++#ifdef M15W_DEBUG
++			{
++				int i;
++				for (i = 0; i < qc->n_elem; i++)
++					cxt->sg_copy[i] = qc->sg[i];
++			}
++#endif
++			DPRINTK("MOD15WRITE, block=%llu nsect=%u\n",
++				cxt->next_block, qc->nsect);
++			sil_m15w_next(qc);
++
++			ata_qc_prep(qc);
++			qc->flags &= ~ATA_QCFLAG_DMAMAP;
++			return;
++		} else
++			printk(KERN_WARNING "ata%u(%u): write request > 15 "
++			       "issued using non-DMA protocol.  Drive may "
++			       "lock up.\n", qc->ap->id, qc->dev->devno);
++	}
++
++	ata_qc_prep(qc);
++}
++
++static void sil_eng_timeout (struct ata_port *ap)
++{
++	struct ata_queued_cmd *qc = ata_qc_from_tag(ap, ap->active_tag);
++
++	if (qc && qc->private_data) {
++		struct sil_m15w_cxt *cxt = qc->private_data;
++		if (cxt->left)
++			cxt->timedout = 1;
++	}
++
++	ata_eng_timeout(ap);
++}
++
+ static inline unsigned long sil_scr_addr(struct ata_port *ap, unsigned int sc_reg)
+ {
+ 	unsigned long offset = ap->ioaddr.scr_addr;
+@@ -276,6 +548,12 @@
+ 		writel(val, mmio);
+ }
+ 
++static void sil_host_stop (struct ata_host_set *host_set)
++{
++	/* Free mod15write context array. */
++	kfree(host_set->private_data);
++}
++
+ /**
+  *	sil_dev_config - Apply device/host-specific errata fixups
+  *	@ap: Port containing device to be examined
+@@ -286,17 +564,12 @@
+  *	We apply two errata fixups which are specific to Silicon Image,
+  *	a Seagate and a Maxtor fixup.
+  *
+- *	For certain Seagate devices, we must limit the maximum sectors
+- *	to under 8K.
++ *	For certain Seagate devices, we cannot issue write requests
++ *	larger than 15 sectors.
+  *
+  *	For certain Maxtor devices, we must not program the drive
+  *	beyond udma5.
+  *
+- *	Both fixups are unfairly pessimistic.  As soon as I get more
+- *	information on these errata, I will create a more exhaustive
+- *	list, and apply the fixups to only the specific
+- *	devices/hosts/firmwares that need it.
+- *
+  *	20040111 - Seagate drives affected by the Mod15Write bug are blacklisted
+  *	The Maxtor quirk is in the blacklist, but I'm keeping the original
+  *	pessimistic fix for the following reasons...
+@@ -304,6 +577,15 @@
+  *	Windows	driver, maybe only one is affected.  More info would be greatly
+  *	appreciated.
+  *	- But then again UDMA5 is hardly anything to complain about
++ *
++ *	20050316 Tejun Heo - Proper Mod15Write workaround implemented.
++ *	sata_sil doesn't report affected Seagate drives as having max
++ *	sectors of 15 anymore, but handle write requests larger than
++ *	15 sectors by looping over it inside this driver proper.  This
++ *	is messy but it's better to isolate this kind of peculiar bug
++ *	handling inside individual drivers than tainting libata layer.
++ *	This workaround results in unhampered read performance and
++ *	much better write performance.
+  */
+ static void sil_dev_config(struct ata_port *ap, struct ata_device *dev)
+ {
+@@ -311,6 +593,7 @@
+ 	unsigned char model_num[40];
+ 	const char *s;
+ 	unsigned int len;
++	int i;
+ 
+ 	ata_dev_id_string(dev->id, model_num, ATA_ID_PROD_OFS,
+ 			  sizeof(model_num));
+@@ -328,15 +611,23 @@
+ 			break;
+ 		}
+ 	
+-	/* limit requests to 15 sectors */
++	/* Activate mod15write quirk workaround */
+ 	if (quirks & SIL_QUIRK_MOD15WRITE) {
++		struct sil_m15w_cxt *cxt;
++
+ 		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix\n",
+ 		       ap->id, dev->devno);
+-		ap->host->max_sectors = 15;
+-		ap->host->hostt->max_sectors = 15;
+-		dev->flags |= ATA_DFLAG_LOCK_SECTORS;
++
++		cxt = ap->host_set->private_data;
++		cxt += ap->port_no * ATA_MAX_QUEUE;
++		for (i = 0; i < ATA_MAX_QUEUE; i++)
++			ap->qcmd[i].private_data = cxt++;
++
+ 		return;
+ 	}
++	/* Clear qcmd->private_data if mod15write quirk isn't present */
++	for (i = 0; i < ATA_MAX_QUEUE; i++)
++		ap->qcmd[i].private_data = NULL;
+ 
+ 	/* limit to udma5 */
+ 	if (quirks & SIL_QUIRK_UDMA5MAX) {
+@@ -350,7 +641,8 @@
+ static int sil_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	static int printed_version;
+-	struct ata_probe_ent *probe_ent = NULL;
++	struct ata_probe_ent *probe_ent;
++	struct sil_m15w_cxt *m15w_cxt;
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	int rc;
+@@ -383,11 +675,17 @@
+ 	if (rc)
+ 		goto err_out_regions;
+ 
+-	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+-	if (probe_ent == NULL) {
+-		rc = -ENOMEM;
++	rc = -ENOMEM;
++
++	tmp = sizeof(m15w_cxt[0]) * ATA_MAX_PORTS * ATA_MAX_QUEUE;
++	m15w_cxt = kmalloc(tmp, GFP_KERNEL);
++	if (m15w_cxt == NULL)
+ 		goto err_out_regions;
+-	}
++	memset(m15w_cxt, 0, tmp);
++
++	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
++	if (probe_ent == NULL)
++		goto err_out_free_m15w;
+ 
+ 	memset(probe_ent, 0, sizeof(*probe_ent));
+ 	INIT_LIST_HEAD(&probe_ent->node);
+@@ -401,6 +699,7 @@
+        	probe_ent->irq = pdev->irq;
+        	probe_ent->irq_flags = SA_SHIRQ;
+ 	probe_ent->host_flags = sil_port_info[ent->driver_data].host_flags;
++	probe_ent->private_data = m15w_cxt;
+ 
+ 	mmio_base = ioremap(pci_resource_start(pdev, 5),
+ 		            pci_resource_len(pdev, 5));
+@@ -467,6 +766,8 @@
+ 
+ err_out_free_ent:
+ 	kfree(probe_ent);
++err_out_free_m15w:
++	kfree(m15w_cxt);
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
 

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318243AbSHPH06>; Fri, 16 Aug 2002 03:26:58 -0400
+	id <S318248AbSHPHfL>; Fri, 16 Aug 2002 03:35:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSHPH05>; Fri, 16 Aug 2002 03:26:57 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:11527 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S318243AbSHPH05>;
-	Fri, 16 Aug 2002 03:26:57 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200208160730.g7G7UmW39988@saturn.cs.uml.edu>
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-To: arodland@noln.com (Andrew Rodland)
-Date: Fri, 16 Aug 2002 03:30:48 -0400 (EDT)
-Cc: stssppnn@yahoo.com (Stas Sergeev), linux-kernel@vger.kernel.org
-In-Reply-To: <20020814184407.4ca9e406.arodland@noln.com> from "Andrew Rodland" at Aug 14, 2002 06:44:07 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318252AbSHPHfL>; Fri, 16 Aug 2002 03:35:11 -0400
+Received: from smtp.hexanet.fr ([81.23.32.141]:1802 "EHLO smtp.hexanet.fr")
+	by vger.kernel.org with ESMTP id <S318248AbSHPHfL>;
+	Fri, 16 Aug 2002 03:35:11 -0400
+Date: Fri, 16 Aug 2002 09:38:47 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: starfire@dplanet.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Bug in 2.4.19
+Message-Id: <20020816093847.4ae5544e.khali@linux-fr.org>
+Organization: linux-fr
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-portbld-freebsd4.5)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Rodland writes:
 
-> I can get some pretty decent sound out of it, but I also get some
-> horrible noise. Even if I send the driver a stream of zeroes, as soon
-> as it's opened it starts generating some horrible clicks and a
-> high-pitched whine.
-> 
-> Do I blame my motherboard (actually, a laptop)? Is there any way to fix
-> this, or at least improve it?
+Hello
 
-Adding a capacitor is supposed to help a PC speaker
-sound driver.
+> After compiling 2.4.19 (Debian kernel-source-2.4.19-1), I've had
+> several kernel bugs. I've added the messages of two that I got in the
+> log. The others are similar. I re-changed to 2.4.18 (Debian
+> kernel-source-2.4.18-5) and everything works fine.
+
+Are you able to reproduce the problem without loading the NVidia
+drivers? If no, you know who to complain to.
+
+Second question, are the Zip100-drive-related errors in dmesg something
+unusual and thus probably related to the problem?
+
+> I/O error: dev 08:00, sector 0
+> unable to read partition table
+
+If yes, I'd suggest you disable ppa for a while and see if it solves the
+problem.
+
+-- 
+Jean Delvare
 

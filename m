@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264133AbTKUAFe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 19:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264171AbTKUAFe
+	id S264108AbTKUADW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 19:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTKUADW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 19:05:34 -0500
-Received: from gprs147-68.eurotel.cz ([160.218.147.68]:18561 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264133AbTKUAF2 (ORCPT
+	Thu, 20 Nov 2003 19:03:22 -0500
+Received: from [202.81.18.30] ([202.81.18.30]:29625 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S264108AbTKUADU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 19:05:28 -0500
-Date: Fri, 21 Nov 2003 01:06:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaheed <srhaque@iee.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patrick's Test9 suspend code.
-Message-ID: <20031121000604.GA580@elf.ucw.cz>
-References: <200311201726.48097.srhaque@iee.org>
+	Thu, 20 Nov 2003 19:03:20 -0500
+Subject: Re: Announce: ndiswrapper
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: jt@hpl.hp.com
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031120172729.GC14608@bougret.hpl.hp.com>
+References: <20031120031137.GA8465@bougret.hpl.hp.com>
+	 <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com>
+	 <3FBC5036.3020503@pobox.com> <20031120052659.GF22764@holomorphy.com>
+	 <1069311243.5185.192.camel@gaston>
+	 <20031120172729.GC14608@bougret.hpl.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1069372639.876.39.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311201726.48097.srhaque@iee.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 21 Nov 2003 10:57:19 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2003-11-21 at 04:27, Jean Tourrilhes wrote:
+> On Thu, Nov 20, 2003 at 05:54:04PM +1100, Benjamin Herrenschmidt wrote:
+> > 
+> > I know a lot of you don't care, but I hate in those discussions
+> > about binary drivers when what is for me the #1 issue isn't even
+> > mentioned: availability on non-x86 hardware !
+> 
+> 	That's why in the Howto the binary drivers are flagged
+> accordingly. I even add explicit PPC driver for drivers I know work on
+> PPC. What more do you need ?
+> 	I still don't understand why people buy the wrong
+> hardware. You have a choice, exercise it !
 
-> > B) A heuristic that looks at the mounted block devices for things that smell 
-> > like a resume partition would actually be more robust in that case.
-> 
-> How about a static signature followed by a timestamp? That way, maybe we could 
-> have a resume menu like this:
-> 
-> /dev/hda3  (kernel 2.7.88, suspended on 01-04-2004 20:00:00)
-> /dev/hda4  (kernel 2.8.99, suspended on 31-05-2005 20:00:00) ***
-> Resume in 5..4..3..2..1..
-> 
-> with a 5 second countdown before it chooses the most recent? Or in Pavel's 
-> examples:
-> 
-> Erk! Nowhere to resume from! 
+Except when Apple provides built-in Broadcom chipset in all new
+recent Macs...
 
-If you select hda3 at this point, bye bye your data.
+Ben.
 
-									Pavel
-PS: And I mean it. This is not just your average "few more files in
-lost+found" kind of corruption.
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,79 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUAYTfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUAYTfh
+	id S265225AbUAYTbA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUAYTbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:35:37 -0500
-Received: from mail.gmx.de ([213.165.64.20]:15033 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265232AbUAYTfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:35:23 -0500
-X-Authenticated: #12437197
-Date: Sun, 25 Jan 2004 21:35:18 +0200
-From: Dan Aloni <da-x@gmx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] Cooperative Linux
-Message-ID: <20040125193518.GA32013@callisto.yi.org>
+	Sun, 25 Jan 2004 14:31:00 -0500
+Received: from diale017.ppp.lrz-muenchen.de ([129.187.28.17]:34749 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S265225AbUAYTa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 14:30:56 -0500
+Subject: rtl8169 problem and 2.4.23
+From: Daniel Egger <degger@fhm.edu>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rOQzZHKZ5sJxy6aYhxlI"
+Message-Id: <1075059124.13750.38.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 25 Jan 2004 20:32:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello fellow developers, kernel hackers, and open source contributors,
 
-Cooperative Linux is a port of the Linux kernel which allows it 
-to run cooperatively under other operating systems in ring0 without 
-hardware emulation, based on very minimal changes in the architecture 
-dependent code and almost no changes in functionality.
+--=-rOQzZHKZ5sJxy6aYhxlI
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The bottom line is that it allows us to run Linux on an unmodified
-Windows 2000/XP system in a practical way (the user just launches 
-an app), and it may eventually bring Linux to a large sector of desktop 
-computer users who wouldn't even care about trying to install a 
-dual boot system or boot a Linux live CD (like Knoppix).
+Hija,
 
-Screen-shots and further details at:
+I just discovered that the interface doesn't account outgoing bytes, so
+although I'm shoveling GBs over NFS to another machine, ifconfig and
+/proc/net/dev both state that the card hasn't transmitted anything:
 
-    http://www.colinux.org
+eth2      Link encap:Ethernet  HWaddr 00:08:01:a3:64:97,
+          inet addr:192.168.11.2  Bcast:192.168.11.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:297638 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1334930 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:45831863 (43.7 MiB)  TX bytes:0 (0.0 b)
+          Interrupt:4 Base address:0xff00
 
-Our motto is:
+Furthermore the performance is really scary slow: I'm not even getting=20
+100Base-T speeds from an Athlon XP to my G4 PowerBook under MacOS X over
+a PtP connection.
 
-    "If Linux runs on every architecture, why should another 
-     operating system be in its way?"
+What is interesting though is that the machine produces interrupt errors
+which only occur when the card is active:
 
-coLinux is similar to plex86 in a way that it implements a Linux-specific 
-lightweight VM with I/O virtualization. However, it is designed to be 
-mostly host-OS independent, so that with minimal porting efforts it 
-would be possible to run it under Solaris, Linux itself, or any operating 
-system that supports loading kernel drivers, under any architecture that 
-uses an MMU. Unlike other virtualization methods, it doesn't base its 
-implementation on exceptions that are caused by instructions. 
+           CPU0
+  0:  110545371          XT-PIC  timer
+  1:          2          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:      35665          XT-PIC  ohci1394
+  4:    4314949          XT-PIC  eth2
+  8:          4          XT-PIC  rtc
+ 12:   87125964          XT-PIC  eth0
+ 14:    6035586          XT-PIC  ide0
+ 15:    6986897          XT-PIC  ide1
+NMI:          0
+LOC:  110544807
+ERR:      10905
+MIS:          0
 
-Cooperative Linux is like the kernel mode equivalent of User Mode Linux. 
-It relies on the host OS kernel-space interfaces rather than relying on 
-host OS user-space interfaces.
+And this is this output of the driver at initialisation:
 
-Currently, it is stable enough (on some common hardware configurations) 
-for running a fully functional KNOPPIX/Debian system on Windows (see 
-website screen-shots).
+r8169 Gigabit Ethernet driver 1.2 loaded
+PCI: Found IRQ 4 for device 00:0d.0
+r8169: PCI device 00:0d.0: unknown chip version, assuming RTL-8169
+r8169: PCI device 00:0d.0: TxConfig =3D 0x800000
+eth2: Identified chip type is 'RTL-8169'.
+eth2: RealTek RTL8169 Gigabit Ethernet at 0xe093ff00, 00:08:01:a3:64:97, IR=
+Q 4
+eth2: Auto-negotiation Enabled.
+eth2: 1000Mbps Full-duplex operation.
 
-Another project close to achieving that goal is the Windows port of 
-User Mode Linux (http://umlwin32.sf.net).
+--=20
+Servus,
+       Daniel
 
-Project page:
+--=-rOQzZHKZ5sJxy6aYhxlI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-    http://sourceforge.net/projects/colinux 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Thank you for your time,
+iQEVAwUAQBQZtDBkNMiD99JrAQL3VQf/bOTSz8pxGxULvVpodEb6j0oXco11Bxcg
+9N3VYagNbGIuDJE5cxPnme7tTCQ5zImO7CJR7KsLNJQuK4Q4Dn/u8TcBZY75OnJb
+XDsbqEWqgOtJ1z2LYltuByIYbZaLKUjTfPDqzK5a3dPy8L2deP3R04dIP6jZZ4QO
+dTiv329GGVWCYX9dvV+yQqVEwfOzzPyx1PYgbFGP7tcyuUEh/VpnJE+bEwzDdScq
+Lr2V4p2ff8g7BQoFLRJoy9UyL6AYjkGXX4UCvrpjjMyQyXesMjKiRWkMbwmaEkKT
+8I3TcYI/uLCgo/mf2q5DCaN0T8jBoEOlH2rpaygSO84DHCjuZvT4Ww==
+=4AVz
+-----END PGP SIGNATURE-----
 
- - The coLinux development team.
+--=-rOQzZHKZ5sJxy6aYhxlI--
 
-This Open Source project is sponsored and produced by AIST, 2004 
-http://www.aist.go.jp/
-
--- 
-Dan Aloni
-da-x@gmx.net

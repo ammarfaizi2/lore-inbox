@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbUKLHPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUKLHi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbUKLHPR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 02:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbUKLHPR
+	id S262476AbUKLHi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 02:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbUKLHi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 02:15:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47819 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261968AbUKLHPG (ORCPT
+	Fri, 12 Nov 2004 02:38:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:39054 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262476AbUKLHiG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 02:15:06 -0500
-Date: Thu, 11 Nov 2004 23:15:02 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Florian Heinz <heinz@cronon-ag.de>, linux-kernel@vger.kernel.org
-Cc: Chris Wright <chrisw@osdl.org>
-Subject: Re: a.out issue
-Message-ID: <20041111231502.M2357@build.pdx.osdl.net>
-References: <20041111220906.GA1670@dereference.de> <20041111192727.R14339@build.pdx.osdl.net> <20041112035112.GA2075@kurtwerks.com>
+	Fri, 12 Nov 2004 02:38:06 -0500
+Date: Fri, 12 Nov 2004 09:39:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+Message-ID: <20041112083938.GA20732@elte.hu>
+References: <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041112040845.GA26545@nietzsche.lynx.com> <20041112050309.GA1207@nietzsche.lynx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041112035112.GA2075@kurtwerks.com>; from kwall@kurtwerks.com on Thu, Nov 11, 2004 at 10:51:12PM -0500
+In-Reply-To: <20041112050309.GA1207@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kurt Wall (kwall@kurtwerks.com) wrote:
-> On Thu, Nov 11, 2004 at 07:27:27PM -0800, Chris Wright took 39 lines to write:
-> > * Florian Heinz (heinz@cronon-ag.de) wrote:
-> > > seems like find_vma_prepare does not what insert_vm_struct expects when
-> > > the whole addresspace is occupied.
-> > 
-> > The setup_arg_pages() is inserting an overlapping region.  If nothing
-> > else, this will fix that problem.   Perhaps there's a better solution.
-> 
-> It solves the oops here (I didn't get the oops at first because I didn't
-> have CONFIG_BINFMT_AOUT set).
 
-Heh, you're better off with it config'd off ;-)
+* Bill Huey <bhuey@lnxw.com> wrote:
 
-> Sort of. Now I just get "Killed" with
-> vm.overcommit_memory set to 1; with it set to 0 I get a seg fault.
+> > Patch to get rudimentary kgdb support working.
 
-Yeah, it should generate a SIGKILL and terminate the program.  Thanks for
-testing.  The patch below should fixup that segfault as well.
+thanks, the patch looks good. Is this one really needed:
 
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> -static inline unsigned long long cycles_2_ns(unsigned long long cyc)
+> +//static inline
+> +//#error
+> +unsigned long long cycles_2_ns(unsigned long long cyc)
 
+?
 
-===== fs/binfmt_aout.c 1.25 vs edited =====
---- 1.25/fs/binfmt_aout.c	2004-10-18 22:26:36 -07:00
-+++ edited/fs/binfmt_aout.c	2004-11-11 22:28:58 -08:00
-@@ -43,13 +43,18 @@
- 	.min_coredump	= PAGE_SIZE
- };
- 
--static void set_brk(unsigned long start, unsigned long end)
-+#define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
-+
-+static int set_brk(unsigned long start, unsigned long end)
- {
- 	start = PAGE_ALIGN(start);
- 	end = PAGE_ALIGN(end);
--	if (end <= start)
--		return;
--	do_brk(start, end - start);
-+	if (end > start) {
-+		unsigned long addr = do_brk(start, end - start);
-+		if (BAD_ADDR(addr))
-+			return addr;
-+	}
-+	return 0;
- }
- 
- /*
-@@ -413,7 +418,11 @@
- beyond_if:
- 	set_binfmt(&aout_format);
- 
--	set_brk(current->mm->start_brk, current->mm->brk);
-+	retval = set_brk(current->mm->start_brk, current->mm->brk);
-+	if (retval < 0) {
-+		send_sig(SIGKILL, current, 0);
-+		return retval;
-+	}
- 
- 	retval = setup_arg_pages(bprm, EXSTACK_DEFAULT);
- 	if (retval < 0) { 
+	Ingo

@@ -1,64 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292970AbSCMK4a>; Wed, 13 Mar 2002 05:56:30 -0500
+	id <S293074AbSCMLLg>; Wed, 13 Mar 2002 06:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292979AbSCMK4V>; Wed, 13 Mar 2002 05:56:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:17013 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S292970AbSCMK4H>; Wed, 13 Mar 2002 05:56:07 -0500
-Date: Wed, 13 Mar 2002 11:57:13 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: wli@holomorphy.com, wli@parcelfarce.linux.theplanet.co.uk,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
-Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020313115713.E1703@dualathlon.random>
-In-Reply-To: <20020312041958.C687@holomorphy.com> <20020312070645.X10413@dualathlon.random> <20020312112900.A14628@holomorphy.com> <20020312135605.P25226@dualathlon.random> <20020312141439.C14628@holomorphy.com> <20020312160430.W25226@dualathlon.random>, <20020312160430.W25226@dualathlon.random>; <20020312233117.E14628@holomorphy.com> <3C8E98B2.159FA546@zip.com.au> <20020313083055.D21589@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020313083055.D21589@dualathlon.random>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S292996AbSCMLLR>; Wed, 13 Mar 2002 06:11:17 -0500
+Received: from atchoum.office.be.wanadoo.com ([195.74.207.5]:4369 "HELO
+	Atchoum.lan.wanadoo.be") by vger.kernel.org with SMTP
+	id <S292992AbSCMLLJ> convert rfc822-to-8bit; Wed, 13 Mar 2002 06:11:09 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [OOPS] In 2.4.17 __free_pages_ok
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Wed, 13 Mar 2002 12:11:12 +0100
+Message-ID: <92D340F1F4235A4EBC8A872482AE5372DC08C1@exchange.lan.wanadoo.be>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OOPS] In 2.4.17 __free_pages_ok
+Thread-Index: AcHKf6C1ctFDtAZ/T02AQnDcXiO1PQAAASaw
+From: =?iso-8859-1?Q?Fran=E7ois_Baligant_=28Wanadoo=29?= 
+	<francois.baligant@be.wanadoo.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 08:30:55AM +0100, Andrea Arcangeli wrote:
->  {
->  	clear_bit(BH_Wait_IO, &bh->b_state);
->  	clear_bit(BH_Lock, &bh->b_state);
-> +	clear_bit(BH_Launder, &bh->b_state);
->  	smp_mb__after_clear_bit();
->  	if (waitqueue_active(&bh->b_wait))
 
-actually, while refining the patch and integrating it, I audited it some
-more carefully and the above was wrong, we must ensure nobody is able to
-acquire BH_Lock before BH_Launder. So we must also enforce ordering at
-the cpu level.  This is the correct version.
+Hi,
 
-	clear_bit(BH_Wait_IO, &bh->b_state);
-	clear_bit(BH_Launder, &bh->b_state);
-	/* nobody must acquire BH_Lock again before BH_Launder is clear */
-	smp_mb__after_clear_bit();
-	clear_bit(BH_Lock, &bh->b_state);
+This is 2.4.17-0.18 from RedHat Rawhide on a very busy UP Intel Web server.
 
-The race would been nearly impossible to trigger during stress testing,
-you'd need to BH_Lock + GFP_NOFS + alloc_pages + shrink_cache + the
-interesting page is near the end of the lru + try_to_free_buffers +
-sync_page_buffers + wait_on_buffer all in a few cycles (irq handlers
-could trigger it :), but with the huge userbase somebody I don't exclude
-somebody could been really hurted by and anyways it would be still a
-common code bug even if it would not be possible to reproduce it with
-current available hardware.
+I have done quite a bit of search and found a thread about something
+that look similar here:
 
-Note that the above very same race can happen in mainline too on
-architectures where a clear_bit doesn't imply a strong CPU barrier.
-So on the paper your same kind of deadlock could happen on mainline as
-well but there it is reduced to an SMP race and it would affect only
-alpha, ppc and s390. So I'm glad my deadlock is been useful to fix
-another SMP race condition at least :)
+From: Hugh Dickins (hugh@veritas.com)
+Subject: Re: [PATCH] __free_pages_ok oops
+Newsgroups: linux.kernel
 
-Andrea
+Date: 2002-02-07 12:30:11 PST
+http://groups.google.com/groups?q=g:thl114668156d&hl=en&newwindow=1&selm=Pin
+e.LNX.4.21.0202071930320.1533-100000%40localhost.localdomain&rnum=33
+
+I checked in 2.4.18 and 2.4.19pre3, this particular patch didn't make it in.
+
+My question is:
+
+- Am I hit by the same bug ? If yes, Can I go with that particular patch ?
+
+kernel BUG at page_alloc.c:131!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012f92a>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000020   ebx: c152fcf8   ecx: 00000001   edx: 00002183
+esi: 00000000   edi: c1000030   ebp: 00000000   esp: c7f8fde8
+ds: 0018   es: 0018   ss: 0018
+Process httpd (pid: 22189, stackpage=c7f8f000)
+Stack: c02987bb 00000083 c11545c0 c11545f8 c1038030 c02c3408 c1528d30
+c013445d
+       d6149890 00100000 c9f4d4f4 0000f000 17b5f005 c0122e8f c152fcf8
+00000010
+       00000000 4022e000 d48b5400 4012e000 00000000 4022e000 d48b5400
+00000000
+Call Trace: [<c013445d>] page_remove_rmap [kernel] 0x5d
+[<c0122e8f>] do_zap_page_range [kernel] 0x18f
+[<c012feac>] __alloc_pages_limit [kernel] 0x7c
+[<c0123370>] zap_page_range [kernel] 0x50
+[<c0125a9d>] exit_mmap [kernel] 0xbd
+[<c0114796>] mmput [kernel] 0x26
+[<c01189a3>] do_exit [kernel] 0xb3
+[<c011dcb3>] collect_signal [kernel] 0x93
+[<c011dd6d>] dequeue_signal [kernel] 0x6d
+[<c0106da4>] do_signal [kernel] 0x234
+[<c0106275>] restore_sigcontext [kernel] 0x115
+[<c0106359>] sys_sigreturn [kernel] 0xb9
+[<c0106f2c>] signal_return [kernel] 0x14
+Code: 0f 0b 5f 5d 0f b6 43 25 89 f1 c6 43 24 05 89 dd 83 63 18 eb
+
+>>EIP; c012f92a <__free_pages_ok+11a/310>   <=====
+Trace; c013445d <page_remove_rmap+5d/70>
+Trace; c0122e8f <do_zap_page_range+18f/250>
+Trace; c012feac <__alloc_pages_limit+7c/b0>
+Trace; c0123370 <zap_page_range+50/80>
+Trace; c0125a9d <exit_mmap+bd/130>
+Trace; c0114796 <mmput+26/50>
+Trace; c01189a3 <do_exit+b3/1f0>
+Trace; c011dcb3 <collect_signal+93/e0>
+Trace; c011dd6d <dequeue_signal+6d/b0>
+Trace; c0106da4 <do_signal+234/2a0>
+Trace; c0106275 <restore_sigcontext+115/140>
+Trace; c0106359 <sys_sigreturn+b9/f0>
+Trace; c0106f2c <signal_return+14/18>
+Code;  c012f92a <__free_pages_ok+11a/310>
+00000000 <_EIP>:
+Code;  c012f92a <__free_pages_ok+11a/310>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012f92c <__free_pages_ok+11c/310>
+   2:   5f                        pop    %edi
+Code;  c012f92d <__free_pages_ok+11d/310>
+   3:   5d                        pop    %ebp
+Code;  c012f92e <__free_pages_ok+11e/310>
+   4:   0f b6 43 25               movzbl 0x25(%ebx),%eax
+Code;  c012f932 <__free_pages_ok+122/310>
+   8:   89 f1                     mov    %esi,%ecx
+Code;  c012f934 <__free_pages_ok+124/310>
+   a:   c6 43 24 05               movb   $0x5,0x24(%ebx)
+Code;  c012f938 <__free_pages_ok+128/310>
+   e:   89 dd                     mov    %ebx,%ebp
+Code;  c012f93a <__free_pages_ok+12a/310>
+  10:   83 63 18 eb               andl   $0xffffffeb,0x18(%ebx)
+
+regards,
+Francois
+
+
+
+

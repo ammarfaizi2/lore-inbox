@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271712AbRHUOxg>; Tue, 21 Aug 2001 10:53:36 -0400
+	id <S271714AbRHUPCQ>; Tue, 21 Aug 2001 11:02:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271713AbRHUOx0>; Tue, 21 Aug 2001 10:53:26 -0400
-Received: from ultra.sonic.net ([208.201.224.22]:26209 "EHLO ultra.sonic.net")
-	by vger.kernel.org with ESMTP id <S271712AbRHUOxN>;
-	Tue, 21 Aug 2001 10:53:13 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 21 Aug 2001 07:53:26 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
-Message-ID: <20010821075326.A8844@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108200019320.23800-100000@vaio>
-User-Agent: Mutt/1.3.18i
+	id <S271715AbRHUPCG>; Tue, 21 Aug 2001 11:02:06 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:9747 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271714AbRHUPBz>; Tue, 21 Aug 2001 11:01:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
+Date: Tue, 21 Aug 2001 17:08:34 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010820230909.A28422@oisec.net> <15233.37122.901333.300620@abasin.nj.nec.com> <15234.29508.488705.826498@abasin.nj.nec.com>
+In-Reply-To: <15234.29508.488705.826498@abasin.nj.nec.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010821150202Z16034-32383+699@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 20, 2001 at 12:19:49AM +0200, Kai Germaschewski wrote:
-> On Sun, 19 Aug 2001, Chris Oxenreider wrote:
+On August 21, 2001 04:42 pm, Sven Heinicke wrote:
+> Forgive the sin of replying to my own message but Daniel Phillips
+> replied to a different message with a patch to somebody getting a
+> similar error to mine.  Here is the result:
 > 
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.9/kernel/drivers/isdn/eicon/eicon.o
-> > depmod: 	vsnprintf
-> 
-> This patch should fix it:
+> Aug 20 15:10:33 ps1 kernel: cation failed (gfp=0x30/1). 
+> Aug 20 15:10:33 ps1 kernel: __alloc_pages: 0-order allocation failed
+> (gfp=0x30/1). 
+> Aug 20 15:10:46 ps1 last message repeated 327 times 
+> Aug 20 15:10:47 ps1 kernel: cation failed (gfp=0x30/1). 
+> Aug 20 15:10:47 ps1 kernel: __alloc_pages: 0-order allocation failed
+> (gfp=0x30/1). 
+> Aug 20 15:10:56 ps1 last message repeated 294 times 
 
-Hmmm... with that patch, I get the following errors:
+Are you using highmem?  Could you try it with highmem configged off?
 
-make[2]: Entering directory `/usr/src/linux/linux-2.4.9/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux/linux-2.4.9/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i586    -DEXPORT_SYMTAB -c ksyms.c
-ksyms.c:461: `snprintf' undeclared here (not in a function)
-ksyms.c:461: initializer element is not constant
-ksyms.c:461: (near initialization for `__ksymtab_snprintf.value')
-ksyms.c:462: `vsnprintf' undeclared here (not in a function)
-ksyms.c:462: initializer element is not constant
-ksyms.c:462: (near initialization for `__ksymtab_vsnprintf.value')
-make[2]: *** [ksyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/linux-2.4.9/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/linux-2.4.9/kernel'
-make: *** [_dir_kernel] Error 2
-
-Do I have an out of date tool?
-mrc
-
-
-> 
-> diff -u linux-2.4.9/kernel/ksyms.c linux-2.4.9.work/kernel/ksyms.c
-> --- linux-2.4.9/kernel/ksyms.c	Fri Aug 17 09:57:12 2001
-> +++ linux-2.4.9.work/kernel/ksyms.c	Mon Aug 20 00:16:58 2001
-> @@ -458,6 +458,8 @@
->  EXPORT_SYMBOL(printk);
->  EXPORT_SYMBOL(sprintf);
->  EXPORT_SYMBOL(vsprintf);
-> +EXPORT_SYMBOL(snprintf);
-> +EXPORT_SYMBOL(vsnprintf);
->  EXPORT_SYMBOL(kdevname);
->  EXPORT_SYMBOL(bdevname);
->  EXPORT_SYMBOL(cdevname);
-
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+--
+Daniel

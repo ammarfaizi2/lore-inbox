@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbUK0VSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUK0VWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbUK0VSP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUK0VSP
+	id S261333AbUK0VWL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 16:22:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUK0VWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:18:15 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:19256 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261338AbUK0VSN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:18:13 -0500
-Date: Sat, 27 Nov 2004 22:19:23 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
-       dwmw2@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041127211923.GA21765@mars.ravnborg.org>
-Mail-Followup-To: Andreas Steinmetz <ast@domdv.de>,
-	Sam Ravnborg <sam@ravnborg.org>, David Howells <dhowells@redhat.com>,
-	torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
-	dwmw2@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-	libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <20041127210331.GB7857@mars.ravnborg.org> <41A8ED8F.5010402@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A8ED8F.5010402@domdv.de>
-User-Agent: Mutt/1.5.6i
+	Sat, 27 Nov 2004 16:22:11 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:1728 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261333AbUK0VWI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 16:22:08 -0500
+Date: Sat, 27 Nov 2004 22:22:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bernard Normier <bernard@zeroc.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Concurrent access to /dev/urandom
+In-Reply-To: <009501c4d4c6$40b4f270$6400a8c0@centrino>
+Message-ID: <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr>
+References: <006001c4d4c2$14470880$6400a8c0@centrino>
+ <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2004 at 10:11:43PM +0100, Andreas Steinmetz wrote:
-> >If we go for some resturcturing of include/ then we should get rid of
-> >the annoying asm symlink. Following layout deals with that:
-> >
-> >include/<arch>/asm		<= Files from include/asm-<arch>
-> >include/<arch>/mach*		<= Files from include/mach-*
-> >
-> >This layout solve the symlink issue in an elegant way.
-> >We need to do trivial changes to compiler options to make it work. Changing
-> >compiler options is much more relaible than using symlinks.
-> >
-> >Then the userspace part would then be located in:
-> >include/<arch>/user-asm
-> >
-> 
-> This complicates things for bi-arch architectures like x86_64 where one 
-> can use a dispatcher directory instead of a symlink to suit include/asm 
-> for 32bit as well as 64bit.
-X86_64 does not create any special symlinks todays so I do not see the point?
-And still a symlink is just the wrong way to solve the problem.
-Adjusting options to the compiler is the way to do it.
+>As shown in the code included in my first e-mail, each thread simply
+>open("/dev/urandom", O_RDONLY), use read(2) to read 16 bytes, and
+>then close the file descriptor.
+>Duplicates appear quickly on: single CPU with HT, dual CPU without HT,
+>and dual CPU with HT (all with smp kernels)
+>But not on a lower end single CPU without HT (2.6.8-1.521 non-smp).
 
-	Sam
+Ok, so it is a case of two "kernel-side" CPUs.
+
+>> Rule of thumb: Post the smallest possible code that shows the problem.
+>Will do next time!
+
+That would be great, because it could show that urandom is missing a lock
+somewhere.
+
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132081AbQLVUEr>; Fri, 22 Dec 2000 15:04:47 -0500
+	id <S130471AbQLVUHR>; Fri, 22 Dec 2000 15:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbQLVUEh>; Fri, 22 Dec 2000 15:04:37 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:16134 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S132256AbQLVUE0>; Fri, 22 Dec 2000 15:04:26 -0500
-Date: Fri, 22 Dec 2000 21:33:58 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre3
-Message-ID: <20001222213358.A5829@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S131577AbQLVUHH>; Fri, 22 Dec 2000 15:07:07 -0500
+Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:786 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S130471AbQLVUG7>; Fri, 22 Dec 2000 15:06:59 -0500
+Date: Fri, 22 Dec 2000 14:35:33 -0500
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+Message-ID: <16230000.977513733@coffee>
+In-Reply-To: <3A438545.2D9998AE@innominate.de>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 12:52:32AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 12:52:32AM +0000, Alan Cox wrote:
+
+
+On Friday, December 22, 2000 17:45:57 +0100 Daniel Phillips
+<phillips@innominate.de> wrote:
+
+[ flushing a page at a time in bdflush ]
+
+> Um.  Why cater to the uncommon case of 1K blocks?  Just let
+> bdflush/kupdated deal with them in the normal way - it's pretty
+> efficient.  Only try to do the clustering optimization when buffer size
+> matches memory page size.
 > 
-> 2.2.19pre3
-> o	Fix e820 handling				(Andrea Arcangeli)
 
+This isn't really an attempt at a clustering optimization.  The problem at
+hand is that buffer cache buffers can be on relatively random pages.  So, a
+page might have buffers that are very far apart, where one needs flushing
+and the other doesn't.
 
-arch/i386/kernel/setup.c:
+In the blocksize == page size case, this won't happen, and we don't lose
+any speed over the existing code.  In the blocksize < pagesize case, my new
+code is slower, so my goal is to fix just that problem.
 
-                /* compare results from other methods and take the greater */
-                if (ALT_MEM_K < EXT_MEM_K) {
-                        mem_size = EXT_MEM_K;
-                        who = "BIOS-88";
-                } else {
-                        mem_size = ALT_MEM_K;
-                        who = "BIOS-e801";
-                }
- 
-                e820.nr_map = 0;
--               add_memory_region(0, LOWMEMSIZE(), E820_RAM);
--               add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
-+               add_memory_region(0, i386_endbase, E820_RAM);
-+               add_memory_region(HIGH_MEMORY, (mem_size << 10)-HIGH_MEMORY,
-+                                E820_RAM);
+Real write clustering would be a different issue entirely, and is worth
+doing ;-)
 
-I think in case of BIOS-88 it now sees 1 Meg less than should. int 15, ah=88
-gives the amount of extended memory above 1 Meg and it gets copied to
-EXT_MEM_K. So HIGH_MEMORY should not be subtracted from it. (On the other
-hand in case of BIOS-e801 ALT_MEM_K includes lower memory. I guess the
-direct comparison of memory sizes ALT_MEM_K and EXT_MEM_K is not ok.)
+-chris
 
-linux-2.2.19pre3 on my 486 with 49152 k of RAM:
-
-BIOS-provided physical RAM map:
- BIOS-88: 000a0000 @ 00000000 (usable)
- BIOS-88: 02e00000 @ 00100000 (usable)
-Memory: 46128k/48128k available
-
-linux-2.2.18 or linux-2.2.19pre2 :
-
-Memory: 47144k/49152k available
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

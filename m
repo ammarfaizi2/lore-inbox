@@ -1,128 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTA0RiN>; Mon, 27 Jan 2003 12:38:13 -0500
+	id <S267257AbTA0Rqj>; Mon, 27 Jan 2003 12:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267253AbTA0RiN>; Mon, 27 Jan 2003 12:38:13 -0500
-Received: from u156n240.eastlink.ca ([24.224.156.240]:56204 "EHLO
-	ns1.danicar.net") by vger.kernel.org with ESMTP id <S267248AbTA0RiL>;
-	Mon, 27 Jan 2003 12:38:11 -0500
-Message-ID: <28774.207.34.24.8.1043689627.squirrel@www.danicar.net>
-Date: Mon, 27 Jan 2003 13:47:07 -0400 (AST)
-Subject: Adaptec scsi issue kernel 2.4.19/20
-From: "Joe Gofton" <jgofton@danicar.net>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-Reply-To: jgofton@danicar.net
-X-Mailer: SquirrelMail (version 1.2.10)
+	id <S267260AbTA0Rqi>; Mon, 27 Jan 2003 12:46:38 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:3333 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267257AbTA0Rqd>;
+	Mon, 27 Jan 2003 12:46:33 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301271755.h0RHtgXu000960@darkstar.example.net>
+Subject: Re: Adaptec scsi issue kernel 2.4.19/20
+To: jgofton@danicar.net
+Date: Mon, 27 Jan 2003 17:55:42 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <28774.207.34.24.8.1043689627.squirrel@www.danicar.net> from "Joe Gofton" at Jan 27, 2003 01:47:07 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having an issue with my scsi card.  Here is some info.
+> Is there a known problem and is there a fix?  I can't seem to upgrade my
+> kernel without scsi issues.
 
-jgofton@ns1:/var/log$ lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
-PRO133x] (rev c4)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
-MVP3/Pro133x AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
-(rev 40)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:08.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 215GP
-(rev 5c)
-00:09.0 SCSI storage controller: Adaptec AHA-2940U2/W
-00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
-00:0a.1 Input device controller: Creative Labs SB Live! (rev 01)
-00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21140
-[FasterNet] (rev 20)
-00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-(rev 64)
+I have an Adaptec 2940AU which has worked perfectly with 2.4.18,
+2.4.19, 2.4.20, including various pre and rc trees.  The only problem
+I've had recently was 2.4.19-pre1, which has a known compile issue,
+which was fixed in 2.4.19-pre2.  The 2.5.x tree has worked fine with
+my 2940AU for months.
 
+So, it's not a general problem with the adaptec driver.
 
-This is what shows in the messages.log file: 2.4.20
-
-Dec  1 11:10:32 ns1 kernel: SCSI subsystem driver Revision: 1.00
-Dec  1 11:10:32 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA
-DRIVER, Rev 6.2.8
-Dec  1 11:10:32 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
-Dec  1 11:10:32 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
-SCSI Id=7, 32/253 SCBs
-Dec  1 11:10:32 ns1 kernel:
-Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
-Rev: 0230
-Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access                     
-ANSI SCSI revision: 03
-Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
-Rev: 0230
-Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access                     
-ANSI SCSI revision: 03
-Dec  1 11:10:32 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
-Dec  1 11:10:32 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
-Dec  1 11:10:32 ns1 kernel: scsi: <fdomain> Detection failed (no card)
-Dec  1 11:10:32 ns1 kernel: PCI: Enabling device 00:09.0 (0006 -> 0007)
-Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
-Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
-Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
-Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
-Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
-Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
-Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
-Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
-
-and this is one that works. 2.4.18:
-
-
-Dec  1 11:16:16 ns1 kernel: SCSI subsystem driver Revision: 1.00
-Dec  1 11:16:16 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA
-DRIVER, Rev 6.2.4
-Dec  1 11:16:16 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
-Dec  1 11:16:16 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
-SCSI Id=7, 32/253 SCBs
-Dec  1 11:16:16 ns1 kernel:
-Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
-Rev: 0230
-Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access                     
-ANSI SCSI revision: 03
-Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
-Rev: 0230
-Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access                     
-ANSI SCSI revision: 03
-Dec  1 11:16:16 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
-Dec  1 11:16:16 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
-Dec  1 11:16:16 ns1 kernel: scsi: <fdomain> Detection failed (no card)
-Dec  1 11:16:16 ns1 kernel: PCI: Enabling device 00:09.0 (0006 -> 0007)
-Dec  1 11:16:16 ns1 kernel: Attached scsi disk sda at scsi0, channel 0, id
-0, lun 0
-Dec  1 11:16:16 ns1 kernel: Attached scsi disk sdb at scsi0, channel 0, id
-1, lun 0
-Dec  1 11:16:16 ns1 kernel: (scsi0:A:0): 80.000MB/s transfers (40.000MHz,
-offset 63, 16bit)
-Dec  1 11:16:16 ns1 kernel: SCSI device sda: 35861388 512-byte hdwr
-sectors (18361 MB)
-Dec  1 11:16:16 ns1 kernel: Partition check:
-Dec  1 11:16:16 ns1 kernel:  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
-Dec  1 11:16:16 ns1 kernel: (scsi0:A:1): 80.000MB/s transfers (40.000MHz,
-offset 63, 16bit)
-Dec  1 11:16:16 ns1 kernel: SCSI device sdb: 35861388 512-byte hdwr
-sectors (18361 MB)
-Dec  1 11:16:16 ns1 kernel:  sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 sdb6 sdb7 >
-
-Is there a known problem and is there a fix?  I can't seem to upgrade my
-kernel without scsi issues.
-
-
-
--- 
-Joe
-
-***
-I can only please one person a day.
-Today is not your day and tomorrow doesn't look good either.
-***
-
-
-
+John.

@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVAPMJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVAPMMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVAPMJc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 07:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVAPMJb
+	id S262493AbVAPMMO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 07:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVAPMMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 07:09:31 -0500
-Received: from verein.lst.de ([213.95.11.210]:62429 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262492AbVAPMJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 07:09:20 -0500
-Date: Sun, 16 Jan 2005 13:09:11 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Christoph Hellwig <hch@lst.de>, davej@codemonkey.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix CONFIG_AGP depencies
-Message-ID: <20050116120911.GA14085@lst.de>
-References: <20050116114457.GA13506@lst.de> <20050116120550.GQ4274@stusta.de>
+	Sun, 16 Jan 2005 07:12:13 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:35600 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262493AbVAPML4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 07:11:56 -0500
+Subject: Re: patch to fix set_itimer() behaviour in boundary cases
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, matthias@corelatus.se,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1105830384.16028.11.camel@localhost.localdomain>
+References: <16872.55357.771948.196757@antilipe.corelatus.se>
+	 <20050115013013.1b3af366.akpm@osdl.org>
+	 <1105830384.16028.11.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 16 Jan 2005 13:11:36 +0100
+Message-Id: <1105877497.8462.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050116120550.GQ4274@stusta.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 01:05:50PM +0100, Adrian Bunk wrote:
-> This doesn't seem to achieve what you want:
-> PPC is defined on ppc64...
+On Sun, 2005-01-16 at 00:58 +0000, Alan Cox wrote:
+> On Sad, 2005-01-15 at 09:30, Andrew Morton wrote:
+> > Matthias Lang <matthias@corelatus.se> wrote:
+> > These are things we probably cannot change now.  All three are arguably
+> > sensible behaviour and do satisfy the principle of least surprise.  So
+> > there may be apps out there which will break if we "fix" these things.
+> > 
+> > If the kernel version was 2.7.0 then well maybe...
+> 
+> These are things we should fix. They are bugs. Since there is no 2.7
+> plan pick a date to fix it. We should certainly error the overflow case
+> *now* because the behaviour is undefined/broken. The other cases I'm not
+> clear about. setitimer() is a library interface and it can do the basic
+> checking and error if it wants to be strictly posixly compliant.
 
-*grmbl*
+why error?
+I'm pretty sure we can make a loop in the setitimer code that detects
+we're at the end of jiffies but haven't upsurped the entire interval the
+user requested yet, so that the code should just do another round of
+sleeping...
 
 
---- 1.39/drivers/char/agp/Kconfig	2005-01-08 01:15:52 +01:00
-+++ edited/drivers/char/agp/Kconfig	2005-01-16 11:39:56 +01:00
-@@ -1,5 +1,6 @@
- config AGP
--	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU && !M68K && !ARM
-+	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU
-+	depends on ALPHA || IA64 || PPC32 || X86
- 	default y if GART_IOMMU
- 	---help---
- 	  AGP (Accelerated Graphics Port) is a bus system mainly used to

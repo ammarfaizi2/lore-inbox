@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282547AbRKZVNL>; Mon, 26 Nov 2001 16:13:11 -0500
+	id <S282555AbRKZVON>; Mon, 26 Nov 2001 16:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282555AbRKZVMz>; Mon, 26 Nov 2001 16:12:55 -0500
-Received: from [140.249.38.181] ([140.249.38.181]:33804 "EHLO
-	neptune.cuseeme.com") by vger.kernel.org with ESMTP
-	id <S282547AbRKZVMh>; Mon, 26 Nov 2001 16:12:37 -0500
-Message-ID: <6A5AF4EA59EB214BB0267741CE2C86EF0E07F5@neptune.cuseeme.com>
-From: Brian Raymond <braymond@fvc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Async UDP I/O?
-Date: Mon, 26 Nov 2001 16:07:02 -0500
+	id <S282556AbRKZVOC>; Mon, 26 Nov 2001 16:14:02 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:64009 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S282555AbRKZVNy> convert rfc822-to-8bit; Mon, 26 Nov 2001 16:13:54 -0500
+From: Steve Brueggeman <xioborg@yahoo.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Date: Mon, 26 Nov 2001 15:14:06 -0600
+Message-ID: <b0b50u0s566g9fusmrfs275lsjvr0dd0hu@4ax.com>
+In-Reply-To: <k1t40uciislnibv9927hekv82ejgu3eahb@4ax.com> <Pine.LNX.4.10.10111261232140.8817-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10111261232140.8817-100000@master.linux-ide.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been looking for some information on what the Linux kernel offers in
-regard to async UDP traffic but haven't had much luck so I thought I would
-throw this out to the list.
+Well, since you don't clearify what part you object to, I'll have to
+assume that you object to my statement that the disk drive will not
+auto-reallocate when it cannot recover the data.
 
-I work for a software company that make software MCUs (Multipoint control
-units - Video Conferencing). In a pure sense they are simply media routers
-which handle almost exclusively UDP traffic. We currently run under Linux,
-Solaris and Windows but because of the lack of any real asynchronous UDP
-mechanisms in Linux or Solaris we are getting the best performance on our
-Windows boxes. There are a lot of *NIX guys around here (including me) who
-don't like that Windows takes the cake. We are working with Sun on improving
-the async UDP in Solaris 9 but haven't had any real success yet.
+If you think that a disk drive should auto-reallocate a sector (ARRE
+enabled in the mode pages) that it cannot recover the original data
+from, than you can dream on.  I seriously hope this is not what you're
+recommending for ATA.  If a disk drive were to auto-reallocate a
+sector that it couldn't get valid data from, you'd have serious
+corruptions probelms!!!  Tell me, what data should exist in the sector
+that gets reallocated if it cannot retrieve the data the system
+believes to be there???  If the reallocated sector has random data,
+and the next read to it doesn't return an error, than the system will
+get no indication that it should not be using that data.
 
-Currently we do the same thing in Linux that we do for Solaris; open up
-threads for the UDP traffic and have them wait for the data. This obviously
-leads to rather poor performance. I know a lot more about the specifics of
-our Solaris issues but I assume they apply to Linux as well. Currently
-Windows gives us the ability to send out packets asynchronously and then
-report to us where the packets have gone. Along with that when data is
-received it can be copied directly from the kernel to our app. For our other
-OSes it needs to be copied into user space and then into our app.
+If the unrecoverable error happens durring a write, the disk drive
+still has the data in the buffer, so auto-reallocation on writes (AWRE
+enabled in the mode pages), is usually OK
 
-I don't really know of any answers right now but I would love to hear back
-from anyone about what we might be able to do with this. We don't have
-nearly the resources we used to so we might be over looking some facilities
-offered in the 2.4 kernel that weren't in the 2.2 so I would love to hear
-anything.
+That said, it'd be my bet that most disk drives still have a window of
+opportunity durring the reallocation operation, where if the drive
+lost power, they'd end up doing bad things.
 
-Thanks,
+You can force a reallocation, but the data you get when you first read
+that unreadable reallocated sector is usually undefined, and often is
+the data pattern written when the drive was low-level formatted.
 
-Brian Raymond
+That IS what is done, my knowledge is also first hand.
+
+I have no descrepency with your description of how spare sectors are
+dolled out.
+
+Steve Brueggeman
+
+
+On Mon, 26 Nov 2001 12:36:02 -0800 (PST), you wrote:
+
+>
+>Steve,
+>
+>Dream on fellow, it is SOP that upon media failure the device logs the
+>failure and does an internal re-allocation in the slip-sector stream.
+>If the media is out of slip-sectors then it does an out-of-bounds
+>re-allocation.  Once the total number of out-of-bounds sectors are gone
+>you need to deal with getting new media or exectute a seek and purge
+>operation; however, if the badblock list is full you are toast.
+>
+>That is what is done - knowledge is first hand.
+>
+>Regards,
+>
+>Andre Hedrick
+>CEO/President, LAD Storage Consulting Group
+>Linux ATA Development
+>Linux Disk Certification Project
+>
+>On Mon, 26 Nov 2001, Steve Brueggeman wrote:
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUKCT4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbUKCT5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUKCT4S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbUKCTzi
+	id S261850AbUKCT5e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUKCT4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:55:38 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:30341 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261853AbUKCTj4
+	Wed, 3 Nov 2004 14:56:48 -0500
+Received: from minimail.digi.com ([204.221.110.13]:27100 "EHLO
+	minimail.digi.com") by vger.kernel.org with ESMTP id S261833AbUKCTzw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:39:56 -0500
-Date: Wed, 3 Nov 2004 20:42:26 +0100
-From: DervishD <lkml@dervishd.net>
-To: Gene Heskett <gheskett@wdtv.com>
-Cc: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041103194226.GA23379@DervishD>
-Mail-Followup-To: Gene Heskett <gheskett@wdtv.com>,
-	linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031353.39468.gene.heskett@verizon.net> <200411031906.iA3J6QCj018875@turing-police.cc.vt.edu> <200411031426.23880.gheskett@wdtv.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200411031426.23880.gheskett@wdtv.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 3 Nov 2004 14:55:52 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: patch for sysfs in the cyclades driver
+Date: Wed, 3 Nov 2004 13:55:51 -0600
+Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81B@minimail.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: patch for sysfs in the cyclades driver
+Thread-Index: AcTBUcocM2la3948SzWTQ/WwNStlyQAi6wjQ
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <germano.barreiro@cyclades.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Gene :)
+Hi Greg, all,
 
- * Gene Heskett <gheskett@wdtv.com> dixit:
-> >Traditionally, a common cause for such wedging was a lost/misplaced
-> > interrupt from an I/O operation, so a read()/write()/ioctl() call
-> > wouldn't return because the device hadn't reported it completed.
-> > (tape drives were notorious for this). Often, power-cycling the I/O
-> > device would cause an unsolicited interrupt to be generated, which
-> > would clear the "waiting for interrupt" issue and allow the process
-> > to return....
-> Well, since the "device", a bt878 based Haupagge tv card is sitting in 
-> a pci socket, thats even more drastic than a reboot.
+> What's wrong with the kobject in /sys/class/tty/ which has one object
+> per port?  I think we might not be exporting that class_device
+> structure, but I would not have a problem with doing that.
+> greg k-h
 
-    Do you mean your Hauppage got stuck in disk-sleep state? Wow,
-that's sound *weird*...
+Using the simple class tty kobject that tty_io.c keeps might work for my
+needs.
 
-    I think that the parent (which is whatever process did the fork
-when you clicked your mouse) is still alive and forgetting to do the
-'wait()' for its children.
- 
-    Raúl Núñez de Arenas Coronado
+However, there is one thing that stopped me from using it earlier...
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
+The naming of the directory (tty name) in /sys/class/tty is forced to
+be:
+"sprintf(p, "%s%d", driver->name, index + driver->name_base);"
+
+Is it possible we could change this to be more relaxed about the naming
+scheme?
+
+Maybe we can allow a "custom" name to be sent into the
+tty_register_device() call?
+Like add another option parameter called "custom_name" that if non-NULL,
+is used instead of the derived name?
+
+Scott Kilau
+Digi International
+
+
+
+
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Tuesday, November 02, 2004 8:28 PM
+To: Kilau, Scott
+Cc: germano.barreiro@cyclades.com; linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+
+
+On Tue, Nov 02, 2004 at 02:51:33PM -0600, Kilau, Scott wrote:
+> I know you have done work on USB serial drivers with devices with
+> multiple ports...
+> Is there any way to create a file in sys that can point back to a
+port,
+> and NOT the port's
+> parent (ie, the board) WITHOUT having to create a new kobject per
+port?
+
+> What's wrong with the kobject in /sys/class/tty/ which has one object
+> per port?  I think we might not be exporting that class_device
+> structure, but I would not have a problem with doing that.
+> greg k-h

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSJ1PID>; Mon, 28 Oct 2002 10:08:03 -0500
+	id <S261293AbSJ1PFG>; Mon, 28 Oct 2002 10:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJ1PHe>; Mon, 28 Oct 2002 10:07:34 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:60069 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261286AbSJ1PG4>;
-	Mon, 28 Oct 2002 10:06:56 -0500
-Date: Mon, 28 Oct 2002 15:13:09 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Andi Kleen <ak@suse.de>, eggert@twinsun.com, linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-Message-ID: <20021028151309.GB16546@bjl1.asuk.net>
-References: <20021028151533.D18441@wotan.suse.de> <Pine.GSO.3.96.1021028152012.977D-100000@delta.ds2.pg.gda.pl>
+	id <S261297AbSJ1PFF>; Mon, 28 Oct 2002 10:05:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53145 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261293AbSJ1PFF>;
+	Mon, 28 Oct 2002 10:05:05 -0500
+Date: Mon, 28 Oct 2002 16:08:32 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [patch][cft] zero-copy dma cd writing and ripping
+Message-ID: <20021028150832.GF2937@suse.de>
+References: <20021018155650.GJ15494@suse.de> <20021028.043507.104714061.davem@redhat.com> <20021028124240.GC872@suse.de> <1035816048.8970.1.camel@rth.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.3.96.1021028152012.977D-100000@delta.ds2.pg.gda.pl>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1035816048.8970.1.camel@rth.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> > It's impossible. There is no space left in struct stat64
-> > And adding a new syscall just for that would be severe overkill.
+On Mon, Oct 28 2002, David S. Miller wrote:
+> On Mon, 2002-10-28 at 04:42, Jens Axboe wrote:
+> > > This work reminds me that get_user_pages() (or it's callers)
+> > > need to be doing some flush_dcache_page()
+> > 
+> > Was wondering about that. Can you tell me what it needs? And what about
+> > bio_unmap_user(), surely that needs to flush cache as well for reads?
 > 
->  Well, possibly more stuff could benefit from new stat syscalls, like a
-> st_gen member for inode generations.  And as someone suggested, a version
-> number or a length could be specified by the calls this time to permit
-> less disturbing expansion in the future. 
+> Documentation/cachetlb.txt describes where flush_dcache_page is needed.
+> If that doesn't describe it enough for you, that is a bug and please
+> tell me what part is confusing so I may make the document better.
 
-It's already there.  The kernel stat64() syscall has a flags argument,
-which is unused at the moment.  I presume it's for this purpose.
+Ok what I make of this is that from bio_map_user() (which does a
+get_user_pages() I need to do a
 
-Glibc aleady uses a version number for its stat() calls, to permit
-binary compatible extensions on the user side.
+	if (write_to_vm)
+		flush_dcache_page(page);
 
-So all the mechanism is there AFAIK.
+and in bio_unmap_user() I do
 
--- Jamie
+	if (!write_to_vm)
+		flush_dcache_page(page);
+
+is that correct?
+
+-- 
+Jens Axboe
+

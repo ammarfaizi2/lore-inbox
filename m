@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVCKEzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263127AbVCKE75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbVCKEzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 23:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVCKEzy
+	id S263127AbVCKE75 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 23:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbVCKE74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 23:55:54 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45032 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262966AbVCKEzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 23:55:48 -0500
-Date: Thu, 10 Mar 2005 20:55:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jody McIntyre <scjody@modernduck.com>
-Cc: linux-kernel@vger.kernel.org, willy@debian.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: [PATCH, RFC 1/3] Add sem_getcount() to arches that lack it
-Message-Id: <20050310205503.6151ab83.akpm@osdl.org>
-In-Reply-To: <20050311000646.GJ1111@conscoop.ottawa.on.ca>
-References: <20050311000646.GJ1111@conscoop.ottawa.on.ca>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Mar 2005 23:59:56 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:41918 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263127AbVCKE7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 23:59:44 -0500
+Message-ID: <4231258C.3060400@nortel.com>
+Date: Thu, 10 Mar 2005 22:58:52 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] -stable, how it's going to work.
+References: <20050309072833.GA18878@kroah.com>	<16944.6867.858907.990990@cse.unsw.edu.au>	<1110449872.6291.64.camel@laptopd505.fenrus.org> <16944.63807.579725.848224@cse.unsw.edu.au>
+In-Reply-To: <16944.63807.579725.848224@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jody McIntyre <scjody@modernduck.com> wrote:
->
-> parisc and frv define sem_getcount() in semaphore.h, which returns the
->  current semaphore value.  This is cleaner than doing
->  atomic_read(&semaphore.count), currently done in
->  drivers/ieee1394/nodemgr.c and fs/xfs/linux-2.6/xfs_buf.c, and will work
->  on all architectures if sem_getcount() is added.
+Neil Brown wrote:
 
-That's a fairly bizarre thing to want to do.  Would it be hard to modify
-xfs and 1394 to stop wanting to read a semaphore's up() count?
+> If a data corruption bug has been there for 10 weeks without being
+> noticed, then the real risk is not that great.  We are calling it
+> "-release", not "-hardened".
 
-(Why do they want to do this anyway?)
+I disagree.  If there's a simple, obvious, small fix that passes all the 
+other criteria, it should go into -stable ASAP after passing review. 
+Then the -stable maintainers will push the fix to Andrew/Linux, and it 
+will go into the next 2.6.x.
+
+Let's keep -stable as good as possible, while still abiding by all the 
+other rules.
+
+Chris

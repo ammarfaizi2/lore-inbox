@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261373AbSJYMX4>; Fri, 25 Oct 2002 08:23:56 -0400
+	id <S261381AbSJYM1R>; Fri, 25 Oct 2002 08:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSJYMX4>; Fri, 25 Oct 2002 08:23:56 -0400
-Received: from B543a.pppool.de ([213.7.84.58]:16604 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261373AbSJYMXz>; Fri, 25 Oct 2002 08:23:55 -0400
-Subject: Re: One for the Security Guru's
-From: Daniel Egger <degger@fhm.edu>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ap8fjq$8ia$1@forge.intermeta.de>
-References: <20021023130251.GF25422@rdlg.net>
-	<1035411315.5377.8.camel@god.stev.org>  <ap8fjq$8ia$1@forge.intermeta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LjyeafQ8TeztH9BvNsJT"
-Message-Id: <1035500731.439.4.camel@sonja.de.interearth.com>
+	id <S261383AbSJYM1R>; Fri, 25 Oct 2002 08:27:17 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:27110 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261381AbSJYM1Q>;
+	Fri, 25 Oct 2002 08:27:16 -0400
+Date: Fri, 25 Oct 2002 18:09:21 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.44-mm5
+Message-ID: <20021025180921.B14451@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <1035547268.3db9328488960@kolivas.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Oct 2002 14:28:56 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1035547268.3db9328488960@kolivas.net>; from conman@kolivas.net on Fri, Oct 25, 2002 at 12:04:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 25, 2002 at 12:04:22PM +0000, Con Kolivas wrote:
+> 
+> Compile failure (gcc3.2):
+> 
+>   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+> -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
+> -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version
+>   -c -o init/version.o init/version.c
+>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
+>         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
+> arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
+> --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o 
+> arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o 
+> fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a 
+> arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o 
+> arch/i386/pci/built-in.o  arch/i386/oprofile/built-in.o  net/built-in.o
+> --end-group  -o .tmp_vmlinux1
+> kernel/built-in.o: In function `sched_init':
+> kernel/built-in.o(.init.text+0xc4): undefined reference to `init_kstat'
+> make: *** [.tmp_vmlinux1] Error 1
 
---=-LjyeafQ8TeztH9BvNsJT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The patch below should fix your problem, hopefully. Although I 
+don't understand why kstat initialization isn't in common code.
+I will try to fix it the right way later.
 
-Am Don, 2002-10-24 um 11.47 schrieb Henning P. Schmiedehausen:
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-> Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
-> server. What is this? Microsoft Windows <insert your poison here>" ?
 
-Don't laugh; I had such a box reinstalled from ground just the day
-before yesterday because I found a RedHat full Install on it. Not to
-mention that there're "admins" out there who use GNOME as root on a
-fairly busy mailserver <shudder>...
 
---=20
-Servus,
-       Daniel
-
---=-LjyeafQ8TeztH9BvNsJT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQA9uHy7chlzsq9KoIYRAmtCAKCCyQXZHsHtawXi6ejSNWxvBimFCACeJY1O
-At4R5MWUI07IKcdDoqXGL0M=
-=gO9S
------END PGP SIGNATURE-----
-
---=-LjyeafQ8TeztH9BvNsJT--
-
+diff -urN linux-2.5.44-mm5/kernel/sched.c linux-2.5.44-mm5-fix/kernel/sched.c
+--- linux-2.5.44-mm5/kernel/sched.c	Fri Oct 25 15:11:06 2002
++++ linux-2.5.44-mm5-fix/kernel/sched.c	Fri Oct 25 15:40:01 2002
+@@ -2160,6 +2160,8 @@
+  * Don't use in new code.
+  */
+ spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
++#else
++static inline void init_kstat(void) { }
+ #endif
+ 
+ void __init sched_init(void)
 

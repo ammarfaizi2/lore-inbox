@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131804AbRBKDBW>; Sat, 10 Feb 2001 22:01:22 -0500
+	id <S131839AbRBKDrq>; Sat, 10 Feb 2001 22:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131871AbRBKDBM>; Sat, 10 Feb 2001 22:01:12 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:5338 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S131851AbRBKDAz>; Sat, 10 Feb 2001 22:00:55 -0500
-Date: Sun, 11 Feb 2001 03:00:35 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon.local>
-To: Alan Cox <alan@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Obsolete info in configure.help
-Message-ID: <Pine.LNX.4.31.0102110258540.4383-100000@athlon.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131858AbRBKDrg>; Sat, 10 Feb 2001 22:47:36 -0500
+Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:52234 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S131839AbRBKDrY>; Sat, 10 Feb 2001 22:47:24 -0500
+Date: Sat, 10 Feb 2001 19:47:20 -0800
+Message-Id: <200102110347.f1B3lK224712@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Nathan Neulinger <nneul@umr.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with adding starfire driver to kernel 2.2.18
+X-Newsgroups: cs.lists.linux-kernel
+In-Reply-To: <cs.lists.linux-kernel/3A85C4A9.8CAD6466@umr.edu>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 10 Feb 2001 16:46:01 -0600, Nathan Neulinger <nneul@umr.edu> wrote:
 
-Hi Alan,
- If the 8129 is to be removed, may as well remove its appropriate
-entry in configure.help
+> Any ideas on how I can correct this symptom?
 
-regards,
+This seems to be Donald Becker's driver, right? Please try with the
+starfire driver for 2.2.x I posted a few hours ago to the list. If you
+don't have it, contact me privately and I'll resend it to you.
 
-Dave.
+Becker's PCI detection code is known to have, well, "issues".
+
+Thanks,
+Ion
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
-diff -urN --exclude-from=/home/davej/.exclude linux/Documentation/Configure.help linux-dj/Documentation/Configure.help
---- linux/Documentation/Configure.help	Sat Feb 10 02:49:29 2001
-+++ linux-dj/Documentation/Configure.help	Sat Feb 10 03:06:08 2001
-@@ -8678,22 +8678,6 @@
-   The module will be called ni65.o. If you want to compile it as a
-   module, say M here and read Documentation/modules.txt as well as
-   Documentation/networking/net-modules.txt.
--
--RealTek 8129 (not 8019/8029/8139!) support (EXPERIMENTAL)
--CONFIG_RTL8129
--  This is NOT for RTL-8139 cards.  Instead, select the 8139too driver
--  (CONFIG_8139TOO).
--  This is a driver for the Fast Ethernet PCI network cards based on
--  the RTL8129 chip. If you have one of those, say Y and
--  read the Ethernet-HOWTO, available from
--  http://www.linuxdoc.org/docs.html#howto .
--
--  Note: the 8029 is a NE2000 PCI clone, you can use the NE2K-PCI driver.
--
--  If you want to compile this driver as a module ( = code which can be
--  inserted in and removed from the running kernel whenever you want),
--  say M here and read Documentation/modules.txt. This is recommended.
--  The module will be called rtl8129.o.
-
- RealTek RTL-8139 PCI Fast Ethernet Adapter support
- CONFIG_8139TOO
-
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

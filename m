@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbRESGy5>; Sat, 19 May 2001 02:54:57 -0400
+	id <S261670AbRESG6H>; Sat, 19 May 2001 02:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbRESGyh>; Sat, 19 May 2001 02:54:37 -0400
-Received: from www.wen-online.de ([212.223.88.39]:40970 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261668AbRESGyd>;
-	Sat, 19 May 2001 02:54:33 -0400
-Date: Sat, 19 May 2001 08:45:57 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.21.0105182310580.5531-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0105190705550.491-100000@mikeg.weiden.de>
+	id <S261678AbRESG55>; Sat, 19 May 2001 02:57:57 -0400
+Received: from ha2.rdc2.nsw.optushome.com.au ([203.164.2.51]:16609 "EHLO
+	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
+	id <S261669AbRESG5s>; Sat, 19 May 2001 02:57:48 -0400
+Message-ID: <3B06194B.C487240C@gnu.org>
+Date: Sat, 19 May 2001 16:57:15 +1000
+From: Andrew Clausen <clausen@gnu.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ben LaHaise <bcrl@redhat.com>
+CC: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+ inuserspace
+In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Rik van Riel wrote:
+Ben LaHaise wrote:
+> The work-in-progress patch for-demonstration-purposes-only below consists
+> of 3 major components, and is meant to start discussion about the future
+> direction of device naming and its interaction block layer.  The main
+> motivations here are the wasting of minor numbers for partitions, and the
+> duplication of code between user and kernel space in areas such as
+> partition detection, uuid location, lvm setup, mount by label, journal
+> replay, and so on...
 
-> On Fri, 18 May 2001, Stephen C. Tweedie wrote:
-> > On Fri, May 18, 2001 at 07:44:39PM -0300, Rik van Riel wrote:
-> >
-> > > This is the core of why we cannot (IMHO) have a discussion
-> > > of whether a patch introducing new VM tunables can go in:
-> > > there is no clear overview of exactly what would need to be
-> > > tunable and how it would help.
-> >
-> > It's worse than that.  The workload on most typical systems is not
-> > static.  The VM *must* be able to cope with dynamic workloads.  You
-> > might twiddle all the knobs on your system to make your database run
-> > faster, but end up in such a situation that the next time a mail flood
-> > arrives for sendmail, the whole box locks up because the VM can no
-> > longer adapt.
->
-> That's another problem, indeed ;)
->
-> Ingo, Mike, please keep this in mind when designing
-> tunables or deciding which test you want to run today
-> in order to look how the VM is performing.
+(1) these issues are independent.  The partition parsing could
+be done in user space, today, by blkpg, if I read the code correctly
+;-)  (there's an ioctl for [un]registering partitions)  Never
+tried it though ;-)
 
-I've bent your code up a bit.  I've not yet been tempted to replace
-any of it with a knob ;-)  There is a little piece I'd like to see
-thrown away though.. the loop in refill_inactive does nothing good.
+(2) what about bootstrapping?  how do you find the root device?
+Do you do "root=/dev/hda/offset=63,limit=1235823"?  Bit nasty.
 
-The test I prefer is a good one for the area of vm performance I'm
-most interested in.  It doesn't cover the full vm spectrum by any
-means.  I don't have a setup (any) good for testing mondo network or
-IO stuff.  I test a simple 'job one size to large' scenario.  Yes,
-it's limited test coverage.. it's still legitimate.
+(3) how does this work for LVM and RAID?
 
-Perhaps when you're evaluating vm performance, you should try my
-simple test once in a while. :) I'll bet you a bogobeer right here
-and now that when 2.4.5 hits the street you're going to be queried
-by the big-busy-box folks wrt swap volume.
+(4) <propaganda>libparted already has a fair bit of partition
+scanning code, etc.  Should be trivial to hack it up... That said,
+it should be split up into .so modules... 200k is a bit heavy just
+for mounting partitions (most of the bulk is file system stuff).
+</propaganda>
 
-> Basic rule for VM: once you start swapping, you cannot
-> win;  All you can do is make sure no situation loses
-> really badly and most situations perform reasonably.
+(5) what happens to /etc/fstab?  User-space ([u]mount?) translates
+/dev/hda1 into /dev/hda/offset=63,limit=1235823, and back?
 
-I disagree with that.  I've seen a heavily swapping box run like
-a scaulded ass ape many times.
-
-	Warsteiner,
-
-	-Mike
-
+Andrew Clausen

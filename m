@@ -1,54 +1,267 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273382AbRIWLlT>; Sun, 23 Sep 2001 07:41:19 -0400
+	id <S273424AbRIWLwv>; Sun, 23 Sep 2001 07:52:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273414AbRIWLlK>; Sun, 23 Sep 2001 07:41:10 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:20974 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S273382AbRIWLlC>;
-	Sun, 23 Sep 2001 07:41:02 -0400
-Date: Sun, 23 Sep 2001 13:42:33 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Whats in the wings for 2.5 (when it opens)
-Message-ID: <20010923134232.A5315@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
-User-Agent: Mutt/1.3.20i
+	id <S273415AbRIWLwn>; Sun, 23 Sep 2001 07:52:43 -0400
+Received: from mons.uio.no ([129.240.130.14]:58590 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S273414AbRIWLwd>;
+	Sun, 23 Sep 2001 07:52:33 -0400
+MIME-Version: 1.0
+Message-ID: <15277.52482.300391.970844@charged.uio.no>
+Date: Sun, 23 Sep 2001 13:52:34 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix 64-bit locking code in 2.4.10-preX
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 17 September 2001, at 20:18:25 -0400,
-Ed Tomlinson wrote:
 
-> Hi,
-> 
-> Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
-> I can think of:
-> [...]
->
-Maybe this is something worth to have a look at:
-http://evlog.sourceforge.net/
+Linus,
 
-It seems to be an "enterprise-class advanced event logging system for
-Linux", trying toi be compliant with upcoming POSIX Standard 1003.25,
-"System API - Services for Reliable, Available, and Serviceable Systems".
+  The following constitutes a slight rewrite of a patch that has been
+sent to you earlier by H.J.
 
-It requires kernel patches and userspace logging daemon to work. Kernel
-patches are available for 2.4.4 and as I can see from the kernel patch, it
-is little intrusive (hardly any changes to existing kernel code, and adds
-a couple of new files). It also requires a patched glibc, but the required
-patch (for glibc2.2.3) is very little.
+  It fixes the locking code so that it conforms to the Single UNIX
+specs. According to the latter, we need to return -EOVERFLOW rather
+than -EINVAL whenever an offset overflows.
 
---
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+  In addition, the patch ensures that lockd and the NFS client both
+recognize the (G|S)ETLK64 locking commands on 32-bit architectures.
+
+  Finally, a small fix to the lockd xdr code. We need to zero unused
+bytes in NFS filehandles as the comparisons all assume this.
+
+Cheers,
+  Trond
+
+diff -u --recursive --new-file linux-2.4.10-rdplus/fs/lockd/clntproc.c linux-2.4.10-locks/fs/lockd/clntproc.c
+--- linux-2.4.10-rdplus/fs/lockd/clntproc.c	Mon Dec  4 03:01:01 2000
++++ linux-2.4.10-locks/fs/lockd/clntproc.c	Sat Sep 22 23:54:46 2001
+@@ -142,7 +142,7 @@
  
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+ 	/* If we're cleaning up locks because the process is exiting,
+ 	 * perform the RPC call asynchronously. */
+-	if ((cmd == F_SETLK || cmd == F_SETLKW)
++	if ((IS_SETLK(cmd) || IS_SETLKW(cmd))
+ 	    && fl->fl_type == F_UNLCK
+ 	    && (current->flags & PF_EXITING)) {
+ 		sigfillset(&current->blocked);	/* Mask all signals */
+@@ -166,17 +166,16 @@
+ 	/* Set up the argument struct */
+ 	nlmclnt_setlockargs(call, fl);
+ 
+-	if (cmd == F_GETLK) {
++	if (IS_SETLK(cmd) || IS_SETLKW(cmd)) {
++		if (fl->fl_type != F_UNLCK) {
++			call->a_args.block = IS_SETLKW(cmd) ? 1 : 0;
++			status = nlmclnt_lock(call, fl);
++		} else
++			status = nlmclnt_unlock(call, fl);
++	} else if (IS_GETLK(cmd))
+ 		status = nlmclnt_test(call, fl);
+-	} else if ((cmd == F_SETLK || cmd == F_SETLKW)
+-		   && fl->fl_type == F_UNLCK) {
+-		status = nlmclnt_unlock(call, fl);
+-	} else if (cmd == F_SETLK || cmd == F_SETLKW) {
+-		call->a_args.block = (cmd == F_SETLKW)? 1 : 0;
+-		status = nlmclnt_lock(call, fl);
+-	} else {
++	else
+ 		status = -EINVAL;
+-	}
+ 
+ 	if (status < 0 && (call->a_flags & RPC_TASK_ASYNC))
+ 		kfree(call);
+diff -u --recursive --new-file linux-2.4.10-rdplus/fs/lockd/xdr.c linux-2.4.10-locks/fs/lockd/xdr.c
+--- linux-2.4.10-rdplus/fs/lockd/xdr.c	Sat Sep 22 15:42:00 2001
++++ linux-2.4.10-locks/fs/lockd/xdr.c	Sun Sep 23 12:03:25 2001
+@@ -91,6 +91,7 @@
+ 		return NULL;
+ 	}
+ 	f->size = NFS2_FHSIZE;
++	memset(f->data, 0, sizeof(f->data));
+ 	memcpy(f->data, p, NFS2_FHSIZE);
+ 	return p + XDR_QUADLEN(NFS2_FHSIZE);
+ }
+diff -u --recursive --new-file linux-2.4.10-rdplus/fs/locks.c linux-2.4.10-locks/fs/locks.c
+--- linux-2.4.10-rdplus/fs/locks.c	Sat Sep 22 15:42:01 2001
++++ linux-2.4.10-locks/fs/locks.c	Sat Sep 22 15:52:07 2001
+@@ -257,7 +257,7 @@
+ static int flock_to_posix_lock(struct file *filp, struct file_lock *fl,
+ 			       struct flock *l)
+ {
+-	loff_t start;
++	off_t start, end;
+ 
+ 	switch (l->l_whence) {
+ 	case 0: /*SEEK_SET*/
+@@ -270,17 +270,16 @@
+ 		start = filp->f_dentry->d_inode->i_size;
+ 		break;
+ 	default:
+-		return (0);
++		return -EINVAL;
+ 	}
+ 
+ 	if (((start += l->l_start) < 0) || (l->l_len < 0))
+-		return (0);
+-	fl->fl_end = start + l->l_len - 1;
+-	if (l->l_len > 0 && fl->fl_end < 0)
+-		return (0);
+-	if (fl->fl_end > OFFT_OFFSET_MAX)
+-		return 0;
++		return -EINVAL;
++	end = start + l->l_len - 1;
++	if (l->l_len > 0 && end < 0)
++		return -EOVERFLOW;
+ 	fl->fl_start = start;	/* we record the absolute position */
++	fl->fl_end = end;
+ 	if (l->l_len == 0)
+ 		fl->fl_end = OFFSET_MAX;
+ 	
+@@ -292,7 +291,7 @@
+ 	fl->fl_insert = NULL;
+ 	fl->fl_remove = NULL;
+ 
+-	return (assign_type(fl, l->l_type) == 0);
++	return assign_type(fl, l->l_type);
+ }
+ 
+ #if BITS_PER_LONG == 32
+@@ -312,14 +311,14 @@
+ 		start = filp->f_dentry->d_inode->i_size;
+ 		break;
+ 	default:
+-		return (0);
++		return -EINVAL;
+ 	}
+ 
+ 	if (((start += l->l_start) < 0) || (l->l_len < 0))
+-		return (0);
++		return -EINVAL;
+ 	fl->fl_end = start + l->l_len - 1;
+ 	if (l->l_len > 0 && fl->fl_end < 0)
+-		return (0);
++		return -EOVERFLOW;
+ 	fl->fl_start = start;	/* we record the absolute position */
+ 	if (l->l_len == 0)
+ 		fl->fl_end = OFFSET_MAX;
+@@ -339,10 +338,10 @@
+ 		fl->fl_type = l->l_type;
+ 		break;
+ 	default:
+-		return (0);
++		return -EINVAL;
+ 	}
+ 
+-	return (1);
++	return (0);
+ }
+ #endif
+ 
+@@ -1370,8 +1369,8 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	error = -EINVAL;
+-	if (!flock_to_posix_lock(filp, &file_lock, &flock))
++	error = flock_to_posix_lock(filp, &file_lock, &flock);
++	if (error)
+ 		goto out_putf;
+ 
+ 	if (filp->f_op && filp->f_op->lock) {
+@@ -1460,8 +1459,8 @@
+ 		}
+ 	}
+ 
+-	error = -EINVAL;
+-	if (!flock_to_posix_lock(filp, file_lock, &flock))
++	error = flock_to_posix_lock(filp, file_lock, &flock);
++	if (error)
+ 		goto out_putf;
+ 	
+ 	error = -EBADF;
+@@ -1535,8 +1534,8 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	error = -EINVAL;
+-	if (!flock64_to_posix_lock(filp, &file_lock, &flock))
++	error = flock64_to_posix_lock(filp, &file_lock, &flock);
++	if (error)
+ 		goto out_putf;
+ 
+ 	if (filp->f_op && filp->f_op->lock) {
+@@ -1613,8 +1612,8 @@
+ 		}
+ 	}
+ 
+-	error = -EINVAL;
+-	if (!flock64_to_posix_lock(filp, file_lock, &flock))
++	error = flock64_to_posix_lock(filp, file_lock, &flock);
++	if (error)
+ 		goto out_putf;
+ 	
+ 	error = -EBADF;
+diff -u --recursive --new-file linux-2.4.10-rdplus/fs/nfs/file.c linux-2.4.10-locks/fs/nfs/file.c
+--- linux-2.4.10-rdplus/fs/nfs/file.c	Sat Sep 22 15:42:04 2001
++++ linux-2.4.10-locks/fs/nfs/file.c	Sat Sep 22 23:14:03 2001
+@@ -264,7 +264,7 @@
+ 
+ 	/* Fake OK code if mounted without NLM support */
+ 	if (NFS_SERVER(inode)->flags & NFS_MOUNT_NONLM) {
+-		if (cmd == F_GETLK)
++		if (IS_GETLK(cmd))
+ 			status = LOCK_USE_CLNT;
+ 		goto out_ok;
+ 	}
+@@ -304,7 +304,7 @@
+ 	 * This makes locking act as a cache coherency point.
+ 	 */
+  out_ok:
+-	if ((cmd == F_SETLK || cmd == F_SETLKW) && fl->fl_type != F_UNLCK) {
++	if ((IS_SETLK(cmd) || IS_SETLKW(cmd)) && fl->fl_type != F_UNLCK) {
+ 		filemap_fdatasync(inode->i_mapping);
+ 		down(&inode->i_sem);
+ 		nfs_wb_all(inode);      /* we may have slept */
+diff -u --recursive --new-file linux-2.4.10-rdplus/include/linux/fcntl.h linux-2.4.10-locks/include/linux/fcntl.h
+--- linux-2.4.10-rdplus/include/linux/fcntl.h	Sat Sep 22 16:04:07 2001
++++ linux-2.4.10-locks/include/linux/fcntl.h	Sun Sep 23 10:38:39 2001
+@@ -23,4 +23,28 @@
+ #define DN_ATTRIB	0x00000020	/* File changed attibutes */
+ #define DN_MULTISHOT	0x80000000	/* Don't remove notifier */
+ 
++#ifdef __KERNEL__
++
++#if BITS_PER_LONG == 32
++#define IS_GETLK32(cmd)		((cmd) == F_GETLK)
++#define IS_SETLK32(cmd)		((cmd) == F_SETLK)
++#define IS_SETLKW32(cmd)	((cmd) == F_SETLKW)
++#define IS_GETLK64(cmd)		((cmd) == F_GETLK64)
++#define IS_SETLK64(cmd)		((cmd) == F_SETLK64)
++#define IS_SETLKW64(cmd)	((cmd) == F_SETLKW64)
++#else
++#define IS_GETLK32(cmd)		(0)
++#define IS_SETLK32(cmd)		(0)
++#define IS_SETLKW32(cmd)	(0)
++#define IS_GETLK64(cmd)		((cmd) == F_GETLK)
++#define IS_SETLK64(cmd)		((cmd) == F_SETLK)
++#define IS_SETLKW64(cmd)	((cmd) == F_SETLKW)
++#endif /* BITS_PER_LONG == 32 */
++
++#define IS_GETLK(cmd)	(IS_GETLK32(cmd)  || IS_GETLK64(cmd))
++#define IS_SETLK(cmd)	(IS_SETLK32(cmd)  || IS_SETLK64(cmd))
++#define IS_SETLKW(cmd)	(IS_SETLKW32(cmd) || IS_SETLKW64(cmd))
++
++#endif /* __KERNEL__ */
++
+ #endif
 

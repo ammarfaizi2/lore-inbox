@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUIVJOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUIVJdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUIVJOa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 05:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUIVJOa
+	id S262605AbUIVJdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 05:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUIVJdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 05:14:30 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:56591 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263100AbUIVJO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 05:14:28 -0400
-Date: Wed, 22 Sep 2004 10:14:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Shobhit Mathur <shobhitmmathur@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: SCSI /proc query ...
-Message-ID: <20040922101426.A381@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Shobhit Mathur <shobhitmmathur@yahoo.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20040922062305.52594.qmail@web52507.mail.yahoo.com>
+	Wed, 22 Sep 2004 05:33:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23722 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262605AbUIVJdf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 05:33:35 -0400
+Subject: Re: FUSE fusexmp proxy example solves umount problem!
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040922004941.GC14303@lkcl.net>
+References: <20040922004941.GC14303@lkcl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5izmu5A37EXwJTTcRzf/"
+Organization: Red Hat UK
+Message-Id: <1095845610.2613.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040922062305.52594.qmail@web52507.mail.yahoo.com>; from shobhitmmathur@yahoo.com on Tue, Sep 21, 2004 at 11:23:05PM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 22 Sep 2004 11:33:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 21, 2004 at 11:23:05PM -0700, Shobhit Mathur wrote:
-> Hello,
-> 
-> I intend to implement /proc interface for a SCSI HBA.
 
-Don't do that.  We're not going to take new drivers that implement ->proc_info
-anymore.
+--=-5izmu5A37EXwJTTcRzf/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2004-09-22 at 02:49, Luke Kenneth Casson Leighton wrote:
+> what do people think about a filesystem proxy kernel module?
+> has anyone heard of such a beast already?
+> (which can also do xattrs)
+>=20
+> fusexmp.c (in file system in userspace package) does stateless
+> filesystem proxy redirection.
+>=20
+> this is a PERFECT solution to the problem of users removing media
+> from drives without warning.=20
+
+eh and the 2.6 kernel doesn't deal with it? It really is supposed to
+deal with it nicely already...
+
+--=-5izmu5A37EXwJTTcRzf/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBUUbqxULwo51rQBIRApOuAJ9ofF+DpIH0c61g3GQtcblaXjCURwCgoDED
+L08ZpZEGxvMP0+YWSUW9peY=
+=n0rR
+-----END PGP SIGNATURE-----
+
+--=-5izmu5A37EXwJTTcRzf/--
 

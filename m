@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUJQSPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUJQSVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269256AbUJQSPi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUJQSPi
+	id S269257AbUJQSVI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJQSVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:15:38 -0400
-Received: from relay.pair.com ([209.68.1.20]:21513 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269256AbUJQSNU (ORCPT
+	Sun, 17 Oct 2004 14:21:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:32012 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269257AbUJQSVB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:13:20 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <4172A8FD.8000401@kegel.com>
-Date: Sun, 17 Oct 2004 10:16:45 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-CC: Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Building on case-insensitive systems
-References: <1097989574.2674.14246.camel@cube> <4171F741.2070209@kegel.com>	 <1097991836.2666.14274.camel@cube>	 <20041017092730.GA9081@mars.ravnborg.org> <1098035748.2666.14288.camel@cube>
-In-Reply-To: <1098035748.2666.14288.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 17 Oct 2004 14:21:01 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ucl7RFUs4O9g0n7ijmz6FCXtXLVMMHsfR2aVZiXNrdOCb0g2s5S7t4PnBqMUfg4RvNyqF1GKtNWobQqd8/UvCmxKGgUYExr/CjaNqODVpD64G0yx9Tp+SYh9Qfw3aW8b4LBKvtBDRQgpXHBNFqjaCM2u7+PM1dVKq4YMA2PVojs
+Message-ID: <5d6b657504101711217ec4bc6d@mail.gmail.com>
+Date: Sun, 17 Oct 2004 20:21:00 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041017180629.GO7468@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041016062512.GA17971@mark.mielke.cc>
+	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
+	 <20041017133537.GL7468@marowsky-bree.de>
+	 <5d6b657504101707175aab0fcb@mail.gmail.com>
+	 <20041017150509.GC10280@mark.mielke.cc>
+	 <5d6b65750410170840c80c314@mail.gmail.com>
+	 <Pine.LNX.4.61.0410171921440.2952@dragon.hygekrogen.localhost>
+	 <5d6b65750410171104320bc6a8@mail.gmail.com>
+	 <20041017180629.GO7468@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
->>>>You are betting that you can force developers to switch away
->>>>from Windows and MacOSX workstations.
->>>
->>>Actually, I'm betting that "required to build product"
->>>is a magic phrase that overrides corporate IT's desire
->>>to brutally enforce a Microsoft-only environment.
->>
->>Seems you are not part of one of these organisations.
->>That argument will not suffice.
+On Sun, 17 Oct 2004 20:06:29 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
+> On 2004-10-17T20:04:21, Buddy Lucas <buddy.lucas@gmail.com> wrote:
 > 
-> I was, twice, and it did suffice. Try it:
+> > [ snip ]
+> >
+> > Also note the examples that Stevens gives. For instance, he explicitly
+> > checks for EWOULDBLOCK after a read on a nonblocking fd that has been
+> > reported readable by select().
 > 
-> "needed for revenue generation"
-> "required to meet customer needs"
-> ...
-> 
-> Don't be taking away the ammo.
-> 
-> When the argument doesn't work, your organization
-> is obviously not fully committed to making a profit.
-> Politics are getting in the way. It's OK though,
-> since that just puts you at a market disadvantage.
-> Soon enough, the competiter will be hiring.
+> The specs don't disagree with that. On a O_NONBLOCK socket, that is
+> allowed.
 
-"Politics are just getting in the way"?
-Boy, that's the pot calling the kettle black...
+I think the specs got to you, man!
 
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html
+
+Cheers,
+Buddy

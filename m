@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTHTWTG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 18:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbTHTWTG
+	id S262281AbTHTWYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 18:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTHTWYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 18:19:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7630 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262290AbTHTWTE
+	Wed, 20 Aug 2003 18:24:08 -0400
+Received: from allele206.gprs.suomen2g.fi ([62.78.113.206]:4 "EHLO
+	norsu.vuoristo.fi") by vger.kernel.org with ESMTP id S262281AbTHTWYD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 18:19:04 -0400
-Message-ID: <3F43F3CA.2030102@pobox.com>
-Date: Wed, 20 Aug 2003 18:18:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alex Goddard <agoddard@purdue.edu>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: build error in current 2.6-BK...
-References: <3F43EFFB.2020104@pobox.com> <Pine.LNX.4.56.0308201710200.4960@dust>
-In-Reply-To: <Pine.LNX.4.56.0308201710200.4960@dust>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 18:24:03 -0400
+Date: Thu, 21 Aug 2003 01:24:50 +0300
+To: linux-kernel@vger.kernel.org
+Subject: buffer cache hash table size
+Message-ID: <20030820222450.GA344@norsu.vuoristo.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Touko Korpela <tkorpela@phnet.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Goddard wrote:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106141122713816&w=2
+I noticed following when telling kernel to use only 63.5 MB of total
+64 MB memory.
+Buffer cache is four times smaller, while others remain the same.
+(In 2.6.0-test3-bk1 parsing of mem= has changed and different caches are
+used. There PID hash table shrinks to half while other caches remain same.)
+Motherboard is old K6/Pentium which only caches 63.5 of memory.
 
+No memory size specified:
 
-Thanks for the pointers.  That last patch being wrong motivated me to 
-fix the real problem, or at least one of them...
+Memory: 62244k/65536k available (1365k kernel code, 2904k reserved, 333k data, 268k init, 0k highmem)
+Dentry cache hash table entries: 8192 (order: 4, 65536 bytes)
+Inode cache hash table entries: 4096 (order: 3, 32768 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 4096 (order: 2, 16384 bytes)
+Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
 
-(see next lkml post)
+mem=65024k specified:
 
+Memory: 61736k/65024k available (1365k kernel code, 2900k reserved, 333k data, 268k init, 0k highmem)
+Dentry cache hash table entries: 8192 (order: 4, 65536 bytes)
+Inode cache hash table entries: 4096 (order: 3, 32768 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 16384 (order: 4, 65536 bytes)

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282833AbRLLXuT>; Wed, 12 Dec 2001 18:50:19 -0500
+	id <S282845AbRLLXu3>; Wed, 12 Dec 2001 18:50:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282890AbRLLXuK>; Wed, 12 Dec 2001 18:50:10 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:46086 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S282833AbRLLXuD>; Wed, 12 Dec 2001 18:50:03 -0500
-Message-ID: <3C17ED1D.8B091206@lexus.com>
-Date: Wed, 12 Dec 2001 15:49:49 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alp ATICI <atici@math.columbia.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Network related
-In-Reply-To: <Pine.LNX.4.40.0112121821260.4894-100000@intel4.math.columbia.edu>
+	id <S282898AbRLLXuV>; Wed, 12 Dec 2001 18:50:21 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:52040 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S282845AbRLLXuK>; Wed, 12 Dec 2001 18:50:10 -0500
+Date: Thu, 13 Dec 2001 00:49:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Slow Disk I/O with QPS M3 80GB HD
+Message-ID: <20011213004933.T4801@athlon.random>
+In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org> <20011211154331.A32433@lucon.org> <20011212092954.N4801@athlon.random> <20011212153806.A22202@lucon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011212153806.A22202@lucon.org>; from hjl@lucon.org on Wed, Dec 12, 2001 at 03:38:06PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a FAQ -
+On Wed, Dec 12, 2001 at 03:38:06PM -0800, H . J . Lu wrote:
+> H.J.
+> ----
+> 3 files on USB:
+> 
+> # ls -l
+> total 5984
+> -rwxr-xr-x    1 root     root      1991481 Dec  8 21:44 dsc00002.jpg
+> -rwxr-xr-x    1 root     root      2432127 Dec  8 23:54 dsc00005.jpg
+> -rwxr-xr-x    1 root     root      1675563 Dec  8 23:59 dsc00009.jpg
+> 
+> 1. 2.4.10-pre10
+> 
+> # time /bin/cp * /tmp/
+> real    0m0.623s
+> user    0m0.000s
+> sys     0m0.100s
+> 
+> 2. 2.4.10-pre10aa1
+> 
+> # time /bin/cp * /tmp/
+> real    0m8.952s
+> user    0m0.000s
+> sys     0m0.190s
+> 
+> 
+> 3. 2.4.10-pre11
+> 
+> # time /bin/cp * /tmp/
+> real    0m8.851s
+> user    0m0.000s
+> sys     0m0.170s
 
-echo "0" > /proc/sys/net/ipv4/tcp_ecn
+but the above have nothing to do with the blkdev-pagecache.
+Blkdev-pagecache can matter only with blkdev accesses, blkdev-pagecache
+cannot make any difference if the I/O passes through any fs (not via the
+block_dev layer) like in the above case.
 
-cu
+Can you try to take those cp under strace timestamp and see what's the
+syscall that blocks?
 
-jjs
-
-Alp ATICI wrote:
-
-> Hi,
-> I have a problem with the 2.4.14 kernel custom compiled on a RedHat 7.2. I
-> thought I was very careful in selecting the necessary modules at first.
-> Everything works great except that when I want to browse some sites
-> I get a "connection timed out". Most of the sites work ok but some
-> specific ones like www.nvidia.com, www.sun.com, www.ingdirect.com
-> never works and gives the same error. When I boot up with other
-> kernel or win2000 everything works fine though:( Maybe this is
-> a consequence of some other bigger problem which I couldn't figure
-> out so far. It looks like only those sites filter out my http request.
-> What modules could I have forgotten to include?
->
-> Another question is I don't have ipt_MIRROR, ipt_unclean, ipt_iplimit
-> in netfilter modules anymore. What config settings should I set on
-> to have these back?
-> Thanks a lot,
-> Alp
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Andrea

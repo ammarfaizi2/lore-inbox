@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbUKBPSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUKBPK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbUKBPSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 10:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKBPOa
+	id S261271AbUKBPK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 10:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKBPID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:14:30 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:7656 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261250AbUKBPGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:06:44 -0500
-Date: Tue, 2 Nov 2004 16:06:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041102150634.GA24871@elte.hu>
-References: <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099324040.3337.32.camel@thomas>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 2 Nov 2004 10:08:03 -0500
+Received: from zamok.crans.org ([138.231.136.6]:29571 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261981AbUKBPDK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 10:03:10 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, jfannin1@columbus.rr.com, agk@redhat.com,
+       christophe@saout.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+References: <20041026123651.GA2987@zion.rivenstone.net>
+	<20041026135955.GA9937@agk.surrey.redhat.com>
+	<20041026213703.GA6174@rivenstone.net>
+	<20041026151559.041088f1.akpm@osdl.org>
+	<87hdogvku7.fsf@barad-dur.crans.org>
+	<20041026222650.596eddd8.akpm@osdl.org>
+	<20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
+	<877jpcgolt.fsf@barad-dur.crans.org> <20041102143919.GT6821@suse.de>
+	<20041102145541.GV6821@suse.de>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Tue, 02 Nov 2004 16:03:06 +0100
+In-Reply-To: <20041102145541.GV6821@suse.de> (Jens Axboe's message of "Tue, 2
+	Nov 2004 15:55:41 +0100")
+Message-ID: <87bregjnth.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe <axboe@suse.de> disait dernièrement que :
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+> Ehm, that should be
+>
+> 		if ((isize - offset))
+> 			bytes_todo = isize - offset;
+> 		else if (bytes_todo > PAGE_SIZE)
+> 			bytes_todo = PAGE_SIZE;
 
-> > Thomas, can you confirm that this kernel fixes the irqs-off latencies? 
-> > (the priority loop indeed was done with irqs turned off.)
-> 
-> The latencies are still there. I have the feeling it's worse than 0.6.2.
+Give 2 or 3 hours (time to get from office to home, rhooo trafic in Paris)
+and I'll get you an answer (I will adapt this patch to 2.6.10-rc1-mm2 if
+need be)
 
-update to others: Thomas debugged this problem today and found the place
-that kept irqs disabled for a long time: it was update_process_times(). 
-(which i recently touched to break latencies there - but forgot that the
-lock is an irqs-off lock!)
+Best,
 
-i've uploaded a fixed kernel (-V0.6.8) to:
+-- 
+There is a word for that and that word is "crap".
 
-  http://redhat.com/~mingo/realtime-preempt/
+	- Alexander Viro on linux-kernel
 
-(this kernel also has the module-put-unlock-kernel fix that should solve
-the other warning reported by Thomas and Bill.)
-
-	Ingo

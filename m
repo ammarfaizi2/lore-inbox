@@ -1,42 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265146AbRFUTXK>; Thu, 21 Jun 2001 15:23:10 -0400
+	id <S265147AbRFUTXA>; Thu, 21 Jun 2001 15:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265145AbRFUTXA>; Thu, 21 Jun 2001 15:23:00 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:50700 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S265146AbRFUTWv>; Thu, 21 Jun 2001 15:22:51 -0400
-Date: Thu, 21 Jun 2001 15:22:28 -0400
-From: Disconnect <lkml@sigkill.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-Message-ID: <20010621152226.E13649@sigkill.net>
+	id <S265145AbRFUTWu>; Thu, 21 Jun 2001 15:22:50 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:12041 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S265147AbRFUTWh>;
+	Thu, 21 Jun 2001 15:22:37 -0400
+Date: Thu, 21 Jun 2001 21:21:39 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Jon Forsberg <zzed@cyberdude.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fealnx problem
+Message-ID: <20010621212139.A13297@se1.cogenit.fr>
+In-Reply-To: <20010621145759.B10047@naut>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010621145759.B10047@naut>; from zzed@cyberdude.com on Thu, Jun 21, 2001 at 02:57:59PM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <E15D9u7-0001xo-00@the-village.bc.nu>
+Jon Forsberg <zzed@cyberdude.com> écrit :
+> I have an Surecom EP-320X-S Ethernet adapter which apparently uses a
+> Myson MTD-8xx chip. It works well with the "fealnx" driver (labeled
+> "Myson MTD-8xx PCI Ethernet support" in kernel config) except for one thing:
+> After a while in use it stops working and prints
+> 
+> Jun 21 12:18:18 naut kernel: NETDEV WATCHDOG: eth0: transmit timed out
+[...]
 
-On Thu, 21 Jun 2001, Alan Cox did have cause to say:
+Could you give this a try please ?
+It may crash.
+ 
+--- linux-2.4.5.orig/drivers/net/fealnx.c	Wed Jun  6 09:13:43 2001
++++ linux-2.4.5/drivers/net/fealnx.c	Thu Jun 21 21:18:59 2001
+@@ -418,7 +418,7 @@
+ static struct net_device_stats *get_stats(struct net_device *dev);
+ static int mii_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ static int netdev_close(struct net_device *dev);
+-
++static void reset_rx_descriptors(struct net_device *dev);
+ 
+ void stop_nic_tx(long ioaddr, long crvalue)
+ {
+@@ -1121,14 +1121,13 @@
+ {
+ 	struct netdev_private *np = dev->priv;
+ 	long ioaddr = dev->base_addr;
++	int i;
+ 
+ 	printk(KERN_WARNING "%s: Transmit timed out, status %8.8x,"
+ 	       " resetting...\n", dev->name, readl(ioaddr + ISR));
+ 
+ #ifndef __alpha__
+ 	{
+-		int i;
+-
+ 		printk(KERN_DEBUG "  Rx ring %8.8x: ", (int) np->rx_ring);
+ 		for (i = 0; i < RX_RING_SIZE; i++)
+ 			printk(" %8.8x", (unsigned int) np->rx_ring[i].status);
+@@ -1139,12 +1138,36 @@
+ 	}
+ #endif
+ 
+-	/* Perhaps we should reinitialize the hardware here.  Just trigger a
+-	   Tx demand for now. */
++	dev->if_port = np->default_port;
++	/* Reinit. Gross */
++
++	/* Reset the chip's Tx and Rx processes. */
++	stop_nic_tx(ioaddr, 0);
++	reset_rx_descriptors(dev);
++
++	/* Disable interrupts by clearing the interrupt mask. */
++	writel(0x0000, ioaddr + IMR);
++
++	/* Reset the chip to erase previous misconfiguration. */
++	writel(0x00000001, ioaddr + BCR);
++	for (i = 0; i < 50; i++) {
++		readl(ioaddr + BCR);
++		rmb();
++	}
++
++	writel(virt_to_bus(np->cur_tx), ioaddr + TXLBA);
++	writel(virt_to_bus(np->cur_rx), ioaddr + RXLBA);
++
++	writel(np->bcrvalue, ioaddr + BCR);
++
++	writel(0, dev->base_addr + RXPDR);
++	set_rx_mode(dev);
++	/* Clear and Enable interrupts by setting the interrupt mask. */
++	writel(FBE | TUNF | CNTOVF | RBU | TI | RI, ioaddr + ISR);
++	writel(np->imrvalue, ioaddr + IMR);
++
+ 	writel(0, dev->base_addr + TXPDR);
+-	dev->if_port = 0;
+ 
+-	/* Stop and restart the chip's Tx processes . */
+ 	dev->trans_start = jiffies;
+ 	np->stats.tx_errors++;
+ 
 
-> An application is clearly not a derivative work in the general case, and they
-> are linked with glibc which is LGPL and gives the users the choice and right
-> to run non-free apps. 
-
-IANAL, and this may be a dumb question, but what about LGPLing the driver
-abstraction layer and/or headers? (Presuming of course there -is- a driver
-abstraction layer that would work for 99% of the drivers.)  That leaves
-the kernel safe (since LGPL says link whatever under whichever license,
-GPL is valid for kernel core) and -specifically- allows any license you
-like for HW/SW vendors who want to make modules.
-
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P- L+++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t
-5--- X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------
+-- 
+Ueimor

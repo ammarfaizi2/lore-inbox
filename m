@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUDNUaX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 16:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUDNUaX
+	id S261615AbUDNUdN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 16:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUDNUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 16:30:23 -0400
-Received: from eik.ii.uib.no ([129.177.16.3]:28122 "EHLO eik.ii.uib.no")
-	by vger.kernel.org with ESMTP id S261615AbUDNUaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 16:30:07 -0400
-Date: Wed, 14 Apr 2004 22:30:02 +0200
-From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: LSI Logic FC HBA / mptscsih hang
-Message-ID: <20040414203000.GA21276@ii.uib.no>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 14 Apr 2004 16:33:12 -0400
+Received: from smtpout1.compass.net.nz ([203.97.97.135]:53202 "EHLO
+	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
+	id S261615AbUDNUdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 16:33:04 -0400
+Date: Thu, 15 Apr 2004 08:31:00 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@linuxcd
+Reply-To: haiquy@yahoo.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.5-mjb1 Comment.
+Message-ID: <Pine.LNX.4.53.0404150815250.654@linuxcd>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a LSI Logic LSI7102XP-LC Single 2Gb/s Fibre Channel HBA,
-and installed it in a IBM x330 (Dual Pentium III). Booting the redhat
-kernel-2.4.21-4.EL and kernel-2.4.21-9.0.1.EL works fine, but the
-smp-versions of the same kernels (kernel-smp-2.4.21-4.EL and
-kernel-smp-2.4.21-9.0.1.EL) hangs every time after:
 
-Loading mptbase.Fusion MPT base driver 2.05.05+
-o module
-Copyright (c) 1999-2002 LSI Logic Corporation
-PCI: Enabling device 01:05.0 (0000 -> 0003)
-mptbase: Initiating ioc0 bringup
-ioc0: FC919X: Capabilities={Initiator,Target,LAN}
-mptbase: Initiating ioc0 recovery
-mptbase: Initiating ioc0 recovery
-mptbase: Initiating ioc0 recovery
-mptbase: 1 MPT adapter found, 1 installed.
-Loading mptscsihFusion MPT SCSI Host driver 2.05.05+
-.o module
-scsi1 : ioc0: LSIFC919X, FwRev=01000000h, Ports=1, MaxQ=1023, IRQ=11
-Starting timer : 0 0
-blk: queue f752d618, I/O limit 4294967295Mb (mask 0xffffffffffffffff)
-scsi : aborting command due to timeout : pid 25, scsi1, channel 0, id
-0, lun 0 Inquiry 00 00 00 ff 00
-mptscsih: OldAbort scheduling ABORT SCSI IO (sc=f752d400)
-  IOs outstanding = 1
-mptscsih: Attempting ABORT SCSI IO! (mf=f74e0100:sc=f752d400)
-SCSI host 1 abort (pid 25) timed out - resetting
-SCSI bus is being reset for host 1 channel 0.
-mptscsih: OldReset scheduling BUS_RESET (sc=f752d400)
-  IOs outstanding = 1
-SCSI host 1 channel 0 reset (pid 25) timed out - trying harder
-SCSI bus is being reset for host 1 channel 0.
-mptscsih: OldReset scheduling BUS_RESET (sc=f752d400)
-  IOs outstanding = 1
-SCSI host 1 reset (pid 25) timed out again -
-probably an unrecoverable SCSI bus or device hang.
-mptbase: Initiating ioc0 recovery
-SCSI host 1 reset (pid 26) timed out again -
-probably an unrecoverable SCSI bus or device hang.
-[hangs forever..]
+Hi,
 
-Any advice?
+Test 2.6.5-mjb2 for more than 2 days only, system is pretty stable (the same as
+almost all other 2.6.x with my box). The significant performance improved
+compared to 2.6.5-aa5, 2.6.5 and all others 2.6.x for with a low end box line mine
+(660 Mhx Celeron 256 Mb RAM) make me write this comment. :-) Wish that some
+improvement could make way to the mainline kernel.
 
+The memory management is nearly perfect. Before I tried one ck kernel use auto
+regulation swap and it was still much worse than this one as I noticed the value
+in swappiness also changes by the time.
 
-   -jf
+Here is one of the usage senario with my box: Running
+1. Netbean-3.6-rc1
+2. Tomcat 5.0.19
+3. A dictionary server written in Java (my work)
+4. Mozilla to test local Tomcat
+5. 3 terminals, one centericq, one pine
+6. Icewm
+
+6. bash-2.05b$ free
+		total       used       free     shared    buffers      cached
+   Mem:        255240     252376       2864          0       7924      89532
+  -/+ buffers/cache:     154920     100320
+  Swap:       256960       3996     252964
+
+Compared to all other 2.6.x and 2.4.x the swap usages for the same is about 30Mb
+and if I do lots of compiling jsp pages, it increased to nearly 128Mb swap and
+system became rather slugish. With 2.6.5-mjb2 the maximum swap usage I noticed is
+30Mb and system response is quite good.
+
+Thank you for doing a good job so I can still keep my old box for working :-)
+
+Steve Kieu

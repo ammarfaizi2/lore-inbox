@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271361AbRHOTNg>; Wed, 15 Aug 2001 15:13:36 -0400
+	id <S271371AbRHOTTR>; Wed, 15 Aug 2001 15:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271367AbRHOTNZ>; Wed, 15 Aug 2001 15:13:25 -0400
-Received: from mail1.panix.com ([166.84.0.212]:8182 "HELO mail1.panix.com")
-	by vger.kernel.org with SMTP id <S271361AbRHOTNJ>;
-	Wed, 15 Aug 2001 15:13:09 -0400
-From: "Roy Murphy" <murphy@panix.com>
-Reply-To: murphy@panix.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 15 Aug 2001 15:13:23 -0500
-Subject: Re: Are we going too fast?
-X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
-Message-id: <3b7ac9d3.69c4.0@panix.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S271373AbRHOTTG>; Wed, 15 Aug 2001 15:19:06 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:64274 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S271370AbRHOTTB>;
+	Wed, 15 Aug 2001 15:19:01 -0400
+Date: Wed, 15 Aug 2001 14:23:06 -0500
+From: AJ Lewis <lewis@sistina.com>
+To: "Todd M. Roy" <troy@holstein.com>
+Cc: mauelshagen@sistina.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
+Message-ID: <20010815142306.A17510@sistina.com>
+In-Reply-To: <20010815191736.A32547@sistina.com> <200108151835.f7FIZ3802147@pcx4168.holstein.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108151835.f7FIZ3802147@pcx4168.holstein.com>; from troy@holstein.com on Wed, Aug 15, 2001 at 02:35:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'Twas brillig when Mike Edwards scrobe:
->I think that's a bit unfair. Rather, I suspect people see the 
->word 'stable', and assume, for some unknown reason, that the kernel is >stable.
-*AHEM* 
 
-Whatever truth value 2.4 has for the variable stable, it can not be stored in
-a boolean type.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-'Stable' means that the direction of development is intended to reduce the number
-of bugs not add new features unless they can reasonably be shown to not introduce
-major bugs.  That the 2.5 tree has not been opened indicates the recognition
-that additional concentrated work on 2.4 is needed.
+On Wed, Aug 15, 2001 at 02:35:03PM -0400, Todd M. Roy wrote:
+> >From reading the README.1st file, is my understanding
+> correct that if  one  already has migrated from
+> lvm 0.9.1b7 to 0.9.1b8, it is
+> *NOT* necessary to run pvvversion again?
 
->Seriously, though - even distributions are including 2.4 kernels now. 
->RedHat, Mandrake, Slackware ... Should the latest versions of these 
->distributions be considered unstable as well? 
+That is correct.
 
-Even older releases of distributions are maintained.  Should we ever get to
-kernel 2.2.38, the distribution maintainers should be releasing bugfix patches
-for older distributions with the latest 2.2 kernel.
+--=20
+AJ Lewis
+Sistina Software Inc.                  Voice:  612-638-0500
+1313 5th St SE, Suite 111              Fax:    612-638-0500
+Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
+http://www.sistina.com
 
->Perhaps it needs to be made clear to people that these kernels still 
->aren't all they could be. 
+Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
+648
+Get my key at: http://www.sistina.com/~lewis/gpgkey
+ (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
 
-No kernel is perfect.  The judgement was that it was ready to switch from adding
-features to increasing stability.  Thus it has ever been since my first kernel
-~= 0.95.
--- 
-Roy Murphy      \ CSpice -- A mailing list for Clergy Spouses
-murphy@panix.com \  http://www.panix.com/~murphy/CSpice.html
+-----Begin Obligatory Humorous Quote----------------------------------------
+"We succeed because our competitors are idiots" - anonymous
+-----End Obligatory Humorous Quote------------------------------------------
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7eswapE6/iGtdjLERAiPpAJ9eQ4a7h/0tA+pT3A0iwueuQ2NQagCePdlH
+3Q71O7DRCRRAsRdxtbi7B/w=
+=Qicl
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--

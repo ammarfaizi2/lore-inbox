@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbSLHBPl>; Sat, 7 Dec 2002 20:15:41 -0500
+	id <S265096AbSLHCAt>; Sat, 7 Dec 2002 21:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbSLHBPl>; Sat, 7 Dec 2002 20:15:41 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:49110 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S265081AbSLHBPk>;
-	Sat, 7 Dec 2002 20:15:40 -0500
-Date: Sun, 8 Dec 2002 02:22:58 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.20-BK
-Message-ID: <20021208012258.GB5355@werewolf.able.es>
-References: <200212071434.11514.m.c.p@wolk-project.de> <1039312291.27923.13.camel@irongate.swansea.linux.org.uk>
+	id <S265097AbSLHCAt>; Sat, 7 Dec 2002 21:00:49 -0500
+Received: from www.security.wayne.edu ([141.217.2.10]:5505 "EHLO
+	security.wayne.edu") by vger.kernel.org with ESMTP
+	id <S265096AbSLHCAs>; Sat, 7 Dec 2002 21:00:48 -0500
+Date: Sat, 7 Dec 2002 21:08:27 -0500
+From: "Nathan W. Labadie" <ab0781@wayne.edu>
+To: linux-kernel@vger.kernel.org
+Subject: problems mounting root partition with 2.5.48+ kernels
+Message-ID: <20021208020827.GA9607@security.wayne.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1039312291.27923.13.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Dec 08, 2002 at 02:51:31 +0100
-X-Mailer: Balsa 1.4.1
+User-Agent: Mutt/1.4i
+X-gpg-key: http://security.wayne.edu/keys/nathan_labadie.key
+X-gpg-fingerprint: FB19 5F58 9CF2 8E8C E221 5603 9D75 0FB3 06C0 1952
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The bugzilla report can be found here:
+http://bugme.osdl.org/show_bug.cgi?id=130
 
-On 2002.12.08 Alan Cox wrote:
->On Sat, 2002-12-07 at 13:35, Marc-Christian Petersen wrote:
->> Hi Alan,
->> 
->> using 2.4.20-BK tree gives me:
->> 
->> flushing ide devices: hda hdd
->
->Marcelo dropped some of the patches I sent (or his mailer or some random
->box in between did). You also want the ll_rw_blk change from -ac
->
+I have both bzImage-2.5.47 and bzImage-2.5.50 sitting in /boot, both
+compiled with the same kernel config. 2.5.47 boots and successfully
+mounts root without any problems. 2.5.50 boots, but errors out with
+'can't mount root device'. I've tried this with both XFS and ReiserFS as
+my root filesystem, so I'm guessing it's not filesystem specific. I had
+the same problem with 2.5.48 and 2.5.49. Both grub and modutils are at
+the current version.
 
-BTW, sometimes i noticed that my box powers of after
+/dev/hda5 swap
+/dev/hda6 /boot
+/dev/hda7 /
 
-flushing ide devices: hda hdb hdc hdd
+Any help would be greatly appreciated.
 
-and others I just see a couple disks and then power-off in the middle
-of the flush message. Is this something known ?
+NOTE: I'm not on the list so please CC me on the reply.
 
-TIA
+Thanks much,
+Nate
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+Nathan W. Labadie       | ab0781@wayne.edu	
+Sr. Security Specialist | 313-577-2126
+Wayne State University  | 313-577-1338 fax
+C&IT Information Security Office: http://security.wayne.edu

@@ -1,107 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288370AbSACXAd>; Thu, 3 Jan 2002 18:00:33 -0500
+	id <S286893AbSACXDX>; Thu, 3 Jan 2002 18:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288363AbSACXAY>; Thu, 3 Jan 2002 18:00:24 -0500
-Received: from bigglesworth.mail.be.easynet.net ([212.100.160.67]:48644 "EHLO
-	bigglesworth.mail.be.easynet.net") by vger.kernel.org with ESMTP
-	id <S286893AbSACXAH>; Thu, 3 Jan 2002 18:00:07 -0500
-Message-ID: <3C34E250.FF00856D@easynet.be>
-Date: Thu, 03 Jan 2002 23:59:28 +0100
-From: Luc Van Oostenryck <luc.vanoostenryck@easynet.be>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre6 i686)
-X-Accept-Language: en
+	id <S288371AbSACXDD>; Thu, 3 Jan 2002 18:03:03 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:37127 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S286893AbSACXC5>; Thu, 3 Jan 2002 18:02:57 -0500
+Date: Fri, 4 Jan 2002 00:02:45 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Dan Kegel <dank@kegel.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] smbfs fsx'ed
+In-Reply-To: <3C34E061.3455AE74@kegel.com>
+Message-ID: <Pine.LNX.4.33.0201032351440.28529-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.2-pre7: fix up devfs
-Content-Type: multipart/mixed;
- boundary="------------2910F60A9E18F1E802FC21C1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2910F60A9E18F1E802FC21C1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, 3 Jan 2002, Dan Kegel wrote:
 
-here's a patch to fix the devfs part:
+> I use smbfs to mount a visual sourcesafe database,
+> and run ss via wine.  The combination is very slow.
+> Don't know how much of it is wine, and how much is smbfs,
+> but any speedup would be greatly appreciated.
+
+SS is really painful on a high latency connection, CVS is a wonder of
+efficiency in comparison. At least that is my experience. But that is
+probably not your setup.
+(and yes, I understood that you compared with windows performance)
+
+You may want to know that smbfs does not do any file locking. I don't know
+if SS depends on that or not. I do know that some people have tried
+running dos based database programs in dosemu accessing a database over
+smbfs with database corruption as a result.
 
 
--- 
-Luc Van Oostenryck
---------------2910F60A9E18F1E802FC21C1
-Content-Type: application/octet-stream;
- name="devfs-2.5.2.6.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="devfs-2.5.2.6.patch"
+> (Eventually, wine will bundle its own smb code, but for
+> now if you want to access network shares, smbfs is the only way.)
+> - Dan
+> 
+> p.s. see http://www.kegel.com/linux/vss-howto.html
 
-ZGlmZiAtdXIgbGludXgtMi41LjItcHJlNy9mcy9kZXZmcy9iYXNlLmMgbGludXgvZnMvZGV2
-ZnMvYmFzZS5jCi0tLSBsaW51eC0yLjUuMi1wcmU3L2ZzL2RldmZzL2Jhc2UuYwlUaHUgSmFu
-ICAzIDIzOjM0OjQ5IDIwMDIKKysrIGxpbnV4L2ZzL2RldmZzL2Jhc2UuYwlUaHUgSmFuICAz
-IDIzOjQyOjAzIDIwMDIKQEAgLTg5NCw3ICs4OTQsNyBAQAogICAgIHsKIAlkZXZmc19kZWFs
-bG9jX2Rldm51bSAoIFNfSVNDSFIgKGRlLT5tb2RlKSA/IERFVkZTX1NQRUNJQUxfQ0hSIDoK
-IAkJCSAgICAgICBERVZGU19TUEVDSUFMX0JMSywKLQkJCSAgICAgICBNS0RFViAoZGUtPnUu
-ZmNiLnUuZGV2aWNlLm1ham9yLAorCQkJICAgICAgIG1rX2tkZXYoZGUtPnUuZmNiLnUuZGV2
-aWNlLm1ham9yLAogCQkJCSAgICAgIGRlLT51LmZjYi51LmRldmljZS5taW5vcikgKTsKICAg
-ICB9CiAgICAgV1JJVEVfRU5UUllfTUFHSUMgKGRlLCAwKTsKQEAgLTE1NTIsNyArMTU1Miw3
-IEBACiAgICAgaWYgKCAoIFNfSVNDSFIgKG1vZGUpIHx8IFNfSVNCTEsgKG1vZGUpICkgJiYK
-IAkgKGZsYWdzICYgREVWRlNfRkxfQVVUT19ERVZOVU0pICkKICAgICB7Ci0JaWYgKCAoIGRl
-dm51bSA9IGRldmZzX2FsbG9jX2Rldm51bSAoZGV2dHlwZSkgKSA9PSBOT0RFViApCisJaWYg
-KCBrZGV2X25vbmUoIGRldm51bSA9IGRldmZzX2FsbG9jX2Rldm51bSAoZGV2dHlwZSkgKSAp
-CiAJewogCSAgICBQUklOVEsgKCIoJXMpOiBleGhhdXN0ZWQgJXMgZGV2aWNlIG51bWJlcnNc
-biIsCiAJCSAgICBuYW1lLCBTX0lTQ0hSIChtb2RlKSA/ICJjaGFyIiA6ICJibG9jayIpOwpA
-QCAtMTU2NCwxNCArMTU2NCwxNCBAQAogICAgIGlmICggKCBkZSA9IF9kZXZmc19wcmVwYXJl
-X2xlYWYgKCZkaXIsIG5hbWUsIG1vZGUpICkgPT0gTlVMTCApCiAgICAgewogCVBSSU5USyAo
-Iiglcyk6IGNvdWxkIG5vdCBwcmVwYXJlIGxlYWZcbiIsIG5hbWUpOwotCWlmIChkZXZudW0g
-IT0gTk9ERVYpIGRldmZzX2RlYWxsb2NfZGV2bnVtIChkZXZ0eXBlLCBkZXZudW0pOworCWlm
-ICgha2Rldl9ub25lKGRldm51bSkpIGRldmZzX2RlYWxsb2NfZGV2bnVtIChkZXZ0eXBlLCBk
-ZXZudW0pOwogCXJldHVybiBOVUxMOwogICAgIH0KICAgICBpZiAoIFNfSVNDSFIgKG1vZGUp
-IHx8IFNfSVNCTEsgKG1vZGUpICkKICAgICB7CiAJZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9y
-ID0gbWFqb3I7CiAJZGUtPnUuZmNiLnUuZGV2aWNlLm1pbm9yID0gbWlub3I7Ci0JZGUtPnUu
-ZmNiLmF1dG9nZW4gPSAoZGV2bnVtID09IE5PREVWKSA/IEZBTFNFIDogVFJVRTsKKwlkZS0+
-dS5mY2IuYXV0b2dlbiA9IGtkZXZfbm9uZShkZXZudW0pID8gRkFMU0UgOiBUUlVFOwogICAg
-IH0KICAgICBlbHNlIGlmICggIVNfSVNSRUcgKG1vZGUpICkKICAgICB7CkBAIC0xNjAxLDcg
-KzE2MDEsNyBAQAogICAgIHsKIAlQUklOVEsgKCIoJXMpOiBjb3VsZCBub3QgYXBwZW5kIHRv
-IHBhcmVudCwgZXJyOiAlZFxuIiwgbmFtZSwgZXJyKTsKIAlkZXZmc19wdXQgKGRpcik7Ci0J
-aWYgKGRldm51bSAhPSBOT0RFVikgZGV2ZnNfZGVhbGxvY19kZXZudW0gKGRldnR5cGUsIGRl
-dm51bSk7CisJaWYgKCFrZGV2X25vbmUoZGV2bnVtKSkgZGV2ZnNfZGVhbGxvY19kZXZudW0g
-KGRldnR5cGUsIGRldm51bSk7CiAJcmV0dXJuIE5VTEw7CiAgICAgfQogICAgIERQUklOVEsg
-KERFQlVHX1JFR0lTVEVSLCAiKCVzKTogZGU6ICVwIGRpcjogJXAgXCIlc1wiICBwcDogJXBc
-biIsCkBAIC0yNDEzLDcgKzI0MTMsNyBAQAogewogICAgIGludCB0bXA7CiAgICAgaW50IHJl
-dHZhbCA9IDA7Ci0gICAga2Rldl90IGRldiA9IE1LREVWIChkZS0+dS5mY2IudS5kZXZpY2Uu
-bWFqb3IsIGRlLT51LmZjYi51LmRldmljZS5taW5vcik7CisgICAga2Rldl90IGRldiA9IG1r
-X2tkZXYoZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9yLCBkZS0+dS5mY2IudS5kZXZpY2UubWlu
-b3IpOwogICAgIHN0cnVjdCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyAqYmRvcHM7CiAgICAg
-ZXh0ZXJuIGludCB3YXJuX25vX3BhcnQ7CiAKQEAgLTI1OTksMTQgKzI1OTksMTQgQEAKICAg
-ICBpbm9kZS0+aV9yZGV2ID0gTk9ERVY7CiAgICAgaWYgKCBTX0lTQ0hSIChkZS0+bW9kZSkg
-KQogICAgIHsKLQlpbm9kZS0+aV9yZGV2ID0gTUtERVYgKGRlLT51LmZjYi51LmRldmljZS5t
-YWpvciwKKwlpbm9kZS0+aV9yZGV2ID0gbWtfa2RldihkZS0+dS5mY2IudS5kZXZpY2UubWFq
-b3IsCiAJCQkgICAgICAgZGUtPnUuZmNiLnUuZGV2aWNlLm1pbm9yKTsKIAlpbm9kZS0+aV9j
-ZGV2ID0gY2RnZXQgKCBrZGV2X3RfdG9fbnIgKGlub2RlLT5pX3JkZXYpICk7CiAJaXNfZmNi
-ID0gVFJVRTsKICAgICB9CiAgICAgZWxzZSBpZiAoIFNfSVNCTEsgKGRlLT5tb2RlKSApCiAg
-ICAgewotCWlub2RlLT5pX3JkZXYgPSBNS0RFViAoZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9y
-LAorCWlub2RlLT5pX3JkZXYgPSBta19rZGV2KGRlLT51LmZjYi51LmRldmljZS5tYWpvciwK
-IAkJCSAgICAgICBkZS0+dS5mY2IudS5kZXZpY2UubWlub3IpOwogCWlmIChiZF9hY3F1aXJl
-IChpbm9kZSkgPT0gMCkKIAl7CmRpZmYgLXVyIGxpbnV4LTIuNS4yLXByZTcvZnMvZGV2ZnMv
-dXRpbC5jIGxpbnV4L2ZzL2RldmZzL3V0aWwuYwotLS0gbGludXgtMi41LjItcHJlNy9mcy9k
-ZXZmcy91dGlsLmMJVGh1IEphbiAgMyAyMzozNDo0OSAyMDAyCisrKyBsaW51eC9mcy9kZXZm
-cy91dGlsLmMJVGh1IEphbiAgMyAyMzo0NToxNCAyMDAyCkBAIC0yNjcsNyArMjY3LDcgQEAK
-IAlpZiAobWlub3IgPj0gMjU2KSBjb250aW51ZTsKIAlfX3NldF9iaXQgKG1pbm9yLCBlbnRy
-eS0+Yml0cyk7CiAJdXAgKHNlbWFwaG9yZSk7Ci0JcmV0dXJuIE1LREVWIChlbnRyeS0+bWFq
-b3IsIG1pbm9yKTsKKwlyZXR1cm4gbWtfa2RldihlbnRyeS0+bWFqb3IsIG1pbm9yKTsKICAg
-ICB9CiAgICAgLyogIE5lZWQgdG8gYWxsb2NhdGUgYSBuZXcgbWFqb3IgICovCiAgICAgaWYg
-KCAoIGVudHJ5ID0ga21hbGxvYyAoc2l6ZW9mICplbnRyeSwgR0ZQX0tFUk5FTCkgKSA9PSBO
-VUxMICkKQEAgLTI4OSw3ICsyODksNyBAQAogICAgIGVsc2UgbGlzdC0+bGFzdC0+bmV4dCA9
-IGVudHJ5OwogICAgIGxpc3QtPmxhc3QgPSBlbnRyeTsKICAgICB1cCAoc2VtYXBob3JlKTsK
-LSAgICByZXR1cm4gTUtERVYgKGVudHJ5LT5tYWpvciwgMCk7CisgICAgcmV0dXJuIG1rX2tk
-ZXYoZW50cnktPm1ham9yLCAwKTsKIH0gICAvKiAgRW5kIEZ1bmN0aW9uIGRldmZzX2FsbG9j
-X2Rldm51bSAgKi8KIEVYUE9SVF9TWU1CT0woZGV2ZnNfYWxsb2NfZGV2bnVtKTsKIApAQCAt
-MzA5LDcgKzMwOSw3IEBACiAgICAgc3RydWN0IGRldmljZV9saXN0ICpsaXN0OwogICAgIHN0
-cnVjdCBtaW5vcl9saXN0ICplbnRyeTsKIAotICAgIGlmIChkZXZudW0gPT0gTk9ERVYpIHJl
-dHVybjsKKyAgICBpZiAoa2Rldl9ub25lKGRldm51bSkpIHJldHVybjsKICAgICBpZiAodHlw
-ZSA9PSBERVZGU19TUEVDSUFMX0NIUikKICAgICB7CiAJc2VtYXBob3JlID0gJmNoYXJfc2Vt
-YXBob3JlOwo=
---------------2910F60A9E18F1E802FC21C1--
+Very nice. The commandline SS client would never work for me under wine.
+I'll have to try that again.
+
+/Urban
 

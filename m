@@ -1,67 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262063AbSI3Nl7>; Mon, 30 Sep 2002 09:41:59 -0400
+	id <S262091AbSI3OJa>; Mon, 30 Sep 2002 10:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262064AbSI3Nl5>; Mon, 30 Sep 2002 09:41:57 -0400
-Received: from c0202001.roe.itnq.net ([217.112.132.110]:6784 "EHLO
-	thinkpad.objectsecurity.cz") by vger.kernel.org with ESMTP
-	id <S262063AbSI3Nlz>; Mon, 30 Sep 2002 09:41:55 -0400
-Date: Mon, 30 Sep 2002 15:47:29 +0200 (CEST)
-From: Karel Gardas <kgardas@objectsecurity.com>
-X-X-Sender: karel@thinkpad.objectsecurity.cz
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] apm resume hangs on IBM T22 with 2.4.19 (harddrive sleeps
- forever)
-In-Reply-To: <20020930220130.6c4dd808.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.43.0209301538460.457-100000@thinkpad.objectsecurity.cz>
+	id <S262092AbSI3OIk>; Mon, 30 Sep 2002 10:08:40 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:51947 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S262091AbSI3NoK> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:10 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.39 s390 (20/26): signal quiesce.
+Date: Mon, 30 Sep 2002 15:02:32 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209301502.32431.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, Stephen Rothwell wrote:
+Add 'signal quiesque' feature to s390 hardware console. A signal quiesce
+is sent from VM or the service element every time the system should shut
+down. We receive the quiesce signal and call ctrl_alt_del(). Finally the
+mainframes have ctrl-alt-del as well :-)
 
-> > But you don't have clean 2.4.19.
->
-> True, I should try that.
-
-Did you try it?
-
-> > I've done it right now and it seems 2.4.19 w/o any patch is broken for me.
-> > i.e. it behaves the same wrong way and hd is sleeping forevere after apm
-> > resume...
-> >
-> > Anything what should I test now?
->
-> Can you try 2.4.19 with the arch/i386/kernel/apm.c from 2.4.18?
-
-I've tried it and w/o success so hd is still sleeping after resume. So
-maybe the problem is somewhere else. Do you have any advice what should I
-try now? 2.4.20-pre<latest>? Or some other files from 2.4.18?
-
-BTW: I'm always waiting at most 5 minutes for hd wakeup, is that enough? I
-hope so, since it's enough on 2.4.18...
-
-<after some time looking into syslog>
-
-Maybe you'll find usefull that I have these messages after resume in
-syslog:
-
-Sep 28 22:07:39 thinkpad apmd[211]: System Suspend
-Sep 29 19:31:28 thinkpad apmd[211]: apmd_call_proxy: Executing proxy: '/etc/apm/apmd_proxy' 'resume' 'suspend'
-Sep 29 19:31:45 thinkpad kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-Sep 29 19:31:45 thinkpad kernel: hda: lost interrupt
-Sep 29 19:31:48 thinkpad apmd[211]: apmd_call_proxy: +  Setting the System Clock using the Hardware Clock as reference... System Clock set. Local time: Sun Sep 29 19:31:48 CEST 2002
-Sep 29 19:31:48 thinkpad apmd[211]: Normal Resume
-
-But I don't know if they appear after every resume on working 2.4.18. I'd
-have to check it.
-
-Thanks a lot,
-
-Karel
---
-Karel Gardas                  kgardas@objectsecurity.com
-ObjectSecurity Ltd.           http://www.objectsecurity.com
+diff -urN linux-2.5.39/drivers/s390/char/hwc.h linux-2.5.39-s390/drivers/s390/char/hwc.h
+--- linux-2.5.39/drivers/s390/char/hwc.h	Fri Sep 27 23:50:21 2002
++++ linux-2.5.39-s390/drivers/s390/char/hwc.h	Mon Sep 30 13:33:22 2002
+@@ -22,6 +22,7 @@
+ #define ET_PMsgCmd		0x09
+ #define ET_CntlProgOpCmd	0x20
+ #define ET_CntlProgIdent	0x0B
++#define ET_SigQuiesce	0x1D
+ 
+ #define ET_OpCmd_Mask	0x80000000
+ #define ET_Msg_Mask		0x40000000
+@@ -29,6 +30,7 @@
+ #define ET_PMsgCmd_Mask	0x00800000
+ #define ET_CtlProgOpCmd_Mask	0x00000001
+ #define ET_CtlProgIdent_Mask	0x00200000
++#define ET_SigQuiesce_Mask	0x00000008
+ 
+ #define GMF_DOM		0x8000
+ #define GMF_SndAlrm	0x4000
+@@ -218,7 +220,8 @@
+ 	0x0000,
+ 	0x0000,
+ 	sizeof (_hwcb_mask_t),
+-	ET_OpCmd_Mask | ET_PMsgCmd_Mask | ET_StateChange_Mask,
++	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
++	ET_StateChange_Mask | ET_SigQuiesce_Mask,
+ 	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
+ };
+ 
+diff -urN linux-2.5.39/drivers/s390/char/hwc_rw.c linux-2.5.39-s390/drivers/s390/char/hwc_rw.c
+--- linux-2.5.39/drivers/s390/char/hwc_rw.c	Mon Sep 30 13:33:09 2002
++++ linux-2.5.39-s390/drivers/s390/char/hwc_rw.c	Mon Sep 30 13:33:22 2002
+@@ -35,6 +35,8 @@
+ #define MIN(a,b) (((a<b) ? a : b))
+ #endif
+ 
++extern void ctrl_alt_del (void);
++
+ #define HWC_RW_PRINT_HEADER "hwc low level driver: "
+ 
+ #define  USE_VM_DETECTION
+@@ -172,6 +174,7 @@
+ 	unsigned char read_nonprio:1;
+ 	unsigned char read_prio:1;
+ 	unsigned char read_statechange:1;
++	unsigned char sig_quiesce:1;
+ 
+ 	unsigned char flags;
+ 
+@@ -222,6 +225,7 @@
+ 	    0,
+ 	    0,
+ 	    0,
++	    0,
+ 	    NULL,
+ 	    NULL
+ 
+@@ -1529,6 +1533,19 @@
+ 				       HWC_RW_PRINT_HEADER
+ 				 "can not read state change notifications\n");
+ 
++	hwc_data.sig_quiesce
++	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
++	if (hwc_data.sig_quiesce)
++		internal_print (
++				       DELAYED_WRITE,
++				       HWC_RW_PRINT_HEADER
++				       "can receive signal quiesce\n");
++	else
++		internal_print (
++				       DELAYED_WRITE,
++				       HWC_RW_PRINT_HEADER
++				       "can not receive signal quiesce\n");
++
+ 	hwc_data.read_nonprio
+ 	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
+ 	if (hwc_data.read_nonprio)
+@@ -1609,6 +1626,47 @@
+ 	return retval;
+ }
+ 
++#ifdef CONFIG_SMP
++static volatile unsigned long cpu_quiesce_map;
++
++static void 
++do_load_quiesce_psw (void)
++{
++	psw_t quiesce_psw;
++
++	clear_bit (smp_processor_id (), &cpu_quiesce_map);
++	if (smp_processor_id () == 0) {
++
++		while (cpu_quiesce_map != 0) ;
++
++		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++		quiesce_psw.addr = 0xfff;
++		__load_psw (quiesce_psw);
++	}
++	signal_processor (smp_processor_id (), sigp_stop);
++}
++
++static void 
++do_machine_quiesce (void)
++{
++	cpu_quiesce_map = cpu_online_map;
++	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
++	do_load_quiesce_psw ();
++}
++
++#else
++static void 
++do_machine_quiesce (void)
++{
++	psw_t quiesce_psw;
++
++	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++	queisce_psw.addr = 0xfff;
++	__load_psw (quiesce_psw);
++}
++
++#endif
++
+ static int 
+ process_evbufs (void *start, void *end)
+ {
+@@ -1644,6 +1702,13 @@
+ 			retval += eval_statechangebuf
+ 			    ((statechangebuf_t *) evbuf);
+ 			break;
++		case ET_SigQuiesce:
++
++			_machine_restart = do_machine_quiesce;
++			_machine_halt = do_machine_quiesce;
++			_machine_power_off = do_machine_quiesce;
++			ctrl_alt_del ();
++			break;
+ 		default:
+ 			internal_print (
+ 					       DELAYED_WRITE,
 

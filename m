@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129110AbQKFAFw>; Sun, 5 Nov 2000 19:05:52 -0500
+	id <S129121AbQKFAKd>; Sun, 5 Nov 2000 19:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKFAFn>; Sun, 5 Nov 2000 19:05:43 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:57371 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129110AbQKFAFa>; Sun, 5 Nov 2000 19:05:30 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: ryan <ryan@netidea.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP) 
-In-Reply-To: Your message of "Sun, 05 Nov 2000 13:08:41 -0800."
-             <3A05CC59.7B0566C7@netidea.com> 
+	id <S129364AbQKFAKO>; Sun, 5 Nov 2000 19:10:14 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:23368 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129121AbQKFAKC>; Sun, 5 Nov 2000 19:10:02 -0500
+Date: Mon, 6 Nov 2000 01:10:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Sushil Agarwal <sushil@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rdtsc to mili secs?
+Message-ID: <20001106011000.A9787@athlon.random>
+In-Reply-To: <Pine.SOL.4.05.10011060433030.17401-100000@vxindia>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 11:04:06 +1100
-Message-ID: <1459.973469046@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.05.10011060433030.17401-100000@vxindia>; from sushil@veritas.com on Mon, Nov 06, 2000 at 04:39:23AM +0530
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Nov 2000 13:08:41 -0800, 
-ryan <ryan@netidea.com> wrote:
->Kernel oops. A message like:
->
->"Detected LOCKUP on CPU0"
->or sometimes its CPU1...
+On Mon, Nov 06, 2000 at 04:39:23AM +0530, Sushil Agarwal wrote:
+> Hi,
+>     According to the Intel Arch. Instruction set reference the
+> resolution of the "rdtsc" instruction is a clock cycle. How
+> do I convert this to mili seconds? 
 
-Which tells us precisely nothing.  Saying "a message like" is no good.
-You need to follow the procedure in linux/REPORTING-BUGS, including the
-_exact_ message, run through ksymoops if necessary.
+fast_gettimeoffset_quotient, see do_fast_gettimeoffset().
 
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

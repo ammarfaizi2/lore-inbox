@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbRALS0n>; Fri, 12 Jan 2001 13:26:43 -0500
+	id <S131738AbRALS3N>; Fri, 12 Jan 2001 13:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbRALS0e>; Fri, 12 Jan 2001 13:26:34 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:37680 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129792AbRALS0a>; Fri, 12 Jan 2001 13:26:30 -0500
-Date: Fri, 12 Jan 2001 19:24:39 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard A Nelson <cowboy@vnet.ibm.com>,
-        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-Message-ID: <20010112192439.U2766@athlon.random>
-In-Reply-To: <20010112180556.J2766@athlon.random> <Pine.LNX.4.10.10101120931520.1806-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101120931520.1806-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 09:35:14AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129811AbRALS3E>; Fri, 12 Jan 2001 13:29:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51473 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131738AbRALS2u>; Fri, 12 Jan 2001 13:28:50 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+Date: 12 Jan 2001 10:28:33 -0800
+Organization: Transmeta Corporation
+Message-ID: <93nich$1uq$1@penguin.transmeta.com>
+In-Reply-To: <E14H8Ks-0004hA-00@the-village.bc.nu> <3A5F4827.2E443786@colorfullife.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 09:35:14AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 12 Jan 2001, Andrea Arcangeli wrote:
-> 
-> > On Fri, Jan 12, 2001 at 11:42:32AM -0500, Richard A Nelson wrote:
-> > > 
-> > > Its fine either way on current x86 and many other platforms, but falls
-> > > on its face in the presence of asymetric MP.
-> > 
-> > Point taken, feel free to have a can_I_use per-cpu instead of global but don't
-> > overwrite the cpu_has with it. 
-> 
-> Andrea, the whole POINT of "cpu_has_xxx" is for the kernel to test for
-> features like this.
+In article <3A5F4827.2E443786@colorfullife.com>,
+Manfred Spraul  <manfred@colorfullife.com> wrote:
+>The processor's local APIC includes an in-service entry and a holding
+>entry for each priority level. To avoid losing interrupts, software
+>should allocate no more than 2 interrupt vectors per priority.
+>>>>>>>>>
+>
+>Ok, we must reorder the vector numbers for our own interrupts
+>(0xfb-0xff), but that doesn't explain our problems: we don't loose
+>reschedule interrupts, we have problems with normal interrupts - and
+>there we only use 2 irq at the same priority level.
+>
+>Btw, the kick patch I sent a few minutes ago revives my io apic.
 
-I'm only concerned about the semantics of fxsr and xmm in /proc/cpuinfo, _not_
-about the kernel implementation and self contained #defines (that
-I'd preferred if they really meant cpu_has and not can_I_use too, but
-that's an our internal thing not visible from userspace).
+Does this seem to happen mainly with drivers that use "disable_irq()"
+and "enable_irq()"? I know the ne drivers do (through the 8390 module),
+and some others do too (3c59x). 
 
-fxsr and xmm in /proc/cpuinfo in 2.4.0, 2.4.1-pre[12], and 2.2.* means
-"cpu_has" and _not_ "can_I_use".
+"disable_irq()"/"enable_irq()" has always tended to be slightly
+problematic.  It's not a set of semantics that maps well onto all
+interrupt controllers (io-apic definitely included).  Drivers would
+generally be better off if they disabled their own chip from sending
+interrupts, rather than disabling the interrupt line the chip is on. 
 
-So anybody using the fxsr and xmm in the "flags" row of /proc/cpuinfo as the
-"can_I_use" will break in any kernel before 2.4.1-pre3.
+(Of course, most drivers would be even _better_ off if they didn't play
+games with irq disabling at all, but I think the 8390 driver does it
+because otherwise it would suck too badly for words). 
 
-Anybody reading fxsr and xmm as "cpu_has" will break in any kernel after
-2.4.1-pre2.
+If you are seeing this with a 8390 core, try to see if the problem goes
+away if you remove the "disable_irq_nosync(dev->irq);" and
+"enable_irq()" thing (which means that you need to change the
+spinlocking at the same place to use irq-safe versions - this _will_
+make for bad interrupt latency especially with ISA ne2000 cards, but it
+would be interesting to hear if it makes the problem less likely to
+happen). 
 
-This all I meant when I said that 2.4.1-pre3 broke /proc/cpuinfo.
-
-I'd prefer if /proc/cpuinfo wasn't broken. That's all.
-
-Andrea
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

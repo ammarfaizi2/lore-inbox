@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262788AbSIPSf2>; Mon, 16 Sep 2002 14:35:28 -0400
+	id <S262777AbSIPShO>; Mon, 16 Sep 2002 14:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSIPSf2>; Mon, 16 Sep 2002 14:35:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9997 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262788AbSIPSf1>; Mon, 16 Sep 2002 14:35:27 -0400
-Date: Mon, 16 Sep 2002 14:33:12 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "lse-tech@lists.sourceforge.net" <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.5.34-mm4
-In-Reply-To: <Pine.LNX.4.44L.0209151130540.1857-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.96.1020916142958.6180D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262780AbSIPShO>; Mon, 16 Sep 2002 14:37:14 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:38673
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262777AbSIPShN>; Mon, 16 Sep 2002 14:37:13 -0400
+Subject: Re: BUG(): sched.c: Line 944 - 2.5.35
+From: Robert Love <rml@tech9.net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, spstarr@sh0n.net, venom@sns.it
+In-Reply-To: <200209161636.JAA02714@adam.yggdrasil.com>
+References: <200209161636.JAA02714@adam.yggdrasil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Sep 2002 14:42:13 -0400
+Message-Id: <1032201735.1010.7.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, Rik van Riel wrote:
+On Mon, 2002-09-16 at 12:36, Adam J. Richter wrote:
 
-> On Sun, 15 Sep 2002, Axel Siebenwirth wrote:
-> > On Fri, 13 Sep 2002, Andrew Morton wrote:
-> >
-> > > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.34/2.5.34-mm4/
-> >
-> > With changing from 2.5.34-mm2 to -mm4 I have experienced some moments of
-> > quite unresponsive behaviour.
+> 	When I see this problem at boot, preempt_count() returns 0x4000000
+> (PREEMPT_ACTIVE) and kernel_locked() returns 0.
 > 
-> Don't worry, it's supposed to do that. You can't measure desktop
-> interactivity, so it doesn't exist ;)
+> 	I don't understand the semantics of PREEMPT_ACTIVE to know
+> whether to
+> 
+> 	(1) change the test back to using in_interrupt instead of in_atomic, or
+> 	(2) change the definition of in_atomic(), or
+> 	(3) look for a bug somewhere else.
 
-But now we have `contest' and we can, so it does.
+There are two problems: First, PREEMPT_ACTIVE is indeed set on entry to
+schedule() from preempt_schedule() so we need to check for that too. 
+Second, the BUG() is catching a bit of issues... you want something
+like:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+-	if (unlikely(in_atomic()))
+-		BUG();
++	if (unlikely(in_atomic() && preempt_count() != PREEMPT_ACTIVE)) {
++		printk(KERN_ERR "schedule() called while non-atomic!\n");
++		show_stack(NULL);
++	}
+
+I will send a patch to Linus.
+
+> 	However, I know experimentally that changing the test back to
+> using in_interrupt() results in a possibly unrelated BUG() at line 279
+> of rmap.c:
+
+This is unrelated.
+
+	Robert Love
 

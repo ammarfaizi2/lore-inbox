@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAIN2n>; Tue, 9 Jan 2001 08:28:43 -0500
+	id <S129534AbRAINad>; Tue, 9 Jan 2001 08:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAIN2d>; Tue, 9 Jan 2001 08:28:33 -0500
-Received: from mail.linux.com ([198.186.203.59]:9228 "EHLO mail.i.linux.com")
-	by vger.kernel.org with ESMTP id <S129532AbRAIN2R>;
-	Tue, 9 Jan 2001 08:28:17 -0500
-Date: Tue, 9 Jan 2001 05:28:08 -0800 (PST)
-From: Blu3Viper <david@linux.com>
-To: jamal <hadi@cyberus.ca>
-cc: Andi Kleen <ak@suse.de>, Chris Wedgwood <cw@f00f.org>,
-        "David S. Miller" <davem@redhat.com>, greearb@candelatech.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
- policy!)
-In-Reply-To: <Pine.GSO.4.30.0101080806440.18916-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.21.0101090527460.22522-100000@shiftq.linux.com>
+	id <S131027AbRAINaX>; Tue, 9 Jan 2001 08:30:23 -0500
+Received: from www.wen-online.de ([212.223.88.39]:25862 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129534AbRAINaD>;
+	Tue, 9 Jan 2001 08:30:03 -0500
+Date: Tue, 9 Jan 2001 14:29:03 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [testcase] madvise->semaphore deadlock 2.4.0
+In-Reply-To: <3A5B00F4.55FB83FE@uow.edu.au>
+Message-ID: <Pine.Linu.4.10.10101091412110.471-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually if you count arp which is also part of ip; ip becomes smaller
-> by about 15K.
+On Tue, 9 Jan 2001, Andrew Morton wrote:
 
-...i always forget some small detail.
+> Mike Galbraith wrote:
+> > 
+> > Greetings,
+> > 
+> > While trying to configure ftpsearch, the process hangs while running
+> > it's madvise confidence test below.  It appears to be taking a fault
+> > in madvise_fixup_middle():atomic_add(2, &vma->vm_file->f_count) and
+> > immediately deadlocking forever on mm->mmap_sem per IKD.  (Virgin 2.4.0
+> > agrees)
+> >
+> 
+> This should fix it.
 
-thx
+Indeed it does.   (benchmark _that_ OS rags;)
 
--d
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283272AbRLDSmA>; Tue, 4 Dec 2001 13:42:00 -0500
+	id <S283278AbRLDSnK>; Tue, 4 Dec 2001 13:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281547AbRLDSkQ>; Tue, 4 Dec 2001 13:40:16 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:46217 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S281659AbRLDSjf>; Tue, 4 Dec 2001 13:39:35 -0500
-To: raul@viadomus.com, trini@kernel.crashing.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16BKeT-0001zt-00@DervishD.viadomus.com>
-Date: Tue, 4 Dec 2001 19:50:45 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S281547AbRLDSmC>; Tue, 4 Dec 2001 13:42:02 -0500
+Received: from hal.grips.com ([62.144.214.40]:29387 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S283163AbRLDSih>;
+	Tue, 4 Dec 2001 13:38:37 -0500
+Message-Id: <200112041837.fB4Iboq23957@hal.grips.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Gerold Jury <geroldj@grips.com>
+To: manu@agat.net, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: what happened with thread, from 2.2 to 2.4 ?!
+Date: Tue, 4 Dec 2001 19:37:50 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <01120215334302.00742@extasia>
+In-Reply-To: <01120215334302.00742@extasia>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Tom :))
+The kernel version may not be the reason for this.
+glibc 2.2.1 or 2.2.2 had a problem which some uninitialised variables when 
+linked to pthread. (i think i can remember the strfmon call)
+What is your glibc version ?
 
->>     Why must I install Python in order to compile the kernel? I don't
->> understand this. I think there are better alternatives, but kbuild
->> seems to be imposed any way.
->kbuild != CML2.
+Gerold
 
-    Yes, sorry, just a mental shortcircuit ;))
-
->It all boils down to the current 'language' having no
->real definitive spec, and having 3+ incompatible parsers.
-
-    Yes, I know and I think that is a good thing to have a good
-configuration language, and it means having a good specification and
-a good parser. Just I don't think that 6Mb-Python is a good way to
-write a good parser. Well, I'm sure that I cannot do better (right
-now), so I don't want to flame anyone with this, just want to show my
-opinion (shared by many, although) and show the negative points of
-having Python as a dependence.
-
->The spec for CML2 is out there, and there's even a CML2-in-C project.
-
-    How advanced? Where is the spec, please?
-
->that project out and then convince Linus to include it.
-
-    Hard job... Convincing Linus, I mean ;)))
-
->>     The kernel should depend just on the compiler and assembler, IMHO.
->The right tools for the right job.  C is good for the kernel.  Python is
->good at manipulating strings.
-
-    Well, IMHO Python is good only in being big and doing things
-slow, but... why the parser cannot be built over flex/bison?. That
-way it can be 'pregenerated' and people won't need additional tools
-to build the kernel.
-
-    Raúl
+On Sunday 02 December 2001 15:33, Blindauer Emmanuel wrote:
+> Hi
+> what happenned with thread from 2.2 to 2.4?
+> I have some problems with threaded programs, working under 2.2 and no more
+> under 2.4

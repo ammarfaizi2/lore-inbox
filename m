@@ -1,91 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRAEAfT>; Thu, 4 Jan 2001 19:35:19 -0500
+	id <S130195AbRAEAg7>; Thu, 4 Jan 2001 19:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbRAEAfA>; Thu, 4 Jan 2001 19:35:00 -0500
-Received: from fep04.swip.net ([130.244.199.132]:33466 "EHLO
-	fep04-svc.swip.net") by vger.kernel.org with ESMTP
-	id <S129415AbRAEAeq>; Thu, 4 Jan 2001 19:34:46 -0500
-To: Tim Waugh <twaugh@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010104112027.G23469@redhat.com> <20010104145229.E17640@athlon.random> <20010104142043.N23469@redhat.com> <m21yujuoew.fsf@ppro.localdomain> <20010104215210.D1148@redhat.com>
-From: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Date: 05 Jan 2001 01:33:52 +0100
-In-Reply-To: Tim Waugh's message of "Thu, 4 Jan 2001 21:52:10 +0000"
-Message-ID: <m2vgruu9an.fsf@ppro.localdomain>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S130664AbRAEAgt>; Thu, 4 Jan 2001 19:36:49 -0500
+Received: from foobar.napster.com ([64.124.41.10]:20490 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S130195AbRAEAgq>; Thu, 4 Jan 2001 19:36:46 -0500
+Message-ID: <3A551717.6C6A7807@napster.com>
+Date: Thu, 04 Jan 2001 16:36:39 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: And oh, btw..
+In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh <twaugh@redhat.com> writes:
+Linus Torvalds wrote:
+> 
+> In a move unanimously hailed by the trade press and industry analysts as
+> being a sure sign of incipient braindamage, Linus Torvalds (also known as
+> the "father of Linux" or, more commonly, as "mush-for-brains") decided
+> that enough is enough, and that things don't get better from having the
+> same people test it over and over again. In short, 2.4.0 is out there.
 
-> On Thu, Jan 04, 2001 at 08:07:19PM +0100, Peter Osterlund wrote:
-> 
-> > If you do this, you should probably also return -EAGAIN if the printer
-> > is out of paper, otherwise I would still lose data when the printer
-> > goes out of paper. Currently it returns -ENOSPC in this situation. I
-> > suppose the different return codes were meant as a way for user space
-> > to be able to know why printing failed, so that it could take
-> > appropriate actions, but maybe this is not used by any programs.
-> 
-> They were intended for that, yes, but it's probably better to stick
-> with the 2.2 return codes.  Here's a patch to do that.  Look okay?
+Everyone who has ever been the press spotlight knows that most of it is
+inaccurate, rushed and written to bring in readers rather than to report
+well thought out stories.
 
-I assume you meant to return -EAGAIN, not -EIO. However, it doesn't
-work if the printer is powered off and LP_ABORT is false. In that case
-lp_write calls lp_check_status, which detects the error, waits 10
-seconds, but then returns 0. lp_write then calls parport_write which
-will happily send the data to the powered off printer, then return
-success to user space and the data is lost.
+Go home, get out the epson salts, fill up the tub with hot water and
+just relax.
 
-> 
-> Tim.
-> */
-> 
-> 2001-01-04  Tim Waugh  <twaugh@redhat.com>
-> 
-> 	* drivers/char/lp.c: Follow 2.2 behaviour more closely.
-> 
-> --- linux-2.4.0-prerelease/drivers/char/lp.c.offline	Thu Jan  4 21:13:02 2001
-> +++ linux-2.4.0-prerelease/drivers/char/lp.c	Thu Jan  4 21:42:19 2001
-> @@ -207,7 +207,7 @@
->  			last = LP_POUTPA;
->  			printk(KERN_INFO "lp%d out of paper\n", minor);
->  		}
-> -		error = -ENOSPC;
-> +		error = -EIO;
->  	} else if (!(status & LP_PSELECD)) {
->  		if (last != LP_PSELECD) {
->  			last = LP_PSELECD;
-> @@ -230,7 +230,10 @@
->  	if (last != 0)
->  		lp_error(minor);
->  
-> -	return error;
-> +	if (LP_F (minor) & LP_ABORT)
-> +		return error;
-> +
-> +	return 0;
->  }
->  
->  static ssize_t lp_write(struct file * file, const char * buf,
-> @@ -292,7 +295,7 @@
->  			/* incomplete write -> check error ! */
->  			int error = lp_check_status (minor);
->  
-> -			if (LP_F(minor) & LP_ABORT) {
-> +			if (error) {
->  				if (retv == 0)
->  					retv = error;
->  				break;
 
--- 
-Peter Österlund             peter.osterlund@mailbox.swipnet.se
-Sköndalsvägen 35            http://home1.swipnet.se/~w-15919
-S-128 66 Sköndal            +46 8 942647
-Sweden
-
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

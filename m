@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131372AbRBLVty>; Mon, 12 Feb 2001 16:49:54 -0500
+	id <S131267AbRBLVuO>; Mon, 12 Feb 2001 16:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131431AbRBLVtp>; Mon, 12 Feb 2001 16:49:45 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:26118 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131372AbRBLVtb>; Mon, 12 Feb 2001 16:49:31 -0500
-Date: 12 Feb 2001 22:20:00 +0200
+	id <S131479AbRBLVty>; Mon, 12 Feb 2001 16:49:54 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:16393 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131426AbRBLVtj>; Mon, 12 Feb 2001 16:49:39 -0500
+Date: 12 Feb 2001 22:39:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <7vh2HM81w-B@khms.westfalen.de>
-In-Reply-To: <968mjv$l9t$1@forge.intermeta.de>
-Subject: Re: DNS goofups galore...
+To: matti.aarnio@zmailer.org
+cc: linux-kernel@vger.kernel.org
+Message-ID: <7vh2Hebmw-B@khms.westfalen.de>
+In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org>
+Subject: Re: lkml subject line
 X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <95ulrk$aik$1@forge.intermeta.de> <20010209080454.A17656@beops-jg2.be.uu.net> <968mjv$l9t$1@forge.intermeta.de>
+In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hps@tanstaafl.de (Henning P. Schmiedehausen)  wrote on 12.02.01 in <968mjv$l9t$1@forge.intermeta.de>:
+matti.aarnio@zmailer.org (Matti Aarnio)  wrote on 12.02.01 in <20010212133324.B15688@mea-ext.zmailer.org>:
 
-> jan.gyselinck@be.uu.net (Jan Gyselinck) writes:
+> On Mon, Feb 12, 2001 at 11:20:40AM +0000, Guennadi Liakhovetski wrote:
+> > Dear all (and list maintainers in particular)
+> >
+> > Wouldn't it be a good idea to prepend all lkml subjects with [LKML] like
+> > many other lists do to distinguish lkml messages from the rest.
 >
-> >There's not really something wrong with MX's pointing to CNAME's.  It's
-> >just that some mailservers could (can?) not handle this.  So if you want to
-> >be able to receive mail from all kinds of mailservers, don't use CNAME's
-> >for MX's.
->
-> No. It breaks a basic assumption set in stone in RFC821. It has
-> nothing to do with mailer software.
+>   NO!
 
-May I point out that RFC 821 does not mention either CNAME or MX anywhere.
+Indeed. What a bad idea that would be.
 
-The successor (which is currently finished and waiting for publication as  
-RFC 2821) mentions both, but does not say if MX->CNAME is allowed or  
-forbidden. (And it says it's tightened up from RFC 974.)
+>   If you want to pre-filter messages traveling thru  linux-kernel  list,
+>   all you need to do is to check the content of   Return-Path:  header.
 
-Incidentally, it's also silent on the name vs. address MX question.  
-Looking at 974 and RFCs referenced from there might help to find  
-ammunition. But note that this is significantly later than 821.
+On the other hand, that's also not a very good scheme. There *is* a good  
+way to do this, and it would be really nice if vger could be taught to do  
+it: add a List-Id: header (draft-chandhok-listid-04.txt RFC-to-be,  
+implemented in lots of mailing list managers already).
 
-So don't tell us about stuff set in stone in RFC XYZ, when it's plain  
-you've never looked at that RFC.
+Examples from that doc:
+
+    List-Id: List Header Mailing List <list-header.nisto.com>
+    List-Id: <commonspace-users.list-id.within.com>
+    List-Id: "Lena's Personal Joke List"
+             <lenas-jokes.da39efc25c530ad145d41b86f7420c3b.021999.localhost>
+    List-Id: "An internal CMU List" <0Jks9449.list-id.cmu.edu>
+    List-Id: <da39efc25c530ad145d41b86f7420c3b.052000.localhost>
+
+>   Or perhaps my utter aborrence is due to the way how GNU MAILMAN handles
+>   that tagging (badly, that is).
+
+Mailman, incidentally, _has_ List-Id: support.
+
+> /Matti Aarnio  -- vger postmaster, not listmaster
+
+Still ...
+
 
 MfG Kai
 -

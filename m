@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136421AbRAHXaX>; Mon, 8 Jan 2001 18:30:23 -0500
+	id <S129226AbRAHXpu>; Mon, 8 Jan 2001 18:45:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAHXaE>; Mon, 8 Jan 2001 18:30:04 -0500
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:26884 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S129226AbRAHX3z>;
-	Mon, 8 Jan 2001 18:29:55 -0500
-Date: Mon, 8 Jan 2001 18:29:53 -0500 (EST)
-From: Mike Frisch <mfrisch@saturn.tlug.org>
+	id <S129387AbRAHXpl>; Mon, 8 Jan 2001 18:45:41 -0500
+Received: from cs16028-106.austin.rr.com ([24.160.28.106]:44417 "EHLO
+	confucius.gnacademy.org") by vger.kernel.org with ESMTP
+	id <S129226AbRAHXpd>; Mon, 8 Jan 2001 18:45:33 -0500
+Date: Mon, 8 Jan 2001 17:35:10 -0600 (CST)
+From: Joseph Wang <joe@gnacademy.tzo.org>
 To: <linux-kernel@vger.kernel.org>
-Subject: Oops in stock 2.2.18
-Message-ID: <Pine.LNX.4.30.0101081828570.1466-100000@gateway.saturn.tlug.org>
+Subject: HomePNA 2.0 flamage
+Message-ID: <Pine.LNX.4.30.0101081724340.10568-100000@confucius.gnacademy.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Can anybody shed some light on this?
+I've been trying to search for a 10 Mpbs phone ethernet card that works
+with linux.  Apparently all of the products that implement HomePNA 2.0
+use the Broadcom chipset and Broadcom has been extremely non-responsive
+at providing chipset specifications.
 
-Thanks,
+The situation really irks me because the whole point of having a standard
+is to allow for competition between different manufacturers.  In the
+case of HomePNA 1.0, there were some chipsets that provided enough
+information to write a driver and it was possible to use market pressure
+to force chipset makers to make their products usable with linux.
+There were about four or five chip manufacturers with homePNA 1.0 chips
+and some of them provided some excellent documentation and tech specs.
 
---- cut here ---
+This doesn't seem to be the case with HomePNA 2.0 which makes me suspect
+that Broadcom has a patent on some critical piece of technology.  I
+can't think of any other reason how they seem to have a defacto monopoly
+on HomePNA 2.0 products.  This is bad because HomePNA 1.0 products
+are becoming increasingly difficult to find.
 
-Unable to handle kernel paging request at virtual address e6d94ba1
-current->tss.cr3 = 07211000, %cr3 = 07211000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c016faa5>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: c72e1b0a   ebx: c72e1b80   ecx: c15d0000   edx: 00000000
-esi: c731e000   edi: 00000024   ebp: 00000000   esp: c731ff2c
-ds: 0018   es: 0018   ss: 0018
-Process master (pid: 465, process nr: 32, stackpage=c731f000)
-Stack: c70c6d80 c72060a0 c15d0000 00000001 c012d31f c70c6d80 c15d0000 00000000
-       00000002 c163af30 00000000 00000010 00000145 c731e000 00001770 c15d0000
-       c15d0000 c012d785 0000003b c731ffa8 c731ffa4 c731e000 bffffb54 bffffb4c
-Call Trace: [<c012d31f>] [<c012d785>] [<c0107b68>]
-Code: 8b 43 6c 2b 43 50 3d ff 07 00 00 7e 06 81 ca 04 03 00 00 89
+My question is
 
->>EIP; c016faa5 <unix_poll+61/78>   <=====
-Trace; c012d31f <do_select+10f/204>
-Trace; c012d785 <sys_select+371/498>
-Trace; c0107b68 <system_call+34/38>
-Code;  c016faa5 <unix_poll+61/78>
-00000000 <_EIP>:
-Code;  c016faa5 <unix_poll+61/78>   <=====
-   0:   8b 43 6c          movl   0x6c(%ebx),%eax   <=====
-Code;  c016faa8 <unix_poll+64/78>
-   3:   2b 43 50          subl   0x50(%ebx),%eax
-Code;  c016faab <unix_poll+67/78>
-   6:   3d ff 07 00 00    cmpl   $0x7ff,%eax
-Code;  c016fab0 <unix_poll+6c/78>
-   b:   7e 06             jle    13 <_EIP+0x13> c016fab8 <unix_poll+74/78>
-Code;  c016fab2 <unix_poll+6e/78>
-   d:   81 ca 04 03 00    orl    $0x304,%edx
-Code;  c016fab7 <unix_poll+73/78>
-  12:   00
-Code;  c016fab8 <unix_poll+74/78>
-  13:   89 00             movl   %eax,(%eax)
+1) do I have any options other than to give up on HomePNA 2.0 and start
+digging holes in walls.  At this point, I would welecome any product
+that doesn't use a broadcom chip set.
 
+2) how did Broadcom manage to get a de-facto monopoly on high speed
+phone line ethernet cards?  If it's possible for Broadcom to do this
+with phone line ethernet, I shudder to think about the possibility of
+some other linux-unfriendly company owning a piece of critical technology.
 
-6 warnings issued.  Results may not be reliable.
+3) is there anything that we as a community can do other than to keep
+shouting at broadcom?A
+
+-- 
+-------------------------------------------------------------------------------
+Joseph Wang Ph.D.          Globewide Network Academy
+president@gnacademy.org    FREE Distance Education catalog database
+http://www.gnacademy.org   Over 20,000 courses and degrees
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

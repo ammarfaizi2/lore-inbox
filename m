@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTKCOpe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 09:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTKCOpe
+	id S262074AbTKCOti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 09:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTKCOth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 09:45:34 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:3470 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262069AbTKCOpc (ORCPT
+	Mon, 3 Nov 2003 09:49:37 -0500
+Received: from h1ab.lcom.net ([216.51.237.171]:24969 "EHLO digitasaru.net")
+	by vger.kernel.org with ESMTP id S262074AbTKCOtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 09:45:32 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre9
-References: <Pine.LNX.4.44.0310300954540.1275-100000@logos.cnet>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 03 Nov 2003 15:45:31 +0100
-In-Reply-To: <Pine.LNX.4.44.0310300954540.1275-100000@logos.cnet>
-Message-ID: <m365i15x4k.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Mon, 3 Nov 2003 09:49:36 -0500
+Date: Mon, 3 Nov 2003 08:49:33 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA64/x86-64 and execution protection support?
+Message-ID: <20031103144932.GC31953@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+Hello.
 
-> Here goes -pre9. Only bugfixes will be accepted till 2.4.24-pre now.
+I was reading El Reg this morning when they discussed "execution protection"
+  on the new Intel (IA64) and AMD (K8 and above) chips.
+Does the Linux kernel have support for preventing execution of certain
+  memory regions on those architectures?
+Also, I know that some implementations of x86 stack protection are out there;
+  I've not seen them in the vanilla kernels; is there any plan to implement
+  them?
 
-Would you (try to) accept a patch from me if I fix the following?
-
-Modular IDE is still broken:
-hq:/usr/src/linux-hq# /sbin/depmod -ae
-depmod: *** Unresolved symbols in .../kernel/drivers/ide/ide-core.o
-depmod:         ide_wait_hwif_ready
-depmod:         ide_probe_for_drive
-depmod:         ide_probe_reset
-depmod:         ide_tune_drives
-
-This is a circular dependency - ide-core.o wants them and they are exported
-by ide-probe.o which wants things from ide-core.o.
-
-
-
-Compilation on one of my systems produces (gcc 3.3.1):
-*** md5sum: WARNING: 1 of 13 computed checksums did NOT match
-
-(this is probably the ISDN source file checksum - we should update MD5
-checksum or drop this checking at all).
-
-vt.c: In function `do_kdsk_ioctl':
-vt.c:166: warning: comparison is always false due to limited range of data type
-vt.c: In function `do_kdgkb_ioctl':
-vt.c:283: warning: comparison is always false due to limited range of data type
-
-Probably older gcc is more quiet here.
-
-keyboard.c: In function `do_fn':
-keyboard.c:640: warning: comparison is always true due to limited range of data
-type
-string.c:384: warning: conflicting types for built-in function `bcopy'
-process.c: In function `machine_restart':
-process.c:426: warning: use of memory input without lvalue in asm operand 0 is deprecated
-time.c:433: warning: `do_gettimeoffset_cyclone' defined but not used
-
-Modules:
-
-inode.c:198: warning: `ncp_symlink_inode_operations' defined but not used
-ioctl.c: In function `smb_ioctl':
-ioctl.c:34: warning: comparison is always false due to limited range of data type
-ioctl.c:34: warning: comparison is always false due to limited range of data type
-ioctl.c:34: warning: comparison is always false due to limited range of data type
-ioctl.c:34: warning: comparison is always false due to limited range of data type
-
+Thank you!
+-Joseph
 -- 
-Krzysztof Halasa, B*FH
+Joseph===============================================trelane@digitasaru.net
+"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
+ patents against open source projects, Mundie replied, 'Yes, absolutely.'
+ An audience member pointed out that many open source projects aren't
+ funded and so can't afford legal representation to rival Microsoft's. 'Oh
+ well,' said Mundie. 'Get your money, and let's go to court.' 
+Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft

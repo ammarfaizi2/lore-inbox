@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRAaNgw>; Wed, 31 Jan 2001 08:36:52 -0500
+	id <S130924AbRAaNkC>; Wed, 31 Jan 2001 08:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130924AbRAaNgn>; Wed, 31 Jan 2001 08:36:43 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16903 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129375AbRAaNge>; Wed, 31 Jan 2001 08:36:34 -0500
-Subject: Re: Kernel 2.2.18: Protocol 0008 is buggy
-To: lists@cyclades.com (Ivan Passos)
-Date: Wed, 31 Jan 2001 13:37:04 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <Pine.LNX.4.10.10101301831460.24409-100000@main.cyclades.com> from "Ivan Passos" at Jan 30, 2001 06:58:43 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131369AbRAaNjx>; Wed, 31 Jan 2001 08:39:53 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:46587 "EHLO rob.devdep.sysgo.de")
+	by vger.kernel.org with ESMTP id <S130924AbRAaNjg>;
+	Wed, 31 Jan 2001 08:39:36 -0500
+From: Robert Kaiser <rob@sysgo.d.redhat.com>
+Reply-To: rob@sysgo.de
+To: linux-kernel@vger.kernel.org, eccesys@topmail.de
+Subject: Disk is cheap?
+Date: Wed, 31 Jan 2001 14:29:54 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14NxRb-0002Ku-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01013114393200.01502@rob>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The msg comes from net/core/dev.c, and this device is using the Cisco HDLC 
-> protocol in drivers/net/hdlc.c . However, AFAIK, 0008 and 0608 represent
-> IP and ARP (respectively), not Cisco HDLC. So ...
-> 
-> What I'd like to know is: what exactly causes this msg?? It seems that
-> it's printed when someone sends a packet without properly setting 
-> skb->nh.raw first, but who's supposed to set skb->nh.raw?? The HW driver??
-> The data link (HDLC) driver?? The kernel protocol drivers? How should I go
-> about fixing this problem, where should I start??
 
-It should be set before netif_rx() is called on the packet. Typically that
-means the driver or its support code sets protocol and nh.raw and if a
-second header is pulled up then they are set again by whichever code does that
-and calls netif_rx again
+> Everyone who says, disk is cheap, ought to donate me one.
+> Everyone who says, memory is cheap, has to send me some.
 
+:-)
+
+Perhaps a more convincing argument may be that in embedded devices,
+disk as well as memory and CPU power are _not_ cheap.
+
+The more resources Linux requires, the less are it's chances of being
+accepted as a viable alternative in embedded systems.
+
+> I'm still stuck with a P-133, 56 MB RAM (60-70 ns, some EDO,
+> some FPM) and not only Linux but also W2K on a 2.1 and a 0.8 GB
+> HDD.
+
+That would be _a_ _lot_ for an embedded system!
+
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

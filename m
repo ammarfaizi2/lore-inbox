@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVAKCSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVAKCWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVAKCSo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 21:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVAKA5w
+	id S262593AbVAKCWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 21:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVAKCWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 19:57:52 -0500
-Received: from orb.pobox.com ([207.8.226.5]:3243 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262541AbVAKAoO (ORCPT
+	Mon, 10 Jan 2005 21:22:17 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:25144 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262587AbVAKCUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 19:44:14 -0500
-Date: Mon, 10 Jan 2005 16:44:09 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-os@analogic.com
-Cc: Steve Bergman <steve@rueb.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Proper procedure for reporting possible security vulnerabilities?
-Message-ID: <20050111004409.GB4378@ip68-4-98-123.oc.oc.cox.net>
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de> <41E2F6B3.9060008@rueb.com> <Pine.LNX.4.61.0501101707220.14001@chaos.analogic.com>
+	Mon, 10 Jan 2005 21:20:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=EI1aIWp1hBH+A6qKdgPaBKFa7Kyei+3QJQz5N6wqpYc1gxeOyj0uCLwA06y/tEKVUT2uvWDATWErY/U0h9YY14E3Ktqhyb1CKChkucvXT+kEF11JBXnTuHiGEyocqUztVAM4JnFHDeSGO05XumJ59UMJXHtETGJIGHvCQUXQyH0=
+Message-ID: <9e4733910501101820388563bb@mail.gmail.com>
+Date: Mon, 10 Jan 2005 21:20:49 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Export symbol from I2C eeprom driver
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050110234726.GE3286@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501101707220.14001@chaos.analogic.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339105010721347fbeb907@mail.gmail.com>
+	 <20050108055315.GC8571@kroah.com>
+	 <9e473391050107220875baa32b@mail.gmail.com>
+	 <20050108222719.GA3226@kroah.com>
+	 <9e473391050108161426b36e4d@mail.gmail.com>
+	 <20050110234726.GE3286@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:09:18PM -0500, linux-os wrote:
-> Are you sure it's an exploit? My information was that grsecurity
-> wanted some of their 'hooks' added to recent kernels and it hasn't
-> happened. That's not a security problem, that's an application
-> problem.
+On Mon, 10 Jan 2005 15:47:26 -0800, Greg KH <greg@kroah.com> wrote:
+> > I don't want to load the driver from the script because the radeon
+> > driver is creating a sysfs link into the eeprom directory from the
+> > radeon one.
+> 
+> How are you getting the kobject to the eeprom directory from the radeon
+> driver?
+> 
 
-Yes, exploit (although the severity is arguable). See the 2.6.10-ac7
-portion of the changelog here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110523047925271&w=2
+I own the private I2C bus and eeprom is the only chip that will attach
+to the bus. I need to do the link in the driver since there are four
+busses and upto two monitors. The driver knows how to pair the head up
+with the right bus.
 
--Barry K. Nathan <barryn@pobox.com>
+if (dev_priv->primary_head.connector != ddc_none)
+  list_for_each(item,
+&dev_priv->i2c[dev_priv->primary_head.connector].adapter.clients) {
+    client = list_entry(item, struct i2c_client, list);
+    sysfs_create_link(&dev->primary.dev_class->kobj,
+&client->dev.kobj, "monitor");
+    break;
+  }
 
+-- 
+Jon Smirl
+jonsmirl@gmail.com

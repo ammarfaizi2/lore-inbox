@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUCKDDX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 22:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbUCKDDX
+	id S262971AbUCKDNN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 22:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCKDNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 22:03:23 -0500
-Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:1920 "EHLO
-	jm.kir.nu") by vger.kernel.org with ESMTP id S262756AbUCKDDM (ORCPT
+	Wed, 10 Mar 2004 22:13:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11464 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262971AbUCKDNJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 22:03:12 -0500
-Date: Wed, 10 Mar 2004 19:00:36 -0800
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: James Morris <jmorris@redhat.com>
-Cc: Clay Haapala <chaapala@cisco.com>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
-Message-ID: <20040311030035.GA3782@jm.kir.nu>
-References: <20040310053411.GB4346@jm.kir.nu> <Xine.LNX.4.44.0403101044480.30984-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0403101044480.30984-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 10 Mar 2004 22:13:09 -0500
+Date: Wed, 10 Mar 2004 19:19:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Williams <peterw@aurema.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>
+Subject: Re: (0 == foo), rather than (foo == 0)
+In-Reply-To: <404FD81D.3010502@aurema.com>
+Message-ID: <Pine.LNX.4.58.0403101917060.1045@ppc970.osdl.org>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
+ <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos>
+ <404F9E28.4040706@aurema.com> <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>
+ <404FD81D.3010502@aurema.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 10:45:28AM -0500, James Morris wrote:
 
-> On Tue, 9 Mar 2004, Jouni Malinen wrote:
-> > Fixed. The included patch combines changesets for both the setkey
-> > addition and Michael MIC. Please let me know if you want to get these as
-> > separate patch files.
+
+On Thu, 11 Mar 2004, Peter Williams wrote:
 > 
-> This is oopsing on 'modprobe tcrypt'.
-> 
-> Separate patches would be preferred.
+> As somebody pointed out -Wall will (help) detect most of these errors by 
+> suggesting () be placed around any expression of the form a = b that 
+> occurs inside a simple boolean expression which will cause those people 
+> who care about eliminating warning messages to reevaluate the code and 
+> make sure they really meant a = b and replace it with (a = b) to get rid 
+> of the warning error.
 
-I was unable to reproduce the oops by loading tcrypt. All tests passed
-and the kernel was fine. I did this testing with Linux 2.6.4-rc3 and
-all crypto algs compiled as modules. I will try this again with the
-latest linus-2.5 BK tree just in case. Anyway, if you happen to have any
-more details from the oops like backtrace or any ideas of what might be
-causing the difference in our results, they would be very helpful.
+Actually, don't just add parenthesis. They get rid of the warning, but 
+they don't actually make for very pretty reading.
 
-I will also send separate patches once I figure out what caused the oops
-with tcrypt.
+I don't know why the gcc warning suggests adding parentheses, since they 
+have no semantic meaning, and are _horrible_ from a syntactic standpoint.
 
--- 
-Jouni Malinen                                            PGP id EFC895FA
+The warning should be there whether there are parenthesis or not, and it 
+should state that you should have an explicit inequality expression. So if 
+you have
+
+	if (a = b) 
+		...
+
+and you really _mean_ that, then the way to write it sanely is to just 
+write it as
+
+	if ((a = b) != 0)
+		...
+
+which makes it much clearer what you're actually doing.
+
+		Linus

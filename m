@@ -1,115 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUEBKkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUEBLWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUEBKkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 06:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUEBKkY
+	id S261723AbUEBLWS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 07:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUEBLWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 06:40:24 -0400
-Received: from bay18-f56.bay18.hotmail.com ([65.54.187.106]:56338 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262972AbUEBKkO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 06:40:14 -0400
-X-Originating-IP: [67.22.169.122]
-X-Originating-Email: [jpiszcz@hotmail.com]
-From: "Justin Piszcz" <jpiszcz@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Kernel 2.6.5 - Severe Bug(s) With DVD Read Support For Burned DVD-R's?
-Date: Sun, 02 May 2004 10:40:13 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY18-F56Q86EZvLohp000028d9@hotmail.com>
-X-OriginalArrivalTime: 02 May 2004 10:40:13.0888 (UTC) FILETIME=[D9CDA400:01C43031]
+	Sun, 2 May 2004 07:22:18 -0400
+Received: from av7-2-sn4.m-sp.skanova.net ([81.228.10.109]:59088 "EHLO
+	av7-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261723AbUEBLWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 07:22:16 -0400
+To: mikeb1@t-online.de (Michael Berger)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error in installing kernel 2.6.5 compiled with GCC 3.4.0 and -mregparm=3
+References: <408BBCB2.9010804@t-online.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 May 2004 13:22:14 +0200
+In-Reply-To: <408BBCB2.9010804@t-online.de>
+Message-ID: <m2d65n2hw9.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I used a Plextor 8X +/- DVD/RW to burn two DVD-R's at a speed of 2x.
-1] 3 files adding up to 4.2GB (no file is > 2.0GB however)
-2] Many > 1000 files totaling 2.2GB.
+mikeb1@t-online.de (Michael Berger) writes:
 
-I used growisofs to burn the the ISO's.
-With the following command:
-growisofs -dvd-compat -Z /dev/scd0=dvd1.iso
+> I get following error in installing kernel 2.6.5 compiled with GCC
+> 3.4.0 and -mregparm=3.
+> 
+> [root@Loki linux-2.6]# make modules_install
+...
+>   INSTALL drivers/block/loop.ko
+...
+> [root@Loki linux-2.6]# make install
+...
+> sh /home/chewie/work/kernel/linux-2.6/arch/i386/boot/install.sh 2.6.5
+> arch/i386/boot/bzImage System.map ""
+> All of your loopback devices are in use.
+> mkinitrd failed
 
-As a control, I used a professionally burned DVD
+I recently got the same error when I installed a reconfigured version
+of the 2.6.6-rc3 kernel while already running another configuration of
+the same kernel version.
 
-I have the same DVD-READER in all my machines (4-5).
-hdd: TOSHIBA DVD-ROM SD-M1712, ATAPI CD/DVD-ROM drive
+What happens is that "make modules_install" installs a new loop driver
+built for the new kernel, but when you then run "make install",
+mkinitrd loads the loop driver. The result is that the new loop driver
+gets loaded into the old kernel, and depending on what configuration
+options you changed, this may or may not work. In my case I got an
+oops in lo_open().
 
-I have tried with DMA on and DMA off, I get the following errors in DMESG:
-hdd: DMA disabled
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISO 9660 Extensions: RRIP_1991A
-Here is some DEBUG information:
-It copies 4.0GB out of the 4.0GB and then, from dmesg:
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-end_request: I/O error, dev hdd, sector 8173440
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-end_request: I/O error, dev hdd, sector 8173444
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-end_request: I/O error, dev hdd, sector 8173448
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-end_request: I/O error, dev hdd, sector 8173452
-hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdd: media error (bad sector): error=0x30
-end_request: I/O error, dev hdd, sector 8173456
+Maybe something similar is happening in your case.
 
-$ df -k
-/dev/hdd               4132960   4132960         0 100% /mnt
-$ du -ack *pgp
-4093288 total
-
-Therefore, it _almost_ copies the entire DVD, but then it sh*ts the bed, any 
-idea what is going on here?
-I have the _exact_ drive also as a slave in another box running Windows 2000 
-Professional which copies the DVD with no errors at all.
-
-This is a serious problem as I can never copy a DVD-R (that I burned) on 
-Linux (to a Linux box), does anyone have any clue to why this occurs?
-
-This is where it gets interesting though, concerning the professionally 
-burned DVD, I am not sure if it is DVD+R or DVD-R, but it copied the entire 
-disc just fine:
-
-# mkdir /tmp/dvd; cp -r /mnt/* /tmp/dvd
-#
-
-491.83GB/d   20985.00MB/h     349.75MB/m    5969.06KB/s
-532.37GB/d   22714.80MB/h     378.58MB/m    6461.13KB/s
-591.67GB/d   25245.00MB/h     420.75MB/m    7180.80KB/s
-622.74GB/d   26570.40MB/h     442.84MB/m    7557.96KB/s
-670.07GB/d   28590.00MB/h     476.50MB/m    8132.26KB/s
-726.25GB/d   30987.00MB/h     516.45MB/m    8814.20KB/s
-756.56GB/d   32280.00MB/h     538.00MB/m    9181.86KB/s
-
-With good speeds as well.
-
-On the Plextor 8X from which I burned it (under 2.4.x) kernel, (2.4.25/26), 
-I can copy the entire DVD to anywhere without a single error (on the box 
-that I burned it from).
-
-[root@l2 root]# mkdir /x/d
-[root@l2 root]# mount /dev/scd0 /mnt
-mount: block device /dev/scd0 is write-protected, mounting read-only
-[root@l2 root]# cp /mnt/* /x/d
-[root@l2 root]# du -sh /x/d
-4.0G    /x/d
-[root@l2 root]# du -sk /x/d
-4136932 /x/d
-[root@l2 root]#
-
-
-Is it a problem with the drive, or something with the media not being 
-supported under Linux, or are there some other factors at work here?
-
-_________________________________________________________________
-Express yourself with the new version of MSN Messenger! Download today - 
-it's FREE! http://messenger.msn.com/go/onm00200471ave/direct/01/
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

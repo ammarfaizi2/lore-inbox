@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274887AbTHPRS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 13:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274888AbTHPRS6
+	id S274888AbTHPRia (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 13:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274892AbTHPRia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 13:18:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9956 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274887AbTHPRS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 13:18:57 -0400
-Message-ID: <32828.4.4.25.4.1061054335.squirrel@www.osdl.org>
-Date: Sat, 16 Aug 2003 10:18:55 -0700 (PDT)
-Subject: Re: increased verbosity in dmesg
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <gene.heskett@verizon.net>
-In-Reply-To: <200308160438.59489.gene.heskett@verizon.net>
-References: <200308160438.59489.gene.heskett@verizon.net>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
+	Sat, 16 Aug 2003 13:38:30 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:58382 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S274888AbTHPRi3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 13:38:29 -0400
+To: Greg KH <greg@kroah.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test3 current - firewire compile error
+References: <3F3E288B.3010105@cornell.edu> <20030816163553.GA9735@kroah.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 17 Aug 2003 02:38:16 +0900
+In-Reply-To: <20030816163553.GA9735@kroah.com>
+Message-ID: <87wuddzenr.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Greetings;
->
-> The recently increased verbosity in the dmesg file is causeing the  "ring
-> buffer" to overflow, and I am not now seeing the first few
-> pages of the reboot in the dmesg file.
->
-> I understand this 'ring' buffer has been expanded to about 16k but  that was
-> way back in 2.1 days when that occured according to the
-> Documentation.
->
-> Is there any quick and dirty way to increase this to at least 32k, or  maybe
-> even to 64k?  With half a gig of memory, this shouldn't be a  problem should
-> it?
->
-> I've done some grepping, but it appears I'm not grepping for the right  var
-> name, so I'm coming up blank and need some help.
+Greg KH <greg@kroah.com> writes:
 
-It's a config option in 2.6 and recent 2.5 kernels if DEBUG_KERNEL
-is enabled:
+> I removed struct device.name and forgot to change the firewire code :(
+> 
+> I'll work on a patch for this later this evening, unless someone beats
+> me to it.
 
-config LOG_BUF_SHIFT
-  int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
-
-In 2.4, edit kernel/printk.c and change the appropriate line:
-
-#if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64)
-#define LOG_BUF_LEN     (65536)
-#elif defined(CONFIG_ARCH_S390)
-#define LOG_BUF_LEN     (131072)
-#elif defined(CONFIG_SMP)
-#define LOG_BUF_LEN     (32768)
-#else
-#define LOG_BUF_LEN     (16384)                 /* This must be a power of two */
-#endif
-
-~Randy
-
-
-
+Why wasn't DEVICE_NAME_SIZE/_HALF killed? Looks like these also should
+define by drivers.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

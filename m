@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbRD1OQ7>; Sat, 28 Apr 2001 10:16:59 -0400
+	id <S132855AbRD1ORj>; Sat, 28 Apr 2001 10:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132829AbRD1OQt>; Sat, 28 Apr 2001 10:16:49 -0400
-Received: from jalon.able.es ([212.97.163.2]:49632 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S132807AbRD1OQb>;
-	Sat, 28 Apr 2001 10:16:31 -0400
-Date: Sat, 28 Apr 2001 16:16:19 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 sluggish under fork load
-Message-ID: <20010428161619.A1062@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.33.0104281322070.1159-100000@ppro.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0104281322070.1159-100000@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Sat, Apr 28, 2001 at 13:52:06 +0200
-X-Mailer: Balsa 1.1.4
+	id <S132854AbRD1ORa>; Sat, 28 Apr 2001 10:17:30 -0400
+Received: from cm-206-128-72-218.coralsprings.ispchannel.com ([206.128.72.218]:45067
+	"HELO unknown") by vger.kernel.org with SMTP id <S132829AbRD1ORP>;
+	Sat, 28 Apr 2001 10:17:15 -0400
+From: <ENViro20012000@yahoo.com>
+Subject: FREE Guide For All recyclers
+Date: Sat, 28 Apr 2001 06:45:31
+Message-Id: <855.435960.224100@>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With over 40 years of experience in the field of recycling, I 
+have put together one of the most valuable resources for the 
+entire recycling community.
 
-On 04.28 Peter Osterlund wrote:
-> 
-> Another thing is that the bash loop "while true ; do /bin/true ; done" is
-> not possible to interrupt with ctrl-c.
-> 
+http://recycler_1.tripod.com/recyclersguide/
 
-Just tried that under 2.4.4 on two terminals at the same time and the system
-even noticed it. Both cpus were running at about 45%user+55%sys, and was
-able to use balsa to read mail (disk access) and both loops stopped
-immediatley under Ctrl-C.
+Whether you are handling PLASTIC, METALS, WOOD, TEXTILES, TIRES, 
+ELECTRONICS, ETC., this is the site for you!
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
+Simply click on our URL to access the most comprehensive 
+Recycler’s directory absolutely free: 
+http://recycler_1.tripod.com/recyclersguide/
 
-Linux werewolf 2.4.4 #1 SMP Sat Apr 28 11:45:02 CEST 2001 i686
+"I highly recommend this site for all Recyclers and individuals 
+involved with waste management for help with the flow of raw 
+materials and increased profit margins." – Charles Sterno, 
+CEO/Pres., Waste Management Associates 
 
+-----------------------------------------------------------------
+If this has been sent to you in error simply return unsubscribe 
+or remove and you will be taken off our list.
+ 
+ 
+ 
+ 
+ 
+ 
+ 

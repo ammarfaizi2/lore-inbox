@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbRDLTQN>; Thu, 12 Apr 2001 15:16:13 -0400
+	id <S135265AbRDLTPm>; Thu, 12 Apr 2001 15:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135268AbRDLTQD>; Thu, 12 Apr 2001 15:16:03 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:56974 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S135267AbRDLTPy>; Thu, 12 Apr 2001 15:15:54 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 12 Apr 2001 12:15:32 -0700
-Message-Id: <200104121915.MAA03715@baldur.yggdrasil.com>
-To: vonbrand@inf.utfsm.cl
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S135266AbRDLTPW>; Thu, 12 Apr 2001 15:15:22 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:30672 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S135265AbRDLTPL>;
+	Thu, 12 Apr 2001 15:15:11 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: johan.adolfsson@axis.com, linux-kernel@vger.kernel.org
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+In-Reply-To: <200104121901.MAA04011@adam.yggdrasil.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 12 Apr 2001 12:14:56 -0700
+In-Reply-To: "Adam J. Richter"'s message of "Thu, 12 Apr 2001 12:01:55 -0700"
+Message-ID: <m38zl6rkun.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> = Adam J. Richter <adam@yggdrasil.com>
->  = Horst von Brand <vonbrand@inf.utfsm.cl>
+"Adam J. Richter" <adam@yggdrasil.com> writes:
 
->> 	I suppose that running the child first also has a minor
->> advantage for clone() in that it should make programs that spawn lots
->> of threads to do little bits of work behave better on machines with a
->> small number of processors, since the threads that do so little work that
->> they accomplish they finish within their time slice will not pile up
->> before they have a chance to run.  So, rather than give the parent's CPU
->> priority to the child only if CLONE_VFORK is not set, I have decided to
->> do a bit of machete surgery and have the child always inherit all of the
->> parent's CPU priority all of the time.  It simplifies the code and
->> probably saves a few clock cycles (and before you say that this will
->> cost a context switch, consider that the child will almost always run
->> at least one time slice anyhow).
+> >Shouldn't a compiler be able to deal with this instead?
+> 
+> 	Yes.
 
->And opens the system up to DoS attacks: You can't have a process fork(2)
->at will and so increase its (aggregate) CPU priority.
+No.  gcc must not do this.  There are situations where you must place
+a zero-initialized variable in .data.  It is a programmer problem.
 
-	My change does not increase the aggregate priority of
-parent+child.  Perhaps I misunderstand your comment.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

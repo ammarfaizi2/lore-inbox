@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUIAP3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUIAP3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUIAP3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 11:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIAP3W
+	id S266891AbUIAP3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIAP33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:29:22 -0400
-Received: from upco.es ([130.206.70.227]:13035 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S266870AbUIAP2U (ORCPT
+	Wed, 1 Sep 2004 11:29:29 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:19687 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S266892AbUIAP2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:28:20 -0400
-Date: Wed, 1 Sep 2004 17:28:17 +0200
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Driver retries disk errors.
-Message-ID: <20040901152817.GA4375@pern.dea.icai.upco.es>
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040830163931.GA4295@bitwizard.nl> <1093952715.32684.12.camel@localhost.localdomain> <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain> <20040831155653.GD17261@harddisk-recovery.com> <1093965233.599.8.camel@localhost.localdomain> <20040831170016.GF17261@harddisk-recovery.com> <1093968767.597.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <1093968767.597.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 1 Sep 2004 11:28:52 -0400
+Message-ID: <4135EAAE.3030605@softhome.net>
+Date: Wed, 01 Sep 2004 17:28:46 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (Macintosh/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@hist.no>, arjanv@redhat.com,
+       viro@parcelfarce.linux.theplanet.co.uk
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+References: <courier.41359B53.00007549@softhome.net>            <20040901095229.GA11908@devserv.devel.redhat.com> <courier.4135A19B.00007EA5@softhome.net> <4135B9FC.7050602@hist.no> <4135CEB4.5020102@softhome.net>
+In-Reply-To: <4135CEB4.5020102@softhome.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 05:12:50PM +0100, Alan Cox wrote:
+Ihar 'Philips' Filipau wrote:
 > 
-> > (1) Imagine an application doing a linear read on a file with an 8
-> > block read ahead and the last block being bad. The kernel will try to
-> > read that bad block 16 times, but because the IDE driver also has 8
-> > retries, the kernel will try to read that bad block *64* times. It
-> > usually takes an IDE drive about 2 seconds to figure out a block is
-> > bad, so the application gets stuck for 2 minutes in that single bad
-> > block.
+> P.P.S. Hm. Why not implement ioctl2()? which will be linked directly to 
+> device by its driver? - numbering will be internal to driver, and 
+> provide entry point into driver for user space applications. No one 
+> likes mess with ioctl()s in Linux - no device driver developers, nor 
+> users. But what is really needed - is just call into driver. Paramenter 
+> - single pointer have being proved to be sufficient.
 > 
-> Right now I know of no way to tell which is readahead for a failed
-> command or of telling the block layer to forget them. Fix this at the
-> block layer and IDE can abort the readahead sequence happily enough
-> because IDE is too dumb to have issued further commands to the drive at
-> this point.
 
-Just a question from a kernel-almost-illiterate. Could this explain the
-behavior of my laptop yesterday, reading a damaged DVD? I had to wait almost
-one full minute of retry until being able to kill xine... 
+   Ok. Now I recalled those mess with ioctl()s - someone have tryed to 
+implement virtual methods from OO languages with file descriptors and 
+miserably failed.
 
-If maintaining the retries, it could be nice to allow at least kill -9
-between them. I do not know if that's foolish and/or impossible, so please
-do not bash too hard... 
+   I have never used ioctl()s for anything asides calling my drivers. I 
+have seens people using ioctl codes for special functionality for block 
+devices.
 
-Have a nice day,
-            Romano 
+   Position "ioctl()s bad" is not related to drivers per se. People 
+decided to not introduce another calls like eject_media(fd) or 
+get_info(fd) - but instead implement ioctl() which will magically work 
+on all fd's of block devices.
+   That where mistake is. That the kind of ioctl()s, which are bad. 
+ioctl() is for something what doesn't have interface. If something have 
+stable interface - it must be moved over to sys/library calls.
 
+   Instead of "painful ioctl()s" - I would rather start with solving 
+this problem for standard devices: making a way to implement efficiently 
+common functions for device classes. (terminals, block devices, network 
+interfaces, etc). And start obsoleting/removing ioctl()s.
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+   I like aproach of *BSD - they routinely implement library/sys calls 
+for things like that. I used if_*/getif* calls to find/operate network 
+interfaces - it is much more usable & better documented, than Linux' 
+bunch of magic ioctl()s (again) on _any_ network socket. Why on any? Why 
+we cannot have special device to operate on list of interfaces?
+
+   I believe people here on LKML identified problem incorrectly.

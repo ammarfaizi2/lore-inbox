@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266482AbUGUOpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUGUOwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266482AbUGUOpw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 10:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUGUOpw
+	id S266484AbUGUOwg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 10:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266501AbUGUOwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 10:45:52 -0400
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:11930 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S266482AbUGUOps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 10:45:48 -0400
-Date: Wed, 21 Jul 2004 18:45:47 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: linux-kernel@vger.kernel.org
-Subject: UNIX98 pty indices leak
-Message-ID: <20040721144546.GA9740@tentacle.sectorb.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
-X-Operating-System: Linux 2.4.26
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 21 Jul 2004 10:52:36 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:22510 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266484AbUGUOwe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 10:52:34 -0400
+Date: Wed, 21 Jul 2004 16:52:30 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Oliver Neukum <oliver@neukum.org>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] delete devfs
+In-Reply-To: <200407211626.55670.oliver@neukum.org>
+Message-ID: <Pine.GSO.4.58.0407211648580.8147@waterleaf.sonytel.be>
+References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 21 Jul 2004, Oliver Neukum wrote:
+> Am Mittwoch, 21. Juli 2004 16:15 schrieb Greg KH:
+> > Hm, seems kernel.org dropped my big patch, so the patch below can be
+> > found at:
+> > 	www.kernel.org/pub/linux/kernel/people/gregkh/misc/2.6/devfs-delete-2.6.8-rc2.patch
+>
+> May I point out that 2.6 is supposed to be a _stable_ series?
 
-I noticed that our PPPoE/PPtP access concentrator leaks pty devices.
-When all 4096 indices are leaked, there was need to reboot it.
+Quoting GregKH: `to test out the new development model', i.e. the one
+established at the Kernel Summit yesterday afternoon :-)
 
-The following patch fixes this problem (tested on 2.6.7-mm7,
-but applies cleanly to 2.6.8-rc2).
+Well, looking at the late (or early :-) hour he sent out the patch, it looks
+like he did need a few beers before he gained enough confidence in this `new
+development model' :-)
 
---- tmp/linux-2.6.7/drivers/char/tty_io.c	Wed Jul 21 17:47:18 2004
-+++ linux-2.6.7/drivers/char/tty_io.c	Wed Jul 21 17:54:33 2004
-@@ -1060,7 +1060,7 @@
- {
- 	struct tty_struct *tty, *o_tty;
- 	int	pty_master, tty_closing, o_tty_closing, do_sleep;
--	int	devpts_master;
-+	int	devpts_master, devpts;
- 	int	idx;
- 	char	buf[64];
- 	
-@@ -1075,7 +1075,8 @@
- 	idx = tty->index;
- 	pty_master = (tty->driver->type == TTY_DRIVER_TYPE_PTY &&
- 		      tty->driver->subtype == PTY_TYPE_MASTER);
--	devpts_master = pty_master && (tty->driver->flags & TTY_DRIVER_DEVPTS_MEM);
-+	devpts = (tty->driver->flags & TTY_DRIVER_DEVPTS_MEM) != 0;
-+	devpts_master = pty_master && devpts;
- 	o_tty = tty->link;
- 
- #ifdef TTY_PARANOIA_CHECK
-@@ -1300,7 +1301,7 @@
- 
- #ifdef CONFIG_UNIX98_PTYS
- 	/* Make this pty number available for reallocation */
--	if (devpts_master) {
-+	if (devpts) {
- 		down(&allocated_ptys_lock);
- 		idr_remove(&allocated_ptys, idx);
- 		up(&allocated_ptys_lock);
+Gr{oetje,eeting}s,
 
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

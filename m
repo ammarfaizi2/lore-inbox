@@ -1,97 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbUJ3TJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUJ3TLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbUJ3TJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 15:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbUJ3TJf
+	id S261275AbUJ3TLI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 15:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbUJ3TLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 15:09:35 -0400
-Received: from web51808.mail.yahoo.com ([206.190.38.239]:56155 "HELO
-	web51808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261293AbUJ3TIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 15:08:54 -0400
-Message-ID: <20041030190850.23015.qmail@web51808.mail.yahoo.com>
-Date: Sat, 30 Oct 2004 12:08:50 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: md and multipathing
-To: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041030174802.GK32712@marowsky-bree.de>
+	Sat, 30 Oct 2004 15:11:08 -0400
+Received: from out010pub.verizon.net ([206.46.170.133]:49886 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S261275AbUJ3TKK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 15:10:10 -0400
+Message-ID: <4183E711.9030708@verizon.net>
+Date: Sat, 30 Oct 2004 15:10:09 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>,
+       kernel-janitors@lists.osdl.org
+Subject: Re: [KJ] [PATCH] floppy: change MODULE_PARM to module_param in drivers/block/floppy.c
+References: <20041030134246.23710.45693.84191@localhost.localdomain> <4183BF5B.5000303@osdl.org> <200410301303.45161.dtor_core@ameritech.net>
+In-Reply-To: <200410301303.45161.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.211.53] at Sat, 30 Oct 2004 14:10:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars et all,
-
-This what I am doing I believe.  Here is the command:
-
-mdadm --create --force -lmp -n2 /dev/md0 /dev/sda
-/dev/sdc
-
-First controller is /dev/sda /dev/sdb (channel a and b
-respective) and the second controller is /dev/sdc
-/dev/sdd (again, channel a and b respecitve).
-
-Here I am using multipath (enabled in kernel,
-268,269,2610rc1) with the two paths to the FC volume.
-I have found that it only drives one channel of the md
-device as reported by vmstat.  More over, the traffic
-appears to only go to the first device listed e.g. if
-I change the ordering and use channel "b" first, than
-all traffic to the md is driven on that channel.
-
-Put another way, this is what I believe I have done:
-device 0:0:0:0 + 1:0:0:0 = md0
-device 0:0:0:1 + 1:0:0:1 = md1
-
-scsi dev sda + sdc = md0
-scsi dev sdb + sdd = md1
-
-So have I done something wrong with the setup?  Am I
-to question mdadm or md device?  
-
-I get the exact same behavior as if I were to make the
-device have a sprae path i.e. mdadm --create --force
--lmp -n1 -x1 /dev/md0 /dev/sda /dev/sdc,  but without
-the failover device.  What I would want is to have
-traffice be "exqually balanced" across both channels
-(e.g. device paths /dev/sda /dev/sdc) with hopes that
-this will improve my throughput.
-
-Thanks!
-Phy
---- Lars Marowsky-Bree <lmb@suse.de> wrote:
-
-> On 2004-10-28T17:25:02, Phy Prabab
-> <phyprabab@yahoo.com> wrote:
+Dmitry Torokhov wrote:
+> On Saturday 30 October 2004 11:20 am, Randy.Dunlap wrote:
 > 
-> > I have a question concerning md driver: is there a
-> way
-> > to have a multipath md that is mulitplexed?
-> 
-> With 2.6, use the Device-Mapper multipath module.
+>>james4765@verizon.net wrote:
+>>
+>>>Replace MODULE_PARM with module_param in drivers/block/floppy.c.  Compile tested.
+>>>
+>>>Signed-off-by: James Nelson <james4765@gmail.com>
+>>>
+>>>diff -urN --exclude='*~' linux-2.6.9-original/drivers/block/floppy.c linux-2.6.9/drivers/block/floppy.c
+>>>--- linux-2.6.9-original/drivers/block/floppy.c	2004-10-18 17:53:22.000000000 -0400
+>>>+++ linux-2.6.9/drivers/block/floppy.c	2004-10-30 09:16:04.856720081 -0400
+>>>@@ -180,6 +180,7 @@
+>>> #include <linux/devfs_fs_kernel.h>
+>>> #include <linux/device.h>
+>>> #include <linux/buffer_head.h>	/* for invalidate_buffers() */
+>>>+#include <linux/moduleparam.h>
+>>> 
+>>> /*
+>>>  * PS/2 floppies have much slower step rates than regular floppies.
+>>>@@ -4623,9 +4624,9 @@
+>>> 	wait_for_completion(&device_release);
+>>> }
+>>> 
+>>>-MODULE_PARM(floppy, "s");
+>>>-MODULE_PARM(FLOPPY_IRQ, "i");
+>>>-MODULE_PARM(FLOPPY_DMA, "i");
+>>>+module_param(floppy, charp, 0);
+>>>+module_param(FLOPPY_IRQ, int, 0);
+>>>+module_param(FLOPPY_DMA, int, 0);
+>>> MODULE_AUTHOR("Alain L. Knaff");
+>>> MODULE_SUPPORTED_DEVICE("fd");
+>>> MODULE_LICENSE("GPL");
+>>
+>>Please check Andrew's 2.6.10-rc1-mm2 for a large MODULE_PARAM
+>>patch, and then convert drivers that are not yet converted...
+>>
+>>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/broken-out/convert-module_parm-to-module_param-family.patch
+>>
+
+Sorry - that was a quickie w/o checking to see if someone else had already done 
+it.  See below.
+
 > 
 > 
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>
+> Actually it would be nice if drivers were converted "intelligently"
+> instead of basic find-and-replace - I really find parameter names
+> like floppy.floppy= or floppy.floppy_dma= ugly.
 > 
-> -- 
-> High Availability & Clustering
-> SUSE Labs, Research and Development
-> SUSE LINUX AG - A Novell company
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hmm.  I can tak a look at that a little bit later - just got done with a *huge* 
+cleanup of floppy.c - just gotta do the diffs and send them.
 
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail Address AutoComplete - You start. We finish.
-http://promotions.yahoo.com/new_mail 
+Jim

@@ -1,721 +1,525 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275952AbSIUXHl>; Sat, 21 Sep 2002 19:07:41 -0400
+	id <S275960AbSIUXJY>; Sat, 21 Sep 2002 19:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276285AbSIUXHl>; Sat, 21 Sep 2002 19:07:41 -0400
-Received: from nameservices.net ([208.234.25.16]:8372 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S276209AbSIUXGM>;
-	Sat, 21 Sep 2002 19:06:12 -0400
-Message-ID: <3D8CFD54.29552CBD@opersys.com>
-Date: Sat, 21 Sep 2002 19:14:28 -0400
+	id <S275959AbSIUXJB>; Sat, 21 Sep 2002 19:09:01 -0400
+Received: from nameservices.net ([208.234.25.16]:15284 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S276246AbSIUXHP>;
+	Sat, 21 Sep 2002 19:07:15 -0400
+Message-ID: <3D8CFD90.652A8D51@opersys.com>
+Date: Sat, 21 Sep 2002 19:15:28 -0400
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
 X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] LTT for 2.5.37 3/9: Core trace statements
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH] LTT for 2.5.37 6/9: S/390 trace support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-These are the core trace statements inserted by LTT.
+This patch adds S/390 trace support.
 
 Here are the file modifications:
- fs/buffer.c      |    3 +++
- fs/exec.c        |    6 ++++++
- fs/ioctl.c       |    7 +++++++
- fs/open.c        |   10 ++++++++++
- fs/read_write.c  |   35 +++++++++++++++++++++++++++++++++++
- fs/select.c      |   10 ++++++++++
- ipc/msg.c        |    3 +++
- ipc/sem.c        |    2 ++
- ipc/shm.c        |    2 ++
- kernel/exit.c    |    3 +++
- kernel/fork.c    |    2 ++
- kernel/itimer.c  |    5 +++++
- kernel/sched.c   |    8 +++++++-
- kernel/signal.c  |    3 +++
- kernel/softirq.c |   15 +++++++++++++--
- kernel/timer.c   |    3 +++
- mm/filemap.c     |    3 +++
- mm/memory.c      |    4 ++++
- mm/page_alloc.c  |    4 ++++
- mm/page_io.c     |    2 ++
- net/core/dev.c   |    6 ++++++
- net/socket.c     |   10 ++++++++++
- 22 files changed, 143 insertions, 3 deletions   
+ arch/s390/config.in         |    2
+ arch/s390/kernel/entry.S    |   18 ++++++
+ arch/s390/kernel/process.c  |    5 +
+ arch/s390/kernel/sys_s390.c |    3 +
+ arch/s390/kernel/traps.c    |  117 ++++++++++++++++++++++++++++++++++++++++++++
+ arch/s390/mm/fault.c        |   12 ++++
+ drivers/s390/cio/cio.c      |    4 +
+ drivers/s390/s390mach.c     |   12 ++++
+ include/asm-s390/trace.h    |   15 +++++
+ 9 files changed, 188 insertions    
 
-diff -urpN linux-2.5.37/fs/buffer.c linux-2.5.37-ltt/fs/buffer.c
---- linux-2.5.37/fs/buffer.c	Fri Sep 20 11:20:30 2002
-+++ linux-2.5.37-ltt/fs/buffer.c	Fri Sep 20 13:03:54 2002
+diff -urpN linux-2.5.37/arch/s390/config.in linux-2.5.37-ltt/arch/s390/config.in
+--- linux-2.5.37/arch/s390/config.in	Fri Sep 20 11:20:32 2002
++++ linux-2.5.37-ltt/arch/s390/config.in	Fri Sep 20 12:43:27 2002
+@@ -65,6 +65,8 @@ fi
+ 
+ source fs/Config.in
+ 
++source drivers/trace/Config.in
++
+ mainmenu_option next_comment
+ comment 'Kernel hacking'
+ 
+diff -urpN linux-2.5.37/arch/s390/kernel/entry.S linux-2.5.37-ltt/arch/s390/kernel/entry.S
+--- linux-2.5.37/arch/s390/kernel/entry.S	Fri Sep 20 11:20:19 2002
++++ linux-2.5.37-ltt/arch/s390/kernel/entry.S	Fri Sep 20 12:43:27 2002
+@@ -7,6 +7,7 @@
+  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
+  *               Hartmut Penner (hp@de.ibm.com),
+  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  */
+ 
+ #include <linux/sys.h>
+@@ -183,6 +184,14 @@ system_call:
+         sll     %r8,2
+         GET_THREAD_INFO           # load pointer to task_struct to R9
+         stosm   24(%r15),0x03     # reenable interrupts
++/* call to ltt trace done here.  R8 has the syscall (svc) number to trace */
++#if (CONFIG_TRACE || CONFIG_TRACE_MODULE) /* tjh - ltt port */              
++        /* add call to trace_real_syscall_entry */                          
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter     
++        l       %r1,BASED(.Ltracesysent)                                    
++        basr    %r14,%r1                                                    
++        lm      %r0,%r6,SP_R0(%r15) /* restore call clobbered regs tjh */   
++#endif
+         l       %r8,sys_call_table-entry_base(%r8,%r13) # get system call addr.
+ 	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
+         bo      BASED(sysc_tracesys)
+@@ -191,6 +200,13 @@ system_call:
+                                   # ATTENTION: check sys_execve_glue before
+                                   # changing anything here !!
+ 
++#if (CONFIG_TRACE || CONFIG_TRACE_MODULE) /* tjh - ltt port *            
++        /* add call to trace_real_syscall_exit */ 
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter  
++        l       %r1,BASED(.Ltracesysext)                                 
++        basr    %r14,%r1                                                 
++        lm      %r0,%r6,SP_R0(%r15) /* restore call clobbered regs */
++#endif                                                                   
+ sysc_return:
+ 	stnsm   24(%r15),0xfc     # disable I/O and ext. interrupts
+ 	tm	__TI_flags+3(%r9),_TIF_WORK_MASK
+@@ -896,6 +912,8 @@ restart_go:
+ .Lsigaltstack: .long  sys_sigaltstack
+ .Ltrace:       .long  syscall_trace
+ .Lvfork:       .long  sys_vfork
++.Ltracesysent: .long  trace_real_syscall_entry
++.Ltracesysext: .long  trace_real_syscall_exit 
+ #ifdef CONFIG_SMP
+ .Lschedtail:   .long  schedule_tail
+ #endif
+diff -urpN linux-2.5.37/arch/s390/kernel/process.c linux-2.5.37-ltt/arch/s390/kernel/process.c
+--- linux-2.5.37/arch/s390/kernel/process.c	Fri Sep 20 11:20:32 2002
++++ linux-2.5.37-ltt/arch/s390/kernel/process.c	Fri Sep 20 12:43:27 2002
 @@ -36,6 +36,7 @@
- #include <linux/suspend.h>
- #include <linux/buffer_head.h>
- #include <linux/bio.h>
-+#include <linux/trace.h>
- #include <asm/bitops.h>
- 
- static void invalidate_bh_lrus(void);
-@@ -135,6 +136,7 @@ void __wait_on_buffer(struct buffer_head
- 	get_bh(bh);
- 	add_wait_queue(wq, &wait);
- 	do {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_BUF_WAIT_START, 0, 0, NULL);
- 		blk_run_queues();
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (!buffer_locked(bh))
-@@ -142,6 +144,7 @@ void __wait_on_buffer(struct buffer_head
- 		schedule();
- 	} while (buffer_locked(bh));
- 	tsk->state = TASK_RUNNING;
-+ 	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_BUF_WAIT_END, 0, 0, NULL);
- 	remove_wait_queue(wq, &wait);
- 	put_bh(bh);
- }
-diff -urpN linux-2.5.37/fs/exec.c linux-2.5.37-ltt/fs/exec.c
---- linux-2.5.37/fs/exec.c	Fri Sep 20 11:20:23 2002
-+++ linux-2.5.37-ltt/fs/exec.c	Fri Sep 20 12:43:27 2002
-@@ -42,6 +42,7 @@
- #include <linux/namei.h>
- #include <linux/proc_fs.h>
- #include <linux/ptrace.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
 +#include <linux/trace.h>
  
  #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -1000,6 +1001,11 @@ int do_execve(char * filename, char ** a
- 	retval = PTR_ERR(file);
- 	if (IS_ERR(file))
- 		return retval;
-+
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_EXEC,
-+			  0,
-+			  file->f_dentry->d_name.len,
-+			  file->f_dentry->d_name.name);
- 
- 	bprm.p = PAGE_SIZE*MAX_ARG_PAGES-sizeof(void *);
- 	memset(bprm.page, 0, MAX_ARG_PAGES*sizeof(bprm.page[0])); 
-diff -urpN linux-2.5.37/fs/ioctl.c linux-2.5.37-ltt/fs/ioctl.c
---- linux-2.5.37/fs/ioctl.c	Fri Sep 20 11:20:19 2002
-+++ linux-2.5.37-ltt/fs/ioctl.c	Fri Sep 20 12:43:27 2002
-@@ -10,6 +10,8 @@
- #include <linux/fs.h>
- #include <linux/security.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
- 
-@@ -64,6 +66,11 @@ asmlinkage long sys_ioctl(unsigned int f
-                 fput(filp);
-                 goto out;
-         }
-+
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_IOCTL,
-+			  fd,
-+			  cmd,
-+			  NULL);
- 
- 	lock_kernel();
- 	switch (cmd) {
-diff -urpN linux-2.5.37/fs/open.c linux-2.5.37-ltt/fs/open.c
---- linux-2.5.37/fs/open.c	Fri Sep 20 11:20:15 2002
-+++ linux-2.5.37-ltt/fs/open.c	Fri Sep 20 12:43:27 2002
-@@ -19,6 +19,8 @@
- #include <linux/backing-dev.h>
- #include <linux/security.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/uaccess.h>
- 
- #define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
-@@ -801,6 +803,10 @@ asmlinkage long sys_open(const char * fi
- 			error = PTR_ERR(f);
- 			if (IS_ERR(f))
- 				goto out_error;
-+			TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_OPEN,
-+					  fd,
-+					  f->f_dentry->d_name.len,
-+					  f->f_dentry->d_name.name); 
- 			fd_install(fd, f);
- 		}
- out:
-@@ -867,6 +873,10 @@ asmlinkage long sys_close(unsigned int f
- 	filp = files->fd[fd];
- 	if (!filp)
- 		goto out_unlock;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_CLOSE,
-+			  fd,
-+			  0,
-+			  NULL);
- 	files->fd[fd] = NULL;
- 	FD_CLR(fd, files->close_on_exec);
- 	__put_unused_fd(files, fd);
-diff -urpN linux-2.5.37/fs/read_write.c linux-2.5.37-ltt/fs/read_write.c
---- linux-2.5.37/fs/read_write.c	Fri Sep 20 11:20:31 2002
-+++ linux-2.5.37-ltt/fs/read_write.c	Fri Sep 20 12:43:27 2002
-@@ -13,6 +13,8 @@
- #include <linux/dnotify.h>
- #include <linux/security.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/uaccess.h>
- 
- struct file_operations generic_ro_fops = {
-@@ -133,6 +135,10 @@ asmlinkage off_t sys_lseek(unsigned int 
- 		if (res != (loff_t)retval)
- 			retval = -EOVERFLOW;	/* LFS: should only happen on 32 bit platforms */
- 	}
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SEEK,
-+			  fd,
-+			  offset,
-+			  NULL);
- 	fput(file);
- bad:
- 	return retval;
-@@ -163,6 +169,11 @@ asmlinkage long sys_llseek(unsigned int 
- 	offset = llseek(file, ((loff_t) offset_high << 32) | offset_low,
- 			origin);
- 
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SEEK,
-+			  fd,
-+			  offset,
-+			  NULL);
-+
- 	retval = (int)offset;
- 	if (offset >= 0) {
- 		retval = -EFAULT;
-@@ -229,6 +240,10 @@ asmlinkage ssize_t sys_read(unsigned int
- 
- 	file = fget(fd);
- 	if (file) {
-+	 	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+				  fd,
-+				  count,
-+				  NULL); 
- 		ret = vfs_read(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
-@@ -243,6 +258,10 @@ asmlinkage ssize_t sys_write(unsigned in
- 
- 	file = fget(fd);
- 	if (file) {
-+	        TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+				  fd, 
-+				  count,
-+				  NULL);
- 		ret = vfs_write(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
-@@ -261,6 +280,10 @@ asmlinkage ssize_t sys_pread64(unsigned 
- 
- 	file = fget(fd);
- 	if (file) {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+				  fd,
-+				  count,
-+				  NULL);
- 		ret = vfs_read(file, buf, count, &pos);
- 		fput(file);
- 	}
-@@ -279,6 +302,10 @@ asmlinkage ssize_t sys_pwrite64(unsigned
- 
- 	file = fget(fd);
- 	if (file) {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+				  fd,
-+				  count,
-+				  NULL);
- 		ret = vfs_write(file, buf, count, &pos);
- 		fput(file);
- 	}
-@@ -436,6 +463,10 @@ sys_readv(unsigned long fd, const struct
- 	file = fget(fd);
- 	if (!file)
- 		goto bad_file;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+			  fd,
-+			  nr_segs,
-+			  NULL);
- 	if (file->f_op && (file->f_mode & FMODE_READ) &&
- 	    (file->f_op->readv || file->f_op->read)) {
- 		ret = security_ops->file_permission (file, MAY_READ);
-@@ -459,6 +490,10 @@ sys_writev(unsigned long fd, const struc
- 	file = fget(fd);
- 	if (!file)
- 		goto bad_file;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+			  fd,
-+			  nr_segs,
-+			  NULL);
- 	if (file->f_op && (file->f_mode & FMODE_WRITE) &&
- 	    (file->f_op->writev || file->f_op->write)) {
- 		ret = security_ops->file_permission (file, MAY_WRITE);
-diff -urpN linux-2.5.37/fs/select.c linux-2.5.37-ltt/fs/select.c
---- linux-2.5.37/fs/select.c	Fri Sep 20 11:20:14 2002
-+++ linux-2.5.37-ltt/fs/select.c	Fri Sep 20 12:43:27 2002
-@@ -21,6 +21,8 @@
- #include <linux/file.h>
- #include <linux/fs.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/uaccess.h>
- 
- #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
-@@ -194,6 +196,10 @@ int do_select(int n, fd_set_bits *fds, l
- 			file = fget(i);
- 			mask = POLLNVAL;
- 			if (file) {
-+				TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SELECT,
-+						  i /*  The fd*/,
-+						  __timeout,
-+						  NULL);
- 				mask = DEFAULT_POLLMASK;
- 				if (file->f_op && file->f_op->poll)
- 					mask = file->f_op->poll(file, wait);
-@@ -368,6 +374,10 @@ static void do_pollfd(unsigned int num, 
- 			struct file * file = fget(fd);
- 			mask = POLLNVAL;
- 			if (file != NULL) {
-+			        TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_POLL,
-+						  fd,
-+						  0,
-+						  NULL);
- 				mask = DEFAULT_POLLMASK;
- 				if (file->f_op && file->f_op->poll)
- 					mask = file->f_op->poll(file, *pwait);
-diff -urpN linux-2.5.37/ipc/msg.c linux-2.5.37-ltt/ipc/msg.c
---- linux-2.5.37/ipc/msg.c	Fri Sep 20 11:20:13 2002
-+++ linux-2.5.37-ltt/ipc/msg.c	Fri Sep 20 12:43:27 2002
-@@ -25,6 +25,8 @@
- #include <asm/uaccess.h>
- #include "util.h"
- 
-+#include <linux/trace.h>
-+
- /* sysctl: */
- int msg_ctlmax = MSGMAX;
- int msg_ctlmnb = MSGMNB;
-@@ -300,6 +302,7 @@ asmlinkage long sys_msgget (key_t key, i
- 		msg_unlock(id);
- 	}
- 	up(&msg_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_MSG_CREATE, ret, msgflg);
- 	return ret;
+ #include <asm/pgtable.h>
+@@ -145,6 +146,10 @@ int kernel_thread(int (*fn)(void *), voi
+                 : "d" (clone_arg), "i" (__NR_clone), "i" (__NR_exit),
+                   "d" (arg), "d" (fn), "i" (__LC_KERNEL_STACK) , "i" (-STACK_FRAME_OVERHEAD)
+                 : "2", "3", "4" );
++#if (CONFIG_TRACE || CONFIG_TRACE_MODULE)                           
++        if (retval > 0)                                             
++          TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, retval, (int) fn);
++#endif
+         return retval;
  }
  
-diff -urpN linux-2.5.37/ipc/sem.c linux-2.5.37-ltt/ipc/sem.c
---- linux-2.5.37/ipc/sem.c	Fri Sep 20 11:20:23 2002
-+++ linux-2.5.37-ltt/ipc/sem.c	Fri Sep 20 12:43:27 2002
-@@ -66,6 +66,7 @@
- #include <asm/uaccess.h>
- #include "util.h"
- 
-+#include <linux/trace.h>
- 
- #define sem_lock(id)	((struct sem_array*)ipc_lock(&sem_ids,id))
- #define sem_unlock(id)	ipc_unlock(&sem_ids,id)
-@@ -183,6 +184,7 @@ asmlinkage long sys_semget (key_t key, i
- 	}
- 
- 	up(&sem_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_SEM_CREATE, err, semflg);
- 	return err;
- }
- 
-diff -urpN linux-2.5.37/ipc/shm.c linux-2.5.37-ltt/ipc/shm.c
---- linux-2.5.37/ipc/shm.c	Fri Sep 20 11:20:26 2002
-+++ linux-2.5.37-ltt/ipc/shm.c	Fri Sep 20 12:43:27 2002
+diff -urpN linux-2.5.37/arch/s390/kernel/sys_s390.c linux-2.5.37-ltt/arch/s390/kernel/sys_s390.c
+--- linux-2.5.37/arch/s390/kernel/sys_s390.c	Fri Sep 20 11:20:24 2002
++++ linux-2.5.37-ltt/arch/s390/kernel/sys_s390.c	Fri Sep 20 12:43:27 2002
 @@ -24,6 +24,7 @@
  #include <linux/mman.h>
- #include <linux/proc_fs.h>
- #include <linux/shmem_fs.h>
+ #include <linux/file.h>
+ #include <linux/utsname.h>
 +#include <linux/trace.h>
+ 
  #include <asm/uaccess.h>
- 
- #include "util.h"
-@@ -245,6 +246,7 @@ asmlinkage long sys_shmget (key_t key, s
- 		shm_unlock(id);
- 	}
- 	up(&shm_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_SHM_CREATE, err, shmflg);
- 	return err;
- }
- 
-diff -urpN linux-2.5.37/kernel/exit.c linux-2.5.37-ltt/kernel/exit.c
---- linux-2.5.37/kernel/exit.c	Fri Sep 20 11:20:22 2002
-+++ linux-2.5.37-ltt/kernel/exit.c	Fri Sep 20 12:43:27 2002
-@@ -623,6 +623,7 @@ fake_volatile:
- 	acct_process(code);
- 	__exit_mm(tsk);
- 
-+	TRACE_PROCESS(TRACE_EV_PROCESS_EXIT, 0, 0);
- 	free_trace_info(tsk);
- 
- 	sem_exit();
-@@ -751,6 +752,8 @@ asmlinkage long sys_wait4(pid_t pid,unsi
- 
- 	if (options & ~(WNOHANG|WUNTRACED|__WNOTHREAD|__WCLONE|__WALL))
- 		return -EINVAL;
+ #include <asm/ipc.h>
+@@ -144,6 +145,8 @@ asmlinkage int sys_ipc (uint call, int f
+ {
+         struct ipc_kludge tmp;
+ 	int ret;
 +
-+	TRACE_PROCESS(TRACE_EV_PROCESS_WAIT, pid, 0);
++        TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
  
- 	add_wait_queue(&current->wait_chldexit,&wait);
- repeat:
-diff -urpN linux-2.5.37/kernel/fork.c linux-2.5.37-ltt/kernel/fork.c
---- linux-2.5.37/kernel/fork.c	Fri Sep 20 11:20:16 2002
-+++ linux-2.5.37-ltt/kernel/fork.c	Fri Sep 20 12:43:28 2002
-@@ -912,6 +912,8 @@ struct task_struct *do_fork(unsigned lon
- 		if (p->ptrace & PT_PTRACED)
- 			send_sig(SIGSTOP, p, 1);
- 
-+		TRACE_PROCESS(TRACE_EV_PROCESS_FORK, p->pid, 0);
-+
- 		wake_up_forked_process(p);		/* do this last */
- 		++total_forks;
- 		if (clone_flags & CLONE_VFORK)
-diff -urpN linux-2.5.37/kernel/itimer.c linux-2.5.37-ltt/kernel/itimer.c
---- linux-2.5.37/kernel/itimer.c	Fri Sep 20 11:20:24 2002
-+++ linux-2.5.37-ltt/kernel/itimer.c	Fri Sep 20 12:43:28 2002
-@@ -10,6 +10,8 @@
- #include <linux/smp_lock.h>
- #include <linux/interrupt.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/uaccess.h>
- 
- int do_getitimer(int which, struct itimerval *value)
-@@ -67,6 +69,8 @@ void it_real_fn(unsigned long __data)
- 	struct task_struct * p = (struct task_struct *) __data;
- 	unsigned long interval;
- 
-+	TRACE_TIMER(TRACE_EV_TIMER_EXPIRED, 0, 0, 0);
-+
- 	send_sig(SIGALRM, p, 1);
- 	interval = p->it_real_incr;
- 	if (interval) {
-@@ -86,6 +90,7 @@ int do_setitimer(int which, struct itime
- 	j = timeval_to_jiffies(&value->it_value);
- 	if (ovalue && (k = do_getitimer(which, ovalue)) < 0)
- 		return k;
-+	TRACE_TIMER(TRACE_EV_TIMER_SETITIMER, which, i, j);
- 	switch (which) {
- 		case ITIMER_REAL:
- 			del_timer_sync(&current->real_timer);
-diff -urpN linux-2.5.37/kernel/sched.c linux-2.5.37-ltt/kernel/sched.c
---- linux-2.5.37/kernel/sched.c	Fri Sep 20 11:20:32 2002
-+++ linux-2.5.37-ltt/kernel/sched.c	Fri Sep 20 12:43:28 2002
-@@ -29,6 +29,7 @@
- #include <linux/security.h>
- #include <linux/notifier.h>
+         switch (call) {
+         case SEMOP:
+diff -urpN linux-2.5.37/arch/s390/kernel/traps.c linux-2.5.37-ltt/arch/s390/kernel/traps.c
+--- linux-2.5.37/arch/s390/kernel/traps.c	Fri Sep 20 11:20:23 2002
++++ linux-2.5.37-ltt/arch/s390/kernel/traps.c	Fri Sep 20 12:43:27 2002
+@@ -5,6 +5,7 @@
+  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
+  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  *
+  *  Derived from "arch/i386/kernel/traps.c"
+  *    Copyright (C) 1991, 1992 Linus Torvalds
+@@ -28,6 +29,8 @@
  #include <linux/delay.h>
-+#include <linux/trace.h>
- 
- /*
-  * Convert user-nice values [ -20 ... 0 ... 19 ]
-@@ -404,6 +405,8 @@ static int try_to_wake_up(task_t * p, in
- 	long old_state;
- 	runqueue_t *rq;
- 
-+	TRACE_PROCESS(TRACE_EV_PROCESS_WAKEUP, p->pid, p->state);
-+
- repeat_lock_task:
- 	rq = task_rq_lock(p, &flags);
- 	old_state = p->state;
-@@ -1007,8 +1010,11 @@ switch_tasks:
- 	if (likely(prev != next)) {
- 		rq->nr_switches++;
- 		rq->curr = next;
--	
-+
- 		prepare_arch_switch(rq, next);
-+
-+		TRACE_SCHEDCHANGE(prev, next);
-+
- 		prev = context_switch(prev, next);
- 		barrier();
- 		rq = this_rq();
-diff -urpN linux-2.5.37/kernel/signal.c linux-2.5.37-ltt/kernel/signal.c
---- linux-2.5.37/kernel/signal.c	Fri Sep 20 11:20:24 2002
-+++ linux-2.5.37-ltt/kernel/signal.c	Fri Sep 20 12:43:28 2002
-@@ -18,6 +18,7 @@
- #include <linux/fs.h>
- #include <linux/tty.h>
- #include <linux/binfmts.h>
-+#include <linux/trace.h>
- #include <asm/param.h>
- #include <asm/uaccess.h>
- #include <asm/siginfo.h>
-@@ -754,6 +755,8 @@ __send_sig_info(int sig, struct siginfo 
- 
- 	if (ignored_signal(sig, t))
- 		goto out;
-+
-+	TRACE_PROCESS(TRACE_EV_PROCESS_SIGNAL, sig, t->pid);
- 
- #define LEGACY_QUEUE(sigptr, sig) \
- 	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
-diff -urpN linux-2.5.37/kernel/softirq.c linux-2.5.37-ltt/kernel/softirq.c
---- linux-2.5.37/kernel/softirq.c	Fri Sep 20 11:20:20 2002
-+++ linux-2.5.37-ltt/kernel/softirq.c	Fri Sep 20 12:43:28 2002
-@@ -18,6 +18,7 @@
- #include <linux/tqueue.h>
- #include <linux/percpu.h>
- #include <linux/notifier.h>
-+#include <linux/trace.h>
- 
- /*
-    - No shared variables, all the data are CPU local.
-@@ -85,8 +86,10 @@ restart:
- 		h = softirq_vec;
- 
- 		do {
--			if (pending & 1)
-+		        if (pending & 1) {
-+		                TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_SOFT_IRQ, (h - softirq_vec));
- 				h->action(h);
-+			}
- 			h++;
- 			pending >>= 1;
- 		} while (pending);
-@@ -194,6 +197,9 @@ static void tasklet_action(struct softir
- 			if (!atomic_read(&t->count)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
-+
-+				TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_TASKLET_ACTION, (unsigned long) (t->func));
-+
- 				t->func(t->data);
- 				tasklet_unlock(t);
- 				continue;
-@@ -227,6 +233,9 @@ static void tasklet_hi_action(struct sof
- 			if (!atomic_read(&t->count)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
-+
-+				TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_TASKLET_HI_ACTION, (unsigned long) (t->func));
-+
- 				t->func(t->data);
- 				tasklet_unlock(t);
- 				continue;
-@@ -290,8 +299,10 @@ static void bh_action(unsigned long nr)
- 	if (!spin_trylock(&global_bh_lock))
- 		goto resched;
- 
--	if (bh_base[nr])
-+	if (bh_base[nr]){
-+	        TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_BOTTOM_HALF, (nr));
- 		bh_base[nr]();
-+	}
- 
- 	hardirq_endlock();
- 	spin_unlock(&global_bh_lock);
-diff -urpN linux-2.5.37/kernel/timer.c linux-2.5.37-ltt/kernel/timer.c
---- linux-2.5.37/kernel/timer.c	Fri Sep 20 11:20:21 2002
-+++ linux-2.5.37-ltt/kernel/timer.c	Fri Sep 20 12:43:28 2002
-@@ -24,6 +24,7 @@
- #include <linux/interrupt.h>
- #include <linux/tqueue.h>
- #include <linux/kernel_stat.h>
-+#include <linux/trace.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -661,6 +662,7 @@ static inline void update_times(void)
- 
- void timer_bh(void)
- {
-+	TRACE_EVENT(TRACE_EV_KERNEL_TIMER, NULL);
- 	update_times();
- 	run_timer_list();
- }
-@@ -790,6 +792,7 @@ asmlinkage long sys_getegid(void)
- 
- static void process_timeout(unsigned long __data)
- {
-+	TRACE_TIMER(TRACE_EV_TIMER_EXPIRED, 0, 0, 0);
- 	wake_up_process((task_t *)__data);
- }
- 
-diff -urpN linux-2.5.37/mm/filemap.c linux-2.5.37-ltt/mm/filemap.c
---- linux-2.5.37/mm/filemap.c	Fri Sep 20 11:20:23 2002
-+++ linux-2.5.37-ltt/mm/filemap.c	Fri Sep 20 12:43:28 2002
-@@ -25,6 +25,7 @@
- #include <linux/writeback.h>
- #include <linux/pagevec.h>
- #include <linux/security.h>
-+#include <linux/trace.h>
- /*
-  * This is needed for the following functions:
-  *  - try_to_release_page
-@@ -640,10 +641,12 @@ void wait_on_page_bit(struct page *page,
- 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
- 		if (!test_bit(bit_nr, &page->flags))
- 			break;
-+		TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_WAIT_START, 0);
- 		sync_page(page);
- 		schedule();
- 	} while (test_bit(bit_nr, &page->flags));
- 	__set_task_state(tsk, TASK_RUNNING);
-+ 	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_WAIT_END, 0);
- 	remove_wait_queue(waitqueue, &wait);
- }
- EXPORT_SYMBOL(wait_on_page_bit);
-diff -urpN linux-2.5.37/mm/memory.c linux-2.5.37-ltt/mm/memory.c
---- linux-2.5.37/mm/memory.c	Fri Sep 20 11:20:25 2002
-+++ linux-2.5.37-ltt/mm/memory.c	Fri Sep 20 12:43:28 2002
-@@ -44,6 +44,9 @@
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
- 
-+#include <linux/module.h>
-+#include <linux/trace.h>
-+
- #include <asm/pgalloc.h>
- #include <asm/rmap.h>
- #include <asm/uaccess.h>
-@@ -1193,6 +1196,7 @@ static int do_swap_page(struct mm_struct
- 	spin_unlock(&mm->page_table_lock);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-+	        TRACE_MEMORY(TRACE_EV_MEMORY_SWAP_IN, address);
- 		swapin_readahead(entry);
- 		page = read_swap_cache_async(entry);
- 		if (!page) {
-diff -urpN linux-2.5.37/mm/page_alloc.c linux-2.5.37-ltt/mm/page_alloc.c
---- linux-2.5.37/mm/page_alloc.c	Fri Sep 20 11:20:15 2002
-+++ linux-2.5.37-ltt/mm/page_alloc.c	Fri Sep 20 12:43:28 2002
-@@ -24,6 +24,7 @@
- #include <linux/suspend.h>
- #include <linux/pagevec.h>
- #include <linux/blkdev.h>
-+#include <linux/trace.h>
- 
- unsigned long totalram_pages;
- unsigned long totalhigh_pages;
-@@ -99,6 +100,8 @@ void __free_pages_ok (struct page *page,
- 		ClearPageDirty(page);
- 	BUG_ON(page_count(page) != 0);
- 
-+	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_FREE, order);
-+
- 	if (unlikely(current->flags & PF_FREE_PAGES)) {
- 		if (!current->nr_local_pages && !in_interrupt()) {
- 			list_add(&page->list, &current->local_pages);
-@@ -427,6 +430,7 @@ unsigned long __get_free_pages(unsigned 
- 	page = alloc_pages(gfp_mask, order);
- 	if (!page)
- 		return 0;
-+	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_ALLOC, order);
- 	return (unsigned long) page_address(page);
- }
- 
-diff -urpN linux-2.5.37/mm/page_io.c linux-2.5.37-ltt/mm/page_io.c
---- linux-2.5.37/mm/page_io.c	Fri Sep 20 11:20:16 2002
-+++ linux-2.5.37-ltt/mm/page_io.c	Fri Sep 20 12:43:28 2002
-@@ -18,6 +18,7 @@
- #include <linux/swapops.h>
- #include <linux/buffer_head.h>	/* for block_sync_page() */
- #include <linux/mpage.h>
-+#include <linux/trace.h>
- #include <asm/pgtable.h>
- 
- static struct bio *
-@@ -103,6 +104,7 @@ int swap_writepage(struct page *page)
- 	kstat.pswpout++;
- 	SetPageWriteback(page);
- 	unlock_page(page);
-+	TRACE_MEMORY(TRACE_EV_MEMORY_SWAP_OUT, (unsigned long) page);
- 	submit_bio(WRITE, bio);
- out:
- 	return ret;
-diff -urpN linux-2.5.37/net/core/dev.c linux-2.5.37-ltt/net/core/dev.c
---- linux-2.5.37/net/core/dev.c	Fri Sep 20 11:20:29 2002
-+++ linux-2.5.37-ltt/net/core/dev.c	Fri Sep 20 12:43:28 2002
-@@ -105,10 +105,12 @@
- #include <linux/init.h>
- #include <linux/kmod.h>
  #include <linux/module.h>
+ 
 +#include <linux/trace.h>
- #if defined(CONFIG_NET_RADIO) || defined(CONFIG_NET_PCMCIA_RADIO)
- #include <linux/wireless.h>		/* Note : will define WIRELESS_EXT */
- #include <net/iw_handler.h>
- #endif	/* CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO */
 +
- #ifdef CONFIG_PLIP
- extern int plip_init(void);
- #endif
-@@ -1009,6 +1011,8 @@ int dev_queue_xmit(struct sk_buff *skb)
- 			goto out;
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -275,6 +278,9 @@ void die(const char * str, struct pt_reg
+ static void inline do_trap(long interruption_code, int signr, char *str,
+                            struct pt_regs *regs, siginfo_t *info)
+ {
++         trapid_t ltt_interruption_code; 
++         char * ic_ptr = (char *) &ltt_interruption_code;
++ 
+ 	/*
+ 	 * We got all needed information from the lowcore and can
+ 	 * now safely switch on interrupts.
+@@ -282,6 +288,10 @@ static void inline do_trap(long interrup
+         if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		local_irq_enable();
+ 
++         memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++         memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++         TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
++
+         if (regs->psw.mask & PSW_PROBLEM_STATE) {
+                 struct task_struct *tsk = current;
+ 
+@@ -310,6 +320,7 @@ static void inline do_trap(long interrup
+                 else
+                         die(str, regs, interruption_code);
+         }
++	TRACE_TRAP_EXIT();
+ }
+ 
+ static inline void *get_check_address(struct pt_regs *regs)
+@@ -407,6 +418,8 @@ asmlinkage void illegal_op(struct pt_reg
+ {
+         __u8 opcode[6];
+ 	__u16 *location;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
+ 
+ 	location = (__u16 *)(regs->psw.addr-S390_lowcore.pgm_ilc);
+@@ -418,6 +431,10 @@ asmlinkage void illegal_op(struct pt_reg
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		local_irq_enable();
+ 
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++        TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
++
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		get_user(*((__u16 *) opcode), location);
+ 	else
+@@ -458,6 +475,7 @@ asmlinkage void illegal_op(struct pt_reg
+         else if (signal)
+ 		do_trap(interruption_code, signal,
+ 			"illegal operation", regs, NULL);
++        TRACE_TRAP_EXIT();
+ }
+ 
+ 
+@@ -468,6 +486,8 @@ specification_exception(struct pt_regs *
+ {
+         __u8 opcode[6];
+ 	__u16 *location = NULL;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
+ 
+ 	location = (__u16 *) get_check_address(regs);
+@@ -478,6 +498,10 @@ specification_exception(struct pt_regs *
+ 	 */
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		local_irq_enable();
++
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++        TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
+ 		
+         if (regs->psw.mask & PSW_PROBLEM_STATE) {
+ 		get_user(*((__u16 *) opcode), location);
+@@ -522,6 +546,7 @@ specification_exception(struct pt_regs *
+ 		do_trap(interruption_code, signal, 
+ 			"specification exception", regs, &info);
+ 	}
++        TRACE_TRAP_EXIT();
+ }
+ #else
+ DO_ERROR_INFO(SIGILL, "specification exception", specification_exception,
+@@ -531,6 +556,8 @@ DO_ERROR_INFO(SIGILL, "specification exc
+ asmlinkage void data_exception(struct pt_regs * regs, long interruption_code)
+ {
+ 	__u16 *location;
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
+ 	int signal = 0;
+ 
+ 	location = (__u16 *) get_check_address(regs);
+@@ -542,6 +569,10 @@ asmlinkage void data_exception(struct pt
+ 	if (regs->psw.mask & PSW_PROBLEM_STATE)
+ 		local_irq_enable();
+ 
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
++        TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
++
+ 	if (MACHINE_HAS_IEEE)
+ 		__asm__ volatile ("stfpc %0\n\t" 
+ 				  : "=m" (current->thread.fp_regs.fpc));
+@@ -617,6 +648,7 @@ asmlinkage void data_exception(struct pt
+ 		do_trap(interruption_code, signal, 
+ 			"data exception", regs, &info);
+ 	}
++        TRACE_TRAP_EXIT();
+ }
+ 
+ 
+@@ -671,6 +703,11 @@ void __init trap_init(void)
+ 
+ void handle_per_exception(struct pt_regs *regs)
+ {
++        trapid_t ltt_interruption_code;
++        char * ic_ptr = (char *) &ltt_interruption_code;
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+6,&S390_lowcore.pgm_code,2); /* copy the interrupt code */
++        TRACE_TRAP_ENTRY(ltt_interruption_code,(regs->psw.addr & PSW_ADDR_MASK));
+ 	if(regs->psw.mask&PSW_PROBLEM_STATE)
+ 	{
+ 		per_struct *per_info=&current->thread.per_info;
+@@ -687,5 +724,85 @@ void handle_per_exception(struct pt_regs
+ 		/* Hopefully switching off per tracing will help us survive */
+ 		regs->psw.mask &= ~PSW_PER_MASK;
+ 	}
++        TRACE_TRAP_EXIT();
++}
++
++#if (CONFIG_TRACE || CONFIG_TRACE_MODULE)
++asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
++{
++	int use_depth;
++	int use_bounds;
++	int depth = 0;
++	int seek_depth;
++	unsigned long lower_bound;
++	unsigned long upper_bound;
++	unsigned long addr;
++	unsigned long *stack;
++	unsigned long temp_stack;
++	trace_syscall_entry trace_syscall_event;
++	/* Set the syscall ID                               */
++	/* Register 8 is setup just prior to the call       */
++	/* This instruction is just following linkage       */
++	/* so it's ok.  If moved and chance of R8 being     */
++	/* clobbered, would need to dig it out of the stack */
++	__asm__ volatile ("  stc  8,%0\n\t"
++			  :"=m" (trace_syscall_event.syscall_id));
++	/* get the psw address */
++	trace_syscall_event.address = regs->psw.addr;
++	/* and off the hi-order bit */
++	trace_syscall_event.address &= PSW_ADDR_MASK;
++	if (!(user_mode(regs)))	/* if kernel mode, return */
++		goto trace_syscall_end;
++	/* Get the trace configuration - if none, return */
++	if (trace_get_config(&use_depth,
++			     &use_bounds,
++			     &seek_depth,
++			     (void *) &lower_bound,
++			     (void *) &upper_bound) < 0)
++		goto trace_syscall_end;
++	/* Do we have to search for an instruction pointer address range */
++	if ((use_depth == 1) || (use_bounds == 1)) {
++		/* Start at the top of the stack */
++		/* stack pointer is register 15 */
++		stack = (unsigned long *) regs->gprs[15];	/* stack pointer */
++		/* Keep on going until we reach the end of the process' stack limit */
++		do {
++			get_user(addr, stack + 14);	/* get the program address +0x38 */
++			/* and off the hi-order bit */
++			addr &= PSW_ADDR_MASK;
++			/* Does this LOOK LIKE an address in the program */
++			if ((addr > current->mm->start_code)
++			    && (addr < current->mm->end_code)) {
++				/* Does this address fit the description */
++				if (((use_depth == 1) && (depth == seek_depth))
++				    || ((use_bounds == 1) && (addr > lower_bound)
++					&& (addr < upper_bound))) {
++					/* Set the address */
++					trace_syscall_event.address = addr;
++					/* We're done */
++					goto trace_syscall_end;
++				} else
++					/* We're one depth more */
++					depth++;
++			}
++			/* Go on to the next address */
++			get_user(temp_stack, stack);	/* get contents of stack */
++			temp_stack &= PSW_ADDR_MASK;	/* and off hi order bit */
++			stack = (unsigned long *) temp_stack;	/* move into stack */
++			/* stack may or may not go to zero when end hit               */
++			/* using 0x7fffffff-_STK_LIM to validate that the address is  */
++			/* within the range of a valid stack address                  */
++			/* If outside that range, exit the loop, stack end must have  */
++			/* been hit.                                                  */
++		} while (stack >= (unsigned long *) (0x7fffffff - _STK_LIM));
++	}
++trace_syscall_end:
++	/* Trace the event */
++	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
++}
++asmlinkage void trace_real_syscall_exit(void)
++{
++	trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
+ }
+ 
++#endif				/* (CONFIG_TRACE || CONFIG_TRACE_MODULE) */
+diff -urpN linux-2.5.37/arch/s390/mm/fault.c linux-2.5.37-ltt/arch/s390/mm/fault.c
+--- linux-2.5.37/arch/s390/mm/fault.c	Fri Sep 20 11:20:32 2002
++++ linux-2.5.37-ltt/arch/s390/mm/fault.c	Fri Sep 20 12:43:27 2002
+@@ -5,6 +5,7 @@
+  *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Hartmut Penner (hp@de.ibm.com)
+  *               Ulrich Weigand (uweigand@de.ibm.com)
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  *
+  *  Derived from "arch/i386/mm/fault.c"
+  *    Copyright (C) 1995  Linus Torvalds
+@@ -25,6 +26,7 @@
+ #include <linux/compatmac.h>
+ #include <linux/init.h>
+ #include <linux/console.h>
++#include <linux/trace.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -154,6 +156,8 @@ extern inline void do_exception(struct p
+ 	int user_address;
+         unsigned long fixup;
+ 	int si_code = SEGV_MAPERR;
++        trapid_t ltt_interruption_code;                 
++        char * ic_ptr = (char *) &ltt_interruption_code; 
+ 
+         tsk = current;
+         mm = tsk->mm;
+@@ -201,6 +205,9 @@ extern inline void do_exception(struct p
+ 	 */
+ 	local_irq_enable();
+ 
++        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
++        memcpy(ic_ptr+4,&error_code,sizeof(error_code));
++        TRACE_TRAP_ENTRY(ltt_interruption_code,(regs->psw.addr & PSW_ADDR_MASK));
+         down_read(&mm->mmap_sem);
+ 
+         vma = find_vma(mm, address);
+@@ -247,6 +254,7 @@ survive:
  	}
  
-+	TRACE_NETWORK(TRACE_EV_NETWORK_PACKET_OUT, skb->protocol);
-+
- 	/* Grab device queue */
- 	spin_lock_bh(&dev->queue_lock);
- 	q = dev->qdisc;
-@@ -1440,6 +1444,8 @@ int netif_receive_skb(struct sk_buff *sk
- 	skb_bond(skb);
+         up_read(&mm->mmap_sem);
++        TRACE_TRAP_EXIT();
+         return;
  
- 	netdev_rx_stat[smp_processor_id()].total++;
-+
-+	TRACE_NETWORK(TRACE_EV_NETWORK_PACKET_IN, skb->protocol);
+ /*
+@@ -261,6 +269,7 @@ bad_area:
+                 tsk->thread.prot_addr = address;
+                 tsk->thread.trap_no = error_code;
+ 		force_sigsegv(regs, error_code, si_code, address);
++                TRACE_TRAP_EXIT();
+                 return;
+ 	}
  
- #ifdef CONFIG_NET_FASTROUTE
- 	if (skb->pkt_type == PACKET_FASTROUTE) {
-diff -urpN linux-2.5.37/net/socket.c linux-2.5.37-ltt/net/socket.c
---- linux-2.5.37/net/socket.c	Fri Sep 20 11:20:23 2002
-+++ linux-2.5.37-ltt/net/socket.c	Fri Sep 20 12:43:28 2002
-@@ -75,6 +75,8 @@
- #include <linux/module.h>
- #include <linux/highmem.h>
+@@ -268,6 +277,7 @@ no_context:
+         /* Are we prepared to handle this kernel fault?  */
+         if ((fixup = search_exception_table(regs->psw.addr)) != 0) {
+                 regs->psw.addr = fixup;
++                TRACE_TRAP_EXIT();
+                 return;
+         }
+ 
+@@ -315,6 +325,8 @@ do_sigbus:
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!(regs->psw.mask & PSW_PROBLEM_STATE))
+ 		goto no_context;
++
++	TRACE_TRAP_EXIT();
+ }
+ 
+ void do_protection_exception(struct pt_regs *regs, unsigned long error_code)
+diff -urpN linux-2.5.37/drivers/s390/cio/cio.c linux-2.5.37-ltt/drivers/s390/cio/cio.c
+--- linux-2.5.37/drivers/s390/cio/cio.c	Fri Sep 20 11:20:36 2002
++++ linux-2.5.37-ltt/drivers/s390/cio/cio.c	Fri Sep 20 12:43:27 2002
+@@ -18,6 +18,8 @@
+ #include <linux/config.h>
+ #include <linux/slab.h>
  
 +#include <linux/trace.h>
 +
- #if defined(CONFIG_KMOD) && defined(CONFIG_NET)
- #include <linux/kmod.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/delay.h>
+@@ -1002,9 +1004,11 @@ do_IRQ (struct pt_regs regs)
+ 			}
+ 
+ 			irq_enter (cpu, irq);
++                        TRACE_IRQ_ENTRY(irq, !(((regs).psw.mask&PSW_PROBLEM_STATE) != 0));
+ 			s390irq_spin_lock (irq);
+ 			s390_process_IRQ (irq);
+ 			s390irq_spin_unlock (irq);
++                        TRACE_IRQ_EXIT();
+ 			irq_exit (cpu, irq);
+ 		}
+ 
+diff -urpN linux-2.5.37/drivers/s390/s390mach.c linux-2.5.37-ltt/drivers/s390/s390mach.c
+--- linux-2.5.37/drivers/s390/s390mach.c	Fri Sep 20 11:20:36 2002
++++ linux-2.5.37-ltt/drivers/s390/s390mach.c	Fri Sep 20 12:43:27 2002
+@@ -5,12 +5,14 @@
+  *  S390 version
+  *    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Ingo Adlung (adlung@de.ibm.com)
++ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
+  */
+ 
+ #include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/trace.h>
+ #ifdef CONFIG_SMP
+ #include <linux/smp.h>
  #endif
-@@ -518,6 +520,8 @@ int sock_sendmsg(struct socket *sock, st
- 	int err;
- 	struct scm_cookie scm;
+@@ -152,10 +154,20 @@ s390_do_machine_check(void)
+ {
+ 	int crw_count;
+ 	mcic_t mcic;
++        trapid_t ltt_interruption_code;
++        uint32_t ltt_old_psw;
  
-+	TRACE_SOCKET(TRACE_EV_SOCKET_SEND, sock->type, size);
-+
- 	err = scm_send(sock, msg, &scm);
- 	if (err >= 0) {
- 		err = sock->ops->sendmsg(sock, msg, size, &scm);
-@@ -532,6 +536,8 @@ int sock_recvmsg(struct socket *sock, st
+ 	DBG(KERN_INFO "s390_do_machine_check : starting ...\n");
  
- 	memset(&scm, 0, sizeof(scm));
+ 	memcpy(&mcic, &S390_lowcore.mcck_interruption_code, sizeof (__u64));
++	memcpy( &ltt_interruption_code,
++	        &S390_lowcore.mcck_interruption_code,
++	        sizeof(__u64));
++	memcpy( &ltt_old_psw,
++	        &S390_lowcore.mcck_old_psw,
++	        sizeof(uint32_t));
++        ltt_old_psw &=  PSW_ADDR_MASK;
++        TRACE_TRAP_ENTRY(ltt_interruption_code,ltt_old_psw);
  
-+	TRACE_SOCKET(TRACE_EV_SOCKET_RECEIVE, sock->type, size);
+ 	if (mcic.mcc.mcd.sd)	/* system damage */
+ 		s390_handle_damage("received system damage machine check\n");
+diff -urpN linux-2.5.37/include/asm-s390/trace.h linux-2.5.37-ltt/include/asm-s390/trace.h
+--- linux-2.5.37/include/asm-s390/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.37-ltt/include/asm-s390/trace.h	Fri Sep 20 12:43:27 2002
+@@ -0,0 +1,15 @@
++/*
++ * linux/include/asm-s390/trace.h
++ *
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * S/390 definitions for tracing system
++ */
 +
- 	size = sock->ops->recvmsg(sock, msg, size, flags, &scm);
- 	if (size >= 0)
- 		scm_recv(sock, msg, &scm, flags);
-@@ -927,6 +933,8 @@ asmlinkage long sys_socket(int family, i
- 	if (retval < 0)
- 		goto out_release;
- 
-+	TRACE_SOCKET(TRACE_EV_SOCKET_CREATE, retval, type);
++#include <linux/trace.h>
 +
- out:
- 	/* It may be already another descriptor 8) Not kernel problem. */
- 	return retval;
-@@ -1546,6 +1554,8 @@ asmlinkage long sys_socketcall(int call,
- 		
- 	a0=a[0];
- 	a1=a[1];
++/* Current arch type */
++#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_S390
 +
-+	TRACE_SOCKET(TRACE_EV_SOCKET_CALL, call, a0);
- 	
- 	switch(call) 
- 	{
++/* Current variant type */
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE

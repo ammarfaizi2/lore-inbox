@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265227AbRF0CEO>; Tue, 26 Jun 2001 22:04:14 -0400
+	id <S265212AbRF0CMp>; Tue, 26 Jun 2001 22:12:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265212AbRF0CDz>; Tue, 26 Jun 2001 22:03:55 -0400
-Received: from vp226158.uac62.hknet.com ([202.71.226.158]:40711 "EHLO
-	main.coppice.org") by vger.kernel.org with ESMTP id <S265208AbRF0CDt>;
-	Tue, 26 Jun 2001 22:03:49 -0400
-Message-ID: <3B3940B0.AD057C60@coppice.org>
-Date: Wed, 27 Jun 2001 10:10:56 +0800
-From: Steve Underwood <steveu@coppice.org>
-Organization: Me? Organised?
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.1 i686)
-X-Accept-Language: en, zh-TW
-MIME-Version: 1.0
-To: landley@webofficenow.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <Pine.LNX.4.33.0106250806150.21085-100000@twin.uoregon.edu> <01062510170903.04704@localhost.localdomain>
+	id <S265214AbRF0CMe>; Tue, 26 Jun 2001 22:12:34 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:51719 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S265212AbRF0CMU>;
+	Tue, 26 Jun 2001 22:12:20 -0400
+Date: Tue, 26 Jun 2001 20:12:45 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help CONFIG_PPC
+Message-ID: <20010626201245.E1926@ftsoj.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.05.10106261038130.30997-100000@callisto.of.borg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.05.10106261038130.30997-100000@callisto.of.borg>; from geert@linux-m68k.org on Tue, Jun 26, 2001 at 10:40:31AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> 
-> On Monday 25 June 2001 11:13, you wrote:
-> 
-> > 1937 claude shannon A Symbolic Analysis of Relay and Switching Circuits,"
-> >
-> > 1948 claude shannon A mathematical theory of information.
-> >
-> > without those you're kind in trouble on the computing front...
-> 
-> Yeah, I know I've bumped into that name (and probably taken notes) somewhere.
->  Hmmm...  Might be from "Where wizards stay up late", or might have been an
-> article linked from slashdot...  (I don't THINK it was mentioned in
-> "Hackers"...  Rodents, where was the reference...  Crystal fire?  That's
-> mostly hardware.  Accidental Empries?  Doesn't sound right...  Can't have
-> been "Fire in the valley" because I haven't read that yet, it's still sitting
-> on the bookshelf.  Not soul of a new machine, that's post-digital Equipment
-> Corporation...)
-> 
-> I THINK that's in the set of notes that's on the box that's not hooked up
-> right now...  (Shortage of monitors at home.)
-> 
-> This was the dude who decided to apply a binary and boolean approach to
-> electronic computation, right?  I KNOW I've read some stuff about him... late
-> last year?
-> 
-> Now I remember.  Slashdot linked to his obituary:
+I like the assurances that the PowerPC is a "capable" processor.  Perhaps
+even adequate.  Perhaps we should note that Dave has yet to take me up on
+my challenge to the sparc to sissy-slap the PowerPC...
 
-Shannon was one of the clearest thinkers of the 20th century, and yet
-his name is hardly known outside his own field. Within his field he is
-respected at the level of, say, Newton. It was a real loss to mankind
-when he died a few months back.
-
-Regards,
-Steve
+} +++ /tmp/Configure.help	Tue Jun 26 10:36:21 2001
+} @@ -171,7 +171,7 @@
+}  Power PC processor
+}  CONFIG_PPC
+}    The PowerPC is a very capable 32-bit RISC processor from Motorola,
+} -  the successor the their venerable 68000 series.  It powers recent
+} +  the successor to their venerable 68000 series.  It powers recent
+}    Macintoshes and also a widely-used series of single-board computers
+}    from Motorola.  The Linux PowerPC port has a home page at
+}    <http://penguinppc.org/>.
+} 
+} Gr{oetje,eeting}s,
+} 
+} 						Geert
+} 
+} --
+} Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+} 
+} In personal conversations with technical people, I call myself a hacker. But
+} when I'm talking to journalists I just say "programmer" or something like that.
+} 							    -- Linus Torvalds
+} 
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

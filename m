@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRCPJPq>; Fri, 16 Mar 2001 04:15:46 -0500
+	id <S129466AbRCPJfJ>; Fri, 16 Mar 2001 04:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbRCPJPg>; Fri, 16 Mar 2001 04:15:36 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:36063 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129346AbRCPJPY>;
-	Fri, 16 Mar 2001 04:15:24 -0500
-Date: Fri, 16 Mar 2001 09:11:24 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Lars Kellogg-Stedman <lars@larsshack.org>
-Cc: Christoph Hellwig <hch@caldera.de>, John Jasen <jjasen1@umbc.edu>,
-        linux-kernel@vger.kernel.org, AmNet Computers <amnet@amnet-comp.com>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
-Message-ID: <20010316091124.A1771@redhat.com>
-In-Reply-To: <200103141823.TAA11310@ns.caldera.de> <Pine.LNX.4.30.0103141410360.2004-100000@flowers.house.larsshack.org>
-Mime-Version: 1.0
+	id <S129854AbRCPJet>; Fri, 16 Mar 2001 04:34:49 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:17671 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129466AbRCPJej>; Fri, 16 Mar 2001 04:34:39 -0500
+Message-ID: <3AB1DDF3.990655FA@idb.hist.no>
+Date: Fri, 16 Mar 2001 10:33:39 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: Sampsa Ranta <sampsa@netsonic.fi>, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.2 network performances
+In-Reply-To: <Pine.LNX.4.33.0103151540240.856-100000@nalle.netsonic.fi>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0103141410360.2004-100000@flowers.house.larsshack.org>; from lars@larsshack.org on Wed, Mar 14, 2001 at 02:11:57PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sampsa Ranta wrote:
 
-On Wed, Mar 14, 2001 at 02:11:57PM -0500, Lars Kellogg-Stedman wrote:
-> > Put LABEL=<label set with e2label> in you fstab in place of the device name.
+> Yesterday I discovered that the load I can throw out to network seems to
+> depend on other activities running on machine. I was able to get
+> throughput of 33M/s with ATM when machine was idle, while I compiled
+> kernel at same time, the throughput was 135M/s.
 > 
-> Which is great, for filesystems that support labels.  Unfortunately,
-> this isn't universally available -- for instance, you cannot mount
-> a swap partition by label or uuid, so it is not possible to completely
-> isolate yourself from the problems of disk device renumbering.
+> So, I suggest you try to compile kernel while running your UDP stream!
 
-It's not convenient, but it is certainly possible: use a
-single-partition raid0 logical device with raid autostart, and you get
-a logical /dev/md* device which corresponds to a single partition and
-which has a fixed name which is detected by the kernel at runtime and
-mapped to the correct disk, wherever the disk may be.
+Ouch.  My guess is the kernel looks for stuff to do when scheduling, and
+compiling will definitely cause more of that.  Maybe it waits for
+the next timer interrupt when idle, instead of checking if there's
+more to do?  
 
-The IBM EVMS folks are looking to generalise this sort of probing, but
-for now there is at least one solution to this problem.  LVM works too
-to some extent, but it currently lacks the automatic boot-time/
-device-detect-time kernel probing step that the software raid code
-has.
-
-Cheers,
- Stephen
+Helge Hafting

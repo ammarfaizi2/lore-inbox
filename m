@@ -1,61 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbUJ2Ams@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUJ2AqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbUJ2Ams (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbUJ2Al0
+	id S263271AbUJ2AqS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbUJ2Aoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:41:26 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38406 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263216AbUJ2AVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:21:44 -0400
-Date: Fri, 29 Oct 2004 02:21:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: coreteam@netfilter.org, Marc Boucher <marc@mbsi.ca>
-Cc: netfilter-devel@lists.netfilter.org, davem@davemloft.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] netfilter/ipt_tcpmss.c: remove an unused function
-Message-ID: <20041029002113.GP29142@stusta.de>
-References: <20041028230202.GV3207@stusta.de>
+	Thu, 28 Oct 2004 20:44:39 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10708 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263267AbUJ2A2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:28:19 -0400
+Subject: Re: time and suspending sysdevs [was Re: Fixing MTRR smp breakage
+	and suspending sysdevs.]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Li, Shaohua" <shaohua.li@intel.com>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041028223838.GA2319@elf.ucw.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
+	 <20041027100046.GB26265@elf.ucw.cz>  <20041028223838.GA2319@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1099009119.3441.12.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028230202.GV3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 29 Oct 2004 10:18:39 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+On Fri, 2004-10-29 at 08:38, Pavel Machek wrote:
+> Hi!
+> 
+> > > >One thing I have noticed is that by adding the sysdev suspend/resume
+> > > >calls, I've gained a few seconds delay. I'll see if I can track down
+> > > the
+> > > >cause.
 
-The patch below removes an unused function from 
-net/ipv4/netfilter/ipt_tcpmss.c
+Don't think I actually mentioned the case: it's the pit timer, it
+appears (number before is jiffies). Interestingly, there is a delay in
+suspending, but it only shows after we exit the sysdev call (when
+interrupts are reenabled? Haven't looked more closely).
 
+Suspending System Devices
+Suspending type 'irqrouter':
+ 4294741499: Starting global drivers irqrouter0
+ 4294741499: Starting auxillary drivers.
+Suspending type 'ioapic':
+ 4294741499: Starting global drivers ioapic0
+ 4294741499: Starting auxillary drivers.
+ 4294741499: Starting generic driver.
+ 4294741499: Done.
+Suspending type 'lapic':
+ 4294741499: Starting global drivers lapic0
+ 4294741499: Starting auxillary drivers.
+ 4294741499: Starting generic driver.
+ 4294741499: Done.
+Suspending type 'timer':
+ 4294741499: Starting global drivers timer0
+ 4294741499: Starting auxillary drivers.
+Suspending type 'pit':
+ 4294741499: Starting global drivers pit0
+ 4294741499: Starting auxillary drivers.
+ 4294741499: Starting generic driver.
+ 4294741499: Done.
+Suspending type 'i8259':
+ 4294741499: Starting global drivers i82590
+ 4294741499: Starting auxillary drivers.
+ 4294741499: Starting generic driver.
+ 4294741499: Done.
+Suspending type 'cpu':
+ 4294741499: Starting global drivers cpu0
+ 4294741499: Starting auxillary drivers.
+ 4294741499: Starting global drivers cpu1
+ 4294741499: Starting auxillary drivers.
+Back from sysdev_suspend.
+sysdev_resume
+Resuming System Devices
+Resuming type 'cpu':
+ 4294742128: cpu0
+ 4294742128: Starting auxillary drivers.
+ 4294742128: Starting global drivers cpu0
+ 4294742128: Done.
+ 4294742128: cpu1
+ 4294742128: Starting auxillary drivers.
+ 4294742128: Starting global drivers cpu1
+ 4294742128: Done.
+Resuming type 'i8259':
+ 4294742128: i82590
+ 4294742128: Starting generic driver.
+ 4294742128: Starting auxillary drivers.
+ 4294742128: Starting global drivers i82590
+ 4294742128: Done.
+Resuming type 'pit':
+ 4294742128: pit0
+ 4294742128: Starting generic driver.
+ 4294772030: Starting auxillary drivers.
+ 4294772030: Starting global drivers pit0
+ 4294772030: Done.
+Resuming type 'timer':
+ 4294772030: timer0
+ 4294772030: Starting generic driver.
+ 4294772030: Starting auxillary drivers.
+ 4294772030: Starting global drivers timer0
+ 4294772030: Done.
+Resuming type 'lapic':
+ 4294772030: lapic0
+ 4294772030: Starting generic driver.
+ 4294772030: Starting auxillary drivers.
+ 4294772030: Starting global drivers lapic0
+ 4294772030: Done.
+Resuming type 'ioapic':
+ 4294772030: ioapic0
+ 4294772030: Starting generic driver.
+ 4294772030: Starting auxillary drivers.
+ 4294772030: Starting global drivers ioapic0
+ 4294772030: Done.
+Resuming type 'irqrouter':
+ 4294772030: irqrouter0
+ 4294772030: Starting generic driver.
+ 4294772030: Starting auxillary drivers.
+ 4294772030: Starting global drivers irqrouter0
+ 4294772030: Done.
+power up suspend device tree.
+done
 
-diffstat output:
- net/ipv4/netfilter/ipt_tcpmss.c |   12 ------------
- 1 files changed, 12 deletions(-)
+Regards,
 
+Nigel
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
---- linux-2.6.10-rc1-mm1-full/net/ipv4/netfilter/ipt_tcpmss.c.old	2004-10-28 23:51:17.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/net/ipv4/netfilter/ipt_tcpmss.c	2004-10-28 23:51:28.000000000 +0200
-@@ -87,18 +87,6 @@
- 			       info->invert, hotdrop);
- }
- 
--static inline int find_syn_match(const struct ipt_entry_match *m)
--{
--	const struct ipt_tcp *tcpinfo = (const struct ipt_tcp *)m->data;
--
--	if (strcmp(m->u.kernel.match->name, "tcp") == 0
--	    && (tcpinfo->flg_cmp & TH_SYN)
--	    && !(tcpinfo->invflags & IPT_TCP_INV_FLAGS))
--		return 1;
--
--	return 0;
--}
--
- static int
- checkentry(const char *tablename,
-            const struct ipt_ip *ip,
+Everyone lives by faith. Some people just don't believe it.
+Want proof? Try to prove that the theory of evolution is true.
+

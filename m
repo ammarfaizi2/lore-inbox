@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261863AbSJQUWY>; Thu, 17 Oct 2002 16:22:24 -0400
+	id <S261728AbSJQUXt>; Thu, 17 Oct 2002 16:23:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262022AbSJQUWY>; Thu, 17 Oct 2002 16:22:24 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:35854 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261863AbSJQUWW>;
-	Thu, 17 Oct 2002 16:22:22 -0400
-Date: Thu, 17 Oct 2002 13:28:02 -0700
-From: Greg KH <greg@kroah.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017202802.GA592@kroah.com>
-References: <20021017195015.A4747@infradead.org> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <200210172220.21458.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210172220.21458.russell@coker.com.au>
-User-Agent: Mutt/1.4i
+	id <S261939AbSJQUXt>; Thu, 17 Oct 2002 16:23:49 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:1272 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261728AbSJQUXp>;
+	Thu, 17 Oct 2002 16:23:45 -0400
+Importance: Normal
+Sensitivity: 
+Subject: statfs64 missing
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF6D978045.B4B59726-ON87256C55.006F1ED5@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Thu, 17 Oct 2002 15:28:51 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/17/2002 02:29:42 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 10:20:21PM +0200, Russell Coker wrote:
->  With the current LSM setup of a 2^32 LSM calls, you can 
-> choose a number somewhat arbitarily and be fairly sure that it won't conflict 
-> and that you can later register the same number with the LSM people.
+Interesting question for other distributed filesystems as well, not just
+NFS.
+There are two calls sent in the CIFS case to get this info.  One requesting
+"FILE_SYSTEM_ATTRIBUTE_INFO" to get f_namelen (which presumably does not
+vary so does not need to be requeried every statfs and the field length is
+big enough
+as is) and "FILE_SYSTEM_INFO" which returns 64 bit quantities for Total and
+Free
+"Allocation Units" and  then a  32 bit quantity for Sectors per Allocation
+Unit
+and a 32 bit quantity for bytes for sector.   With big SAN based arrays of
+disks
+running under some of the high end CIFS based server appliances from
+EMC, NetApp etc. it would not be surprising to me to see an overflow
+problem for
+the 32 bit statfs fields today (mapping from the values in the
+FILE_SYSTEM_INFO
+returned by the server to statfs struct on i386 clients) unless the local
+fs lies
+about the block size.   For the cifs vfs adding a statfs64 func would
+certainly
+be technically feasible from the protocol's perspective and pretty easy.
 
-You do not have to "register" a syscall number with the LSM people.  We
-don't care.  Use whatever you want for your sys_security call.  If you
-want to be nice, read the documentation and use a module id that is
-unique.
+> 2.5 has 64bit sector_t but no statfs64() system call for
+>32bit architectures. How is df supposed to report it? statfs
+> uses 32bit block counts.
+>
+>The currently limit depends on the block size, the bigger your
+>block size the more bytes it can report.
+>
+> You can actually access NFS servers which have more
+> than 2TB of disk space. NFS uses the local write size
+> as block size. When you are lucky then 0xfffffffff*wsize
+> is bigger than what your NFS server reports. If not
+> you get wrong results.
+>
+> -Andi
 
-Personally I hate the "module id" idea, but that's just me...
 
-thanks,
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
 
-greg k-h
+

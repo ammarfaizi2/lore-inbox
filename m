@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSCUGa4>; Thu, 21 Mar 2002 01:30:56 -0500
+	id <S293457AbSCUGtt>; Thu, 21 Mar 2002 01:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293453AbSCUGap>; Thu, 21 Mar 2002 01:30:45 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:38046 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S293448AbSCUGac>; Thu, 21 Mar 2002 01:30:32 -0500
-Date: Wed, 20 Mar 2002 23:45:52 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: Putrid Elevator Behavior 2.4.18/19
-Message-ID: <20020320234552.A21740@vger.timpanogas.org>
-In-Reply-To: <20020320120455.A19074@vger.timpanogas.org> <20020320220241.GC29857@matchmail.com> <20020320152008.A19978@vger.timpanogas.org> <20020320152504.B19978@vger.timpanogas.org> <3C9935CA.38E6F56F@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293453AbSCUGtk>; Thu, 21 Mar 2002 01:49:40 -0500
+Received: from gw.sp.op.dlr.de ([129.247.188.16]:2191 "EHLO n13.sp.op.dlr.de")
+	by vger.kernel.org with ESMTP id <S293457AbSCUGt1>;
+	Thu, 21 Mar 2002 01:49:27 -0500
+Message-ID: <3C99824B.2040307@dlr.de>
+Date: Thu, 21 Mar 2002 07:48:43 +0100
+From: Martin Wirth <Martin.Wirth@dlr.de>
+Reply-To: Martin.Wirth@dlr.de
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.4) Gecko/20011206 Netscape6/6.2.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Ulrich Drepper <drepper@redhat.com>, pwaechtler@loewe-komp.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <E16nZqJ-0004mi-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 05:22:18PM -0800, Andrew Morton wrote:
-> "Jeff V. Merkey" wrote:
-> > 
-> > ...
-> > > I will comply.  I tested with pre-3 patches and still saw this problem??
-> > > Let me go and check the patches I applied to verify, I may not have
-> > > applied the correct patch.
-> > >
-> > > Jeff
-> > 
-> > I verified we were using a stock 2.4.18 kernel on the specific system
-> > without the pre-3 patches installed.  We have been testing with the
-> > latest patches but not on this system.  We will apply and retest and
-> > I will verify.
-> > 
-> 
-> The elevator starvation change went into 2.4.19-pre1 I think.
-> It shouldn't affect the problem which you've described - that
-> change improved the situation where tasks were sleeping for
-> long periods when they want to insert new requests.  But the
-> problem which you're observing appears to affect already-inserted
-> requests.
-> 
-> "Several minutes" is downright odd.  From your description
-> it seems that all the requests are writes, but some of the
-> writes (at a remote end of the disk) are being bypassed far
-> too many times.
-> 
-> The bypass count _is_ tunable.  Although it sounds like the logic
-> has come unstuck in some manner, it would be interesting if
-> changing the elevator latency parameters for that queue affected
-> the situation.
-> 
-> Have you experimented with `elvtune -r NNN /dev/foo' and
-> `elvtune -w NNN /dev/foo'?
-
-No, but I will test this tonight.  I am in tonight working on 
-this problem until I run it down.
-
-Jeff
+Rusty Russell wrote:
 
 
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>2) Where this is suboptimal,
+
+Up to know I was too focused on the wait functions, but there is
+also a problem with cond_broadcast (and the mutex-protected version of 
+cond_signal): since they may block (on ack or lock) this opens up 
+chances for priority inversion like problems. I think to be really 
+usefull cond_broacast and cond_signal should have a non-blocking 
+behaviour with predictible runtime.
+
+Just to convince you that this is a real world problem here is a 
+description of one of my data-aquisition programs:
+
+A 'producer' thread waits for the trigger of a transient recorder at 500 
+Hz IRQ-rate, reads out 64k on each event into a large circular buffer,
+calls cond_broadcast (every 5th IRQ) without holding a mutex and goes to 
+sleep to wait for the next IRQ. (This thread is SCHED_FIFO)
+
+Then there are three (SCHED_OTHER) 'consumer' threads which work on the 
+same data doing different things of different importance (group them 
+according to some hardware parameter and store them into different 
+files, calculate averaged powerspectra, select pieces for an online 
+scope-like display etc.)
+
+If in this scenario the producer would have to wait in cond_broadcast 
+until the least prio consumer has acknowledged (which may take a timer 
+tick or longer) he would lose several IRQs each time.
+
+So for my applications a cond_broadcast blocking for the waiters is 
+simply not acceptable.
+
+Martin
+

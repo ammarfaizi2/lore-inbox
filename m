@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132582AbRDQMdh>; Tue, 17 Apr 2001 08:33:37 -0400
+	id <S132567AbRDQMiP>; Tue, 17 Apr 2001 08:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132578AbRDQMd1>; Tue, 17 Apr 2001 08:33:27 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:8683 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S132526AbRDQMdT>; Tue, 17 Apr 2001 08:33:19 -0400
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B271DB@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LNML'" <linux-net@vger.kernel.org>,
-        "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: change_mtu boundary checking error
-Date: Tue, 17 Apr 2001 05:29:05 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132578AbRDQMhz>; Tue, 17 Apr 2001 08:37:55 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:21362 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132567AbRDQMhv>; Tue, 17 Apr 2001 08:37:51 -0400
+Date: Tue, 17 Apr 2001 07:37:50 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200104171237.HAA94681@tomcat.admin.navo.hpc.mil>
+To: babydr@baby-dragons.com,
+        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Is printing broke on sparc ?
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"Mr. James W. Laferriere" <babydr@baby-dragons.com>:
+[snip]
+> 	.. ie:  cat /etc/printcap > /dev/lp0    (or /dev/par0)
+> 	gets me :
+> 
+> /c#eodiecnyotai rhernili s to rpaemn
+>                                     s eehpo o-.ROLPR0 roif{\=sl:x
+>                                                                  	/p:ao/lr
+> 	which is where it rolls off the paper .
+> 	printer is a DECLaser 2200  .  I have the PostScript option card
+> 	for it , but when it is installed -notthing- gets output so I
+> 	tried the above experiment without it installed .  With the option
+> 	installed the display shows 'PS Waiting' Then shortly 'PS
+> 	Processing' then 'PS Ready' .  This happens whether I cat .ps
+> 	files or not .  I beleive that something is garbling the data
+> 	being sent .
 
-Going through the change_mtu() code in the kernel, I came across the default
-function supplied when calling ether_setup().
-I could see that eth_change_mtu() (drivers/net/net_init.c) does the
-following:
+I have the 5100 printer - It is expecting PCL when the PS option is not
+set. With it set, it only prints postscript.
 
-	if( (new_mtu < 68) || (new_mtu > 1500) )
-		return -EINVAL;
+What I did was to pass the data through enscript/nenscript to convert
+to postscript. Then I had no problems at all.
 
-Looking in include/linux/if_ether.h I found the following constants:
-#define ETH_ALEN		6	/* Octets in one ethernet addr */
-#define ETH_HLAN		14	/* Total octets in header. */
-#define ETH_ZLEN		60	/* Min. octets in frame sans FCS */
-#define ETH_DATA_LEN		1500	/* Max. octets in payload */
-#define ETH_FRAME_LEN	1514	/* Max. octets in frame sans FCS */
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-
-Now, the high boundary seemed reasonable (ETH_FRAME_LEN - ETH_HLEN =
-ETH_DATA_LEN) which gives 1500, but why is the low boundary set to 68 ?
-According to my calculations, it should have been ETH_ZLEN - ETH_HLEN which
-gives 46.
-
-Doesn't mtu means only the payload size ?
-Where did the 68 come from ?
-
-
-	Thanks,
-	Shmulik Hen
-	Software Engineer
-	Linux Advanced Networking Services
-	Network Communications Group, Israel (NCGj)
-
-
+Any opinions expressed are solely my own.

@@ -1,100 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265440AbTF1WPM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 18:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbTF1WPL
+	id S265439AbTF1WfW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 18:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265441AbTF1WfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 18:15:11 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:23680 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265434AbTF1WPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 18:15:04 -0400
-Date: Sat, 28 Jun 2003 23:37:22 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200306282237.h5SMbMEm000443@81-2-122-30.bradfords.org.uk>
-To: alan@lxorguk.ukuu.org.uk, davem@redhat.com
-Subject: Re: networking bugs and bugme.osdl.org
-Cc: davidel@xmailserver.org, greearb@candelatech.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       mbligh@aracnet.com, netdev@oss.sgi.com
+	Sat, 28 Jun 2003 18:35:22 -0400
+Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:44416
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S265439AbTF1WfT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 18:35:19 -0400
+Subject: Re: Linux 2.4.22-pre2 and AthlonMP
+From: Edward Tandi <ed@efix.biz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1056837060.6778.2.camel@dhcp22.swansea.linux.org.uk>
+References: <1056833424.30265.39.camel@wires.home.biz>
+	 <1056837060.6778.2.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1056840603.30264.45.camel@wires.home.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 28 Jun 2003 23:50:03 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If users send their report to the wrong place, it will get lost,
-> just like if their cat their report into /dev/null.  I have no reason
-> to feel bad about the information getting lost.
+On Sat, 2003-06-28 at 22:51, Alan Cox wrote:
+> On Sad, 2003-06-28 at 21:50, Edward Tandi wrote:
+> > Jun 28 18:27:46 machine kernel: PCI: Using ACPI for IRQ routing
+> > Jun 28 18:27:46 machine kernel: PCI: if you experience problems, try
+> > using option 'pci=noacpi' or even 'acpi=off'
+> > Jun 28 18:27:46 machine kernel: BIOS failed to enable PCI standards
+> > compliance, fixing this error.
+> 
+> Start by upgrading to their current BIOS
 
-Also, remember that we sometimes get no response when something is
-fixed, which is especially true when the fix happens by itself.
+Believe or not, it _is_ the latest bios for that board
+(Tyan S2460 BIOS v1.05, 2nd Jan 2003).
 
-E.G.
+Ed-T.
 
-2.5.foo released
 
-Bug reported to LKML, and nobody responds.
-
-2.5.bar released
-
-Bug re-reported to LKML, still nobody answers, maybe it's not a very
-detailed bug report, or everybody is too busy.
-
-2.5.baz released
-
-No bug report.
-
-We have so far been assuming in this discussion that 2.5.baz won't
-have fixed the bug.  It's not entirely impossible that 2.5.baz _will_
-have fixed the bug - maybe a subsystem was being overhauled anyway,
-and it was generally known on the list that the bug existed.
-
-By not letting bug reports expire, we'd have a lot of unclosed bugs
-that were really fixed.
-
-There is an analogy with TCP:
-
-Compare:
-
-SYN -->
-<-- ACK
-DATA -->
-FIN -->
-
-and
-
-SYN -->
-<-- ACK
-DATA -->
-
-with:
-
-Bug report -->
-Bug report -->
-<-- Please test this patch
-Follow up bug report -->
-<-- Please test this patch
-Follow up bug report -->
-<-- Please test this patch
-OK, thanks, it works -->
-<-- Glad it worked
-
-and
-
-Bug report -->
-Bug report -->
-<-- Please test this patch
-Follow up bug report -->
-<-- Please test this patch
-<-- Please test this patch
-<-- Please test this patch
-
-> If it's too much for them to do as I ask, it's too much for
-> me to consider their report.
->
-> Bug reporting, just like patch submission, is a 2 way street.
-
-It's not even a case of effort, more that you need 2 way communication
-to successfully fix a bug.  You need to know that the fix worked
-initially, continues to work, and that it doesn't break anything else,
-otherwise you might be adding more bugs.
-
-John.

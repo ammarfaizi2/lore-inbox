@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbSLJQgV>; Tue, 10 Dec 2002 11:36:21 -0500
+	id <S262446AbSLJQu6>; Tue, 10 Dec 2002 11:50:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264729AbSLJQgV>; Tue, 10 Dec 2002 11:36:21 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:55815 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S264688AbSLJQf4>; Tue, 10 Dec 2002 11:35:56 -0500
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-From: Antonino Daplas <adaplas@pol.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210161725.GA577@codemonkey.org.uk>
-References: <1039522886.1041.17.camel@localhost.localdomain>
-	<20021210131143.GA26361@suse.de>
-	<1039538881.2025.2.camel@localhost.localdomain>
-	<20021210144852.GD26361@suse.de>
-	<1039547205.1086.25.camel@localhost.localdomain> 
-	<20021210161725.GA577@codemonkey.org.uk>
+	id <S262472AbSLJQu6>; Tue, 10 Dec 2002 11:50:58 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:46799 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S262446AbSLJQu5>;
+	Tue, 10 Dec 2002 11:50:57 -0500
+Subject: Re: Linux 2.5.51
+From: Stian Jordet <liste@jordet.nu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: James Simmons <jsimmons@infradead.org>, Allan Duncan <allan.d@bigpond.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1039539557.3373.1.camel@zion>
+References: <Pine.LNX.4.33.0212092243260.2617-100000@maxwell.earthlink.net>
+	 <1039539557.3373.1.camel@zion>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039548870.1071.44.camel@localhost.localdomain>
+Organization: 
+Message-Id: <1039539527.762.6.camel@chevrolet.hybel>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 00:37:20 +0500
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 10 Dec 2002 17:58:47 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 21:17, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 12:07:45AM +0500, Antonino Daplas wrote:
->  > > That chunk of X code is crap. So much so, that someone even put a
->  > > comment there (not that what they suggested was much better).
->  > > 
->  > > See line 122 of http://www.atomised.org/docs/XFree86-4.2.1/agp_8c-source.html
->  > > 
->  > Ouch.  That's a sh??ty version check.  And it has to be present from
->  > 4.0.0 to 4.2.1, and if they don't correct it, 4.3.0.
+tir, 2002-12-10 kl. 17:59 skrev Benjamin Herrenschmidt:
+> > The matrox driver hasn't be ported yet. About 1/2 are now ported to the
+> > final api. Over the following week I will porting a bunch of new drivers.
+> > This is the final changes in the api so drivers can now be ported!!!! If
+> > you need help porting them email me and I'm here to help.
+> > 
+> > P.S
+> >    I even was donated a SPARC 10 station!!! Thanks Chris!!!
+> > 
+> > P.S.S
+> > 
+> >    What I really need is a Radeon card :-)
 > 
-> Andreas Schwab pointed out to me, that due to the broken boolean check,
-> I can bump the version to 0.100 and it'll work. At least until the
-> X folks change/remove that code.
+> I can take care of radeon's. Did you already used my updated version
+> from the PPC tree ?
 
-Okay, I'll bump the minor version and see if it actually works.
+Will the Radeon fbdev driver work with all Radeons (for instance a
+Radeon 9700 Pro)?
 
-Tony
-
+-- 
+Stian
 

@@ -1,685 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261392AbSJHQXC>; Tue, 8 Oct 2002 12:23:02 -0400
+	id <S261461AbSJHQez>; Tue, 8 Oct 2002 12:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbSJHQXC>; Tue, 8 Oct 2002 12:23:02 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:48345 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S261392AbSJHQWr>; Tue, 8 Oct 2002 12:22:47 -0400
-Message-Id: <200210081627.g98GRZP18285@unix-os.sc.intel.com>
+	id <S261463AbSJHQez>; Tue, 8 Oct 2002 12:34:55 -0400
+Received: from pop.gmx.net ([213.165.64.20]:58995 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261461AbSJHQew>;
+	Tue, 8 Oct 2002 12:34:52 -0400
+Date: Tue, 8 Oct 2002 18:40:24 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: linux-kernel@vger.kernel.org
+Subject: dead processes
+Message-Id: <20021008184024.27c95217.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.3claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: mgross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] thread-aware coredumps part 1, tcore-2.5.41-A6
-Date: Tue, 8 Oct 2002 09:30:16 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Alexander Viro <viro@math.psu.edu>,
-       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
-       Mark Gross <markgross@thegnar.org>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0210081346470.2228-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0210081346470.2228-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without the second component implementing the process suspending , the 
-"freeze in".  You probably should keep the down_write / up_write on  
-(current->mm->mmap_sem) in elf_coredump().
+Hi there
 
-When things settle down I would like to update that rather long comment block 
-talking about no longer needing to grab the mmap_sem. You're spin on this 
-work doesn't use my infamous "phantom run queue".
+I have a problem:
 
-Thanks for your efforts to add this cool feature to the kernel :)
+  PID TTY      STAT   TIME COMMAND
+    1 ?        S      0:07 init [3]       
+    2 ?        SW     0:00 [keventd]
+    3 ?        SWN    0:00 [ksoftirqd_CPU0]
+    4 ?        SWN    0:00 [ksoftirqd_CPU1]
+    5 ?        SW     0:17 [kswapd]
+    6 ?        SW     0:00 [bdflush]
+    7 ?        SW     0:16 [kupdated]
+    8 ?        SW     0:00 [scsi_eh_0]
+    9 ?        SW<    0:00 [mdrecoveryd]
+   10 ?        SW     0:00 [kreiserfsd]
+   27 ?        S      0:00 /sbin/devfsd /dev
+ 2307 ?        SW     0:00 [khubd]
+ 4942 ?        S      0:10 /usr/sbin/cupsd
+ 5177 ?        S      0:00 /sbin/portmap
+ 5223 ?        S      0:00 /sbin/rpc.statd
+ 5385 ?        S      0:00 /sbin/rpc.rquotad
+ 5388 ?        SW     0:15 [nfsd]
+ 5389 ?        SW     0:14 [nfsd]
+ 5390 ?        SW     0:15 [nfsd]
+ 5391 ?        SW     0:14 [nfsd]
+ 5392 ?        SW     0:15 [nfsd]
+ 5393 ?        SW     0:14 [nfsd]
+ 5394 ?        SW     0:16 [nfsd]
+ 5395 ?        SW     0:16 [nfsd]
+ 5396 ?        SW     0:00 [lockd]
+ 5397 ?        SW     0:00 [rpciod]
+ 5400 ?        S      0:00 /sbin/rpc.mountd
+ 5459 ?        S      0:07 /usr/sbin/syslogd -m 0
+ 5462 ?        S      0:00 /usr/sbin/klogd -c 3 -2
+ 5506 ?        S      0:04 /usr/lib/postfix/master
+ 5543 ?        S      0:00 /usr/sbin/sshd
+ 5574 ?        S      0:00 /usr/sbin/cron
+ 5580 vc/1     S      0:00 login -- hdg     
+ 5581 vc/2     S      0:00 /sbin/agetty 38400 tty2 linux
+ 5582 vc/3     S      0:00 /sbin/agetty 38400 tty3 linux
+ 5583 vc/4     S      0:00 /sbin/agetty 38400 tty4 linux
+ 5584 vc/5     S      0:00 /sbin/agetty 38400 tty5 linux
+ 5585 vc/6     S      0:00 /sbin/agetty 38400 tty6 linux
+ 5586 vc/1     S      0:00 -bash
+ 5600 vc/1     S      0:00 /bin/sh /usr/X11R6/bin/startx
+ 5607 vc/1     S      0:00 xinit /home/hdg/.xinitrc --
+ 5608 ?        S     44:09 X :0
+ 5614 vc/1     S      0:00 /bin/sh --login /usr/kde/3/bin/startkde
+ 5642 ?        S      0:00 kdeinit: Running...      
+ 5645 ?        S      0:01 kdeinit: dcopserver --nosid
+ 5648 ?        S      0:00 kdeinit: klauncher       
+ 5650 ?        S      9:38 kdeinit: kded            
+ 5665 ?        S      0:02 kdeinit: knotify         
+ 5666 vc/1     S      0:06 kwrapper ksmserver --restore
+ 5668 ?        S      0:00 kdeinit: ksmserver --restore
+ 5669 ?        S      1:02 kdeinit: kwin -session 11c0a8000100010334687380000005
+ 5670 ?        S     52:02 xosview
+ 5673 ?        S      5:59 kdeinit: kdesktop        
+ 5676 ?        S      4:33 kdeinit: kicker          
+ 5683 ?        S      4:44 kdeinit: klipper -icon klipper -miniicon klipper
+ 5684 ?        S      0:19 kdeinit: konsole -session 11c0a8000100010334940870000
+ 5685 ?        S      5:05 kdeinit: konsole -session 11c0a8000100010334692170000
+ 5688 ?        S      5:40 kdeinit: kmix -session 11c0a8000100010334695240000005
+ 5691 ?        S      0:00 licq -p kde-gui -- -session 11c0a80001000103389425000
+ 5699 ?        S      0:00 kalarmd --login
+ 5703 pts/0    S      0:00 /bin/bash
+ 5712 pts/1    S      0:00 /bin/bash
+ 5713 ?        S      0:02 licq -p kde-gui -- -session 11c0a80001000103389425000
+ 5715 ?        S      0:00 licq -p kde-gui -- -session 11c0a80001000103389425000
+ 5721 ?        S      0:00 licq -p kde-gui -- -session 11c0a80001000103389425000
+ 5724 ?        S      0:07 licq -p kde-gui -- -session 11c0a80001000103389425000
+ 5764 pts/0    S      0:00 bash
+ 5775 ?        S      4:36 ksensors -caption KSensors -icon ksensors.png -miniic
+24081 ?        S      1:06 gamix
+10762 ?        S      2:00 kdeinit: konsole -icon konsole -miniicon konsole
+10764 pts/2    S      0:00 /bin/bash
+10776 pts/2    S      0:00 bash
+23099 ?        S     11:55 xmms
+23111 ?        S      0:01 xmms
+23112 ?        S      0:14 xmms
+23134 ?        S      0:18 xmms
+26213 ?        S      0:00 /usr/kde/3/bin/kdesud
+29703 ?        S      0:54 /usr/bin/sylpheed-claws
+29761 ?        Z      0:00 [gpg <defunct>]
+29762 ?        Z      0:00 [gpg <defunct>]
+29763 ?        Z      0:00 [gpg <defunct>]
+29765 ?        Z      0:00 [gpg <defunct>]
+29766 ?        Z      0:00 [gpg <defunct>]
+29767 ?        Z      0:00 [gpg <defunct>]
+29773 ?        Z      0:00 [gpg <defunct>]
+29774 ?        Z      0:00 [gpg <defunct>]
+29775 ?        Z      0:00 [gpg <defunct>]
+29790 ?        Z      0:00 [gpg <defunct>]
+29791 ?        Z      0:00 [gpg <defunct>]
+29792 ?        Z      0:00 [gpg <defunct>]
+29834 ?        S      2:51 /usr/lib/mozilla/mozilla-bin
+29841 ?        S      0:00 /usr/lib/mozilla/mozilla-bin
+29842 ?        S      0:01 /usr/lib/mozilla/mozilla-bin
+29843 ?        S      0:00 /usr/lib/mozilla/mozilla-bin
+29845 ?        S      0:05 /usr/lib/mozilla/mozilla-bin
+ 4260 ?        Z      0:00 [gpg <defunct>]
+ 4261 ?        Z      0:00 [gpg <defunct>]
+ 4262 ?        Z      0:00 [gpg <defunct>]
+ 4336 ?        Z      0:00 [gpg <defunct>]
+ 4337 ?        Z      0:00 [gpg <defunct>]
+ 4338 ?        Z      0:00 [gpg <defunct>]
+ 4353 ?        Z      0:00 [gpg <defunct>]
+ 4354 ?        Z      0:00 [gpg <defunct>]
+ 4355 ?        Z      0:00 [gpg <defunct>]
+ 4422 ?        Z      0:00 [gpg <defunct>]
+ 4423 ?        Z      0:00 [gpg <defunct>]
+ 4424 ?        Z      0:00 [gpg <defunct>]
+ 4439 ?        Z      0:00 [gpg <defunct>]
+ 4440 ?        Z      0:00 [gpg <defunct>]
+ 4441 ?        Z      0:00 [gpg <defunct>]
+ 4475 ?        Z      0:00 [gpg <defunct>]
+ 4476 ?        Z      0:00 [gpg <defunct>]
+ 4477 ?        Z      0:00 [gpg <defunct>]
+ 4610 ?        Z      0:00 [gpg <defunct>]
+ 4611 ?        Z      0:00 [gpg <defunct>]
+ 4612 ?        Z      0:00 [gpg <defunct>]
+ 4613 ?        Z      0:00 [gpg <defunct>]
+ 4614 ?        Z      0:00 [gpg <defunct>]
+ 4615 ?        Z      0:00 [gpg <defunct>]
+ 4632 ?        Z      0:00 [gpg <defunct>]
+ 4635 ?        Z      0:00 [gpg <defunct>]
+ 4636 ?        Z      0:00 [gpg <defunct>]
+ 4643 ?        Z      0:00 [gpg <defunct>]
+ 4644 ?        Z      0:00 [gpg <defunct>]
+ 4650 ?        Z      0:00 [gpg <defunct>]
+ 4659 ?        Z      0:00 [gpg <defunct>]
+ 4660 ?        Z      0:00 [gpg <defunct>]
+ 4666 ?        Z      0:00 [gpg <defunct>]
+ 4670 ?        Z      0:00 [gpg <defunct>]
+ 4675 ?        Z      0:00 [gpg <defunct>]
+ 4680 ?        Z      0:00 [gpg <defunct>]
+ 5201 ?        Z      0:00 [gpg <defunct>]
+ 5202 ?        Z      0:00 [gpg <defunct>]
+ 5203 ?        Z      0:00 [gpg <defunct>]
+ 5886 ?        Z      0:00 [gpg <defunct>]
+ 5887 ?        Z      0:00 [gpg <defunct>]
+ 5888 ?        Z      0:00 [gpg <defunct>]
+15854 ?        S      0:01 java_vm 
+15855 ?        S      0:05 java_vm 
+15856 ?        S      0:09 java_vm 
+15857 ?        S      0:00 java_vm 
+15858 ?        S      0:00 java_vm 
+15859 ?        S      0:56 java_vm 
+15860 ?        S      0:00 java_vm 
+15861 ?        S      0:00 java_vm 
+15862 ?        S      0:01 java_vm 
+15863 ?        S      0:00 java_vm 
+15865 ?        S      0:15 java_vm 
+15867 ?        S      0:00 java_vm 
+15868 ?        S      0:00 java_vm 
+15869 ?        S      0:00 /usr/lib/mozilla/mozilla-bin
+15870 ?        S      0:00 /usr/lib/mozilla/mozilla-bin
+15871 ?        S      0:00 java_vm 
+15872 ?        S      0:30 java_vm 
+15879 ?        S      0:02 java_vm 
+ 3775 ?        S      0:00 /usr/lib/mozilla/mozilla-bin
+15021 ?        Z      0:00 [gpg <defunct>]
+15022 ?        Z      0:00 [gpg <defunct>]
+15023 ?        Z      0:00 [gpg <defunct>]
+18715 ?        S      0:00 qmgr -l -t fifo -u
+23545 ?        S      0:00 pickup -l -t fifo -u
+25355 ?        Z      0:00 [gpg <defunct>]
+25356 ?        Z      0:00 [gpg <defunct>]
+25357 ?        Z      0:00 [gpg <defunct>]
+27387 ?        S      0:05 xmms
+27388 ?        S      0:00 xmms
+27392 ?        S      0:01 xmms
+27686 ?        S      0:00 java_vm 
+27687 pts/0    R      0:00 ps -ax
 
---mgross
+There are a lot of defunct processes which I can't kill.
+How comes? Normal? Solution?
 
+Kind regards
 
-
-On Tuesday 08 October 2002 08:09 am, Ingo Molnar wrote:
-> Linus,
->
-> the attached patch is the initial (and most important) step to get
-> quality, thread-aware coredumps. The patch is a cleaned up and simplified
-> version of Vamsi Krishna's and Mark Gross' 2.4 tcore patch, ported to
-> 2.5.41.
->
-> The patch does the following two things:
->
->  - it writes out per-thread thread status notes, which debuggers then can
->    use to figure out the per-thread state at the point of crash.
->
->  - extends the ELF coredumping with extended FPU registers, and fills out
->    the NT_PRXFPREG note with SSE state on x86.
->
-> the patch also cleans up many aspects of ELF coredumping. The xfpu stuff
-> (#ifdefs) is not particularly pretty, but is there a better way to do it?
->
-> the next and final patch will be to 'freeze in' thread state upon
-> coredumping - that patch obviously relies on this patch, but the current
-> patch makes sense even without the 'state freezing' logic, so i believe we
-> should consider it independently.
->
-> 	Ingo
->
-> --- linux/arch/i386/kernel/i387.c.orig	2002-09-20 17:20:37.000000000 +0200
-> +++ linux/arch/i386/kernel/i387.c	2002-10-08 13:25:14.000000000 +0200
-> @@ -528,3 +528,40 @@
->
->  	return fpvalid;
->  }
-> +
-> +int dump_task_fpu(struct task_struct *tsk, struct user_i387_struct *fpu)
-> +{
-> +	int fpvalid = tsk->used_math;
-> +
-> +	if (fpvalid) {
-> +		if (tsk == current)
-> +			unlazy_fpu(tsk);
-> +		if (cpu_has_fxsr)
-> +			copy_fpu_fxsave(tsk, fpu);
-> +		else
-> +			copy_fpu_fsave(tsk, fpu);
-> +	}
-> +	return fpvalid;
-> +}
-> +
-> +int dump_task_extended_fpu(struct task_struct *tsk, struct
-> user_fxsr_struct *fpu) +{
-> +	int fpvalid = tsk->used_math && cpu_has_fxsr;
-> +
-> +	if (fpvalid) {
-> +		if (tsk == current)
-> +		       unlazy_fpu(tsk);
-> +		memcpy(fpu, &tsk->thread.i387.fxsave, sizeof(*fpu));
-> +	}
-> +	return fpvalid;
-> +}
-> +
-> +
-> +#ifdef CONFIG_SMP
-> +void dump_smp_unlazy_fpu(void)
-> +{
-> +	unlazy_fpu(current);
-> +	return;
-> +}
-> +#endif
-> +
-> --- linux/arch/i386/kernel/process.c.orig	2002-10-08 10:18:45.000000000
-> +0200 +++ linux/arch/i386/kernel/process.c	2002-10-08 13:27:49.000000000
-> +0200 @@ -19,6 +19,7 @@
->  #include <linux/fs.h>
->  #include <linux/kernel.h>
->  #include <linux/mm.h>
-> +#include <linux/elfcore.h>
->  #include <linux/smp.h>
->  #include <linux/smp_lock.h>
->  #include <linux/stddef.h>
-> @@ -373,6 +374,25 @@
->  	dump->u_fpvalid = dump_fpu (regs, &dump->i387);
->  }
->
-> +/*
-> + * Capture the user space registers if the task is not running (in user
-> space) + */
-> +int dump_task_regs(struct task_struct *tsk, elf_gregset_t *regs)
-> +{
-> +	struct pt_regs ptregs;
-> +
-> +	ptregs = *(struct pt_regs *)
-> +			((unsigned long)tsk + THREAD_SIZE - sizeof(ptregs));
-> +	ptregs.xcs &= 0xffff;
-> +	ptregs.xds &= 0xffff;
-> +	ptregs.xes &= 0xffff;
-> +	ptregs.xss &= 0xffff;
-> +
-> +	elf_core_copy_regs(regs, &ptregs);
-> +
-> +	return 1;
-> +}
-> +
->  /*
->   * This special macro can be used to load a debugging register
->   */
-> --- linux/fs/binfmt_elf.c.orig	2002-09-20 17:20:25.000000000 +0200
-> +++ linux/fs/binfmt_elf.c	2002-10-08 13:35:18.000000000 +0200
-> @@ -30,6 +30,7 @@
->  #include <linux/elfcore.h>
->  #include <linux/init.h>
->  #include <linux/highuid.h>
-> +#include <linux/smp.h>
->  #include <linux/smp_lock.h>
->  #include <linux/compiler.h>
->  #include <linux/highmem.h>
-> @@ -970,7 +971,7 @@
->  /* #define DEBUG */
->
->  #ifdef DEBUG
-> -static void dump_regs(const char *str, elf_greg_t *r)
-> +static void dump_regs(const char *str, elf_gregset_t *r)
->  {
->  	int i;
->  	static const char *regs[] = { "ebx", "ecx", "edx", "esi", "edi", "ebp",
-> @@ -1018,6 +1019,149 @@
->  #define DUMP_SEEK(off)	\
->  	if (!dump_seek(file, (off))) \
->  		goto end_coredump;
-> +
-> +static inline void fill_elf_header(struct elfhdr *elf, int segs)
-> +{
-> +	memcpy(elf->e_ident, ELFMAG, SELFMAG);
-> +	elf->e_ident[EI_CLASS] = ELF_CLASS;
-> +	elf->e_ident[EI_DATA] = ELF_DATA;
-> +	elf->e_ident[EI_VERSION] = EV_CURRENT;
-> +	memset(elf->e_ident+EI_PAD, 0, EI_NIDENT-EI_PAD);
-> +
-> +	elf->e_type = ET_CORE;
-> +	elf->e_machine = ELF_ARCH;
-> +	elf->e_version = EV_CURRENT;
-> +	elf->e_entry = 0;
-> +	elf->e_phoff = sizeof(struct elfhdr);
-> +	elf->e_shoff = 0;
-> +	elf->e_flags = 0;
-> +	elf->e_ehsize = sizeof(struct elfhdr);
-> +	elf->e_phentsize = sizeof(struct elf_phdr);
-> +	elf->e_phnum = segs;
-> +	elf->e_shentsize = 0;
-> +	elf->e_shnum = 0;
-> +	elf->e_shstrndx = 0;
-> +	return;
-> +}
-> +
-> +static inline void fill_elf_note_phdr(struct elf_phdr *phdr, int sz, off_t
-> offset) +{
-> +	phdr->p_type = PT_NOTE;
-> +	phdr->p_offset = offset;
-> +	phdr->p_vaddr = 0;
-> +	phdr->p_paddr = 0;
-> +	phdr->p_filesz = sz;
-> +	phdr->p_memsz = 0;
-> +	phdr->p_flags = 0;
-> +	phdr->p_align = 0;
-> +	return;
-> +}
-> +
-> +static inline void fill_note(struct memelfnote *note, const char *name,
-> int type, +		unsigned int sz, void *data)
-> +{
-> +	note->name = name;
-> +	note->type = type;
-> +	note->datasz = sz;
-> +	note->data = data;
-> +	return;
-> +}
-> +
-> +/*
-> + * fill up all the fields in prstatus from the given task struct, except
-> registers + * which need to be filled up seperately.
-> + */
-> +static inline void fill_prstatus(struct elf_prstatus *prstatus, struct
-> task_struct *p, long signr) +{
-> +	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
-> +	prstatus->pr_sigpend = p->pending.signal.sig[0];
-> +	prstatus->pr_sighold = p->blocked.sig[0];
-> +	prstatus->pr_pid = p->pid;
-> +	prstatus->pr_ppid = p->parent->pid;
-> +	prstatus->pr_pgrp = p->pgrp;
-> +	prstatus->pr_sid = p->session;
-> +	jiffies_to_timeval(p->utime, &prstatus->pr_utime);
-> +	jiffies_to_timeval(p->stime, &prstatus->pr_stime);
-> +	jiffies_to_timeval(p->cutime, &prstatus->pr_cutime);
-> +	jiffies_to_timeval(p->cstime, &prstatus->pr_cstime);
-> +}
-> +
-> +static inline void fill_psinfo(struct elf_prpsinfo *psinfo, struct
-> task_struct *p) +{
-> +	int i;
-> +
-> +	psinfo->pr_pid = p->pid;
-> +	psinfo->pr_ppid = p->parent->pid;
-> +	psinfo->pr_pgrp = p->pgrp;
-> +	psinfo->pr_sid = p->session;
-> +
-> +	i = p->state ? ffz(~p->state) + 1 : 0;
-> +	psinfo->pr_state = i;
-> +	psinfo->pr_sname = (i < 0 || i > 5) ? '.' : "RSDZTD"[i];
-> +	psinfo->pr_zomb = psinfo->pr_sname == 'Z';
-> +	psinfo->pr_nice = task_nice(p);
-> +	psinfo->pr_flag = p->flags;
-> +	psinfo->pr_uid = NEW_TO_OLD_UID(p->uid);
-> +	psinfo->pr_gid = NEW_TO_OLD_GID(p->gid);
-> +	strncpy(psinfo->pr_fname, p->comm, sizeof(psinfo->pr_fname));
-> +	return;
-> +}
-> +
-> +/* Here is the structure in which status of each thread is captured. */
-> +struct elf_thread_status
-> +{
-> +	struct list_head list;
-> +	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
-> +	elf_fpregset_t fpu;		/* NT_PRFPREG */
-> +#ifdef ELF_CORE_COPY_XFPREGS
-> +	elf_fpxregset_t xfpu;		/* NT_PRXFPREG */
-> +#endif
-> +	struct memelfnote notes[3];
-> +	int num_notes;
-> +};
-> +
-> +/*
-> + * In order to add the specific thread information for the elf file
-> format, + * we need to keep a linked list of every threads pr_status and
-> then + * create a single section for them in the final core file.
-> + */
-> +static int elf_dump_thread_status(long signr, struct task_struct * p,
-> struct list_head * thread_list) +{
-> +
-> +	struct elf_thread_status *t;
-> +	int sz = 0;
-> +
-> +	t = kmalloc(sizeof(*t), GFP_ATOMIC);
-> +	if (!t)
-> +		return 0;
-> +
-> +	INIT_LIST_HEAD(&t->list);
-> +	t->num_notes = 0;
-> +
-> +	fill_prstatus(&t->prstatus, p, signr);
-> +	elf_core_copy_task_regs(p, &t->prstatus.pr_reg);
-> +
-> +	fill_note(&t->notes[0], "CORE", NT_PRSTATUS, sizeof(t->prstatus),
-> &(t->prstatus)); +	t->num_notes++;
-> +	sz += notesize(&t->notes[0]);
-> +
-> +	if ((t->prstatus.pr_fpvalid = elf_core_copy_task_fpregs(p, &t->fpu))) {
-> +		fill_note(&t->notes[1], "CORE", NT_PRFPREG, sizeof(t->fpu), &(t->fpu));
-> +		t->num_notes++;
-> +		sz += notesize(&t->notes[1]);
-> +	}
-> +
-> +#ifdef ELF_CORE_COPY_XFPREGS
-> +	if (elf_core_copy_task_xfpregs(p, &t->xfpu)) {
-> +		fill_note(&t->notes[2], "LINUX", NT_PRXFPREG, sizeof(t->xfpu),
-> &t->xfpu); +		t->num_notes++;
-> +		sz += notesize(&t->notes[2]);
-> +	}
-> +#endif
-> +	list_add(&t->list, thread_list);
-> +	return sz;
-> +}
-> +
->  /*
->   * Actual dumper
->   *
-> @@ -1036,12 +1180,19 @@
->  	struct elfhdr elf;
->  	off_t offset = 0, dataoff;
->  	unsigned long limit = current->rlim[RLIMIT_CORE].rlim_cur;
-> -	int numnote = 4;
-> -	struct memelfnote notes[4];
-> +	int numnote = 5;
-> +	struct memelfnote notes[5];
->  	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
-> -	elf_fpregset_t fpu;		/* NT_PRFPREG */
->  	struct elf_prpsinfo psinfo;	/* NT_PRPSINFO */
-> -
-> + 	struct task_struct *g, *p;
-> + 	LIST_HEAD(thread_list);
-> + 	struct list_head *t;
-> +	elf_fpregset_t fpu;
-> +#ifdef ELF_CORE_COPY_XFPREGS
-> +	elf_fpxregset_t xfpu;
-> +#endif
-> +	int thread_status_size = 0;
-> +
->  	/* first copy the parameters from user space */
->  	memset(&psinfo, 0, sizeof(psinfo));
->  	{
-> @@ -1076,34 +1227,49 @@
->  		*(struct pt_regs *)&prstatus.pr_reg = *regs;
->  #endif
->
-> -	/* now stop all vm operations */
-> -	down_write(&current->mm->mmap_sem);
-> -	segs = current->mm->map_count;
-> +	 /* capture the status of all other threads */
-> +	if (signr) {
-> +		read_lock(&tasklist_lock);
-> +		do_each_thread(g,p)
-> +			if (current->mm == p->mm && current != p) {
-> +				int sz = elf_dump_thread_status(signr, p, &thread_list);
-> +				if (!sz) {
-> +					read_unlock(&tasklist_lock);
-> +					goto cleanup;
-> +				} else
-> +					thread_status_size += sz;
-> +			}
-> +		while_each_thread(g,p);
-> +		read_unlock(&tasklist_lock);
-> +	}
-> +
-> +	memset(&prstatus, 0, sizeof(prstatus));
-> +	fill_prstatus(&prstatus, current, signr);
-> +	elf_core_copy_regs(&prstatus.pr_reg, regs);
-> +
-> +	/* We no longer stop all vm operations */
-> +
-> +	/* This because those proceses that could possibly
-> +	 * change map_count or the mmap / vma pages are now suspended.
-> +	 *
-> +	 * Only ptrace can touch these memory address, but it cannot change
-> +	 * the map_count or the pages.  So no possibility of crashing exists
-> while dumping +	 * the mm->vm_next areas to the core file.
-> +	 *
-> +	 * Grabbing mmap_sem in this function is risky WRT the use of
-> suspend_threads. +	 * Although no locks ups have been induced, if one of
-> the suspended threads was +	 * in line for the current->mmap_sem and if
-> gets it while on the Phantom runque, +	 * then we would dead lock in this
-> function if we continue to attempt to down_write +	 * in this function.
-> +	 */
-> +  	segs = current->mm->map_count;
->
->  #ifdef DEBUG
->  	printk("elf_core_dump: %d segs %lu limit\n", segs, limit);
->  #endif
->
->  	/* Set up header */
-> -	memcpy(elf.e_ident, ELFMAG, SELFMAG);
-> -	elf.e_ident[EI_CLASS] = ELF_CLASS;
-> -	elf.e_ident[EI_DATA] = ELF_DATA;
-> -	elf.e_ident[EI_VERSION] = EV_CURRENT;
-> -	memset(elf.e_ident+EI_PAD, 0, EI_NIDENT-EI_PAD);
-> -
-> -	elf.e_type = ET_CORE;
-> -	elf.e_machine = ELF_ARCH;
-> -	elf.e_version = EV_CURRENT;
-> -	elf.e_entry = 0;
-> -	elf.e_phoff = sizeof(elf);
-> -	elf.e_shoff = 0;
-> -	elf.e_flags = 0;
-> -	elf.e_ehsize = sizeof(elf);
-> -	elf.e_phentsize = sizeof(struct elf_phdr);
-> -	elf.e_phnum = segs+1;		/* Include notes */
-> -	elf.e_shentsize = 0;
-> -	elf.e_shnum = 0;
-> -	elf.e_shstrndx = 0;
-> +	fill_elf_header(&elf, segs+1); /* including notes section*/
->
->  	fs = get_fs();
->  	set_fs(KERNEL_DS);
-> @@ -1120,60 +1286,29 @@
->  	 * with info from their /proc.
->  	 */
->
-> -	notes[0].name = "CORE";
-> -	notes[0].type = NT_PRSTATUS;
-> -	notes[0].datasz = sizeof(prstatus);
-> -	notes[0].data = &prstatus;
-> -	prstatus.pr_info.si_signo = prstatus.pr_cursig = signr;
-> -	prstatus.pr_sigpend = current->pending.signal.sig[0];
-> -	prstatus.pr_sighold = current->blocked.sig[0];
-> -	psinfo.pr_pid = prstatus.pr_pid = current->pid;
-> -	psinfo.pr_ppid = prstatus.pr_ppid = current->parent->pid;
-> -	psinfo.pr_pgrp = prstatus.pr_pgrp = current->pgrp;
-> -	psinfo.pr_sid = prstatus.pr_sid = current->session;
-> -	jiffies_to_timeval(current->utime, &prstatus.pr_utime);
-> -	jiffies_to_timeval(current->stime, &prstatus.pr_stime);
-> -	jiffies_to_timeval(current->cutime, &prstatus.pr_cutime);
-> -	jiffies_to_timeval(current->cstime, &prstatus.pr_cstime);
-> -
-> -#ifdef DEBUG
-> -	dump_regs("Passed in regs", (elf_greg_t *)regs);
-> -	dump_regs("prstatus regs", (elf_greg_t *)&prstatus.pr_reg);
-> -#endif
-> -
-> -	notes[1].name = "CORE";
-> -	notes[1].type = NT_PRPSINFO;
-> -	notes[1].datasz = sizeof(psinfo);
-> -	notes[1].data = &psinfo;
-> -	i = current->state ? ffz(~current->state) + 1 : 0;
-> -	psinfo.pr_state = i;
-> -	psinfo.pr_sname = (i < 0 || i > 5) ? '.' : "RSDZTD"[i];
-> -	psinfo.pr_zomb = psinfo.pr_sname == 'Z';
-> -	psinfo.pr_nice = task_nice(current);
-> -	psinfo.pr_flag = current->flags;
-> -	psinfo.pr_uid = NEW_TO_OLD_UID(current->uid);
-> -	psinfo.pr_gid = NEW_TO_OLD_GID(current->gid);
-> -	strncpy(psinfo.pr_fname, current->comm, sizeof(psinfo.pr_fname));
-> -
-> -	notes[2].name = "CORE";
-> -	notes[2].type = NT_TASKSTRUCT;
-> -	notes[2].datasz = sizeof(*current);
-> -	notes[2].data = current;
-> -
-> -	/* Try to dump the FPU. */
-> -	prstatus.pr_fpvalid = dump_fpu (regs, &fpu);
-> -	if (!prstatus.pr_fpvalid)
-> -	{
-> -		numnote--;
-> -	}
-> -	else
-> -	{
-> -		notes[3].name = "CORE";
-> -		notes[3].type = NT_PRFPREG;
-> -		notes[3].datasz = sizeof(fpu);
-> -		notes[3].data = &fpu;
-> -	}
-> +	fill_note(&notes[0], "CORE", NT_PRSTATUS, sizeof(prstatus), &prstatus);
->
-> +	fill_psinfo(&psinfo, current);
-> +	fill_note(&notes[1], "CORE", NT_PRPSINFO, sizeof(psinfo), &psinfo);
-> +
-> +	fill_note(&notes[2], "CORE", NT_TASKSTRUCT, sizeof(*current), current);
-> +
-> +  	/* Try to dump the FPU. */
-> +	if ((prstatus.pr_fpvalid = elf_core_copy_task_fpregs(current, &fpu))) {
-> +		fill_note(&notes[3], "CORE", NT_PRFPREG, sizeof(fpu), &fpu);
-> +	} else {
-> +		--numnote;
-> + 	}
-> +#ifdef ELF_CORE_COPY_XFPREGS
-> +	if (elf_core_copy_task_xfpregs(current, &xfpu)) {
-> +		fill_note(&notes[4], "LINUX", NT_PRXFPREG, sizeof(xfpu), &xfpu);
-> +	} else {
-> +		--numnote;
-> +	}
-> +#else
-> +	numnote --;
-> +#endif
-> +
->  	/* Write notes phdr entry */
->  	{
->  		struct elf_phdr phdr;
-> @@ -1181,17 +1316,11 @@
->
->  		for(i = 0; i < numnote; i++)
->  			sz += notesize(&notes[i]);
-> +
-> +		sz += thread_status_size;
->
-> -		phdr.p_type = PT_NOTE;
-> -		phdr.p_offset = offset;
-> -		phdr.p_vaddr = 0;
-> -		phdr.p_paddr = 0;
-> -		phdr.p_filesz = sz;
-> -		phdr.p_memsz = 0;
-> -		phdr.p_flags = 0;
-> -		phdr.p_align = 0;
-> -
-> -		offset += phdr.p_filesz;
-> +		fill_elf_note_phdr(&phdr, sz, offset);
-> +		offset += sz;
->  		DUMP_WRITE(&phdr, sizeof(phdr));
->  	}
->
-> @@ -1220,10 +1349,19 @@
->  		DUMP_WRITE(&phdr, sizeof(phdr));
->  	}
->
-> + 	/* write out the notes section */
->  	for(i = 0; i < numnote; i++)
->  		if (!writenote(&notes[i], file))
->  			goto end_coredump;
->
-> +	/* write out the thread status notes section */
-> +	list_for_each(t, &thread_list) {
-> +		struct elf_thread_status *tmp = list_entry(t, struct elf_thread_status,
-> list); +		for (i = 0; i < tmp->num_notes; i++)
-> +			if (!writenote(&tmp->notes[i], file))
-> +				goto end_coredump;
-> +	}
-> +
->  	DUMP_SEEK(dataoff);
->
->  	for(vma = current->mm->mmap; vma != NULL; vma = vma->vm_next) {
-> @@ -1267,11 +1405,19 @@
->  		       (off_t) file->f_pos, offset);
->  	}
->
-> - end_coredump:
-> +end_coredump:
->  	set_fs(fs);
-> -	up_write(&current->mm->mmap_sem);
-> +
-> +cleanup:
-> +	while(!list_empty(&thread_list)) {
-> +		struct list_head *tmp = thread_list.next;
-> +		list_del(tmp);
-> +		kfree(list_entry(tmp, struct elf_thread_status, list));
-> +	}
-> +
->  	return has_dumped;
->  }
-> +
->  #endif		/* USE_ELF_CORE_DUMP */
->
->  static int __init init_elf_binfmt(void)
-> --- linux/include/linux/elfcore.h.orig	2002-09-20 17:20:25.000000000 +0200
-> +++ linux/include/linux/elfcore.h	2002-10-08 13:31:29.000000000 +0200
-> @@ -85,4 +85,45 @@
->  #define PRARGSZ ELF_PRARGSZ
->  #endif
->
-> +#ifdef __KERNEL__
-> +static inline void elf_core_copy_regs(elf_gregset_t *elfregs, struct
-> pt_regs *regs) +{
-> +#ifdef ELF_CORE_COPY_REGS
-> +	ELF_CORE_COPY_REGS((*elfregs), regs)
-> +#else
-> +	BUG_ON(sizeof(*elfregs) != sizeof(*regs));
-> +	*(struct pt_regs *)elfregs = *regs;
-> +#endif
-> +}
-> +
-> +static inline int elf_core_copy_task_regs(struct task_struct *t,
-> elf_gregset_t* elfregs) +{
-> +#ifdef ELF_CORE_COPY_TASK_REGS
-> +
-> +	return ELF_CORE_COPY_TASK_REGS(t, elfregs);
-> +#endif
-> +	return 0;
-> +}
-> +
-> +extern int dump_fpu (struct pt_regs *, elf_fpregset_t *);
-> +
-> +static inline int elf_core_copy_task_fpregs(struct task_struct *t,
-> elf_fpregset_t *fpu) +{
-> +#ifdef ELF_CORE_COPY_FPREGS
-> +	return ELF_CORE_COPY_FPREGS(t, fpu);
-> +#else
-> +	return dump_fpu(NULL, fpu);
-> +#endif
-> +}
-> +
-> +#ifdef ELF_CORE_COPY_XFPREGS
-> +static inline int elf_core_copy_task_xfpregs(struct task_struct *t,
-> elf_fpxregset_t *xfpu) +{
-> +	return ELF_CORE_COPY_XFPREGS(t, xfpu);
-> +}
-> +#endif
-> +
-> +#endif /* __KERNEL__ */
-> +
-> +
->  #endif /* _LINUX_ELFCORE_H */
-> --- linux/include/linux/elf.h.orig	2002-10-08 10:18:45.000000000 +0200
-> +++ linux/include/linux/elf.h	2002-10-08 13:08:47.000000000 +0200
-> @@ -1,6 +1,7 @@
->  #ifndef _LINUX_ELF_H
->  #define _LINUX_ELF_H
->
-> +#include <linux/sched.h>
->  #include <linux/types.h>
->  #include <asm/elf.h>
->
-> @@ -575,7 +576,8 @@
->  #define NT_PRFPREG	2
->  #define NT_PRPSINFO	3
->  #define NT_TASKSTRUCT	4
-> -#define NT_PRFPXREG	20
-> +#define NT_PRXFPREG     0x46e62b7f      /* copied from
-> gdb5.1/include/elf/common.h */ +
->
->  /* Note header in a PT_NOTE section */
->  typedef struct elf32_note {
-> --- linux/include/asm-i386/elf.h.orig	2002-09-20 17:20:31.000000000 +0200
-> +++ linux/include/asm-i386/elf.h	2002-10-08 13:08:47.000000000 +0200
-> @@ -7,6 +7,7 @@
->
->  #include <asm/ptrace.h>
->  #include <asm/user.h>
-> +#include <asm/processor.h>
->
->  #include <linux/utsname.h>
->
-> @@ -59,6 +60,9 @@
->
->  /* Wow, the "main" arch needs arch dependent functions too.. :) */
->
-> +#define savesegment(seg,value) \
-> +	asm volatile("movl %%" #seg ",%0":"=m" (*(int *)&(value)))
-> +
->  /* regs is struct pt_regs, pr_reg is elf_gregset_t (which is
->     now struct_user_regs, they are different) */
->
-> @@ -72,9 +76,8 @@
->  	pr_reg[6] = regs->eax;				\
->  	pr_reg[7] = regs->xds;				\
->  	pr_reg[8] = regs->xes;				\
-> -	/* fake once used fs and gs selectors? */	\
-> -	pr_reg[9] = regs->xds;	/* was fs and __fs */	\
-> -	pr_reg[10] = regs->xds;	/* was gs and __gs */	\
-> +	savesegment(fs,pr_reg[9]);			\
-> +	savesegment(gs,pr_reg[10]);			\
->  	pr_reg[11] = regs->orig_eax;			\
->  	pr_reg[12] = regs->eip;				\
->  	pr_reg[13] = regs->xcs;				\
-> @@ -99,6 +102,20 @@
->
->  #ifdef __KERNEL__
->  #define SET_PERSONALITY(ex, ibcs2)
-> set_personality((ibcs2)?PER_SVR4:PER_LINUX) +
-> +extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
-> +extern int dump_task_fpu (struct task_struct *, elf_fpregset_t *);
-> +extern int dump_task_extended_fpu (struct task_struct *, struct
-> user_fxsr_struct *); +
-> +#define ELF_CORE_COPY_TASK_REGS(tsk, elf_regs) dump_task_regs(tsk,
-> elf_regs) +#define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs) dump_task_fpu(tsk,
-> elf_fpregs) +#define ELF_CORE_COPY_XFPREGS(tsk, elf_xfpregs)
-> dump_task_extended_fpu(tsk, elf_xfpregs) +
-> +#ifdef CONFIG_SMP
-> +extern void dump_smp_unlazy_fpu(void);
-> +#define ELF_CORE_SYNC dump_smp_unlazy_fpu
-> +#endif
-> +
->  #endif
->
->  #endif
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Marc Giger

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSGINd6>; Tue, 9 Jul 2002 09:33:58 -0400
+	id <S315293AbSGINeb>; Tue, 9 Jul 2002 09:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315293AbSGINd5>; Tue, 9 Jul 2002 09:33:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61905 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315279AbSGINd4>;
-	Tue, 9 Jul 2002 09:33:56 -0400
-Date: Tue, 9 Jul 2002 15:36:38 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: panic at boot with 2.5.25 with Jens's IDE patch
-Message-ID: <20020709133638.GE1940@suse.de>
-References: <200207091526.14703.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207091526.14703.roy@karlsbakk.net>
+	id <S315300AbSGINea>; Tue, 9 Jul 2002 09:34:30 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:32223 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315293AbSGINe2>; Tue, 9 Jul 2002 09:34:28 -0400
+Date: Tue, 9 Jul 2002 07:37:10 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] MAINTAINERS changes
+Message-ID: <Pine.LNX.4.44.0207090735030.10105-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09 2002, Roy Sigurd Karlsbakk wrote:
-> hi all
-> 
-> running (or trying to boot) 2.5.25, I get this little, cute panic :-)
+Hi,
 
-Probably passing unitialized stuff to driversfs, please try and memset
-gd in drivers/ide24/ide-probe.c:init_gendisk()
+I have to add two changes to MAINTAINERS, too.
 
-        gd        = kmalloc (sizeof(struct gendisk), GFP_KERNEL);
-        if (!gd)
-                goto err_kmalloc_gd;
-+	memset(gd, 0, sizeof(*gd));
+Index: MAINTAINERS
+===================================================================
+RCS file: /var/cvs/thunder-2.5/MAINTAINERS,v
+retrieving revision 1.2
+diff -u -r1.2 MAINTAINERS
+--- MAINTAINERS 1 Jul 2002 11:26:34 -0000       1.2
++++ MAINTAINERS 9 Jul 2002 13:34:51 -0000
+@@ -526,7 +526,7 @@
+ EMU10K1 SOUND DRIVER
+ P:     Rui Sousa
+ M:     rui.p.m.sousa@clix.pt
+-L:     emu10k1-devel@opensource.creative.com
++L:     emu10k1-devel@lists.sourceforge.net
+ W:     http://opensource.creative.com/
+ S:     Maintained
+ 
+@@ -631,7 +631,7 @@
+ 
+ HFS FILESYSTEM
+ P:     Adrian Sun
+-M:     asun@cobaltnet.com
++M:     adrian.sun@sun.com
+ L:     linux-kernel@vger.kernel.org
+ S:     Maintained
+ 
 
-pseudo patch. Does that work?
-
+							Regards,
+							Thunder
 -- 
-Jens Axboe
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

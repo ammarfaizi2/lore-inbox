@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290200AbSALBKX>; Fri, 11 Jan 2002 20:10:23 -0500
+	id <S290201AbSALBMd>; Fri, 11 Jan 2002 20:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290201AbSALBKN>; Fri, 11 Jan 2002 20:10:13 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:22537 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S290200AbSALBKH>; Fri, 11 Jan 2002 20:10:07 -0500
-Message-ID: <3C3F8BA5.8B793441@zip.com.au>
-Date: Fri, 11 Jan 2002 17:04:37 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
-In-Reply-To: <3C3F3C7F.76CCAF76@colorfullife.com.suse.lists.linux.kernel> <3C3F4FC6.97A6A66D@zip.com.au.suse.lists.linux.kernel>,
-		Andrew Morton's message of "11 Jan 2002 21:59:44 +0100" <p73r8ow4dd7.fsf@oldwotan.suse.de>
+	id <S290204AbSALBMO>; Fri, 11 Jan 2002 20:12:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63750 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290202AbSALBMI>;
+	Fri, 11 Jan 2002 20:12:08 -0500
+Date: Sat, 12 Jan 2002 01:12:07 +0000
+From: Chris Dukes <pakrat@www.uk.linux.org>
+To: fabrizio.gennari@philips.com
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: PPP over socket?
+Message-ID: <20020112011207.F7199@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <OF89E28C88.FEBD33E7-ONC1256B3E.002E62B6@diamond.philips.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OF89E28C88.FEBD33E7-ONC1256B3E.002E62B6@diamond.philips.com>; from fabrizio.gennari@philips.com on Fri, Jan 11, 2002 at 10:13:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> Andrew Morton <akpm@zip.com.au> writes:
-> 
-> > So in this case, the behaviour I would prefer is MCL_FUTURE for
-> > all vma's *except* the stack.   Stack pages should be locked
-> > only when they are faulted in.   Hard call.
-> 
-> There is just one problem: linuxthread stacks are just ordinary mappings
-> and they are in no way special to the kernel; they aren't VM_GROWSDOWN.
-> You would need to add a way to the kernel first to tag the linux thread
-> stacks in a way that is recognizable to mlockall and then do that
-> from linuxthreads.
-> 
-> I think for the normal stack - real VM_GROWSDOWN segments - mlockall
-> already does the right thing.
+On Fri, Jan 11, 2002 at 10:13:57AM +0100, fabrizio.gennari@philips.com wrote:
+> I was wondering whether the socket architecture could be modified in order 
+> to support PPP connections over a generic socket (of type SOCK_DGRAM or 
+> SOCK_SEQPACKET), by mapping each PPP packet to a socket packet. This idea 
+> is not completely new: somebody raised is in the past, see for example 
+> http://oss.sgi.com/projects/netdev/mail/netdev/msg00180.html or 
+> http://oss.sgi.com/projects/netdev/mail/netdev/msg01127.html .
 
-hmm.. So I wonder what changed between 2.4.7 and 2.4.15 which unbroke
-MCL_FUTURE.
+vtun already provides this capability in user space.
+(See http://vtun.sourceforge.net/)
+ppp(8) on *BSD also provides this capability in user space as well.
 
-I suspect we can fix the problem by running mlockall(MCL_FUTURE)
-and then an explicit munlock() of the stack area.
-
--
+As memory serves PPPoE on Linux is partially implemented in userspace
+as is, so a partial user space solution for PPPoUDP shouldn't be that
+wretched.
+-- 
+Chris Dukes
+"Bert is apparently EEEEVIL, whereas Oscar is just a sysadmin^Wgrouch."
+-- gorski

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264630AbSKMXqt>; Wed, 13 Nov 2002 18:46:49 -0500
+	id <S264622AbSKMXqU>; Wed, 13 Nov 2002 18:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264637AbSKMXqt>; Wed, 13 Nov 2002 18:46:49 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:211
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S264630AbSKMXqr>; Wed, 13 Nov 2002 18:46:47 -0500
-Message-ID: <3DD2E5F9.A5594DCB@splentec.com>
-Date: Wed, 13 Nov 2002 18:53:29 -0500
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adam Radford <aradford@3WARE.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3w-xxxx: additional ata->sense codes, avoid driver lockup
-References: <A1964EDB64C8094DA12D2271C04B812672C86A@tabby>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.247.56] using ID <tluben@rogers.com> at Wed, 13 Nov 2002 18:53:33 -0500
+	id <S264630AbSKMXqU>; Wed, 13 Nov 2002 18:46:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55054 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264622AbSKMXqT>; Wed, 13 Nov 2002 18:46:19 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: local APIC may cause XFree86 hang
+Date: Wed, 13 Nov 2002 23:52:48 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <aquokg$45p$1@penguin.transmeta.com>
+References: <15826.53818.621879.661253@kim.it.uu.se>
+X-Trace: palladium.transmeta.com 1037231573 29868 127.0.0.1 (13 Nov 2002 23:52:53 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 13 Nov 2002 23:52:53 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Radford wrote:
-> 
-> While there may need to be a fix so you don't loop on status=c1,flags=0x11,
-> you should know that:
+In article <15826.53818.621879.661253@kim.it.uu.se>,
+Mikael Pettersson  <mikpe@csd.uu.se> wrote:
 >
-> command_packet->status is not a scsi or ATA register value at all.
-> 
-> (0xC1 == BSY|DRDY|ERR).
-> ^^^^^^^^^^^^^^^^^^^^^^^^ this is not true.
+>Does XFree86 (its core or particular drivers) use vm86() to
+>invoke, possibly graphics card specific, BIOS code?
+>That would explain the hangs I got. The fix would be to
+>disable the local APIC around vm86()'s BIOS calls, just like
+>we now disable it before APM suspend.
 
-Really? Last time I checked the ATA spec, C1h comes
-out to BSY=80h | DRDY=40h | ERR=1h.
+It does.
 
-I was *merely* trying to fix the loop on status=C1h, flags=11h.
+HOWEVER, vm86() mode is very very different from APM, which uses real
+mode.  External interrupts in vm86 mode will not be taken inside vm86
+mode - and disabling the local timer (by disabling the APIC) around a
+vm86 mode is definitely _not_ a good idea, since it would be an instant
+denial-of-service attack on SMP machines (the PIT timer only goes to
+CPU0, so we depend on the local timer to do process timeouts etc on
+other CPUs).  The vm86 code might just be looping forever.
 
-By the use of flags (error register) and status's bits, I concluded
-that while status is not *the* ATA status register, it's bits
-are pretty close. For this reason I used the C1h *mask* to make
-everyone happy.
+In other words, if it is really vm86-related, then 
+ (a) it's a CPU bug
+ (b) we're screwed
 
-Yes, I did assume that it is massaged by the controller,
-but with a closed hardware spec and a bug, I had to start
-somewhere.
+I bet it's something else.  Possibly just timing-specific (the APIC
+makes interrupts much faster), but also possibly something to do with
+the VGA interrupt (some XFree86 drivers actually use the gfx interrupts
+these days)
 
--- 
-Luben
+		Linus

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264573AbTKNSBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 13:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264576AbTKNSBp
+	id S264640AbTKNRxM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 12:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbTKNRxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 13:01:45 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:44816
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S264573AbTKNSBo (ORCPT
+	Fri, 14 Nov 2003 12:53:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8904 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264640AbTKNRxJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 13:01:44 -0500
-Subject: Re: Adding Deprecated Attribute Tags
-From: Robert Love <rml@tech9.net>
-To: "Joseph D. Wagner" <theman@josephdwagner.info>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200311132218.57222.theman@josephdwagner.info>
-References: <200311132218.57222.theman@josephdwagner.info>
-Content-Type: text/plain
-Message-Id: <1068832904.2860.3.camel@localhost>
+	Fri, 14 Nov 2003 12:53:09 -0500
+Date: Fri, 14 Nov 2003 09:57:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jack Steiner <steiner@sgi.com>
+Cc: kiran@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: hot cache line due to note_interrupt()
+Message-Id: <20031114095737.40439f2c.akpm@osdl.org>
+In-Reply-To: <20031114174535.GA30388@sgi.com>
+References: <20031110215844.GC21632@sgi.com>
+	<20031111082915.GC1130@llm08.in.ibm.com>
+	<20031111115804.4aaafd28.akpm@osdl.org>
+	<20031114174535.GA30388@sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 14 Nov 2003 13:01:44 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-13 at 11:18, Joseph D. Wagner wrote:
+Jack Steiner <steiner@sgi.com> wrote:
+>
+> Probably too late for 2.6.0
 
-> This will aid future development and debugging to ensure that everyone uses 
-> the new struct ext2_dir_entry_2 and can take advantage of the additional 
-> fields.
+Hard to see how it can break anything; I'll queue it up, thanks.
 
-We have a special __deprecated define in include/compiler.h and family
-to safely mark this (e.g., it defines away on older gcc's and Intel's
-CC).
+> but here is a patch that disables noirqdebug:
 
-	Robert Love
-
-
+No update to Documentation/kernel-parameters.txt!  No cookie for you.

@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272561AbTHFXJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 19:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272918AbTHFXJU
+	id S274983AbTHFXVi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 19:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274991AbTHFXVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 19:09:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43533 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272561AbTHFXJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 19:09:19 -0400
-Date: Thu, 7 Aug 2003 00:09:14 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, dahinds@users.sourceforge.net
-Subject: Re: PCI1410 Interrupt Problems
-Message-ID: <20030807000914.J16116@flint.arm.linux.org.uk>
-Mail-Followup-To: Jochen Friedrich <jochen@scram.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	dahinds@users.sourceforge.net
-References: <20030803222314.C15221@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308032347580.25885-100000@gfrw1044.bocc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0308032347580.25885-100000@gfrw1044.bocc.de>; from jochen@scram.de on Sun, Aug 03, 2003 at 11:52:29PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Wed, 6 Aug 2003 19:21:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54925 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S274983AbTHFXVf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 19:21:35 -0400
+Message-ID: <3F318D73.3000809@pobox.com>
+Date: Wed, 06 Aug 2003 19:21:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: devinit
+References: <3F315CDD.12EB17FE@hp.com> <20030806230919.GB8187@kroah.com>
+In-Reply-To: <20030806230919.GB8187@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 11:52:29PM +0200, Jochen Friedrich wrote:
-> The kernel messages don't differ if the hack is applied or not. The hack
-> simply configures the PCI1410 to use a particular pin for INTA output.
-> Without the hack, the counter for IRQ9 in /proc/interrupt simply stays at 0.
-> 
-> Aug  3 14:51:02 rt1-sp kernel: Linux Kernel Card Services 3.1.22
-> Aug  3 14:51:02 rt1-sp kernel:   options:  [pci] [cardbus] [pm]
-> Aug  3 14:51:02 rt1-sp kernel: PCI: Enabling device 02:0a.0 (0000 -> 0002)
-> Aug  3 14:51:02 rt1-sp kernel: PCI: Found IRQ 9 for device 02:0a.0
-> Aug  3 14:51:02 rt1-sp kernel: Yenta IRQ list 0000, PCI irq9
-> Aug  3 14:51:02 rt1-sp kernel: Socket status: 30000010
-> Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0c00-0x0cff: clean.
-> Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0800-0x08ff: clean.
-> Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x377 0x3b8-0x3df 0x4d0-0x4d7
-> Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0a00-0x0aff: clean.
-> Aug  3 14:51:03 rt1-sp kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
+Greg KH wrote:
+> I've applied the 2.6 patch to my trees and will send it on to Linus in a
+> few days, thanks.
 
-Ok, well, register 0x8c is highly machine specific, so we need to find
-a way to identify your machine and fix it up based on that information.
 
-Unfortunately, there are some hacks in the kernel at the moment which
-mess up the Cardbus IRQ routing by touching this register - the kernel
-should not be the one to play with hardware design specific register
-settings, especially when they are applied without thought across
-many hardware variants.
+Speaking of PCI... are we gonna have to zap __devinit too?  Another 
+option is to think of add-new-pci-ids-on-the-fly as a CONFIG_HOTPLUG 
+feature, which should(?) maintain the current __devinit semantics: no 
+re-probes.
 
-I notice your lspci didn't list a subvendor / subdevice ID for your
-cardbus bridges - can you confirm by reporting the output of:
+OTOH, __devinit already is a no-op for CONFIG_HOTPLUG cases (read: most 
+everybody), so I wonder if we care enough about __devinit anymore?  I 
+used the same logic to support __devinitdata removal, after all.
 
-# setpci -s bus:slot.func 0x40.l
 
-Thanks.
+	Jeff
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
 

@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268164AbTBSJnl>; Wed, 19 Feb 2003 04:43:41 -0500
+	id <S268165AbTBSJj6>; Wed, 19 Feb 2003 04:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268170AbTBSJnl>; Wed, 19 Feb 2003 04:43:41 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:51382 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S268164AbTBSJnj>; Wed, 19 Feb 2003 04:43:39 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Meino Christian Cramer <mccramer@s.netic.de>, wli@holomorphy.com
-Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-Date: Wed, 19 Feb 2003 10:52:47 +0100
-User-Agent: KMail/1.5
-Cc: efraim@clues.de, linux-kernel@vger.kernel.org
-References: <20030219071932.GA3746@clues.de> <20030219073221.GR29983@holomorphy.com> <20030219.095905.92587466.mccramer@s.netic.de>
-In-Reply-To: <20030219.095905.92587466.mccramer@s.netic.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S268166AbTBSJj6>; Wed, 19 Feb 2003 04:39:58 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:32161 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S268165AbTBSJj4>; Wed, 19 Feb 2003 04:39:56 -0500
+Date: Wed, 19 Feb 2003 10:49:39 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: a really annoying feature of the config menu structure
+Message-ID: <20030219094939.GB10698@louise.pinerecords.com>
+References: <1045623798.25795.73.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0302182110070.25342-100000@dell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302191052.47663.baldrick@wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.44.0302182110070.25342-100000@dell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is becoming a FAQ!  Did you enable the console in your .config?
+> [rpjday@mindspring.com]
+> 
+> > > It seems that the mjpeg stuff will be in the wrong place when it starts 
+> > > being used by non-DVB modules.  I see the two (DVB and mjpeg) as 
+> > > distinct entities - like ethernet drivers and ipv4.  (DVB drivers should 
+> > > let you change channels and whatnot, mjpeg drivers should allow you to 
+> > > decode data streams from any available source.)
+> > 
+> > Its more by API than by hardware. One driver sometimes covers cards with
+> > and without tuners, with and without mpeg hardware and so on. Classification
+> > is nice, but like biology its never neat
+> 
+> true enough -- there's no perfect solution, but i'm convinced that
+> it can certainly be much more intuitive and organized that it is now.
 
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
+Please wait until Roman Zippel pushes the "menuconfig" grammar extension.
 
-Most likely you chose to compile the input system as a module, which
-caused the console options to be autohorribly deselected.  Just say 'y'
-for the input subsystem, at which point the console options will reappear,
-letting you select them.
-
-I hope this helps,
-
-Duncan.
-
-On Wednesday 19 February 2003 09:59, Meino Christian Cramer wrote:
-> From: William Lee Irwin III <wli@holomorphy.com>
-> Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-> Date: Tue, 18 Feb 2003 23:32:21 -0800
-> Message-ID: <20030219073221.GR29983@holomorphy.com>
->
-> Hi,
->
->  I have the sam eproblem here, but ACPI is definetly not configured...
->  Any idea else ?
->
->  Thank you for any help in advance ! :O)
->
->
->  Kind regards,
->  Meino
->
-> wli> On Wed, Feb 19, 2003 at 08:19:32AM +0100, Alexander Koch wrote:
-> wli> > I am experiencing problems getting certain 2.5.60 and
-> wli> > 2.5.61 and also 2.5.62 to boot. One 2.5.60 is working,
-> wli> > the others are just doing something as I only see the
-> wli> > Uncompressing... and then nothing is happening at all
-> wli> > except my hard disc doing something which is not booting,
-> wli> > I feel. I fail to remember what the difference was between
-> wli> > the two versions of 2.5.60 (one running, the other is not).
-> wli> > Any ideas/hints on what this is?
-> wli>
-> wli> Do you have ACPI in your .config? Various ppl have been having
-> wli> issues resolved when ACPI's deconfigured lately. Breaking out an
-> wli> early printk patch of some flavor should probably help get some
-> wli> boot logs out so you can debug if you care to do so.
-> wli>
-> wli>
-> wli> -- wli
-> wli> -
-> wli> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in wli> the body of a message to majordomo@vger.kernel.org
-> wli> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> wli> Please read the FAQ at  http://www.tux.org/lkml/
-> wli>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271311AbTHCVvS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 17:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271307AbTHCVvJ
+	id S271319AbTHCVxW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 17:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271333AbTHCVxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 17:51:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40874 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271295AbTHCVu6 (ORCPT
+	Sun, 3 Aug 2003 17:53:21 -0400
+Received: from mail1.scram.de ([195.226.127.111]:23303 "EHLO mail1.scram.de")
+	by vger.kernel.org with ESMTP id S271319AbTHCVxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 17:50:58 -0400
-Date: Sun, 3 Aug 2003 14:52:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Diffie <diffie@blazebox.homeip.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-Message-Id: <20030803145211.29eb5e7c.akpm@osdl.org>
-In-Reply-To: <20030803214755.GA1010@blazebox.homeip.net>
-References: <20030801182207.GA3759@blazebox.homeip.net>
-	<20030801144455.450d8e52.akpm@osdl.org>
-	<20030803015510.GB4696@blazebox.homeip.net>
-	<20030802190737.3c41d4d8.akpm@osdl.org>
-	<20030803214755.GA1010@blazebox.homeip.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 17:53:16 -0400
+Date: Sun, 3 Aug 2003 23:52:29 +0200 (CEST)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       <dahinds@users.sourceforge.net>
+Subject: Re: PCI1410 Interrupt Problems
+In-Reply-To: <20030803222314.C15221@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0308032347580.25885-100000@gfrw1044.bocc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: ---- Start SpamAssassin results
+  -0.10 points, 5 required;
+  * -0.5 -- Has a In-Reply-To header
+  *  0.0 -- Message-Id indicates a non-spam MUA (Pine)
+  * -0.5 -- BODY: Contains what looks like a quoted email text
+  *  0.9 -- RBL: Received via a relay in dnsbl.njabl.org
+  [RBL check: found 174.124.226.217.dnsbl.njabl.org., type: 127.0.0.3]
+  ---- End of SpamAssassin results
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diffie <diffie@blazebox.homeip.net> wrote:
->
-> I think this bug is due to me using the aic7xxx_old code ver 5.x.x.
-> 
->  Under kernel 2.4.21 the aic7xxx (new) is ver 6.2.8 and it works great
->  with Adaptec AHA-2940U2W controller i have.
-> 
->  On 2.6.0-test2-mm3 (tried Linus test1,test2,mm1 and mm2) the NEW aic7xxx
->  uses ver 6.2.35 and will not scan my IBM drive even though it
->  initializes the correct SCSI ID,LUN etc...
-> 
->  I would like to contact and report this issue to the aic7xxx maintaner
->  and perhaps get it resolved.Where would be the best place to report this
->  kind of problem?
-> 
->  I have taken few screen captures which are available at:
->  http://www.blazebox.homeip.net:81/diffie/images/2.6.0-test2/ and show
->  the aic7xxx (new) failure.
+Hi Russell,
 
-An appropriate way to report this would be to email Justin (CC'ed here)
-and linux-scsi@vger.kernel.org.
+> Can you provide the kernel messages without the hack applied please?
+
+The kernel messages don't differ if the hack is applied or not. The hack
+simply configures the PCI1410 to use a particular pin for INTA output.
+Without the hack, the counter for IRQ9 in /proc/interrupt simply stays at 0.
+
+Aug  3 14:51:02 rt1-sp kernel: Linux Kernel Card Services 3.1.22
+Aug  3 14:51:02 rt1-sp kernel:   options:  [pci] [cardbus] [pm]
+Aug  3 14:51:02 rt1-sp kernel: PCI: Enabling device 02:0a.0 (0000 -> 0002)
+Aug  3 14:51:02 rt1-sp kernel: PCI: Found IRQ 9 for device 02:0a.0
+Aug  3 14:51:02 rt1-sp kernel: Yenta IRQ list 0000, PCI irq9
+Aug  3 14:51:02 rt1-sp kernel: Socket status: 30000010
+Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0c00-0x0cff: clean.
+Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0800-0x08ff: clean.
+Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x377 0x3b8-0x3df 0x4d0-0x4d7
+Aug  3 14:51:03 rt1-sp kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Aug  3 14:51:03 rt1-sp kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
+
+--jochen
 

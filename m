@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132484AbRACQN6>; Wed, 3 Jan 2001 11:13:58 -0500
+	id <S131978AbRACQRi>; Wed, 3 Jan 2001 11:17:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132290AbRACQNs>; Wed, 3 Jan 2001 11:13:48 -0500
-Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:47495 "EHLO
-	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S132488AbRACQNg>; Wed, 3 Jan 2001 11:13:36 -0500
-Date: Wed, 3 Jan 2001 16:43:07 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Manfred <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Further ACPI woes with 2.4.0-prerelease
-Message-ID: <20010103164307.A31685@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	Manfred <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3A5335D4.C349DC4A@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.11i
-In-Reply-To: <3A5335D4.C349DC4A@colorfullife.com>; from manfred@colorfullife.com on Wed, Jan 03, 2001 at 03:23:16PM +0100
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S132101AbRACQR3>; Wed, 3 Jan 2001 11:17:29 -0500
+Received: from www.wen-online.de ([212.223.88.39]:2572 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131978AbRACQRQ>;
+	Wed, 3 Jan 2001 11:17:16 -0500
+Date: Wed, 3 Jan 2001 16:39:39 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Daniel Phillips <phillips@innominate.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: scheduling problem?
+In-Reply-To: <3A533C7D.A9C50DB@innominate.de>
+Message-ID: <Pine.Linu.4.10.10101031614540.541-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 03:23:16PM +0100, Manfred wrote:
-> > ACPI: System description tables not found
+On Wed, 3 Jan 2001, Daniel Phillips wrote:
+
+> Mike Galbraith wrote:
+> > Semaphore timed out during boot, leaving bdflush as zombie.
 > 
-> I would check the Tyan pages for bios upgrades. I had to upgrade my bios
-> (gigabyte bxd dual cpu board) before w2k accepted the acpi tables.
-> 
-> Linux still refuses to accept the acpi tables :-(
+> Wait a sec, what do you mean by 'semaphore timed out'?  These should
+> wait patiently forever.
 
-Unfortunately there has been no update available for this board since
-late 1999 (it's a i440LX board after all) and the board is discontinued.
+IKD has a semaphore deadlock detector.  Any place you take a semaphore
+and have to wait longer than 5 seconds (what I had it set to because
+with trace buffer set to 3000000 entries, it can only cover ~8 seconds
+of disk [slowest] load), it triggers and freezes the trace buffer for
+later use.  It firing under load may not be of interest. (but it firing
+looks to be very closly coupled to observed stalls with virgin source.
+Linus fixes big stall and deadlock detector mostly shuts up.  I fix a
+smaller stall and it shuts up entirely.. for this workload)
 
-I am currently browsing the web for ACPI and DMI tools to see if one of
-them will give me some information from the ACPI/DMI tables.
+	-Mike
 
-Yours,
-  Dominik
--- 
-http://petition.eurolinux.org/index_html - No Software Patents In Europe!
-http://petition.lugs.ch/ (in Switzerland)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

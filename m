@@ -1,63 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311884AbSE1Nio>; Tue, 28 May 2002 09:38:44 -0400
+	id <S313305AbSE1Nqe>; Tue, 28 May 2002 09:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312457AbSE1Nin>; Tue, 28 May 2002 09:38:43 -0400
-Received: from fep02.tuttopmi.it ([212.131.248.101]:25594 "EHLO
-	fep02-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id <S311884AbSE1Nin>; Tue, 28 May 2002 09:38:43 -0400
-Subject: Re: Kernel (2.4.19-pre8) hang
-From: Frederik Nosi <fredi@e-salute.it>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 28 May 2002 15:41:23 +0200
-Message-Id: <1022593284.1732.22.camel@linux>
-Mime-Version: 1.0
+	id <S313314AbSE1Nqd>; Tue, 28 May 2002 09:46:33 -0400
+Received: from buffy.commerce.uk.net ([213.219.35.201]:7303 "EHLO
+	buffy.commerce.uk.net") by vger.kernel.org with ESMTP
+	id <S313305AbSE1Nqd>; Tue, 28 May 2002 09:46:33 -0400
+Date: Tue, 28 May 2002 14:46:22 +0100 (BST)
+From: Corin Hartland-Swann <cdhs@commerce.uk.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: bluesmoke, machine check exception, reboot
+In-Reply-To: <1022593837.4124.78.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0205281432450.27799-100000@buffy.commerce.uk.net>
+Organization: Commerce Internet Ltd
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now it happened again:
-While I was using the pc with KDE, Evolution, Opera, Quanta+, Apache
-(with only 3 processes for serving, limited by me) && MySQL so with a
-lot of workload while opera was getting a page (presumably writting to
-disk) the pc hangs. I can ping but I'have not any ssh or similar to get
-a shell. Obviously I found ports 80, 443 and 3306(mysql) opened. I tryed
-to connect with a browser and apache says no authorysation but I have
-setted it to accept connections from all (probably apache cant read from
-disk), while mysql crashed. I notice it because the mysql tcp port was
-closed.
 
-Now if you want me to try something else, I'll wait 2/3 hours for a 
-mail. After that I'll reboot that pc hopping that my partitions arent
-wihpped :)
+Alan,
 
-If you have any suggestion, patch, test, request info I'll be happy to
-fullfill it. Expecially sugestions on how make work at last for some
-other time my hd if it is doable :)
-Now Im really thinking that it is a hardware problem :(
-
-Please CC me
-Frederik Nosi
-
-Il lun, 2002-05-27 alle 23:24, Alan Cox ha scritto:
-> On Mon, 2002-05-27 at 20:24, Frederik Nosi wrote:
-> > May 27 18:28:13 linux kernel: EXT3-fs error (device ide0(3,7)):
-> > ext3_free_blocks: bit already cleared for block 215665
+On 28 May 2002, Alan Cox wrote:
+> On Tue, 2002-05-28 at 13:19, Corin Hartland-Swann wrote:
+> > I have a Dual PIII-1000 running 2.4.18, and am occasionally getting the
+> > following error:
 > >
-> > I suspect at my hd too but for being sure... Please CC me because I'm
-> > not subscribed to the list and excuse me for my bad english and the long
-> > mail.
+> > > CPU 1: Machine Check Exception: 0000000000000004
+> > > Bank 1: f200000000000115
+> > > Kernel panic: CPU context corrupt
+
+I just found another set of messages in the logs as well:
+
+CPU 1: Machine Check Exception: 0000000000000004
+Bank 1: b200000000000115
+Kernel panic: CPU context corrupt
+
+> > This results in a hard lock (unable to use magic SysRQ key to sync or
+> > reboot, etc). I located these errors in arch/i386/kernel/bluesmoke.c in
+> > the function intel_machine_check(). From what I have read on lkml it is
+> > probably a result of the processor overheating and causing errors.
 >
-> What mode is your hard disk reported to be in. If it is using UDMA then
-> its very unlikely to be the disk itself. We also should now have all the
-> needed workarounds for VIA chipset bugs.
-> Has this box been stable with older kernels ?
-I think so
->
-> Alan
->
-Thank you for your time,
-Fredi. 
+> It may even be a faulty processor. If you are running the processor to
+> spec and your heatsink/fan/voltage all check out you may want to see
+> about getting the CPU replaced. Thats a data cache l1 read error it
+> appears
+
+How do you work out what the numbers mean? Is there some kind of reference
+to it, or are you just Alan "decodes machine check exceptions in his head"
+Cox :) From the code it seems to be some kind of MCG status and MC0 status
+- but of course, I have no idea what that means...
+
+> That /proc setting should cause a reboot although after an MCE all
+> things are a little undefined
+
+After checking the logs (above) I found that the two times this has
+happened it has managed to write it to the logs. Is the fact that it
+sync()d a good indication that it will manage to reboot OK?
+
+Thanks,
+
+Corin
+
+/------------------------+-------------------------------------\
+| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
+| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
+| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        |
+| Gilbert Street         |                                     |
+| Mayfair                |    Web: http://www.commerce.uk.net/ |
+| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
+\------------------------+-------------------------------------/
 

@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265551AbSJSHu2>; Sat, 19 Oct 2002 03:50:28 -0400
+	id <S265560AbSJSIr7>; Sat, 19 Oct 2002 04:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265552AbSJSHu2>; Sat, 19 Oct 2002 03:50:28 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:31429 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S265551AbSJSHu1>;
-	Sat, 19 Oct 2002 03:50:27 -0400
-Message-ID: <3DB1110A.2050907@athlon.maya.org>
-Date: Sat, 19 Oct 2002 10:00:10 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021007
-X-Accept-Language: de, en-us, en
+	id <S265561AbSJSIr7>; Sat, 19 Oct 2002 04:47:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23430 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265560AbSJSIr6>;
+	Sat, 19 Oct 2002 04:47:58 -0400
+Date: Sat, 19 Oct 2002 04:53:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andres Salomon <dilinger@mp3revolution.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44 Fix uninitialized device struct w/ add_disk()
+In-Reply-To: <20021019081101.GA5149@chunk.voxel.net>
+Message-ID: <Pine.GSO.4.21.0210190452150.24102-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compile problems with 2.4.20pre kernels
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-
-I'm not sure, but I think that there are compile problems since the
-2.4.20pre-kernels with pcmcia-cs package 3.2.1. I get the following
-warnings:
-
-In file included from /usr/src/linux/include/linux/rwsem.h:29,
-                  from /usr/src/linux/include/asm/semaphore.h:42,
-                  from /usr/src/linux/include/linux/fs.h:200,
-                  from /usr/src/linux/include/linux/capability.h:17,
-                  from /usr/src/linux/include/linux/binfmts.h:5,
-                  from /usr/src/linux/include/linux/sched.h:9,
-                  from ../include/linux/sched.h:5,
-                  from /usr/src/linux/include/linux/mm.h:4,
-                  from /usr/src/linux/include/linux/slab.h:14,
-                  from ../include/linux/slab.h:9,
-                  from cs.c:41:
-/usr/src/linux/include/asm/rwsem.h: In function `__down_write_trylock':
-/usr/src/linux/include/asm/rwsem.h:176: warning: implicit declaration of
-function `cmpxchg'
 
 
-In file included from /usr/src/linux/include/linux/wait.h:13,
-                  from ../include/linux/wait.h:5,
-                  from /usr/src/linux/include/linux/fs.h:12,
-                  from /usr/src/linux/include/linux/capability.h:17,
-                  from /usr/src/linux/include/linux/binfmts.h:5,
-                  from /usr/src/linux/include/linux/sched.h:9,
-                  from ../include/linux/sched.h:5,
-                  from /usr/src/linux/include/linux/vmalloc.h:4,
-                  from ../include/linux/vmalloc.h:7,
-                  from /usr/src/linux/include/asm/io.h:47,
-                  from ../include/asm/io.h:5,
-                  from wvlan_hcfcfg.h:580,
-                  from wvlan_hcf.h:101,
-                  from wvlan_hcfio.c:121:
-../include/linux/kernel.h:10: warning: `EXPORT_SYMTAB' redefined
+On Sat, 19 Oct 2002, Andres Salomon wrote:
 
+> This occurs w/ 2.5 device-mapper; add_disk() is called (w/ a possibly
+> invalid gendisk).  add_disk() calls register_disk(), which constructs
+> the device struct (gendisk::disk_dev).  First, the bus_id field is
+> initialized, and then device_add() is called.  However, device_add()
+> does no initialization of the device struct.  So, since the
+> gendisk::disk_dev::parent list is NULL, the gendisk::disk_dev::node
+> field is never initialized.  Later on in device_add(), if an error has
+> occurred, list_del_init(&dev->node) is called; dev->node is {NULL,NULL},
+> and an oops occurs.
+> 
+> Instead of calling device_add(), my patch makes register_disk() call
+> device_register().  This appear to do the same thing as device_add(),
+> but initializes the device struct before calling device_add().
 
-Is this a problem of the kernel haeders or should the pcmcia-package be
-fixed?
+Wrong.  If device-mapper doesn't create gendisk with alloc_disk() - it's
+their bug; if it does - initialization is already done at alloc_disk()
+time.
 
-
-Regards,
-Andreas Hartmann
+Fix driver instead of breaking generic code.
 

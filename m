@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261493AbREXLRN>; Thu, 24 May 2001 07:17:13 -0400
+	id <S261550AbREXLZO>; Thu, 24 May 2001 07:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261473AbREXLRE>; Thu, 24 May 2001 07:17:04 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62217 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261459AbREXLQu>; Thu, 24 May 2001 07:16:50 -0400
-Date: Thu, 24 May 2001 11:35:39 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andries.Brouwer@cwi.nl, helgehaf@idb.hist.no, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] struct char_device
-Message-ID: <20010524113539.K27177@redhat.com>
-In-Reply-To: <UTC200105231334.PAA86145.aeb@vlet.cwi.nl> <Pine.GSO.4.21.0105231351360.20269-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0105231351360.20269-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, May 23, 2001 at 01:54:15PM -0400
+	id <S261547AbREXLZE>; Thu, 24 May 2001 07:25:04 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3272 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261504AbREXLY6>;
+	Thu, 24 May 2001 07:24:58 -0400
+Date: Thu, 24 May 2001 07:24:56 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Maciek Nowacki <maciek@Voyager.powersurfr.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Busy on BLKFLSBUF w/initrd
+In-Reply-To: <Pine.LNX.4.33.0105241250000.635-100000@mikeg.weiden.de>
+Message-ID: <Pine.GSO.4.21.0105240724000.21818-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, May 23, 2001 at 01:54:15PM -0400, Alexander Viro wrote:
-> On Wed, 23 May 2001 Andries.Brouwer@cwi.nl wrote:
+
+On Thu, 24 May 2001, Mike Galbraith wrote:
+
+> On Thu, 24 May 2001, Alexander Viro wrote:
 > 
-> > > But I don't want an initrd.
-> > Don't be afraid of words. You wouldnt notice - it would do its
-> > job and disappear just like piggyback today.
+> > On Thu, 24 May 2001, Mike Galbraith wrote:
+> >
+> > > On Wed, 23 May 2001, Alexander Viro wrote:
+> > >
+> > > > Folks, who the hell is responsible for rd_inodes[] idiocy?
+> > >
+> > > That would have been me.  It was simple and needed at the time..
+> > > feel free to rip it up :)
+> >
+> > Mike, I see what you are using it for, but you do realize that it
+> > means that creating /tmp/ram0 and opening it once will make /tmp
+> > impossible to unmount?
 > 
-> Andries, initrd code is _sick_. Our boot sequence is not a wonder of
-> elegance, but that crap is the worst part. I certainly can understand
-> people not wanting to use that on aesthetical reasons alone.
+> I don't _think_ that was the case at the time I did it.  I tested
+> the idio^Wbandaid before submission.. mighta fscked up though :)
 
-It's the principle of a kernel-linked boot image, not initrd, which is
-important.  Unpacking a cramfs image from an __init section is much
-cleaner than initrd and has almost the same effect: the boot
-filesystem just ends up readonly that way.  Either way we can hook
-in that default user-space code at boot time transparently.
+Erm... You pin the inode down. That makes filesystem busy by any
+definition I can think of...
 
---Stephen

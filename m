@@ -1,45 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130441AbRBGUyy>; Wed, 7 Feb 2001 15:54:54 -0500
+	id <S129832AbRBGU4O>; Wed, 7 Feb 2001 15:56:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129832AbRBGUyo>; Wed, 7 Feb 2001 15:54:44 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:33290
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129063AbRBGUyY>; Wed, 7 Feb 2001 15:54:24 -0500
-Date: Wed, 7 Feb 2001 12:53:36 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, "A.Sajjad Zaidi" <sajjad@vgkk.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Promise, DMA and RAID5 problems running 2.4.1
-In-Reply-To: <E14QarA-0001DC-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10102071253121.5890-100000@master.linux-ide.org>
+	id <S130718AbRBGU4E>; Wed, 7 Feb 2001 15:56:04 -0500
+Received: from ovelix.softnet.tuc.gr ([147.27.7.103]:1809 "EHLO
+	kythira.softlab.tuc.gr") by vger.kernel.org with ESMTP
+	id <S129832AbRBGUz4>; Wed, 7 Feb 2001 15:55:56 -0500
+Date: Wed, 7 Feb 2001 22:55:50 +0200 (EET)
+From: Dimitromanolakis Apostolos <apdim@ovelix.softnet.tuc.gr>
+To: Francois romieu <romieu@ensta.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/media/radio/radio-maxiradio.c - 2.4.1-ac4
+In-Reply-To: <20010206224451.A24412@ensta.fr>
+Message-ID: <Pine.LNX.4.10.10102072245460.17074-300000@kythira.softlab.tuc.gr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="462644999-722095337-981579350=:17074"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Alan Cox wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> > Iff CONFIG_BLK_DEV_IDECS is set then yes, doing schedule is better.
-> > But I do not see any benefit in doing
-> > 
-> > unsigned long timeout = jiffies + ((HZ + 19)/20) + 1;
-> > while (0 < (signed long)(timeout - jiffies));
-> 
-> On that bit we agree.
+--462644999-722095337-981579350=:17074
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-What do you want fixed?
-Send a patch and lets try it....
+Thanks for the trouble.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Your patch had some problem in the maxiradio_radio_init function as
+pci_register_driver returns the number of devices found and not 0 when
+succesful. I fixed it and here is my patch against the original driver.
 
+Diff output is still weird.
+	
+
+--462644999-722095337-981579350=:17074
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-radio-maxiradio-0.75-0.75b"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10102072255500.17074@kythira.softlab.tuc.gr>
+Content-Description: new and hopefully correct version
+Content-Disposition: attachment; filename="patch-radio-maxiradio-0.75-0.75b"
+
+LS0tIHJhZGlvLW1heGlyYWRpby5jLm9yaWcJV2VkIEZlYiAgNyAwMDoyNzoz
+NyAyMDAxDQorKysgcmFkaW8tbWF4aXJhZGlvLmMJV2VkIEZlYiAgNyAyMjo1
+MDoxMiAyMDAxDQpAQCAtMTcsNiArMTcsOSBAQA0KICAqDQogICoNCiAgKiBD
+SEFOR0VTOg0KKyAqICAgMC43NWINCisgKiAgICAgLSBiZXR0ZXIgcGNpIGlu
+dGVyZmFjZSB0aGFua3MgdG8gRnJhbmNvaXMgUm9taWV1IDxyb21pZXVAY29n
+ZW5pdC5mcj4NCisgKg0KICAqICAgMC43NQ0KICAqICAgICAtIHRpZGluZyB1
+cA0KICAqICAgICAtIHJlbW92ZWQgc3VwcG9ydCBmb3IgbXVsdGlwbGUgZGV2
+aWNlcyBhcyBpdCBkaWRuJ3Qgd29yayBhbnl3YXkNCkBAIC0zMDksODAgKzMx
+Miw4MCBAQA0KIAlNT0RfREVDX1VTRV9DT1VOVDsNCiB9DQogDQotDQotaW5s
+aW5lIHN0YXRpYyBfX3UxNiByYWRpb19pbnN0YWxsKHN0cnVjdCBwY2lfZGV2
+ICpwY2lkZXYpOw0KLQ0KIE1PRFVMRV9BVVRIT1IoIkRpbWl0cm9tYW5vbGFr
+aXMgQXBvc3RvbG9zLCBhcGRpbUBncmVjaWFuLm5ldCIpOw0KIE1PRFVMRV9E
+RVNDUklQVElPTigiUmFkaW8gZHJpdmVyIGZvciB0aGUgR3VpbGxlbW90IE1h
+eGkgUmFkaW8gRk0yMDAwIHJhZGlvLiIpOw0KIA0KIEVYUE9SVF9OT19TWU1C
+T0xTOw0KIA0KLXZvaWQgX19leGl0IG1heGlyYWRpb19yYWRpb19leGl0KHZv
+aWQpDQorc3RhdGljIGludCBfX2RldmluaXQgbWF4aXJhZGlvX2luaXRfb25l
+KHN0cnVjdCBwY2lfZGV2ICpwZGV2LCBjb25zdCBzdHJ1Y3QgcGNpX2Rldmlj
+ZV9pZCAqZW50KQ0KIHsNCi0JdmlkZW9fdW5yZWdpc3Rlcl9kZXZpY2UoJm1h
+eGlyYWRpb19yYWRpbyk7DQorCWlmKCFyZXF1ZXN0X3JlZ2lvbihwY2lfcmVz
+b3VyY2Vfc3RhcnQocGRldiwgMCksDQorCSAgICAgICAgICAgICAgICAgICBw
+Y2lfcmVzb3VyY2VfbGVuKHBkZXYsIDApLCAiTWF4aSBSYWRpbyBGTSAyMDAw
+IikpIHsNCisJICAgICAgICBwcmludGsoS0VSTl9FUlIgInJhZGlvLW1heGly
+YWRpbzogY2FuJ3QgcmVzZXJ2ZSBJL08gcG9ydHNcbiIpOw0KKwkgICAgICAg
+IGdvdG8gZXJyX291dDsNCisJfQ0KIA0KLQlyZWxlYXNlX3JlZ2lvbihyYWRp
+b191bml0LmlvLDQpOw0KLX0NCisJaWYgKHBjaV9lbmFibGVfZGV2aWNlKHBk
+ZXYpKQ0KKwkgICAgICAgIGdvdG8gZXJyX291dF9mcmVlX3JlZ2lvbjsNCiAN
+Ci1pbnQgX19pbml0IG1heGlyYWRpb19yYWRpb19pbml0KHZvaWQpDQotew0K
+LQlzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2ID0gTlVMTDsNCi0JaW50IGZvdW5k
+Ow0KLQkNCi0JaWYoIXBjaV9wcmVzZW50KCkpDQotCQlyZXR1cm4gLUVOT0RF
+VjsNCi0JDQotCWZvdW5kID0gMDsNCisJcmFkaW9fdW5pdC5pbyA9IHBjaV9y
+ZXNvdXJjZV9zdGFydChwZGV2LCAwKTsNCisJaW5pdF9NVVRFWCgmcmFkaW9f
+dW5pdC5sb2NrKTsNCisJbWF4aXJhZGlvX3JhZGlvLnByaXYgPSAmcmFkaW9f
+dW5pdDsNCiANCi0JcGNpZGV2ID0gcGNpX2ZpbmRfZGV2aWNlKFBDSV9WRU5E
+T1JfSURfR1VJTExFTU9ULCANCi0JCQkJCQkJUENJX0RFVklDRV9JRF9HVUlM
+TEVNT1RfTUFYSVJBRElPLA0KLQkJCQkJCSAgcGNpZGV2KTsNCi0JCQkJCQkJ
+DQotCWZvdW5kICs9IHJhZGlvX2luc3RhbGwocGNpZGV2KTsNCi0JCQ0KLQlp
+Zihmb3VuZCA9PSAwKSB7DQotCQlwcmludGsoS0VSTl9JTkZPICJyYWRpby1t
+YXhpcmFkaW86IG5vIGRldmljZXMgZm91bmQuXG4iKTsNCi0JCXJldHVybiAt
+RU5PREVWOw0KKwlpZih2aWRlb19yZWdpc3Rlcl9kZXZpY2UoJm1heGlyYWRp
+b19yYWRpbywgVkZMX1RZUEVfUkFESU8pPT0tMSkgew0KKwkgICAgICAgIHBy
+aW50aygicmFkaW8tbWF4aXJhZGlvOiBjYW4ndCByZWdpc3RlciBkZXZpY2Uh
+Iik7DQorCSAgICAgICAgZ290byBlcnJfb3V0X2ZyZWVfcmVnaW9uOw0KIAl9
+DQogDQorCXByaW50ayhLRVJOX0lORk8gInJhZGlvLW1heGlyYWRpbzogdmVy
+c2lvbiAiDQorCSAgICAgICBEUklWRVJfVkVSU0lPTg0KKwkgICAgICAgIiB0
+aW1lICINCisJICAgICAgIF9fVElNRV9fICIgICINCisJICAgICAgIF9fREFU
+RV9fDQorCSAgICAgICAiXG4iKTsNCisNCisJcHJpbnRrKEtFUk5fSU5GTyAi
+cmFkaW8tbWF4aXJhZGlvOiBmb3VuZCBHdWlsbGVtb3QgTUFYSSBSYWRpbyBk
+ZXZpY2UgKGlvID0gMHgleClcbiIsDQorCSAgICAgICByYWRpb191bml0Lmlv
+KTsNCiAJcmV0dXJuIDA7DQotfQ0KIA0KLW1vZHVsZV9pbml0KG1heGlyYWRp
+b19yYWRpb19pbml0KTsNCi1tb2R1bGVfZXhpdChtYXhpcmFkaW9fcmFkaW9f
+ZXhpdCk7DQorZXJyX291dF9mcmVlX3JlZ2lvbjoNCisJcmVsZWFzZV9yZWdp
+b24ocGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYsIDApLCBwY2lfcmVzb3VyY2Vf
+bGVuKHBkZXYsIDApKTsNCitlcnJfb3V0Og0KKwlyZXR1cm4gLUVOT0RFVjsN
+Cit9DQogDQotaW5saW5lIHN0YXRpYyBfX3UxNiByYWRpb19pbnN0YWxsKHN0
+cnVjdCBwY2lfZGV2ICpwY2lkZXYpDQorc3RhdGljIHZvaWQgX19kZXZleGl0
+IG1heGlyYWRpb19yZW1vdmVfb25lKHN0cnVjdCBwY2lfZGV2ICpwZGV2KQ0K
+IHsNCi0JcmFkaW9fdW5pdC5pbyA9IHBjaWRldi0+cmVzb3VyY2VbMF0uc3Rh
+cnQ7DQorCXZpZGVvX3VucmVnaXN0ZXJfZGV2aWNlKCZtYXhpcmFkaW9fcmFk
+aW8pOw0KKwlyZWxlYXNlX3JlZ2lvbihwY2lfcmVzb3VyY2Vfc3RhcnQocGRl
+diwgMCksIHBjaV9yZXNvdXJjZV9sZW4ocGRldiwgMCkpOw0KK30NCiANCi0J
+cGNpX2VuYWJsZV9kZXZpY2UocGNpZGV2KTsNCi0JbWF4aXJhZGlvX3JhZGlv
+LnByaXYgPSAmcmFkaW9fdW5pdDsNCi0JaW5pdF9NVVRFWCgmcmFkaW9fdW5p
+dC5sb2NrKTsNCi0JDQotCWlmKHZpZGVvX3JlZ2lzdGVyX2RldmljZSgmbWF4
+aXJhZGlvX3JhZGlvLCBWRkxfVFlQRV9SQURJTyk9PS0xKSB7DQotCQlwcmlu
+dGsoInJhZGlvLW1heGlyYWRpbzogY2FuJ3QgcmVnaXN0ZXIgZGV2aWNlISIp
+Ow0KLQkJCXJldHVybiAwOw0KLQkJfQ0KLQkJDQotCQkNCi0JcHJpbnRrKEtF
+Uk5fSU5GTyAicmFkaW8tbWF4aXJhZGlvOiB2ZXJzaW9uICINCi0JICAgICAg
+IERSSVZFUl9WRVJTSU9OIA0KLQkgICAgICAgIlxuIik7DQotCQkJCQkgDQot
+CXByaW50ayhLRVJOX0lORk8gDQotCQkicmFkaW8tbWF4aXJhZGlvOiBmb3Vu
+ZCBHdWlsbGVtb3QgTUFYSSBSYWRpbyBkZXZpY2UgKGlvID0gMHgleClcbiIs
+DQotCQlyYWRpb191bml0LmlvDQotCQkpOw0KK3N0YXRpYyBzdHJ1Y3QgcGNp
+X2RldmljZV9pZCBtYXhpcmFkaW9fcGNpX3RibFtdIF9fZGV2aW5pdGRhdGEg
+PSB7DQorCXsgUENJX1ZFTkRPUl9JRF9HVUlMTEVNT1QsIFBDSV9ERVZJQ0Vf
+SURfR1VJTExFTU9UX01BWElSQURJTywNCisJCVBDSV9BTllfSUQsIFBDSV9B
+TllfSUQsIH0sDQorCXsgMCx9DQorfTsNCiANCitNT0RVTEVfREVWSUNFX1RB
+QkxFKHBjaSwgbWF4aXJhZGlvX3BjaV90YmwpOw0KIA0KLQlpZighcmVxdWVz
+dF9yZWdpb24ocmFkaW9fdW5pdC5pbywgNCwgIk1heGkgUmFkaW8gRk0gMjAw
+MCIpKQ0KLQkJew0KLQkJCXByaW50ayhLRVJOX0VSUiAicmFkaW8tbWF4aXJh
+ZGlvOiBwb3J0IDB4JXggYWxyZWFkeSBpbiB1c2VcbiIsDQotCQkJcmFkaW9f
+dW5pdC5pbyk7DQotCQkJDQotCQkJcmV0dXJuIDA7DQotCQl9DQorc3RhdGlj
+IHN0cnVjdCBwY2lfZHJpdmVyIG1heGlyYWRpb19kcml2ZXIgPSB7DQorCW5h
+bWU6CQkicmFkaW8tbWF4aXJhZGlvIiwNCisJaWRfdGFibGU6CW1heGlyYWRp
+b19wY2lfdGJsLA0KKwlwcm9iZToJCW1heGlyYWRpb19pbml0X29uZSwNCisJ
+cmVtb3ZlOgkJbWF4aXJhZGlvX3JlbW92ZV9vbmUsDQorfTsNCisNCitpbnQg
+X19pbml0IG1heGlyYWRpb19yYWRpb19pbml0KHZvaWQpDQorew0KKwlpbnQg
+Y291bnQgPSBwY2lfcmVnaXN0ZXJfZHJpdmVyKCZtYXhpcmFkaW9fZHJpdmVy
+KTsNCisJDQorCWlmKGNvdW50ID4gMCkgcmV0dXJuIDA7IGVsc2UgcmV0dXJu
+IC1FTk9ERVY7DQorfQ0KIA0KLQlyZXR1cm4gMTsNCit2b2lkIF9fZXhpdCBt
+YXhpcmFkaW9fcmFkaW9fZXhpdCh2b2lkKQ0KK3sNCisJcGNpX3VucmVnaXN0
+ZXJfZHJpdmVyKCZtYXhpcmFkaW9fZHJpdmVyKTsNCiB9DQogDQorbW9kdWxl
+X2luaXQobWF4aXJhZGlvX3JhZGlvX2luaXQpOw0KK21vZHVsZV9leGl0KG1h
+eGlyYWRpb19yYWRpb19leGl0KTsNCg==
+--462644999-722095337-981579350=:17074
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=log
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10102072255501.17074@kythira.softlab.tuc.gr>
+Content-Description: transcript of the problem
+Content-Disposition: attachment; filename=log
+
+JCBpbnNtb2QgLi9yYWRpby1tYXhpcmFkaW8ubw0KLi9yYWRpby1tYXhpcmFk
+aW8ubzogaW5pdF9tb2R1bGU6IERldmljZSBvciByZXNvdXJjZSBidXN5DQok
+IGRtZXNnIHwgdGFpbCAtMg0KcmFkaW8tbWF4aXJhZGlvOiB2ZXJzaW9uIDAu
+NzUgdGltZSAwMDoyODoyMSAgRmViICA3IDIwMDENCnJhZGlvLW1heGlyYWRp
+bzogZm91bmQgR3VpbGxlbW90IE1BWEkgUmFkaW8gZGV2aWNlIChpbyA9IDB4
+NjEwMCkNCiQgY2F0IC9wcm9jL2lvcG9ydHMgDQpTZWdtZW50YXRpb24gZmF1
+bHQNCg==
+--462644999-722095337-981579350=:17074--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

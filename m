@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317475AbSFKSVf>; Tue, 11 Jun 2002 14:21:35 -0400
+	id <S317488AbSFKSZS>; Tue, 11 Jun 2002 14:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSFKSVe>; Tue, 11 Jun 2002 14:21:34 -0400
-Received: from ivimey.org ([194.106.52.201]:17191 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S317475AbSFKSVd>;
-	Tue, 11 Jun 2002 14:21:33 -0400
-Date: Tue, 11 Jun 2002 19:21:18 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
-        <akpm@zip.com.au>
-Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
-In-Reply-To: <Pine.LNX.4.33L2.0206111102110.2449-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0206111917310.3521-100000@sharra.ivimey.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317489AbSFKSZR>; Tue, 11 Jun 2002 14:25:17 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62710 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317488AbSFKSZQ>; Tue, 11 Jun 2002 14:25:16 -0400
+Subject: Re: [patch] current scheduler bits #2, 2.5.21
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206111917220.14481-100000@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Jun 2002 11:25:13 -0700
+Message-Id: <1023819914.21176.266.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jun 2002, Randy.Dunlap wrote:
+On Tue, 2002-06-11 at 10:35, Ingo Molnar wrote:
 
->On 11 Jun 2002, Robert Love wrote:
->
->| Here are the defaults I picked:
->|
->| CONFIG_NR_CPUS=32: i386, mips, parisc, ppc, sparc
->
->I don't know what is "typical" for non-x86, but for x86, why not
->use something more like a 'typical' NR_CPUS for SMP, like 8 (?)...
->why still waste all of that memory?
+> anyway, my current tree has a new type of optimization which again changes
+> the way task_rq_lock() and task_rq_unlock() looks like: in this specific
+> case we can rely on __cli() disabling preemption, we do not need to
+> elevate the preemption count in this case. (Some special care has to be
+> taken to not cause a preemption with the raw rq spinlock held, which the
+> patch does.)
 
-Perhaps it's just because I'm coming in late, but I cannot understand why
-NR_CPUS cannot be as low as 4 by default, for all archs, and then in the
-kernel boot messages, should more be found than is configured for a message is
-emitted to say "reconfigure your kernel", and continue with the number it was
-configured for. I personally only rarely see 2-way boxes, 4-way is pretty
-rare, and anything more must surely count as very specialized.
+Ow, I thought about doing this but decided against it.  If we merge
+this, we have to be _very_ careful.  Any code that sets need_resched
+explicitly will cause a preemption on a preempt_enable (implicitly off
+any unlock, etc ...).  Is this worth it to save an inc/dec?
 
-Let the defaults be reasonable for 99% of users (IMO 99.9%), and let the rest 
-have to think about config options...
+Hm,
 
-Ruth
+	static inline void task_rq_unlock(runqueue_t *rq, unsigned long *flags)
+	{
+		_raw_spin_unlock_irqrestore(&rq->lock, *flags);
+	}
 
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
+Don't we want to explicitly check for a preemption here?  Using your new
+preempt_check_resched() would make sense...
+
+> and i found and fixed a preemption latency source in wait_task_inactive().
+> That function can create *very* bad latencies if the target task happens
+> to not go away from its CPU for many milliseconds (for whatever reason).
+> So we should and can check the resched bit.
+
+Hm, this may be the cause of the latency issues some have raised. 
+Dieter Nutzel, for example, has been saying sometime early in O(1)'s
+life it killed latency with the preemptible kernel... this may be it.
+
+I'll check it out.  Good job.
+
+	Robert Love
 

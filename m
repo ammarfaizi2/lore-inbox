@@ -1,52 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132251AbRCZAGk>; Sun, 25 Mar 2001 19:06:40 -0500
+	id <S132254AbRCZAQD>; Sun, 25 Mar 2001 19:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132253AbRCZAGb>; Sun, 25 Mar 2001 19:06:31 -0500
-Received: from mako.theneteffect.com ([63.97.58.10]:9491 "EHLO
-	mako.theneteffect.com") by vger.kernel.org with ESMTP
-	id <S132251AbRCZAGT>; Sun, 25 Mar 2001 19:06:19 -0500
-From: Mitch Adair <mitch@theneteffect.com>
-Message-Id: <200103260005.SAA30529@mako.theneteffect.com>
-Subject: Re: NCR53c8xx driver and multiple controllers...(not new prob)
-To: law@sgi.com (LA Walsh)
-Date: Sun, 25 Mar 2001 18:05:14 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3ABE71B9.9FAA232B@sgi.com> from "LA Walsh" at Mar 25, 2001 02:31:21 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S132257AbRCZAPy>; Sun, 25 Mar 2001 19:15:54 -0500
+Received: from ir.com.au ([210.8.187.18]:1861 "EHLO ir_nt_server2.ir.com.au")
+	by vger.kernel.org with ESMTP id <S132253AbRCZAPm>;
+	Sun, 25 Mar 2001 19:15:42 -0500
+Message-ID: <C0D2F5944500D411AD8A00104B31930E8D3CB7@ir_nt_server2>
+From: Tony.Young@ir.com
+To: Don.Dupuis@COMPAQ.com, linux-kernel@vger.kernel.org
+Subject: RE: /proc/stat disk_io entries
+Date: Mon, 26 Mar 2001 10:14:47 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here is the 'alternate' output when the ncr53c8xx driver is
-> compiled in:
+
+The structure tables size is a concern for me too. Hence the suggestion that
+perhaps a hash table implementationg is better suited to the job. The larger
+sizes that you need for your Array seem to bear this out. Until a fix is
+implemented I'm just going to modify DK_MAX_MAJOR to fix my own
+requirements.
+
+> -----Original Message-----
+> From: Dupuis, Don [mailto:Don.Dupuis@COMPAQ.com]
+> Sent: Saturday, 24 March 2001 02:02
+> To: Tony Young; linux-kernel@vger.kernel.org
+> Subject: RE: /proc/stat disk_io entries
 > 
-> SCSI subsystem driver Revision: 1.00
-> scsi-ncr53c7,8xx: at PCI bus 0, device 8, function 0
-> scsi-ncr53c7,8xx: warning : revision of 35 is greater than 2.
-> scsi-ncr53c7,8xx: NCR53c810 at memory 0xfa101000, io 0x2000, irq 58
-> scsi0: burst length 16
-> scsi0: NCR code relocated to 0x37d6c610 (virt 0xf7d6c610)
-> scsi0: test 1 started
-> scsi0: NCR53c{7,8}xx (rel 17)
-> request_module[block-major-8]: Root fs not mounted
-> VFS: Cannot open root device "807" or 08:07
-> Please append a correct "root=" boot option
-> Kernel panic: VFS: Unable to mount root fs on 08:07
-> -----
-
-I don't believe that's the ncr53c8xx driver.  That looks like the
-53c7,8xx driver.  I don't think it's really maintained any more, or
-frankly that it could ever handle a 53c896 card, which could explain
-it only seeing the 810a and not the 896 your boot disk is on.
-
-You really want to use the sym53c8xx driver anyway - it is the one
-being worked on in earnest now.  I believe it will pick up 810a
-controllers as well.
-
-(yes that's three ncr/symbios/lsi drivers in the kernel - "53c7,8xx",
-"ncr53c8xx" and "sym53c8xx" ...)
-
-	M
+> 
+> I have sent a patch to Alan and Linus about this also.  We 
+> have cpqarray and
+> cciss controllers that use major 72-79 and 104-111.  Alan 
+> said he doesn't
+> have time to look at it till mid April and Linus hasn't 
+> responded to me at
+> all about it.  The best way is to actually rewrite the kstat 
+> architecture,
+> but the patch I sent it will do the job.  There is concern 
+> about structure
+> table size I believe.  My patch increased DK_MAX_MAJOR to 112 
+> and added
+> about 4 lines to genhd.h to support the cpqarray and cciss 
+> driver.  This
+> works on Compaq servers and I get the data that is needed.  
+> Any thoughts?
+> 
+> -----Original Message-----
+> From: Tony.Young@ir.com [mailto:Tony.Young@ir.com]
+> Sent: Thursday, March 22, 2001 9:55 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: /proc/stat disk_io entries
+> 
+> 
+> All,
+> 
+> Firstly, my relevant system stats:
+> 	kernel	linux 2.4.3-pre6
+> 	hda	IDE Drive
+> 	hdb	CD drive
+> 	hdc	IDE Drive
+> 	hdd	IDE Drive
+> 	sda	SCSI Drive
+> 
+> The problem I'm seeing is that IO stats (disk_io) aren't 
+> being shown in
+> /proc/stats for the 2 harddrives on the second ide controller 
+> (hdc and hdd).
+> 
+> I checked the kernel code and found the function kstat_read_proc in
+> fs/proc/proc_misc.c which loops through from 0 up to 
+> DK_MAX_MAJOR and prints
+> out the stats to /proc/stat for each drive. However, 
+> DK_MAX_MAJOR is set to
+> 16 in include/linux/kernel_stat.h, which means that the 
+> drives on my second
+> ide controller, with a major number of 22, aren't included in 
+> the loop.
+> 
+> I modified the value of DK_MAX_MAJOR to 23 and rebuilt and 
+> /proc/stats now
+> shows the 2 missing harddrives. I'm uncomfortable sending in 
+> a patch for
+> this as I'm not familiar enough with the code to understand the full
+> ramifications of changing this value. Considering also that 
+> the value 23
+> stills doesn't include any tertiary or quaternary ide 
+> controllers (33 and
+> 34) makes me wonder what the correct value should really be.
+> 
+> I'm also curious, after considering the above, about whether 
+> or not a hash
+> table(s) would be better suited to the current implementation of
+> 2-dimensional arrays for disk stats (dk_drive, dk_drive_rio, 
+> dk_drive_wio,
+> etc).
+> 
+> I've brought this to the list because I'm not sure of the 
+> correct solution
+> and I couldn't work out if there was a specific maintainer of 
+> this code.
+> 
+> It also seems strange to me that the identifiers for the 
+> values for disk_io
+> in /proc/stat are (major_number,disk_number) tuples rather than
+> (major,minor). The current implementation with my change now 
+> shows my first
+> ide drive to be identified as (8,0), while my second and 
+> third ide drives
+> (hdc and hdd) are identified as (22,2) and (22,3) 
+> respectively rather than
+> (22,0) and (22,1) - I presume because they are the in the 3rd 
+> and 4th ide
+> positions. Using disk_number instead of minor number also 
+> makes it more
+> difficult for any user programs reading /proc/stat to trace 
+> the entry back
+> to a physical device. Any program must make assumptions that 
+> major numbers 8
+> and 22 refer to /dev/hd* entries, and that disk number 0 
+> translates to 'a',
+> 1 to 'b', 2 to 'c', etc and can then work out that 22,2 means 
+> /dev/hdc.
+> These assumption, of course, break with the use of devfs when 
+> not using
+> devfsd to provide the necessary links.
+> 
+> I welcome any comments, but please CC me directly as I'm not 
+> subscribed to
+> the list.
+> 
+> Tony...
+> --
+> Tony Young
+> Senior Software Engineer
+> Integrated Research Limited
+> Level 10, 168 Walker St
+> North Sydney, NSW 2060, Australia
+> Ph:  +61 2 9966 1066
+> Fax: +61 2 9966 1042
+> Mob: 0414 649942
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

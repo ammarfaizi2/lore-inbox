@@ -1,40 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268304AbUIQABt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUIPX5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268304AbUIQABt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 20:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIPX6R
+	id S268281AbUIPX5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 19:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUIPXy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:58:17 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:11908 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S268304AbUIPXzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:55:33 -0400
-X-OB-Received: from unknown (205.158.62.133)
-  by wfilter.us4.outblaze.com; 16 Sep 2004 23:55:32 -0000
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Panos Polychronis" <maxsoft@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 17 Sep 2004 07:55:32 +0800
-Subject: Strange reiserfs 3.6 msg warning.
-X-Originating-Ip: 62.38.235.186
-X-Originating-Server: ws5-3.us4.outblaze.com
-Message-Id: <20040916235532.6216523C12@ws5-3.us4.outblaze.com>
+	Thu, 16 Sep 2004 19:54:28 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:22251 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S268281AbUIPXvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 19:51:47 -0400
+Subject: [PATCH] Suspend2 Merge: Supress various actions/errors while
+	suspending [4/5]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1095378664.6537.104.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 17 Sep 2004 09:53:18 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello i'm running 2.6.8.1-ck7 (reiserfs 3.6) and i got this message
+Hi.
 
-Sep 17 00:53:26 phobos kernel: ReiserFS: hda1: warning: vs-8115: get_num_ver: not directory item
-can anyone explain me what is this and if is something dangerous ?
-thanks :)
+Patch 4: Disable pdflush while suspending.
+
+Regards,
+
+Nigel
+
+diff -ruN linux-2.6.9-rc1/mm/page-writeback.c software-suspend-linux-2.6.9-rc1-rev3/mm/page-writeback.c
+--- linux-2.6.9-rc1/mm/page-writeback.c	2004-09-07 21:59:01.000000000 +1000
++++ software-suspend-linux-2.6.9-rc1-rev3/mm/page-writeback.c	2004-09-09 19:36:24.000000000 +1000
+@@ -29,6 +29,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
++#include <linux/suspend.h>
+ 
+ /*
+  * The maximum number of pages to writeout in a single bdflush/kupdate
+@@ -369,6 +371,13 @@
+ 		.for_kupdate	= 1,
+ 	};
+ 
++#ifdef CONFIG_SOFTWARE_SUSPEND2
++	if (software_suspend_state & SOFTWARE_SUSPEND_RUNNING) {
++		start_jif = jiffies;
++		next_jif = start_jif + (dirty_writeback_centisecs * HZ) / 100;
++		goto out;
++	}
++#endif
+ 	sync_supers();
+ 
+ 	get_writeback_state(&wbs);
+@@ -389,6 +398,9 @@
+ 		}
+ 		nr_to_write -= MAX_WRITEBACK_PAGES - wbc.nr_to_write;
+ 	}
++#ifdef CONFIG_SOFTWARE_SUSPEND2
++out:
++#endif
+ 	if (time_before(next_jif, jiffies + HZ))
+ 		next_jif = jiffies + HZ;
+ 	if (dirty_writeback_centisecs)
+
 -- 
-______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org 
-This allows you to send and receive SMS through your mailbox.
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 
-Powered by Outblaze

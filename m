@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290437AbSAXWxz>; Thu, 24 Jan 2002 17:53:55 -0500
+	id <S290261AbSAXW4d>; Thu, 24 Jan 2002 17:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290454AbSAXWxg>; Thu, 24 Jan 2002 17:53:36 -0500
-Received: from ti200710a082-0599.bb.online.no ([148.122.10.87]:8196 "EHLO
-	empire.e") by vger.kernel.org with ESMTP id <S290261AbSAXWxb>;
-	Thu, 24 Jan 2002 17:53:31 -0500
-Message-ID: <3C509067.20108@freenix.no>
-Date: Thu, 24 Jan 2002 23:53:27 +0100
-From: frode <frode@freenix.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020113
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-Subject: Re: OOPS: kernel BUG at transaction.c:1857 on 2.4.17 while rm'ing 700mb file on ext3 partition.
-In-Reply-To: <3C502E3A.9070909@freenix.no> <20020124191927.A9564@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S290454AbSAXW4Z>; Thu, 24 Jan 2002 17:56:25 -0500
+Received: from zero.tech9.net ([209.61.188.187]:44561 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290261AbSAXWzC>;
+	Thu, 24 Jan 2002 17:55:02 -0500
+Subject: Re: RFC: booleans and the kernel
+From: Robert Love <rml@tech9.net>
+To: timothy.covell@ashavan.org
+Cc: Xavier Bestel <xavier.bestel@free.fr>, Oliver Xymoron <oxymoron@waste.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201242246.g0OMkML06890@home.ashavan.org.>
+In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
+	<200201242123.g0OLNAL06617@home.ashavan.org.> <1011911622.2631.6.camel@bip>
+	 <200201242246.g0OMkML06890@home.ashavan.org.>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 24 Jan 2002 17:59:52 -0500
+Message-Id: <1011913193.810.26.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
-> On Thu, Jan 24, 2002 at 04:54:34PM +0100, frode wrote:
->>I got the following error while rm'ing a 700mb file from an ext3 partition:
->>Assertion failure in journal_unmap_buffer() at transaction.c:1857:
->>"transaction == journal->j_running_transaction"
-> Hmm --- this is not one I think I've ever seen before.
+On Fri, 2002-01-25 at 17:47, Timothy Covell wrote:
 
-[oops trace snipped]
+> > gcc already warns you about such errors.
+> >
+> > 	Xav
+> 
+> That's funny, I compiled it with "gcc -Wall foo.c" and got no
+> warnings.    Please show me what I'm doing wrong and how
+> it's _my_ mistake and not the compilers.
 
->>NVRM: loading NVIDIA NVdriver Kernel Module  1.0.2313  Tue Nov 27 12:01:24 PST 2001
-> with this driver loaded we really can't make any guarantees about your
-> system stability at all.  If you manage to eliminate other oopses and
-> still get the ext3 one, even without the NVidia driver loaded, then
-> there would be a much better change of debugging things, but right now
-> it sounds like a hardware problem.
+Hm, I recall seeing something like:
 
-OK, I rebooted and gzip'ed the NVdriver in /lib/modules... to make sure the 
-module doesn't load (lsmod now says my kernel isn't tainted). I'll try using the 
-plain 'nv' driver shipped with XFree instead for a while. I tried making another 
-700mb iso image and fool around with it (loopback mount it, umount it, then rm 
-it) but couldn't trigger anything - but I just spent five minutes trying.
+warning: suggest parentheses around assignment used as truth value
 
-As I mentioned I have had quite a few oopses lately, most of them regarding 
-paging etc. (but I'm no kernel expert). See for example
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101096234600708&w=2
-and
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101128528029736&w=2
+from gcc ... yep, I still do.
 
-I'm running linux on an old p100 as well but don't see any problems, so as you 
-say I suspected a hardware problem. I ran MemTest86 for about half an hour 
-without any errors (but of course there's plenty of other things that may be wrong).
-
-Do you have any suggestions on other ways I could try to put my hardware 
-stability on trial, or try to reproduce the bug (to see if it occurs on a 
-non-tainted kernel)?
-
-  - Frode
+	Robert Love
 

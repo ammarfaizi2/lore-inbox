@@ -1,63 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVASOF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVASOMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVASOF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVASOF0
+	id S261729AbVASOMe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVASOMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:05:26 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:9677 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261725AbVASOFT (ORCPT
+	Wed, 19 Jan 2005 09:12:34 -0500
+Received: from relay.snowman.net ([66.92.160.56]:19465 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S261729AbVASOM0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:05:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lz9KbMpySluQYY+afDtFaPzjIzT4bV4R3/na3fGU8jUiVgTZO7tE0w5GZbi2Igqh1AMk6XYWhiRphJch3WeW5+lLdjZ05g3Q37GOXCyz8MRxj3xQjv99hOzF92bL7VDvqiBnVUNqLJZUWasqRKaEv4qZmNRw2Szd/XthgYVywZQ=
-Message-ID: <d120d500050119060530b57cd7@mail.gmail.com>
-Date: Wed, 19 Jan 2005 09:05:18 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 2/2] Remove input_call_hotplug
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <41EE2F82.3080401@suse.de>
+	Wed, 19 Jan 2005 09:12:26 -0500
+Date: Wed, 19 Jan 2005 09:11:15 -0500
+From: Stephen Frost <sfrost@snowman.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
+       George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119141115.GI10437@ns.snowman.net>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
+	George Anzinger <george@mvista.com>,
+	john stultz <johnstul@us.ibm.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Con Kolivas <kernel@kolivas.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com> <1106112525.4534.175.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41ED2457.1030109@suse.de>
-	 <d120d50005011807566ee35b2b@mail.gmail.com> <41EE2F82.3080401@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="S1TpPISuMFJtSn3D"
+Content-Disposition: inline
+In-Reply-To: <1106112525.4534.175.camel@gaston>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.4.24ns.3.0 (i686)
+X-Uptime: 09:04:42 up 354 days,  9:00,  7 users,  load average: 0.10, 0.17, 0.13
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hannes, 
 
-On Wed, 19 Jan 2005 10:59:30 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> Dmitry Torokhov wrote:
-> > But the real question is whether we really need class devices have
-> > unique names or we could do with inputX thus leaving individual
-> > drivers intact and only modifying the input core. As far as I
-> > understand userspace should be concerned only with device
-> > capabilities, not particular name, besides, it gets PRODUCT string
-> > which has all needed data encoded.
-> >
-> Indeed. What about using 'phys' (with all '/' replaced by '-') as the
-> class_id? This way we'll retain compability with /proc/bus/input/devices
-> and do not have to touch every single driver.
-> 
+--S1TpPISuMFJtSn3D
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I want to kill phys at some point - we have topology information
-already present in sysfs in much better form. Can we have a new
-hotplug variable HWDEV= which is kobject_path(input_dev->dev). If
-input_dev is not set then we can just dump phys in it. And the class
-id will still be inputX. Will this work?
- 
-Btw, I really doubt that topology information is important here as the
-only thing that one needs to do when new "input_device" appears is to
-load one or more input handler modules based on device's capability
-bits. The decision whether a device is "good enough" to create a
-device node should be done by hotplug handler for the other "input"
-class.
+* Benjamin Herrenschmidt (benh@kernel.crashing.org) wrote:
+> Hrm... reading more of the patch & Martin's previous work, I'm not sure
+> I like the idea too much in the end... The main problem is that you are
+> just "replaying" the ticks afterward, which I see as a problem for
+> things like sched_clock() which returns the real current time, no ?
+>=20
+> I'll toy a bit with my own implementation directly using Martin's work
+> and see what kind of improvement I really get on ppc laptops.
 
--- 
-Dmitry
+I don't know if this is the same thing, or the same issue, but I've
+noticed on my Windows machines that the longer my laptop sleeps the
+longer it takes for it to wake back up- my guess is that it's doing
+exactly this (replaying ticks).  It *really* sucks though because it can
+take quite a while for it to come back if it's been asleep for a while.
+
+	Stephen
+
+--S1TpPISuMFJtSn3D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB7mqCrzgMPqB3kigRAvDJAJoCODq7uqyk+SFhAc64+mq8n6woEwCfZ06b
+nKXq1FAiXk+QKlK0QqPNWJA=
+=btXW
+-----END PGP SIGNATURE-----
+
+--S1TpPISuMFJtSn3D--

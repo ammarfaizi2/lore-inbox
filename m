@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316173AbSEQNZd>; Fri, 17 May 2002 09:25:33 -0400
+	id <S316208AbSEQN07>; Fri, 17 May 2002 09:26:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316190AbSEQNZc>; Fri, 17 May 2002 09:25:32 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:39524 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316173AbSEQNZa>; Fri, 17 May 2002 09:25:30 -0400
-Message-Id: <5.1.0.14.2.20020517141805.049c1b60@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 17 May 2002 14:25:47 +0100
-To: root@chaos.analogic.com
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Just an offer
-Cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020517085300.4551A-100000@chaos.analogic.co
- m>
+	id <S316206AbSEQN06>; Fri, 17 May 2002 09:26:58 -0400
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:42699 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S316190AbSEQN05>; Fri, 17 May 2002 09:26:57 -0400
+Date: Fri, 17 May 2002 14:26:17 +0100
+From: "J.P. Morris" <jpm@it-he.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Aralion and IDE blasphemy
+Message-Id: <20020517142617.5b73a46d.jpm@it-he.org>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:01 17/05/02, Richard B. Johnson wrote:
->The remaining problem is how one trips a reboot if the remote machine
->doesn't come up correctly. That problem can be handled by temporarily
->changing panic() to a hard reset.
 
-As long as you have a second machine colocated with the first one, you can 
-connect an optocoupler to one of the data lines on the parallel port of the 
-"stable" machine and to the motherboard reset connector on the "unstable" 
-machine. You then raise the appropriate data line on the "stable" machine 
-and lower it again (I keep it at high for 100msecs) and the "unstable" 
-machine is hard reset... So you just need an old 386 with a parallel port 
-and a network card that will never be reset and that can reboot multiple 
-machines (each data line can connect to another machine, etc...).
+This is probably approaching blasphemy, but has anyone ever considered
+an emergency EIDE driver that uses the extended int13h calls?
+I'm pretty sure there's a protected-mode BIOS interface in modern BIOSes
+these days, so it shouldn't need to go down to real mode to make the
+calls.
 
-Best regards,
+I have just purchased an IDE RAID controller to add tertiary and
+quaternary IDE ports to my system for an extra CDROM drive.
+I thought the days when you couldn't get Linux support for such things
+were long gone, but sadly no.
 
-         Anton
+The culprit is an ARALION ARS106S chipset card.  Interestingly it works
+in DOS, and if the hard disks are attached to it, it will even boot
+up to LILO, but then the kernel dies because it can't find the HDDs.
+(On their web page message board, some guy asks for the specs but is
+ helpfully pointed to an obsolete binary module for RedHat 7.1.)
 
-ps. Kudos for the idea go to Rogier Wolff and not to me... I just 
-implemented his idea locally and can only say it works wonders. (-:
+If there was Linux support for BIOS-based EIDE controllers, it should
+in theory work, if slowly.
 
+Alternatively, can anyone suggest a cheap tertiary EIDE card suitable
+for CDROM or hard disks that Linux can support?
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  jpm@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.org
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

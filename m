@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbQKFAfX>; Sun, 5 Nov 2000 19:35:23 -0500
+	id <S129117AbQKFApr>; Sun, 5 Nov 2000 19:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129838AbQKFAfN>; Sun, 5 Nov 2000 19:35:13 -0500
-Received: from gateway-490.mvista.com ([63.192.220.206]:60155 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S129836AbQKFAfC>; Sun, 5 Nov 2000 19:35:02 -0500
-Date: Sun, 5 Nov 2000 16:34:56 -0800 (PST)
-From: Nigel Gamble <nigel@mvista.com>
-Reply-To: nigel@mvista.com
-To: jeremy@goop.org
-cc: linux-kernel@vger.kernel.org, autofs@linux.kernel.org
-Subject: Re: Locking problem in autofs4_expire(), 2.4.0-test10
-In-Reply-To: <Pine.LNX.4.21.0011031752150.14843-100000@pegasus.mvista.com>
-Message-ID: <Pine.LNX.4.21.0011051630000.20731-100000@pegasus.mvista.com>
+	id <S129383AbQKFAph>; Sun, 5 Nov 2000 19:45:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8002 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129117AbQKFApf>; Sun, 5 Nov 2000 19:45:35 -0500
+Subject: Re: rdtsc to mili secs?
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Mon, 6 Nov 2000 00:46:12 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sushil@veritas.com (Sushil Agarwal),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001106013453.A10275@athlon.random> from "Andrea Arcangeli" at Nov 06, 2000 01:34:53 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13saQP-0005ki-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2000, Nigel Gamble wrote:
->
-> dput() is called with dcache_lock already held, resulting in deadlock.
+> On Mon, Nov 06, 2000 at 12:28:00AM +0000, Alan Cox wrote:
+> > or running SMP with non matched CPU clocks.
 > 
-> Here is a suggested fix:
-> 
-> ===== expire.c 1.3 vs edited =====
-> --- 1.3/linux/fs/autofs4/expire.c       Tue Oct 31 15:14:06 2000
-> +++ edited/expire.c     Fri Nov  3 17:47:47 2000
-> @@ -223,8 +223,10 @@
->                         mntput(p);
->                         return dentry;
->                 }
-> +               spin_unlock(&dcache_lock);
->                 dput(d);
->                 mntput(p);
-> +               spin_lock(&dcache_lock);
->         }
->         spin_unlock(&dcache_lock);
+> In this last case I guess he will have more problems than not being able to
+> convert from cpu-clock to usec 8). Scheduler and gettimeofday will do the wrong
+> thing in that case (scheduler both for bougs avg_slice and fairness).
 
-On looking at this code more closely, I don't think it's safe just
-to drop the lock, because it looks like the lock is supposed to
-protect the loop variable, tmp, and the data structure which
-is being traversed.  However, I'm not familiar with this code,
-so I'm hoping someone who is can come up with a correct solution
-to this deadlock problem.
+2.2 handles this case correctly. Ok well at least without bad things happening.
 
-Nigel
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

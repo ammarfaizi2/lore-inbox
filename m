@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270892AbTGPO46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGPOz3
+	id S270895AbTGPOxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270897AbTGPOxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:55:29 -0400
-Received: from host151.spe.iit.edu ([198.37.27.151]:8110 "EHLO
-	found.lostlogicx.com") by vger.kernel.org with ESMTP
-	id S270892AbTGPOyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:54:09 -0400
-Date: Wed, 16 Jul 2003 10:09:01 -0500
-From: Brandon Low <lostlogic@gentoo.org>
-To: Julien <soda@gunnm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM : touchpad doesn't work
-Message-ID: <20030716150901.GE8196@lostlogicx.com>
-References: <3F146DB2.1080204@gunnm.org>
+	Wed, 16 Jul 2003 10:53:52 -0400
+Received: from holomorphy.com ([66.224.33.161]:44770 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S270895AbTGPOxs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:53:48 -0400
+Date: Wed, 16 Jul 2003 08:09:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+Message-ID: <20030716150953.GL15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030715225608.0d3bff77.akpm@osdl.org> <20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net> <20030716035848.560674ac.akpm@osdl.org> <20030716122454.GJ15452@holomorphy.com> <20030716143221.GD25829@ip68-4-255-84.oc.oc.cox.net> <20030716144155.GK15452@holomorphy.com> <20030716150207.GE25829@ip68-4-255-84.oc.oc.cox.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F146DB2.1080204@gunnm.org>
-X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
+In-Reply-To: <20030716150207.GE25829@ip68-4-255-84.oc.oc.cox.net>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 16, 2003 at 07:41:55AM -0700, William Lee Irwin III wrote:
+>> Oh, well that won't fly; it effectively isn't a constant initializer.
+>> I'll see what can be rammed past gcc. We're shooting for something
+>> with array element 0 equal to 0x1UL and all others 0.
 
---aM3YZ0Iwxop3KEKx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jul 16, 2003 at 08:02:07AM -0700, Barry K. Nathan wrote:
+> BTW, following my e-mail signature in this message is my .config. I
+> guess the most notable setting is that CONFIG_SMP is disabled (i.e.,
+> it's a UP compile).
 
-The new touchpad code in the kernel (I have just learned, tested, and am
-now using) requires the new XFree driver available at:
-http://www.tuxmobile.com/touchpad_driver.html
-The latest version of the drivrer can be built outside of X source, or
-there are binaries available.  Included in the package are good docs on
-installation and use.  Important note:  for kernel 2.5.X > 70 the driver
-now uses the event interface, so make sure you configure your kernel
-with event interface support either on or as a module.
+Hmm. Well, ditching the strong typechecking would "fix" it, though
+that's really only papering over it.
 
-You can contact me directly for more info, or just search the web for
-more configuration information.
+Okay, enough jabbering for me...
 
---Brandon
 
-On Tue, 07/15/03 at 23:10:10 +0200, Julien wrote:
-> 1 . The touchpad of my laptop doesn't work with the 2.6 Linux kernel,=20
-> but works with the 2.5.70
->=20
-
---aM3YZ0Iwxop3KEKx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/FWqMHCCPbR8BLcYRAob1AJ4ibvY5qoih2zL2O/hNdKctxYekFgCdE+dD
-sZauBR79EQ7oPqF15KzXUIA=
-=T8c2
------END PGP SIGNATURE-----
-
---aM3YZ0Iwxop3KEKx--
+-- wli

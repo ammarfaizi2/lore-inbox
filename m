@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbSLPDzH>; Sun, 15 Dec 2002 22:55:07 -0500
+	id <S264969AbSLPEDu>; Sun, 15 Dec 2002 23:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbSLPDzH>; Sun, 15 Dec 2002 22:55:07 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:53769
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264936AbSLPDzH>; Sun, 15 Dec 2002 22:55:07 -0500
-Subject: Re: /proc/cpuinfo and hyperthreading
-From: Robert Love <rml@tech9.net>
-To: Scott Robert Ladd <scott@coyotegulch.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJCEJPDLAA.scott@coyotegulch.com>
-References: <FKEAJLBKJCGBDJJIPJLJCEJPDLAA.scott@coyotegulch.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040011359.3458.556.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 15 Dec 2002 23:02:39 -0500
+	id <S264992AbSLPEDu>; Sun, 15 Dec 2002 23:03:50 -0500
+Received: from smtp-server4.tampabay.rr.com ([65.32.1.43]:17915 "EHLO
+	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S264969AbSLPEDt>; Sun, 15 Dec 2002 23:03:49 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Robert Love" <rml@tech9.net>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: /proc/cpuinfo and hyperthreading
+Date: Sun, 15 Dec 2002 23:13:17 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJEEKADLAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1040011359.3458.556.camel@phantasy>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-15 at 22:58, Scott Robert Ladd wrote:
+Robert Love wrote:
+> Yep, the 'siblings' value is the number of virtual processors in the
+> physical package.
+>
+> Do you only see one processor listing in /proc/cpuinfo, though?  You
+> should see one for each (virtual) processor.  That means two in a single
+> HT-enabled P4, each with the same physical id.
 
-> Am I correct to infer that the "siblings" entry refers to the 2-way
-> hyperthreading on my CPU?
+That's what I expected!
 
-Yep, the 'siblings' value is the number of virtual processors in the
-physical package.
+> So it seems your chip works... is the kernel compiled for SMP?
 
-Do you only see one processor listing in /proc/cpuinfo, though?  You
-should see one for each (virtual) processor.  That means two in a single
-HT-enabled P4, each with the same physical id.
+Yup, it's compiled for SMP -- or, at least, I selected that option in make
+menuconfig... ;) The boot reports:
 
-So it seems your chip works... is the kernel compiled for SMP?
+Dec 15 11:51:18 Tycho kernel: Linux version 2.5.51 (root@Tycho)
+                (gcc version 2.95.4 20011002 (Debian prerelease))
+                #11 SMP Sat Dec 14 21:40:42 EST 2002
 
-	Robert Love
+But later in the boot, it also states:
+
+Dec 15 11:51:18 Tycho kernel: SMP motherboard not detected.
+
+Something just doesn't look right about this.
+
+..Scott
+
+--
+Scott Robert Ladd
+Coyote Gulch Productions,  http://www.coyotegulch.com
+No ads -- just very free (and somewhat unusual) code.
 

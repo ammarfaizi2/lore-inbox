@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263619AbTJ0Wt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 17:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbTJ0Wt2
+	id S263601AbTJ0Wrc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 17:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTJ0Wrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 17:49:28 -0500
-Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:59522
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263619AbTJ0WtZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 17:49:25 -0500
-Message-ID: <3F9DA0F6.1020907@trash.net>
-Date: Mon, 27 Oct 2003 23:49:26 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031020 Debian/1.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OT]: Need help with license (BSD vs. GPL)
-Content-Type: multipart/mixed;
- boundary="------------080003050801030608070902"
+	Mon, 27 Oct 2003 17:47:32 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:5128 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263601AbTJ0Wrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 17:47:31 -0500
+Date: Mon, 27 Oct 2003 23:47:28 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andi Kleen <ak@muc.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, vojtech@suse.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PS/2 mouse rate setting
+Message-ID: <20031027224728.GA10618@win.tue.nl>
+References: <20031027140217.GA1065@averell> <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org> <20031027183856.GA1461@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031027183856.GA1461@averell>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080003050801030608070902
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Oct 27, 2003 at 07:38:56PM +0100, Andi Kleen wrote:
+> On Mon, Oct 27, 2003 at 08:32:15AM -0800, Linus Torvalds wrote:
 
-I've ported the H-FSC packet scheduler from altq to Linux 2.6.
-The original version was released unter a original BSD-style
-license with advertising clause. I've now talked to the original
-authors, they agreed to release a version without this clause.
-Am I correct that the license is otherwise GPL-compatible ?
-I don't want to harass them more than necessary ..
+> > I'd suggest we _not_ set the rate by default at all (and let the default
+> > thing just happen). And only set the rate if the user _asks_ for it with
+> > your setup thing. Mind sending me that kind of patch?
+> 
+> Here's the new patch with this change.
 
-I've attached a copy of the license.
+> -unsigned int psmouse_rate = 60;
+> +unsigned int psmouse_rate = 0;
 
-Thanks,
-Patrick
+> +__setup("psmouse_rate=", psmouse_rate_setup);
 
---------------080003050801030608070902
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+Hmm. I hate this.
 
-/*
- * Copyright (c) 1997-1999 Carnegie Mellon University. All Rights Reserved.
- *
- * Permission to use, copy, modify, and distribute this software and
- * its documentation is hereby granted (including for commercial or
- * for-profit use), provided that both the copyright notice and this
- * permission notice appear in all copies of the software, derivative
- * works, or modified versions, and any portions thereof, and that
- * both notices appear in supporting documentation, and that credit
- * is given to Carnegie Mellon University in all publications reporting
- * on direct or indirect use of this code or its derivatives.
- *
- * THIS SOFTWARE IS EXPERIMENTAL AND IS KNOWN TO HAVE BUGS, SOME OF
- * WHICH MAY HAVE SERIOUS CONSEQUENCES.  CARNEGIE MELLON PROVIDES THIS
- * SOFTWARE IN ITS ``AS IS'' CONDITION, AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL CARNEGIE MELLON UNIVERSITY BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- * Carnegie Mellon encourages (but does not require) users of this
- * software to return any improvements or extensions that they make,
- * and to grant Carnegie Mellon the rights to redistribute these
- * changes without encumbrance.
- *
- * $Id: altq_hfsc.c,v 1.4 1999/10/01 04:38:05 kjc Exp $
- */
+Linus, please - don't ask for such things.
+Our kernel does not need twelve thousand boot parameters.
 
+Mouse rate is of no importance during boot.
+Ergo, there is no reason to have it a boot parameter.
 
---------------080003050801030608070902--
+Doing the default thing is good enough, I agree.
+And if the user wants something else, userspace should take care.
+
+Andries
 

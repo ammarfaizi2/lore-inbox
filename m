@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUFANLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265028AbUFANR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUFANLS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFANLS
+	id S265028AbUFANR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFANR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:11:18 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:23452 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S265035AbUFANK5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:10:57 -0400
-Subject: [PATCH][SELINUX] Check processed security context length
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1086095432.13325.39.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 1 Jun 2004 09:17:29 -0400
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:384 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265028AbUFANR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 09:17:26 -0400
+Date: Tue, 1 Jun 2004 15:15:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: paul.devriendt@amd.com, Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: PREEMPT problems in cpufreq/powernow-k8
+Message-ID: <20040601131552.GA614@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 01 Jun 2004 09:10:32 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.7-rc2 changes security_context_to_sid to check the length of the
-processed security context against the full length of the provided
-context, rejecting any further data.  Please apply.
+Hi!
 
- security/selinux/ss/mls.c      |    2 +-
- security/selinux/ss/services.c |    5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
-
-Index: linux-2.6/security/selinux/ss/services.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
-retrieving revision 1.42
-diff -u -p -r1.42 services.c
---- linux-2.6/security/selinux/ss/services.c	10 May 2004 13:01:09 -0000	1.42
-+++ linux-2.6/security/selinux/ss/services.c	28 May 2004 12:10:33 -0000
-@@ -532,6 +532,11 @@ int security_context_to_sid(char *sconte
- 	if (rc)
- 		goto out_unlock;
- 
-+	if ((p - scontext2) < scontext_len) {
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(&policydb, &context)) {
- 		rc = -EINVAL;
-
-Index: linux-2.6/security/selinux/ss/mls.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
-retrieving revision 1.18
-diff -u -p -r1.18 mls.c
---- linux-2.6/security/selinux/ss/mls.c	28 Oct 2003 14:08:27 -0000	1.18
-+++ linux-2.6/security/selinux/ss/mls.c	28 May 2004 18:36:51 -0000
-@@ -290,7 +290,7 @@ int mls_context_to_sid(char oldc,
- 		if (rc)
- 			goto out;
- 	}
--	*scontext = p;
-+	*scontext = ++p;
- 	rc = 0;
- out:
- 	return rc;
+I enabled CONFIG_PREEMPT to test swsusp, and it uncovered some
+problems with powernow-k8:
 
 
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 204k freed
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+in_atomic():1, irqs_disabled():0
+Call Trace:
+ [<c011b91a>] __might_sleep+0xaa/0xb8
+ [<c0333dd2>] cpufreq_notify_transition+0x32/0x168
+ [<c010fd5d>] transition_frequency+0xa1/0x104
+ [<c010fe9b>] powernowk8_target+0xdb/0x130
+ [<c03337ab>] __cpufreq_driver_target+0x1b/0x20
+ [<c03341ea>] cpufreq_governor_performance+0x1e/0x24
+ [<c033388a>] __cpufreq_governor+0x6e/0x10c
+ [<c0333c5d>] __cpufreq_set_policy+0x139/0x144
+ [<c0333cb5>] cpufreq_set_policy+0x4d/0x94
+ [<c0334896>] cpufreq_proc_write+0x9e/0xb8
+ [<c0142440>] handle_mm_fault+0xc8/0x134
+ [<c0119217>] do_page_fault+0x13f/0x4fb
+ [<c01190d8>] do_page_fault+0x0/0x4fb
+ [<c0175c13>] proc_file_write+0x27/0x34
+ [<c014d67c>] vfs_write+0xa0/0xd0
+ [<c014d729>] sys_write+0x31/0x4c
+ [<c0104ce7>] syscall_call+0x7/0xb
+
+Adding 1051304k swap on /dev/hda1.  Priority:-1 extents:1
+
+powernowk8_target does preempt_disable(), and that calls
+cpufreq_notify_transition(). That does down(). Ouch.
+
+Hmm, but on SMP systems frequency really should be changed with
+preempt_disable. How to deal with that?
+							Pavel
+
+[Plus I get some more warnings during swsusp, all seem to be
+powernow-k8 related...]
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+934a471f20d6580d5aad759bf0d97ddc
 

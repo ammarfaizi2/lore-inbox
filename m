@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQKFRyQ>; Mon, 6 Nov 2000 12:54:16 -0500
+	id <S129074AbQKFR4q>; Mon, 6 Nov 2000 12:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129635AbQKFRyH>; Mon, 6 Nov 2000 12:54:07 -0500
-Received: from moot.mb.ca ([64.4.83.10]:19219 "EHLO moot.cdir.mb.ca")
-	by vger.kernel.org with ESMTP id <S129524AbQKFRx7>;
-	Mon, 6 Nov 2000 12:53:59 -0500
-Date: Mon, 6 Nov 2000 11:53:56 -0600 (CST)
-From: "Michael J. Dikkema" <mjd@moot.mb.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Yikes!! messages in aic7xxx.c
-Message-ID: <Pine.LNX.4.21.0011061148370.567-100000@sliver.moot.mb.ca>
+	id <S129049AbQKFR4g>; Mon, 6 Nov 2000 12:56:36 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:14746 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129042AbQKFR42>; Mon, 6 Nov 2000 12:56:28 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Date: Mon, 6 Nov 2000 17:53:16 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110617370400.24534@dax.joh.cam.ac.uk> <6786.973530532@redhat.com> <10507.973532648@redhat.com>
+In-Reply-To: <10507.973532648@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00110617560604.24534@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 06 Nov 2000, David Woodhouse wrote:
+> jas88@cam.ac.uk said:
+> >  Except this isn't possible with the hardware in question! If it were,
+> > there would be no problem. In cases where the hardware doesn't support
+> > the functionality userspace "needs", why put the kludge in the kernel?
+> 
+> > If userspace wants to know what settings it set last time, it should
+> > store those values somewhere.
+> 
+> No. You have to reset the hardware fully each time you load the module. 
+> Although you _expect_ it to be in the state in which you left it, you can't 
+> be sure of that. 
 
-I'm hitting a message that looks similar to this: (I wrote it down..)
+If a reset is needed, I think it should come explicitly from userspace.
 
-Yikes!! There is a loop in the free list
-No active SCB for reconnecting target
-Issuing BUS DEVICE RESET
-  SAVED_TCL=0x0, ARG_1=0x3, SEQADR=0x11d
+> jas88@cam.ac.uk said:
+> > Eh? You just load the driver once, probably on boot, to configure sane
+> > values. This time round, you use an argument (or an ioctl or whatever)
+> > to specify the values you want. (cat /etc/sysconfig/sound/
+> > defaultvolume > /dev/sound/mixer or whatever). After that, the module
+> > can be unloaded and loaded as needed, without any need to touch the
+> > mixer settings except in response to *explicit* "set volume" commands
+> > from userspace. 
+> 
+> Agreed. Where 'whatever' == persistent storage of some form. I care not 
+> what form that takes. If you can store the data entirely in userspace and 
+> still have them present at the time the driver initialises the hardware, 
+> that's fine. 
 
-There is more, but this server needs to be running. 
+That's what I've been getting at all along...
 
-These are the scsi devices attached:
-
-(scsi0) <Adaptec AIC-7890/1 Ultra2 SCSI host adapter> found at PCI 0/6/0
-(scsi0) Wide Channel, SCSI ID=7, 32/255 SCBs
-(scsi0) Downloading sequencer code... 392 instructions downloaded
-scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
-       <Adaptec AIC-7890/1 Ultra2 SCSI host adapter>
-scsi : 1 host.
-(scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 16.
-  Vendor: AccuRAID  Model:  AR-8600          Rev:     
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-(scsi0:0:2:0) Synchronous at 20.0 Mbyte/sec, offset 8.
-  Vendor: OnStream  Model: ADR50 Drive       Rev: 2.20
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-Detected scsi tape st0 at scsi0, channel 0, id 2, lun 0
-scsi : detected 2 SCSI generics 1 SCSI tape 1 SCSI disk total.
-SCSI device sda: hdwr sector= 512 bytes. Sectors= 180076544 [87928 MB]
-[87.9 GB]
+Probably have a simple load and unload script, which dumps state to a file
+on unload, and restores it on load. Whenever the module's state is not saved,
+the refcount is >0, so you can't unload it without saving state.
 
 
-I can reliably hit this whenever I copy 200-600mb of data from a windows
-machine to this box over samba. We've tried changing the ram in the RAID
-array, but that has had no effect.
-
-Any help would be appreciated. Thanks.
-
-,.;::
-: Michael J. Dikkema
-| Systems / Network Admin - Internet Solutions, Inc.
-| http://www.moot.mb.ca   Work: (204) 982-1060
-; mjd@moot.mb.ca
-',.
-
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

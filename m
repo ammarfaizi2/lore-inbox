@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTDNNpR (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTDNNpR (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:45:17 -0400
-Received: from main.gmane.org ([80.91.224.249]:28328 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263303AbTDNNpO (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 09:45:14 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: Early boot oops with 2.5.67-bk(current) on a dual Athlon-MP 
-  [Asus A7M266-D] machine
-Date: Mon, 14 Apr 2003 09:50:33 -0400
-Message-ID: <3E9ABCA9.8000802@myrealbox.com>
-References: <3E99B9B4.8000304@myrealbox.com> <20030413165259.36fb0f97.akpm@digeo.com>
+	id S263288AbTDNOMq (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 10:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTDNOMq (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 10:12:46 -0400
+Received: from h80ad2720.async.vt.edu ([128.173.39.32]:14976 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263288AbTDNOMp (for <RFC822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 10:12:45 -0400
+Message-Id: <200304141423.h3EENeu8003539@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel support for non-English user messages 
+In-Reply-To: Your message of "Mon, 14 Apr 2003 14:40:46 +0300."
+             <200304141145.h3EBjku02917@Port.imtp.ilyichevsk.odessa.ua> 
+From: Valdis.Kletnieks@vt.edu
+References: <200304111823_MC3-1-3412-C273@compuserve.com>
+            <200304141145.h3EBjku02917@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed; boundary="==_Exmh_1187622293P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-Cc: Dave Jones <davej@codemonkey.org.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+Date: Mon, 14 Apr 2003 10:23:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nicholas Wourms <nwourms@myrealbox.com> wrote:
-> 
->>Hi,
->>
->>Attached is the oops (which results in a panic) when I 
->>attempt to boot the lastest bk current on my machine.
-> 
-> 
-> The MCE code is using the workqueue infrastructure waaaaaaay earlier than it
-> is allowed to.  It looks like the timer went off before the workqueue
-> initialisation had been run.
-> 
-> This should fix it.
-> 
+--==_Exmh_1187622293P
+Content-Type: text/plain; charset=us-ascii
 
-Andrew,
+On Mon, 14 Apr 2003 14:40:46 +0300, Denis Vlasenko said:
 
-Thanks for the patch.  No oops this time around, but now it 
-freezes at the exact same point in the boot process.  My 
-keyboard (usb) stops responding entirely, thus eliminating 
-any use of the Magic SysRq key.  Same config as before, with 
-your patch applied.
+> OTOH "I can go read the source" is the ultimate documentation
+> which we have for zero extra effort.
 
-Cheers,
-Nicholas
+It's a non-zero extra effort for me to poke around in the source for
+drivers/video/riva/fbdev.c trying to find what parameters are legal
+to attach to 'video=rivafb' - at least one posting to LKML has listed
+append="video=rivafb,xres:1024,yres:768,bpp:8" but looking at the
+rivafb_setup() code that only checks for "forceCRTC", "flatpanel", and
+"nomtrr" - so even MORE digging is needed to find out who parses the
+xres, yres, bpp values, what other values are legal, etc etc.
 
 
+
+
+
+--==_Exmh_1187622293P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+msRrcC3lWbTT17ARAibZAKDTncgpGr3zr73kKhRtCmgtdJWoMACfe/+q
+apk84YYonWbXokdUzqKD2Nk=
+=1vsb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1187622293P--

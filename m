@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130271AbRATUWp>; Sat, 20 Jan 2001 15:22:45 -0500
+	id <S129842AbRATU4e>; Sat, 20 Jan 2001 15:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131633AbRATUWg>; Sat, 20 Jan 2001 15:22:36 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:2823 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130271AbRATUWZ>;
-	Sat, 20 Jan 2001 15:22:25 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101202022.XAA05556@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: torvalds@transmeta.COM (Linus Torvalds)
-Date: Sat, 20 Jan 2001 23:22:14 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101201138100.10317-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 20, 1 10:45:00 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S129933AbRATU4Y>; Sat, 20 Jan 2001 15:56:24 -0500
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:18439 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129842AbRATU4N>; Sat, 20 Jan 2001 15:56:13 -0500
+Date: Sat, 20 Jan 2001 20:56:08 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: Via apollo KX133 ide bug in 2.4.x
+Message-ID: <20010120205608.C2838@colonel-panic.com>
+Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
+In-Reply-To: <3A68DCD1.FACB4135@voicenet.com> <20000120083812.A945@colonel-panic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20000120083812.A945@colonel-panic.com>; from pdh@colonel-panic.com on Thu, Jan 20, 2000 at 08:38:12AM +0000
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Jan 20, 2000 at 08:38:12AM +0000, Peter Horton wrote:
+> 
+> I think I'm suffering the same thing on my new Asus A7V. Yesterday I got a
+> single "error in bitmap, remounting read only" type error, and today I got
+> some files in /tmp that returned I/O error when stat()ed. I do have DMA
+> enabled, but only UDMA33. I've done several kernel compiles with no
+> problems at all so looks like something is on the edge. Think I might go
+> back to 2.2.x for a bit and see what happens, or maybe just remove the VIA
+> driver :-((.
+> 
 
-> > 	write(100000*MSS)
-> > 	write(1)
-> > 	write(1)
-...
-> As far as I can tell, the second "write(1)" will always merge with the
-> first one
+I apologise for following up my own E-mail, but there is something I'm
+missing here (maybe a whole lot of something). Anyone know how come we're
+seeing silent corruption ... I thought this UDMA stuff was all checksummed
+? If there error is outside the data I assume the driver would notice ?
 
-This would be true, if Andrea wrote not exactly 100000*MSS,
-but 100000*MSS+1 or just write(<lots of data>).
 
-In some exceptional situations (sort of writing exactly N*MSS,
-then remnant, then something) Minshall's and bsd coalescing
-are a bit different.
-
-Alexey
+P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

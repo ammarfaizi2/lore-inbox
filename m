@@ -1,108 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269960AbRHNBbn>; Mon, 13 Aug 2001 21:31:43 -0400
+	id <S269959AbRHNB1d>; Mon, 13 Aug 2001 21:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269961AbRHNBbd>; Mon, 13 Aug 2001 21:31:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49623 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269960AbRHNBbU>;
-	Mon, 13 Aug 2001 21:31:20 -0400
-Date: Mon, 13 Aug 2001 21:31:32 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (1/11) fs/super.c fixes
-Message-ID: <Pine.GSO.4.21.0108132126270.10579-100000@weyl.math.psu.edu>
+	id <S269960AbRHNB1X>; Mon, 13 Aug 2001 21:27:23 -0400
+Received: from web14606.mail.yahoo.com ([216.136.224.86]:49930 "HELO
+	web14606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269959AbRHNB1D>; Mon, 13 Aug 2001 21:27:03 -0400
+Message-ID: <20010814012712.86253.qmail@web14606.mail.yahoo.com>
+Date: Mon, 13 Aug 2001 18:27:12 -0700 (PDT)
+From: cardhore <cardhore@yahoo.com>
+Subject: Control + Shift causes strange behavior in 2.4.8 & 2.4.7
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Linus, I'm resending the second series of superblock handling
-fixes. There are 11 chunks (the largest being 5Kb) - I'm sending each
-of them in a separate mail (with descriptions). This stuff finally
-closes the get_super() races and seriously cleans superblock handling.
-It had been in -ac for a while (and got more than a month of testing on
-local boxen). Please, apply.
+*Please CC all responses to cardhore@yahoo.com as I am
+not subscribed.
 
-Part 1/11
+When I hit both control keys _and_ both shift keys
+simultaneously (you have to kind of hit them rapidly a
+bunch of times) ONLY on my Microsoft natural keyboard,
+the system hangs or prints various debug messages;
+sometimes it locks up; the scroll lock comes on. 
+Sometimes it releases, other times it locks and
+requries a power cycle.  It does this in the console
+and X-windows.  This is on a Microsoft PS/2 ergonomic
+keyboard, on an Intel SE440BX motherbaord.  It does
+not happen when I plug in a compaq USB keyboard, or
+with another PS/2 keyboard.  The kernel is compiled
+with GCC 2.95.3.
 
-We grab exclusive lock on ->s_umount() in get_sb_...() and release it
-once vfsmount is formed (by do_add_mount()). No deadlocks, since all
-activity in protected area is already not allowed to lead to anything
-that would grab ->s_umount. We hold ->s_lock over the whole non-trivial part
-and anything of that kind would deadlock on it.
 
-We are almost done with the get_super() races by now.
+This kind of stuff is printed:
+devfsd        S D6512000  6072   112      1          
+126   105 (NOTLB)
+Call Trace: [<c0150a96>] [<c012d906>] [<c0106b0b>]
+cron          S D6485F8C  4740   126      1          
+133   112 (NOTLB)
+Call Trace: [<c01108bb>] [<c0110800>] [<c0119948>]
+[<c0106b0b>]
+gpm           S D6457F2C  4812   133      1          
+134   126 (NOTLB)
+Call Trace: [<c01108bb>] [<c0110800>] [<c013b301>]
+[<c013b6a0>] [<c0106b0b>]
+agetty        S 7FFFFFFF  4708   134      1          
+136   133 (NOTLB)
+Call Trace: [<c011085f>] [<c0177d9d>] [<c0173f08>]
+[<c012d906>] [<c0106b0b>]
+agetty        S 7FFFFFFF     0   136      1          
+137   134 (NOTLB)
+Call Trace: [<c011085f>] [<c0177d9d>] [<c0173f08>]
+[<c012d906>] [<c0106b0b>]
+agetty        S 7FFFFFFF     0   137      1          
+138   136 (NOTLB)
+Call Trace: [<c011085f>] [<c0177d9d>] [<c0173f08>]
+[<c012d906>] [<c0106b0b>]
+agetty        S 7FFFFFFF    48   138      1          
+140   137 (NOTLB)
+Call Trace: [<c011085f>] [<c0177d9d>] [<c0173f08>]
+[<c012d906>] [<c0106b0b>]
+agetty        S 7FFFFFFF     0   140      1          
+281   138 (NOTLB)
+Call Trace: [<c011085f>] [<c0177d9d>] [<c0173f08>]
+[<c012d906>] [<c0106b0b>]
+bash          S 00000004     0   281      1           
+     140 (NOTLB)
+Call Trace: [<c01782ca>] [<c017407c>] [<c01780e4>]
+[<c012d9cb>] [<c0106b0b>]
 
-diff -urN S9-pre3/fs/super.c S9-pre3-s_umount/fs/super.c
---- S9-pre3/fs/super.c	Sat Aug 11 14:59:24 2001
-+++ S9-pre3-s_umount/fs/super.c	Mon Aug 13 21:21:26 2001
-@@ -820,6 +820,7 @@
- 	spin_lock(&sb_lock);
- 	list_add (&s->s_list, super_blocks.prev);
- 	spin_unlock(&sb_lock);
-+	down_write(&s->s_umount);
- 	lock_super(s);
- 	if (!type->read_super(s, data, silent))
- 		goto out_fail;
-@@ -839,7 +840,7 @@
- 	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	spin_unlock(&sb_lock);
--	__put_super(s);
-+	put_super(s);
- 	return NULL;
- }
- 
-@@ -919,7 +920,9 @@
- 				spin_unlock(&sb_lock);
- 			}
- 			atomic_inc(&sb->s_active);
-+			/* Next chunk will drop it */
- 			up_read(&sb->s_umount);
-+			down_write(&sb->s_umount);
- 			path_release(&nd);
- 			return sb;
- 		}
-@@ -986,6 +989,7 @@
- 		BUG();
- 	atomic_inc(&sb->s_active);
- 	do_remount_sb(sb, flags, data);
-+	down_write(&sb->s_umount);
- 	return sb;
- }
- 
-@@ -1104,6 +1108,7 @@
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
- 	type->kern_mnt = mnt;
-+	up_write(&sb->s_umount);
- 	return mnt;
- }
- 
-@@ -1379,6 +1384,7 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
-+	up_write(&sb->s_umount);
- 
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-@@ -1639,6 +1645,7 @@
- 		fs_type = sb->s_type;
- 		atomic_inc(&sb->s_active);
- 		up_read(&sb->s_umount);
-+		down_write(&sb->s_umount);
- 		goto mount_it;
- 	}
- 
-@@ -1659,6 +1666,8 @@
- 	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
- 
- mount_it:
-+	/* FIXME */
-+	up_write(&sb->s_umount);
- 	printk ("VFS: Mounted root (%s filesystem)%s.\n",
- 		fs_type->name,
- 		(sb->s_flags & MS_RDONLY) ? " readonly" : "");
+What is going on?
 
+__________________________________________________
+Do You Yahoo!?
+Send instant messages & get email alerts with Yahoo! Messenger.
+http://im.yahoo.com/

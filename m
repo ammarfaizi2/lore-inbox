@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTFDJnq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 05:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTFDJnq
+	id S261944AbTFDJyv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 05:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTFDJyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 05:43:46 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:1168 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261864AbTFDJnp (ORCPT
+	Wed, 4 Jun 2003 05:54:51 -0400
+Received: from vt.ibt.lt ([193.219.56.32]:35457 "EHLO vt.fermentas.lt")
+	by vger.kernel.org with ESMTP id S261944AbTFDJyv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 05:43:45 -0400
+	Wed, 4 Jun 2003 05:54:51 -0400
+From: Vitalis Tiknius <vt@vt.fermentas.lt>
+Organization: myself
+To: linux-kernel@vger.kernel.org
+Subject: Re:2.5.70-mm4
+Date: Wed, 4 Jun 2003 13:08:24 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16093.49785.273511.76181@gargle.gargle.HOWL>
-Date: Wed, 4 Jun 2003 11:57:13 +0200
-From: mikpe@csd.uu.se
-To: earny@net4u.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc7 failed boot without Local APIC support
-In-Reply-To: <200306040743.14456.earny@net4u.de>
-References: <200306040743.14456.earny@net4u.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200306041308.24120.vt@vt.fermentas.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ernst Herzberg writes:
- > The only patch applied is acpi-20030512.
- > 2.4.21-rc2 works without problems.
- > Booting _with_ local APIC enabled works fine, but alsa on VT8233 AC97 does not work.
- > Booting _without_ local APIC:
-...
- > PCI: Using ACPI for IRQ routing
- > PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-...
-(aic7xxx error messages deleted)
+re. cdrom mount problem: so far, so good with all combinations.
 
-Try again without ACPI. ACPI is known to mess up IRQ routing in some systems.
+vesafb problem: does not work with memory >1Gb.
+
+with patch:
+
+--- vesafb.c.old	2003-06-04 12:12:03.000000000 +0200
++++ vesafb.c	2003-06-04 12:40:28.000000000 +0200
+@@ -227,7 +227,7 @@
+ 	vesafb_defined.xres = screen_info.lfb_width;
+ 	vesafb_defined.yres = screen_info.lfb_height;
+ 	vesafb_fix.line_length = screen_info.lfb_linelength;
+-	vesafb_fix.smem_len = screen_info.lfb_size * 65536;
++	vesafb_fix.smem_len = screen_info.lfb_width * screen_info.lfb_height * 
+vesafb_defined.bits_per_pixel;
+ 	vesafb_fix.visual   = (vesafb_defined.bits_per_pixel == 8) ?
+ 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+ 
+from http://bugs.gentoo.org/show_bug.cgi?id=19061 all is ok. it is not the 
+time to apply this patch?

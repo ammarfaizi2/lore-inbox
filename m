@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUEDVRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUEDVSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUEDVRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUEDVQH
+	id S264622AbUEDVSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264642AbUEDVRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:16:07 -0400
-Received: from mail.kroah.org ([65.200.24.183]:48089 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264623AbUEDVP4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:15:56 -0400
-Date: Tue, 4 May 2004 13:37:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Ian Morgan <imorgan@webcon.ca>, helpdeskie@bencastricum.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 Sensors & USB problems
-Message-ID: <20040504203738.GJ24802@kroah.com>
-References: <1081349796.407416a4c3739@imp.gcu.info> <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca> <Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca> <20040418075140.6c118202.khali@linux-fr.org>
+	Tue, 4 May 2004 17:17:41 -0400
+Received: from bay18-f8.bay18.hotmail.com ([65.54.187.58]:16907 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264623AbUEDVQq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:16:46 -0400
+X-Originating-IP: [67.22.169.122]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Promise 378 controller driver absent from Linux Kernel?
+Date: Tue, 04 May 2004 21:16:42 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040418075140.6c118202.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY18-F8Hg2uUGdrXJS000000a3@hotmail.com>
+X-OriginalArrivalTime: 04 May 2004 21:16:43.0189 (UTC) FILETIME=[193A0650:01C4321D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 18, 2004 at 07:51:40AM +0200, Jean Delvare wrote:
-> > Can anyone explain, however, why my i2c bus showed up as number 0
-> > under linux <= 2.6.4, and now always as number 1 under linux 2.6.5?
-> > The is no number 0 any more.
-> 
-> The bus number allocation scheme is such that once a number has been
-> used once (since the machine last booted) it will not be used again.
-> This is admittedly not ideal and should be fixed. I suspect that the fix
-> isn't trivial because the current structures would make the new scheme
-> have a poor algorithmic complexity (O(2) maybe), but I haven't checked
-> yet. Greg, can you confirm?
+I have found a GPL'd patch for 2.4.23
 
-It's not due to the complexity, it's just due to the fact that I haven't
-gotten around to doing it yet :)
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0307.2/2039.html
 
-Patches to fix this are gladly welcome if the current situation really
-bothers people.  No userspace tools should have a problem with the way
-things are right now.  If they do have problems, please let me know.
+However, will this chipset ever be supported in the vanilla kernel source 
+tree?
 
-thanks,
+Does anyone have a Promise 378 controller using Serial ATA RAID 1 and able 
+to boot from it successfully?
 
-greg k-h
+So far, google has yielded nothing but horror stories regarding getting this 
+driver to work, some implementations use SCSI-transport to control the SATA 
+controller, but this seems like a nightmare, is there a solution in the 
+works?
+
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.com/go/onm00200413ave/direct/01/
+

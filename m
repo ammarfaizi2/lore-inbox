@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271683AbRHUOK4>; Tue, 21 Aug 2001 10:10:56 -0400
+	id <S271686AbRHUOMQ>; Tue, 21 Aug 2001 10:12:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271686AbRHUOKr>; Tue, 21 Aug 2001 10:10:47 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:26896 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S271681AbRHUOKi> convert rfc822-to-8bit; Tue, 21 Aug 2001 10:10:38 -0400
-Date: Tue, 21 Aug 2001 16:08:09 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Cc: Pam Delaney <pam.delaney@lsil.com>
-Subject: PATCH: SYM-2 driver for Linux-2.5 (proposal)
-Message-ID: <20010821155640.D337-100000@gerard>
+	id <S271690AbRHUOMG>; Tue, 21 Aug 2001 10:12:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51729 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271686AbRHUOL5>; Tue, 21 Aug 2001 10:11:57 -0400
+Subject: Re: agpgart.o and intel i810-chipset
+To: wicki@terror.de (Victoria W.)
+Date: Tue, 21 Aug 2001 15:10:07 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10108210734370.27906-100000@csb.terror.de> from "Victoria W." at Aug 21, 2001 07:59:43 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZCEJ-0007vF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 00:00.0 Host bridge: Intel Corporation: Unknown device 7124 (rev 03)
+> 00:01.0 VGA compatible controller: Intel Corporation: Unknown device 7125
+> (rev 03)
 
-Hello,
+Ok
 
-My proposal for inclusion of the SYM-2 driver in Linux 2.5 is available
-from the following location (modulo mistakes :)):
+> In the driver, there is no case-statement for 
+> "PCI_DEVICE_ID_INTEL_810_E_1" like the
+> one for "PCI_DEVICE_ID_INTEL_810_E_0" but the one for "810_E_0" searches
+> for "PCI_DEVICE_ID_INTEL_810_E_1".
+> 
+>                 case PCI_DEVICE_ID_INTEL_810_E_0:
+>                         i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
+>                                              PCI_DEVICE_ID_INTEL_810_E_1,
+>                                                    NULL);
 
-ftp://ftp.tux.org/pub/roudier/drivers/linux/experimental/sym-2.1.11-linux-2.4.8-01.patch.gz
+This code looks right. 
 
-The patch is against kernel 2.4.8. It should also apply to 2.4.9 , but I
-didn't give this latest kernel a try for the moment.
+We see an 810E_0 (host bridge)
+We look for an 810E_1 secondary 
+If we dont find it we abort
 
-The proposal consists in the following:
+So the question I guess is what do you hav and why didnt it find it
 
-- The current SYM53C8XX and NCR53C8XX drivers are left in place.
-- The current SYM53C8XX driver name is now "SYM53C8XX Version 1".
-- For historical reasons, the new driver name is "SYM53C8XX Version 2"
-- The new driver files are added in linux/drivers/scsi/sym53c8xx_2/
-- When linked statically, the 2 SYM53C8XX driver versions are mutually
-  exclusives.
+8086 7124, 8086 7125 is the intel 810E GMCH and 810E CGC
 
-This proposal also applies to inclusion in either 2.4.X kernel or 2.2.X
-kernel if this ever gets desirable.
-
-Comments, reports and fixes are welcome.
-
-Regards,
-  Gérard.
-
+Which of the checks fail - and also did you remember to include 810 support
+in your agp options ?

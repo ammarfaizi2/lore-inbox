@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTIZMTm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 08:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTIZMRX
+	id S262110AbTIZMUA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTIZMTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 08:17:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62162 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262056AbTIZMRE
+	Fri, 26 Sep 2003 08:19:55 -0400
+Received: from 212-165-140-2.reverse.newskies.net ([212.165.140.2]:772 "HELO
+	helimore527.com") by vger.kernel.org with SMTP id S262110AbTIZMRl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 08:17:04 -0400
-Date: Fri, 26 Sep 2003 13:17:03 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Steven Dake <sdake@mvista.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG using multipath on 2.6.0-test5
-Message-ID: <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
-References: <1064541435.4763.51.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064541435.4763.51.camel@persist.az.mvista.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 26 Sep 2003 08:17:41 -0400
+From: "Mr. Peter Da Costa." <mrpeterdacosta@post.cz>
+Reply-To: mrpeterda_costa@post.cz
+To: linux-kernel@vger.kernel.org
+Date: Thu, 25 Sep 2003 13:19:02 +0200
+Subject: Mail From:Mr. Peter Da Costa.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S262110AbTIZMRl/20030926121941Z+3665@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 06:57:15PM -0700, Steven Dake wrote:
-> kernel BUG at drivers/scsi/scsi_lib.c:544!
+From: Peter Da Costa,
+Attn : sir,
+This letter may come as a surprise since we
+have not met before but was borne out of my sincere
+desire to establish a business/partnership relationship with you.
+My name is Mr. Peter Da costa, the personal
+assistant to the Admintrators of Empresa Nacionais de Diamantes 
+de Angola ENDIAMA,the State National Diamond Company in Angola, 
+Mr.Domingos Alfredo Machado I over see and
+coordinate his private businesses, both in angola and Overseas.
+ Mr.Domingos Alfredo Machado,cannot operate a foreign bank 
+account or own a business because of the new legislation passed
+ in Angola banning government officials,their aids and family members
+ from operating such,moreover Angola does not have a good climate
+ for investment right
+now because of the effect of the civil war.
+It is based on this development that I have the mandate of
+ Mr.Domingos Alfredo Machado to contact you and request
+ you to be his business partner
+and assist him set up an investment company
+in your country with the fund he has with a financial institution in 
+Europe and also he is willing to buy an existing business who
+requires capital.Please response as soon as possible for me to
+tell you what is obtainable. I await your response.
+Best regards, 
+Mr. Peter Da Costa.
+ 
 
-        BUG_ON(!cmd->use_sg);
 
->  [<c01f631d>] scsi_init_io+0x7a/0x13d
-
-static int scsi_init_io(struct scsi_cmnd *cmd)
-        struct request     *req = cmd->request;
-        cmd->use_sg = req->nr_phys_segments;
-        sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
-
->  [<c01f6455>] scsi_prep_fn+0x75/0x171
-
-static int scsi_prep_fn(struct request_queue *q, struct request *req)
-        struct scsi_cmnd *cmd;
-        cmd->request = req;
-        ret = scsi_init_io(cmd);
-
-... this is getting outside my area of confidence.  Ask axboe why we might
-get a zero nr_phys_segments request passed in.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

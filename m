@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131468AbQKPUxD>; Thu, 16 Nov 2000 15:53:03 -0500
+	id <S131467AbQKPUzD>; Thu, 16 Nov 2000 15:55:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131467AbQKPUwx>; Thu, 16 Nov 2000 15:52:53 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:19302
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131485AbQKPUwm>; Thu, 16 Nov 2000 15:52:42 -0500
-Date: Thu, 16 Nov 2000 21:14:53 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: sailer@ife.ee.ethz.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: [uPATCH] Compile error in drivers/net/hamradio/soundmodem/sm_sbm.c (240-t11p5)
-Message-ID: <20001116211453.C716@jaquet.dk>
+	id <S131498AbQKPUyx>; Thu, 16 Nov 2000 15:54:53 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:26122 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131467AbQKPUyn>;
+	Thu, 16 Nov 2000 15:54:43 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Local root exploit with kmod and modutils > 2.1.121 
+In-Reply-To: Your message of "Thu, 16 Nov 2000 16:04:23 -0000."
+             <E13wRWU-0007yG-00@the-village.bc.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+Date: Fri, 17 Nov 2000 07:24:36 +1100
+Message-ID: <4328.974406276@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, 16 Nov 2000 16:04:23 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> request_module has the same effect as running suid.  dev_load() can
+>> take the interface name and pass it to modprobe unchanged and modprobe
+>> does not verify its input, it trusts root/kernel.
+>
+>Then dev_load is being called the wrong way. In older kernels we explicitly
+>only did a dev_load with user passed names providing suser() was true.
 
-Changes in the kernel has made the patch below necessary for sm.h:
+ping6 -I module_name.  ping6 is setuid, it passes the interface name to
+the kernel while it holds root privileges, suser() == true.  It is
+not reasonable to expect setuid programs to know that Linux does
+something special with some parameters when no other O/S has that
+"feature".
 
---- linux-240-t11-pre5-clean/drivers/net/hamradio/soundmodem/sm.h	Wed Aug 18 20:38:50 1999
-+++ linux/drivers/net/hamradio/soundmodem/sm.h	Thu Nov 16 20:33:17 2000
-@@ -299,7 +299,7 @@
- 
- #ifdef __i386__
- 
--#define HAS_RDTSC (current_cpu_data.x86_capability & X86_FEATURE_TSC)
-+#define HAS_RDTSC (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))
- 
- /*
-  * only do 32bit cycle counter arithmetic; we hope we won't overflow.
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-Genius may have its limitations, but stupidity is not thus handicapped. 
-  -- Elbert Hubbard 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

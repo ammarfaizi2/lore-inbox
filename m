@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbUAVBEu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 20:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUAVBEu
+	id S264286AbUAVBNO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 20:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbUAVBNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 20:04:50 -0500
-Received: from gprs148-45.eurotel.cz ([160.218.148.45]:33152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264271AbUAVBEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 20:04:48 -0500
-Date: Thu, 22 Jan 2004 02:04:38 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rik van Riel <riel@redhat.com>
-Cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
+	Wed, 21 Jan 2004 20:13:14 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:52949 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264286AbUAVBNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 20:13:13 -0500
+Date: Wed, 21 Jan 2004 20:13:11 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: sched-idle and disk-priorities for 2.6.X
-Message-ID: <20040122010438.GD223@elf.ucw.cz>
-References: <20040118195825.GA27658@elf.ucw.cz> <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040122010438.GD223@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0401212010520.15146-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 22 Jan 2004, Pavel Machek wrote:
 
-> > > > Is there effective way to limit RSS?
-> > > 
-> > > Want me to port the RSS stuff from 2.4-rmap to 2.6 ?
-> > 
-> > Well, if it allows me to limit memory for one task so that it does not
-> > make system unusable... yes, that would be great.
+> doing 
 > 
-> Here it is.  Untested, except for whether it compiles cleanly ;)
+> ulimit -m 1
+> <some task>
 > 
-> Let me know how it works, if the enforcement is aggressive
-> enough or not, whether I need to tweak things etc...
+> should make that task run with extremely low priority, right?
 
-It boots, and seems to have no ill effects. I've yet to see some good
-effects, too...
+Yeah, when the box is under memory pressure, pages from that
+task should never hit the active list.  Instead, they should
+always stay on the inactive list and the non-referenced pages
+from that app should get reclaimed.
 
-doing 
+OTOH, if the app keeps referencing all pages, maybe I need
+to tune up the aggressiveness a bit and also reclaim the
+referenced pages ... if the current patch doesn't work right
+I'll make a more aggressive one.
 
-ulimit -m 1
-<some task>
-
-should make that task run with extremely low priority, right?
-
-								Pavel
+Note that RSS limit enforcement is always lazy, because
+otherwise the RSS limited task will hog the IO subsystem
+full-time and slow everything else down ... even when there's
+more than enough memory.
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

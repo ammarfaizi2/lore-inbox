@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287098AbSABW0Q>; Wed, 2 Jan 2002 17:26:16 -0500
+	id <S287038AbSABWXy>; Wed, 2 Jan 2002 17:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287051AbSABW0F>; Wed, 2 Jan 2002 17:26:05 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11004 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S287089AbSABWZg>; Wed, 2 Jan 2002 17:25:36 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <DC4407B5751@vcnet.vc.cvut.cz> 
-In-Reply-To: <DC4407B5751@vcnet.vc.cvut.cz> 
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Cc: Paul Koning <pkoning@equallogic.com>, trini@kernel.crashing.org,
-        velco@fadata.bg, linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 Jan 2002 22:24:14 +0000
-Message-ID: <21991.1010010254@redhat.com>
+	id <S287051AbSABWXq>; Wed, 2 Jan 2002 17:23:46 -0500
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:58885 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S287045AbSABWXh>; Wed, 2 Jan 2002 17:23:37 -0500
+Message-Id: <200201022223.g02MNXh25982@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: David Golden <david.golden@oceanfree.net>, linux-kernel@vger.kernel.org
+Subject: Re: system.map
+Date: Wed, 2 Jan 2002 16:21:01 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <3C337AC8.2020900@free.fr> <02010222155300.11915@golden1.goldens.ie>
+In-Reply-To: <02010222155300.11915@golden1.goldens.ie>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 02 January 2002 16:15, David Golden wrote:
+> On Wednesday 02 January 2002 21:25, Lionel Bouton wrote:
+> it and
+>
+> > search it in numerous places : with or without `-uname -r` appended (at
+> > least in / /boot /usr/src/linux).
+> >
+> :-( Pity it apparently doesn't search
+>
+> /boot/`uname -r`/System.map
+>
+> That way the /boot/kernelver/* scheme (see previous post) would work...
 
-VANDROVE@vc.cvut.cz said:
-> (and for CONSTANT < 5 it of course generated correct code to fill dst
-> with string contents; and yes, I know that code will sigsegv on run
-> because of dst is not initialized - but it should die at runtime, not
-> at compile time). 
+That would be nice.  I used to have my own personal system and hacked version 
+of klogd that had a /boot/kernels directory, but in it I still maintained the 
+old (cumbersum) naming convention.  I *like* this idea.  A lot.
 
-An ICE, while it's not quite what was expected and it'll probably get fixed,
-is nonetheless a perfectly valid implementation of 'undefined behaviour'.
-You should count yourself lucky that the compiler didn't beat you up, sleep
-with your mother, and/or start WW III.
+/boot/`uname -r`/{System.map,bzImage,.config}
 
-Contributors to this thread who want to write a kernel in some C-like
-language other than C probably ought to start by writing their own compiler,
-rather than complaining about gcc. (I won't suggest starting with a language
-spec, as the people in question don't really seem to be interested in
-those.)
+So, what's it take to make it a "standard"?
 
-That or implement DWIM for gcc, I suppose...
-
-Can we fix the broken code and stop being silly now, please?
-
---
-dwmw2
-
-
+-Nick

@@ -1,37 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTHYJYH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 05:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbTHYJYH
+	id S261556AbTHYJXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 05:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTHYJXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 05:24:07 -0400
-Received: from main.gmane.org ([80.91.224.249]:11664 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261596AbTHYJYC (ORCPT
+	Mon, 25 Aug 2003 05:23:11 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:19973 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S261556AbTHYJXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 05:24:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH]O18.1int
-Date: Mon, 25 Aug 2003 11:24:01 +0200
-Message-ID: <yw1xr83accpa.fsf@users.sourceforge.net>
-References: <200308231555.24530.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:BIXafDOtFR9rOK6/oLV2nEeXbmM=
+	Mon, 25 Aug 2003 05:23:05 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH-2.6.0-test4-mm1][drivers/char/stallion.c]Task queue to work queue conversion
+Date: Mon, 25 Aug 2003 14:55:48 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308251455.48507.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Andrew and all,
 
-XEmacs still spins after running a background job like make or grep.
-It's fine if I reverse patch-O16.2-O16.3. The spinning doesn't happen
-as often, or as long time as with O16.3, but it's there and it's
-irritating.
+Here is the fix for the drivers/char/stallion.c.
+Some schedule_task's had not been changed
+to schedule_work. This patch would change them.
+The patch is against 2.6.0-test4-mm1.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Without this the drivers/char/stallion.c 
+cannot be compiled as part of the kernel (make bzImage).
+
+Please do apply!
+
+Regards
+KK
+
+===========================================
+The following is the patch:
+
+--- linux-2.6.0-test4-mm1/drivers/char/stallion.orig.c	2003-08-23 05:28:12.000000000 +0530
++++ linux-2.6.0-test4-mm1/drivers/char/stallion.c	2003-08-25 14:29:56.000000000 +0530
+@@ -4234,7 +4234,7 @@
+ 	misr = inb(ioaddr + EREG_DATA);
+ 	if (misr & MISR_DCD) {
+ 		set_bit(ASYI_DCDCHANGE, &portp->istate);
+-		schedule_task(&portp->tqueue);
++		schedule_work(&portp->tqueue);
+ 		portp->stats.modem++;
+ 	}
+ 
+@@ -5031,7 +5031,7 @@
+ 	if ((len == 0) || ((len < STL_TXBUFLOW) &&
+ 	    (test_bit(ASYI_TXLOW, &portp->istate) == 0))) {
+ 		set_bit(ASYI_TXLOW, &portp->istate);
+-		schedule_task(&portp->tqueue); 
++		schedule_work(&portp->tqueue); 
+ 	}
+ 
+ 	if (len == 0) {
+@@ -5248,7 +5248,7 @@
+ 		ipr = stl_sc26198getreg(portp, IPR);
+ 		if (ipr & IPR_DCDCHANGE) {
+ 			set_bit(ASYI_DCDCHANGE, &portp->istate);
+-			schedule_task(&portp->tqueue); 
++			schedule_work(&portp->tqueue); 
+ 			portp->stats.modem++;
+ 		}
+ 		break;
+
+==============================================
+diffstat output:
+stallion.c |    6 +++---
+1 files changed, 3 insertions(+), 3 deletions(-)
+==============================================
+Compilation errors fixed:
+drivers/char/stallion.c: In function `stl_cd1400mdmisr':
+drivers/char/stallion.c:4237: warning: implicit declaration of function `schedule_task'
+==============================================
+Linking errors fixed:
+drivers/built-in.o(.text+0x40ece): In function `stl_cd1400mdmisr':
+: undefined reference to `schedule_task'
+drivers/built-in.o(.text+0x42038): In function `stl_sc26198txisr':
+: undefined reference to `schedule_task'
+drivers/built-in.o(.text+0x424b9): In function `stl_sc26198otherisr':
+: undefined reference to `schedule_task'
+make: *** [.tmp_vmlinux1] Error 1
+===============================================
+
+
+
+
 

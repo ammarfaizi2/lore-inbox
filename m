@@ -1,37 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270668AbTGNMuM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270600AbTGNMiF
+	id S270605AbTGNNAR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270641AbTGNM5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:38:05 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62145
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270598AbTGNM2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:28:25 -0400
-Subject: Re: Linux v2.6.0-test1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk>
-References: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058186436.561.54.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 14 Jul 2003 08:57:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29860 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270639AbTGNM5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:57:31 -0400
+Date: Mon, 14 Jul 2003 15:12:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andrea Arcangeli <andrea@suse.de>, Chris Mason <mason@suse.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030714131206.GJ833@suse.de>
+References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva> <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 13:40:36 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 12:50, John Bradford wrote:
-> > Then you'll just have to wait a few months
+On Mon, Jul 14 2003, Marcelo Tosatti wrote:
 > 
-> Oh well, it just seems strange to be asking people to test
-> 2.6.0-root-my-box, without making the consequences a bit clearer.
+> 
+> On Mon, 14 Jul 2003, Jens Axboe wrote:
+> 
+> > On Sun, Jul 13 2003, Andrea Arcangeli wrote:
+> > > On Sun, Jul 13, 2003 at 11:01:16AM +0200, Jens Axboe wrote:
+> > > > No I don't have anything specific, it just seems like a bad heuristic to
+> > > > get rid of. I can try and do some testing tomorrow. I do feel strongly
+> > >
+> > > well, it's not an heuristic, it's a simplification and it will certainly
+> > > won't provide any benefit (besides saving some hundred kbytes of ram per
+> > > harddisk that is a minor benefit).
+> >
+> > You are missing my point - I don't care about loosing the extra request
+> > list, I never said anything about that in this thread. I care about
+> > loosing the reserved requests for reads. And we can do that just fine
+> > with just holding back a handful of requests.
+> >
+> > > > that we should at least make sure to reserve a few requests for reads
+> > > > exclusively, even if you don't agree with the oversized check. Anything
+> > > > else really contradicts all the io testing we have done the past years
+> > > > that shows how important it is to get a read in ASAP. And doing that in
+> > >
+> > > Important for latency or throughput? Do you know which is the benchmarks
+> > > that returned better results with the two queues, what's the theory
+> > > behind this?
+> >
+> > Forget the two queues, noone has said anything about that. The reserved
+> > reads are important for latency reasons, not throughput.
+> 
+> So Jens,
+> 
+> Please bench (as you said you would), and send us the results.
+> 
+> Its very important.
 
-Its 2.6.0 locally root my box, not remotely root my box, although remote
-crash bugs exist in at least one situation
+Yes of course I'll send the results, at the current rate (they are
+running on the box) it probably wont be before tomorrow though.
+
+-- 
+Jens Axboe
 

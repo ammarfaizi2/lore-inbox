@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbUCAXSi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 18:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUCAXSf
+	id S261481AbUCAXY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 18:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUCAXY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 18:18:35 -0500
-Received: from topaz.cx ([66.220.6.227]:59281 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S261480AbUCAXSd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 18:18:33 -0500
-Date: Mon, 1 Mar 2004 18:18:23 -0500
-From: Chip Salzenberg <chip@pobox.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.3: re-enable UHCI interrupts on APM resume
-Message-ID: <20040301231822.GB14500@perlsupport.com>
+	Mon, 1 Mar 2004 18:24:59 -0500
+Received: from disk.smurf.noris.de ([192.109.102.53]:58841 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261481AbUCAXY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 18:24:58 -0500
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Tue, 2 Mar 2004 00:22:48 +0100
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dm-crypt using kthread (was: Oopsing cryptoapi (or loop	device?) on 2.6.*)
+Message-ID: <20040301232248.GA9040@kiste>
+References: <1076870572.20140.16.camel@leto.cs.pocnet.net> <20040215185331.A8719@infradead.org> <1076873760.21477.8.camel@leto.cs.pocnet.net> <20040215194633.A8948@infradead.org> <20040216014433.GA5430@leto.cs.pocnet.net> <20040215175337.5d7a06c9.akpm@osdl.org> <Pine.LNX.4.58.0402160303560.26082@alpha.polcom.net> <1076900606.5601.47.camel@leto.cs.pocnet.net> <pan.2004.03.01.22.18.59.135752@smurf.noris.de> <1078181496.3415.0.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
+In-Reply-To: <1078181496.3415.0.camel@leto.cs.pocnet.net>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote the below patch which fixes a lockup problem with USB
-on the ThinkPad A30.  It's small, helpful, and not ThinkPad-specific.
+Hi,
 
-So, although it will already be part of the next USB merge, I wanted
-you to see it.  Maybe you'll find it worth including in 2.6.4.
+Christophe Saout:
+> Matthias Urlichs:
+> > How do I specify the encryption algorithm's bit size? AES can use 128,
+> > 196, or 256 bits. Gues who didn't use the default (128) when creating the
+> > file system on his keychain's USB thing  :-/
+> 
+> Simply specify a key that is 192 bits long (24 bytes or 48 hex digits).
+> 
+In other words, that's the job of the front-end program which reads the
+key from <wherever>.
 
---- 2.6/drivers/usb/host/uhci-hcd.c.orig	Fri Feb 20 15:04:41 2004
-+++ 2.6/drivers/usb/host/uhci-hcd.c	Sun Feb 22 15:23:59 2004
-@@ -2471,9 +2471,16 @@
- 
- 	pci_set_master(to_pci_dev(uhci_dev(uhci)));
- 
--	if (uhci->state == UHCI_SUSPENDED)
-+	if (uhci->state == UHCI_SUSPENDED) {
-+
-+		/*
-+		 * Some systems clear the Interrupt Enable register during
-+		 * PM suspend/resume, so reinitialize it.
-+		 */
-+		outw(USBINTR_TIMEOUT | USBINTR_RESUME | USBINTR_IOC |
-+				USBINTR_SP, uhci->io_addr + USBINTR);
- 		uhci->resume_detect = 1;
--	else {
-+	} else {
- 		reset_hc(uhci);
- 		start_hc(uhci);
- 	}
-
+If/when updating the documentation, please add a pointer to a frontend
+program that can emulate losetup <encryption> <bits> -- assuming one 
+has been written..?
 
 -- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+Matthias Urlichs

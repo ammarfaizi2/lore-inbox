@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSLCNr5>; Tue, 3 Dec 2002 08:47:57 -0500
+	id <S261426AbSLCNv5>; Tue, 3 Dec 2002 08:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSLCNr5>; Tue, 3 Dec 2002 08:47:57 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:54022 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S261310AbSLCNr4>;
-	Tue, 3 Dec 2002 08:47:56 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-Date: Tue, 3 Dec 2002 13:55:26 +0000 (UTC)
-Organization: Cistron
-Message-ID: <asid4e$ci$1@ncc1701.cistron.net>
-References: <Pine.LNX.4.44L.0212011833310.15981-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1038923726 402 62.216.29.67 (3 Dec 2002 13:55:26 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S261416AbSLCNv5>; Tue, 3 Dec 2002 08:51:57 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:4992 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S261426AbSLCNv4>;
+	Tue, 3 Dec 2002 08:51:56 -0500
+Date: Tue, 3 Dec 2002 14:59:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Clayton <andrew@sol-1.demon.co.uk>,
+       Javier Marcet <jmarcet@pobox.com>
+Subject: Re: Exaggerated swap usage
+Message-ID: <20021203135905.GK1205@dualathlon.random>
+References: <200212030059.32018.m.c.p@wolk-project.de> <20021203005939.GF28164@dualathlon.random> <200212031112.14635.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212031112.14635.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44L.0212011833310.15981-100000@imladris.surriel.com>,
-Rik van Riel  <riel@conectiva.com.br> wrote:
->This is a merge of rmap15a with marcelo's 2.4 bitkeeper tree,
->which is identical to 2.4.20-rc4 (he didn't push the makefile
->update).  The only thing left out of the merge for now is
->Andrew Morton's read_latency patch, both because I'm not sure
->how needed it is with the elevator updates and because this
->part of the merge was too tricky to do at merge time; I'll port
->over Andrew Morton's read_latency patch later...
+On Tue, Dec 03, 2002 at 11:13:22AM +0100, Marc-Christian Petersen wrote:
+> On Tuesday 03 December 2002 01:59, you wrote:
+> 
+> Hi Andrea,
+> 
+> > this is the interesting one. Did you run any unstable kernel/driver
+> > software combination recently or maybe you got oopsed or crashes?
+> nope, no oops, no crash, afaik no unstable kernel/drivers. Kernel is yours ;) 
+> and drivers, hmm, just intel i815, eepro100. That happend after some hours of 
+> uptime and just doing "rm -rf linux-old"
+> 
+> > journaling sometime gives a false sense of reliability, you've to keep
+> > in mind that unless you know why you had to reboot w/o a clean unmount
+> > you should always force an e2fsck -f/reiserfsck in single user mode at
+> > the next boot, no matter of journaling. If the machine crashed because
+> Yep, I always do a forced fsck in case of that.
+> 
+> > of a kernel oops or similar skipping the filesystemcheck at the very
+> > next boot could left the fs corrupted for a long time until you notice
+> > it possibly while running an unrelated kernel. So if you crashed
+> > recently and you didn't run any e2fsck -f that could explain it. I doubt
+> I run e2fsck -fy every time after a crash. Fortunately it doesn't happen so 
+> often :-)
 
-Just FYI:
+ok ;) I asked just in case.
 
-I've tried this on our peering newsserver, you know, the same one
-I tried a couple of 2.5.4X kernels on (Andrew knows ...)
+> 
+> > ...
+> > don't know the details of the bug at the time of the next reboot so
+> > normally an e2fsck -f is always required after a kernel crash, this
+> > can't be automated simply because if the kernel is crashed we can't
+> > write to the superblock to notify e2fsck about it, so at the next boot
+> > e2fsck will always think replying the log was enough).
+> yep. I tried to remove that 00_umount-against-unused-dirty-inodes-race fix and 
+> after that (now 5 hours uptime) doing only copying and deleting, that ext3fs 
+> error is away.
+> 
+> > Of course your problem could be explained by a bad cable or whatever
+> > else hardware failure too. At the moment I doubt it's a problem in the
+> > common code of my tree or mainline.
+> seems it's a problem in the umount-against-unused-dirty-inodes-race fix or if 
+> the fix "is the right way" the problem is located somewhere else what 
+> triggers the problem of your patch.
 
-Basically, performance sucks with rmap15a, with or without readlatency2.
-See http://stats.cistron.nl/mrtg/html/wormhole.html
+can you reproduce in 2.4.20aa1 too?
 
-Monday  2-dec 16:00 -- Tuesday 3-dec 12:00	rmap15a + rl2
-Tuesday 3-dec 12:00 -- Tuesday 3-dec 14:00	rmap15a
-Tuesday 3-dec 14:20 -- now			2.4.20 vanilla
-
-As you can see, the server accepted a lot less articles when
-running rmap, as a result outgoing bandwidth dropped too.
-
-I have no idea how to find out what the exact cause of this is,
-so I didn't (it's still a production server and I can't let
-it limp along for a too long period of time) that's why I
-started with 'just FYI'. BTW, the server is not into swap - it
-just looks like the working set of innd (the main article
-accepting process) which includes mmap()s of the history
-database is getting pushed out of memory by streaming IO,
-which is really bad for performance. 2.4.20 does better on
-this, and 2.5 a bit more even (but isn't stable)
-
-Mike.
--- 
-They all laughed when I said I wanted to build a joke-telling machine.
-Well, I showed them! Nobody's laughing *now*! -- acesteves@clix.pt
-
+Andrea

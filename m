@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130645AbRANFMX>; Sun, 14 Jan 2001 00:12:23 -0500
+	id <S129765AbRANHy7>; Sun, 14 Jan 2001 02:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130812AbRANFMO>; Sun, 14 Jan 2001 00:12:14 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43535 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130645AbRANFMA>; Sun, 14 Jan 2001 00:12:00 -0500
-Date: Sun, 14 Jan 2001 01:21:22 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: set_page_dirty/page_launder deadlock
-Message-ID: <Pine.LNX.4.21.0101140108430.11917-100000@freak.distro.conectiva>
+	id <S129773AbRANHyt>; Sun, 14 Jan 2001 02:54:49 -0500
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:12286 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S129765AbRANHyg>; Sun, 14 Jan 2001 02:54:36 -0500
+From: junio@siamese.dhis.twinsun.com
+To: Godfrey Livingstone <godfrey@hattaway-associates.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+In-Reply-To: <200101112136.PAA07626@mccoy.penguinpowered.com>
+	<3A61315C.37318059@hattaway-associates.com>
+Date: 13 Jan 2001 23:54:29 -0800
+In-Reply-To: <3A61315C.37318059@hattaway-associates.com>
+Message-ID: <7vk87y36x6.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "GL" == Godfrey Livingstone <godfrey@hattaway-associates.com> writes:
 
-Hi,
+GL> There is as yet no official patch for raid 0.90 for 2.2.18
 
-While taking a look at page_launder()...
+GL> This question would be better asked on  linux raid list
+GL> linux-raid@vger.kernel.org.
 
-                 /* And re-start the thing.. */
-                 spin_lock(&pagemap_lru_lock); 	<----------
-                 if (result != 1)
-                 	continue;
-                 /* writepage refused to do anything */
-                 set_page_dirty(page);
-	      	 ^^^^^^^^^^^^^^^^^^^^
-       		 goto page_active;
-            }
+What is at <http://www.kernel.org/pub/linux/kernel/people/mingo/>
+look official enough to me...
 
-
-set_page_dirty() may lock the pagecache_lock which means potential
-deadlock since we have the pagemap_lru_lock locked.
-
+    raid-2.2.18-B0          12-Jan-2001 10:18   392k
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

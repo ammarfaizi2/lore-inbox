@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265036AbRGBOn4>; Mon, 2 Jul 2001 10:43:56 -0400
+	id <S263608AbRGBOhd>; Mon, 2 Jul 2001 10:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265046AbRGBOnq>; Mon, 2 Jul 2001 10:43:46 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:17812 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S265036AbRGBOnn>;
-	Mon, 2 Jul 2001 10:43:43 -0400
-Date: Mon, 2 Jul 2001 15:43:33 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-X-X-Sender: <paulj@rossi.itg.ie>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Daniel Harvey <daniel@amristar.com.au>, <linux-laptop@mobilix.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux SLOW on Compaq Armada 110 PIII Speedstep
-In-Reply-To: <3B3F3A1D.FDD32279@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0107021543050.17875-100000@rossi.itg.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265036AbRGBOhW>; Mon, 2 Jul 2001 10:37:22 -0400
+Received: from t2.redhat.com ([199.183.24.243]:14578 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263608AbRGBOhR>; Mon, 2 Jul 2001 10:37:17 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <31885.993874778@ocs3.ocs-net> 
+In-Reply-To: <31885.993874778@ocs3.ocs-net> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Byeong-ryeol Kim <jinbo21@hananet.net>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: compile error about do_softirq in 2.4.5-ac21 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 02 Jul 2001 15:36:47 +0100
+Message-ID: <4888.994084607@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jul 2001, Jeff Garzik wrote:
 
-> (BTW, most laptops -do- have a BIOS setup... it's just that many
-> manufacturers hide the normal PC boot screen, where RAM is checked, IDE
-> drives scanned, etc).
+kaos@ocs.com.au said:
+> --- 5.52/fs/jffs2/background.c Sun, 22 Apr 2001 07:25:55 +1000 kaos (linux-2.4/Z/d/7_background 1.1 644)
+> +++ 5.52(w)/fs/jffs2/background.c Sat, 30 Jun 2001 14:13:12 +1000 kaos (linux-2.4/Z/d/7_background 1.1 644)
+> @@ -43,6 +43,7 @@
+>  #include <linux/jffs2.h>
+>  #include <linux/mtd/mtd.h>
+> +#include <linux/interrupt.h>
+>  #include <linux/smp_lock.h>
+>  #include "nodelist.h"
 
-this is an MS certification requirement iirc.
+Thanks. I've applied that to my tree - and removed smp_lock.h too. 
 
---paulj
+
+--
+dwmw2
+
 

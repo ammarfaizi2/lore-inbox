@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbUKYHDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbUKYHaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbUKYHDa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 02:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUKYHDM
+	id S263010AbUKYHaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 02:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbUKYHav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 02:03:12 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16063 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263002AbUKYHAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 02:00:15 -0500
-Subject: Re: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0411241453230.7171@musoma.fsmlabs.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296166.5805.279.camel@desktop.cunninghams>
-	 <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
-	 <1101331206.3895.40.camel@desktop.cunninghams>
-	 <Pine.LNX.4.61.0411241453230.7171@musoma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1101333392.3895.79.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 08:56:32 +1100
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Nov 2004 02:30:51 -0500
+Received: from rev.193.226.233.139.euroweb.hu ([193.226.233.139]:64981 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S263007AbUKYHaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Nov 2004 02:30:22 -0500
+To: bulb@ucw.cz
+CC: avi@argo.co.il, alan@lxorguk.ukuu.org.uk, torvalds@osdl.org,
+       hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+In-reply-to: <20041125062649.GB29278@vagabond> (message from Jan Hudec on Thu,
+	25 Nov 2004 07:26:49 +0100)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu> <20041125062649.GB29278@vagabond>
+Message-Id: <E1CXE4k-0000Ow-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 25 Nov 2004 08:29:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Thu, 2004-11-25 at 08:55, Zwane Mwaikambo wrote:
-> On Thu, 25 Nov 2004, Nigel Cunningham wrote:
+> > There are already "strange" filesystems in the kernel which cannot
+> > really get rid of dirty data.  I'm thinking of tmpfs and ramfs.
+> > Neither of them are prone to deadlock, though both of them are "worse
+> > off" than a userspace filesystem, in the sense that they have not even
+> > the remotest chance of getting rid of the dirty data.
+> > 
+> > Of course, implementing this is probably not trivial.  But I don't see
+> > it as a theoretical problem as Linus does. 
+> > 
+> > Is there something which I'm missing here?
 > 
-> > That's roughly what we're doing now, apart from the offlining/onlining.
-> > I had considered trying to take better advantage of SMP support (perhaps
-> > run a decompression thread on one CPU and the writer on the other, eg),
-> > so we might want to apply this just to the region immediately around the
-> > atomic copy/restore. That makes me wonder, though, what the advantage is
-> > to switching to using the hotplug functionality - is it x86 only, or
-> > more cross platform? (If more cross platform, that might possibly be an
-> > advantage over the current code).
-> 
-> It's cross platform and removes the requirement for patches like;
-> 
-> Subject: Suspend 2 merge: 13/51: Disable highmem tlb flush for copyback.
+> But they KNOW that they won't be able to get rid of the dirty data. But
+> fuse does not.
 
-Good point. I didn't see that.
+Why not?  I can set bdi->memory_backed to 1 just like ramfs, implement
+my own writeback thread, and voila, no deadlock.
 
-Regards,
+Of course I believe, that it's probably easier to tweak the page cache
+to teach it that fuse pages _can_ be written back, but not reliably
+like a disk filesystem.  And there's the small problem of limiting the
+number of writable pages allocated to FUSE.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Miklos

@@ -1,129 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSLEPXO>; Thu, 5 Dec 2002 10:23:14 -0500
+	id <S267335AbSLEP0C>; Thu, 5 Dec 2002 10:26:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSLEPXO>; Thu, 5 Dec 2002 10:23:14 -0500
-Received: from verein.lst.de ([212.34.181.86]:10513 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S261615AbSLEPXM>;
-	Thu, 5 Dec 2002 10:23:12 -0500
-Date: Thu, 5 Dec 2002 16:30:43 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] hardirq.h needs smp_lock.h
-Message-ID: <20021205163043.A27618@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
+	id <S267337AbSLEP0C>; Thu, 5 Dec 2002 10:26:02 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:8208 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267335AbSLEP0A>; Thu, 5 Dec 2002 10:26:00 -0500
+Message-Id: <200212051533.gB5FXTN02203@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, mj@ucw.cz,
+       linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [BKPATCH] allow pci primary peer busses to have parents 
+In-Reply-To: Message from Ivan Kokshaysky <ink@jurassic.park.msu.ru> 
+   of "Thu, 05 Dec 2002 16:12:05 +0300." <20021205161205.A6419@jurassic.park.msu.ru> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Thu, 05 Dec 2002 09:33:29 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many architectures use kernel_locked() in the defintion of in_atomic()
-in hardirq.h, but only ppc actually includes smp_lock.h to get it.
+On Wed, Dec 04, 2002 at 11:18:24AM -0600, James Bottomley wrote:
+> Now that the generic device model allows a coherent bus tree to be built
 
-Fix up the others.
+ink@jurassic.park.msu.ru said:
+> Unfortunately it doesn't.
+
+OK, consider the phrase for architectures with subordinate PCI busses added.
+
+ink@jurassic.park.msu.ru said:
+>  Currently those legacy, PnP, EISA devices all have virtual parents,
+> which has nothing to do with reality. Modern systems (including most
+> PCs) hang these buses off PCI bus using PCI-to-{E}ISA bridge. Such
+> systems must be able to register these buses upon discovery of the ISA
+> bridges (from pci layer), and use them as a parent device for legacy/
+> isa/pnp stuff. This will be absolutely required if DMA operations are
+> moved from pci_dev to the generic device. 
+
+Well, we are moving in this direction.  I've already done the conversion for 
+MCA.  Marc Zyngier has done it for EISA.  I believe someone is looking at PnP 
+ISA.  ISA, as a non-probe'able bus fits into the legacy bus scheme anyway.
+
+> The `sysdata' arg already contains info about parent host-to-pci
+> controller on many platforms. I don't think that we need to duplicate
+> it with another one. I was thinking about something like this instead
+> of `sysdata': 
+
+That's PCI specific.  We need a coherent tree in the generic model.  To do 
+this, the PCI parent information has to be available just using the struct 
+device, without having to cast it to pci_dev and look at pci specific fields.
+
+This is a simplification requirement for machines whose IOMMUs lie on other 
+bus types above the PCI busses.  You have to be able to walk up the device 
+tree until you find the IOMMU.  Since you're sharing the implementation with 
+the non-PCI busses, you need to be able to do this in a generic manner.
+
+James
 
 
---- 1.6/include/asm-alpha/hardirq.h	Mon Nov 18 19:08:15 2002
-+++ edited/include/asm-alpha/hardirq.h	Thu Dec  5 16:10:36 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/cache.h>
-+#include <linux/smp_lock.h>
- 
- 
- /* entry.S is sensitive to the offsets of these fields */
---- 1.7/include/asm-arm/hardirq.h	Sun Oct 13 13:04:25 2002
-+++ edited/include/asm-arm/hardirq.h	Thu Dec  5 16:10:05 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/cache.h>
- #include <linux/threads.h>
-+#include <linux/smp_lock.h>
- 
- /* softirq.h is sensitive to the offsets of these fields */
- typedef struct {
---- 1.16/include/asm-i386/hardirq.h	Sat Nov  9 07:31:03 2002
-+++ edited/include/asm-i386/hardirq.h	Thu Dec  5 16:10:07 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/irq.h>
-+#include <linux/smp_lock.h>
- 
- /* assembly code in softirq.h is sensitive to the offsets of these fields */
- typedef struct {
---- 1.3/include/asm-m68k/hardirq.h	Tue Sep 17 13:32:36 2002
-+++ edited/include/asm-m68k/hardirq.h	Thu Dec  5 16:10:10 2002
-@@ -3,6 +3,7 @@
- 
- #include <linux/threads.h>
- #include <linux/cache.h>
-+#include <linux/smp_lock.h>
- 
- /* entry.S is sensitive to the offsets of these fields */
- typedef struct {
---- 1.1/include/asm-m68knommu/hardirq.h	Fri Nov  1 17:37:46 2002
-+++ edited/include/asm-m68knommu/hardirq.h	Thu Dec  5 16:10:13 2002
-@@ -3,6 +3,7 @@
- 
- #include <linux/config.h>
- #include <linux/threads.h>
-+#include <linux/smp_lock.h>
- 
- typedef struct {
- 	unsigned int __softirq_pending;
---- 1.10/include/asm-ppc64/hardirq.h	Fri Nov 22 06:33:12 2002
-+++ edited/include/asm-ppc64/hardirq.h	Thu Dec  5 16:10:21 2002
-@@ -12,6 +12,7 @@
- #include <linux/config.h>
- #include <linux/cache.h>
- #include <linux/preempt.h>
-+#include <linux/smp_lock.h>
- 
- typedef struct {
- 	unsigned int __softirq_pending;
---- 1.10/include/asm-sparc/hardirq.h	Mon Dec  2 09:21:26 2002
-+++ edited/include/asm-sparc/hardirq.h	Thu Dec  5 16:10:24 2002
-@@ -12,6 +12,7 @@
- #include <linux/brlock.h>
- #include <linux/spinlock.h>
- #include <linux/cache.h>
-+#include <linux/smp_lock.h>
- 
- /* entry.S is sensitive to the offsets of these fields */ /* XXX P3 Is it? */
- typedef struct {
---- 1.12/include/asm-sparc64/hardirq.h	Fri Sep 13 23:45:23 2002
-+++ edited/include/asm-sparc64/hardirq.h	Thu Dec  5 16:10:28 2002
-@@ -10,6 +10,7 @@
- #include <linux/threads.h>
- #include <linux/brlock.h>
- #include <linux/spinlock.h>
-+#include <linux/smp_lock.h>
- 
- /* entry.S is sensitive to the offsets of these fields */
- /* rtrap.S is sensitive to the size of this structure */
---- 1.2/include/asm-v850/hardirq.h	Mon Nov 25 02:34:44 2002
-+++ edited/include/asm-v850/hardirq.h	Thu Dec  5 16:10:30 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/cache.h>
-+#include <linux/smp_lock.h>
- 
- typedef struct {
- 	unsigned int __softirq_pending;
---- 1.2/include/asm-x86_64/hardirq.h	Sat Oct 12 01:54:31 2002
-+++ edited/include/asm-x86_64/hardirq.h	Thu Dec  5 16:10:33 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/irq.h>
-+#include <linux/smp_lock.h>
- #include <asm/pda.h>
- 
- #define __ARCH_IRQ_STAT 1

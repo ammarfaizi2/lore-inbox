@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbSJXWzK>; Thu, 24 Oct 2002 18:55:10 -0400
+	id <S265706AbSJXWyN>; Thu, 24 Oct 2002 18:54:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265705AbSJXWzK>; Thu, 24 Oct 2002 18:55:10 -0400
-Received: from [210.95.11.193] ([210.95.11.193]:30853 "HELO 210.95.11.193")
-	by vger.kernel.org with SMTP id <S265700AbSJXWzJ>;
-	Thu, 24 Oct 2002 18:55:09 -0400
-From: qhoheuropabusiness2002 <dleuropabusiness2002@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Ihre Schufa Auskunft tqae
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Fri, 25 Oct 2002 01:02:21 +0200
-X-Mailer: The Bat! (v1.52f) Business
-Message-Id: <20021024225509Z265700-32597+8832@vger.kernel.org>
+	id <S265705AbSJXWyN>; Thu, 24 Oct 2002 18:54:13 -0400
+Received: from [63.204.6.12] ([63.204.6.12]:21915 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S265697AbSJXWyM>;
+	Thu, 24 Oct 2002 18:54:12 -0400
+Date: Thu, 24 Oct 2002 19:00:23 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Steven Dake <sdake@mvista.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
+In-Reply-To: <Pine.LNX.4.33L2.0210241350230.20950-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33.0210241839490.10937-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sehr geehrte Damen und Herren,
+On Thu, 24 Oct 2002, Randy.Dunlap wrote:
 
-schlechte Schufa-Auskunft? Bonitätsprobleme? Dann wählen Sie doch eine Bank ohne Schufa-Anschluss z.B. für:
+> Preface question:  does cPCI support surprise removal (in the
+> PICMG specs, not in some implementation)?  I know that PCI hotplug
+> doesn't support surprise removal, only "coordinated" removal.
 
-- Girokonten ohne Schufa-Auskunft
-- Kredite ohne Schufa-Auskunft
-- Ratenkäufe ohne Schufa-Auskunft
-- Dispokredite ohne Schufa-Auskunft
-- Finanzierungen ohne Schufa-Auskunft
-- Kreditkarten ohne Schufa-Auskunft
+No, according to PICMG 2.1 R2.0, suprise removal is "non-compliant".
 
-Diese Liste von Banken, Sparkassen Volks- und Raiffeisenbanken OHNE Schufa-Anschluss finden Sie nicht im Buchhandel sondern nur günstig und exklusiv bei uns!
+> So the question that has to be answered IMO is:  do we want to
+> support surprise removal for something like manufacturing test,
+> which doesn't abide by the coordinated removal protocol?
+>
+> or:  Do we have to support surprise removal, only because it can't
+> be prevented?  I expect that this is the case, but I still don't
+> see or understand the 20 ms time requirement.
 
-Liste per Faxabruf unter der Faxnummer: 0190 85 51 63 - 01 *
+I've not implemented it yet, but I'm pretty sure I can detect surprise
+extractions in my cPCI driver.  The only thing holding me back at the
+moment is that there's no clear way to report this status change via
+pcihpfs without doing something a bit funky like reporting "-1" in the
+"adapter" node.
 
-Sie erhalten eine Liste von Banken, Sparkassen, Volksbanken und Raiffeisenbanken in Deutschland die nicht der Schufa angeschlossen sind! Die SCHUFA unterstützt Unternehmen bei der Kreditgewährung an Privatpersonen – eine „schlechte“ Auskunft führt unweigerlich zur Ablehnung Ihres Antrages bei der Bank.
+Scott
 
-Der Faxabruf:
 
-Mit Hilfe von dgi können Sie von JEDEM Faxgerät einfach, schnell und direkt Unterlagen für Ihren privaten und geschäftlichen Bedarf abrufen. Informieren Sie sich über aktuelle Themen, welche wir für Sie zum Faxabruf (Polling) rund um die Uhr bereitstellen.
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 
-Und so einfach funktioniert es:
-
-Wählen Sie einfach von Ihrem Faxgerät die entsprechende Faxnummer und drücken Sie die Abruf-bzw. die Starttaste oder stellen Sie Ihr Gerät auf Faxabruf um. Verfügen Sie über eine Faxnebenstelle, so wählen Sie die Nummer auf Ihrem Telefon und verbinden anschließend zum Fax. Wenn Sie über Preselection telefonieren, wählen Sie bitte die Vorwahl der Deutschen Telekom 01033, da der Abruf sonst nicht funktioniert (z.B. 01033-0190 85 51 63 - 01). Informationen finden Sie auch in der Bedienungsanleitung Ihres Faxgerätes.
-
-*(1,86 Euro/Min. dgi)
-
-Sie erhalten diese Nachricht, weil Sie sich mit der E-Mail Adresse linux-kernel@vger.kernel.org in einer unserer Partnerdatenbanken eingetragen haben (opt-in). Für das Produkt und/oder den Service in dieser E-Mail ist der Auftraggeber verantwortlich. Bei Fragen wenden Sie sich bitte direkt an den Auftraggeber.
-
-Sollten Sie keine weiteren Zusendungen wünschen, senden Sie bitte eine E-Mail an europabusiness2002@web.de mit dem Wort remove in der Betreffzeile. Ihre Daten werden dann umgehend gelöscht!
-
-ixspulbqwlvdmspqrbysmmaga

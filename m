@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311756AbSDIVyQ>; Tue, 9 Apr 2002 17:54:16 -0400
+	id <S311829AbSDIV5p>; Tue, 9 Apr 2002 17:57:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311782AbSDIVyP>; Tue, 9 Apr 2002 17:54:15 -0400
-Received: from sebula.traumatized.org ([193.121.72.130]:9348 "EHLO
-	sparkie.is.traumatized.org") by vger.kernel.org with ESMTP
-	id <S311756AbSDIVyO>; Tue, 9 Apr 2002 17:54:14 -0400
-Date: Tue, 9 Apr 2002 23:47:34 +0200
-From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: arch/sparc64/kernel/traps.c
-Message-ID: <20020409214734.GL9996@sparkie.is.traumatized.org>
-In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <20020409.142329.55241651.davem@redhat.com>
+	id <S311834AbSDIV5o>; Tue, 9 Apr 2002 17:57:44 -0400
+Received: from vger.timpanogas.org ([216.250.140.154]:5534 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S311829AbSDIV5o>; Tue, 9 Apr 2002 17:57:44 -0400
+Date: Tue, 9 Apr 2002 15:16:01 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: John Jasen <jjasen1@umbc.edu>
+Cc: Daniel Gryniewicz <dang@fprintf.net>, Andrew Burgess <aab@cichlid.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Tyan S2462 reboot problems
+Message-ID: <20020409151601.A11100@vger.timpanogas.org>
+In-Reply-To: <20020409161412.777aec9a.dang@fprintf.net> <Pine.SGI.4.31L.02.0204091619260.8816091-100000@irix2.gl.umbc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i (Linux 2.4.19-pre5 sparc64)
-X-Files: the truth is out there
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 09, 2002 at 11:40:08PM +0200, David S. Miller wrote:
->    From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
->    Date: Tue, 9 Apr 2002 23:20:00 +0200
+
+I have also seen some problems with the Tyan S2720 with hyperthreading 
+enabled in a dual P4 configuration during bootup.  Several of the 
+drivers lock up during bootup, AIC7XXX gets scsi timeouts and 
+3Ware cards hard hang the bus when hyperthreading is enabled.  These 
+problems do not occur on the SuperMicro P4DE6 which is also running 
+the Intel 7500 chipset. 
+
+Jeff
+
+
+On Tue, Apr 09, 2002 at 04:20:17PM -0400, John Jasen wrote:
+> On Tue, 9 Apr 2002, Daniel Gryniewicz wrote:
 > 
->    TSTATE: 0000009911009601 TPC: 00000000005a39c0 TNPC: 00000000005a39c4
->    Y: 00000000    Not tainted
+> > No, I doubt this has anything to do with Linux.   I have a S2460 (which his
+> > corrected post says he has), which does not power down under linux, and
+> > *never* warm boots cleanly.  It does power down under windows, so I assume
+> > ACPI powerdown works and APM does not.  I have gone under the assumption that
+> > a BIOS upgrade will fix this, but that involves putting a floppy into the box,
+> > so I haven't done it yet.  The warm boot problems consist of either a hang
+> > after POST (but before bootloader, OS irrelevent), or really bad video
+> > corruption.  I don't know if it boot with the video corruption, I've never let
+> > it try.
 > 
-> Please send this through ksymoops so that we get the kernel
-> symbols that match up to all these magic numbers in your OOPS.
-
-i would, if i could :)
-so, i downloaded ksymoops-2.4.5 (i assume this is the version i need)
-
-but it won't compile. sorry, my c knowledge is very basic.
-but i assume there's something wrong with my /usr/lib/libbfd.a ?
-
-gcc io.o ksyms.o ksymoops.o map.o misc.o object.o oops.o re.o
-symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
--Wstrict-prototypes -Wmissing-prototypes  -DDEF_KSYMS=\"/proc/ksyms\"
--DDEF_LSMOD=\"/proc/modules\" -DDEF_OBJECTS=\"/lib/modules/*r/\"
--DDEF_MAP=\"/usr/src/linux/System.map\" -Wl,-Bstatic -lbfd -liberty
--Wl,-Bdynamic -o ksymoops
-/usr/lib/libbfd.a(merge.o): In function `merge_strings':
-merge.o(.text+0xc04): undefined reference to `htab_create'
-merge.o(.text+0xc2c): undefined reference to `htab_create'
-merge.o(.text+0xce4): undefined reference to
-`htab_find_slot_with_hash'
-merge.o(.text+0xd60): undefined reference to
-`htab_find_slot_with_hash'
-merge.o(.text+0xdd8): undefined reference to `htab_delete'
-merge.o(.text+0xdec): undefined reference to `htab_delete'
-collect2: ld returned 1 exit status
-make: *** [ksymoops] Error 1
-
-
-Jurgen.
--- 
-http://www.tuxedo.org/~esr/faqs/smart-questions.html
-
-Linux sparkie 2.4.19-pre5 #1 Thu Apr 4 19:14:41 CEST 2002 sparc64 unknown
- 11:40pm  up 5 days,  3:53, 14 users,  load average: 0.07, 0.07, 0.04
+> I did update to the new BIOS for the 246x (I can never keep them straight
+> either), and that did help some with the halt and reboot problems I was
+> having.
+> 
+> 
+> --
+> -- John E. Jasen (jjasen1@umbc.edu)
+> -- User Error #2361: Please insert coffee and try again.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

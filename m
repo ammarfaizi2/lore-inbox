@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUAGPkY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 10:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUAGPkX
+	id S266212AbUAGPjk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 10:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUAGPjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 10:40:23 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39407 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266215AbUAGPkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 10:40:19 -0500
-Date: Wed, 7 Jan 2004 16:40:13 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com, scott.feldman@intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.1-rc1-mm2: no help text for E100_NAPI
-Message-ID: <20040107154012.GA11523@fs.tum.de>
-References: <20040105002056.43f423b1.akpm@osdl.org>
+	Wed, 7 Jan 2004 10:39:40 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:30904 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S266212AbUAGPji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 10:39:38 -0500
+Date: Wed, 7 Jan 2004 16:39:34 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: radeonfb and highmem?
+Message-ID: <20040107153934.GB1119@thanes.org>
+Reply-To: grendel@caudium.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
 Content-Disposition: inline
-In-Reply-To: <20040105002056.43f423b1.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 12:20:56AM -0800, Andrew Morton wrote:
->...
-> All 253 patches
->...
-> 2.6.0-rc1-netdrvr-exp1.patch
->...
 
-This patch adds an E100_NAPI option that doesn't has a help text in the 
-Kconfig file.
+--A6N2fC+uXW/VQSAv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-Could you add a help text?
+Hey list,
 
-TIA
-Adrian
+  I was trying to find a patch fixing the problem of radeonfb with highmem,
+but failed miserably. Is there any patch out there that deals with the
+problem for 2.6.x?
 
--- 
+TIA,
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+marek
 
+--A6N2fC+uXW/VQSAv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE//Cg2q3909GIf5uoRApgQAJ9joaTYjpjzck9so4HO4PjWM0NprgCfcXqy
+j0qEYSXZtvpyzjbWWIyhdNs=
+=SL2P
+-----END PGP SIGNATURE-----
+
+--A6N2fC+uXW/VQSAv--

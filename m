@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbTDUUn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 16:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTDUUn1
+	id S261970AbTDUUnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 16:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbTDUUnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 16:43:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:42645 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261999AbTDUUnZ (ORCPT
+	Mon, 21 Apr 2003 16:43:21 -0400
+Received: from zero.aec.at ([193.170.194.10]:54024 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261970AbTDUUnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 16:43:25 -0400
-Date: Mon, 21 Apr 2003 13:53:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jt@hpl.hp.com
-Cc: irda-users@lists.sourceforge.net, Muli Ben-Yehuda <mulix@mulix.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] 6 memory leaks
-Message-ID: <20030421205355.GD8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, jt@hpl.hp.com,
-	irda-users@lists.sourceforge.net, Muli Ben-Yehuda <mulix@mulix.org>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030421202728.GA25358@bougret.hpl.hp.com>
+	Mon, 21 Apr 2003 16:43:20 -0400
+Date: Mon, 21 Apr 2003 22:55:20 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix CPU Names in Kconfig
+Message-ID: <20030421205520.GA13940@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030421202728.GA25358@bougret.hpl.hp.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote :
->> I'm in terror. ASSERT()? return NULL in a macro argument?
->> Any chance of cleaning that up a bit while you're at it?
 
-On Mon, Apr 21, 2003 at 01:27:28PM -0700, Jean Tourrilhes wrote:
-> 	Rather than fixing imaginary non-existing bugs, I prefer to
-> spend my time fixing real bugs that byte real users. This construct is
-> perfectly sound and valid, and it needs to be done in this way, the
-> only issue is that someone should rename "ASSERT" into "IRDA_ASSERT".
+Add Xeon Names to Kconfig.
 
-The construct is a Lovecraftian horror. I've already lost my lunch once
-over extremely disgusting code today, and I don't care to intentionally
-read or run IRDA code ever again.
+OldXeon for the P3 based Xeons is a bit confusing, but we cannot 
+fix the Intel marchitecture here.
 
+-Andi
 
--- wli
+diff -u linux-2.5.68-gencpu/arch/i386/Kconfig-o linux-2.5.68-gencpu/arch/i386/Kconfig
+--- linux-2.5.68-gencpu/arch/i386/Kconfig-o	2003-04-20 21:24:16.000000000 +0200
++++ linux-2.5.68-gencpu/arch/i386/Kconfig	2003-04-20 21:24:22.000000000 +0200
+@@ -183,7 +183,7 @@
+ 	  optimizations.
+ 
+ config MPENTIUMIII
+-	bool "Pentium-III/Celeron(Coppermine)"
++	bool "Pentium-III/Celeron(Coppermine)/OldXeon"
+ 	help
+ 	  Select this for Intel chips based on the Pentium-III and
+ 	  Celeron-Coppermine core.  This option enables use of some
+@@ -191,7 +191,7 @@
+ 	  extensions.
+ 
+ config MPENTIUM4
+-	bool "Pentium-4/Celeron(P4-based)"
++	bool "Pentium-4/Celeron(P4-based)/Xeon(P4-based)"
+ 	help
+ 	  Select this for Intel Pentium 4 chips.  This includes both
+ 	  the Pentium 4 and P4-based Celeron chips.  This option

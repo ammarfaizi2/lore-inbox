@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265392AbUEUKOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUEULFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265392AbUEUKOO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 06:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265463AbUEUKON
+	id S265517AbUEULFY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 07:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUEULFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 06:14:13 -0400
-Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:49931 "HELO
-	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
-	id S265392AbUEUKOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 06:14:12 -0400
-Date: Fri, 21 May 2004 03:13:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Zhu, Yi" <yi.zhu@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kernel parameter parsing fix
-Message-Id: <20040521031331.58483bb3.akpm@osdl.org>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD54A5@PDSMSX403.ccr.corp.intel.com>
-References: <3ACA40606221794F80A5670F0AF15F8403BD54A5@PDSMSX403.ccr.corp.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 May 2004 10:13:59.0668 (UTC) FILETIME=[5557FB40:01C43F1C]
+	Fri, 21 May 2004 07:05:24 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:43016 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265517AbUEULFQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 07:05:16 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: pavel@ucw.cz (Pavel Machek), linux-kernel@vger.kernel.org
+Subject: Re: swsusp: fix swsusp with intel-agp
+Organization: Core
+In-Reply-To: <20040521100734.GA31550@elf.ucw.cz>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
+Message-Id: <E1BR7pl-0000Br-00@gondolin.me.apana.org.au>
+Date: Fri, 21 May 2004 21:05:01 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Zhu, Yi" <yi.zhu@intel.com> wrote:
->
+Pavel Machek <pavel@ucw.cz> wrote:
 > 
-> Hi,
+> --- tmp/linux/arch/i386/mm/init.c       2004-05-20 23:08:05.000000000 +0200
+> +++ linux/arch/i386/mm/init.c   2004-05-20 23:10:50.000000000 +0200
+> @@ -331,6 +331,13 @@
+> void zap_low_mappings (void)
+> {
+>        int i;
+> +
+> +#ifdef CONFIG_SOFTWARE_SUSPEND
+
+Can you please define this for CONFIG_PM_DISK as well? Alternatively,
+you can do the same as you did in cpu.c and define this for CONFIG_PM.
+         *
+> --- tmp/linux/arch/i386/power/cpu.c     2004-05-20 23:08:05.000000000 +0200
+> +++ linux/arch/i386/power/cpu.c 2004-05-20 23:10:50.000000000 +0200
+> @@ -35,6 +35,10 @@
+> unsigned long saved_context_esi, saved_context_edi;
+> unsigned long saved_context_eflags;
 > 
-> Must all the kernel parameters have trailing '=' at the end of the param
-> string?
-> If not, I think below patch is useful to avoid potential problems.
+> +/* Special page directory for resume */
+> +char __nosavedata swsusp_pg_dir[PAGE_SIZE]
+> +                  __attribute__ ((aligned (PAGE_SIZE)));
+> +
+> extern void enable_sep_cpu(void *);
 
-Can you explain waht problem this solves?  An example?
-
-> 
-> --- linux-2.6.6.orig/init/main.c	2004-05-14 13:38:31.000000000
-> +0800
-
-The patch is wordwrapped
-
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,58 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbTAICsu>; Wed, 8 Jan 2003 21:48:50 -0500
+	id <S261495AbTAICtL>; Wed, 8 Jan 2003 21:49:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbTAICrC>; Wed, 8 Jan 2003 21:47:02 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:16100 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261523AbTAICqk>;
-	Wed, 8 Jan 2003 21:46:40 -0500
-Date: Wed, 8 Jan 2003 18:55:20 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : IrCOMM status init fixes
-Message-ID: <20030109025520.GF19178@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S261518AbTAICtL>; Wed, 8 Jan 2003 21:49:11 -0500
+Received: from holomorphy.com ([66.224.33.161]:10638 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261495AbTAICs6>;
+	Wed, 8 Jan 2003 21:48:58 -0500
+Date: Wed, 8 Jan 2003 18:57:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wood <cwood@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+Message-ID: <20030109025736.GF23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wood <cwood@xmission.com>, linux-kernel@vger.kernel.org
+References: <3E1A12B5.4020505@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <3E1A12B5.4020505@xmission.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir254_ircomm_dce.diff :
----------------------
-		<Patch from Jan Kiszka>
-	o [CORRECT] Properly initialise IrCOMM status line (DCE settings)
 
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
 
-diff -u -p linux/net/irda/ircomm/ircomm_param.d5.c linux/net/irda/ircomm/ircomm_param.c
---- linux/net/irda/ircomm/ircomm_param.d5.c	Wed Jan  8 17:40:08 2003
-+++ linux/net/irda/ircomm/ircomm_param.c	Wed Jan  8 17:51:19 2003
-@@ -442,7 +442,9 @@ static int ircomm_param_dte(void *instan
- 		param->pv.i = self->settings.dte;
- 	else {
- 		dte = (__u8) param->pv.i;
--		
-+
-+		self->settings.dce = 0;
-+				
- 		if (dte & IRCOMM_DELTA_DTR)
- 			self->settings.dce |= (IRCOMM_DELTA_DSR|
- 					      IRCOMM_DELTA_RI |
-diff -u -p linux/net/irda/ircomm/ircomm_tty.d5.c linux/net/irda/ircomm/ircomm_tty.c
---- linux/net/irda/ircomm/ircomm_tty.d5.c	Wed Jan  8 17:40:17 2003
-+++ linux/net/irda/ircomm/ircomm_tty.c	Wed Jan  8 17:53:22 2003
-@@ -490,7 +490,8 @@ static int ircomm_tty_open(struct tty_st
- 	if (line < 0x10) {
- 		self->service_type = IRCOMM_3_WIRE | IRCOMM_9_WIRE;
- 		self->settings.service_type = IRCOMM_9_WIRE; /* 9 wire as default */
--		self->settings.dce = IRCOMM_CTS | IRCOMM_CD; /* Default line settings */
-+		/* Jan Kiszka -> add DSR/RI -> Conform to IrCOMM spec */
-+		self->settings.dce = IRCOMM_CTS | IRCOMM_CD | IRCOMM_DSR | IRCOMM_RI; /* Default line settings */
- 		IRDA_DEBUG(2, "%s(), IrCOMM device\n", __FUNCTION__ );
- 	} else {
- 		IRDA_DEBUG(2, "%s(), IrLPT device\n", __FUNCTION__ );
+On Mon, Jan 06, 2003 at 04:35:17PM -0700, Chris Wood wrote:
+> With some tips from James Cleverdon (IBM), I turned on some kernel 
+> debugging and got the following from readprofile when the server was 
+> having problems (truncated to the first 22 lines):
+> 16480 total                                      0.0138
+
+Here are some monitoring tools that might help detect the cause of
+the situation.
+
+bloatmon is the "back end"; there's no reason to run it directly.
+
+bloatmeter shows the "least utilized" slabs.
+
+bloatmost shows the largest slabs.
+
+These sort of make for a top(1) for "lowmem pressure". Not everything
+is accounted there, though. The missing pieces are largely
+
+(1) simultaneous temporary poll table allocations
+(2) pmd's
+(3) kernel stacks
+
+Bill
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Description: bloatmost
+Content-Disposition: attachment; filename=bloatmost
+
+#!/bin/sh
+
+while true
+do
+	bloatmon < /proc/slabinfo \
+		| sort -rn -k 3,3 \
+		| head -22
+	sleep 60
+	echo
+done
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Description: bloatmeter
+Content-Disposition: attachment; filename=bloatmeter
+
+#!/bin/sh
+while : ; do
+	grep -v '^slabinfo' /proc/slabinfo	\
+		| bloatmon			\
+		| sort -n -k 4,4		\
+		| head -22
+	sleep 5
+	echo
+done
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Description: bloatmon
+Content-Disposition: attachment; filename=bloatmon
+
+#!/usr/bin/awk -f
+BEGIN {
+	printf "%18s    %8s %8s %8s\n", "cache", "active", "alloc", "%util";
+}
+
+{
+	if ($3 != 0.0) {
+		pct  = 100.0 * $2 / $3;
+		frac = (10000.0 * $2 / $3) % 100;
+	} else {
+		pct  = 100.0;
+		frac = 0.0;
+	}
+	active = ($2 * $4)/1024;
+	alloc  = ($3 * $4)/1024;
+	if ((alloc - active) < 1.0) {
+		pct  = 100.0;
+		frac = 0.0;
+	}
+	printf "%18s: %8dKB %8dKB  %3d.%-2d\n", $1, active, alloc, pct, frac;
+}
+
+--fUYQa+Pmc3FrFX/N--

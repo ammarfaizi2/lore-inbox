@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVAXQgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVAXQhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVAXQgs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 11:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVAXQgs
+	id S261526AbVAXQhh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 11:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVAXQhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 11:36:48 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:61160 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261517AbVAXQgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 11:36:40 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Adding an async I2C interface
-Date: Mon, 24 Jan 2005 08:36:38 -0800
-User-Agent: KMail/1.7.1
+	Mon, 24 Jan 2005 11:37:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5001 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261527AbVAXQh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 11:37:28 -0500
+Date: Mon, 24 Jan 2005 08:37:15 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: davem@davemloft.net, hugh@veritas.com, linux-ia64@vger.kernel.org,
+       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Extend clear_page by an order parameter
+In-Reply-To: <20050122234517.376ef3f8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0501240835041.15963@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+ <20050108135636.6796419a.davem@davemloft.net>
+ <Pine.LNX.4.58.0501211210220.25925@schroedinger.engr.sgi.com>
+ <20050122234517.376ef3f8.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501240836.38669.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Corey Minyard:
-> I would really like add asynchronous interface to the I2C bus drivers. 
+On Sat, 22 Jan 2005, Andrew Morton wrote:
 
-Applause!  This is IMO overdue, but maybe sensor systems don't need it
-as much as other I2C applications do.  For example, see the isp1301_omap
-driver, which could have been hugely simpler if there were an async I2C
-framework to build on.  That's probably one of the more complex examples
-floating around ... but it's hardly the only place where needing to talk
-synchronously to I2C chips creates trouble.
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> > The zeroing of a page of a arbitrary order in page_alloc.c and in hugetlb.c may benefit from a
+> >  clear_page that is capable of zeroing multiple pages at once (and scrubd
+> >  too but that is now an independent patch). The following patch extends
+> >  clear_page with a second parameter specifying the order of the page to be zeroed to allow an
+> >  efficient zeroing of pages. Hope I caught everything....
+> >
+>
+> Sorry, I take it back.  As Paul says:
+>
+> : Wouldn't it be nicer to call the version that takes the order
+> : parameter "clear_pages" and then define clear_page(p) as
+> : clear_pages(p, 0) ?
 
+> It would make the patch considerably smaller, and our naming is all over
+> the place anyway...
 
-> I propose: 
-> 
->    * Adding an async send interface to the busses that does a callback
->      when the operation is complete.
+Sounds good. Note though that this just means renaming clear_page to
+clear_pages for all arches which would increase the patch size for the
+arch specific section.
 
-It'd have to have a queue, so that several different chips could have
-operations pending concurrently.  I suspect you wouldn't need to cancel
-operations once they're queued ... useful simplification, compared to
-for example USB.  (Which in retrospect needs a "kill queue" operation,
-per endpoint, rather than the "cancel request" operation we've got.
-But when 2.2 started with USB, we didn't quite know that ... ;)
+> I'd have thought that we'd want to make the new clear_pages() handle
+> highmem pages too, if only from a regularity POV.  x86 hugetlbpages could
+> use it then, if someone thinks up a fast page-clearer.
 
+That would get us back to code duplication. We would have a clear_page (no
+highmem support) and a clear_pages (supporting highmem). Then it may
+also be better to pass the page struct to clear_pages instead of a memory address.
 
->    * Adding a poll interface to the busses.  The I2C core code could
->      call this if a synchronous call is made from task context (much
->      like all the current drivers do right now).  For asyncronous
->      operation, the I2C core code would call it from a timer
->      interrupt.  If the driver supported interrupts, polling from the
->      timer interrupt would not be necessary.
->    * Add async operations for the user to call, including access to the
->      polling code.
->    * If the driver didn't support an async send, it would work as it
->      does today and the async calls would return ENOSYS.
-
-To the extent I've thought about it, that sounds like a good approach.
-
-- Dave
- 

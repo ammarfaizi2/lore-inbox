@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269321AbTGOT11 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbTGOT11
+	id S269575AbTGOTcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269586AbTGOTcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:27:27 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:40199
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S269321AbTGOT1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:27:23 -0400
-Date: Tue, 15 Jul 2003 12:42:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030715194215.GE904@matchmail.com>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl>
+	Tue, 15 Jul 2003 15:32:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:35516 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269575AbTGOTcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 15:32:18 -0400
+Date: Tue, 15 Jul 2003 12:39:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: torvalds@transmeta.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       akpm@digeo.com
+Subject: Re: [2.5 patch] remove all #include <blk.h>'s
+Message-Id: <20030715123935.3500a6cc.akpm@osdl.org>
+In-Reply-To: <20030715153458.GK10191@fs.tum.de>
+References: <20030715153458.GK10191@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030715170804.GA1089@win.tue.nl>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 07:08:04PM +0200, Andries Brouwer wrote:
-> On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
-> 
-> > So, will the DOS partition make it up to 2TB?  If so, then we won't have
-> > a problem until we have larger than 2TB drives
-> 
-> Yes, DOS partition table works up to 2^32 sectors, and with
-> 2^9-byte sectors that is 2 TiB.
-> 
-> People are encountering that limit already. We need something
-> better, either use some existing scheme, or invent something.
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> the attached patch against 2.6.0-test1 (gzip'ed due to it's size) causes
+> blk.h to print a warning and removes all uses of blk.h. I've tested the
+> compilation in 2.6.0-test1 with a .config that tries to compile as many
+> drivers as possible.
+>  
+> Please either apply it or send a short note that you don't want to apply
+> it.
 
-Please point me to an URL for a 2TB hard drive.  Or are you pointing out
-that hardware raid setups look like a single drive (block device)? 
+"cleanups" are being vigorously ignored now.  I'd be inclined to let this
+one go, thanks.
+

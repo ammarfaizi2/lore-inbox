@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTKRSOf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 13:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTKRSOf
+	id S263733AbTKRSc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 13:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTKRSc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 13:14:35 -0500
-Received: from mail.gmx.net ([213.165.64.20]:43973 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263760AbTKRSOe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 13:14:34 -0500
-X-Authenticated: #4512188
-Message-ID: <3FBA6264.3060003@gmx.de>
-Date: Tue, 18 Nov 2003 19:18:12 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: Marcus Hartig <marcus@marcush.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9 /-mm3 SATA siimage - bad disk performance
-References: <3FB5B74E.5080707@marcush.de> <3FB5EDC1.8010805@gmx.de> <3FB6685A.8010607@marcush.de> <3FB66C9F.8070008@gmx.de> <3FB67BE0.4080301@marcush.de>
-In-Reply-To: <3FB67BE0.4080301@marcush.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Nov 2003 13:32:28 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:61363 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263733AbTKRSc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 13:32:28 -0500
+Date: Tue, 18 Nov 2003 13:30:58 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Sven Dowideit <svenud@ozemail.com.au>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031118183058.GS476@phunnypharm.org>
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311141624.32108.andrew@walrond.org> <20031114164640.GA1618@work.bitmover.com> <200311141734.57122.andrew@walrond.org> <20031114174303.GC32466@work.bitmover.com> <1068959565.889.5.camel@sven> <20031118153054.GB10584@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031118153054.GB10584@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Hartig wrote:
-> Prakash K. Cheemplavam wrote:
-> 
->> Is there a way to change the latency within Linux? I mean I don't want 
-> 
-> 
-> With setpci and lspci?
+> Just to be clear, what we are talking about is a free client which talks to
+> a modified BK server.  The client has the ability to 
 
-Well, I treid setting latenc to 64 even 128, but hd-speed didn't 
-improve. 23MB/s was max. What else did you set? I just set the siimage 
-controller's latency higher.
+I just wanted to be clear on what you meant by "free". Is that free as
+in binary with less restrictive license than the current bk client, or
+"free" as in includes the source under the GPL? If the latter, you can
+bet your ass I'd use it. If the former, it would allow me to use it, but
+I can't guarantee I would.
 
-Prakash
-
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,80 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbTBDQ6d>; Tue, 4 Feb 2003 11:58:33 -0500
+	id <S266686AbTBDQ7e>; Tue, 4 Feb 2003 11:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266686AbTBDQ6d>; Tue, 4 Feb 2003 11:58:33 -0500
-Received: from relay-3v.club-internet.fr ([194.158.96.114]:49879 "HELO
-	relay-3v.club-internet.fr") by vger.kernel.org with SMTP
-	id <S266682AbTBDQ6c>; Tue, 4 Feb 2003 11:58:32 -0500
-Date: Tue, 4 Feb 2003 18:07:47 +0100
-From: Philippe =?ISO-8859-1?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: MegaRaid-Devel <linux-megaraid-devel@dell.com>
+	id <S266693AbTBDQ7e>; Tue, 4 Feb 2003 11:59:34 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:10750 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S266686AbTBDQ7b>;
+	Tue, 4 Feb 2003 11:59:31 -0500
+Date: Tue, 4 Feb 2003 18:09:03 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Megaraid compile problem for 2.5.59-mm8 ( latest BK as well)
-Message-Id: <20030204180747.51e5c0c2.philippe.gramoulle@mmania.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.9claws37 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: [PATCH] Update of Documentation/magic-number.txt
+Message-ID: <20030204170903.GH10207@pasky.ji.cz>
+Mail-Followup-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__4_Feb_2003_18:07:47_+0100_08737e58"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+  Hello,
 
---Multipart_Tue__4_Feb_2003_18:07:47_+0100_08737e58
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+  this patch (against 2.5.59) updates Documentation/magic-number.txt to the
+current state of kernel. It includes changes both before 2.5.50 (which were
+included in few previous versions of this patch, which were unfortunately
+ignored) and the changes after (those I noticed), until 2.5.59. Note that I
+will probably make another update after few further kernel releases.
 
+  I hope the patch is ok, there should be no problems with it. Please apply.
 
- Hi,
+ magic-number.txt |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
-After i upgraded from 2.5.59-mm7 to 2.5.59-mm8, i couldn't compile the mega=
-raid module
-anymore.
+  Kind regards,
+				Petr Baudis
 
-This patch fixes the problem.
-
-I should apply to the latest BK as well.
-
-Thanks,
-
-Philippe
-
---
-
-Philippe Gramoull=E9
-philippe.gramoulle@mmania.com
-Lycos Europe - NOC France
-
-
---Multipart_Tue__4_Feb_2003_18:07:47_+0100_08737e58
-Content-Type: text/plain;
- name="megaraid.c.diff"
-Content-Disposition: attachment;
- filename="megaraid.c.diff"
-Content-Transfer-Encoding: 7bit
-
---- drivers/scsi/megaraid.c.orig	2003-02-04 18:01:13.000000000 +0100
-+++ drivers/scsi/megaraid.c	2003-02-04 18:02:02.000000000 +0100
-@@ -4515,7 +4515,7 @@
- 		if(scsicmd == NULL) return -ENOMEM;
+--- linux/Documentation/magic-number.txt	Tue Feb  4 15:36:01 2003
++++ linux+pasky/Documentation/magic-number.txt	Tue Feb  4 17:42:52 2003
+@@ -43,13 +43,13 @@
+ 					<mailto: kgb@knm.org.pl>
+ 					29 Jul 1998
  
- 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
--		scsicmd->host = shpnt;
-+		scsicmd->device->host = shpnt;
+-Updated the magic table to Linux 2.5.45. Right over the feature freeze,
+-but it is possible that some new magic numbers will sneak into the
+-kernel before 2.6.x yet.
++Updated the magic table to Linux 2.5.59. It is after the feature freeze,
++but it is possible that some new magic numbers will sneak into the
++kernel before 2.6.x yet.
  
- 		if( outlen || inlen ) {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-@@ -4652,7 +4652,7 @@
- 		if(scsicmd == NULL) return -ENOMEM;
+ 					Petr Baudis
+ 					<pasky@ucw.cz>
+-					03 Nov 2002
++					04 Feb 2003
  
- 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
--		scsicmd->host = shpnt;
-+		scsicmd->device->host = shpnt;
- 
- 		if (outlen || inlen) {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-
---Multipart_Tue__4_Feb_2003_18:07:47_+0100_08737e58--
+ Magic Name            Number      Structure            File
+ ===========================================================================
+@@ -91,10 +91,11 @@
+ RPORT_MAGIC           0x00525001  r_port            drivers/char/rocket_int.h
+ LSEMAGIC              0x05091998  lse               drivers/fc4/fc.c
+ GDTIOCTL_MAGIC        0x06030f07  gdth_iowr_str     drivers/scsi/gdth_ioctl.h
++RPCAUTH_CRED_MAGIC    0x0f4aa4f0  rpc_cred          include/linux/sunrpc/auth.h
+ RIO_MAGIC             0x12345678  gs_port           drivers/char/rio/rio_linux.c
+ SX_MAGIC              0x12345678  gs_port           drivers/char/sx.h
+ NBD_REQUEST_MAGIC     0x12560953  nbd_request       include/linux/nbd.h
+-RED_MAGIC2            0x170fc2a5  (any)             mm/slab.c
++RED_ACTIVE            0x170fc2a5  (any)             mm/slab.c
+ BAYCOM_MAGIC          0x19730510  baycom_state      drivers/net/baycom_epp.c
+ ISDN_X25IFACE_MAGIC   0x1e75a2b9  isdn_x25iface_proto_data
+                                                     drivers/isdn/isdn_x25iface.h
+@@ -108,6 +109,7 @@
+ CTC_ASYNC_MAGIC       0x49344C01  ctc_tty_info      drivers/s390/net/ctctty.c
+ ISDN_NET_MAGIC        0x49344C02  isdn_net_local_s  drivers/isdn/i4l/isdn_net_lib.h
+ SAVEKMSG_MAGIC2       0x4B4D5347  savekmsg          arch/*/amiga/config.c
++TIMER_MAGIC           0x4b87ad6e  timer_list        include/linux/timer.h
+ STLI_BOARDMAGIC       0x4bc6c825  stlibrd           include/linux/istallion.h
+ CS_STATE_MAGIC        0x4c4f4749  cs_state          sound/oss/cs46xx.c
+ SLAB_C_MAGIC          0x4f17a36d  kmem_cache_s      mm/slab.c
+@@ -118,7 +120,8 @@
+ SCC_MAGIC             0x52696368  gs_port           drivers/char/scc.h
+ SAVEKMSG_MAGIC1       0x53415645  savekmsg          arch/*/amiga/config.c
+ GDA_MAGIC             0x58464552  gda               include/asm-mips64/sn/gda.h
+-RED_MAGIC1            0x5a2cf071  (any)             mm/slab.c
++GCT_NODE_MAGIC        0x59584c47  gct6_node         include/asm-alpha/gct.h
++RED_INACTIVE          0x5a2cf071  (any)             mm/slab.c
+ STL_PORTMAGIC         0x5a7182c9  stlport           include/linux/stallion.h
+ HDLCDRV_MAGIC         0x5ac6e778  hdlcdrv_state     include/linux/hdlcdrv.h
+ EPCA_MAGIC            0x5c6df104  channel           include/linux/epca.h
+@@ -129,6 +132,7 @@
+ M3_CARD_MAGIC         0x646e6f50  m3_card           sound/oss/maestro3.c
+ SLOT_MAGIC            0x67267321  slot              drivers/hotplug/cpqphp.h
+ SLOT_MAGIC            0x67267322  slot              drivers/hotplug/acpiphp.h
++SLOT_MAGIC            0x67267322  slot              drivers/hotplug/cpci_hotplug.h
+ LO_MAGIC              0x68797548  nbd_device        include/linux/nbd.h
+ M3_STATE_MAGIC        0x734d724d  m3_state          sound/oss/maestro3.c
+ STL_PANELMAGIC        0x7ef621a1  stlpanel          include/linux/stallion.h

@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTHYDjS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 23:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbTHYDjS
+	id S261447AbTHYDhL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTHYDhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 23:39:18 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51077
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261464AbTHYDjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 23:39:12 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Daniel Pezoa <dpforos@yahoo.com>
-Subject: Re: patches question
-Date: Sun, 24 Aug 2003 01:11:58 -0400
-User-Agent: KMail/1.5
-Cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0308191339430.1464-100000@coffee.psychology.mcmaster.ca> <20030820155956.67452.qmail@web11201.mail.yahoo.com> <20030820093347.4f024a89.rddunlap@osdl.org>
-In-Reply-To: <20030820093347.4f024a89.rddunlap@osdl.org>
+	Sun, 24 Aug 2003 23:37:11 -0400
+Received: from dyn-ctb-210-9-243-120.webone.com.au ([210.9.243.120]:21252 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261447AbTHYDhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 23:37:07 -0400
+Message-ID: <3F498439.60102@cyberone.com.au>
+Date: Mon, 25 Aug 2003 13:36:25 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Nick's scheduler policy
+References: <3F48B12F.4070001@cyberone.com.au> <34251.4.4.25.4.1061782057.squirrel@www.osdl.org>
+In-Reply-To: <34251.4.4.25.4.1061782057.squirrel@www.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308240111.58758.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 August 2003 12:33, Randy.Dunlap wrote:
-> On Wed, 20 Aug 2003 08:59:56 -0700 (PDT) Daniel Pezoa <dpforos@yahoo.com> 
-wrote:
-> | sorry but i think the faq is incomplete, i think
-> | useless for what i need too. It have incomplete
-> | answers  and not links references for many important
-> | questions. May be should exist one list or forum
-> | dedicated to: Kernel, Kernel Patches, Kernel Modules,
-> | Kernel Drives and other about Kernel Development and
-> | Bugs Report.
->
-> The LKML FAQ hasn't been updated since:
-> "Last updated on 21 Nov 2002 by Richard Gooch.
-> This document is GPL'ed by its various contributors."
->
-> and Richard hasn't been heard from lately AFAIK.
->
-> I would have just guessed that the FAQ needs some updates...
-> Doesn't someone out there want a job?
 
-I've been meaning to give the FAQ a thorough going over for a while now.  
-(Bits of it are a lot more stale than 2002.)
 
-I sent Richard a FAQ patch a month ago, which he hasn't responded to, but he 
-claims to still be active:
+Randy.Dunlap wrote:
 
-> > Okay, that link needs to go in the "basic linux kernel
-> > documentation" section at the start of the
-> > "http://www.tux.org/lkml/" faq, along with some other resources that
-> > have fallen through the cracks.  I'd happily generate a patch
-> > against the FAQ, but haven't a clue what the source format is.  (Is
-> > it hand-hacked HTML?)
+>>Hi,
+>>Patch against 2.6.0-test4. It fixes a lot of problems here vs
+>>previous versions. There aren't really any open issues for me, so
+>>testers would be welcome.
+>>
+>>
+>...
 >
-> Yes. A plain uni-diff against the HTML will be fine. I'm busy these
-> days, so don't expect a quick response. But I will get around to it.
+>>On the other hand, I expect the best cases and maybe most usual cases would
+>>be better on Con's... and Con might have since done some work in the latency
+>>area.
+>>
 >
->                               Regards,
+>Has anyone developed a (run-time) scheduler [policy] selector, via
+>sysctl or sysfs, so that different kernel builds aren't required?
 >
->                                       Richard....
+>I know that I have heard discussions of this previously.
+>
 
-I sent him the patch in question on July 17th, but haven't heard anything 
-back.  (I've been a bit out of touch in the past month myself getting back 
-into grad school, buying a condo, moving, etc, and haven't followed up yet.)
+Not that I know of. This would probably require an extra layer of
+indirection in the standard form of Linux's struct of pointers to
+functions, with your standard schedule functions as wrappers.
+I think it would be highly unlikely that this would get into a
+standard kernel, but might make a nice testing tool...
 
-If Richard doesn't have time to do it anymore, and there are patches backing 
-up, I could give it a whack.  I'm not exactly dripping with free time myself 
-at the moment, but I usually catch up with all the important pending things 
-at least once a week.  However, I don't want to usurp anybody's 
-maintainership.  (I was planning on possibly making my own tree and then 
-feeding him incremental patches at whatever rate he responds...)
+In fact this might end up being incompatible with architectures
+like SPARC... but I'm sure someone could make it work if they really
+wanted to.
 
-Rob
+I think the present boot-time selector (selecting different kernels
+at boot) will have to suffice for now :P
 
 

@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262430AbSLTPf1>; Fri, 20 Dec 2002 10:35:27 -0500
+	id <S262602AbSLTPjV>; Fri, 20 Dec 2002 10:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbSLTPf0>; Fri, 20 Dec 2002 10:35:26 -0500
-Received: from zeke.inet.com ([199.171.211.198]:64749 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S262430AbSLTPfZ>;
-	Fri, 20 Dec 2002 10:35:25 -0500
-Message-ID: <3E033A99.2070905@inet.com>
-Date: Fri, 20 Dec 2002 09:43:21 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262620AbSLTPjV>; Fri, 20 Dec 2002 10:39:21 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:1958 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S262602AbSLTPjS>; Fri, 20 Dec 2002 10:39:18 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C0101F55D@usslc-exch-4.slc.unisys.com>
+From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+To: "'William Lee Irwin III'" <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with m
+	ore than 8 CPUs
+Date: Fri, 20 Dec 2002 09:46:19 -0600
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Hanna Linder <hannal@us.ibm.com>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dedicated kernel bug database
-References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <mailman.1040338801.24520.linux-kernel2news@redhat.com> <200212192359.gBJNxUI09113@devserv.devel.redhat.com> <62590000.1040343543@w-hlinder> <20021220103027.GF24782@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Thu, Dec 19, 2002 at 04:19:03PM -0800, Hanna Linder wrote:
+> On Thu, Dec 19, 2002 at 06:04:55PM -0800, James Cleverdon wrote:
+> >>> A generic patch should also support Unisys' new box, the ES7000 or
+> >>> some such.
 > 
->  > Im trying to help make it easier for such people to get a list
->  > of bugs to start working on. If it looks like everything already
->  > has an owner it looks like there is nothing to do.
-> 
-> Just because a bug is 'owned' does not stop someone else working on it.
-> That would be silly. All the owner field says is, "if someone is
-> interested in this bug, and they happen to fix before $owner does,
-> $owner would like to know about it." This way $owner can reject bad
-> fixes, or get further clues as to whats actually causing the problem.
-> 
->  > Hanna (obviously not a bugzilla user before)
-> 
-> Obviously 8-)
+> On Fri, Dec 20, 2002 at 08:00:50AM +0000, Christoph Hellwig wrote:
+> >> That box needs more changes than just the apic setup.  Unfortunately
+> >> unisys thinks they shouldn't send their patches to lkml, but when you
+see
+> >> them e.g. in the suse tree it's a bit understandable that they don't
+want
+> >> anyone to really see their mess :)
 
-I'm new to bugzilla too... I noticed there is a link "Give me a clue 
-about how to use this form."  I think that needs to be at the top of the 
-query form, with a nice '?' graphic beside it.  I suspect that would 
-help a lot.
+No need to sugar-coat anything :-)
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Natalie is the engineer who added support for the ES7000 to Linux.
+Fortunately she is in the cube next to me.
 
+She has sent the patches to SuSe/United Linux, and is in the final process
+of testing them on 2.5.5x before submitting them to LKML for comment.
+
+> >> And btw, the box isn't that new, but three years ago or so when they
+first
+> >> showed it on cebit they even refused to talk about linux due to their
+> >> restrictive agreements with Microsoft..
+>
+> On Fri, Dec 20, 2002 at 03:24:01AM -0800, William Lee Irwin III wrote:
+> > Kevin, you're the only lkml-posting contact point I know of within
+Unisys.
+> > Is there any chance you could flag down some of the ia32 crew there for
+> > some commentary on this stuff? (or do so yourself if you're in it)
+
+I mostly work on our 16-32p IA64 machines.  Natalie or someone else will
+have to comment on the clustered-apic code.
+
+I do know that a lot of the code for the ES7000 is optional, and only
+required to support value-added management functionality, which is
+especially useful if you are running more than one OS instance on the
+machine (it supports 8 fully-independent partitions).
+
+Also, as a clarification, our 32-processor systems are NOT NUMA: there
+is a full non-blocking crossbar to memory.  So clustered APIC support
+should not be dependant on NUMA.
+
+Kevin

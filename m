@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTFOTgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 15:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTFOTgD
+	id S262818AbTFOTlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 15:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbTFOTlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 15:36:03 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:11470 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S262813AbTFOTgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 15:36:01 -0400
-Date: Sun, 15 Jun 2003 15:49:37 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Marcelo Tosatti <marcelo@hera.kernel.org>
-cc: linux-kernel@vger.kernel.org
-Subject: linux-2.4.21 released ,  No changelog for sym53c8xx_2 mods ?
-In-Reply-To: <200306131453.h5DErX47015940@hera.kernel.org>
-Message-ID: <Pine.LNX.4.56.0306151540080.13925@filesrv1.baby-dragons.com>
-References: <200306131453.h5DErX47015940@hera.kernel.org>
+	Sun, 15 Jun 2003 15:41:10 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:61327 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262818AbTFOTlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 15:41:09 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: shemminger@osdl.org, greg@kroah.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] network hotplug via class_device/kobject
+References: <20030613164119.15209934.shemminger@osdl.org>
+	<20030615.005055.55726223.davem@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 15 Jun 2003 21:32:38 +0200
+In-Reply-To: <20030615.005055.55726223.davem@redhat.com>
+Message-ID: <m31xxvgmqx.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Marcello ,  I have a problem with the lack of changelog
-	entries concerning the sym53c8xx_2 driver .  There are none .
-	And yet there has been changes to the driver tree .
-	As you'll note this includes the change log file in the driver
-	tree as well .  I have grep'd and manually viewed the change logs
-	from kernel.org with no mention of these changes noted .
+"David S. Miller" <davem@redhat.com> writes:
 
-	Also Mr. Roudier put out a patch set versioned sym-2.1.19-pre3 on
-	20031123 which has never been insterted into 2.4 (possibly at his
-	request) .  I have been using this patch since the above date
-	without difficulty in every pre ,  rc & release since that date .
-		Tia ,  JimL
+>    Paranoid about some driver doing something like:
+>    	rtnl_lock(); register_netdevice(); unregister_netdevice();
+> rtnl_unlock() BOOM
+> 
+> These sorts of turds exist at least in two places:
+> 
+> 1) drivers/net/wan/comx.c
+> 2) drivers/net/wan/hdlc_fr.c
+> 
+> But it is pretty clear that these two drivers have been
+> tried by nobody in recent years.  They both call into
+> {un,}register_netdevice without the RTNL semaphore held.
 
-   8 -rw-r--r--    1 573      573          6015 Dec 21  2001 ChangeLog.txt
-  12 -rw-r--r--    1 573      573         10274 Nov 28  2002 sym_malloc.c
-  76 -rw-r--r--    1 573      573         73259 Nov 28  2002 sym_glue.c
-  60 -rw-r--r--    1 573      573         53467 Nov 28  2002 sym_fw2.h
-  48 -rw-r--r--    1 573      573         48334 Nov 28  2002 sym_fw1.h
-  12 -rw-r--r--    1 573      573         10424 Nov 28  2002 sym53c8xx.h
- 152 -rw-r--r--    1 573      573        149323 Jun 13 10:51 sym_hipd.c
+Not sure about 1), but 2) calls (un)register_netdevice() with rtnl_lock,
+from ioctl.
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Krzysztof Halasa
+Network Administrator

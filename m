@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbTDKViB (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDKViB (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:38:01 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:40170 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261665AbTDKViA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 17:38:00 -0400
-Date: Fri, 11 Apr 2003 14:49:42 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Lockmeter 2.5] BKL with 51ms hold time, prove me wrong
-Message-Id: <20030411144942.4934832d.akpm@digeo.com>
-In-Reply-To: <34680000.1050084914@w-hlinder>
-References: <46950000.1050023701@w-hlinder>
-	<20030410185006.5fd88c30.akpm@digeo.com>
-	<34680000.1050084914@w-hlinder>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S261829AbTDKVnJ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbTDKVnJ (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:43:09 -0400
+Received: from [195.82.114.197] ([195.82.114.197]:63494 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id S261829AbTDKVnH (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:43:07 -0400
+Date: Fri, 11 Apr 2003 22:54:49 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Nicholas Berry <nikberry@med.umich.edu>, john@grabjohn.com,
+       freesoftwaredeveloper@web.de
+Cc: linux-kernel@vger.kernel.org,
+       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <290044411.1050101689@[192.168.100.8]>
+In-Reply-To: <se96cd49.002@mail-01.med.umich.edu>
+References: <se96cd49.002@mail-01.med.umich.edu>
+X-Mailer: Mulberry/2.2.1 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Apr 2003 21:49:39.0227 (UTC) FILETIME=[4058BEB0:01C30074]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder <hannal@us.ibm.com> wrote:
+Each poewr connector adds 2 more (turning 1 into 3), you have 5,
+you thus need to add 3995 more, and thus it seems to me you need
+1998 such connectors.
+
+A
+
+--On 11 April 2003 14:12 -0400 Nicholas Berry <nikberry@med.umich.edu> 
+wrote:
+
 >
-> 
-> Sure enough. I ported lockmeter to 2.5.67-mm1 and ran the same rmap-test
-> and lo and behold all the ext3 issues went away. However, the one remaining
-> long hold time moved to the top (unmap_vmas):
+> Hit hit hit.
+>
+> Could be wrong, but I make it 1939.
+>
+> Nik
+>
+>>>> Michael Buesch <freesoftwaredeveloper@web.de> 04/11/03 02:03PM >>>
+> On Friday 11 April 2003 19:46, John Bradford wrote:
+>> [Puzzle]
+>> Say the power supply had five 5.25" drive power connecters, how many 1
+>> into 3 power cable splitters would you need to connect all 4000 disks?
+>
+> 400 (hit me if this is wrong :)
+>
+> Regards
+> Michael Buesch.
+>
+>
+> --
+> My homepage: http://www.8ung.at/tuxsoft
+> fighting for peace is like fu**ing for virginity
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-Ah, but the unmap_vmas lock was not kernel_flag, was it?  It'll be
-page_table_lock.
 
-That's OK I think.  The only time this is likely to bite anyone is if you
-have a threaded application in which one thread it doing a massive munmap()
-while another one is handling a pagefault, running mmap(), etc.  And given
-that _establishing_ that large mapping in the first place takes tons of CPU,
-the relative loss from the long hold time is small.
 
-Famous last words.
-
-> 
-> Here is the port of lockmeter to the 2.5.67-mm1 kernel. If you would consider
-> putting it in your tree that would be great and I would work on porting the
-> rest of the architectures. 
-> 
-> http://prdownloads.sourceforge.net/lse/lockmeter1.5-2.5.67-mm1.patch?download
-
-OK, that's pretty unintrusive.
-
+--
+Alex Bligh

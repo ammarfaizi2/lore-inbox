@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129561AbRAEVJE>; Fri, 5 Jan 2001 16:09:04 -0500
+	id <S129538AbRAEVKB>; Fri, 5 Jan 2001 16:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbRAEVIy>; Fri, 5 Jan 2001 16:08:54 -0500
-Received: from jelerak.scrye.com ([207.174.18.194]:47886 "HELO scrye.com")
-	by vger.kernel.org with SMTP id <S129561AbRAEVIl>;
-	Fri, 5 Jan 2001 16:08:41 -0500
-Message-ID: <20010105210831.2001.qmail@scrye.com>
-Date: Fri, 5 Jan 2001 14:08:31 -0700 (MST)
-From: Kevin Fenzi <kevin@scrye.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X and 2.4.0 problem (video bios probing?)
-In-Reply-To: <E14Ee3z-0008R6-00@the-village.bc.nu>
-In-Reply-To: <20010105210016.1778.qmail@scrye.com>
-	<E14Ee3z-0008R6-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+	id <S129790AbRAEVJz>; Fri, 5 Jan 2001 16:09:55 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:63750 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129538AbRAEVJp>; Fri, 5 Jan 2001 16:09:45 -0500
+Date: Fri, 5 Jan 2001 17:17:59 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: swapin readahead pre-patch (what about the code?)
+In-Reply-To: <200101052102.f05L2T420212@webber.adilger.net>
+Message-ID: <Pine.LNX.4.21.0101051715060.2882-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->> (II) Loading /usr/X11R6/lib/modules/linux/libint10.a (II) Module
->> int10: vendor="The XFree86 Project" compiled for 4.0.1a, module
->> version = 1.0.0 ABI class: XFree86 Video Driver, version 0.2 (EE)
->> ATI(0): Unable to initialise int10 interface.
 
-Alan> Thats the critical bit but it isnt directly a kernel thing. Im
-Alan> not sure why it should have failed. Do you have different
-Alan> .config options (eg ATI fb options ?)
+On Fri, 5 Jan 2001, Andreas Dilger wrote:
 
-nope. I did do a 'make oldconfig' after patching to 2.4.0 (final), but
-all the other options are the same. 
+> I suppose the other area to look at is how pages are layed out when
+> they are swapped to disk.  If you go from medium memory pressure (where
+> unused pages have been swapped already) to thrashing, then if you can
+> put the remaining pages of each program to swap contiguously, then swap
+> read-ahead will be a net win, because you are likely to need all of them
+> again to run the program.
 
-I was not using the ATI fb in either case. I had it built as a module,
-"ATI Rage 128 display support (EXPERIMENTAL)" (that I didn't load)
-and I did have "VESA VGA graphics console" enabled. 
+Swap space preallocation should help on that issue. 
 
-kevin
+I hope to try out that soon after I've finished and benchmarked the swapin
+readahead patch.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

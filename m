@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262649AbRFRTcl>; Mon, 18 Jun 2001 15:32:41 -0400
+	id <S262684AbRFRTno>; Mon, 18 Jun 2001 15:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262653AbRFRTcb>; Mon, 18 Jun 2001 15:32:31 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:1408 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S262649AbRFRTcW>;
-	Mon, 18 Jun 2001 15:32:22 -0400
-Date: Mon, 18 Jun 2001 21:32:24 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-In-Reply-To: <20010618174445.F1317@athlon.random>
-Message-ID: <Pine.LNX.4.33.0106182130050.266-100000@hal9000.piraos.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262702AbRFRTne>; Mon, 18 Jun 2001 15:43:34 -0400
+Received: from customers.imt.ru ([212.16.0.33]:1837 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S262684AbRFRTnV>;
+	Mon, 18 Jun 2001 15:43:21 -0400
+Message-ID: <20010618154134.A32175@saw.sw.com.sg>
+Date: Mon, 18 Jun 2001 15:41:34 -0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Christian Robottom Reis <kiko@async.com.br>
+Cc: linux-kernel@vger.kernel.org, eepro100@scyld.com
+Subject: Re: eepro100 problems with 2.2.19 _and_ 2.4.0
+In-Reply-To: <Pine.LNX.4.32.0106161923290.339-100000@blackjesus.async.com.br> <Pine.LNX.4.32.0106170037020.191-100000@blackjesus.async.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.4.32.0106170037020.191-100000@blackjesus.async.com.br>; from "Christian Robottom Reis" on Sun, Jun 17, 2001 at 12:40:34AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
+On Sun, Jun 17, 2001 at 12:40:34AM -0300, Christian Robottom Reis wrote:
+> 
+> I am _very_ willing to devote some time to getting this fixed in both the
+> kernel and Donald's drivers if anyone is interested in tracking down the
+> problem. I'm not very familiar with the hardware, but I have a test box I
+> can use freely, a bit of time spare, and I can reproduce the problem
+> easily. I'd hate to see somebody else go through what I have just had to,
+> so it would be nice to see this fixed or documented in an official-ese
+> place.
 
-> On Mon, Jun 18, 2001 at 05:35:54PM +0200, German Gomez Garcia wrote:
-> > On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
-> >
-> > > On Mon, Jun 18, 2001 at 04:41:02PM +0200, German Gomez Garcia wrote:
-> > > > so, if there is another way to get that info (maybe some file in /proc?)
-> > >
-> > > did you compiled with highmem?
-> >
-> > 	No,
->
-> ok then with 512mbyte on an x86 my patch couldn't help. I thought it was
-> it because the sympthom was the same (constant kswapd activity and
-> constant swap grow) but it obviously is something else. Then try
-> 2.4.6pre3aa1 (it is certainly stable).
+I'm obviously interested in tracking it down.
+I'll contact you with what we can test on you comp a couple of days later,
+I'm quite busy right now, ok?
 
-	You were right, with 2.4.6pre3aa1 it works in the expected way (at
-least the way it was expected before :-). I'm now at home so if you need
-more info on it, I'll do my best.
-
-	Regards,
-
-	- german
-
--------------------------------------------------------------------------
-German Gomez Garcia         | "This isn't right.  This isn't even wrong."
-<german@piraos.com>         |                         -- Wolfgang Pauli
-
+	Andrey

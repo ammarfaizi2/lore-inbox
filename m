@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270271AbRHRSFP>; Sat, 18 Aug 2001 14:05:15 -0400
+	id <S270299AbRHRSSS>; Sat, 18 Aug 2001 14:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270274AbRHRSFF>; Sat, 18 Aug 2001 14:05:05 -0400
-Received: from mail.fbab.net ([212.75.83.8]:37650 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S270271AbRHRSEz>;
-	Sat, 18 Aug 2001 14:04:55 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: fred@arkansaswebs.com linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.608449 secs)
-Message-ID: <001901c12810$97ef3a70$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "Fred Jackson" <fred@arkansaswebs.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <01081812570001.09229@bits.linuxball>
+	id <S270300AbRHRSSH>; Sat, 18 Aug 2001 14:18:07 -0400
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:46351 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S270299AbRHRSR7>;
+	Sat, 18 Aug 2001 14:17:59 -0400
+From: Tony Hoyle <tmh@nothing-on.tv>
 Subject: Re: 2.4.xx won't recompile.
-Date: Sat, 18 Aug 2001 20:07:07 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Date: Sat, 18 Aug 2001 19:18:10 +0100
+Organization: cvsnt.org news server
+Message-ID: <3B7EB162.5070207@nothing-on.tv>
+In-Reply-To: <01081812570001.09229@bits.linuxball> <001901c12810$97ef3a70$020a0a0a@totalmef>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-Trace: sisko.my.home 998158690 30315 192.168.100.2 (18 Aug 2001 18:18:10 GMT)
+X-Complaints-To: abuse@cvsnt.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010810
+X-Accept-Language: en-gb, en-us
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Magnus Naeslund(f) wrote:
 
-From: "Fred Jackson" <fred@arkansaswebs.com>
+> Isn't it more safe to do it like this:
 > 
-[snipi]
-> 
-> I start with the usual 
 > make mrproper
-> make xconfig ( I load a kernel config file - originally created with 
-> 2.4.8) 
-> make bzImage
-> make modules
-> make modules_install
-> make install
+> cp ../linux-2.4.8/.config .
+> make oldconfig
+> make xconfig
+> make bzImage && make modules && make modules_install && make install
 > 
-> (i've already edited lilo.conf and the links in the /boot directory)
+> ?
+> I thought this was the proper way to do it, no?
 > 
+You don't need to make bzimage first, and you missed the dep/clean steps 
+(theoretically not needed any more but I've had some really strange 
+compiler errors by missing them out).
 
-Isn't it more safe to do it like this:
-
-make mrproper
 cp ../linux-2.4.8/.config .
 make oldconfig
 make xconfig
-make bzImage && make modules && make modules_install && make install
+make dep clean install modules modules_install
 
-?
-I thought this was the proper way to do it, no?
-
-Magnus
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+Tony
 

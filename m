@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281921AbRL1WUm>; Fri, 28 Dec 2001 17:20:42 -0500
+	id <S283771AbRL1W0D>; Fri, 28 Dec 2001 17:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281966AbRL1WUc>; Fri, 28 Dec 2001 17:20:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53005 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281921AbRL1WUV>; Fri, 28 Dec 2001 17:20:21 -0500
-Date: Fri, 28 Dec 2001 14:17:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Legacy Fishtank <garzik@havoc.gtf.org>
-cc: <linux-kernel@vger.kernel.org>, Keith Owens <kaos@ocs.com.au>,
-        Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Dave Jones <davej@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <kbuild-devel@lists.sourceforge.net>
-Subject: Re: State of the new config & build system
-In-Reply-To: <20011228161603.B5397@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.33.0112281416290.23445-100000@penguin.transmeta.com>
+	id <S283724AbRL1WZn>; Fri, 28 Dec 2001 17:25:43 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:37899 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S282805AbRL1WZb>; Fri, 28 Dec 2001 17:25:31 -0500
+Message-ID: <3C2CEEB5.1080801@evision-ventures.com>
+Date: Fri, 28 Dec 2001 23:14:13 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andre Hedrick <andre@linux-ide.org>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.33.0112271025590.1052-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-On Fri, 28 Dec 2001, Legacy Fishtank wrote:
+>(Right now you can see this in block_ioctl.c - while only a few of the
+>ioctl's have been converted, you get the idea. I'm actually surprised that
+>nobody seems to have commented on that part).
 >
-> I think one thing to note is that dependencies is that if you are smart
-> about it, dependencies -really- do not even change when your .config
-> changes.
 
-Absolutely. I detest "gcc -MD", exactly because it doesn't get this part
-right. "mkdep.c" gets this _right_.
+That was just too obvious, at least for me... However I don't see why 
+you just don't start killing of constructs like:
 
-		Linus
+swtch  (ioctrl)
+
+    BLASH:
+BLAHHH:
+ BLASHH:
+ BLAASS:
+     BLAH:
+    default:
+            return -ENOVAL;
+}
+
+There are ton' s of them out there in the block drivers..
 

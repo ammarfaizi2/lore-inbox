@@ -1,194 +1,220 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272067AbTHHXYn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 19:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272068AbTHHXYm
+	id S272068AbTHHXZu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 19:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272118AbTHHXZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 19:24:42 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30102 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272067AbTHHXYh
+	Fri, 8 Aug 2003 19:25:49 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45974 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272068AbTHHXZf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 19:24:37 -0400
+	Fri, 8 Aug 2003 19:25:35 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] kill HDIO_GETGEO_BIG_RAW ioctl
-Date: Sat, 9 Aug 2003 01:24:51 +0200
+Subject: [PATCH] disk geometry/capacity cleanups
+Date: Sat, 9 Aug 2003 01:25:57 +0200
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308090124.51846.bzolnier@elka.pw.edu.pl>
+Message-Id: <200308090125.57284.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Against 2.6.0-test2-bk8.
+Incremental to "kill HDIO_GETGEO_BIG_RAW ioctl" patch.
 
 --bartlomiej
 
 
-kill HDIO_GETGEO_BIG_RAW ioctl
+ide: disk geometry/capacity cleanups
 
-HDIO_GETGEO_BIG_RAW is an ide specific hack introduced in 2.3.99-pre3.
-There are no known programs using this ioctl.
+>From Andries.Brouwer@cwi.nl.
 
-Its aim was to provide current CHS translation to the user-space,
-but very often it provides what driver thinks is a current translation
-(drive with LBA have to support only one physical translation, also
- drive may not support chosen translation and there is no return value check).
+- kill redundant, never executed code in lba_capacity_is_ok()
+- add idedisk_supports_{hpa,lba48}() helpers
+- don't recalculate drive->cyl for drives using LBA addressing,
+  we never fall-back to CHS, so its useless and confusing
+- remove wrong drive->head and drive->sect assignments for LBA-48
+- don't overwrite id->lba_capacity and id->lba_capacity_2
 
-hdparm -I can be used instead, it provides correct information
-(and bogus data is still accessible through /proc/ide/hdX/geometry).
+ drivers/ide/ide-disk.c |   92 +++++++++++++++++++++++++++----------------------
+ 1 files changed, 52 insertions(+), 40 deletions(-)
 
- arch/ppc64/kernel/ioctl32.c   |   29 -----------------------------
- arch/sparc64/kernel/ioctl32.c |   29 -----------------------------
- drivers/ide/ide.c             |   12 ------------
- include/linux/hdreg.h         |   10 +---------
- 4 files changed, 1 insertion(+), 79 deletions(-)
-
-diff -puN arch/ppc64/kernel/ioctl32.c~kill-HDIO_GETGEO_BIG_RAW arch/ppc64/kernel/ioctl32.c
---- linux-2.6.0-test2-bk7/arch/ppc64/kernel/ioctl32.c~kill-HDIO_GETGEO_BIG_RAW	2003-08-08 23:53:47.012359456 +0200
-+++ linux-2.6.0-test2-bk7-root/arch/ppc64/kernel/ioctl32.c	2003-08-08 23:53:47.024357632 +0200
-@@ -28,34 +28,6 @@
- #define CODE
- #include "compat_ioctl.c"
+diff -puN drivers/ide/ide-disk.c~ide-disk-andries drivers/ide/ide-disk.c
+--- linux-2.6.0-test2-bk7/drivers/ide/ide-disk.c~ide-disk-andries	2003-08-09 00:17:35.567186112 +0200
++++ linux-2.6.0-test2-bk7-root/drivers/ide/ide-disk.c	2003-08-09 00:17:35.572185352 +0200
+@@ -86,11 +86,6 @@ static int lba_capacity_is_ok (struct hd
+ {
+ 	unsigned long lba_sects, chs_sects, head, tail;
  
--struct hd_big_geometry32 {
--	unsigned char heads;
--	unsigned char sectors;
--	unsigned int cylinders;
--	u32 start;
--};
--                        
--static int hdio_getgeo_big(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--	mm_segment_t old_fs = get_fs();
--	struct hd_big_geometry geo;
--	int err;
--	
--	set_fs (KERNEL_DS);
--	err = sys_ioctl(fd, cmd, (unsigned long)&geo);
--	set_fs (old_fs);
--	if (!err) {
--		struct hd_big_geometry32 *up = (struct hd_big_geometry32 *) arg;
--
--		if (put_user(geo.heads, &up->heads) ||
--		    __put_user(geo.sectors, &up->sectors) ||
--		    __put_user(geo.cylinders, &up->cylinders) ||
--		    __put_user(((u32) geo.start), &up->start))
--			err = -EFAULT;
+-	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
+-		printk("48-bit Drive: %llu \n", id->lba_capacity_2);
+-		return 1;
 -	}
--	return err;
--}
 -
- struct ncp_ioctl_request_32 {
- 	unsigned int function;
- 	unsigned int size;
-@@ -773,7 +745,6 @@ COMPATIBLE_IOCTL(_IOR('p', 20, int[7])) 
- COMPATIBLE_IOCTL(_IOW('p', 21, int[7])) /* RTCSET */
+ 	/*
+ 	 * The ATA spec tells large drives to return
+ 	 * C/H/S = 16383/16/63 independent of their size.
+@@ -1074,11 +1069,29 @@ static unsigned long long sectors_to_MB(
+ 	return n;
+ }
  
- /* And these ioctls need translation */
--HANDLE_IOCTL(HDIO_GETGEO_BIG_RAW, hdio_getgeo_big)
++/*
++ * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
++ * so on non-buggy drives we need test only one.
++ * However, we should also check whether these fields are valid.
++ */
++static inline int idedisk_supports_hpa(const struct hd_driveid *id)
++{
++	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
++}
++
++/*
++ * The same here.
++ */
++static inline int idedisk_supports_lba48(const struct hd_driveid *id)
++{
++	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400);
++}
++
+ static inline void idedisk_check_hpa_lba28(ide_drive_t *drive)
+ {
+ 	unsigned long capacity, set_max;
  
- /* NCPFS */
- HANDLE_IOCTL(NCP_IOC_NCPREQUEST_32, do_ncp_ncprequest)
-diff -puN arch/sparc64/kernel/ioctl32.c~kill-HDIO_GETGEO_BIG_RAW arch/sparc64/kernel/ioctl32.c
---- linux-2.6.0-test2-bk7/arch/sparc64/kernel/ioctl32.c~kill-HDIO_GETGEO_BIG_RAW	2003-08-08 23:53:47.015359000 +0200
-+++ linux-2.6.0-test2-bk7-root/arch/sparc64/kernel/ioctl32.c	2003-08-08 23:53:47.026357328 +0200
-@@ -40,34 +40,6 @@ static __inline__ void *alloc_user_space
- #define CODE
- #include "compat_ioctl.c"
+-	capacity = drive->id->lba_capacity;
++	capacity = drive->capacity;
+ 	set_max = idedisk_read_native_max_address(drive);
  
--struct hd_big_geometry32 {
--	unsigned char heads;
--	unsigned char sectors;
--	unsigned int cylinders;
--	u32 start;
--};
--                        
--static int hdio_getgeo_big(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--	mm_segment_t old_fs = get_fs();
--	struct hd_big_geometry geo;
--	int err;
--	
--	set_fs (KERNEL_DS);
--	err = sys_ioctl(fd, cmd, (unsigned long)&geo);
--	set_fs (old_fs);
--	if (!err) {
--		struct hd_big_geometry32 *up = (struct hd_big_geometry32 *) arg;
+ 	if (set_max <= capacity)
+@@ -1093,7 +1106,7 @@ static inline void idedisk_check_hpa_lba
+ #ifdef CONFIG_IDEDISK_STROKE
+ 	set_max = idedisk_set_max_address(drive, set_max);
+ 	if (set_max) {
+-		drive->id->lba_capacity = set_max;
++		drive->capacity = set_max;
+ 		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
+ 				 drive->name);
+ 	}
+@@ -1104,7 +1117,7 @@ static inline void idedisk_check_hpa_lba
+ {
+ 	unsigned long long capacity_2, set_max_ext;
+ 
+-	capacity_2 = drive->id->lba_capacity_2;
++	capacity_2 = drive->capacity48;
+ 	set_max_ext = idedisk_read_native_max_address_ext(drive);
+ 
+ 	if (set_max_ext <= capacity_2)
+@@ -1119,7 +1132,8 @@ static inline void idedisk_check_hpa_lba
+ #ifdef CONFIG_IDEDISK_STROKE
+ 	set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
+ 	if (set_max_ext) {
+-		drive->id->lba_capacity_2 = set_max_ext;
++		drive->capacity48 = set_max_ext;
++		drive->capacity = (unsigned long) set_max_ext;
+ 		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
+ 				 drive->name);
+ 	}
+@@ -1147,32 +1161,21 @@ static void init_idedisk_capacity (ide_d
+ 	 * If this drive supports the Host Protected Area feature set,
+ 	 * then we may need to change our opinion about the drive's capacity.
+ 	 */
+-	int hpa = (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
++	int hpa = idedisk_supports_hpa(id);
+ 
+-	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
++	if (idedisk_supports_lba48(id)) {
+ 		/* drive speaks 48-bit LBA */
+-		unsigned long long capacity_2;
 -
--		if (put_user(geo.heads, &up->heads) ||
--		    __put_user(geo.sectors, &up->sectors) ||
--		    __put_user(geo.cylinders, &up->cylinders) ||
--		    __put_user(((u32) geo.start), &up->start))
--			err = -EFAULT;
--	}
--	return err;
--}
+ 		drive->select.b.lba = 1;
++		drive->capacity48 = id->lba_capacity_2;
++		drive->capacity = (unsigned long) drive->capacity48;
+ 		if (hpa)
+ 			idedisk_check_hpa_lba48(drive);
+-		capacity_2 = id->lba_capacity_2;
+-		drive->head		= drive->bios_head = 255;
+-		drive->sect		= drive->bios_sect = 63;
+-		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+-		drive->bios_cyl		= drive->cyl;
+-		drive->capacity48	= capacity_2;
+-		drive->capacity		= (unsigned long) capacity_2;
+ 	} else if ((id->capability & 2) && lba_capacity_is_ok(id)) {
+ 		/* drive speaks 28-bit LBA */
+-		unsigned long capacity;
 -
- struct  fbcmap32 {
- 	int             index;          /* first element (0 origin) */
- 	int             count;
-@@ -1558,7 +1530,6 @@ COMPATIBLE_IOCTL(DM_DEV_STATUS)
- COMPATIBLE_IOCTL(DM_TARGET_STATUS)
- COMPATIBLE_IOCTL(DM_TARGET_WAIT)
- /* And these ioctls need translation */
--HANDLE_IOCTL(HDIO_GETGEO_BIG_RAW, hdio_getgeo_big)
- /* NCPFS */
- HANDLE_IOCTL(NCP_IOC_NCPREQUEST_32, do_ncp_ncprequest)
- HANDLE_IOCTL(NCP_IOC_GETMOUNTUID2_32, do_ncp_getmountuid2)
-diff -puN drivers/ide/ide.c~kill-HDIO_GETGEO_BIG_RAW drivers/ide/ide.c
---- linux-2.6.0-test2-bk7/drivers/ide/ide.c~kill-HDIO_GETGEO_BIG_RAW	2003-08-08 23:53:47.018358544 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/ide.c	2003-08-08 23:53:47.027357176 +0200
-@@ -1619,18 +1619,6 @@ int generic_ide_ioctl(struct block_devic
- 			return 0;
+ 		drive->select.b.lba = 1;
++		drive->capacity = id->lba_capacity;
+ 		if (hpa)
+ 			idedisk_check_hpa_lba28(drive);
+-		capacity = id->lba_capacity;
+-		drive->cyl = capacity / (drive->head * drive->sect);
+-		drive->capacity = capacity;
+ 	} else {
+ 		/* drive speaks boring old 28-bit CHS */
+ 		drive->capacity = drive->cyl * drive->head * drive->sect;
+@@ -1181,7 +1184,7 @@ static void init_idedisk_capacity (ide_d
+ 
+ static sector_t idedisk_capacity (ide_drive_t *drive)
+ {
+-	if (drive->id->cfs_enable_2 & 0x0400)
++	if (idedisk_supports_lba48(drive->id))
+ 		return (drive->capacity48 - drive->sect0);
+ 	return (drive->capacity - drive->sect0);
+ }
+@@ -1472,7 +1475,7 @@ static int probe_lba_addressing (ide_dri
+ 	if (HWIF(drive)->addressing)
+ 		return 0;
+ 
+-	if (!(drive->id->cfs_enable_2 & 0x0400))
++	if (!idedisk_supports_lba48(drive->id))
+                 return -EIO;
+ 	drive->addressing = arg;
+ 	return 0;
+@@ -1642,19 +1645,28 @@ static void idedisk_setup (ide_drive_t *
+ 	 * by correcting bios_cyls:
+ 	 */
+ 	capacity = idedisk_capacity (drive);
+-	if (!drive->forced_geom && drive->bios_sect && drive->bios_head) {
+-		unsigned int cap0 = capacity;	/* truncate to 32 bits */
+-		unsigned int cylsz, cyl;
+-
+-		if (cap0 != capacity)
+-			drive->bios_cyl = 65535;
+-		else {
+-			cylsz = drive->bios_sect * drive->bios_head;
+-			cyl = cap0 / cylsz;
+-			if (cyl > 65535)
+-				cyl = 65535;
+-			if (cyl > drive->bios_cyl)
+-				drive->bios_cyl = cyl;
++	if (!drive->forced_geom) {
++
++		if (idedisk_supports_lba48(drive->id)) {
++			/* compatibility */
++			drive->bios_sect = 63;
++			drive->bios_head = 255;
++		}
++
++		if (drive->bios_sect && drive->bios_head) {
++			unsigned int cap0 = capacity; /* truncate to 32 bits */
++			unsigned int cylsz, cyl;
++
++			if (cap0 != capacity)
++				drive->bios_cyl = 65535;
++			else {
++				cylsz = drive->bios_sect * drive->bios_head;
++				cyl = cap0 / cylsz;
++				if (cyl > 65535)
++					cyl = 65535;
++				if (cyl > drive->bios_cyl)
++					drive->bios_cyl = cyl;
++			}
  		}
- 
--		case HDIO_GETGEO_BIG_RAW:
--		{
--			struct hd_big_geometry *loc = (struct hd_big_geometry *) arg;
--			if (!loc || (drive->media != ide_disk && drive->media != ide_floppy)) return -EINVAL;
--			if (put_user(drive->head, (u8 *) &loc->heads)) return -EFAULT;
--			if (put_user(drive->sect, (u8 *) &loc->sectors)) return -EFAULT;
--			if (put_user(drive->cyl, (unsigned int *) &loc->cylinders)) return -EFAULT;
--			if (put_user((unsigned)get_start_sect(bdev),
--				(unsigned long *) &loc->start)) return -EFAULT;
--			return 0;
--		}
--
- 		case HDIO_OBSOLETE_IDENTITY:
- 		case HDIO_GET_IDENTITY:
- 			if (bdev != bdev->bd_contains)
-diff -puN include/linux/hdreg.h~kill-HDIO_GETGEO_BIG_RAW include/linux/hdreg.h
---- linux-2.6.0-test2-bk7/include/linux/hdreg.h~kill-HDIO_GETGEO_BIG_RAW	2003-08-08 23:53:47.021358088 +0200
-+++ linux-2.6.0-test2-bk7-root/include/linux/hdreg.h	2003-08-08 23:53:47.028357024 +0200
-@@ -395,14 +395,6 @@ struct hd_geometry {
-       unsigned long start;
- };
- 
--/* BIG GEOMETRY - dying, used only by HDIO_GETGEO_BIG_RAW */
--struct hd_big_geometry {
--	unsigned char heads;
--	unsigned char sectors;
--	unsigned int cylinders;
--	unsigned long start;
--};
--
- /* hd/ide ctl's that pass (arg) ptrs to user space are numbered 0x030n/0x031n */
- #define HDIO_GETGEO		0x0301	/* get device geometry */
- #define HDIO_GET_UNMASKINTR	0x0302	/* get current unmask setting */
-@@ -456,7 +448,7 @@ enum {
- 
- /* hd/ide ctl's that pass (arg) ptrs to user space are numbered 0x033n/0x033n */
- /* 0x330 is reserved - used to be HDIO_GETGEO_BIG */
--#define HDIO_GETGEO_BIG_RAW	0x0331	/* */
-+/* 0x331 is reserved - used to be HDIO_GETGEO_BIG_RAW */
- 
- #define HDIO_SET_IDE_SCSI      0x0338
- #define HDIO_SET_SCSI_IDE      0x0339
+ 	}
+ 	printk(KERN_INFO "%s: %llu sectors (%llu MB)",
 
 _
 

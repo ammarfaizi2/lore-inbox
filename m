@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264759AbTFLFyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 01:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264760AbTFLFyd
+	id S264740AbTFLGEe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 02:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbTFLGEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 01:54:33 -0400
-Received: from h2.prohosting.com.ua ([217.106.231.81]:17282 "EHLO
-	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
-	id S264759AbTFLFya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 01:54:30 -0400
-From: Artemio <artemio@artemio.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: SMP question
-Date: Thu, 12 Jun 2003 08:37:40 +0300
-User-Agent: KMail/1.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306112313.30903.artemio@artemio.net> <20030611225401.GE2712@werewolf.able.es>
-In-Reply-To: <20030611225401.GE2712@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jun 2003 02:04:34 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:27029 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264740AbTFLGEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 02:04:33 -0400
+Date: Thu, 12 Jun 2003 07:18:03 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: John Goerzen <jgoerzen@complete.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpufreq on Pentium M
+Message-ID: <20030612061803.GA21509@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	John Goerzen <jgoerzen@complete.org>, linux-kernel@vger.kernel.org
+References: <87n0go3pcp.fsf@complete.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306120837.40421.artemio@artemio.net>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - artemio.net
+In-Reply-To: <87n0go3pcp.fsf@complete.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Jun 11, 2003 at 11:13:26PM -0500, John Goerzen wrote:
 
-Thanks for your reply!
+ > I am running on a Thinkpad T40p laptop, which has a 1.6GHz Intel
+ > Pentium M CPU (this is their "Centrino" CPU; *NOT* the same thing as
+ > the Pentium 4 M).
 
-> > Hmmm... So, you mean uni-processor Linux kernel can't see two processors
-> > as one "big" processor?
->
-> No, but it will work as if it does...explain below.
->
-> You have 2 processor packages, each one is HyperThreading capable. This
-> means you have two 'CPUs' inside each package, so that sums up your 4 CPUs.
-> But there is a flaw. The 2 'CPUs' inside each processor package are not
-> full real CPUs, just two register sets that share cache, FP units, integer
-> units and so on. So let's say your Xeon has 8 FP units, and you want to
-> run a FPU intensive task with low or null disk IO. If you activate
-> hyperthreading each of the 2 'cpus' has 4 FP units, so half the computation
-> power. If you deactivate HT, you have 1 CPU with 8 FP units.
->
-> In short, for FP intensive tasks, hyperthreading is a big lie...
-> You can't run 2 computations in parallel.
+Stay tuned. Jeremy Fitzhardinge wrote a driver for centrino style
+speedstep. It's currently getting the kinks worked out on the cpufreq list.
+It should turn up in 2.5 sometime real soon, and at some point, maybe
+someone will backport it.
 
-Thanks for such in-depth explanation! 
+ > While we're at it, I'm concerned that Linux is ignoring the sizable
+ > cache available on this platform:
+ > 
+ > $ cat /proc/cpuinfo
+ > processor       : 0
+ > vendor_id       : GenuineIntel
+ > cpu family      : 6
+ > model           : 9
+ > model name      : Intel(R) Pentium(R) M processor 1600MHz
+ > stepping        : 5
+ > cpu MHz         : 1598.686
+ > cache size      : 0 KB
 
-As I understood, with HT enabled, Linux-SMP sees four CPUs with 5000 bogo mips 
-each (of course I've already seen this in /proc/cpuinfo).
+Looks like missing cache descriptors. Grab x86info[1] and mail me
+the output of x86info -c
 
-So, if I deactivate HT, will a UP Linux see one CPU with 4x5000=20000 bogo 
-mips?
+		Dave
 
-Anyway, I will try what I mentioned on that machine today.
+[1] http://www.codemonkey.org.uk/x86info/
 
-
-Thank you again and good luck!
-
-
-Artemio.

@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVBKVOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVBKVOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVBKVOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 16:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVBKVOM
+	id S262342AbVBKVOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 16:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVBKVOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Feb 2005 16:14:21 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35595 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262342AbVBKVOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Feb 2005 16:14:12 -0500
-Received: from eeout.etn.com ([63.67.43.145]:30522 "EHLO
-	pitpashub01.nasa.ad.etn.com") by vger.kernel.org with ESMTP
-	id S262341AbVBKVOH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 16:14:07 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Self-destruct in 5 seconds?
-Date: Fri, 11 Feb 2005 16:13:57 -0500
-Message-ID: <F0A064EBC8C91C449244D108367426DC0206556E@ra1ncsmb01.nasa.ad.etn.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Self-destruct in 5 seconds?
-Thread-Index: AcUQfu748FByGorMR06bKwU9uD11EA==
-From: "Creech, Matthew" <MattCreech@eaton.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Feb 2005 21:13:57.0895 (UTC) FILETIME=[999B6970:01C5107E]
+Date: Fri, 11 Feb 2005 20:04:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interrupt starvation points
+Message-ID: <20050211200424.B28971@flint.arm.linux.org.uk>
+Mail-Followup-To: Daniel Walker <dwalker@mvista.com>,
+	linux-kernel@vger.kernel.org
+References: <1108141521.21940.44.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1108141521.21940.44.camel@dhcp153.mvista.com>; from dwalker@mvista.com on Fri, Feb 11, 2005 at 09:05:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Feb 11, 2005 at 09:05:21AM -0800, Daniel Walker wrote:
+>         The other patch enabled interrupt before calling up on
+> kernel_sem ..This one could use some thinking over. I did this cause
+> up() is very expensive on ARM , and combined with the looping above
+> interrupts can stay off for a long time .. 
 
-I posted this to the linux-arm mailing list, and Russell King referred
-me to the main list.
+Please substantiate your claim that up() is very expensive on ARM.
+I disagree:
 
-I'm running an AT91RM9200DK-based board with the 2.6.10 kernel.  I'm
-trying to use TmpFS for my root so I don't have a hard-coded ramdisk
-size.  My /linuxrc script looks something like this:
+#define __up_op(ptr,wake)                       \
+        ({                                      \
+        __asm__ __volatile__(                   \
+        "@ up_op\n"                             \
+"       mrs     ip, cpsr\n"                     \
+"       orr     lr, ip, #128\n"                 \
+"       msr     cpsr_c, lr\n"                   \
+"       ldr     lr, [%0]\n"                     \
+"       adds    lr, lr, %1\n"                   \
+"       str     lr, [%0]\n"                     \
+"       msr     cpsr_c, ip\n"                   \
+"       movle   ip, %0\n"                       \
+"       blle    " #wake                         \
+        :                                       \
+        : "r" (ptr), "I" (1)                    \
+        : "ip", "lr", "cc", "memory");          \
+        })
 
-mount -t tmpfs tmpfs /mnt/tmp
-mkdir /mnt/tmp/initrd
+static inline void up(struct semaphore * sem)
+{
+        __up_op(sem, __up_wakeup);
+}
 
-[ copy files from / to /mnt/tmp ]
+Looks like 9 instructions for the uncontended case to me.  If you're
+worried about 9 instructions being expensive, please work on GCC to
+improve its optimisation capabilities first.  There's room there for
+improvement across the whole kernel than just the above 9 instructions.
 
-mount -t devfs devfs /mnt/tmp/dev
-echo "Changing mount points..."
-cd /mnt/tmp
-pivot_root . initrd
-cd /
-mount -t proc proc /proc
-exec chroot . /sbin/init <dev/console >dev/console 2>&1
-
-Init then kicks off a "sysinit" script that immediately does this:
-
-echo "Unmounting old root..."
-umount /initrd
-echo "Freeing initrd..."
-freeramdisk /dev/rd/0
-
-This actually works fine.  The system boots properly, my memory usage
-looks good, etc.  But this is what prints to the screen, and it's pretty
-scary looking:
-
-Unmounting old root...
-VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice
-day...
-Freeing initrd...
-
-Although things seem to work [consistently - it does it every time
-during boot], this message frightens me.  Is it safe to ignore, or is my
-embedded device about to self-destruct?  :)  Thanks for the help
+Plus, after you've read the above code, wouldn't you think that adding
+the "enable interrupts + disable interrupts" around an up() operation
+(which itself immediately disables interrupts again) is just adding
+extra instructions to the kernel, which corresponds directly to lower
+performance?
 
 -- 
-Matthew L. Creech 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

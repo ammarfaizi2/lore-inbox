@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262678AbSI1BlS>; Fri, 27 Sep 2002 21:41:18 -0400
+	id <S262677AbSI1BlD>; Fri, 27 Sep 2002 21:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262679AbSI1BlS>; Fri, 27 Sep 2002 21:41:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50952 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262678AbSI1BlR>;
-	Fri, 27 Sep 2002 21:41:17 -0400
-Date: Sat, 28 Sep 2002 02:46:34 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org, Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jordan Breeding <jordan.breeding@attbi.com>,
-       Matthew Wilcox <willy@debian.org>, Robert Love <rml@tech9.net>,
-       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5 Kernel Problem Reports as of 27 Sep
-Message-ID: <20020928024634.C18377@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0209271833280.12092-100000@dad.molina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262678AbSI1BlD>; Fri, 27 Sep 2002 21:41:03 -0400
+Received: from [24.77.26.115] ([24.77.26.115]:46985 "EHLO completely")
+	by vger.kernel.org with ESMTP id <S262677AbSI1BlC>;
+	Fri, 27 Sep 2002 21:41:02 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Fri, 27 Sep 2002 18:46:14 -0700
+User-Agent: KMail/1.4.7-cool
+References: <E17uINs-0003bG-00@think.thunk.org> <20020927041234.GS22795@clusterfs.com> <200209271820.41906.ryan@completely.kicks-ass.org>
+In-Reply-To: <200209271820.41906.ryan@completely.kicks-ass.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209271833280.12092-100000@dad.molina>; from tmolina@cox.net on Fri, Sep 27, 2002 at 07:54:16PM -0500
+Message-Id: <200209271846.19750.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 07:54:16PM -0500, Thomas Molina wrote:
->   17. http://marc.theaimsgroup.com/?l=linux-kernel&m=103237662509801&w=2
->    oops in lock_get_status                open               18 Sep 2002
-> 
->   18. http://marc.theaimsgroup.com/?l=linux-kernel&m=103244657605155&w=2
->                                           additional reports 20 Sep 2002
-> 
-> Matthew Wilcox <willy@debian.org> requested debugging data and was working 
-> on a fix.  What is the status of this?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I've been able to reproduce it (with ntop).  I think I know which change
-broke it.  What I haven't been able to do is write a testcase which
-reliably provokes it.  Help appreciated.
+On September 27, 2002 18:20, Ryan Cumming wrote:
+> Okay, got another one:
+> "EXT3-fs error (device loop(7,0)): ext3_add_entry: bad entry in directory
+> #2: rec_len is smaller than minimal - offset=0, inode=0, rec_len=8,
+> name_len=0" fsck then reported:
+> "Directory inode 2, block 166, offset 0: directory corrupted"
+>
+> This is while deleteing an old fsstress directory (a full fsck had been
+> performed since the last time the fsstress directory had been touched)
+> while running a few instances of the attached program.
 
--- 
-Revolutions do not require corporate support.
+You can get a 6.1MiB bzip2'ed image of the broken filesystem (fsck hasn't 
+touched this copy) at:
+http://completely.kicks-ass.org/image-broken.ext3.bz2
+
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9lQnrLGMzRzbJfbQRAqhBAJ9EuJ6OhH13W1B4LWjnj8IhyIMX6QCgobUt
+gphiPMuRMSdewLp+67phv4g=
+=10yO
+-----END PGP SIGNATURE-----

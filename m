@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbSKOAlr>; Thu, 14 Nov 2002 19:41:47 -0500
+	id <S261661AbSKOAsx>; Thu, 14 Nov 2002 19:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbSKOAlN>; Thu, 14 Nov 2002 19:41:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56843 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265477AbSKOAkC>; Thu, 14 Nov 2002 19:40:02 -0500
-Date: Thu, 14 Nov 2002 16:46:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
-       John Alvord <jalvo@mbay.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: module mess in -CURRENT
-In-Reply-To: <20021115002730.GA22547@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0211141634060.12390-100000@penguin.transmeta.com>
+	id <S261836AbSKOAsx>; Thu, 14 Nov 2002 19:48:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35852 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261661AbSKOAsv>;
+	Thu, 14 Nov 2002 19:48:51 -0500
+Message-ID: <3DD445EF.9080002@pobox.com>
+Date: Thu, 14 Nov 2002 19:55:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+CC: rl@hellgate.ch, linux-kernel@vger.kernel.org,
+       Mikael Pettersson <mikpe@csd.uu.se>, mingo@redhat.com
+Subject: Yet another IO-APIC problem (was Re: via-rhine weirdness with via
+ kt8235 Southbridge)
+References: <20021115002822.G6981@pc9391.uni-regensburg.de> <20021115011738.D17058@pc9391.uni-regensburg.de>
+In-Reply-To: <20021115002822.G6981@pc9391.uni-regensburg.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christian Guggenberger wrote:
 
-On Fri, 15 Nov 2002, Jamie Lokier wrote:
-> 
-> Once you're talking about nanoseconds, you can have both: each time
-> you store an mtime, make sure the value is at least 1 nanosecond
-> greater than the previously stored mtime for any file in the
-> serialisation domain.  If it is not, simply _wait_ for up to a
-> nanosecond until the value has advanced enough.
+> >On Wed, 23 Oct 2002 15:49:31 +0200, Christian Guggenberger wrote:
+> >
+> >>This concerns both 2.4 and 2.5 kernels  (testet with 2.4.20pre*aa 
+> series,
+> >>and with 2.5.43, 2.5.44 and 2.5.44-ac1):
+> >>
+> >>When I enable APIC in the Bios, the via-rhine module will insert
+> >>properly, but I won't get a link... With APIC disabled, link is ok.  Ok,
+> >>this could be caused by buggy bios, so I'll try again, when a new
+> >>biosversion is available.
+> >
+> >Yeah, it seems there's a problem with IO-APICs. I currently don't have a
+> >machine with IO-APIC for testing, though, so...
+> >
+>
+>
+> A new Biosversion is installed on my mobo now, but that APIC problem 
+> is still
+> there.
+> Are there some dumps I could post to get some light on that topic?
+>
+> Maybe some outputs of via-diag, mii-diag, lspci, dmesg ...?
+> If they could help, what options should I pass to mii-diag and via-diag ?
 
-Note that the fields already _are_ nanoseconds, it's just not updated at a
-nanosecond rate. We're updating xtime only at a rate of HZ, where the 1 ms
-comes from in 2.5.x.
 
-And doing a full "gettimeofday()" sounds just a bit too expensive for the
-stuff that needs to just update an inode time field.
 
-But the thing is, we don't actually care about the exact time, we only
-care about it being monotonically increasing, so I suspect we could just
-have something like
+Yet Another IO-APIC problem.  From what I see quoted above, it has 
+nothing at all to do with the via-rhine, and everything to do with IO-APIC.
 
-	static unsigned long xtime_count;
+Almost universally, in 2.4 and 2.5, running IO-APIC on uniprocessor is 
+badly broken, and causes all sorts of bogus bug reports for unrelated 
+subsystems.  Sometimes IO-APIC is busted even on SMP.
 
-	static struct timespec current_time(void)
-	{
-		struct timespec val;
-		unsigned long extra;
+Workaround solutions:  (1) boot with "noapic" on command line, (2) 
+disable IO-APIC in kernel config (if uniprocessor), and/or (3) make sure 
+that "MP 1.1" is listed in BIOS setup instead of "MP 1.4".
 
-		read_lock_irq(&xtime_lock);
-		val = xtime;
-		extra = xtime_count;
-		xtime_count = extra+1;
-		read_unlock_irq(&xtime_lock);
+Man, this must be the fourth or fifth bug report I've gotten in the past 
+week or so, where the IO-APIC can be blamed.  ;-(  In all recent cases 
+it has been uniprocessor IOAPIC, not SMP IOAPIC, that was problematic. 
+IMO we should just take out UP IOAPIC support in the kernel, or put a 
+big fat warning in the kernel config _and_ at boot...
 
-		val.nsec += count;
-		if (val.tv_nsec > 1000000000) {
-			val.tv_nsec -= 1000000000;
-			val.tv_sec ++;
-		}
-		return val;
-	}
+	Jeff
 
-and then have the timer clear "xtime_count" every time it updates it.  
-
-This obviously doesn't give us nanosecond resolution, but it _does_ give
-us "unique" timestamps (assuming a system call takes longer than a
-nanosecond, which is likely true for the next decade or so - after that we
-can start worrying about whether the users might be outrunning the clock).
-
-		Linus
 

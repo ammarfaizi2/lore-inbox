@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVBANS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVBANq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVBANS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 08:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVBANS4
+	id S262016AbVBANq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 08:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVBANq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 08:18:56 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:29654 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262014AbVBANSw (ORCPT
+	Tue, 1 Feb 2005 08:46:28 -0500
+Received: from jagor.srce.hr ([161.53.2.130]:51156 "EHLO jagor.srce.hr")
+	by vger.kernel.org with ESMTP id S262016AbVBANq0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 08:18:52 -0500
-Message-ID: <41FF81BA.5020208@trash.net>
-Date: Tue, 01 Feb 2005 14:18:50 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
+	Tue, 1 Feb 2005 08:46:26 -0500
+Message-ID: <41FF8427.5010702@spymac.com>
+Date: Tue, 01 Feb 2005 14:29:11 +0100
+From: zhilla <zhilla@spymac.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tompa Septimius Paul <subzero@cj.onrc.ro>
-CC: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
-Subject: Re: iptables and ip_conntrack_tuple.h compile fix
-References: <Pine.LNX.4.58.0502011255020.24684@cj.onrc.ro>
-In-Reply-To: <Pine.LNX.4.58.0502011255020.24684@cj.onrc.ro>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: Really annoying bug in the mouse driver
+References: <41E91795.9060609@web.de> <200501280206.06747.dtor_core@ameritech.net>
+In-Reply-To: <200501280206.06747.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tompa Septimius Paul wrote:
+Dmitry Torokhov wrote:
 
->Hi,
->
->I try to recompile iptables iptables-1.2.11 with kernel 2.6.11-rc2
->(and mm2) running and I don't succeed. It complains about
->/usr/src/linux/include/linux/netfilter_ipv4/ip_conntrack_tuple.h
->after this small changes iptables is compiling again.
->  
->
-I just added a similar patch from Pablo Neira to my tree.
+>> Jan 15 13:33:36 vic kernel: psmouse.c: bad data from KBC - bad 
+>> parity Jan 15 13:33:38 vic kernel: psmouse.c: Wheel Mouse at 
+>> isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+>> Sometimes, only one of these messages appears; the number of bytes
+>> in the second message varies, but mostly it is 3.
+> Hi, Could you please try the patch below?
 
-Regards
-Patrick
+hello.. i have 100% same problem.
+(mouse misbehaving, and being unable to use this patch against 2.6.10)
+mouse is MS-600, a relatively cheap no name optical mouse. cable is OK.
+thank you for your patch, but could you post a version that can be
+applied against 2.6.10 version? thanks!
 

@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVCYAwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVCYBH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVCYAwM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 19:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVCYAui
+	id S261334AbVCYBH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 20:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVCYBFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 19:50:38 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:38347 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261322AbVCYAdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 19:33:18 -0500
-Date: Thu, 24 Mar 2005 19:33:16 -0500
-From: Coywolf Qi Hunt <coywolf@sosdg.org>
-To: linux-kernel@vger.kernel.org
-Cc: james4765@cwazy.co.uk, akpm@osdl.org
-Subject: [patch] oom-killer sysrq-f fix
-Message-ID: <20050325003316.GA31352@everest.sosdg.org>
-Reply-To: coywolf@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
+	Thu, 24 Mar 2005 20:05:34 -0500
+Received: from digitalimplant.org ([64.62.235.95]:43137 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261334AbVCYBAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 20:00:31 -0500
+Date: Thu, 24 Mar 2005 17:00:18 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Laurent Riffard <laurent.riffard@free.fr>, "" <rjw@sisk.pl>,
+       "" <rlrevell@joe-job.com>, "" <alsa-devel@lists.sourceforge.net>,
+       "" <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.12-rc1-mm2
+In-Reply-To: <20050324154920.4e506d76.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.50.0503241658360.29178-100000@monsoon.he.net>
+References: <20050324044114.5aa5b166.akpm@osdl.org> <1111682812.23440.6.camel@mindpipe>
+ <20050324121722.759610f4.akpm@osdl.org> <200503242331.46985.rjw@sisk.pl>
+ <42434E59.2060805@free.fr> <20050324154920.4e506d76.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+On Thu, 24 Mar 2005, Andrew Morton wrote:
 
-akpm, I saw you noticed it,
-http://www.ussg.iu.edu/hypermail/linux/kernel/0412.0/0424.html
+> Laurent Riffard <laurent.riffard@free.fr> wrote:
+> >
+> > hello,
+> >
+> > Same kinds of problem here. It depends on the removed module. I mean:
+> > "rmmod loop" or "rmmod pcspkr" works. But "rmmod snd_ens1371" or "rmmod
+> > ohci1394" hangs.
+> >
+> > Sysrq-T when rmmoding snd_ens1371 :
 
-Jim Nelson, this patch is to your post: 2.6.11-rc2-mm2 - kernel panic with SysRq-f 
+<snip>
 
-Recent make-sysrq-f-call-oom_kill.patch calls oom-killer in interrupt context,
-thus results into panic. This patch fixes out_of_memory() to avoid schedule
-when in interrupt context.
+> It looks like we're getting stuck in the wait_for_completion() in the new
+> klist_remove().
 
-	Coywolf
+D'oh! It's getting hung while waiting to remove the current node from the
+list (which it can't remove because it's being used). The patch below
+should fix it.
 
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+	Pat
 
-diff -pruN 2.6.12-rc1-mm2/mm/oom_kill.c 2.6.12-rc1-mm2-cy/mm/oom_kill.c
---- 2.6.12-rc1-mm2/mm/oom_kill.c	2005-03-03 17:12:18.000000000 +0800
-+++ 2.6.12-rc1-mm2-cy/mm/oom_kill.c	2005-03-25 08:07:19.000000000 +0800
-@@ -20,6 +20,7 @@
- #include <linux/swap.h>
- #include <linux/timex.h>
- #include <linux/jiffies.h>
-+#include <linux/hardirq.h>
- 
- /* #define DEBUG */
- 
-@@ -283,6 +284,9 @@ retry:
- 	if (mm)
- 		mmput(mm);
- 
-+	if (in_interrupt())
-+		return;
-+
- 	/*
- 	 * Give "p" a good chance of killing itself before we
- 	 * retry to allocate memory.
+
+===== drivers/base/dd.c 1.3 vs edited =====
+--- 1.3/drivers/base/dd.c	2005-03-21 12:25:04 -08:00
++++ edited/drivers/base/dd.c	2005-03-24 16:55:21 -08:00
+@@ -177,7 +177,7 @@
+
+ 	sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+ 	sysfs_remove_link(&dev->kobj, "driver");
+-	klist_remove(&dev->knode_driver);
++	klist_del(&dev->knode_driver);
+
+ 	down(&dev->sem);
+ 	device_detach_shutdown(dev);

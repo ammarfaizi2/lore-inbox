@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316820AbSFDV0q>; Tue, 4 Jun 2002 17:26:46 -0400
+	id <S316827AbSFDV3M>; Tue, 4 Jun 2002 17:29:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSFDV0p>; Tue, 4 Jun 2002 17:26:45 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56836 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316820AbSFDV0o>; Tue, 4 Jun 2002 17:26:44 -0400
-Date: Tue, 4 Jun 2002 18:22:31 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Robert Cardell <rbt@mtlb.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial, IDE geometry fix / defconfig changes
-Message-ID: <Pine.LNX.4.44L.0206041820130.6558-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316828AbSFDV3M>; Tue, 4 Jun 2002 17:29:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45697 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316827AbSFDV3K>;
+	Tue, 4 Jun 2002 17:29:10 -0400
+Date: Tue, 04 Jun 2002 14:24:24 -0700 (PDT)
+Message-Id: <20020604.142424.63998011.davem@redhat.com>
+To: thockin@hockin.org
+Cc: kloczek@rudy.mif.pg.gda.pl, jgarzik@mandrakesoft.com,
+        austin@coremetrics.com, linux-kernel@vger.kernel.org
+Subject: Re: Max groups at 32?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200206042118.g54LINc12880@www.hockin.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Tim Hockin <thockin@hockin.org>
+   Date: Tue, 4 Jun 2002 14:18:22 -0700 (PDT)
+   
+   We have a patch floating around that enables unlimited group membership at
+   the kernel level, too.  We've never submitted it because it was suggested
+   that we were crazy and should just bugger off.   If I thought it might be
+   useful and acceptable, we could perhaps make it available in a cleanish
+   form.
 
-> Date: Tue, 4 Jun 2002 21:56:17 +0100
-> From: Robert Cardell <rbt@mtlb.co.uk>
-> To: marcelo@plucky.distro.conectiva, linux-kernel@vger.kernel.org
-
-If you have problems reaching marcelo, feel free to borrow my domain ;)
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+How do it handle userland backwards compatibility with the existing
+stuff?

@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVBQTtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVBQT5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVBQTtf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 14:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVBQTte
+	id S262293AbVBQT5A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 14:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVBQT47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 14:49:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24242 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261159AbVBQTst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 14:48:49 -0500
-To: Dave Jones <davej@redhat.com>
-Cc: Itsuro Oda <oda@valinux.co.jp>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [PATCH] /proc/cpumem
-References: <20050203154433.18E4.ODA@valinux.co.jp>
-	<m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
-	<20050216170224.4C66.ODA@valinux.co.jp>
-	<20050217181850.GE21623@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Feb 2005 12:46:05 -0700
-In-Reply-To: <20050217181850.GE21623@redhat.com>
-Message-ID: <m1wtt755s2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Thu, 17 Feb 2005 14:56:59 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:21135 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S262293AbVBQT4q convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 14:56:46 -0500
+X-OB-Received: from unknown (208.36.123.31)
+  by wfilter.us4.outblaze.com; 17 Feb 2005 19:56:45 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Deepti Patel" <pateldeepti@lycos.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 17 Feb 2005 14:56:45 -0500
+Subject: getting error whu\ile loading in netfilter hook
+X-Originating-Ip: 128.235.249.80
+X-Originating-Server: ws7-2.us4.outblaze.com
+Message-Id: <20050217195645.6E41FE5BC7@ws7-2.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
+Hi,
+I am using fedora 2.6.5 and trying to load a module in netfilter's hook. But it is giving me error and could not find out what needs to be done.
 
-> On Wed, Feb 16, 2005 at 05:49:51PM +0900, Itsuro Oda wrote:
->  > Hi, Eric and all
->  > 
->  > Attached is an implementation of /proc/cpumem.
->  > /proc/cpumem shows the valid physical memory ranges.
->  > 
->  > * i386 and x86_64
->  > * implement valid_phys_addr_range() and use it.
->  >   (the first argument of the i386 version is little uncomfortable.)
->  > * /dev/mem of the i386 version should be mofified. but not yet.
->  > 
->  > example: amd64 8GB Mem
->  > # cat /proc/cpumem
->  > 0000000000000000 000000000009b800
->  > 0000000000100000 00000000fbe70000
->  > 0000000100000000 0000000100000000
->  > #
->  > start address and size. hex digit.
->  > 
->  > Any comments, recomendations and suggestions are welcom.
-> 
-> It may make more sense to export the entire e820 (or similar)
-> bios memory tables. Probably better off in sysfs than adding
-> more cruft to procfs too.
+Error:
 
-Agreed.  In practice we actually do this already with /proc/iomem.  
-Except that we truncate everything above 4GB, and we allow the
-map to get mangled with mem=xxx options.
+[root@marieke Deepti]# make -f Makefile_lkm
+make -C /lib/modules/2.6.5-1.358/build SUBDIR=/root/Deepti modules
+make[1]: Entering directory `/lib/modules/2.6.5-1.358/build'
+  CHK     include/asm-i386/asm_offsets.h
+make[2]: *** No rule to make target `arch/i386/kernel/msr.c', needed by `arch/i3 86/kernel/msr.o'.  Stop.
+make[1]: *** [arch/i386/kernel] Error 2
+make[1]: Leaving directory `/lib/modules/2.6.5-1.358/build'
 
-I brought up the idea of a /proc/cpumem by analogy because on platforms
-that have an iommu and memory is in a distinct address space 
-there have been complaints that /proc/iomem just won't work.  But it
-is simple enough to do something that is just for the cpu's memory.
+Makefile:
 
-As for how to do this cleanly this looks like the start of that discussion.
+KDIR    := /lib/modules/2.6.5-1.358/build
+PWD     := $(shell pwd)
+obj-m   := Hook_LKM.o
+default:
+        $(MAKE) -C $(KDIR) SUBDIR=$(PWD) modules
 
-Eric
+
+Appritiate your suggestions.
+Thanks in advance
+
+
+
+-- 
+_______________________________________________
+Find what you are looking for with the Lycos Yellow Pages
+http://r.lycos.com/r/yp_emailfooter/http://yellowpages.lycos.com/default.asp?SRC=lycos10
+

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263087AbTCSQbx>; Wed, 19 Mar 2003 11:31:53 -0500
+	id <S263093AbTCSQm5>; Wed, 19 Mar 2003 11:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263088AbTCSQbx>; Wed, 19 Mar 2003 11:31:53 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:4365
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263087AbTCSQbw>; Wed, 19 Mar 2003 11:31:52 -0500
-Subject: [patch] trivisl sg.c compile warning fix
-From: Robert Love <rml@tech9.net>
-To: hch@infradead.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048092165.828.921.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 19 Mar 2003 11:42:45 -0500
+	id <S263100AbTCSQm5>; Wed, 19 Mar 2003 11:42:57 -0500
+Received: from tag.witbe.net ([81.88.96.48]:29196 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S263089AbTCSQmR>;
+	Wed, 19 Mar 2003 11:42:17 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Dave Jones'" <davej@codemonkey.org.uk>
+Cc: "'Juha Poutiainen'" <pode@iki.fi>, <linux-kernel@vger.kernel.org>
+Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
+Date: Wed, 19 Mar 2003 17:53:13 +0100
+Message-ID: <013d01c2ee38$0812e330$6100a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <20030319135841.GC28770@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Sending this to the usual SCSI suspects ... ]
+Hello,
 
-Trivial fix for a trivial problem in sg.c :: sg_device_kdev_read().
+>  > You can also add that the L1 detection doesn't seem to be correct
+>  > either : 
+>  > 0K Instruction cache, and 8K data cache for L1... This is not much
+>  > for instruction, it seems it should be 12K...
+> 
+> That should be fixed in recent 2.4s (and not-so-recent 2.5s).
+> What version are you seeing this problem on?
 
-The sprintf() argument is a 'unsigned long' not an 'unsigned int'.
+Quite a recent one : 2.4.20.
 
-Patch is against 2.5.65.  Danke,
+Here are the traces :
 
-	Robert Love
+bash-2.05$ dmesg | grep -i L1 
+CPU: L1 I cache: 0K, L1 D cache: 8K
+CPU: L1 I cache: 0K, L1 D cache: 8K
+bash-2.05$ uname -a
+Linux addx-01.PAR 2.4.20-watchdog #4 SMP Mon Mar 17 10:57:00 GMT 2003
+i686 unknown
 
+bash-2.05$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Celeron(R) CPU 2.00GHz
+stepping        : 7
+cpu MHz         : 2000.356
+cache size      : 8 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3984.58
 
- drivers/scsi/sg.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-
-diff -urN linux-2.5.65/drivers/scsi/sg.c linux/drivers/scsi/sg.c
---- linux-2.5.65/drivers/scsi/sg.c	2003-03-17 16:44:05.000000000 -0500
-+++ linux/drivers/scsi/sg.c	2003-03-19 11:35:50.706607408 -0500
-@@ -1331,9 +1331,11 @@
- sg_device_kdev_read(struct device *driverfs_dev, char *page)
- {
- 	Sg_device *sdp = list_entry(driverfs_dev, Sg_device, sg_driverfs_dev);
--	return sprintf(page, "%x\n", MKDEV(sdp->disk->major,
--					   sdp->disk->first_minor));
-+
-+	return sprintf(page, "%lx\n", MKDEV(sdp->disk->major,
-+					sdp->disk->first_minor));
- }
-+
- static DEVICE_ATTR(kdev,S_IRUGO,sg_device_kdev_read,NULL);
- 
- static ssize_t
-
+Regards,
+Paul
 
 

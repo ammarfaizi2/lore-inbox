@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285137AbRLLKNd>; Wed, 12 Dec 2001 05:13:33 -0500
+	id <S285135AbRLLKND>; Wed, 12 Dec 2001 05:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285138AbRLLKNY>; Wed, 12 Dec 2001 05:13:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8465 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285137AbRLLKNG>;
-	Wed, 12 Dec 2001 05:13:06 -0500
-Date: Wed, 12 Dec 2001 11:12:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-pre10: Compilation failure in fdomain.c:1268: `io_request_lock' undeclared
-Message-ID: <20011212101259.GD7562@suse.de>
-In-Reply-To: <1008144756.20180.0.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1008144756.20180.0.camel@stomata.megapathdsl.net>
+	id <S285137AbRLLKMn>; Wed, 12 Dec 2001 05:12:43 -0500
+Received: from mandy.eunet.fi ([193.66.1.129]:56462 "EHLO mandy.eunet.fi")
+	by vger.kernel.org with ESMTP id <S285135AbRLLKMb>;
+	Wed, 12 Dec 2001 05:12:31 -0500
+Date: Wed, 12 Dec 2001 12:12:31 +0200 (EET)
+From: Miika Pekkarinen <miipekk@ihme.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] /proc/net/dev counter fix, linux-2.5.0
+Message-ID: <Pine.LNX.4.33.0112121210500.972-100000@ihme.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12 2001, Miles Lane wrote:
-> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE  -DPCMCIA
-> -D__NO_VERSION__ -c -o fdomain.o ../fdomain.c
-> ../fdomain.c: In function `do_fdomain_16x0_intr':
-> ../fdomain.c:1268: `io_request_lock' undeclared (first use in this
-> function)
-> ../fdomain.c:1268: (Each undeclared identifier is reported only once
-> ../fdomain.c:1268: for each function it appears in.)
-> make[3]: *** [fdomain.o] Error 1
+I have made a patch to fix the counter values in /proc/net/dev. The
+problem was that the tx_bytes and rx_bytes will reset when ~4GB is
+transferred. This patch has been tested to work with linux-2.5.0 but it
+should work on all 2.4.* kernels. Also it should work with most of the
+interface cards but not all yet.
 
-If you want to be helpful with these, start making a list of what is
-broken. If you send it to me, I'll make it public and comment each case
-as to what needs doing.
-
+This is the first version of my patch so please give me some comments
+about it.
 -- 
-Jens Axboe
+Miika
+
+Patch to fix /proc/net/dev counters. Patch made by Miika Pekkarinen
+<miika@ihme.org> or <miipekk@cc.jyu.fi>.
+--- linux-2.5.0or/net/core/dev.c	Thu Nov  8 00:39:36 2001
++++ linux/net/core/dev.c	Tue Dec 11 21:30:49 2001
+@@ -1688,7 +1688,7 @@
+ 	int size;
+
+ 	if (stats)
+-		size = sprintf(buffer, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu %8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
++		size = sprintf(buffer, "%6s:%14llu %7lu %4lu %4lu %4lu %5lu %10lu %9lu %14llu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
+  		   dev->name,
+ 		   stats->rx_bytes,
+ 		   stats->rx_packets, stats->rx_errors,
+@@ -1724,8 +1724,8 @@
+
+
+ 	size = sprintf(buffer,
+-		"Inter-|   Receive                                                |  Transmit\n"
+-		" face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n");
++		"Inter-| --------------------------- Receive -------------------------- | ------------------------- Transmit --------------------------\n"
++		" face |bytes          packets errs drop fifo frame compressed multicast|bytes          packets errs drop fifo colls carrier compressed\n");
+
+ 	pos += size;
+ 	len += size;
+--- linux-2.5.0or/include/linux/netdevice.h	Thu Nov 22 21:47:09 2001
++++ linux/include/linux/netdevice.h	Tue Dec 11 21:24:54 2001
+@@ -97,8 +97,9 @@
+ {
+ 	unsigned long	rx_packets;		/* total packets received	*/
+ 	unsigned long	tx_packets;		/* total packets transmitted	*/
+-	unsigned long	rx_bytes;		/* total bytes received 	*/
+-	unsigned long	tx_bytes;		/* total bytes transmitted	*/
++        /* rx and tx counters fixed up to 64-bit */
++        long long       rx_bytes;               /* total bytes received         */
++        long long       tx_bytes;               /* total bytes transmitted      */
+ 	unsigned long	rx_errors;		/* bad packets received		*/
+ 	unsigned long	tx_errors;		/* packet transmit problems	*/
+ 	unsigned long	rx_dropped;		/* no space in linux buffers	*/
+
 

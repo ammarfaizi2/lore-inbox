@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263035AbRFEA1A>; Mon, 4 Jun 2001 20:27:00 -0400
+	id <S263028AbRFEAZj>; Mon, 4 Jun 2001 20:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263036AbRFEA0u>; Mon, 4 Jun 2001 20:26:50 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:40144 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S263035AbRFEA0q>; Mon, 4 Jun 2001 20:26:46 -0400
-Message-ID: <3B1C277D.6F0EF0F9@kegel.com>
-Date: Mon, 04 Jun 2001 17:27:41 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S263035AbRFEAZ3>; Mon, 4 Jun 2001 20:25:29 -0400
+Received: from nrg.org ([216.101.165.106]:21876 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S263028AbRFEAZL>;
+	Mon, 4 Jun 2001 20:25:11 -0400
+Date: Mon, 4 Jun 2001 17:25:05 -0700 (PDT)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Mike Kravetz <mkravetz@sequent.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: reschedule_idle changes in ac kernels
+In-Reply-To: <20010604160837.B15640@w-mikek2.des.sequent.com>
+Message-ID: <Pine.LNX.4.05.10106041656430.3260-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-To: Pierre Phaneuf <pp@ludusdesign.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: re: disk-based fds in select/poll
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Phaneuf <pp@ludusdesign.com> wrote:
-> It's fairly widely-known that select/poll returns immediately when
-> testing a filesystem-based file descriptor for writability or
-> readability.
+On Mon, 4 Jun 2001, Mike Kravetz wrote:
+> I just noticed the changes to reschedule_idle() in the 2.4.5-ac
+> kernel.  I suspect these are the changes made for:
 > 
-> On top of this, even when in non-blocking mode, read() could block if
-> the pages needed aren't in core. sendfile() behaves in a similar way.
+> o       Fix off by one on real time pre-emption in scheduler
 > 
-> What would be needed to alleviate this?
-> ...
-> I remember seeing a suggestion by Linus for an event-based I/O
-> interface, similar to kqueue on FreeBSD but much simpler. I'd just say
-> "I want it too!", ok? :-)
->
-> SGI's AIO might be a solution here, does it use threads? I'm trying to
-> avoid context switching as much as possible, to keep the CPU cache as
-> warm as possible.
+> I'm curious if anyone has ran any benchmarks before and after
+> applying this fix.
 
-IMHO, you want AIO.  SGI's is fine for now.  I hear rumors that there will be
-something even better coming in 2.5, though I have no details.
+I was running realtime benchmarks, which was how I found the bug.
 
-Or you could use explicit userspace threads... say, divide up your
-network connections among 8 or so threads.  Then if one thread blocks,
-the others are there to usefully soak up the CPU time.
+> The reason I ask is that during the development of my multi-queue
+> scheduler, I 'accidently' changed reschedule_idle code to trigger
+> a preemption if preemption_goodness() was greater than 0, as
+> opposed to greater than 1.  I believe this is the same change made
+> to the ac kernel.  After this change, we saw a noticeable drop in
+> performance for some benchmarks.
+> 
+> The drop in performance I saw could have been the result of a
+> combination of the change, and my multi-queue scheduler.  However,
+> in any case aren't we now going to trigger more preemptions?
+> 
+> I understand that we need to make the fig to get the realtime
+> semantics correct,  but we also need to be aware of performance in
+> the non-realtime case.
 
-Readiness events for readahead completion on disk files used to 
-seem like a neat idea to me, but now AIO seems more appealing
-in the long run, since they handle random access properly.
+The realtime bug was caused by whoever decided, sometime in 2.4, that
+the result of preemption_goodness() should be compared to 1 instead of 0
+(without changing the comment above that function).
 
-- Dan
+An alternative fix for the realtime bug would be 
+
+	weight = 1000 + (p->rt_priority * 2);
+
+in goodness(), so that two realtime tasks with priorities that differ by
+1 would have goodness values that differ by more than one.
+
+However, before anyone rushes to implement this, I'd like to suggest
+that any performance problems that may be found with the SCHED_OTHER
+goodness calculation should be fixed in goodness(), if at all possible,
+and not leak out as an undocumented magic number into reschedule_idle().
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

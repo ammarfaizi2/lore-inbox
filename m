@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbTL1Oow (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 09:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTL1Oow
+	id S261575AbTL1OqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 09:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTL1OqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 09:44:52 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:5128 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261567AbTL1Oov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 09:44:51 -0500
-Date: Sun, 28 Dec 2003 14:44:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Colin Ngam <cngam@sgi.com>
-Cc: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-Message-ID: <20031228144415.B20391@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Colin Ngam <cngam@sgi.com>, Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
-	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031223090227.A5027@infradead.org> <3FE85533.E026DE86@sgi.com> <20031223165506.A8624@infradead.org> <3FEC8F0B.A8C30677@sgi.com>
+	Sun, 28 Dec 2003 09:46:12 -0500
+Received: from gprs214-173.eurotel.cz ([160.218.214.173]:23169 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261575AbTL1OqG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 09:46:06 -0500
+Date: Sun, 28 Dec 2003 15:47:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 swsusp
+Message-ID: <20031228144707.GA1489@elf.ucw.cz>
+References: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FEC8F0B.A8C30677@sgi.com>; from cngam@sgi.com on Fri, Dec 26, 2003 at 01:42:03PM -0600
+In-Reply-To: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 26, 2003 at 01:42:03PM -0600, Colin Ngam wrote:
-> Hi Christoph,
+Hi!
+
+> On a machine with working ACPI, I compiled 2.6.0 with Software Suspend
+> (Experimental).
 > 
-> Yes I agree.  However, keep in mind that we are following the ia32/ia64
-> way of getting platforms initialized, via ACPI etc.  What you see as
-> drivers code in sn/io will probably not exist anymore.  All initialization
-> and configuration will be done at the System BIOS level and information
-> passed down to the Linux Kernel via ACPI.  This will take away much
-> code in the kernel.
+> 1.  Help information says that the next boot can be done with
+> "resume=/dev/swappartition" or with "noresume".  It does not say how the
+> swsusp command decides which swap partition to save to.  The man page (which
+> still isn't sure if the command is named swsusp or suspend) also doesn't
+> say.  How can I guess which swap partition to designate at resume time?  For
+> the moment this is a hypothetical question because I haven't needed to make
+> a second swap partition on this machine yet.
 
-Well, I've heard this a few times now and life would definitly be simpler
-if you're going down that route.  OTOH we all know talk is cheap and code
-speaks, and do you really expect SGI to invest money into doing that for
-the now almost legacy SHUB/PIC based Altixens?  Well, even if SGI does this
-some day it won't really hurt us to get the code in shape first even if
-it's only use on MIPS IP27/IP35, wouldn't it?
+You have to have just one swap partition for now.
 
-> We believe that all that will be left in sn/io directory maybe files dealing with
-> DMA mappings(IOMMU).
+> 2.  When I forgot to say either "resume" or "noresume", the kernel detected
+> that it could not use the swap partition, but it did not offer the
+> possibility to resume.  Surely it could detect early enough that the swap
+> partition is not usable for swap but is usable for resume, and could ask the
+> user whether to do a "resume" or "noresume".
 
-That's one of the candidates that really should be shared with IP27 and the
-once someone does them the IP30 and IP35 ports.  Really, the basic dma mapping
-code is the same for Bridge/Xbridge/PIC/TIOCP so we should have one driver.
-And once all the IRIX I/O infrastructure depency is ripped out that part of
-pcibr is rather self-contained.  I can send you my latest variant of the
-dma mapping code if you want, but due tue all that stupid renaming of
-structure and macro names it won't compile in your tree.  See why I _really_
-_really_ dislike that silly renaming?  It breaks all those nice efforts
-for code-sharing without any gain.
+At *that* point, it is no longer possible to resume safely.
 
-Even IRIX TOT uses the 'old' names, so what is the point of renaming them?
+> 3.  When swsusp completed its writing, it decided that my ACPI BIOS could
+> not power off automatically.  I wonder why.  No other OS has trouble
+> powering off this machine.  Also on machines with older APM BIOSes, no OS
+> had trouble powering off the machines, not even Linux with APM drivers.  So
+> I could hold the power switch for 4 seconds and the BIOS beeped a warning
+> before powering off, but I wonder why it was necessary.
+
+If regular halt is also unable to power off machine, fill the bug in
+ACPI bugzilla.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

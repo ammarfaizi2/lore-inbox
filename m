@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264303AbTLYNJv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 08:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTLYNJv
+	id S264290AbTLYNDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 08:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLYNDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 08:09:51 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264303AbTLYNJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 08:09:50 -0500
-Date: Thu, 25 Dec 2003 13:16:07 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312251316.hBPDG7LT000163@81-2-122-30.bradfords.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>,
-       David Monro <davidm@amberdata.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-In-Reply-To: <20031225063936.GA15560@win.tue.nl>
-References: <3FEA5044.5090106@amberdata.demon.co.uk>
- <20031225063936.GA15560@win.tue.nl>
-Subject: Re: handling an oddball PS/2 keyboard
+	Thu, 25 Dec 2003 08:03:50 -0500
+Received: from p508B7C62.dip.t-dialin.net ([80.139.124.98]:38284 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S264290AbTLYNDt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 08:03:49 -0500
+Date: Thu, 25 Dec 2003 14:03:16 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Peter Horton <pdh@colonel-panic.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
+Message-ID: <20031225130316.GB8341@linux-mips.org>
+References: <20031213114134.GA9896@skeleton-jack> <20031213222626.GA20153@mail.shareable.org> <Pine.LNX.4.58.0312131740120.14336@home.osdl.org> <20031214103803.GA916@skeleton-jack> <20031214171637.GA28923@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031214171637.GA28923@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suppose Vojtech will have no objections to using this ID
-> to skip the tests for e0 and e1 as protocol (escape) scancodes.
+On Sun, Dec 14, 2003 at 05:16:37PM +0000, Jamie Lokier wrote:
 
-There might be no need for such a workaround - a lot of PS/2 devices
-which were not intended for PCs work fine in set 3, particularly if
-the device they were intended to work with uses set 3 natively, where
-this conflict with protocol scancodes problem doesn't exist.  If the
-keyboard works in set 3, add 0xab85 to the list of keyboards to force
-set 3 for, (and maybe also add the ID for my keyboard while we're at
-it :-) ).
+> Peter Horton wrote:
+> > I've seen code written for X86 use MAP_FIXED to create self wrapping
+> > ring buffers. Surely it's better to fail the mmap() on other archs
+> > rather than for the code to fail in unexpected ways?
+> 
+> Such code should test the buffers or just not create ring buffers on
+> architectures it doesn't know about.  (You can usually simulate them
+> by copying data).  On some architectures there is _no_ alignment which
+> works, and even on x86 aligning aliases to 32k results in faster
+> memory accesses on some chips (AMD ones).
+> 
+> Also, sometimes a self wrapping ring buffer can work even when the
+> separation isn't coherent, provided the code using it forces cache
+> line flushes at the appropriate points.
 
-John.
+Still I don't see why we shouldn't simply return EINVAL if a user is
+trying to something obviously stupid - assuming full coherency in
+application is a somewhat common thing and there's better things to waste
+time on.  And yes while we could support coherency for arbitrary mappings
+I agree it's a bad idea - but there's a huge difference between just
+checking arguments and adding the large extra complexity of supporting
+arbitrary combinations of addresses for mappings.
+
+  Ralf

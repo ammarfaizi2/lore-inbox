@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVDAPa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVDAPeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVDAPa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVDAPa0
+	id S262765AbVDAPeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVDAPcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:30:26 -0500
-Received: from icecream.egps.com ([38.119.130.6]:44038 "EHLO mail.egps.com")
-	by vger.kernel.org with ESMTP id S261758AbVDAP2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:28:47 -0500
-Date: Fri, 1 Apr 2005 10:28:46 -0500
-From: Nachman Yaakov Ziskind <awacs@ziskind.us>
-To: Burton Windle <bwindle@fint.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Slow SCSI perf in RH 7.3
-Message-ID: <20050401102846.A24623@egps.egps.com>
-Reply-To: awacs@ziskind.us
-References: <20050330174828.B27631@egps.egps.com> <Pine.LNX.4.62.0503301758400.1159@morpheus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503301758400.1159@morpheus>
-User-Agent: Mutt/1.3.23i
-X-Mailer: Outlook stinks. Dump Outlook.
+	Fri, 1 Apr 2005 10:32:02 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:53124 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262771AbVDAPb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:31:29 -0500
+Message-ID: <424D6948.4000500@mesatop.com>
+Date: Fri, 01 Apr 2005 08:31:20 -0700
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 1.0 (Multics)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Clarify -rc definition in Documentation/feature-list-2.6.txt
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burton Windle wrote (on Wed, Mar 30, 2005 at 06:01:21PM -0500):
-> On Wed, 30 Mar 2005, Nachman Yaakov Ziskind wrote:
-> 
-> >I have a server:
-> >2.4.20-28.7 #1 Thu Dec 18 11:31:59 EST 2003 i686
-> >
-> 
-> Looking at the output of 'top' may be helpful, as it will show if the 
-> system is CPU or IO bound. However, plese note that 2.4.20 is quite old 
-> (November of 2002), and contains numerous security holes. Upgrading to 
-> something more recent, like 2.4.29, may be a good first start.
+Gentlehackers,
 
-Thanks for the quick reply. Sar seems to indicate that the server is 
-disk-bound (although some swapping is going on, so more RAM is on the way). 
-CPU is idle, consistently, 99% of the time. 
+The day to clarify the real definition of "-rc" is finally here.
 
-Would upgrading the kernel help the disk performance? Server is not 
-connected to the internet, so security concerns are not *that* important, 
-but performance is ...
+Steven
 
--- 
-_________________________________________
-Nachman Yaakov Ziskind, FSPA, LLM       awacs@ziskind.us
-Attorney and Counselor-at-Law           http://ziskind.us
-Economic Group Pension Services         http://egps.com
-Actuaries and Employee Benefit Consultants
+--- linux-2.6.12-rc1-mm4/Documentation/feature-list-2.6.txt.orig        2005-04-01 07:56:23.000000000 -0700
++++ linux-2.6.12-rc1-mm4/Documentation/feature-list-2.6.txt     2005-04-01 07:59:21.000000000 -0700
+@@ -23,16 +23,21 @@
+  Applying patches.
+  ~~~~~~~~~~~~~~~~~
+  - In 2.4 and previous kernels, the recommended way to apply patches was
+    to use a command line such as ...
+    gzip -cd patchXX.gz | patch -p0
+    In 2.6, Linus started adding an extra path element to the diffs,
+    so using -p1 in the untarred 'to be patched' directory is necessary.
+
++Release Candidates
++~~~~~~~~~~~~~~~~~
++- In 2.4 and previous kernels, -rc meant "release candidate".
++  In 2.6, -rc means "really churning", so even more testing is desired.
++
+  Known gotchas.
+  ~~~~~~~~~~~~~~
+  Certain known bugs are being reported over and over. Here are the
+  workarounds.
+  - Blank screen after decompressing kernel?
+    Make sure your .config has
+     CONFIG_INPUT=y
+     CONFIG_VT=y

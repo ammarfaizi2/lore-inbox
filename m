@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRAGJbQ>; Sun, 7 Jan 2001 04:31:16 -0500
+	id <S129896AbRAGJeQ>; Sun, 7 Jan 2001 04:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129896AbRAGJbH>; Sun, 7 Jan 2001 04:31:07 -0500
-Received: from UX4.SP.CS.CMU.EDU ([128.2.198.104]:27505 "HELO
-	ux4.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S129729AbRAGJa7>;
-	Sun, 7 Jan 2001 04:30:59 -0500
-Subject: Re: Speed of the network card
-To: Chris Wedgwood <cw@f00f.org>
-Date: Sun, 7 Jan 2001 04:30:30 -0500 (EST)
-From: Sourav Ghosh <sourav@ux4.sp.cs.cmu.edu>
-Cc: sourav@cs.cmu.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20010107144819.B1617@metastasis.f00f.org> from "Chris Wedgwood" at Jan 7, 2001 02:48:19 pm
-Reply-To: sourav@cs.cmu.edu
-X-Mailer: ELM [version 2.4 PL25-40]
+	id <S130119AbRAGJd4>; Sun, 7 Jan 2001 04:33:56 -0500
+Received: from mail006.syd.optusnet.com.au ([203.2.75.230]:40912 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S129896AbRAGJdz>; Sun, 7 Jan 2001 04:33:55 -0500
+Date: Sun, 7 Jan 2001 20:43:12 +1100 (EST)
+From: Brett <bpemberton@dingoblue.net.au>
+To: Matthias Juchem <juchem@uni-mannheim.de>
+cc: Ulrich Drepper <drepper@cygnus.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new bug report script
+In-Reply-To: <Pine.LNX.4.30.0101070858400.7104-100000@gandalf.math.uni-mannheim.de>
+Message-ID: <Pine.LNX.4.21.0101072041380.12767-100000@tae-bo.generica.dyndns.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010107093100Z129729-400+1338@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 7 Jan 2001, Matthias Juchem wrote:
+
+> On 6 Jan 2001, Ulrich Drepper wrote:
 > 
-> On Sat, Jan 06, 2001 at 08:20:02PM -0500, Sourav Ghosh wrote:
+> > This is wrong.  You cannot execute libc.so.5.  This only works with
+> > glibc.
 > 
->     I was wondering how I can determine the speed of a network device
->     inside the kernel.
-> 
-> what kind of network card?
->     
->     In case of ethernet, the "name" field  of device structure will
->     only give eth0 or something. But the speed could be either 10Mbps
->     or 100Mbps.
+> I already thought of something like that (I was not able to test it...).
+> Can you tell me a reliable way to get the version other than just looking
+> for the version appended to the file name?
+> Or is the file name scheme reliable (/lib/libc.so.5.x.y)?
 > 
 
-Well, I need to clarify the question.
+Taking a guess here....
 
-I would like to determine the banwidth the card is getting from
-the network. 
-For an ethernet, it could be either 10Mbps or 100Mbps, is there any
-way of knowing from inside the kernel how much is the bandwidth the
-card is actually receiving from the network, especially when it is capable of
-getting either 10Mbps or 100Mbps?
-  
+strings /lib/libc* | grep "release version"
 
+I'm not sure how reliable this method is either :)
 
-> we don't have a good was on doing this sort of thing, you could try
-> mii-tool though; it supports many cards
-> 
-> 
-> 
->   --cw
-
--- 
-Sourav
-
+	/ Brett
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

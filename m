@@ -1,109 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbUAHRan (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 12:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265686AbUAHRan
+	id S265783AbUAHRhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 12:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUAHRha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 12:30:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:30611 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265682AbUAHRa0 (ORCPT
+	Thu, 8 Jan 2004 12:37:30 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:18166 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265783AbUAHRhI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 12:30:26 -0500
-Date: Thu, 8 Jan 2004 18:31:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] fix runqueue corruption, 2.6.1-rc3-A0
-Message-ID: <20040108173111.GA28875@elte.hu>
+	Thu, 8 Jan 2004 12:37:08 -0500
+Date: Thu, 8 Jan 2004 09:36:55 -0800
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: linux-kernel@vger.kernel.org, jeremy@sgi.com,
+       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Jame.Bottomley@steeleye.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040108173655.GA11168@sgi.com>
+Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
+	linux-kernel@vger.kernel.org, jeremy@sgi.com,
+	Matthew Wilcox <willy@debian.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz, Jame.Bottomley@steeleye.com
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040108063829.GC22317@colo.lackof.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040108063829.GC22317@colo.lackof.org>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 11:38:29PM -0700, Grant Grundler wrote:
+> ....maybe it would be better if more folks read the PCI-X spec.
+> This quote is from v1.0a PCI-X Addendum to PCI Local Bus Spec,
+> "Appendix 11 - Use Of Relaxed Ordering" (bottom of page 221):
+> 
+> | In general, read and write transactions to or from I/O devices are
+> | classified as payload or control. (PCI 2.2 Appendix E refers to payload
+> | as Data and control as Flag and Status.) If the payload traffic requires
+> | multiple data phases or multiple transactions, such payload traffic
+> | rarely requires ordered transactions. That is, the order in which the
+> | bytes of the payload arrive is inconsequential, if they all arrive before
+> | the corresponding control traffic. However, control traffic generally does
+> | require ordered transactions. I/O devices that follow this programming
+> | model could use this distinction to set the Relaxed Ordering attribute
+> | in hardware with no device driver intervention.
+> 
+> Read that last sentence again.
+> It suggests using readb() variants are the wrong approach.
 
-the attached patch fixes a nasty, few-instructions race that can result
-in a corrupted runqueue at thread/process-creation time. The bug is this
-code in do_fork():
+Yep, you're right.  Adding readX() would definitely be the wrong thing
+to do if we want to support PCI-X RO correctly.
 
-                p->state = TASK_STOPPED;
-                if (!(clone_flags & CLONE_STOPPED))
-                        wake_up_forked_process(p);      /* do this last */
+> I'll assert SN2 is non-coherent with RO enabled.
+> "mostly coherent" is probably the right level of fuzziness.
+> But linux doesn't have a "mostly coherent" DMA API. :^)
 
-when we do copy_process(), the task ends up on the tasklist and is
-pid-hashed, and is thus accessible as a signal-wakeup target. But it's
-in TASK_UNINTERRUPTIBLE state so wakeups cannot happen. But:
+I'll buy that.
 
-    void wake_up_forked_process(task_t * p)
-    {
-            unsigned long flags;
-            runqueue_t *rq = task_rq_lock(current, &flags);
+> [ James (Bottomley) - I couldn't find a definition of "non-consistent
+>   memory machine" in DMA-ABI.txt. Was that intentional or could you
+>   include a variant of the above definition?
+>   I guess if one needed to include a definition, then the reader
+>   shouldn't be using the interfaces described in Part II.
+>   But this is a key distinction from DMA-mapping.txt. ]
+> 
+> 
+> > Right, that's another option--adding a pci_sync_consistent() call.
+> 
+> yes - something like this would be my preference mostly because it's
+> less intrusive to the drivers, less confusing for driver writers,
+> and can be a complete NOP on most platforms.
+> 
+> BTW, Jesse, did you look at part II of Documentation/DMA-ABI.txt?
 
-            BUG_ON(p->state != TASK_UNINTERRUPTIBLE);
-            p->state = TASK_RUNNING;
+I remember seeing discussion of the new API, but haven't read that doc
+yet.  Since most drivers still use the pci_* API, we'd have to add a
+call there, but we may as well make the two APIs as similar as possible
+right?
 
-so the task can be woken up from the place we do the TASK_STOPPED
-change, to the task_rq_lock(). This window is very small, but not
-impossible to trigger. The window is more likely to trigger on
-hyperthreading systems and when CONFIG_PREEMPT is enabled. (in fact we
-have a number of bugreports that i suspect are related to this race.) 
-The bug was introduced 6 months ago.
-
-The effect of the bug was quite hard to debug: it results in a corrupted
-runqueue due to the double list_add() - this causes lockups next time
-this area of the runqueue is used, far away from the buggy code itself.
-
-the fix is to set it to TASK_STOPPED only if we dont call
-wake_up_forked_process(). (Also, to avoid this bug in the future i've
-added an assert to catch illegal uses of wake_up_forked_process().)
-
-please apply.
-
-	Ingo
-
---- linux/kernel/fork.c.orig	
-+++ linux/kernel/fork.c	
-@@ -1209,9 +1209,16 @@ long do_fork(unsigned long clone_flags,
- 			set_tsk_thread_flag(p, TIF_SIGPENDING);
- 		}
- 
--		p->state = TASK_STOPPED;
-+		/*
-+		 * the task is in TASK_UNINTERRUPTIBLE right now, no-one
-+		 * can wake it up. Either wake it up as a child, which
-+		 * makes it TASK_RUNNING - or make it TASK_STOPPED, after
-+		 * which signals can wake the child up.
-+		 */
- 		if (!(clone_flags & CLONE_STOPPED))
- 			wake_up_forked_process(p);	/* do this last */
-+		else
-+			set_task_state(p, TASK_STOPPED);
- 		++total_forks;
- 
- 		if (unlikely (trace)) {
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -684,6 +684,7 @@ void wake_up_forked_process(task_t * p)
- 	unsigned long flags;
- 	runqueue_t *rq = task_rq_lock(current, &flags);
- 
-+	BUG_ON(p->state != TASK_UNINTERRUPTIBLE);
- 	p->state = TASK_RUNNING;
- 	/*
- 	 * We decrease the sleep average of forking parents
-@@ -2832,6 +2833,7 @@ void __init sched_init(void)
- 	rq = this_rq();
- 	rq->curr = current;
- 	rq->idle = current;
-+	current->state = TASK_UNINTERRUPTIBLE;
- 	set_task_cpu(current, smp_processor_id());
- 	wake_up_forked_process(current);
- 
+Jesse

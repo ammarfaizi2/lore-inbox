@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264316AbUEIJC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264315AbUEIJLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264316AbUEIJC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 05:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264322AbUEIJC4
+	id S264315AbUEIJLP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 05:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbUEIJLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 05:02:56 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:23197 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S264316AbUEIJCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 05:02:53 -0400
-From: "Peter J. Braam" <braam@clusterfs.com>
-To: <akpm@osdl.org>
-Cc: <intermezzo-devel@lists.sourceforge.net>, <arjanv@redhat.com>,
-       <linux-kernel@vger.kernel.org>, "'Anton Blanchard'" <anton@samba.org>
-Subject: RE: 9/10 intermezzos prefer eating memory
-Date: Sun, 9 May 2004 17:01:54 +0800
+	Sun, 9 May 2004 05:11:15 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4577 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264315AbUEIJLN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 05:11:13 -0400
+X-Authenticated: #20450766
+Date: Sun, 9 May 2004 11:10:30 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, <dipankar@in.ibm.com>,
+       <manfred@colorfullife.com>, <davej@redhat.com>, <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <maneesh@in.ibm.com>
+Subject: Re: dentry bloat.
+In-Reply-To: <Pine.LNX.4.58.0405082143340.1592@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.44.0405091058300.2106-100000@poirot.grange>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcQwHr/n2dBTZBe2RBqO7890Zt+jxwFgtqrQ
-In-Reply-To: <1083486146.3842.1.camel@laptop.fenrus.com>
-Message-Id: <20040509090249.A78D03100BD@moraine.clusterfs.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi Andrew, 
+On Sat, 8 May 2004, Linus Torvalds wrote:
 
-I would just like to say that I have no difficulties with intermezzo being
-rm -rf'd.  There are probably only a handful of users.   
+>    1:     5.04 % (    5.04 % cum -- 2246)
+>    2:     5.19 % (   10.23 % cum -- 2312)
 
-In the past 4 years nobody has supported InterMezzo sufficiently for it to
-become successful. I have been fortunate to get really good support for the
-Lustre project.  So I have focussed on that.  Lustre 1.X has become really
-solid.
+Ok, risking to state the obvious - it was intentional to count "."s and
+".."s, wasn't it? Just this makes it a bit non-trivial to compare this
+statistics with Andrew's.
 
-The disconnected operation, caching and mirroring functionality of
-InterMezzo will become available in Lustre as a new feature in version 2.  
+>   23:     0.14 % (   92.64 % cum -- 63)
+>
+> ie we've reached 92% of all names with 24-byte inline thing.
 
-So I see no point in keeping InterMezzo if it is a nuisance.  
+[OT, educational]: Do "." and ".." actually take dentries?
 
-I am also entirely happy to ask my one part time InterMezzo programmer to do
-a better job of repeatedly sending pathes until they are in.
-
-Please guide me along.  Thanks!
-
-- Peter -
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
 
-> -----Original Message-----
-> From: intermezzo-devel-admin@lists.sourceforge.net 
-> [mailto:intermezzo-devel-admin@lists.sourceforge.net] On 
-> Behalf Of Arjan van de Ven
-> Sent: Sunday, May 02, 2004 4:22 PM
-> To: Anton Blanchard
-> Cc: akpm@osdl.org; intermezzo-devel@lists.sourceforge.net; 
-> linux-kernel@vger.kernel.org
-> Subject: Re: 9/10 intermezzos prefer eating memory
-> 
-> On Sun, 2004-05-02 at 10:00, Anton Blanchard wrote:
-> > Hi,
-> > 
-> > Im sure the 4kB stack brigade wont be too happy about this:
-> 
-> I thought intermezzo would have been rm -rf'd by now...
-> 
 

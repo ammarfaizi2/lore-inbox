@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267869AbTBVJWL>; Sat, 22 Feb 2003 04:22:11 -0500
+	id <S267870AbTBVJXH>; Sat, 22 Feb 2003 04:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267870AbTBVJWL>; Sat, 22 Feb 2003 04:22:11 -0500
-Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:29149 "EHLO
-	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id <S267869AbTBVJWK> convert rfc822-to-8bit; Sat, 22 Feb 2003 04:22:10 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: Hans Reiser <reiser@namesys.com>
-Subject: Compile error, reiserfs, 2.4.21-pre4-ac5
-Date: Sat, 22 Feb 2003 04:33:27 -0500
-User-Agent: KMail/1.5
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	id <S267871AbTBVJXG>; Sat, 22 Feb 2003 04:23:06 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:4366 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S267870AbTBVJXF>;
+	Sat, 22 Feb 2003 04:23:05 -0500
+Date: Sat, 22 Feb 2003 10:19:05 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Ion Badulescu <ionut@badula.org>, Mikael Pettersson <mikpe@user.it.uu.se>,
+       m.c.p@wolk-project.de, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UP local APIC is deadly on SMP Athlon
+Message-ID: <20030222091905.GD5411@alpha.home.local>
+References: <200302220038.h1M0cn6r004153@harpo.it.uu.se> <Pine.LNX.4.44.0302220144530.18311-100000@moisil.badula.org> <20030222090604.GC5411@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302220433.44284.ivg2@cornell.edu>
+In-Reply-To: <20030222090604.GC5411@alpha.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Feb 22, 2003 at 10:06:04AM +0100, Willy Tarreau wrote:
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-pre4-ac5/include -Wall 
-- -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-- -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon    
-- -nostdinc -iwithprefix include -DKBUILD_BASENAME=namei  -c -o namei.o namei.c
-namei.c: In function `reiserfs_mkdir':
-namei.c:651: label `out_failed' used but not defined
-namei.c: In function `reiserfs_rmdir':
-namei.c:709: `windex' undeclared (first use in this function)
-namei.c:709: (Each undeclared identifier is reported only once
-namei.c:709: for each function it appears in.)
-namei.c: In function `reiserfs_symlink':
-namei.c:863: `mode' undeclared (first use in this function)
-namei.c:855: warning: unused variable `windex'
-make[3]: *** [namei.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac5/fs/reiserfs'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac5/fs/reiserfs'
-make[1]: *** [_subdir_reiserfs] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac5/fs'
-make: *** [_dir_fs] Error 2
+> BTW, there's something I don't understand. The only reference to
+> APIC_init_uniprocessor() I found was in smpboot.c:1044. It's called when the
+> SMP config has not been found at boot time (and it also sets
+> phys_cpu_present_map to 1, BTW). My problem is that this function is executed
+> on my dual-k7, on an SMP kernel (because I see the added message), but I
+> don't see the "SMP motherboard not detected" message which should be displayed
+> just before APIC_init_uniprocessor().
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Oops ! Sorry for the noise, I confused the message about phys_id_present_map
+with the one I added to APIC_init_uniprocessor(). So I confirm that this
+function is NOT executed on my dual-k7.
 
-iD8DBQE+V0P3XQ/AjixQzHcRAsGiAJ0V2TtcCcYGKvfF8yr4OeRbTlUowwCgjcBY
-eIt4xPePh79tVIt7f60lxY8=
-=/pwf
------END PGP SIGNATURE-----
+Cheers,
+Willy
 

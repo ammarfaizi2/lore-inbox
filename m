@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265706AbUHHXSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUHIA4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbUHHXSs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 19:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUHHXSs
+	id S265768AbUHIA4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 20:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUHIA4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 19:18:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21702 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265706AbUHHXSn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 19:18:43 -0400
-Date: Sun, 8 Aug 2004 16:17:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Brice.Goglin@ens-lyon.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm2
-Message-Id: <20040808161706.643bd7e8.akpm@osdl.org>
-In-Reply-To: <20040808160456.7706bc97.akpm@osdl.org>
-References: <20040808152936.1ce2eab8.akpm@osdl.org>
-	<20040808225504.GD31602@ens-lyon.fr>
-	<20040808160456.7706bc97.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 8 Aug 2004 20:56:40 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:56213 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S265768AbUHIA4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 20:56:39 -0400
+Subject: Resume and Swap
+From: Peter Zaitsev <peter@mysql.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1092012610.5205.428.camel@abyss.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 08 Aug 2004 17:50:11 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> The below is probably wrongish, but it'll get you thorugh.
+Hi,
 
-<actually looks>
+I'm running SuSE Linux 9.1 with kernel 2.6.5-7.95
 
-This is the correct patch.
+I've suspended my laptop and it was in suspended state for couple of
+weeks. When I resumed it it took unusually long and after it is finally
+succeed I found most of applications swapped out. Ie I had some 200MB of
+items swapped and some 500MB of memory free after resume.  I'm wondering
+if it is VM system got crazy for some reason. 
 
-diff -puN arch/i386/kernel/nmi.c~nmi-build-fix arch/i386/kernel/nmi.c
---- 25/arch/i386/kernel/nmi.c~nmi-build-fix	2004-08-08 16:15:55.998033640 -0700
-+++ 25-akpm/arch/i386/kernel/nmi.c	2004-08-08 16:15:56.003032880 -0700
-@@ -549,13 +549,13 @@ static int unknown_nmi_panic_callback(st
- /*
-  * proc handler for /proc/sys/kernel/unknown_nmi_panic
-  */
--int proc_unknown_nmi_panic(ctl_table *table, int write,
--                struct file *file, void __user *buffer, size_t *length)
-+int proc_unknown_nmi_panic(ctl_table *table, int write, struct file *file,
-+			void __user *buffer, size_t *length, loff_t *ppos)
- {
- 	int old_state;
- 
- 	old_state = unknown_nmi_panic;
--	proc_dointvec(table, write, file, buffer, length);
-+	proc_dointvec(table, write, file, buffer, length, ppos);
- 	if (!!old_state == !!unknown_nmi_panic)
- 		return 0;
- 
-diff -puN kernel/sysctl.c~nmi-build-fix kernel/sysctl.c
---- 25/kernel/sysctl.c~nmi-build-fix	2004-08-08 16:15:56.000033336 -0700
-+++ 25-akpm/kernel/sysctl.c	2004-08-08 16:15:56.004032728 -0700
-@@ -69,7 +69,7 @@ extern int printk_ratelimit_burst;
- #if defined(CONFIG_X86_LOCAL_APIC) && defined(__i386__)
- int unknown_nmi_panic;
- extern int proc_unknown_nmi_panic(ctl_table *, int, struct file *,
--				  void __user *, size_t *);
-+				  void __user *, size_t *, loff_t *);
- #endif
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
-_
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+
 

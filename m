@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbRAXDMw>; Tue, 23 Jan 2001 22:12:52 -0500
+	id <S130200AbRAXDPX>; Tue, 23 Jan 2001 22:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130200AbRAXDMm>; Tue, 23 Jan 2001 22:12:42 -0500
-Received: from CPE-61-9-148-22.vic.bigpond.net.au ([61.9.148.22]:39318 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S130075AbRAXDMc>; Tue, 23 Jan 2001 22:12:32 -0500
-Date: Wed, 24 Jan 2001 14:23:14 +1100
-From: john slee <indigoid@higherplane.net>
-To: Jonathan Earle <jearle@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Coding Style
-Message-ID: <20010124142314.E7426@higherplane.net>
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCB@zcard00g.ca.nortel.com>
+	id <S130320AbRAXDPN>; Tue, 23 Jan 2001 22:15:13 -0500
+Received: from p3EE3CBDA.dip.t-dialin.net ([62.227.203.218]:27141 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S130200AbRAXDOz>; Tue, 23 Jan 2001 22:14:55 -0500
+Date: Wed, 24 Jan 2001 04:14:37 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: FreeBSD Stable <freebsd-stable@FreeBSD.ORG>,
+        Linux NFS mailing list <nfs@lists.sourceforge.net>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
+Message-ID: <20010124041437.A28212@emma1.emma.line.org>
+In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com> <20010123162930.B5443@emma1.emma.line.org> <wuofwynsj5.fsf_-_@bg.sics.se> <20010123105350.B344@quadrajet.flashcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCB@zcard00g.ca.nortel.com>; from jearle@nortelnetworks.com on Tue, Jan 23, 2001 at 10:07:10AM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010123105350.B344@quadrajet.flashcom.com>; from gharris@flashcom.net on Tue, Jan 23, 2001 at 10:53:50 -0800
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 10:07:10AM -0500, Jonathan Earle wrote:
-> > /*
-> >  * I tend to find standard C comments easier to read.  They stand out,
-> >  * especially for multiple lines (although I always try to put the :end:
-> >  * on a separate line for clarity).
-> >  */
-> 
-> I like this style for multiple line comments, but prefer the '//' for single
-> liners.  Two less characters to type after all.  :)
+(Please consider removing FreeBSD-stable from the recipient list when
+replying.)
 
-and potentially no end of weird problems if you have mac users editing
-your code...  suddenly a compiler may ignore the rest of a file starting
-at a given // or # comment, and you'll find its caused by their
-different linebreaks.  had this problem with php.  havent seen it with C
-yet.  does gcc handle non-correct^H^H^H^H^H^H^Hunix linebreaks now?  it
-didnt when i used djgpp all those years ago.
+Summary:
 
-// are nicer on the eyes, for short comments.  and death to capital
-// letters.  and oooh, vim auto-extends // comments, thats handy isn't
-// it! :-]
+The Linux 2.2.18 NFS v3 server returns bogus and as per RFC-1813 invalid
+NFS3ERR_ROFS to ACCESS procedure calls when exporting a file system
+read-only, when it should instead return "OK" along with the actual
+permissions the client has, ANDed with the permissions the client
+queried. 
 
-j.
+The bug is visible on FreeBSD 4.2-STABLE client which cannot ls The
+mounted file system (NFS v2 is fine since it does not have ACCESS).
+There is no related log entry in the 2.2.19pre7 change log.  I did not
+check Linux 2.4.0, 2.4.0-acX or 2.4.1-preX either.
+
+On Tue, 23 Jan 2001, Guy Harris wrote:
+
+> Yes - for one thing, that means that if some client decides, while it's
+> asking whether the server whether it can write to a file, to check also
+> whether it can read from the file, it can get back an answer to both of
+> those questions, even if the file is on a read-only file system.
+
+Yup. Looks like a Linux kernel bug, so I'm cc'ing Alan Cox as kernel
+release maintainer as well as linux-kernel to make this a known issue.
+
+I got libpcap 0.6.1 and ethereal 0.8.15 and that's what I found:
+
+FreeBSD 4.2-STABLE sends three NFSPROC3_ACCESS requests, with 0x3f
+argument (meaning READ|LOOKUP|MODIFY|EXTEND|DELETE|EXECUTE), and to
+each, Linux 2.2.18 sends NFS3ERR_ROFS back, obj_attributes contains the
+stat data. ERR_ROFS is invalid here and makes indeed no sense, proper
+behaviour would be NFS3_OK with just READ|LOOKUP|EXECUTE set, since the
+server can actually access or stat the exported FS. Please correct me if
+I'm mistaking what RFC 1813 demands.
+
+client: $ mount server:/space /mnt
+        $ ls /mnt
+        ls: mnt: Read-only file system
+        (FreeBSD 4.2-STABLE)
+
+server: $ ls -ld /space/
+        drwxrwxrwt  23 root     root          706 Jan  2 11:53 /space/
+        $ grep /space /etc/exports
+        /space 192.168.0.0/255.255.255.0(ro)
+        (Linux 2.2.18, nfs-utils 0.2.1)
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

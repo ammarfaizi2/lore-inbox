@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRAXXB2>; Wed, 24 Jan 2001 18:01:28 -0500
+	id <S129375AbRAXXGN>; Wed, 24 Jan 2001 18:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAXXBS>; Wed, 24 Jan 2001 18:01:18 -0500
-Received: from gtei2.bellatlantic.net ([199.45.40.146]:42679 "EHLO
-	gtei2.bellatlantic.net") by vger.kernel.org with ESMTP
-	id <S129375AbRAXXBD>; Wed, 24 Jan 2001 18:01:03 -0500
-Message-ID: <3A6F5E59.4EF0F2CE@neuronet.pitt.edu>
-Date: Wed, 24 Jan 2001 17:59:37 -0500
-From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S129401AbRAXXGD>; Wed, 24 Jan 2001 18:06:03 -0500
+Received: from [212.255.16.226] ([212.255.16.226]:462 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129375AbRAXXFs> convert rfc822-to-8bit;
+	Wed, 24 Jan 2001 18:05:48 -0500
+Message-ID: <01b301c0865a$2cfdc0e0$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10101222129310.3031-100000@clueserver.org> <3A6F0D6B.34EB2CB0@coppice.org> <20010124123001.52317@winksmith.com> <3A6F2F9E.6030600@signalstorm.com> <20010124173854.35773@winksmith.com> <20010124145140.N2452@draco.foogod.com>
+Subject: Re: Probably Off-topic Question...
+Date: Wed, 24 Jan 2001 23:04:55 -0000
+Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
-To: f5ibh <f5ibh@db0bm.ampr.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: display problem with matroxfb
-In-Reply-To: <200101242217.XAA21787@db0bm.ampr.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-f5ibh wrote:
-> > XF4.0.x should work reasonably well. Or you can run accelerated XF on mga:
-> > matroxfb is compatible with accelerated XF 3.3.x, and with accelerated
-> > XF 4.0.x WITHOUT enabled DRI (as DRI code reprograms hardware even if
-> > X are on background) (and 'Option "UseFBDev"' is required if you are
-> > using both heads of G400/G450 with XF4).
-> 
-> I am lost !!
-> I've XFree86 Version 3.3.6
-> I've and ATI AGP video card with an S3 chipset and 4Mb plus the Matrox Mystique
-> (PCI) with 8Mb.
+Nono it can't be the BIOS coz then it won't work under Losedoze (old vers, e.g. Wfw 3.11 with Win32s).
+AFAIK it's the "keyboard controller" (i.e. the chipset)
 
-I think XFree86 3.3.6 will support one card at the time, not both, so
-you won't get 
-a dual-head server with that version. Upgrade to XFree86 4.0.x.
+For my Scenic Mobile 510 everything works fine under DOS, NT 5 (though _this_ Windoze _has_ advanced features) and Linnux.
 
--- 
-     Rafael
+mirabilos
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12+custom(^=href;C-style-comments)
+GO/S dx@ s--: a--->---- C++ UL++++ P--- L++$(-^lang) E----/joe W+(++)
+N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv!----
+b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM, GW-BASIC, C */
+------END GEEK CODE BLOCK------
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

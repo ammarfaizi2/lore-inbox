@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUGLRVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUGLR25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbUGLRVK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 13:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUGLRVK
+	id S266892AbUGLR25 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 13:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUGLR25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 13:21:10 -0400
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:4561 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id S265248AbUGLRVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 13:21:07 -0400
-Message-ID: <40F2C882.7070406@isg.de>
-Date: Mon, 12 Jul 2004 19:21:06 +0200
-From: Lutz Vieweg <lkv@isg.de>
-Organization: Innovative Software AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
-X-Accept-Language: de, German, en
+	Mon, 12 Jul 2004 13:28:57 -0400
+Received: from mail1.fw-sj.sony.com ([160.33.82.68]:56307 "EHLO
+	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S266892AbUGLR2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 13:28:55 -0400
+Message-ID: <40F2CAD4.6040000@am.sony.com>
+Date: Mon, 12 Jul 2004 10:31:00 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Michael Clark <michael@metaparadigm.com>
-Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to find out which pages were copied-on-write?
-References: <40EACC0C.6060606@isg.de> <20040709113125.GA8897@lnx-holt.americas.sgi.com> <40EF0346.4040407@isg.de> <40EFA4C8.1050409@metaparadigm.com>
-In-Reply-To: <40EFA4C8.1050409@metaparadigm.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: Adam Kropelin <akropel1@rochester.rr.com>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org, celinux-dev@tree.celinuxforum.org,
+       tpoynor@mvista.com, geert@linux-m68k.org
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+References: <40EEF10F.1030404@am.sony.com>	<20040710115413.A31260@mail.kroptech.com>	<20040710142800.A5093@mail.kroptech.com>	<200407101319.31147.dtor_core@ameritech.net>	<099101c466ba$7d75aa30$03c8a8c0@kroptech.com>	<20040710182527.47534358.akpm@osdl.org>	<20040710234459.A26981@mail.kroptech.com> <20040710213824.501545fb.akpm@osdl.org>
+In-Reply-To: <20040710213824.501545fb.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Clark wrote:
-> HPAs library LPSM sounds like what you're looking for.
+Andrew Morton wrote:
+> Adam Kropelin <akropel1@rochester.rr.com> wrote:
 > 
-> http://freshmeat.net/projects/lpsm/
+>>Actually, there are no ifdefs at all (unless there are some
+>> auto-generated ones I don't know about).
 > 
-> Or you can do what you want the hard way using mprotect and a SEGV handler.
+> 
+> OK, I should have looked and not guessed ;)
+> 
+> 
+>> Thanks for your feedback. Here's a patch implementing your suggestions.
+> 
+> 
+> Thanks.  Tim, could you please review-n-test this?
 
-Certainly a valid idea to consider - doing all those things in userspace... so
-thanks for the hint!
+Yes.  I'll give it a full run-through today.
 
-But wouldn't that introduce a significant overhead and undermine all of the
-nice advantages the kernel might have in scheduling I/O operations?
-
-However, I shall really consider and profile the mprotect/sighandler approach...
-
-Regards,
-
-Lutz Vieweg
-
-PS: I'm using my own allocator already, so using the C-library implementation
-     wouldn't gain me much...
-
-
+=============================
+Tim Bird
+Bootup Time Working Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

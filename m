@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313098AbSDTSvy>; Sat, 20 Apr 2002 14:51:54 -0400
+	id <S313139AbSDTTCp>; Sat, 20 Apr 2002 15:02:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313132AbSDTSvx>; Sat, 20 Apr 2002 14:51:53 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42323 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313098AbSDTSvw>; Sat, 20 Apr 2002 14:51:52 -0400
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16ya3u-0000RG-00@starship> <m1elha45q0.fsf@frodo.biederman.org>
-	<E16ycuh-0000Wg-00@starship>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Apr 2002 12:44:01 -0600
-Message-ID: <m1662m43da.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S313163AbSDTTCo>; Sat, 20 Apr 2002 15:02:44 -0400
+Received: from nacho.alt.net ([207.14.113.18]:48652 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id <S313139AbSDTTCo>;
+	Sat, 20 Apr 2002 15:02:44 -0400
+Date: Sat, 20 Apr 2002 12:02:43 -0700 (PDT)
+From: Chris Caputo <ccaputo@alt.net>
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbol: __udivdi3
+In-Reply-To: <3CC0A95A.2070000@candelatech.com>
+Message-ID: <Pine.LNX.4.44.0204201144510.4529-100000@nacho.alt.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> writes:
+On Fri, 19 Apr 2002, Ben Greear wrote:
+> Also, for what it's worth, do_div on x86 seems to corrupt arguments
+> given to it, and may do other screwy things.  I'm just going to
+> go back to casting and let user-space do any precise division.
 
-> All of what you said, 100% agreed, and insightful, in particular:
-> 
-> On Saturday 20 April 2002 19:53, Eric W. Biederman wrote:
-> > I can see the potential for this to break down.  However we should
-> > not be crying wolf until this actually does break down.
-> 
-> Do we want it to break down first?  I don't want that.
+Or consider the code from:
 
-The price of freedom is continual vigilance.  
+ http://nemesis.sourceforge.net/browse/lib/static/intmath/ix86/intmath.c.html
 
-So when confronted by changes in practice that we aren't sure about
-the appropriate procedure is to ask (publicly?).  If this is keeping
-developers from participating.  Or if it is placing a significant
-barrier in the way of developers.  If we start the conversation
-without condemnation of change, we won't be crying wolf.  Only asking
-is that a wolf?
+Adapted as follows...
 
-Addressing the filter is doing X fun.  For me working with near-free
-tools is not fun, because I must always be aware of the difference.  I
-am never quite certain where I stand with the tool vendor.  The tool
-is not free obviously because money making opportunities are more
-important than my ability to use and modify the tool.
+Chris
 
-At the same time constant vigilance even of free software is required.
-A non-free tool that does a sufficiently good job that I don't feel
-like fixing it, is usable.  It simply becomes a minor background
-irritant that I can ignore.
+---
 
-Linus working more efficiently so he can accept more patches is
-obviously more fun :)
+#define DIV 0
+#define REM 1
 
-Eric
+// Function copied/adapted/optimized from:
+//
+//  nemesis.sourceforge.net/browse/lib/static/intmath/ix86/intmath.c.html
+//
+// Copyright 1994, University of Cambridge Computer Laboratory
+// All Rights Reserved.
+//
+// TODO: When running on a 64-bit CPU platform, this should no longer be
+// TODO: necessary.
+//
+s64 divremdi3(s64 x,
+              s64 y,
+              int type)
+{
+  u64 a = (x < 0) ? -x : x;
+  u64 b = (y < 0) ? -y : y;
+  u64 res = 0, d = 1;
+
+  if (b > 0) while (b < a) b <<= 1, d <<= 1;
+
+  do
+    {
+      if ( a >= b ) a -= b, res += d;
+      b >>= 1;
+      d >>= 1;
+    }
+  while (d);
+
+  if (DIV == type)
+    {
+      return (((x ^ y) & (1ll<<63)) == 0) ? res : -(s64)res;
+    }
+  else
+    {
+      return ((x & (1ll<<63)) == 0) ? a : -(s64)a;
+    }
+}
+

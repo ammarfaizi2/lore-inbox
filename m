@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268904AbTBZUWT>; Wed, 26 Feb 2003 15:22:19 -0500
+	id <S268896AbTBZUVZ>; Wed, 26 Feb 2003 15:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268914AbTBZUWT>; Wed, 26 Feb 2003 15:22:19 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:49647 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268904AbTBZUWS> convert rfc822-to-8bit; Wed, 26 Feb 2003 15:22:18 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780A7D596C@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Dave Airlie'" <airlied@linux.ie>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: holding kernel semaphores while in userspace ...
-Date: Wed, 26 Feb 2003 12:32:26 -0800
+	id <S268901AbTBZUVZ>; Wed, 26 Feb 2003 15:21:25 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:7633 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id <S268896AbTBZUVZ>;
+	Wed, 26 Feb 2003 15:21:25 -0500
+From: Scott Lee <scottlee@redhot.rose.hp.com>
+Message-Id: <200302262031.MAA18505@redhot.rose.hp.com>
+Subject: Re: [PATCH] ide write barriers
+To: linux-kernel@vger.kernel.org
+Date: Wed, 26 Feb 2003 12:31:36 -0800 (PST)
+Cc: axboe@suse.de
+X-Mailer: ELM [$Revision: 1.17.214.2 $]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The goal is to make the use of write
+> back cache enabled ide drives safe with journalled file systems.
 
-> I'm doing stupid and evil .. and should I just be happy with my SYSV
-> semaphores or just use futexes (do these work acroess processes??)
+Does this mean that having write caching enabled is not safe if you are using ext3 on an IDE drive?  Should "hdparm -W 0 /dev/hda" be used for example.  (I see a 50% performance hit using "-W 0" when my box is under load.)  If this is the case, what is the root cause?  Do IDE drives reorder writes when they are cached?
 
-They do - I also think RH is porting the futex stuff for NPTL to 2.4 for
-their betas, so you might want to check it out (disclaimer: I read this
-somewhere in the NPTL mailing list ... go figure :)
+Thank you in advance for any guidance.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
-
-
+Scott Lee

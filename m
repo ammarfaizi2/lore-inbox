@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135663AbRDXOwt>; Tue, 24 Apr 2001 10:52:49 -0400
+	id <S135668AbRDXOz3>; Tue, 24 Apr 2001 10:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135656AbRDXOwk>; Tue, 24 Apr 2001 10:52:40 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:46092 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S135660AbRDXOwX>; Tue, 24 Apr 2001 10:52:23 -0400
-Date: Tue, 24 Apr 2001 15:52:19 +0100
-From: Roger Gammans <roger@computer-surgery.co.uk>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: CML2 <linux-kernel@vger.kernel.org>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010424155219.B23511@knuth.computer-surgery.co.uk>
-In-Reply-To: <roger@computer-surgery.co.uk> <200104241314.f3ODEfrn010473@pincoya.inf.utfsm.cl>
+	id <S135669AbRDXOzX>; Tue, 24 Apr 2001 10:55:23 -0400
+Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:5873
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S135668AbRDXOzG>; Tue, 24 Apr 2001 10:55:06 -0400
+Subject: Re: problem found (was Re: [PATCH] Single user linux)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Daniel Stone <daniel@kabuki.openfridge.net>
+Cc: imel96@trustix.co.id, Daniel Stone <daniel@kabuki.openfridge.net>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010425000656.C6067@piro.kabuki.openfridge.net>
+In-Reply-To: <20010424233801.A6067@piro.kabuki.openfridge.net>
+	<Pine.LNX.4.33.0104242046250.16242-100000@tessy.trustix.co.id> 
+	<20010425000656.C6067@piro.kabuki.openfridge.net>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 24 Apr 2001 16:47:16 +0200
+Message-Id: <988123691.15687.0.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <200104241314.f3ODEfrn010473@pincoya.inf.utfsm.cl>; from Horst von Brand on Tue, Apr 24, 2001 at 09:14:41AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 09:14:41AM -0400, Horst von Brand wrote:
-> Roger Gammans <roger@computer-surgery.co.uk> said:
+Le 25 Apr 2001 00:06:57 +1000, Daniel Stone a écrit :
+
+> > problem is you guys are to unix-centric, try to be user-centric a little.
 > 
-> People who want to take over "because it is s00 k3w1 to be a maintainer"
-> with no real interest in the code, just in the fact that it is orphaned...
+> We're too UNIX-centric, yet you're the one trying to put UNIX on a phone?
+> Come on ...
 
-No. People who want to give something back to the linux community
-and want to find an option within their ability and time constariants.
+Hey ! We already put uClinux on a phone ! Full-fledge linux is not far,
+beware !
 
-TTFN
--- 
-Roger
-     Think of the mess on the carpet. Sensible people do all their
-     demon-summoning in the garage, which you can just hose down afterwards.
-        --     damerell@chiark.greenend.org.uk
-	
+Cheers,
+
+Xav
+

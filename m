@@ -1,39 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbTFFVoF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 17:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFFVoF
+	id S262299AbTFFVyA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 17:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTFFVx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 17:44:05 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:41347 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262318AbTFFVoE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 17:44:04 -0400
-Message-ID: <3EE10D3D.4060803@austin.ibm.com>
-Date: Fri, 06 Jun 2003 16:53:01 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Fri, 6 Jun 2003 17:53:59 -0400
+Received: from exchange-1.umflint.edu ([141.216.3.48]:7663 "EHLO
+	Exchange-1.umflint.edu") by vger.kernel.org with ESMTP
+	id S262299AbTFFVx6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 17:53:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-To: linstab <linstab@osdl.org>, ltp-results@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: mm4, mm5, bk10 regression results
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
+Date: Fri, 6 Jun 2003 18:04:41 -0400
+Message-ID: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
+Thread-Index: AcMsdAxvwglcuuz2RJiUTT2zBirapwAALh5Q
+From: "Lauro, John" <jlauro@umflint.edu>
+To: <jmerkey@s1.uscreditbank.com>, <linux-kernel@vger.kernel.org>
+Cc: <jmerkey@utah-nac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-latest -mm tree results:
+I assume you mean between keyboard and chair???
 
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm4/2.5.70-mm3-vs-2.5.70-mm4/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm4/2.5.70-vs-2.5.70-mm4/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm5/2.5.70-mm4-vs-2.5.70-mm5/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm5/2.5.70-vs-2.5.70-mm5/
+Anyways...
 
-latest -bk tree results:
+If I do anything semi-advanced with e1000 cards, I end up getting
+Intel's drivers.  It's a minor pain when switching kernel versions
+(especially to a different version number) as the default scripts
+assume you are already booted (uname -r) in the kernel you are
+building for and are not part of the kernel source tree...
 
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk10/2.5.70-bk9-vs-2.5.70-bk10/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk10/2.5.70-vs-2.5.70-bk10/
+I suggest you try e1000-5.0.43 from Intel, and also iANS-2.3.35 (or
+higher if either of them have updates).
 
-Mark
+I don't know if you are doing any advanced features like vlan tagging
+or not.  Anyways, it's one area that drivers from Intel's site does
+work better then the native stock kernel drivers.  Specifically as an
+example, virtual Ethernets over different vlan tags when combined with
+vmware gsx server works with Intel's iANS, but not with the stock vlan
+support.
+
+I know, it doesn't answer your question...  but it gives you something
+else to try...
+
+> -----Original Message-----
+> From: jmerkey@s1.uscreditbank.com
+[mailto:jmerkey@s1.uscreditbank.com]
+> Sent: Friday, June 06, 2003 5:40 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: jmerkey@utah-nac.org
+> Subject: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
+> 
+> 
+> 
+> In 2.4.20 if I attempt to use the Intel multiport e1000 drivers with
+> modules.conf trying to hard set the eth0,eth1, etc. assignments
+modprobe
+> does
+> not appear to be assigning the adapter aliases correctly.  I am
+assuming
+> this may be due to an interface issue between the Keyboard and
+monitor. :-
+> )
+> 
+> Modules.conf file attached.  Anyone got any ideas here?
+> 
+> Jeff
+> 
 

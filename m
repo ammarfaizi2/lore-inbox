@@ -1,94 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVACSwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVACSwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVACSwE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVACStH
+	id S261520AbVACSwV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVACSwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:49:07 -0500
-Received: from gprs215-62.eurotel.cz ([160.218.215.62]:47068 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261772AbVACSpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:45:52 -0500
-Date: Mon, 3 Jan 2005 19:33:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: lindqvist@netstar.se, edi@gmx.de, john@hjsoft.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH] swsusp: properly suspend and resume *all* devices
-Message-ID: <20050103183317.GA1353@elf.ucw.cz>
-References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net> <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net> <20050103170807.GA8163@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050103170807.GA8163@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 3 Jan 2005 13:52:20 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:781 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261782AbVACSvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 13:51:53 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <tonyosborne_a@hotmail.com>
+Subject: RE: Main CPU- I/O CPU interaction
+Date: Mon, 3 Jan 2005 10:51:43 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEDBANAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 03 Jan 2005 10:27:45 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 03 Jan 2005 10:27:46 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 03-01-05 18:08:07, Pavel Machek wrote:
-> Hi!
-> 
-> > swsusp does not suspend and resume *all* devices, including system
-> > devices. This has been the case since at least 2.6.9, if not earlier.
-> > 
-> > One effect of this is that resuming fails to properly reconfigure
-> > interrupt routers. In 2.6.9 this was obscured by other kernel code,
-> > but in 2.6.10 this often causes post-resume APIC errors and near-total
-> > failure of some PCI devices (e.g. network, sound and USB controllers).
-> > 
-> > On at least one of my systems, without this patch I also have to "ifdown
-> > eth0;ifup eth0" to get networking to function after resuming, even after
-> > working around the interrupt routing problem mentioned above. With this
-> > patch, networking simply works after a resume, and the ifdown/ifup is
-> > no longer needed.
-> > 
-> > This patch is against 2.6.10-mm1, although it applies with an offset to
-> > 2.6.10-bk4 as well. I have tested it against 2.6.10-mm1 and 2.6.10-bk4,
-> > with and without "noapic", with and without "acpi=off". However, I have
-> > not tested it on a highmem system.
-> > 
-> > I believe this patch fixes a severe problem in swsusp; I would like to
-> > see this patch (or at least *some* kind of fix for this problem) tested
-> > more widely and committed to mainline before the 2.6.11 release.
-> > 
-> > Signed-off-by: Barry K. Nathan <barryn@pobox.com>
-> 
-> Ack. [I have similar patch in my tree, but yours is better in error
-> checking area. Please push it to akpm.]
 
-Actually you missed second half: same code should be added around
-swsusp_arch_resume. It is not too critical there, but its right thing
-to do.
-									Pavel
+> from doing the low level I/O operations. However, if i am editing and 
+> updating a big size file and i want to save
+> it afterwards, i  notice my PC getting blocked while saving the 
+> file which 
+> theoritically should NOT happen as it is up to the I/O device 
+> processor and 
 
-> > --- linux-2.6.10-mm1/kernel/power/swsusp.c	2005-01-03 02:16:15.175265255 -0800
-> > +++ linux-2.6.10-mm1-bkn3/kernel/power/swsusp.c	2005-01-03 06:27:07.753344731 -0800
-> > @@ -843,11 +843,22 @@
-> >  	if ((error = arch_prepare_suspend()))
-> >  		return error;
-> >  	local_irq_disable();
-> > +	/* At this point, device_suspend() has been called, but *not*
-> > +	 * device_power_down(). We *must* device_power_down() now.
-> > +	 * Otherwise, drivers for some devices (e.g. interrupt controllers)
-> > +	 * become desynchronized with the actual state of the hardware
-> > +	 * at resume time, and evil weirdness ensues.
-> > +	 */
-> > +	if ((error = device_power_down(PM_SUSPEND_DISK))) {
-> > +		local_irq_enable();
-> > +		return error;
-> > +	}
-> >  	save_processor_state();
-> >  	error = swsusp_arch_suspend();
-> >  	/* Restore control flow magically appears here */
-> >  	restore_processor_state();
-> >  	restore_highmem();
-> > +	device_power_up();
-> >  	local_irq_enable();
-> >  	return error;
-> >  }
-> 
+	What does "PC getting blocked" mean?
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	DS
+
+

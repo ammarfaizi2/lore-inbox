@@ -1,27 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317271AbSGCX2q>; Wed, 3 Jul 2002 19:28:46 -0400
+	id <S317276AbSGCXkY>; Wed, 3 Jul 2002 19:40:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317276AbSGCX2p>; Wed, 3 Jul 2002 19:28:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54286 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317271AbSGCX2p>;
-	Wed, 3 Jul 2002 19:28:45 -0400
-Subject: Re: Cyrix IRQ routing is wrong?
-To: proski@gnu.org (Pavel Roskin)
-Date: Thu, 4 Jul 2002 00:31:16 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, dhinds@sonic.net (David Hinds)
-In-Reply-To: <Pine.LNX.4.44.0207011814070.18831-100000@marabou.research.att.com> from "Pavel Roskin" at Jul 01, 2002 07:50:14 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S317277AbSGCXkX>; Wed, 3 Jul 2002 19:40:23 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:22496 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S317276AbSGCXkW>; Wed, 3 Jul 2002 19:40:22 -0400
+Date: Wed, 3 Jul 2002 19:42:53 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: linux-kernel@vger.kernel.org, Martin Mares <mj@ucw.cz>
+Subject: [PATCH] Cyrix PCI IRQ routing fix
+Message-ID: <Pine.LNX.4.44.0207031917190.3740-100000@marabou.research.att.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Ptae-0002Ir-00@www.linux.org.uk>
-From: Alan Cox <alan@www.linux.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The existing code uses the upper nibble in the same byte for lower pirq,
-> but it seems that we should start with the lower nibble for EM-350A.
+Hello, Martin and everybody else!
 
-On all my boards its upper first and the current code works while the 
-patch you have hangs the box
+A comment in Linux-2.5.24, file arch/i386/pci/irq.c says:
+
+/* 
+ * Cyrix: nibble offset 0x5C 
+ * 0x5C bits 7:4 is INTB bits 3:0 is INTA  
+ * 0x5D bits 7:4 is INTD bits 3:0 is INTC 
+ */
+
+Too bad that the functions pirq_cyrix_get() and pirq_cyrix_set() do it 
+wrong.  Indeed, for INTA, pirq is 1, (pirq-1)^1 is 1, read_config_nybble() 
+takes most significant bits in 0x5C, and so does write_config_nybble().
+For INTB pirq is 2, (pirq-1)^1 is 0, so we get bits 3:0 from 0x5c.
+
+This results in the following warnings that disappear when the code is
+fixed to match the comment:
+
+Intel ISA/PCI/CardBus PCIC probe:
+PCI: Found IRQ 11 for device 00:11.0
+IRQ routing conflict for 00:11.0, have irq 15, want irq 11
+PCI: Found IRQ 15 for device 00:11.1
+IRQ routing conflict for 00:11.1, have irq 11, want irq 15
+
+Patch for 2.5.24:
+
+================================
+--- linux.orig/arch/i386/pci/irq.c
++++ linux/arch/i386/pci/irq.c
+@@ -248,12 +248,12 @@ static int pirq_opti_set(struct pci_dev 
+  */
+ static int pirq_cyrix_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
+ {
+-	return read_config_nybble(router, 0x5C, (pirq-1)^1);
++	return read_config_nybble(router, 0x5C, pirq-1);
+ }
+ 
+ static int pirq_cyrix_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
+ {
+-	write_config_nybble(router, 0x5C, (pirq-1)^1, irq);
++	write_config_nybble(router, 0x5C, pirq-1, irq);
+ 	return 1;
+ }
+ 
+================================
+
+Patch for 2.4.19-rc1:
+
+================================
+--- linux.orig/arch/i386/kernel/pci-irq.c
++++ linux/arch/i386/kernel/pci-irq.c
+@@ -243,12 +243,12 @@ static int pirq_opti_set(struct pci_dev 
+  */
+ static int pirq_cyrix_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
+ {
+-	return read_config_nybble(router, 0x5C, (pirq-1)^1);
++	return read_config_nybble(router, 0x5C, pirq-1);
+ }
+ 
+ static int pirq_cyrix_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
+ {
+-	write_config_nybble(router, 0x5C, (pirq-1)^1, irq);
++	write_config_nybble(router, 0x5C, pirq-1, irq);
+ 	return 1;
+ }
+ 
+================================
+
+The code was right in 2.4.17, but it was broken in 2.4.18.  This change is 
+not mentioned in 
+http://www.kernel.org/pub/linux/kernel/v2.4/ChangeLog-2.4.18
+I'm assuming it was an accidental breakage, and it should be reverted.
+
+-- 
+Regards,
+Pavel Roskin
+

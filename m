@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUFBI4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUFBJPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265187AbUFBI4P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 04:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFBI4P
+	id S262356AbUFBJPf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 05:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUFBJPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 04:56:15 -0400
-Received: from Spamfilter.post.RO ([80.86.96.12]:53962 "EHLO
-	spamfilter.post.ro") by vger.kernel.org with ESMTP id S265187AbUFBI4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 04:56:14 -0400
-From: dahood@post.ro
-X-Priority: 3
+	Wed, 2 Jun 2004 05:15:35 -0400
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:59542 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S262356AbUFBJPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 05:15:30 -0400
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix dependeces for CONFIG_USB_STORAGE
+Date: Wed, 2 Jun 2004 11:16:35 +0200
+User-Agent: KMail/1.5.4
+Cc: "Linux-kernel" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <40BD9615.000002.22735@server.post.ro>
-Date: Wed, 2 Jun 2004 11:55:47 +0300 (EEST)
-Content-Type: Text/Plain
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Subject: Locking pages in memory
+Content-Disposition: inline
+Message-Id: <200406021116.35529.ornati@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch adds a missed dependence for CONFIG_USB_STORAGE.
 
-I'm trying to lock some pages from a mmaped user memory (say user_addr). (mmap on a file)
-For this I did the following (in a kernel module):
-1. with get_user I fault every page into the memory, then I get the physical address of each page.
-2. I put PG_reserved and do a get_page on each page.
-3. After I finish using the memory, I truncate the file used for mmap to 0, and close the file descriptor(this is done in user space).
-4. In kernel space, I do set_page_count to 1, for every page, clear PG_reserved, and do put_page.
+Signed-off-by: Paolo Ornati <ornati@fastwebnet.it>
 
-My problem is that in kernel 2.4, this works perfectly, while in 2.6, when I do put_page, I get an bad state on page, because page_mapped is not 0 (page->pte.direct != 0), which means that the page in take into account into rmap. But because the page is PG_reserved, I think it shoudn't be.
+--- linux/drivers/usb/storage/Kconfig.orig	2004-06-02 10:55:18.000000000 +0200
++++ linux/drivers/usb/storage/Kconfig	2004-06-02 10:56:03.000000000 +0200
+@@ -6,6 +6,7 @@
+ 	tristate "USB Mass Storage support"
+ 	depends on USB
+ 	select SCSI
++	select BLK_DEV_SD
+ 	---help---
+ 	  Say Y here if you want to connect USB mass storage devices to your
+ 	  computer's USB port. This is the driver you need for USB floppy drives,
 
-Is there is something more that I should do in kernel 2.6 if I'm using reserved pages, more than in 2.4?  
 
-In kernel 2.4, I know that is my responsability to set the page count to 1, when I'm sure that there is no one else using the pages, and put_page to kernel. 
+-- 
+	Paolo Ornati
+	Linux v2.6.6
 
-I tried a workaround in 2.6, by setting page->pte.direct=0, before doing the final put_page. In this way, the put_page function is happy, but when I try do large allocation in user space program, I keep getting segmentation fault, so I think that the pte.direct hack is not ok.
-
-Thank you,
-Dan

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUIMSGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUIMSKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268274AbUIMSGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 14:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268298AbUIMSGu
+	id S266069AbUIMSKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 14:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266517AbUIMSKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 14:06:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37815 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268274AbUIMSGt (ORCPT
+	Mon, 13 Sep 2004 14:10:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20154 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266069AbUIMSKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 14:06:49 -0400
-Date: Mon, 13 Sep 2004 11:06:11 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Mon, 13 Sep 2004 14:10:21 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Paul Jackson <pj@sgi.com>
 Subject: Re: 2.6.9-rc1-mm5
-Message-Id: <20040913110611.0ce875cf.pj@sgi.com>
-In-Reply-To: <200409131024.08643.jbarnes@engr.sgi.com>
-References: <20040913015003.5406abae.akpm@osdl.org>
-	<414566DC.8000008@yahoo.com.au>
-	<200409131024.08643.jbarnes@engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Mon, 13 Sep 2004 11:10:17 -0700
+User-Agent: KMail/1.7
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20040913015003.5406abae.akpm@osdl.org> <200409131024.08643.jbarnes@engr.sgi.com> <20040913110611.0ce875cf.pj@sgi.com>
+In-Reply-To: <20040913110611.0ce875cf.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409131110.17588.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse wrote:
-> I'll send out a more complete one later (unless 
-> Paul beat me to it,
+On Monday, September 13, 2004 11:06 am, Paul Jackson wrote:
+> Jesse wrote:
+> > I'll send out a more complete one later (unless
+> > Paul beat me to it,
+>
+> See my patch posted a few hours ago:
+>
+>   [Patch] Fix sched make domain setup overridable
 
-See my patch posted a few hours ago:
+Yeah, I saw that, thanks.  I meant a more complete dmesg (i.e. one for a 
+bigger system).  I've got a 32p reserved for later today.
 
-  [Patch] Fix sched make domain setup overridable
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jesse

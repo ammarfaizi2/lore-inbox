@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUG2Prh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUG2Ptw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUG2Prh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUG2PpA
+	id S267480AbUG2Ptw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUG2PhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:45:00 -0400
-Received: from postimies.kymp.net ([80.248.96.135]:26117 "EHLO vesta.kymp.net")
-	by vger.kernel.org with ESMTP id S268233AbUG2Pn6 (ORCPT
+	Thu, 29 Jul 2004 11:37:18 -0400
+Received: from pop.gmx.net ([213.165.64.20]:64473 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268035AbUG2PN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:43:58 -0400
-Date: Thu, 29 Jul 2004 18:42:24 +0300
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on 4KSTACKS=n
-Message-ID: <20040729154224.GA3030@bostik.iki.fi>
-Reply-To: Mika Bostrom <bostik+lkml@bostik.iki.fi>
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu> <20040720195012.GN14733@fs.tum.de> <20040729060900.GA1946@frodo>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-In-Reply-To: <20040729060900.GA1946@frodo>
-User-Agent: Mutt/1.5.6+20040523i
-From: bostik@bostik.iki.fi (Mika Bostrom)
+	Thu, 29 Jul 2004 11:13:26 -0400
+Date: Thu, 29 Jul 2004 17:13:24 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: [2.6.7, ia64] sleeping while atomically allocating...
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <15341.1091114004@www4.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I saw this warning [1] while a process was dumping core. Hardware is a
+generic ia64 4-way Itanium 2 Intel tiger 4 system.
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--- [1]
 
-On Thu, Jul 29, 2004 at 04:09:00PM +1000, Nathan Scott wrote:
-> On Tue, Jul 20, 2004 at 09:50:12PM +0200, Adrian Bunk wrote:
-> > Mark this combination as BROKEN until XFS is fixed.
-> This part is not useful.  We want to hear about problems
-> that people hit with 4K stacks so we can try to address
-> them, and it mostly works as is.
+Debug: sleeping function called from invalid context at
+include/linux/rwsem.h:43
+in_atomic():1, irqs_disabled():0
 
-  I can mention one. This is not a bugreport (yet).
+Call Trace:
+ [<a00000010001b6e0>] show_stack+0x80/0xa0
+                                sp=e0000000369ef8b0 bsp=e0000000369e9460
+ [<a00000010009bf30>] __might_sleep+0x1b0/0x220
+                                sp=e0000000369efa80 bsp=e0000000369e9438
+ [<a0000001000bb690>] access_process_vm+0x150/0x540
+                                sp=e0000000369efa90 bsp=e0000000369e9380
+ [<a0000001000381a0>] ia64_sync_user_rbs+0xa0/0xe0
+                                sp=e0000000369efab0 bsp=e0000000369e9350
+ [<a00000010001ceb0>] do_copy_task_regs+0xd0/0x3e0
+                                sp=e0000000369efac0 bsp=e0000000369e92e8
+ [<a00000010001d3b0>] dump_task_regs+0x70/0xc0
+                                sp=e0000000369efae0 bsp=e0000000369e92c8
+ [<a0000001001d7130>] elf_dump_thread_status+0xd0/0x240
+                                sp=e0000000369efcb0 bsp=e0000000369e9258
+ [<a0000001001d86b0>] elf_core_dump+0x1410/0x1540
+                                sp=e0000000369efcb0 bsp=e0000000369e9160
+ [<a000000100180770>] do_coredump+0x590/0x620
+                                sp=e0000000369efd50 bsp=e0000000369e9108
+ [<a0000001000c94e0>] get_signal_to_deliver+0x700/0xcc0
+                                sp=e0000000369efda0 bsp=e0000000369e9098
+ [<a0000001000425d0>] ia64_do_signal+0xb0/0x420
+                                sp=e0000000369efda0 bsp=e0000000369e9000
+ [<a00000010001c0f0>] do_notify_resume_user+0x110/0x120
+                                sp=e0000000369efe20 bsp=e0000000369e8fd0
+ [<a0000001000129c0>] notify_resume_user+0x40/0x60
+                                sp=e0000000369efe20 bsp=e0000000369e8f80
+ [<a0000001000128f0>] skip_rbs_switch+0xd0/0xe0
+                                sp=e0000000369efe30 bsp=e0000000369e8f68
 
-  I can reproduce a complete hard-lock on 2.6.7 vanilla with the
-following setup:
+-- 
+Daniel J Blueman
 
-  * VMWare 4.5.2 (taints kernel, I know)
-    * NIC is bridged
-  * XFS filesystem
-  * 4k stacks
+NEU: WLAN-Router für 0,- EUR* - auch für DSL-Wechsler!
+GMX DSL = supergünstig & kabellos http://www.gmx.net/de/go/dsl
 
-  Inside vmware, I am running an instance of modified OpenBSD. With 4k
-stacks, at least once a day the system locks hard. The shortest time
-between two forced boots was about 20 minutes.
-
-  The hang is triggered everytime by a single instance: guest OS sends a
-DHCP-request, and this causes the linux kernel to hang. This does not
-happen every time, but perhaps every fourth or fifth time. On one
-occasion, it was the first time immediately after boot.
-
-  Compiling 2.6.7 with 8k stacks has so far solved this issue. No random
-hangs.
-
-  Now, the reason this can't be any kind of bugreport is clear:
-  1) kernel is tainted
-  2) VMWare's modules are not yet updated to cope with 2.6.7 kernel
-
-  So until VMWare updates their product, I consider this a bug in their
-modules. When they do, I intend to test 4k stacks again. If the hangs
-continue, then I shall see with their support whether it can be tracked
-to their code or not.
-
-  But at least at the moment if you wish to use VMWare and XFS, using 4k
-stacks is, in my experience, asking for trouble.=20
-
---=20
- Mika Bostr=F6m      +358-40-525-7347  \-/  "World peace will be achieved
- Bostik@iki.fi    www.iki.fi/bostik   X    when the last man has killed
- Security freak, and proud of it.    /-\   the second-to-last." -anon?
-
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBCRrgv829VwOfGI4RApo+AKCm7w2BN6J8/2x3jGDxn5vsOPBaJgCfW96H
-rk11kjWvqJfy5azR6zodJAQ=
-=+y/D
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263793AbRFSFn1>; Tue, 19 Jun 2001 01:43:27 -0400
+	id <S263894AbRFSGNi>; Tue, 19 Jun 2001 02:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263854AbRFSFnR>; Tue, 19 Jun 2001 01:43:17 -0400
-Received: from mcp.csh.rit.edu ([129.21.60.9]:45831 "EHLO mcp.csh.rit.edu")
-	by vger.kernel.org with ESMTP id <S263793AbRFSFnD>;
-	Tue, 19 Jun 2001 01:43:03 -0400
-Date: Tue, 19 Jun 2001 01:37:30 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
-Message-ID: <20010619013729.I8295@fury.csh.rit.edu>
-In-Reply-To: <Pine.LNX.4.30.0106182320510.2168-100000@coredump.sh0n.net> <Pine.LNX.4.30.0106182355500.118-100000@coredump.sh0n.net> <20010619010633.G8295@fury.csh.rit.edu> <15150.58266.85737.742044@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <15150.58266.85737.742044@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Jun 19, 2001 at 03:31:06PM +1000
-X-Operating-System: SunOS 5.8 (sun4u)
+	id <S263895AbRFSGN2>; Tue, 19 Jun 2001 02:13:28 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47880 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263894AbRFSGNQ>; Tue, 19 Jun 2001 02:13:16 -0400
+Date: Tue, 19 Jun 2001 03:13:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: root <root@norma.kjist.ac.kr>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 VM & swap question
+In-Reply-To: <Pine.LNX.4.33.0106190725040.576-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0106190312210.1376-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 03:31:06PM +1000, Neil Brown wrote:
-> On Tuesday June 19, jeffm@suse.com wrote:
-> > On Mon, Jun 18, 2001 at 11:57:16PM -0400, Shawn Starr wrote:
-> > > 
-> > > read_super_block: can't find a reiserfs filesystem on dev 03:42
-> > > read_old_super_block: try to find super block in old location
-> > > read_old_super_block: can't find a reiserfs filesystem on dev 03:42
-> > > Kernel Panic: VFS: Unable to mount root fs on 03:42
-> > > 
-> > > my super block broke somewhere?
-> > 
-> >     Out of curiousity, what device are you trying to boot from? 03:42, at least
-> >     according to linux/Documentation/devices.txt, corresponds to /dev/hda42.
-> 
-> or, noting that kdevname used hexadecimal, 
->   /dev/hdb2
+On Tue, 19 Jun 2001, Mike Galbraith wrote:
+> On Mon, 18 Jun 2001, root wrote:
+>
+> > Regarding to the discussion on the swap size,
+> >
+> > Recently, Rick van Riel posted a message that there is a bug
+> > related to "reclaiming" the swap, and said that it is on his
+> > TODO list.
+>
+> That's fixed.
 
-    Ugh. Ignore me, I should've known that.
+It's not. We don't reclaim swap space when we run low on
+free swap space (by freeing up the space in swap of stuff
+which is in RAM).
 
-    -Jeff
+regards,
 
--- 
-Jeff Mahoney
-jeffm@suse.com
-jeffm@csh.rit.edu
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

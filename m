@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272522AbTGaQIw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272516AbTGaQIv
+	id S272521AbTGaQGb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272516AbTGaQGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:08:51 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:10472 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272522AbTGaQIF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:08:05 -0400
-Date: Thu, 31 Jul 2003 18:07:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-Message-ID: <20030731160745.GB342@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <20030731094904.GC464@elf.ucw.cz> <3F291857.1030803@pacbell.net>
+	Thu, 31 Jul 2003 12:06:31 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:34702 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S274821AbTGaQFl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:05:41 -0400
+Subject: Re: TSCs are a no-no on i386
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030731151020.GF6410@mail.jlokier.co.uk>
+References: <20030730135623.GA1873@lug-owl.de>
+	 <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com>
+	 <20030730184529.GE21734@fs.tum.de> <20030730202822.GG1873@lug-owl.de>
+	 <20030730215032.GA18892@vana.vc.cvut.cz>
+	 <1059606394.10505.24.camel@dhcp22.swansea.linux.org.uk>
+	 <20030731151020.GF6410@mail.jlokier.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059667304.16608.47.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F291857.1030803@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 31 Jul 2003 17:01:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>- APM uses the pm_*() calls for a vetoable check,
-> >>  never issues SAVE_STATE, then goes POWER_DOWN.
-> >
-> >
-> >I remember the reason... SAVE_STATE expects user processes to be
-> >stopped, which is not the case in APM. Perhaps that is easy to fix
-> >these days...
+On Iau, 2003-07-31 at 16:10, Jamie Lokier wrote:
+> > And if the byte you are looking at was patched by another thread you've
+> > blown it. Your emulation can only be so good 8) People do stuff like
+> > patching instructions under software decode as a robustness check - its
+> > normally pretty amusing
 > 
-> That SAVE_STATE restriction doesn't seem to be documented...
+> On a uniprocessor 386, this is not a problem.  Just disable preemption
+> in the kernel decoder.
 
-It is not; but I could not convince myself that it is okay to call
-SAVE_STATE with userland alive, and that's why I did not add
-SAVE_STATE to apm.
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Wrong again. Thats a common myth but you see I can put the instruction on a page
+so that its executed from a page I just did a read() into in another process. If
+I'm really bored I'll use O_DIRECT but thats mostly for makign life really bad 
+for non cache coherent setups 8)
+

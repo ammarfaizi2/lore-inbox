@@ -1,36 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275680AbRJJNEo>; Wed, 10 Oct 2001 09:04:44 -0400
+	id <S275671AbRJJNAn>; Wed, 10 Oct 2001 09:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275687AbRJJNEe>; Wed, 10 Oct 2001 09:04:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33029 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275680AbRJJNEY>; Wed, 10 Oct 2001 09:04:24 -0400
-Subject: Re: Tainted Modules Help Notices
-To: sirmorcant@morcant.org (Morgan Collins [Ax0n])
-Date: Wed, 10 Oct 2001 14:10:26 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <32879.24.255.76.12.1002701163.squirrel@webmail.morcant.org> from "Morgan Collins [Ax0n]" at Oct 10, 2001 01:06:03 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275675AbRJJNAd>; Wed, 10 Oct 2001 09:00:33 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S275671AbRJJNAV>; Wed, 10 Oct 2001 09:00:21 -0400
+Date: Wed, 10 Oct 2001 09:00:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Keith Owens <kaos@ocs.com.au>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: kernel size 
+In-Reply-To: <7568.1002677371@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.3.95.1011010084118.8134B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rJ7y-0007kO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     What surprised me was the PPP compression modules, I didn't use PPP in 2.4.10 so maybe
-> the notice was there in 2.4.10, but I didn't use them so I didn't see it. I shouldn't have
-> been surprised, but I was. BSD compression, BSD license... doh... :>
+On Wed, 10 Oct 2001, Keith Owens wrote:
 
-Some of these are just things we need to tidy
+> On Tue, 9 Oct 2001 11:53:48 -0400 (EDT), 
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> >Yes. It shows in /proc/kcore. Just wasted. It does mean something
+> >on an embedded system.
+> 
+> kcore shows all the kernel buffers, including user space stuff being
+> processed by the loader.  My tests show that all the strings that you
+> are complaining about have been stripped from the kernel before it is
+> loaded.
+> 
 
->     After this discovery, I would like to ask opinions on including licensing terms in
-> item/module help files. It would be very convient if under dpt_i2o help it said that it
-> was licensed under BSD-NAC.
+Yes... but.  The final test was using bzImage which became about 1k
+shorter after making the changes to vmlinux.lds.
 
-The kernel dpt_i2o is GPL. Its in part built from GPL'd code I wrote but
-mostly from what I assume was originally a  cross platform dpt source set.
+total 748
+drwxr-xr-x   4 root     101          4096 Oct  9 13:49 .
+drwxr-xr-x   7 root     101          4096 Jan 11  2001 ..
+-rw-r--r--   1 root     101          2799 Dec 20  1999 Makefile
+-rwxr-xr-x   1 root     root          512 Oct  9 13:32 bbootsect
+-rw-r--r--   1 root     root         2352 Oct  9 13:32 bbootsect.o
+-rw-r--r--   1 root     root         7981 Oct  9 13:32 bbootsect.s
+-rw-r--r--   1 root     101          9644 Jan 29  2001 bootsect.S
+-rwxr-xr-x   1 root     root         4501 Oct  9 13:49 bsetup
+-rw-r--r--   1 root     root        11704 Oct  9 13:49 bsetup.o
+-rw-r--r--   1 root     root        44212 Oct  9 13:49 bsetup.s
+-rw-r--r--   1 root     root       575432 Oct  9 13:49 bzImage
+-rw-r--r--   1 root     root       581384 Oct  1 13:27 bzImage.OLD
+drwxr-xr-x   2 root     101          4096 Oct  9 13:49 compressed
+-rw-r--r--   1 root     101           904 Jan  3  1995 install.sh
+-rw-r--r--   1 root     101         23458 Jan 27  2001 setup.S
+drwxr-xr-x   2 root     101          4096 Oct  9 13:32 tools
+-rw-r--r--   1 root     101         39023 Nov 21  1999 video.S
 
-Alan
+
+The size change of the raw image is even more evident:
+
+-rwxr-xr-x   1 root     root      1548916 Oct  9 13:49 vmlinux
+-rwxr-xr-x   1 root     root      1590692 Oct  1 13:26 vmlinux.OLD
+
+
+I did not look at any other scripts that are involved in making
+the image.
+
+Also I was not complaining about anything. One respondent noted
+that compiling the kernel with a new 'C' compiler resulted in
+a large increase in kernel size. Some of us then attempted to
+find out simple ways to get the kernel size back down. I showed
+that some 'C' compiler versions have enormous ID strings that
+are wasting space. I also mentioned that some versions align
+everything on 16-byte boundaries and there doesn't seem to
+be any way to turn off this 'feature'.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135875AbRECSBr>; Thu, 3 May 2001 14:01:47 -0400
+	id <S135883AbRECSM4>; Thu, 3 May 2001 14:12:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135879AbRECSAs>; Thu, 3 May 2001 14:00:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12808 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135855AbRECR70>; Thu, 3 May 2001 13:59:26 -0400
-Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
-To: dneal@cnls.lanl.gov (David A. Neal)
-Date: Thu, 3 May 2001 19:03:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-In-Reply-To: <200105031751.LAA24795@iiwi.lanl.gov> from "David A. Neal" at May 03, 2001 11:51:29 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135879AbRECSMq>; Thu, 3 May 2001 14:12:46 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22803 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135870AbRECSM1>; Thu, 3 May 2001 14:12:27 -0400
+Date: Thu, 3 May 2001 11:12:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Edward Spidre <beamz_owl@yahoo.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible PCI subsystem bug in 2.4
+In-Reply-To: <E14vNFo-0005uM-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0105031106030.30573-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vNRm-0005vc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> trying to solve. I have a system with a ASUS CUV4X-DLS system
+
+On Thu, 3 May 2001, Alan Cox wrote:
 > 
-> The problem is that the system will boot everytime if and only
-> if I use "noapic". If I do not use "noapic", the system will
+> Obvious one is to go to the next power of two clear. 
 
-Known problem with the CUV4X boards. 
+The question is mainly _which_ power of two. 
 
-> What is the impact on performance by disabling APIC? Is there
-> something wrong with the .config file that might fix this.
+I don't think we can round up infinitely, as that might just end up
+causing us to not have any PCI space at all. Or we could end up deciding
+that real PCI space is memory, and then getting a clash when a real device
+tries to register its bios-allocated area that clashes with our extreme
+rounding.
 
-Disabling the apic stops irq sharing from occuring. The impact is normally
-pretty minimal
+I suspect it would be safe to round up to the next megabyte, possibly up
+to 64MB or so. But much more would make me nervous.
+
+Any suggestions? 
+
+> Semi related question: To do I2O properly I need to grab PCI bus space and
+> 'loan' it to the controller when I configure it. Im wondering what the
+> preferred approach there is.
+
+Do the same thing that the yenta driver does, just do a 
+
+	root = pci_find_parent_resource(dev, res);
+	allocate_resource(root, res, size, min, max, align, NULL, NULL);
+
+and keep it allocated (and then the i2o driver can do sub-allocations
+within that resource by doing "allocate_resource(res, ...)").
+
+		Linus
 

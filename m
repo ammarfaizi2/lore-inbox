@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262920AbSJAWrx>; Tue, 1 Oct 2002 18:47:53 -0400
+	id <S262926AbSJAWuw>; Tue, 1 Oct 2002 18:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262918AbSJAWrv>; Tue, 1 Oct 2002 18:47:51 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:7062 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262919AbSJAWrs>;
-	Tue, 1 Oct 2002 18:47:48 -0400
-Date: Tue, 1 Oct 2002 23:55:00 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.20-pre8-jam1
-Message-ID: <20021001225500.GA11744@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021001224206.GB3927@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001224206.GB3927@werewolf.able.es>
-User-Agent: Mutt/1.4i
+	id <S262927AbSJAWuw>; Tue, 1 Oct 2002 18:50:52 -0400
+Received: from mta04ps.bigpond.com ([144.135.25.136]:42749 "EHLO
+	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262926AbSJAWuv>; Tue, 1 Oct 2002 18:50:51 -0400
+Message-ID: <006101c2699f$8087dfa0$0800000a@ValVenus>
+From: "David McIlwraith" <quack@bigpond.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: [2.5.40] DAC960 broken?
+Date: Wed, 2 Oct 2002 09:08:49 +1000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 12:42:06AM +0200, J.A. Magallon wrote:
- > 17-cache-detection.bz2
- > 	Fix cache detection (trace cache) in P3s.
- > 	Author: Dave Jones <davej@codemonkey.org.uk>
+Is the DAC960 driver broken? I note that the maintainer is no longer active,
+and it does not compile.
 
-s/P3/P4/
+Is there patches to fix this problem?
 
-</pendantic> :-)
+Regards,
+David McIlwraith mailto:quack@bigpond.net.au
 
-		Dave
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

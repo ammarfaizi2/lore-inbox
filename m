@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUEBQPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUEBQTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUEBQPi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 12:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUEBQPa
+	id S263174AbUEBQTc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 12:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUEBQTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 12:15:30 -0400
-Received: from [211.105.232.186] ([211.105.232.186]:42491 "HELO veths.no")
-	by vger.kernel.org with SMTP id S263126AbUEBQPV (ORCPT
+	Sun, 2 May 2004 12:19:32 -0400
+Received: from pop.gmx.net ([213.165.64.20]:29892 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263174AbUEBQS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 12:15:21 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "santiago" <dmcalish@hotmail.com>
-Date: Sun, 02 May 2004 09:23:09 GMT
-Message-Id: <1083489789-14505@excite.com>
-Subject: CAS1N0: New Deal!! 50% Sign Up Bonus! groovy catfish!
-Content-Type: text/plain;
+	Sun, 2 May 2004 12:18:58 -0400
+X-Authenticated: #20450766
+Date: Sun, 2 May 2004 18:18:20 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: GNU/Dizzy <dizzy@roedu.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Filesystem with multiple mount-points
+In-Reply-To: <Pine.LNX.4.58L0.0405021712280.31153@ahriman.bucharest.roedu.net>
+Message-ID: <Pine.LNX.4.44.0405021806460.1477-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PREMI|ERE ONLIN'E CAS`INO!
-50% BONU}S for YOUR FIRST DEPO:SIT as a New Player.
+On Sun, 2 May 2004, GNU/Dizzy wrote:
 
-SI!GN UP now! Don't wait!
+> > for filesystem metadata, journals... Making those directories soft-links
+> > into one writable partition would work, but is not too nice.
+>
+> How about mounting the big volume somewhere and using -o bind to mount
+> some paths within it in different places of your needs ? I know that -o
+> bind doesnt honor -o ro yet but if you really needed maybe you can make a
+> patch for that, I for one would be very interested about that.
+> check "man mount" about more information about "bind"
+>
+> Also notice that linux (starting with some 2.3.x version if I remember
+> well) already supports multiple mount points for a given "source" like
+> mount /dev/hda1 /mnt1
+> mount /dev/hda1 /mnt2 and so on
 
-http://www.bettingcasinoes.com/_e4faa55afa1972493c43ac8a3f66f869/
+See "not nice" above. With the proposed option I would like to avoid
+having one file appear at multiple paths. IOW each file would appear in no
+more than 1 place in the tree.
 
-Once you're a Mem`ber, there are near WEEK|LY 2-T`O-1, and 3-T{O-1 depo!sit offers!
-
-Imagine, put in $25, GET $50 CRE}DIT BE|FORE YOU PL{ACE YO{UR FI{RST BET!!
-
-CLIC`K HER{E!
-
-http://www.bettingcasinoes.com/_e4faa55afa1972493c43ac8a3f66f869/
+Guennadi
+---
+Guennadi Liakhovetski
 
 
-
-oranges tina money1 irene theatre passion naomi pookie1 goblue tanya chance energy safety kleenex roxy trident ladybug dirk politics nautica sally republic law dragonfl law irene

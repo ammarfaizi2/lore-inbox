@@ -1,101 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbTJTXtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 19:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbTJTXtv
+	id S262917AbTJTXsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 19:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTJTXsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 19:49:51 -0400
-Received: from aneto.able.es ([212.97.163.22]:30377 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262942AbTJTXs6 (ORCPT
+	Mon, 20 Oct 2003 19:48:09 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:31695 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262917AbTJTXsF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 19:48:58 -0400
-Date: Tue, 21 Oct 2003 01:48:55 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: ACPI vs ServerWorksLE in 2.4.23-pre
-Message-ID: <20031020234855.GC7429@werewolf.able.es>
+	Mon, 20 Oct 2003 19:48:05 -0400
+Subject: Re: AIO and DIO testing on 2.6.0-test7-mm1
+From: Daniel McNeil <daniel@osdl.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031020142727.GA4068@in.ibm.com>
+References: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net>
+	 <20031020142727.GA4068@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066693673.22983.10.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 2.0.15
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 20 Oct 2003 16:47:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Mon, 2003-10-20 at 07:27, Suparna Bhattacharya wrote:
+> On Fri, Oct 17, 2003 at 04:12:58PM -0700, Daniel McNeil wrote:
+> > I've been doing some testing on 2.6.0-test7-mm1 with O_DIRECT and
+> > AIO.  I wrote some tests to check the buffered i/o verses O_DIRECT
+> > i/o races and O_DIRECT verses truncate.
+> 
+> Sounds very useful - thanks for doing this !
+> 
+> > 
+> > I still had apply suparna's direct-io.c patch to prevent oopses.
+> > Suparna, you said the patch was not the complete patch, do you have
+> > the complete patch?
+> 
+> Not yet.
+> A complete patch would need to address one more case that's rather
+> tricky to solve -- the case where a single dio request covers an 
+> allocated region followed by a hole.
+> 
+> Besides that there is a pending bug to address -- i.e to avoid
+> dropping i_sem during the actual i/o in the case where we are
+> extending the file (an intervening buffered write could extend
+> i_size, exposing uninitialized blocks). For AIO-DIO this means 
+> forcing the i/o to be synchronous for this case (as also for 
+> the case where we are overwriting an allocated region followed 
+> by a hole). Until we can use i/o barriers.
+> 
+> I was playing with a retry-based implementation for AIO-DIO,
+> where the first (tricky) case above becomes simple to handle ...
+> But didn't get a chance to work much on this during the last 
+> few days. I actually do have a patch, but there are occasional 
+> hangs with a lot of AIO-DIO writes to an ext3 filesystem in 
+> particular, that I can't explain as yet.
+> 
+> Do your testcases cover any of these cases already ?
+> 
+> Regards
+> Suparna
+> 
 
-I have discovered a little proble with ACPI. If I enable ACPI in a SuperMicro
-P3TDLE the kernel does not see the 64 bit PCI bus (bus number 1).
+I was hoping that my test cases would hit some of these potential AIO
+verses buffered write (growing the file and filling in holes) races.
+My tests always write zeroes and holes should always return zeroes, so
+the check makes sure that the data is always zero. I am planning on
+updating the tests to have more readers and maybe more writers to
+check if we ever see uninitialized data.  I am starting to test on
+2.6-test8 and will let you know how it goes.
 
-It looks the same in -pre5 and -pre7.
-The dmesg+lspci info that I have collected is at
-http://giga.cps.unizar.es/~magallon/linux/acpi/
-They are dmesg's for pre5 and pre7, just with HT_ONLY (and ACPI disabled in
--pre7, so as it is an SMP kernel I just get ACPI_BOOT), and with ACPI
-enabled. There is also the diff between -pre7 and -pre7-acpi.
+Daniel
 
-Some things:
-- Without full ACPI, I see the pci 1 bus:
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:04.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 5598/6326 (rev 0b)
-00:06.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 51)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
-01:02.0 Ethernet controller: Intel Corp. 82543GC Gigabit Ethernet Controller (Copper) (rev 02)
-
-- With ACPI, I do not see it.
-
-- If try to boot with pci=noacpì, both kernels fail to initialize interrupts for
-  the network cards (and perhaps more things), ifup takes an eon to timeout
-  and the net cards do not work. This is cured by the patch posted by
-  Thomas Schlichter <schlicht@uni-mannheim.de>:
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=106616752330476&w=2
-  With this, pci=noacpi works and the system is fine.
-
-In the diff from -pre7 to -pre7-acpi I can see things like:
-...
- IRQ7 -> 0:7
- IRQ8 -> 0:8
- IRQ9 -> 0:9
-+IRQ10 -> 0:10
-+IRQ11 -> 0:11
- IRQ12 -> 0:12
- IRQ13 -> 0:13
- IRQ14 -> 0:14
- IRQ15 -> 0:15
--IRQ26 -> 1:10
--IRQ31 -> 1:15
-...
-+PCI: Probing PCI hardware
-+    ACPI-1120: *** Error: Method execution failed [\_SB_.LNUS._SRS] (Node f7a11860), AE_AML_BUFFER_LIMIT
-+ACPI: Retrying with extended IRQ descriptor
-+ACPI: Unable to set IRQ for PCI Interrupt Link [LNUS] (likely buggy ACPI BIOS). Aborting ACPI-based IRQ routing. Try pci=noacpi or acpi=off
-...
-+ACPI: Retrying with extended IRQ descriptor
-+ACPI: Unable to set IRQ for PCI Interrupt Link [LNUS] (likely buggy ACPI BIOS). Aborting ACPI-based IRQ routing. Try pci=noacpi or acpi=off
-
-One other chipset to blacklist ?
-
-This rises one other problem. For all people who upgrade from .22 to .23,
-and have HT_ONLY, they will end with full ACPI active, and perhaps hit a buggy
-BIOS. And their boxes will be unusable.
-Would not be useful to maintain something like this for sometime:
-
--  if [ "$CONFIG_ACPI" = "y" ]; then
-+  if [ "$CONFIG_ACPI" = "y" -a "$CONFIG_ACPI_HT_ONLY" != "y" ]; then
-
-even if HT_ONLY is not a configurable option, just for the case it is read
-from an old .config ?
-
-TIA
-
-(For people in the acpi list, please CC me, I am not subscribed)
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre7-jam2 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

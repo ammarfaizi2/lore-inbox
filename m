@@ -1,74 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266316AbTABSkr>; Thu, 2 Jan 2003 13:40:47 -0500
+	id <S266320AbTABSmd>; Thu, 2 Jan 2003 13:42:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266320AbTABSkr>; Thu, 2 Jan 2003 13:40:47 -0500
-Received: from bitmover.com ([192.132.92.2]:35225 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266316AbTABSkq>;
-	Thu, 2 Jan 2003 13:40:46 -0500
-Date: Thu, 2 Jan 2003 10:49:12 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Richard Stallman <rms@gnu.org>
-Cc: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030102184912.GA2461@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Richard Stallman <rms@gnu.org>, efault@gmx.de,
-	Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-References: <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net> <E18UAEy-00046n-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18UAEy-00046n-00@fencepost.gnu.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S266323AbTABSmd>; Thu, 2 Jan 2003 13:42:33 -0500
+Received: from ligur.expressz.com ([212.24.178.154]:17852 "EHLO expressz.com")
+	by vger.kernel.org with ESMTP id <S266320AbTABSma>;
+	Thu, 2 Jan 2003 13:42:30 -0500
+Date: Thu, 2 Jan 2003 19:50:59 +0100 (CET)
+From: "BODA Karoly jr." <woockie@expressz.com>
+Reply-To: "BODA Karoly jr." <woockie@expressz.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux-2.5.54-sparc64 compile errors
+Message-ID: <Pine.LNX.3.96.1030102191604.22760J-100000@ligur.expressz.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoohoo!  Here we go.  Someone please rattle his cage about the BK license
-and we can keep this going for months!
+Hi!
 
-This reminds me of soc.singles, a venerable hangout for weirdos of all
-kinds, yours truly included years and years ago.  I once posted some
-inflammatory statement and disappeared to Japan for several months
-(installing a supercomputer at Tokyo Institute of Technology, look at
-the acronymn, gotta love it), and then came back.   3 months later.
-Read soc.singles.  They were *still* arguing about it.
+Some errors and patches, but I'm not sure they are correct:
 
-Then and now, the thought that occurred was "get a life".
+o There was no archclean which is needed to make clean
 
-On Thu, Jan 02, 2003 at 01:38:48PM -0500, Richard Stallman wrote:
->     Yup.  It's high time they realized that Linux exists today solely because a 
->     lazy Finnish student conned a bunch of folks into doing his homework.
-> ]
-> 
-> That's a colorful way of saying that Linux was developed by Linus
-> Torvalds.  If by "Linux" you mean the kernel whose maintenance is
-> discussed on this list, that is true.
-> 
-> You're surely aware that when the media, companies, and users say
-> "Linux", they usually do not mean the kernel.  They usually have in
-> mind an entire operating system in which Linux is used.  This entire
-> system wasn't developed by Linus Torvalds--it is basically GNU, which
-> was started in 1984.  The system exists because idealistic programmers
-> had a vision of a different kind of society and had the determination
-> to make it happen.
-> 
-> If you want to avoid predictably steering readers into confusion, each
-> time you say (in one way or another) that Linux was developed by Linus
-> Torvalds, you need to explain that Linux is one component of the
-> GNU+Linux system which is what users typically run.
-> 
-> For further discussion, and for responses to all the usual
-> counterarguments, see http://www.gnu.org/gnu/gnu-linux-faq.html.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- arch/sparc64/Makefile       2003-01-02 04:23:15.000000000 +0100
++++ arch/sparc64/Makefile~      2003-01-02 16:56:48.000000000 +0100
+@@ -74,6 +74,9 @@ drivers-$(CONFIG_OPROFILE)    += arch/sparc
+ tftpboot.img vmlinux.aout:
+        $(Q)$(MAKE) $(build)=arch/sparc64/boot arch/sparc64/boot/$@
+
++archclean:
++       $(Q)$(MAKE) $(clean)=arch/sparc64/boot
++
+ define archhelp
+   echo  '* vmlinux       - Standard sparc64 kernel'
+   echo  '  vmlinux.aout  - a.out kernel for sparc64'
+
+
+o Missing "drivers/scsi/aic7xxx/Kconfig" in arch/sparc64/Kconfig line 990
+
+--- arch/sparc64/Kconfig        2003-01-02 04:23:01.000000000 +0100
++++ arch/sparc64/Kconfig~       2003-01-02 19:09:53.000000000 +0100
+@@ -986,7 +986,8 @@ choice
+        optional
+        depends on SCSI && PCI
+
+-source "drivers/scsi/aic7xxx/Kconfig"
++source "drivers/scsi/aic7xxx/Kconfig.aic7xxx"
++source "drivers/scsi/aic7xxx/Kconfig.aic79xx"
+
+ config SCSI_AIC7XXX_OLD
+        tristate "Old driver"
+
+
+o Compile error of arch/sparc64/kernel/power.c
+
+  sparc64-linux-gcc -Wp,-MD,arch/sparc64/kernel/.power.o.d -D__KERNEL__
+-Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
+-mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
+-Wa,--undeclared-regs -fomit-frame-pointer -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=power -DKBUILD_MODNAME=power   -c -o
+arch/sparc64/kernel/power.o arch/sparc64/kernel/power.c
+In file included from include/linux/interrupt.h:9,
+                 from arch/sparc64/kernel/power.c:13:
+include/asm/hardirq.h:23: parse error before `irq_cpustat_t'
+include/asm/hardirq.h:23: warning: type defaults to `int' in declaration of `irq_cpustat_t'
+include/asm/hardirq.h:23: warning: data definition has no type or storage class
+In file included from include/asm/hardirq.h:25,
+                 from include/linux/interrupt.h:9,
+                 from arch/sparc64/kernel/power.c:13:
+include/linux/irq_cpustat.h:20: parse error before `irq_stat'
+include/linux/irq_cpustat.h:20: warning: type defaults to `int' in declaration of `irq_stat'
+include/linux/irq_cpustat.h:20: warning: data definition has no type or storage class
+include/linux/irq_cpustat.h:20: warning: array `irq_stat' assumed to have one element
+make[2]: *** [arch/sparc64/kernel/power.o] Error 1
+make[1]: *** [arch/sparc64/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.54'
+make: *** [stamp-build] Error 2
+
+This patch makes it compile:
+--- include/linux/interrupt.h   2003-01-02 04:22:17.000000000 +0100
++++ include/linux/interrupt.h~  2003-01-02 19:29:15.000000000 +0100
+@@ -5,6 +5,7 @@
+ #include <linux/config.h>
+ #include <linux/linkage.h>
+ #include <linux/bitops.h>
++#include <linux/cache.h>
+ #include <asm/atomic.h>
+ #include <asm/hardirq.h>
+ #include <asm/ptrace.h>
+
+
+o And an error which with I can't do anything... :(
+
+  sparc64-linux-gcc -Wp,-MD,arch/sparc64/kernel/.head.o.d -D__ASSEMBLY__
+-D__KERNEL__ -Iinclude -m64 -mcpu=ultrasparc -Wa,--undeclared-regs
+-nostdinc -iwithprefix include  -ansi  -c -o arch/sparc64/kernel/head.o
+arch/sparc64/kernel/head.S
+In file included from include/linux/cache.h:4,
+                 from include/asm/smp.h:11,
+                 from arch/sparc64/kernel/entry.S:15,
+                 from arch/sparc64/kernel/head.S:734:
+include/linux/kernel.h:31: warning: `ALIGN' redefined
+include/linux/linkage.h:24: warning: this is the location of the previous definition
+/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h: Assembler messages:
+/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h:15: Error: Unknown opcode: `typedef'
+/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h:50: Error: Unknown opcode: `void'
+/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h:54: Error: Unknown opcode: `enum'
+/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h:55:
+Warning: rest of line ignored; first ignored character is `,'/usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include/va-sparc.h:56:
+Fatal error: Unknown opcode: `__void_type_class,'
+make[2]: *** [arch/sparc64/kernel/head.o] Error 1
+make[1]: *** [arch/sparc64/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.54'
+make: *** [stamp-build] Error 2
+
+
+	Sorry if my patches are not correct, I'm not a kernel developer.:)
+If need any information about my machine, please ask for it.:)
 
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+						Woockie
+..."what is there in this world that makes living worthwhile?"
+Death thought about it. "CATS," he said eventually, "CATS ARE NICE."
+			           (Terry Pratchett, Sourcery)
+
+

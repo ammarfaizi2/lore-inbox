@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280749AbRKYHXm>; Sun, 25 Nov 2001 02:23:42 -0500
+	id <S280751AbRKYHcf>; Sun, 25 Nov 2001 02:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKYHXW>; Sun, 25 Nov 2001 02:23:22 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61710 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280749AbRKYHXM>;
-	Sun, 25 Nov 2001 02:23:12 -0500
-Date: Sun, 25 Nov 2001 05:23:04 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Wayne.Brown@altec.com
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
+	id <S280752AbRKYHcY>; Sun, 25 Nov 2001 02:32:24 -0500
+Received: from queen.bee.lk ([203.143.12.182]:40066 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S280751AbRKYHcT>;
+	Sun, 25 Nov 2001 02:32:19 -0500
+Date: Sun, 25 Nov 2001 13:31:57 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: James Davies <james_m_davies@yahoo.com>
+Cc: Wayne.Brown@altec.com, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.5.0
-Message-ID: <20011125052304.C970@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Wayne.Brown@altec.com, Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <86256B0F.0026CFDE.00@smtpnotes.altec.com>
+Message-ID: <20011125133157.A2190@bee.lk>
+In-Reply-To: <86256B0F.0026CFDE.00@smtpnotes.altec.com> <20011125071857Z280740-17408+19611@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <86256B0F.0026CFDE.00@smtpnotes.altec.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011125071857Z280740-17408+19611@vger.kernel.org>; from james_m_davies@yahoo.com on Sun, Nov 25, 2001 at 05:14:53PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Nov 25, 2001 at 12:52:07AM -0600, Wayne.Brown@altec.com escreveu:
-> Is there going to be an "official" patch from 2.4.15 to 2.5.0?  I'd
-> rather not ftp the whole kernel tarball over a modem connection, and I
-> don't have the disk space on my laptop to keep both the complete 2.4 and
-> 2.5 source at the same time anyway.
+On Sun, Nov 25, 2001 at 05:14:53PM +1000, James Davies wrote:
+> On Sun, 25 Nov 2001 16:52, Wayne.Brown@altec.com wrote:
+> > Is there going to be an "official" patch from 2.4.15 to 2.5.0?  I'd rather
+> > not ftp the whole kernel tarball over a modem connection, and I don't have
+> > the disk space on my laptop to keep both the complete 2.4 and 2.5 source at
+> > the same time anyway.
+> 
+> 2.4.15 is the same as 2.5.0
 
-Here it is:
+I think he is concerned about the _official_ 2.4.15 and the _official_ 2.5.0,
+because, subsequent patches for 2.5.0 will not _cleanly_ apply on 2.4.15 tree
+(although fixing them should be extremely trivial).
 
-------------------------------------- 8< ----------------------------
---- linux/Makefile.orig	Sun Nov 25 05:21:13 2001
-+++ linux/Makefile	Sun Nov 25 05:21:23 2001
-@@ -1,7 +1,7 @@
- VERSION = 2
--PATCHLEVEL = 4
--SUBLEVEL = 15
--EXTRAVERSION =-greased-turkey
-+PATCHLEVEL = 5
-+SUBLEVEL = 0
-+EXTRAVERSION =
- 
- KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
- 
-------------------------------------- 8< ----------------------------
+Can somebody confirm that the difference is only the version numbers in the
+Makefile, and no other changes in Documentation/ etc?
 
-RTFM http://www.kernel.org/pub/linux/kernel/v2.5/README
+Cheers,
 
-- Arnaldo
+Anuradha
+
+-- 
+
+Debian GNU/Linux (kernel 2.4.13)
+
+The human animal differs from the lesser primates in his passion for
+lists of "Ten Best".
+		-- H. Allen Smith
+

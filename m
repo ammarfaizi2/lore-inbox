@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbTFPInS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 04:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTFPInS
+	id S263631AbTFPIvu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 04:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTFPIvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 04:43:18 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:35594 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S263600AbTFPInQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 04:43:16 -0400
-Date: Mon, 16 Jun 2003 10:57:36 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: NeilBrown <neilb@cse.unsw.edu.au>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
-Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules.
-In-Reply-To: <20030616082925.AF5EE2C0D2@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0306161043020.2079-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 04:51:50 -0400
+Received: from dp.samba.org ([66.70.73.150]:60578 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263631AbTFPIvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 04:51:48 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re-xmit: clean up overzealous deprecated warning
+Date: Mon, 16 Jun 2003 19:05:21 +1000
+Message-Id: <20030616090541.84B122C08A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003, Rusty Russell wrote:
+Linus, please apply.
 
-> In message <Pine.LNX.4.44.0306160907470.2079-100000@notebook.home.mdiehl.de> you write:
-> > Why using keventd? Personally I'd prefer a synchronous thread start/stop, 
-> > particularly with the thread living in a module.
-> > Maybe some generalisation of:
-> 
-> It would be syncronous:
+Name: Fix overzealous check_region deprecation
+Author: Rusty Russell
+Status: Trivial
 
-You mean your cleanup_thread would block for completion of the keventd 
-stuff? Ok, this would work. But then, when calling cleanup_thread, f.e. we 
-must not hold any semaphore which might be acquired by _any_ other work 
-scheduled for keventd or we might end in deadlock (like the rtnl+hotplug 
-issue we had seen recently).
+D: 1) We export __check_region, so making it __deprecated gives a spurious
+D:    warning in kernel/ksyms.c.
+D: 2) Other warnings refer to __check_region rather than check_region,
+D:    which has confused some people.
+D:
+D: Make check_region an inline, not a macro, and deprecate *that*.
 
-> but doing kernel_thread yourself means trying
-> to clean up using daemonize et al, which is incomplete and always
-> makes me nervous.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk16/include/linux/ioport.h working-2.5.70-bk16-check_region/include/linux/ioport.h
+--- linux-2.5.70-bk16/include/linux/ioport.h	2003-03-25 12:17:30.000000000 +1100
++++ working-2.5.70-bk16-check_region/include/linux/ioport.h	2003-06-12 20:02:55.000000000 +1000
+@@ -105,12 +105,15 @@ extern int allocate_resource(struct reso
+ extern struct resource * __request_region(struct resource *, unsigned long start, unsigned long n, const char *name);
+ 
+ /* Compatibility cruft */
+-#define check_region(start,n)	__check_region(&ioport_resource, (start), (n))
+ #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
+ #define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
+ #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
+ 
+-extern int __deprecated __check_region(struct resource *, unsigned long, unsigned long);
++extern int __check_region(struct resource *, unsigned long, unsigned long);
+ extern void __release_region(struct resource *, unsigned long, unsigned long);
+ 
++static inline int __deprecated check_region(unsigned long s, unsigned long n)
++{
++	return __check_region(&ioport_resource, s, n);
++}
+ #endif	/* _LINUX_IOPORT_H */
 
-I thought this was fixed in 2.5 for some time now, but seems I shouldn't 
-rely on that ;-)
-
-> An implementation detail to users, but IMHO an important one.
-> 
-> Also, this replaces complete_and_exit: the thread can just exit.  This
-> simplifies things for the users, too...
-
-Personally I do like the complete_and_exit thing as a simple and clear 
-finalisation point. And if I didn't miss something above wrt. your 
-cleanup_kthread being synchronous I'm not sure whether the locking 
-implication do really make things easier - YMMV of course.
-
-Thanks.
-Martin
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

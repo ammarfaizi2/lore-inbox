@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273958AbRISHvz>; Wed, 19 Sep 2001 03:51:55 -0400
+	id <S274018AbRISIHG>; Wed, 19 Sep 2001 04:07:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274018AbRISHvq>; Wed, 19 Sep 2001 03:51:46 -0400
-Received: from denise.shiny.it ([194.20.232.1]:44754 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S273958AbRISHvf>;
-	Wed, 19 Sep 2001 03:51:35 -0400
-Date: Wed, 19 Sep 2001 09:51:55 +0200 (CEST)
-From: root <root@denise.shiny.it>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.9-ac10 hangs on CDROM read error
-In-Reply-To: <1000833035.29346.11.camel@nomade>
-Message-ID: <Pine.LNX.4.21.0109190949080.16911-100000@denise.shiny.it>
+	id <S274020AbRISIG4>; Wed, 19 Sep 2001 04:06:56 -0400
+Received: from denise.shiny.it ([194.20.232.1]:1747 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S274018AbRISIGq>;
+	Wed, 19 Sep 2001 04:06:46 -0400
+Message-ID: <XFMail.20010919100702.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200109190320.f8J3KC3272695@saturn.cs.uml.edu>
+Date: Wed, 19 Sep 2001 10:07:02 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: Strange ps line
+Cc: linux-kernel@vger.kernel.org,
+        <flavio@conectiva.com.br (Flavio Bruno Leitner)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>>> From "ps axuw":
+>>> 
+>>> USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+>>> httpd     5020  0.0  0.0     0    0 ?        Z    16:46   0:00 [getcod.cgi <defunct>]
+>>> httpd     5022  0.0  0.0     0    0 ?        Z    16:46   0:00 [getcod.cgi <defunct>]
+>>> httpd     5025  0.0  0.0 589505315 0 ?       ZL   16:46   0:00 [getcod.cgi <defunct>]
+>>> httpd     5049  0.0  0.0     0    0 ?        Z    16:46   0:00 [getcod.cgi <defunct>]
+>>> 
+>>> That cgi doesn't lock memory and surely I don't have so much memory.
+>> 
+>> Look at http://www.erlenstar.demon.co.uk/unix/faq_2.html#SEC14
+>> maybe this can help you. 
+> 
+> Yes and no. It might solve his zombie problem, but what about that
+> outrageous VSZ and the locked memory? Useful info would be:
+> 
+> /proc/5025/status
+> /proc/5025/stat
 
-> I have an ABit VP6, CDRW as hdc and DVD as hdd (VIA vt82c686b IDE
-> driver), with SCSI emulation on top, and when I read either:
->
-> - a DVD with a read error in the DVD drive (UDF mounted, ripping)
->
-> - a CDR with a read error in the CDRW drive (ISO mounted)
->
-> the system hangs - no ping, no sysrq, nothing. no log.
+That strange line is extremely rare. Actually it's the first time I see it and
+I was unable to reproduce. And since it's a zombie it just didn't live enough
+to type "cat /proc/....". I think there is a race somewhere. I don't know if
+it's dangerous of if it only accects /proc reads sometimes ?
 
-I have the same problem with PowerMac G3 and G4 with IDE drives. No
-problems with SCSI, where read just stops with an I/O error.
-
-> I haven't tried all combinations (I don't like that). It seems like a
-> generic IDE CDROM driver bug, and there since several versions.
-
-I agree.
 
 Bye.
-

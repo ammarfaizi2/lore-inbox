@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbTJUPNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 11:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTJUPM4
+	id S263136AbTJUPhy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 11:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbTJUPhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 11:12:56 -0400
-Received: from mailgate.imerge.co.uk ([195.217.208.100]:15111 "EHLO
-	imgserv04.imerge-bh.co.uk") by vger.kernel.org with ESMTP
-	id S263157AbTJUPKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 11:10:42 -0400
-Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB016038F6@imgserv04>
-From: James Finnie <jf1@IMERGE.co.uk>
-To: "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: VIA IDE performance under 2.6.0-test7/8?
-Date: Tue, 21 Oct 2003 16:11:00 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 21 Oct 2003 11:37:53 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:44469 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263136AbTJUPhv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 11:37:51 -0400
+Date: Tue, 21 Oct 2003 08:36:14 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Suh Jin" <suh_jin@bah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8 modules_install unresolved symbol errors
+Message-Id: <20031021083614.7b123c97.rddunlap@osdl.org>
+In-Reply-To: <3F954881.1030508@bah.com>
+References: <3F954881.1030508@bah.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Oct 2003 10:53:54 -0400 "Suh Jin" <suh_jin@bah.com> wrote:
 
-> Does 'hdparm -a 512 /dev/hd?' help?
-> --bartlomiej
+| Could someone help me why I am getting unresolved symbols when I run 
+| "make modules_install". How do I fix those? I am using RedHat9.0 and I 
+| have same problems using gcc2.95.3 and gcc3.2.2. BTW, it doesn't matter 
+| mm1 patch or vanilla kernel.
+| 
+| depmod: *** Unresolved symbols in 
+| /lib/modules/2.6.0-mm1/kernel/net/ipv4/ipvs/ip_vs_wlc.ko
+| depmod:         register_ip_vs_scheduler
+| depmod:         unregister_ip_vs_scheduler
+| depmod: *** Unresolved symbols in 
+| /lib/modules/2.6.0-mm1/kernel/net/ipv4/ipvs/ip_vs_wrr.ko
+| depmod:         register_ip_vs_scheduler
+| depmod:         unregister_ip_vs_scheduler
+| depmod: *** Unresolved symbols in 
+| /lib/modules/2.6.0-mm1/kernel/net/ipv4/netfilter/arptable_filter.ko
+| depmod:         arpt_register_table
+| depmod:         arpt_do_table
+| depmod:         arpt_unregister_table
+| ........ bunch of more unresolved symbols
 
-Indeed it does, and -a 1024 is even better, but why the change?  Under
-2.4.21, I only have a readahead value of 8 set, in fact hdparm barfs if you
-try to set anything above 255!
+Are you using module-init-tools?
+  (from http://www.kernel.org/pub/linux/kernel/people/rusty/modules/)
 
-Any ideas?
+If so, they aren't in $PATH when you ran depmod.
+Current (new) depmod doesn't have this message.
 
-James.
+For 2.6.x changes, you probably want/need to read this:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
 
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-Imerge Limited                          Tel :- +44 (0)1954 783600 
-Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
-Saxon Way                               Web :- http://www.imerge.co.uk 
-Bar Hill 
-Cambridge 
-CB3 8SL 
-United Kingdom 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-
+--
+~Randy

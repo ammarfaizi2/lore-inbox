@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUARMnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 07:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUARMnZ
+	id S261188AbUARMwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 07:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUARMwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 07:43:25 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:20232 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S261784AbUARMnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 07:43:24 -0500
-Message-ID: <400A7F55.9060209@snapgear.com>
-Date: Sun, 18 Jan 2004 22:43:01 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Sun, 18 Jan 2004 07:52:23 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32917 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261188AbUARMwV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 07:52:21 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Subject: Re: [PATCH] fix/improve modular IDE (Re: [PATCH] modular IDE for 2.6.1 ugly but working fix)
+Date: Sun, 18 Jan 2004 13:56:14 +0100
+User-Agent: KMail/1.5.3
+Cc: Sam Ravnborg <sam@ravnborg.org>, Witold Krecicki <adasi@kernel.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200401171313.52545.adasi@kernel.pl> <200401171702.35705.bzolnier@elka.pw.edu.pl> <200401181252.49861.arekm@pld-linux.org>
+In-Reply-To: <200401181252.49861.arekm@pld-linux.org>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, henrique.gobbi@cyclades.com,
-       support@stallion.oz.au, R.E.Wolff@BitWizard.nl, paulus@samba.org,
-       elfert@de.ibm.com, felfert@millenux.com, kuba@mareimbrium.org
-Subject: Re: [2/3]
-References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk> <20040113114948.B2975@flint.arm.linux.org.uk> <20040113171544.B7256@flint.arm.linux.org.uk> <20040113173352.D7256@flint.arm.linux.org.uk>
-In-Reply-To: <20040113173352.D7256@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200401181356.14767.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russel,
+On Sunday 18 of January 2004 12:52, Arkadiusz Miskiewicz wrote:
+> Dnia sob 17. stycznia 2004 17:02, Bartlomiej Zolnierkiewicz napisa³:
+> > On Saturday 17 of January 2004 16:38, Sam Ravnborg wrote:
+> > > > +ide-core-objs += ide.o ide-default.o ide-io.o ide-iops.o ide-lib.o \
+> > > > +	ide-probe.o ide-taskfile.o
+> > >
+> > > It would be more consistent to use "ide-core-y" since this is
+> > > what the following lines are expanded to.
+> > >
+> > > > +
+> > > > +ide-core-$(CONFIG_BLK_DEV_CMD640)	+= pci/cmd640.o
+> > >
+> > > Like this line.
+> >
+> > Yep, thanks!
+>
+> Could you send updated patch so we could test it?
+>
+> Also would be nice if ide-detect name was used instead of ide-generic so it
+> will be consistent with 2.4 naming.
 
-Russell King wrote:
-> Here are patches to drivers in the 2.6 kernel which have not been tested
-> to correct the tiocmset/tiocmget problem.
-> 
-> You can find the full thread at the following URL:
-> 
-> http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&threadm=1dvnl-5Pr-1%40gated-at.bofh.it&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DISO-8859-1%26q%3DOutstanding%2Bfixups%26btnG%3DGoogle%2BSearch%26meta%3Dgroup%253Dlinux.kernel
+ide-detect != ide-generic
 
-Looks good for mcfserial.c. The only additional change I would
-make is to remove the "rts", "dtr", and "val" variables from the
-ioctl function - removing the TIOCM* cases means these variables
-are no longer used.
+In 2.4 you have to load ide-detect after loading chipset module.
+In 2.6+patch you don't have to load anything after loading chipset module.
 
-Regards
-Greg
+ide-detect is used for all chipset modules to probe for drives.
+ide-generic is generic/default host driver - you use it only if you don't have
+specific modules for your IDE chipsets.
 
+> ps. patch by Witold Krecicki works for other drivers - I've seen it working
+> - but it's hacky anyway.
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+Sure, it works for other *PCI* drivers, but not ie. PPC ones (easy to fix).
+
+--bart
 

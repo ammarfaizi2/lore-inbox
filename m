@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264293AbTDXC7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 22:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264302AbTDXC7o
+	id S263628AbTDXDKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 23:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264240AbTDXDKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 22:59:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:33190 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264293AbTDXC7n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 22:59:43 -0400
-Date: Wed, 23 Apr 2003 20:11:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] desc.c -- dump the i386 descriptor tables
-Message-ID: <20030424031145.GM8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200304232305_MC3-1-35C1-C1D1@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304232305_MC3-1-35C1-C1D1@compuserve.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 23 Apr 2003 23:10:07 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:55469 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263628AbTDXDKG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 23:10:06 -0400
+Date: Thu, 24 Apr 2003 15:17:26 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Fix SWSUSP & !SWAP
+In-reply-to: <1605730000.1051145146@flay>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Grover, Andrew" <andrew.grover@intel.com>,
+       Marc Giger <gigerstyle@gmx.ch>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Message-id: <1051152437.2453.26.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <F760B14C9561B941B89469F59BA3A847E96E0E@orsmsx401.jf.intel.com>
+ <20030424000344.GC32577@atrey.karlin.mff.cuni.cz>
+ <1051142550.4306.10.camel@laptop-linux> <1605730000.1051145146@flay>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 11:02:02PM -0400, Chuck Ebbert wrote:
->  Sample output:
->  desc.c -- dump linux descriptor tables, version 0.50
->  GDT at c0306280, 32 entries:
-> #00: base=00000000 limit=0000 flags=0000 <G=0 P=0 S=0 DPL=0 Empty>
-> #01: base=00000000 limit=0000 flags=0000 <G=0 P=0 S=0 DPL=0 Empty>
-> #02: base=00000000 limit=0000 flags=0000 <G=0 P=0 S=0 DPL=0 Empty>
+On Thu, 2003-04-24 at 12:45, Martin J. Bligh wrote:
+> > I don't believer I've ever seen things get OOM killed. Instead, page
+> > cache is discarded until things do fit.
+> 
+> What happens if user allocated pages are filling up all the space,
+> not page cache? Trust me, it happens ;-)
 
-Spiffy; this should help debug various things.
+Yep, just because I haven't seen it, doesn't mean a thing. :>. In that
+case, there are two issues: memory to work in to start with and how to
+save the image without corrupting it.
 
+Regarding #1, there must still be some memory available, mustn't there?
+swsusp only approx (nrpages in use/256) pages to do its work. Surely
+we'd always be able to get .4% of the number of pages? Even if we can't
+get that many, we should be able to adjust the algorithm to be able to
+suspend a machine with only 10 or so pages available to start with (no,
+I'm not volunteering to do it! I want to merge with 2.5 and get on to
+other projects!).
 
--- wli
+Regarding #2, my algorithm (ie not the version in 2.5 at the mo)
+separates pages to be saved into 2 types. Pageset1 are pages we expect
+to be needed during suspend. Pageset2 is those that will definitely not
+be needed. My algorithm for saving the data goes: Save pageset2 pages to
+disk then (as per the original/current method) make a copy of pageset1
+pages (using the pageset2 locations + extra allocated memory if needsbe)
+and save the copy. Loading the image is the reverse process. Pageset 2
+currently only consists of all highmem pages + active and inactive list
+pages. If we refined the algorithm, perhaps that would address your
+issue. The other point here is that since we have to be able to make a
+copy of pageset1 pages, and since I haven't inlined kmap/unmap in the
+routine to copy pageset1 pages back on resume (Pavel will say whew to
+that, I'm sure!), pageset1 has a miximum size of half normal memory. I
+reckon refining the algoritm so that pageset1 can be [nearly] guaranteed
+to always be smaller is the better area to focus on, and I'm perfectly
+happy to try suggestions, particularly when they come in the form of a
+code fragment that include a call to SetPagePageset2(struct page * page)
+for the relevant targets :>
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
+

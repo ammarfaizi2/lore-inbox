@@ -1,77 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUE1McT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUE1Mdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262625AbUE1McT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 08:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUE1M3q
+	id S262050AbUE1Mdh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 08:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUE1Mdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 08:29:46 -0400
-Received: from nef.ens.fr ([129.199.96.32]:29701 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S262605AbUE1M24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 08:28:56 -0400
-Date: Fri, 28 May 2004 14:28:54 +0200
-From: David Madore <david.madore@ens.fr>
-To: linux-kernel@vger.kernel.org
-Subject: filesystem corruption (ReiserFS, 2.6.6): regions replaced by \000 bytes
-Message-ID: <20040528122854.GA23491@clipper.ens.fr>
+	Fri, 28 May 2004 08:33:36 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47578 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262050AbUE1MdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 08:33:06 -0400
+Date: Fri, 28 May 2004 14:32:59 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: John Cherry <cherry@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.6.7-rc1-mm1: fix set_8042_nomux warning
+Message-ID: <20040528123259.GI16099@fs.tum.de>
+References: <1085675112.4249.33.camel@cherrybomb.pdx.osdl.net> <Pine.LNX.4.44.0405272254590.30062-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Fri, 28 May 2004 14:28:56 +0200 (CEST)
+In-Reply-To: <Pine.LNX.4.44.0405272254590.30062-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks.
+On Thu, May 27, 2004 at 10:57:46PM -0400, Rik van Riel wrote:
+> On Thu, 27 May 2004, John Cherry wrote:
+> 
+> >   CC      arch/i386/kernel/dmi_scan.o
+> > arch/i386/kernel/dmi_scan.c:410: warning: `set_8042_nomux' defined but
+> > not used
+> 
+> It's called from the dmi routines, with the function
+> defined in the DMI table.  No idea why this would
+> give a warning while the other similar functions
+> (eg broken_ps2_resume) don't ...
 
-I'm afraid this bug-report will be rather worthless as it is, because
-the bug has proven remarkable elusive and has defeated all my attempts
-to track it down to a precise test case or set of circumstances.  But
-since it seems important, I thought it might be worth a post anyway.
-Any help is appreciated in clarifying the circumstances which trigger
-the problem, or generally in making this report more useful.
+He's using a .config with CONFIG_ACPI_BOOT=n.
 
-The bottom line: I've experienced file corruption, of the following
-nature: consecutive regions (all, it seems, aligned on 256-byte
-boundaries, and typically around 1kb or 2kb in length) of seemingly
-random files are replaced by null bytes.  The filesystem is ReiserFS
-(but as nearly all my filesystems are ReiserFS anyway, I cannot
-conclusively say that the bug is indeed in ReiserFS).  The problem has
-occurred with kernel versions Debian-packaged 2.6.6-1-686-smp and
-home-compiled 2.6.6-mm2 (SMP also).  The hardware is an Intel
-bi-PII450 (with 256MB RAM) using aic7xxx as low-level disk driver; and
-I have good reasons to think that the hardware is sound (and the
-memory banks in particular).  Distribution is Debian Sarge (with a few
-unstable packages as well).  System load is moderate.  The affected
-files were typically corrupted during operation of Debian "apt-get":
-either while updating the apt-cache (which became corrupted) or while
-extracting packages (which randomly corrupted newly extracted files).
+A fix is below.
 
-That's about all I can say for sure.  I have tried to reproduce the
-problem by stress-testing the filesystem (creating large numbers of
-small files, or small numbers of large files, containing ARC4 streams
-produced by <URL: ftp://quatramaran.ens.fr/pub/madore/misc/arc4gen.c >
-and checking them afterward against the same procedural generator) --
-but to no avail: even by trying heavily concurrent access I have not
-been able to reproduce a single occurrence of the bug).  Maybe apt-get
-has a specific way of writing files (but I can't really think how;
-might it use mmap() in some way? that doesn't sound plausible) which
-makes it trigger the bug.
+cu
+Adrian
 
-I also have a UP box (Intel PIII600 with 384MB RAM and IDE disks)
-which, even though it has a nearly identical setup and is used in a
-roughly equal way, has not experienced any kind of corruption; so
-maybe the bug is SMP-specific (which would explain it going more or
-less unnoticed) -- on the other hand, a friend of mine has mentioned
-having observed similar problems on a UP box with 2.6.5 installed
-under very heavy load on ReiserFS, but I can't say more here.  I'm
-really sorry that all this is very fuzzy.
-
-Any suggestions (either on how to fix the problem or to work around
-it, or on how to reproduce it experimentally) are welcome.  A friendly
-pat on the back would also be welcome. :-)
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.eleves.ens.fr:8080/home/madore/ )
+--- linux-2.6.7-rc1-mm1-full/arch/i386/kernel/dmi_scan.c.old	2004-05-28 13:09:22.000000000 +0200
++++ linux-2.6.7-rc1-mm1-full/arch/i386/kernel/dmi_scan.c	2004-05-28 13:10:51.000000000 +0200
+@@ -401,23 +401,6 @@
+ }
+ 
+ /*
+- * HP Proliant 8500 systems can't use i8042 in mux mode,
+- * or they instantly reboot.
+- */
+-#ifdef CONFIG_SERIO_I8042
+-extern unsigned int i8042_nomux;
+-static __init int set_8042_nomux(struct dmi_blacklist *d)
+-{
+-	if (i8042_nomux == 0)
+-	{
+-		i8042_nomux = 1;
+-		printk(KERN_INFO "Disabling i8042 mux mode\n");
+-	}
+-	return 0;
+-}
+-#endif
+-
+-/*
+  * This bios swaps the APM minute reporting bytes over (Many sony laptops
+  * have this problem).
+  */
+@@ -516,6 +499,24 @@
+ 
+ 
+ #ifdef	CONFIG_ACPI_BOOT
++
++/*
++ * HP Proliant 8500 systems can't use i8042 in mux mode,
++ * or they instantly reboot.
++ */
++#ifdef CONFIG_SERIO_I8042
++extern unsigned int i8042_nomux;
++static __init int set_8042_nomux(struct dmi_blacklist *d)
++{
++  if (i8042_nomux == 0)
++    {
++      i8042_nomux = 1;
++      printk(KERN_INFO "Disabling i8042 mux mode\n");
++    }
++  return 0;
++}
++#endif
++
+ extern int acpi_force;
+ 
+ static __init __attribute__((unused)) int dmi_disable_acpi(struct dmi_blacklist *d) 

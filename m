@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312386AbSDPLWo>; Tue, 16 Apr 2002 07:22:44 -0400
+	id <S312393AbSDPLZR>; Tue, 16 Apr 2002 07:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312393AbSDPLWn>; Tue, 16 Apr 2002 07:22:43 -0400
-Received: from achilles.noc.ntua.gr ([147.102.222.210]:41368 "EHLO ntua.gr")
-	by vger.kernel.org with ESMTP id <S312386AbSDPLWn>;
-	Tue, 16 Apr 2002 07:22:43 -0400
-Message-ID: <3CBC0A2E.3010402@telecom.ntua.gr>
-Date: Tue, 16 Apr 2002 14:25:34 +0300
-From: Yannis Mitsos <gmitsos@telecom.ntua.gr>
-Organization: N.T.U.A
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
-X-Accept-Language: el, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.x and gcc version
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312458AbSDPLZQ>; Tue, 16 Apr 2002 07:25:16 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:10756 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S312393AbSDPLZP>; Tue, 16 Apr 2002 07:25:15 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 16 Apr 2002 12:35:49 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Wade <lkml@bigpond.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre7
+Message-ID: <20020416123549.A16359@bytesex.org>
+In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva> <slrnabnps8.evm.kraxel@bytesex.org> <20020416200032.14fbd436.lkml@bigpond.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > 16 10:44:42 bogomips agetty[1111]: ttyS0: ioctl: Input/output error
+> > Apr 16 10:44:52 bogomips init: Id "S0" respawning too fast: disabled
+> > for 5 minutes
+> 
+> Hi, I found that my ttyS0 had turned into ttyS1 :-) My modem was
+> unresponsive, until I changed the setting to use ttyS1, hope this helps.
 
-I am a member of a small team which is trying to port Linux to 
-Infineon's TriCore processor.
-The gcc version that is available for the aforementioned processor is 2.8.1.
-On the other hand the aforementioned processor does not embed a MMU, so 
-we are using the uClinux patch with the 2.4.x kernel.
+Making getty using ttyS1 works for me too, I have my login prompt back.
+Looks like a off-by-one bug ...
 
-I am wondering if with the 2.8.1 version we will be able to obtain a 
-reliable 2.4.x kernel. According to the /Documentation/Changes file the 
-gcc 2.95.3 is required...
+  Gerd
 
-Between the gcc version 2.8.1 and the 2.95.3 some extra flags and 
-options have been added, but are all these requisite for ALL the 
-processors ???
-
-Regards
-
-Yannis Mitsos
-
+-- 
+#include </dev/tty>

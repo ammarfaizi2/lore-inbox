@@ -1,88 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUHEOn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267690AbUHEOyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUHEOn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUHEOml
+	id S267690AbUHEOyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUHEOyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:42:41 -0400
-Received: from slartibartfast.pa.net ([66.59.111.182]:44985 "EHLO
-	slartibartfast.pa.net") by vger.kernel.org with ESMTP
-	id S267736AbUHEOh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:37:29 -0400
-Date: Thu, 5 Aug 2004 10:34:11 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: John M Collins <jmc@xisl.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-       William Stearns <wstearns@pobox.com>
-Subject: Re: Program-invoking Symbolic Links?
-In-Reply-To: <200408051504.26203.jmc@xisl.com>
-Message-ID: <Pine.LNX.4.58.0408051027090.3293@sparrow>
-References: <200408051504.26203.jmc@xisl.com>
+	Thu, 5 Aug 2004 10:54:16 -0400
+Received: from exeter-w-mailserver-fw.wrl.org ([209.96.177.100]:28882 "EHLO
+	franklin.wrl.org") by vger.kernel.org with ESMTP id S267690AbUHEOyE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 10:54:04 -0400
+Date: Thu, 5 Aug 2004 10:54:03 -0400 (EDT)
+From: Brett Charbeneau <brett@wrl.org>
+To: linux-kernel@vger.kernel.org
+Subject: Possible dcache BUG 
+Message-ID: <Pine.LNX.4.44.0408051053480.12573-100000@franklin.wrl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning, John,
-	(My apologies for floating offtopic for kernel programming.  I 
-wanted to provide a quick example for John and others interested in doing 
-this so they could see this can be done outside of the kernel.)
+Greetings,
 
-On Thu, 5 Aug 2004, John M Collins wrote:
+	I am getting the oops below - twice since 7/26, but I haven't a 
+clue what's causing it.
+	I am not a subscriber, so any replies directed to me would be 
+gratefully received.
+	Thank you for your hard work on this!
 
-> (Please CC any reply to jmc AT xisl.com as I'm not subbed - thanks).
-> 
-> I wondered if anyone had ever thought of implementing an alternative form of 
-> symbolic link which was in fact an invocation of a program?
-> 
-> Such a symbolic link would "do all the necessary" to fork off a new process 
-> running the specified program with input or output from or to a pipe 
-> depending on whether the link was opened for writing or reading respectively. 
-> RW access would probably have to be banned and the link would usually be 
-> read-only or write-only.
-> 
-> What I originally wanted was symbolic links (with "=>" as a possible 
-> notation).
-> 
-> latest_version.tar => "tar cf - /latest/and/greatest"
-> latest_version.tgz => "gzip -c latest_version"
-> 
-> and the like, which I could link on a website so I didn't have to run around 
-> updating tar files/zip files/gzipped tar files etc each time I fix a bug in 
-> some package.
+-- 
 
-	Is there any reason this couldn't be done in userspace by using 
-named pipes instead of a new form of symlink?
-
-#!/bin/bash
-
-if [ ! -e livepipe ]; then
-	echo Making livepipe >&2
-	mkfifo livepipe
-fi
-
-while : ; do
-	echo -n . >&2
-	( date ) >livepipe
-	sleep 1
-done
+Brett Charbeneau, Network Administrator         Tel: 757-259-7750
+Williamsburg Regional Library                   FAX: 757-259-7798
+7770 Croaker Road                               brett@wrl.org
+Williamsburg, VA 23188-7064                     http://www.wrl.org
 
 
-	Run this, and then from another window, simply do:
-cat livepipe
-	To see the date, or whatever output is provided by the subshell.
-	I'd like to sincerely request that further discussion _not_ 
-continue on linux-kernel - please respond privately.
- 	Cheers,
-	- Bill
+ksymoops 2.4.9 on i686 2.4.26.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.26/ (default)
+     -m /boot/System.map (specified)
 
----------------------------------------------------------------------------
-	"Eagles may soar, high and proud, but weasels don't get sucked
-into jet engines."
-(Courtesy of Mike Andrews <mandrews@termfrost.org>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
---------------------------------------------------------------------------
+1151MB HIGHMEM available.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+kernel BUG at dcache.c:345!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c014322d>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010206
+eax: 00040000   ebx: eb8d7c70   ecx: c281b394   edx: e5636700
+esi: eb8d7c58   edi: c281b394   ebp: d2b15f34   esp: d2b15f08
+ds: 0018   es: 0018   ss: 0018
+Process umount (pid: 14814, stackpage=d2b15000)
+Stack: c0128f81 c281b49c c281f000 00000246 d2b15f34 f721e1a0 00000466 f721e178 
+       f721e178 f721e178 c02991c0 d2b15f44 c01435a6 00000150 f7b6f400 d2b15f5c 
+       c013714f f721e178 d2b15f88 08052179 0804d82b d2b15f7c c013afea f7b6f400 
+Call Trace:    [<c0128f81>] [<c01435a6>] [<c013714f>] [<c013afea>] [<c01472d0>]
+  [<c01472ee>] [<c0106d93>]
+Code: 0f 0b 59 01 1e d6 25 c0 8d 56 10 8b 4a 04 8b 46 10 89 48 04 
+
+
+>>EIP; c014322d <prune_dcache+5d/140>   <=====
+
+>>ebx; eb8d7c70 <_end+2b5bb734/384f6ac4>
+>>ecx; c281b394 <_end+24fee58/384f6ac4>
+>>edx; e5636700 <_end+2531a1c4/384f6ac4>
+>>esi; eb8d7c58 <_end+2b5bb71c/384f6ac4>
+>>edi; c281b394 <_end+24fee58/384f6ac4>
+>>ebp; d2b15f34 <_end+127f99f8/384f6ac4>
+>>esp; d2b15f08 <_end+127f99cc/384f6ac4>
+
+Trace; c0128f81 <kmem_cache_free+1c1/270>
+Trace; c01435a6 <shrink_dcache_parent+16/30>
+Trace; c013714f <kill_super+5f/f0>
+Trace; c013afea <path_release+2a/40>
+Trace; c01472d0 <sys_umount+80/90>
+Trace; c01472ee <sys_oldumount+e/20>
+Trace; c0106d93 <system_call+33/38>
+
+Code;  c014322d <prune_dcache+5d/140>
+00000000 <_EIP>:
+Code;  c014322d <prune_dcache+5d/140>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c014322f <prune_dcache+5f/140>
+   2:   59                        pop    %ecx
+Code;  c0143230 <prune_dcache+60/140>
+   3:   01 1e                     add    %ebx,(%esi)
+Code;  c0143232 <prune_dcache+62/140>
+   5:   d6                        (bad)  
+Code;  c0143233 <prune_dcache+63/140>
+   6:   25 c0 8d 56 10            and    $0x10568dc0,%eax
+Code;  c0143238 <prune_dcache+68/140>
+   b:   8b 4a 04                  mov    0x4(%edx),%ecx
+Code;  c014323b <prune_dcache+6b/140>
+   e:   8b 46 10                  mov    0x10(%esi),%eax
+Code;  c014323e <prune_dcache+6e/140>
+  11:   89 48 04                  mov    %ecx,0x4(%eax)
+
+kernel BUG at dcache.c:345!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c014322d>]    Not tainted
+EFLAGS: 00010206
+eax: 00040000   ebx: ea612c70   ecx: c281b394   edx: dd1f64bc
+esi: ea612c58   edi: c281b394   ebp: c2825f00   esp: c2825ed4
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c2825000)
+Stack: 00000187 00000003 c2825ef4 c0128525 c281b418 d8728000 c281b418 00000006 
+       00000000 c233bfb0 00000003 c2825f0c c01435e2 00000d1d c2825f4c c012a284 
+       00000006 000001d0 c2824000 ffffffff 00012199 000001d0 c02970d0 c2825f50 
+Call Trace:    [<c0128525>] [<c01435e2>] [<c012a284>] [<c012a462>] [<c012a501>]
+  [<c012a580>] [<c012a739>] [<c012a7b6>] [<c012a8ff>] [<c012a860>] [<c0105000>]
+  [<c01055b6>] [<c012a860>]
+Code: 0f 0b 59 01 1e d6 25 c0 8d 56 10 8b 4a 04 8b 46 10 89 48 04 
+
+
+>>EIP; c014322d <prune_dcache+5d/140>   <=====
+
+>>ebx; ea612c70 <_end+2a2f6734/384f6ac4>
+>>ecx; c281b394 <_end+24fee58/384f6ac4>
+>>edx; dd1f64bc <_end+1ced9f80/384f6ac4>
+>>esi; ea612c58 <_end+2a2f671c/384f6ac4>
+>>edi; c281b394 <_end+24fee58/384f6ac4>
+>>ebp; c2825f00 <_end+25099c4/384f6ac4>
+>>esp; c2825ed4 <_end+2509998/384f6ac4>
+
+Trace; c0128525 <__kmem_cache_shrink_locked+45/70>
+Trace; c01435e2 <shrink_dcache_memory+22/40>
+Trace; c012a284 <shrink_cache+294/370>
+Trace; c012a462 <refill_inactive+102/170>
+Trace; c012a501 <shrink_caches+31/40>
+Trace; c012a580 <try_to_free_pages_zone+70/f0>
+Trace; c012a739 <kswapd_balance_pgdat+59/b0>
+Trace; c012a7b6 <kswapd_balance+26/40>
+Trace; c012a8ff <kswapd+9f/c0>
+Trace; c012a860 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c01055b6 <arch_kernel_thread+26/40>
+Trace; c012a860 <kswapd+0/c0>
+
+Code;  c014322d <prune_dcache+5d/140>
+00000000 <_EIP>:
+Code;  c014322d <prune_dcache+5d/140>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c014322f <prune_dcache+5f/140>
+   2:   59                        pop    %ecx
+Code;  c0143230 <prune_dcache+60/140>
+   3:   01 1e                     add    %ebx,(%esi)
+Code;  c0143232 <prune_dcache+62/140>
+   5:   d6                        (bad)  
+Code;  c0143233 <prune_dcache+63/140>
+   6:   25 c0 8d 56 10            and    $0x10568dc0,%eax
+Code;  c0143238 <prune_dcache+68/140>
+   b:   8b 4a 04                  mov    0x4(%edx),%ecx
+Code;  c014323b <prune_dcache+6b/140>
+   e:   8b 46 10                  mov    0x10(%esi),%eax
+Code;  c014323e <prune_dcache+6e/140>
+  11:   89 48 04                  mov    %ecx,0x4(%eax)
+
+
+
+

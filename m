@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSFOSUk>; Sat, 15 Jun 2002 14:20:40 -0400
+	id <S315456AbSFOSXB>; Sat, 15 Jun 2002 14:23:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315456AbSFOSUj>; Sat, 15 Jun 2002 14:20:39 -0400
-Received: from holomorphy.com ([66.224.33.161]:171 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315454AbSFOSUi>;
-	Sat, 15 Jun 2002 14:20:38 -0400
-Date: Sat, 15 Jun 2002 11:20:20 -0700
+	id <S315457AbSFOSXA>; Sat, 15 Jun 2002 14:23:00 -0400
+Received: from holomorphy.com ([66.224.33.161]:1195 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315456AbSFOSW7>;
+	Sat, 15 Jun 2002 14:22:59 -0400
+Date: Sat, 15 Jun 2002 11:22:41 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
 Cc: trivial@rustcorp.com.au
-Subject: remove unnecessary parentheses from expand()
-Message-ID: <20020615182020.GP25360@holomorphy.com>
+Subject: remove unnecessary headers from mm/page_alloc.c
+Message-ID: <20020615182241.GQ25360@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
 Mime-Version: 1.0
@@ -23,25 +23,25 @@ Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure why I forgot to do this, but here is a small bit of tidying up
-of some leftover parentheses from the memlist macro removal. The
-parentheses are just noise and should go.
-
+page_alloc.c does not use either slab.h or swapctl.h. This removes the
+inclusion of those headers from page_alloc.c
 
 Cheers,
 Bill
 
 
-
 ===== mm/page_alloc.c 1.67 vs edited =====
 --- 1.67/mm/page_alloc.c	Mon Jun  3 08:25:10 2002
-+++ edited/mm/page_alloc.c	Sat Jun 15 11:16:21 2002
-@@ -173,7 +173,7 @@
- 		area--;
- 		high--;
- 		size >>= 1;
--		list_add(&(page)->list, &(area)->free_list);
-+		list_add(&page->list, &area->free_list);
- 		MARK_USED(index, high, area);
- 		index += size;
- 		page += size;
++++ edited/mm/page_alloc.c	Sat Jun 15 11:21:33 2002
+@@ -15,11 +15,9 @@
+ #include <linux/config.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
+-#include <linux/swapctl.h>
+ #include <linux/interrupt.h>
+ #include <linux/pagemap.h>
+ #include <linux/bootmem.h>
+-#include <linux/slab.h>
+ #include <linux/compiler.h>
+ #include <linux/module.h>
+ #include <linux/suspend.h>

@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314190AbSDQWkC>; Wed, 17 Apr 2002 18:40:02 -0400
+	id <S314192AbSDQWpZ>; Wed, 17 Apr 2002 18:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314192AbSDQWkB>; Wed, 17 Apr 2002 18:40:01 -0400
-Received: from f50.pav2.hotmail.com ([64.4.37.50]:17419 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S314190AbSDQWkB>;
-	Wed, 17 Apr 2002 18:40:01 -0400
-X-Originating-IP: [166.102.199.91]
-From: "bob dobalina" <mrdobalina@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 1 Terabyte+ Disk Support?
-Date: Wed, 17 Apr 2002 17:39:51 -0500
+	id <S314193AbSDQWpZ>; Wed, 17 Apr 2002 18:45:25 -0400
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:65520 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S314192AbSDQWpY>; Wed, 17 Apr 2002 18:45:24 -0400
+Message-Id: <5.1.0.14.2.20020418082824.03112008@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 18 Apr 2002 08:44:45 +1000
+To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: IDE/raid performance
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020417125838.GA27648@dark.x.dtu.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F50W2lSYgCSrlrCv3wB00016f23@hotmail.com>
-X-OriginalArrivalTime: 17 Apr 2002 22:39:52.0027 (UTC) FILETIME=[C9D14AB0:01C1E660]
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+At 02:58 PM 17/04/2002 +0200, Baldur Norddahl wrote:
+>It is clear that the 33 MHz PCI bus maxes out at 75 MB/s. Is there a reason
+>it doesn't reach 132 MB/s?
 
-I am looking for someone who has experience using 1TB+ Disks with the Linux 
-2.2.14-5 Kernel that comes standard with Redhat Linux 6.2. I am trying to 
-determine the best way to patch a pile of Redhat 6.2 (zoot)systems to 
-recognize 1Terabyte and larger disks. I am trying to directly attach 
-1.5Terabyte (external) RAID arrays to these Redhat 6.2 systems via Ultra160 
-SCSI adapters.
+welcome to the world of PC hardware, real-world performance and theoretical 
+numbers.
 
-The RAID devices are external rackmount enclosures with their own hardware 
-IDE->Ultra160 SCSI RAID Controller. They use 160 Gigabyte IDE drives 
-internally in a RAID5 configuration w/ no hot spare. The units striped in 
-this configuration present the host they are directly attached to with about 
-1.5 Terabytes of storage as (1) Logical
-disk. Neither Redhat 6.2 or 7.2 will see properly recognize this large of a 
-disk. The dmesg see's the RAID on the SCSI chain, assigns it 'sdb' but 
-claims it has a negative number of sectors, and im unable to fdisk the 
-device.
+in theory, a 32/33 PCI bus can get 132mbyte/sec.
 
-The cut-off point for large disks in Redhat 6.2 and 7.2 appears to be around 
-900 Gigabytes, I can get both Redhat 6.2 and 7.2 to see up to around 900 
-gigs as 1 disk. I've heard about a 64-bit IO patch for an older 2.x.x 'pre8' 
-release kernel but would like to know if theres a way to get this 
-accomplished with Redhat 6.2/Kernel 2.2.14-5. Any insight into this problem 
-would be greatly appreciated!
+in reality, the more cards you have on a bus, the more arbitration you 
+have, the less overall efficiency.
 
-Thanks!
+in theory, with neither the initiator or target inserting wait-states, and 
+with continual bursting, you can achieve maximum throughput.
+in reality, continual bursting doesn't happen very often and/or many 
+hardware devices are not designed to either perform i/o without some 
+wait-states in some conditions or provide continual bursting.
 
--Bobd
+in short: you're working on theoretical numbers.  reality is typically far 
+far different!
 
 
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
+something you may want to try:
+   if your motherboard supports it, change the "PCI Burst" settings and see 
+what effect this has.
+   you can probably extract another 20-25% performance by changing the PCI 
+Burst from 32 to 64.
+
+>Second, why are the md devices so slow? I would have expected it to reach
+>130+ MB/s on both md0 and md1. It even has spare CPU time to do it with.
+
+you don't mention actually what your motherboard or chipset actually is -- 
+and where the 32/33 and 64/66 PCI connect in.
+you also don't mention what your FSB & memory clock-speed are, or how these 
+are connected to the PCI busses.
+
+
+it is likely that you have a motherboard where the throughput between PCI 
+to memory will also contend with the FSB.
+given you're using "time dd if=/dev/hdo1 of=/dev/null bs=1M count=1" as 
+your test, you're effectively issuing read() and write() system-calls from 
+user-space to kernel.
+this implies a memory-copy.
+count the number of times you're doing a memory-copy (or, more correctly, 
+moving data across the front-side-bus), and you should be able to see 
+another reason for the bottlenecks you see.
+
+
+cheers,
+
+lincoln.
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbTIJFpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTIJFpL
+	id S264812AbTIJFmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264845AbTIJFmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:45:11 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:6095 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264658AbTIJFpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:45:07 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 10 Sep 2003 01:42:16 -0400
+Received: from law10-oe41.law10.hotmail.com ([64.4.14.98]:39694 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264812AbTIJFmP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:42:15 -0400
+X-Originating-IP: [208.48.228.132]
+X-Originating-Email: [jyau_kernel_dev@hotmail.com]
+From: "John Yau" <jyau_kernel_dev@hotmail.com>
+To: "Nick Piggin" <piggin@cyberone.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Law10-OE471DczmBlrP0000b07a@hotmail.com> <3F5E8CF7.5020603@cyberone.com.au>
+Subject: Re: Priority Inversion in Scheduling
+Date: Wed, 10 Sep 2003 01:41:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16222.47713.844198.633687@napali.hpl.hp.com>
-Date: Tue, 9 Sep 2003 22:45:05 -0700
-To: rob@landley.net
-Cc: Ricardo Bugalho <ricardo.b@zmail.pt>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-In-Reply-To: <200309100114.37867.rob@landley.net>
-References: <20030903040327.GA10257@work.bitmover.com>
-	<200309090211.16136.rob@landley.net>
-	<pan.2003.09.09.16.07.28.847940@zmail.pt>
-	<200309100114.37867.rob@landley.net>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <OE41az7EjQxzmWecm9t0003cc0d@hotmail.com>
+X-OriginalArrivalTime: 10 Sep 2003 05:41:42.0014 (UTC) FILETIME=[366B51E0:01C3775E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 10 Sep 2003 01:14:37 -0400, Rob Landley <rob@landley.net> said:
+>
+> Well I haven't read the paper, but I'm guessing this is semaphore
+> priority inheritance.
+>
 
-  Rob> (These days, I've got a friend who's got an Itanium II
-  Rob> evaluation system, but it's another doorstop and I'm not going
-  Rob> to make him hook it up again just so I can go "yeah, I agree
-  Rob> with you, it sucks"...)
+Yip...it outlines the basic idea of the priority inheritance where semphores
+are the locking mechanism.  However, though it buys you better prioritized
+scheduling in certain situation, things can get rather hairy when you have
+lots of semaphores nested inside each other.  If you have a cyclic
+dependency somewhere in those nested semaphores, you're headed for deadlock
+or worse livelock.  The Mars Rover had a classic case of priority inversion
+in it's software that was later solved through this approach via an update
+after it landed on Mars a while back.
 
-I'm sorry to hear that.  If you really do want to try out an Itanium 2
-system, an easy way to go about it is to get an account at
-http://testdrive.hp.com/ .  It's a quick and painless process and a
-single account will give you access to all test-drive machines,
-including various Linux Itanium machines (up to 4x 1.4GHz),
-as shown here: http://testdrive.hp.com/current.shtml
+>
+> I _think_ communication with X will mostly be done with waitqueues.
+> Someone has a priority inheritance futex patch around. I'm not sure
+> that it is such an open and shut case as you think though. Even if you
+> could use futexes in communication with X.
+>
 
-	--david
+It's not an open and shut case...actually it'd be quite an undertaking I
+suspect.  Because a poorly designed and/or poorly implemented scheme can
+easily lead to deadlocks and what not, any implementation would need massive
+peer review.

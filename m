@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUKLNTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbUKLNZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUKLNTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 08:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbUKLNTU
+	id S262526AbUKLNZI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 08:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbUKLNZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 08:19:20 -0500
-Received: from iPass.cambridge.arm.com ([193.131.176.58]:27014 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261604AbUKLNTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 08:19:16 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Roundy <droundy@abridgegame.org>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] darcs mirror of the linux kernel repository
-References: <20041110124158.GD31123@abridgegame.org>
-	<20041111211924.GA1470@elf.ucw.cz>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Fri, 12 Nov 2004 13:19:50 +0000
-In-Reply-To: <20041111211924.GA1470@elf.ucw.cz> (Pavel Machek's message of
- "Thu, 11 Nov 2004 22:19:27 +0100")
-Message-ID: <tnxis8bqk5l.fsf@arm.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 12 Nov 2004 08:25:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13328 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262526AbUKLNYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 08:24:16 -0500
+Date: Fri, 12 Nov 2004 14:23:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc1-mm5: REISER4_LARGE_KEY is still selectable
+Message-ID: <20041112132343.GF2310@stusta.de>
+References: <20041111012333.1b529478.akpm@osdl.org> <20041111165045.GA2265@stusta.de> <1100243278.1490.42.camel@tribesman.namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100243278.1490.42.camel@tribesman.namesys.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
->> In brief, you can get a copy of the latest kernel (converted from the bkcvs
->> branch) using
->
-> Would it be possible to get data from www.bkbits.net so that complete
-> history is preserved?
+On Fri, Nov 12, 2004 at 10:07:59AM +0300, Vladimir Saveliev wrote:
 
-I think in the past Larry stated that people should not use the
-www.bkbits.net site for retrieving patches (understandable, it
-increases the bandwidth usage). But he could use the bk-commits list,
-only that I'm not sure all the patches can be cleanly applied in the
-order they are posted.
+> Hello
 
-BKCVS has a problem with the timestamps and cvsps cannot be used
-properly - in the same changeset, some files can have a timestamp
-different by exactly one hour, cvsps generating two patches (with
-other patches generated between). For example, the logical change
-1.24006 has the modification time for arch/i386/kernel/process.c
-22:45:49 but for the rest of the files it is 21:45:49.
+Hi Vladimir,
 
-Could this get fixed? (I hope it is not intentional :-) )
+> On Thu, 2004-11-11 at 19:50, Adrian Bunk wrote:
+> > REISER4_LARGE_KEY is still selectable in reiser4-include-reiser4.patch 
+> > (and we agreed that it shouldn't be).
+> 
+> Sorry, concerning this problem - what did we agree about?
 
-Catalin
+depending on the setting of REISER4_LARGE_KEY, there are two binary 
+incompatible variants of reiser4 (which can't be both supported by one 
+kernel).
+
+Therefore, REISER4_LARGE_KEY shouldn't be asked but always enabled.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

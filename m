@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTECUjf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 16:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263416AbTECUjf
+	id S263422AbTECUs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 16:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbTECUs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 16:39:35 -0400
-Received: from are.twiddle.net ([64.81.246.98]:27026 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S263415AbTECUje (ORCPT
+	Sat, 3 May 2003 16:48:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:33189 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263422AbTECUs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 16:39:34 -0400
-Date: Sat, 3 May 2003 13:51:59 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 vsyscall DSO implementation, take 2
-Message-ID: <20030503205159.GA29384@twiddle.net>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <200305020033.h420XUi12295@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305020033.h420XUi12295@magilla.sf.frob.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 3 May 2003 16:48:56 -0400
+Date: Sat, 3 May 2003 23:01:21 +0200 (MEST)
+From: =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@ifi.uio.no>
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: linux-kernel@vger.kernel.org,
+       =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@ifi.uio.no>,
+       miquels@cistron-office.nl
+Subject: Re: sendfile
+In-Reply-To: <20030502210648.GA5322@mark.mielke.cc>
+Message-ID: <Pine.SOL.4.51.0305032253490.18740@fjorir.ifi.uio.no>
+References: <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
+ <20030430192809.GA8961@outpost.ds9a.nl> <Pine.SOL.4.51.0304302317590.13406@thrir.ifi.uio.no>
+ <20030430221834.GA23109@mark.mielke.cc> <Pine.SOL.4.51.0305010024180.334@niu.ifi.uio.no>
+ <20030501042831.GA26735@mark.mielke.cc> <Pine.SOL.4.51.0305012303540.17001@fjorir.ifi.uio.no>
+ <3EB1A029.7080708@nortelnetworks.com> <20030502024147.GA523@mark.mielke.cc>
+ <3EB1F1CD.4060702@nortelnetworks.com> <20030502210648.GA5322@mark.mielke.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 05:33:30PM -0700, Roland McGrath wrote:
-> +	/* What follows are the instructions for the table generation.
-> +	   We have to record all changes of the stack pointer.  */
-> +	.byte 0x04		/* DW_CFA_advance_loc4 */
-> +	.long .Lpush_ecx-.LSTART_vsyscall
-> +	.byte 0x0e		/* DW_CFA_def_cfa_offset */
-> +	.byte 0x08		/* RA at offset 8 now */
-> +	.byte 0x04		/* DW_CFA_advance_loc4 */
-> +	.long .Lpush_edx-.Lpush_ecx
-> +	.byte 0x0e		/* DW_CFA_def_cfa_offset */
-> +	.byte 0x0c		/* RA at offset 12 now */
-> +	.byte 0x04		/* DW_CFA_advance_loc4 */
-> +	.long .Lenter_kernel-.Lpush_edx
-> +	.byte 0x0e		/* DW_CFA_def_cfa_offset */
-> +	.byte 0x10		/* RA at offset 16 now */
-> +	/* Finally the epilogue.  */
-> +	.byte 0x04		/* DW_CFA_advance_loc4 */
-> +	.long .Lpop_ebp-.Lenter_kernel
-> +	.byte 0x0e		/* DW_CFA_def_cfa_offset */
-> +	.byte 0x12		/* RA at offset 12 now */
-> +	.byte 0x04		/* DW_CFA_advance_loc4 */
 
-You lost the save/restore notes for ebp.
+> Sat, May 03, 2003 at 12:42:59AM +0000, Miquel van Smoorenburg wrote:
+> > In article <20030502210648.GA5322@mark.mielke.cc>,
+> > Mark Mielke  <mark@mark.mielke.cc> wrote:
+> > >One question it raises in my mind, is whether there would be value in
+> > >improving write()/send() such that they detect that the userspace
+> > >pointer refers entirely to mmap()'d file pages, and therefore no copy
+> > >of data from userspace -> kernelspace should be performed.
+> > You mean like
+> >
+>  http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week00/0056.html
+>
+> Yes, definately, and thank you for referring us to work that has already
+> been done.
+>
+> mark
 
-> +	.type __kernel_sigreturn,@function
-> +__kernel_sigreturn:
-> +.LSTART_kernel_sigreturn:
-> +	popl %eax		/* XXX does this mean it needs unwind info? */
+Does this mean that if you memory map a file and send it through TCP,
+you'll have no copy operations transfering data from disk to NIC (except
+the DMS transfers disk->memory and memory->NIC)?
 
-Well, yes, but not because of this per-se.  The unwind info
-for sigreturn will be quite complex because it should expose
-the state of the machine after the return.  I.e. it would 
-replace the rather complex code in both gdb and libgcc that
-fakes some knowledge of the signal stack frame.
+Does there exist work implementing this also for UDP?
 
-I can try to write it for you if you like.
-
-
-r~
+-ph

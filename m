@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbULJAEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbULJAIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbULJAEd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 19:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbULJAEc
+	id S261488AbULJAIn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 19:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULJAIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 19:04:32 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:43613 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261641AbULJAEU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 19:04:20 -0500
-Date: Thu, 9 Dec 2004 18:03:08 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: Re: How to add/drop SCSI drives from within the driver?
-Message-ID: <20041210000308.GA5146@lists.us.dell.com>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CA9C@exa-atlanta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CA9C@exa-atlanta>
-User-Agent: Mutt/1.4.1i
+	Thu, 9 Dec 2004 19:08:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21380 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261488AbULJAIj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 19:08:39 -0500
+Date: Thu, 9 Dec 2004 16:08:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: akpm@osdl.org, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB fixes for 2.6.10-rc3
+In-Reply-To: <20041209235709.GA8147@kroah.com>
+Message-ID: <Pine.LNX.4.58.0412091606130.31040@ppc970.osdl.org>
+References: <20041209230900.GA6091@kroah.com> <Pine.LNX.4.58.0412091538510.31040@ppc970.osdl.org>
+ <20041209235709.GA8147@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 09, 2004 at 06:37:19PM -0500, Bagalkote, Sreenivas wrote:
-> I am submitting the final patch that incorporates Matt's suggestions.
-> +} __attribute__ ((packed));
 
-I believe, per the discussion, that this was unnecessary and possibly
-even incorrect.  Please repost one more time with this removed.
 
-Thanks,
-Matt
+On Thu, 9 Dec 2004, Greg KH wrote:
+> 
+> No, the "fun" problem with this specific field (the wTotalLength one) is
+> that we initially read them in from the hardware (which for USB is in le
+> order) and then, in a later function, convert all of the le fields to
+> native cpu order so that all device drivers don't have to worry about
+> which fields in the usb structures are in which order.
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Aargh. 
+
+> Yeah, it's not the cleanest, and yes, it is just shutting the warning
+> up, but that's ok in this case.  I guess I could look into doing the
+> "two different structures" type thing again, if people don't like things
+> like this in different places.
+
+On the other hand, maybe you could just leave it in "hardware byte order". 
+
+That's something that sparse really can help with - it should pinpoint 
+exactly everybody who uses it, and give a reasonable error for them, so 
+that everybody can agree on the byte-order.
+
+Oh, well..
+
+		Linus

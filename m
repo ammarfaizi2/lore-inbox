@@ -1,42 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279705AbRJYEfg>; Thu, 25 Oct 2001 00:35:36 -0400
+	id <S279706AbRJYEyJ>; Thu, 25 Oct 2001 00:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279706AbRJYEfX>; Thu, 25 Oct 2001 00:35:23 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:32237 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S279705AbRJYEfE>; Thu, 25 Oct 2001 00:35:04 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Bill Davidsen <davidsen@prodigy.com>
-Date: Thu, 25 Oct 2001 14:35:01 +1000 (EST)
-MIME-Version: 1.0
+	id <S279707AbRJYEx6>; Thu, 25 Oct 2001 00:53:58 -0400
+Received: from marine.sonic.net ([208.201.224.37]:58665 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S279706AbRJYExs>;
+	Thu, 25 Oct 2001 00:53:48 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Wed, 24 Oct 2001 21:53:28 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: modprobe problem with block-major-11
+Message-ID: <20011024215328.A195@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15319.38517.663820.504760@notabene.cse.unsw.edu.au>
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.12 cannot find root device on raid
-In-Reply-To: message from Bill Davidsen on Tuesday October 23
-In-Reply-To: <Pine.LNX.4.33.0110180755090.5641-100000@windmill.gghcwest.com>
-	<3BD588CE.FBCB081E@prodigy.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 23, davidsen@prodigy.com wrote:
-> 
-> The line you provide doesn't look anything like the two forms in the
-> md.txt you mention. Or rather it looks like a blending, but neither of
-> them is md0= in form. I have to look at the code to see which is
-> correct, possibly yours, since the 
->   append = "md=0,/dev/sda1,/dev/sdb1"
-> line doesn't seem to work :-(
+If there is a better list for this, let me know and I'll take the question
+there.
 
-Odd ... I use lines just like that. e.g.:
-   append="md=0,/dev/hda1,/dev/hde1,/dev/hdg1"
+I have a new CDRW I've been trying to get working for a couple of months
+now.  Working with autoloading the modules anyway.
 
-and it works just fine.  What do you get in the way of error messages?
+I've tried following the CD-Writing HOWTO for setting up modules.conf with
+no luck.
 
-NeilBrown
+Currently my modules.conf has:
+options ide-cd ignore=hdc            # tell the ide-cd module to ignore h
+alias block-major-11 sr_mod          # load sr_mod upon access of scd0
+pre-install sg     modprobe ide-scsi # load ide-scsi before sg
+pre-install sr_mod modprobe ide-scsi # load ide-scsi before sr_mod
+pre-install ide-scsi modprobe ide-cd # load ide-cd   before ide-scsi
+
+And lilo.conf has:
+append="hdc=scsi"
+
+Of course, also tried hdc=ide-scsi with same results.
+
+Now, if I try something like ``head /dev/scd0''  I see the following in
+dmesg:
+SCSI subsystem driver Revision: 1.00
+Uniform CD-ROM driver unloaded
+
+And the following in /var/log/ksymoops:
+20011024 214049 start /sbin/modprobe -s -k -- block-major-11 safemode=1
+20011024 214050 probe ended
+
+Now, if I take the command from that:
+/sbin/modprobe -s -k -- block-major-11
+
+I get the following:
+thune:~# /sbin/modprobe -s -k -- block-major-11
+Warning: loading /lib/modules/2.4.12/kernel/drivers/cdrom/cdrom.o will
+taint the kernel: no license
+Warning: loading /lib/modules/2.4.12/kernel/drivers/ide/ide-cd.o will taint the
+kernel: no license
+ide-cd: ignoring drive hdc
+  Vendor: PHILIPS   Model: PCRW804           Rev:  2,1
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+
+ksymoops has:
+20011024 214923 start /sbin/modprobe -s -k -- block-major-11 safemode=0
+20011024 214923 start modprobe ide-scsi safemode=0
+20011024 214923 start modprobe ide-cd safemode=0
+20011024 214924 probe ended
+20011024 214924 probe ended
+20011024 214924 probe ended
+
+And dmesg shows:
+CSI subsystem driver Revision: 1.00
+ide-cd: ignoring drive hdc
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: PHILIPS   Model: PCRW804           Rev:  2,1
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+
+
+So, it appears to me that the autoloading should work.  But it's not.
+
+What am I missing?
+
+Help appreciated,
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

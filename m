@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUGNRP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUGNRZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267490AbUGNRP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 13:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267485AbUGNRPZ
+	id S265101AbUGNRZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 13:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUGNRZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 13:15:25 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:48863 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267490AbUGNRPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 13:15:20 -0400
-Date: Wed, 14 Jul 2004 13:18:13 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Mark Hamilton <man@ucs.co.za>, linux-kernel@vger.kernel.org,
-       Berend <bds@ucs.co.za>
-Subject: Re: HP Proliant ML350 kernel panic
-In-Reply-To: <20040714122655.GB12431@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0407141316180.27526@montezuma.fsmlabs.com>
-References: <1088165491.2255.62.camel@man.ucs.co.za> <20040714122655.GB12431@logos.cnet>
+	Wed, 14 Jul 2004 13:25:19 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23758 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265098AbUGNRZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 13:25:10 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Adrian Bunk <bunk@fs.tum.de>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
+Date: Wed, 14 Jul 2004 19:31:12 +0200
+User-Agent: KMail/1.5.3
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org, dgilbert@interlog.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <200407141216.i6ECGHxg008332@harpo.it.uu.se> <40F562FC.50806@pobox.com> <20040714165419.GF7308@fs.tum.de>
+In-Reply-To: <20040714165419.GF7308@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407141931.12249.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004, Marcelo Tosatti wrote:
 
-> Couple of questions
+FYI 'inlining fix' was just merged as part of viro's sparse cleanups
+
+I still would like somebody to comment on idea of converting sg.c
+to use standard inlines from <linux/time.h> ...
+
+On Wednesday 14 of July 2004 18:54, Adrian Bunk wrote:
+> On Wed, Jul 14, 2004 at 12:44:44PM -0400, Jeff Garzik wrote:
+> > Adrian Bunk wrote:
+> > >On Wed, Jul 14, 2004 at 11:52:46AM -0400, Jeff Garzik wrote:
+> > >>...
+> > >>If gcc is insisting that prototypes for inlines no longer work, we have
+> > >>a lot of code churn on our hands ;-(  Grumble.
+> > >
+> > >I've counted at about 30 files with such problems in a full i386
+> > >2.6.7-mm7 compile.
+> > >
+> > >I've already sent patches for some of them (e.g. the dmascc.c one), and
+> > >they are usually pretty straightforward.
+> >
+> > This is not a problem with the kernel.
+> >
+> > All these files have been functioning just fine for years, with properly
+> > prototyped static inline functions.
 >
-> Is it always the same oops / Do you have other oopses saved ?
-> Can you run the oopses through ksymoops ?
-> Is the hardware exactly the same in the three boxes ?
-> >
-> > Unable to handle kernel NULL pointer dereference at virtual address 00000001
-> >
-> > *pde = 00000000
-> > Oops = 0000
-> > CPU: 0
-> > EIP: 0010:[<00000001>] Not tainted
+> Add -Winline to the compile flags, and name one gcc version that is able
+> to inline them all in sg.c ...
+>
+> > Though there is a the claim that '#define inline always_inline' is
+> > leading to all this breakage.
+>
+> gcc 3.4 is just complaining louder that it can't inline something it was
+> told to inline.
+>
+> > 	Jeff
+>
+> cu
+> Adrian
 
-This looks very suspicious, single bit set trying to follow a function
-pointer. Try running memtest.

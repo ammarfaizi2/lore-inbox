@@ -1,113 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268351AbUHKX1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUHKX1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268351AbUHKX1q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUHKX0O
+	id S268346AbUHKX1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHKXZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:26:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37587 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268353AbUHKXYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:24:01 -0400
-Date: Thu, 12 Aug 2004 01:23:55 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc4-mm1 doesn't boot
-Message-ID: <20040811232355.GU26174@fs.tum.de>
-References: <20040810002110.4fd8de07.akpm@osdl.org> <200408101646.57542.bjorn.helgaas@hp.com> <20040810235621.GZ26174@fs.tum.de> <200408111433.50641.bjorn.helgaas@hp.com>
+	Wed, 11 Aug 2004 19:25:50 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:51379 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S268347AbUHKXVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:21:43 -0400
+Subject: Re: ipw2100 wireless driver
+From: David Woodhouse <postmaster@infradead.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040811231124.GC14073@louise.pinerecords.com>
+References: <20040811163333.GE10100@louise.pinerecords.com>
+	 <20040811175105.A30188@infradead.org>
+	 <20040811170208.GG10100@louise.pinerecords.com>
+	 <20040811181142.A30309@infradead.org>
+	 <20040811172222.GI10100@louise.pinerecords.com>
+	 <20040811184148.A30660@infradead.org>
+	 <20040811175109.GJ10100@louise.pinerecords.com>
+	 <1092264200.1438.4347.camel@imladris.demon.co.uk>
+	 <20040811225612.GB14073@louise.pinerecords.com>
+	 <1092265608.1438.4364.camel@imladris.demon.co.uk>
+	 <20040811231124.GC14073@louise.pinerecords.com>
+Content-Type: text/plain
+Message-Id: <1092266501.1438.4375.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408111433.50641.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 12 Aug 2004 00:21:41 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 02:33:50PM -0600, Bjorn Helgaas wrote:
-> On Tuesday 10 August 2004 5:56 pm, Adrian Bunk wrote:
-> > On Tue, Aug 10, 2004 at 04:46:57PM -0600, Bjorn Helgaas wrote:
-> > > On Tuesday 10 August 2004 11:32 am, Adrian Bunk wrote:
-> > > > On Tue, Aug 10, 2004 at 09:59:18AM -0600, Bjorn Helgaas wrote:
-> > > > > On Tuesday 10 August 2004 9:09 am, Adrian Bunk wrote:
-> > > > > > 2.6.8-rc3-mm1 boots fine on my computer.
-> > > > > > 2.6.8-rc4-mm1 doesn't boot.
-> > > > > > 2.6.8-rc4-mm1 with pci=routeirq boots.
-> > > 
-> > It happens before the
-> >   floppy0: no floppy controllers found
-> > line.
+On Thu, 2004-08-12 at 01:11 +0200, Tomas Szepe wrote:
+> On Aug-12 2004, Thu, 00:06 +0100
+> David Woodhouse <postmaster@infradead.org> wrote:
+> 
+> > On Thu, 2004-08-12 at 00:56 +0200, Tomas Szepe wrote:
+> > > Ok, thanks for the warning.  Is there any reason why you should
+> > > be trying to look up postmaster@ from the sender domain upon
+> > > RCPT TO?
 > > 
-> > Could there be a problem because the floppy driver doesn't find 
-> > anything (there's currently no floppy drive in my computer)?
+> > Part of standard verification of sender addresses. You're being offered
+> > an email.... if you can't send a bounce to the address it claims to come
+> > from, or if you can't send a mail to postmaster at the same domain, then
+> > the chances that the mail you're being offered is a fake are high enough
+> > to warrant rejecting it.
 > 
-> Not only is your machine floppy drive-less, but the driver thinks you
-> don't even have a floppy *controller*, which I assume is separate
-> from the actual drive.
-> 
-> What mainboard do you have?  Does it boot without "pci=routeirq"
+> Ok, I see, but wouldn't an "and" where you write "or" make more sense? :)
 
-I have an ASRock K7S8X (it was the only Athlon board for under 30 Euro  
-half a year ago...).
+Don't think so. I reject the mail _either_ if I can't send a bounce to
+the user it claims to come from, _or_ if I can't send mail to the
+postmaster at that domain. Either failure is sufficient to cause a
+rejection.
 
-It boots without "pci=routeirq" only if I disable ACPI.
+I don't accept mail from an invalid user just because I can contact
+postmaster, and I don't accept any mail from a domain for which I can't
+contact postmaster (except for mail addressed to postmaster@ one of my
+domains, which is more permissive in order to assist debugging/reporting
+problems).
 
-> if you turn CONFIG_BLK_DEV_FD off?
+> Anyway, I screwed up in the aliases vs. virtusertable department again.
 
-Yes, CONFIG_BLK_DEV_FD fixes the problem.
-
-> The code in the floppy_init() -> user_reset_fdc() -> WAIT() ->
-> wait_til_done() -> reset_fdc() path looks pretty scary if there
-> really is no controller out there.  I'd feel much better if
-> we at least tried to use ACPI to figure out whether we have
-> a controller before we try to talk to it.
-> 
-> All that aside, I still don't see how the pci=routeirq change
-> would affect the floppy driver.  It does request_irq(6, ...),
-> and it is interesting that you have this:
-> 
->     ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
->     ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 6 (level, low) -> IRQ 6
-> 
-> which is for your NIC.  But the floppy controller isn't a PCI
-> device, so the LNKD enable shouldn't matter to it.
-> 
-> Let's see... you're using the PIC model.  Maybe the floppy driver
-> depends on the ACPI_IRQ_MODEL_PIC stuff in acpi_register_gsi()?
-> Can you post the contents of /proc/interrupts with the floppy
-> driver and "pci=routeirq"?  It seems weird to have the floppy
-
-<--  snip  -->
-
-           CPU0       
-  0:     477284          XT-PIC  timer
-  1:       2354          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  6:      36675          XT-PIC  eth0
-  8:          4          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:          0          XT-PIC  ehci_hcd
- 11:      41789          XT-PIC  Ensoniq AudioPCI, radeon@PCI:1:0:0
- 12:      13254          XT-PIC  i8042
- 14:      19687          XT-PIC  ide0
- 15:         24          XT-PIC  ide1
-NMI:          0 
-ERR:          5
-
-<--  snip  -->
-
-> and the NIC share an IRQ, but it looks like that's what should
-> be happening.
-> 
-> Bjorn
-
-cu
-Adrian
+I saw it was fixed, and I wiped my callout cache so you should be able
+to send mail to users @infradead.org other than postmaster again.
 
 -- 
+dwmw2
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUHCKgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUHCKjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUHCKgv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 06:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUHCKgv
+	id S265521AbUHCKjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 06:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUHCKjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 06:36:51 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:49418 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265354AbUHCKgt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 06:36:49 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: akpm@osdl.org (Andrew Morton)
-Subject: Re: ixgb boolean typo ?
-Cc: davej@redhat.com, linux.nics@intel.com, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20040802230307.6a26dac0.akpm@osdl.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
-Message-Id: <E1Brwe9-0007WA-00@gondolin.me.apana.org.au>
-Date: Tue, 03 Aug 2004 20:35:53 +1000
+	Tue, 3 Aug 2004 06:39:05 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:33965 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S265521AbUHCKjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 06:39:02 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Date: Tue, 3 Aug 2004 20:38:52 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16655.27452.741143.31043@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem: nfsd producing stales when restarting too fast
+In-Reply-To: message from Frank Steiner on Tuesday August 3
+References: <410F69DF.7050602@bio.ifi.lmu.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-> Dave Jones <davej@redhat.com> wrote:
->>
->> Is this perhaps what was meant to be here ?
->> 
->>               Dave
->> 
->>  --- 1/drivers/net/ixgb/ixgb_main.c~  2004-08-03 01:18:00.000000000 +0100
->>  +++ 2/drivers/net/ixgb/ixgb_main.c   2004-08-03 01:53:46.653695768 +0100
->>  @@ -1615,7 +1615,7 @@
->>       }
->>   #else
->>       for (i = 0; i < IXGB_MAX_INTR; i++)
->>  -            if (!ixgb_clean_rx_irq(adapter) & !ixgb_clean_tx_irq(adapter))
->>  +            if (!ixgb_clean_rx_irq(adapter) && !ixgb_clean_tx_irq(adapter))
->>                       break;
->>       /* if RAIDC:EN == 1 and ICR:RXDMT0 == 1, we need to
->>        * set IMS:RXDMT0 to 1 to restart the RBD timer (POLL)
+On Tuesday August 3, fsteiner-mail@bio.ifi.lmu.de wrote:
 > 
-> Both versions will do the same thing, inefficiently: keep going until both
-> functions return false.  And keep pointlessly calling a functions which is
-> returning FALSE all the time.
+> Btw, it's not a problem with the init script, I can also
+> produce this behaviour manually by
+> /usr/sbin/exportfs -au
+> killall -9 nfsd
+> killall -9 /usr/sbin/rpc.mountd
+> [sleep 5]
+> /usr/sbin/exportfs -r
+> /usr/sbin/rpc.nfsd
+> /usr/sbin/rpc.mountd
 > 
-> I think this would be better:
+> Without the sleep, everything stales. With the sleep, it works
+> fine.
 
-Please note that ixgb_clean_rx_irq/ixgb_clean_tx_irq are not pure functions.
-Their return values can change.
+Try doing the "exportfs -au"  *after* killing nfsd.
+Unexporting active filesystems while nfsd is running almost guarantees stale
+file handles.
 
-The original intention appears to be this: keep processing until both
-RX and TX runs out of things to do.
-
-Both of your patches do something different.
-
-Perhaps we should add a comment instead.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+NeilBrown

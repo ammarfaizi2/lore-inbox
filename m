@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272090AbRH2Vkb>; Wed, 29 Aug 2001 17:40:31 -0400
+	id <S272093AbRH2V7P>; Wed, 29 Aug 2001 17:59:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272091AbRH2VkW>; Wed, 29 Aug 2001 17:40:22 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:35971 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S272090AbRH2VkD>; Wed, 29 Aug 2001 17:40:03 -0400
-Date: Wed, 29 Aug 2001 14:40:16 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ext3-users@redhat.com
-Subject: Re: kupdated, bdflush and kjournald stuck in D state on RAID1 device (deadlock?)
-Message-ID: <20010829144016.C20968@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-raid@vger.kernel.org,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-In-Reply-To: <20010829131720.A20537@greenhydrant.com> <3B8D54F3.46DC2ABB@zip.com.au>, <3B8D54F3.46DC2ABB@zip.com.au>; <20010829141451.A20968@greenhydrant.com> <3B8D60CF.A1400171@zip.com.au>
+	id <S272095AbRH2V7F>; Wed, 29 Aug 2001 17:59:05 -0400
+Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:9663 "EHLO
+	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
+	id <S272093AbRH2V6r>; Wed, 29 Aug 2001 17:58:47 -0400
+Date: Wed, 29 Aug 2001 23:20:28 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] yenta resource allocation fix
+Message-ID: <20010829232028.A2411@storm.local>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010829013318.A16910@storm.local> <Pine.LNX.4.33.0108290645140.8173-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B8D60CF.A1400171@zip.com.au>; from akpm@zip.com.au on Wed, Aug 29, 2001 at 02:38:23PM -0700
+In-Reply-To: <Pine.LNX.4.33.0108290645140.8173-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 02:38:23PM -0700, Andrew Morton wrote:
->
-> OK, thanks.  bdflush is stuck in raid1_alloc_r1bh() and
-> everything else is blocked by it.  I thought we fixed 
-> that a couple of months ago :(
+On Wed, Aug 29, 2001 at 06:48:26AM -0700, Linus Torvalds wrote:
 > 
-> Could you send the output of `cat /proc/meminfo'?
+> On Wed, 29 Aug 2001, Andreas Bombe wrote:
+> >
+> > I have no idea why the 0xfff was in place.  Or, on second thought, this
+> > might be to allocate memory space behind official end as slack?  This
+> > would defy the end > start check then, anyway.  Linus?
 > 
-> > 18239 -bash            wait4
-> > 18274 umount /opt      rwsem_down_write_failed
+> I've looked more at the issue.
 > 
-> What are we trying to do here?  Is /opt the deadlocked
-> filesytem?
+> 0xfff is definitely right for memory windows and is generally right for
+> PCI-PCI bridges too - they cannot have IO or memory windows that are
+> anything but 4kB aligned.
+> 
+> But it turns out that the Yenta specification actually expanded on the
+> PCI-PCI bridge window specs for IO space - a Yenta bridge is supposed to
+> be able to handle IO windows at 4-byte granularity, not the 4kB a regular
+> PCI bridge does.
 
-Yep, /dev/md0 is mounted on /opt.
+Even then the old code would have been incorrect.  Further down the
+yenta_allocate_res() function, allocate_resource() is called with
+align = 1024 and size = 256 for IO port windows.  It also promptly got
+0x1000-0x10ff and 0x1400-0x14ff allocated.
 
--Dave
+> Does this alternate patch work for you?
+
+Ignoring the unrelated vmscan.c patch, yes, it works as it should,
+thanks (I never hit the memory window case anyway, since that is
+allocated fine before yenta.c gets to it).
+
+About the other thing with missed card insertion events there is nothing
+new.  I tried a few things but nothing helped.  There is the suspicious
+thing that CB_SOCKET_STATE has CB_CBCARD always set, whether there is a
+card or not, but I don't know enough of the code to see where it
+matters.
+
+-- 
+Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44

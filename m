@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271132AbRHTNln>; Mon, 20 Aug 2001 09:41:43 -0400
+	id <S271082AbRHTNhn>; Mon, 20 Aug 2001 09:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271094AbRHTNle>; Mon, 20 Aug 2001 09:41:34 -0400
-Received: from femail36.sdc1.sfba.home.com ([24.254.60.26]:10467 "EHLO
-	femail36.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271215AbRHTNlO>; Mon, 20 Aug 2001 09:41:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "Samium Gromoff" <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8/2.4.8-ac7 sound crashes
-Date: Mon, 20 Aug 2001 06:40:58 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15YlfQ-000EZS-00@f5.mail.ru>
-In-Reply-To: <E15YlfQ-000EZS-00@f5.mail.ru>
+	id <S271094AbRHTNhd>; Mon, 20 Aug 2001 09:37:33 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:28645 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271082AbRHTNh0>;
+	Mon, 20 Aug 2001 09:37:26 -0400
+Date: Mon, 20 Aug 2001 14:37:34 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Oliver Xymoron <oxymoron@waste.org>, Theodore Tso <tytso@mit.edu>
+Cc: David Schwartz <davids@webmaster.com>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: /dev/random in 2.4.6
+Message-ID: <2247427940.998318254@[10.132.112.53]>
+In-Reply-To: <Pine.LNX.4.30.0108191808350.740-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.30.0108191808350.740-100000@waste.org>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-Message-Id: <01082006405800.00227@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 August 2001 02:48 am, Samium Gromoff wrote:
->         I do not know if this problem is reported already,
->     since i read lkml thru web-archive, with accompanying
-> update delays.
->
->     2.4.8 dies after ~1/2 minute of mpg123 playback,
->     with tty switching freeze, and typing out
->     continuously (i`d say infinitely) call trace.
->
->         ac7 acts this way too, but before death
->     sound stalls *some* times, i then each time restart
->     the proggie which emits it. This pattern survives
->     4-5 stalls, after which - final trace dump.
->
->     gcc-2.95.3, sb16 - genuine, vanilla ac7, vanilla
->     2.4.8.
+> Can I propose an add_untrusted_randomness()? This would work identically
+> to add_timer_randomness but would pass batch_entropy_store() 0 as the
+> entropy estimate. The store would then be made to drop 0-entropy elements
+> on the floor if the queue was more than, say, half full. This would let us
+> take advantage of 'potential' entropy sources like network interrupts and
+> strengthen /dev/urandom without weakening /dev/random.
 
-no problems like this for me.
-GCC 2.95.3, SB16 "Value" (don't ask me why they named it that, it's just 
-like a regular SB16 ISA as far as I can tell), vanilla 2.4.8, mpg123 is 
-version 0.59r, says june 15th 1999, I'll see if there's a newer version. 
-I also use XMMS and it works fine.
+Am I correct in assuming that in the absence of other entropy sources, it
+would use these (potentially inferior) sources, and /dev/random would
+then not block? In which case fine, it solves my problem.
 
-What motherboard are you using? is the SB16 PCI or ISA? if it's ISA do 
-you have persistant DMA buffers enabled in the kernel? (not sure if that 
-would cause this or not)
+--
+Alex Bligh

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262356AbSI2AQJ>; Sat, 28 Sep 2002 20:16:09 -0400
+	id <S261559AbSI2Ah1>; Sat, 28 Sep 2002 20:37:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262357AbSI2AQJ>; Sat, 28 Sep 2002 20:16:09 -0400
-Received: from dp.samba.org ([66.70.73.150]:28371 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262356AbSI2AQI>;
-	Sat, 28 Sep 2002 20:16:08 -0400
-From: Paul Mackerras <paulus@au1.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262357AbSI2Ah1>; Sat, 28 Sep 2002 20:37:27 -0400
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:24328 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S261559AbSI2Ah0>; Sat, 28 Sep 2002 20:37:26 -0400
+Subject: Re: System very unstable
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020928.043427.74820153.davem@redhat.com>
+References: <20020928.033510.40857147.davem@redhat.com>
+	<Pine.LNX.4.44.0209280529220.7827-100000@hawkeye.luckynet.adm> 
+	<20020928.043427.74820153.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15766.18152.73299.58831@argo.ozlabs.ibm.com>
-Date: Sun, 29 Sep 2002 10:18:48 +1000 (EST)
-To: davidm@hpl.hp.com
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: show_stack()/show_trace() prototypes
-In-Reply-To: <200209281642.g8SGgKMA007827@napali.hpl.hp.com>
-References: <200209281642.g8SGgKMA007827@napali.hpl.hp.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 28 Sep 2002 20:42:47 -0400
+Message-Id: <1033260168.742.8.camel@madmax>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger writes:
+On Sat, 2002-09-28 at 07:34, David S. Miller wrote:
+> This is old news, they opensource the drivers at a later date,
+> this is how it's always worked with ATI.
 
-> Ingo, the ksymoops patch adds these to linux/sched.h:
-> 
-> extern void show_trace(unsigned long *stack);
-> extern void show_stack(unsigned long *stack);
-> 
-> This is not good.
+Note that ATI now has a binary driver available that supports the 8500,
+written by their German development group.  Available via their standard
+"find a driver" page, using Linux as OS.  See, for example,
+http://mirror.ati.com/support/products/pc/radeon8500/linux/radeon8500linuxdrivers.html?cboOS=LinuxXFree86&cboProducts=RADEON+8500LE&cmdNext=GO%21
 
-I agree.  It is unnecessary to have these declarations in
-linux/sched.h since these functions are only called from arch code.
-So I would also vote for having the declarations arch-specific.
+The scripts that build a kernel module and link it against their library
+work pretty well and are, to their credit, not impossibly tied to one
+distro over another.  :-)  I run Slackware.
 
-Paul.
+	ktk@madmax:~$ glxgears 
+	10474 frames in 5.0 seconds = 2094.800 FPS
+	10797 frames in 5.0 seconds = 2159.400 FPS
+
+Kris
+
+

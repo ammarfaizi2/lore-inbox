@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263984AbUFSP1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUFSPax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263984AbUFSP1o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 11:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUFSP1o
+	id S264002AbUFSPax (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 11:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUFSPax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 11:27:44 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:31906 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263984AbUFSP1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 11:27:36 -0400
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-From: Albert Cahalan <albert@users.sf.net>
-To: Andrew Morton OSDL <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de,
-       bcasavan@sgi.com
-In-Reply-To: <20040619030637.5580b25e.akpm@osdl.org>
-References: <1087605785.8188.834.camel@cube>
-	 <20040619030637.5580b25e.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087650315.8188.915.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 Jun 2004 09:05:16 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Jun 2004 11:30:53 -0400
+Received: from dwdmx2.dwd.de ([141.38.3.197]:17446 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id S264002AbUFSPav (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 11:30:51 -0400
+Date: Sat, 19 Jun 2004 15:30:48 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@praktifix.dwd.de
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: SATA performance drop in 2.6.7
+Message-Id: <Pine.LNX.4.58.0406191508190.8090@praktifix.dwd.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-06-19 at 06:06, Andrew Morton wrote:
-> Albert Cahalan <albert@users.sourceforge.net> wrote:
+Hello
 
->>> Doing the cache in the kernel is the wrong place.
->>> This should be fixed in user space.
->>
->>  No way, because:
->> 
->>  1. kernel modules may be loaded or unloaded at any time
->
-> Poll /proc/modules?
+Anybody noticed that with 2.6.7 the performance of SATA disks
+drops drastically. Right after a boot I get the following with
+hdparm:
 
-Ugh. I like the sequence number suggestion better.
-This is about speeding things up after all.
+ Timing buffer-cache reads:   3724 MB in  2.00 seconds = 1861.35 MB/sec
+ Timing buffered disk reads:  166 MB in  3.03 seconds =  54.72 MB/sec
 
-A signal that I could register to get would be best of all.
+It then starts to degrate rapidly:
 
->>  2. the /proc/*/wchan files don't provide both name and address
->
-> /proc/stat has the address, /proc/kallsyms gives the symbol?
+ Timing buffer-cache reads:   2560 MB in  2.00 seconds = 1280.19 MB/sec
+ Timing buffered disk reads:  166 MB in  3.01 seconds =  55.14 MB/sec
 
-Eh, why did we add the /proc/*/wchan files then if not
-to use them?
+ Timing buffer-cache reads:   2164 MB in  2.00 seconds = 1081.08 MB/sec
+ Timing buffered disk reads:  166 MB in  3.02 seconds =  55.05 MB/sec
 
-One problem with parsing /proc/kallsyms is that I can't mmap
-it and do a binary search. (the System.map was done this way)
-It looks like I'd have to read half a megabyte of text, then
-sort it for later use. It's highly desirable that the procps
-tools not eat lots of memory or suffer high start-up costs.
+ Timing buffer-cache reads:   1700 MB in  2.00 seconds = 850.13 MB/sec
+ Timing buffered disk reads:  146 MB in  3.04 seconds =  48.07 MB/sec
 
->>  I'd be happy to make top (and the rest of procps) use a cache
->>  if those problems were addressed. I need a signal sent on
->>  module load/unload, or a real /proc/kallsyms st_mtime that I
->>  can poll. I also need to have the numeric wchan address in
->>  the /proc/*/wchan file, such that it is reliably the same
->>  thing as the function name already found there.
->
-> Updating mtime on /proc/modules may be more logical, or even both.
->
-> Or put a modprobe sequence number somewhere in /proc and
-> look for changes in that.
->
-> It definitely needs to be fixed, but it doesn't seem that
-> adding code to the kernel is needed.
+Then about 3 minutes after boot it stays at approx.
 
-I'm not so sure anything needs to be fixed, save for SGI upgrading
-to a more modern procps. There are many more important things:
+  Timing buffer-cache reads:   780 MB in  2.00 seconds = 389.67 MB/sec
+  Timing buffered disk reads:  102 MB in  3.01 seconds =  33.89 MB/sec
 
-Supply a real SUSv3-compliant %CPU
-Supply whole-process CPU usage data
-Add a /proc/*/tty symlink
-Allocated PIDs by least-recently-used for safety
-Add an "adopted child" flag (for processes reparented to init)
-Supply the sleep time (in seconds for example)
-Supply jobc, the "count of processes qualifying PGID for job control"
-Supply the raw task_struct and the needed debug info
+Controller is a Intel ICH5R and disk is Seagate ST380013AS. With kernel
+2.6.6 this does not happen. On another PATA system with 2.6.7 this
+does not happen, so I assume the problem must be with SATA.
 
+Holger
 
-
+PS: Please CC me since I am not subscribed.

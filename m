@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVBORLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVBORPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVBORLO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBORK7
+	id S261797AbVBORPj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBORPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:10:59 -0500
-Received: from thunk.org ([69.25.196.29]:14570 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261799AbVBORKN (ORCPT
+	Tue, 15 Feb 2005 12:15:37 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:39484 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261797AbVBORNW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:10:13 -0500
-To: ksummit-2004-discuss@thunk.org, linux-kernel@vger.kernel.org
-Subject: The ksummit-2005-discuss list has been set up.
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1D16Cx-0002tT-0C@thunk.org>
-Date: Tue, 15 Feb 2005 12:09:55 -0500
+	Tue, 15 Feb 2005 12:13:22 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
+Date: Tue, 15 Feb 2005 20:13:21 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
+       ext3-users@redhat.com, linux-kernel@vger.kernel.org
+References: <200502151246.06598.adobriyan@mail.ru> <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502152013.21556.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 15 February 2005 16:12, Stephen C. Tweedie wrote:
+> On Tue, 2005-02-15 at 10:46, Alexey Dobriyan wrote:
+> 
+> > -			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
+> > -					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
+> > +			if ((ret = le32_to_cpu(EXT3_HAS_RO_COMPAT_FEATURE(sb,
+> > +					~EXT3_FEATURE_RO_COMPAT_SUPP)))) {
+> 
+> NAK.
 
-I have created a mailing list for interested parties to discuss the 2005
-Kernel Summit, which will be held before the Ottawa Linux Symposium, on
-July 18th and 19th.  The list has been pre-populated with the program
-committee for the 2005 Kernel Summit:
+Argh... stupid me. super.c part should be just:
 
-	Andrea Arcangeli	andrea@suse.de
-	James Bottomley		James.Bottomley@HansenPartnership.com
-	Jonathon Corbet		corbet@lwn.net
-	Steve Hemminger		shemminger@osdl.org
-	Gerrit Huizenga		gh@us.ibm.com
-	Greg Kroah-Hartman	greg@kroah.com
-	Matthew Mackall		mpm@selenic.com
-	Andrew Morton		akpm@osdl.org
-	Rik van Riel		riel@redhat.com
-	Theodore Ts'o		tytso@mit.edu
-
-(Many thanks to program commitee for being willing to serve this year!)
-
-People who were on the 2004 Kernel Summit disucss list have *not* been
-moved over to the 2005 list.  If you would like to join the list, you
-will need to manually subscribe via the mailman URL:
-
-	http://www.thunk.org/cgi-bin/mailman/listinfo/ksummit-2005-discuss
-
-After this e-mail is sent, I will be very shortly deactivating the 2004
-ksummit discussion list.
-
-Topics for discussion for the ksummit-2005-discuss list will include: 
-
-	* How well did the meeting logistics work last year?  
-		How can they be improved?
-
-	* What topics do you think should be included in the agenda?
-
-	* How well did the invited panels work?  Who (if anyone) should
-          invite this time?
-
-If you have any comments that you wish to be only read by the program
-committee, you may send us e-mail at: ksummit-2005-pc@thunk.org
-
-Thanks!!
-
-						- Ted
+--- linux-2.6.11-rc4/fs/ext3/super.c.orig	2005-02-15 20:01:52.000000000 +0200
++++ linux-2.6.11-rc4/fs/ext3/super.c	2005-02-15 20:02:47.000000000 +0200
+@@ -2106,6 +2106,7 @@ static int ext3_remount (struct super_bl
+ 			ext3_mark_recovery_complete(sb, es);
+ 		} else {
+ 			__le32 ret;
++			int ret1;
+ 			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
+ 					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
+ 				printk(KERN_WARNING "EXT3-fs: %s: couldn't "
+@@ -2122,8 +2123,8 @@ static int ext3_remount (struct super_bl
+ 			 */
+ 			ext3_clear_journal_err(sb, es);
+ 			sbi->s_mount_state = le16_to_cpu(es->s_state);
+-			if ((ret = ext3_group_extend(sb, es, n_blocks_count)))
+-				return ret;
++			if ((ret1 = ext3_group_extend(sb, es, n_blocks_count)))
++				return ret1;
+ 			if (!ext3_setup_super (sb, es, 0))
+ 				sb->s_flags &= ~MS_RDONLY;
+ 		}

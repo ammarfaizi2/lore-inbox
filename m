@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbTAAOhN>; Wed, 1 Jan 2003 09:37:13 -0500
+	id <S267247AbTAAOm6>; Wed, 1 Jan 2003 09:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTAAOhN>; Wed, 1 Jan 2003 09:37:13 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:65030 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267070AbTAAOhM>;
-	Wed, 1 Jan 2003 09:37:12 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301011445.h01EjK3Q000861@darkstar.example.net>
+	id <S267252AbTAAOm5>; Wed, 1 Jan 2003 09:42:57 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:7871 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267247AbTAAOm4>; Wed, 1 Jan 2003 09:42:56 -0500
+Date: Wed, 1 Jan 2003 15:51:20 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: a few more "make xconfig" inconsistencies
-To: rpjday@mindspring.com (Robert P. J. Day)
-Date: Wed, 1 Jan 2003 14:45:20 +0000 (GMT)
-Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301010922160.18348-100000@dell> from "Robert P. J. Day" at Jan 01, 2003 09:32:30 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20030101145120.GL14184@louise.pinerecords.com>
+References: <20030101141644.GI14184@louise.pinerecords.com> <Pine.LNX.4.44.0301010922160.18348-100000@dell>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301010922160.18348-100000@dell>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> case in point:  under "General setup", there are two (what do
-> you call those things?) selectable entries for "PCMCIA/CardBus
-> support" and "PCI Hotplug Support".  why not make them selectable
-> entries, so i can deselect *all* of PCMCIA/Cardbus support 
-> immediately right there?
+> [rpjday@mindspring.com]
 > 
-> as it is, i have to move on to the actual dialog, in which i
-> can deselect all of it in one click.  there are other examples:
-> "Networking options" -> "Appletalk protocol support".  right now,
-> even though it's deselected, the net line reads "Appletalk devices"
-> and that dialog *will* come up, albeit deactivated.
+> On Wed, 1 Jan 2003, Tomas Szepe wrote:
+> 
+> > > [rpjday@mindspring.com]
+> > >
+> > >   even if, under "Networking options", i deselect IPv6,
+> > > i'm still presented with an inactive IPv6 Netfilter Configuration
+> > > screen.
+> > 
+> > This is fixed in both 2.4.20 & 2.5.53 as far as I can see.
+> 
+> i'm looking at 2.4.20 with the 2.4.21-pre2 patch as we speak,
+> and, under "make xconfig", after deselecting IPv6, i am still
+> presented with a (deactivated) IPv6 netfilter configuration
+> dialog.
 
-The interfaces for the 2.4 and 2.5 xconfig systems are completely
-different.
+Oh, I see what you mean.  This behavior is a "feature" of the old
+xconfig (it's been so since the 2.0 times or thereabouts). menuconfig
+will hide entirely what xconfig merely grays out.
 
-For 2.4, I think it's a very bad idea to not to show the greyed-out
-options, because a switch disabling all of them is set.  Having a
-switch to disable, for example, all of the power management options is
-useful, because they are amoungst other options, and I can just ignore
-them and scroll past quickly and easily.
+> granted, it's deactivated (is that what you were referring to?)
 
-I think it would be a big waste of time if we have to start toggling
-options just to see which options are being hidden.
+Right.
 
-For 2.5, each subcategory can be 'collapsed', so this problem doesn't
-really occur.
+> but it's still presented to me.  this seems to be inconsistent
+> with one of your recent patches -- don't show arcnet dialog if
+> arcnet is deselected.
 
-John.
+That's just my word choice sucking noodles as usual.  I should
+probably be referring to these changes with something like "make
+the submenu dependent on its parent entry," which wouldn't take
+for granted any of the pecularities a certain config frontend
+might throw in.  You see, in 2.4, config, menuconfig and xconfig
+all have their own mechanics for work with Config.in files.
+(Ever noticed how menuconfig and xconfig produce different
+.config's while the options chosen are identical?)
+
+> am i understanding all this correctly?
+
+Hope this clarifies.
+
+> i'm downloading it as we speak. :-)  but on a more general note,
+> here's something i was thinking about -- some of the more general
+> selections should have their overall select button moved up in 
+> the hierarchy.
+
+Yes, but no one is really fond of the thought of the options getting
+rearranged too much.  There's the old "Yes, it's not ideal, but if
+you woke me up totally wasted at 3 a.m., I'd know where to look for
+CONFIG_HRM0PS54554."
+
+> anyway, i'll switch over to 2.5.53 and let you know what i find.
+
+Thanks.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

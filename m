@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUCWFkh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 00:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUCWFkh
+	id S262049AbUCWFws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 00:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCWFws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 00:40:37 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:26465 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262014AbUCWFke
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 00:40:34 -0500
-Date: Tue, 23 Mar 2004 06:41:24 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: cliff white <cliffw@osdl.org>
-Cc: sam@ravnborg.org, rddunlap@osdl.org, linux-kernel@vger.kernel.org,
-       maryedie@osdl.org, cherry@osdl.org
-Subject: Re: Fw: Re: parallel make problems (-mm) -now found in 2.6.5-rc1 also
-Message-ID: <20040323054124.GA2246@mars.ravnborg.org>
-Mail-Followup-To: cliff white <cliffw@osdl.org>, sam@ravnborg.org,
-	rddunlap@osdl.org, linux-kernel@vger.kernel.org, maryedie@osdl.org,
-	cherry@osdl.org
-References: <20040312120024.2cef94c8.rddunlap@osdl.org> <20040322131629.52598c2f.cliffw@osdl.org>
+	Tue, 23 Mar 2004 00:52:48 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:30483 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262049AbUCWFwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 00:52:47 -0500
+Date: Tue, 23 Mar 2004 06:52:43 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Thinkpad 560X w/ 160MB memory (2.4.24 kernel): many segfaults
+Message-ID: <20040323055243.GA1276@alpha.home.local>
+References: <E1B5Y00-0006HW-00@coll.ra.phy.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040322131629.52598c2f.cliffw@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1B5Y00-0006HW-00@coll.ra.phy.cam.ac.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 01:16:29PM -0800, cliff white wrote:
-> 
-> Hi Sam, 
-> randy dunlap is on vacation this week, 
-> (and i was last week ) so i am trying to get a resolution to
-> the parallel make problem.
-> 
-> Tested your patch below and it didn't help us. The patch doesn't
-> apply clean past 2.6.4-mm1.
-> 
-> We now see this exact failure against 2.6.5-rc1 for our 8-way machines,
-> so we have much concern. 
-> 
-> Is there another fix around we could try?
+Hi,
 
-I've updated the patch since, and it is now in Linus latest - thanks to Andrew.
-A good sign you do not have the latest version is the fact that you still
-refer to fixdep in scripts/ (my bad in the frst version).
-Could you either try with Linus latest, or at least take a verbatim copy
-of the Makefile from there.
+On Mon, Mar 22, 2004 at 10:34:24PM +0000, Sanjoy Mahajan wrote:
+> To check that it wasn't the memory module itself, I ran the BIOS
+> memory test (which passed) and also memtest86+ (no errors on 4 passes,
+> which was more than 2 hours of testing).
 
-I have reports of succes with make -j10 from others.
+I've had similar problems as you describe on completely different machines
+due to a RAM compatibility problem. It was OK for memtest86, but burnBX
+(from cpuburn) could detect the problem within 8 seconds. It seems to me
+that this RAM had problems with its I/O in general, possibly with back-to-back
+timings, etc... memtest86 is very good at detecting defective memory cells,
+but not as good at detecting I/O problems it seems.
 
-If it still fails please mail me the output without and with V=1,
-then I will dig into it.
+Cheers,
+Willy
 
-	Sam

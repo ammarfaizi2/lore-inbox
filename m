@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282914AbRLVXFB>; Sat, 22 Dec 2001 18:05:01 -0500
+	id <S282916AbRLVXHv>; Sat, 22 Dec 2001 18:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282916AbRLVXEv>; Sat, 22 Dec 2001 18:04:51 -0500
-Received: from mta13n.bluewin.ch ([195.186.1.206]:41540 "EHLO
-	mta13n.bluewin.ch") by vger.kernel.org with ESMTP
-	id <S282914AbRLVXEi>; Sat, 22 Dec 2001 18:04:38 -0500
-Message-ID: <3C234CC10005C1D9@mta13n.bluewin.ch> (added by
-	    postmaster@bluewin.ch)
-From: "Per Jessen" <per@computer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Sun, 23 Dec 2001 00:22:39 +0100
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+	id <S282920AbRLVXHe>; Sat, 22 Dec 2001 18:07:34 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:53309 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282916AbRLVXHQ>;
+	Sat, 22 Dec 2001 18:07:16 -0500
+Date: Sun, 23 Dec 2001 00:06:13 +0100
+From: Christian Ohm <chr.ohm@gmx.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: file corruption in 2.4.16/17
+Message-ID: <20011222230612.GA614@moongate.thevoid.net>
+In-Reply-To: <20011222220223.GA537@moongate.thevoid.net> <01122300525700.01910@manta>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01122300525700.01910@manta>
+User-Agent: Mutt/1.3.24i
+Organization: theVoid
+X-Operating-System: Linux moongate 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Dec 2001 21:18:08 +0100 (MET), Pozsar Balazs wrote:
->
->This might be a standard, but _it_is_not_adopted_anywhere! (at least I
->haven't seen it anywhere (I might be blind)).
->I would rather call standard something which is adopted in real life.
+> Hmm. Can you be more precise on that "special ide driver"?
 
-No, that would be a socalled defacto standard. Ie. not necessarily a standard 
-proposed and recommended by a standards body. For instance, you may think that 
-the UK using pounds and ounces is standard - after all they are both being 
-used in real life. But it is contrary to the standard. (as given by the SI
-system).
+it's the one on 'http://www.viaarena.com/?PageID=2' called 'IDE miniport
+driver v3.0.14'. neither the original win98se one nor the one in the via
+4in1 drivers (4.36) worked correctly.
 
-
-rgds,
-Per 
-
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
-
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
-
+bye
+christian ohm

@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUFPHGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUFPHJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUFPHGM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 03:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUFPHGM
+	id S266200AbUFPHJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 03:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266201AbUFPHJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 03:06:12 -0400
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:21438 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S266189AbUFPHGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 03:06:09 -0400
-Date: Wed, 16 Jun 2004 09:03:27 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [Patch]: Fix rivafb's NV_ARCH_ 
-Message-ID: <20040616070326.GE28487@bogon.ms20.nix>
-References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Jun 2004 03:09:40 -0400
+Received: from dialpool2-8.dial.tijd.com ([62.112.11.8]:8064 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S266200AbUFPHJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 03:09:39 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.7
+Date: Wed, 16 Jun 2004 09:10:04 +0200
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040601135335.GA5406@bogon.ms20.nix>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406160910.05290.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-here's another piece of rivafb fixing that helps the driver on ppc
-pbooks again a bit further. It corrects several wrong NV_ARCH_20
-settings which are actually NV_ARCH_10 as determined by the PCIId.
-Patch is against 2.6.7-rc3.
-Cheers,
- -- Guido
+On Wednesday 16 June 2004 07:56, Linus Torvalds wrote:
+> Ok, it's out there. The most notable change may be the one-liner that
+> should fix the embarrassing FP exception problem. Other than that, we've
+> had a random collection of fixes and updates since rc3. cifs, ntfs,
+> cpufreq. ide, sparc, s390.
+>
+> Full 2.6.6->2.6.7 changelog available at the same places the release is.
+>
+> 		Linus
+>
 
-signed-off-by: Guido Guenther <agx@sigxcpu.org>
+Compiled and works fine on my Acer TM 803. As a nice sidenote, the screen 
+corruption that was visible at the initial start of the radeon framebuffer is 
+gone too.
 
---- ../linux-2.6.7-rc2.orig/drivers/video/riva/fbdev.c	2004-06-04 17:40:30.000000000 +0200
-+++ drivers/video/riva/fbdev.c	2004-06-16 08:50:41.122924416 +0200
-@@ -173,18 +174,18 @@
- 	{ "GeForce2-GTS", NV_ARCH_10 },
- 	{ "GeForce2-ULTRA", NV_ARCH_10 },
- 	{ "Quadro2-PRO", NV_ARCH_10 },
--	{ "GeForce4-MX-460", NV_ARCH_20 },
--	{ "GeForce4-MX-440", NV_ARCH_20 },
--	{ "GeForce4-MX-420", NV_ARCH_20 },
--	{ "GeForce4-440-GO", NV_ARCH_20 },
--	{ "GeForce4-420-GO", NV_ARCH_20 },
--	{ "GeForce4-420-GO-M32", NV_ARCH_20 },
--	{ "Quadro4-500-XGL", NV_ARCH_20 },
--	{ "GeForce4-440-GO-M64", NV_ARCH_20 },
--	{ "Quadro4-200", NV_ARCH_20 },
--	{ "Quadro4-550-XGL", NV_ARCH_20 },
--	{ "Quadro4-500-GOGL", NV_ARCH_20 },
--	{ "GeForce2", NV_ARCH_20 },
-+	{ "GeForce4-MX-460", NV_ARCH_10 },
-+	{ "GeForce4-MX-440", NV_ARCH_10 },
-+	{ "GeForce4-MX-420", NV_ARCH_10 },
-+	{ "GeForce4-440-GO", NV_ARCH_10 },
-+	{ "GeForce4-420-GO", NV_ARCH_10 },
-+	{ "GeForce4-420-GO-M32", NV_ARCH_10 },
-+	{ "Quadro4-500-XGL", NV_ARCH_10 },
-+	{ "GeForce4-440-GO-M64", NV_ARCH_10 },
-+	{ "Quadro4-200", NV_ARCH_10 },
-+	{ "Quadro4-550-XGL", NV_ARCH_10 },
-+	{ "Quadro4-500-GOGL", NV_ARCH_10 },
-+	{ "GeForce2", NV_ARCH_10 },
- 	{ "GeForce3", NV_ARCH_20 }, 
- 	{ "GeForce3 Ti 200", NV_ARCH_20 },
- 	{ "GeForce3 Ti 500", NV_ARCH_20 },
+Thanks for another great kernel :-)
+
+Jan
+
+-- 
+Logic is a little bird, sitting in a tree; that smells *_____awful*.

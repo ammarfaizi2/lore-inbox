@@ -1,44 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbTJNPdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 11:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbTJNPdF
+	id S262718AbTJNPp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 11:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTJNPp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 11:33:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14279 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262582AbTJNPdD (ORCPT
+	Tue, 14 Oct 2003 11:45:57 -0400
+Received: from ginger.lcs.mit.edu ([18.26.0.82]:18180 "EHLO ginger.lcs.mit.edu")
+	by vger.kernel.org with ESMTP id S262718AbTJNPpz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 11:33:03 -0400
-Date: Tue, 14 Oct 2003 17:31:56 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide barrier support, #2
-Message-ID: <20031014153156.GU1107@suse.de>
-References: <GurO.7cg.43@gated-at.bofh.it> <m3zng4ou90.fsf@averell.firstfloor.org> <20031014125723.GR1107@suse.de> <20031014150807.GA99122@colin2.muc.de> <20031014151230.GS1107@suse.de> <20031014152826.GA9391@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031014152826.GA9391@colin2.muc.de>
+	Tue, 14 Oct 2003 11:45:55 -0400
+Message-Id: <200310141545.h9EFjVWB013311@ginger.lcs.mit.edu>
+From: Tim Shepard <shep@alum.mit.edu>
+To: davem@redhat.com, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@redhat.com, yoshfuji@linux-ipv6.org, netdev@oss.sgi.com
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] (linux-2.6.0-test7) fix missing connections in /proc/net/tcp ("netstat -n -t -a")
+Date: Tue, 14 Oct 2003 11:45:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14 2003, Andi Kleen wrote:
-> > See the patch, WRITESYNC is used solely internally in raid1.
-> > WRITEBARRIER is a bitmask of BIO_RW and BIO_RW_BARRIER and that is what
-> > you want. I'll make that more clear. Writes will not be reordered around
-> > the barrier either, btw.
-> 
-> It would be still misnamed. I want a flush and not a barrier.
 
-Don't you still require previously submitted writes to have hit platter
-before your flush goes down?
+I'm running linux-2.6.0-test7 and I have just found and fixed a bug
+that was causing "netstat -n -t" to fail to display all of the
+relevant connections (in some cases).  The bug can be demonstrated by
+noticing that
 
-> Anyways, when you apply the patch just change the cmd that what
-> you think is right.
+	dd if=/proc/net/tcp bs=128k of=/tmp/tcp.big
 
-I did :)
+returns more lines into the output file than does
 
--- 
-Jens Axboe
+	dd if=/proc/net/tcp bs=1k of=/tmp/tcp.1k
 
+which is using the same size read buffer that /bin/netstat uses.
+
+(Note, the first number on each line read from /proc/net/tcp is crazy
+ on a linux-2.6.0-test7 kernel, and I will in a few moments send
+ another patch along to address that.   But fixing *this* bug is
+ much more important than fixing that bug.)
+
+Triggering this bug depends on having enough TCP sockets in LISTEN (I
+believe 8 is sufficient) and you may have to create a few more TCP
+connections and/or transition some to TIMEWAIT (by closing them) to be
+able to see the bug.  The bug is most easily seen on a system where
+you know exactly what TCP connections you have open and in time-wait
+and can spot the descrepency in the output from "netstat -n -t".
+
+
+Patch is below.  The problem is that listening_get_idx was not
+decrementing *pos exactly the same number of times that it cdr'd down
+the list.
+
+The change to established_get_idx is not necessary to fix the bug,
+but does keep it in sync with listening_get_idx.
+
+I hope this is helpful and that that I have properly submitted this patch.
+I welcome any comments.
+
+			-Tim Shepard
+			 shep@alum.mit.edu
+
+
+--- ../pristine/linux-2.6.0-test7/net/ipv4/tcp_ipv4.c	2003-10-08 15:24:03.000000000 -0400
++++ net/ipv4/tcp_ipv4.c	2003-10-13 17:33:09.000000000 -0400
+@@ -2233,14 +2233,15 @@
+ 
+ static void *listening_get_idx(struct seq_file *seq, loff_t *pos)
+ {
+ 	void *rc = listening_get_first(seq);
+ 
+-	if (rc)
+-		while (*pos && (rc = listening_get_next(seq, rc)))
+-			--*pos;
+-	return *pos ? NULL : rc;
++	while (rc && *pos) {
++		rc = listening_get_next(seq, rc);
++		--*pos;
++	}
++	return rc;
+ }
+ 
+ static void *established_get_first(struct seq_file *seq)
+ {
+ 	struct tcp_iter_state* st = seq->private;
+@@ -2325,14 +2326,15 @@
+ 
+ static void *established_get_idx(struct seq_file *seq, loff_t pos)
+ {
+ 	void *rc = established_get_first(seq);
+ 
+-	if (rc)
+-		while (pos && (rc = established_get_next(seq, rc)))
+-			--pos;
+-	return pos ? NULL : rc;
++	while (rc && pos) {
++		rc = established_get_next(seq, rc);
++		--pos;
++	}		
++	return rc;
+ }
+ 
+ static void *tcp_get_idx(struct seq_file *seq, loff_t pos)
+ {
+ 	void *rc;

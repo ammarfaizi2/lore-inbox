@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbUCLKKT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 05:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUCLKKT
+	id S261748AbUCLKL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 05:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUCLKL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 05:10:19 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:58854 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261612AbUCLKKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 05:10:14 -0500
-Date: Fri, 12 Mar 2004 10:08:51 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, bunk@fs.tum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1: unknown symbols cauased by remove-more-KERNEL_SYSCALLS.patch
-Message-ID: <20040312100851.GA12892@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>,
-	bunk@fs.tum.de, linux-kernel@vger.kernel.org
-References: <20040310233140.3ce99610.akpm@osdl.org> <200403121014.40889.arnd@arndb.de> <20040312012942.5fd30052.akpm@osdl.org> <200403121035.02977.arnd@arndb.de> <20040312014809.4f2b280e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Mar 2004 05:11:26 -0500
+Received: from shark.pro-futura.com ([161.58.178.219]:5041 "EHLO
+	shark.pro-futura.com") by vger.kernel.org with ESMTP
+	id S261748AbUCLKLT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 05:11:19 -0500
+From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
+Organization: Croadria Internet usluge
+To: "Yury V. Umanets" <umka@namesys.com>
+Subject: Re: About Replaceable OOM Killer
+Date: Fri, 12 Mar 2004 11:15:12 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, "Guo, Min" <min.guo@intel.com>,
+       cgl_discussion@lists.osdl.org
+References: <3ACA40606221794F80A5670F0AF15F84035F1DD5@PDSMSX403.ccr.corp.intel.com> <200403011141.26724.tvrtko@croadria.com> <1078403388.3025.33.camel@firefly>
+In-Reply-To: <1078403388.3025.33.camel@firefly>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040312014809.4f2b280e.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403121115.12518.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 01:48:09AM -0800, Andrew Morton wrote:
+On Thursday 04 March 2004 13:29, Yury V. Umanets wrote:
+> IMHO problem with OOM killer is that it always will do wrong choice. So,
+> it should be either plugin based or allow to configure it and this
+> means, that it will become more complex and buggy. Does not it mean,
+> that OOM killer should be moved to user space?
+>
+> How about to export OOM event to user space? It might be done in manner
+> like hotplug script is used.
 
- > > The symbols are already exported on alpha, arm, parisc, um and x86_64,
- > > but I'd rather not have them available to modules at all in order to
- > > prevent driver writers from (ab)using them after KERNEL_SYSCALLS have been
- > > eliminated.
- > 
- > But then the removal of KERNEL_SYSCALLS becomes hostage to those drivers,
- > and nobody is working on them.   It'll never happen.
+No, I don't think userspace is a good idea.
 
-The DVB folks claimed to be working on fixing this up a few weeks back,
-still not seen any patches though.
+On the other hand... I have updated the MOOM patch in sync with 2.4.25, you 
+can get it at http://linux.ursulin.net or from LKML.
 
-		Dave
+Any comments, bug reports, etc are welcomed!
 
+-- 
+Best regards,
+Tvrtko A. Ur¹ulin, Linux admin 
+--
+Croadria Internet usluge <http://www.croadria.com>
+- Web hosting (Linux & Windows), E-commerce

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280746AbRKGCOK>; Tue, 6 Nov 2001 21:14:10 -0500
+	id <S280634AbRKGDSR>; Tue, 6 Nov 2001 22:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280743AbRKGCOA>; Tue, 6 Nov 2001 21:14:00 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:36873 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S280742AbRKGCNn>;
-	Tue, 6 Nov 2001 21:13:43 -0500
-Date: Tue, 6 Nov 2001 19:13:21 -0800
-From: Greg KH <greg@kroah.com>
-To: James Funkhouser <news@funkhouser.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Seg fault when syncing Sony Clie 760 with USB cradle
-Message-ID: <20011106191321.B18025@kroah.com>
-In-Reply-To: <20011106183409.A16895@cableone.net>
+	id <S280648AbRKGDSH>; Tue, 6 Nov 2001 22:18:07 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:7409
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280634AbRKGDRz>; Tue, 6 Nov 2001 22:17:55 -0500
+Date: Tue, 6 Nov 2001 19:17:47 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+        Terminator <jimmy@mtc.dhs.org>, linux-kernel@vger.kernel.org
+Subject: Re: Are -final releases realy FINAL? (Was Re: kernel 2.4.14 compiling fail for loop device)
+Message-ID: <20011106191747.A20245@mikef-linux.matchmail.com>
+Mail-Followup-To: Anuradha Ratnaweera <anuradha@gnu.org>,
+	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+	Terminator <jimmy@mtc.dhs.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org> <20011105194316.B665@mikef-linux.matchmail.com> <1005019360.897.2.camel@phantasy> <20011107091314.A11202@bee.lk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011106183409.A16895@cableone.net>
+In-Reply-To: <20011107091314.A11202@bee.lk>
 User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 10 Oct 2001 02:07:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 06:34:09PM -0600, James Funkhouser wrote:
->  Everything still works fine with my USB Visor.  One of the things
-> that caught my eye is "Sony Clie 4.0 converter".  Unlike the 710,
-> the 760 runs PalmOS 4.1, rather than 4.0.  Perhaps this has
-> something to do with it??
+On Wed, Nov 07, 2001 at 09:13:14AM +0600, Anuradha Ratnaweera wrote:
+> On Mon, Nov 05, 2001 at 11:02:36PM -0500, Robert Love wrote:
+> >
+> > On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
+> > >
+> > > Did anyone have this problem with pre8???
+> > 
+> > Nope, it was added post-pre8 to final.  The deactivate_page function was
+> > removed completely.
+> 
+> Look, Linus.  Things should _not_ happen this way.
+> 
+> Why do we add non-trivial changes when going from last -preX of a test kernel
+> series to -final?
+> 
+> Please make the last stable -preX the -final _without_ any changes.  This is
+> the third time this caused problem in recent times (2.4.11-dontuse, parport
+> compile problems and now loop.o), and why don't we learn from previous
+> mistakes?
+> 
+> Isn't it stupid that some tarballs in the /pub/linux/kernel/v2.4/ do not even
+> compile, while those in /pub/linux/kernel/testing/ does?
+> 
 
-Yes, but the Clie didn't change the product id for the two OS versions,
-so the driver thinks they are the same :(
+Here here.
 
-See my previous post about the real problem that is happening here.  I
-should have a patch for this soon.
+You'd almost expect this from XP-beta to XP-final, but not Linux kernel...
 
-thanks,
+Sorry, couldn't resist.
 
-greg k-h
+Mike

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129844AbQK1L4j>; Tue, 28 Nov 2000 06:56:39 -0500
+        id <S129914AbQK1MA3>; Tue, 28 Nov 2000 07:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129914AbQK1L43>; Tue, 28 Nov 2000 06:56:29 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:50185 "EHLO
-        pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-        id <S129844AbQK1L4S>; Tue, 28 Nov 2000 06:56:18 -0500
-Message-Id: <200011281125.eASBPaC13521@pincoya.inf.utfsm.cl>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" 
-In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
-   of "Tue, 28 Nov 2000 01:28:36 BST." <20001128012836.B25166@athlon.random> 
-Date: Tue, 28 Nov 2000 08:25:36 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+        id <S130172AbQK1MAV>; Tue, 28 Nov 2000 07:00:21 -0500
+Received: from styx.suse.cz ([195.70.145.226]:62961 "EHLO kerberos.suse.cz")
+        by vger.kernel.org with ESMTP id <S129914AbQK1MAC>;
+        Tue, 28 Nov 2000 07:00:02 -0500
+Date: Tue, 28 Nov 2000 09:59:24 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rusty Russell <rusty@linuxcare.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <20001128095924.C356@suse.cz>
+In-Reply-To: <20001124224018.A5173@suse.cz> <20001128031933.52DB981F5@halfway.linuxcare.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001128031933.52DB981F5@halfway.linuxcare.com.au>; from rusty@linuxcare.com.au on Tue, Nov 28, 2000 at 02:19:23PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> said:
-> On Mon, Nov 27, 2000 at 02:34:45PM -0500, Richard B. Johnson wrote:
-> > The following shell-script shows that gcc-2.8.1 produces code with
-> > data allocations adjacent. However, they are reversed!
+On Tue, Nov 28, 2000 at 02:19:23PM +1100, Rusty Russell wrote:
+> In message <20001124224018.A5173@suse.cz> you write:
+> > On Thu, Nov 23, 2000 at 10:01:53PM +1100, Rusty Russell wrote:
+> > > What irritates about these monkey-see-monkey-do patches is that if I
+> > > initialize a variable to NULL, it's because my code actually relies on
+> > > it; I don't want that information eliminated.
+> > 
+> > Yes, but if it generates a bigger (== worse) binary?
+> 
+> We're talking about a few bytes, here.  If you're prepared to make my
+> code less clear to save bytes, you can do much better than that...
 
-> same with 2.95.* :).
+Perhaps in your case you had just an
 
-The point was if gcc did use the fact that variables are adyacent in memory
-to generate better code, and this degenerated into the current discussion
-about where they are from the programmers perspective.
+int a = 0;
 
-- If gcc is going to use the fact that some variables are nearby for some
-  optimization purposes, I do trust the gcc hackers to set stuff up so that
-  they use it for variables that are nearby in VM, not just where defined
-  together. If variables defined together end up adyacent or not is
-  completely irrelevant. The compiler might even rearrange them to
-  optimize for the access pattern observed.
-- As a C programmer, you are only entitled to assume that pieces of the
-  same object (array or struct) are laid out in memory in the order
-  given. With segmented VM different objects would probably end up in
-  different segments anyway.
---
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513  
-  
+then it's really just a few bytes, but many sources have for example
+
+int a[1024] = { 0, 0, /* .... */ };
+
+Which in turn is a big wastage.
+
+On the other hand, if you save "just" a few bytes in every driver, in a
+way that is safe and simple (and commenting out the = 0 is a safe way),
+you get a lot of space saved in the sum.
+
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262641AbTCPKUB>; Sun, 16 Mar 2003 05:20:01 -0500
+	id <S262647AbTCPKYh>; Sun, 16 Mar 2003 05:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262643AbTCPKUB>; Sun, 16 Mar 2003 05:20:01 -0500
-Received: from [203.197.168.150] ([203.197.168.150]:33542 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id <S262641AbTCPKUA>; Sun, 16 Mar 2003 05:20:00 -0500
-Message-ID: <3E7451DC.3050902@tataelxsi.co.in>
-Date: Sun, 16 Mar 2003 15:58:44 +0530
-From: "Sriram Narasimhan" <nsri@tataelxsi.co.in>
-Organization: Tata Elxsi
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: ADS8260 Hang
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262646AbTCPKYh>; Sun, 16 Mar 2003 05:24:37 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43791 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262644AbTCPKYf>; Sun, 16 Mar 2003 05:24:35 -0500
+Date: Sun, 16 Mar 2003 10:35:18 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Fowler <cfowler@outpostsentinel.com>,
+       Robert White <rwhite@casabyte.com>, Ed Vance <EdV@macrolink.com>,
+       "'Linux PPP'" <linuxppp@indiainfo.com>, linux-serial@vger.kernel.org,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: RS485 communication
+Message-ID: <20030316103517.B14404@flint.arm.linux.org.uk>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Chris Fowler <cfowler@outpostsentinel.com>,
+	Robert White <rwhite@casabyte.com>, Ed Vance <EdV@macrolink.com>,
+	'Linux PPP' <linuxppp@indiainfo.com>, linux-serial@vger.kernel.org,
+	'linux-kernel' <linux-kernel@vger.kernel.org>
+References: <PEEPIDHAKMCGHDBJLHKGGECKCDAA.rwhite@casabyte.com> <1047598241.5292.2.camel@hp.outpostsentinel.com> <1047732394.20703.10.camel@imladris.demon.co.uk> <1047776160.1327.0.camel@irongate.swansea.linux.org.uk> <1047809131.22070.33.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1047809131.22070.33.camel@imladris.demon.co.uk>; from dwmw2@infradead.org on Sun, Mar 16, 2003 at 10:05:31AM +0000
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Mar 16, 2003 at 10:05:31AM +0000, David Woodhouse wrote:
+> Note you don't need any separate lines for this. If someone else is
+> transmitting a zero while you are also transmitting a zero, that's fine
+> and you didn't stomp on each other. If someone else is transmitting a
+> zero while you are transmitting a one, you won and a one was
+> transmitted, and they back off. If they transmit a one while you
+> transmit a zero, then they won :)
 
-[ If this is the wrong mailing list please point me to the right one. 
-Thank you]
+No - that's not how RS485 works.  With a balanced line, the result
+that any one receiver will see will depend on it's position on the
+line and the relative distance to each transmitter, the resistance
+of the line, and the manufacturer/type of the RS485 transceiver.
+In other words, the state you see is indeterminent.
 
-I having been trying to bring up the ADS8260 board and incidentally ran 
-into some problems.
+Also, a correctly terminated RS485 has no way to tell if someone is
+transmitting other than yourself receiving characters since the
+termination resistors bias the line into the mark state.
 
-I initially tried using Linux 2.4.1 kernel and it worked fine and the 
-board was up.
-I upgraded to 2.4.17 and I found out that the system started hanging 
-during boot up.
+If you don't have a correctly biased RS485 line, you can end up with
+framing errors with validly transmitted data, and given the right
+data pattern, it could be an undetectable without checksums and the
+like. What's worse is that this type of error can occur each time
+you retransmit.  Naturally, there are certain tricks you can pull to
+ensure that the receiver is properly synchronised before you transmit
+real data.
 
-I compiled 2.4.17 for ppc boot. (I already have ppc boot on my ADS board 
-and I test my development by tftp boot'ing the kernel image.
+Been there, seen the problem, diagnosed it, and modified embedded
+software on both master and slave ends to work around it.  After
+you've dealt with equipment with 20 RS485 buses internally with up
+to 50 transceivers on a line, and around 50 RS485 buses running
+around large buildings to various sensors, you end up understanding
+some of these problems fairly well. 8/
 
-I tried tracking down where the hang could be and ended up at the RFI 
-instruction where its waiting to complete the MMU initialization. The 
-system executes SYNC instruction and then hangs. (arch/ppc/kernel/head.S)
-
-I tried comparing the file head.S between 2.4.1 and 2.4.17. I found out 
-some patches done inside the 2.4.1 had been made generic. There were 
-patches for the BAT initialization and RAM mapping on the MPC8260.
-
-Is there an update on the files?
-Should the patches be done for 2.4.17 as well ?
-
-Any suggestions or pointers could be very helpful.
-
-[Running on x86 with Red Hat 8.0 and cross compiling for PPC.]
-
-Thank you.
-Regards,
-Sriram Narasimhan
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

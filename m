@@ -1,94 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276135AbRI1Pvs>; Fri, 28 Sep 2001 11:51:48 -0400
+	id <S276140AbRI1P6I>; Fri, 28 Sep 2001 11:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276139AbRI1Pvj>; Fri, 28 Sep 2001 11:51:39 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:41504 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S276135AbRI1Pvc>; Fri, 28 Sep 2001 11:51:32 -0400
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ide drive problem? RFC
-Date: Fri, 28 Sep 2001 17:48:18 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
-In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_IKQDKYEFXTV600MCIGZL"
-Message-Id: <E15mzu9-0005xJ-00@mrvdom00.schlund.de>
+	id <S276141AbRI1P5s>; Fri, 28 Sep 2001 11:57:48 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:47860 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S276140AbRI1P5q>;
+	Fri, 28 Sep 2001 11:57:46 -0400
+Date: Fri, 28 Sep 2001 17:58:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
+Subject: Re: [patch] softirq-2.4.10-B2
+Message-ID: <20010928175824.H24922@athlon.random>
+In-Reply-To: <20010928013106.W14277@athlon.random> <Pine.LNX.4.33.0109280716040.1569-200000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109280716040.1569-200000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 28, 2001 at 09:18:17AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 28, 2001 at 09:18:17AM +0200, Ingo Molnar wrote:
+> i've attached the softirq-2.4.10-B2 that has your TASK_RUNNING suggestion,
+> Oleg's fixes and this change included.
 
---------------Boundary-00=_IKQDKYEFXTV600MCIGZL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+please include this safety checke too:
 
-> > > hde: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
-> > > hde: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
-> >
-> > Hmmm, I get this message as well about once a day (though it seems it
-> > could not cause any damage ... yet ...)
->
-> BadCRC is a transmission error on the IDE cable. It will be retried so
-> it isnt a problem.
+--- ./kernel/softirq.c.~1~	Fri Sep 28 17:42:07 2001
++++ ./kernel/softirq.c	Fri Sep 28 17:46:32 2001
+@@ -381,6 +381,8 @@
+ 
+ 	current->nice = 19;
+ 	schedule();
++	if (smp_processor_id() != cpu)
++		BUG();
+ 	ksoftirqd_task(cpu) = current;
+ 
+ 	for (;;) {
 
-I read this error message very often in the LKML. Why not making the erro=
-r message more detailed, pointing to a FAQ entry or an help file or a hin=
-t to check the IDE cable?
-
-As a aimple example, I made a patch against 2.4.9-ac14.
-
-
-diff -ur linux/drivers/ide/ide.c linux-new/drivers/ide/ide.c
---- linux/drivers/ide/ide.c     Thu Sep 27 17:53:09 2001
-+++ linux-new/drivers/ide/ide.c Fri Sep 28 17:26:16 2001
-@@ -910,7 +910,8 @@
-                if (drive->media =3D=3D ide_disk) {
-                        printk(" { ");
-                        if (err & ABRT_ERR)     printk("DriveStatusError =
-");
--                       if (err & ICRC_ERR)     printk("%s", (err & ABRT_=
-ERR) ? "BadCRC " : "BadSector ");
-+                       if (err & ICRC_ERR)     printk("%s", (err & ABRT_=
-ERR) ? "BadCRC.\
-+Please check your IDE-cable." : "BadSector ");
-                        if (err & ECC_ERR)      printk("UncorrectableErro=
-r ");
-                        if (err & ID_ERR)       printk("SectorIdNotFound =
-");
-                        if (err & TRK0_ERR)     printk("TrackZeroNotFound=
- ");
-
-
-
-
-
-
-
---------------Boundary-00=_IKQDKYEFXTV600MCIGZL
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="message.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="message.patch"
-
-diff -ur linux/drivers/ide/ide.c linux-new/drivers/ide/ide.c
---- linux/drivers/ide/ide.c	Thu Sep 27 17:53:09 2001
-+++ linux-new/drivers/ide/ide.c	Fri Sep 28 17:26:16 2001
-@@ -910,7 +910,8 @@
- 		if (drive->media == ide_disk) {
- 			printk(" { ");
- 			if (err & ABRT_ERR)	printk("DriveStatusError ");
--			if (err & ICRC_ERR)	printk("%s", (err & ABRT_ERR) ? "BadCRC " : "BadSector ");
-+			if (err & ICRC_ERR)	printk("%s", (err & ABRT_ERR) ? "BadCRC.\
-+Please check your IDE-cable." : "BadSector ");
- 			if (err & ECC_ERR)	printk("UncorrectableError ");
- 			if (err & ID_ERR)	printk("SectorIdNotFound ");
- 			if (err & TRK0_ERR)	printk("TrackZeroNotFound ");
-
---------------Boundary-00=_IKQDKYEFXTV600MCIGZL--
+Andrea

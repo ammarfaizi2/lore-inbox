@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268350AbUHXVZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268351AbUHXV26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268350AbUHXVZP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 17:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268347AbUHXVZN
+	id S268351AbUHXV26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 17:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUHXV25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 17:25:13 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:38365 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S268332AbUHXVW5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 17:22:57 -0400
-Date: Tue, 24 Aug 2004 14:22:34 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-Message-ID: <64420000.1093382553@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org><20040824184245.GE5414@waste.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 24 Aug 2004 17:28:57 -0400
+Received: from waste.org ([209.173.204.2]:35235 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S268353AbUHXV0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 17:26:44 -0400
+Date: Tue, 24 Aug 2004 16:26:37 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] [4/4] /dev/random: Remove RNDGETPOOL ioctl
+Message-ID: <20040824212637.GI5414@waste.org>
+References: <E1By1St-0001TS-Qj@thunk.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <E1By1St-0001TS-Qj@thunk.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Linus Torvalds <torvalds@osdl.org> wrote (on Tuesday, August 24, 2004 12:23:42 -0700):
-> On Tue, 24 Aug 2004, Matt Mackall wrote:
->> 
->> Phew, I was worried about that. Can I get a ruling on how you intend
->> to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
->> looking to unbreak. My preference would be for all x.y.z.n patches to
->> be relative to x.y.z.
+On Fri, Aug 20, 2004 at 12:57:23AM -0400, Theodore Ts'o wrote:
 > 
-> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> diffs are totally "logical". We just have to chose one way or the other, 
-> and I don't actually much care.
-> 
-> Any reason for your preference? 
+> Recently, someone has kvetched that RNDGETPOOL is a "security
+> vulnerability".  Never mind that it is superuser only, and with
+> superuser privs you could load a nasty kernel module, or read the
+> entropy pool out of /dev/mem directly, but they are nevertheless still
+> spreading FUD.
 
->From an automated tool point of view, it's easier to build a kernel
-with just tarball + 1 patch (I have much the same issues as Matt to deal
-with) ... also it works the same way as the current -rc releases, etc, 
-so it's consistent.
+While such concerns are a bit exaggerated, the ioctl isn't in fact
+very useful: it only gets one of the pools. In other words, it's been
+obsolete even for debugging purposes since we went to two pools.
 
-M.
+The pool resize ioctl is still racy in a painful way and ought to be
+axed as well.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

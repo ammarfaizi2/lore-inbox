@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270444AbTGSAXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 20:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270447AbTGSAXP
+	id S270454AbTGSA0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 20:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270456AbTGSA0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 20:23:15 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:40967
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270444AbTGSAXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 20:23:14 -0400
-Date: Fri, 18 Jul 2003 17:38:24 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre7
-Message-ID: <20030719003824.GI2289@matchmail.com>
-Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva> <1058569601.544.1.camel@teapot.felipe-alfaro.com>
+	Fri, 18 Jul 2003 20:26:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37594
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270454AbTGSAZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 20:25:55 -0400
+Subject: Re: libata driver update posted
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: azarah@gentoo.org
+Cc: Jeff Garzik <jgarzik@pobox.com>, Catalin BOIE <util@deuroconsult.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <1058574616.1834.24.camel@nosferatu.lan>
+References: <3F1711C8.6040207@pobox.com>
+	 <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
+	 <3F17F28C.9050105@pobox.com>
+	 <1058542771.13515.1599.camel@workshop.saharacpt.lan>
+	 <20030718154322.GB27152@gtf.org>  <1058574616.1834.24.camel@nosferatu.lan>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058575082.21207.0.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058569601.544.1.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Jul 2003 01:38:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 01:06:41AM +0200, Felipe Alfaro Solana wrote:
-> On Fri, 2003-07-18 at 21:53, Marcelo Tosatti wrote:
-> > Hello,
-> > 
-> > Here goes -pre7.
-> 
-> Will ACL/xattr support get its way onto mainstream 2.4 soon?
+On Sad, 2003-07-19 at 01:30, Martin Schlemmer wrote:
+> Question if you do not mind me being a tad lazy - in ZA SCSI is damn
+> expensive, so not much experience ... is there something like hdparm -t
+> to check throughput ?
 
-Doubt it.
+Yeah. try hdparm -t 8)
 
-Unless it gets into -ac or -aa for a long while and a whole bunch of users
-clamor for it.
-
-So, is acl only working with ext[23] & XFS?  What about reiserfs or jfs?
-
-I was thinking of giving the acl patch a try one of these days.  There are a
-couple things where the ugo model doesn't work at my company.
-
-Mike

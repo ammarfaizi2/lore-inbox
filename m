@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267962AbTAHVFO>; Wed, 8 Jan 2003 16:05:14 -0500
+	id <S267937AbTAHVAZ>; Wed, 8 Jan 2003 16:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267963AbTAHVFN>; Wed, 8 Jan 2003 16:05:13 -0500
-Received: from mta5.algx.net ([67.92.168.234]:35862 "EHLO chimta04.algx.net")
-	by vger.kernel.org with ESMTP id <S267962AbTAHVFK>;
-	Wed, 8 Jan 2003 16:05:10 -0500
-Date: Wed, 08 Jan 2003 13:13:21 -0800
-From: Rowan Reid <rreid@studio3arc.com>
-Subject: 2.5.54 and 2.5.52 keep failing on make modules_install
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <001c01c2b75a$ca687c20$6601a8c0@s3ac>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	id <S267938AbTAHVAY>; Wed, 8 Jan 2003 16:00:24 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:14215 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267937AbTAHVAW>;
+	Wed, 8 Jan 2003 16:00:22 -0500
+Date: Wed, 8 Jan 2003 16:09:39 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: "Ruslan U. Zakirov" <cubic@miee.ru>
+Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Jaroslav Kysela <perex@perex.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
+Message-ID: <20030108160939.GA17701@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	"Ruslan U. Zakirov" <cubic@miee.ru>,
+	Zwane Mwaikambo <zwane@holomorphy.com>,
+	Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
+References: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 08, 2003 at 08:20:13PM +0300, Ruslan U. Zakirov wrote:
+> Hello Adam and All.
+> Here is patch to sb16.c that makes it posible to compile and use this
+> driver under 2.5.54-vanilla.
+> It working for me as module and built in kernel, but it's need testing.
+>                             Ruslan. 
 
+Hi Ruslan,
 
-I keep getting errors  simular to that listed below when I run make
-modules_install. This happens for 2.5.52, and 2.5.54. 
+I haven't had a chance to test this yet but everything does look ok.  I
+think it will be ready once the below function is completed.  Jaroslav,
+any comments?  Also, if anyone has a built in wavetable, as previously
+mentioned by Zwane, I'd like to hear how this patch works for you.  This
+patch makes full use of pnp card services, which is prefered for cards
+that have several closely related devices, and it would be great to 
+further test those code paths.
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.54/kernel/net/netlink/netlink_dev.ko
+Thanks,
+Adam
 
-This problem does not exist on 2.5.50.  My only problem is when using
-the 2.5.50 kernel I get the following error on boot. After some research
-I understood there is a bug or something in 2.5.50. can someone give me
-some direction.  My reason for trying to use the 2.5 kernel is to
-incorperate the IPSEC features of that kernel.
-
- Kernel panic on boot. Error below.  It's a 2.5.50 kernel  reiserfs 
- using initrd SuSE8.0
- 
- QM_MODULES not implimented
- UDF-fs: No partition found
-
-
-
-
- 
-Rowan Reid
-Job Captain, 
-Systems Administrator
-STUDIO 3 ARCHITECTS
-909  982  1717
-
+>
+> -#endif /* __ISAPNP__ */
+> +static void snd_sb16_isapnp_remove(struct pnp_card * card)
+> +{
+> +	/*FIX ME*/
+> +}
+> +
+>

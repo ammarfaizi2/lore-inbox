@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbTJZIse (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 03:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTJZIse
+	id S262958AbTJZJC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 04:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262970AbTJZJC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 03:48:34 -0500
-Received: from [217.73.128.98] ([217.73.128.98]:51328 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S262932AbTJZIsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 03:48:32 -0500
-Date: Sun, 26 Oct 2003 10:47:52 +0200
-Message-Id: <200310260847.h9Q8lqJF018523@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: ReiserFS, two oddities
-To: ndiamond@wta.att.ne.jp, linux-kernel@vger.kernel.org
-References: <334201c39b94$286e7ae0$24ee4ca5@DIAMONDLX60>
+	Sun, 26 Oct 2003 04:02:27 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:29660 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262958AbTJZJCY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 04:02:24 -0500
+Message-ID: <3F9B9BEB.5060908@cyberone.com.au>
+Date: Sun, 26 Oct 2003 21:03:23 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeffrey E. Hundstad" <jeffrey@hundstad.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [long] linux-2.6.0-test9, XFree86 4.2.1.1, ATI ATI Radeon VE
+ QY, screen hangs on 3d apps
+References: <3F9B8A6B.6030102@hundstad.net>
+In-Reply-To: <3F9B8A6B.6030102@hundstad.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-"Norman Diamond" <ndiamond@wta.att.ne.jp> wrote:
 
-ND> The sector is readable if I ignore partitions:
-ND>   # dd if=/dev/hda of=/dev/null bs=512 skip=29431074 count=1
-ND>   1+0 records in
-ND>   1+0 records out
-ND> but not if I address it from inside the partition:
-ND>   # dd if=/dev/hda8 of=/dev/null bs=512 skip=11261496 count=1
-ND>   dd: reading `/dev/hda8': Input/output error
-ND>   0+0 records in
-ND>   0+0 records out
-ND> LBA sector number 29431074 is inside the partition.  18169578 + 11261496 =
-ND> 29431074, verified several times.  11261496 / 2 = 5630748, verified only
-ND> twice, but it is within the quantity of 1K Linux blocks that the partition
-ND> has.  Why is the sector unreadable when read from inside the partition?
+Jeffrey E. Hundstad wrote:
 
-This is known problem that nobody wants to deal with.
-When you mount some fs, it sets device's blocksize to fs' blocksize
-(e.g.) 4k for reiserfs, if the size of the device was not multiple of
-4k, everything that forms last partial block gets sort of stripped and you
-cannot access it anymore. Even if you decrease blocksize of the block device
-later, you still won't get that missing data back until reboot.
-This is even more unfortunate on architectures with big pagesize where
-block devices are often assigned blocksizes equal to PAGE_SIZE.
-This behavior was observed on linux v2.4, not sure about 2.6
+> Hello,
+>
+> I'm using Debian unstable.  It comes with XFree86 Vesrion 4.2.1.1.  
+> This works fine with linux-2.4.22.  I've been using this configuration 
+> with accelerated 3d apps.  With linux-2.6.0-test9 X works fine until a 
+> 3d application such as glxgears starts.  The screen no longer updates 
+> except that you can move the cursor.  The logs do not indicate 
+> failure.  I can't get the screen back without a reboot.  I can connect 
+> via. the network to do analysis if someone wants to give me a clue 
+> what to look for.
 
-ND> The second strange observation is that reiserfsck with no options, applied
-ND> to a non-mounted partition, seems to write to the partition while replaying
-ND> journaled transactions.  When repeated, the number of replayed transactions
 
-Yes, replaying journal obviously requires writes ;)
+renice 0 `pidof X`
 
-ND> is 0, so I think the first execution wrote to the partition.  (If the
-ND> partition had been mounted then of course ordinary operations would get get
-ND> journaled transactions merged into the file system, but I guarantee that
-ND> this observation occured on a non-mounted partition.)  reiserfsck 3.6.4
-ND> starts by saying that it will read-only check consistency, but the fact
-ND> seems to be read-mostly.
+How does it go with X at default priority?
 
-Well, checking is checking and journal replaying is a different matter,
-that is even done before starting checks.
 
-Bye,
-    Oleg

@@ -1,27 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265043AbUGCEIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUGCEPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265043AbUGCEIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 00:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUGCEIh
+	id S265048AbUGCEPM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 00:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265049AbUGCEPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 00:08:37 -0400
-Received: from [218.88.135.38] ([218.88.135.38]:19984 "ehlo hotmail.com")
-	by vger.kernel.org with ESMTP id S265043AbUGCEIg (ORCPT
+	Sat, 3 Jul 2004 00:15:12 -0400
+Received: from 64-45-169-238.client.cypresscom.net ([64.45.169.238]:54797 "HELO
+	etrusker.de") by vger.kernel.org with SMTP id S265048AbUGCEPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 00:08:36 -0400
-From: "wesz@hotmail.com" <wesz@hotmail.com>
-Subject: Alternative Remedies for Your Health
+	Sat, 3 Jul 2004 00:15:08 -0400
+Message-ID: <900e01c460b2$f8b44d84$ff74a2b0@etrusker.de>
+From: "Homer Tipton" <tipton_xq@kul.lublin.pl>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
+Subject: Lose 19% weight. New weightloss available to you.
+Date: Sat, 03 Jul 2004 07:04:25 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
-Reply-To: wesz@hotmail.com
-Date: Sat, 3 Jul 2004 12:08:42 +0800
-X-Priority: 3
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-Message-Id: <S265043AbUGCEIg/20040703040836Z+165@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buy quality nutritional and herbal supplements with quantity discount. Bio Essence Corporation, serving alternative medical professionals since 1987, now offering most popular products by combining nutrition, East & West herbal extracts. Our best-selling products developed by Certified Nutritional Specialist and Doctor of Oriental Medicine are: Healthy FatBurners, Powerful Joints, Eyesight Tonic, GreenFood For Health, Bone Density Enhancer, Powerful Heart, Men's Nutritional Energy Formula, Women's Nutritional Beauty Formula, etc. Please click here to enter our web site: http://www.BioEssence.com  
- 
-For function and products recommendation, please go to: Http://www.bioessence.com/function_list_english.htm 
+Hello, I have a special offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Loss of 20-35% abdominal Fat.
+- Up to 300% more Weight Loss while dieting.
+- Increase metabolic rate by 76.9% without Exercise.
+- Reduction of 40-70% overall Fat under skin.
+- Suppresses appetite for sugar.
+- Burns calorized fat.
+- Boost your Confidence level and Self Esteem.
+Get the facts about all-natural Adipren720 <http://adipren10.com/>
+
+
+
+---- system information ----
+progress guidance throughly versus Identifiers:: status Presentation places
+
+publications know Task typify In parameters culturally corresponding 
+revised Users area lesser provider) example: only corresponding 
+Membership sending vary versus Force associate Service behaviors 
+Generally single locale) service weekday/weekend Tags reflection attribute
+
+

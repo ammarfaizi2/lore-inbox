@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314612AbSEKG6x>; Sat, 11 May 2002 02:58:53 -0400
+	id <S314457AbSEKHku>; Sat, 11 May 2002 03:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314645AbSEKG6w>; Sat, 11 May 2002 02:58:52 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21742 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S314612AbSEKG6u>;
-	Sat, 11 May 2002 02:58:50 -0400
-Message-ID: <3CDCC118.5A659170@mvista.com>
-Date: Fri, 10 May 2002 23:58:32 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jim.houston@attbi.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit jiffies, a better solution
-In-Reply-To: <3CDC9BDC.F96F7C36@attbi.com>
+	id <S314494AbSEKHkt>; Sat, 11 May 2002 03:40:49 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:10244 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S314457AbSEKHkt>; Sat, 11 May 2002 03:40:49 -0400
+Date: Sat, 11 May 2002 10:36:50 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: 3com 3c905cx-tx-nm "unknown device"
+Message-ID: <20020511103650.A790@actcom.co.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston wrote:
-> 
-> Hi!
-> 
-> First what problem are you trying to solve?
-> Why not have both variables and if they happen
-> to endup in the same cache line you probably
-> need years worth of jiffies to notice how
-> long one more add takes.  E.g.
-> 
->         jiffies_64++;
->         jiffies++;
-> 
-> To round out the list of options, how about a few lines of
-> inline asm?  Maybe something like:
-> 
->    extern unsigned long long jiffie_64;
->    extern unsigned int jiffie;
->    __asm__ (" \
->         .data
->         .align  8
->         .global jiffie
->         .global jiffie_64
->         .type   jiffie,@object
->         .size   jiffie,4
->         .type   jiffie_64,@object
->         .size   jiffie_64,8
->    jiffie_64:
->    jiffie:
->         .long   0, 0
->    ");
-> 
-> Adding the obvious ifdef of course.  Aside for broken
-> binutils this might be portable code :-)
+Hello, 
 
-Until you move to a big endian 32-bit machine.  I would much rather hear
-IS portable.
+I have new 3com PCI NIC, which purpots to be a "3c905cx-tx-nm". The
+3c59x module (kernel 2.4.19-pre3-ac2, I'll try -pre8 in a bit) fails
+to recognize the card. 
+
+lspci -vx (with the latest pci.ids file) shows:
+
+00:09.0 Ethernet controller: 3Com Corporation: Unknown device ffff (rev 78)
+     Flags: bus master, medium devsel, latency 64, IRQ 11
+     I/O ports at 6500 [size=128]
+     Expansion ROM at <unassigned> [disabled] [size=128K]
+     Capabilities: [dc] Power Management version 2
+00: b7 10 ff ff 07 00 10 02 78 00 00 02 08 40 00 00
+10: 01 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 1e 3f
+
+Donald Becker's vortex-diag program shows:
+
+[root@alhambra 3com]# ./vortex-diag -p 0x6500 -t 17 -ee
+vortex-diag.c:v2.06 4/18/2002 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Assuming a 3c905C Tornado 100baseTx adapter at 0x6500.
+EEPROM format 64x16, configuration table at offset 0:
+      ...
+
+ The word-wide EEPROM checksum is 0000.
+Saved EEPROM settings of a 3Com Vortex/Boomerang:
+ 3Com Node Address FF:FF:FF:FF:FF:FF (used as a unique ID only).
+ OEM Station address ff:FF:FF:FF:FF:FF (used as the ethernet address).
+  Device ID ffff,  Manufacturer ID ffff.
+  Manufacture date (MM/DD/YYYY) 15/31/.
+  A BIOS ROM of size 960Kx8 is expected.
+ Options: force full duplex, link beat check disabled.
+  Vortex format checksum is incorrect (0000 vs. ffff).
+  Cyclone format checksum is incorrect (00 vs. 0xff).
+  Hurricane format checksum is incorrect (00 vs. 0xff).
+
+How can I debug this further? 
+Thanks in advance!
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+The ill-formed Orange
+Fails to satisfy the eye:       http://vipe.technion.ac.il/~mulix/
+Segmentation fault.             http://syscalltrack.sf.net/

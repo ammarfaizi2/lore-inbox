@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265877AbUFOTPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265878AbUFOTU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265877AbUFOTPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbUFOTPm
+	id S265878AbUFOTU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbUFOTU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:15:42 -0400
-Received: from [82.147.40.124] ([82.147.40.124]:59295 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S265877AbUFOTPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:15:32 -0400
-Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
-From: Stian Jordet <liste@jordet.nu>
-To: Nick Warne <nick@ukfsn.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40CF43A6.5170.28D6B4D5@localhost>
-References: <40CF43A6.5170.28D6B4D5@localhost>
-Content-Type: text/plain
-Date: Tue, 15 Jun 2004 21:15:26 +0200
-Message-Id: <1087326926.9402.3.camel@chevrolet.jordet>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+	Tue, 15 Jun 2004 15:20:26 -0400
+Received: from ultra12.almamedia.fi ([193.209.83.38]:29618 "EHLO
+	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
+	id S265878AbUFOTUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 15:20:20 -0400
+Message-ID: <40CF4C48.5A317311@users.sourceforge.net>
+Date: Tue, 15 Jun 2004 22:21:44 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 5/5] kbuild: external module build doc
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204809.GF15243@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 15.06.2004 kl. 18.44 +0100, skrev Nick Warne:
-> But, after talking to a member of the HantsLUG, and showing logs and 
-> stuff, he brought up at the swap size.  This box was once 64Mb, but 
-> is now 128Mb - with 128Mb swap.  I created an additional swap file 
-> (256Mb), and (touch wood), no oops since, all heathly :)  I never 
-> looked at this before, as swap was never used _during_ normal running 
-> of the box, but as he said maybe the cron.weekly ran a lot of stuff 
-> that did use it up...
+Sam Ravnborg wrote:
+> --- /dev/null   Wed Dec 31 16:00:00 196900
+> +++ b/Documentation/kbuild/extmodules.txt       2004-06-14 22:25:21 +02:00
+[snip]
+> +A more advanced example
+> +- - - - - - - - - - - -
+> +This example shows a setup where a distribution has wisely decided
+> +to separate kernel source and output files:
+> +
+> +Kernel src:
+> +/usr/src/linux-<kernel-version>/
+> +
+> +Output from a kernel compile, including .config:
+> +/lib/modules/linux-<kernel-version>/build/
+                                       ^^^^^
+Wrong! The 'build' symlink has always pointed to kernel source dir in
+separate source and object directory case. Maybe you meant:
 
-Doubt that has been my problem... The box in question had 180 MB ram,
-and 512 MB swap. The script can't have used that much.. And even if it
-did, it is a bug that the box oopses and dies, I guess.
+Output from a kernel compile, including .config:
+/lib/modules/linux-<kernel-version>/object/
+                                    ^^^^^^
+> +External module to be compiled:
+> +/home/user/module/src/
+> +
+> +To compile the module located in the directory above use the
+> +following command:
+> +
+> +       cd /home/user/module/src
+> +       make -C /usr/src/linux-<kernel-version> \
+> +       O=/lib/modules/linux-<kernel-version>/build \
+                                                ^^^^^
+O=/lib/modules/linux-<kernel-version>/object
+                                      ^^^^^^
+> +       M=`pwd`
+> +
+> +Then to install the module use the following command:
+> +
+> +       make -C /usr/src/linux-<kernel-version> \
+> +               O=/lib/modules/linux-<kernel-version>/build \
+                                                        ^^^^^
+O=/lib/modules/linux-<kernel-version>/object
+                                      ^^^^^^
+> +               M='pwd` modules_install
+[snip]
+> +Prepare the kernel for building external modules
+> +------------------------------------------------
+> +When building external modules the kernel is expected to be prepared.
+> +This includes the precense of certain binaries, the kernel configuration
+> +and the symlink to include/asm.
+> +To do this a convinient target is made:
+> +
+> +       make modules_prepare
+> +
+> +For a typical distribution this would look like the follwoing:
+> +
+> +       make modules_prepare O=/lib/modules/linux-<kernel version>/build
+                                                                     ^^^^^
+make modules_prepare O=/lib/modules/linux-<kernel version>/object
+                                                           ^^^^^^
+Sam, You don't seem to have any idea how much breakage you introduce if you
+insist on redirecting the 'build' symlink from source tree to object tree.
 
-Best regards,
-Stian
-
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbTHVWYU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 18:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTHVWYT
+	id S262874AbTHVWU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 18:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTHVWU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 18:24:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25051 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261714AbTHVWYP (ORCPT
+	Fri, 22 Aug 2003 18:20:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63962 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262874AbTHVWUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 18:24:15 -0400
-Message-Id: <200308222224.h7MMOCs15182@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, cliffw@osdl.org
-Subject: Re: 2.6.0-test3-mm3 
-In-Reply-To: Message from Andrew Morton <akpm@osdl.org> 
-   of "Tue, 19 Aug 2003 01:38:34 PDT." <20030819013834.1fa487dc.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Aug 2003 15:24:12 -0700
-From: Cliff White <cliffw@osdl.org>
+	Fri, 22 Aug 2003 18:20:54 -0400
+Date: Fri, 22 Aug 2003 15:13:47 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@suse.cz>
+cc: <torvalds@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs
+ explaining to you?
+In-Reply-To: <20030822221025.GE2306@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0308221512360.2310-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+> > >  static int __init resume_setup(char *str)
+> > >  {
+> > > -	strncpy( resume_file, str, 255 );
+> > > +	if (strlen(str))
+> > > +		strncpy(resume_file, str, 255);
+> > >  	return 1;
+> > >  }
+> > > 
+> > > Why are you obfuscating the code?
+> > 
+> > Eh? First, why would you want to copy a NULL string? 
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm3/
-> 
-> 
-> . More CPU scheduler changes
-> 
-> . The regression with reaim which was due to the CPU scheduler changes
->   seems to have largely gone away, but it was never a large effect in my
->   testing.  Needs retesting please.
-> 
+> How is strlen(NULL) better than strncpy(_, NULL, _)?
 
-Have some tests completed. 
-Results are ..interesting.
-All results:
- http://developer.osdl.org/cliffw/reaim/index.html
+Well, it will tell you whether or not you copied anything. Which, like I 
+mentioned before, can be used to determine whether or not the user really 
+wants to resume or not, in lieu of a superfluous command line parameter 
+("noresume"). 
 
-On a gross level, the delta has indeed shrunk:
-STP 4-CPU
-STP id PLM# KernelName        Workfile  MaxJPM  MaxUser Host     Change
-277851 2063 2.6.0-test3-mm3   new_dbase 5327.15  88     stp4-000  0.00
-277455 2049 linux-2.6.0-test3 new_dbase 5324.95  92     stp4-000 -0.04
 
-However, if we look at the detail within the runs, the two kernels do run
-differently. It's not really good/bad, just different.
- 
-Basically, -mm3 runs a little slower, but steadier.
--test3 has bigger peaks and valleys, the average between the two over the run comes 
-out about the same. Example:
-
-Num children  JPM/-mm3    JPM/-test3
-44            5079.77     5183.81
-48            5130.43     4853.96
-52            5102.86     5161.39
-
-Numbers taken from:
--test3 -> http://khack.osdl.org/stp/277455/results/allruns.html
--mm3 ->   http://khack.osdl.org/stp/277851/results/allruns.html
-
-Sorry to be so vague..more tests are underway.
-
-Code location:
-bk://developer.osdl.org/osdl-aim-7
-tarball:
-http://sourceforge.net/projects/re-aim-7
-
-Run parameters:
-
-./reaim -s$CPU_COUNT -x -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
-./reaim -s$CPU_COUNT -q -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
-(3 runs each, average of all 6 reported)
-
-cliffw
-
+	Pat
 

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRKSIYS>; Mon, 19 Nov 2001 03:24:18 -0500
+	id <S275126AbRKSIcS>; Mon, 19 Nov 2001 03:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274368AbRKSIYL>; Mon, 19 Nov 2001 03:24:11 -0500
-Received: from law2-oe70.hotmail.com ([216.32.180.163]:11 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S273622AbRKSIXu>;
-	Mon, 19 Nov 2001 03:23:50 -0500
-X-Originating-IP: [213.82.66.51]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel Panic: too few segs for DMA mapping increase AHC_NSEG
-Date: Mon, 19 Nov 2001 09:23:27 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <LAW2-OE70z82buW5RNB000007e5@hotmail.com>
-X-OriginalArrivalTime: 19 Nov 2001 08:23:44.0277 (UTC) FILETIME=[80B3EC50:01C170D3]
+	id <S275012AbRKSIcI>; Mon, 19 Nov 2001 03:32:08 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:26614 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S274368AbRKSIb7>;
+	Mon, 19 Nov 2001 03:31:59 -0500
+Date: Mon, 19 Nov 2001 01:31:52 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@math.psu.edu, lvm-devel@sistina.com
+Subject: [PATCH] undo LVM change from merge
+Message-ID: <20011119013151.Z1308@lynx.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, viro@math.psu.edu,
+	lvm-devel@sistina.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody.
+Linus, Alan, Al,
+it appears that when merging Alan's updated LVM code into mainline, it
+reverted a change (from Al to avoid race conditions with block device
+modules, I think).  The patch fragment below should be re-applied:
 
-I have just upgraded my PC from 768MB RAM to 1GB.
-I have recompiled the kernel (2.4.14) for hi mem support (4GB).
+@@ -400,6 +400,7 @@
+ /* block device operations structure needed for 2.3.38? and above */
+ struct block_device_operations lvm_blk_dops =
+ {
++       owner:          THIS_MODULE,
+        open:           lvm_blk_open,
+        release:        lvm_blk_close,
+        ioctl:          lvm_blk_ioctl,
 
-Now it's appening a very strange behaviour.
-I have several file system on the same disk (vfat file system). I have
-compiled vfat driver as a module. So before try to mount I must issue a
-'modprobe vfat'. I'm using Slackware 8.0. modutils version is 2.4.6
+It isn't in the LVM CVS yet, but if it should be I will put it there so
+we don't lose it again.
 
-Then if I try to copy a file from that filesystem to the root filesystem
-I get this error:
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Kernel panic: too few segs for DMA mappings increase AHC_NSEG
-
-Usually this is the procedure:
-
-root login
-modprobe vfat
-mount /dev/sda2 /mnt   (to mount the fat partition)
-cd /usr/src
-cp /mnt/linux/kernel/linux-2.2.20.tar.bz2 . (I want to copy kernel
-source tarball from the vfat partition to /usr/src)
-CRASH..........
-
-My MB is ABIT KT7A (bios rev ID 65  11/07/2001). Two 512 MB SDRAM
-(takei).
-Other HW: AHA 39160, SCSI IBM HD DDYS 18130, Matrox G450.
-gcc version 2.95.3, binutils 2.10.91.0.4 (***not the original slack
-8.0***, I have downgraded it for Oracle 9i)
-
-If I compile a kernel without hi mem support all is fine.

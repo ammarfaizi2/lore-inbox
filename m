@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315204AbSEUQib>; Tue, 21 May 2002 12:38:31 -0400
+	id <S315202AbSEUQp2>; Tue, 21 May 2002 12:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315202AbSEUQia>; Tue, 21 May 2002 12:38:30 -0400
-Received: from server1.symplicity.com ([209.61.154.230]:41226 "HELO
-	mail2.symplicity.com") by vger.kernel.org with SMTP
-	id <S315200AbSEUQi2>; Tue, 21 May 2002 12:38:28 -0400
-From: "Alok K. Dhir" <adhir@symplicity.com>
-To: "'Halil Demirezen'" <halild@bilmuh.ege.edu.tr>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Support for HCF modem.?
-Date: Tue, 21 May 2002 12:38:24 -0400
-Message-ID: <002a01c200e5$ed7a20f0$6501a8c0@frodo>
+	id <S315206AbSEUQp1>; Tue, 21 May 2002 12:45:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63245 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315202AbSEUQp1>; Tue, 21 May 2002 12:45:27 -0400
+Date: Tue, 21 May 2002 09:45:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: paulus@samba.org, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.16
+In-Reply-To: <Pine.LNX.4.44.0205210857590.2249-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0205210934340.2471-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <Pine.LNX.4.44.0205211920220.1290-100000@bilmuh.ege.edu.tr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try:
 
-	http://www.mbsi.ca/cnxtlindrv/
 
-Caveat:  These only work on non-SMP kernels.  My SMP box freezes hard
-when accessing the modem using this HCF driver.
+On Tue, 21 May 2002, Linus Torvalds wrote:
+>
+> For example, in the exit_mmap() case, we should tear down the page tables
+> in top-to-bottom order, and that makes all the "tlb->pages[]" stuff
+> entirely unnecessary: we can just remove the _top_ pgd, and once that is
+> done (and the TLB invalidated), we can remove the pmd's and the pte's at
+> our leisure without any fear of races.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Halil Demirezen
-> Sent: Tuesday, May 21, 2002 12:22 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Support for HCF modem.?
-> 
-> 
-> 
-> Is there any driver for the HCF Conexant PCI modem in the 
-> latest kernel?
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Hmm.. We could simplify it even further by moving the exit_mmap() from
+mmput() into mmdrop(), at which point we know that we exit the mm only
+after nobody is using the thing any more at all, and it has been flushed
+from the TLB's.
+
+The only downside of that is that we currently do the mmdrop in the middle
+of the context switch, and we'd have to move it to _after_ the context
+switch. Which is slightly complicated. The other problem is that with lazy
+TLB's, we might delay actually freeing the pages for a longish time
+especially on big SMP machines (if the MM ends up being lazy on an idle
+CPU for long)..
+
+So while this approach would be absolutely wonderful from a TLB behaviour
+approach, it might not be the best approach in some other ways. Ideas?
+
+		Linus
 

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136109AbREIKke>; Wed, 9 May 2001 06:40:34 -0400
+	id <S136189AbREIK47>; Wed, 9 May 2001 06:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136113AbREIKkZ>; Wed, 9 May 2001 06:40:25 -0400
-Received: from gw.netgem.com ([195.154.83.69]:8709 "EHLO gw.dev.netgem.com")
-	by vger.kernel.org with ESMTP id <S136109AbREIKkO>;
-	Wed, 9 May 2001 06:40:14 -0400
-Message-ID: <3AF91E88.1000705@netgem.com>
-Date: Wed, 09 May 2001 10:40:08 +0000
-From: Jocelyn Mayer <jma@netgem.com>
-Organization: Netgem S.A.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
+	id <S136214AbREIK4j>; Wed, 9 May 2001 06:56:39 -0400
+Received: from neve.performancemagic.com ([203.79.83.134]:8456 "EHLO
+	neve.local.performancemagic.com") by vger.kernel.org with ESMTP
+	id <S136127AbREIK4i>; Wed, 9 May 2001 06:56:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Greg <greg@performancemagic.com>
+To: "Xiong Zhao" <xz@gatekeeper.ncic.ac.cn>,
+        majordomo linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: can solaris run on intel architecture?
+Date: Wed, 9 May 2001 22:56:30 +1200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <77459D1B968.AAA5394@gatekeeper.ncic.ac.cn>
+In-Reply-To: <77459D1B968.AAA5394@gatekeeper.ncic.ac.cn>
 MIME-Version: 1.0
-To: antonpoon@hongkong.com, linux-kernel@vger.kernel.org
-Subject: Re: How to compile kernel for Geode GX1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <0105092256300C.06209@jane>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >  Hi,
+Yes, I dloaded it today.
 
- > How can I compile a kernel that would be running on a National 
-Semiconductor Geode GX1 processor?
-
- > I wish to be personally CC'ed the answers/comments posted to the list 
-in response to my posting. Thank you.
-
- > Best Regards,
- > Anton
-
-Well, you can select '(586/K5/5x86/6x86/6x86MX) Processor family '
-in the  'Processor type and features ' menu of menuconfig.
-
-That's what I do for a Geode GXLv,
-and it works with 2.2 and 2.4 kernels.
-There is one version (maybe more ?),
-I think 2.4.1, which cannot boot on Cyrix,
-but others works well...
-
-Regards.
+www.sun.com  top leftcorner
 
 
+On Wed, 09 May 2001 20:38, Xiong Zhao wrote:
+> sorry, i know this topic is not much relevant to the list.
+> but i hope you can give me some advice or show me where i
+> can get help. for example, is there any mail list or forum
+> on solaris?
+>
+>
+> regards and sorry again
+>
+>
+> james
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Greg
+Wellington
+New Zealand
+ICQ# 19058919
+
+Rome did not create a great empire by having meetings....
+  They did it by killing all those who opposed them.

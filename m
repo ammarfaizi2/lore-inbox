@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbTDFOpX (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbTDFOpW (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:45:22 -0400
-Received: from main.gmane.org ([80.91.224.249]:37784 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262996AbTDFOpV (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 10:45:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: 2.4.21-pre7 and ac97_code.c compilation problem
-Date: Sun, 06 Apr 2003 10:52:54 -0400
-Message-ID: <3E903F46.9080700@myrealbox.com>
-References: <3E8E8AA4.3070302@yahoo.com> <1049560971.25758.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id S262988AbTDFOkt (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTDFOkt (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:40:49 -0400
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:54858 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id S262988AbTDFOkp (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 10:40:45 -0400
+Date: Sun, 6 Apr 2003 16:52:17 +0200 (CEST)
+From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [sparc64] 2.4.21-pre7 and alsa: unresolved symbol
+Message-ID: <Pine.LNX.4.53.0304061640140.7051@mazinga.int.fabbione.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sad, 2003-04-05 at 08:49, Lars wrote:
-> 
->>It seems prepatch 2.4.21-pre7 changes ac97_codec.c without making
->>matching changes in ac97_codec.h... Just a heads up.
->>
->>The changes to ac97_codec.c are isolated enough so that I could easily
->>reverse that part of the patch to get it to work.
->>
->>I'm not subscribed to this list, please CC me on any responses.
-> 
-> 
-> Marcelo applied a random subset of the changes I sent him. Grab the -ac
-> tree
-> 
 
-Will you be releasing an -ac patch for pre7?
+Hi all,
+	Im a bit new to sparc kernel/hardware and I have been hitten by a
+problem compiling alsa modules.
+In a few words loading the modules i get the following error:
 
-Cheers,
-Nicholas
+mazinga:/usr/src/modules/alsa-driver# insmod snd-page-alloc
+Using /lib/modules/2.4.21-pre7/kernel/sound/acore/snd-page-alloc.o
+/lib/modules/2.4.21-pre7/kernel/sound/acore/snd-page-alloc.o: unresolved
+symbol virt_to_bus_not_defined_use_pci_map
 
+poking around I found that io.h has this entry on sparc64:
 
+extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void  *addr);
+#define virt_to_bus virt_to_bus_not_defined_use_pci_map
+
+while in other archs there is some "real" code.
+
+I understand "use_pci_map" but what i would really like to know is:
+
+* why is virt_to_bus missing from sparc64?
+* which is the best way to fix the code? kernel or alsa???
+
+I have also been trying to look at 2.5.66 kernel but unfortunatly I cannot
+even boot it to confirm that is working or not (atleast to try a backport
+or something)
+
+Any help would be really appreciated.
+
+Thanks
+Fabio

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289282AbSBJEb1>; Sat, 9 Feb 2002 23:31:27 -0500
+	id <S289277AbSBJEmL>; Sat, 9 Feb 2002 23:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289277AbSBJEbK>; Sat, 9 Feb 2002 23:31:10 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21011 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289282AbSBJEaz>; Sat, 9 Feb 2002 23:30:55 -0500
-Date: Sat, 9 Feb 2002 22:16:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C65F523.FDDB7FA@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0202092211001.10024-100000@home.transmeta.com>
+	id <S289288AbSBJEmC>; Sat, 9 Feb 2002 23:42:02 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60621 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289277AbSBJElz>; Sat, 9 Feb 2002 23:41:55 -0500
+From: "Nivedita Singhvi" <nivedita@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: tcp_keepalive_intvl vs tcp_keepalive_time?
+To: landley@trommello.org
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF46DAF8B5.5C736002-ON65256B5C.0018A2C8@boulder.ibm.com>
+Date: Sun, 10 Feb 2002 10:10:15 +0530
+X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 02/09/2002 09:41:53 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Would someone be kind enough to explain the difference between
+> tcp_keepalive_intvl and tcp_keepalive_time?
+> Documentation/filesystems/proc.txt says tcp_keepalive_time is the
+interval
+> between sending keepalive probes, but doesn't mention
+tcp_keepalive_intvl...
 
-On Sat, 9 Feb 2002, Andrew Morton wrote:
->
-> This is due to BUG() calls in inline functions in headers.  The biggest
-> culprit is dget(), in dcache.h.  This causes the full path of the header file
-> to be expanded into each and every compilation unit which includes
-> dcache.h.
+tcp starts a keepalive timer for each connection. if the connection is idle
+for tcp_keepalive_time seconds, it starts sending probes to the other end.
+It sends a maximum of tcp_keepalive_probes each tcp_keepalive_intvl
+seconds apart, and if the other end hasnt responded by then, it drops the
+connection.
 
-Hmm. Which brings up another issue: can somebody come up with an idea of
-how to make the thing not use the whole pathname, but only the basename
-relative to the top-of-tree?
+default values:
 
-I doubt it is possible, but maybe there is some clever way to avoid it..
+tcp_keepalive_intvl = 75 seconds
+tcp_keepalive_probes = 9
+tcp_keepalive_time = 7200 seconds (2 hours)
 
-> I'm showing thirteen header files, for a total of 83k.  I'll do something
-> about this...
+> The problem I'm trying to track down is ssh connections where the
+connection
+> times out but the session doesn't go away until a key is pressed.  (I.E.
+> blocking reads don't notice the connection going down underneath them,
+not
+> even if left overnight.)
 
-Ok, so even your gcc obviously is _not_ intelligent enough to throw away
-strings from inline functions that aren't used. Oh well.
+not clear from the info here whats happening in your case...
+(stats?)
 
-Note that the correct thing to do may be to un-inline a lot of things.
-We've done that before, simply because it often improves performance.
+> Rob
 
-What ends up happening is that some function starts out really small, and
-then later on people add logic and debug code to it, and suddenly it's not
-really appropriate to inline any more.
+thanks,
+Nivedita
 
-		Linus
 

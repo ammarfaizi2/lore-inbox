@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUHDNqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUHDNsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUHDNqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 09:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUHDNqT
+	id S265840AbUHDNsD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 09:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUHDNsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 09:46:19 -0400
-Received: from users.linvision.com ([62.58.92.114]:48069 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S265795AbUHDNpu (ORCPT
+	Wed, 4 Aug 2004 09:48:03 -0400
+Received: from 23-88.ipact.nl ([82.210.88.23]:63130 "EHLO vt.shuis.tudelft.nl")
+	by vger.kernel.org with ESMTP id S265840AbUHDNr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 09:45:50 -0400
-Date: Wed, 4 Aug 2004 15:45:49 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: walt <wa1ter@myrealbox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.8-rc2-bk] New read/write bug in FAT fs
-Message-ID: <20040804134549.GD25969@harddisk-recovery.com>
-References: <4110CF29.8060401@myrealbox.com> <87657zkp21.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Aug 2004 09:47:59 -0400
+From: Remon <noreply@vt.shuis.tudelft.nl>
+Reply-To: noreply@vt.shuis.tudelft.nl
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O3
+Date: Wed, 4 Aug 2004 15:48:46 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <87657zkp21.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408041548.46648.noreply@vt.shuis.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 10:31:18PM +0900, OGAWA Hirofumi wrote:
-> This is intention.
-> 
-> The default codepage/iocharset which is easy to cause a mistake and
-> unclear was deleted from fatfs. So default is mounted as read only.
-> 
-> You need to explicitly specify the "codepage" and "iocharset" options.
+Hello,
 
-To minimise confusion, is it an idea that NTFS and FAT use the same
-mount options? Right now NTFS uses "nls" and VFAT "iocharset".
+I tried to compile this one, but got an error on:
 
+drivers/pci/hotplug/cpci_hotplug_core.c : unknown field `generic_disable_irq' 
+specified in initializer
 
-Erik
+I disabled hotplug in the config file and the compilation succeeded without 
+problems ;-) (I don't need hotplug, but maybe others do)
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Thanks for all the work done, I'm gonna test it now :-)
+
+Remon
+

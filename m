@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281304AbRKTUEg>; Tue, 20 Nov 2001 15:04:36 -0500
+	id <S281307AbRKTUM0>; Tue, 20 Nov 2001 15:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281306AbRKTUE1>; Tue, 20 Nov 2001 15:04:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:31619 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S281304AbRKTUEL>; Tue, 20 Nov 2001 15:04:11 -0500
-Date: Tue, 20 Nov 2001 15:03:23 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dale Amon <amon@vnl.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-In-Reply-To: <20011120190316.H19738@vnl.com>
-Message-ID: <Pine.LNX.3.95.1011120144925.14138A-100000@chaos.analogic.com>
+	id <S281318AbRKTUMQ>; Tue, 20 Nov 2001 15:12:16 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:58076 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S281307AbRKTUMH> convert rfc822-to-8bit; Tue, 20 Nov 2001 15:12:07 -0500
+Date: Tue, 20 Nov 2001 18:26:26 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Anton Blanchard <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] small sym-2 fix
+In-Reply-To: <20011120170219.A10454@krispykreme>
+Message-ID: <20011120181131.F1961-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Dale Amon wrote:
 
-> I looked back on the thread from last year and thought
-> that this would be well in hand by now. Either that or
-> I've missed something obvious or I've got an overly
-> unfriendly BIOS.
-> 
-> In any case, here is the problem:
-> 
-> 	NIC on motherboard, Realtek
-> 	NIC on PCI card, Realtek
-> 	Monolithic (no-module) kernel
-> 	Motherboard must be set to eth0
-> 
-> The PCI search order always makes the PCI card 
-> eth0.
+Hello,
 
-The PCI devices are read in the order that they are found. The
-first bridge is device 0, etc. These are not usually configurable
-since they are hard-wired, a particular slot has a certain device
-number.
+On Tue, 20 Nov 2001, Anton Blanchard wrote:
 
-Device      Vendor                    Type
-   0   Intel Corporation              440BX/ZX - 82443BX/ZX Host bridge  
-       I/O memory : 0xe4000000->0xe7fffff7
-   1   Intel Corporation              440BX/ZX - 82443BX/ZX AGP bridge   
-       I/O memory : 0x40010100->0x470101ff
-       I/O memory : 0x22a0d0e0->0x1fffdfef
-       I/O memory : 0xe3c0e3d0->0xe3cfe3df
-       I/O memory : 0xe3f0e400->0xe3ffe40f
-   4   Intel Corporation              82371AB PIIX4 ISA                  
-   9   S3 Inc.                        86c968 [Vision 968 VRAM] rev 0     
-       IRQ 5 Pin 1
-       I/O memory : 0x14000000->0x15ffffff
-  10   Advanced Micro Devices [AMD]   79c970 [PCnet LANCE]               
-       IRQ 12 Pin 1
-       I/O  ports : 0xd000->0xd01e
-       I/O memory : 0xdf800000->0xdf80001f
-  11   3Com Corporation               3c905B 100BaseTX [Cyclone]         
-       IRQ 10 Pin 1
-       I/O  ports : 0xb800->0xb87e
-       I/O memory : 0xdf000000->0xdf00007f
-  12   BusLogic                       BT-946C (BA80C30), [MultiMaster 10]
-       IRQ 11 Pin 1
-       I/O  ports : 0xb400->0xb402
-       I/O memory : 0xde800000->0xde800fff
+> Hi,
+>
+> > Could you revert your change and give my patch below a try. Btw, you will
+> > be in sync with my current sources. Booting with sym53c8xx=debug:1 will
+> > let the driver print all memory allocations to the syslog. You may send me
+> > the drivers messages related to these allocations for information.
+>
+> Thanks, it boots OK now. Do you still want a debug log?
 
-The first ethermet board installed will be eth0, the second eth1, etc.
-Therefore, if you want to make a particular board eth0, use modules
-and `insmod` the one that you want to be first, first.
+I can guess the result.
 
-FYI, if you care about the name of your ethernet device, your
-configuration is probably broken. The IEEE station address can
-be used to identify a device and it's accessible from `ifconfig`
-without setting any network parameters. So, given this, you
-can set any number of boards found, to anything you need to
-configure, including complicated servers and routers, with a
-simple shell-script.
+> BTW on ppc64 we can have io port addresses > 32 bits so this change is
+> required.
 
-Cheers,
-Dick Johnson
+Linux/ppc64 looks strange invention to me. As you know IO base addresses
+are limited to 32 bit in PCI. And, btw, 32 bits seems to work just fine
+here as PPC is defined from the driver as using normal IO. But, IIRC, the
+strange Linux/PPC invention only supports MMIO. :-)
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+If you want to play with _explicit_ MMIO, you just have to remove a couple
+of line from sym53c8xx.h. Here they are:
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+  /*
+   *  Use normal IO if configured. Forced for alpha and powerpc.
+   *  Powerpc fails copying to on-chip RAM using memcpy_toio().
+   *  Forced to MMIO for sparc.
+   */
+  #if defined(__alpha__)
+  #define	SYM_CONF_IOMAPPED
+  #elif defined(__powerpc__)
+- #define	SYM_CONF_IOMAPPED
+- #define SYM_OPT_NO_BUS_MEMORY_MAPPING
+  #elif defined(__sparc__)
+  #undef SYM_CONF_IOMAPPED
+  #elif defined(CONFIG_SCSI_SYM53C8XX_IOMAPPED)
+  #define	SYM_CONF_IOMAPPED
+  #endif
 
+Btw, I cannot guess the result here. You may want to really let me know
+this time. :)
+
+I cannot apply your patch as it is, since I want the driver to distinguish
+between kernel fake cookies associated with base addresses and actual
+values of those registers. This is needed, since some of these values must
+be known from SCSI SCRIPTS and thus must fit the _reality_ and not any
+kernel developpers' dream, could be the greatest ones:).
+
+Thanks, anyway, for reporting this problem.
+
+Regards,
+  Gérard.
+
+> diff -urN linuxppc_2_4_devel/drivers/scsi/sym53c8xx_2/sym_glue.h linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h
+> --- linuxppc_2_4_devel/drivers/scsi/sym53c8xx_2/sym_glue.h	Mon Nov 12 11:46:42 2001
+> +++ linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h	Tue Nov 20 16:35:14 2001
+> @@ -463,7 +462,7 @@
+>
+>  	vm_offset_t	mmio_va;	/* MMIO kernel virtual address	*/
+>  	vm_offset_t	ram_va;		/* RAM  kernel virtual address	*/
+> -	u32		io_port;	/* IO port address		*/
+> +	u_long		io_port;	/* IO port address		*/
+>  	u_short		io_ws;		/* IO window size		*/
+>  	int		irq;		/* IRQ number			*/
 

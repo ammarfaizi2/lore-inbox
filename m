@@ -1,65 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292326AbSBPIwY>; Sat, 16 Feb 2002 03:52:24 -0500
+	id <S292324AbSBPJBq>; Sat, 16 Feb 2002 04:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292327AbSBPIwP>; Sat, 16 Feb 2002 03:52:15 -0500
-Received: from central.caverock.net.nz ([210.55.207.1]:65042 "EHLO
-	central.caverock.net.nz") by vger.kernel.org with ESMTP
-	id <S292326AbSBPIv7>; Sat, 16 Feb 2002 03:51:59 -0500
-Date: Sat, 16 Feb 2002 21:51:02 +1300 (NZDT)
-From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
-To: linux-kernel@vger.kernel.org
-Subject: What? Clock Slowdown Again?
-Message-ID: <Pine.LNX.4.21.0108201013170.4109-100000@brick.flying-brick.caverock.net.nz>
+	id <S292325AbSBPJBh>; Sat, 16 Feb 2002 04:01:37 -0500
+Received: from duba05h05-0.dplanet.ch ([212.35.36.52]:29456 "EHLO
+	duba05h05-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S292324AbSBPJB0>; Sat, 16 Feb 2002 04:01:26 -0500
+Message-ID: <3C6E1F90.40404@dplanet.ch>
+Date: Sat, 16 Feb 2002 10:00:00 +0100
+From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.5) Gecko/20011023
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: kbuild [which is not only CML2]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
-==== Problem One ====
-Hi all.  I started noticing the "clock slowdown" problem when I started with
-2.4.x series of kernels, and described it in a past post.  In summary, under
-framebuffer mode, when the interrupts are disabled, they don't get re-enabled
-quickly enough to make sure the system clock keeps up.  I was told about a
-patch that would help to solve this, I applied said patch (2.4.3) then, when
-the kernel updated to 2.4.11, I was pleased to see the Andrew Morton patch
-integrated into the kernel.  
-
-However, I'm noticing the slowdown again, though not to the same extent.  I
-took the kernel up to 2.4.17 but I need to do some further tests to see what
-else I can ferret out. 
-
-==== Problem Two ====
-
-Also, what are the plans for replacing the virt_to_bus / bus_to_virt
-functions?  The sourcecode basically says to use pci_map functions, but, being
-almost a kernel illiterate (I know how to compile, apply patches, and not much
-else) I don't know how to get started on converting.  I thought that
-pci_resource_{start,end,len} may also be needed too.  Am I right?
-
-Again, thanks for all your time.  I read KT and found out about why my 2.5.4
-kernel refused to compile, fixed that, fixed another couple of things, then
-came up against this bus_to_virt problem, which I'd like to get fixed before I
-go anywhere with 2.5 - understandable as I just aout live for my 160x64 text
-screen 8-)  I use a VESA framebuffer, as the SiS framebuffer code hasn't been
-extended to include the 5597/5598 yet.
-
-Must go...now I can FINALLY send this off, six months after originally
-composeng it.
-
-Regards, The Viking
-(Please, email me as well, the list takes a VERY long time to read, and I
-might miss your post...)
-
---
- /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
-| |_/'  viking@ `\_| |            including Pippin, our cat
-|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
- \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
+I have some comment/explications about the thread
+about kbuild.
 
 
+1-
+The discussion was also on lkml, ESR asked to kbuild
+people to give some comments, using also the feed-back
+of lkml.
+As you noticed, in lkml the discussion went into flames,
+fogetting the important points.
+[As this flame is going forgetting kbuild-2.5..]]
+
+2-
+The comments in kbuild list are accessible to all.
+You should read them (hmm, really there are only one full
+comment [my comment] + discution/flame]
+
+3-
+The importants points are:
+CML2 and kbuild-2.5 are two different projects, which
+don't depend each other.
+The need of the two project is also demostrated by the
+other never finished similar project (mconfig, kernconfig,
+mcml2, cml2config, dancing-makefiles, ...)
+
+4-
+Nobody talked about kbuild-2.5. It really correct actual
+makefiles. And I hope that Linus correct this bahaviour in
+a time manner (and not as last big makefile correction in
+2.4.0-testX).
+
+5-
+What wrong with kbuild-2.5?
+Keith seems to comunicate better with other kernel developers,
+[The main point of kbuild-2.5 are:
+  no more required make mrproper -> faster,
+  no more 'touch include/*/*.h',
+  multiple trees, read-oly sources,...]
+
+6-
+Old configuration programs, IMHO, are not so broken, but there
+is a big problem of maintainability. Every 10 patches, few are
+incorrect.
+Few developers (maybe no developers) will use xconfig, and
+also few developers have read the Documentation/kbuild/.
+This inevitably port people to write Config.in as bash
+shell (WRONG!), forgetting that unset configuration have
+variable unset OR set to 'n'.
+
+These problems seems not so huge, but with actual kernel
+development there are. It is difficult to push corection patch
+into the main kernel. Who will help kbuild people?
+[CML2 will solve the problem at the source: same engine for
+all interface, with more checks, so original sender will have
+the correct config.in].
+
+7-
+Andrea'WAlan did you make some tools for CML1 and did you not
+publish? Why? (not published == not existance from the other
+people).
+
+8-
+Read who wrote menuconfig, and you see why ESR want to
+replace it.
+
+9-
+Read some user list about configuration problem and you see
+that CML1 cause user much problem that a kernel hacker see.
+(menuconfig didn't compile, where is such symbols?)
 
 
+No flame please.
+Tell us what is wrong in kbuild-2-5 and in CML2. Don't flame!
+If you flame about CML2, ESR will answer you and then he
+forget the initial proposal of improvement.
 
+
+         giacomo, who don't understan why kbuild-2.5 is not in kernel
 

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCNRxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVCNRxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVCNRxu (ORCPT <rfc822;willy@w.ods.org>);
+	id S261653AbVCNRxu (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 14 Mar 2005 12:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVCNRwF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCNRwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:52:05 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:49058 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261651AbVCNRsK
+	Mon, 14 Mar 2005 12:52:12 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:59116 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S261653AbVCNRtW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:48:10 -0500
-Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
-	2.6.11)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16948.55096.598031.618338@wombat.chubb.wattle.id.au>
-References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
-	 <20050311071825.GA28613@kroah.com>
-	 <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
-	 <20050311152106.GA32584@kroah.com>
-	 <16948.55096.598031.618338@wombat.chubb.wattle.id.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110822361.17740.141.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 14 Mar 2005 17:46:02 +0000
+	Mon, 14 Mar 2005 12:49:22 -0500
+To: akpm@osdl.org
+Subject: [PATCH] Releasing resources with children
+Cc: linux-kernel@vger.kernel.org, matthew@wil.cx
+Message-Id: <20050314174916.B49754957B9@palinux.hppa>
+Date: Mon, 14 Mar 2005 10:49:16 -0700 (MST)
+From: willy@parisc-linux.org (Matthew Wilcox)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-03-14 at 00:13, Peter Chubb wrote:
-> Greg> see mmap(2)
-> 
-> mmap maps a file's contents into your own virtual memory.
-> usr_pci_map maps part of your own virtual memory into pci bus space
-> for a particular device (using the IOMMU if your machine has one), and
-> returns a scatterlist of bus addresses to hand to the device.
+Releasing resources with children
 
-You can't really do it that way around because you don't know what the
-memory constraints of the device are compared to your user pages.
-Suppose your user pages are in high memory over 4GB and the device is
-32bit DMA constrained ? You don't want bounce buffers clearly.
+What does it mean to release a resource with children?  Should the
+children become children of the released resource's parent?  Should they
+be released too?  Should we fail the release?
 
-In addition you have to be very careful about shared pages when doing
-DMA because you don't want to DMA into a COW page but that is handleable
-(as is done by O_DIRECT)
+I bet we have no callers who expect this right now, but with
+insert_resource() we may get some.  At the point where someone hits this
+BUG we can figure out what semantics we want.
 
-Alan
+Signed-off-by: Matthew Wilcox <willy@parisc-linux.org>
 
+diff -urpNX dontdiff linux-2.6.11-bk10/kernel/resource.c parisc-2.6-bk/kernel/resource.c
+--- linux-2.6.11-bk10/kernel/resource.c	2005-03-14 06:44:08.205342005 -0700
++++ parisc-2.6-bk/kernel/resource.c	2005-03-14 07:07:54.000000000 -0700
+@@ -181,6 +181,8 @@ static int __release_resource(struct res
+ {
+ 	struct resource *tmp, **p;
+ 
++	BUG_ON(old->child);
++
+ 	p = &old->parent->child;
+ 	for (;;) {
+ 		tmp = *p;

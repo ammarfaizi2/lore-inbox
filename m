@@ -1,44 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbRLWEXP>; Sat, 22 Dec 2001 23:23:15 -0500
+	id <S283585AbRLWE30>; Sat, 22 Dec 2001 23:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283390AbRLWEXG>; Sat, 22 Dec 2001 23:23:06 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:46041 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283340AbRLWEWr>;
-	Sat, 22 Dec 2001 23:22:47 -0500
-Date: Sun, 23 Dec 2001 03:57:52 +0100
-From: Christian Ohm <chr.ohm@gmx.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: file corruption in 2.4.16/17
-Message-ID: <20011223025752.GA20445@moongate.thevoid.net>
-In-Reply-To: <20011222220223.GA537@moongate.thevoid.net> <Pine.LNX.4.33.0112222109310.5312-100000@coffee.psychology.mcmaster.ca>
+	id <S283438AbRLWE3Q>; Sat, 22 Dec 2001 23:29:16 -0500
+Received: from cx340599-a.omhan1.ne.home.com ([24.22.140.45]:38407 "EHLO
+	kaitain.obix.com") by vger.kernel.org with ESMTP id <S283581AbRLWE3D>;
+	Sat, 22 Dec 2001 23:29:03 -0500
+Subject: [PATCH] 2.4.17 compile error + fix
+From: Phil Brutsche <pbrutsch@tux.creighton.edu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-DTSMJGfkh+oduYIxGq60"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Dec 2001 22:28:56 -0600
+Message-Id: <1009081736.968.0.camel@fury>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112222109310.5312-100000@coffee.psychology.mcmaster.ca>
-User-Agent: Mutt/1.3.24i
-Organization: theVoid
-X-Operating-System: Linux moongate 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> there is no problem with these disks or chipsets.  have you checked your
-> ide cable (*always* must be 18" or less, with *both* ends plugged in)?
-> also, do you have the via-specific ide driver?
 
-the ide cable is the one that came with the mainboard, it worked perfectly
-for one year with the 20gb hd. and yes, i'm using the via-driver.
+--=-DTSMJGfkh+oduYIxGq60
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-the strange thing about this is that it all worked perfectly before i added
-the 80gb disk. and it corrupts files only on that disk.
+Compiling 2.4.17 on a Debian woody machine generates errors:
 
-anyway, i've recompiled 2.4.17 from a fresh source tree. until now, i
-haven't discovered any corrupted files of whoch i _know_ that they have to
-be corrupted since i used this kernel. so probably this was a problem of the
-preemption patch and reiserfs and large disks and via chipsets, but i'm not
-100% sure about this. the changelog for 2.4.17 mentioned some reiserfs
-fixes; are any of those related to corrupted files?
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o
+drivers/net/appletalk/appletalk.o drivers/ide/idedriver.o
+drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o
+drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o
+drivers/md/mddev.o \
+        net/network.o \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+/usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/usb/usbdrv.o: In function `alloc_uhci':
+drivers/usb/usbdrv.o(.text.init+0x363): undefined reference to
+`uhci_pci_remove'
+make: *** [vmlinux] Error 1
 
-bye
-christian ohm
+The same kernel tree builds fine under Debian potato & RH 7.x.
+
+This patch seems to fix it (also attached in case my email client screws
+up it up):
+
+diff -urN linux/drivers/usb/usb-uhci.c
+linux-2.4.17-modified/drivers/usb/usb-uhci.c
+--- linux/drivers/usb/usb-uhci.c        Fri Dec 21 11:41:55 2001
++++ linux-2.4.17-modified/drivers/usb/usb-uhci.c        Sat Dec 22
+22:10:27 2001
+@@ -3001,7 +3001,7 @@
+        s->irq = irq;
+
+        if(uhci_start_usb (s) < 0) {
+-               uhci_pci_remove(dev);
++               __devexit_p (uhci_pci_remove(dev));
+                return -1;
+        }
+
+The resulting kernel boots fine on a PII; there are no problems with
+hot-plugging USB devices.
+
+Marcelo, please consider for 2.4.18.
+
+
+Phil
+
+--=-DTSMJGfkh+oduYIxGq60
+Content-Disposition: attachment; filename=2.4.17-patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; charset=ISO-8859-1
+
+diff -urN linux/drivers/usb/usb-uhci.c linux-2.4.17-modified/drivers/usb/us=
+b-uhci.c
+--- linux/drivers/usb/usb-uhci.c	Fri Dec 21 11:41:55 2001
++++ linux-2.4.17-modified/drivers/usb/usb-uhci.c	Sat Dec 22 22:10:27 2001
+@@ -3001,7 +3001,7 @@
+ 	s->irq =3D irq;
+=20
+ 	if(uhci_start_usb (s) < 0) {
+-		uhci_pci_remove(dev);
++		__devexit_p (uhci_pci_remove(dev));
+ 		return -1;
+ 	}
+=20
+
+--=-DTSMJGfkh+oduYIxGq60--
 

@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVCHPOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVCHPRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVCHPOq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 10:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVCHPOq
+	id S261405AbVCHPRh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 10:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVCHPRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 10:14:46 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:26043 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261401AbVCHPOg (ORCPT
+	Tue, 8 Mar 2005 10:17:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44698 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261457AbVCHPRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 10:14:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jc13C0J13Q4ATaWl/GuipD8ewNgYlttYgRQBVSZOi5xqOlSwgIMOco+QVbKYlmftimi767X08p5M2VJDAK9eEwdQVEHz1W2khG/xKWHLJuBf3+LSvXhs+D6ZpkM6Z2th2413F+BWqeLqzuDY63aJSZr7JQfK4rwqehUXJaDSs/k=
-Message-ID: <d120d5000503080714ba3843d@mail.gmail.com>
-Date: Tue, 8 Mar 2005 10:14:32 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Henk Vergonet <rememberme@god.dyndns.org>
-Subject: Re: RFC: Harmonised parameter passing
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050308145923.GA9914@god.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 8 Mar 2005 10:17:08 -0500
+Message-ID: <422DC166.BFFF3CC0@redhat.com>
+Date: Tue, 08 Mar 2005 10:14:46 -0500
+From: Dave Anderson <anderson@redhat.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.49.4nmi_enterprise i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vivek goyal <vgoyal@in.ibm.com>
+CC: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       haren myneni <hbabu@us.ibm.com>, Maneesh Soni <maneesh@in.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Query: Kdump: Core Image ELF Format
+References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <20050308145923.GA9914@god.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 15:59:23 +0100, Henk Vergonet
-<rememberme@god.dyndns.org> wrote:
-> 
+vivek goyal wrote:
+
 > Hi,
-> 
-> The current method of parameter passing to drivers build as a module is extremely usefull.
-> Modules don't have to write there own parsing code, there's a nice macro that can be used to document specifics of the parameter and so on.
-> 
-> Could we extend this method where we use the same methodology for inbound drivers? (Currently a lot of drivers use their own parameter parsing code when it comes to passing values at kernel boot time.)
-> 
-> so we could do the regular:
-> 
->        insmod mcd io=0x340
-> 
-> for modules, or with kernel boot parameters:
-> 
->        mcd.io=0x340
-> 
-> for in-kernel drivers.
-> 
+>
+> Kdump (A kexec based crash dumping mechanism) is going to export the
+> kernel core image in ELF format. ELF was chosen as a format, keeping in
+> mind that gdb can be used for limited debugging and "Crash" can be used
+> for advanced debugging.
+>
+> Core image ELF headers are prepared before crash and stored at a safe
+> place in memory. These headers are retrieved over a kexec boot and final
+> elf core image is prepared for analysis.
+>
+> Given the fact physical memory can be dis-contiguous, One program header
+> of type PT_LOAD is created for every contiguous memory chunk present in
+> the system. Other information like register states etc. is captured in
+> notes section.
+>
+> Now the issue is, on i386, whether to prepare core headers in ELF32 or
+> ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
+> don't know about "crash". Can "crash" support ELF64 core image file for
+> i386 system?
+>
 
-Umm.. This is already done. For parameters defined with module_param()
-you use <paramname>=<value> for modules and
-<modulename>.<paramname>=<value> for built-in case.
+Not in its current state, but it can certainly be modified to do so.
+The embedded gdb module never is even aware of the vmcore file.
+(It is essentially executed as "gdb vmlinux").
 
-> My proposal would be to introduce something like:
-> 
-> DRIVER_PARM_DESC(variable, description);
-> DRIVER_PARM(variable, type, scope);
-> 
->    where scope can be:
->        PARM_SCOPE_MODULE       => This parameter is used in module context.
->        PARM_SCOPE_KERNEL       => This parameter is used in kernel context.
->        PARM_SCOPE_MODULE | PARM_SCOPE_KERNEL
->                                => This parameter is used in both kernel and module context, which should be the default if scope is omitted.
-> 
+And currently crash only expects a single PT_LOAD section, but
+that's due for a change.  It's been OK for its current set of supported
+processors to use sparse file space for non-existent memory,
+but it's kind of a pain with ia64's 256GB holes.
 
-Why would you want parameters that only work for modules? I'd consider
-it a bug, not a feature, when parameter works only when code is
-modularized.
+The point is that adapting crash to handle whatever format
+you come up with is the easy part of the whole equation.
 
--- 
-Dmitry
+>
+> Given the limitation of analysis tools, if core headers are prepared in
+> ELF32 format then how to handle PAE systems?
+>
+
+Are you asking about what would be the p_vaddr values for the higher
+memory segments?   FWIW, with the single-PT_LOAD segment currently
+supported by crash, there's only one p_vaddr, but in any case, crash doesn't
+use it, so PAE is not a problem.
+
+Dave Anderson
+
+
+>
+> Any thoughts or suggestions on this?
+>
+> Thanks
+> Vivek
+

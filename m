@@ -1,84 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264123AbTLJVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 16:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTLJVKA
+	id S264126AbTLJVMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTLJVMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 16:10:00 -0500
-Received: from mail.kroah.org ([65.200.24.183]:12009 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264123AbTLJVJ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 16:09:57 -0500
-Date: Wed, 10 Dec 2003 13:08:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
-       Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       mfedyk@matchmail.com, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Message-ID: <20031210210854.GA8724@kroah.com>
-References: <20031210153056.GA7087@kroah.com> <Pine.LNX.4.44L0.0312101212480.850-100000@ida.rowland.org> <20031210204621.GA8566@kroah.com>
-Mime-Version: 1.0
+	Wed, 10 Dec 2003 16:12:05 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44811
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S264126AbTLJVMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 16:12:00 -0500
+Date: Wed, 10 Dec 2003 13:05:57 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@osdl.org>, Maciej Zenczykowski <maze@cela.pl>,
+       David Schwartz <davids@webmaster.com>,
+       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Linux GPL and binary module exception clause?
+In-Reply-To: <Pine.LNX.4.58.0312102202090.30959@earth>
+Message-ID: <Pine.LNX.4.10.10312101300030.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031210204621.GA8566@kroah.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 12:46:21PM -0800, Greg KH wrote:
-> > Of course, if all you want to do is unload the module then it doesn't 
-> > matter which host is which.  You just have to wait until they are all 
-> > gone.
+
+Hi Ingo,
+
+I have and the lawyers tell me that it is one or the other and can not be
+both.  So explain to me how a GPL/BSD or BSD/GPL works again?
+
+Also if one does an md5sum on the "COPYING" file from FSF and compares it
+from the one in the kernel source they differ.
+
+Since the original version from FSF protects the content inside because it
+protects the shell of the file, bridge point to stating the kernel is w/o
+a license is relativily  easy.  I will have to re-read the "original
+COPYING" file from FSF for version 1 and version 2.
+
+Not sure but could the veil of GPL be now pierced because of the simple
+additions to the top of "COPYING" ?
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 10 Dec 2003, Ingo Molnar wrote:
+
 > 
-> Exactly, and that will happen, if we wait on that
-> class_device_unregister() call.  An example of how to do that can be
-> seen in the i2c_del_adapter() function in drivers/i2c/i2c-core.c.
+> On Wed, 10 Dec 2003, Andre Hedrick wrote:
+> 
+> > Then the trick is when does the license flip modes?
+> > Compile time?
+> > Execution time?
+> 
+> a license does not 'trigger' or 'flip'. Either the full source code is
+> licensed under the GPL (by the copyright holders) or not.
+> 
+> a given piece of code might be licensed under an infinite number of other
+> licenses as well, but this doesnt matter a bit, as long as the GPL is one
+> of them.
+> 
+> > This starts to become more fuzzy than I care to look at right now.
+> 
+> then ask a lawyer.
+> 
+> 	Ingo
+> 
 
-Ok, below is the patch.  I've only compile tested it, not run it yet.
-Please let me know if it works for you or not.
-
-thanks,
-
-greg k-h
-
-
-===== hcd.c 1.123 vs edited =====
---- 1.123/drivers/usb/core/hcd.c	Sun Dec  7 04:29:05 2003
-+++ edited/hcd.c	Wed Dec 10 13:06:19 2003
-@@ -588,6 +588,9 @@
- 
- 	if (bus->release)
- 		bus->release(bus);
-+	/* FIXME change this when the driver core gets the
-+	 * class_device_unregister_wait() call */
-+	complete(&bus->released);
- }
- 
- static struct class usb_host_class = {
-@@ -724,7 +727,11 @@
- 
- 	clear_bit (bus->busnum, busmap.busmap);
- 
-+	/* FIXME change this when the driver core gets the
-+	 * class_device_unregister_wait() call */
-+	init_completion(&bus->released);
- 	class_device_unregister(&bus->class_dev);
-+	wait_for_completion(&bus->released);
- }
- EXPORT_SYMBOL (usb_deregister_bus);
- 
-===== usb.h 1.164 vs edited =====
---- 1.164/include/linux/usb.h	Mon Oct  6 10:46:13 2003
-+++ edited/usb.h	Wed Dec 10 13:07:27 2003
-@@ -210,6 +210,8 @@
- 
- 	struct class_device class_dev;	/* class device for this bus */
- 	void (*release)(struct usb_bus *bus);	/* function to destroy this bus's memory */
-+	/* FIXME, remove this when the driver core gets class_device_unregister_wait */
-+	struct completion released;
- };
- #define	to_usb_bus(d) container_of(d, struct usb_bus, class_dev)
- 

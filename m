@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTFXK74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 06:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFXK74
+	id S261919AbTFXK61 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFXK61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 06:59:56 -0400
-Received: from almesberger.net ([63.105.73.239]:13574 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261928AbTFXK7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 06:59:54 -0400
-Date: Tue, 24 Jun 2003 08:13:19 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, John Coffman <johninsd@san.rr.com>
-Subject: Re: Kernel & BIOS return differing head/sector geometries
-Message-ID: <20030624081319.G1326@almesberger.net>
-References: <20030624010906.08ad32f3.ktech@wanadoo.es> <20030624013908.B1133@pclin040.win.tue.nl> <bd8hgj$cas$1@cesium.transmeta.com> <20030624012220.E1418@almesberger.net> <3EF7D33E.6060009@zytor.com>
+	Tue, 24 Jun 2003 06:58:27 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:50692 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S261919AbTFXK50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:57:26 -0400
+Date: Tue, 24 Jun 2003 13:11:38 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel@vger.kernel.org
+Cc: willy@w.ods.org, marcelo@conectiva.com.br, kpfleming@cox.net,
+       stoffel@lucent.com, gibbs@scsiguy.com, green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030624131138.249fb7df.skraw@ithnet.com>
+In-Reply-To: <20030623133053.30d6cb88.skraw@ithnet.com>
+References: <20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+	<20030611222346.0a26729e.skraw@ithnet.com>
+	<16103.39056.810025.975744@gargle.gargle.HOWL>
+	<20030613114531.2b7235e7.skraw@ithnet.com>
+	<20030621105019.GA834@pcw.home.local>
+	<20030623133053.30d6cb88.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF7D33E.6060009@zytor.com>; from hpa@zytor.com on Mon, Jun 23, 2003 at 09:27:42PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Presumably "linear", not "lba32".  I *presume* LILO has enough 
-> wherewithal to use EBIOS if it's available and fall back to CBIOS 
-> otherwise for at least one of these options.  I at least thought "lba32" 
-> would force EBIOS usage.
+Hello all, hello Willy,
 
-Yes, that seems to be the case. (All the LBA32 code is from John
-Coffman. I've copied him in case he's interested in the thread.)
-But you're still betting on the BIOS to either implement EDD
-correctly, or at least to report that it doesn't support it.
+I tried to produce the problem by using your chkblk tool, but was not
+successful up to now. All checksums are the same. Is it possible that the
+problem lies deeper in the process than expected. Remember I do:
 
-Call me paranoid, but I wouldn't be at all surprised if there are
-some BIOSes out there that get this wrong.
+copy data via NFS to server
+tar data on server to tape
+read data back vor verification with tar -d
 
-- Werner
+Is it possible that the verification errors do not occur because of a read
+problem, but because of a page cached block getting trashed somehow between
+"tar to tape" and "read from tape". I would suspect that some blocks survive in
+memory and are re-used during verification. If for some reason this data is
+invalid or corrupted the verification fails although the read was correct.
+I know that this sounds weird, but nevertheless possible, or not?
+It may even be worse, the data may have also been left from the original nfs
+action, correct?
+Is there a way to completely invalidate/flush all cached blocks concerning this
+fs (besides umount)?
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Regards,
+Stephan

@@ -1,130 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265834AbTGDHmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 03:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbTGDHmZ
+	id S265835AbTGDHrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 03:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbTGDHrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 03:42:25 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:2509 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S265834AbTGDHmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 03:42:22 -0400
-Date: Fri, 4 Jul 2003 10:00:20 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 4 Jul 2003 03:47:12 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:60684 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265835AbTGDHrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 03:47:11 -0400
+Date: Fri, 4 Jul 2003 03:50:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
+       zboszor@freemail.hu, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.74-mm1
-Message-ID: <20030704080020.GA703@gmx.de>
-References: <20030703023714.55d13934.akpm@osdl.org> <20030703103703.GA4266@gmx.de> <20030703120626.D15013@flint.arm.linux.org.uk> <20030703151529.B20336@flint.arm.linux.org.uk> <20030703214921.GM4266@gmx.de> <20030703231401.G20336@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-In-Reply-To: <20030703231401.G20336@flint.arm.linux.org.uk>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.5.73-bk7-O1int0307010949 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.53.0307040307090.24383@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.53.0307040346310.24383@montezuma.mastecende.com>
+References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu>
+ <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no>
+ <20030703141508.796e4b82.akpm@osdl.org> <20030704055315.GW26348@holomorphy.com>
+ <Pine.LNX.4.53.0307040307090.24383@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jul 2003, Zwane Mwaikambo wrote:
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The second one is correct. So one definite failing piece of code was in 
+> the cpus_or() path, i'm not so sure about the others. I have attached the 
+> test case. Bill says his gcc 3.3 works...
 
-On Thu, Jul 03, 2003 at 11:14:01PM +0100, Russell King wrote:
-> On Thu, Jul 03, 2003 at 11:49:21PM +0200, Wiktor Wodecki wrote:
-> > On Thu, Jul 03, 2003 at 03:15:29PM +0100, Russell King wrote:
-> > > Ok, Wiktor has tried removing these 6 patches, and his problem persis=
-ts.
-> > > According to bk revtool, these 6 patches are the only changes which
-> > > went in for to pcmcia from .73 to .74.
-> > >=20
-> > > If anyone else is having similar problems, they need to report them so
-> > > we can obtain more data points - I suspect some other change in some =
-other
-> > > subsystem broke PCMCIA for Wiktor.
-> > >=20
-> > > Wiktor - short of anyone else responding, you could try reversing each
-> > > of the nightly -bk patches from .74 to .73 and work out which set of
-> > > changes broke it.
-> >=20
-> > it broke with the 2.5.73-rc2 patch. I assume it was:
->=20
-> Ok, looking at the -bk1-bk2 incremental patch, there's a couple of
-> possibilities:
->=20
-> - changes to the x86 PCI code
-> - changes to yenta_socket.c to add different overrides
-> - add burst support to yenta_socket.c for TI bridges
-> - add ISA interrupt routing work-around for TI bridges
->=20
-> I think the number one suspect is probably the final one.  Could you try
-> reversing this patch please?
+Uninlining bitmap_or fixes the test case with -O2 Could you try the 
+following patch with your kernels?
 
-gotcha, with this one reverted 2.5.73-bk2 boots up fine
+--- linux-2.5.74-cpumask/include/linux/bitmap.h.orig	2003-07-04 03:48:22.746229592 -0400
++++ linux-2.5.74-cpumask/include/linux/bitmap.h	2003-07-04 03:49:39.606545048 -0400
+@@ -100,7 +100,7 @@
+ 	bitmap_copy(dst, __shl_tmp, bits);
+ }
+ 
+-static inline void bitmap_and(volatile unsigned long *dst, const volatile unsigned long *bitmap1, const volatile unsigned long *bitmap2, int bits)
++static void bitmap_and(volatile unsigned long *dst, const volatile unsigned long *bitmap1, const volatile unsigned long *bitmap2, int bits)
+ {
+ 	int k;
+ 
+@@ -108,7 +108,7 @@
+ 		dst[k] = bitmap1[k] & bitmap2[k];
+ }
+ 
+-static inline void bitmap_or(volatile unsigned long *dst, const volatile unsigned long *bitmap1, const volatile unsigned long *bitmap2, int bits)
++static void bitmap_or(volatile unsigned long *dst, const volatile unsigned long *bitmap1, const volatile unsigned long *bitmap2, int bits)
+ {
+ 	int k;
+ 
 
->=20
-> diff -urN linux-2.5.73-bk1/drivers/pcmcia/ti113x.h linux-2.5.73-bk2/drive=
-rs/pcmcia/ti113x.h
-> --- linux-2.5.73-bk1/drivers/pcmcia/ti113x.h	2003-06-22 11:32:41.00000000=
-0 -0700
-> +++ linux-2.5.73-bk2/drivers/pcmcia/ti113x.h	2003-06-24 13:06:59.00000000=
-0 -0700
-> @@ -175,6 +175,27 @@
->  	new =3D reg & ~I365_INTR_ENA;
->  	if (new !=3D reg)
->  		exca_writeb(socket, I365_INTCTL, new);
-> +
-> +	/*
-> +	 * If ISA interrupts don't work, then fall back to routing card
-> +	 * interrupts to the PCI interrupt of the socket.
-> +	 */
-> +	if (!socket->socket.irq_mask) {
-> +		int irqmux, devctl;
-> +
-> +		printk (KERN_INFO "ti113x: Routing card interrupts to PCI\n");
-> +
-> +		devctl =3D config_readb(socket, TI113X_DEVICE_CONTROL);
-> +		devctl &=3D ~TI113X_DCR_IMODE_MASK;
-> +
-> +		irqmux =3D config_readl(socket, TI122X_IRQMUX);
-> +		irqmux =3D (irqmux & ~0x0f) | 0x02; /* route INTA */
-> +		irqmux =3D (irqmux & ~0xf0) | 0x20; /* route INTB */
-> +
-> +		config_writel(socket, TI122X_IRQMUX, irqmux);
-> +		config_writeb(socket, TI113X_DEVICE_CONTROL, devctl);
-> +	}
-> +
->  	socket->socket.ss_entry->init =3D ti_init;
->  	return 0;
->  }
->=20
->=20
->=20
-> --=20
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM L=
-inux
->              http://www.arm.linux.org.uk/personal/aboutme.html
-
---=20
-Regards,
-
-Wiktor Wodecki
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/BTQU6SNaNRgsl4MRAhkSAJsEVSBD03mCBm7zJ+MmyRvQISgLUQCffGcm
-CSRnCsouI+PApNFItqR0qRo=
-=Htqx
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
+-- 
+function.linuxpower.ca

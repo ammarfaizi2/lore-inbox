@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265790AbUFWQSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265802AbUFWQVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265790AbUFWQSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 12:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265786AbUFWQSr
+	id S265802AbUFWQVT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 12:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266113AbUFWQTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 12:18:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57348 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266372AbUFWQKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 12:10:43 -0400
-Date: Wed, 23 Jun 2004 17:10:33 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Matt Porter <mporter@kernel.crashing.org>,
-       Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-       david-b@pacbell.net, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-ID: <20040623171033.F27549@flint.arm.linux.org.uk>
-Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-	linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-	david-b@pacbell.net, joshua@joshuawise.com
-References: <s5hoendm3td.wl@alsa2.suse.de> <20040622000838.B7802@flint.arm.linux.org.uk> <40D7941F.3020909@pobox.com> <Pine.LNX.4.58.0406212006270.6530@ppc970.osdl.org> <Pine.LNX.4.58.0406212024550.6530@ppc970.osdl.org> <s5hfz8nnadu.wl@alsa2.suse.de> <20040623133423.B27549@flint.arm.linux.org.uk> <s5hbrjajnfq.wl@alsa2.suse.de> <20040623164419.E27549@flint.arm.linux.org.uk> <s5h7jtyjmbj.wl@alsa2.suse.de>
+	Wed, 23 Jun 2004 12:19:16 -0400
+Received: from www.nute.net ([66.221.212.1]:33676 "EHLO mail.nute.net")
+	by vger.kernel.org with ESMTP id S265802AbUFWQOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 12:14:48 -0400
+Date: Wed, 23 Jun 2004 16:14:47 +0000
+From: Mikael Bouillot <xaajimri@corbac.com>
+To: linux-kernel@vger.kernel.org
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: Re: Forcedeth driver bug
+Message-ID: <20040623161447.GB11348@mail.nute.net>
+References: <20040623142936.GA10440@mail.nute.net> <40D99A08.90707@ThinRope.net> <40D9A857.5040901@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <s5h7jtyjmbj.wl@alsa2.suse.de>; from tiwai@suse.de on Wed, Jun 23, 2004 at 06:01:04PM +0200
+In-Reply-To: <40D9A857.5040901@gmx.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 06:01:04PM +0200, Takashi Iwai wrote:
-> At Wed, 23 Jun 2004 16:44:19 +0100,
-> Russell King wrote:
-> > 
-> > On Wed, Jun 23, 2004 at 05:36:57PM +0200, Takashi Iwai wrote:
-> > > > and a similar one for the ARM-specific "write combining" case (for
-> > > > framebuffers utilising the DMA API)?
-> > > 
-> > > pgprot_noncached() is used on many other architectures in fbmem.c
-> > > (well, not really, but the result is identical).
-> > > Should it be provided as another one, or is it used as default in
-> > > dma_mmap_coherent()?
-> > 
-> > The whole point is to kill the idea that drivers should have to know
-> > about page protection crap.  That should be wholely contained within
-> > the architecture implementation.
+> Are you sure both come back? If so, what does dmesg say during this time?
+> Is the system in question under heavy load?
 > 
-> I agree.  My question is whether we need to handle different cases
-> with cached, non-cached and writecombine, according to the demand of
-> the driver.  In other words, do we always handle these mmap pages to
-> be non-cached (except for writecombine version)?
+> Can you confirm that the ping packet got stuck in the receive path or
+> could the associated pong reply have gotten stuck in the send path?
 
-No - the driver should have _zero_ visibility of this.  The only time
-the cache property comes in is where the architecture needs to alter
-these properties to achieve the requirements of the interface - IOW
-to provide user space with a DMA-coherent mapping.
+  A tcpdump at the remote end shows the packet leaving, but a tcpdump at
+the local side doesn't show it until the next packet arrives. I tried
+this on a system running nothing but tcpdump, but the network load is
+high (ping sends packets as soon as the previous reply comes back).
 
-Remember that some architectures are unable to disable caching on a
-page by page basis, yet may be able to offer fully-cached DMA coherent
-mmaps, and therefore such driver interference is wrong.
+
+> It could be a weird interaction with interrupt mitigation, but I doubt it.
+> Nobody has ever mailed me about such problems with the driver.
+
+  Another note: I run my 2.6.7 with Local APIC and IO-APIC. Maybe that
+has to do with interrupt problems. I will try reverting to the older PIC
+during further testing to see if that has an effect on things.
+
+
+> forcedeth_gigabit_try19.txt is the most recent one.
+> Changes against try17:
+> - fix compilation warnings and rename the Kconfig entry
+> 
+> Get it at
+> http://www.hailfinger.org/carldani/linux/patches/forcedeth/
+> and please report if it fixes your problem.
+
+  OK, I'll do that.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!

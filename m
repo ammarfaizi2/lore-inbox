@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbSLMEf4>; Thu, 12 Dec 2002 23:35:56 -0500
+	id <S261338AbSLMEjI>; Thu, 12 Dec 2002 23:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbSLMEf4>; Thu, 12 Dec 2002 23:35:56 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:28831 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261330AbSLMEfu>;
-	Thu, 12 Dec 2002 23:35:50 -0500
-Date: Fri, 13 Dec 2002 15:43:32 +1100
+	id <S261349AbSLMEjI>; Thu, 12 Dec 2002 23:39:08 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:53663 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261338AbSLMEiz>;
+	Thu, 12 Dec 2002 23:38:55 -0500
+Date: Fri, 13 Dec 2002 15:46:39 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: ak@muc.de
+To: schwidefsky@de.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] consolidate sys32_new[lf]stat - x86_64
-Message-Id: <20021213154332.049bd6b5.sfr@canb.auug.org.au>
+Subject: [PATCH][COMPAT] consolidate sys32_new[lf]stat - s390x
+Message-Id: <20021213154639.44905ba2.sfr@canb.auug.org.au>
 In-Reply-To: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
 References: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
@@ -21,18 +21,42 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+Hi Martin,
 
-Here is the x86_64 part of the patch.
+This is the s390x part of the patch.
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/ia32_ioctl.c 2.5.51-32bit.2/arch/x86_64/ia32/ia32_ioctl.c
---- 2.5.51-32bit.1/arch/x86_64/ia32/ia32_ioctl.c	2002-12-10 15:26:49.000000000 +1100
-+++ 2.5.51-32bit.2/arch/x86_64/ia32/ia32_ioctl.c	2002-12-13 14:44:57.000000000 +1100
-@@ -1909,9 +1909,9 @@
+diff -ruN 2.5.51-32bit.1/arch/s390x/kernel/entry.S 2.5.51-32bit.2/arch/s390x/kernel/entry.S
+--- 2.5.51-32bit.1/arch/s390x/kernel/entry.S	2002-12-10 17:05:19.000000000 +1100
++++ 2.5.51-32bit.2/arch/s390x/kernel/entry.S	2002-12-13 14:55:35.000000000 +1100
+@@ -482,9 +482,9 @@
+         .long  SYSCALL(sys_syslog,sys32_syslog_wrapper)
+         .long  SYSCALL(sys_setitimer,compat_sys_setitimer_wrapper)
+         .long  SYSCALL(sys_getitimer,compat_sys_getitimer_wrapper)   /* 105 */
+-        .long  SYSCALL(sys_newstat,sys32_newstat_wrapper)
+-        .long  SYSCALL(sys_newlstat,sys32_newlstat_wrapper)
+-        .long  SYSCALL(sys_newfstat,sys32_newfstat_wrapper)
++        .long  SYSCALL(sys_newstat,compat_sys_newstat_wrapper)
++        .long  SYSCALL(sys_newlstat,compat_sys_newlstat_wrapper)
++        .long  SYSCALL(sys_newfstat,compat_sys_newfstat_wrapper)
+         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* old uname syscall */
+         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* iopl for i386 */
+         .long  SYSCALL(sys_vhangup,sys_vhangup)
+diff -ruN 2.5.51-32bit.1/arch/s390x/kernel/ioctl32.c 2.5.51-32bit.2/arch/s390x/kernel/ioctl32.c
+--- 2.5.51-32bit.1/arch/s390x/kernel/ioctl32.c	2002-12-10 15:26:49.000000000 +1100
++++ 2.5.51-32bit.2/arch/s390x/kernel/ioctl32.c	2002-12-12 14:05:42.000000000 +1100
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/types.h>
++#include <linux/compat.h>
+ #include <linux/kernel.h>
+ #include <linux/fs.h>
+ #include <linux/sched.h>
+@@ -378,9 +379,9 @@
  
  struct loop_info32 {
  	int			lo_number;      /* ioctl r/o */
@@ -44,200 +68,165 @@ diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/ia32_ioctl.c 2.5.51-32bit.2/arch/x86_6
  	int			lo_offset;
  	int			lo_encrypt_type;
  	int			lo_encrypt_key_size;    /* ioctl w/o */
-@@ -2116,7 +2116,7 @@
- 	set_fs(old_fs);
- 
- 	if (err >= 0)
--		err = put_user(kuid, (__kernel_uid_t32 *)arg);
-+		err = put_user(kuid, (compat_pid_t *)arg);
- 
- 	return err;
- }
-@@ -3487,7 +3487,7 @@
- 
- struct dirent32 {
- 	unsigned int		d_ino;
--	__kernel_off_t32	d_off;
-+	compat_off_t	d_off;
- 	unsigned short	d_reclen;
- 	char		d_name[256]; /* We must not include limits.h! */
+diff -ruN 2.5.51-32bit.1/arch/s390x/kernel/linux32.c 2.5.51-32bit.2/arch/s390x/kernel/linux32.c
+--- 2.5.51-32bit.1/arch/s390x/kernel/linux32.c	2002-12-10 17:05:51.000000000 +1100
++++ 2.5.51-32bit.2/arch/s390x/kernel/linux32.c	2002-12-13 14:44:28.000000000 +1100
+@@ -268,7 +268,7 @@
+         __kernel_gid32_t        gid;
+         __kernel_uid32_t        cuid;
+         __kernel_gid32_t        cgid;
+-        __kernel_mode_t32       mode;
++        compat_mode_t       mode;
+         unsigned short          __pad1;
+         unsigned short          seq;
+         unsigned short          __pad2;
+@@ -279,11 +279,11 @@
+ struct ipc_perm32
+ {
+ 	key_t    	  key;
+-        __kernel_uid_t32  uid;
+-        __kernel_gid_t32  gid;
+-        __kernel_uid_t32  cuid;
+-        __kernel_gid_t32  cgid;
+-        __kernel_mode_t32 mode;
++        compat_uid_t  uid;
++        compat_gid_t  gid;
++        compat_uid_t  cuid;
++        compat_gid_t  cgid;
++        compat_mode_t mode;
+         unsigned short  seq;
  };
-@@ -4937,7 +4937,7 @@
- HANDLE_IOCTL(VIDIOCGFREQ32, do_video_ioctl)
- HANDLE_IOCTL(VIDIOCSFREQ32, do_video_ioctl)
- /* One SMB ioctl needs translations. */
--#define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, __kernel_uid_t32)
-+#define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, compat_pid_t)
- HANDLE_IOCTL(SMB_IOC_GETMOUNTUID_32, do_smb_getmountuid)
- HANDLE_IOCTL(ATM_GETLINKRATE32, do_atm_ioctl)
- HANDLE_IOCTL(ATM_GETNAMES32, do_atm_ioctl)
-diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/ia32entry.S 2.5.51-32bit.2/arch/x86_64/ia32/ia32entry.S
---- 2.5.51-32bit.1/arch/x86_64/ia32/ia32entry.S	2002-12-10 17:07:24.000000000 +1100
-+++ 2.5.51-32bit.2/arch/x86_64/ia32/ia32entry.S	2002-12-13 14:57:15.000000000 +1100
-@@ -227,9 +227,9 @@
- 	.quad sys_syslog
- 	.quad compat_sys_setitimer
- 	.quad compat_sys_getitimer	/* 105 */
--	.quad sys32_newstat
--	.quad sys32_newlstat
--	.quad sys32_newfstat
-+	.quad compat_sys_newstat
-+	.quad compat_sys_newlstat
-+	.quad compat_sys_newfstat
- 	.quad sys32_uname
- 	.quad stub32_iopl		/* 110 */
- 	.quad sys_vhangup
-diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/ipc32.c 2.5.51-32bit.2/arch/x86_64/ia32/ipc32.c
---- 2.5.51-32bit.1/arch/x86_64/ia32/ipc32.c	2002-12-10 15:26:49.000000000 +1100
-+++ 2.5.51-32bit.2/arch/x86_64/ia32/ipc32.c	2002-12-12 13:43:57.000000000 +1100
-@@ -30,10 +30,10 @@
  
- struct ipc_perm32 {
- 	int key;
--	__kernel_uid_t32 uid;
--	__kernel_gid_t32 gid;
--	__kernel_uid_t32 cuid;
--	__kernel_gid_t32 cgid;
-+	compat_uid_t uid;
-+	compat_gid_t gid;
-+	compat_uid_t cuid;
-+	compat_gid_t cgid;
- 	unsigned short mode;
- 	unsigned short seq;
- };
-@@ -101,8 +101,8 @@
- 	unsigned int msg_cbytes;
- 	unsigned int msg_qnum;
- 	unsigned int msg_qbytes;
+@@ -337,8 +337,8 @@
+ 	unsigned int  msg_cbytes;
+ 	unsigned int  msg_qnum;
+ 	unsigned int  msg_qbytes;
 -	__kernel_pid_t32 msg_lspid;
 -	__kernel_pid_t32 msg_lrpid;
 +	compat_pid_t msg_lspid;
 +	compat_pid_t msg_lrpid;
- 	unsigned int __unused4;
- 	unsigned int __unused5;
+ 	unsigned int  __unused1;
+ 	unsigned int  __unused2;
  };
-@@ -127,8 +127,8 @@
- 	unsigned int __unused2;
- 	compat_time_t shm_ctime;
- 	unsigned int __unused3;
--	__kernel_pid_t32 shm_cpid;
--	__kernel_pid_t32 shm_lpid;
-+	compat_pid_t shm_cpid;
-+	compat_pid_t shm_lpid;
- 	unsigned int shm_nattch;
- 	unsigned int __unused4;
- 	unsigned int __unused5;
-diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.51-32bit.2/arch/x86_64/ia32/sys_ia32.c
---- 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c	2002-12-10 17:07:52.000000000 +1100
-+++ 2.5.51-32bit.2/arch/x86_64/ia32/sys_ia32.c	2002-12-13 14:45:03.000000000 +1100
-@@ -86,10 +86,9 @@
- extern int overflowuid,overflowgid; 
- 
- 
--static int
--putstat(struct stat32 *ubuf, struct stat *kbuf)
-+int cp_compat_stat(struct kstat *kbuf, struct compat_stat *ubuf)
- {
--	if (verify_area(VERIFY_WRITE, ubuf, sizeof(struct stat32)) ||
-+	if (verify_area(VERIFY_WRITE, ubuf, sizeof(struct compat_stat)) ||
- 	    __put_user (kbuf->st_dev, &ubuf->st_dev) ||
- 	    __put_user (kbuf->st_ino, &ubuf->st_ino) ||
- 	    __put_user (kbuf->st_mode, &ubuf->st_mode) ||
-@@ -107,57 +106,6 @@
- 	return 0;
+@@ -364,8 +364,8 @@
+ 	unsigned int		__unused2;
+ 	compat_time_t  	shm_ctime;
+ 	unsigned int		__unused3;
+-	__kernel_pid_t32	shm_cpid;
+-	__kernel_pid_t32	shm_lpid;
++	compat_pid_t	shm_cpid;
++	compat_pid_t	shm_lpid;
+ 	unsigned int		shm_nattch;
+ 	unsigned int		__unused4;
+ 	unsigned int		__unused5;
+@@ -1393,7 +1393,7 @@
+ 	return ret;
  }
  
--extern asmlinkage long sys_newstat(char * filename, struct stat * statbuf);
--
--asmlinkage long
--sys32_newstat(char * filename, struct stat32 *statbuf)
--{
--	int ret;
--	struct stat s;
--	mm_segment_t old_fs = get_fs();
--	
--	set_fs (KERNEL_DS);
--	ret = sys_newstat(filename, &s);
--	set_fs (old_fs);
--	if (putstat (statbuf, &s))
--		return -EFAULT;
--	return ret;
--}
--
--extern asmlinkage long sys_newlstat(char * filename, struct stat * statbuf);
--
--asmlinkage long
--sys32_newlstat(char * filename, struct stat32 *statbuf)
--{
--	int ret;
--	struct stat s;
--	mm_segment_t old_fs = get_fs();
--	
--	set_fs (KERNEL_DS);
--	ret = sys_newlstat(filename, &s);
--	set_fs (old_fs);
--	if (putstat (statbuf, &s))
--		return -EFAULT;
--	return ret;
--}
--
--extern asmlinkage long sys_newfstat(unsigned int fd, struct stat * statbuf);
--
--asmlinkage long
--sys32_newfstat(unsigned int fd, struct stat32 *statbuf)
--{
--	int ret;
--	struct stat s;
--	mm_segment_t old_fs = get_fs();
--	
--	set_fs (KERNEL_DS);
--	ret = sys_newfstat(fd, &s);
--	set_fs (old_fs);
--	if (putstat (statbuf, &s))
--		return -EFAULT;
--	return ret;
--}
--
- /* Another set for IA32/LFS -- x86_64 struct stat is different due to 
-    support for 64bit inode numbers. */
+-static int cp_new_stat32(struct kstat *stat, struct stat32 *statbuf)
++int cp_compat_stat(struct kstat *stat, struct compat_stat *statbuf)
+ {
+ 	int err;
  
-@@ -1062,7 +1010,7 @@
- 				int options, struct rusage * ru);
+@@ -1420,39 +1420,6 @@
+ 	return err;
+ }
  
- asmlinkage long
--sys32_wait4(__kernel_pid_t32 pid, unsigned int *stat_addr, int options,
-+sys32_wait4(compat_pid_t pid, unsigned int *stat_addr, int options,
- 	    struct rusage32 *ru)
+-asmlinkage int sys32_newstat(char * filename, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_stat(filename, &stat);
+-
+-	if (!error)
+-		error = cp_new_stat32(&stat, statbuf);
+-
+-	return error;
+-}
+-
+-asmlinkage int sys32_newlstat(char * filename, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_lstat(filename, &stat);
+-
+-	if (!error)
+-		error = cp_new_stat32(&stat, statbuf);
+-
+-	return error;
+-}
+-
+-asmlinkage int sys32_newfstat(unsigned int fd, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_fstat(fd, &stat);
+-
+-	if (!error)
+-		error = cp_new_stat32(&stat, statbuf);
+-
+-	return error;
+-}
+-
+ extern asmlinkage int sys_sysfs(int option, unsigned long arg1, unsigned long arg2);
+ 
+ asmlinkage int sys32_sysfs(int option, u32 arg1, u32 arg2)
+@@ -1463,16 +1430,16 @@
+ struct ncp_mount_data32 {
+         int version;
+         unsigned int ncp_fd;
+-        __kernel_uid_t32 mounted_uid;
+-        __kernel_pid_t32 wdog_pid;
++        compat_uid_t mounted_uid;
++        compat_pid_t wdog_pid;
+         unsigned char mounted_vol[NCP_VOLNAME_LEN + 1];
+         unsigned int time_out;
+         unsigned int retry_count;
+         unsigned int flags;
+-        __kernel_uid_t32 uid;
+-        __kernel_gid_t32 gid;
+-        __kernel_mode_t32 file_mode;
+-        __kernel_mode_t32 dir_mode;
++        compat_uid_t uid;
++        compat_gid_t gid;
++        compat_mode_t file_mode;
++        compat_mode_t dir_mode;
+ };
+ 
+ static void *do_ncp_super_data_conv(void *raw_data)
+@@ -1492,11 +1459,11 @@
+ 
+ struct smb_mount_data32 {
+         int version;
+-        __kernel_uid_t32 mounted_uid;
+-        __kernel_uid_t32 uid;
+-        __kernel_gid_t32 gid;
+-        __kernel_mode_t32 file_mode;
+-        __kernel_mode_t32 dir_mode;
++        compat_uid_t mounted_uid;
++        compat_uid_t uid;
++        compat_gid_t gid;
++        compat_mode_t file_mode;
++        compat_mode_t dir_mode;
+ };
+ 
+ static void *do_smb_super_data_conv(void *raw_data)
+@@ -1655,7 +1622,7 @@
+ 	return err;
+ }
+ 
+-asmlinkage int sys32_wait4(__kernel_pid_t32 pid, unsigned int *stat_addr, int options, struct rusage32 *ru)
++asmlinkage int sys32_wait4(compat_pid_t pid, unsigned int *stat_addr, int options, struct rusage32 *ru)
  {
  	if (!ru)
-@@ -1084,7 +1032,7 @@
- }
+ 		return sys_wait4(pid, stat_addr, options, NULL);
+@@ -1717,7 +1684,7 @@
  
- asmlinkage long
--sys32_waitpid(__kernel_pid_t32 pid, unsigned int *stat_addr, int options)
-+sys32_waitpid(compat_pid_t pid, unsigned int *stat_addr, int options)
- {
- 	return sys32_wait4(pid, stat_addr, options, NULL);
- }
-@@ -1326,7 +1274,7 @@
- 						struct timespec *interval);
+ extern asmlinkage int sys_sched_rr_get_interval(pid_t pid, struct timespec *interval);
  
- asmlinkage long
--sys32_sched_rr_get_interval(__kernel_pid_t32 pid, struct compat_timespec *interval)
-+sys32_sched_rr_get_interval(compat_pid_t pid, struct compat_timespec *interval)
+-asmlinkage int sys32_sched_rr_get_interval(__kernel_pid_t32 pid,
++asmlinkage int sys32_sched_rr_get_interval(compat_pid_t pid,
+ 		struct compat_timespec *interval)
  {
  	struct timespec t;
- 	int ret;
-@@ -1686,7 +1634,7 @@
- 				       size_t count); 
- 
- asmlinkage long
--sys32_sendfile(int out_fd, int in_fd, __kernel_off_t32 *offset, s32 count)
-+sys32_sendfile(int out_fd, int in_fd, compat_off_t *offset, s32 count)
- {
- 	mm_segment_t old_fs = get_fs();
- 	int ret;
-@@ -2030,27 +1978,27 @@
+@@ -3253,27 +3220,27 @@
  struct nfsctl_export32 {
  	s8			ex32_client[NFSCLNT_IDMAX+1];
  	s8			ex32_path[NFS_MAXPATHLEN+1];
@@ -248,18 +237,18 @@ diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.51-32bit.2/arch/x86_64/
  	s32			ex32_flags;
 -	__kernel_uid_t32	ex32_anon_uid;
 -	__kernel_gid_t32	ex32_anon_gid;
-+	compat_pid_t	ex32_anon_uid;
++	compat_uid_t	ex32_anon_uid;
 +	compat_gid_t	ex32_anon_gid;
  };
  
  struct nfsctl_uidmap32 {
  	u32			ug32_ident;   /* char * */
 -	__kernel_uid_t32	ug32_uidbase;
-+	compat_pid_t	ug32_uidbase;
++	compat_uid_t	ug32_uidbase;
  	s32			ug32_uidlen;
  	u32			ug32_udimap;  /* uid_t * */
 -	__kernel_uid_t32	ug32_gidbase;
-+	compat_pid_t	ug32_gidbase;
++	compat_uid_t	ug32_gidbase;
  	s32			ug32_gidlen;
  	u32			ug32_gdimap;  /* gid_t * */
  };
@@ -273,16 +262,16 @@ diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.51-32bit.2/arch/x86_64/
  	s32			gf32_version;
  };
  
-@@ -2179,7 +2127,7 @@
+@@ -3402,7 +3369,7 @@
  		return -ENOMEM;
  	for(i = 0; i < karg->ca_umap.ug_uidlen; i++)
  		err |= __get_user(karg->ca_umap.ug_udimap[i],
 -			      &(((__kernel_uid_t32 *)A(uaddr))[i]));
-+			      &(((compat_pid_t *)A(uaddr))[i]));
++			      &(((compat_uid_t *)A(uaddr))[i]));
  	err |= __get_user(karg->ca_umap.ug_gidbase,
  		      &arg32->ca32_umap.ug32_gidbase);
  	err |= __get_user(karg->ca_umap.ug_uidlen,
-@@ -2193,7 +2141,7 @@
+@@ -3416,7 +3383,7 @@
  		return -ENOMEM;
  	for(i = 0; i < karg->ca_umap.ug_gidlen; i++)
  		err |= __get_user(karg->ca_umap.ug_gdimap[i],
@@ -291,9 +280,142 @@ diff -ruN 2.5.51-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.51-32bit.2/arch/x86_64/
  
  	return err;
  }
-diff -ruN 2.5.51-32bit.1/include/asm-x86_64/compat.h 2.5.51-32bit.2/include/asm-x86_64/compat.h
---- 2.5.51-32bit.1/include/asm-x86_64/compat.h	2002-12-10 16:38:26.000000000 +1100
-+++ 2.5.51-32bit.2/include/asm-x86_64/compat.h	2002-12-12 16:52:38.000000000 +1100
+@@ -3680,7 +3647,7 @@
+ 
+ extern asmlinkage ssize_t sys_sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
+ 
+-asmlinkage int sys32_sendfile(int out_fd, int in_fd, __kernel_off_t32 *offset, s32 count)
++asmlinkage int sys32_sendfile(int out_fd, int in_fd, compat_off_t *offset, s32 count)
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	int ret;
+@@ -4147,7 +4114,7 @@
+ extern asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
+ 					    unsigned long *user_mask_ptr);
+ 
+-asmlinkage int sys32_sched_setaffinity(__kernel_pid_t32 pid, unsigned int len,
++asmlinkage int sys32_sched_setaffinity(compat_pid_t pid, unsigned int len,
+ 				       u32 *user_mask_ptr)
+ {
+ 	unsigned long kernel_mask;
+@@ -4171,7 +4138,7 @@
+ extern asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
+ 					    unsigned long *user_mask_ptr);
+ 
+-asmlinkage int sys32_sched_getaffinity(__kernel_pid_t32 pid, unsigned int len,
++asmlinkage int sys32_sched_getaffinity(compat_pid_t pid, unsigned int len,
+ 				       u32 *user_mask_ptr)
+ {
+ 	unsigned long kernel_mask;
+diff -ruN 2.5.51-32bit.1/arch/s390x/kernel/linux32.h 2.5.51-32bit.2/arch/s390x/kernel/linux32.h
+--- 2.5.51-32bit.1/arch/s390x/kernel/linux32.h	2002-12-10 15:40:49.000000000 +1100
++++ 2.5.51-32bit.2/arch/s390x/kernel/linux32.h	2002-12-12 16:11:15.000000000 +1100
+@@ -16,17 +16,9 @@
+ 	((unsigned long)(__x))
+ 
+ /* Now 32bit compatibility types */
+-typedef int                    __kernel_pid_t32;
+ typedef unsigned short         __kernel_ipc_pid_t32;
+-typedef unsigned short         __kernel_uid_t32;
+-typedef unsigned short         __kernel_gid_t32;
+-typedef unsigned short         __kernel_dev_t32;
+-typedef unsigned int           __kernel_ino_t32;
+-typedef unsigned short         __kernel_mode_t32;
+ typedef unsigned short         __kernel_umode_t32;
+-typedef short                  __kernel_nlink_t32;
+ typedef int                    __kernel_daddr_t32;
+-typedef int                    __kernel_off_t32;
+ typedef unsigned int           __kernel_caddr_t32;
+ typedef long                   __kernel_loff_t32;
+ typedef __kernel_fsid_t        __kernel_fsid_t32;  
+@@ -43,35 +35,12 @@
+ struct flock32 {
+         short l_type;
+         short l_whence;
+-        __kernel_off_t32 l_start;
+-        __kernel_off_t32 l_len;
+-        __kernel_pid_t32 l_pid;
++        compat_off_t l_start;
++        compat_off_t l_len;
++        compat_pid_t l_pid;
+         short __unused;
+ }; 
+ 
+-struct stat32 {
+-	unsigned short	st_dev;
+-	unsigned short	__pad1;
+-	__u32		st_ino;
+-	unsigned short	st_mode;
+-	unsigned short	st_nlink;
+-	unsigned short	st_uid;
+-	unsigned short	st_gid;
+-	unsigned short	st_rdev;
+-	unsigned short	__pad2;
+-	__u32		st_size;
+-	__u32		st_blksize;
+-	__u32		st_blocks;
+-	__u32		st_atime;
+-	__u32		__unused1;
+-	__u32		st_mtime;
+-	__u32		__unused2;
+-	__u32		st_ctime;
+-	__u32		__unused3;
+-	__u32		__unused4;
+-	__u32		__unused5;
+-};
+-
+ struct statfs32 {
+ 	__s32			f_type;
+ 	__s32			f_bsize;
+diff -ruN 2.5.51-32bit.1/arch/s390x/kernel/wrapper32.S 2.5.51-32bit.2/arch/s390x/kernel/wrapper32.S
+--- 2.5.51-32bit.1/arch/s390x/kernel/wrapper32.S	2002-12-10 17:04:36.000000000 +1100
++++ 2.5.51-32bit.2/arch/s390x/kernel/wrapper32.S	2002-12-13 14:55:15.000000000 +1100
+@@ -470,31 +470,31 @@
+ 	lgfr	%r2,%r2			# int
+ 	llgtr	%r3,%r3			# struct itimerval_emu31 *
+ 	llgtr	%r4,%r4			# struct itimerval_emu31 *
+-	jg	compat_sys_setitimer		# branch to system call
++	jg	compat_sys_setitimer	# branch to system call
+ 
+ 	.globl  compat_sys_getitimer_wrapper 
+ compat_sys_getitimer_wrapper:
+ 	lgfr	%r2,%r2			# int
+ 	llgtr	%r3,%r3			# struct itimerval_emu31 *
+-	jg	compat_sys_getitimer		# branch to system call
++	jg	compat_sys_getitimer	# branch to system call
+ 
+-	.globl  sys32_newstat_wrapper 
+-sys32_newstat_wrapper:
++	.globl  compat_sys_newstat_wrapper 
++compat_sys_newstat_wrapper:
+ 	llgtr	%r2,%r2			# char *
+ 	llgtr	%r3,%r3			# struct stat_emu31 *
+-	jg	sys32_newstat		# branch to system call
++	jg	compat_sys_newstat	# branch to system call
+ 
+-	.globl  sys32_newlstat_wrapper 
+-sys32_newlstat_wrapper:
++	.globl  compat_sys_newlstat_wrapper 
++compat_sys_newlstat_wrapper:
+ 	llgtr	%r2,%r2			# char *
+ 	llgtr	%r3,%r3			# struct stat_emu31 *
+-	jg	sys32_newlstat		# branch to system call
++	jg	compat_sys_newlstat	# branch to system call
+ 
+-	.globl  sys32_newfstat_wrapper 
+-sys32_newfstat_wrapper:
++	.globl  compat_sys_newfstat_wrapper 
++compat_sys_newfstat_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgtr	%r3,%r3			# struct stat_emu31 *
+-	jg	sys32_newfstat		# branch to system call
++	jg	compat_sys_newfstat	# branch to system call
+ 
+ #sys32_vhangup_wrapper			# void 
+ 
+diff -ruN 2.5.51-32bit.1/include/asm-s390x/compat.h 2.5.51-32bit.2/include/asm-s390x/compat.h
+--- 2.5.51-32bit.1/include/asm-s390x/compat.h	2002-12-10 16:38:17.000000000 +1100
++++ 2.5.51-32bit.2/include/asm-s390x/compat.h	2002-12-12 16:14:04.000000000 +1100
 @@ -11,6 +11,14 @@
  typedef s32		compat_ssize_t;
  typedef s32		compat_time_t;
@@ -336,88 +458,4 @@ diff -ruN 2.5.51-32bit.1/include/asm-x86_64/compat.h 2.5.51-32bit.2/include/asm-
 +	u32		__unused5;
 +};
 +
- #endif /* _ASM_X86_64_COMPAT_H */
-diff -ruN 2.5.51-32bit.1/include/asm-x86_64/ia32.h 2.5.51-32bit.2/include/asm-x86_64/ia32.h
---- 2.5.51-32bit.1/include/asm-x86_64/ia32.h	2002-12-10 15:44:49.000000000 +1100
-+++ 2.5.51-32bit.2/include/asm-x86_64/ia32.h	2002-12-12 16:51:29.000000000 +1100
-@@ -5,26 +5,18 @@
- 
- #ifdef CONFIG_IA32_EMULATION
- 
--#include <compat.h>
-+#include <linux/compat.h>
- 
- /*
-  * 32 bit structures for IA32 support.
-  */
- 
- /* 32bit compatibility types */
--typedef int		       __kernel_pid_t32;
- typedef unsigned short	       __kernel_ipc_pid_t32;
--typedef unsigned short	       __kernel_uid_t32;
- typedef unsigned 				__kernel_uid32_t32;
--typedef unsigned short	       __kernel_gid_t32;
- typedef unsigned 				__kernel_gid32_t32;
--typedef unsigned short	       __kernel_dev_t32;
--typedef unsigned int	       __kernel_ino_t32;
--typedef unsigned short	       __kernel_mode_t32;
- typedef unsigned short	       __kernel_umode_t32;
--typedef short		       __kernel_nlink_t32;
- typedef int		       __kernel_daddr_t32;
--typedef int		       __kernel_off_t32;
- typedef unsigned int	       __kernel_caddr_t32;
- typedef long		       __kernel_loff_t32;
- typedef __kernel_fsid_t	       __kernel_fsid_t32;
-@@ -34,9 +26,9 @@
- struct flock32 {
-        short l_type;
-        short l_whence;
--       __kernel_off_t32 l_start;
--       __kernel_off_t32 l_len;
--       __kernel_pid_t32 l_pid;
-+       compat_off_t l_start;
-+       compat_off_t l_len;
-+       compat_pid_t l_pid;
- };
- 
- 
-@@ -95,30 +87,6 @@
- 	sigset32_t	  uc_sigmask;	/* mask last for extensibility */
- };
- 
--struct stat32 {
--       unsigned short st_dev;
--       unsigned short __pad1;
--       unsigned int st_ino;
--       unsigned short st_mode;
--       unsigned short st_nlink;
--       unsigned short st_uid;
--       unsigned short st_gid;
--       unsigned short st_rdev;
--       unsigned short __pad2;
--       unsigned int  st_size;
--       unsigned int  st_blksize;
--       unsigned int  st_blocks;
--       unsigned int  st_atime;
--       unsigned int  __unused1;
--       unsigned int  st_mtime;
--       unsigned int  __unused2;
--       unsigned int  st_ctime;
--       unsigned int  __unused3;
--       unsigned int  __unused4;
--       unsigned int  __unused5;
--};
--
--
- /* This matches struct stat64 in glibc2.2, hence the absolutely
-  * insane amounts of padding around dev_t's.
-  */
-@@ -221,7 +189,7 @@
- 
- struct ustat32 {
- 	__u32	f_tfree;
--	__kernel_ino_t32		f_tinode;
-+	compat_ino_t		f_tinode;
- 	char			f_fname[6];
- 	char			f_fpack[6];
- };
+ #endif /* _ASM_S390X_COMPAT_H */

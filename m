@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264854AbSKELTQ>; Tue, 5 Nov 2002 06:19:16 -0500
+	id <S264816AbSKELY7>; Tue, 5 Nov 2002 06:24:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264855AbSKELTP>; Tue, 5 Nov 2002 06:19:15 -0500
-Received: from mta04ps.bigpond.com ([144.135.25.136]:12796 "EHLO
-	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264854AbSKELTO>; Tue, 5 Nov 2002 06:19:14 -0500
-Message-ID: <3DC7AACD.2060909@bigpond.com>
-Date: Tue, 05 Nov 2002 22:26:05 +1100
-From: Allan Duncan <allan.d@bigpond.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.46 - missing symbol from binfmt_aout built as a module
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264817AbSKELY7>; Tue, 5 Nov 2002 06:24:59 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:53396 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264816AbSKELY5>; Tue, 5 Nov 2002 06:24:57 -0500
+Subject: Re: [RFC] FS charset conversions
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1891J9-000B9X-00@f15.mail.ru>
+References: <E1891J9-000B9X-00@f15.mail.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Nov 2002 11:53:37 +0000
+Message-Id: <1036497217.4827.30.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A new glitch since 2.5.45.
+On Tue, 2002-11-05 at 10:51, Samium Gromoff wrote:
+>         The proposed and seemingly natural solution is to add a possibility
+>     to mount --bind the subtree with a filename charset conversion applied.
 
- From the "make modules_install":
-
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.46; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.46/kernel/fs/binfmt_aout.o
-depmod: 	ptrace_notify
-make: *** [_modinst_post] Error 1
-
-And the relevant bit of .config:
-
-#
-# Executable file formats
-#
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-
+The traditional unix approach is to declare the universe UTF-8. No
+single character set is the right answer, UTF8 preserves "/" and \0
+semantics so works very well indeed.
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130807AbRAUDlx>; Sat, 20 Jan 2001 22:41:53 -0500
+	id <S130105AbRAUD4F>; Sat, 20 Jan 2001 22:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130633AbRAUDlm>; Sat, 20 Jan 2001 22:41:42 -0500
-Received: from hromeo.algonet.se ([194.213.74.51]:52395 "HELO
-	hromeo.algonet.se") by vger.kernel.org with SMTP id <S130105AbRAUDlg>;
-	Sat, 20 Jan 2001 22:41:36 -0500
-Date: Sun, 21 Jan 2001 04:41:05 +0100
+	id <S131059AbRAUDzz>; Sat, 20 Jan 2001 22:55:55 -0500
+Received: from knatte.tninet.se ([195.100.94.10]:12220 "HELO knatte.tninet.se")
+	by vger.kernel.org with SMTP id <S130105AbRAUDzn>;
+	Sat, 20 Jan 2001 22:55:43 -0500
+Date: Sun, 21 Jan 2001 04:54:35 +0100
 From: André Dahlqvist <anedah-9@sm.luth.se>
 To: axel@uni-paderborn.de
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Update URL for hdparm in Configure.help
-Message-ID: <20010121044105.A2143@sm.luth.se>
+Subject: [PATCH] Add help text for ATI Radeon
+Message-ID: <20010121045435.A2443@sm.luth.se>
 Mail-Followup-To: axel@uni-paderborn.de, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -22,20 +22,23 @@ X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The below patch changes the URL of hdparm to one which actually
-has the newest version of that tool. The patch is against 2.4.1-pre9.
+The below patch adds a help text for the ATI Radeon graphics
+card. The patch is against 2.4.1-pre9.
 
 --- linux/Documentation/Configure.help~	Sun Jan 21 04:08:54 2001
-+++ linux/Documentation/Configure.help	Sun Jan 21 04:19:09 2001
-@@ -415,7 +415,7 @@
++++ linux/Documentation/Configure.help	Sun Jan 21 04:49:29 2001
+@@ -13132,6 +13132,11 @@
+   is selected, the module will be called r128.o.  AGP support for
+   this card is strongly suggested (unless you have a PCI version).
  
-   To fine-tune ATA/IDE drive/interface parameters for improved
-   performance, look for the hdparm package at
--  ftp://metalab.unc.edu/pub/Linux/kernel/patches/diskdrives/ .
-+  http://www.ibiblio.org/pub/Linux/system/hardware .
- 
-   If you want to compile this driver as a module ( = code which can be
-   inserted in and removed from the running kernel whenever you want),
++ATI Radeon 
++CONFIG_DRM_RADEON
++  Choose this option if you have a ATI Radeon graphics card.
++  If M is selected, the module will be called radeon.o.
++
+ Intel I810
+ CONFIG_DRM_I810
+   Choose this option if you have an Intel I810 graphics card.  If M is
 -- 
 
 André Dahlqvist <anedah-9@sm.luth.se>

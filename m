@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314605AbSDTKme>; Sat, 20 Apr 2002 06:42:34 -0400
+	id <S314604AbSDTL2w>; Sat, 20 Apr 2002 07:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314606AbSDTKmd>; Sat, 20 Apr 2002 06:42:33 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4618 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314605AbSDTKmd> convert rfc822-to-8bit; Sat, 20 Apr 2002 06:42:33 -0400
-Date: Sat, 20 Apr 2002 03:41:17 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
-Subject: update for {Re: [PATCHSET] Linux 2.4.19-pre7-jam1, -jam2}
-In-Reply-To: <20020419232633.GA1775@werewolf.able.es>
-Message-ID: <Pine.LNX.4.10.10204200335390.19117-100000@master.linux-ide.org>
+	id <S314606AbSDTL2w>; Sat, 20 Apr 2002 07:28:52 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:53912 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S314604AbSDTL2v>;
+	Sat, 20 Apr 2002 07:28:51 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15553.17071.88897.914713@argo.ozlabs.ibm.com>
+Date: Sat, 20 Apr 2002 20:27:59 +1000 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: in_interrupt race
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty made the suggestion to me the other day that it would be
+interesting to put some stuff in smp_processor_id() to BUG() if
+preemption isn't disabled, and then see where the kernel breaks.  The
+idea is that the result of smp_processor_id() is useless if preemption
+is enabled, since you could move to another processor before you get
+to use the result.
 
+With that in mind, while I was poking around I noticed that
+in_interrupt() uses smp_processor_id().  (This is true on all
+architectures except ia64, which uses a local_cpu_data pointer
+instead, and x86-64, which uses a read_pda function).
 
-http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.6.patch.bz2
+Thus if we have CONFIG_SMP and CONFIG_PREEMPT, there is a small but
+non-zero probability that in_interrupt() will give the wrong answer if
+it is called with preemption enabled.  If the process gets scheduled
+from cpu A to cpu B between calling smp_processor_id() and evaluating
+local_irq_count(cpu) or local_bh_count(), and cpu A then happens to be
+in interrupt context at the point where the process resumes on cpu B,
+then in_interrupt() will incorrectly return 1.
 
-fixes hpt372
-migration towards modular chipsets
-devfs ide-scsi
-more but can not remember
-little uglyer but will collapse clean.
+One idea I had is to use a couple of bits in
+current_thread_info()->flags to indicate whether local_irq_count and
+local_bh_count are non-zero for the current cpu.  These bits could be
+tested safely without having to disable preemption.
 
-thanks for testing...
+In fact almost all uses of local_irq_count() and local_bh_count() are
+for the current cpu; the exceptions are the irqs_running() function
+and some debug printks.  Maybe the irq and bh counters themselves
+could be put into the thread_info struct, if irqs_running could be
+implemented another way.
 
-
-On Sat, 20 Apr 2002, J.A. Magallon wrote:
-
-> 
-> On 2002.04.19 Heinz Diehl wrote:
-> >On Thu Apr 18 2002, J.A. Magallon wrote:
-> >
-> >> >I also changed '#if 1' to '#if 0' as Andre mentioned but it has no effect,
-> >> >my machine hangs at boot time....
-> >
-> >> It worked for me, just booted fine with hdparm included...
-> >
-> >I just merged "ide-2.4.19-p7.all.convert.5.patch" into my tree, and now
-> >it works also for me. With former versions my machine hung at boot time,
-> >wether #if 0 or 1 was set.
-> >
-> 
-> Just a 'me too'. Patch -5 booted fine, I have put a -jam2 in the usual place:
-> 
-> 
-> -- 
-> J.A. Magallon                           #  Let the source be with you...        
-> mailto:jamagallon@able.es
-> Mandrake Linux release 8.3 (Cooker) for i586
-> Linux werewolf 2.4.19-pre7-jam2 #1 SMP sáb abr 20 00:20:15 CEST 2002 i686
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Paul.

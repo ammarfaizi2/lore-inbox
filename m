@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbTHUVuy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 17:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTHUVuy
+	id S262913AbTHUVs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 17:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbTHUVs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 17:50:54 -0400
-Received: from smtp6.Stanford.EDU ([171.67.16.33]:54944 "EHLO
-	smtp6.Stanford.EDU") by vger.kernel.org with ESMTP id S262907AbTHUVuv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 17:50:51 -0400
-Date: Thu, 21 Aug 2003 14:50:44 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: linux-kernel@vger.kernel.org
-cc: mc@cs.Stanford.EDU
-Subject: [CHECKER] 2 user-pointer bugs in 2.6.0-test3
-Message-ID: <Pine.GSO.4.44.0308211444420.23210-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Aug 2003 17:48:27 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:61119 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262913AbTHUVs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 17:48:26 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Thu, 21 Aug 2003 23:48:24 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: manfred@colorfullife.com, tejun@aratech.co.kr,
+       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Subject: Re: Possible race condition in i386 global_irq_lock handling.
+Message-Id: <20030821234824.37497c08.skraw@ithnet.com>
+In-Reply-To: <20030821172721.GI29612@dualathlon.random>
+References: <3F44FAF3.8020707@colorfullife.com>
+	<20030821172721.GI29612@dualathlon.random>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+> smb_rmb is enough in practice for x86 (in asm-i386), but not the right
+> barrier in general because rmb only serializes reads against reads, so
+> it would also make little sense while reading the i386 code. here you've
+> to serialize a write against a read so it would be misleading unless you
+> know exactly the lowlevel implementations of those barriers.
+> 
+> smp_mb() before the while loop should be the correct barrier for all
+> archs and the asm generated on x86 will be the same.
+> 
+> alpha, ia64 and x86-64 (and probably others) needs it too.
 
-Attached are 2 user-pointer bugs in 2.6.0-test3. As usual, confirmations
-or clarifications are welcomed.
+Can some kind soul please provide me with the needed mini-patch. I would like
+to try that on my constantly crashing SMP test box...
 
--Junfeng
-
-
----------------------------------------------------------
-[BUG] uioc_mimd = arg taints uioc_mimd, umc = uioc_mimd->mbox taints umc
-
-/u1/junfeng/linux-2.6.0-test3/drivers/scsi/megaraid.c:4606:mega_n_to_m:
-ERROR:TAINTED:4606:4606: dereferencing tainted ptr 'umc' [from='
-/u1/junfeng/linux-2.6.0-test3/include/asm/uaccess.h:copy_from_user:parm1
-arg uioc_mimd'] [Callstack: ]
-
-
-		if( mc->cmd == MEGA_MBOXCMD_PASSTHRU ) {
-
-			umc = (megacmd_t *)uioc_mimd->mbox;
-
-
-Error --->
-			upthru = (mega_passthru *)umc->xferaddr;
-
-			if( put_user(mc->status, (u8
-*)&upthru->scsistatus) )
-				return (-EFAULT);
-
----------------------------------------------------------
-[BUG] optlen is dereferenced in function sctp_getsockopt_peer_addr_params
-
-/u1/junfeng/linux-2.6.0-test3/net/sctp/socket.c:3065:sctp_getsockopt:
-ERROR:TAINTED:3065:3065: passing tainted ptr 'optlen' into
-'sctp_getsockopt_peer_addr_params'
-[to='/u1/junfeng/linux-2.6.0-test3/net/sctp/socket.c:sctp_getsockopt_peer_addr_params:3']
-[from='
-/u1/junfeng/linux-2.6.0-test3/net/ipv4/ipmr.c:sctp_getsockopt:parm4']
-[Callstack:
-/u1/junfeng/linux-2.6.0-test3/net/ipv4/tcp.c:2450:sctp_getsockopt((tainted,
-4)(untainted, 0))]
-
-		break;
-	case SCTP_SOCKOPT_PEELOFF:
-		retval = sctp_getsockopt_peeloff(sk, len, optval, optlen);
-		break;
-	case SCTP_GET_PEER_ADDR_PARAMS:
-
-Error --->
-		retval = sctp_getsockopt_peer_addr_params(sk, len, optval,
-							  optlen);
-		break;
-	case SCTP_INITMSG:
-
-
-
+Regards,
+Stephan

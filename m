@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSEVD7L>; Tue, 21 May 2002 23:59:11 -0400
+	id <S316846AbSEVED6>; Wed, 22 May 2002 00:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316846AbSEVD7K>; Tue, 21 May 2002 23:59:10 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:38583 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316845AbSEVD7J>;
-	Tue, 21 May 2002 23:59:09 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15595.5939.708078.827286@argo.ozlabs.ibm.com>
-Date: Wed, 22 May 2002 13:57:39 +1000 (EST)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+	id <S316847AbSEVED5>; Wed, 22 May 2002 00:03:57 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316846AbSEVED5>; Wed, 22 May 2002 00:03:57 -0400
+Date: Tue, 21 May 2002 21:04:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Make 2.5.17 TLB even more friendlier
-In-Reply-To: <Pine.LNX.4.33.0205211609210.15094-100000@penguin.transmeta.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+In-Reply-To: <15595.5939.708078.827286@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0205212100550.5797-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems to me that there is a race in this code in zap_pte_range,
-because there is a gap between when we read the pte and when we clear
-it:
 
-	for (offset=0; offset < size; ptep++, offset += PAGE_SIZE) {
-		pte_t pte = *ptep;
-		if (pte_none(pte))
-			continue;
-		if (pte_present(pte)) {
-			unsigned long pfn = pte_pfn(pte);
 
-			pte_clear(ptep);
+On Wed, 22 May 2002, Paul Mackerras wrote:
+>
+> It seems to me that there is a race in this code in zap_pte_range,
+> because there is a gap between when we read the pte and when we clear
+> it:
 
-Isn't it possible that another cpu could set the dirty bit in the pte
-between the "pte = *ptep" and the "pte_clear(ptep)"?  In my case
-another cpu could also set the "has hash-table entry" bit.
+Yes and no.
 
-Shouldn't we do this as "pte = ptep_get_and_clear(ptep)", at least in
-the case where we are unmapping stuff?
+There is a race, and yes, another thread might mark it dirty.
 
-Paul.
+However, I've not decided whether we care about it yet. I think we _do_
+care, for people doing strange things with their own internal VM
+management using mmap/munmap of shared mappings, but on the other hand it
+_is_ fairly expensive to do a "ptep_get_and_clear()".
+
+> Shouldn't we do this as "pte = ptep_get_and_clear(ptep)", at least in
+> the case where we are unmapping stuff?
+
+Yeah, I want to do it, but I also would really want to avoid the overhead
+for the exit case. Which is another reason I'd like to have exit() not use
+zap_page_range() at all.
+
+But I'll make that change now, so that we don't lose it. We should just
+remember to not do it if we split up exit.
+
+		Linus
+

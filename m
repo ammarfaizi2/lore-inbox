@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUBPHds (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 02:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbUBPHds
+	id S265401AbUBPHsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 02:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265413AbUBPHsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 02:33:48 -0500
-Received: from d64-180-152-77.bchsia.telus.net ([64.180.152.77]:39172 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id S265390AbUBPHdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 02:33:44 -0500
-Date: Sun, 15 Feb 2004 23:29:29 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: linux-kernel@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Subject: 2.4.24 link err for sparc64
-Message-ID: <20040216072928.GA30923@net-ronin.org>
+	Mon, 16 Feb 2004 02:48:22 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:5124 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S265401AbUBPHsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 02:48:20 -0500
+Subject: Re: system (not HW) clock advancing really fast
+From: Bill Anderson <banderson@hp.com>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200402161545.09901.mhf@linuxmail.org>
+References: <1076910368.25980.12.camel@perseus>
+	 <200402161424.49242.mhf@linuxmail.org> <1076916391.25980.23.camel@perseus>
+	 <200402161545.09901.mhf@linuxmail.org>
+Content-Type: text/plain
+Message-Id: <1076917697.25980.35.camel@perseus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 16 Feb 2004 00:48:18 -0700
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2004 07:48:19.0275 (UTC) FILETIME=[3E6B99B0:01C3F461]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 2004-02-16 at 00:45, Michael Frank wrote:
+> On Monday 16 February 2004 15:26, Bill Anderson wrote:
+> > On Sun, 2004-02-15 at 23:24, Michael Frank wrote:
+> > > I had this somtetimes when using ntpd doing step time update
+> > > resulting in silly values in /etc/adjtime . 
+> > > 
+> > > # mv /etc/adjtime /tmp 
+> > > # hwclock --systohc
+> > > 
+> > > and see if it goes away.
+> > 
+> > Thanks, though it didn't work. :(
+> > 
+> 
+> Please check your /etc/ntp/drift , the value in it is
+> usually between -30.0 and 30.0
+> 
+> If it is much larger than that, set it to 0.0 and restart ntpd.
 
-I ripped out sysctl support from a 2.4.24 kernel (stock
-tarball from ftp.*.*.kernel.org) and the final link failed
-with:
 
-arch/sparc64/kernel/kernel.o(.text+0x19750): In function `sys32_sysctl':
-: undefined reference to `do_sysctl'
+Done that, too. in fact, that was my first target.
+Along with stop ntpd, sync, clear drift, clear adjtime, sync again, and
+restart ntpd. Sorry, should have said that. It's been a *looong* time
+since I've posted here.
 
-I tossed an #ifndef CONFIG_SYSCTL...#else...#endif
-guard around arch/sparc64/kernel/sys_sparc32.c file in the
-sys32_sysctl() function so it returns -ENOTSUPP, but I'm not sure
-that's the right fix.  Should it be in do_sysctl() instead?
+I just tried some new stuff that is interesting.
 
-Can anyone comment on this?
+MachineA is the one with the problem. MachineB is an identical machine
+(as far as two machines can be).
 
---- arch/sparc64/kernel/sys_sparc32.c.old	2003-11-28 10:26:19.000000000 -0800
-+++ arch/sparc64/kernel/sys_sparc32.c	2004-02-15 23:21:18.304035000 -0800
-@@ -4454,6 +4454,9 @@
- 
- extern asmlinkage long sys32_sysctl(struct __sysctl_args32 *args)
- {
-+#ifndef CONFIG_SYSCTL
-+	return -ENOTSUPP;
-+#else
- 	struct __sysctl_args32 tmp;
- 	int error;
- 	size_t oldlen, *oldlenp = NULL;
-@@ -4488,4 +4491,5 @@
- 		copy_to_user(args->__unused, tmp.__unused, sizeof(tmp.__unused));
- 	}
- 	return error;
-+#endif
- }
+On MachineA I am seeing some interesting things with /proc/interrupts
+and the timer interrupt line.
 
--- DN
-Daniel
+On MachineA:
+  Over 10 seconds (wall clock):
+    CPU0: 107 interrupts/second (avg)
+    CPU1: 102.5 interrupts/second (avg)
+   [Over 10K interrupts difference between the two]
+On MachineB:
+  Over 10 seconds (wall clock):
+    CPU0: 46.4 interrupts/second (avg)
+    CPU1: 45.5 interrupts/second (avg)
+   [Over 10K interrupts difference between the two]
+
+Now, the CPU differences don't make me blink. However, the slightly more
+than double the rate of timer interrupts on the problem machine is
+interesting to me. or is it a red herring/blind alley? Especially since
+it now seems to be ~2 seconds per second fast.
+
+Cheers, and thanks for the help so far, Michael.
+
+Bill
+
+
+-- 
+Bill Anderson <banderson@hp.com>
+Red Hat Certified Engineer
+

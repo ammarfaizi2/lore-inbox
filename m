@@ -1,100 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283408AbRK2VhP>; Thu, 29 Nov 2001 16:37:15 -0500
+	id <S283414AbRK2VpP>; Thu, 29 Nov 2001 16:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283410AbRK2Vg4>; Thu, 29 Nov 2001 16:36:56 -0500
-Received: from mail.myrio.com ([63.109.146.2]:22004 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S283408AbRK2Vgp> convert rfc822-to-8bit;
-	Thu, 29 Nov 2001 16:36:45 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAE6@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Rene Rebe'" <rene.rebe@gmx.net>, linux-kernel@vger.kernel.org
-Cc: reiserfs-list@namesys.com
-Subject: RE: [reiserfs-list] ReiserFS on RAID5 Linux-2.4 - speed problem
-Date: Thu, 29 Nov 2001 13:36:08 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S283411AbRK2VpG>; Thu, 29 Nov 2001 16:45:06 -0500
+Received: from CPE0080c6e9a7f7.cpe.net.cable.rogers.com ([24.102.231.5]:58378
+	"EHLO cr213096-a.rchrd1.on.wave.home.com") by vger.kernel.org
+	with ESMTP id <S283410AbRK2Vow>; Thu, 29 Nov 2001 16:44:52 -0500
+Date: Thu, 29 Nov 2001 16:37:09 -0500
+From: Masoud <masu@cr213096-a.rchrd1.on.wave.home.com>
+To: Jeffrin <jeffrin@msservices.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel File system Corruption related
+Message-ID: <20011129163709.A23980@cr213096-a.rchrd1.on.wave.home.com>
+In-Reply-To: <861yiho985.fsf@jeffrin@msservices.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <861yiho985.fsf@jeffrin@msservices.org>; from jeffrin@msservices.org on Thu, Nov 29, 2001 at 09:33:22PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-René Rebe wrote:
-[...]
-> I run ReiserFS on a RAID5 (of 3 IDE disks) using the latest 
-> 2.4.(e.g.16)
-> kernel for weeks. It works well except that is is painfully 
-> slow. 
-[...]
+Hi, 
+I am using 2.4.16 quite happily with a i810 chipset. Besides, 
+i810 chipset series are for at least Celeron/Pentium II/Pentium III's.
+can you give more details? did the system cleanly shutdown when you ran
+"init 0"?
+cheers,
+Masoud
 
-You are not the only one with these problems...
-
-I am convinced there is a serious, negative performance 
-interaction between software RAID 5 and ReiserFS, at least
-on IDE.  Performance is less than 25% of what it should be.
-
----------------
-Concise summary: 
-
-dbench of reiserfs on a normal drive partition is slightly
-* faster * than timing a raw "dd" from that partition.
-
-But, dbench of reiserfs on a reiserfs on software RAID5
-is ** only 1/4 as fast ** as a raw "dd" from the RAID5, 
-
-And, to make it worse, software RAID 5 is significantly 
-slower than I think it should be.  As a result, my nice
-RAID 5 is far, far slower than an ordinary partition.
-These are not just dbench numbers - all sorts of testing
-shows the problem.
-
----------------
-Here are the details:
-
-I have four Maxtor 60 GB IDE disks, each is master on a single
-cable, using two Promise Ultra TX2/100 cards.  The host is 
-a dual P3-800 with 512 MB of RAM.  I bought this hardware
-specifically to act as a fast, cheap, reliable server...  
-I have no complaints except the speed.  
-
-The raid disks are hde, hdg, hdi, hdk, as /dev/md0, not
-partitioned, /dev/md0 is a single 180 GB reiserfs and is 
-mounted on /home.  Chunk size is 1024.
-
-Here's some low level numbers:
-
-Single drive from the RAID:
-time dd if=/dev/hdg of=/dev/null bs=1M count=1024
-- elapsed time 0:37 = 27.65 MB/sec
-
-Raw RAID5:
-time dd if=/dev/md0 of=/dev/null bs=1M count=1024
-- elapsed time 0:25 = 40.96 MB/sec
-
-File on Reiserfs on RAID5:
-time dd if=/home/test_file_1GB of=/dev/null bs=1M count=1024
-- elapsed time 0:33 = 31.03 MB/sec
-
-Old home partition on hda9:
-time dd if=/dev/hda9 of=/dev/null bs=1M count=1024
-- elapsed time 0:41 = 24 MB/sec
-
-dbench tests:
-
-dbench 32 on reiserfs on md0  : 10.7027 MB/sec
-dbench 32 on reiserfs on hda9 : 27.7925 MB/sec
-
-Note that when I first set this hardware up, I tried RAID0
-on the same hardware and saw dbench 32 numbers of 76 MB/sec.
-
-So, I think the dbench number for reiserfs on md0 should be
-** at least ** five times faster than it is.  Are my 
-expectations too high or is there a real problem here?
-
-(tested on 2.4.15-pre5, this problem has been around for
-all 2.4 kernels I've tried.)
-
-Happy to help test and debug... please send suggestions.
-
-Torrey Hoffman
+On Thu, Nov 29, 2001 at 09:33:22PM +0530, Jeffrin wrote:
+> 
+> Hello ,
+> 
+> I had done a 2.4.16 kernel related compilation
+> and used it. When i did "init 0" for the first time
+> and then again tried get a GNU/Linux system related to 2.4.16
+> it might have showed related to severe filesystem corruption
+> problems.And at one time related to that atleast i  could not even
+> use GNU/Linux.It had atleast a i810  chipset and a Pentium
+> Processor.
+> 
+> 
+> I have in my     house 2 machines which is not i810 and i
+> did not find any problems related to  typical filesystem corruption.
+> 
+> 
+> May be a typical bug related to filesystem corruption
+> is not completely fixed in 2.4.16.
+> 
+> 
+> -- 
+> Jeffrin Jose T.
+> www.MSServices.org
+> GPG:1024D/F5726A1B
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

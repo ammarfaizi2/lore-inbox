@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317406AbSGVODE>; Mon, 22 Jul 2002 10:03:04 -0400
+	id <S316664AbSGVKhR>; Mon, 22 Jul 2002 06:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317423AbSGVODE>; Mon, 22 Jul 2002 10:03:04 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:13834 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317406AbSGVODD>; Mon, 22 Jul 2002 10:03:03 -0400
-Message-ID: <3D3C0FF8.1040301@evision.ag>
-Date: Mon, 22 Jul 2002 16:00:24 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
+	id <S316667AbSGVKhR>; Mon, 22 Jul 2002 06:37:17 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:3364 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316664AbSGVKhR> convert rfc822-to-8bit; Mon, 22 Jul 2002 06:37:17 -0400
+Date: Mon, 22 Jul 2002 04:40:23 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Sami Louko <samppa@pleco.mikrolahti.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: still troubles with an Alpha-kernel
+In-Reply-To: <20020722073941.GA10979@pleco.mikrolahti.fi>
+Message-ID: <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Christoph Hellwig <hch@lst.de>, Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-References: <Pine.LNX.4.44.0207221544090.9136-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> On Mon, 22 Jul 2002, Christoph Hellwig wrote:
-> 
-> 
->>yupp, you're right.  could you take the prototype changes anyway?
-> 
-> 
-> i'm hesitant for a number of reasons. Eg. irq_save_off(flags) has to be a
-> macro, otherwise we move the assignment into the irqs-off section.  
-> Compare:
-> 
-> 	flags = irq_save_off();
-> 
-> with:
-> 	irq_flags_off(flags);
-> 
-> sure, it could be written as:
-> 
-> 	flags = irq_save();
-> 	irq_off();
-> 
-> but then again the macro form is more compact.
+Hi,
 
+On Mon, 22 Jul 2002, Sami Louko wrote:
+> -r--------    1 root     root         4.0T heinä  22 10:38 /proc/kcore
+> 
+> The core shows a bit huge :-/ Four terabytes... huh.
 
-By 2 characters. And hiding the side-effect. We don't have the notion of
-var argument passing like in pascal or C++ here.
+Mine (2.4.19-rc2-aa1) is 2 Giga, exactly the RAM size, here...
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

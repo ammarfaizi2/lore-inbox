@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbTEJT4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 15:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTEJT4Z
+	id S264493AbTEJT5z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 15:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTEJT5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 15:56:25 -0400
-Received: from mail.gmx.net ([213.165.65.60]:43422 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264488AbTEJT4X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 15:56:23 -0400
-Date: Sat, 10 May 2003 22:06:25 +0200
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-In-Reply-To: <1052588866.1013.3.camel@bip.localdomain.fake>
-References: <1405.1052575075@www9.gmx.net>
-	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
-	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
-	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
-	<20030510162527.GD29271@mail.jlokier.co.uk>
-	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
-	<S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
-	<1052588866.1013.3.camel@bip.localdomain.fake>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Sat, 10 May 2003 15:57:55 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:9856 "EHLO
+	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
+	id S264490AbTEJT5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 15:57:49 -0400
+Subject: Re: hammer: MAP_32BIT
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030510014803.GA16407@averell>
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell>
+	 <3EBBE7E2.1070500@redhat.com>  <20030510014803.GA16407@averell>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052597418.1881.2.camel@lapdancer.baythorne.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Sat, 10 May 2003 21:10:19 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 May 2003 19:47:47 +0200
-Xavier Bestel <xavier.bestel@free.fr> wrote:
-
-> Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
+On Sat, 2003-05-10 at 02:48, Andi Kleen wrote:
+> > Oh, and please rename MAP_32BIT to MAP_31BIT.  This will save nerves on
+> > all sides.
 > 
-> > rebooted with a reconfigured kernel to assure it's not cpufreq.
-> > same behaviour without cpufreq.
-> 
-> You should perhaps try to enable/disable APM idle calls ..
-> 
-> 	Xav
+> I bet changing it will cost more nerves in supporting all these people
+> whose software doesn't compile anymore. And it's not really a lie. 2GB 
+> is 32bit too.
 
-disabling apm idle calls seem to fix it but on this notebook
-those calls are necessary so that it doesn't get too hot.
-or can ACPI be used to accomplish those calls?
+If that's _really_ an issue, then also provide MAP_32BIT which does what
+its name implies. 
 
-I'm already running it always on SpeeStep power-saving mode
-so that it doesn't get REALLY hot. try typing on an Inspiron
-8100 in the summer while compiling for a while. it's not
-healthy for your hands :D
+Anyone who was using MAP_32BIT in the knowledge that it really limits to
+31 bits gets the breakage they deserve for not reporting and fixing the
+problem at the time.
+
+-- 
+dwmw2
+

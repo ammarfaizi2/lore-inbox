@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbUKMVzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbUKMWJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbUKMVzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 16:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbUKMVzm
+	id S261182AbUKMWJf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 17:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUKMWJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 16:55:42 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:34013 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261170AbUKMVzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 16:55:39 -0500
-Subject: Re: [PATCH] Correctly flush 8250 buffers, notify ldisc of line
-	status changes.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041113181024.A15735@flint.arm.linux.org.uk>
-References: <1099659997.20469.71.camel@localhost.localdomain>
-	 <20041109012212.463009c7.akpm@osdl.org>
-	 <1099998437.6081.68.camel@localhost.localdomain>
-	 <1099998926.15462.21.camel@localhost.localdomain>
-	 <20041109132810.A15570@flint.arm.linux.org.uk>
-	 <1100006241.15742.6.camel@localhost.localdomain>
-	 <20041109144723.C15570@flint.arm.linux.org.uk>
-	 <1100011669.16043.28.camel@localhost.localdomain>
-	 <20041113181024.A15735@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1100379126.28330.0.camel@localhost.localdomain>
+	Sat, 13 Nov 2004 17:09:35 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:27959 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261182AbUKMWJc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 17:09:32 -0500
+Date: Sat, 13 Nov 2004 23:09:18 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1-bk21] [m32r] Update defconfig files
+Message-ID: <20041113220918.GD8319@mars.ravnborg.org>
+Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20041112.173414.28782636.takata.hirokazu@renesas.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 13 Nov 2004 20:52:07 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041112.173414.28782636.takata.hirokazu@renesas.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-11-13 at 18:10, Russell King wrote:
-> On Tue, Nov 09, 2004 at 02:47:51PM +0000, Alan Cox wrote:
-> > I'm working on it. It would be helpful if the drivers/serial code would
-> > use helpers and not dig in places it shouldnt so that the transition can
-> > be cleaner.
+On Fri, Nov 12, 2004 at 05:34:14PM +0900, Hirokazu Takata wrote:
+> Hello,
 > 
-> Ok - I've just applied your patch to 8250 and expanded it to cover the
-> other ARM serial drivers.  Should be merged with Linus' tree tomorrow.
+> This patch is for updating defconfig files for m32r.
+> All defconfig files are regenerated for 2.6.10-rc1-bk21.
+> 
+> Thanks.
+> 
+> Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+> ---
+> 
+>  arch/m32r/defconfig                       |  152 +++++-
+>  arch/m32r/m32700ut/defconfig.m32700ut.smp |  130 ++++-
+>  arch/m32r/m32700ut/defconfig.m32700ut.up  |  130 ++++-
+>  arch/m32r/mappi/defconfig.nommu           |  109 +++-
+>  arch/m32r/mappi/defconfig.smp             |  104 +++-
+>  arch/m32r/mappi/defconfig.up              |  104 +++-
+>  arch/m32r/mappi2/defconfig.vdec2          |  698 ++++++++++++++++++++++++++++++
+>  arch/m32r/oaks32r/defconfig.nommu         |   93 +++
+>  arch/m32r/opsput/defconfig.opsput         |  114 +++-
+>  9 files changed, 1424 insertions(+), 210 deletions(-)
+Any reason why you do not place them in arch/m32r/configs like ppc and arm?
+If you name them like arm/ppc then you play like the rest of the archs.
+As an added bonus the config options shows up in "make help".
 
-Thanks. I'll add a couple more helpers soon for the drivers/char code
-that
-copies or DMAs blocks of characters
+You should also consider using the newly introduced KBUILD_DEFCONFIG.
+Let it point to the most 'popular' of the arch/m32r/configs/defconfig* files
+then you do not need the file arch/m32r/defconfig.
 
+	Sam

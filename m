@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317980AbSFSTOc>; Wed, 19 Jun 2002 15:14:32 -0400
+	id <S317981AbSFST3M>; Wed, 19 Jun 2002 15:29:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317981AbSFSTOb>; Wed, 19 Jun 2002 15:14:31 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:17628 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317980AbSFSTO3>;
-	Wed, 19 Jun 2002 15:14:29 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S317982AbSFST3M>; Wed, 19 Jun 2002 15:29:12 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:44794 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S317981AbSFST3L>; Wed, 19 Jun 2002 15:29:11 -0400
+Date: Wed, 19 Jun 2002 12:29:05 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.23-lsm1
+Message-ID: <20020619122905.A11517@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15632.55289.204683.26908@napali.hpl.hp.com>
-Date: Wed, 19 Jun 2002 12:14:01 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Daniel Phillips <phillips@bonn-fries.net>, <Andries.Brouwer@cwi.nl>,
-       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH+discussion] symlink recursion
-In-Reply-To: <Pine.LNX.4.44.0206191136200.2889-100000@home.transmeta.com>
-References: <20020619181814.GA16548@win.tue.nl>
-	<Pine.LNX.4.44.0206191136200.2889-100000@home.transmeta.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 19 Jun 2002 11:55:23 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
+The Linux Security Modules project provides a lightweight, general
+purpose framework for access control.  The LSM interface enables
+security policies to be developed as loadable kernel modules.
+See http://lsm.immunix.org for more information.
 
-  Linus> Yes. But did you look at the stack frames of those things?
-  Linus> It's something like 16 bytes for ext2_follow_link (it just
-  Linus> calls directly back to the VFS layer), 20 bytes for
-  Linus> vfs_follow_link(), and 56 for link_path_walk.
+2.5.23-lsm1 patch released.  This includes a few base kernel compile
+fixes and exports needed for modules.
 
-  Linux> ...
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.23/patch-2.5.23-lsm1.gz
 
-  Linus> But there are other numbers, like performance (sometimes
-  Linus> linearizing recursion loses, sometimes it wins), or somebody
-  Linus> doing the math on ia-64 and showing that the 100 bytes/level
-  Linus> on x86 is actually more like 2kB on ia-64 and totally
-  Linus> unacceptable.
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.23/ChangeLog-2.5.23-lsm1
 
-Just to avoid starting false rumours: on ia-64, I see the following
-(2.4.18, with gcc3.1):
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
 
-	- ext2_follow_link():	 16 bytes/frame
-	- vfs_follow_link():	 56 bytes/frame
-	- link_path_walk():	128 bytes/frame
-	---------------------	---------------
-	total:			200 bytes/frame
+2.5.23-lsm1
+ - merge 2.5.21						(Greg KH)
+ - vmalloc exports					(AntonA)
+ - LIDS #include cleanup				(Greg KH)
+ - fix build, add security/built-in.o to Makefile	(Greg KH)
+ - merge 2.5.22						(me)
+ - sb->s_dev changed to dev_t so update modules
+   - DTE: now use MAJOR/MINOR macros			(me)
+   - SELinux: now use to_dev_t				(me)
+ - SELinux Makefile tweak to build include/asm		(me)
+ - merge 2.5.23						(me)
+ - SELinux update sysctl SID tables			(Stephen Smalley)
+ - various base 2.5.23 compile/export cleanups
+   - UP compile fix					(Linus)
+   - export default_wake_function			(Ben LaHaise)
+   - export ioremap_nocache				(Andi Kleen)
+   - drivers/hotplug/cpqphp.h include tqueue.h		(me)
+   - fs/smbfs/sock.c include tqueue.h			(Adrian Bunk)
 
-Just about in line with what you'd expect given that registers are 64 bits.
-
-	--david
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

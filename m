@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316978AbSFWGfK>; Sun, 23 Jun 2002 02:35:10 -0400
+	id <S316986AbSFWHbI>; Sun, 23 Jun 2002 03:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316979AbSFWGfJ>; Sun, 23 Jun 2002 02:35:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:19655 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316978AbSFWGfJ>;
-	Sun, 23 Jun 2002 02:35:09 -0400
-Date: Sat, 22 Jun 2002 23:34:32 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Cort Dougan <cort@fsmlabs.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-Message-ID: <20020623063432.GI22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Cort Dougan <cort@fsmlabs.com>, Benjamin LaHaise <bcrl@redhat.com>,
-	Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206201003500.8225-100000@home.transmeta.com> <m1r8j1rwbp.fsf@frodo.biederman.org> <20020621105055.D13973@work.bitmover.com> <m1lm97rx16.fsf@frodo.biederman.org> <20020622122656.W23670@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020622122656.W23670@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316988AbSFWHbH>; Sun, 23 Jun 2002 03:31:07 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:28586 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316986AbSFWHbG>;
+	Sun, 23 Jun 2002 03:31:06 -0400
+Message-ID: <3D1578D3.20909@us.ibm.com>
+Date: Sun, 23 Jun 2002 00:29:23 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: "Christopher E. Brown" <cbrown@woods.net>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
+       "'Andrew Morton'" <akpm@zip.com.au>, mgross@unix-os.sc.intel.com,
+       "'Jens Axboe'" <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles
+ gets large
+References: <20020623043310.GL22411@clusterfs.com> <Pine.LNX.4.44.0206222350070.30350-100000@spruce.woods.net> <20020623063543.GH25360@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 22, 2002 at 12:26:56PM -0700, Larry McVoy wrote:
-> Not as stupid as having a kernel noone can maintain and not being able
-> to do anything about it.  There seems to be a subthread of elitist macho
-> attitude along the lines of "oh, it won't be that bad, and besides,
-> if you aren't good enough to code in a fine grained locked, soft real
-> time, preempted, NUMA aware, then you just shouldn't be in the kernel".
-> I'm not saying you are saying that, but I've definitely heard it on
-> the list.  
+William Lee Irwin III wrote:
+> On Sun, Jun 23, 2002 at 12:00:01AM -0600, Christopher E. Brown wrote:
+> 
+>>However, multiple busses are *rare* on x86.  There are alot of chained
+>>busses via PCI to PCI bridge, but few systems with 2 or more PCI
+>>busses of any type with parallel access to the CPU.
+> 
+> NUMA-Q has them.
+> 
 
-I've been accused of this, so I'll state for the record: my views on
-locking are not efficiency-related in the least. They have to do with
-ensuring that locks protect well-defined data and that locking
-constructs are clean (e.g. nonrecursive and no implicit drop or acquire).
-My duties are not directly related to locking, and I only push the
-agenda I do as a low-priority kernel janitoring effort. As this is not
-a scalability issue, I'll not press it further in this thread.
+Yep, 2 independent busses per quad.  That's a _lot_ of busses when you 
+have an 8 or 16 quad system.  (I wonder who has one of those... ;)
 
+Almost all of the server-type boxes that we play with have multiple 
+PCI busses.  Even my old dual-PPro has 2.
 
-Cheers,
-Bill
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

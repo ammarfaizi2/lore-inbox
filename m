@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVBSSGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVBSSXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVBSSGx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 13:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVBSSGw
+	id S261764AbVBSSXg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 13:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVBSSXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 13:06:52 -0500
-Received: from [83.102.214.158] ([83.102.214.158]:56012 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261761AbVBSSGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 13:06:33 -0500
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
-       alex@clusterfs.com
-Subject: Re: [RFC] pdirops: tmpfs patch
-References: <m34qg84em2.fsf@bzzz.home.net>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: ClusterFS Inc.
-Date: Sat, 19 Feb 2005 21:05:12 +0300
-In-Reply-To: <m34qg84em2.fsf@bzzz.home.net> (Alex Tomas's message of "Sat,
- 19 Feb 2005 20:57:25 +0300")
-Message-ID: <m3vf8o2zon.fsf@bzzz.home.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sat, 19 Feb 2005 13:23:35 -0500
+Received: from ns1.openconsultancy.com ([207.166.203.131]:13444 "EHLO
+	mail.mx.davidcoulson.net") by vger.kernel.org with ESMTP
+	id S261764AbVBSSXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 13:23:34 -0500
+X-Spam-Report: SA TESTS
+ -3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+ -2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  0.9 AWL                    AWL: From: address is in the auto white-list
+Message-ID: <42178422.6000106@davidcoulson.net>
+Date: Sat, 19 Feb 2005 13:23:30 -0500
+From: David Coulson <david@davidcoulson.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: LKML <linux-kernel@vger.kernel.org>
+CC: bzolnier@elka.pw.edu.pl
+Subject: IDE patch to fix Promise 202xx_new
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was having lots of DMA problems with a Promise 20269 PCI IDE 
+controller under 2.6.11-rc4, which made it pretty useless. I found the 
+following patch from almost two years ago, which when applied resolved 
+the problems:
 
+http://www.cs.helsinki.fi/linux/linux-kernel/2003-19/1192.html
 
-Index: linux-2.6.10/mm/shmem.c
-===================================================================
---- linux-2.6.10.orig/mm/shmem.c	2005-01-28 19:32:16.000000000 +0300
-+++ linux-2.6.10/mm/shmem.c	2005-02-19 20:05:32.642599576 +0300
-@@ -1849,7 +1849,7 @@
- #endif
- };
- 
--static int shmem_parse_options(char *options, int *mode, uid_t *uid, gid_t *gid, unsigned long *blocks, unsigned long *inodes)
-+static int shmem_parse_options(char *options, int *mode, uid_t *uid, gid_t *gid, unsigned long *blocks, unsigned long *inodes, struct super_block *sb)
- {
- 	char *this_char, *value, *rest;
- 
-@@ -1858,6 +1858,9 @@
- 			continue;
- 		if ((value = strchr(this_char,'=')) != NULL) {
- 			*value++ = 0;
-+		} else if (!strcmp(this_char,"pdirops")) {
-+			sb->s_flags |= S_PDIROPS;
-+			continue;
- 		} else {
- 			printk(KERN_ERR
- 			    "tmpfs: No value for mount option '%s'\n",
-@@ -1928,7 +1931,7 @@
- 		max_blocks = sbinfo->max_blocks;
- 		max_inodes = sbinfo->max_inodes;
- 	}
--	if (shmem_parse_options(data, NULL, NULL, NULL, &max_blocks, &max_inodes))
-+	if (shmem_parse_options(data, NULL, NULL, NULL, &max_blocks, &max_inodes, sb))
- 		return -EINVAL;
- 	/* Keep it simple: disallow limited <-> unlimited remount */
- 	if ((max_blocks || max_inodes) == !sbinfo)
-@@ -1978,7 +1981,7 @@
- 			inodes = blocks;
- 
- 		if (shmem_parse_options(data, &mode,
--					&uid, &gid, &blocks, &inodes))
-+					&uid, &gid, &blocks, &inodes, sb))
- 			return -EINVAL;
- 	}
- 
+Is there a reason I'm unaware of why this never made it into the main 
+kernel tree? I've not noticed any ill-effects of applying the patch to 
+2.6.11-rc4.
 
+Thanks,
+David

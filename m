@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbUCOXYr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUCOXYq
+	id S262667AbUCOX1a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 18:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbUCOX1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:24:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38093 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262846AbUCOXYR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:24:17 -0500
-Date: Mon, 15 Mar 2004 15:26:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Romanick <idr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: DRM reorganization
-Message-Id: <20040315152621.43a5bcef.akpm@osdl.org>
-In-Reply-To: <40562AEC.9080509@us.ibm.com>
-References: <40562AEC.9080509@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 18:27:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:21388 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262667AbUCOXXA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 18:23:00 -0500
+Date: Mon, 15 Mar 2004 18:26:35 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Kevin Leung <sac98993@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <Law9-F89Xsn2Yf0scL90004e4c8@hotmail.com>
+Message-ID: <Pine.LNX.4.53.0403151813590.2223@chaos>
+References: <Law9-F89Xsn2Yf0scL90004e4c8@hotmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Romanick <idr@us.ibm.com> wrote:
+On Mon, 15 Mar 2004, Kevin Leung wrote:
+
+> Hello All,
 >
-> We're looking at reorganizing the way DRM drivers are maintained. 
-> Currently, the DRM kernel code lives deep in a subdirectory of the DRI 
-> tree (which is a partial copy of the XFree86 tree).  We plan to move it 
-> "up" to its own module at the top level.  That should make it *much* 
-> easier for people that want to do things with the DRM but don't want all 
-> the rest of X (i.e., DRI w/DirectFB, etc.).
-> 
-> When we do this move, we're open to the possibility of reorganizing the 
-> file structure.  What can we do to make it easier for kernel release 
-> maintainers to merge changes into their trees?
+> I am very new to Linux and am working on a project. The nature of the
+> project is to essentially record all process/thread scheduling activity for
+> use in a later application. I wanted to know if any experts out there knew
+> of any libraries that could essentially "monitor" or "listen" for any
+> scheduling changes made. For instance if the kernel decides to set process A
+> from "sleeping" to "running" and process B from "running" to "sleeping", I
+> wanted to know if there was a function that could generate an immediate
+> notification of this event.
 
-- Make sure that the files in the main kernel distribution are up to date.
+No. FYI, there are hundreds-of-thousands of such "events" per second
+of operation! Basically, any time some task is waiting for I/O its
+CPU is taken away and given to somebody else. This is what "sleeping"
+usually means. Once the I/O completes, the task gets the CPU
+again and that's what "running" means. If you were to instrument
+these two state-changes for all tasks, it would certainly leave
+only a new percent of CPU available for the tasks. This would
+royally screw up the meaning of anything you were trying to
+instrument.
 
-- Prepare a shell script which does all the relevant file moves, send to
-  Linus, along with a diff which fixes up Kconfig and Makefiles.
+> Priority change information is also desireable.
 
-- Start patching the files in their new locations.
+If you mean the dynamic priority that keeps changing until
+the task is executed, no. If you mean priority like
+'nice', you can instrument the sys-call.
+
+> The more aspects which trigger notificaiton, the better. As a first attempt,
+
+There is a kernel logging daemon that writes 'printk' messages. This
+works by having a user-mode daemon open and read /proc/kmsg. You can
+make a similar communications interface, using the existing daemon
+as a template, that will instrument anything you want.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317092AbSEXGBX>; Fri, 24 May 2002 02:01:23 -0400
+	id <S317093AbSEXGIh>; Fri, 24 May 2002 02:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317093AbSEXGBW>; Fri, 24 May 2002 02:01:22 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:17812 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317092AbSEXGBW>; Fri, 24 May 2002 02:01:22 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: [PATCH] FIX for XBUG(comment) BUG enhancement
-Date: Fri, 24 May 2002 16:02:01 +1000
-Message-Id: <E17B89J-0006ex-00@wagner.rustcorp.com.au>
+	id <S317094AbSEXGIe>; Fri, 24 May 2002 02:08:34 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:40341 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S317093AbSEXGId>; Fri, 24 May 2002 02:08:33 -0400
+Date: Thu, 23 May 2002 23:15:44 -0700
+From: Hanna V Linder <hannal@us.ibm.com>
+Reply-To: Hanna V Linder <hannal@us.ibm.com>
+To: Austin Gonyou <austin@digitalroadkill.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent kernel SMP scalability Benchmark/White-paper References.
+Message-ID: <345429561.1022195743@[10.10.2.2]>
+In-Reply-To: <1022213044.23882.35.camel@UberGeek>
+X-Mailer: Mulberry/2.1.1 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix for two-character typo (noticed by Stephen Rothwell).
-Applies on top of XBUG patch.
+--On Thursday, May 23, 2002 11:04 PM -0500 Austin Gonyou <austin@digitalroadkill.net> wrote:
+>> We have bi-weekly conference calls where anyone is welcome
+>> to join and ask questions or report your work or whatever.
+>>
+>
+> Kewl, I might just see if I can work that in. I saw the LSE, but the
 
---- working-2.5.17-xbug/include/linux/jbd.h.~1~	Fri May 24 15:58:39 2002
-+++ working-2.5.17-xbug/include/linux/jbd.h	Fri May 24 16:01:20 2002
-@@ -27,6 +27,7 @@
- 
- #include <linux/journal-head.h>
- #include <linux/stddef.h>
-+#include <linux/stringify.h>
- #include <asm/semaphore.h>
- #endif
- 
-@@ -200,7 +201,7 @@
- do {									\
- 	if (!(assert)) {						\
- 		XBUG("Assertion failure in " __FUNCTION__		\
--		     "() at " __FILE__ ":" __stringize(__LINE__)	\
-+		     "() at " __FILE__ ":" __stringify(__LINE__)	\
- 		     ": " #assert);					\
- 	}								\
- } while (0)
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Great.
+
+> documentation out there hadn't been updated in quite some time as well.
+
+I have updated some 8-way kernel comparisons running dbench as recently
+as a couple weeks ago. Although, I do not know of any specific
+Linux(TM) vs Solaris(TM) benchmark results on the lse web site. ;)
+What benchmark would reflect your workload?
+
+Speaking of OLS, Is there any interest in an lse-tech BOF or get-
+to-gether of some sort in Ottawa this summer? It would be nice
+to put some more faces to names from the conference calls.
+
+>>
+>> Hanna Linder
+>> IBM Linux Technology Center
+>>
+> Would that be the ^^^ one here in tx?
+
+Same LTC, different state. The LTC engineers live all over the world.
+I know some of the guys in Austin...
+
+Hanna
+
+
+

@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUCXUA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUCXUA1
+	id S263809AbUCXUBI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUCXUBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:00:27 -0500
-Received: from tag.witbe.net ([81.88.96.48]:52998 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263107AbUCXUAT (ORCPT
+	Wed, 24 Mar 2004 15:01:08 -0500
+Received: from holomorphy.com ([207.189.100.168]:17285 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263809AbUCXUBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:00:19 -0500
-Message-Id: <200403242000.i2OK0AA01266@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'John McCutchan'" <ttb@tentacle.dhs.org>, <rudi@lambda-computing.de>,
-       <linux-kernel@vger.kernel.org>, <jamie@shareable.org>,
-       <tridge@samba.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       <torvalds@osdl.org>, <alexl@redhat.com>, <rml@ximian.com>
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-Date: Wed, 24 Mar 2004 21:00:01 +0100
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <1080158032.30769.13.camel@vertex>
-Thread-Index: AcQR2OU//01TzX6/Rfy7eU15H7PbBQAAV4sw
+	Wed, 24 Mar 2004 15:01:03 -0500
+Date: Wed, 24 Mar 2004 12:00:54 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040324200054.GJ791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]> <20040324061957.GB2065@dualathlon.random> <24560000.1080143798@[10.10.2.4]> <20040324162116.GQ2065@dualathlon.random> <35130000.1080146145@[10.10.2.4]> <20040324170841.GT2065@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040324170841.GT2065@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 24, 2004 at 06:08:41PM +0100, Andrea Arcangeli wrote:
+> nitpick, it's not PAE but highmem that makes it worse (even with PAE off).
 
-Hello,
+Please give me a little more credit than that. This is largely over,
+but when assessing it, do note:
 
-> could be done. Inode numbers are not unique, but is there any 
-> way to get
-> a unique identifier on a file without using an open file? I have come
-I wonder if adding to the inode number something like the device
-id is not enough to create some "unique key"...
+#if defined(CONFIG_HIGHPTE) && defined(CONFIG_HIGHMEM4G)
+typedef u32 pte_addr_t;
+#endif
 
-> up with a few ideas.. I don't think they are very good, but here is
-> goes,
-> 
-> - When user passes fd to kernel to watch, the kernel takes over this
->   fd, making it invalid in user space ( I know this is a 
-> terrible hack)
->   then when a volume is unmounted, the kernel can walk the list of 
->   open fd's using for notifacation and close them, before 
-> attempting to
->   unmount.
-No, this is bad, because it would require to use dedicated fd for
-dnotify. If I open a file/directory, give it to dnotify, I don't
-want to re-open it to use it, read it, or anything else...
- 
-> - The user passes a path to the kernel, the kernel does some work so
->   that it can track anything to do with that path, and again when
->   an unmount is called the kernel cleans up anything used for
->   notification. 
-That sounds much better to me...
+#if defined(CONFIG_HIGHPTE) && defined(CONFIG_HIGHMEM64G)
+typedef u64 pte_addr_t;
+#endif
 
-Regards,
-Paul
+#if !defined(CONFIG_HIGHPTE)
+typedef pte_t *pte_addr_t;
+#endif
 
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
+Yes, I also realized that in principle, one could have only used
+PG_direct if the pagetable fell into the lower 32GB or stuffed the 33rd
+bit into PG_arch and so on and so forth wrt. the 33rd bit.
 
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it" 
-
-
+-- wli

@@ -1,66 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTJWXzy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJWXzy
+	id S261898AbTJWXq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTJWXq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:55:54 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:21717 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261885AbTJWXzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:55:53 -0400
-Date: Thu, 23 Oct 2003 19:45:53 -0400
-From: Ben Collins <bcollins@debian.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV UPDATE] Newer patch.
-Message-ID: <20031023234552.GB554@phunnypharm.org>
-References: <20031023144315.GA667@phunnypharm.org> <Pine.LNX.4.44.0310232343410.21561-100000@phoenix.infradead.org>
+	Thu, 23 Oct 2003 19:46:57 -0400
+Received: from nedc.org ([149.175.1.5]:21663 "HELO lewis.lclark.edu")
+	by vger.kernel.org with SMTP id S261898AbTJWXqv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:46:51 -0400
+Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver
+	conversion
+From: Eric Anholt <eta@lclark.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, kronos@kronoz.cjb.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       DRI <dri-devel@lists.sourceforge.net>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <Pine.LNX.4.44.0310231541000.3421-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0310231541000.3421-100000@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1066952780.22390.15.camel@leguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310232343410.21561-100000@phoenix.infradead.org>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 23 Oct 2003 16:46:20 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 23, 2003 at 11:50:48PM +0100, James Simmons wrote:
+On Thu, 2003-10-23 at 16:23, Linus Torvalds wrote:
+> [ Jeff: is that PCI ROM enable _really_ that complicated? Ouch. Or is
+>   there some helper function I missed? ]
 > 
-> > The cursor has changed from a nice underline to a solid white block. 
+> On Thu, 23 Oct 2003, Jon Smirl wrote:
+> >
+> > I don't think DRM drivers are doing things correctly yet. DRM is missing the
+> > code for marking PCI resources as being in use while DRM is using them. This
+> > could lead to problems with hotplug.  XFree is also mapping PCI ROMs in without
+> > informing the kernel and that can definitely cause problems.
 > 
-> I seen the problem. Its the wrong color for the background color for the 
-> cursor. I haven't been able to figure out why it went wrong. The specs are 
-> not to clear on this.
+> Absolutely. Changing PCI configurations without telling the kernel _will_ 
+> cause problems. Especially for hotplug systems, but it's also very iffy to 
+> do if the card is behind a PCI bridge, since you have to take bridge 
+> resources into account (and know which bridges are transparent, which are 
+> not, etc etc). 
 > 
-> > Not only that,
-> > but the block is bigger than the font it is over (if I am on top of
-> > adjacent letters, it covers the entire letter I am on, plus a couple of
-> > pixels of the letter to the right).
+> The kernel spends a lot of effort on getting this right, and even so it 
+> fails every once in a while (devices that use IO or memory regions without 
+> announcing them in the standard BAR's are quite common, and the kernel has 
+> to have special quirk entries for things like that).
 > 
-> Ug. That code is straight from the old driver. Will fix.
+> Few enough drivers actually want to enable the roms, but the code should 
+> look something like
 > 
-> > In additition, the cursor now disappears while typing, and navigating
-> > around (on the command line left and right, or even in an editor when
-> > moving the cursor up and down). This disappearing while typing or
-> > navigating is _really_ annoying. If I go left or right a lot, I have to
-> > keep stopping to see where the cursor actually is.
+> 	/* Assign space for ROM resource if not already assigned. Ugly. */
+> 	if (!pci_resource_start(dev, PCI_ROM_RESOURCE))
+> 		if (pci_assign_resource(dev, PCI_ROM_RESOURCE) < 0)
+> 			return -ENOMEM;
 > 
-> I seen this problem last night with the NVIDIA fbdev driver. I think I 
-> know what the problem is. I will try a fix tonight. 
+> 	/* Enable it. This is too ugly */
+> 	if (!(pci_resource_flags(dev, PCI_ROM_RESOURCE) & PCI_ROM_ADDRESS_ENABLE)) {
+> 		u32 val;
+> 		pci_read_config_dword(dev, PCI_ROM_ADDRESS, &val);
+> 		val |= PCI_ROM_ADDRESS_ENABLE;
+> 		pci_write_config_dword(dev, PCI_ROM_ADDRESS, val);
+> 		pci_resource_flags(dev, PCI_ROM_RESOURCE) |= PCI_ROM_ADDRESS_ENABLE;
+> 	}
+> 
+> 
+> 	/* Enable the device, and regular resources */
+> 	if (pci_enable_device(dev))
+> 		return -ENODEV;
+> 
+> 	pci_set_master(dev);	/* If we want to */
+> 	pci_set_mwi(dev);	/* If we want to */
+> 
+> (Yeah, that is more complex than it really should need to be. That's just 
+> a sign of exactly how few device drivers tend to want to do this: the 
+> usual helper stuff is all geared for the normal case).
+> 
+> > new style probe
+> > if (new probe has device)
+> >    mark resources in use
+> 
+> You shouldn't need to mark the resources in use. Just registering the 
+> driver should do everything for you, including making sure that no other 
+> driver will register that device.
+> 
+> Of course, if you are worried about mixing with drivers that use the old
+> "find device and just use it", then yes, you'll need to mark the resources 
+> in use. That can be as trivial as just doing a
+> 
+> 	if (pci_request_regions(dev, "drivername") < 0)
+> 		return -EAIIEEEE!;
+> 
+> in the probe function (but then you need to remember to release them in 
+> the drop function).
 
-I noticed one thing, and that is that the mach64 used to use software
-cursor it seems (I remember wondering why atyfb_cursor was never used
-anywhere). It's now using the hw cursor.
-
-Also, I notice with this new code that the random vertical shifting of
-the console doesn't occur anymore like it does with current 2.6.0-test8
-code. For as long as I can remember 2.6.0-test, and way back into
-2.5.5x, this has been a problem with highly active console programs
-(mutt, vim, etc...). Good to see it's going away :)
+However, the DRM is now using the old-style probing instead, because of
+the radeonfb conflict.  In the case of the DRM, we want drivers to
+coexist, at least when loaded in the FB then DRM order.  What should the
+DRM be doing exactly in this case?  Is it exactly what Jon Smirl said,
+or something else?
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Eric Anholt                                eta@lclark.edu          
+http://people.freebsd.org/~anholt/         anholt@FreeBSD.org
+
+

@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269590AbUJFXxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269647AbUJFX4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269590AbUJFXxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269511AbUJFXgl
+	id S269647AbUJFX4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269633AbUJFXZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:36:41 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24062 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S269637AbUJFXel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:34:41 -0400
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] add class/tty/console/real_dev symlink
-Date: Wed, 6 Oct 2004 18:30:52 +0000
-User-Agent: KMail/1.7
-Cc: greg@kroah.com, katzj@redhat.com
+	Wed, 6 Oct 2004 19:25:01 -0400
+Received: from gizmo02ps.bigpond.com ([144.140.71.12]:35298 "HELO
+	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
+	id S269620AbUJFXXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 19:23:10 -0400
+Message-ID: <41647E59.9080700@bigpond.net.au>
+Date: Thu, 07 Oct 2004 09:23:05 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: colpatch@us.ibm.com
+CC: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Simon.Derr@bull.net, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]> <835810000.1096848156@[10.10.2.4]> <20041003175309.6b02b5c6.pj@sgi.com> <838090000.1096862199@[10.10.2.4]> <20041003212452.1a15a49a.pj@sgi.com> <843670000.1096902220@[10.10.2.4]> <Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr> <58780000.1097004886@flay> <20041005172808.64d3cc2b.pj@sgi.com> <1193270000.1097025361@[10.10.2.4]> <20041005190852.7b1fd5b5.pj@sgi.com> <1097103580.4907.84.camel@arrakis>
+In-Reply-To: <1097103580.4907.84.camel@arrakis>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410061830.52563.hollisb@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a symlink from /sys/class/tty/console/real_dev to 
-e.g. /sys/class/tty/ttyS0 . This is needed because there is no way for 
-userspace to determine what device the kernel is using as its console, and in 
-the case of an installer that is important information. Otherwise, the 
-installer cannot know which serial port you're booting on, for example, and 
-so wouldn't know where to display itself.
+Matthew Dobson wrote:
+> On Tue, 2004-10-05 at 19:08, Paul Jackson wrote:
+> 
+> I don't know that these partitions would necessarily need their own
+> scheduler, allocator and resource manager, or if we would just make the
+> current scheduler, allocator and resource manager aware of these
+> boundaries.  In either case, that is an implementation detail not to be
+> agonized over now.
 
-This "works for me". I'm not overly attached to the name of the symlink 
-though. Comments?
+It's not so much whether they NEED their own scheduler, etc. as whether 
+it should be possible for them to have their own scheduler, etc.  With a 
+configurable scheduler (such as ZAPHOD) this could just be a matter of 
+having separate configuration variables for each cpuset (e.g. if a 
+cpuset has been created to contain as bunch of servers there's no need 
+to try and provide good interactive response for its tasks (as none of 
+them will be interactive) so the interactive response mechanism can be 
+turned off in that cpuset leading to better server response and throughput).
 
+Peter
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
+Peter Williams                                   pwil3058@bigpond.net.au
 
-===== drivers/char/tty_io.c 1.147 vs edited =====
---- 1.147/drivers/char/tty_io.c Sat Oct  2 17:45:19 2004
-+++ edited/drivers/char/tty_io.c Wed Oct  6 17:08:27 2004
-@@ -110,6 +110,8 @@
- #define TTY_PARANOIA_CHECK 1
- #define CHECK_TTY_COUNT 1
- 
-+static struct class_device *console_dev;
-+
- struct termios tty_std_termios = { /* for the benefit of tty drivers  */
-  .c_iflag = ICRNL | IXON,
-  .c_oflag = OPOST | ONLCR,
-@@ -2640,6 +2642,9 @@
- {
-  char name[64];
-  dev_t dev = MKDEV(driver->major, driver->minor_start) + index;
-+ struct class_device *tty_dev;
-+ struct tty_driver *console_driver;
-+ int console_index;
- 
-  if (index >= driver->num) {
-   printk(KERN_ERR "Attempt to register invalid tty line number "
-@@ -2654,7 +2659,12 @@
-   pty_line_name(driver, index, name);
-  else
-   tty_line_name(driver, index, name);
-- class_simple_device_add(tty_class, dev, device, name);
-+ tty_dev = class_simple_device_add(tty_class, dev, device, name);
-+
-+ console_driver = console_device(&console_index);
-+ if ((console_driver == driver) && (console_index == index)) {
-+  sysfs_create_link(&console_dev->kobj, &tty_dev->kobj, "real_dev");
-+ }
- }
- 
- /**
-@@ -2921,7 +2931,8 @@
-      register_chrdev_region(MKDEV(TTYAUX_MAJOR, 1), 1, "/dev/console") < 0)
-   panic("Couldn't register /dev/console driver\n");
-  devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 1), S_IFCHR|S_IRUSR|S_IWUSR, "console");
-- class_simple_device_add(tty_class, MKDEV(TTYAUX_MAJOR, 1), NULL, "console");
-+ console_dev = class_simple_device_add(tty_class, MKDEV(TTYAUX_MAJOR, 1),
-+   NULL, "console");
- 
- #ifdef CONFIG_UNIX98_PTYS
-  cdev_init(&ptmx_cdev, &ptmx_fops);
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,105 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135654AbRDTIpu>; Fri, 20 Apr 2001 04:45:50 -0400
+	id <S135831AbRDTIuA>; Fri, 20 Apr 2001 04:50:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135739AbRDTIpl>; Fri, 20 Apr 2001 04:45:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7695 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135654AbRDTIpa>;
-	Fri, 20 Apr 2001 04:45:30 -0400
-Date: Fri, 20 Apr 2001 10:45:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: stefan@jaschke-net.de
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: patch: cdrom_init not called correctly (was Re: ac10 ide-cd oopses on boot)
-Message-ID: <20010420104524.J501@suse.de>
-In-Reply-To: <20010420004914.A1052@werewolf.able.es> <01042009050000.06427@antares>
+	id <S135827AbRDTItu>; Fri, 20 Apr 2001 04:49:50 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:55821
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S135832AbRDTItm>;
+	Fri, 20 Apr 2001 04:49:42 -0400
+Date: Fri, 20 Apr 2001 01:49:40 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
+        autofs@linux.kernel.org
+Subject: Fix for SMP deadlock in autofs4
+Message-ID: <20010420014940.F8578@goop.org>
+Mail-Followup-To: Jeremy Fitzhardinge <jeremy@goop.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
+	autofs@linux.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="i9LlY+UWpKt15+FH"
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Content-Disposition: inline
-In-Reply-To: <01042009050000.06427@antares>; from s-jaschke@t-online.de on Fri, Apr 20, 2001 at 09:05:00AM +0200
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---i9LlY+UWpKt15+FH
+--2fHTh5uZTiUOsy+g
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Apr 20 2001, Stefan Jaschke wrote:
-> On Friday 20 April 2001 00:49, J . A . Magallon wrote:
-> > Hi,
-> >
-> > Just built 2.4.3-ac10 and got an oops when booting. It tries to detect
-> > the CD and gives the oops.
-> > >>EIP; c01bfc7c <cdrom_get_entry+1c/50>   <=====
-> 
-> This appears to be a known problem. Jens Axboe sent a patch in a different
-> thread ("SD-W2002 DVD-RAM") that fixes this. I am including it
-> here for your convenience. (The patch is against 2.4.4-pre4 + Jens' 
-> latest fixes.) 
+This is a fix for a potential deadlock in autofs4's expire routine.
+It tries to use dput() while holding the dcache_lock.  This isn't a
+problem in principle since dput() should only try to take the dcache_lock
+when the counter makes a transition to zero, which can't happen in
+this case.  Unfortunately the generic (and only) implementation of
+atomic_dec_and_lock always takes the lock, so deadlocks.
 
-Indeed, and it was the missing init call as suspected. The problem is
-that cdrom is consequently linked after low level drivers -- this is
-really the stuff that should be fixed, but instead of rewriting all of
-that this quick hack should suffice.
+Obviously, this only effects SMP.  UP's wise avoidance of spinlocks
+saves it once again.
 
--- 
-Jens Axboe
+The simple solution is simply to replace dput() with atomic_dec().
+The count can't reach zero because we did a dget_locked() and held
+dcache_lock the whole time, so we never need to worry about the rest of
+the dput() logic.
 
-
---i9LlY+UWpKt15+FH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cd-ac10-1
-
---- drivers/cdrom/cdrom.c~	Fri Apr 20 10:43:31 2001
-+++ drivers/cdrom/cdrom.c	Fri Apr 20 10:44:21 2001
-@@ -381,7 +381,7 @@
-  * change it here without gcc complaining at every line.
-  */
- #define ENSURE(call, bits) if (cdo->call == NULL) *change_capability &= ~(bits)
--
-+static int cdrom_init(void);
- int register_cdrom(struct cdrom_device_info *cdi)
- {
- 	static char banner_printed;
-@@ -397,11 +397,9 @@
- 	if (cdo->open == NULL || cdo->release == NULL)
- 		return -2;
- 	if ( !banner_printed ) {
--		printk(KERN_INFO "Uniform CD-ROM driver " REVISION "\n");
- 		banner_printed = 1;
--#ifdef CONFIG_SYSCTL
--		cdrom_sysctl_register();
--#endif /* CONFIG_SYSCTL */ 
-+		printk(KERN_INFO "Uniform CD-ROM driver " REVISION "\n");
-+		cdrom_init();
+--- ../2.4/fs/autofs4/expire.c	Wed Jan 31 00:20:50 2001
++++ fs/autofs4/expire.c	Fri Apr 20 01:29:53 2001
+@@ -223,7 +223,8 @@
+ 			mntput(p);
+ 			return dentry;
+ 		}
+-		dput(d);
++
++		atomic_dec(&d->d_count); /* dput(), but we'll never hit zero */
+ 		mntput(p);
  	}
- 	ENSURE(drive_status, CDC_DRIVE_STATUS );
- 	ENSURE(media_changed, CDC_MEDIA_CHANGED);
-@@ -477,7 +475,6 @@
- {
- 	struct cdrom_device_info *cdi, *prev;
- 	int major = MAJOR(unreg->dev);
--	int bit_nr, cd_index;
- 
- 	cdinfo(CD_OPEN, "entering unregister_cdrom\n"); 
- 
-@@ -2706,7 +2703,7 @@
- 
- #endif /* CONFIG_SYSCTL */
- 
--static int __init cdrom_init(void)
-+static int cdrom_init(void)
- {
- 	int n_entries = CDROM_MAX_CDROMS / (sizeof(unsigned long) * 8);
- 
-@@ -2729,5 +2726,4 @@
- 	devfs_unregister(devfs_handle);
- }
- 
--module_init(cdrom_init);
- module_exit(cdrom_exit);
+ 	spin_unlock(&dcache_lock);
 
---i9LlY+UWpKt15+FH--
+	J
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjrf+CQACgkQf6p1nWJ6IgLy2gCfYxkeZks6pS8ZeI3KajQHsPV7
+WigAoISarCrRCAdenygR4Hlsw55/zftC
+=BRGC
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--

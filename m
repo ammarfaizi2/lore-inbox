@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbUAPBOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 20:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUAPBOv
+	id S265231AbUAPBZU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 20:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUAPBZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 20:14:51 -0500
-Received: from cmsrelay01.mx.net ([165.212.11.110]:30926 "HELO
-	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265079AbUAPBOu convert rfc822-to-8bit
+	Thu, 15 Jan 2004 20:25:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46022 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265231AbUAPBZR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 20:14:50 -0500
-X-USANET-Auth: 165.212.8.7     AUTO bradtilley@usa.net uwdvg007.cms.usa.net
-Date: Thu, 15 Jan 2004 20:14:40 -0500
-From: Brad Tilley <bradtilley@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: whoops on 2.6.1 download
-X-Mailer: USANET web-mailer (CM.0402.7.03)
+	Thu, 15 Jan 2004 20:25:17 -0500
+Date: Fri, 16 Jan 2004 01:25:11 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: GOTO Masanori <gotom@debian.or.jp>
+Cc: arjanv@redhat.com, Steve Youngs <sryoungs@bigpond.net.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
+Message-ID: <20040116012511.GI21151@parcelfarce.linux.theplanet.co.uk>
+References: <E1AeMqJ-00022k-00@minerva.hungry.com> <2flllofnvp6.fsf@saruman.uio.no> <microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org> <1073814570.4431.3.camel@laptop.fenrus.com> <817jzsd8lg.wl@omega.webmasters.gr.jp>
 Mime-Version: 1.0
-Message-ID: <835iaPBoO9072S07.1074215680@uwdvg007.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <817jzsd8lg.wl@omega.webmasters.gr.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it's safari on mac os x 10.3... instead of overwriting downloads it increments
-the names:
+On Fri, Jan 16, 2004 at 09:45:47AM +0900, GOTO Masanori wrote:
+ 
+> But I still think 6 is too small from user level point of view, as
+> Petter wrote.  The example is /usr/lib library links.  I got bug
+> report which complained that a library want to use "bounce" link:
+> 
+> 	/usr/lib/liba -> /etc/alternatives/liba -> /usr/lib/another/libb.
+> 
+> If .so file uses major.minor scheme, then /usr/lib/liba.so links:
+> 
+> 	/usr/lib/liba.so -> /usr/lib/liba.so.2 -> /usr/lib/liba.so.2.3
+> 
+> and so on.  It can easily exceed 6 symlinks.  I think the correct fix
+> is to make VFS not to overflow stacks.  Is it allowable change?
 
-MD5 (linux-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
-MD5 (linux-1-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
-MD5 (linux-2-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
-
-sorry
-
-
+	You are quite welcome to submit clean patches that would do that.
+So far all suggested "solutions" had turned out to be broken _and_ ugly.

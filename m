@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279657AbRJYATt>; Wed, 24 Oct 2001 20:19:49 -0400
+	id <S279662AbRJYA2O>; Wed, 24 Oct 2001 20:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279658AbRJYATj>; Wed, 24 Oct 2001 20:19:39 -0400
-Received: from mail1.amc.com.au ([203.15.175.2]:49156 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S279657AbRJYAT3>;
-	Wed, 24 Oct 2001 20:19:29 -0400
-Message-Id: <5.1.0.14.0.20011025101214.009edcc0@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 25 Oct 2001 10:20:01 +1000
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: SiS630S FrameBuffer & LCD
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E15w5Yw-0000Q5-00@the-village.bc.nu>
-In-Reply-To: <20011023153015.F4709@khazad-dum>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S279658AbRJYA2A>; Wed, 24 Oct 2001 20:28:00 -0400
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:22152 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S279666AbRJYA1u>; Wed, 24 Oct 2001 20:27:50 -0400
+Date: Wed, 24 Oct 2001 20:28:24 -0400 (EDT)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: Harald Dunkel <harri@synopsys.COM>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Alsa 0.9beta8a with 2.4.{12,13} ?
+In-Reply-To: <3BD72F8F.43E21E66@Synopsys.COM>
+Message-ID: <Pine.A41.4.21L1.0110242026450.59430-100000@login8.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:42 PM 23/10/01 +0100, Alan Cox wrote:
->SiS actually had a much updated frame buffer console driver that never made
->it into the kernel (stuff needed fixing and I never got a reply so it
->dropped out of the tree)
+Regarding the tainted modules warnings: this was fixed a week or so ago in
+cvs for both 0.5.11 and head.
 
-Did this make it into any -pre's or -ac's that you remember? Might give me 
-somewhere to start at and figure out where the problem lies. Even a general 
-idea will do, as I'll search it down.
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
->It may be worthing finding out if SiS have the relevant stuff around
+On Wed, 24 Oct 2001, Harald Dunkel wrote:
 
-I'll try and contact someone at SiS about relevant info.
-
-PS: Sorry about the reply time, was off sick from work for a day, which is 
-where I'm subscribed to l-k.
-
-Stuart Young - sgy@amc.com.au
-(aka Cefiar) - cefiar1@optushome.com.au
-
-[All opinions expressed in the above message are my]
-[own and not necessarily the views of my employer..]
+> {root@bilbo:harri 937} /etc/init.d/alsasound restart
+> Shutting down sound driver: done
+> Starting sound driver: snd-card-via686a Warning: loading /lib/modules/2.4.13/misc/snd.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-seq-device.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-rawmidi.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-mpu401-uart.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-timer.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-pcm.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-ac97-codec.o will taint the kernel: no license
+> Warning: loading /lib/modules/2.4.13/misc/snd-card-via686a.o will taint the kernel: no license
+> done
+> /usr/sbin/alsactl: load_state:1026: No soundcards found...
 

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282479AbRKZU2n>; Mon, 26 Nov 2001 15:28:43 -0500
+	id <S282481AbRKZUcy>; Mon, 26 Nov 2001 15:32:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282490AbRKZU2c>; Mon, 26 Nov 2001 15:28:32 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47621
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S282479AbRKZU2V>; Mon, 26 Nov 2001 15:28:21 -0500
-Date: Mon, 26 Nov 2001 12:26:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: Looking for SCSI test harness
-In-Reply-To: <Pine.LNX.4.40.0111261337590.15983-100000@waste.org>
-Message-ID: <Pine.LNX.4.10.10111261225030.8817-100000@master.linux-ide.org>
+	id <S282482AbRKZUcl>; Mon, 26 Nov 2001 15:32:41 -0500
+Received: from mail110.mail.bellsouth.net ([205.152.58.50]:21490 "EHLO
+	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S282481AbRKZUcV>; Mon, 26 Nov 2001 15:32:21 -0500
+Message-ID: <3C02A6D0.58AE0FEE@mandrakesoft.com>
+Date: Mon, 26 Nov 2001 15:32:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Anders Linden <anli@perceptive.se>, linux-kernel@vger.kernel.org
+Subject: Re: Network card timeouts
+In-Reply-To: <E168SKg-0006jd-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Oliver Xymoron wrote:
-
-> Anyone have a tool to put a SCSI disk/driver through its paces?  I'm
-> looking for something that can be used for regression testing.
+Alan Cox wrote:
 > 
-> --
->  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> > The later card, Davicom, is probably not a well-known card, but
+> > nevertheless, it works like shit in Linux. I am using Redhat 7.1 and th=
+> > e
+> > kernel 2.4.2-2. If I send more than 10M to such a card in an interval o=
+> 
+> Davicom is a bad tulip clone. It has a (not very good) davicom provided
+> driver in 2.4.2 or you can use tulip or the updated davicom provided dfme
+> driver in newer 2.4
 
-One day I will get around to fixing SCSI to have a low-level diagnostic
-entry point for a test suite, but not time right now ... sorry.
+tulip should work better IMHO for all davicom tulip clones -except- the
+older ones which require doing a software crc for each packet.  For
+those, the performance penalty is too high to integrate into the
+mainline tulip driver.  So my advice is usually "try tulip, then
+fallback to dmfe if software crc is required"
 
-Regards,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

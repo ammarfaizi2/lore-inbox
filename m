@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUHHAda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUHHAmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUHHAda (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 20:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUHHAda
+	id S264260AbUHHAmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 20:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHHAmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 20:33:30 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:33008 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264256AbUHHAd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 20:33:28 -0400
-Date: Sat, 7 Aug 2004 20:37:19 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: carbonated beverage <ramune@net-ronin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI/Panic 2.6.8-rc3
-In-Reply-To: <20040805003426.GA18820@net-ronin.org>
-Message-ID: <Pine.LNX.4.58.0408072036280.19619@montezuma.fsmlabs.com>
-References: <20040805003426.GA18820@net-ronin.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Aug 2004 20:42:06 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13203 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264260AbUHHAmC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 20:42:02 -0400
+Date: Sat, 7 Aug 2004 17:41:33 -0700
+From: Paul Jackson <pj@sgi.com>
+To: David Ford <david+challenge-response@blue-labs.org>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+Subject: Re: warning: comparison is always false due to limited range of
+ data type
+Message-Id: <20040807174133.1e368fbc.pj@sgi.com>
+In-Reply-To: <411562FD.5040500@blue-labs.org>
+References: <411562FD.5040500@blue-labs.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, carbonated beverage wrote:
+david+challenge-response@blue-labs.org wrote:
+> fs/smbfs/inode.c:563: warning: comparison is always false due to limited 
+> range of data type
+> fs/smbfs/inode.c:564: warning: comparison is always false due to limited 
+> range of data type
 
-> Reported this a while ago, but tried it again, still getting oops
-> when doing an rmmod of the ACPI processor module.
->
-> Hardware: IBM T30, P4 2.4GHz, 256MiB, Debian/stable, did an rmmod processor.
->
-> Note: Oops below was copied by hand, so may not be fully reliable.  Also,
-> EIP was screwy, so no idea what was executing.
+You're lucky you're still on the cc list David - please don't use reply
+addresses that require editing.
 
-It should be fixed before 2.6.8, a patch has already been sent to the big
-wigs.
+Adding Andi Kleen <ak@muc.de> to cc list - looks from the bk log that he
+might have some interest in this.
 
-Index: linux-2.6.8-rc1-mm1/drivers/acpi/processor.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc1-mm1/drivers/acpi/processor.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 processor.c
---- linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	14 Jul 2004 04:56:25 -0000	1.1.1.1
-+++ linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	20 Jul 2004 15:31:46 -0000
-@@ -2372,8 +2372,10 @@ acpi_processor_remove (
- 	pr = (struct acpi_processor *) acpi_driver_data(device);
+fs/smbfs/inode.c
+  1.46 03/12/01 07:04:55 ak@muc.de[torvalds] +2 -2
+  UID16 fixes
 
- 	/* Unregister the idle handler when processor #0 is removed. */
--	if (pr->id == 0)
-+	if (pr->id == 0) {
- 		pm_idle = pm_idle_save;
-+		synchronize_kernel();
-+	}
+bk diffs -r1.45..1.46 fs/smbfs/inode.c
+===== fs/smbfs/inode.c 1.45 vs 1.46 =====
+554,555c554,555
+<               mnt->uid = OLD_TO_NEW_UID(oldmnt->uid);
+<               mnt->gid = OLD_TO_NEW_GID(oldmnt->gid);
+---
+>               SET_UID(mnt->uid, oldmnt->uid);
+>               SET_GID(mnt->gid, oldmnt->gid);
 
- 	status = acpi_remove_notify_handler(pr->handle, ACPI_DEVICE_NOTIFY,
- 		acpi_processor_notify);
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

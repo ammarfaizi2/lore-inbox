@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265616AbSJXT0x>; Thu, 24 Oct 2002 15:26:53 -0400
+	id <S265625AbSJXTcS>; Thu, 24 Oct 2002 15:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265617AbSJXT0x>; Thu, 24 Oct 2002 15:26:53 -0400
-Received: from mailout.nordcom.net ([213.168.202.90]:21405 "HELO
-	mailout.nordcom.net") by vger.kernel.org with SMTP
-	id <S265616AbSJXT0v>; Thu, 24 Oct 2002 15:26:51 -0400
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S265614AbSJXTcS>; Thu, 24 Oct 2002 15:32:18 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:52904 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265624AbSJXTcQ>;
+	Thu, 24 Oct 2002 15:32:16 -0400
+Message-ID: <3DB84C3E.1070709@colorfullife.com>
+Date: Thu, 24 Oct 2002 21:38:38 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: erich@uruk.org
+CC: Matthias Welk <matthias.welk@fokus.gmd.de>, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: [CFT] faster athlon/duron memory copy implementation
-In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
-References: <3DB82ABF.8030706@colorfullife.com>
-Reply-To: pharao90@tzi.de
-Message-Id: <E184nj4-0000Qo-00@neptune.sol.net>
-From: Pascal Schmidt <der.eremit@email.de>
-Date: Thu, 24 Oct 2002 21:33:02 +0200
+References: <E184nEw-00071m-00@trillium-hollow.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002 19:20:13 +0200, you wrote in linux.kernel:
-> Attached is a test app that compares several memory copy implementations.
-> Could you run it and report the results to me, together with cpu, 
-> chipset and memory type?
+erich@uruk.org wrote:
 
-CPU: AMD Duron Spitfire 1 GHz
-Chipset: ALi 1647 (Magik 1)
-Memory: 2x 256 MB DDR-SDRAM at 200 MHz
+>>copy_page() tests
+>>copy_page function 'warm up run'         took 18081 cycles per page
+>>copy_page function '2.4 non MMX'         took 19487 cycles per page
+>>copy_page function '2.4 MMX fallback'    took 19403 cycles per page
+>>copy_page function '2.4 MMX version'     took 18086 cycles per page
+>>copy_page function 'faster_copy'         took 11372 cycles per page
+>>copy_page function 'even_faster'         took 11183 cycles per page
+>>copy_page function 'no_prefetch'         took 7815 cycles per page
+>>1020 [maw] (buruk) /tmp/athlon # athlon_test
+>>    
+>>
+>
+>
+>Whoa!  Hmm.
+>
+>If I'm reading this right, with a processor speed of 1.666 GHz,
+>you're getting:
+>
+>    (4096 bytes / 7815 clocks) * 1.666 GHz  =  873 MB/sec
+>
+>The perfect peak performance of your setup, if the cache implements
+>standard write-allocate behavior (the target cache line is read before it
+>is written because the write logic doesn't know you're going to overwrite
+>the whole line in cases like this), should be:
+>  
+>
+There is no write allocate.
 
-> Please run 2 or 3 times.
+There are 2 optimizations for bulk memory copy:
+- avoid the write allocate. Possible with the mmx or sse non-temporal 
+cache hints
+    * already in the kernel. Difference between MMX and faster_copy
+- avoid dram page misses, and stream from the memory chips with maximum 
+efficiency.
+    * new optimization. "prefetch" is a hint for the cpu that the 
+program might need the memory
+        If I understand the AMD document correctly, then this is not 
+what's needed for bulk
+        memory copy: we know that we'll need that cacheline. Thus a real 
+read, to force the cpu to
+        fetch the cacheline, even if all read buffers are occupied.
 
-CFLAGS="-march=athlon" make athlon
+--
+    Manfred
 
-[pharao90@neptune (ttyp2) ~]$ ./athlon 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-copy_page() tests 
-copy_page function 'warm up run'         took 20604 cycles per page
-copy_page function '2.4 non MMX'         took 26798 cycles per page
-copy_page function '2.4 MMX fallback'    took 27143 cycles per page
-copy_page function '2.4 MMX version'     took 20835 cycles per page
-copy_page function 'faster_copy'         took 12324 cycles per page
-copy_page function 'even_faster'         took 12615 cycles per page
-copy_page function 'no_prefetch'         took 10842 cycles per page
-[pharao90@neptune (ttyp2) ~]$ ./athlon 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-
-copy_page() tests 
-copy_page function 'warm up run'         took 25284 cycles per page
-copy_page function '2.4 non MMX'         took 31419 cycles per page
-copy_page function '2.4 MMX fallback'    took 30724 cycles per page
-copy_page function '2.4 MMX version'     took 25246 cycles per page
-copy_page function 'faster_copy'         took 15462 cycles per page
-copy_page function 'even_faster'         took 16504 cycles per page
-copy_page function 'no_prefetch'         took 10179 cycles per page
-[pharao90@neptune (ttyp2) ~]$ ./athlon 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-
-copy_page() tests 
-copy_page function 'warm up run'         took 22943 cycles per page
-copy_page function '2.4 non MMX'         took 30414 cycles per page
-copy_page function '2.4 MMX fallback'    took 30703 cycles per page
-copy_page function '2.4 MMX version'     took 23345 cycles per page
-copy_page function 'faster_copy'         took 14878 cycles per page
-copy_page function 'even_faster'         took 14902 cycles per page
-copy_page function 'no_prefetch'         took 10872 cycles per page
-
-Note that even_faster is always slower than faster_copy. ;)
-
--- 
-Ciao,
-Pascal

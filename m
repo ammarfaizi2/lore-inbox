@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUHDXp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUHDXu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267514AbUHDXp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 19:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUHDXpQ
+	id S267521AbUHDXu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 19:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUHDXuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 19:45:16 -0400
-Received: from gizmo03ps.bigpond.com ([144.140.71.13]:47007 "HELO
-	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
-	id S267514AbUHDXoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 19:44:10 -0400
-Message-ID: <411174C6.2020109@bigpond.net.au>
-Date: Thu, 05 Aug 2004 09:44:06 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-References: <6560000.1091632215@[10.10.2.4]> <7480000.1091632378@[10.10.2.4]> <20040804122414.4f8649df.akpm@osdl.org>
-In-Reply-To: <20040804122414.4f8649df.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 4 Aug 2004 19:50:52 -0400
+Received: from [203.178.140.15] ([203.178.140.15]:3338 "EHLO yue.st-paulia.net")
+	by vger.kernel.org with ESMTP id S267516AbUHDXuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 19:50:50 -0400
+Date: Wed, 04 Aug 2004 16:51:13 -0700 (PDT)
+Message-Id: <20040804.165113.06226042.yoshfuji@linux-ipv6.org>
+To: ak@muc.de
+Cc: davem@redhat.com, jgarzik@pobox.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: block layer sg, bsg
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040804232116.GA30152@muc.de>
+References: <20040804191850.GA19224@havoc.gtf.org>
+	<20040804122254.3d52c2d4.davem@redhat.com>
+	<20040804232116.GA30152@muc.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+In article <20040804232116.GA30152@muc.de> (at 5 Aug 2004 01:21:16 +0200,Thu, 5 Aug 2004 01:21:16 +0200), Andi Kleen <ak@muc.de> says:
+
+> On Wed, Aug 04, 2004 at 12:22:54PM -0700, David S. Miller wrote:
+> > On Wed, 4 Aug 2004 15:18:50 -0400
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > 
+> > > On Wed, Aug 04, 2004 at 07:28:04PM +0200, Andi Kleen wrote:
+> > > > So please never pass any structures with read/write/netlink.
+> > > 
+> > > Sorry...  This is pretty much a given IMO.
+> > 
+> > Yes, netlink would be a nop if we gave in to Andi's reccomendation
+> > :-)
 > 
->>SDET 8  (see disclaimer)
->>                            Throughput    Std. Dev
->>                     2.6.7       100.0%         0.2%
->>                 2.6.8-rc2       100.2%         1.0%
->>             2.6.8-rc2-mm2       117.4%         0.9%
->>
->> SDET 16  (see disclaimer)
->>                            Throughput    Std. Dev
->>                     2.6.7       100.0%         0.3%
->>                 2.6.8-rc2        99.5%         0.3%
->>             2.6.8-rc2-mm2       118.5%         0.6%
-> 
-> 
-> hum, interesting.  Can Con's changes affect the inter-node and inter-cpu
-> balancing decisions, or is this all due to caching effects, reduced context
-> switching etc?
+> Well, 32bit ipsec on x86-64/ia64 is a NOP because of that.
 
-One candidate for the cause of this improvement is the replacement of 
-the active/expired array mechanism with a single array.  I believe that 
-one of the short comings of the active/expired array mechanism is that 
-it can lead to excessive queuing (possibly even starvation) of tasks 
-that aren't considered "interactive".
+Hmm, I don't get the point.
+What part (or which structore) is broken?
 
-> 
-> I don't expect we'll be merging a new CPU scheduler into mainline any time
-> soon, but we should work to understand where this improvement came from,
-> and see if we can get the mainline scheduler to catch up.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+--yoshfuji

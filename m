@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273831AbRJTRXa>; Sat, 20 Oct 2001 13:23:30 -0400
+	id <S273796AbRJTRV2>; Sat, 20 Oct 2001 13:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273836AbRJTRXV>; Sat, 20 Oct 2001 13:23:21 -0400
-Received: from email.osc.edu ([192.148.249.4]:22989 "EHLO osc.edu")
-	by vger.kernel.org with ESMTP id <S273831AbRJTRXI>;
-	Sat, 20 Oct 2001 13:23:08 -0400
-Date: Sat, 20 Oct 2001 13:20:54 -0400 (EDT)
+	id <S273831AbRJTRVS>; Sat, 20 Oct 2001 13:21:18 -0400
+Received: from osc.edu ([192.148.249.4]:21709 "EHLO osc.edu")
+	by vger.kernel.org with ESMTP id <S273796AbRJTRVH>;
+	Sat, 20 Oct 2001 13:21:07 -0400
+Date: Sat, 20 Oct 2001 13:18:54 -0400 (EDT)
 From: Jan Labanowski <jkl@osc.edu>
 To: linux-kernel@vger.kernel.org
 cc: Jan Labanowski <jkl@osc.edu>
-Subject: 2.4.12 SCSI_IOCTL_FC_TARGET_ADDRESS undeclared in ./drivers/scsi/cpqfcTSinit.c
-Message-ID: <Pine.GSO.4.21.0110201318590.16747-100000@arlen.osc.edu>
+Subject: 2.4.12 IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
+Message-ID: <Pine.GSO.4.21.0110201316470.16747-100000@arlen.osc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 [1.] One line summary of the problem:
-2.4.12: SCSI_IOCTL_FC_TARGET_ADDRESS undeclared in ./drivers/scsi/cpqfcTSinit.c
+2.4.12: IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
 
 [2.] Full description of the problem/report:
 
@@ -26,30 +26,26 @@ When I run
    make modules
 I get:
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.12/include/linux/modversions.h   -c -o cpqfcTSinit.o cpqfcTSinit.c
-cpqfcTSinit.c: In function `cpqfcTS_ioctl':
-cpqfcTSinit.c:663: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in this
-function)
-cpqfcTSinit.c:663: (Each undeclared identifier is reported only once
-cpqfcTSinit.c:663: for each function it appears in.)
-cpqfcTSinit.c:681: `SCSI_IOCTL_FC_TDR' undeclared (first use in this function)
-make[2]: *** [cpqfcTSinit.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
+make[2]: Entering directory `/usr/src/linux-2.4.12/drivers/parport'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.12/include/linux/modversions.h   -c -o ieee1284_ops.o ieee1284_ops.c
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+make[2]: *** [ieee1284_ops.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/parport'
+make[1]: *** [_modsubdir_parport] Error 2
 make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
 make: *** [_mod_drivers] Error 2
+
 ======================================
+The ieee1284_ops.c wants IEEE1284_PH_DIR_UNKNOWN but
+/usr/include/local/parport.h has IEEE1284_PH_ECP_DIR_UNKNOWN
 
-I could not find any file which contains something similar to 
-SCSI_IOCTL_FC_TARGET_ADDRESS, so I just simply cheated by doing
-cd /usr/src/linux-2.4.12/drivers/scsi
-mv cpqfcTSinit.c cpqfcTSinit.c.orig
-# created empty file cpqfcTSinit.c
-cat > cpqfcTSinit.c
-^D
-cd /usr/src/linux
-make modules
-
+I changed IEEE1284_PH_DIR_UNKNOWN -> IEEE1284_PH_ECP_DIR_UNKNOWN
+on lines  365 and 367, and it compiled, but I am not sure if it fixes it.
 
 [3.] Keywords (i.e., modules, networking, kernel): modules
 
@@ -122,8 +118,9 @@ ln -s /usr/src/linux-2.4/include/asm-i386 asm
 ln -s /usr/src/linux-2.4/include/linux linux
 ln -s /usr/src/linux-2.4/include/scsi scsifil
 
-and my /usr/src/linux-2.4 and /usr/src/linux is
+and my /usr/src/linux-2.4 and /usr/src/linus is
 lrwxrwxrwx 1 root root 12 Oct 20 02:13 /usr/src/linux-2.4 -> lnux-2.4.12
+
 
 
 

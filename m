@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262600AbRFLR0M>; Tue, 12 Jun 2001 13:26:12 -0400
+	id <S262634AbRFLR1W>; Tue, 12 Jun 2001 13:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262634AbRFLR0C>; Tue, 12 Jun 2001 13:26:02 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:46862 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S262600AbRFLRZw>; Tue, 12 Jun 2001 13:25:52 -0400
-Message-ID: <3B265085.32DFDBAF@lexus.com>
-Date: Tue, 12 Jun 2001 10:25:26 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S262728AbRFLR1M>; Tue, 12 Jun 2001 13:27:12 -0400
+Received: from hood.tvd.be ([195.162.196.21]:26520 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S262634AbRFLR1D>;
+	Tue, 12 Jun 2001 13:27:03 -0400
+Date: Tue, 12 Jun 2001 19:23:51 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sergey Tursanov <__gsr@mail.ru>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Re[2]: PC keyboard rate/delay
+In-Reply-To: <53176576.20010612212337@mail.ru>
+Message-ID: <Pine.LNX.4.05.10106121920100.7169-100000@callisto.of.borg>
 MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT]: Tux vs khttpd? (fwd)
-In-Reply-To: <Pine.LNX.4.30.0106121439020.29762-100000@mustard.heime.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roy,
+On Tue, 12 Jun 2001, Sergey Tursanov wrote:
+> AC> You must have been reading my mind. Yesterday I traced at least one X11
+> AC> hang down to the kernel and X server both frobbing with the port at the same
+> AC> time and crashing the microcontroller on my PC110.
+> 
+> I think it would be better to place all of kbd controller code
+> into the kernel instead of using various userspace programs
+> such as kbdrate. Otherwise why KDKBDREP was defined ?-)
 
-IIRC Ingo posted some tux benchmark results on
-the khttpd mailing list some weeks ago - basically
-khttpd is not in the same ballpark at this point.
+Because (almost?) all m68k machines don't have PC style keyboard controllers,
+so we _had_ to invent some other way to implement it in a portable (across all
+m68k machines) way.
 
-cu
+<wishful thinking>
+Of course it would be nice if all architectures would want to use it.
+</wishful thinking>
 
-jjs
+Gr{oetje,eeting}s,
 
-Roy Sigurd Karlsbakk wrote:
+						Geert
 
-> Hi everyone!
->
-> I tried to send this message to the khttpd group, but got no answer. Can
-> any of you help me?
->
-> ---------- Forwarded message ----------
-> Date: Thu, 07 Jun 2001 17:31:20 +0000
-> From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-> To: khttpd-users@zgp.org
-> Subject: Tux vs khttpd?
->
-> hi
->
-> Does anyone know any details about how Tux performs in comparison with
-> khttpd?
-> Is this a separate project, or is it a somehow 'better version' of the
-> khttpd?
-> Are these going to be merged?
->
-> roy
-> -----
-> Roy Sigurd Karlsbakk
-> <roy@karlsbakk.net>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

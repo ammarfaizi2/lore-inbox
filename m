@@ -1,57 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVBHRsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVBHRuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVBHRsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 12:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVBHRsL
+	id S261608AbVBHRuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 12:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVBHRuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 12:48:11 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:26898 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261607AbVBHRsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 12:48:07 -0500
-Message-Id: <200502081747.j18Hlt54012728@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8) 
-In-Reply-To: Your message of "Tue, 08 Feb 2005 11:24:50 CST."
-             <20050208172450.GA3598@halcrow.us> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net>
-            <20050208172450.GA3598@halcrow.us>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1107884875_3999P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 8 Feb 2005 12:50:07 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:61798 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261608AbVBHRtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 12:49:42 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [BUG report] UML linux-2.6 latest BK doesn't compile
+Date: Tue, 8 Feb 2005 18:48:46 +0100
+User-Agent: KMail/1.7.2
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Dike <jdike@addtoit.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk> <200502081122.22613.blaisorblade@yahoo.it> <1107859254.582.4.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1107859254.582.4.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Feb 2005 12:47:55 -0500
+Content-Disposition: inline
+Message-Id: <200502081848.46270.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1107884875_3999P
-Content-Type: text/plain; charset=us-ascii
+On Tuesday 08 February 2005 11:40, Anton Altaparmakov wrote:
+> On Tue, 2005-02-08 at 11:22 +0100, Blaisorblade wrote:
+> > On Tuesday 08 February 2005 11:09, Anton Altaparmakov wrote:
+> > > Hi,
+> > >
+> > > With the current linux-2.6 BK tree I get this when trying to compile
+> > > UML:
+> > >
+> > >   CC      init/version.o
+> > >   LD      init/built-in.o
+> > >   LD      .tmp_vmlinux1
+> > > arch/um/kernel/built-in.o(__ksymtab+0x2b0): In function `um_execve':
+> > > arch/um/kernel/exec_kern.c:59: undefined reference to `__bb_init_func'
+> > > collect2: ld returned 1 exit status
+> > >   KSYM    .tmp_kallsyms1.S
+> > > nm: '.tmp_vmlinux1': No such file
+> > > /bin/bash: line 1: 26161 Exit 1                  nm -n .tmp_vmlinux1
+> > >      26162 Segmentation fault      | scripts/kallsyms >.tmp_kallsyms1.S
+> > > make: *** [.tmp_kallsyms1.S] Error 139
+> > >
+> > > This is with SKAS mode enabled and TT disabled.  My .config is
+> > > attached.
+> >
+> > Hmm - I do not understand at all where `__bb_init_func' comes from (not
+> > from UML by sure, only from kernel headers possibly). And from
+> > preprocessing the source (of the -bk4 snapshot), nothing similar comes
+> > out.
+>
+> It is from UML.  'bk -r grep __bb_init_func' gives:
+>
+> arch/um/kernel/gmon_syms.c      1.1     extern void __bb_init_func(void
+> *);
+> arch/um/kernel/gmon_syms.c      1.1     EXPORT_SYMBOL(__bb_init_func);
+>
+> The kernel compiles fine with the same .config but TT mode also enabled.
 
-On Tue, 08 Feb 2005 11:24:50 CST, Michael Halcrow said:
+> So I suspect that in the non-TT case the gmon_syms binary
+> linked into the kernel
+I think it *is* still linked.
+> so the symbol is missing or something like 
+> that...
+Hmm, the difference is likely in the build commands:
 
-> While the program is waiting for a keystroke, mount the block device.
-> Enter a keystroke.  The result without the patch is 1, which is a
-> security violation.  This occurs because the bd_release function will
-> bd_release(bdev) and set inode->i_security to NULL on the close(fd1).
+1) Simply because the build is dynamic in the non-TT mode case (no idea)
+2) bug in Makefiles.... but I didn't see anything strange:
 
-Sounds like a bug, not a feature.  Should it be zeroing out inode->i_security
-for an inode with a non-zero reference count?
+arch/um/Makefile-skas (included only when SKAS mode is enabled):
 
---==_Exmh_1107884875_3999P
-Content-Type: application/pgp-signature
+PROFILE += -pg
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+CFLAGS-$(CONFIG_GCOV) += -fprofile-arcs -ftest-coverage
+CFLAGS-$(CONFIG_GPROF) += $(PROFILE)
+LINK-$(CONFIG_GPROF) += $(PROFILE)
 
-iD8DBQFCCPtKcC3lWbTT17ARAtM2AJ0b8z1sXikCbfrCkAfv6M93OEZmawCgic73
-UOfHqJ1bVBrCzZj8ji3fUWg=
-=OxCR
------END PGP SIGNATURE-----
+the Makefiles were heavily changed, however, recently (after 2.6.10).
+> Also note I am using the latest BK as pulled about an hour ago.  I don't
+> know how old the snapshot you are using is in comparison.
+Last daily snapshot, when I posted. (Now we are at -bk5). However I only built 
+the file on which you saw the warning, not everything.
+> Lots of UML 
+> changes were pulled in by my pull...
 
---==_Exmh_1107884875_3999P--
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUC1SgK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 13:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUC1SgK
+	id S262316AbUC1SyX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 13:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUC1SyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 13:36:10 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16828 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262347AbUC1SgD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 13:36:03 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] speed up SATA
-Date: Sun, 28 Mar 2004 20:45:07 +0200
-User-Agent: KMail/1.5.3
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de>
-In-Reply-To: <20040328183010.GQ24370@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Mar 2004 13:54:23 -0500
+Received: from gprs214-54.eurotel.cz ([160.218.214.54]:19841 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262316AbUC1SyV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 13:54:21 -0500
+Date: Sun, 28 Mar 2004 20:54:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ivan Godard <igodard@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel support for peer-to-peer protection models...
+Message-ID: <20040328185410.GE406@elf.ucw.cz>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21> <20040328062422.GB307@elf.ucw.cz> <06ea01c4148e$67436c80$fc82c23f@pc21>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403282045.07246.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <06ea01c4148e$67436c80$fc82c23f@pc21>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 of March 2004 20:30, Jens Axboe wrote:
-> On Sun, Mar 28 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Sunday 28 of March 2004 20:12, William Lee Irwin III wrote:
-> > > On Sun, Mar 28, 2004 at 07:54:36PM +0200, Jens Axboe wrote:
-> > > > Sorry, but I cannot disagree more. You think an artificial limit at
-> > > > the block layer is better than one imposed at the driver end, which
-> > > > actually has a lot more of an understanding of what hardware it is
-> > > > driving? This makes zero sense to me. Take floppy.c for instance, I
-> > > > really don't want 1MB requests there, since that would take a minute
-> > > > to complete. And I might not want 1MB requests on my Super-ZXY
-> > > > storage, because that beast completes io easily at an iorate of
-> > > > 200MB/sec.
-> > > > So you want to put this _policy_ in the block layer, instead of in
-> > > > the driver. That's an even worse decision if your reasoning is
-> > > > policy. The only such limits I would want to put in, are those of the
-> > > > bio where simply is best to keep that small and contained within a
-> > > > single page to avoid higher order allocations to do io. Limits based
-> > > > on general sound principles, not something that caters to some
-> > > > particular piece of hardware. I absolutely refuse to put a global
-> > > > block layer 'optimal io size' restriction in, since that is the
-> > > > ugliest of policies and without having _any_ knowledge of what the
-> > > > hardware can do.
-> > >
-> > > How about per-device policies and driver hints wrt. optimal io?
-> >
-> > Yep, user-tunable per-device policies with sane driver defaults.
->
-> BTW, these are trivial to expose through sysfs as their as inside the
-> queue already.
+Hi!
 
-Yep, yep.
+> > I meant "User Mode Linux" == linux running under linux. Someone
+> > probably has an URL.
+> 
+> Sorry - I plead ignorance :-)  As the protection is recursive and
+> transitive, I suppose that you could do this. When the UMK (user mode
+> kernel) went to change the "real" machine it would get a protection fault
+> that would be handled by the KMK, emulating the effect. Getting it right and
+> also performant would be tricky though - is UML a necessary feature?
 
-> Making something user tunable is usually not the best idea, if you can
-> deduct these things automagically instead. So whether this is the best
-> idea, depends on which way you want to go.
+No. Its just "nice to have", and it does not support too many
+architectures.
 
-I think it's the best idea for now, long-term we are better with automagic.
+> > Strange system.... If an application does not grant kernel access to
+> > its space, how is kernel supposed to do its job? For example, that
+> > "paranoid DLL" becomes unswappable, then?
+> 
+> Pretection is in the *virtual* space, not physical. The physical-page
+> manager (who has the TLB and underlying mapping tables in its space) can see
+> and deal with any physical address, which in turn has the usual aliasing
+> relationship with virtual addresses. Of course, physical is just one of the
+> virtual spaces (and is distinguished solely by the one-to-one
+> virtual-physical mapping). So the protection can be penetrated by anyone who
+> can see the underlying physical page - but that's always true.
 
-Bartlomiej
+Aha, so some part of kernel exist that has "absolute right". Ok, now I
+can imagine that it can work.
 
+> > If most changes are in arch/, it should be acceptable...
+> 
+> I fear that it might be more extensive than that :-)
+
+Well, make patch and lets see... That means that 2.8 needs to be your
+target. If impact outside of arch is not "total rewrite", you might
+have a chance. If it is "total rewrite".... well you just need to be
+very clever.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

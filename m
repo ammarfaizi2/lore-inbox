@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269349AbRHCIby>; Fri, 3 Aug 2001 04:31:54 -0400
+	id <S269350AbRHCIby>; Fri, 3 Aug 2001 04:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269345AbRHCIbp>; Fri, 3 Aug 2001 04:31:45 -0400
-Received: from web10401.mail.yahoo.com ([216.136.130.93]:65040 "HELO
-	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S269342AbRHCIba>; Fri, 3 Aug 2001 04:31:30 -0400
-Message-ID: <20010803083139.40320.qmail@web10401.mail.yahoo.com>
-Date: Fri, 3 Aug 2001 18:31:39 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: PROBLEM 2.4.7-ac4 ext3 non recoverable !
-To: kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S269349AbRHCIbo>; Fri, 3 Aug 2001 04:31:44 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:46833 "EHLO
+	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S269345AbRHCIbe>; Fri, 3 Aug 2001 04:31:34 -0400
+Date: Fri, 3 Aug 2001 09:30:57 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+Message-ID: <20010803093057.Y12470@redhat.com>
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010801170230.B7053@redhat.com> <20010802110341.B17927@emma1.emma.line.org> <01080219261601.00440@starship> <20010802193750.B12425@emma1.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010802193750.B12425@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Aug 02, 2001 at 07:37:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I can reproduce this on my machine reliably
+On Thu, Aug 02, 2001 at 07:37:50PM +0200, Matthias Andree wrote:
 
-After a power off the computer without unmounting the
-system (Just my socket is overloaded and the breaker
-jumped :-) ) When startup the kernel stop at the
-message
+> So this part is covered.
+> 
+> The other thing is, that Linux is the only known system that does
+> asynchronous rename/link/unlink/symlink -- people have claimed it might
+> not be the only one, but failed to name systems.
 
-EXT3-fs: INFO: recovery required on readonly file
-system
-EXT3-fs write access will be enable during recovery
+Not true.  There are tons of others.
 
-then hang 
+The issue was that synchronous directory updates are *optional* on
+many systems (Linux included), but that Linux's support for that is
+really inefficient since it ends up syncing file metadata updates too
+(and it's much more efficient to use fsync for that.)
 
+> Still, some people object to a dirsync mount option.
 
-No disk activity , nothing  
+Who?  People who have discussed this in the past have certainly not
+objected to my knowledge.  It would clearly help situations like this
+(as would a dirsync chattr option.)
 
-So I have to power off again and this time using 2.4.6
-( I also test with 2.4.7 ) ; no problem about recovery
-ext3 file system.)
+> > The prescription for symlinks is, if you want them safely on disk you 
+> > have to explicitly fsync the containing directory.
+> 
+> Yes, and it doesn't matter, since MTAs don't use symlinks (symlinks
+> waste inodes on most systems).
 
-I am pleased to supply or do whatever for  more
-information if required
+Irrelevant.   We're talking about what makes sensible semantics, not
+what assumptions any specific application makes.  It makes no sense to
+say that dirsync won't affect symlinks just because some existing
+applications don't rely on that!
 
-Regards
-
-
-
-
-=====
-S.KIEU
-
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!
+Cheers,
+ Stephen

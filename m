@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVAWRwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVAWSFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVAWRwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 12:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVAWRwO
+	id S261194AbVAWSFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 13:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVAWSFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 12:52:14 -0500
-Received: from waste.org ([216.27.176.166]:7044 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261336AbVAWRwH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 12:52:07 -0500
-Date: Sun, 23 Jan 2005 09:52:04 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/8] core-small: Introduce CONFIG_CORE_SMALL from -tiny
-Message-ID: <20050123175204.GV12076@waste.org>
-References: <1.464233479@selenic.com> <20050123004042.09f7f8eb.akpm@osdl.org>
+	Sun, 23 Jan 2005 13:05:32 -0500
+Received: from smtpout4.uol.com.br ([200.221.4.195]:11263 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261194AbVAWSF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 13:05:27 -0500
+Date: Sun, 23 Jan 2005 16:05:51 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ppp in 2.6.11-rc2 Badness in local_bh_enable at kernel/softirq.c
+Message-ID: <20050123180551.GB7077@ime.usp.br>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <41F35FAB.1050304@netikka.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050123004042.09f7f8eb.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41F35FAB.1050304@netikka.fi>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 12:40:42AM -0800, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> > This set of patches introduces a new config option CONFIG_CORE_SMALL
-> > from the -tiny tree for small systems. This series should apply
-> > cleanly against 2.6.11-rc1-mm2.
-> > 
-> > When selected, it enables various tweaks to miscellaneous core data
-> > structures to shrink their size on small systems. While each tweak is
-> > fairly small, in aggregate they can save a substantial amount of
-> > memory.
-> 
-> You know what I'm going to ask ;)  How much memory?
+On Jan 23 2005, Johnny Strom wrote:
+> I have the same problem with 2.6.11-rc2 I am using ppp with rp-pppoe-3.5 
+> it starts like this as soon as it brings upp the link.
 
-This stuff is mostly pretty small, a few K per patch. I think these 8
-are about 40k total but my notes are several months old. 
+I am also seeing this "Badness in local_bh_enable at kernel/softirq.c:140"
+message spamming my logs. It is quite scary, might I add. I have only seen
+it with 2.6.11-rc2.
 
-> I wish it didn't have "core" in the name.  A little misleading.
+Aside from that, the system seems to be working fine, but I only noticed
+this message for the last few hours. Before that, I run kernel 2.6.11-rc2
+for 2 days straight and didn't see anything like that.
 
-Well I've got another set called NET_SMALL. BASE?
+It seems to have started when I first loaded the netfilter modules. I can
+provide more information. Just let me know what would be desired and I'll
+try to get it.
 
-> Did you think of making CONFIG_CORE_SMALL an integer which has values zero
-> or one?
-> 
-> Then you can lose all those ifdefs:
-> 
-> #define MAX_PROBE_HASH (255 - CONFIG_CORE_SMALL * 254)	/* dorky */
 
-Ew.
-
-> #define PID_MAX_DEFAULT (CONFIG_CORE_SMALL ? 0x1000 : 0x8000)
-> #define UIDHASH_BITS (CONFIG_CORE_SMALL ? 3 : 8)
-> #define FUTEX_HASHBITS (CONFIG_CORE_SMALL ? 4 : 8)
-> etc.
-
-Hmm. I think we'd want a hidden config variable for this and I'm not
-sure how well the config language allows setting an int from a bool.
-And then it would need another name. On the whole, seems more complex
-than what I've done.
+Hope this helps, Rogério Brito.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

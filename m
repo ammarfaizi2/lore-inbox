@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314284AbSFISAv>; Sun, 9 Jun 2002 14:00:51 -0400
+	id <S314278AbSFISCK>; Sun, 9 Jun 2002 14:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSFISAt>; Sun, 9 Jun 2002 14:00:49 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:4002 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314284AbSFIR7c>;
-	Sun, 9 Jun 2002 13:59:32 -0400
-Date: Sun, 2 Jun 2002 16:22:32 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        ralf@gnu.org, rhw@memalpha.cx, mingo@redhat.com, paulus@samba.org,
-        anton@samba.org, schwidefsky@de.ibm.com, bh@sgi.com, davem@redhat.com,
-        ak@suse.de, torvalds@transmeta.com
-Subject: Re: Hotplug CPU Boot Changes: BEWARE
-Message-ID: <20020602162232.I219@toy.ucw.cz>
-In-Reply-To: <E17GHB3-0000gD-00@wagner.rustcorp.com.au> <m1elfjw39n.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S314325AbSFISAz>; Sun, 9 Jun 2002 14:00:55 -0400
+Received: from web14606.mail.yahoo.com ([216.136.224.86]:29709 "HELO
+	web14606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314278AbSFISAu>; Sun, 9 Jun 2002 14:00:50 -0400
+Message-ID: <20020609180051.39760.qmail@web14606.mail.yahoo.com>
+Date: Sun, 9 Jun 2002 19:00:51 +0100 (BST)
+From: =?iso-8859-1?q?F=20ker?= <f_ker@yahoo.co.uk>
+Subject: Re: [2.4.18] vfat doesn't support files > 2GB under Linux, under Windoze it does
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <87ptz3orjx.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > 	In writing the hotplug CPU stuff, Linus asked me to alter the
-> > boot sequence to "plug in" CPUs.  I am shortly going to be sending
-> > these patches to him now I have got my x86 box to boot with the
-> > changes.
+ --- OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote: > F ker
+<f_ker@yahoo.co.uk> writes:
 > 
-> If to the general SMP case is added the ability to dynamically enable
-> and disable cpus at runtime, this infrastructure work appears to have
-> general applicability now.  Allowing for example dynamic
-> enable/disable of HT on P4-Xeons at runtime for example.
+> > Could someone direct me towards a patch?  Many thanks.
+> 
+> This patch is for 2.5.19, but, the back porting to 2.5.18 should
+> be not difficult.
 
-Well, this way we can get suspend-to-{RAM,disk} for SMP... Offline all
-other CPUS, do suspend, put them back online.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+hmm... so 2.4 series won't be getting it then?  I'm not a kernel
+hacker as such, so I can't do it myself.
 
+If I use a journalling fs, should I just move to the 2.5 series?
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

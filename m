@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267823AbUBRTAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:00:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUBRTAn
+	id S267792AbUBRSqO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 13:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUBRSoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:00:43 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:32131 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S267823AbUBRTAh (ORCPT
+	Wed, 18 Feb 2004 13:44:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:18084 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267828AbUBRSoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:00:37 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 18 Feb 2004 13:44:04 -0500
+Date: Wed, 18 Feb 2004 09:55:41 -0800
+From: Greg KH <greg@kroah.com>
+To: "Hayden A. James" <hjames@quantumcode.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB access via KVM broken in 2.6[0-3]
+Message-ID: <20040218175540.GB2924@kroah.com>
+References: <1077081034.6813.22.camel@haydend.quantumcode.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16435.46665.488393.913044@napali.hpl.hp.com>
-Date: Wed, 18 Feb 2004 11:00:25 -0800
-To: Christoph Hellwig <hch@infradead.org>
-Cc: davidm@hpl.hp.com, Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
-       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [2.6 PATCH] Altix update
-In-Reply-To: <20040218184411.A11714@infradead.org>
-References: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com>
-	<20040218170601.A10490@infradead.org>
-	<16435.45326.877129.189633@napali.hpl.hp.com>
-	<20040218184411.A11714@infradead.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <1077081034.6813.22.camel@haydend.quantumcode.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 18 Feb 2004 18:44:11 +0000, Christoph Hellwig <hch@infradead.org> said:
+On Wed, Feb 18, 2004 at 12:10:34AM -0500, Hayden A. James wrote:
+> I don't know what happened between 2.4.x and the latest 2.6.x release
+> but USB access to my keyboard and mouse from my USB KVM (Ioport
+> miniview) does NOT work at all for any of the devices.  The devices work
+> normally in 2.6 without having the kvm connected, however.  Is this an
+> already known issue?
 
-  Christoph> On Wed, Feb 18, 2004 at 10:38:06AM -0800, David Mosberger wrote:
-  >> I don't think anybody is wedded to the code there.  From what I know,
-  >> it works fine, but if you want to submit enhancements, I'm pretty sure
-  >> they'd be appreciated.
+Yes, some people have reported problems with some brands of USB KVM
+devices.  Do you get some "timeout" style messages when your devices
+stop working?  Odds are the devices are way out of spec...
 
-  Christoph> I've submitted a bunch of patches in that area last
-  Christoph> autum.  This resulted in a big flamewar and most are
-  Christoph> still outstanding :)
+Try enabling CONFIG_USB_DEBUG and post the messages to the
+linux-usb-devel mailing list.
 
-Where?  On linux-ia64 or on lkml?  I don't recall these discussions
-(but then again, I'm admittedly very good at forgetting stuff...).
+thanks,
 
-	--david
+greg k-h

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318435AbSHQISb>; Sat, 17 Aug 2002 04:18:31 -0400
+	id <S319369AbSHQIWI>; Sat, 17 Aug 2002 04:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318487AbSHQISb>; Sat, 17 Aug 2002 04:18:31 -0400
-Received: from f232.law12.hotmail.com ([64.4.19.232]:37386 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S318435AbSHQISb>;
-	Sat, 17 Aug 2002 04:18:31 -0400
-X-Originating-IP: [128.139.197.27]
-From: "nada shalabi" <nadashshsh@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: important question!
-Date: Sat, 17 Aug 2002 08:22:24 +0000
+	id <S319370AbSHQIWI>; Sat, 17 Aug 2002 04:22:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10161 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319369AbSHQIWH>;
+	Sat, 17 Aug 2002 04:22:07 -0400
+Date: Sat, 17 Aug 2002 10:25:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
+       andre@linux-ide.org, vojtech@suse.cz, bkz@linux-ide.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020817082540.GP11044@suse.de>
+References: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk> <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F232Dd3OJXsNQptgFrY00000068@hotmail.com>
-X-OriginalArrivalTime: 17 Aug 2002 08:22:24.0590 (UTC) FILETIME=[3726E6E0:01C245C7]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-i want to add a comprissing syscall in the linux kernel in order to improve 
-the work of the swapper.
-The commprissing function and the decomprissing one take a buffer as an 
-argument.now i am trying to find the right line to insert the compriss and 
-decompriis in  i meen the place in thre code before the buffer of data 
-became a page and after a page become a buffer od data.
-i still searching and reading the linux code i think my answer should be in 
-page_io.c.
-please help me i need the answer today.
-thanx in advance
-nada shalabi
+On Fri, Aug 16 2002, Linus Torvalds wrote:
+> 
+> On Sat, 17 Aug 2002, Anton Altaparmakov wrote:
+> > 
+> > Out of curiosity, who is going to be IDE 2.5 kernel maintainer now?
+> 
+> Well, as I implied, Alan seems to be not completely unwilling to work on 
+> it, and unlike me he _can_ interact with Andre most of the time. Possibly 
+> Jens will do the 2.5.x side, of it (with Alan working on 2.4), but we've 
+> not talked it through.
 
+I'd never want to be the maintainer, but I do not mind taking care of
+2.5 ide in the sense that 2.4-ac (or whatever) gets adapted, split to
+digestible pieces (Andre's stuff always appears in big globs) and pushed
+upstream.
 
+> I'd like Vojtech to be a bit involved too, he seemed to do some
+> much-needed cleanups for PIIX4 IDE (now gone, since we couldn't save just
+> those parts..)
 
+Me too. And Bartlomiej too, for that matter.
 
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+-- 
+Jens Axboe
 

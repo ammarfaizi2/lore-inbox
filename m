@@ -1,34 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUGPJRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266500AbUGPJ3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUGPJRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 05:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266501AbUGPJQu
+	id S266500AbUGPJ3h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 05:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUGPJ3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 05:16:50 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:48079 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S266508AbUGPJQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 05:16:36 -0400
-To: linux-thinkpad@linux-thinkpad.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-In-Reply-To: <87oemhot7l.fsf@deneb.enyo.de>
-References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <87oemhot7l.fsf@deneb.enyo.de>
-Message-Id: <E1BlOpX-0005AW-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Date: Fri, 16 Jul 2004 10:16:35 +0100
+	Fri, 16 Jul 2004 05:29:36 -0400
+Received: from 201008096191.user.veloxzone.com.br ([201.8.96.191]:8721 "HELO
+	195.138.128.254") by vger.kernel.org with SMTP id S266508AbUGPJ3N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 05:29:13 -0400
+From: "aleijadinho" <aleijadinho2@bol.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: PRESENTE
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 16 Jul 2004 06:28:57
+Message-Id: <S266508AbUGPJ3N/20040716092913Z+1328@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> wrote:
+==========================================
+O1 - genio999@bol.com.br 
+cerebro999@bol.com.br     
+VOCÊ QUER GANHAR DINHEIRO PELA INTERNET 
+ENVIANDO E-MAILS COM ALGUMAS HORAS 
+SEMANAIS NÓS PODEREMOS GANHAR MUITO 
+DINHEIRO JUNTOS. TEM QUE TER MUITA 
+DEDICAÇÃO E NÃO DESISTIR EM POUCO TEMPO 
+TEREMOS GRANDES RESULTADOS É FUNDAMENTAL 
+SER HONESTO E QUERER O BEM AO SEU 
+PROSCIMO NÃO COMPACTUO COM NADA ILEGAL 
+O QUE É NESSARIO: SIMPLES TER UM E-MAIL 
+E ENDEREÇO FIXO. OU CAIXA POSTAL. SE 
+VOCÊ QUIZER MAIS INFORMAÇÃOES ME ENVIE 
+SEU E-MAIL PELO EMDEREÇO: 
+genio999@bol.com.br
+cerebro999@bol.com.br
+VOCÊ PODE CRIAR UM E-MAIL DE GRAÇA SÓ 
+PARA ESTE TRABALHO SEM RISCOS ALGUM. 
+PARA RECEBER AS INSTRUÇÕES METODOS E 
+SOFTWARS. AJUDANDO-TE ESTAREI ME 
+AJUDANDO TAMBEM. genio999@bol.com.br
 
->  - After terminating the X11 server, other devices on the sharded IRQ
->    11 are dead (most prominently, e1000 and USB).
+02 - genio999@bol.com.br
+cerebo999@bol.com.br
+POR SER SIMPLES E FACIL TODO MUNDO 
+DESCONFIA.EU ESTOU FALANDO DE MUITO 
+DINHEIRO E SEM EMPATAR CAPITAL. ESTOU 
+LHES DANDO UMA GRANDE OPORTUNIDADE. 
+SURGEM GRANDES OPORTUNIDADES TODOS OS 
+DIAS, SO QUE VOCÊ NÃO SABE RECONHECER. 
+OU PERDE POR MEDO DE TENTAR E FACRASSAR 
+AI VOCÊ É MESMO UM PERDEDOR MESMO. 
+NESTE CASO ME DESCULPE. CONTINUE 
+SENDO UM PERDEDOR. SE TIVER CORAGEM 
+DE PELO AO MENOS SE INFORMAR ENTRE EM 
+CONTATO PELO MEU E-MAIL OU AGORA: 
+genio999@bol.com.br
+cerebro999@bol.com.br
 
-Try the last proposed patch along with the ACPI_NOT_ISR patch from
-http://bugzilla.kernel.org/show_bug.cgi?id=2643 and see if it makes any
-difference. Without the sysfs support, the 8259 never gets set for level
-triggering on resume.
+03 - MANDE SUA RESPOSTA PARA MEU E-MEIL 
+PARA QUE EU POSSA LHE ENVIAR O METODO 
+VOCÊ VAI ANALISAR E SE ACHAR QUE É UM 
+BOM NEGOCIO. ENVIAREI 1.000.000 DE 
+E-MEILS COM UM PROGRAMA DE ENVIO DE 
+E-MAILS EM MASSA E RAPIDO TUDO DE GRAÇA, 
+NUNCA ENGANEI NINGUEM. 
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+=========================================
+

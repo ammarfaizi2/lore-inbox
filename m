@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131444AbQKAWRy>; Wed, 1 Nov 2000 17:17:54 -0500
+	id <S131651AbQKAWVZ>; Wed, 1 Nov 2000 17:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131673AbQKAWRo>; Wed, 1 Nov 2000 17:17:44 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:37902 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131444AbQKAWRd>;
-	Wed, 1 Nov 2000 17:17:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Skip Collins <bernard.collins@jhuapl.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: screensaver locks up 2.4.0-test10-pre7 hard 
-In-Reply-To: Your message of "Wed, 01 Nov 2000 09:43:16 CDT."
-             <3A002C04.D4CCA58D@jhuapl.edu> 
+	id <S131673AbQKAWVP>; Wed, 1 Nov 2000 17:21:15 -0500
+Received: from azure.humbug.org.au ([203.24.22.40]:8206 "EHLO
+	azure.humbug.org.au") by vger.kernel.org with ESMTP
+	id <S131651AbQKAWVH>; Wed, 1 Nov 2000 17:21:07 -0500
+Date: Thu, 2 Nov 2000 08:20:43 +1000
+From: Anthony Towns <aj@azure.humbug.org.au>
+Cc: "'Pasi Kärkkäinen'" <pk@edu.joroinen.fi>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Forever shall I be." <zinx@microsoftisevil.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 3-order allocation failed
+Message-ID: <20001102082043.C22439@azure.humbug.org.au>
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBF3@orsmsx31.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 02 Nov 2000 09:17:25 +1100
-Message-ID: <28632.973117045@ocs3.ocs-net>
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBF3@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Wed, Nov 01, 2000 at 01:42:17PM -0800
+Organisation: Lacking
+X-PGP: http://azure.humbug.org.au/~aj/aj_key.asc
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2000 09:43:16 -0500, 
-Skip Collins <bernard.collins@jhuapl.edu> wrote:
->Pentium 3, 256Mb RAM, kernel 2.4.0-test10-pre7 (as well as 2.4.0-test9).
->I installed RH7, compiled the latest development kernels (using kgcc, as
->required with RH7). After the "greynetic" screensaver (installed with
->RH7) runs for a few minutes, my box freezes up hard.
+On Wed, Nov 01, 2000 at 01:42:17PM -0800, Dunlap, Randy wrote:
+> > Is this bug in the usb-driver (usb-uhci), in the camera's driver
+> > (cpia_usb) or in the v4l?
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Could there be a memory leak as well?  But I expect that
+> it's simply that memory is just fragmented so that enough
+> contiguous pages aren't available, like Rik said.
 
-Try the kernel debugging patch[1], select NMI oopser for uniprocessor
-if your box is UP and reproduce the problem.  The UP NMI oopser should
-drop into kdb after 5 seconds and you can use the bt command to find
-out where your system is hanging.  You will have to compile for a
-serial console[2] and run a null modem to a second machine to get into
-kdb, kdb requires a text or serial console and is not usable under X.
+There is a memory leak, the memory kmalloc'ed in cpia_usb_open for
+sbuf[*].data is never kfree'd (except when an error occurs during
+initialisation). Adding some kfree's in cpia_usb_free_resources fixed
+the problem in test7 or so, here's a patch against -test10.
 
-Feel free to contact me off list if you have any problems with kdb.
+--- drivers/media/video/cpia_usb.c.orig	Wed Nov  1 14:14:37 2000
++++ drivers/media/video/cpia_usb.c	Wed Nov  1 14:16:05 2000
+@@ -432,10 +432,20 @@
+ 		ucpia->sbuf[1].urb = NULL;
+ 	}
+ 
++	if (ucpia->sbuf[1].data) {
++		kfree(ucpia->sbuf[1].data);
++		ucpia->sbuf[1].data = NULL;
++	}
++ 
+ 	if (ucpia->sbuf[0].urb) {
+ 		usb_unlink_urb(ucpia->sbuf[0].urb);
+ 		usb_free_urb(ucpia->sbuf[0].urb);
+ 		ucpia->sbuf[0].urb = NULL;
++	}
++
++	if (ucpia->sbuf[0].data) {
++		kfree(ucpia->sbuf[0].data);
++		ucpia->sbuf[0].data = NULL;
+ 	}
+ }
 
-[1] ftp://oss.sgi.com/projects/kdb/download/ix86.  Patches for test9
-    and earlier are in the old directory.
-[2] linux/Documentation/serial-console.txt
+HTH.
 
+Cheers,
+aj 
+
+-- 
+Anthony Towns <aj@humbug.org.au> <http://azure.humbug.org.au/~aj/>
+I don't speak for anyone save myself. GPG signed mail preferred.
+
+  ``We reject: kings, presidents, and voting.
+                 We believe in: rough consensus and working code.''
+                                      -- Dave Clark
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

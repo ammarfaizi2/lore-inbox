@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbTDOOt3 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTDOOt3 
+	id S261620AbTDOOqd (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTDOOqd 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 10:49:29 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:24022 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261631AbTDOOt2 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 10:49:28 -0400
-Message-ID: <3E9C1ED6.9070005@BitWagon.com>
-Date: Tue, 15 Apr 2003 08:01:42 -0700
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	Tue, 15 Apr 2003 10:46:33 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.26]:1451 "EHLO
+	mwinf0504.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261620AbTDOOqb (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 10:46:31 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
+Subject: Re: BUGed to death
+Date: Tue, 15 Apr 2003 16:58:10 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <80690000.1050351598@flay> <200304151639.25978.baldrick@wanadoo.fr> <70620000.1050417924@[10.10.2.4]>
+In-Reply-To: <70620000.1050417924@[10.10.2.4]>
 MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: observe & control thread state for exit futex ?
-References: <3E9A2258.9020507@BitWagon.com> <20030414033548.GA4048@nevyn.them.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304151658.10495.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
-> On Sun, Apr 13, 2003 at 07:52:08PM -0700, John Reiser wrote:
-> 
->>How can a debugger, newly attached to an arbitrary thread, determine whether
->>the thread has a pending exit futex and associated memory location to clear
->>[CLONE_CHILD_CLEARTID flag and child_tid_ptr parameter at __clone()]?
->>
->>If so, then how can the debugger determine the address, change the address,
->>cancel the futex, and/or intercept the notification?
-> 
-> 
-> It can't.  Even clone flags are not accessible.
-> 
-> If you can think of a good reason that a debugger would need any
-> particular piece of data, exposing it is very straightforward.
-> 
+> > No, I meant what happens if BUG() is non-trivial and BUG_ON is a no-op.
+> > I thought it might give an indication of whether time was being lost
+> > evaluating the condition (occurs with BUG and BUG_ON), or mispredicting
+> > the branch (only occurs with BUG).
+>
+> Mmmm. wouldn't that just optimise away the BUG_ONs, but not the BUGs ?
+> Which will tell you something, but I'm not sure anything interesting.
+> My impression is that if I do:
+>
+> if (foo)
+> 	do {} while (0);
+>
+> the compiler will just ditch the whole thing, and not evaluate foo.
+> I'll admit to not having checked that, but still ....
 
-The debugger needs this information to determine the state of the thread.
-An automated software audit program needs the information to verify
-that threads are working correctly.  In general, write-only state
-[from the viewpoint of the thread] is a bad idea.
+Good point.  So much for trying to get info without converting a bunch
+of BUG's into BUG_ON's...
 
-Would a new option to sys_prctl() be a good way to expose the data?
-
+Duncan.

@@ -1,105 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUGUPgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266516AbUGUPiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266509AbUGUPgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 11:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUGUPgO
+	id S266516AbUGUPiC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 11:38:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbUGUPiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 11:36:14 -0400
-Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:63796
-	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266509AbUGUPgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 11:36:09 -0400
-Date: Wed, 21 Jul 2004 17:36:01 +0200
-Message-Id: <200407211536.i6LFa1uO020399@anakin.of.borg>
+	Wed, 21 Jul 2004 11:38:00 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:20021 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266516AbUGUPhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 11:37:43 -0400
+Date: Wed, 21 Jul 2004 17:37:36 +0200
+Message-Id: <200407211537.i6LFba3A020442@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 157] M68k ifpsp060
+Subject: [PATCH 159] M68k Maintainership
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-68060 Integer Support Package: Make sure that the destination address of a
-misaligned cas access is properly mapped in, so the kernel won't oops later in
-the emulation handler (from Roman Zippel)
+M68k maintainership update:
+  - Transfer maintainership to Roman and me (ack'ed by Jes and Roman)
+  - Update main website URL
+  - Add Linux/m68k CVS repository website
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.4.27-rc3/arch/m68k/ifpsp060/iskeleton.S	2004-04-27 17:19:38.000000000 +0200
-+++ linux-m68k-2.4.27-rc3/arch/m68k/ifpsp060/iskeleton.S	2004-07-04 21:55:43.000000000 +0200
-@@ -196,14 +196,58 @@
- | Expected outputs:
- |	d0 = 0 -> success; non-zero -> failure
- |
--| Linux/68k: As long as ints are disabled, no swapping out should
--| occur (hopefully...)
-+| Linux/m68k: Make sure the page is properly paged in, so we use
-+| plpaw and handle any exception here. The kernel must not be
-+| preempted until _060_unlock_page(), so that the page stays mapped.
- |
- 	.global		_060_real_lock_page
- _060_real_lock_page:
--	clr.l		%d0
-+	move.l	%d2,-(%sp)
-+	| load sfc/dfc
-+	tst.b	%d0
-+	jne	1f
-+	moveq	#1,%d0
-+	jra	2f
-+1:	moveq	#5,%d0
-+2:	movec.l	%dfc,%d2
-+	movec.l	%d0,%dfc
-+	movec.l	%d0,%sfc
-+
-+	clr.l	%d0
-+	| prefetch address
-+	.chip	68060
-+	move.l	%a0,%a1
-+1:	plpaw	(%a1)
-+	addq.w	#1,%a0
-+	tst.b	%d1
-+	jeq	2f
-+	addq.w	#2,%a0
-+2:	plpaw	(%a0)
-+3:	.chip	68k
-+
-+	| restore sfc/dfc
-+	movec.l	%d2,%dfc
-+	movec.l	%d2,%sfc
-+	move.l	(%sp)+,%d2
- 	rts
+--- linux-2.4.27-rc3/MAINTAINERS	2004-06-27 09:59:00.000000000 +0200
++++ linux-m68k-2.4.27-rc3/MAINTAINERS	2004-07-21 17:26:40.000000000 +0200
+@@ -1153,11 +1153,14 @@
+ L:	linux-scsi@vger.kernel.org
+ S:	Maintained
  
-+.section __ex_table,"a"
-+	.align	4
-+	.long	1b,11f
-+	.long	2b,21f
-+.previous
-+.section .fixup,"ax"
-+	.even
-+11:	move.l	#0x020003c0,%d0
-+	or.l	%d2,%d0
-+	swap	%d0
-+	jra	3b
-+21:	move.l	#0x02000bc0,%d0
-+	or.l	%d2,%d0
-+	swap	%d0
-+	jra	3b
-+.previous
-+
- |
- | _060_unlock_page():
- |
-@@ -216,8 +260,7 @@
- |	d0 = `xxxxxxff -> supervisor; `xxxxxx00 -> user
- |	d1 = `xxxxxxff -> longword; `xxxxxx00 -> word
- |
--| Linux/68k: As we do no special locking operation, also no unlocking
--| is needed...
-+| Linux/m68k: perhaps reenable preemption here...
+-M68K
+-P:	Jes Sorensen
+-M:	jes@trained-monkey.org
+-W:	http://www.clark.net/pub/lawrencc/linux/index.html
++M68K ARCHITECTURE
++P:	Geert Uytterhoeven
++M:	geert@linux-m68k.org
++P:	Roman Zippel
++M:	zippel@linux-m68k.org
+ L:	linux-m68k@lists.linux-m68k.org
++W:	http://www.linux-m68k.org/
++W:	http://linux-m68k-cvs.ubb.ca/
+ S:	Maintained
  
- 	.global		_060_real_unlock_page
- _060_real_unlock_page:
+ M68K ON APPLE MACINTOSH
 
 Gr{oetje,eeting}s,
 

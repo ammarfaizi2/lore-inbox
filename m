@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEKU7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUEKVBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUEKU7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEKU7W
+	id S263653AbUEKVBi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 17:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEKVBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:59:22 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:34947 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261752AbUEKU7V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:59:21 -0400
-Message-ID: <40A13E48.5050803@keyaccess.nl>
-Date: Tue, 11 May 2004 22:57:44 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Ivanov <dimss@solutions.lv>
-CC: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
-       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       mikeserv@bmts.com
-Subject: Re: linux-2.6.6: ide-disks are shutdown on reboot
-References: <20040511142017.1bc39ce1.vmlinuz386@yahoo.com.ar> <40A133BF.90403@keyaccess.nl> <20040511203628.GA30754@new.solutions.lv>
-In-Reply-To: <20040511203628.GA30754@new.solutions.lv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 11 May 2004 17:01:38 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:56770 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263653AbUEKVBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 17:01:36 -0400
+Message-Id: <200405112101.i4BL1JF19217@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
+Cc: <hch@infradead.org>, <geoff@linux.jf.intel.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [RFC] [PATCH] Performance of del_timer_sync
+Date: Tue, 11 May 2004 14:01:21 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQ3mky9+ruAmk4rQwOmqfvZLoriKAAACVZw
+In-Reply-To: <20040511205712.GA7795@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Ivanov wrote:
+>>>> Ingo Molnar wrote on Tuesday, May 11, 2004 1:57 PM
+> * Andrew Morton <akpm@osdl.org> wrote:
+>
+> > > > Nah, that's ungrammatical.  del_timer_singleshot means "delete a timer
+> > > > in a single-shot manner".
+> > > >
+> > > > We have:
+> > > >
+> > > > "add a timer"
+> > > > "modify a timer"
+> > > > "delete a timer"
+> > > > "delete a timer synchronously"
+> > > > "delete a single-shot timer"
+> > >
+> > > hm, indeed. Miraculously, the existing timer API names are correct
+> > > grammatically, so we might as well go for del_single_shot_timer() ...
+> > >
+> >
+> > <anal>del_singleshot_timer_sync</anal>
+> >
+> > I vote we leave it up to Ken.  But please, not del_timer_kenneth().
+>
+> yeah. Ken's got a license to name ;)
 
-> drivers/ide/ide-disk.c:1707: error: `SYSTEM_RESTART' undeclared
-> (first use in this function)
-> 
-> I cannot find definition of SYSTEM_RESTART with grep too.
+Cool, feeling pretty good here. I'm going to stick with andrew's original
+name, and add a big fat comments for the new function ;-)
 
-As said, you need this one first:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108425291909843&w=2
-
-Rene.
+- Ken
 
 

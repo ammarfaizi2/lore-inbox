@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265975AbTGAFuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265985AbTGAFuI
+	id S265992AbTGAF6u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbTGAF6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:50:08 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:24450 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265975AbTGAFuC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:50:02 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Date: Tue, 1 Jul 2003 16:07:52 +1000
-User-Agent: KMail/1.5.2
-References: <20030701010412.GA21496@triplehelix.org> <200307011210.31612.kernel@kolivas.org> <20030701044115.GA22902@triplehelix.org>
-In-Reply-To: <20030701044115.GA22902@triplehelix.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Tue, 1 Jul 2003 01:58:49 -0400
+Received: from anumail5.anu.edu.au ([150.203.2.45]:5025 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S265992AbTGAF6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 01:58:48 -0400
+Message-ID: <3F012663.5040704@cyberone.com.au>
+Date: Tue, 01 Jul 2003 16:12:51 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Peter Wong <wpeter@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Mike Sullivan <mksully@us.ibm.com>, Bill Hartner <bhartner@us.ibm.com>,
+       Ray Venditti <venditti@us.ibm.com>
+Subject: Re: Evaluation of three I/O schedulers
+References: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
+In-Reply-To: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307011607.52022.kernel@kolivas.org>
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-2.8)
+X-Spam-Tests: DATE_IN_PAST_06_12,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_00_01,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003 14:41, Joshua Kwan wrote:
-> On Tue, Jul 01, 2003 at 12:10:31PM +1000, Con Kolivas wrote:
-> > Well we're on the way. Sing with me... a tweaking we will go..
-> > Here is a tweaked patch with small changes otherwise which should help.
-> >
-> > P.S. Were you running 100Hz?
-> > Con
+Peter Wong wrote:
+
+>We used 2.5.72+mm1 to evaluate three I/O schedulers, namely
+>anticipatory, deadline and complete fair queueing under a very heavy
+>database workload on an 8-way Pentium 4 machine. The workload is a
+>decision support system doing mostly sequential I/O and each run takes
+>about one hour. All three runs finished completely without encountering
+>functional problems, and achieved similar performance level.
 >
-> Yes, and with this patch coupled with reversing andrew's 100hz patch,
-> makes the skips largely disappear.
+>The 8-way machine has Pentium 4 2.0 GHz processors, 16 GB physical
+>memory, 2MB L3 cache, 8 FC controllers with 80 disks. Hyperthreading
+>was turned on for the three runs. The CPU utilization is similar for all
+>three runs: 65% user, 7% system and 28% idle.
 >
-> Or could it be that 1000hz alone fixes everything? Who knows...
 
-Great thanks. I'll try my best to leave it alone for a while now and let 
-others test it (no 1000Hz alone does not fix this problem).
+Hi Peter,
+How many block devices are being used at once in your tests?
+I would be interested to see profiles of AS and DL if possible.
+Thanks.
 
-I'll leave the latest available O1int patch here:
-http://kernel.kolivas.org/2.5
-
-for downloading and remind people that if you use the -mm tree you will see 
-better performance if you reverse patch the 100Hz patch, but it still should 
-benefit at 100Hz.
-
-Con
+Nick
 

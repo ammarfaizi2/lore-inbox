@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSEMPCF>; Mon, 13 May 2002 11:02:05 -0400
+	id <S313217AbSEMPHN>; Mon, 13 May 2002 11:07:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313217AbSEMPCE>; Mon, 13 May 2002 11:02:04 -0400
-Received: from h24-71-223-10.cg.shawcable.net ([24.71.223.10]:10556 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S313070AbSEMPCE>; Mon, 13 May 2002 11:02:04 -0400
-Date: Mon, 13 May 2002 11:00:16 -0700
-From: Andre LeBlanc <ap.leblanc@shaw.ca>
-Subject: Re: More UDMA Troubles
-To: linux-kernel@vger.kernel.org
-Message-id: <000b01c1faa8$0a1320c0$2000a8c0@metalbox>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <Pine.LNX.4.33.0205131100590.11224-100000@coffee.psychology.mcmaster.ca>
+	id <S313589AbSEMPHM>; Mon, 13 May 2002 11:07:12 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:37394 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313217AbSEMPHL>;
+	Mon, 13 May 2002 11:07:11 -0400
+Date: Mon, 13 May 2002 07:06:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Marcus Alanen <maalanen@ra.abo.fi>, matthias.andree@gmx.de,
+        riel@conectiva.com.br, Johnny Mnemonic <johnny@themnemonic.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020513140623.GA10453@kroah.com>
+In-Reply-To: <20020513120953.GD4258@louise.pinerecords.com> <Pine.LNX.4.44.0205131556550.23542-100000@tuxedo.abo.fi> <20020513140821.GB5134@louise.pinerecords.com> <20020513144519.GC5134@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 15 Apr 2002 12:43:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You people Rule!
+On Mon, May 13, 2002 at 04:45:19PM +0200, Tomas Szepe wrote:
+> > > Somebody make the mode changeable via command-line option...
+> > 
+> > Done... in a slightly different manner :)
 
-lol, Thanks
+What would be even _nicer_ is to remove the dependency on the changelog
+script entirely (right now you have to pipe the output through this perl
+script to get the results.)
 
------ Original Message -----
-From: "Mark Hahn" <hahn@physics.mcmaster.ca>
-To: "Lionel Bouton" <lionel.bouton@inet6.fr>
-Cc: "Andre LeBlanc" <ap.leblanc@shaw.ca>
-Sent: Monday, May 13, 2002 8:03 AM
-Subject: Re: More UDMA Troubles
+The script that Linus (and others) uses can be found at:
+	http://gkernel.bkbits.net:8080/BK-kernel-tools/anno/changelog@1.5?nav=index.html|src/
 
+thanks,
 
-> > 1/ get linux-2.4.18.tar.gz as you probably did for 2.5.15.
->
-> and tar zxf it, of course.
->
-> > 2/ before configuring the kernel sources:
->
-> order doesn't matter; of course, you should keep around your
-> various .config files for ease-of-reconfiguration.
->
-> > - get patch-2.4.19-pre8.gz,
->
-> or better: .bz2
->
-> > - apply the patch by:
-> >     . going into the 2.4.18 source directory,
-> >     . running zcat <path_to_download_dir>/patch-2.4.19-pre8.gz |
-patch -p1
->
-> bzcat patch-2.4.19-pre8.bz2 | patch -sp0
-> would work too.  there's no serious reason to watch all of patch's output,
-> and no reason you have to do the cd/p1 thing.
->
-
+greg k-h

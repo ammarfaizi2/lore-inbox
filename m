@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbTIMIgk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 04:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbTIMIgj
+	id S262086AbTIMIvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 04:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIMIvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 04:36:39 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:59058 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262075AbTIMIgi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 04:36:38 -0400
-Message-ID: <027d01c379d2$1d7b0380$890010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Albert Cahalan" <albert@users.sourceforge.net>,
-       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
-References: <1063436451.314.9010.camel@cube>
-Subject: Re: "busy" load counters
-Date: Sat, 13 Sep 2003 10:36:22 +0200
+	Sat, 13 Sep 2003 04:51:17 -0400
+Received: from webmail.netregistry.net ([203.202.16.21]:53374 "EHLO
+	webmail.netregistry.net") by vger.kernel.org with ESMTP
+	id S262086AbTIMIvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 04:51:16 -0400
+Message-ID: <1063443074.3f62da82a7e24@webmail.netregistry.net>
+Date: Sat, 13 Sep 2003 18:51:14 +1000
+From: Dmitri Katchalov <dmitrik@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 144.132.160.37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[My first post didn't make to the list. Apologies if it appears twice]
 
-From: "Albert Cahalan" <albert@users.sourceforge.net>
-> The feature is available, but you'll need to upgrade
-> to procps-3.1.12 and linux-2.6.0-test4 at least.
->
-> http://www.kernel.org/pub/linux/kernel/v2.6/
-> http://procps.sf.net/
->
+Hi,
 
-With procps-3.1.12 and linux-2.6.0-test5, top and ps reports 0.00 time for
-multi-threaded programs.
+I'm consistently getting this error:
 
-It seems only the 'main' thread is now visible in /proc, and its cpu time
-dont include the cpu time of other threads...
+atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
+This happens whenever I type 'f' in "<F7>usbdevfs". It then keeps 
+repeating the 'f' until I press another key. I first noticed it when 
+doing a search in mcedit but it also happens on command line and 
+everywhere. It does not matter if I type it slow of fast. If I type 
+less then the whole string (eg. "devf") the error does not occur but 
+the letter 'f' occasionally gets eaten away.
 
-Example :
+H/W: P4 (w/HT), ABIT IS7 M/B with Intel i865/ICH5 chipset, 
+bog-standard cheap PS/2 kbd.
+S/W: Debian mid-way between stable and testing, 2.6.0-test5 
+with SMP and preemptive, no extra tasks running (I can reproduce it at 
+the login prompt immediately after reboot).
 
-root      1238  0.0  0.0  2692 1576 pts/1    S    08:13   0:00 /bin/bash
-root      1293  0.0  0.0  2692 1576 pts/1    S    08:14   0:00 /bin/bash
-root      1298  0.0 19.5 716016 658460 pts/1 S    08:14   0:00 ./server
-! THIS process certainly has wrong TIME
-root      2465  0.0  0.0  2672 1564 pts/2    S    10:19   0:00 -bash
+I'll be happy to investigate it further if someone tells me what to do.
+
+Regards,
+Dmitri
+
 
 

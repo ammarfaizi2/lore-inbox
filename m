@@ -1,78 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVAWQuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVAWQz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVAWQuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 11:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAWQuQ
+	id S261328AbVAWQz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 11:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVAWQzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 11:50:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:28909 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261327AbVAWQuE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 11:50:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=nt+mT5nGemJQlLXWHBT6eIQMEdEW62H7ku/Z+T/g7C+5qpkLPZ+FIp6VhEfkD+teGy3cjH3yrjHiK2ce9Dua2jEUqqMAgplRcNcRrU5ds7ffIC19ZzceaXVGzF1LOhsmOpH02qo1TeDNGwEQpNy+5Up5DkXifdd25gXwD1LJzcw=
-Message-ID: <58cb370e0501230850185b007f@mail.gmail.com>
-Date: Sun, 23 Jan 2005 17:50:04 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: 2.6 more picky about IDE drives than 2.4 ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <csv3ss$a4m$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <csv3ss$a4m$1@sea.gmane.org>
+	Sun, 23 Jan 2005 11:55:25 -0500
+Received: from sccimhc91.asp.att.net ([63.240.76.165]:680 "EHLO
+	sccimhc91.asp.att.net") by vger.kernel.org with ESMTP
+	id S261328AbVAWQzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 11:55:13 -0500
+From: Jay Roplekar <jay_roplekar@hotmail.com>
+Reply-To: jay_roplekar@hotmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel bug: mm/rmap.c:483
+Date: Sun, 23 Jan 2005 10:55:08 -0600
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501231055.08965.jay_roplekar@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jan 2005 04:00:52 +0100, Sven Köhler <skoehler@upb.de> wrote:
-> Hi,
+I am not sure this is a fixed problem in 2.6.11-rc2 based on my read of the 
+changelog, hence this email. Here is the summary:
 
-Hi,
+1. I  started with vanilla 2.6.10 where I replaced ieee1394 drivers from trunk 
+rev 1251 patched in. My kernel is tainted due to ndiswrapper that loads 
+windows drivers for my wireless PCI card.  One out of 4 times I actually 
+booted 2.6.10  and manually brought up wlan0 I got 'reboot needed etc 
+messages' .  Please note that  using similar approach in 2.6.8 does not cause 
+this issue.   Following is the error in /var/log/messages ( I did not  paste 
+everything to be brief):
 
-> i have many problems with kernel 2.6.10 since it won't run stable with
-> an IDE-device. It's an internal IDE-RAID subsystem. The DMA is
-> frequently disabled, and even writes/reads fail and the kernel reports
-> I/O-Errors for many sectors. The RAID-device doesn't report any errors
-> it it's own event-log. You can have a closer look at the error-messages
-> below.
-> 
-> I'm mailing to the LKML, since i haven't been abled to reproduce the
-> problem with a kernel 2.4 bases system, but it randomly happens with 2.6
-> kernels. Let's take the latest Knoppix as an example (it comes with both
-> kernels):
-> - if i boot kernel 2.4, i can stress test the harddisk as much as i
-> want. the kernel does report any problem and it doesn't disable DMA well
-> - if i boot kernel 2.6, after a while, there are the error-message below
-> in the log. "hdparm -k1" doesn't help, the kernel will disable DMA mode.
-> There was a also a bigger problems for two times now, where the kernel
-> refused to write to the devide, due to the I/O-Errors below. I'm very
-> sad, that i haven't the log-lines prior to the I/O-Errors.
+Jan 22 08:26:58 localhost kernel: Bad page state at prep_new_page (in process 
+'net_applet', page c1323a00)
+Jan 22 08:26:58 localhost kernel: flags:0x20000004 mapping:00000000 mapcount:1 
+count:1
+Jan 22 08:26:58 localhost kernel: Backtrace:
+Jan 22 08:26:58 localhost kernel:  [dump_stack+30/32] dump_stack+0x1e/0x20
+Jan 22 08:26:58 localhost kernel:  [<c0103cde>] dump_stack+0x1e/0x20
+Jan 22 08:26:58 localhost kernel:  [bad_page+117/176] bad_page+0x75/0xb0
+Jan 22 08:26:58 localhost kernel:  [<c013c1b5>] bad_page+0x75/0xb0
+Jan 22 08:26:58 localhost kernel:  [prep_new_page+40/112] 
+prep_new_page+0x28/0x70
+Jan 22 08:26:58 localhost kernel:  [<c013c4d8>] prep_new_page+0x28/0x70
+#####
+Jan 22 08:26:58 localhost kernel: ------------[ cut here ]------------
+Jan 22 08:26:58 localhost kernel: kernel BUG at mm/rmap.c:483!
+Jan 22 08:26:58 localhost kernel: invalid operand: 0000 [#1]
+Jan 22 08:26:58 localhost kernel: Modules linked in: mga md5 ipv6 snd_pcm_oss 
+snd_mixer_oss snd_via82xx snd_ac97_codec snd_pcm snd_timer snd_page_alloc 
+gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore af_packet 
+fealnx mii eth1394 ide_cd cdrom ohci1394 ieee1394 loop ntfs nls_iso8859_1 
+nls_cp437 vfat fat ndiswrapper via_agp agpgart uhci_hcd usbcore genrtc ext3 
+jbd
+Jan 22 08:26:58 localhost kernel: CPU:    0
+Jan 22 08:26:58 localhost kernel: EIP:    0060:[page_remove_rmap+53/64]    
+Tainted: P    B VLI 
+Jan 22 08:26:58 localhost kernel: EIP:    0060:[<c014bec5>]    Tainted: P    B 
+VLI
+Jan 22 08:26:58 localhost kernel: EFLAGS: 00010286   (2.6.10jry)
+Jan 22 08:26:58 localhost kernel: EIP is at page_remove_rmap+0x35/0x40
+Jan 22 08:26:58 localhost kernel: eax: ffffffff   ebx: 00389000   ecx: 
+c0399d54   edx: c1323a00
+Jan 22 08:26:58 localhost kernel: esi: d3b06f44   edi: 003b8000   ebp: 
+d39ebd2c   esp: d39ebd2c
+Jan 22 08:26:58 localhost kernel: ds: 007b   es: 007b   ss: 0068
+Jan 22 08:26:58 localhost kernel: Process net_applet (pid: 9326, 
+threadinfo=d39ea000 task=d6a8d060)
+Jan 22 08:26:58 localhost kernel: Stack: d39ebd58 c0145a67 c1323a00 c0139256 
+dffccabc d5a1af08 191d0045 c1323a00
+Jan 22 08:26:58 localhost kernel:        08848000 d3b5b088 08800000 d39ebd88 
+c0145c10 c0399d54 d3b5b084 08448000
 
-You didn't give any information about your hardware (controller type,
-drives used etc).  Please read REPORTING-BUGS in the kernel source
-directory.  Also please find last working kernel version (2.5 or 2.6).
+2.  I patched in Hugh's patch  to 2.6.10 and recompiled. At reboot I ran 
+memtest86 v 1.26, 3 times without any error.  Then rebooting  in 2.6.10 and 
+doing  ifup wlan0 gave me system freeze and unfortunately nothing in the log.
+Since then I have  not  seen the same error again after 3 reboots and 2-3 cold 
+boots followed by ifup. I also tried cycles  of ifdown and ifup without  any 
+errors.  
 
-> I testes the RAID-subsystem with two different PC-systems. Always the
-> same result: 2.4 works, 2.6 does not. It's hard for me to reproduce the
-> Errors through. I'm still writing an application to reliably reproduce
-> them :-( Does anybody know a good stress-test perhaps? Sequential
-> reading doesn't seem to do the trick.
-> 
-> What changes have been applied to the IDE subsystem from kernel 2.4 to
-> kernel 2.6? What may cause this different behaviour? What does
-> "status=0x51" mean? And why is "error=0x00" although the Error-Bit in
-> the status-byte has been set. (i guess this is what status=0x51 means).
-> 
-> How can the behaviour of kernel 2.6 be reverted to the behaviour of
-> kernel 2.4? I already tried "hda=nowerr" in the append-line, but it
-> doesn't help either. Is it a Bug of kernel 2.6, or should i smash the
-> manufactures doors, to make them release a firmware-update of the
-> RAID-subsystem since it reports strange values to the OS?
+3. I am not sure if I should post my whole config here hence I just pasting 
+DRM related entries here in reference to your original email to Jose`.  I 
+have VIA motherboard and a matrox  agp card, [FWIW most of the config is same 
+as for 2.6.8 kernel  that did not show the rmap sympton]
 
-Dunno, I don't have a magic ball... ;)
+CONFIG_AGP_VIA=m
+CONFIG_DRM=y
+CONFIG_DRM_MGA=m
 
-Bartlomiej
+
+I will be glad to provide any other info needed. You may  bcc to my email if 
+this is better discussed off the list. [Although I will anxiously  check 
+lkml.org everyday or use RSS feed]. I am not subsribed as We are not 
+worthy :-)
+
+Thanks,
+
+Jay

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUITWDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUITWDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUITWDl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 18:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUITWDk
+	id S267374AbUITWDi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 18:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUITWDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 18:03:40 -0400
-Received: from mail.enyo.de ([212.9.189.167]:24581 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S267375AbUITWD1 (ORCPT
+	Mon, 20 Sep 2004 18:03:38 -0400
+Received: from mail.enyo.de ([212.9.189.167]:22789 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S267374AbUITWDI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 18:03:27 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Jakma <paul@clubi.ie>, Ville Hallivuori <vph@iki.fi>,
+	Mon, 20 Sep 2004 18:03:08 -0400
+To: Paul Jakma <paul@clubi.ie>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ville Hallivuori <vph@iki.fi>,
        Toon van der Pas <toon@hout.vanvergehaald.nl>,
        Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
@@ -23,25 +23,32 @@ References: <002301c498ee$1e81d4c0$0200a8c0@wolf>
 	<20040913201113.GA5453@vph.iki.fi>
 	<Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
 	<1095174633.16990.19.camel@localhost.localdomain>
+	<Pine.LNX.4.61.0409141721270.23011@fogarty.jakma.org>
+	<1095178175.17043.50.camel@localhost.localdomain>
+	<Pine.LNX.4.61.0409141815460.23011@fogarty.jakma.org>
 From: Florian Weimer <fw@deneb.enyo.de>
-Date: Tue, 21 Sep 2004 00:03:18 +0200
-In-Reply-To: <1095174633.16990.19.camel@localhost.localdomain> (Alan Cox's
-	message of "Tue, 14 Sep 2004 16:10:36 +0100")
-Message-ID: <87sm9cmwd5.fsf@deneb.enyo.de>
+Date: Tue, 21 Sep 2004 00:02:46 +0200
+In-Reply-To: <Pine.LNX.4.61.0409141815460.23011@fogarty.jakma.org> (Paul
+	Jakma's message of "Tue, 14 Sep 2004 18:17:53 +0100 (IST)")
+Message-ID: <87zn3kmwe1.fsf@deneb.enyo.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox:
+* Paul Jakma:
 
-> On Maw, 2004-09-14 at 15:55, Paul Jakma wrote:
->> Hmm, yes, I hadnt thought of the attack-mitigating aspects of 
->> graceful restart. Though, without other measures, the session is 
->> still is open to abuse (send RST every second).
+>> TCP-MD5 has no effect on ICMP based attacks.,
 >
-> Its more than that given port randomization, quite a lot more. Of course
-> its much easier to just send "must fragment, size 68" icmp replies and
-> guess them that way.
+> Hmm, good point. Which attacks, and what could be done about them? 
+> (other than IPsec protect all traffic between peers).
 
-Is this attack documented anywhere?
+You just filter ICMP packets, in the way RST packets are already
+filtered (i.e. rate limit).
+
+The only TCP desynchronization attack that has a chance of working
+practice is the SYN-based one.  The rate limit for RST processing on
+Cisco routers is far too low.
+
+(Mixed Cisco/Quagga environments are a different matter, but rather
+unusual and easily DoSed anyway, most of the time.)

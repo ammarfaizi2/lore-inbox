@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTD2Fvu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 01:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTD2Fvt
+	id S261960AbTD2GEI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 02:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbTD2GEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 01:51:49 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:22685 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S261801AbTD2Fvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 01:51:48 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Kendall Bennett" <KendallB@scitechsoft.com>
-Date: Tue, 29 Apr 2003 08:03:38 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Crash in vm86() on SMP boxes with vesa driver?
+	Tue, 29 Apr 2003 02:04:08 -0400
+Received: from [193.89.230.30] ([193.89.230.30]:44936 "EHLO
+	roadrunner.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S261960AbTD2GEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 02:04:07 -0400
+Message-ID: <1051596982.3eae18b640303@roadrunner.hulpsystems.net>
+Date: Tue, 29 Apr 2003 08:16:22 +0200
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: bas.mevissen@hetnet.nl
 Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <CF69933E9@vcnet.vc.cvut.cz>
+Subject: RE: Broadcom BCM4306/BCM2050  support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Apr 03 at 16:12, Kendall Bennett wrote:
+> I couldn't find any Linux support for these WLAN chips with 
+> google or on this lists archives. So I would like to ask it here:
 
-> 8.0 box with the latest 2.4.20 kernel on it (but the problem happened 
-> with the stock kernel and kernels lower then .20 as well). Unfortunately 
-> I don't have access to the box (it is in Australia), but I have access to 
-> the bug report information (and will try to configure a box soon to 
-> reproduce it here). Anyway the folowing is the error log produced by 
-> XFree86 when the crash occurs:
+It seems, that the specs haven't been released yet. There are quite a few Wlan
+cards out there based on the Broadcom chips (nearly all cards, that support
+802.11g), so it's quite a shame. (Actually this fits the the TrueMobile 1180,
+1300 and 1400, speaking of Dell wireless lan cards).
 
-We told you before that you cannot trust VESA BIOS.
- 
-> (II) VESA(0): initializing int10
-> (WW) VESA(0): Bad V_BIOS checksum
-> (II) VESA(0): Primary V_BIOS segment is: 0xc000
+> Is there somebody working on a Linux driver for the Broadcom 
+> BCM4306/BCM2050 chips? They are used for instance in the 
+> built-in Dell TrueMobile 1300 Wireless LAN PCI card that is 
+> sold for Dell notebooks. I've ordered a Dell Inspiron 8500 
+> with such thing in it. (had to choose Dell and the i8500 was 
+> the best choice at the moment).
 
-Bad checksum? Sorry, your BIOS is not usable. Either XFree gets checksum
-wrong, or there is something I would not want in my computer there...
+The same problem is with the Intel Prowireless 2100 (Centrino) WLan card. No
+Linux support available yet, which is another choice for the Dell notebooks at
+the moment.
 
-> (II) VESA(0): virtual address = 0x402d7000,
->         physical address = 0xf0000000, size = 33554432
-> (II) VESA(0): VBESetVBEMode failed(EE) VESA(0): vm86() syscall generated
-> signal 11. 
-> (II) VESA(0): EAX=0x00000150, EBX=0x00000ba0, ECX=0x00000000, 
-> EDX=0x00000000
-> (II) VESA(0): ESP=0x00000fba, EBP=0x00000001, ESI=0x00000bc3, 
-> EDI=0x00003ad7
-> (II) VESA(0): CS=0xc000, SS=0x0100, DS=0x0000, ES=0xc000, FS=0x0000, 
-> GS=0x0000 (II) VESA(0): EIP=0x0000800f, EFLAGS=0x00033006 
-> (II) VESA(0): code at 0x000c800f:
->  62 18 91 60 09 fa 03 85 27 11 27 11 9d 0f f4 81
->  fe 06 d0 1a 68 74 99 a9 c6 39 f9 6d 04 b4 d6 6b
- 
-> Also from debugging our own code we have a bit more information about 
-> where the problem occurs, and it occurs on the return from the vm86() 
-> system call when the code tries to pop the EBX register from the stack. 
-> Which kind of indicates that the kernel screwed up the return stack of 
-> the program for some reason:
+> I read on 
+> <http://www.ee.surrey.ac.uk/Personal/G.Wilford/Inspiron8500>
+>  that the Ethernet chip (BCM4401) is support by a Broadcom driver and a brand
+> new one from Daved S. Miller.
 
-No. Crash happened inside VM, and it was shown as happening on return
-from int $0x80. But real problem is that in the VM you are executing
-code at 0xC000:0x800F. But there is no code there, it is garbage
-(bound bx,[bx+si]; xchg cx,ax; pusha; or dx,di ???) which generated
-bounds check interrupt.
- 
-> Any ideas? I am not sure how to start debuging this (assuming I can get 
-> my SMP machine up and running and reproduce it) in the kernel. Also the 
-> machine that the problem occurs on goes to the customer tomorrow, so we 
-> won't be able to debug this much ourselves until I can get a new machine 
-> to reproduce it. But, it would seem to me that others may well have seen 
-> this problem already?
+The ethernet chip is supported both by the BCM5700 and the Tigon3 drivers. It's
+basically the same chipset family, that Dell has used in their servers for quite
+a while and since these are delivered with Linux of the factory, the driver has
+been around for quite a while.
 
-Make sure that videocard properly reports that it uses more than 32kB
-BIOS. Maybe card reports only 32kB, while it uses 48kB. System is free
-to do anything it wants with 32-48kB range including mapping another BIOS
-there, or writting zeroes, or garbage there... Also make sure that
-you have properly setup VM, that 0xC8000 is mapped to physical address
-0xC8000...
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+> So I'm wondering if Broadcom is willing to release specs for the WLAN chips 
+> too.
+
+Not so far. There is a petition here on exactly that issue:
+http://www.petitiononline.com/BCM4301/petition.html
+
+> How are the experiences in contacting Broadcom and Dell with requests for
+> help?
+
+Dell won't be able to help you at the moment, since Linux on notebooks is
+supported on a "best effort" basis, but not delivered with the notebooks of
+factory. So no demand for drivers here. 
+
+I've tried to contact Broadcom directly, but they are just ignoring mails
+containing the word "Linux", so it seems.
+
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+Stop searching.  Happiness is right next to you.  Now, if they'd only
+take a bath ...
 

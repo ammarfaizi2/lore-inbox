@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbREGSDZ>; Mon, 7 May 2001 14:03:25 -0400
+	id <S135275AbREGSIl>; Mon, 7 May 2001 14:08:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132765AbREGSDR>; Mon, 7 May 2001 14:03:17 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9220 "EHLO
-	Opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S132757AbREGSDI>; Mon, 7 May 2001 14:03:08 -0400
-Date: Mon, 7 May 2001 10:59:50 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010507105950.A771@opus.bloom.county>
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <E14wO7g-000240-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14wO7g-000240-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 06, 2001 at 01:58:49PM +0100
+	id <S135489AbREGSI2>; Mon, 7 May 2001 14:08:28 -0400
+Received: from mail.gator.net ([209.251.152.21]:35856 "EHLO mail.gator.net")
+	by vger.kernel.org with ESMTP id <S135275AbREGSEw>;
+	Mon, 7 May 2001 14:04:52 -0400
+Date: Mon, 7 May 2001 14:00:50 -0400 (EDT)
+From: Blue Lang <blue@gator.net>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: <alexander.eichhorn@rz.tu-ilmenau.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] Explanation of zero-copy networking
+In-Reply-To: <20010507195333.A13072@se1.cogenit.fr>
+Message-ID: <Pine.LNX.4.30.0105071357520.943-100000@mail.gator.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 01:58:49PM +0100, Alan Cox wrote:
-> > # These were separate questions in CML1
-> > derive MAC_SCC from MAC & SERIAL
-> > derive MAC_SCSI from MAC & SCSI
-> > derive SUN3_SCSI from (SUN3 | SUN3X) & SCSI
-> 
-> Not all Mac's use the SCC if they have serial
-> Not all Mac's use the same SCSI controller
+On Mon, 7 May 2001, Francois Romieu wrote:
 
-Yes, but in this case 'MAC' means m68k mac, which this _might_ be valid, but
-I never did get Linux up and running on the m68ks I had..
+> It shows that cached code performs well with ~0us latency device/memory.
+>
+> Networking is about latency and pps too. They both dramatically reduce
+> the (axe-)evaluated bandwith.
 
-But Alan's point is a good one.  There are _lots_ of cases you can't get away
-with things like this, unless you get very fine grained.  In fact, it would
-be much eaiser to do this seperately from the kernel.  Ie another, 
-possibly/probably _not_ inkernel config tool which asks what machine you
-have, picks lots of sane defaults and setups a kernel config for you.  This
-is _sort of_ what PPC does right now with the large number of 'default 
-configs' (arch/ppc/configs).
+I think his point is more along the lines of return on investment.  You
+can tweak linux to move from 9MB/sec to 9.5MB/sec on a 100Mb link, or you
+can spend those same developer cycles getting much larger returns out of
+much sexier hardware.
+
+Now, who's gonna supply us with those NICs? ;)
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+   Blue Lang                                    http://www.gator.net/~blue
+   Unix Administrator                                     Veritas Software
+   2315 McMullan Circle, Raleigh, North Carolina, USA         919 835 1540
+

@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbTABFa2>; Thu, 2 Jan 2003 00:30:28 -0500
+	id <S265589AbTABFbc>; Thu, 2 Jan 2003 00:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbTABFa2>; Thu, 2 Jan 2003 00:30:28 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:833 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S265568AbTABFa1>;
-	Thu, 2 Jan 2003 00:30:27 -0500
-From: <Hell.Surfers@cwctv.net>
-To: alan@lxorguk.ukuu.org.uk, paul@clubi.ie, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, rms@gnu.org
-Date: Thu, 2 Jan 2003 05:37:40 +0000
-Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S265612AbTABFbc>; Thu, 2 Jan 2003 00:31:32 -0500
+Received: from adsl-67-36-120-9.dsl.klmzmi.ameritech.net ([67.36.120.9]:27011
+	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
+	id <S265589AbTABFbb> convert rfc822-to-8bit; Thu, 2 Jan 2003 00:31:31 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Tabris <tabris@tabris.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-ac2 not detecting LITE-ON LTR-32123S as CD-R/W
+Date: Thu, 2 Jan 2003 00:39:44 -0500
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041485860505"
-Message-ID: <0f0fb5934050213DTVMAIL12@smtp.cwctv.net>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301020039.58290.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---1041485860505
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Contents of /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: LITE-ON  Model: LTR-32123S       Rev: XS0R
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
-"or later" perhaps copyright could be defined, and headers added to derivative?
+Why? This is supposed to be a CD Re/Writer.
 
-Dean. Three ways to kill yourself, and ive been drove in one...
+HELP.
+- --
+tabris
+- -
+My doctor told me to stop having intimate dinners for four.  Unless 
+there are three other people.
+		-- Orson Welles
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-On 02 Jan 2003 01:57:01 +0000 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
---1041485860505
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from irongate.swansea.linux.org.uk ([213.105.254.86]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Thu, 2 Jan 2003 01:11:49 +0000
-Received: from irongate.swansea.linux.org.uk (localhost [127.0.0.1])
-	by irongate.swansea.linux.org.uk (8.12.5/8.12.5) with ESMTP id h021v3HZ022623;
-	Thu, 2 Jan 2003 01:57:04 GMT
-Received: (from alan@localhost)
-	by irongate.swansea.linux.org.uk (8.12.5/8.12.5/Submit) id h021v1Nc022621;
-	Thu, 2 Jan 2003 01:57:01 GMT
-X-Authentication-Warning: irongate.swansea.linux.org.uk: alan set sender to alan@lxorguk.ukuu.org.uk using -f
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Rik van Riel <riel@conectiva.com.br>, Hell.Surfers@cwctv.net,
-   Linux
-	Kernel Mailing List <linux-kernel@vger.kernel.org>, rms@gnu.org
-In-Reply-To: <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
-References: <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Jan 2003 01:57:01 +0000
-Message-Id: <1041472621.22606.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Return-Path: alan@lxorguk.ukuu.org.uk
-
-On Thu, 2003-01-02 at 00:31, Paul Jakma wrote:
-> So I am not quite sure on what basis one could argue the NVidia 
-> driver is not a derivative work, and hence it seems to me the NVidia 
-> driver is technically in material breach of GPL.
-
-I would assume Nvidia's view is based on US caselaw on what constitutes
-a 'derived work'. The boundaries of copyright are not set by the GPL
-authors
-
---1041485860505--
-
+iD8DBQE+E9CttTgrITXtL+8RAshzAJ4vXEHeMaAhyWUUXVKCHYKlMK9H8ACeLOHk
+8qcg7XWkuWrhW+amlAGuKIk=
+=OBAO
+-----END PGP SIGNATURE-----
 

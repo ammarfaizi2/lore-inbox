@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287276AbSBKGCw>; Mon, 11 Feb 2002 01:02:52 -0500
+	id <S287109AbSBKGVF>; Mon, 11 Feb 2002 01:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287289AbSBKGCn>; Mon, 11 Feb 2002 01:02:43 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:38835 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S287276AbSBKGCW>; Mon, 11 Feb 2002 01:02:22 -0500
-Message-ID: <3C675E6B.4010605@nyc.rr.com>
-Date: Mon, 11 Feb 2002 01:02:19 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org
+	id <S287289AbSBKGUz>; Mon, 11 Feb 2002 01:20:55 -0500
+Received: from zero.tech9.net ([209.61.188.187]:1294 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287109AbSBKGUl>;
+	Mon, 11 Feb 2002 01:20:41 -0500
 Subject: Re: 2.5.4 Compile Error
-In-Reply-To: <3C674CFA.2030107@nyc.rr.com> <3C6750CD.46575DAA@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Robert Love <rml@tech9.net>
+To: John Weber <weber@nyc.rr.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C675E6B.4010605@nyc.rr.com>
+In-Reply-To: <3C674CFA.2030107@nyc.rr.com>
+	<3C6750CD.46575DAA@mandrakesoft.com>  <3C675E6B.4010605@nyc.rr.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 01:20:46 -0500
+Message-Id: <1013408447.806.409.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> John Weber wrote:
+On Mon, 2002-02-11 at 01:02, John Weber wrote:
+
+> The function thread_saved_pc() is a mystery to me.  It is declared with 
+> a return type of unsigned long, and yet return this:
 > 
->>/usr/src/linux-2.5.4/include/asm/processor.h: In function `thread_saved_pc':
->>/usr/src/linux-2.5.4/include/asm/processor.h:444: dereferencing pointer
->>to incomplete type
->>make: *** [init/main.o] Error 1
->>
+> ((unsigned long *)tsk->thread->esp)[3]
 > 
-> since it's just for /usr/bin/ps, ie. not a fast path, I just un-inlined
-> it in my alpha hacking.  Same approach might work for here, too.
+> This is confusing to me in many ways:
+> - the "thread" member of task struct is not a pointer
+> - esp is of type unsigned long, so I don't understand the cast, and
+> I certainly don't understand the [3] here.
 > 
-> The basic problem, I'm guessing, is that asm/processor.h wants to know
-> about the internals of task struct, but it can't yet.
-> 
-> 	Jeff
-> 
+> Can anyone explain this code to me?
 
-I don't know what the problem is, but un-inlining this function isn't 
-correcting it.
+The problem is an interdependency between processor.h and sched.h.
 
-The function thread_saved_pc() is a mystery to me.  It is declared with 
-a return type of unsigned long, and yet return this:
+The old code was the same, except it did
 
-((unsigned long *)tsk->thread->esp)[3]
+	t->esp
 
-This is confusing to me in many ways:
-- the "thread" member of task struct is not a pointer
-- esp is of type unsigned long, so I don't understand the cast, and
-I certainly don't understand the [3] here.
+where t was a thread_struct, instead of what we do now
 
-Can anyone explain this code to me?
+	t->thread->esp
 
-I'm a kernelnewbie, so I'm inclined to return:
-return (tsk->thread).esp
-What is this function trying to do?
+where t is a task_struct.  And thus whereby before we passed
+
+	p->thread
+
+as the argument, now you pass just `p'.  I.e., its the same net-affect. 
+The error is because the function needs access to both task_struct (in
+sched.h) and thread_struct (in processor.h) but the two are interrelated
+so we can't include them in each other.
+
+The contents of esp is a memory address, so typecasting it to (unsigned
+long *) is OK.
+
+As for the [3], p[3] is the same as
+	*(p+3)
+ie,
+	*(p+sizeof(p))
+so that is legal.
+
+So the fix, aside from reverting this change and the kernel/sched.c
+change and the sparc64 changes ... would be to solve the dependency
+issue.
+
+	Robert Love
 

@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263705AbTKRQ4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 11:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTKRQ4J
+	id S263711AbTKRQ6R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 11:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTKRQ6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 11:56:09 -0500
-Received: from web40903.mail.yahoo.com ([66.218.78.200]:50021 "HELO
-	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263705AbTKRQ4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 11:56:06 -0500
-Message-ID: <20031118165605.39280.qmail@web40903.mail.yahoo.com>
-Date: Tue, 18 Nov 2003 08:56:05 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: AW: HT enable on BIOS which doesn't supports it?
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
+	Tue, 18 Nov 2003 11:58:17 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:52964 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263711AbTKRQ6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 11:58:16 -0500
+Message-ID: <3FBA4F9B.20203@zytor.com>
+Date: Tue, 18 Nov 2003 08:58:03 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <1068512710.722.161.camel@cube.suse.lists.linux.kernel>	<20031111133859.GA11115@bitwizard.nl.suse.lists.linux.kernel>	<20031111085323.M8854@devserv.devel.redhat.com.suse.lists.linux.kernel>	<bp0p5m$lke$1@cesium.transmeta.com.suse.lists.linux.kernel>	<20031113233915.GO1649@x30.random.suse.lists.linux.kernel>	<3FB4238A.40605@zytor.com.suse.lists.linux.kernel>	<20031114011009.GP1649@x30.random.suse.lists.linux.kernel>	<3FB42CC4.9030009@zytor.com.suse.lists.linux.kernel> <p734qx7rmyf.fsf@oldwotan.suse.de>
+In-Reply-To: <p734qx7rmyf.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 18 Nov 2003 17:07:29 +0100, "Michal Semler (volny.cz)" said:
-> > Hmm..so why "ht" flag is detected?
-> >
-> > This chip is really strange. It looks like only renamed real P4/XEON,
-> > coz through CPUFREQ I got it to work on lower frequencies:
+Andi Kleen wrote:
 > 
-> Not really. Here's mine (Dell Latitude C840):
+> That would be buggy because existing users of sendfile don't know
+> about this and would silently only copy part of the file when a signal
+> happens.
 > 
-> processor : 0
-> vendor_id : GenuineIntel
-> cpu family : 15
-> model : 2
-> model name : Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz
-> stepping : 4
-> cpu MHz : 1595.776
-> ....
-> flags : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush
-> dts acpi mmx fxsr sse sse2 ss ht tm
-> 
-> Wow.. HT-enabled. However, if I build an SMP-enabled kernel, it turns out that
-> there's only one sibling...
 
-My CPU is like that too:
+It would be consistent with the documented semantics for other file 
+operations.  Obviously, return zero only on EOF.
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Mobile Intel(R) Pentium(R) 4 - M CPU 2.00GHz
-stepping        : 7
-cpu MHz         : 1994.259
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36
-clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 3932.16
+	-hpa
 
-I also have an 'ht' flag -- but I've never tried SMP. XP doesn't seem to think HT
-is on here either, so I just put it down as an anomaly.
-
-Brad
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUJVTbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUJVTfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266820AbUJVTbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUJVTa3
+	id S265144AbUJVTfA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUJVTdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:30:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36358 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S267304AbUJVT1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:27:06 -0400
-Date: Fri, 22 Oct 2004 21:26:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-ID: <20041022192634.GC22558@stusta.de>
-References: <20041022032039.730eb226.akpm@osdl.org> <4178FBC5.7090508@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4178FBC5.7090508@eyal.emu.id.au>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 22 Oct 2004 15:33:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16074 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265144AbUJVTWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:22:01 -0400
+Date: Fri, 22 Oct 2004 12:21:35 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: Re: 2.6.9-mm1: timer_event multiple definition
+In-Reply-To: <20041022191608.GB22558@stusta.de>
+Message-ID: <Pine.LNX.4.58.0410221219580.9440@schroedinger.engr.sgi.com>
+References: <20041022032039.730eb226.akpm@osdl.org> <20041022135026.GC2831@stusta.de>
+ <Pine.LNX.4.58.0410220812170.7868@schroedinger.engr.sgi.com>
+ <20041022191608.GB22558@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 10:23:33PM +1000, Eyal Lebedinsky wrote:
-> Andrew Morton wrote:
-> > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
-> 
-> I see the DVB stuff is not here anymore (was in rc-mm). Why?
+On Fri, 22 Oct 2004, Adrian Bunk wrote:
 
-Which part that isn't now in Linus' tree is missing?
+> You don't have "SysKonnect FDDI PCI support" enabled in your .config?
 
-cu
-Adrian
+Nope.
 
--- 
+> That's what I wanted to say in my comment:
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Right.
 
+> There's a name clash between two global `timer_event':
+> The one you introduced, and the one in drivers/net/skfp/queue.c .
+>
+> I don't know whether `timer_event' is too generic for the use you
+> introduced, but for the use in drivers/net/skfp/queue.c (which was
+> already present) it seems too generic.
+
+posix_timer_event is more specific and the patch attached to my last
+message contained a patch where the name is changed to posix_timer_event.

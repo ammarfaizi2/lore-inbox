@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTFHR7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 13:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTFHR7g
+	id S263638AbTFHSCs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 14:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263643AbTFHSCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 13:59:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2824 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263628AbTFHR7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 13:59:36 -0400
-Date: Sun, 8 Jun 2003 11:12:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Move BUG/BUG_ON/WARN_ON to asm headers
-In-Reply-To: <Pine.SOL.4.30.0306071738580.28622-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.44.0306081106400.6309-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jun 2003 14:02:48 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:18090 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S263638AbTFHSCr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 14:02:47 -0400
+Date: Sun, 8 Jun 2003 20:16:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] Support for mach-xbox
+Message-ID: <20030608181610.GA9182@elf.ucw.cz>
+References: <20030602202714.GD18786@h55p111.delphi.afb.lu.se> <20030606145651.GB4960@zaurus.ucw.cz> <20030608091806.GB1702@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030608091806.GB1702@h55p111.delphi.afb.lu.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sat, 7 Jun 2003, Bartlomiej Zolnierkiewicz wrote:
+> > > Attached is a patch that adds a new subachitecture for the xbox gaming
+> > 
+> > Why does xbox need new subarchitecture?
+> > It should be normal PC...
 > 
-> What about adding asm-generic/bug.h ?
+> It need to blacklist some pci-devices, if you touch them it hangs. And it
+> has different CLOCK_TICK_RATE. So booting an xbox-kernel on other
+> PC's will
 
-I personally dislike infrastructure that isn't a big win.
-
-Shared files ("generic" stuff) end up being useful mainly if they are 
-_really_ generic, and they do something that takes more effort to do than 
-it takes to learn about the generic interface.
-
-For trivial stuff that isn't even really generic (ie several architectures 
-are likely to want to tinker with their implementation), trying to have a 
-generic version is just not worth it, imho. 
-
-In general, I tend to like independent copies with small (but locally
-obvious) variations over one generic one with non-locally-obvious
-semantics - things like "mostly people use this version, except if XXXX is 
-defined, in which case they use their own" are just a total nightmare in 
-my opinion. 
-
-			Linus
-
+Okay, different CLOCK_TICK_RATE is good enough reason I guess.
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

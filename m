@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbUBKScC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 13:32:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbUBKScC
+	id S266055AbUBKSbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 13:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266064AbUBKSbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 13:32:02 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:37135 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S266109AbUBKSbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 13:31:51 -0500
-Date: Wed, 11 Feb 2004 13:31:48 -0500
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-rc3-mm1 won't boot: nfs hangs @ slab.c:1931
-Message-ID: <20040211183147.GD16882@fieldses.org>
-References: <20040211182032.GA28408@middle.of.nowhere>
+	Wed, 11 Feb 2004 13:31:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22706 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266055AbUBKSbC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 13:31:02 -0500
+Date: Wed, 11 Feb 2004 10:30:56 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: lists@mdiehl.de, dsaxena@plexity.net, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] dma_sync_to_device
+Message-Id: <20040211103056.69e4660e.davem@redhat.com>
+In-Reply-To: <20040211111800.A5618@home.com>
+References: <20040211061753.GA22167@plexity.net>
+	<Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de>
+	<20040211111800.A5618@home.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040211182032.GA28408@middle.of.nowhere>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 07:20:32PM +0100, Jurriaan wrote:
-> My debian system mentions
-> 
-> Exporting directories ... debug: sleeping function called from illegal
-> context at mm/slab.c:1931
-> 
-> The system is an up-to-date Debian Unstable dual P3/450.
-> I've search my lkml archives and can't find any mention of this.
+On Wed, 11 Feb 2004 11:18:00 -0700
+Matt Porter <mporter@kernel.crashing.org> wrote:
 
-You need the following.--Bruce Fields
+> Sure, other non cache coherent arch's that I'm aware of (PPC, ARM, etc.)
+> already implement the least expensive cache operations based on the
+> direction parameter in pci_dma_sync_single(). On PPC, we do the right
+> thing based on each of three valid directions, I don't yet see what
+> additional information pci_dma_sync_to_device_single() provides. 
 
-diff -puN net/sunrpc/svcauth.c~neil_NfsdCacheImprove net/sunrpc/svcauth.c
---- linux-2.6.1/net/sunrpc/svcauth.c~neil_NfsdCacheImprove	2004-02-08 13:54:41.000000000 -0500
-+++ linux-2.6.1-bfields/net/sunrpc/svcauth.c	2004-02-08 14:09:08.000000000 -0500
-@@ -150,7 +150,11 @@ DefineCacheLookup(struct auth_domain,
- 		  &auth_domain_cache,
- 		  auth_domain_hash(item),
- 		  auth_domain_match(tmp, item),
--		  kfree(new); if(!set) return NULL;
-+		  kfree(new); if(!set) {
-+		  if (new) write_unlock(&auth_domain_cache.hash_lock);
-+		  else read_unlock(&auth_domain_cache.hash_lock);
-+		  return NULL;
-+		  }
- 		  new=item; atomic_inc(&new->h.refcnt),
- 		  /* no update */,
- 		  0 /* no inplace updates */
+There are two points in time where you want to sync:
 
-_
+1) Right after the device has done a DMA transaction, and the cpu
+   wishes to read/write the datum.
+
+2) Right after the cpu has read/write the datum, and we like to let the
+   device DMA to/from the thing again.
+
+That is the distinction provided by the two interfaces.
+
+Consider something like MIPS, cache flushes needed for both of the above
+operations:
+
+1) pci_map_single(), device DMA's from the buffer.
+
+2) pci_dma_sync_single().  Cpu writes some new command or
+   status flag into the buffer.
+
+3) pci_dma_sync_to_device_single(), now device is asked to DMA from the buffer
+   again.
+
+Cache flushes are needed on MIPS for both step #2 and #3, and different kinds of
+flushes in fact.
+
+Do you understand the need for this now?

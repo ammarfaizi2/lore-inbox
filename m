@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278332AbRJMQl5>; Sat, 13 Oct 2001 12:41:57 -0400
+	id <S278328AbRJMQsH>; Sat, 13 Oct 2001 12:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278328AbRJMQlr>; Sat, 13 Oct 2001 12:41:47 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:8205 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S278334AbRJMQlf>;
-	Sat, 13 Oct 2001 12:41:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-To: Robert Love <rml@tech9.net>
-Subject: Re: cpus_allowed
-Date: Sat, 13 Oct 2001 17:37:33 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01101316594000.02369@home01> <1002990137.868.59.camel@phantasy>
-In-Reply-To: <1002990137.868.59.camel@phantasy>
+	id <S278335AbRJMQr6>; Sat, 13 Oct 2001 12:47:58 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:22882 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S278328AbRJMQrs>;
+	Sat, 13 Oct 2001 12:47:48 -0400
+Date: Sat, 13 Oct 2001 18:48:19 +0200 (MEST)
+From: Michael Kerrisk <m.kerrisk@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-Id: <01101317373300.02554@home01>
-Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0005657596@gmx.net
+X-Authenticated-IP: [213.6.191.169]
+Message-ID: <6126.1002991699@www50.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 October 2001 09:22, Robert Love wrote:
-> On Sat, 2001-10-13 at 19:59, Rolf Fokkens wrote:
-> > I'm sure I'm overlooking something, but that doesn't help me finding the
-> > answer. So would someone be so kind to enlighten me?
->
-> It is initialized to -1 (0xffffffff) by struct definition at
-> linux/kernel/sched.h.  Since it is a mask, this means all CPUs
-> (obviously).
+Gidday,
 
-Silly me, I didn't check the header files.
+[Hmmm, tried postin this from another address but it doesn't seem to have
+maed it through - this is another shot, apologies if it turns out to be a
+duplicate]
 
-> Most of the CPU affinity patches you see were written before
-> cpus_allowed.  They go through all sorts of trouble to do what the OS
-> now does on its own.  If you want to change CPU affinity then you just
-> need a patch that adds a syscall or proc interface for setting the
-> cpus_allowed mask.
+I've put this question out on C.O.L.D.S, but have not really received any
+conclusive answer, and archive searches don't seem to reveal anything, so
+I'll bring it here...
 
-Just read the "Linux Scalability Effort" (LSE) on Sourceforge. The concept of 
-limitiming applications to certain resources is appealing to me. With the use 
-of cpus_allowed it's not to hard to restrict CPU power for some applications. 
-I'm thinking of the following: we're running about 12 (!) Oracle databases on 
-1 Linux Server with 4 CPU's. One of the databases is a datawarehouse database 
-which handles all kinds of heavy queries. Assuming that the machine has 
-enough memory (which is the case) restricting this database to certain CPU's 
-could be very useful.
+I'm slightly puzzled about the use of the file system UID and GID
+features.  The setfsuid(2) man page says:
 
-I have no idea however what the right API would be. LSE suggests a ulimit 
-like setting. In this Oracle example one listener handles connections to all 
-databases on the machine, it does so by forking and executing the database 
-binary with some specific environment settings per database. So ulimit won't 
-handle it. The solution might be to run 2 listeners, one with 
-restricted cpus_allowed and the other one with unrestricted cpus_allowed.
+>> An explict call to setfsuid is usually only used  by  pro­
+>> grams  such  as  the  Linux NFS server that need to change
+>> what user ID is used for file access without a correspond­
+>> ing change in the real and effective user IDs. A change in
+>> the normal user IDs for a program such as the  NFS  server
+>> is  a security hole that can expose it to unwanted signals
+>> from other user IDs.
+
+Now I can see that it can be convenient for the NFS server to change the
+FSUID in order to masquerade as another user for the purposes of file
+access permissions, while at the same time maintaining privileges via the
+effective/saved set-user IDs.  
+
+However, the statement about signals sounds strange to me: on Linux (as
+with other Unices), one process can send another process a signal if the
+[REAL or EFFECTIVE UID of the sender] matches the [REAL or SAVED SET-
+USER-ID of the receiver].
+
+Thus a process could use (say) seteuid(2) to change the process' 
+effective UID (while leaving the real and saved set-user-id unchanged) ,
+and still not be a target for signals sent by another process with the
+same real of effective UID.  In other words, the FSUID doesn't appear to
+be necessary, at least from the point of view of protection from signals. 
+
+Is the explanation on the manual page incomplete?  Or have I missed
+something?  (I've had a read of the NFS sources and haven't been 
+enlightened.)
+
+Thanks,
+
+Michael
+
+-- 
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
+

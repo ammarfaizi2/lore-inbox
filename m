@@ -1,75 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbTENETW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 00:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTENETW
+	id S261196AbTENEaG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 00:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTENEaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 00:19:22 -0400
-Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:47346 "EHLO
-	heavens.murgatroid.com") by vger.kernel.org with ESMTP
-	id S261184AbTENETU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 00:19:20 -0400
-Date: Tue, 13 May 2003 21:32:07 -0700
-From: Christopher Hoover <ch@murgatroid.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.68 FUTEX support should be optional
-Message-ID: <20030513213157.A1063@heavens.murgatroid.com>
+	Wed, 14 May 2003 00:30:06 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:17364 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S261196AbTENEaF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 00:30:05 -0400
+Date: Wed, 14 May 2003 07:42:38 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: David Caplan <david@david.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALi M5451/Trident sound module -> video corruption
+Message-ID: <20030514044237.GP11374@actcom.co.il>
+References: <20030514041227.GB2925@euphoria>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SavPGzlo48F1Gxyz"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030514041227.GB2925@euphoria>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not everyone needs futex support, so it should be optional.  This is
-needed for small platforms.
 
--ch
-mailto:ch(at)murgatroid.com
-mailto:ch(at)hpl.hp.com
+--SavPGzlo48F1Gxyz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -X dontdiff.txt -Naurp linux-2.5.68-rmk1/kernel/Makefile linux-2.5.68-rmk1-ceiva1/kernel/Makefile
---- linux-2.5.68-rmk1/kernel/Makefile	2003-04-19 19:48:55.000000000 -0700
-+++ linux-2.5.68-rmk1-ceiva1/kernel/Makefile	2003-05-13 20:58:54.000000000 -0700
-@@ -5,9 +5,10 @@
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
--	    signal.o sys.o kmod.o workqueue.o futex.o pid.o \
-+	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o
- 
-+obj-$(CONFIG_FUTEXT) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
- obj-$(CONFIG_SMP) += cpu.o
- obj-$(CONFIG_UID16) += uid16.o
-diff -X dontdiff.txt -Naurp linux-2.5.68-rmk1/kernel/sys.c linux-2.5.68-rmk1-ceiva1/kernel/sys.c
---- linux-2.5.68-rmk1/kernel/sys.c	2003-04-19 19:48:51.000000000 -0700
-+++ linux-2.5.68-rmk1-ceiva1/kernel/sys.c	2003-05-13 21:06:02.000000000 -0700
-@@ -226,6 +226,7 @@ cond_syscall(sys_shutdown)
- cond_syscall(sys_sendmsg)
- cond_syscall(sys_recvmsg)
- cond_syscall(sys_socketcall)
-+cond_syscall(sys_futex)
- 
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
-diff -X dontdiff.txt -Naurp linux-2.5.68-rmk1/init/Kconfig linux-2.5.68-rmk1-ceiva1/init/Kconfig
---- linux-2.5.68-rmk1/init/Kconfig	2003-04-19 19:50:38.000000000 -0700
-+++ linux-2.5.68-rmk1-ceiva1/init/Kconfig	2003-05-13 21:25:39.000000000 -0700
-@@ -108,8 +108,14 @@ config LOG_BUF_SHIFT
- 		     13 =>  8 KB
- 		     12 =>  4 KB
- 
--endmenu
- 
-+config FUTEX
-+       bool "Futex support"
-+       default y
-+       ---help---
-+       Say Y if you want support for Fast Userspace Mutexes (Futexes).
-+
-+endmenu
- 
- menu "Loadable module support"
- 
+On Wed, May 14, 2003 at 12:12:27AM -0400, David Caplan wrote:
+> Hello,
+>=20
+> I have a Sharp Actius MM10 "sub-notebook", on which I'm running kernel
+> 2.4.21-rc1.
+> When I load the trident.o sound module, the lcd begins flashing blue
+> stripes continuously. I am not up to date on the current issues with
+> this driver, am I doing something wrong? could there be some sort of
+> hardware
+> conflict? or is it a kernel problem?
+
+There aren't any outstanding issues that I know of, the driver has
+been stable for a long time. Could you send the output of lspci -vvv?
+Also, could you try it with trident built into the kernel?=20
+
+Thanks,=20
+Muli.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--SavPGzlo48F1Gxyz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+wck9KRs727/VN8sRAnpcAJ47csQspTGedfGZ3OpwzpiC3IXmHwCfUSbs
+DkPJK9GG19uGxXvgoEFjkKU=
+=3dSX
+-----END PGP SIGNATURE-----
+
+--SavPGzlo48F1Gxyz--

@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269454AbUJFUHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269457AbUJFULq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269454AbUJFUHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269453AbUJFUHc
+	id S269457AbUJFULq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJFUKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:07:32 -0400
-Received: from ns1.maildns.com ([64.215.178.100]:29889 "HELO maildns.com")
-	by vger.kernel.org with SMTP id S269455AbUJFUGn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:06:43 -0400
-Subject: Re: PROBLEM: shutdown fails with 2.6.9-rc3
-From: Charles Johnston <charles@infoplatter.com>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097090983.10141.3.camel@athena.fprintf.net>
-References: <1097090983.10141.3.camel@athena.fprintf.net>
-Content-Type: text/plain
-Message-Id: <1097093201.3008.2.camel@mercury>
+	Wed, 6 Oct 2004 16:10:22 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:44186
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269451AbUJFUHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:07:14 -0400
+Date: Wed, 6 Oct 2004 13:06:15 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: hzhong@cisco.com, aebr@win.tue.nl, joris@eljakim.nl,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-Id: <20041006130615.4f65a920.davem@davemloft.net>
+In-Reply-To: <41644D86.4010500@nortelnetworks.com>
+References: <003301c4abdc$c043f350$b83147ab@amer.cisco.com>
+	<41644D86.4010500@nortelnetworks.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 06 Oct 2004 14:06:42 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 13:29, Daniel Gryniewicz wrote:
-> Hi, all.
-> 
-> I just upgraded to 2.6.9-rc3 from a 2.6.8.1 based kernel, and my laptop
-> is no longer powering off.  Sometimes, the screen powers off, sometimes
-> it sits there saying "Power Down",  but in either case, the power LED is
-> still lit, and a hard power-off is necessary.  This did not happen with
-> 2.6.8.1.  I tried booting with acpi=off (as there was a report of
-> shutdown weirdness due to acpi on 2.6.9-rc1), but that did not help.
-> 
-> I have a Dell Inspiron 8600 laptop, with a Pentium-M 1500, and Centrino
-> chipset.  Attached is lscpi, cpuinfo, /proc/modules, and config for the
-> 2.6.9-rc3 kernel that fails.
-> 
-> Linux version 2.6.9-rc3 (dang@athena) (gcc version 3.4.2 (Gentoo Linux
-> 3.4.2-r2, ssp-3.4.1-1, pie-8.7.6.5)) #1 Wed Oct 6 15:02:35 EDT 2004
-> 
-> Daniel
+On Wed, 06 Oct 2004 13:54:46 -0600
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
-I have the same machine and experienced the same problem starting with
-2.6.9-rc1.
+> Would it be so bad to do the checksum before marking the socket readable? 
 
-The solution is to disable APIC and IO-APIC support.  The reason why it
-now has problems is the black-list with the Inspiron on it was removed.
-
-
-Charles
-
+Yes, because if we do that we have to make two passes over the
+data instead of one.  It does make a big difference.

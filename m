@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTAIHTT>; Thu, 9 Jan 2003 02:19:19 -0500
+	id <S261847AbTAIHUl>; Thu, 9 Jan 2003 02:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTAIHTT>; Thu, 9 Jan 2003 02:19:19 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:7329 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261733AbTAIHTR>; Thu, 9 Jan 2003 02:19:17 -0500
-From: Richard Stallman <rms@gnu.org>
-To: dpaun@rogers.com
-CC: lm@bitmover.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-In-reply-to: <200301071118.41059.dpaun@rogers.com>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Reply-to: rms@gnu.org
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <200301071118.41059.dpaun@rogers.com>
-Message-Id: <E18WX6e-0001Xj-00@fencepost.gnu.org>
-Date: Thu, 09 Jan 2003 02:28:00 -0500
+	id <S261854AbTAIHUl>; Thu, 9 Jan 2003 02:20:41 -0500
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:49788 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id <S261847AbTAIHUj>; Thu, 9 Jan 2003 02:20:39 -0500
+Date: Thu, 9 Jan 2003 08:29:19 +0100 (CET)
+From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: Andrew McGregor <andrew@indranet.co.nz>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+In-Reply-To: <20030108224339.GO22951@wiggy.net>
+Message-ID: <Pine.LNX.4.51.0301090822001.19862@trider-g7.ext.fabbione.net>
+References: <20030108130850.GQ22951@wiggy.net>
+ <Pine.LNX.4.51.0301081849550.564@diapolon.int.fabbione.net>
+ <78180000.1042055993@localhost.localdomain> <20030108224339.GO22951@wiggy.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    You are a smart guy. I think you'd agree with me that this particular
-    battle (GNU/Linux) is lost.
 
-It's not a battle, and the outcome isn't binary.
-(See http://www.gnu.org/gnu/gnu-linux-faq.html.)
-The GNU/Linux campaign is partly successful
-and that's better than not at all.
+On Wed, 8 Jan 2003, Wichert Akkerman wrote:
 
-    Bottom line is, the are only so many hours in a day. You have so many 
-    battles to fight, that would serve the community.
+> Previously Andrew McGregor wrote:
+> > Probably on the server's side it got an ICMP Host Unreachable or two as
+> > some router updated its tables, and decided to close the connection.
+>
+> The fact that this problem does not seem to occur when using a window
+> XP client seems to contradict the suggestions that it may be a router
+> problem.
+>
+> Wichert.
+>
+>
 
-All other work that we do is made less effective than it could have
-been because the public doesn't know what we've already done.  The
-partial success of the GNU/Linux campaign partly reverses this.
+Is the WinXP client located in the same place where you are?
 
-Calling the system "GNU/Linux" is very easy, and takes just seconds a
-day; that and using the term "free software" are the most efficient
-ways you can use your time to help us.
+>From my side the ISP that is giving me problems is xs26.net
+at 2 different points. One is flapping and one is the link between them
+and another ISP (i can't even reach it now) where pkts get seriously
+delayed (from 100ms to more than 350ms) probably due to a slow link.
+But what is seriously annoying is that xs26.net keeps announcing a network
+that it can't reach, fscking the entire routing.
 
-    situation, it must be clear even to you that things can't possibly go
-    back, and all your doing is creating bad blood. Think about it.
-
-When we call the system "GNU/Linux" we are not insulting anyone.  The
-bad blood is created by others, by the people who resent our saying
-this.
-
-There are two ways to look at this question: in terms of principle
-and in terms of practical effects.
-
-First, principle.  When a majority assaults a minority for stating a
-truth that the majority wants forgotten, who is morally responsible?
-If you say that the unpopular minority "creates bad blood", you're
-blaming the victims of the intimidation campaign for resisting it;
-taking a stand that deliberately disregards the concept of justice.
-
-Second, practicalities.  The people who are so attached to the idea of
-the "Linux" system that they would attack us for disagreeing with it
-are never going to help us much.  They mostly don't share our values
-anyway.  So we have nothing to lose.
-
-These discussions will never convince those people, but they do win
-support from others who read both sides and find that we have right on
-our side.  So we have something to gain.
-
-All in all, what we are doing is both right and effective.  We will
-continue.
-
+Fabio
 

@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267362AbTAMNkk>; Mon, 13 Jan 2003 08:40:40 -0500
+	id <S267748AbTAMNkx>; Mon, 13 Jan 2003 08:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbTAMNkk>; Mon, 13 Jan 2003 08:40:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8581 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267362AbTAMNkj>; Mon, 13 Jan 2003 08:40:39 -0500
-Date: Mon, 13 Jan 2003 08:51:06 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Schwartz <davids@webmaster.com>
-cc: mark@mark.mielke.cc, Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-Reply-To: <20030112041934.AAA18620@shell.webmaster.com@whenever>
-Message-ID: <Pine.LNX.3.95.1030113083054.20512A-100000@chaos.analogic.com>
+	id <S267797AbTAMNkx>; Mon, 13 Jan 2003 08:40:53 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:26763 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267748AbTAMNkv> convert rfc822-to-8bit; Mon, 13 Jan 2003 08:40:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Dave Jones <davej@codemonkey.org.uk>, Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*?
+Date: Mon, 13 Jan 2003 14:49:14 +0100
+User-Agent: KMail/1.4.3
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030113130842.GE9031@codemonkey.org.uk>
+In-Reply-To: <20030113130842.GE9031@codemonkey.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301131449.14893.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2003, David Schwartz wrote:
+Am Montag, 13. Januar 2003 14:08 schrieb Dave Jones:
+> On Sun, Jan 12, 2003 at 02:34:54PM -0500, Rob Wilkens wrote:
+>  > I'm REALLY opposed to the use of the word "goto" in any code where it's
+>  > not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
+>  > to comment
+>
+> Someone want to add this one to the lkml faq (does anyone actually
+> read that these days?) or maybe http://www.kernelnewbies.org/faq/
+>
+> Wow, one week later, and this would tie in with the fourth anniversary
+> of someone else[2] making an ass of himself on this issue[1]
 
-[SNIPPED...]
-> 
-> 	A cheap hammer can drive in more nails than a top of the line 
-> screwdriver.
-> 
-> 	DS
+So let us rejoice in a story of human growth.
+In the exuberant spirit of this joyfull occasion, I'd like you to find
+a place for this memorative piece of code:
 
-I like that! Reading this' month's "Computer", I noted that VxWorks
-was reported to be used in the busses of satellites, i.e., manages
-the IIC bus. That sounds like a good place for it. Unfortunately,
-the hype is that it "runs all the satellites and is the operating
-system of choice for satellites in high-radiation environments..."
+if (a->sibling->present)
+	goto your_place;
+else
+	goto my_place;
 
-VxWorks looks like this:
-
-       void interrupt_stuff() {
-           do_it();
-       }
-
-	main() {
-            setup_stuff();
-            for(;;) {
-              funct0();
-              funct1();
-              funct2();
-              functn();
-            }
-        }
-
-    It's a big loop. Now, this might be okay for something that runs
-the same events over and over again, an elevator controller, or the
-"smarts" behind some protocol manager. But it would really suck if
-funct0() ended up taking 1 second and functn() needs service in one 
-millisecond. So, it's up to the function designer to make certain
-that no function or, in some cases all functions combined, takes
-more than the required latency specification to execute.
-
-At some point, as complexity increases, you need to preempt. Preemption
-takes some worse-case time. It's at that point that a system designer
-will (should) throw out VxWorks and use some variation of Linux.
-
-As system complexity continues to increase, eventually it becomes
-best (currently, if it doesn't get screwed up) to use unmodified
-Linux because it is optimized for "desktop" operation, meaning
-it is optimized for systems of unknown complexity.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+	Regards
+		Oliver
 

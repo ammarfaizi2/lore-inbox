@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266369AbTGEPp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 11:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266372AbTGEPp4
+	id S266376AbTGEPsx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 11:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbTGEPsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 11:45:56 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:16811 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S266369AbTGEPpy
+	Sat, 5 Jul 2003 11:48:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24254 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266376AbTGEPsr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 11:45:54 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Daniel Phillips <phillips@arcor.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Date: Sun, 6 Jul 2003 02:01:04 +1000
-User-Agent: KMail/1.5.2
-References: <20030703023714.55d13934.akpm@osdl.org> <200307050216.27850.phillips@arcor.de> <200307051728.12891.phillips@arcor.de>
-In-Reply-To: <200307051728.12891.phillips@arcor.de>
+	Sat, 5 Jul 2003 11:48:47 -0400
+Message-ID: <3F06F6BA.6060200@pobox.com>
+Date: Sat, 05 Jul 2003 12:03:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Willy Tarreau <willy@w.ods.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ANN] 2.4.x snapshots started
+References: <3F06D2ED.8080904@pobox.com> <20030705154032.GA9428@alpha.home.local>
+In-Reply-To: <20030705154032.GA9428@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307060201.04219.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jul 2003 01:28, Daniel Phillips wrote:
-> On Saturday 05 July 2003 02:16, Daniel Phillips wrote:
-> > It now tolerates window dragging on this unaccelerated moderately high
-> > resolution VGA without any sound dropouts.  There are still dropouts
-> > while scrolling in Mozilla, so it acts much like 2.5.73+Con's patch, as
-> > expected.
->
-> Update: dropouts still do occur while moving windows, but rarely.  When
-> they do occur, they are severe.  A debian dist-upgrade just caused a
-> dropout - and another just now, about 3 seconds long.  I feel that tweaking
-> is only going to get us so far with this.  The situation re scheduling in
-> 2.5 feels much as the vm situation did in 2.3, in other words, we're
-> halfway down a long twisty road that ends with something that works, after
-> having tried and failed at many flavors of tweaking and tuning.  Ultimately
-> the problem will be solved by redesign, and probably not just limited to
-> kernel code.
+Willy Tarreau wrote:
+> On Sat, Jul 05, 2003 at 09:30:21AM -0400, Jeff Garzik wrote:
+> 
+>>Just like 2.5.x, nightly snapshots of Marcelo's latest 2.4.x BK 
+>>repository are being posted on kernel.org:
+>>
+>>ftp://ftp.??.kernel.org/pub/linux/kernel/v2.4/snapshots/
+>>
+>>I created the first snapshot midday as a test, and the standard cron job 
+>>created a second one, so the current release is 2.4.21-bk2.
+> 
+> 
+> Jeff, in -bk2, only EXTRAVERSION got changed in Makefile, so the complete
+> name is now 2.4.22-bk2. This is because the base kernel was 2.4.22-pre2.
 
-Have you taken the next twist in the road? I posted a second patch which 
-should go on top of what's in 2.5.74-mm1 a couple of days ago. Just in case, 
-here is a link to it.
+hrm, good point.  Fixing...
 
-http://kernel.kolivas.org/2.5/
+	Jeff
 
-it's called patch-O2int-0307041440
 
-It makes significant headway in smoothing the corner cases. I need testing at 
-each point before I can post another update, and am doing much less frequent 
-smaller updates now, with the aim of having no more than one patch for each 
--mm, so I can have a decent sized audience for each change.
-
-Andrew can you please apply this one on top in the next -mm if you are to 
-continue testing this patch series.
-
-Con
 

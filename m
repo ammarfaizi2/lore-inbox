@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVCHGds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVCHGfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVCHGds (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCHGby
+	id S261792AbVCHGfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVCHGfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:31:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10182 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261792AbVCHGbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:31:33 -0500
-Date: Tue, 8 Mar 2005 06:31:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] unified device list allocator
-Message-ID: <20050308063127.GA2475@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <20050308051818.GI3120@waste.org> <20050307213302.560de053.akpm@osdl.org> <20050308054325.GA1262@infradead.org> <20050307215035.345c3f63.akpm@osdl.org> <20050308055627.GA1515@infradead.org> <20050308061155.GK3120@waste.org>
+	Tue, 8 Mar 2005 01:35:43 -0500
+Received: from waste.org ([216.27.176.166]:22190 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261792AbVCHGeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 01:34:20 -0500
+Date: Mon, 7 Mar 2005 22:33:44 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
+       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
+       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050308063344.GM3120@waste.org>
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050307204044.23e34019.akpm@osdl.org> <87acpesnzi.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050308061155.GK3120@waste.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <87acpesnzi.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 10:11:55PM -0800, Matt Mackall wrote:
-> >  - when called with the major argument as 0 it returns an unused major number
-> >    from the top of the old 255 entries major list.  This should be replaced
-> >    by a real dynamic dev_t allocator, similar to alloc_chrdev_region.
+On Mon, Mar 07, 2005 at 11:30:57PM -0600, Jack O'Quin wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> Umm, this replaces alloc_chrdev_region too. If instead you mean "let's
-> migrate all the users to a sensible interface", I agree. And that
-> means killing alloc_chrdev_region too. (baseminor makes no sense for
-> dynamic allocation - you either know your prefered major and minor or
-> you know neither.)
+> > Matt Mackall <mpm@selenic.com> wrote:
+> >>
+> >> I think Chris Wright's last rlimit patch is more sensible and ready to
+> >>  go.
+> >
+> > I must say that I like rlimits - very straightforward, although somewhat
+> > awkward to use from userspace due to shortsighted shell design.
+> >
+> > Does anyone have serious objections to this approach?
+> 
+> 1. is likely to introduce multiuser system security holes like the one
+> created recently when the mlock() rlimits bug was fixed (DoS attacks)
 
-The thing is this blkdev_register useage should be replace by an API
-like alloc_chrdev_region.  I don't particularly care about the actual
-implementation.
+I wouldn't say "likely". But anything's possible, so I wouldn't rule
+it out entirely.
+ 
+> 2. requires updates to all the shells
 
+Requires update to the PAM distro for our purposes. 
+
+> 3. forces Windows and Mac musicians to learn and understand PAM
+
+Or for the distro (ubuntu or whatever) to catch up. The alternative is
+for the user to compile their own kernel module and mess with its
+arcane interface.
+
+> 4. is undocumented and has never been tested in any real music studios
+
+Well you'll have a bit to test it before it goes to Linus.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

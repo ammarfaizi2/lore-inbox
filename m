@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281547AbRKZJu4>; Mon, 26 Nov 2001 04:50:56 -0500
+	id <S281552AbRKZKKb>; Mon, 26 Nov 2001 05:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281554AbRKZJuq>; Mon, 26 Nov 2001 04:50:46 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:62864 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S281552AbRKZJua>; Mon, 26 Nov 2001 04:50:30 -0500
-Subject: Re: Severe Linux 2.4 kernel memory leakage
-From: Chris Chabot <chabotc@reviewboard.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111260740260.837-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.LNX.4.33.0111260740260.837-100000@mikeg.weiden.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 26 Nov 2001 10:50:54 +0100
-Message-Id: <1006768254.932.0.camel@gandalf.chabotc.com>
-Mime-Version: 1.0
+	id <S281555AbRKZKKW>; Mon, 26 Nov 2001 05:10:22 -0500
+Received: from gnu.in-berlin.de ([192.109.42.4]:17157 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S281552AbRKZKKL>;
+	Mon, 26 Nov 2001 05:10:11 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: bttv module intialization takes much time on kernel-2.4.x
+Date: 23 Nov 2001 17:28:46 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrn9vt1qe.8en.kraxel@bytesex.org>
+In-Reply-To: <200111231654.fANGs0705731@rai.sytes.net>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1006536526 8664 127.0.0.1 (23 Nov 2001 17:28:46 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After i recieved an email from Peter T. who had the same problem, but
-_not_ under 2.4.9 i re-checked, and indeed, the problems dont appear in
-kernel versions =< 2.4.9. So in either 2.4.10 or 2.4.11 the memory
-leakage was 'introduced'.
+Tetsuji Rai wrote:
+>  Title says it all.  I use bttv module.   When invoking "modprobe bttv" it 
+>  takes several minutes to initialize.  When I used kernel-2.2.x it was very 
+>  quick, but with kernel-2.4.x it takes a while.   But after that, it works 
+>  fine.
+>     I don't know why.  Any solutions??
 
-My current preminition is that it could be the software raid layer thats
-causing the leakage, but it also could be a combination of factors. (see
-prev email to Peter T / lkml about the common factors in the 2
-situations). On the other hand, i'm willing to try anything ;-)
+RTFM?
 
-	-- Chris
+Documentation/video4linux/bttv/README says:
 
-On Mon, 2001-11-26 at 07:49, Mike Galbraith wrote:
-> On 25 Nov 2001, Chris Chabot wrote:
-> 
-> > Hi, I have a firewall / file server box which is displaying (severe)
-> > memory leakage, presumably by the kernel.
-> >
-> > The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
-> > 2.4.9 upto 2.4.15, in all situations the same problem appeared.
-> 
-> With 2.4.9 as well?  I have an IKD patch for 2.4.7 which I could
-> update to 2.4.9 fairly quickly if you'd like to try memleak on the
-> thing.  It might even go in fairly cleanly as is.
-> 
-> 	-Mike
+If bttv takes very long to load (happens sometimes with the cheap
+cards which have no tuner), try adding this to your modules.conf:
+        options i2c-algo-bit bit_test=1
 
+HTH,
+
+  Gerd
 

@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUEJUic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUEJUpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUEJUic (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUEJUic
+	id S261582AbUEJUpL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEJUpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:38:32 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:13509 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261576AbUEJUib (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:38:31 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] hci-usb bugfix
-Date: Mon, 10 May 2004 22:38:11 +0200
-User-Agent: KMail/1.6.2
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Sebastian Schmidt <yath@yath.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org> <200405102115.26504.oliver@neukum.org> <1084217971.9639.55.camel@pegasus>
-In-Reply-To: <1084217971.9639.55.camel@pegasus>
-MIME-Version: 1.0
+	Mon, 10 May 2004 16:45:11 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:56194 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261582AbUEJUpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 16:45:08 -0400
+Date: Mon, 10 May 2004 22:44:50 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: len.brown@intel.com
+Subject: Re: Linux 2.6.6
+Message-ID: <20040510204450.GA2758@louise.pinerecords.com>
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510105129.GB25969@picchio.gall.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405102238.11876.oliver@neukum.org>
+In-Reply-To: <20040510105129.GB25969@picchio.gall.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May-10 2004, Mon, 12:51 +0200
+Daniele Venzano <webvenza@libero.it> wrote:
 
-> which results in the same as if we set NULL for the private pointer when
-> we claim the second interface. If this really happens then we have more
-> problems in the driver itself, because this case won't be handled in
-> either way. However I don't think that this will happen, because for
+> I have problems booting 2.6.6 (2.6.5 was fine). The boot stops at ide
+> detection, on cdrom probing, the last two messages I am seeing are:
+> 
+> ide-cd: cmd 0x5a timed out
+> hdc: lost interrupt
 
-You can trigger it in software through usbfs.
+This problem also affects my 2001 1.0 GHz Athlon box (VIA KT133a chipset).
+Len's final patch (proposed fix) from the "hdc: lost interrupt..." thread
+seems to work for me, too.
 
-> Bluetooth devices interface 0 and 1 can be seen as a unit. The only
-> reason that this was split over two interfaces, was that you don't have
-> to stop the bulk transfers when you change the altsetting on the second
-> interface.
-
-Yes, but you should really stop using the second interface _before_
-returning returning from disconnect() for _that_ interface. You will
-operate correctly if the primary interface is disconnected first,
-but you cannot depend on that. If the secondary interface is
-disconnected first, you have a window where you illegally use an
-interface you no longer own.
-
-	Regards
-		Oliver
+-- 
+Tomas Szepe <szepe@pinerecords.com>

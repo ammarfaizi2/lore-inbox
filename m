@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUIBSi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUIBSmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268805AbUIBSi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 14:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268405AbUIBSi0
+	id S267916AbUIBSmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 14:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUIBSmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 14:38:26 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:14518 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268388AbUIBSiU
+	Thu, 2 Sep 2004 14:42:13 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:21198 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267916AbUIBSmI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 14:38:20 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org>
-	<200408282314.i7SNErYv003270@localhost.localdomain>
-	<20040901200806.GC31934@mail.shareable.org>
-	<Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	<20040902002431.GN31934@mail.shareable.org>
-	<413694E6.7010606@slaphack.com>
-	<Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
-	<4136A14E.9010303@slaphack.com>
-	<Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
-	<4136C876.5010806@namesys.com>
-	<Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-	<4136E0B6.4000705@namesys.com> <14260000.1094149320@flay>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 02 Sep 2004 20:38:19 +0200
-In-Reply-To: <14260000.1094149320@flay>
-Message-ID: <m3llfsikis.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Sep 2004 14:42:08 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Robert Love <rml@ximian.com>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, kay.sievers@vrfy.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1094150112.1316.55.camel@DYN319498.beaverton.ibm.com>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <20040831145643.08fdf612.akpm@osdl.org>
+	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
+	 <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
+	 <1094150112.1316.55.camel@DYN319498.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 02 Sep 2004 14:41:32 -0400
+Message-Id: <1094150493.2284.19.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.94.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+On Thu, 2004-09-02 at 11:35 -0700, Daniel Stekloff wrote:
 
-> > For 30 years nothing much has happened in Unix filesystem semantics 
-> > because of sheer cowardice 
-> 
-> Or because it works fine, and isn't broken.
+> The only problem I see is making an app sift through all of the events
+> to get to a specific type of event. They'd have to parse and match the
+> signal, that could be costly. 
 
-I've heard the same argument a lot of times.  People complaining that
-Unix is so seventies because it sticks to the old boring philosophy of
-everything is a file and that a file is a stream of bytes, nothing
-more.  Modern operating systems such as VMS with basic database
-handling in the OS itself, or MacOS or NT with named streams is so
-much more modern.  Why don't we get with the times?
+I'd hope that they were not that many events that it would ever be
+costly.
 
-It may be because just because of the simplicity it's fairly easy to
-use, harder to break och does one thing well.  If you want structured
-storage, use a database, on top of the low level primitives, or use
-multiple files in a directory.  Why complicate things?
+But this should be mitigated by your event aggregator in user-space,
+whether that is D-BUS or whatever else.  If it is D-BUS, you could then
+subscribe via D-BUS only to the events you care about.
 
-  /Christer
+> Will there be small single purpose applications listening on the netlink
+> socket or off dbus for specific signals? Or do you see this mainly
+> handled by a single kevent daemon? 
 
--- 
-"Just how much can I get away with and still go to heaven?"
+Whatever you want to do.
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+I think they way we would set up our Linux desktop product would have D-
+BUS listening on the kevent socket and propagating the events up the
+stack (or have a separate daemon listen and funnel the events to D-BUS.
+whatever).
+
+Then applications up the stack would respond to and handle the D-BUS
+signals.
+
+	Robert Love
+
+

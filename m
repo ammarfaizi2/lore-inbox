@@ -1,88 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVAJSOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVAJSXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVAJSOj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAJSMn
+	id S262401AbVAJSXN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:23:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVAJSIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:12:43 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46755 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262410AbVAJSIg
+	Mon, 10 Jan 2005 13:08:23 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6590 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262402AbVAJSFO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:08:36 -0500
-Subject: [PATCH 4/6] 2.4.19-rc1 nfs revalidate_inode() stack reduction
-	patches
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-wM/ubBUb4ST4Qe2S2g2n"
-Organization: 
-Message-Id: <1105378864.4000.142.camel@dyn318077bld.beaverton.ibm.com>
+	Mon, 10 Jan 2005 13:05:14 -0500
+Date: Mon, 10 Jan 2005 19:00:52 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Adam Anthony <AAnthony@sbs.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /driver/net/wan/sbs520
+Message-ID: <20050110180052.GA27528@electric-eye.fr.zoreil.com>
+References: <4F23E557A0317D45864097982DE907941A32B1@pilotmail.sbscorp.sbs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jan 2005 09:41:04 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4F23E557A0317D45864097982DE907941A32B1@pilotmail.sbscorp.sbs.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Anthony <AAnthony@sbs.com> :
+[...]
+>        It would be great to receive some feedback on our work, and we hope
+> that this driver will eventually be added to the kernel.
 
---=-wM/ubBUb4ST4Qe2S2g2n
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It will probably require a few extra steps:
+- read Documentation/CodingStyle (mixed case, typedef from hell, ugly #ifdef);
+- grep ^static
+  -> no static functions ? Uh ?
+- use non-obsolete API (pci_find_device in 2005 ?);
+- convert the os independant wrappers.
 
+Btw it would probably make sense 1) to figure out what can be merged with
+the in-tree DSCC4 driver and 2) to integrate the driver with the existing
+hdlc stack. Imho there is some duplicated work/code.
 
-
---=-wM/ubBUb4ST4Qe2S2g2n
-Content-Disposition: attachment; filename=nfs_revalidate_inode.patch
-Content-Type: text/plain; name=nfs_revalidate_inode.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
---- linux-2.4.29-rc1.org/fs/nfs/inode.c	2004-04-14 06:05:40.000000000 -0700
-+++ linux-2.4.29-rc1/fs/nfs/inode.c	2005-01-09 23:14:48.000000000 -0800
-@@ -881,11 +881,15 @@ int
- __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
- {
- 	int		 status = -ESTALE;
--	struct nfs_fattr fattr;
-+	struct nfs_fattr *fattr;
- 
- 	dfprintk(PAGECACHE, "NFS: revalidating (%x/%Ld)\n",
- 		inode->i_dev, (long long)NFS_FILEID(inode));
- 
-+	fattr = kmalloc(sizeof(struct nfs_fattr), GFP_KERNEL);
-+	if (!fattr)
-+		return -ENOMEM;
-+
- 	lock_kernel();
- 	if (!inode || is_bad_inode(inode))
-  		goto out_nowait;
-@@ -903,7 +907,7 @@ __nfs_revalidate_inode(struct nfs_server
- 	}
- 	NFS_FLAGS(inode) |= NFS_INO_REVALIDATING;
- 
--	status = NFS_PROTO(inode)->getattr(inode, &fattr);
-+	status = NFS_PROTO(inode)->getattr(inode, fattr);
- 	if (status) {
- 		dfprintk(PAGECACHE, "nfs_revalidate_inode: (%x/%Ld) getattr failed, error=%d\n",
- 			 inode->i_dev, (long long)NFS_FILEID(inode), status);
-@@ -915,7 +919,7 @@ __nfs_revalidate_inode(struct nfs_server
- 		goto out;
- 	}
- 
--	status = nfs_refresh_inode(inode, &fattr);
-+	status = nfs_refresh_inode(inode, fattr);
- 	if (status) {
- 		dfprintk(PAGECACHE, "nfs_revalidate_inode: (%x/%Ld) refresh failed, error=%d\n",
- 			 inode->i_dev, (long long)NFS_FILEID(inode), status);
-@@ -930,6 +934,7 @@ out:
- 	wake_up(&inode->i_wait);
-  out_nowait:
- 	unlock_kernel();
-+	kfree(fattr);
- 	return status;
- }
- 
-
---=-wM/ubBUb4ST4Qe2S2g2n--
-
+--
+Ueimor

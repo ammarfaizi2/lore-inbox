@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130613AbRAaTIE>; Wed, 31 Jan 2001 14:08:04 -0500
+	id <S130634AbRAaTK4>; Wed, 31 Jan 2001 14:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130936AbRAaTHp>; Wed, 31 Jan 2001 14:07:45 -0500
-Received: from versus.dmz.advance.net ([208.217.108.49]:27403 "EHLO
-	versus.dmz.advance.net") by vger.kernel.org with ESMTP
-	id <S130613AbRAaTHo>; Wed, 31 Jan 2001 14:07:44 -0500
-Date: Wed, 31 Jan 2001 14:07:43 -0500
-From: Joe Lizzi <jlizzi@versus.dmz.advance.net>
-Message-Id: <200101311907.OAA05707@versus.dmz.advance.net>
-To: linux-kernel@vger.kernel.org
-Subject: e820 Memory Detect Backport Patch
+	id <S130881AbRAaTKp>; Wed, 31 Jan 2001 14:10:45 -0500
+Received: from cmr1.ash.ops.us.uu.net ([198.5.241.39]:5782 "EHLO
+	cmr1.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S130634AbRAaTKh>; Wed, 31 Jan 2001 14:10:37 -0500
+Message-ID: <3A7863E4.C7323E96@uu.net>
+Date: Wed, 31 Jan 2001 14:13:40 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rainer@konqui.de, linux-kernel@vger.kernel.org
+Subject: Re: seti@home and es1371
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible to extract *just* the E820 memory detect patch from the
-2.2.19-pre1 patch? We recently received a bunch of new Intel server
-boxes with the STL2 motherboard. However, 2.2.1x refuses to detect more
-than 64Megs of RAM; I've heard that this patch fixes that problem. (A
-different solution is to upgrade the BIOS to 1.4 (Build 18), but although
-the updated Intel docs mention this BIOS revision, it isn't available on
-the Intel site.)
+Rainer,
 
-Theorectically, I could extract the patched files myself from the breakdown
-of the pre-2.2.19-1 patch on linuxhq.com. My main fear would be either
-missing something, or including a change relating to something else in the
-patch set that subsquently breaks things. And since these boxes have to go
-into production relatively quickly, I'd rather not install the complete
-pre-2.2.19-7 patch set, if I can avoid it. (The higher ups frown heavily
-on anything that doesn't appear to be "production ready".)
+	I'm not too familiar with the ct5880 sound chip that comes built onto
+motherboards.  I do know that alot of the AC'97 compliant built in sound
+chips tend to let the host cpu do most of the processing involved in
+playing the sound.  That being said, even if you have a dedicated sound
+processor, mp3 decoding is very processor intensive.  It just so happens
+that seti is also very processor intensive.  Both of these processes are
+vying for time on the cpu.  Since both of these processes are so
+processor intensive and the cpu can only do one thing at a time, the
+performance of one or the other process will suffer from time to time.
 
-I would appreciate any help, either via a list of file patches that I can
-extract, or through some pointer to a place where I can download just this
-patch.
+Alex
 
-Thanks.
 
-===================================================
-Joe Lizzi                                SysAdmin
-jlizzi@advance.net                Advance Internet   
-201-459-2826
+----------------------------------------
+
+Hi, 
+
+I hope you can help me. I have a problem with my on board soundcard and 
+seti. I have a Gigabyte GA-7ZX Creative 5880 sound chip. I use the
+kernel 
+driver es1371 and it works goot. But when I run seti@home I got some
+noise 
+in my sound when I play mp3 and other sound. But it is not every time
+10s 
+play good than for 2 s bad and than 10s good 2s bad and so on. When I
+kill 
+seti@home every thing is ok. So what can I do? 
+
+I have a Athlon 800 Mhz and 128 MB RAM 
+
+cu 
+Rainer
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

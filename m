@@ -1,130 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVAaXNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVAaXQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVAaXNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVAaXNU
+	id S261427AbVAaXQi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVAaXQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:13:20 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:47547 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261424AbVAaXNG (ORCPT
+	Mon, 31 Jan 2005 18:16:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:2984 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261427AbVAaXQA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:13:06 -0500
-Date: Tue, 1 Feb 2005 00:12:56 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Tom Zanussi <zanussi@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
-       karim@opersys.com
-Subject: Re: [PATCH] relayfs redux, part 2
-In-Reply-To: <16890.38062.477373.644205@tut.ibm.com>
-Message-ID: <Pine.LNX.4.61.0501312247150.30794@scrub.home>
-References: <16890.38062.477373.644205@tut.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Jan 2005 18:16:00 -0500
+Subject: Re: [PATCH] ppc64: Implement a vDSO and use it for signal
+	trampoline
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20050131192713.GA16268@mars.ravnborg.org>
+References: <1107151447.5712.81.camel@gaston>
+	 <20050131192713.GA16268@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 10:15:33 +1100
+Message-Id: <1107213333.5905.21.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2005-01-31 at 20:27 +0100, Sam Ravnborg wrote:
+> > Index: linux-work/arch/ppc64/kernel/vdso32/Makefile
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-work/arch/ppc64/kernel/vdso32/Makefile	2005-01-31 16:25:56.000000000 +1100
+> > @@ -0,0 +1,50 @@
+> > +# Choose compiler
+> > +#
+> > +# XXX FIXME: We probably want to enforce using a biarch compiler by default
+> > +#             and thus use (CC) with -m64, while letting the user pass a
+> > +#             CROSS32_COMPILE prefix if wanted. Same goes for the zImage
+> > +#             wrappers
+> > +#
+> > +
+> > +CROSS32_COMPILE ?=
+> > +
+> > +CROSS32CC		:= $(CROSS32_COMPILE)gcc
+> > +CROSS32AS		:= $(CROSS32_COMPILE)as
+> This needs to go into arch/ppc64/Makefile
 
-On Fri, 28 Jan 2005, Tom Zanussi wrote:
+Yes, we need to consolidate that with the CROSS32_COMPILE stuff using by
+the boot wrapper (arch/ppc64/boot). I haven't yet completely decided
+what to do there, I'll probably assume a biarch compiler by default
+instead of using the local gcc for 32 bits unless CROSS32_COMPILE is
+specified.
 
-> +static inline int rchan_create_file(const char *chanpath,
-> +				    struct dentry **dentry,
-> +				    struct rchan_buf *data)
-> +{
-> +	int err;
-> +	const char * fname;
-> +	struct dentry *topdir;
-> +
-> +	err = rchan_create_dir(chanpath, &fname, &topdir);
-> +	if (err && (err != -EEXIST))
-> +		return err;
-> +
-> +	err = relayfs_create_file(fname, topdir, dentry, data, S_IRUSR);
-> +
-> +	return err;
-> +}
+> > +
+> > +# List of files in the vdso, has to be asm only for now
+> > +
+> > +src-vdso32 = sigtramp.S gettimeofday.S datapage.S cacheflush.S
+> 
+> It is normal kbuild practice to list .o files.
+> So it would be:
+> 
+> obj-vdso32 := sigtramp.o gettimeofday.o datapage.o cacheflush.o
+> targets    := $(obj-vdso32)
+> obj-vdso32 := $(addprefix $(obj)/, $(obj-vdso32))
+> 
+> One line saved compared to below (not counting the src-vdso32 assignment
+> that is unused).
+> Also notice that ':=' uses all over. No need to use late evaluation when
+> no dynamic references are used ($ $@ etc.).
+> 
+> > +# Build rules
+> > +
+> > +obj-vdso32 := $(addsuffix .o, $(basename $(src-vdso32)))
+> > +targets := $(obj-vdso32) vdso32.so
+> > +obj-vdso32 := $(addprefix $(obj)/, $(obj-vdso32))
+> > +src-vdso32 := $(addprefix $(src)/, $(src-vdso32))
+> 
+> 
+> Same comments to the vdso64/Makefile
 
-What protects topdir from being removed inbetween?
-Why is necessary to let the user create/remove files/dirs at all?
+Hrm... I remember back then flip/flop'ing between using .S and .o in the
+file list and I had a reason to stick to .S but I can't remember why
+now :) It may be something I fixed in the meantime tho, I'll have a
+look .
 
-> +void *relay_reserve(struct rchan *chan,
-> +                   unsigned length,
-> +                   int cpu)
-> +{
-> +       unsigned offset;
-> +       struct rchan_buf *buffer;
-> +
-> +       buffer = relay_get_buffer(chan, cpu);
-> +
-> +       while(1) {
-> +               offset = local_add_return(&buffer->offset, length);
-> +               if (likely(offset + length <= buffer->bufsize))
-> +                       break;
-> +               buffer = relay_switch_buffer(buffer, offset, length);
-> +               if (buffer == NULL)
-> +                       return NULL;
-> +       }
-> +
-> +       return buffer->data + offset;
-> +}
-> +
-> [..]
-> +
-> +unsigned relay_write(struct rchan *chan,
-> +		     const void *data,
-> +		     unsigned length)
-> +{
-> +	int cpu;
-> +	char *reserved;
-> +	unsigned count = 0;
-> +
-> +	cpu = get_cpu();
-> +
-> +	reserved = relay_reserve(chan, length, cpu);
-> +	if(reserved) {
-> +		memcpy(reserved, data, length);
-> +		count = length;
-> +	}
-> +
-> +	put_cpu();
-> + 
-> +	return count;
-> +}
+I'm not sure about the "late evaluation" thing, I'm no make expert (just
+learning as I write those makefiles), I'll have to dig in the doc here.
 
-For the first version I would suggest to use just local_irq_save/_restore.
-Getting it right with local_add_return is not trivial and I'm pretty sure 
-your relay_switch_buffer() gets it wrong, e.g. the caller for whom (offset 
-< bufsize) must close the subbuffer. Also buffer->data in relay_reserve 
-may have become invalid (e.g. by an interrupt just before it).
+Ben.
 
-You can also move all the rchan_buf members which are not written to in 
-the event path and which are common to all channels back to rchan.
-relay_write should so look more like this:
 
-unsigned int relay_write(struct rchan *chan, const void *data, 
-			 unsigned int length)
-{
-	struct rchan_buf *buffer;
-	unsigned long flags;
-
-	local_irq_save(flags);
-	buffer = chan->buff[smp_processor_id()];
-	if (unlikely(buffer->offset + length > chan->size)) {
-		if (relay_switch_buffer(chan, buffer)) {
-			length = 0;
-			goto out;
-		}
-	}
-	memcpy(buffer->data + offset, data, length);
-	buffer->offset += length;
-out:
-	local_irq_restore(flags);
-	return length;
-}
-
-relay_reserve() should be more or less obvious from this.
-
-bye, Roman

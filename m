@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264595AbUGALfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGAMAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264595AbUGALfM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 07:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbUGALfM
+	id S264767AbUGAMAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 08:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGAMAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 07:35:12 -0400
-Received: from av9-1-sn1.fre.skanova.net ([81.228.11.115]:11992 "EHLO
-	av9-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S264595AbUGALfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 07:35:05 -0400
-To: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Can't open CDROM device for writing
-From: Peter Osterlund <petero2@telia.com>
-Date: 01 Jul 2004 13:34:54 +0200
-Message-ID: <m2eknw3qqp.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jul 2004 08:00:31 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:23788 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264767AbUGAMA0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 08:00:26 -0400
+Subject: machine hangs - SLES9/NFS
+From: Shylendra Bhat <shylendra.bhat@hp.com>
+Reply-To: shylendra.bhat@hp.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1088683221.3552.15.camel@nt2624.india.hp.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Jul 2004 17:30:21 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Opening a CDROM device for writing no longer works, because
-cdrom_open() returns -EROFS even if cdrom_open_write() succeeds. This
-patch for 2.6.7-bk13 fixes it.
+Hello,
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
+I am looking answers for the following questions.
 
----
+Is nfs file lock acquired by client, persistent across the nfs server
+reboot?
+I know that this feature was not there in NFSv3. Does NFSv4 supports
+this?
 
- linux-petero/drivers/cdrom/cdrom.c |    1 +
- 1 files changed, 1 insertion(+)
+Following is the exercise which I did to test nfs file lock.
 
-diff -puN drivers/cdrom/cdrom.c~cdrom-write-fix drivers/cdrom/cdrom.c
---- linux/drivers/cdrom/cdrom.c~cdrom-write-fix	2004-07-01 13:16:27.772595136 +0200
-+++ linux-petero/drivers/cdrom/cdrom.c	2004-07-01 13:17:34.380469200 +0200
-@@ -901,6 +901,7 @@ int cdrom_open(struct cdrom_device_info 
- 				goto err;
- 			if (cdrom_open_write(cdi))
- 				goto err;
-+			ret = 0;
- 		}
- 	}
- 
-_
+I have two machines. One among them is the NFS server running on
+SLES9(kernel 2.6.5-7.79). The other machine mounts the NFS exported
+filesystem.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+I have written a application which locks the files over this nfs mount.
+
+After acquiring the lock, I am restarting the nfs service using
+"rcnfsserver restart" command.
+
+After the nfs service restart, the client fails to release the lock and
+is in a hung state. If the mount directory is listed, it shows
+
+"bash: cd: /export: Stale NFS file handle"
+
+After this behavior of the client, server stops responding. Only way to
+bring back the machine is reboot.
+
+Any help is really appreciated.
+
+Thanks & regards
+Shylendra
+

@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbTAEBVW>; Sat, 4 Jan 2003 20:21:22 -0500
+	id <S262392AbTAEB14>; Sat, 4 Jan 2003 20:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262783AbTAEBVW>; Sat, 4 Jan 2003 20:21:22 -0500
-Received: from smtp2.home.se ([195.66.35.201]:57626 "EHLO smtp2.home.se")
-	by vger.kernel.org with ESMTP id <S262780AbTAEBVV>;
-	Sat, 4 Jan 2003 20:21:21 -0500
-Message-ID: <003f01c2b459$ef247c70$0219450a@sandos>
-From: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: How does the disk buffer cache work?
-Date: Sun, 5 Jan 2003 02:29:47 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S262395AbTAEB14>; Sat, 4 Jan 2003 20:27:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31106
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262392AbTAEB14>; Sat, 4 Jan 2003 20:27:56 -0500
+Subject: Re: Can IDE work efficiently _without_ an IRQ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michal Kochanowicz <michal@michal.waw.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030105011708.GA20748@woland.michal.waw.pl>
+References: <20030105011708.GA20748@woland.michal.waw.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041733218.2555.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Jan 2003 02:20:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Zahorik wrote:
->
-> Earlier I wrote to the list where my SS10 hung on the
-partition check
-> if a bad disk was installed.
->
-> This behavior is new to the 2.4.20 kernel.  I
-previously ran 2.2.20 on the
-> machine. (the default in a Debian 3.0r0 install)  I
-can't vouch for 2.4
-> kernels previous to 2.4.20.
->
-> I have traced the problem to a hang in the one of the
-disk buffer caches.
->
-> Can anyone tell me how to correct the behavior so
-that I:
->
-> 1.  Don't break things for other parts of the kernel
-> 2.  The disk cache will return with an error for a
-hung disk?
->
-> Here's the tail of the console with debugging
-printk's inserted:
->
-> ...
-> [.. the next function call in read_cache_page() is
-lock_page(), which we
-> hang forever on ..]
+On Sun, 2003-01-05 at 01:17, Michal Kochanowicz wrote:
+> After some hardware upgrade (2x more RAM, new motherboard with ~3x
+> faster CPU) I found out that performance of HDD degraded heavilly.
+> Looking for the reason I found out that kernel is unable to assign IRQ
+> to IDE controller:
 
-This happens to me aswell. 2.5.35(I think) and 2.4.20
-is not working, a slackware 2.2 bootdisk is fine though
-so something is wrong. The hdd is fine in DOS aswell.
+It has an IRQ  - it is in compatibility mode. Unfortunately some of the
+pci_enable_device stuff seems intent on printing misleading messages
+when the device gets enabled. 
 
----
-John Bäckstrand
 
 

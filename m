@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbTEEUZF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 16:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbTEEUZF
+	id S261272AbTEEUgy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 16:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbTEEUgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 16:25:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:17318 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261288AbTEEUZE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 16:25:04 -0400
-Date: Mon, 5 May 2003 13:39:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-Message-ID: <20030505203927.GA2325@kroah.com>
-References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au> <20030505165848.GA1249@kroah.com> <3EB6AA01.30601@wmich.edu> <20030505182648.GA1826@kroah.com> <3EB6BCDF.2020300@wmich.edu>
+	Mon, 5 May 2003 16:36:54 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:129 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id S261272AbTEEUgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 16:36:53 -0400
+Subject: Re: [PATCH] 2.5.69 : drivers/bluetooth/hci_usb.c
+From: Marcel Holtmann <marcel@rvs.uni-bielefeld.de>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305051642060.18736-100000@master>
+References: <Pine.LNX.4.44.0305051642060.18736-100000@master>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 05 May 2003 22:48:43 +0200
+Message-Id: <1052167729.16216.8.camel@pegasus.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EB6BCDF.2020300@wmich.edu>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 03:34:55PM -0400, Ed Sweetman wrote:
+Hi Frank,
+
+> The following patch addresses the compile error below (I haven't seent 
+> this previously reported.). I suspect there's a cleaner patch. Please review. Thanks.
 > 
-> Ok, then the sensors program that is part of the lm_sensors package is 
-> just not up to date with the drivers since it complains about no 
-> i2c-proc and has no options for looking at sysfs.
+> drivers/bluetooth/hci_usb.c: In function `hci_usb_send_bulk':
+> drivers/bluetooth/hci_usb.c:461: `USB_ZERO_PACKET' undeclared (first use in this function)
+> drivers/bluetooth/hci_usb.c:461: (Each undeclared identifier is reported only once
+> drivers/bluetooth/hci_usb.c:461: for each function it appears in.)
+> make[2]: *** [drivers/bluetooth/hci_usb.o] Error 1
+> make[1]: *** [drivers/bluetooth] Error 2
+> make: *** [drivers] Error 2
 
-Yes, the libsensors code has not been updated yet, sorry.  I'm hoping
-for some unification with the acpi/power management people too, as they
-too care about power and temperature and fan settings.
+this was already reported by Grzegorz Jaskiewicz for 2.5.68-bk10 and I
+have fixed it in my repositories. See mailing list archive for the
+patch.
 
-> My via686a sensors seem to be working just fine in .69
+Regards
 
-Glad to hear it.
+Marcel
 
-greg k-h
+

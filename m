@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268842AbRHBHeB>; Thu, 2 Aug 2001 03:34:01 -0400
+	id <S268841AbRHBHfb>; Thu, 2 Aug 2001 03:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268841AbRHBHdv>; Thu, 2 Aug 2001 03:33:51 -0400
-Received: from rj.sgi.com ([204.94.215.100]:48771 "EHLO rj.corp.sgi.com")
-	by vger.kernel.org with ESMTP id <S268842AbRHBHdc>;
-	Thu, 2 Aug 2001 03:33:32 -0400
-Date: Thu, 2 Aug 2001 00:31:52 -0700 (PDT)
-From: jeremy@classic.engr.sgi.com (Jeremy Higdon)
-Message-Id: <10108020031.ZM229058@classic.engr.sgi.com>
-In-Reply-To: Andrea Arcangeli <andrea@suse.de>
-        "Re: changes to kiobuf support in 2.4.(?)4" (Aug  2,  8:43am)
-In-Reply-To: <10108012254.ZM192062@classic.engr.sgi.com> 
-	<20010802084259.H29065@athlon.random>
-X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: changes to kiobuf support in 2.4.(?)4
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S268845AbRHBHfL>; Thu, 2 Aug 2001 03:35:11 -0400
+Received: from home.paris.trader.com ([195.68.19.162]:17102 "EHLO
+	smtp-gw.netclub.com") by vger.kernel.org with ESMTP
+	id <S268841AbRHBHfF>; Thu, 2 Aug 2001 03:35:05 -0400
+Message-ID: <3B6902C4.9B975BEE@trader.com>
+Date: Thu, 02 Aug 2001 09:35:32 +0200
+From: joseph.bueno@trader.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Justin Guyett <justin@soze.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tulip driver still broken
+In-Reply-To: <Pine.LNX.4.33.0108011354120.8520-100000@kobayashi.soze.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 2,  8:43am, Andrea Arcangeli wrote:
+Justin Guyett wrote:
 > 
-> OTOH I'm a little biased in the above reasoning since I use the kiobuf
-> only for doing direct I/O (I always end calling brw_kiovec somehow,
-> otherwise I wouldn't be using the kiobufs at all). If you are using the
-> kiobufs for framebuffers and other drivers that never ends calling
-> brw_kiovec I think you should be using the mmap callback and
-
-By "mmap callback", you're referring to the mmap entry in the file_operations
-structure?
-
-> remap_page_range instead as most drivers correctly do to avoid the
-> overhead of the kiobufs. But ok if you really want to use the kiobuf for
-> non I/O things instead of remap_page_range (dunno why) we could split
-> off the bh-array allocation from the kiobuf to make it a bit lighter so
-> you could use it for non-IO operations without the overhead of the bhs,
-> but still we should adapt rawio to preallocate the bh at open/close time
-> (separately from the kiovec).
+> On Wed, 1 Aug 2001 joseph.bueno@trader.com wrote:
 > 
-> Andrea
+> > I am currently using a Xircom Ethernet adapter (tulip_cb module) with a
+> > 2.4.5 kernel.
+> >
+> > The only way I have found to make it work is to turn on promiscuous mode
+> > (with 'tcpdump -i eth0 -n > /dev/null') after bootup. I can turn it off
+> > after a few minutes without problem.
+> 
+> i saw something like that with a wireless ethernet card, but presumed it
+> to be something wrong with WAP+multicast, plus it doesn't happen with new
+> card firmware.
+> 
+> at any rate, this made my card work, and sounds like it would be better
+> than running tcpdump and killing it after a few minutes.  the critical
+> element in getting things working was getting traffic while the interface
+> was in promisc mode (arp replies to wrong mac address maybe?)
+> 
 
-I am doing direct I/O.  I'm using the kiobuf to hold the page addresses
-of the user's data buffer, but I'm calling directly into my driver
-after doing the map_user_kiobuf() (I have a read/write request, a file
-offset, a byte count, and a set of pages to DMA into/out of, and that
-gets directly translated into a SCSI command).
+That's right.
+In fact, I generally start a ping to a remote IP address after bootup
+and, if I don't get any response (which is always the case), I start
+tcpdump and I do some network activity before stopping it.
 
-It turns out that the old kmem_cache_alloc was very lightweight, so I
-could get away with doing it once per I/O request, so I would indeed
-profit by going back to a light weight kiobuf, or at least an optional
-allocation of the bh and blocks arrays (perhaps turn them into pointers
-to arrays?).
+> ifconfig ethX promisc
+> ping -n -c 5 <pick a remote ip>
+> ifconfig ethX -promisc
 
-thanks
+In fact, I ran tcpdump to check what was going on and, since it "solved"
+the problem, I didn't check for a better way to do it.
+Obviously, your solution is better.
 
-jeremy
+> 
+> if you have no traffic for a few minutes, it might break again.
+
+Hopefully, there is some periodic network activity on my machine (at
+least checking of my POP account), so it doesn't break.
+
+> 
+> justin
+
+Thanks
+--
+Joseph Bueno
+NetClub/Trader.com

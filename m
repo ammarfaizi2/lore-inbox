@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264139AbTEGWwC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 18:52:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTEGWwC
+	id S264142AbTEGW5B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 18:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTEGW5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 18:52:02 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:3116 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264139AbTEGWwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 18:52:00 -0400
-Date: Wed, 7 May 2003 16:00:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.69-mm2] Very slow read syscall
-Message-Id: <20030507160049.4352009b.akpm@digeo.com>
-In-Reply-To: <200305080055.23653.schlicht@uni-mannheim.de>
-References: <200305080055.23653.schlicht@uni-mannheim.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 May 2003 18:57:01 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38021
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264142AbTEGW5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 18:57:00 -0400
+Subject: Re: [Linux-ia64] Re: [PATCH 2.5.69] IA64 sn mod_timer fixes for
+	kernel/mca.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030507191921.GA28137@sgi.com>
+References: <1052283842.19524.44.camel@lima.royalchallenge.com>
+	 <20030506225307.5ccb318f.akpm@digeo.com>  <20030507191921.GA28137@sgi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 May 2003 23:04:30.0960 (UTC) FILETIME=[045E4F00:01C314ED]
+Organization: 
+Message-Id: <1052345462.3060.58.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 May 2003 23:11:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
->
-> Hi,
+On Mer, 2003-05-07 at 20:19, Jesse Barnes wrote:
+> On Tue, May 06, 2003 at 10:53:07PM -0700, Andrew Morton wrote:
+> > Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
+> > >
+> > > mca.c: Trivial {del,add}_timer to mod_timer conversion.
+> > 
+> > Please just roll all these up into one big patch.
 > 
-> I've noticed that the read syscall is very slow with 2.5.69-mm2 compared to 
-> 2.5.69-bk2. I especially could 'feel' it while using kmail. When kmail is 
-> closed and it compresses its Mail folder I could measure it.
-> 
-> The straces and oprofiles for this action are attached for the two kernel 
-> versions mentioned above.
-> 
-> As you can see the time for closing kmail increased from about 2 seconds to 
-> about 155 seconds. A read system call needs 931usecs instead of 12usecs...
-> The profile shows that the most time is spent in __copy_to_user_ll.
-> As CONFIG_X86_WP_WORKS_OK is defined in my config this function should be the 
-> same in -mm2 and -bk2, so it seems it simply is called more often...
-> 
-> I am using the anticipatory scheduling elevator, but it 'feels' the same with 
-> CFQ or DL. But I can mesure it if you want...
+> Please also Cc: me on SN changes (and the big patch when you send it
+> out).
 
-This is due to a bug in kmail, and the reiserfs_file_write patch.
+You want to go through them one by one. Some are a bit less obvious and
+a couple Im not sure about. Most are in my test -ac tree and seem fine
 
-One thing which that patch does is to increase the stat.st_blksize hint
-which reiserfs provides to applications.  By a lot - from 4k to 128k I
-think.
-
-Problem is, some KDE apps see that hint and then promptly balls it up. 
-They read 128k at offset 0, then 128k at offset 4k, then 128k at offset 8k,
-etc.
-
-Apparently, upgrading kmail will fix it.

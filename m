@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262582AbSJIX5V>; Wed, 9 Oct 2002 19:57:21 -0400
+	id <S262547AbSJIXvv>; Wed, 9 Oct 2002 19:51:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbSJIX5V>; Wed, 9 Oct 2002 19:57:21 -0400
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:41349 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S262582AbSJIX5S>; Wed, 9 Oct 2002 19:57:18 -0400
-Date: Thu, 10 Oct 2002 01:02:34 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sekiya@sfc.wide.ad.jp, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-Message-ID: <20021010010234.B8102@edi-view1.cisco.com>
-References: <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com>
+	id <S262582AbSJIXvv>; Wed, 9 Oct 2002 19:51:51 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:11276 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262547AbSJIXvt>;
+	Wed, 9 Oct 2002 19:51:49 -0400
+Date: Wed, 9 Oct 2002 16:53:32 -0700
+From: Greg KH <greg@kroah.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] pl2303 oops in 2.4.20-pre10 (and 2.5 too)
+Message-ID: <20021009235332.GA19351@kroah.com>
+References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20021009.164504.28085695.davem@redhat.com>; from davem@redhat.com on Wed, Oct 09, 2002 at 04:45:04PM -0700
+Content-Disposition: inline
+In-Reply-To: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 04:45:04PM -0700, David S. Miller wrote:
->    From: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
->    Date: Thu, 10 Oct 2002 08:41:52 +0900
->    
->    The reason we change the prefix length  from /10 to /64 is
->    following spec and adapting other imprementations.
-> 
-> I think Derek's explanation shows that the specification
-> allows the /10 behavior.
+On Wed, Oct 09, 2002 at 04:36:24PM -0700, Barry K. Nathan wrote:
+> On one of my systems, when minicom opens /dev/ttyUSB0 (a PL2303) and
+> the kernel is 2.4.20-pre10 (compiled with Mandrake 9's gcc 3.2),
+> minicom segfaults and the kernel oopses.
 
-But as someone else pointed out (sorry I'm to lazy to check the thread),
-one would still be able to manually adjust the Linux routing table to get it
-into the /10 behaviour.
+Can you enable debugging in the pl2303 driver (by loading it with
+"debug=1") and send the kernel debug log for when the oops happens.
 
-So frankly I'm not too fussed which behaviour is the default,  I was just
-pointing out (what to me seemed to be) a change of dubious quality.
+thanks,
 
-(Then letting myself get into an argument over specs - when will I learn :-)
-
-DF
+greg k-h

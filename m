@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVBWSpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVBWSrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVBWSpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 13:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBWSpa
+	id S261532AbVBWSrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 13:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVBWSrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 13:45:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6879 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261531AbVBWSpX (ORCPT
+	Wed, 23 Feb 2005 13:47:10 -0500
+Received: from fire.osdl.org ([65.172.181.4]:58857 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261532AbVBWSq7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 13:45:23 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050223162225.GB10256@austin.ibm.com> 
-References: <20050223162225.GB10256@austin.ibm.com>  <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org> <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <5316.1109158748@redhat.com> 
-To: olof@austin.ibm.com (Olof Johansson)
-Cc: Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Feb 2005 18:44:56 +0000
-Message-ID: <2036.1109184296@redhat.com>
+	Wed, 23 Feb 2005 13:46:59 -0500
+Date: Wed, 23 Feb 2005 10:47:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Telemaque Ndizihiwe <telendiz@eircom.net>
+cc: duncan.sands@free.fr, linux-usb-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>, trivial@rustcorp.com.au,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Replaces (2 * HZ) with DATA_TIMEOUT in /drivers/usb/atm/speedtch.c
+In-Reply-To: <421CCE98.4090406@eircom.net>
+Message-ID: <Pine.LNX.4.58.0502231046280.18997@ppc970.osdl.org>
+References: <421CCE98.4090406@eircom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olof Johansson <olof@austin.ibm.com> wrote:
 
-> > Alternately, you could just have do_page_fault() do:
-> > 
-> > 	while (!down_read_trylock(&current->mm->mmap_sem))
-> > 		continue;
-> > 
-> > However, note that this can suffer from starvation due to a never ending
-> > flow of mixed write-locks and read-locks on other CPUs. Unlikely, true,
-> > but not impossible.
-> 
-> How can this help? 
-> 
-> The semaphore is held for reading by the thread that faulted in
-> futex_wait() -> get_user(), so no writers will be let through. Until the
-> writer has been let through, the down_read_trylock will never succeed
-> either. No forward progress can be made even with the above loop.
 
-You're right. The "writers" would have to spin instead.
+On Wed, 23 Feb 2005, Telemaque Ndizihiwe wrote:
+>
+> This Patch replaces "(2 * HZ)" with "DATA_TIMEOUT" which is defined as
+>      #define DATA_TIMEOUT (2 * HZ)
+> in /drivers/usb/atm/speedtch.c in kernel 2.6.10.
 
-David
+Your patches are white-space damaged due to linewrap (and possibly other 
+issues, but the line-wrap was the obvious one).
+
+Looks like you use Thunderbird, and I'm sure there's some way to just tell 
+it to not mess with whitespace.
+
+		Linus

@@ -1,215 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTFOKrb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 06:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTFOKrb
+	id S262135AbTFOLBo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 07:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTFOLBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 06:47:31 -0400
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:63497 "EHLO
-	sparc1.karlsbakk.net") by vger.kernel.org with ESMTP
-	id S262127AbTFOKr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 06:47:27 -0400
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Date: Sun, 15 Jun 2003 13:01:06 +0200
+	Sun, 15 Jun 2003 07:01:44 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:48807 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262135AbTFOLBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 07:01:43 -0400
+Message-Id: <5.1.0.14.2.20030615125117.00af6428@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 15 Jun 2003 13:12:03 +0200
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] O_DIRECT for ext3 (2.4.21)
-Message-ID: <20030615110106.GA8404@karlsbakk.net>
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Sensors patch 2.5.71
+Cc: Greg KH <greg@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/mixed;
+	boundary="=====================_10585521==_"
+X-Seen: false
+X-ID: XNY2jOZvQeEUnJdChYw6MmcqVuN5oCwAliXqzWPwLJqOplmhK72ngH@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+--=====================_10585521==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-I've been waiting for the official O_DIRECT on ext3 for some time now, so I
-thought perhaps it's time to get it into 2.4.22 or so. The patch I've used, is
-the one below (for 2.4.21):
+Patch for adm1021
+This corrects temp reporting and a major error whereby
+"alarms" and "die_code" were being put though the "TEMP" macro.
+Compiled but don't have the hardware to test.
+Greg, can you push ?
+The lm85 patch that I sent also, of course, applies to 2.5.71 and can be pushed
+as is.
 
-Please apply
+Margit
+--=====================_10585521==_
+Content-Type: application/octet-stream; name="sensorspatch2571"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="sensorspatch2571"
 
-roy
+ZGlmZiAtTmF1ciBsaW51eC0yLjUuNzEvZHJpdmVycy9pMmMvY2hpcHMvYWRtMTAyMS5jIGxpbnV4
+LTIuNS43MW13L2RyaXZlcnMvaTJjL2NoaXBzL2FkbTEwMjEuYwotLS0gbGludXgtMi41LjcxL2Ry
+aXZlcnMvaTJjL2NoaXBzL2FkbTEwMjEuYwkyMDAzLTA2LTE0IDIxOjE3OjU2LjAwMDAwMDAwMCAr
+MDIwMAorKysgbGludXgtMi41LjcxbXcvZHJpdmVycy9pMmMvY2hpcHMvYWRtMTAyMS5jCTIwMDMt
+MDYtMTUgMTI6Mjg6MDIuMDAwMDAwMDAwICswMjAwCkBAIC04OCw4ICs4OCw4IEBACiAgICB0aGVz
+ZSBtYWNyb3MgYXJlIGNhbGxlZDogYXJndW1lbnRzIG1heSBiZSBldmFsdWF0ZWQgbW9yZSB0aGFu
+IG9uY2UuCiAgICBGaXhpbmcgdGhpcyBpcyBqdXN0IG5vdCB3b3J0aCBpdC4gKi8KIC8qIENvbnZl
+cnNpb25zICBub3RlOiAxMDIxIHVzZXMgbm9ybWFsIGludGVnZXIgc2lnbmVkLWJ5dGUgZm9ybWF0
+Ki8KLSNkZWZpbmUgVEVNUF9GUk9NX1JFRyh2YWwpCSh2YWwgPiAxMjcgPyB2YWwtMjU2IDogdmFs
+KQotI2RlZmluZSBURU1QX1RPX1JFRyh2YWwpCShTRU5TT1JTX0xJTUlUKCh2YWwgPCAwID8gdmFs
+KzI1NiA6IHZhbCksMCwyNTUpKQorI2RlZmluZSBURU1QX0ZST01fUkVHKHZhbCkJKHZhbCA+IDEy
+NyA/ICh2YWwtMjU2KSoxMDAwIDogdmFsKjEwMDApCisjZGVmaW5lIFRFTVBfVE9fUkVHKHZhbCkJ
+KFNFTlNPUlNfTElNSVQoKHZhbCA8IDAgPyAodmFsLzEwMDApKzI1NiA6IHZhbC8xMDAwKSwwLDI1
+NSkpCiAKIC8qIEluaXRpYWwgdmFsdWVzICovCiAKQEAgLTE3Miw4ICsxNzIsMTggQEAKIHNob3co
+cmVtb3RlX3RlbXBfbWF4KTsKIHNob3cocmVtb3RlX3RlbXBfaHlzdCk7CiBzaG93KHJlbW90ZV90
+ZW1wX2lucHV0KTsKLXNob3coYWxhcm1zKTsKLXNob3coZGllX2NvZGUpOworCisjZGVmaW5lIHNo
+b3cyKHZhbHVlKQlcCitzdGF0aWMgc3NpemVfdCBzaG93XyMjdmFsdWUoc3RydWN0IGRldmljZSAq
+ZGV2LCBjaGFyICpidWYpCVwKK3sJCQkJCQkJCVwKKwlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50
+ID0gdG9faTJjX2NsaWVudChkZXYpOwkJXAorCXN0cnVjdCBhZG0xMDIxX2RhdGEgKmRhdGEgPSBp
+MmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50KTsJXAorCQkJCQkJCQlcCisJYWRtMTAyMV91cGRhdGVf
+Y2xpZW50KGNsaWVudCk7CQkJCVwKKwlyZXR1cm4gc3ByaW50ZihidWYsICIlZFxuIiwgZGF0YS0+
+dmFsdWUpOwkJXAorfQorc2hvdzIoYWxhcm1zKTsKK3Nob3cyKGRpZV9jb2RlKTsKIAogI2RlZmlu
+ZSBzZXQodmFsdWUsIHJlZykJXAogc3RhdGljIHNzaXplX3Qgc2V0XyMjdmFsdWUoc3RydWN0IGRl
+dmljZSAqZGV2LCBjb25zdCBjaGFyICpidWYsIHNpemVfdCBjb3VudCkJXAo=
+--=====================_10585521==_--
 
-
-diff -urN linux/fs/ext3/inode.c prontux-1.1.0/fs/ext3/inode.c
---- linux/fs/ext3/inode.c	Sun Jun 15 12:55:34 2003
-+++ prontux-1.1.0/fs/ext3/inode.c	Sun Jun 15 12:53:15 2003
-@@ -27,6 +27,7 @@
- #include <linux/ext3_jbd.h>
- #include <linux/jbd.h>
- #include <linux/locks.h>
-+#include <linux/iobuf.h>
- #include <linux/smp_lock.h>
- #include <linux/highuid.h>
- #include <linux/quotaops.h>
-@@ -732,9 +733,9 @@
-  * The BKL may not be held on entry here.  Be sure to take it early.
-  */
- 
--static int ext3_get_block_handle(handle_t *handle, struct inode *inode, 
--				 long iblock,
--				 struct buffer_head *bh_result, int create)
-+static int
-+ext3_get_block_handle(handle_t *handle, struct inode *inode, long iblock,
-+		struct buffer_head *bh_result, int create, int extend_disksize)
- {
- 	int err = -EIO;
- 	int offsets[4];
-@@ -814,16 +815,18 @@
- 	if (err)
- 		goto cleanup;
- 
--	new_size = inode->i_size;
--	/*
--	 * This is not racy against ext3_truncate's modification of i_disksize
--	 * because VM/VFS ensures that the file cannot be extended while
--	 * truncate is in progress.  It is racy between multiple parallel
--	 * instances of get_block, but we have the BKL.
--	 */
--	if (new_size > inode->u.ext3_i.i_disksize)
--		inode->u.ext3_i.i_disksize = new_size;
--
-+	if (extend_disksize) {
-+		/*
-+		 * This is not racy against ext3_truncate's modification of 
-+		 * i_disksize because VM/VFS ensures that the file cannot be 
-+		 * extended while truncate is in progress.  It is racy between 
-+		 * multiple parallel instances of get_block, but we have BKL. 
-+		 */
-+		struct ext3_inode_info *ei = EXT3_I(inode);
-+		new_size = inode->i_size;
-+		if (new_size > ei->i_disksize)
-+			ei->i_disksize = new_size;
-+	}
- 	bh_result->b_state |= (1UL << BH_New);
- 	goto got_it;
- 
-@@ -850,10 +853,41 @@
- 		handle = ext3_journal_current_handle();
- 		J_ASSERT(handle != 0);
- 	}
--	ret = ext3_get_block_handle(handle, inode, iblock, bh_result, create);
-+	ret = ext3_get_block_handle(handle, inode, iblock,
-+				bh_result, create, 1);
- 	return ret;
- }
- 
-+#define DIO_CREDITS (EXT3_RESERVE_TRANS_BLOCKS + 32)
-+
-+static int
-+ext3_direct_io_get_block(struct inode *inode, long iblock,
-+		struct buffer_head *bh_result, int create)
-+{
-+	handle_t *handle = journal_current_handle();
-+	int ret = 0;
-+
-+	lock_kernel();
-+	if (handle && handle->h_buffer_credits <= EXT3_RESERVE_TRANS_BLOCKS) {
-+		/*
-+		 * Getting low on buffer credits...
-+		 */
-+		if (!ext3_journal_extend(handle, DIO_CREDITS)) {
-+			/*
-+			 * Couldn't extend the transaction.  Start a new one
-+			 */
-+			ret = ext3_journal_restart(handle, DIO_CREDITS);
-+		}
-+	}
-+	if (ret == 0)
-+		ret = ext3_get_block_handle(handle, inode, iblock,
-+					bh_result, create, 0);
-+	if (ret == 0)
-+		bh_result->b_size = (1 << inode->i_blkbits);
-+	unlock_kernel();
-+ 	return ret;
-+ }
-+
- /*
-  * `handle' can be NULL if create is zero
-  */
-@@ -868,7 +902,7 @@
- 	dummy.b_state = 0;
- 	dummy.b_blocknr = -1000;
- 	buffer_trace_init(&dummy.b_history);
--	*errp = ext3_get_block_handle(handle, inode, block, &dummy, create);
-+	*errp = ext3_get_block_handle(handle, inode, block, &dummy, create, 1);
- 	if (!*errp && buffer_mapped(&dummy)) {
- 		struct buffer_head *bh;
- 		bh = sb_getblk(inode->i_sb, dummy.b_blocknr);
-@@ -1374,6 +1408,67 @@
- 	return journal_try_to_free_buffers(journal, page, wait);
- }
- 
-+static int
-+ext3_direct_IO(int rw, struct inode *inode, struct kiobuf *iobuf,
-+		unsigned long blocknr, int blocksize)
-+{
-+	struct ext3_inode_info *ei = EXT3_I(inode);
-+	handle_t *handle = NULL;
-+	int ret;
-+	int orphan = 0;
-+	loff_t offset = blocknr << inode->i_blkbits;	/* ugh */
-+	ssize_t count = iobuf->length;			/* ditto */
-+
-+	if (rw == WRITE) {
-+		loff_t final_size = offset + count;
-+
-+		lock_kernel();
-+		handle = ext3_journal_start(inode, DIO_CREDITS);
-+		unlock_kernel();
-+		if (IS_ERR(handle)) {
-+			ret = PTR_ERR(handle);
-+			goto out;
-+		}
-+		if (final_size > inode->i_size) {
-+			lock_kernel();
-+			ret = ext3_orphan_add(handle, inode);
-+			unlock_kernel();
-+			if (ret)
-+				goto out_stop;
-+			orphan = 1;
-+			ei->i_disksize = inode->i_size;
-+		}
-+	}
-+
-+	ret = generic_direct_IO(rw, inode, iobuf, blocknr,
-+				blocksize, ext3_direct_io_get_block);
-+
-+out_stop:
-+	if (handle) {
-+		int err;
-+
-+		lock_kernel();
-+		if (orphan) 
-+			ext3_orphan_del(handle, inode);
-+		if (orphan && ret > 0) {
-+			loff_t end = offset + ret;
-+			if (end > inode->i_size) {
-+				ei->i_disksize = end;
-+				inode->i_size = end;
-+				err = ext3_mark_inode_dirty(handle, inode);
-+				if (!ret) 
-+					ret = err;
-+			}
-+		}
-+		err = ext3_journal_stop(handle, inode);
-+		if (ret == 0)
-+			ret = err;
-+		unlock_kernel();
-+	}
-+out:
-+	return ret;
-+
-+}
- 
- struct address_space_operations ext3_aops = {
- 	readpage:	ext3_readpage,		/* BKL not held.  Don't need */
-@@ -1384,6 +1479,7 @@
- 	bmap:		ext3_bmap,		/* BKL held */
- 	flushpage:	ext3_flushpage,		/* BKL not held.  Don't need */
- 	releasepage:	ext3_releasepage,	/* BKL not held.  Don't need */
-+	direct_IO:	ext3_direct_IO,		/* BKL not held.  Don't need */
- };
- 
- /*

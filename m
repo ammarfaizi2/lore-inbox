@@ -1,37 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbUAFKZk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 05:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUAFKZk
+	id S261827AbUAFKgp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 05:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUAFKgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 05:25:40 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:44556 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261825AbUAFKZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 05:25:39 -0500
-Date: Tue, 6 Jan 2004 10:25:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow SGI IOC4 chipset support
-Message-ID: <20040106102538.A14492@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040106010924.GA21747@sgi.com>
+	Tue, 6 Jan 2004 05:36:45 -0500
+Received: from coffee.creativecontingencies.com ([210.8.121.66]:45522 "EHLO
+	coffee.cc.com.au") by vger.kernel.org with ESMTP id S261827AbUAFKgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 05:36:43 -0500
+Subject: Re: loopback device + crypto = crash on 2.6.0-test7 ?
+From: Peter Lieverdink <peter@cc.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+In-Reply-To: <6.0.0.22.2.20031111101721.01bde418@caffeine.cc.com.au>
+References: <1067411342.1574.11.camel@localhost>
+	 <20031109131018.GA18342@deneb.enyo.de> <bop47i$7eg$1@gatekeeper.tmr.com>
+	 <6.0.0.22.2.20031111101721.01bde418@caffeine.cc.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-L+1P1VneeaAPCSm+ee4S"
+Message-Id: <1073385390.1110.2.camel@kahlua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040106010924.GA21747@sgi.com>; from jbarnes@sgi.com on Mon, Jan 05, 2004 at 05:09:24PM -0800
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 06 Jan 2004 21:36:31 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 05:09:24PM -0800, Jesse Barnes wrote:
-> The 'depends' directive for SGI IOC4 support is too restrictive.  Just
-> kill it altogether.
 
-Umm, it won't work for anything but a kernel with SN2 support compile in
-due to the bridge-level dma byteswapping it needs (through a week symbol,
-that's why you don't see compile failures for other architectures, eek!).
+--=-L+1P1VneeaAPCSm+ee4S
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So at least make it depend on CONFIG_IA64
+On Tue, 2003-11-11 at 10:27, Peter Lieverdink wrote:
+> At 09:41 11/11/2003, you wrote:
+> >In article <20031109131018.GA18342@deneb.enyo.de>,
+> >Florian Weimer  <fw@deneb.enyo.de> wrote:
+> >| Soeren Sonnenburg wrote:
+> >|
+> >| > losetup -e blowfish /dev/loop0 /file
+> >| > Password:
+> >| > mkfs -t ext3 /dev/loop0
+> >| > mount /dev/loop0 /mnt
+> >| > <error unknown fs type>
+> >| > <from here something was seriously broken... could not reboot anymor=
+e>
+> >|
+> >| I'm seeing something similar, but in my case, mke2fs already crashes.
+> >|
+> >| > system is:
+> >| > Linux no 2.6.0-test7 #8 Sun Oct 26 17:00:49 CET 2003 ppc GNU/Linux
+> >|
+> >| Mine ist -test9 on x86.
+> >|
+> >| Have you found a solution in the meantime?
+> >
+> >I have been using aes and not seeing this. I suppose it's unlikely that
+> >there could be an error in the kernel crypto, but I think I'll wait and
+> >try blowfish on a non-critical machine.
+>=20
+> My solution has been to not use cryptofs, it crashes with whatever=20
+> algorithm I choose :-(
+
+I've been using 'highmem=3Doff' until now, which provided a workaround.
+Just built 2.6.1-rc1-mm2 and cryptloop+highmem works as it should now.
+
+- peter.
+
+--=-L+1P1VneeaAPCSm+ee4S
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/+o+tf34AjKyA6C4RAvnBAKCJ0UQChxhnis3T0VtBclDtCV3KWgCg42vc
+Dpc1bcBtKWKiVeB3y+Qoh2Q=
+=Sipj
+-----END PGP SIGNATURE-----
+
+--=-L+1P1VneeaAPCSm+ee4S--
 

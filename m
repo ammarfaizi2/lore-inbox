@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbUJYPhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbUJYPif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbUJYPhO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbUJYPep
+	id S261985AbUJYPif (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUJYPhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:34:45 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:56250 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261951AbUJYP3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:29:14 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
-Date: Mon, 25 Oct 2004 17:31:11 +0200
-User-Agent: KMail/1.6.2
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@osdl.org>
-References: <200410222354.44563.rjw@sisk.pl> <200410251627.51939.rjw@sisk.pl> <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com>
-MIME-Version: 1.0
+	Mon, 25 Oct 2004 11:37:33 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:10470 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261994AbUJYPgV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:36:21 -0400
+Date: Mon, 25 Oct 2004 17:36:15 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Stelian Pop <stelian@popies.net>, jgarzik@pobox.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pcmcia network drivers cleanup
+Message-ID: <20041025153615.GA7730@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	Stelian Pop <stelian@popies.net>, jgarzik@pobox.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041025152121.GA7647@dominikbrodowski.de> <20041025153038.GF3161@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410251731.11445.rjw@sisk.pl>
+In-Reply-To: <20041025153038.GF3161@crusoe.alcove-fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 of October 2004 16:45, Zwane Mwaikambo wrote:
-> On Mon, 25 Oct 2004, Rafael J. Wysocki wrote:
-> 
-> > > So did the system still misbehave? What happened?
+On Mon, Oct 25, 2004 at 05:30:38PM +0200, Stelian Pop wrote:
+> > #define INT_MODULE_PARM(n, v) static int n = v; MODULE_PARM(n, "i")
 > > 
-> > So far, so good.  The problem has not happened yet, so I think it won't.  
-> > Still, I have no such problems with 2.6.9*, although I do not boot them 
-with 
-> > noapic ...
+> > static int irq_list[4] = { -1 };
+> > MODULE_PARM(irq_list, "1-4i");
+> > INT_MODULE_PARM(irq_mask,	0xdeb8);
 > > 
-> > Thanks for your help anyway,
+> > block being replaced with
+> > 
+> > 
+> > static int irq_list[4] = { -1 };
+> > static int irq_mask irq_mask = 0xdeb8;
+> > 
+> > module_parm(irq_mask, int, 0444};
 > 
-> Ok, perhaps you shouldn't thank me ;) I actually sortof kinda broke your 
-> box... The reason why it worked before was because the kernel defaulted to 
-> disabling the IOAPIC on all nforce3 based systems but we found out that 
-> most nforce3 systems are actually work with the IOAPIC if we just ignore 
-> some bogus ACPI BIOS information. Your system happens to be one of the 
-> more broken ones, i'd actually like to try debug your problem a bit 
-> further, could you open up a bugzilla entry at bugzilla.kernel.org and 
-> email me when you're done. In the meantime, just keep booting with 
-> 'noapic'
+> Sure, it is probably saner, but INT_MODULE_PARM is used for quite a
+> few other parameters in each driver, and I didn't want to touch
+> all of them.
 
-OK
-The bugzilla entry is at:
-http://bugzilla.kernel.org/show_bug.cgi?id=3639
+You need to convert all paramters at once, as MODULE_PARM and module_parm()
+can't exist in the same module at the same time anyway. Also, as all
+INT_MODULE_PARMs were defined to be MODULE_PARM, it should be safe to do so.
 
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Thanks,
+	Dominik

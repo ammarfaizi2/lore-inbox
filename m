@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbTAJRuo>; Fri, 10 Jan 2003 12:50:44 -0500
+	id <S265475AbTAJRzK>; Fri, 10 Jan 2003 12:55:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbTAJRuo>; Fri, 10 Jan 2003 12:50:44 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:42174 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S265470AbTAJRun> convert rfc822-to-8bit; Fri, 10 Jan 2003 12:50:43 -0500
-content-class: urn:content-classes:message
-Subject: RE: [PATCH] [2.5] IRQ distribution in the 2.5.52  kernel
-Date: Fri, 10 Jan 2003 09:59:22 -0800
-Message-ID: <E88224AA79D2744187E7854CA8D9131DA5CE5F@fmsmsx407.fm.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [2.5] IRQ distribution in the 2.5.52  kernel
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcK21HXdm3t6gyLFEdeo8gBQi2jWzAB/YFGg
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-X-OriginalArrivalTime: 10 Jan 2003 17:59:23.0360 (UTC) FILETIME=[01DB7E00:01C2B8D2]
+	id <S265480AbTAJRzK>; Fri, 10 Jan 2003 12:55:10 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:18599 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S265475AbTAJRzI>; Fri, 10 Jan 2003 12:55:08 -0500
+Date: Fri, 10 Jan 2003 10:02:10 -0800
+From: Anthony Lau <anthony@greyweasel.com>
+Subject: Re: Kernel Oops with HIMEM+VM in 2.4.19,20
+In-reply-to: <200301100908.h0A98ks15321@Port.imtp.ilyichevsk.odessa.ua>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030110180210.GA1292@kimagure>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4i
+References: <20030110083714.GA702@kimagure>
+ <200301100908.h0A98ks15321@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the comment. I will take it out.
-Nitin
+On Fri, Jan 10, 2003 at 11:08:39AM +0200, Denis Vlasenko wrote:
+> On 10 January 2003 10:37, Anthony Lau wrote:
+> > Hello,
+> >
+[snip]
+> 
+> You mean when your system starts to swap? Details?
+> (How much/how heavy it swaps before oops? vmstat output?)
 
+With very little swapping and <10MB of VM in use as reported by
+the "free" command (Debian SID).
+Next time I get an oops I will get the vmstat output.
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Tuesday, January 07, 2003 9:12 PM
-> To: Kamble, Nitin A
-> Cc: linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick, Asit K;
-> Nakajima, Jun
-> Subject: Re: [PATCH] [2.5] IRQ distribution in the 2.5.52 kernel
-> 
-> On Tue, Jan 07, 2003 at 06:52:59PM -0800, Kamble, Nitin A wrote:
-> > +# define MIN(a,b) (((a) < (b)) ? (a) : (b))
-> > +# define MAX(a,b) (((a) > (b)) ? (a) : (b))
-> 
-> There are alread definitions for min() and max(), it would be good to
-> use them and not try to define your own.
-> 
-> thanks,
-> 
-> greg k-h
+[snip]
+
+> Kernel version and .config?
+> Arrange klogd to be started with -x. Process oopses with ksymoops.
+
+I have tried vanilla 2.4.19+HTB2 patch and vanilla 2.4.20.
+I have setup klogd with -x now and await the next oops.
+
+Thanks for the list of VM people. They were not obviously listed
+in the MAINTAINER file that came with the kernel sources.
+
+--
+Anthony

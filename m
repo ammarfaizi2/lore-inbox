@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267536AbRGMUCh>; Fri, 13 Jul 2001 16:02:37 -0400
+	id <S266892AbRGMUYq>; Fri, 13 Jul 2001 16:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267537AbRGMUC2>; Fri, 13 Jul 2001 16:02:28 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:44492 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S267536AbRGMUCQ>;
-	Fri, 13 Jul 2001 16:02:16 -0400
-Message-ID: <XFMail.20010713130537.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S266932AbRGMUYg>; Fri, 13 Jul 2001 16:24:36 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35428 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S266892AbRGMUY2>; Fri, 13 Jul 2001 16:24:28 -0400
+To: John Clemens <john@deater.net>
+Cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS, Duron4 specifics...
+In-Reply-To: <Pine.LNX.4.33.0107101222560.13575-100000@pianoman.cluster.toy>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Jul 2001 14:19:00 -0600
+In-Reply-To: <Pine.LNX.4.33.0107101222560.13575-100000@pianoman.cluster.toy>
+Message-ID: <m1pub44m6j.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-In-Reply-To: <200107131939.f6DJdb921665@eng2.sequent.com>
-Date: Fri, 13 Jul 2001 13:05:37 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Gerrit Huizenga <gerrit@us.ibm.com>
-Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
-        Mike Kravetz <mkravetz@sequent.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Clemens <john@deater.net> writes:
 
-On 13-Jul-2001 Gerrit Huizenga wrote:
-> In a lot of cases, UP is just a simplified, degenerate case of SMP (which
-> is itself often a degenerate case of NUMA).  Wouldn't it make a lot of
-> sense to have a single scheduler which 1) was relively simple, 2) was as
-> good as the current scheduler (or better) on UP, and 3) scaled well on SMP
-> (and
-> NUMA)?  I think the current lse scheduler meets all of those goals pretty
-> well.
+> On Tue, 10 Jul 2001, Dave Jones wrote:
+> 
+> > On Tue, 10 Jul 2001, John Clemens wrote:
+> >
+> > > I've got a new laptop with an AMD Duron in it, based on the Athlon4 core
+> > > (PowerNow, SSE, hardware prefetch, etc.. Palomino core)..  However, it
+> > > appears none of the useful features are enabled in the bios.  For example,
+> > > Nowhere does it appear to enable SSE or the APIC.
+> >
+> > afair, the mobile Durons are not based upon the Athlon 4 core, and
+> > hence won't have the features you mention. You can verify this with
+> > my x86info tool which you can get from
+> > ftp://ftp.suse.com/pub/people/davej/x86info/x86info-1.3.tgz
+> 
+> Actually, CPUID reports Family 6, Model 6, Rev2, which corellates directly
+> to Athlon4/MP (Model 6) processors.  Whats surprising is that is doesn't
+> report model 7, which AMD claims is supposed to be the mobile Duron ;)..
+> make me wonder if it's really a neutered Athlon4.  Besides, I though the
+> origional mobile durons (T-bird core, model 3) didn't even support
+> powernow...?
 
-It's the concept of 'good enough' that seems to have different meanings for
-different people.
-Personally I could even think that the behaviour for the UP case is 'almost'
-the same but, as you can see by watching at the lk threads in the last years,
-it's pretty hard to try people to agree on the concept of 'good enough'.
-Config options will leave the current scheduler for UP ( or even for not heavy
-MP ) while will introduce an option to users that will suffer scheduler
-problems.
+To enable SSE you have to write a bit into a undocumented register.
+For the APIC the procedure to enable it is the same as the P6 core.
 
-
-> Config options means the user has to choose, I have too many important
-> choices to make already when building a kernel.
-
-Even when I go at the restaurant I've to chose, but I still prefer that instead
-of getting the 'menu du jour'.
-
-
-
-
-- Davide
-
+Eric

@@ -1,86 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIEVYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267237AbUIEVa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUIEVYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUIEVYN
+	id S267237AbUIEVa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUIEVa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:24:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:11675 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267235AbUIEVYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:24:06 -0400
-Message-ID: <9e47339104090514244873fd05@mail.gmail.com>
-Date: Sun, 5 Sep 2004 17:24:05 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
+	Sun, 5 Sep 2004 17:30:56 -0400
+Received: from panthera-systems.net ([213.239.209.134]:38789 "EHLO
+	panthera-systems.net") by vger.kernel.org with ESMTP
+	id S267237AbUIEVat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 17:30:49 -0400
+Message-ID: <413B8588.5030302@panthera-systems.net>
+Date: Sun, 05 Sep 2004 23:30:48 +0200
+From: Daniel Baumann <daniel.baumann@panthera-systems.net>
+Reply-To: daniel.baumann@panthera-systems.net
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>
-In-Reply-To: <20040905184852.GA25431@linux.ensimag.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040905184852.GA25431@linux.ensimag.fr>
+Subject: [PATCH] Typing error: s/IA32/IA-32/
+Content-Type: multipart/mixed;
+ boundary="------------090700020008040209050201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd don't know enough about the LPC bridge chip to know what the
-correct answer is for this. Right now I tend to think that the PCI
-driver should own the bridge chip. If not the PCI driver then there
-should be an explicit bridge driver. I don' think it is correct that a
-joystick driver is attaching to a bridge chip given the simple fact
-that all legacy IO - joystick, PS/2, parallel, serial, etc is located
-off from that same bridge chip.
+This is a multi-part message in MIME format.
+--------------090700020008040209050201
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Matthieu's comments about using PNP for this seem to make sense. Are
-we missing implementation of an ACPI feature for controlling these
-ports?
-
-On Sun, 5 Sep 2004 20:48:52 +0200, Matthieu Castet
-<mat@ensilinx1.imag.fr> wrote:
-> On Sul, 2004-09-05 at 03:43, Jon Smirl wrote:
-> > The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
-> > MIDI ports are ISA devices and need be located by manual probing. This
-> > ID table needs to be removed. Joystick and MIDI ports do not have PCI
-> > IDs.
-> 
-> I agree, that was I explain in a previous post
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109420281830288&w=2)
-> see the PS.
-> 
-> 
-> > It isn't that simple. The LPC bridge also contains the controls for
-> > the
-> > joystick ports. You also need them for hotplug handling of the bridge
-> > should someone stick one in a laptop docking station. The ID table
-> > also
-> > ensures the driver is loaded. It's probably true that it will need
-> > splitting up a bit if another driver also needs ownership of the LPC
-> > bridge but for now that hasn't happened.
-> 
-> Not for jostick and midi stuff you have to use pnp bus.
-> On my computer it works well :
-> I have removed the support of MIDI and GAMEPORT in alsa driver.
-> The gameport is handle with ns558
-> The midi device with a mpu401_pnp I post on the alsa mailling list
-> (http://sourceforge.net/mailarchive/forum.php?thread_id=5468125&forum_id=1751)
-> For that it work well you need a pnpbios patch
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109411306024720&w=2) or
-> even try to use my pnpacpi patch
-> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109430451522335&w=2)
-> And the isapnp hotplug script auto load the right module...
-> 
-> Regards,
-> Matthieu
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+IA32 is wrong according to Intel.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Address:        Daniel Baumann, Burgunderstrasse 3, CH-4562 Biberist
+Email:          daniel.baumann@panthera-systems.net
+Internet:       http://people.panthera-systems.net/~daniel-baumann/
+
+--------------090700020008040209050201
+Content-Type: text/x-patch;
+ name="linux-2.6.8.1_typing-error_ia32.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.8.1_typing-error_ia32.patch"
+
+diff -Naur linux-2.6.8.1.original/CREDITS linux-2.6.8.1/CREDITS
+--- linux-2.6.8.1.original/CREDITS	2004-08-14 12:55:47.000000000 +0200
++++ linux-2.6.8.1/CREDITS	2004-09-05 22:19:37.000000000 +0200
+@@ -41,7 +41,7 @@
+ E: tigran@veritas.com
+ W: http://www.moses.uklinux.net/patches
+ D: BFS filesystem
+-D: Intel IA32 CPU microcode update support
++D: Intel IA-32 CPU microcode update support
+ D: Various kernel patches
+ S: United Kingdom
+ 
+diff -Naur linux-2.6.8.1.original/Documentation/Changes linux-2.6.8.1/Documentation/Changes
+--- linux-2.6.8.1.original/Documentation/Changes	2004-08-14 12:56:22.000000000 +0200
++++ linux-2.6.8.1/Documentation/Changes	2004-09-05 22:19:56.000000000 +0200
+@@ -202,10 +202,10 @@
+ newer has this support.  Use the recommended version or newer
+ from the table above.
+ 
+-Intel IA32 microcode
+---------------------
++Intel IA-32 microcode
++---------------------
+ 
+-A driver has been added to allow updating of Intel IA32 microcode,
++A driver has been added to allow updating of Intel IA-32 microcode,
+ accessible as both a devfs regular file and as a normal (misc)
+ character device.  If you are not using devfs you may need to:
+ 
+diff -Naur linux-2.6.8.1.original/Documentation/ioctl-number.txt linux-2.6.8.1/Documentation/ioctl-number.txt
+--- linux-2.6.8.1.original/Documentation/ioctl-number.txt	2004-08-14 12:56:22.000000000 +0200
++++ linux-2.6.8.1/Documentation/ioctl-number.txt	2004-09-05 22:20:09.000000000 +0200
+@@ -77,7 +77,7 @@
+ '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
+ '1'	00-1F	<linux/timepps.h>	PPS kit from Ulrich Windl
+ 					<ftp://ftp.de.kernel.org/pub/linux/daemons/ntp/PPS/>
+-'6'	00-10	<asm-i386/processor.h>	Intel IA32 microcode update driver
++'6'	00-10	<asm-i386/processor.h>	Intel IA-32 microcode update driver
+ 					<mailto:tigran@veritas.com>
+ '8'	all				SNP8023 advanced NIC card
+ 					<mailto:mcr@solidum.com>
+diff -Naur linux-2.6.8.1.original/arch/i386/Kconfig linux-2.6.8.1/arch/i386/Kconfig
+--- linux-2.6.8.1.original/arch/i386/Kconfig	2004-08-14 12:54:50.000000000 +0200
++++ linux-2.6.8.1/arch/i386/Kconfig	2004-09-05 22:19:09.000000000 +0200
+@@ -95,7 +95,7 @@
+ config X86_VISWS
+ 	bool "SGI 320/540 (Visual Workstation)"
+ 	help
+-	  The SGI Visual Workstation series is an IA32-based workstation
++	  The SGI Visual Workstation series is an IA-32-based workstation
+ 	  based on SGI systems chips with some legacy PC hardware attached.
+ 
+ 	  Say Y here to create a kernel to run on the SGI 320 or 540.
+@@ -111,11 +111,11 @@
+ 	  It is intended for a generic binary kernel.
+ 
+ config X86_ES7000
+-	bool "Support for Unisys ES7000 IA32 series"
++	bool "Support for Unisys ES7000 IA-32 series"
+ 	depends on SMP
+ 	help
+ 	  Support for Unisys ES7000 systems.  Say 'Y' here if this kernel is
+-	  supposed to run on an IA32-based Unisys ES7000 system. 
++	  supposed to run on an IA-32-based Unisys ES7000 system. 
+ 	  Only choose this option if you have such a system, otherwise you 
+ 	  should say N here.
+ 
+@@ -622,11 +622,11 @@
+ 	  Say N otherwise.
+ 
+ config MICROCODE
+-	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
++	tristate "/dev/cpu/microcode - Intel IA-32 CPU microcode support"
+ 	---help---
+ 	  If you say Y here and also to "/dev file system support" in the
+ 	  'File systems' section, you will be able to update the microcode on
+-	  Intel processors in the IA32 family, e.g. Pentium Pro, Pentium II,
++	  Intel processors in the IA-32 family, e.g. Pentium Pro, Pentium II,
+ 	  Pentium III, Pentium 4, Xeon etc.  You will obviously need the
+ 	  actual microcode binary data itself which is not shipped with the
+ 	  Linux kernel.
+@@ -684,7 +684,7 @@
+ 
+ 	  If more than 4 Gigabytes is used then answer "64GB" here. This
+ 	  selection turns Intel PAE (Physical Address Extension) mode on.
+-	  PAE implements 3-level paging on IA32 processors. PAE is fully
++	  PAE implements 3-level paging on IA-32 processors. PAE is fully
+ 	  supported by Linux, PAE mode is implemented on all recent Intel
+ 	  processors (Pentium Pro and better). NOTE: If you say "64GB" here,
+ 	  then the kernel will not boot on CPUs that don't support PAE!
+diff -Naur linux-2.6.8.1.original/arch/x86_64/Kconfig linux-2.6.8.1/arch/x86_64/Kconfig
+--- linux-2.6.8.1.original/arch/x86_64/Kconfig	2004-08-14 12:55:59.000000000 +0200
++++ linux-2.6.8.1/arch/x86_64/Kconfig	2004-09-05 22:21:46.000000000 +0200
+@@ -95,7 +95,7 @@
+ config MPSC
+        bool "Intel x86-64" 
+        help
+-	  Optimize for Intel IA32 with 64bit extension CPUs
++	  Optimize for Intel IA-32 with 64bit extension CPUs
+ 	  (Prescott/Nocona/Potomac)
+        
+ config GENERIC_CPU
+@@ -361,14 +361,14 @@
+ source "fs/Kconfig.binfmt"
+ 
+ config IA32_EMULATION
+-	bool "IA32 Emulation"
++	bool "IA-32 Emulation"
+ 	help
+ 	  Include code to run 32-bit programs under a 64-bit kernel. You should likely
+ 	  turn this on, unless you're 100% sure that you don't have any 32-bit programs
+ 	  left.
+ 
+ config IA32_AOUT
+-       bool "IA32 a.out support"
++       bool "IA-32 a.out support"
+        depends on IA32_EMULATION
+        help
+          Support old a.out binaries in the 32bit emulation.
+
+--------------090700020008040209050201--

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268853AbUHLWtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268850AbUHLWtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268853AbUHLWtd (ORCPT <rfc822;willy@w.ods.org>);
+	id S268850AbUHLWtd (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 12 Aug 2004 18:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268850AbUHLWrd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUHLWrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:47:33 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:19388 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S268853AbUHLWqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:46:06 -0400
-Subject: Re: is_head_of_free_region slowing down swsusp
+	Thu, 12 Aug 2004 18:47:14 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:1159 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S268850AbUHLWqt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:46:49 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040812222348.GA10791@elf.ucw.cz>
-References: <20040812222348.GA10791@elf.ucw.cz>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nathan Bryant <nbryant@optonline.net>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1092350198.24737.19.camel@laptop.cunninghams>
+References: <4119611D.60401@optonline.net>
+	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
+	 <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
+	 <1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz>
+	 <1092328173.2184.15.camel@mulgrave>  <20040812191120.GA14903@elf.ucw.cz>
+	 <1092339247.1755.36.camel@mulgrave>
+	 <1092350198.24737.19.camel@laptop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1092350569.24776.22.camel@laptop.cunninghams>
+Message-Id: <1092350607.24776.24.camel@laptop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 13 Aug 2004 08:42:49 +1000
+Date: Fri, 13 Aug 2004 08:43:27 +1000
 Content-Transfer-Encoding: 7bit
 X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel.
+Howdy again.
 
-On Fri, 2004-08-13 at 08:23, Pavel Machek wrote:
-> is_head_of_free_region with count_and_copy_zone results results in
-> pretty nasty O(number_of_free_regions^2) behaviour, and some users see
-> cpu spending 40 seconds there :-(.
-> 
-> Actually count_and_copy_zone would probably be happy with
-> "is_free_page()".
+On Fri, 2004-08-13 at 08:36, Nigel Cunningham wrote:
+> I'm not pretending to understand the issues you're talking about, but I
+> do have a question that might possibly be helpful: Pages can be marked
+> with the Nosave flag, so that they're not saved in the image and not
+> overwritten when we copy the old kernel back. Would using Nosave help
+> here at all?
 
-Take a look at my implementation. I do a one-time pass through the slow
-path, building a bitmap of free pages. is_head_of_free_region is then
-simply a O(1) loop through the bitmap.
+Having read the rest of the thread, I can see that's probably not
+helpful :>
 
 Nigel
 -- 

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbTBYFfF>; Tue, 25 Feb 2003 00:35:05 -0500
+	id <S267648AbTBYFfP>; Tue, 25 Feb 2003 00:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTBYFfF>; Tue, 25 Feb 2003 00:35:05 -0500
-Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:26819 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S267612AbTBYFfE>; Tue, 25 Feb 2003 00:35:04 -0500
-Date: Mon, 24 Feb 2003 22:45:18 -0700 (MST)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Mike Sullivan <mike.sullivan@alltec.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Scheduling with HyperThreading
-In-Reply-To: <3E5AC10B.6010705@alltec.com>
-Message-ID: <Pine.LNX.4.51.0302242240400.20688@skuld.mtroyal.ab.ca>
-References: <3E5AC10B.6010705@alltec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
+	id <S267674AbTBYFfP>; Tue, 25 Feb 2003 00:35:15 -0500
+Received: from packet.digeo.com ([12.110.80.53]:52221 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267648AbTBYFfN>;
+	Tue, 25 Feb 2003 00:35:13 -0500
+Date: Mon, 24 Feb 2003 21:45:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Jonah Sherman <jsherman@stuy.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
+Message-Id: <20030224214543.0e9e2de7.akpm@digeo.com>
+In-Reply-To: <20030224212530.GA631@j0nah.ath.cx>
+References: <20030224212530.GA631@j0nah.ath.cx>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Feb 2003 05:45:21.0178 (UTC) FILETIME=[15AC57A0:01C2DC91]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003, Mike Sullivan wrote:
+Jonah Sherman <jsherman@stuy.edu> wrote:
+>
+> I have come across a bug in the loop driver.
 
-> What kernel versions will attempt to distribute jobs across physical CPUs on
-> Xeon SMP configurations.
+So you have.  See, the `dd' fills the machine up with dirty memory and the
+loop driver wants to take a copy of all that memory to write it out.  It takes
+this copy inside page reclaim, where we are allowed to use *all* memory.
 
->From what I've heard, Arjans' user space daemon might be the way
-things are going, it's at http://people.redhat.com/arjanv/irqbalance/ .
+So obviously, as there is so much memory to be written, we just run out of
+the stuff.
 
-The other way that you might try is the irq load balance patch that Ingo
-produced.  There is a patch that is from 2.4.20 at
-http://www.hardrock.org/kernel/2.4.20/ and it is what I'm using at work on
-our current Xeon systems (until I have the chance to test the user space
-daemon at least).
+The loop driver has a tendency to do this sort of thing.  Whenever it does,
+we slap another bandaid on it.  
 
-Hope that helps.
 
-Regards
-James Bourne
+diff -puN drivers/block/loop.c~loop-hack drivers/block/loop.c
+--- 25/drivers/block/loop.c~loop-hack	2003-02-24 21:21:11.000000000 -0800
++++ 25-akpm/drivers/block/loop.c	2003-02-24 21:45:13.000000000 -0800
+@@ -447,7 +447,22 @@ static struct bio *loop_get_buffer(struc
+ 		goto out_bh;
+ 	}
+ 
+-	bio = bio_copy(rbh, GFP_NOIO, rbh->bi_rw & WRITE);
++	/*
++	 * When called on the page reclaim -> writepage path, this code can
++	 * trivially consume all memory.  So we drop PF_MEMALLOC to avoid
++	 * stealing all the page reserves and throttle to the writeout rate.
++	 * pdflush will have been woken by page reclaim.  Let it do its work.
++	 */
++	do {
++		int flags = current->flags;
++
++		current->flags &= ~PF_MEMALLOC;
++		bio = bio_copy(rbh, (GFP_ATOMIC & ~__GFP_HIGH) | __GFP_NOWARN,
++					rbh->bi_rw & WRITE);
++		current->flags = flags;
++		if (bio == NULL)
++			blk_congestion_wait(WRITE, HZ/10);
++	} while (bio == NULL);
+ 
+ 	bio->bi_end_io = loop_end_io_transfer;
+ 	bio->bi_private = rbh;
 
->                         Mike
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
+_
 

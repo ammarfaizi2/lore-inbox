@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbTJPLVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 07:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTJPLVf
+	id S262844AbTJPLQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTJPLQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 07:21:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45445 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262851AbTJPLVd
+	Thu, 16 Oct 2003 07:16:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36996 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262844AbTJPLQ5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 07:21:33 -0400
-Message-ID: <3F8E7F2F.3060109@pobox.com>
-Date: Thu, 16 Oct 2003 07:21:19 -0400
+	Thu, 16 Oct 2003 07:16:57 -0400
+Message-ID: <3F8E7E1C.4010605@pobox.com>
+Date: Thu, 16 Oct 2003 07:16:44 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roberto Di Cosmo <roberto@dicosmo.org>
-CC: linux-kernel@vger.kernel.org, fedor@karpelevitch.net
-Subject: Re: Full specifications available for RealTek 8180 wireless chipset
-References: <16270.23843.175822.920013@gargle.gargle.HOWL>
-In-Reply-To: <16270.23843.175822.920013@gargle.gargle.HOWL>
+To: Jan De Luyck <lkml@kcore.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test7] b44: NETDEV WATCHDOG: eth0: transmit timed out
+References: <200310161253.13548.lkml@kcore.org>
+In-Reply-To: <200310161253.13548.lkml@kcore.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Di Cosmo wrote:
-> Having experienced a large set of delusions using the closed source
-> drivers for the  RealTek 8180 wireless chipset available on
-> RealTek web site on a stock kernel 2.4.20, that do confirm the
-> posting of fedor@karpelevitch.net on September 11 2003 about
-> kernel freeze with stock 2.4.22, I politely complained with
-> RealTek, suggesting they open the code or release the chipset
-> specifications to the community.
+Jan De Luyck wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I received today the full chipset specifications, that I uploaded
-> to http://www.dicosmo.org/RTL8180spec_1_3.pdf
+> Same bug as in 2.4:
 > 
-> I hope this may help, if somebody is willing to undertake writing
-> a real, full fledged, Linux-quality driver for this chipset.
+> Oct 16 12:29:14 precious kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Oct 16 12:29:14 precious kernel: b44: eth0: transmit timed out, resetting
 > 
-> Sorry for not being able to do this myself.
+> after which the interface is useless.
+> 
+> Can the same patch (by  Pekka Pietikainen) be applied?
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106476776914551&w=2
 
 
-Having announced this to thousands of people -- including RealTek 
-subscribers, no doubt -- you have poisoned any effort to write a driver 
-off this obviously-stolen document.
-
-I hope others learn from your example, of what NOT to do.
-
-Thanks for damaging my efforts to work on this through RealTek,
+Already sent to Linus and Marcelo.
 
 	Jeff
 

@@ -1,131 +1,63 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <972389-12281>; Mon, 4 May 1998 05:07:44 -0400
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:39034 "EHLO rrzs2.rz.uni-regensburg.de" ident: "NO-IDENT-SERVICE") by vger.rutgers.edu with ESMTP id <972348-12281>; Mon, 4 May 1998 05:04:04 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-Date: Mon, 4 May 1998 11:43:30 +0200
+Received: by vger.rutgers.edu id <970893-3215>; Sat, 9 May 1998 22:02:30 -0400
+Received: from miranda.uwaterloo.ca ([129.97.130.69]:4329 "EHLO enrico.ied.com" ident: "root") by vger.rutgers.edu with ESMTP id <970900-3215>; Sat, 9 May 1998 22:02:15 -0400
+Date: Sat, 9 May 1998 22:08:10 -0400 (EDT)
+From: Jan Vicherek <honza@ied.com>
+Reply-To: Jan Vicherek <honza@ied.com>
+To: Marc Lehmann <pcg@goof.com>
+cc: linux-kernel@vger.rutgers.edu
+Subject: clarification : Re: "renice" netowork usage.
+In-Reply-To: <19980509215645.47060@cerebro.laendle>
+Message-ID: <Pine.LNX.3.96.980509205921.5258k-100000@ann.ied.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Problem with kernel-pll in 2.0.3x (at least)
-Cc: linux-kernel@vger.rutgers.edu
-In-reply-to: <199805040909.LAA01448@cave.BitWizard.nl>
-References: <1DCAEE817EF5@rkdvmks1.ngate.uni-regensburg.de> from "Ulrich Windl" at May 4, 98 09:27:53 am
-Message-ID: <1DCD313014D0@rkdvmks1.ngate.uni-regensburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On  4 May 98 at 11:09, Rogier Wolff wrote:
 
-> Ulrich Windl wrote:
-> > 
-> > # Using 1024 Hz as interrupt frequency the following is true:
-> > # Using 976us as tick you'll have 999424us per second, and 576us error
-> > # Using 977us as tick you'll have 1000448us per second, and 448us error
-> > # Using 976us and 977us every second tick, you'll have 999936us per second,
-> > # and 64us error
-> > # Using 976us and 977us every second tick, plus 978 every 16th tick, you'll
-> > # have no error (while your time is still quite steady)! 8-)
-> 
-> 
-> Hi,
-> 
-> Your method depends on HZ being 1024. It is ad-hoc. We might want this
-> because it happens so often, but I personally perfer a general solution.
-
-Yes, setting up the tick is architecture-specific in 2.0 now. The 
-modulo operations done can all be expressed by ANDing, and I thought 
-the Alpha is fast enough for integers.
+On Sat, 9 May 1998, Marc Lehmann wrote:
 
 > 
-> Below is a code snippet that uses fixed-point arithmetic to calculate
-> tick much more accurately (10 bits behind the binary point). For 1
-> million microseconds in a second and 1024 ticks per second, that
-> yields exactly 0 error. 
-> 
-> But if you happen to have 555 (*) ticks per second, it will be much
-> more accurate than the older algorithm (in fact one 40th of a
-> microsecond per second of systematic error is quite acceptable don't
-> you think?  The old system yielded 110 microseconds of error per
-> second.  ;-).
-> 
-> (*) The 555 is completely arbitrary. I just banged on my keyboard to
-> get an example number that doesn't divide evenly.
-> 
-> As the final code is slightly more complicated than the standard
-> 
-> 	time += tick;
-> 
-> you could make this code conditional on:
-> 
-> #if HZ * (1000000/HZ) != 1000000
-> /* #warning "HZ doesn't divide." */
-> #define USE_FP_TICK
-> #else
-> #define USE_SIMPLE_TICK
-> /* #warning "HZ DOES divide." */
-> #endif
-> 
-> 
-> /* Code snippet: */
-> 
-> #include <stdio.h>
-> 
-> #define HZ 1024
-> 
-> #define FP_SHIFT 10
-> #define FRAC_BITS 0x3ff
-> 
-> 
-> int main (int argc, char **argv)
-> {
->   long tick;
->   int residual, tick_of_the_day;
->   int i;
->   int time;
-> 
->   residual = time = 0;
-> 
-> /*vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
->   tick = ((1000000 << FP_SHIFT) + HZ/2) / HZ;
-> /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
-> 
->   for (i=0;i < HZ;i++) {
-> 
-> /*vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
->     residual += tick;
->     tick_of_the_day = residual >> FP_SHIFT;
->     residual &= FRAC_BITS;
->     time += tick_of_the_day;
-> /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
-> 
->     printf ("%d %d %d\n", time, tick_of_the_day, residual);
->   }
->   exit (0);
-> }
-> 
-> 
-> I'm willing to prepare a patch if Linus says he'll include it in the
-> kernel.
+> You can do this already in 2.1 kernels (TOS), per port. But note that _both_
+> sides need to do this, otherwise it would almost have nil effect.
 
-The point of you code is: You are doing basically the same as the NTP 
-kernel code already does, i.e. remember fractional ticks and add them 
-if the fraction is large enough.
+    Suppose the remote side is an HTTP server. The local (linux) side has
+the HTTP client. The server doesn't have a clue as to what bandwidth is
+available. So when the initial request for, say, a 200MB file is received,
+it sends out about 10 (I guess) packets of data. That makes the TCP window
+to be 10.
 
-The correct solution would probably be to add a frequency offset that 
-corrects the systematic error of the software to the offset that the 
-user sees. (talking about MOD_FREQUENCY). Unfortunately the NTP code 
-originally was designed with 32 bits in mind, and the overflow 
-considerations limit the maximum correction. With a systematic offset 
-of more than 400PPM there isn't much tolarence left for bad hardware 
-(=quartz). Therefore I'd doe it outside of the NTP code, even if it 
-wastes some cycles.
+   As of now, the client responds with ACKs as soon as the data come
+through the 33.6 pipe. Thus the server figures out that because it has got
+the ACKs, it can now send more data. So it fills the pipe with 10 more
+packets.
 
-As long as the interrupt handling is architecture-specific, I don't 
-see the advantage of the very universal code.
+   My understanding of TCP tells me that "if the line conditions are
+poor", the server adjusts the TCP window size to something smaller. Now
+how the heck would the server knows what kind of line conditions are
+ahead?! It doesn't. So how can it adjust the window side then ? By
+guessing the line conditions from number and latency of ACKs.
 
-Regards,
-Ulrich
+   To regurgitate, WE CAN simulate low-bandwidth link by controlling the
+number and latency of ACKs (and maybe even sequence). And this way we
+trick the server and so control the flow out of the server.
+
+   Are there any flaws in the above ?
+
+   Please note that this must be implemented in the kernel, since TCP
+clients don't currently have a way to control number and latency of ACK
+packets to the data that it receives.
+   This thread is about implementing such control into kernel.
+
+     Thank you,
+
+          Jan Vicherek
+
+ -- Gospel of Jesus is the saving power of God for all who believe --
+Jan Vicherek ## To some, nothing is impossible. ##  www.ied.com/~honza
+    >>>    Free Software Union President  ...  www.fslu.org    <<<
+Interactive Electronic Design Inc.    -#-    PGP: finger honza@ied.com
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

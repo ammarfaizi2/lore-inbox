@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129059AbRBQGYJ>; Sat, 17 Feb 2001 01:24:09 -0500
+	id <S129065AbRBQHM5>; Sat, 17 Feb 2001 02:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129084AbRBQGXu>; Sat, 17 Feb 2001 01:23:50 -0500
-Received: from diamondhead.hesbynett.no ([212.33.144.138]:7434 "HELO
-	diamondhead.hesbynett.no") by vger.kernel.org with SMTP
-	id <S129059AbRBQGXj>; Sat, 17 Feb 2001 01:23:39 -0500
-Date: 17 Feb 2001 08:25:58 -0000
-Message-ID: <20010217082558.10830.qmail@diamondhead.hesbynett.no>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1-ac16 - Loopback device seems broken
-From: Ole  "André"  Vadla 
-	 "Ravn=E5s" ?= <zole@diamondhead.hesbynett.no>
-X-Mailer: Postaci 1.1.0 (ftp://ftp.onar.com.tr/pub/linux/postaci)
-X-Comment: This message was sent from 213.142.82.231
+	id <S129072AbRBQHMr>; Sat, 17 Feb 2001 02:12:47 -0500
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:10770 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S129065AbRBQHMp>;
+	Sat, 17 Feb 2001 02:12:45 -0500
+Message-ID: <3A8E2467.FC6FE1B4@sh0n.net>
+Date: Sat, 17 Feb 2001 02:12:40 -0500
+From: Shawn Starr <Shawn.Starr@sh0n.net>
+Organization: sh0n.net - http://www.sh0n.net/spstarr
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary = bfc11c31a1049a82480afcb85d10010ab
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: [PROBLEM]: grep hanging with ReiserFS
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
-
---bfc11c31a1049a82480afcb85d10010ab
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
-
-SSBkb24ndCBrbm93IGlmIHRoaXMgaXMgYnJva2VuIGluIDIuNC4xLWFjMTcgYW5kCjIuNC4yLXBy
-ZTQsIGJ1dCwgd2hhdCBoYXBwZW5zIHdoZW4gbW91bnRpbmcgYSBmaWxlc3lzdGVtCnVzaW5nIHRo
-ZSBsb29wYmFjayBkZXZpY2UgaXMgdGhhdCB0aGUgcHJvY2VzcyAnZGllcycgaW4gc29tZQp3YXkg
-YW5kIHRoZXJlJ3Mgbm8gd2F5IEkgY2FuIGtpbGwgaXQuClRoaXMgaXMgd2hhdCBJIGRpZDoKbW91
-bnQgL3Rlc3QtZXh0Mi1pbWFnZS5pbWcgL21udC90ZXN0aW1hZ2UgLW8gbG9vcCxydyAtdCBleHQy
-CkFuZCBhZnRlciB0aGF0IHRoZXJlJ3Mgbm8gd2F5IEkgY2FuIGdldCB0aGUgcHJvY2VzcyBraWxs
-ZWQuLi4KUGxlYXNlIENDIHJlcGxpZXMgdG8gdGhpcyBlbWFpbC1hZGRyZXNzOgp6b2xlQGRpYW1v
-bmRoZWFkLmhlc2J5bmV0dC5ubwpBcyBJJ20gbm90IGN1cnJlbnRseSBzdWJzY3JpYmVkIHRvIHRo
-ZSBsaW51eCBrZXJuZWwgbWFpbGluZy1saXN0LiA6LSkKCk9sZSBBbmRy6UblIGRlZyBlbiBncmF0
-aXMgd2VibWFpbCBmcmEgSGVzYnluZXR0IQpodHRwOi8vZGlhbW9uZGhlYWQuaGVzYnluZXR0Lm5v
-Cg==
-
---bfc11c31a1049a82480afcb85d10010ab--
+ grep -r "216.234.235.46" *
 
 
+...waiting...
+
+./debugps | more
+USER       PID COMMAND          WCHAN
+root         1 init             do_select
+....
+root         7 [kreiserfsd]     -
+.....
+
+root     28438 grep -r 216.234. pipe_wait
+
+Im using grep in /etc and its just waiting....
+it should have finished.
+
+Shawn.
 

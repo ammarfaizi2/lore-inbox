@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316838AbSIJRya>; Tue, 10 Sep 2002 13:54:30 -0400
+	id <S317743AbSIJSAL>; Tue, 10 Sep 2002 14:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317473AbSIJRya>; Tue, 10 Sep 2002 13:54:30 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:55306 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S317073AbSIJRya>; Tue, 10 Sep 2002 13:54:30 -0400
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Block size problem
-References: <20020910144452.GA29827@atrey.karlin.mff.cuni.cz>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 11 Sep 2002 02:58:51 +0900
-In-Reply-To: <20020910144452.GA29827@atrey.karlin.mff.cuni.cz>
-Message-ID: <87d6rlbuas.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317648AbSIJSAK>; Tue, 10 Sep 2002 14:00:10 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:21405 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317619AbSIJSAI>; Tue, 10 Sep 2002 14:00:08 -0400
+Date: Tue, 10 Sep 2002 20:28:00 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Daniela Engert <dani@ngrt.de>
+Cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]][2.4-ac] opti621 can't do dma
+In-Reply-To: <200209101716.TAA06198@myway.myway.de>
+Message-ID: <Pine.LNX.4.44.0209102026270.1100-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara <jack@suse.cz> writes:
+On Tue, 10 Sep 2002, Daniela Engert wrote:
 
->   Hello,
+> The Compaq Armada 1530 Notebook has a Opti FireStar chipset with an IDE
+> controller which is Ultra DMA capable (but stable only up to MW-DMA
+> mode 2). This one *should* be handled by the Linux opti621 driver (I
+> don't know if it is).
 > 
->   my friend has a following problem: He has FAT filesystem on MO disk
->   and computer with SCSI drive reading MO disk. The problem is that
->   smallest blocksize supported by the driver is larger than 512 bytes
->   which FAT needs. What is the right solution?
+> Ciao,
+>   Dani
 
-AFAIK, since originally FAT driver also isn't supporting blocksize
-smaller than device sector size, I think he should use blocksize
-larger than device sector size.
+I'd be interested to see an lspci, I'd be mortified if the opti621 
+driver really drives that controller ;)
 
-for example,
-
-    $ mkdosfs -S 2048 /dev/xxx
-
->   Another solution I though about is creating loopback directly to
->   device but loopback device supports only blocksize same as
->   underlying device... So do you think it would be nice/useful if
->   loopback device supported any blocksize?
-
-Since it isn't the problem of only FAT, I think it would be useful.
+	Zwane
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+function.linuxpower.ca
+

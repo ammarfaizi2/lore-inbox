@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVBOSE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVBOSKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVBOSE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 13:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVBOSE7
+	id S261635AbVBOSKX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 13:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBOSKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 13:04:59 -0500
-Received: from pat.uio.no ([129.240.130.16]:6136 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261784AbVBOSEz (ORCPT
+	Tue, 15 Feb 2005 13:10:23 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:5556 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261635AbVBOSKS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 13:04:55 -0500
-Subject: Re: [patch 12/13] ACL umask handling workaround in nfs client
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050122203620.108564000@blunzn.suse.de>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <20050122203620.108564000@blunzn.suse.de>
-Content-Type: text/plain
-Date: Tue, 15 Feb 2005 13:04:42 -0500
-Message-Id: <1108490682.10073.57.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.86, required 12,
-	autolearn=disabled, AWL 2.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 15 Feb 2005 13:10:18 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] Consolidate compat_sys_waitid
+Date: Tue, 15 Feb 2005 10:09:20 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F02EA10A0@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Consolidate compat_sys_waitid
+Thread-Index: AcUTCsGG/ycXMW5mRG+0LEIuiqoh9gAfnFyQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Stephen Rothwell" <sfr@canb.auug.org.au>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Cc: <paulus@samba.org>, <anton@samba.org>, <davem@davemloft.net>,
+       <ralf@linux-mips.org>, <ak@suse.de>, <willy@debian.org>,
+       <schwidefsky@de.ibm.com>
+X-OriginalArrivalTime: 15 Feb 2005 18:09:22.0109 (UTC) FILETIME=[799396D0:01C51389]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lau den 22.01.2005 Klokka 21:34 (+0100) skreiv Andreas Gruenbacher:
-> vanlig tekstdokument vedlegg (patches.suse)
-> NFSv3 has no concept of a umask on the server side: The client applies
-> the umask locally, and sends the effective permissions to the server.
-> This behavior is wrong when files are created in a directory that has
-> a default ACL. In this case, the umask is supposed to be ignored, and
-> only the default ACL determines the file's effective permissions.
-> 
-> Usually its the server's task to conditionally apply the umask. But
-> since the server knows nothing about the umask, we have to do it on the
-> client side. This patch tries to fetch the parent directory's default
-> ACL before creating a new file, computes the appropriate create mode to
-> send to the server, and finally sets the new file's access and default
-> acl appropriately.
 
+>This patch does:
+>	- consolidate the three implementations of compat_sys_waitid
+>	  (some were called sys32_waitid).
+>	- adds sys_waitid syscall to ppc
+>	- adds sys_waitid and compat_sys_waitid syscalls to ppc64
+>
+>Parisc seemed to assume th existance of compat_sys_waitid.  The MIPS
+>syscall tables have me confused and may need updating.  I have arbitrarily
+>chosen the next available syscall number on ppc and ppc64, I hope this is
+>correct.
+>
+>Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+>
+>Comments?
 
-Firstly, this sort of code belongs in the NFSv3-specific code. POSIX
-acls have no business whatsoever in the generic NFS code.
+Compiles cleanly, and my test case runs on ia64.
 
-Secondly, what is the point of doing all this *after* you have created
-the file with the wrong permissions? How are you avoiding races?
+Acked-by: Tony Luck <tony.luck@intel.com>
 
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+-Tony

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbTFWTyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266118AbTFWTyb
+	id S266118AbTFWT5H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 15:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbTFWT5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:54:31 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:41220 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265350AbTFWTya (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:54:30 -0400
-Date: Mon, 23 Jun 2003 22:08:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.71 kernel compile error
-Message-ID: <20030623200837.GA1044@mars.ravnborg.org>
-Mail-Followup-To: yiding_wang@agilent.com,
-	linux-kernel@vger.kernel.org
-References: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C2@axcs03.cos.agilent.com>
+	Mon, 23 Jun 2003 15:57:07 -0400
+Received: from cmsrelay01.mx.net ([165.212.11.110]:23226 "HELO
+	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S266118AbTFWT5E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 15:57:04 -0400
+X-USANET-Auth: 165.212.8.8     AUTO bradtilley@usa.net uwdvg008.cms.usa.net
+Date: Mon, 23 Jun 2003 16:11:06 -0400
+From: Brad Tilley <bradtilley@usa.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: OS Fails to Load
+X-Mailer: USANET web-mailer (CM.0402.5.6)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C2@axcs03.cos.agilent.com>
-User-Agent: Mutt/1.4.1i
+Message-ID: <981HFwuLg3008S08.1056399066@uwdvg008.cms.usa.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 04:05:12PM -0600, yiding_wang@agilent.com wrote:
-> Team,
-> 
-> I got failure on compiling the kernel in one of SuperMicro signle CPU system.  It has a Linux 2.4.2 on it.  
-> The message is "Unknown Pseudo-op:  '.incbin'"
+Hello,
 
-As per Documentation/Changes ld -v shall say at least: 2.12
+50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load. The
+failure usually occurs during a period of intense disk activity such as
+'finding module dependencies' or 'mounting local filesystems'. I can reproduce
+this error with the most recent RH kernel and the kernel that the distro
+originally shipped with and 2.4.21 from Kernel.org built using RH's config
+files. Usually after 4-5 power cycles, the OS loads OK and the machine runs
+fine once it gets going.
 
-You need to upgrade your binutils.
+It's a HP xw4100 with these specs:
 
-	Sam
+P4 Processor 3.00GHz/800 FSB
+1.5GB DDR/400 ECC (2x512, 2x256)
+NVIDIA Quadro4 200NVS 64MB AGP
+Ultra320 SCSI Controller
+18GB Ultra 320 SCSI 15,000rpm Hard Drive (sda)
+146GB Ultra 320 SCSI 10,000rpm Hard Drive (sdb)
+48X DVD/CDRW Combo Drive
+48X CD-RW Drive
+Broadcom Gbit 10/100/1000
+
+Can someone help me troubleshoot this? I'm at the end of my rope. I have the
+most recent BIOS from HP.
+
+
+Thanks,
+Brad
+
+
+
+

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129291AbRB1V4g>; Wed, 28 Feb 2001 16:56:36 -0500
+	id <S129300AbRB1WGK>; Wed, 28 Feb 2001 17:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129292AbRB1V42>; Wed, 28 Feb 2001 16:56:28 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:30468 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129291AbRB1V4J>;
-	Wed, 28 Feb 2001 16:56:09 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Michal Jaegermann <michal@harddata.com>
-Date: Wed, 28 Feb 2001 22:54:15 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4 kernels - "attempt to access beyond end of device"
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <C157EB0697@vcnet.vc.cvut.cz>
+	id <S129305AbRB1WFv>; Wed, 28 Feb 2001 17:05:51 -0500
+Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:53254 "EHLO
+	sparrow.net") by vger.kernel.org with ESMTP id <S129300AbRB1WFa>;
+	Wed, 28 Feb 2001 17:05:30 -0500
+Date: Wed, 28 Feb 2001 17:00:30 -0500
+From: Eric Buddington <eric@sparrow.nad.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: time drift and fb comsole activity
+Message-ID: <20010228170030.C2122@sparrow.nad.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Feb 01 at 13:46, Michal Jaegermann wrote:
-> I think that I found what gives me a hell with this box and it
-> looks like that this not Linux at all.  Once again, this is Athlon
-> K6 on Asus AV7 mobo and "Award Advanced ACPI BIOS" version 1005C.
+I know this has been reported on the list recently, but I think I can
+provide better detail. I'm running 2.4.2 with atyfb on a K6-2/266
+running at 250. This system has no history of clock problems.
 
-K7 on A7V, I believe...
+adjtimex-1.12 --compare gives me "2nd diff" readings of -0.01 in quiescent
+conditions.
 
-> I have more checks to make before I will be fully satisfied but
-> this looks like it.
-...
-> System Performance Setting [Optimal, Normal]
-...
+flipping consoles rapidly cboosts this number to -3 or -4.
 
-Try BIOS 1006. AFAIK 1005D changed some VIA values for 'optimal'.
-And 1006 contains newer Promise BIOS - but I did not notice any difference:
-Windows98 still do not boot if I connect harddisk to /dev/hdh :-(
-But Linux works fine...
-                                    Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+catting the full documentation to ntpd (seemed appropriate) gives me
+"2nd diff" numbers a little over 34. If I read the numbers correctly,
+47 seconds of CMOS time passed while the system clock only passed 13
+seconds.
+
+The processor and the CMOS clock were moving at zero velocity relative
+to each other, and were both in normal Earth gravity.
+
+I would appreciate cc's of replies (ore requests for further
+information), as I am not subscribed.
+
+-Eric

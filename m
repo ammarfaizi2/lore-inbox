@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129684AbQLJXna>; Sun, 10 Dec 2000 18:43:30 -0500
+	id <S129774AbQLJXrK>; Sun, 10 Dec 2000 18:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129774AbQLJXnU>; Sun, 10 Dec 2000 18:43:20 -0500
-Received: from web204.mail.yahoo.com ([128.11.68.104]:22285 "HELO
-	web204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129684AbQLJXnE>; Sun, 10 Dec 2000 18:43:04 -0500
-Message-ID: <20001210231233.25126.qmail@web204.mail.yahoo.com>
-Date: Sun, 10 Dec 2000 15:12:33 -0800 (PST)
-From: Jean Fekry Rizk <jeanfekry@yahoo.com>
-Subject: Linking with kernel code (Makefile)
-To: linux-kernel@vger.kernel.org
+	id <S130211AbQLJXrC>; Sun, 10 Dec 2000 18:47:02 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:17075 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129774AbQLJXqw>; Sun, 10 Dec 2000 18:46:52 -0500
+Message-ID: <3A340EC7.9735E93@haque.net>
+Date: Sun, 10 Dec 2000 18:16:23 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ 
+ initrd - test12pre7
+In-Reply-To: <3A2FF076.946076FC@haque.net> <90p2ds$2hs$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kernel World,
-I'm new to linux-kernel developement, so I would appreciate any help.
+This is seems to be fixed in test12-pre8.
 
-What I want to do:
-    create a shared memory segment between user space and kernel space
+Linus Torvalds wrote:
+> Do you have something special that triggers this? Can you test if it
+> only happens with initrd, for example?
 
-How am I trying to do it from kernel:
-    use the 'newseg' function from 'ipc/shm.c', or even the array shm_segs
-directly.
+-- 
 
-The problem:
-    I can't link with the array or the function, this also happens with
-all functions that are not defined in 'ksyms'
-    Even though I declared 'newseg' and 'shm_segs' as 'extern' in my file
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-I think my problem is in the Makefile.
-I'm using linux-2.2.14
-Here is the Makefile from the ipc folder
-    O_TARGET:=ipc.o
-    O_OBJS  :=util.o msg.o sem.o shm.o
-    include  $(TOPDIR)/Rules.make
-To compile my file 'mycode.c'- which uses newseg - I just added 'mycode.o'
-to the O_OBJS line.
-But while making bzImage, it gives the error unresolved external 'newseg'
-
-So my question is how can I link to the kernel source code, or am I not
-allowed to?
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSEaANA>; Thu, 30 May 2002 20:13:00 -0400
+	id <S312681AbSEaAOT>; Thu, 30 May 2002 20:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312560AbSEaAM7>; Thu, 30 May 2002 20:12:59 -0400
-Received: from libera.host4u.net ([216.71.64.60]:9993 "EHLO libera.host4u.net")
-	by vger.kernel.org with ESMTP id <S311898AbSEaAM5>;
-	Thu, 30 May 2002 20:12:57 -0400
-Date: Thu, 30 May 2002 19:12:48 -0500 (CDT)
-From: Ed Carp <ranger!erc@adsl-61-76-31.pns.bellsouth.net>
-X-X-Sender: erc@ranger.pns.bellsouth.net
-Reply-To: erc@pobox.com
-To: linux-kernel@vger.kernel.org
-Subject: Is the linux networking code broken?
-Message-ID: <20020530190845.N371-100000@ranger.pns.bellsouth.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312619AbSEaAOR>; Thu, 30 May 2002 20:14:17 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:58506 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S312590AbSEaANf>;
+	Thu, 30 May 2002 20:13:35 -0400
+Subject: Re: KBuild 2.5 Impressions
+From: Kenneth Johansson <ken@canit.se>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E17DZCa-0007hI-00@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 31 May 2002 02:13:12 +0200
+Message-Id: <1022803993.2799.13.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2002-05-31 at 01:19, Daniel Phillips wrote:
+> There is exactly one valid objection I've seen to kbuild 2.5 inclusion,
+> and that is the matter of breaking up the patch.  Having done a quick
+> tour through the whole patch set, I now know that there are some
+> easy places to break it up:
+> 
+>   - Documentation is a large part of the patch and can be easily
+>     broken out.
+> 
+>   - The makefile parser, complete with state transition tables etc,
+>     lexer, and so on, breaks out cleanly (sits on top of the db
+>     utilities).
+> 
+>   - Executable programs written in C.  Each one ends with a
+>     'main' function, and there is the natural division.
+> 
+>   - The remaining C code breaks out into a number of separable
+>     components:
+> 
+>       - Utilities such as environment variable parsing, canonical
+>         name generation, line reading, line editing etc.
+>       - The database 
+>       - File utilities that use the database (e.g., walk_fs_db)
+>       - Dependency generation
+>       - Global Makefile construction (command generation etc)
+> 
+>     These tend to be common to a number of the executable programs,
+>     and so have the nature of library components.  They can all go
+>     under the heading 'lib', and further breakdown is probably not
+>     necessary.
+> 
+>   - The Makefile.in patches seem to be about 30-40% of the whole
+>     thing, and imho must be applied all at the same time.  However,
+>     they break up nicely across subsystem lines (drivers, fs, etc)
+> 
+>   - The per-arch patches are already broken out, and are short.
+> 
+> I think that with these breakups done the thing would be sufficiently
+> digestible to satisfy Linus.  Now that I think of it, Linus's request
+> for a breakup is really an endorsement, and quite possibly Keith took
+> it the wrong way.  (Keith, by the way, how did I do on the structural
+> breakdown?  Sorry, I really couldn't spend as much time on it as it
+> deserves.)
 
-Or have I been smoking too much crack? ;)
+Maybe I'm the idiot here but what dose this gain you??
 
-I've tried this code on several different linux machines, running 2.0.36 -
-2.4.7 kernels, and it always acts the same.  Doing a write() of more than
-1024 bytes on a TCP socket always disables all network connectivity on the
-sending machine.  (A reboot fixes things, naturally).  I've tried the same
-code on FreeBSD 4.5 machines with no problems.  Is this a limitation in
-the kernel networking code, in the IP fragmentation layer, or what?  I'm
-scratching my head here...thanks in advance for any replies.  Off-list, if
-you would be so kind...
-- -- 
-Ed Carp, N7EKG          http://www.pobox.com/~erc               214/986-5870
-Director, Software Development
-Escapade Server-Side Scripting Engine Development Team
-Pensacola - Dallas - London - Dresden
-http://www.squishedmosquito.com
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
-Comment: Made with pgp4pine 1.76
-
-iQA/AwUBPPax+EbhwAGg7YRjEQK6ogCcCldlimuRlXlHMp5ltTgCycE3B7EAoNwo
-QunzakQoiAMJyaWm8qyZi1RB
-=qbSK
------END PGP SIGNATURE-----
-
+The reason to break up a patch is not simply to get more of them. There
+is no point in splitting if you still need to use every single one of
+them to make anything work. 
 

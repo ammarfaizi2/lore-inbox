@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbTCELsz>; Wed, 5 Mar 2003 06:48:55 -0500
+	id <S265809AbTCELxq>; Wed, 5 Mar 2003 06:53:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbTCELsz>; Wed, 5 Mar 2003 06:48:55 -0500
-Received: from [213.229.38.18] ([213.229.38.18]:61109 "HELO
-	home.winischhofer.net") by vger.kernel.org with SMTP
-	id <S265339AbTCELsy>; Wed, 5 Mar 2003 06:48:54 -0500
-Message-ID: <3E65E60C.3090509@winischhofer.net>
-Date: Wed, 05 Mar 2003 12:57:00 +0100
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
-X-Accept-Language: en-us, en, de-at, de, de-de, sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.5.63
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265947AbTCELxq>; Wed, 5 Mar 2003 06:53:46 -0500
+Received: from elin.scali.no ([62.70.89.10]:5858 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S265809AbTCELxo>;
+	Wed, 5 Mar 2003 06:53:44 -0500
+Subject: Re: good info on memory management
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Prasad Kamath <prasadk@cisco.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4.3.2.7.2.20030305170551.02071098@cbin3-mira-01.cisco.com>
+References: <20030305111015.B8883@flint.arm.linux.org.uk>
+	 <20030305111015.B8883@flint.arm.linux.org.uk>
+	 <4.3.2.7.2.20030305170551.02071098@cbin3-mira-01.cisco.com>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1046865827.11705.3.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 05 Mar 2003 13:03:48 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There was a guy who had done this thesis on documenting the Linux VM. He
+posted an announcement on this list, I think it was in last dec
+sometime. Check the archive.
 
-2.5.63 oopses upon fopen-ing for instance /dev/fb0 if no framebuffer 
-driver is loaded.
 
-The SiS X driver does this in order to find out if the SiS framebuffer 
-driver is loaded. In 2.4, the fopen failed "correcrly".
-
-Mar  5 12:47:08 oland modprobe: FATAL: Module fb0 not found.
-Mar  5 12:47:08 oland modprobe: FATAL: Module fb32 not found.
-Mar  5 12:47:08 oland modprobe: FATAL: Module fb64 not found.
-Mar  5 12:47:08 oland kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 00000000
-Mar  5 12:47:08 oland kernel:  printing eip:
-Mar  5 12:47:08 oland kernel: c024ce74
-Mar  5 12:47:08 oland kernel: *pde = 00000000
-Mar  5 12:47:08 oland kernel: Oops: 0000
-Mar  5 12:47:08 oland kernel: CPU:    0
-Mar  5 12:47:08 oland kernel: EIP:    0060:[fb_open+60/180]    Not tainted
-Mar  5 12:47:08 oland kernel: EIP:    0060:[<c024ce74>]    Not tainted
-Mar  5 12:47:08 oland kernel: EFLAGS: 00013286
-Mar  5 12:47:08 oland kernel: EIP is at fb_open+0x3c/0xb4
-Mar  5 12:47:08 oland kernel: eax: 00000000   ebx: c1586000   ecx: 
-c03557c0   edx: 00000001
-Mar  5 12:47:08 oland kernel: esi: c03be100   edi: 00000000   ebp: 
-d9405f28   esp: d9405f1c
-Mar  5 12:47:08 oland kernel: ds: 007b   es: 007b   ss: 0068
-Mar  5 12:47:08 oland kernel: Process X (pid: 995, threadinfo=d9404000 
-task=d8927920)
-Mar  5 12:47:08 oland kernel: Stack: 00000000 d9953120 dabae6c0 d9405f44 
-c014792f dabae6c0 d9953120 d9953120
-Mar  5 12:47:08 oland kernel:        dabae6c0 00000000 d9405f60 c01402ec 
-dabae6c0 d9953120 bffff818 d8b94000
-Mar  5 12:47:08 oland kernel:        00000002 d9405f9c c0140203 dabb0840 
-dbfea560 00000002 00000006 0826d160
-Mar  5 12:47:08 oland kernel: Call Trace:
-Mar  5 12:47:08 oland kernel:  [chrdev_open+63/80] chrdev_open+0x3f/0x50
-Mar  5 12:47:08 oland kernel:  [<c014792f>] chrdev_open+0x3f/0x50
-Mar  5 12:47:08 oland kernel:  [dentry_open+220/416] dentry_open+0xdc/0x1a0
-Mar  5 12:47:08 oland kernel:  [<c01402ec>] dentry_open+0xdc/0x1a0
-Mar  5 12:47:08 oland kernel:  [filp_open+79/92] filp_open+0x4f/0x5c
-Mar  5 12:47:08 oland kernel:  [<c0140203>] filp_open+0x4f/0x5c
-Mar  5 12:47:08 oland kernel:  [sys_open+55/116] sys_open+0x37/0x74
-Mar  5 12:47:08 oland kernel:  [<c014059f>] sys_open+0x37/0x74
-Mar  5 12:47:08 oland kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  5 12:47:08 oland kernel:  [<c0108ac7>] syscall_call+0x7/0xb
-Mar  5 12:47:08 oland kernel:
-Mar  5 12:47:08 oland kernel: Code: 8b 00 85 c0 74 16 83 38 02 74 08 ff 
-80 c0 00 00 00 eb 09 31
-
+On Wed, 2003-03-05 at 12:37, Prasad Kamath wrote:
+> Hi All,
+>        Where can I get a full documentation on the memory management (for 
+> linux)?
+> 
+> 
+> thanks & regards
+> Prasad Kamath
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:thomas@winischhofer.net          http://www.winischhofer.net/
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

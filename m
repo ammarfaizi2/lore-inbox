@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279658AbRJYAhK>; Wed, 24 Oct 2001 20:37:10 -0400
+	id <S279664AbRJYBHR>; Wed, 24 Oct 2001 21:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279660AbRJYAhA>; Wed, 24 Oct 2001 20:37:00 -0400
-Received: from dclient217-162-121-90.hispeed.ch ([217.162.121.90]:46979 "EHLO
-	lttit") by vger.kernel.org with ESMTP id <S279658AbRJYAgw>;
-	Wed, 24 Oct 2001 20:36:52 -0400
-Date: Thu, 25 Oct 2001 02:34:27 +0200
-From: Tim Tassonis <timtas@cubic.ch>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
-In-Reply-To: <Pine.LNX.4.33.0110241239230.5558-100000@viper.haque.net>
-In-Reply-To: <E15wQz4-0000Hs-00@lttit>
-	<Pine.LNX.4.33.0110241239230.5558-100000@viper.haque.net>
-X-Mailer: Sylpheed version 0.6.3cvs10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S279665AbRJYBHH>; Wed, 24 Oct 2001 21:07:07 -0400
+Received: from [63.220.7.190] ([63.220.7.190]:13014 "HELO gamerack.com")
+	by vger.kernel.org with SMTP id <S279664AbRJYBGx>;
+	Wed, 24 Oct 2001 21:06:53 -0400
+Subject: Re: SiS/Trident 4DWave sound driver oops
+From: "Michael F. Robbins" <compumike@compumike.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15wYTb-0000Po-00@lttit>
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 24 Oct 2001 21:07:26 -0400
+Message-Id: <1003972047.2393.9.camel@tbird.robbins>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001 12:42:27 -0400 (EDT)
-"Mohammad A. Haque" <mhaque@haque.net> wrote:
+I have a very similar OOPS that I reported to linux-kernel just last
+week: see full details at
+http://uwsg.iu.edu/hypermail/linux/kernel/0110.1/1690.html
 
-> On Wed, 24 Oct 2001, Tim Tassonis wrote:
-> 
-> > Well I do use hdparm -d 1 /dev/hda in init to set dma to 1. I know
-called
-> > hdparm -d 0 /dev/hda and tried again, but it still fails. Do you mean
-> > hdparm should not touch the device at all and a reboot without the
-hdparm
-> > -d 1 /dev/hda would do the job? I could live with that for the moment,
-as
-> > I don't have to repartition my drive very often...
-> >
-> 
-> Woops. hit send too fast.
-> 
-> You can use hdparm once you've repartitioned though it seems. Still
-> won't be able create any files >2GB once you've touched it with hdparm
-> again but at least you'll be up and running with whatever size
-> partitions you want and have dma enabled. Dunno if that's an issue.
+> This kernel oops is totally reproducible (on every occasion) in 2.4.9,
+> 2.4.10, and 2.4.12. I have not tried earlier kernels in the 2.4 
+> series
 
-I'm quite suprised, but this actually worked for me. Rebooted without
-using hdparm, created the partintion (3GB) and everything seems ok. Looks
-as if hdparm is doing something wrong here (v3.6).
+I also have a totally reproduceable OOPS on 2.4.9 through 2.4.12. 
+Kernel 2.4.7 works just fine.  If the soundcard is compiled in to the
+kernel, it dies while booting.  If it is compiled as a module, it dies
+when attempting to load the module (typically when artsd starts).
 
-Bye
-Tim
+> The machine in question is a Clevo lp200t SiS630S "all-in-one" 
+> machine.
+
+My machine is an ECS K7AMA: ALi 1645 northbridge, ALi Magic 1535D+
+southbridge.  Sound is onboard the southbridge.  I ran ksymoops on my
+OOPS report, so you can see the trace at the message archive.
+
+Mike Robbins
+compumike@compumike.com
+(Please also cc your reply to me.)
+
 

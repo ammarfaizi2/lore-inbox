@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264622AbSKRSzC>; Mon, 18 Nov 2002 13:55:02 -0500
+	id <S262373AbSKRSx0>; Mon, 18 Nov 2002 13:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbSKRSzB>; Mon, 18 Nov 2002 13:55:01 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27279 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264622AbSKRSzB>; Mon, 18 Nov 2002 13:55:01 -0500
-Date: Mon, 18 Nov 2002 14:01:58 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200211181901.gAIJ1wn10285@devserv.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] interrupt.h needs <asm/system.h>
-In-Reply-To: <mailman.1037641141.13330.linux-kernel2news@redhat.com>
-References: <mailman.1037641141.13330.linux-kernel2news@redhat.com>
+	id <S264610AbSKRSx0>; Mon, 18 Nov 2002 13:53:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:270 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262373AbSKRSxY>; Mon, 18 Nov 2002 13:53:24 -0500
+Date: Mon, 18 Nov 2002 10:59:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.48
+In-Reply-To: <Pine.LNX.4.44.0211181920540.11872-100000@dbl.q-ag.de>
+Message-ID: <Pine.LNX.4.44.0211181056170.1018-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-><asm/system.h> is needed for smp_mb(). Apparently this definition is pulled in
-> some other way on ia32.
+
+On Mon, 18 Nov 2002, Manfred Spraul wrote:
 > 
-> --- linux-2.5.48/include/linux/interrupt.h	Mon Nov 18 10:04:00 2002
-> +++ linux-m68k-2.5.48/include/linux/interrupt.h	Mon Nov 18 15:35:14 2002
-> @@ -8,6 +8,7 @@
->  #include <asm/hardirq.h>
->  #include <asm/ptrace.h>
->  #include <asm/softirq.h>
-> +#include <asm/system.h>
->  
->  struct irqaction {
->  	void (*handler)(int, void *, struct pt_regs *);
+> I think this patch should keep the interrupts disabled until after
+> smp_commenced is set. It's partially tested: bochs boots until all cpus
+> are up and then crashes.
 
-Geert's patch looks correct to me.
+This patch certainly cannot work: calibrate_delay() needs interrupts.
 
-By the way, I am curious, why do we never comment why a header
-was included, like so: "#include <asm/system.h> /* smp_mb */"?
-I suspect people are afraid that the comments get stale.
+However, I think it's a mistake to even _try_ to calibrate the delay this 
+early, so the real fix probably looks something like this together with 
+moving the calibration to after the CPU is fully initialized.
 
--- Pete
+		Linus
+

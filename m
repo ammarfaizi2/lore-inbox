@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbTANVkM>; Tue, 14 Jan 2003 16:40:12 -0500
+	id <S265306AbTANVmW>; Tue, 14 Jan 2003 16:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbTANVkM>; Tue, 14 Jan 2003 16:40:12 -0500
-Received: from pc-80-192-208-23-mo.blueyonder.co.uk ([80.192.208.23]:2700 "EHLO
-	efix.biz") by vger.kernel.org with ESMTP id <S264925AbTANVkL>;
-	Tue, 14 Jan 2003 16:40:11 -0500
-Subject: Re: Linux 2.4.21-pre3-ac3 and KT400 -high memory now works!
-From: Edward Tandi <ed@efix.biz>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E236B2C.1050403@rackable.com>
-References: <1042489183.2617.28.camel@wires.home.biz>
-	 <3E236B2C.1050403@rackable.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042580942.2696.9.camel@wires.home.biz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 14 Jan 2003 21:49:03 +0000
+	id <S265333AbTANVmW>; Tue, 14 Jan 2003 16:42:22 -0500
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:38870 "EHLO
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S265306AbTANVmV>; Tue, 14 Jan 2003 16:42:21 -0500
+Message-ID: <3E24864B.4060905@Funderburg.com>
+Date: Tue, 14 Jan 2003 21:51:07 +0000
+From: Chris Funderburg <Chris@Funderburg.com>
+Organization: DCI (Europe)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-GB; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-gb, en, en-us
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: linux-kernel@vger.kernel.org, Richard Stallman <rms@gnu.org>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+References: <20030114190600.GC19154@work.bitmover.com> <Pine.LNX.4.44.0301141233020.23531-100000@mooru.gurulabs.com> <20030114200202.GG19154@work.bitmover.com> <20030114151938.A30371@kerberos.ncsl.nist.gov> <20030114210845.GE15412@mark.mielke.cc>
+In-Reply-To: <20030114210845.GE15412@mark.mielke.cc>
+X-Enigmail-Version: 0.71.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 01:43, Samuel Flory wrote:
-> Edward Tandi wrote:
-> 
-> >I'm new to this list and most of the e-mail here seems to be very
-> >low-level, so I'm not so sure if this is the right forum for these kinds
-> >of questions -please do point me in the right direction...
-> >
-> >I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard. The
-> >processor is a 1.5GHz Athlon XP. I started experimenting with new-ish
-> >kernels again because of the general lack of kernel support for this
-> >chipset in stock kernels. 3 questions below:
-> >
-> >
-> >1) I have 1GB ram, but I cannot get high memory support to work. It
-> >falls over during boot. I've seen discussions about AMD cache issues,
-> >but has it been fixed yet? Is it supposed to work?
-> >
->   Have you tried to forcing the amount of memory?  Try something short 
-> of you expected total.  Maybe "mem=1000M".
 
-OK, I tried this. If I set it to 800M it was OK. At 900M I got the same
-problem.
+Mark Mielke wrote:
+<clipped>
+> In actual fact, I don't want RMS to stop.
 
-Due to the nature of the replies I have been getting, I suspected that
-the problem was with the IDE driver's initialisation. So I disabled the
-"Use PCI DMA by default" option in the kernel.
 
-It booted with the full amount of high memory. Not only that, but
-"hdparm -X66 /dev/hda" after booting also works!
+Well, he "hasn't stopped" in years:
 
-I can only conclude that there must be a bug in the IDE initialisation
-code for this board. Thanks for the replies,
 
-Ed-T.
+************************************************************************
+Date:   Thu, 7 Mar 1996 10:49:16 -0600 (CST)
+Reply-To: lilo <TaRDiS@mail.utexas.edu>
+To: Richard Stallman <rms@gnu.ai.mit.edu>
+cc: alan@cymru.net, ganderson@clark.net, linux-misc@vger.rutgers.edu,
+         linux-kernel@vger.rutgers.edu
+Subject: Re: Linux isn't an operating system
+Sender: owner-linux-kernel@vger.rutgers.edu
+Precedence: bulk
+
+isn't there an advocacy newsgroup for gnu software?  this is pretty clearly
+off-topic.  speaking from my own experience, it's very easy to get caught up
+in an advocacy thread, even when that thread is clearly off-topic.  :) i
+also suspect that it will continue to generate flames as long as the
+originator keeps pursuing it here. ;)
+
+
+lilo
+
+On Wed, 6 Mar 1996, Richard Stallman wrote:
+
+ > I think I should explain the difference between "GNU software" and
+ > "the GNU operating system".  It would be inaccurate to say that a
+ > system such Slackware consists mainly of GNU software, but correct I
+ > believe to say it is mostly the same as the GNU system.
+ >
+ > I started the GNU project in 1984 with the aim of making a complete
+ > free Unix-like operating system.  I wrote some parts myself--GCC,
+ > Emacs, GDB, and other smaller ones.  Other people wrote other
+ > components for the GNU project.  These programs are GNU software.
+ >
+ > We also added to the GNU system some programs like X Windows and parts
+ > of BSD which were written by other projects.  These programs are not
+ > GNU software, but they are parts of the GNU system (and parts of other
+ > systems as well).  When Linux was written, the GNU system was almost
+ > complete, but lacking a kernel.  Putting the incomplete GNU system
+ > together with Linux realized my dream of a free operating system.
+ >
+ > In principle, there's no reason why a system based on Linux has to be
+ > a variant GNU system, and perhaps some of them are not.  But as far as
+ > I know, most of them currently are.
+ >
+ > To speak of "Linux Based MIT X Windows/GNU/BSD/MIT systems" would be
+ > correct.  But people may find it impractical.  The term "Linux-based
+ > GNU system" is also correct, and it is practical.
+ >
+ > By using this term, we can help encourage people to work together
+ > instead of dividing themselves artificially into "Linux users" and
+ > "GNU users".  This solves an important practical problem.
+ >
 

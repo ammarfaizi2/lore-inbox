@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270079AbTHCUOE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 16:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270094AbTHCUOE
+	id S270234AbTHCUPz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 16:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271293AbTHCUPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 16:14:04 -0400
-Received: from arava.co.il ([212.179.127.3]:58762 "HELO arava.co.il")
-	by vger.kernel.org with SMTP id S270079AbTHCUOC (ORCPT
+	Sun, 3 Aug 2003 16:15:55 -0400
+Received: from mail1.scram.de ([195.226.127.111]:59908 "EHLO mail1.scram.de")
+	by vger.kernel.org with ESMTP id S270234AbTHCUPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 16:14:02 -0400
-Date: Sun, 3 Aug 2003 23:14:53 +0300 (IDT)
-From: Matan Ziv-Av <matan@svgalib.org>
-X-X-Sender: matan@matan
-To: bert hubert <ahu@ds9a.nl>
-cc: linux-kernel@vger.kernel.org, "" <akpm@osdl.org>, "" <devik@cdi.cz>
-Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from
- being modified easily
-In-Reply-To: <20030803180950.GA11575@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.50.0308032303010.8694-100000@matan>
-References: <20030803180950.GA11575@outpost.ds9a.nl>
+	Sun, 3 Aug 2003 16:15:51 -0400
+Date: Sun, 3 Aug 2003 22:15:09 +0200 (CEST)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: dahinds@users.sourceforge.net
+Subject: PCI1410 Interrupt Problems
+Message-ID: <Pine.LNX.4.44.0308032205210.25885-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: ---- Start SpamAssassin results
+  0.90 points, 5 required;
+  *  0.0 -- Message-Id indicates a non-spam MUA (Pine)
+  *  0.9 -- RBL: Received via a relay in dnsbl.njabl.org
+  [RBL check: found 174.124.226.217.dnsbl.njabl.org., type: 127.0.0.3]
+  ---- End of SpamAssassin results
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sun, 3 Aug 2003, bert hubert wrote:
+when using this PCI Cardbus bridge, i got an interrupt assigned to the
+card by the BIOS, but no interrupts were ever delivered, at all. So no
+insert/remove events have been handled and devices couldn't generate
+interrupts, as well:
 
-> After being gloriously rootkitted with a program coded by HTB author Martin
-> Devera (lots of thanks, devik, your work is appreciated, I suggest you read
-> up about Oppenheimer when disclaiming that you are 'just a coder'. The item
-> to google on is: "ethics sweetness hydrogen bomb Oppenheimer"), I wrote
-> a patch to disable /dev/kmem and /dev/mem, which is harmless on servers
-> without X.
+02:0a.0 Class 0607: 104c:ac50 (rev 01)
+02:0a.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
+        Flags: bus master, medium devsel, latency 168, IRQ 9
+        Memory at 14000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+        Memory window 0: 14400000-147ff000 (prefetchable)
+        Memory window 1: 14800000-14bff000
+        I/O window 0: 00004000-000040ff
+        I/O window 1: 00004400-000044ff
+        16-bit legacy interface ports at 0001
 
-For running X when /dev/mem is disabled, a solution can /dev/svga 
-device, that I wrote for svgalib. It allows mmap access like 
-/dev/mem, but only for VGA cards related memory - PCI regions that 
-belong to VGA cards, and 0-0x110000 (for drivers that use the bios).
-Of course, depending on the video card and the system, access to the 
-video card's registers might be equivalent to access to all system 
-memory, but it does add another layer of security.
+It looks like the designers of this card "forgot" to put a sane
+configuration of the Multifunction Routing Register (0x8C) in their
+EEPROM. After setting up the INTA output pin of the PCI1410, the device
+started to work like a charm :-)
 
-See the driver at 
+This i added to yenta_config_init():
 
-http://www.arava.co.il/matan/svgalib/svgalib-1.9.17.tar.gz
+config_writew(socket, 0x8C, 0x02);
 
+I'm not sure if this will help with all of these devices of if it even
+makes problems on others. But it might be an idea to add a config option
+for this hack...
 
-
--- 
-Matan Ziv-Av.                         matan@svgalib.org
+Thanks,
+--jochen
 

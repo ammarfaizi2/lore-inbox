@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266852AbTBCWQ1>; Mon, 3 Feb 2003 17:16:27 -0500
+	id <S266296AbTBCWLi>; Mon, 3 Feb 2003 17:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbTBCWQ1>; Mon, 3 Feb 2003 17:16:27 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:5380 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266852AbTBCWQ0>;
-	Mon, 3 Feb 2003 17:16:26 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302032226.h13MQZXd000225@darkstar.example.net>
-Subject: Re: Help with promise sx6000 card
-To: user_linux@citma.cu (Cuenta de la lista de linux)
-Date: Mon, 3 Feb 2003 22:26:35 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030203221923.M79151@webmail.citma.cu> from "Cuenta de la lista de linux" at Feb 03, 2003 05:19:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266795AbTBCWLi>; Mon, 3 Feb 2003 17:11:38 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60056 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266296AbTBCWLh>; Mon, 3 Feb 2003 17:11:37 -0500
+Date: Mon, 3 Feb 2003 17:23:57 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniel Heater <daniel.heater@gefanuc.com>
+cc: Dhruv Gami <dhruvgami@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: module programming blues
+In-Reply-To: <20030203215700.GA205@gefhsvrootwitch>
+Message-ID: <Pine.LNX.3.95.1030203171841.7386B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have installed Red Hat 8 with 2.4.18-14 ,i2o support as module, but i can
-> not find my card anywhere.
+On Mon, 3 Feb 2003, Daniel Heater wrote:
+
+> * Dhruv Gami (dhruvgami@yahoo.com) wrote:
+> > Hello Everyone,
+> > 
+> > I am trying to develop a kernel module that will read
+> > some user input (being given to a file) and perform
+> > certain flag settings based on the information dumped
+> > in the file.
 > 
-> Here  i am sending you my dmesg and my modules.conf .
-> Notes I have a  120GB in hda where i have installed red hat , and 5 hardrives
-> in the promise card .
-> 
-> Why is not my RAID under /dev/i2o/hda ?
 
-I've got a similar bug report to this in my bug database:
+Easy. You have a user-program open the device and send it
+parameters via ioctl(). That's the way it's supposed to be
+done in a Unix environment. Devices get their parameters via
+ioctls.
 
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=33
+I have modules that get the entire contents of ASICs from
+the contents of user-mode files. Something, at some time,
+needs to `insmod` the module anyway. The exact same procedure
+that does that can run a program that configures the module
+dynamicaly, based, not only on the contents of files, but also
+anything else. Do not make hacks to read files from the kernel.
 
-John.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

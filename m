@@ -1,109 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVBZSi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVBZSpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVBZSi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 13:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVBZSi1
+	id S261258AbVBZSpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 13:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVBZSpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 13:38:27 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:15767 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261255AbVBZSiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 13:38:23 -0500
-Date: Sat, 26 Feb 2005 19:38:22 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 4/6] Bind Mount Extensions 0.06
-Message-ID: <20050226183821.GA2514@mail.13thfloor.at>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Andrew Morton <akpm@osdl.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20050222121233.GE3682@mail.13thfloor.at> <1109083537.9839.18.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109083537.9839.18.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 26 Feb 2005 13:45:25 -0500
+Received: from mail3.euroweb.net.mt ([217.145.4.38]:47040 "EHLO
+	mail3.euroweb.net.mt") by vger.kernel.org with ESMTP
+	id S261258AbVBZSpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 13:45:20 -0500
+Message-ID: <4220C3C8.1060705@euroweb.net.mt>
+Date: Sat, 26 Feb 2005 19:45:28 +0100
+From: "Josef E. Galea" <josefeg@euroweb.net.mt>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: System call problem
+References: <42208509.3080201@euroweb.net.mt> <1109429016.1452.48.camel@localhost.localdomain>
+In-Reply-To: <1109429016.1452.48.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22, 2005 at 09:45:37AM -0500, Trond Myklebust wrote:
-> ty den 22.02.2005 Klokka 13:12 (+0100) skreiv Herbert Poetzl:
-> 
-> >   * Special case: O_CREAT|O_EXCL implies O_NOFOLLOW for security
-> >   * reasons.
-> > @@ -1518,23 +1536,28 @@ do_link:
-> >  struct dentry *lookup_create(struct nameidata *nd, int is_dir)
-> >  {
-> >  	struct dentry *dentry;
-> > +	int error;
-> >  
-> >  	down(&nd->dentry->d_inode->i_sem);
-> > -	dentry = ERR_PTR(-EEXIST);
-> > +	error = -EEXIST;
-> >  	if (nd->last_type != LAST_NORM)
-> > -		goto fail;
-> > +		goto out;
-> >  	nd->flags &= ~LOOKUP_PARENT;
-> >  	dentry = lookup_hash(&nd->last, nd->dentry);
-> >  	if (IS_ERR(dentry))
-> > +		goto ret;
-> > +	error = mnt_may_create(nd->mnt, nd->dentry->d_inode, dentry);
-> > +	if (error)
-> >  		goto fail;
-> > +	error = -ENOENT;
-> >  	if (!is_dir && nd->last.name[nd->last.len] && !dentry->d_inode)
-> > -		goto enoent;
-> > +		goto fail;
-> > +ret:
-> >  	return dentry;
-> > -enoent:
-> > -	dput(dentry);
-> > -	dentry = ERR_PTR(-ENOENT);
-> >  fail:
-> > -	return dentry;
-> > +	dput(dentry);
-> > +out:
-> > +	return ERR_PTR(error);
-> >  }
-> 
-> What is the value of adding "error"? The current code is more efficient,
-> and just as readable.
+Steven Rostedt wrote:
 
-okay, had a deeper look at this and now I remember
-why I added 'error' in the first place (quite some
-time ago ;)
+>On Sat, 2005-02-26 at 15:17 +0100, Josef E. Galea wrote:
+>
+>  
+>
+>>I compiled and booted the kernel and am trying to build a user space 
+>>application that uses my system call, however gcc is returning this error:
+>>/tmp/cc4zgzUr.o(.text+0x4e): In functiono `get_rmt_paging':
+>>: undefined reference to `errno'
+>>
+>>    
+>>
+>
+>Where you defined your system call in the user space program (ie. where
+>you declared your _syscall macro), did you also include <errno.h>?
+>
+>-- Steve
+>
+>
+>  
+>
+I included <linux/errno.h> and it didn't solve the problem. Now i 
+included <errno.h> and it did. Thanks for you help!
 
-basically we need to check for RO in lookup_create()
-now to give the same (error) results than a 'normal'
-ro mounted filesystem, it is required to do the
-dentry lookup and check the dentry->d_inode to return
-EEXIST before returning EROFS ...
-
-something like this would be the result:
-
-        if (dentry->d_inode) {
-                dput(dentry);
-                dentry = ERR_PTR(-EEXIST);
-                goto fail;
-        }
-        if (MNT_IS_RDONLY(nd->mnt)) {
-                dput(dentry);
-                dentry = ERR_PTR(-EROFS);
-                goto fail;
-        }
-
-I'm currently looking into moving that check upwards
-so that it will happen _after_ the EEXIST one ...
-
-best,
-Herbert
-
-> Cheers,
->   Trond
-> 
-> -- 
-> Trond Myklebust <trond.myklebust@fys.uio.no>
+Josef

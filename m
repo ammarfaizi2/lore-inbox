@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLAI3S>; Fri, 1 Dec 2000 03:29:18 -0500
+	id <S129226AbQLAIfW>; Fri, 1 Dec 2000 03:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbQLAI26>; Fri, 1 Dec 2000 03:28:58 -0500
-Received: from cliff.i-plus.net ([209.100.20.42]:4103 "HELO cliff.i-plus.net")
-	by vger.kernel.org with SMTP id <S129210AbQLAI2u>;
-	Fri, 1 Dec 2000 03:28:50 -0500
-From: Lee Brown <leejr@i-plus.net>
-To: tytso@mit.edu
-Subject: Re: 9750 vs. blade3D gives freaky ttyS3 problem)
-Date: Fri, 1 Dec 2000 02:56:08 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00112718343300.00131@darkstar> <20001130130552.B9218@trampoline.thunk.org> <00120102540600.00115@darkstar>
-In-Reply-To: <00120102540600.00115@darkstar>
-MIME-Version: 1.0
-Message-Id: <00120102570801.00115@darkstar>
-Content-Transfer-Encoding: 7BIT
+	id <S129228AbQLAIfC>; Fri, 1 Dec 2000 03:35:02 -0500
+Received: from fscked.org ([198.88.183.227]:17418 "EHLO fscked.org")
+	by vger.kernel.org with ESMTP id <S129226AbQLAIew>;
+	Fri, 1 Dec 2000 03:34:52 -0500
+Date: Fri, 1 Dec 2000 01:58:46 -0600
+From: Mike Perry <mikepery@is.so.fscked.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.17 IP masq bug
+Message-ID: <20001201015846.A27594@is.so.fscked.org>
+Mail-Followup-To: Mike Perry <mikepery@is.so.fscked.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0012010905400.966-100000@u>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0012010905400.966-100000@u>; from ja@ssi.bg on Fri, Dec 01, 2000 at 09:13:38AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 30 Nov 2000, tytso@mit.edu wrote:
- > At a guess, it's an IRQ conflict.  The Blade3D card may be trying to
- > use the same interrupt as the serial port, and that's probably what's
- > causing problems.
- 
- 1) You nailed it.   IRQ 3 was the culprit.  Why I  assumed my
- box was PnP compatible I don't know (I guess I'm an optimist), but  I will not
- be fooled again.
- 
- 2) Thanks for answering.  You just made my good guy list ;-)
+Thus spake Julian Anastasov (ja@ssi.bg):
+
+> On Fri, 1 Dec 2000, Mike Perry wrote:
+> 
+> > The bug:
+> > When I make a connection from any internal node to the one of the other
+> > externally routed machines in my lab, then close it, this external machine then
+> > becomes unreachable to successive connects from that node.
+> 
+> 	This problem can be caused from the ICMP redirect. Can these
+> commands help?
+> 
+> echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
+> echo 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+
+Why yes they do. Problem seems to be completely solved. *blush* 
+At least it wasn't in the HOWTO.
+
+Thanks!
 
 -- 
-Lee Brown Jr.
-leejr@i-plus.net
-
+Mike Perry
+http://so.fscked.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292973AbSB0Vmf>; Wed, 27 Feb 2002 16:42:35 -0500
+	id <S292980AbSB0Vsc>; Wed, 27 Feb 2002 16:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292583AbSB0Vm0>; Wed, 27 Feb 2002 16:42:26 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43780 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292960AbSB0VmL>; Wed, 27 Feb 2002 16:42:11 -0500
-Date: Wed, 27 Feb 2002 17:33:26 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Michael Cohen <me@ohdarn.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Submissions for 2.4.19-pre [Pollselect Speedups (Manfred Spraul)]
-In-Reply-To: <20020225212148.3bb0925a.me@ohdarn.net>
-Message-ID: <Pine.LNX.4.21.0202271732310.1460-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292992AbSB0VsQ>; Wed, 27 Feb 2002 16:48:16 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:16645 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S292983AbSB0Vpk>;
+	Wed, 27 Feb 2002 16:45:40 -0500
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Wed, 27 Feb 2002 14:44:42 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Val Henson <val@nmt.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+        Laurent <laurent@augias.org>, linux-kernel@vger.kernel.org
+Subject: Re: read_proc issue
+Message-ID: <20020227144442.Y31381@host171.fsmlabs.com>
+In-Reply-To: <20020227140432.L20918@boardwalk> <E16gBps-0005wa-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16gBps-0005wa-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 27, 2002 at 09:42:04PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That's a good solution in the general case but doesn't work for
+some of the proc entries that already exist.  cpuinfo, for example.
+There seem to be a number of niche /proc methods already.  A cache-on-open
+method would be very useful for files like cpuinfo and a number of other
+files for PPC.
 
+It sure would make accessing /proc files less whacky for user-code.
 
-On Mon, 25 Feb 2002, Michael Cohen wrote:
-
-> This is the seventh of several mails containing patches to be included
-> in 2.4.19. Some are worthy of dicussion prior to inclusion and have been
-> marked as such.  The majority of these patches were found on lkml; the
-> remaining ones have URLs listed.
-
-Why Manfred himself did'nt sent me this patch ?
-
-He is the kind of developer who usually sents stuff directly to me.
-
-
+} Another approach is to do the calculation open and remember it in per
+} fd private data. You can recover that and free it on release. It could
+} even be a buffer holding the actual "content"

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbTJZJNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 04:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbTJZJNm
+	id S262941AbTJZJYg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 04:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTJZJYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 04:13:42 -0500
-Received: from [134.29.1.12] ([134.29.1.12]:18055 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S262536AbTJZJNl (ORCPT
+	Sun, 26 Oct 2003 04:24:36 -0500
+Received: from gprs195-16.eurotel.cz ([160.218.195.16]:35712 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262941AbTJZJYg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 04:13:41 -0500
-Message-ID: <3F9B9032.8090804@hundstad.net>
-Date: Sun, 26 Oct 2003 03:13:22 -0600
-From: "Jeffrey E. Hundstad" <jeffrey@hundstad.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [long] linux-2.6.0-test9, XFree86 4.2.1.1, ATI ATI Radeon VE
- QY, screen hangs on 3d apps
-References: <3F9B8A6B.6030102@hundstad.net> <3F9B9BEB.5060908@cyberone.com.au>
-In-Reply-To: <3F9B9BEB.5060908@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Oct 2003 04:24:36 -0500
+Date: Sun, 26 Oct 2003 10:22:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Hans Reiser '" <reiser@namesys.com>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results end
+Message-ID: <20031026092256.GA293@elf.ucw.cz>
+References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> The drive finally reallocated the block and there are no longer any visible
+> bad blocks.
 
-Nick Piggin wrote:
-
->
->
-> Jeffrey E. Hundstad wrote:
->
->> Hello,
->>
->> I'm using Debian unstable.  It comes with XFree86 Vesrion 4.2.1.1.  
->> This works fine with linux-2.4.22.  I've been using this 
->> configuration with accelerated 3d apps.  With linux-2.6.0-test9 X 
->> works fine until a 3d application such as glxgears starts.  The 
->> screen no longer updates except that you can move the cursor.  The 
->> logs do not indicate failure.  I can't get the screen back without a 
->> reboot.  I can connect via. the network to do analysis if someone 
->> wants to give me a clue what to look for.
->
->
->
-> renice 0 `pidof X`
->
-> How does it go with X at default priority?
->
-
-The priority was set at -10.
-
-After setting the priority to 0 as you suggest nothing changes.
-
-$glxgears
-
-frame appears,
-screen hangs.
-I can move the cursor around, but this gets boring fast ;-)
-
+And what was the operation that made it realocate?
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

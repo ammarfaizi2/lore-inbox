@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSBSS1v>; Tue, 19 Feb 2002 13:27:51 -0500
+	id <S285747AbSBSSac>; Tue, 19 Feb 2002 13:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286336AbSBSS1m>; Tue, 19 Feb 2002 13:27:42 -0500
-Received: from mx0.gmx.de ([213.165.64.100]:41245 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S285692AbSBSS1Y>;
-	Tue, 19 Feb 2002 13:27:24 -0500
-Date: Tue, 19 Feb 2002 19:27:17 +0100 (MET)
-From: cschumpf@gmx.net
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Patch or module?
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0014208664@gmx.net
-X-Authenticated-IP: [195.20.224.6]
-Message-ID: <24364.1014143237@www57.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+	id <S286336AbSBSSaB>; Tue, 19 Feb 2002 13:30:01 -0500
+Received: from laibach.mweb.co.za ([196.2.53.177]:7588 "EHLO
+	laibach.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S286712AbSBSS3R>; Tue, 19 Feb 2002 13:29:17 -0500
+Subject: Re: 2.4.18-rc1 freezing while switching to console
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Advisories <advisories@stelt.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.21mdk 
+Date: 19 Feb 2002 20:42:00 +0200
+Message-Id: <1014144125.2424.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If thats not the right group to discuss that, please let me know.
+On Tue, 2002-02-19 at 14:40, Advisories wrote:
+> Hi, All!
+> 
+> Tested system:
+> CPU:   AMD Duron 700
+> MB:    GA-7ZM
+> RAM:   256Mb
+> VIDEO: nVidia TNT AGP
+	^^^^^^^^^^^
 
-I would like to write an IO-Bandwidth-Limiter on per Process and per
-User-Basis for a few disk drives. I can either patch the kernel functions read/write
-and enhance the task- and user-structure and globally check if the correct
-devices are adressed or I can write my own module, twist pointers from the
-filesystems on the drives and store the information about users and tasks there.
-
-I like the second approach way better, but its maybe slower. I have to do an
-extra search in my structures for user and task ids, which is maybe more
-expensive than an 'if' in the read/write-funktion.
-
-Any guidelines? Any recommendations?
-
-Thanks
-
-
--- 
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
+The freeze is usually caused by the nVidia drivers, email them and
+complain or disable them.
 

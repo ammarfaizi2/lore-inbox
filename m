@@ -1,117 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267658AbTAaBas>; Thu, 30 Jan 2003 20:30:48 -0500
+	id <S267667AbTAaBce>; Thu, 30 Jan 2003 20:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267662AbTAaBas>; Thu, 30 Jan 2003 20:30:48 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:640 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267658AbTAaBar>;
-	Thu, 30 Jan 2003 20:30:47 -0500
-Date: Fri, 31 Jan 2003 02:40:20 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21pre4aa1
-Message-ID: <20030131014020.GA8395@dualathlon.random>
-Mime-Version: 1.0
+	id <S267668AbTAaBce>; Thu, 30 Jan 2003 20:32:34 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31741 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267667AbTAaBcd>;
+	Thu, 30 Jan 2003 20:32:33 -0500
+Message-ID: <3E39D44A.95862534@mvista.com>
+Date: Thu, 30 Jan 2003 17:41:30 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.4.21-pre4_tsc-lost-tick_A0
+References: <1043972238.19049.27.camel@w-jstultz2.beaverton.ibm.com>
+		 <3E39CC85.D9A339D0@mvista.com> <1043976173.19558.12.camel@w-jstultz2.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+john stultz wrote:
+> 
+> On Thu, 2003-01-30 at 17:08, george anzinger wrote:
+> > john stultz wrote:
+> > > I'm already somewhat cautious that loops_per_jiffy isn't going to cut it
+> > > with this patch (I'm thinking fast_gettimeoffset_quotient would probably
+> > > be better). So please let me know if you find any issues with this
+> > > patch.
+> >
+> > I think you are wondering about the "/", as am I.  Possibly
+> > a while loop, or, something like
+> > fast_gettimeoffset_quotient, but scaled to do jiffies
+> > instead of micro seconds.  Still you SHOULD be doing this so
+> > seldom that one wonders if the "/" is all that bad.
+> 
+> Yea, I'm assuming it would be rare enough that the div won't be too much
+> of a performance drop and would make the code more clear. Although if it
+> is a concern I'm not opposed to speeding it up.
+> 
+> > Another thing, possibly not so easily fixed given the
+> > division between "arch" code and common code, but I would
+> > like to see jiffies updated in only ONE place.  With this
+> > patch it is updated in .../kernel/timer.c AND in
+> > .../arch/kernel/time.c.  In the high-res-timers patch I made
+> > the jiffies update an inline in an "arch" header file so I
+> > could have the best of both worlds, i.e. update from common
+> > code using arch resources (TSC, etc).
+> 
+> Yea, I'm not psyched about that as well (not only is it updated twice,
+> but three times: arch independent, tsc and cyclone). The inline bit
+> sounds interesting, are you planning on pushing that in?
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre4aa1.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre4aa1/
+I am a bit discouraged on that front.  I was hoping to get
+the POSIX clocks & timers patch in, but it is long past
+Halloween and, while he said he might, he didn't.  I don't
+know if he is finished as yet, but...  The jiffies update
+was part of the core patch to do the high res timers which
+he said he would not take.  I would like to try parting it
+out and pushing in some stuff, such as scmath.h which makes
+things like fast_gettimeoffset_quotient not only
+understandable but easy.  Folks in the cpu frequency area
+would like that.  Still, my boss has other plans...
 
-Diff between 2.4.21pre3aa1 and 2.4.21pre4aa1:
-
-Only in 2.4.21pre3aa1: 00_bdflush-docs-1
-Only in 2.4.21pre3aa1: 00_o_direct-align-1
-Only in 2.4.21pre3aa1: 00_sd-cleanup-3
-Only in 2.4.21pre3aa1: 00_slabinfo-shared-address-space-1
-Only in 2.4.21pre3aa1: 30_alpha-wildfire-numa-generic-1
-
-	Merged in mainline.
-
-Only in 2.4.21pre3aa1: 00_extraversion-16
-Only in 2.4.21pre4aa1: 00_extraversion-17
-Only in 2.4.21pre3aa1: 00_rwsem-fair-34
-Only in 2.4.21pre3aa1: 00_rwsem-fair-34-recursive-8
-Only in 2.4.21pre4aa1: 00_rwsem-fair-35
-Only in 2.4.21pre4aa1: 00_rwsem-fair-35-recursive-8
-Only in 2.4.21pre3aa1: 00_sched-O1-aa-2.4.19rc3-8.gz
-Only in 2.4.21pre4aa1: 00_sched-O1-aa-2.4.19rc3-9.gz
-Only in 2.4.21pre3aa1: 10_rawio-vary-io-17
-Only in 2.4.21pre4aa1: 10_rawio-vary-io-18
-Only in 2.4.21pre3aa1: 20_numa-mm-5
-Only in 2.4.21pre4aa1: 20_numa-mm-6
-Only in 2.4.21pre3aa1: 82_x86_64-suse-6
-Only in 2.4.21pre4aa1: 82_x86_64-suse-7
-Only in 2.4.21pre3aa1: 83_x86_64-x86-1
-Only in 2.4.21pre3aa1: 84_x86-64-arch-1
-Only in 2.4.21pre4aa1: 84_x86-64-arch-2
-Only in 2.4.21pre3aa1: 85_x86-64-includes-1
-Only in 2.4.21pre4aa1: 85_x86-64-includes-2
-Only in 2.4.21pre3aa1: 90_proc-mapped-base-4
-Only in 2.4.21pre4aa1: 90_proc-mapped-base-5
-Only in 2.4.21pre3aa1: 96_inode_read_write-atomic-5
-Only in 2.4.21pre4aa1: 96_inode_read_write-atomic-6
-Only in 2.4.21pre3aa1: 9900_aio-14.gz
-Only in 2.4.21pre4aa1: 9900_aio-15.gz
-
-	Rediffed.
-
-Only in 2.4.21pre4aa1: 00_generic_file_write_nolock-1
-Only in 2.4.21pre3aa1: 00_o_direct-read-overflow-write-locking-xfs-2
-Only in 2.4.21pre3aa1: 60_pagecache-atomic-7
-Only in 2.4.21pre4aa1: 60_pagecache-atomic-8
-Only in 2.4.21pre4aa1: 70_xfs-1.2-1
-Only in 2.4.21pre3aa1: 70_xfs-cvs-020905-1
-Only in 2.4.21pre3aa1: 71_xfs-aa-1
-Only in 2.4.21pre4aa1: 71_xfs-aa-2
-Only in 2.4.21pre3aa1: 71_xfs-sched-1
-Only in 2.4.21pre3aa1: 71_xfs-zalloc-fix-1
-
-	Merged xfs 1.2, patches from Christoph Hellwig.
-
-Only in 2.4.21pre3aa1: 00_getcwd-err-1
-Only in 2.4.21pre4aa1: 00_getcwd-err-2
-
-	Part of it merged in mainline.
-
-Only in 2.4.21pre4aa1: 00_tcp-retrans-collapse-1
-
-	Fix from David Miller and Alexey Kuznetsov for hw checksum
-	missing memcpy of payload during retrans collapse.
-
-Only in 2.4.21pre3aa1: 00_vma-file-merge-1
-Only in 2.4.21pre4aa1: 00_vma-file-merge-2
-
-	Two minor micro-optimizations (no functional noticeable difference).
-
-Only in 2.4.21pre4aa1: 30_p3-p4-optimize-1
-
-	Use prefetch for p4 too, and use the pentium4 and pentium4 compiler
-	switchs so it avoids incl/decl (from Margit Schubert-While)
-
-Only in 2.4.21pre3aa1: 9985_blk-atomic-aa5
-Only in 2.4.21pre4aa1: 9985_blk-atomic-aa6
-
-	Fix raid.
-
-Only in 2.4.21pre3aa1: 9995_frlock-gettimeofday-1
-Only in 2.4.21pre4aa1: 9995_frlock-gettimeofday-2
-
-	Fix 486 SMP and the notsc mode (however nobody should need
-	notsc these days on x86, numaq uses cyclone autodetected at boot now)
-
-Only in 2.4.21pre4aa1: 9996_kiobuf-slab-1
-
-	Keep the kiobuf + bhs cache in the slab rather than in the file
-	structure, so it scales also while sharing the same file from two
-	different filedescriptors at the same time (like with threads or
-	after forks). From Jun Nakajima.
-
-Andrea
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

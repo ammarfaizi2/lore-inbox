@@ -1,75 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRHSTAA>; Sun, 19 Aug 2001 15:00:00 -0400
+	id <S270645AbRHSS67>; Sun, 19 Aug 2001 14:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270676AbRHSS7u>; Sun, 19 Aug 2001 14:59:50 -0400
-Received: from mail.LF.net ([212.9.160.2]:44560 "EHLO mail.LF.net")
-	by vger.kernel.org with ESMTP id <S270646AbRHSS7n>;
-	Sun, 19 Aug 2001 14:59:43 -0400
-Message-ID: <3B800CA3.AF9E321F@janglednerves.com>
-Date: Sun, 19 Aug 2001 20:59:47 +0200
-From: Albrecht Jacobs <Albrecht.Jacobs@janglednerves.com>
-Organization: jangled nerves GmbH
-X-Mailer: Mozilla 4.51C-SGI [en] (X11; I; IRIX64 6.5 IP30)
-X-Accept-Language: de, en
+	id <S270646AbRHSS6j>; Sun, 19 Aug 2001 14:58:39 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:5124 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S270645AbRHSS6b>;
+	Sun, 19 Aug 2001 14:58:31 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108191858.UAA01216@nbd.it.uc3m.es>
+Subject: Re: scheduling with io_lock held in 2.4.6
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: "from (env: ptb) at Aug 19, 2001 06:38:18 pm"
+To: ptb@it.uc3m.es
+Date: Sun, 19 Aug 2001 20:58:40 +0200 (CEST)
+CC: akpm@zip.com.au, linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-CC: "(Martin Jacobs)" <100.179370@germanynet.de>, linux-kernel@vger.kernel.org
-Subject: Re: Q: 2.4.[37]-XFS: /dev/nst0m: cannot allocate memory
-In-Reply-To: <Pine.LNX.4.33.0108181033140.12556-100000@kai.makisara.local>
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Makisara wrote:
-> 
-> On Fri, 17 Aug 2001, (Martin Jacobs) wrote:
-> 
-> > Hi all,
-> >
-> > I cannot read anything from my tape (Tandberg DLT8000, LVD
-> > interface, ID=5) connected to an aic7899 or an sym53c895 using
-> > kernel 2.4.3-XFS or 2.4.7-XFS. (Everything works fine on
-> > 2.2.16.) Loading of st.o works. stinit works. mt (status, tape
-> > positioning) works. But when I try to read the amanda header
-> > from the tape (dd if=/dev/nst0m bs=32k count=1) I get the
-> > error
-> >
-> > dd: reading `/dev/nst0m': Cannot allocate memory
-> >
-> ...
-> > Nearly the same for tar (with default block size of 512 byte).
-> >
-> > BUT: if I use bs=64k it works!!?
-> >
-> In variable block mode in 2.4, you get ENOMEM if the block on the tape is
-> larger than the byte count in the read(). 2.2 just returned what you asked
-> for and silentlry threw away the rest of the block. If the byte count is
-> larger than the block size, then the block is returned.
-> 
-> I.e., the first block on your tape is larger than 32 kB.
-> 
->         Kai
+More info ..
 
-If I understand you right this is a FEATURE, not a bug! I find it quite
-irritating when using a tape device. Shouldn't I get some error message
-about wrong block size?
-	Forgive me but I am some sort of end user (admin) and not a kernel
-hacker.
-BTW, where can I get documentation about this 'feature'?
+"A month of sundays ago ptb wrote:"
+> What puzzles me is the sequence shown in the second oops of
+> blkdev_release_request leading to a schedule. Possibly via an
+> interrupt? You yourself said that the function cannot sleep. The oops
+> was triggered my my detection code placed in schedule which fires
+> on just such an event.
+> 
+> >>EIP; c011426a <schedule+142/8f4>   <=====
+> Trace; c011b064 <exit_notify+178/2a8>
+> Trace; c011b548 <do_exit+3b4/3d4>
+> Trace; c0107a38 <do_divide_error+0/9c>
+> Trace; c0113683 <do_page_fault+3f3/510>
+> Trace; c0113290 <do_page_fault+0/510>
+> Trace; c01d91ad <memcpy_toiovec+35/64>
+> Trace; c01d7c4c <skb_release_data+68/74>
+> Trace; c0113cc3 <reschedule_idle+63/214>
+> Trace; c01ef15d <tcp_recvmsg+839/a58>                 <-- urr?
+> Trace; c0107304 <error_code+34/3c>                    <-- huh?
+> Trace; c01a3c17 <blkdev_release_request+df/1b4>
+> Trace; c01a4807 <end_that_request_last+a3/130>
+> Trace; c0134176 <__free_pages+1e/24>
+> Trace; c01341a3 <free_pages+27/2c>
+> Trace; c014c51d <do_select+1e5/1fc>
+> Trace; c0122071 <sys_rt_sigaction+89/d8>
+> Trace; c0143842 <blkdev_ioctl+2e/34>
+> Trace; c014b9a9 <sys_ioctl+1f9/280>
+> Trace; c010721b <system_call+33/38>
+
+I am now fairly certain that the schedule occured while
+blkdev_release_request was in a completely innocuous line
+
+              if (waitqueue_active(&blk_buffers_wait)
+                    && atomic_read(&queued_sectors) < low_queued_sectors)
+                        wake_up(&blk_buffers_wait);
+                /*
+                 * Add to pending free list and batch wakeups
+                 */
+                list_add(&req->table, &q->pending_freelist[rw]);   <- HERE
+                if (++q->pending_free[rw] >= batch_requests) {
+                        int wake_up = q->pending_free[rw];
+
  
-Thanks anyway!
+so I suppose that this is an interrupt. But IRQs are supposed to be
+masked when blkdev_release_request is called, and I call it only from
+end_that_request_last, with spin_lock_irqsave(&io_request_lock) held.
 
--- 
-albrecht jacobs
+I'll check if IRQs are really masked (how?). But how on earth
+could somebody else release the IRQs on the same CPU while the io
+spinlock is held? We'd have to schedule once to allow somebody else to
+release IRQs first .. (infinite mental regress follows).
 
-jangled nerves gmbh
-hallstrasse 25
-d-70376 stuttgart
+Or is this a NMI?  do_divide_error looks distinctly hardware level!
 
-fon:   +49 711 550375-44
-fax:   +49 711 550375-22
+At any rate, this kernel (2.4.6) is fairly unstable on this smp box
+(dell poweredge) even before I started debugging. I had several
+lockups just now when running e2fsck at reboot. Even when I rebooted
+with noapic (I seem to recall). Booting back to 2.4.3 cured it.
 
-mailto:albrecht.jacobs@janglednerves.com
-http://www.janglednerves.com/
+I daresay it's time to see if 2.4.8 or 9 solves anything.
+
+Peter

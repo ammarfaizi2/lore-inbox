@@ -1,26 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276018AbRI1MGq>; Fri, 28 Sep 2001 08:06:46 -0400
+	id <S276023AbRI1MPs>; Fri, 28 Sep 2001 08:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276021AbRI1MGf>; Fri, 28 Sep 2001 08:06:35 -0400
-Received: from mx3.port.ru ([194.67.57.13]:60687 "EHLO smtp3.port.ru")
-	by vger.kernel.org with ESMTP id <S276018AbRI1MG3>;
-	Fri, 28 Sep 2001 08:06:29 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109281629.f8SGTPJ13136@vegae.deep.net>
-Subject: 2.4.9-ac15-age+launder freeze
-To: xavier.bestel@free.fr
-Date: Fri, 28 Sep 2001 20:29:24 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276025AbRI1MPj>; Fri, 28 Sep 2001 08:15:39 -0400
+Received: from empr3-188.menta.net ([62.57.108.188]:17400 "EHLO www.bosch.es")
+	by vger.kernel.org with ESMTP id <S276023AbRI1MPZ> convert rfc822-to-8bit;
+	Fri, 28 Sep 2001 08:15:25 -0400
+Message-ID: <3BB469E1.9090205@juridicas.com>
+Date: Fri, 28 Sep 2001 14:15:29 +0200
+From: Jorge =?ISO-8859-1?Q?Ner=EDn?= <jnerin@juridicas.com>
+Reply-To: comandante@zaralinux.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: es-es, es, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: safemode <safemode@speakeasy.net>
+CC: linux-kernel@vger.kernel.org, gadio@netvision.net.il
+Subject: Re: ide-scsi driver trouble in ac15
+In-Reply-To: <20010928040722Z275827-760+17888@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -ac15-age+launder found freezed this morning, at the same screenblanker
-> (mountains I think, an opengl one) as -ac15 yesterday.
-  nvdriver?
+safemode wrote:
 
-cheers, Samium Gromoff
+>I'm not entirely sure if this is ac15's fault or the preempt patch acting up. 
+>But this is very ide-scsi centric so i'm leaning towards ac15.  I burned a cd 
+>using my ide writer and it worked fine.  Then i went to burn another and the 
+>drive went into an infinite reset loop.  like this.
+>	SCSI bus is being reset for host 0 channel 0.
+>	scsi0 : channel 0 target 0 lun 0 request sense failed, performing reset.
+>
+>reloading the modules does nothing but report this error. 
+>	SCSI subsystem driver Revision: 1.00
+>	scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>	scsi0 : channel 0 target 0 lun 0 request sense failed, performing reset.
+>	SCSI bus is being reset for host 0 channel 0.
+>
+>Even though the modules were removed, the drive led is still blinking like it 
+>was writing.  If anyone needs some more info i'll try and get it. 
+>the cdr did detect and work correctly at boot. 
+>
+>hardware:
+>    Promise ide controller : 
+>	PDC20262: chipset revision 1
+>	PDC20262: not 100% native mode: will probe irqs later
+>	PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+>    CDR: 
+>	hde: CREATIVE CD-RW RW8438E, ATAPI CD/DVD-ROM drive
+>	SCSI subsystem driver Revision: 1.00
+>	scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>  	Vendor: CREATIVE  Model:  CD-RW RW8438E    Rev: FC03
+>  	Type:   CD-ROM                             ANSI SCSI revision: 02
+>software:
+>    Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
+>    linux-2.4.9-ac15-preempt-fix
+>
+It also happened to me with ac10, ide-scsi, CD-RW is a Samsung 8x, and I 
+was writing a audio cd, when it finished writing the track 8 of 18 it 
+entered the loop, since then I couldn't eject the cd, neither eject 
+/dev/hdb, nor cdrecord -eject, nor the eject button, I had to reboot.
+
+My system is a 2x200mmx smp all ide.
+
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
+
+
+

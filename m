@@ -1,44 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132419AbRCaPeQ>; Sat, 31 Mar 2001 10:34:16 -0500
+	id <S132427AbRCaPpl>; Sat, 31 Mar 2001 10:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132427AbRCaPeG>; Sat, 31 Mar 2001 10:34:06 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:56847 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S132419AbRCaPd7>;
-	Sat, 31 Mar 2001 10:33:59 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103311532.TAA20809@ms2.inr.ac.ru>
-Subject: Re: IP layer bug?
-To: green@dredd.crimea.edu (Oleg Drokin)
-Date: Sat, 31 Mar 2001 19:32:48 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, david-b@pacbell.net
-In-Reply-To: <20010331190314.A27130@dredd.crimea.edu> from "Oleg Drokin" at Mar 31, 1 07:03:14 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S132428AbRCaPpd>; Sat, 31 Mar 2001 10:45:33 -0500
+Received: from ix.netsoft.ro ([193.226.123.26]:21001 "EHLO ix.netsoft.ro")
+	by vger.kernel.org with ESMTP id <S132427AbRCaPpS>;
+	Sat, 31 Mar 2001 10:45:18 -0500
+From: Radu Greab <radu@netsoft.ro>
+Message-ID: <15045.64340.14915.404305@ix.netsoft.ro>
+Date: Sat, 31 Mar 2001 18:44:20 +0300 (EEST)
 MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="CV065puJCK"
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: radu@netsoft.ro
+Subject: bug report: select on unconnected sockets
+X-Mailer: VM 6.75 under 21.1 (patch 4) "Arches" XEmacs Lucid
+Organization: NetSoft srl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> Hm. But comment in linux/skbuff.h says:
+--CV065puJCK
+Content-Type: text/plain; charset=us-ascii
+Content-Description: message body text
+Content-Transfer-Encoding: 7bit
 
-The comment is about more difficult case: transmit path,
-where cb is used both by top level protocol and lower layers:
-f.e. TCP -> IP -> device. cb is dirty from the moment of skb
-creation in this case.
 
-Also, note that the second sentence in the comment is obsolete.
-Passing not cloned skbs between layers is strongly deprecated
-practice (I hope it is not used in any place) and cb of skb entering
-to lower layer is property of the layer.
+Sorry if this is already known: on a RH 7.0 system with kernel 2.4.2
+or 2.4.3, a select on an unconnected socket incorrectly says that the
+socket is ready for input and output. Of course, reading from the socket
+file descriptor returns -1 and errno is set to ENOTCONN as shown in
+the strace output:
 
-RX path is simpler: cb must be kept clean, that's all.
+socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+select(4, [3], [3], [3], {0, 0})        = 2 (in [3], out [3], left {0, 0})
+read(3, 0xbffff668, 1024)               = -1 ENOTCONN (Transport endpoint is not connected)
 
-General rule is minimization redundant clearings of the area.
+I attached a small example program to reproduce the bug.
 
-> Why not document it somewhere, so that others will not fall into the same trap?
 
-Indeed. 8) You got the experience, which you expect to be useful
-for people, it is time to prepare some note recording this. 8)
+Thanks,
+Radu Greab
 
-Alexey
+PS: please CC me your eventual replies as I'm not subscribed to the
+list.
+
+
+
+--CV065puJCK
+Content-Type: text/plain
+Content-Description: example program
+Content-Disposition: inline;
+	filename="t3.c"
+Content-Transfer-Encoding: 7bit
+
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+int main(int argc, char **argv) {
+  fd_set rfds, wfds, efds;
+  int s, rc;
+  struct timeval timeout;
+  char buf[1025];
+
+  s = socket(PF_INET, SOCK_STREAM, 0);
+  if (s == -1) {
+    perror("couldn't create socket");
+    return -1;
+  }
+
+  FD_ZERO(&rfds);
+  FD_SET(s, &rfds);
+  FD_ZERO(&wfds);
+  FD_SET(s, &wfds);
+  FD_ZERO(&efds);
+  FD_SET(s, &efds);
+  timeout.tv_sec = timeout.tv_usec = 0;
+  rc = select(s + 1, &rfds, &wfds, &efds, &timeout);
+  if (rc == -1) {
+    perror("select");
+    return -1;
+  }
+  printf("select result=%d\n", rc);
+  if (FD_ISSET(s, &rfds)) {
+    rc = read(s, buf, 1024);
+    if (rc == -1) {
+      perror("read");
+      return -1;
+    }
+    printf("read result=%d\n", rc);
+  }
+
+  return 0;
+}
+
+--CV065puJCK--

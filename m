@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131454AbRCQANS>; Fri, 16 Mar 2001 19:13:18 -0500
+	id <S130521AbRCLRlf>; Mon, 12 Mar 2001 12:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131447AbRCQANJ>; Fri, 16 Mar 2001 19:13:09 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:11756 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S131440AbRCQAMx>; Fri, 16 Mar 2001 19:12:53 -0500
-From: Patrick Mansfield <patman@sequent.com>
-Message-Id: <200103170012.f2H0C8s01133@eng2.sequent.com>
-Subject: Re: scsi_scan problem.
-To: raffo@neuronet.pitt.edu (Rafael E. Herrera),
-        dledford@redhat.com (Doug Ledford)
-Date: Fri, 16 Mar 101 16:12:03 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <3AB29636.64C90827@neuronet.pitt.edu> from "Rafael E. Herrera" at Mar 16, 2001 05:39:50 PM
-X-Mailer: ELM [version 2.5 PL0b2]
+	id <S130522AbRCLRl0>; Mon, 12 Mar 2001 12:41:26 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22547 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130521AbRCLRlL>; Mon, 12 Mar 2001 12:41:11 -0500
+Subject: Re: Linux 2.4.2ac18
+To: h.lubitz@internet-factory.de (Holger Lubitz)
+Date: Mon, 12 Mar 2001 17:43:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AAD065E.FC34E8F3@internet-factory.de> from "Holger Lubitz" at Mar 12, 2001 06:24:46 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14cWM3-0002Hk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I applied the first hunk to version 2.4.3-pre4, as by email with Doug.
-> The output for the scsi devices follows and is identical with and
-> without the patch. Maybe someone can explain the meaning of the illegal
-> requests at the end. Nevertheless, I can use the drive fine.
-> 
+> But this won't catch FSB overclocking at all (which nowadays seems the
+> most common way of oc-ing, since it does not involve any modifications
+> to the CPU other than maybe a better cooler). Or am I missing something?
 
-If your testing Doug's patch, it might be a good idea to run with/without 
-your adapter built as a module, as the kernel is inconsistent in its setting
-of "online" in scsi.c: it sets online TRUE after an attach in 
-scsi_register_device_module(), but leaves online as is after an
-attach in scsi_register_host(). 
+The overclocking experiment was a side line
 
-So, if the scan_scsis set online FALSE, it sometimes is set back to TRUE;
-otherwise, I don't think any other code will set online to TRUE (once it
-is set to FALSE after its scanned, no one can even open the device, not even sg).
+> And what exactly does the multiplier reading alone buy us? (No offense
+> meant - I am just curious because I really liked the feature, did not
+> even know that it was possible, and am a bit sad to see it go again)
 
-The online = TRUE should probably be removed from scsi_register_device_module(),
-as disks with peripheral qualifier 1 (like Doug's the Clariion storage)
-ususally complain when sent a READ CAPACITY. I got such errors when running with
-a Clariion DASS (DGC RAID/DISK, scsi attached disk array).
+We need to detect configurations where the bus speed is the same for all cpus
+and the multiplier is not. These are legal MP configurations. In these cases
+we need to (but currently dont) disable the TSC usage for anything but
+delay timing as the TSC isnt lock-step
 
-Doug - did you try running with/without your adapter built as a module? I'd
-expect you to get a READ CAPACITY failure for each LUN with PQ 1.
-
--- Patrick Mansfield

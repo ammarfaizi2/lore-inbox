@@ -1,77 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264048AbTJ1Rd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 12:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTJ1Rd6
+	id S264055AbTJ1Rrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTJ1Rrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 12:33:58 -0500
-Received: from h80ad275b.async.vt.edu ([128.173.39.91]:25493 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264048AbTJ1Rdy (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 12:33:54 -0500
-Message-Id: <200310281733.h9SHXfxF028624@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Autoregulate vm swappiness cleanup 
-In-Reply-To: Your message of "Tue, 28 Oct 2003 17:51:48 +0100."
-             <yw1xy8v54863.fsf@kth.se> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F9E707B.7030609@freemail.hu> <Pine.LNX.4.53.0310280936550.20004@chaos> <200310281539.h9SFdixF024951@turing-police.cc.vt.edu> <Pine.LNX.4.53.0310281048130.21561@chaos> <200310281637.h9SGb5xF026894@turing-police.cc.vt.edu>
-            <yw1xy8v54863.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1071259582P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 28 Oct 2003 12:47:55 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51187 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264055AbTJ1Rru
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 12:47:50 -0500
+Message-ID: <3F9EABC1.9070009@mvista.com>
+Date: Tue, 28 Oct 2003 10:47:45 -0700
+From: Mark Bellon <mbellon@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
+References: <Pine.LNX.4.44.0310271343170.13116-100000@cherise> <3F9DA5A6.3020008@mvista.com> <20031027233934.GA3408@kroah.com>
+In-Reply-To: <20031027233934.GA3408@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Oct 2003 12:33:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1071259582P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Greg KH wrote:
 
-On Tue, 28 Oct 2003 17:51:48 +0100, mru@kth.se (=3D?iso-8859-1?q?M=3DE5ns=
-_Rullg=3DE5rd?=3D)  said:
+>On Mon, Oct 27, 2003 at 04:09:26PM -0700, Mark Bellon wrote:
+>  
+>
+>>The uSDE was built in response to a set of telco and embedded community 
+>>requirements. We found it difficult to express our ideas. Everyone 
+>>wanted to see code and documentation. Here is the code and the initial 
+>>documentation. This is a starting point...
+>>
+>>    
+>>
+>>>If not, are you planning on merging your efforts with udev in the future?
+>>>
+>>>      
+>>>
+>>It is to everyone's advantage to converge on an implementation of 
+>>enumeration that meets all of the requirements.
+>>    
+>>
+>
+>What are your requirements, and why does udev not meet them?  Is there
+>some major disagreement between what udev does, and what you want to do?
+>If so, what?
+>
+The requirements were collected from the OSDL CGL requirements 
+specification version 1.0 and 1.1 ratified September 2002. They come 
+from extensive discussions with the OSDL members as part of the 
+definition of these requirements, expounding on them:
 
-> Doing that mistake would give a linker error.
+* The embracing of all device types with no specialization or limitation.
 
-Not necessarily.  Consider shared libraries.  Load module1.so, load modul=
-e2.so,
-and then load module3.so that has an unresolved reference that both of th=
-e
-other two happen to have. Oh wow.. results that are dependent on the orde=
-r of
--l flags in a non-obvious way...  And '-z muldefs' is always a good way t=
-o
-shoot yourself in the foot.....
+* The ability to have total control over the handling a device via 
+external policy programs. Policy programs are invoked with a formal 
+command line and description of the event that caused there invocation.
 
-Yes, it's stupid, yes, it's a mistake - my point is that the design of C =
-makes that
-sort of mistake more likely.  If there *did* exist a "private to all the =
-pieces of the
-module" status similar to the "private to THIS .c 'static'", it wouldn't =
-be anywhere
-near the problem.
+* The "service container" concept. A device is classified (or recognized 
+by a pattern match) and this raises an (queued) event which is caught by 
+a configurable "service container". The container is an ordered list of 
+handlers that process the device.
 
-And don't tell me that the Linux kernel hasn't seen similar issues - a su=
-pposedly
-private interface that didn't have 'static' because it *was* called from =
-2 other
-=2Ec files in the directory.  And then we have to tell people "don't call=
- that interface,
-it's private".
+* Event queuing and aggregation. Minimizing the number of program 
+invocations (fork/exec) is critical in embedded environments - small 
+processors.
 
---==_Exmh_1071259582P
-Content-Type: application/pgp-signature
+* Aggressive device enumeration. Multiple concurrent policy execution 
+and management.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+* Device information persistence is a function of device policies, not 
+the enumeration framework.
+There are many situation where persistence is not an issue at all or 
+only in specific cases (like disks). Why always pay for the memory/disk, 
+for persistence, when it is not (always) necessary?
 
-iD8DBQE/nqh1cC3lWbTT17ARAr4LAKDWxFj3pd8s4IaOjmomRjO5fWGBrgCg2uRX
-s2zT0E/MsFamKhCX7L7nylM=
-=wR2b
------END PGP SIGNATURE-----
+* Transactional protection of multiple configuration files is necessary. 
+Multiple configuration files must often be modified in unison and 
+insurance is necessary that an accurate and correct set of data is used 
+when processing devices.
 
---==_Exmh_1071259582P--
+>udev has been out in the world since April, any reason for not helping
+>out with the existing project instead of going off and starting your
+>own?  It's not that I mind competing projects, it's just that I don't
+>see your reasoning as to why there needs to be two different ones.
+>  
+>
+The two packages take philosophically different approaches and arrive 
+with (largely) overlapping and some non-overlapping capabilities - after 
+all they are both trying to do "the same thing". The uSDE has strengths 
+and weaknesses just as udev or any program does. It is certainly 
+possible to discuss changes (and make patches) to udev to incorporate 
+the key issues addressed in the uSDE implementation.
+
+The uSDE is an encapsulation of ideas and techniques. It is "complete" 
+enough for those ideas to be discussed in a community setting and we can 
+see how/what to move things together. Think of it as the projects 
+"resting place" from which to confidently discuss techniques and 
+implementions.
+
+mark
+
+

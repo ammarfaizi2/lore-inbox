@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbTH0Tl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 15:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTH0Tl3
+	id S262033AbTH0TsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 15:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTH0TsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 15:41:29 -0400
-Received: from imsm083.netvigator.com ([218.102.48.167]:46794 "EHLO
-	imsm083dat.netvigator.com") by vger.kernel.org with ESMTP
-	id S262091AbTH0Tl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 15:41:28 -0400
-X-Mailer: Openwave WebEngine, version 2.8.10.1 (webedge20-101-191-105-20030415)
-From: Sum <ellenyip@netvigator.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: install problem with kernel 2.6.0
-Date: Thu, 28 Aug 2003 3:41:23 +0800
+	Wed, 27 Aug 2003 15:48:25 -0400
+Received: from mail.onlinemembersarea.com ([66.28.32.254]:28554 "HELO
+	uml0.onlinemembersarea.com") by vger.kernel.org with SMTP
+	id S262033AbTH0TsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 15:48:23 -0400
+Message-ID: <3F4D0B26.5040102@lanil.mine.nu>
+Date: Wed, 27 Aug 2003 21:48:54 +0200
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030823 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=Big5
+To: Hans Reiser <reiser@namesys.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: 2.6.0-test4-mm2
+References: <20030826221053.25aaa78f.akpm@osdl.org>	<3F4CAB0B.2030705@lanil.mine.nu> <20030827102522.7d2339bc.akpm@osdl.org> <3F4CF17B.1020300@namesys.com>
+In-Reply-To: <3F4CF17B.1020300@namesys.com>
+X-Enigmail-Version: 0.81.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030827194123.LBVT10998.imsm083dat.netvigator.com@imailmta.netvigator.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there. I just compile the kernel 2.6.0 version. However, there is not any /lib/modules/2.6.0-test4/modules.dep created. When I type "depmod -a", there is an error message said "depmod: QM_MODULES: Function not implemented". 
-Also, when I type the "make modules_install", the output is:
-[root@localhost linux-2.6.0-test4]# make modules_install
-  INSTALL drivers/media/video/bw-qcam.ko
-  INSTALL drivers/media/video/cpia.ko
-  INSTALL drivers/media/video/cpia_usb.ko
-  INSTALL drivers/net/dummy.ko
-  INSTALL drivers/i2c/i2c-algo-bit.ko
-  INSTALL drivers/i2c/i2c-algo-pcf.ko
-  INSTALL drivers/i2c/i2c-core.ko
-  INSTALL drivers/i2c/i2c-dev.ko
-  INSTALL drivers/i2c/i2c-philips-par.ko
-  INSTALL drivers/media/video/pms.ko
-  INSTALL drivers/net/ppp_generic.ko
-  INSTALL drivers/media/video/saa7134/saa7134.ko
-  INSTALL drivers/net/slhc.ko
-  INSTALL drivers/media/video/tda9887.ko
-  INSTALL drivers/media/video/tuner.ko
-  INSTALL drivers/usb/serial/usbserial.ko
-  INSTALL drivers/media/video/v4l1-compat.ko
-  INSTALL drivers/media/video/v4l2-common.ko
-  INSTALL drivers/media/video/video-buf.ko
-  INSTALL drivers/media/video/videodev.ko
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.0-test4; fi.
-After I configure the modules, I type "make bzImage", then "make modules", "make modules_install", and "depmod -a". I copied the bzImage to vmlinuz and the System.map to /boot.
-Is there anything I did wrong?
-Thanks very much.
+I think it would be a good thing to get it in mm as in serves as
+testingbase for linus tree. It will reach more users and that means more
+testing (but also more whining if option not marked VERY UNSTABLE or
+something like that).
+
+-- 
+Christan Axelsson
+smiler@lanil.mine.nu
 

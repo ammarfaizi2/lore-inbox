@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266202AbUAQWBa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 17:01:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUAQWBa
+	id S266184AbUAQV7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 16:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUAQV7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 17:01:30 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:42207 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S266202AbUAQWB2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 17:01:28 -0500
-Date: Sat, 17 Jan 2004 14:01:10 -0800
+	Sat, 17 Jan 2004 16:59:16 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:57315 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S266184AbUAQV7P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 16:59:15 -0500
+Date: Sat, 17 Jan 2004 13:59:08 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Sander <sander@humilis.net>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: several oopses during boot (was: Re: [PATCH] Add CONFIG for -mregparm=3)
-Message-ID: <20040117220110.GB1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Andi Kleen <ak@colin2.muc.de>,
-	Sander <sander@humilis.net>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, jh@suse.cz
-References: <20040114090603.GA1935@averell> <20040117201639.GA16420@favonius> <20040117205302.GA16658@colin2.muc.de> <20040117210715.GA15172@favonius> <20040117212857.GA28114@colin2.muc.de>
+To: Condor <condor@vereya.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 may be bug in prints.c:341
+Message-ID: <20040117215908.GA1748@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Condor <condor@vereya.net>, linux-kernel@vger.kernel.org
+References: <00e201c3dd32$25bde0d0$8648493e@ixip.net> <20040117195151.GY1748@srv-lnx2600.matchmail.com> <010801c3dd37$1ff2ee20$8648493e@ixip.net> <20040117202324.GZ1748@srv-lnx2600.matchmail.com> <012001c3dd38$fcb89c50$8648493e@ixip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040117212857.GA28114@colin2.muc.de>
+In-Reply-To: <012001c3dd38$fcb89c50$8648493e@ixip.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 10:28:57PM +0100, Andi Kleen wrote:
-> On Sat, Jan 17, 2004 at 10:07:15PM +0100, Sander wrote:
-> > Andi Kleen wrote (ao):
-> > > > 2.6.1-mm4
-> > > 
-> > > Note that this kernel is broken on gcc 3.4 and on 3.3-hammer. If
-> > > you're using that disable the -funit-at-a-time setting in the main
-> > > Makefile.
-> > 
-> > > > VIA C3 Ezra
-> > > > 
-> > > > It mounts its root filesystem over nfs and has netconsole compiled
-> > > > in.
-> > > > 
-> > > > Without the REGPARM option the system boots and runs fine.
-> > > > 
-> > > > Should I post the oopses, the result of ksymoops, a dmesg and kernel
-> > > > config or is this an already known issue?
-> > > 
-> > > Not known. Please post the decoded oopses.  Also give your compiler
-> > > version.
-> > 
-> > Hope this helps. The system runs fine with the option disabled.
-> 
-> Can you perhaps save your .config, do a make distclean and try
-> to compile the kernel from scratch again? Maybe you had some stale object
-> files around. 
+On Sat, Jan 17, 2004 at 10:31:42PM +0200, Condor wrote:
+> I not use ksymoops.
 
-Also, turn on kksymoops so that you'll get symbols in your oops reports, and
-no need for ksymoops in userspace.
+EXACTLY!
+
+The trace is unusable to anyone until you run it through ksymoops...
+
+And as oleg said, you have hardware problems, so you should fix that.

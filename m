@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbTIONxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 09:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTIONxV
+	id S261373AbTION7d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 09:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTION7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 09:53:21 -0400
-Received: from poup.poupinou.org ([193.253.14.96]:24839 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S261361AbTIONxQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 09:53:16 -0400
-Date: Mon, 15 Sep 2003 15:53:03 +0200
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Vaio doesn't poweroff with 2.4.22
-Message-ID: <20030915135303.GH11391@poupinou.org>
-References: <Pine.GSO.4.21.0309150835480.3191-100000@vervain.sonytel.be>
+	Mon, 15 Sep 2003 09:59:33 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36837 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261373AbTION72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 09:59:28 -0400
+Date: Mon, 15 Sep 2003 15:59:15 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: timofeev@granch.ru
+Cc: linux-net@vger.kernel.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix sbni.c compile with gcc 3.3
+Message-ID: <20030915135915.GF126@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0309150835480.3191-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.5.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 08:43:56AM +0200, Geert Uytterhoeven wrote:
-> 	Hi,
-> 
-> With 2.4.22, my Sony Vaio PCG-Z600TEK (s/600/505/ in US/JP) shows a regression
-> w.r.t. power management:
->   - It doesn't poweroff anymore (screen contents are still there after the
->     powering down message)
->   - It doesn't reboot anymore (screen goes black, though)
->   - It accidentally suspended to RAM once while I was actively working on it (I
->     never managed to get suspend working, except for this `accident'). I didn't
->     see any messages about this in the kernel log.
-> 
+sbni.c in 2.6.0-test5 fails to compile with gcc 3.3 with the following 
+error:
+
+<--  snip  -->
+
+...
+  CC      drivers/net/wan/sbni.o
+...
+drivers/net/wan/sbni.c: In function `calc_crc32':
+drivers/net/wan/sbni.c:1568: error: asm-specifier for variable `_crc' 
+conflicts with asm clobber list
+make[3]: *** [drivers/net/wan/sbni.o] Error 1
+
+<--  snip  -->
+
+Below is the patch by Margit Schubert-White to fix this issue (it is 
+already in 2.4).
+
+cu
+Adrian
+
+--- linux/drivers/net/wan/sbni.c	2003-09-08 21:50:01.000000000 +0200
++++ linux/drivers/net/wan/sbni.c	2003-08-25 13:44:42.000000000 +0200
+@@ -1562,13 +1552,13 @@
+ static u32
+ calc_crc32( u32  crc,  u8  *p,  u32  len )
+ {
+-	register u32  _crc __asm ( "ax" );
++	register u32  _crc;
+ 	_crc = crc;
+ 	
+ 	__asm __volatile (
+ 		"xorl	%%ebx, %%ebx\n"
+-		"movl	%1, %%esi\n" 
+-		"movl	%2, %%ecx\n" 
++		"movl	%2, %%esi\n" 
++		"movl	%3, %%ecx\n" 
+ 		"movl	$crc32tab, %%edi\n"
+ 		"shrl	$2, %%ecx\n"
+ 		"jz	1f\n"
+@@ -1604,7 +1594,7 @@
+ 		"jnz	0b\n"
+ 
+ 	"1:\n"
+-		"movl	%2, %%ecx\n"
++		"movl	%3, %%ecx\n"
+ 		"andl	$3, %%ecx\n"
+ 		"jz	2f\n"
+ 
+@@ -1629,9 +1619,9 @@
+ 		"xorb	2(%%esi), %%bl\n"
+ 		"xorl	(%%edi,%%ebx,4), %%eax\n"
+ 	"2:\n"
+-		:
+-		: "a" (_crc), "g" (p), "g" (len)
+-		: "ax", "bx", "cx", "dx", "si", "di"
++		: "=a" (_crc)
++		: "0" (_crc), "g" (p), "g" (len)
++		: "bx", "cx", "dx", "si", "di"
+ 	);
+ 
+ 	return  _crc;
 
 
-Are you able to reboot without acpi?
-
--- 
-Ducrot Bruno
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.

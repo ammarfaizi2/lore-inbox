@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSGBLqG>; Tue, 2 Jul 2002 07:46:06 -0400
+	id <S316739AbSGBLzE>; Tue, 2 Jul 2002 07:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316792AbSGBLqF>; Tue, 2 Jul 2002 07:46:05 -0400
-Received: from [203.197.61.67] ([203.197.61.67]:15746 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S316788AbSGBLqF>; Tue, 2 Jul 2002 07:46:05 -0400
-Message-ID: <002f01c221be$889d2ca0$080aa8c0@nodeinfotech>
-From: "Vinolin" <vinolin@nodeinfotech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel code coverage tool
-Date: Tue, 2 Jul 2002 17:19:26 +0530
-Organization: NodeInfotech
+	id <S316746AbSGBLzD>; Tue, 2 Jul 2002 07:55:03 -0400
+Received: from web13302.mail.yahoo.com ([216.136.175.38]:59402 "HELO
+	web13302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316739AbSGBLzC>; Tue, 2 Jul 2002 07:55:02 -0400
+Message-ID: <20020702115731.92367.qmail@web13302.mail.yahoo.com>
+Date: Tue, 2 Jul 2002 13:57:31 +0200 (CEST)
+From: =?iso-8859-1?q?Joerg=20Pommnitz?= <pommnitz@yahoo.com>
+Subject: RE: IPv6 routing table implementation
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+ > The underlined lines will be creating a kernel panic ALWAYS.
 
-I want to do "linux kernel code coverage" for 2.4.6 kernel.GCOV is such a
-kernel code coverage tool, which i downloaded from net. The downloaded GCOV
-is for linux kernel 2.4.17
+What makes you think so? After all, the pointer is never dereferenced.
+This is quite a common C trick (similiar to the offsetof macro).
 
-Is GCOV exists for linux kernel 2.4.6 ?
-If so please send me the link for downloading.
+Regards
+  Joerg
 
-If you know other kernel code coverage tools also, please let me know.
+=====
+-- 
+Regards
+       Joerg
 
-Thanks in advance,
-Vinolin.
 
+__________________________________________________________________
+
+Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Yahoo! pr‰sentiert als offizieller Sponsor das Fuﬂball-Highlight des
+Jahres: - http://www.FIFAworldcup.com

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289578AbSA2MGW>; Tue, 29 Jan 2002 07:06:22 -0500
+	id <S289606AbSA2MGW>; Tue, 29 Jan 2002 07:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289595AbSA2MF1>; Tue, 29 Jan 2002 07:05:27 -0500
-Received: from relay1.pair.com ([209.68.1.20]:49936 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S289516AbSA2MEu>;
-	Tue, 29 Jan 2002 07:04:50 -0500
-X-pair-Authenticated: 12.226.63.234
-Mime-Version: 1.0
-Message-Id: <p05100302b87c3f383e02@[192.168.1.4]>
-In-Reply-To: <m3zo2xq47p.fsf@cornelius.delamancha.org>
-In-Reply-To: <Pine.LNX.4.33L.0201281940580.32617-100000@imladris.surriel.com>
- <3C55C9F7.6010106@vitalstream.com> <E16VKVM-0000DL-00@starship.berlin>
- <3C55D970.40605@vitalstream.com>
- <20020128175151.A20978@unpythonic.dhs.org>
- <m3zo2xq47p.fsf@cornelius.delamancha.org>
-Date: Tue, 29 Jan 2002 07:02:22 -0500
-To: linux-kernel@vger.kernel.org
-From: Karl & Betty Schendel <lkml@kbcomputer.com>
-Subject: Re: [OT] Re: Note describing poor dcache utilization under high 
- memory pressure
-Content-Type: text/plain; charset="us-ascii"
+	id <S289578AbSA2MFX>; Tue, 29 Jan 2002 07:05:23 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:29315 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289595AbSA2L5n>;
+	Tue, 29 Jan 2002 06:57:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Tue, 29 Jan 2002 13:01:56 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201290937160.32617-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201290937160.32617-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VWxZ-0000A3-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 9:30 PM -0500 1/28/02, IPmonger wrote:
->jepler@unpythonic.dhs.org writes:
->
->> On Mon, Jan 28, 2002 at 03:06:24PM -0800, Rick Stevens wrote:
->>>    Uh, I never said IBM ;-)  I said "a three-letter-acronym"
->>>  company.  There were several.  The one I dealt with was in
->>>  Massachusetts, had a real penchant for three-letter acronyms and
->>>  used a programming dialect which was the only single word oxymoron
->>>  in the English language (enough hints yet?).
->
->    I'm guessing DEC, but I must admit that the oxymoronic (scripting?)
->  language escapes me...
->
+On January 29, 2002 12:38 pm, Rik van Riel wrote:
+> On Tue, 29 Jan 2002, Daniel Phillips wrote:
+> 
+> > > Either that, or we don't populate the page tables of the
+> > > parent and the child at all and have the page tables
+> > > filled in at fault time.
+> >
+> > Yes, you could go that route but you'd have to do some weird and wonderful
+> > bookkeeping to figure out how to populate those page tables.
+> 
+> Not really, if the page table isn't present you just check whether
+> you need to allocate a new one or whether you need to instantiate
+> one.
 
-Bliss, surely?
+Since you didn't store it in the parent and you didn't store it in the child,
+how are you going to find it?  This is my point about the weird and wonderful
+bookkeeping, which I managed to avoid entirely.
 
-Which actually wasn't too bad once you got used to putting the
-goddamed dots in front of all your variable (contents) accesses.
+> That can all be done from within pte_alloc, which is always called
+> by handle_mm_fault()...
 
 -- 
-Karl R. Schendel, Jr.         schendel@kbcomputer.com
-K/B Computer Associates       www.kbcomputer.com
-Ingres, Unix, VMS             Consulting and Training
+Daniel

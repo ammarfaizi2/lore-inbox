@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSF3NdE>; Sun, 30 Jun 2002 09:33:04 -0400
+	id <S315167AbSF3NYJ>; Sun, 30 Jun 2002 09:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315171AbSF3NdD>; Sun, 30 Jun 2002 09:33:03 -0400
-Received: from sto-vo-kor.koschikode.com ([213.61.61.142]:15635 "EHLO
-	sto-vo-kor.koschikode.com") by vger.kernel.org with ESMTP
-	id <S315168AbSF3NdD>; Sun, 30 Jun 2002 09:33:03 -0400
-Message-ID: <3D1F0910.9020107@koschikode.com>
-Date: Sun, 30 Jun 2002 15:35:12 +0200
-From: Juri Haberland <juri@koschikode.com>
-Organization: totally unorganized
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: de-DE, en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S315168AbSF3NYI>; Sun, 30 Jun 2002 09:24:08 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:54405 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315167AbSF3NYH> convert rfc822-to-8bit;
+	Sun, 30 Jun 2002 09:24:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Juri Haberland <juri@koschikode.com>
 Subject: Re: Can't boot from /dev/md0 (RAID-1)
-References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301504.35221.roy@karlsbakk.net> <3D1F0373.9070104@koschikode.com> <200206301526.36144.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 30 Jun 2002 15:26:36 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301504.35221.roy@karlsbakk.net> <3D1F0373.9070104@koschikode.com>
+In-Reply-To: <3D1F0373.9070104@koschikode.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206301526.36144.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
->> I assume the onboard IDE stuff (hdm) is something like a Promise
->> controller. If so you should be able set the boot order to boot from the
->> normal IDE chipset (hda/hdb). If doesn't help I'd suggest that you ask
->> on the linux-raid mailing list.
-> 
-> The on-board is a VIA controller. see from lspci
-> 
-> 00:0c.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
-> 02)
-> 00:0d.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
-> 02)
-> 00:0e.0 RAID bus controller: CMD Technology Inc PCI0649 (rev 02)
-> 00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+> I assume the onboard IDE stuff (hdm) is something like a Promise
+> controller. If so you should be able set the boot order to boot from the
+> normal IDE chipset (hda/hdb). If doesn't help I'd suggest that you ask
+> on the linux-raid mailing list.
 
-So you have your two raid drives connected to the VIA controller, right?
-Then have a look into the BIOS setup and see, if there's something that
-might affect the boot order...
+The on-board is a VIA controller. see from lspci
 
-> and - as for linux-raid, see below:
-> 
->    ----- The following addresses had permanent fatal errors -----
-> <linux-raid@vger.rutgers.edu>
->     (reason: 550 5.1.1 <linux-raid@vger.rutgers.edu>... User unknown)
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
+02)
+00:0d.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 
+02)
+00:0e.0 RAID bus controller: CMD Technology Inc PCI0649 (rev 02)
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
 
-No wonder, vger.rutgers.edu ceased to exist ~2 years ago. Use
-vger.kernel.org instead ;)
+and - as for linux-raid, see below:
 
-Juri
+   ----- The following addresses had permanent fatal errors -----
+<linux-raid@vger.rutgers.edu>
+    (reason: 550 5.1.1 <linux-raid@vger.rutgers.edu>... User unknown)
+
+
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

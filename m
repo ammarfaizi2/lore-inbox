@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAOFOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVAOFPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVAOFOm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAOFOm
+	id S262206AbVAOFPx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVAOFPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:14:42 -0500
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:38083 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S262200AbVAOFOk
+	Sat, 15 Jan 2005 00:15:52 -0500
+Received: from hibernia.jakma.org ([212.17.55.49]:7067 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262206AbVAOFO5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:14:40 -0500
-Date: Sat, 15 Jan 2005 07:14:38 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: usb key oddities with 2.6.10-ac9
-Message-ID: <20050115051438.GC8456@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050115031532.DAA6F1DC100@bromo.msbb.uc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050115031532.DAA6F1DC100@bromo.msbb.uc.edu>
-User-Agent: Mutt/1.5.6i
+	Sat, 15 Jan 2005 00:14:57 -0500
+Date: Sat, 15 Jan 2005 05:14:26 +0000 (UTC)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@sheen.jakma.org
+To: Peter Buckingham <peter@pantasys.com>
+cc: jyri.poldre@artecdesign.ee, linux-kernel@vger.kernel.org
+Subject: Re: Ethernet driver link state propagation to ip stack
+In-Reply-To: <41E8155D.3020802@pantasys.com>
+Message-ID: <Pine.LNX.4.61.0501150512470.15839@sheen.jakma.org>
+References: <JJEGJLLALGANNBPNAIMMOEGLDGAA.jyri.poldre@artecdesign.ee>
+ <41E8155D.3020802@pantasys.com>
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 10:15:32PM -0500, Jack Howarth wrote:
-> Alan,
->     I don't see any changes in how Fedora's 2.6.10 kernels are built 
-> that should effect USB hotplugging. The previous kernel I was using
-> shows...
-...
-> ps Fedora did switch with 2.6.10 from using usbdevfs to using usbfs
-> but they modified their initscripts package to handle that change.
+On Fri, 14 Jan 2005, Peter Buckingham wrote:
 
-what about this initscripts change 8.01 --> 8.03?
+> I recently had similar problems (specifically with the e1000 
+> driver). When one hang goes down a send to the other interface will 
+> hang. This was when we were using the same socket to send on both 
+> interfaces, what resulted is that the socket buffer would fill up 
+> and cause the send to block. If you aren't using the same socket to 
+> send out on both interfaces you should be fine. the rather large 
+> hack that i used to get this to work on my system is below. 
+> basically it will not enqueue a packet when the interface is down. 
+> this may well do nasty things to tcp...
 
--       sysctl -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
-+       sysctl -w kernel.hotplug="/sbin/udevsend" >/dev/null 2>&1
+There's an old thread on netdev, occasionally resurrected, about this 
+behaviour btw.
 
+> peter
+
+regards,
 -- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+I hear what you're saying but I just don't care.

@@ -1,50 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273682AbRIWW55>; Sun, 23 Sep 2001 18:57:57 -0400
+	id <S272467AbRIWXTN>; Sun, 23 Sep 2001 19:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272467AbRIWW5t>; Sun, 23 Sep 2001 18:57:49 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:49924 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S273688AbRIWW5e>; Sun, 23 Sep 2001 18:57:34 -0400
-Date: Mon, 24 Sep 2001 00:57:57 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "Nadav Har'El" <nyh@math.technion.ac.il>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, zefram@fysh.org,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
-Message-ID: <20010924005757.D17310@emma1.emma.line.org>
-Mail-Followup-To: Nadav Har'El <nyh@math.technion.ac.il>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, zefram@fysh.org,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E15kyyG-0000mq-00@dext.rous.org> <E15lFVk-0000Ex-00@the-village.bc.nu> <20010923234111.A16873@leeor.math.technion.ac.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010923234111.A16873@leeor.math.technion.ac.il>
-User-Agent: Mutt/1.3.22.1i
+	id <S273688AbRIWXTE>; Sun, 23 Sep 2001 19:19:04 -0400
+Received: from p3E9E62F9.dip.t-dialin.net ([62.158.98.249]:1540 "EHLO
+	enigma.deepspace.net") by vger.kernel.org with ESMTP
+	id <S272467AbRIWXSs>; Sun, 23 Sep 2001 19:18:48 -0400
+Message-Id: <200109232319.BAA02449@enigma.deepspace.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Wolly <wwolly@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Huge disk performance degradation STILL IN 2.4.10
+Date: Mon, 24 Sep 2001 01:19:18 +0200
+X-Mailer: KMail [version 1.2.1]
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net>
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Sep 2001, Nadav Har'El wrote:
+Hi kernel hackers, 
 
-> Just too bad Debian's policy is to make ^? the erase character - pretty
-> much the opposite of what most Unix users used before that. Pretending
-> ASCII BS (^H) doesn't exist any more is an interesting exercise, but
-> it isn't easy to change habits and standards that existed for a couple of
-> decades... The same problem exists for the ASCII DEL (^?) which was also used
-> in many Unix systems, but usually as a intr key, not a "delete-forward" type
-> of thing...
+As soon as 2.4.10 was out, I got the patch and tested it again. 
+The problem is still there and did not get better at all. 
 
-[OT RANT]
+Please have a look at that: 
 
-Well, it's also fun to log in to a Solaris 2.5.1 ksh (which doesn't talk
-bind, but just alias and soft-keys) from a Linux xterm which sends funny
-Esc [3~ sequences. You can "fix" that with "Del sends Del", but you then
-end up having either Del and Backspace both do Backspace or have their
-meanings reversed from what the "left array" on the Backspace key
-suggests. The Linux TTYs behave the same way (sending Esc [3~), and you
-don't easily fix that without confusing EOF detection or things.
+How to reproduce: Get the slowest computer you have and 
+execute the file creation script as mentioned in my previous e-mail 
+(appended below). 
 
-As appreciable a solution to consistently make "Delete" do
-"delete-forward" and "Backspace" do "delete-backward" would be, as low
-are the chances to get this done before the year 2039.
+The faster the computer and the more RAM, the more files you have 
+to create. Try increasing their number from 300 to 600 or 1000. 
+Try running it several times; turn off swap. 
+
+The symptomes are as follows: The file counter raises quickly until 
+at some point it begins to raise slowly only (2-4 files/sec on a P100 
+with 5 year old hardware). The hd is then accessed all the time and 
+the hd's head is moved around continuously making things really slow. 
+
+If you still cannot reproduce it, make sure you have some applications 
+running (X, windowmanager, xterm) and try executing `sync' in 
+another XTerm while the file creation script is running. 
+
+When I tried, sync did not return until all files were created and 
+the creation was awefully slow (steady hd accessed & head move). 
+
+>Is there nobody out there who can try & reproduce this?!
+
+To me, it seems this is either a cache/buffer/flush issue or a 
+reiserfs journal congestion issue. 
+
+Regards, 
+Wolly
+
+On Friday 21 September 2001 19:23, I wrote:
+> I recently upgraded from 2.4.6 to 2.4.9 and since then noticed that my
+> hd (old noisy thing in an old P100 box) repeatedly
+> sounds strange (read on, please!) when dealing with lots of small files.
+> (No physical problem; it's a kernel flushing issue.)
+>
+> This turned out to be the sign of a quite huge performance loss anywhere
+> between 2.4.7 and 2.4.9 (sorry, using a 56k Modem, I cannot test them
+> all and it's a shame that I already deleted 2.4.6 sources).
+>
+> I verified this on a PII-350 (440BX, 196Mb) using 600 files (instead of
+> 300). I only tested things on reiserfs (v3.6. using 3.5 partitions) becuase
+> I don't have ext2 around any longer.
+>
+> For testing purposes, I used:
+> sync ; cat /proc/version ; sleep 1 ; /usr/bin/time sh -c 'declare -i cnt=0
+> ; while test $cnt -lt 300 ; do echo -en "\b\b\b\b\b\b\b$cnt " ;
+> dd if=/dev/zero of=file-$cnt bs=1 count=16 >/dev/null 2>&1 ;
+> cnt=$cnt+1 ; done ; echo' ; rm file-*
+>
+> This creates lots of 16-byte files using 16 write() calls [second test
+> with 160kb files using 16 write() calls] and prints out the time
+> (On P-100; 72Mb, 1Gb hd; besides kernel: equal setup for
+> all tests; machine idle; all tests ran several times; all kernels compiled
+>
+> with gcc version 2.95.2 19991024 (release)):
+>        |   (dd bs=1 count=16)    | (dd bs=10240 count=16)
+>
+> kernel | user system elapsed CPU | user system elapsed CPU
+> 2.4.9  | 3.12   5.10   32.46 25% | 3.84  14.31   73.09 24%
+> 2.4.6  | 3.28   4.17    8.17 91% | 3.96  14.76   25.76 72%
+> 2.2.19 | 2.82   3.75    7.12 92% | 4.42  12.90   19.26 89%
+> (user, system, elapsed time in seconds)
+>
+> Look at the elapsed times! 2.4.9 takes >=3 times as long as 2.4.6
+> (and 2.2.19 performs even better).
+> This is a huge performance issue and I actually notice it using when
+> squid or doing a CVS checkout with lots of small files.
+>
+> When listening to the hd you note a difference. While 2.4.6 does
+> a clustered write call from time to time, 2.4.9 starts to burst out in
+> accessing the hd (always moving the hd's head) and does not
+> finish until the test is over (same with my PII-350 and IBM 12Gb)
+>
+> Anyone reproducing this? Reiserfs issue or cache/buffer/flush issue?
+>
+> Regards,
+> Wolly

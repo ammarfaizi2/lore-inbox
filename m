@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTGXR1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 13:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTGXR1r
+	id S263738AbTGXRXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 13:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTGXRWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 13:27:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28817 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263355AbTGXR1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 13:27:44 -0400
-Date: Thu, 24 Jul 2003 10:30:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       vortex@scyld.com, jgarzik@pobox.com
-Subject: Re: another must-fix: major PS/2 mouse problem
-Message-Id: <20030724103047.31e91a96.akpm@osdl.org>
-In-Reply-To: <1058921044.943.12.camel@cube>
-References: <1054431962.22103.744.camel@cube>
-	<3EDCF47A.1060605@ifrance.com>
-	<1054681254.22103.3750.camel@cube>
-	<3EDD8850.9060808@ifrance.com>
-	<1058921044.943.12.camel@cube>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Jul 2003 13:22:49 -0400
+Received: from 66.83.182.2.nw.nuvox.net ([66.83.182.2]:24789 "EHLO
+	secure.intgrp.com") by vger.kernel.org with ESMTP id S269575AbTGXRV5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 13:21:57 -0400
+Message-ID: <038a01c3520a$233c2280$9100000a@intgrp.com>
+From: "Eric Wood" <eric@interplas.com>
+To: "Kernel List" <linux-kernel@vger.kernel.org>
+References: <077a01c35157$d898c100$9100000a@intgrp.com> <3F1F7A97.7000304@candelatech.com>
+Subject: Re: RH 9 kernel compile error
+Date: Thu, 24 Jul 2003 13:36:38 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan <albert@users.sourceforge.net> wrote:
->
-> Using the lockmeter on a 2.5.75 kernel, I discovered
-> that boomerang_interrupt() grabs a spinlock for over
-> 1/4 second. No joke, 253 ms. Interrupts are off AFAIK.
+Ben Greear wrote:
+> I have never used rpm target...but I imagine it works :)
 
-boomerang_interrupt() doesn't disable interrupts.  Is the NIC sharing the
-mouse's IRQ line?
+Overall yes. As long as you:
+# make mrproper `/bin/cp configs/kernel-2.4.20-i686.config .config`
+oldconfig dep clean rpm
 
-boomerang_interrupt() is only used by nasty old NICs and yes, I guess it is
-possible that something has gone wrong and is causing occasional long spins
-in there.
+The resulting rpm file seems to always be built for i386 even though you're
+using a 686 .config file.  It looks like kerne.spec file which is generated
+from "scripts/mkspec" neglects to issue an arch.  Or you have to edit the
+Makefile and slip in a "--target=i686" or "--target=athlon" like so:
 
-But I am more suspecting that you're not really using boomerang_interrupt()
-at all, and that something has gone wrong with lockmeter.  What sort of NIC
-are you using?
+$(RPM) -ta --target=i686 $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
 
-Bear in mind that if some other device generates an interrupt while the CPU
-is running boomerang_interrupt(), lockmeter will count the time spent in
-that other device's interrupt as "time spent in boomerand_interrupt()". 
-Which is very true, but it is not much help when one is trying to identify
-the source of the problem.
-
-Perhaps what you should do is to do an rdtsc on entry and exit of do_IRQ()
-and print stuff out when "long" periods of time in do_IRQ() are noticed.
+before you do the build.
+-eric
 

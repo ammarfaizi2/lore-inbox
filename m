@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286126AbRLJAzz>; Sun, 9 Dec 2001 19:55:55 -0500
+	id <S286129AbRLJBCp>; Sun, 9 Dec 2001 20:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286127AbRLJAzq>; Sun, 9 Dec 2001 19:55:46 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:51981 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286126AbRLJAzg>; Sun, 9 Dec 2001 19:55:36 -0500
-Date: Sun, 9 Dec 2001 16:57:29 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] Scheduler queue implementation ...
-In-Reply-To: <E16DEdR-0008Tn-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0112091647360.996-100000@blue1.dev.mcafeelabs.com>
+	id <S286128AbRLJBCf>; Sun, 9 Dec 2001 20:02:35 -0500
+Received: from shell.cyberus.ca ([216.191.240.114]:25596 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S286127AbRLJBCR>;
+	Sun, 9 Dec 2001 20:02:17 -0500
+Date: Sun, 9 Dec 2001 19:58:40 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: bert hubert <ahu@ds9a.nl>
+cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+In-Reply-To: <20011209231340.A23420@outpost.ds9a.nl>
+Message-ID: <Pine.GSO.4.30.0112091956500.6079-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001, Alan Cox wrote:
 
-> > What we lose is the mm ( + 1) goodness() but the eventual cost of
-> > switching mm is melted inside the long execution time ( 50-60 ms ) typical
-> > of CPU bound tasks ( note that matching MMs does not mean matching cache
-> > image ).
+
+On Sun, 9 Dec 2001, bert hubert wrote:
+
+> On Sun, Dec 09, 2001 at 05:07:03PM -0500, jamal wrote:
+> > > > So priority limits the size of skb->priority to be from 0..6; this wont
+> > > > work with that check in cbq.
+> > >
+> > > No, only IP_TOS does so.
+> >
+> > probaly ip precedence. Have you tried this or you are following what the
+> > man pages say?
 >
-> The mm matching and keeping an mm on the same cpu is critical for a lot of
-> applications (your 50ms execution time includes 2ms loading the cache from
-> the other CPU in some cases). Keeping the same mms together on the processor
-> is critical for certain platforms (eg ARM) but not for x86 so much.
+> I have been living in the source for quite a while now - see ip_setsockopt()
+> in net/ipv4/ip_sockglue.c.
+>
 
-Alan, you're mixing switch mm costs with cache image reload ones.
-Note that equal mm does not mean matching cache image, at all.
-I would say that they're completely unrelated.
-By having only two queues maintain the implementation simple and solves
-99% of common/extraordinary cases.
-The cost of a tlb flush become "meaningful" for I/O bound tasks where
-their short average run time is not sufficent to compensate the tlb flush
-cost, and this is handled correctly/like-usual inside the I/O bound queue.
+Thats the wrong place to look. Look instead at:
+net/core/sock.c
+I got it; non root is limited to 0..6; root can set the full 32 bit range.
 
-
-
-
-- Davide
-
-
-
+cheers,
+jamal
 

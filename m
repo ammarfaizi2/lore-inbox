@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267339AbSLKWdb>; Wed, 11 Dec 2002 17:33:31 -0500
+	id <S267344AbSLKWdp>; Wed, 11 Dec 2002 17:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267345AbSLKWcH>; Wed, 11 Dec 2002 17:32:07 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6660 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267339AbSLKWcB>;
-	Wed, 11 Dec 2002 17:32:01 -0500
-Date: Tue, 10 Dec 2002 23:01:27 +0100
+	id <S267345AbSLKWdh>; Wed, 11 Dec 2002 17:33:37 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267344AbSLKWcE>;
+	Wed, 11 Dec 2002 17:32:04 -0500
+Date: Tue, 10 Dec 2002 22:52:36 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: hp100: Detect coax cabling
-Message-ID: <20021210220127.GA544@elf.ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Kill crap from hp100.c
+Message-ID: <20021210215236.GA494@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,71 +22,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This is only non-trivial patch from this series. It prints coax
-vs. 10baseT information to the user, and fixes indentation. Please apply,
-
+This kills assorted crap from hp100 driver. (For 2.4 and 2.5)
 								Pavel
+
 
 --- clean/drivers/net/hp100.c	2002-11-23 19:55:22.000000000 +0100
 +++ linux-swsusp/drivers/net/hp100.c	2002-12-09 21:19:48.000000000 +0100
-@@ -356,8 +353,8 @@
-  * address - Jean II */
- static inline dma_addr_t virt_to_whatever(struct net_device *dev, u32 * ptr)
- {
--  return ((u_long) ptr) +
--    ((struct hp100_private *) (dev->priv))->whatever_offset;
-+	return ((u_long) ptr) +
-+		((struct hp100_private *) (dev->priv))->whatever_offset;
- }
+@@ -117,7 +117,6 @@
+ #include <asm/bitops.h>
+ #include <asm/io.h>
  
- /* TODO: This function should not really be needed in a good design... */
-@@ -854,7 +849,10 @@
- 		printk("100Mb/s Voice Grade AnyLAN network.\n");
- 		break;
- 	case HP100_LAN_10:
--		printk("10Mb/s network.\n");
-+		printk("10Mb/s network (10baseT).\n");
-+		break;
-+	case HP100_LAN_COAX:
-+		printk("10Mb/s network (coax).\n");
- 		break;
- 	default:
- 		printk("Warning! Link down.\n");
-@@ -2535,11 +2534,16 @@
- 		return HP100_LAN_10;
+-#define LINUX_2_1
+ typedef struct net_device_stats hp100_stats_t;
  
- 	if (val_10 & HP100_AUI_ST) {	/* have we BNC or AUI onboard? */
-+		/*
-+		 * This can be overriden by dos utility, so if this has no effect,
-+		 * perhaps you need to download that utility from HP and set card
-+		 * back to "auto detect".
-+		 */
- 		val_10 |= HP100_AUI_SEL | HP100_LOW_TH;
- 		hp100_page(MAC_CTRL);
- 		hp100_outb(val_10, 10_LAN_CFG_1);
- 		hp100_page(PERFORMANCE);
--		return HP100_LAN_10;
-+		return HP100_LAN_COAX;
- 	}
+ #include "hp100.h"
+@@ -285,7 +284,6 @@
  
- 	if ((lp->id->id == 0x02019F022) ||
---- clean/drivers/net/hp100.h	2001-05-16 19:25:38.000000000 +0200
-+++ linux-swsusp/drivers/net/hp100.h	2002-11-28 21:18:09.000000000 +0100
-@@ -518,12 +518,13 @@
-  */
- #define HP100_LAN_100		100	/* lan_type value for VG */
- #define HP100_LAN_10		10	/* lan_type value for 10BaseT */
-+#define HP100_LAN_COAX		9	/* lan_type value for Coax */
- #define HP100_LAN_ERR		(-1)	/* lan_type value for link down */
+ #define HP100_PCI_IDS_SIZE	(sizeof(hp100_pci_ids)/sizeof(struct hp100_pci_id))
  
- #define TRUE 1
- #define FALSE 0
+-#if LINUX_VERSION_CODE >= 0x20400
+ static struct pci_device_id hp100_pci_tbl[] __initdata = {
+ 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585A, PCI_ANY_ID, PCI_ANY_ID,},
+ 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585B, PCI_ANY_ID, PCI_ANY_ID,},
+@@ -294,7 +292,6 @@
+ 	{}			/* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(pci, hp100_pci_tbl);
+-#endif				/* LINUX_VERSION_CODE >= 0x20400 */
  
- 
- /* 
-  * Bus Master Data Structures  ----------------------------------------------
-  */
-
+ static int hp100_rx_ratio = HP100_DEFAULT_RX_RATIO;
+ static int hp100_priority_tx = HP100_DEFAULT_PRIORITY_TX;
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

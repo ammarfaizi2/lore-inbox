@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264270AbRFOIf0>; Fri, 15 Jun 2001 04:35:26 -0400
+	id <S264271AbRFOIqH>; Fri, 15 Jun 2001 04:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264271AbRFOIfQ>; Fri, 15 Jun 2001 04:35:16 -0400
-Received: from [212.141.54.101] ([212.141.54.101]:21636 "EHLO
-	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
-	id <S264270AbRFOIfA>; Fri, 15 Jun 2001 04:35:00 -0400
-Date: Fri, 15 Jun 2001 10:34:50 +0200
-From: Gianluca Anzolin <g.anzolin@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: Odd size of Shared Memory
-Message-ID: <20010615103450.A256@fourier.home.intranet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264272AbRFOIpr>; Fri, 15 Jun 2001 04:45:47 -0400
+Received: from hood.tvd.be ([195.162.196.21]:44848 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S264271AbRFOIpj>;
+	Fri, 15 Jun 2001 04:45:39 -0400
+Date: Fri, 15 Jun 2001 10:42:48 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Tom Gall <tom_gall@vnet.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <15145.3254.105970.424506@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.05.10106151041590.32503-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was trying 2.4.5-ac14 this morning. I issued some command to test
-buffer and page cache behaviour
+On Thu, 14 Jun 2001, David S. Miller wrote:
+> Albert D. Cahalan writes:
+>  > >>    /proc/bus/PCI/0/0/3/0/config   config space
+>  > >
+>  > > Which breaks xfree86 instantly.  This fix is unacceptable.
+>  > 
+>  > Nope. Keep /proc/bus/pci until Linux 3.14 if you like.
+>  > The above is /proc/bus/PCI. That's "PCI", not "pci".
+>  > We still have /proc/pci after all.
+> 
+> Oh I see.
+> 
+> Well, xfree86 and other programs aren't going to look there, so
+> something had to be done about the existing /proc/bus/pci/* hierarchy.
+> 
+> To be honest, xfree86 needs the controller information not for the
+> sake of device probing, it needs it to detect resource conflicts.
 
-I run 2 cat /dev/hda > /dev/null and  find / -name \* concurrently
+Well, those resource conflicts shouldn't be there in the first place. They
+should be handled by the OS.
 
-When find finished I ran free and it gave me
+Gr{oetje,eeting}s,
 
-fourier:~# free
-             total       used       free     shared    buffers	cached
-Mem:        126996     124104       2892 4294967212      98944	9148
--/+ buffers/cache:      16012     110984
-Swap:       128480       3760     124720
+						Geert
 
-fourier:~# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-	Mem:  130043904 127098880  2945024 4294881280 100589568  9969664
-	Swap: 131563520  3850240 127713280
-	MemTotal:       126996 kB
-	MemFree:          2876 kB
-	MemShared:    4294967212 kB
-	Buffers:         98232 kB
-	Cached:           9736 kB
-	Active:          93716 kB
-	Inact_dirty:     12848 kB
-	Inact_clean:      1320 kB
-	Inact_target:        4 kB
-	HighTotal:           0 kB
-	HighFree:            0 kB
-	LowTotal:       126996 kB
-	LowFree:          2876 kB
-	SwapTotal:      128480 kB
-	SwapFree:       124720 kB
-	
-It seems a kernel bug to me, but it didn't hurt, my PC is working
-without problems
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-	Gianluca Anzolin
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

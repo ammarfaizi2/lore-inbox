@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316433AbSEWSq1>; Thu, 23 May 2002 14:46:27 -0400
+	id <S316982AbSEWStC>; Thu, 23 May 2002 14:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316982AbSEWSq0>; Thu, 23 May 2002 14:46:26 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18187
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316433AbSEWSqZ>; Thu, 23 May 2002 14:46:25 -0400
-Date: Thu, 23 May 2002 11:44:44 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: "Gryaznova E." <grev@namesys.botik.ru>, linux-kernel@vger.kernel.org
-Subject: Re: IDE problem: linux-2.5.17
-In-Reply-To: <20020523180357.GA725@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.10.10205231143390.22581-100000@master.linux-ide.org>
+	id <S316983AbSEWStB>; Thu, 23 May 2002 14:49:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35596 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316982AbSEWStA>;
+	Thu, 23 May 2002 14:49:00 -0400
+Message-ID: <3CED3954.44998141@zip.com.au>
+Date: Thu, 23 May 2002 11:47:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Hilbert Barelds <hilbert@hjb-design.com>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
+In-Reply-To: <Pine.LNX.4.44.0205231345400.23578-100000@netfinity.realnet.co.sz> <1022170254.1806.0.camel@calvin.hjblocal.nl>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Not true at all.
-
-Many of the OEM's use 40c's to do 66 and 100, just they have to be very
-high quality and about 6" in length.
-
-On Thu, 23 May 2002, Tomas Szepe wrote:
-
-> > I have 40 wires cable. When ide=nodma is passed to 2.5.17 kernel -
-> > kernel boots. Am I correct that it is not possible to have DMA
-> > on with such cable? Is there any reason for doing that?
+Hilbert Barelds wrote:
 > 
-> 40-conductor IDE cables are capable of transfering data
-> in DMA modes up to udma2, but no faster.
+> On Thu, 2002-05-23 at 13:48, Zwane Mwaikambo wrote:
+> > On Thu, 23 May 2002 hilbert@hjb-design.com wrote:
+> >
+> > > PS The 3com card complains about a "transpoder" x times.
+> >
+> > Can you get the exact error message? Is the driver modular?
 > 
-> T.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> The exact error message is:
+> PCI: Found IRQ 12 for device 00:0a.0
+> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> 00:0a.0: 3Com PCI 3c900 Boomerang 10Mbps Combo at 0xdc00. Vers LK1.1.17
+> phy=0, phyx=24, mii_status=0xffff
+> phy=1, phyx=0, mii_status=0xffff
 
-Andre Hedrick
-LAD Storage Consulting Group
+That's just a rampant printk - no real problem.  The
+3c59x update was, err, somewhat unexpected.  I've actually
+asked Marcelo to back out to the 2.4.18 version because
+there has been one report of a transceiver selection failure
+with the 2.4.19-pre8 driver.
 
+The thing's totally fragile, I'm afraid.  It supports 32 different
+devices, of which I have five.  If you change anything, you break
+something, and for some types of cards it takes months before
+you hear about the breakage.
+
+
+-

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262480AbUJ0PGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbUJ0PJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262480AbUJ0PGr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUJ0PGr
+	id S262443AbUJ0PJm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbUJ0PJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:06:47 -0400
-Received: from ida.rowland.org ([192.131.102.52]:5892 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262480AbUJ0PE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:04:57 -0400
-Date: Wed, 27 Oct 2004 11:04:57 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC as402] Delaying module memory release
-In-Reply-To: <1098844811.22012.29.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0410271100480.1364-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Oct 2004 11:09:37 -0400
+Received: from 66-61-159-17.dialroam.rr.com ([66.61.159.17]:52744 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S262458AbUJ0PIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:08:10 -0400
+Date: Wed, 27 Oct 2004 11:03:35 -0400
+From: Joseph Fannin <jfannin1@columbus.rr.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Mathieu Segaud <matt@minas-morgul.org>,
+       jfannin1@columbus.rr.com, agk@redhat.com, christophe@saout.de,
+       linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+Message-ID: <20041027150333.GA2353@samarkand.rivenstone.net>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Andrew Morton <akpm@osdl.org>,
+	Mathieu Segaud <matt@minas-morgul.org>, jfannin1@columbus.rr.com,
+	agk@redhat.com, christophe@saout.de, linux-kernel@vger.kernel.org,
+	bzolnier@gmail.com
+References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net> <20041026123651.GA2987@zion.rivenstone.net> <20041026135955.GA9937@agk.surrey.redhat.com> <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org> <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org> <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027064146.GG15910@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Rusty Russell wrote:
-
-> On Tue, 2004-10-26 at 15:52 -0400, Alan Stern wrote:
-> > This issue has come up in the past, without much in the way of visible 
-> > results.
+On Wed, Oct 27, 2004 at 08:41:46AM +0200, Jens Axboe wrote:
+> On Wed, Oct 27 2004, Jens Axboe wrote:
+> > On Tue, Oct 26 2004, Andrew Morton wrote:
+> > > Mathieu Segaud <matt@minas-morgul.org> wrote:
+> > > > Andrew Morton <akpm@osdl.org> disait derni?rement que :
+> > > > 
+> > > >  > If you have time, please restore dio-handle-eof.patch and then apply the
+> > > >  > below fixup, then retest.  Thanks.
+> > > > 
+> > > >  I had time to test this fix; it did not solve the problem. Whereas reverting
+> > > >  the complete dio-handle-eof.patch solved it.
+> > > 
+> > > bummer.  Can you send a super-simple means by which I can demonstrate the
+> > > problem?
 > > 
-> > The problem is that sometimes the memory for a kernel module needs to be
-> > freed _after_ rmmod has exited.  The classic example is where the standard
-> > input to the rmmod process has been redirected to a pseudo-file that pins
-> > a kobject whose release method calls into the module.  Another example
-> > (which could be worked around with some effort) is multiple kernel threads
-> > executing in the module -- the module exit routine would have to wait for 
-> > each one of them to terminate.
-> > 
-> > In these cases it's not desirable/feasible to increment the module's 
-> > refcount.
+> > Hmm, maybe round the value up to a PAGE_SIZE in length?
 > 
-> Why not?  In the former the module is still in use, in the latter the
-> module_exit routine is expected to clean up.
+> This feels pretty icky, but should suffice for testing. Does it make a
+> difference?
 
-I have to apologize.  Shortly after sending off the earlier email message, 
-I realized that the problem with sysfs pinning kobjects had already been 
-fixed by taking a reference to the attribute's owner module.  The other 
-problem can be handled by other means.  So my proposed change really is 
-not needed.
+    I made this change to 2.6.9-mm1 and it didn't.  vgchange still
+seems to be trying to read 2048 bytes, rather than 4096 (I may not
+know what I'm talking about, or even what I'm looking at, though).
 
-Consider the patch revoked.
+-- 
+Joseph Fannin
+jfannin1@columbus.rr.com
 
-Alan Stern
-
+"Bull in pure form is rare; there is usually some contamination by data."
+    -- William Graves Perry Jr.

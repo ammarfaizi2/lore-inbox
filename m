@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264146AbTFPTBu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFPTBu
+	id S264156AbTFPTB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 15:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTFPTB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:01:50 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:49673 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S264146AbTFPTBt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:01:49 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: continuous backtrace ... ?
-Date: Mon, 16 Jun 2003 12:15:41 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGCEPICPAA.rwhite@casabyte.com>
+	Mon, 16 Jun 2003 15:01:57 -0400
+Received: from mailf.telia.com ([194.22.194.25]:56551 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S264156AbTFPTBz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 15:01:55 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Message-ID: <3EEE173A.8040802@telia.com>
+Date: Mon, 16 Jun 2003 21:15:06 +0200
+From: Peter Lundkvist <p.lundkvist@telia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.71 go boom
+References: <87isr7cjra.fsf@jumper.lonesom.pp.fi> <20030615191125.I5417@flint.arm.linux.org.uk> <87el1vcdrz.fsf@jumper.lonesom.pp.fi> <20030615212814.N5417@flint.arm.linux.org.uk> <87he6qc3bb.fsf@jumper.lonesom.pp.fi> <20030616085403.A5969@flint.arm.linux.org.uk>
+In-Reply-To: <20030616085403.A5969@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.74.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Russell King wrote:
+> 
+> Which was the latest kernel version which didn't show the problem?
+> There doesn't seem to be any PCI, PCMCIA or driver model changes
+> from 2.5.70-bk12 to 2.5.70-bk13.
+> 
+> There are changes in:
+> 
+> 	-bk11 (pci)
+> 	-bk10 (pci)
+> 	-bk9 (driver model)
+> 	-bk4 (pci)
+> 	-bk2 (pcmcia)
 
-I have a 2.5.70 kernel image which, at boot, goes into a continuously
-looping backtrace.  It scrolls up the screen too fast and continuously to
-read but it is clearly a backtrace. If I just relax and watch I can see the
-[bracketed hex] and routine name shape of it whizzing by.
+I get the same problems: cardbus works only if I boot with the card
+inserted. If I insert the card later I get two PCI device entries
+for the device, and can't get any interrupts from the card (sometimes
+the driver complains about the chip not responding (8139too)).
+Tested with the following versions (exactly the same behaviour):
+   2.5.69-bk10
+   2.5.70
+   2.5.70-bk2
+   2.5.70-bk5
+   2.5.70-bk18
+   2.5.71
 
-This happens while the file systems are read only and the system doesn't
-respond to the keyboard at all.
+2.5.69-bk9 was OK.
 
-Is there any good way to capture this stream of data in any kind of useful
-way?  or at least pause the spew so that I can find the general locus of the
-problem?
+/peter
 
-Given the immediacy of the problem (it appears just-about-concurrently with
-attempt to draw the boot logo) I suspect that it has something to do with
-the console driver (radeon frame buffer VGA console in normal mode)
-interacting with my All-In-Wonder 9700 pro and the very new P4-3ghz in
-hyperthreading mode.
-
-
-Rob.
-
-P.S. I realize suddenly that I should at least include the .config file but
-the machine is at home and turned off just now... 8-)
 

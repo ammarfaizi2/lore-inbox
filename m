@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285017AbRLZWqP>; Wed, 26 Dec 2001 17:46:15 -0500
+	id <S284973AbRLZWmP>; Wed, 26 Dec 2001 17:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285016AbRLZWqG>; Wed, 26 Dec 2001 17:46:06 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7948 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S285013AbRLZWp5>;
-	Wed, 26 Dec 2001 17:45:57 -0500
-Date: Wed, 26 Dec 2001 20:46:16 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Vacation
-Message-ID: <20011226204616.A27612@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0112261917480.9973-100000@freak.distro.conectiva> <Pine.LNX.4.33L.0112262038340.24031-100000@imladris.surriel.com>
+	id <S285000AbRLZWmF>; Wed, 26 Dec 2001 17:42:05 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33153 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S284973AbRLZWl6>;
+	Wed, 26 Dec 2001 17:41:58 -0500
+Date: Wed, 26 Dec 2001 17:41:57 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: =?iso-8859-1?Q?Eliezer_dos_Santos_Magalh=E3es?= 
+	<magalhaes@intime-net.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: writing device drivers
+Message-ID: <20011226174157.A14542@havoc.gtf.org>
+In-Reply-To: <F68qvDuJhqFo9iLG7c500010b4e@hotmail.com> <01c301c18e45$6e2dd6b0$6400000a@cyber>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0112262038340.24031-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01c301c18e45$6e2dd6b0$6400000a@cyber>; from magalhaes@intime-net.com.br on Wed, Dec 26, 2001 at 05:42:16PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Dec 26, 2001 at 08:39:48PM -0200, Rik van Riel escreveu:
-> On Wed, 26 Dec 2001, Marcelo Tosatti wrote:
-> 
-> > I'm going out on vacation (beach, weee) tomorrow (Thursday), and I'll
-> > return around Jan 4.
-> >
-> > Unfortunately there will be no Internet connection at the place I'll
-> > stay, sorry.
-> 
-> ITYM "fortunately".
-> 
-> Nothing is as good for relaxing (and hacking) as being
-> away from the internet for a week or so ;)
+On Wed, Dec 26, 2001 at 05:42:16PM -0200, Eliezer dos Santos Magalhães wrote:
+> where can I find a good paper , or something good that could teach me how to
+> write device drivers ?? I really would like to know , mainly network device
+> drivers , for example , how could I re-write the rtl8139 driver ?
 
-Yeah, he came to me and said: save my life, get a Conectiva notebook for me
-to use while on the beach! ;)
+For kernel 2.4, the -2nd- edition of _Linux Device Drivers_ is good, but
+it doesn't cover nearly everything you need to know...  your best
+reference is existing network driver source code for recent PCI drivers.
 
-- Arnaldo
+And, are you having problems with rtl8139 or was that just an example?  :)
+
+	Jeff
+
+

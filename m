@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263461AbTDXQ52 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 12:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbTDXQ52
+	id S263764AbTDXRJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 13:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTDXRJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 12:57:28 -0400
-Received: from dyn-ctb-210-9-246-63.webone.com.au ([210.9.246.63]:58884 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263461AbTDXQ50
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 12:57:26 -0400
-Message-ID: <3EA81A3B.80800@cyberone.com.au>
-Date: Fri, 25 Apr 2003 03:09:15 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Badness in as-iosched:1210
-References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com> <3EA7A0CC.50005@cyberone.com.au> <20030424084717.GF8775@suse.de>
-In-Reply-To: <20030424084717.GF8775@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 24 Apr 2003 13:09:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48351 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263416AbTDXRJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 13:09:55 -0400
+Date: Thu, 24 Apr 2003 10:20:36 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "ramands" <ramands@indiatimes.com>
+Cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
+Subject: Re: OOPS in Kmalloc
+Message-Id: <20030424102036.284ea84e.rddunlap@osdl.org>
+In-Reply-To: <200304240813.NAA23499@WS0005.indiatimes.com>
+References: <200304240813.NAA23499@WS0005.indiatimes.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
 
->On Thu, Apr 24 2003, Nick Piggin wrote:
->
->>Zwane Mwaikambo wrote:
->>
->>
->>>I'm not sure wether you want this, it was during error handling from the 
->>>HBA driver (source was disk error).
->>>
->>>scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 00 
->>>00 80 00 Info fld=0x7fdeb2, Current sdd: sense key Medium Error
->>>Additional sense: Unrecovered read error
->>>end_request: I/O error, dev sdd, sector 8380032
->>>Badness in as_add_request at drivers/block/as-iosched.c:1210
->>>
->>>
->>Thanks I'll have a look.
->>
->
->The debug check looks broken, request could have come from somewhere
->else than the block pool.
->
-Thats right. I thought these requests would all be
-!blk_fs_request()s though. It should be only the debug
-checks which are wrong.
+| ; Hello,
+| ; i am getting OOPS in Kmalloc .
+| ;
+| ; void **data;
+| ; qset = 1000;
+| ;
+| ; dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
+| ;
+| ; what could the possible the cause of the error
+| ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| As I am so fond of saying, it's almost always correct to indicate what
+| kernel version one if referring to in a problem report.
+| 
+| Please decode the oops output and post it here.
 
+
+I can't reproduce this problem on Linux 2.5.68.
+However, I did initialize dptr before using it.  Did you?
+
+You see, I can't tell if you did or not because you didn't post
+a complete sample to reproduce the problem.
+
+--
+~Randy

@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316965AbSFFNXG>; Thu, 6 Jun 2002 09:23:06 -0400
+	id <S316953AbSFFNYh>; Thu, 6 Jun 2002 09:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316964AbSFFNXF>; Thu, 6 Jun 2002 09:23:05 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:8 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S316953AbSFFNXE>; Thu, 6 Jun 2002 09:23:04 -0400
-Date: Thu, 6 Jun 2002 17:22:30 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, anton@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-Message-ID: <20020606172230.A5963@jurassic.park.msu.ru>
-In-Reply-To: <20020605182316.B3437@jurassic.park.msu.ru> <Pine.LNX.4.33.0206051653310.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S316961AbSFFNYg>; Thu, 6 Jun 2002 09:24:36 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:53002 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S316953AbSFFNYV>; Thu, 6 Jun 2002 09:24:21 -0400
+Message-ID: <3CFF62A7.2AB5B0F1@compro.net>
+Date: Thu, 06 Jun 2002 09:24:55 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Hudec <bulb@ucw.cz>
+CC: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Load kernel module automatically
+In-Reply-To: <3CFD19D1.5768FCF8@compro.net> <20020605194716.4290.qmail@web14906.mail.yahoo.com> <20020606085907.GA28704@artax.karlin.mff.cuni.cz> <3CFF2880.8D697F90@cfl.rr.com> <20020606112234.GA20035@artax.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 05:01:30PM -0700, Patrick Mochel wrote:
-> > Real life example: jensen running generic alpha kernel.
+Jan Hudec wrote:
 > 
-> That's fine. That's exactly the same thing that happens with device
-> drivers you have compiled in but don't have hardware for and have hotplug
-> enabled. The fact that it's registered with the system simply advertises
-> its support.
+> On Thu, Jun 06, 2002 at 05:16:48AM -0400, Mark Hounschell wrote:
+> > That isn't the case.  There is no /etc/modules file on any Linux box I've
+> > ever used. My network driver modules are loaded automatically by the kernel's
+> > internal module loader "kmod" because the are set up correctly in /etc/modules.conf.
+> >
+> > "alias eth0 3c905"
+> >
+> > ALL device driver modules can be set up to load automatacally by "kmod".
+> 
+> That I didn't know. However, I have a computer with four network cards
+> in it. Since they are numbered dynamicaly, loading modules in different
+> order results in different numbering of devices. How do I assure that
+> upon request for eg. eth2 the loaded module is assigned eth2?
 
-Ok, this makes sense.
+The order in which they are labeled is the order the are found during the pci scan.
+The lspci command should tell you which is which. Then place the correct entries in
+/etc/modules.conf
 
-Ivan.
+
+alias eth0 3c905
+alias eth1 blabla
+alias eth2 blablaaaa
+.
+.
+
+
+Regards
+Mark

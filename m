@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264284AbTKUEEH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 23:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTKUEEH
+	id S264198AbTKUE14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 23:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTKUE14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 23:04:07 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:16763 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264284AbTKUEEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 23:04:04 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Corrected drivermodel for i8042.c
-Date: Thu, 20 Nov 2003 23:03:57 -0500
-User-Agent: KMail/1.5.4
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@ucw.cz
-References: <20031116131134.GA301@elf.ucw.cz> <200311161520.03425.dtor_core@ameritech.net> <20031117085123.GF643@openzaurus.ucw.cz>
-In-Reply-To: <20031117085123.GF643@openzaurus.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311202303.57999.dtor_core@ameritech.net>
+	Thu, 20 Nov 2003 23:27:56 -0500
+Received: from [218.18.133.84] ([218.18.133.84]:33098 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S264198AbTKUE1y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 23:27:54 -0500
+From: "sales of HY" <hongkonghy@sina.com>
+Subject: New price list for mp3 player, digital camera, cd/vcd/mp3 player and
+ USB flash drive!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hongkonghy@sina.com
+Date: Fri, 21 Nov 2003 12:27:58 +0800
+X-Priority: 2
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <S264198AbTKUE1y/20031121042754Z+8771@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 November 2003 03:51 am, Pavel Machek wrote:
-> Hi!
->
-> > > +static int i8042_resume_port(struct serio *port)
-> > > +{
-> > > +	struct serio_dev *dev = port->dev;
-> > > +	if (dev) {
-> > > +		dev->disconnect(port);
-> > > +		dev->connect(port, dev);
-> > > +	}
-> > > +}
-> >
-> > You want to do that event if there was nothing attached to the port
-> > as a mouse might get plugged in while the box is suspended. I think
-> > serio_rescan() is more appropriate (it will do a disconnect if needed
-> > for you).
->
-> I tried doing _rescan() but could not figure it out :-(.
->
-> > Overall there is a problem with disconnect/connect method as it will
-> > cause a new input device created for the same hardware if old input
-> > device is held open by some process. If ever serio_reconnect patches
-> > will make in the tree then serio_reconnect() can be used instead of
->
-> Where can I get _reconnect() patches?
+Dear valued customer,
 
-Please take a look in -mm tree serio-* patches. I believe if you apply them 
-and then copy psmouse_pm_callback into i8042_resume_port it should work.
+Sorry to disturb you about this letter.
 
-Dmitry
+We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB 
+flash drive in Shenzhen, China.
+
+Please see the price of some products:
+
+mp3 and WMA player with digital recorder and USB flash drive
+64M 39USD    128M   52USD   256M  81USD
+
+cd/vcd/mp3 player (3 function in 1)
+22 USD
+
+digital camera
+350K pixels  15USD     
+1.3M pixels  17USD
+2.1M pixels  36USD
+
+PC camera
+12USD 350K pixel
+
+USB flash drive
+64M  17.9USD       128M  29.9USD      256M  54.9USD     
+
+If you have interest, please contact us and we will give you the detailed catalogue and price 
+list. 
+
+We always try our best to attract our clients with unbeatable prices and quality. Our goal is 
+to treat every client the same as the most potential business partner.So however the client is 
+big or small,we offer the best service. 
+
+Any question, please contact me at any time.
+ 
+Have a nice day!
+
+Best Regards,
+
+Frank Ho
+HY Technology (Hong Kong) Company Ltd.

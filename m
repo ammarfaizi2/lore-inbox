@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbRE0Vfk>; Sun, 27 May 2001 17:35:40 -0400
+	id <S262421AbRE0VsX>; Sun, 27 May 2001 17:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbRE0Vfa>; Sun, 27 May 2001 17:35:30 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:37638 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S262384AbRE0VfS>; Sun, 27 May 2001 17:35:18 -0400
-Message-ID: <3B117412.A196A70C@chromium.com>
-Date: Sun, 27 May 2001 14:39:30 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac1 won't boot with 4GB bigmem option
-In-Reply-To: <E15482F-0002Mz-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262420AbRE0VsO>; Sun, 27 May 2001 17:48:14 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:17087 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S262415AbRE0VsD>; Sun, 27 May 2001 17:48:03 -0400
+Date: Sun, 27 May 2001 14:47:57 -0700 (PDT)
+From: Chris Rankin <rankinc@pacbell.net>
+Subject: Hard lockup switching to X from vc; Matrox G400 AGP
+To: linux-kernel@vger.kernel.org
+Message-id: <200105272147.f4RLlv300461@twopit.underworld>
+MIME-version: 1.0
+X-Mailer: ELM [version 2.5 PL3]
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+REF: Linux 2.4.5, 2.4.4, 2.4.3 (and probably earlier);
+     devfs;
+     SMP (dual PIII);
+     < 1GB main memory
 
-> >  > mm: critical shortage of bounce buffers.
-> >
-> > Indeed this message has been pestering me in all the recent .4-acx kernels when
-> > the machine is under heavy FS pressure.
-> >
-> > In these kernels I observe a significative (5-10%) performance degradation as
-> > soon as the FS cache fills up all the available memory, at this moment "kswapd"
->
-> Its there to prove we had a problem
+Hi,
 
-granted
+Has anyone noticed their Linux box lock up hard (as in cannot even be
+pinged from the local network) when switching from a text vc to a vc
+running X? This has happened for me even without the mga.o and
+agpgart.o modules being loaded. My current workaround has been to swap
+out the Matrox-supplied mga_drv.o and mga_hal_drv.o modules and
+replace them with the ones from the standard X 4.03 distribution, but
+these are userspace objects and shouldn't be capable of bringing the
+kernel down. (Like I said, the machine can't even be pinged.)
 
-> > 2.4.2-acx and early 2.4.3-acx kernles were much better in this respect and a lot
-> > more stable.
->
-> Hit any 2.4 kernel pre 2.4.5 vanilla [maybe fixed] and you will break bigmem
-> that way.
+My best guess is that the mga_hal_drv.o object is ticking an obscure
+kernel bug. I am raising this with the Matrox support line as well.
 
-I've been using many kernels (I upgrade every week or so) and as far as I can
-recollect I started experiencing serious performance problems with the 2.4.4 series.
-I'm double checking my data right now with older kernels.
-
- - Fabio
-
-
+Cheers,
+Chris

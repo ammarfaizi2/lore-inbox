@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317523AbSFEBCY>; Tue, 4 Jun 2002 21:02:24 -0400
+	id <S317525AbSFEBHh>; Tue, 4 Jun 2002 21:07:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317524AbSFEBCX>; Tue, 4 Jun 2002 21:02:23 -0400
-Received: from ns.suse.de ([213.95.15.193]:44553 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317523AbSFEBCW>;
-	Tue, 4 Jun 2002 21:02:22 -0400
-Date: Wed, 5 Jun 2002 03:02:23 +0200
-From: Dave Jones <davej@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: 2.4.19-pre10-ac1: Hardcoded cpu_khz in powernow-k6.c
-Message-ID: <20020605030223.A5277@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
-	arjanv@redhat.com
-In-Reply-To: <Pine.NEB.4.44.0206050236260.9994-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S317526AbSFEBHg>; Tue, 4 Jun 2002 21:07:36 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:2222 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317525AbSFEBHd>;
+	Tue, 4 Jun 2002 21:07:33 -0400
+Date: Tue, 04 Jun 2002 18:10:25 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Ruth Forester <lilo@us.ibm.com>, linux-kernel@vger.kernel.org
+cc: hannal@us.ibm.com
+Subject: Re: Lockstats for SMP DB Workload
+Message-ID: <55990000.1023239425@w-hlinder.des>
+In-Reply-To: <200206050016.g550Gl110934@eng4.beaverton.ibm.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 02:52:15AM +0200, Adrian Bunk wrote:
- > Hi Dave,
- > 
- > while reading through powernow-k6.c in 2.4.19-pre10-ac1 I found the
- > following that seems to be a bug:
- > 
- >   static unsigned long cpu_khz=350000;
- > 
- > Not every K6-2/3 runs at 350 MHz...
+--On Tuesday, June 04, 2002 17:16:46 -0700 Ruth Forester <lilo@us.ibm.com> wrote:
 
-iirc, there aren't any MSRs[*] on the K6-2 where we can read
-the current FSB.  I think 350MHz was used as it was probably
-the slowest K6-2 to be found at the time.  You can override
-it with boot time arguments.
+> Everyone, 
+> 
+> I am running with the following configuration
+> 
+> 	2.4.19pre8aa2+dj2+ (dj2 removes global semaphore_lock spinlock)
+> 	 +fast_walkA3-2_4_19-pre8_patch.
+> 
+> The database is set up to use raw-io, yet looking at this data, it appears that
+> I am still hitting a lot of filesystem accesses, among other things.  This is an
+> oltp workload, although there are some contentions (pread?) that cause the 
+> cpu sys time to go to 99%, it was during this part of the "workload" that this
+> snapshot of lockmeter was taken.
+> 
 
-    Dave.
+> SPINLOCKS         HOLD            WAIT
+>   UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
+> 
+>         6.7%  2.5us(  25ms)   62us(  12ms)( 6.8%)   2650959 93.3%  6.6% 0.05%  *TOTAL*
+> 
+>   2.4%  1.0%   38us(  15ms) 3185us(  12ms)(0.13%)      6291 99.0%  1.0%    0%  kernel_flag_cacheline
+>   2.3%  9.1% 6865us(  15ms) 3551us(5592us)(0.01%)        33 90.9%  9.1%    0%    do_exit+0xf4
 
-[*] The K6 style powernow was reverse engineered, as there were
-no publically available documents explaining it. All we can
-do is scale multipliers. No voltage scaling, no FSB decoding.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Dave Hanson has a do_exit patch you might want to look at...
+
+Hanna
+

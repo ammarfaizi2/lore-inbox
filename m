@@ -1,84 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289448AbSAJOF1>; Thu, 10 Jan 2002 09:05:27 -0500
+	id <S289456AbSAJOIe>; Thu, 10 Jan 2002 09:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289449AbSAJOFP>; Thu, 10 Jan 2002 09:05:15 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:36606 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S289448AbSAJOFC>; Thu, 10 Jan 2002 09:05:02 -0500
-Date: Thu, 10 Jan 2002 14:06:38 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, Dave Jones <davej@suse.de>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pagecache lock ordering
-In-Reply-To: <3C3CE5D6.2204BD27@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0201101332560.1121-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289457AbSAJOI2>; Thu, 10 Jan 2002 09:08:28 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23565 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289455AbSAJOIN>; Thu, 10 Jan 2002 09:08:13 -0500
+Date: Thu, 10 Jan 2002 15:08:10 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Simple local DOS
+Message-ID: <20020110140810.GJ1698@emma1.emma.line.org>
+Reply-To: matthias.andree@stud.uni-dortmund.de
+Mail-Followup-To: matthias.andree@stud.uni-dortmund.de
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Andrew Morton wrote:
-> Hugh Dickins wrote:
-> > 
-> > There's two places, do_buffer_fdatasync
+On Thu, 10 Jan 2002, David Balazic wrote:
+
+> I didn't do it on purpose to lock up my system and risk FS corruption
+> durin unclean reboot. I was interested in the server output and " 2>&1 | less"
+> is the logical way to do that.
 > 
-> generic_buffer_fdatasync() and hence do_buffer_fdatasync()
-> are completely unused.  It may be simpler to just trash
-> them.
+> I could also "solve" this problem by not running linux. And I can "solve" all
+> gcc bugs by not using gcc. Those are not solutions. Not to me at least.
 
-Oh, nice observation.  writeout_one_page could be trashed at
-the same time (but not waitfor_one_page, still in use elsewhere).
+It's not Linux-specific, but will ALWAYS happen when you use one program
+that eats all your input and pipe its output into another program that
+waits for your input. 
 
-But what's the chance that an out-of-tree filesystem might
-be using generic_buffer_fdatasync, which is still prototyped
-and exported?  Remove from 2.5 but leave in 2.4?  I'd like to
-see them go completely - revenge for being misled by them -
-but Marcelo may decide otherwise.
+What and when do you think you will eat when you feed your dog the
+sausage you want to eat yourself?
 
-> > and __find_lock_page_helper,
+> > output into interactive programs. tail -f is a viable workaround -- and 
 > 
-> Yeah.  The code can't deadlock because:
+> tail -f ? what is the difference between :
+> $ X 2>&1 | tail -f
+> and
+> $ X 
+
+That you're clueless.
+
+You'd do:
+
+X >/my/safe/tmp/dir/X.log 2>&1 & tail -f /my/safe/tmp/dir/X.log
+
+> > all this is off-topic on linux-kernel,
 > 
-> 	page_cache_get();
-===>	spin_unlock(&pagecache_lock);
-===>	lock_page();
-> 	spin_lock(&pagecache_lock);
-> 	page_cache_release();
-> 
-> we implicitly *know* that page_cache_release won't try
-> to acquire pagemap_lru_lock, because the page is in the
-> pagecache and has count=2 or more.  Which is a bit, umm,
-> subtle.
+> non-root user locked up the console code. console code is part of kernel.
+> it is a kernel topic.
 
-I'm not entirely convinced (you'll agree that the argument
-depends on rather more than you've stated there), but today
-I cannot support the counter-example I thought I had (a page
-already "on its way out": but we're more careful to hold both
-pagecache_lock and page lock when checking page count before
-removing from inode cache than I remembered).
+Nope. Non-root user has used setuid application and thus become root.
+Drop setuid privileges and use xdm/kdm/gdm if you're to avoid this.
 
-(Hmm, but if it's all thoroughly protected, why do we even bother
-to recheck mapping and index same there?  Perhaps the shmem case.)
+> My own dumbness ? Did you also say that ping-of-death is not a problem ?
 
-I was also overlooking that the lru_cache_del call was added into
-page_cache_release to cope with the _anonymous_ pages Linus put
-on LRU.  Cached pages were and are deleted from LRU before getting
-there, and __find_lock_page_helper applies to cached not anon pages.
+Ping-of-death is a kernel bug or correctness issue or whatever you call
+it. This is not. root gave away the privilege to redirect console input
+by installing a setuid-application, X, XFree86, Xwrapper, whatever it
+may be called.
 
-So I agree, both parts of my patch are unnecessary:
-harmless, but no justification for applying it.
-
-> I get the feeling that a lot of this would be cleaned up
-> if presence on an LRU contributed to page->count.  It
-> seems strange, kludgy and probably racy that this is not
-> the case.
-
-That makes a lot of sense: but I feel much safer in agreeing
-with you than in making the corresponding changes!
-
-Many thanks for looking it over,
-Hugh
-
+And now please take this off the list.

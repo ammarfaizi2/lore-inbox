@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318736AbSHANOZ>; Thu, 1 Aug 2002 09:14:25 -0400
+	id <S318745AbSHANPF>; Thu, 1 Aug 2002 09:15:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318737AbSHANOZ>; Thu, 1 Aug 2002 09:14:25 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:14575 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318736AbSHANOY>; Thu, 1 Aug 2002 09:14:24 -0400
-Subject: Re: Kernel panic on Dual Athlon MP
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lars Schmitt <lschmitt@e18.physik.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200208011224.g71COrW05657@pc02.e18.physik.tu-muenchen.de>
-References: <200208011224.g71COrW05657@pc02.e18.physik.tu-muenchen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 15:33:44 +0100
-Message-Id: <1028212424.14865.44.camel@irongate.swansea.linux.org.uk>
+	id <S318746AbSHANPF>; Thu, 1 Aug 2002 09:15:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:48308 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318745AbSHANPE>; Thu, 1 Aug 2002 09:15:04 -0400
+Date: Thu, 1 Aug 2002 18:52:36 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Mala Anand <manand@us.ibm.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+       lse <lse-tech@lists.sourceforge.net>,
+       Bill Hartner <Bill_Hartner@us.ibm.com>
+Subject: Re: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
+Message-ID: <20020801185236.B32256@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <OFAA15AB55.4677568D-ON87256C07.0049E839@boulder.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OFAA15AB55.4677568D-ON87256C07.0049E839@boulder.ibm.com>; from manand@us.ibm.com on Thu, Aug 01, 2002 at 07:42:10AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 13:24, Lars Schmitt wrote:
-> > On 2002-03-15 18:54:24 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >> Some gige cards don't seem to work with some dual athlon bioses. Other than
-> >> that it should be fine
+On Thu, Aug 01, 2002 at 07:42:10AM -0500, Mala Anand wrote:
 > 
-> Could you specify that a bit more? In particular, am I likely to
-> have such an unlucky combination? Would a BIOS upgrade help or
-> should I get a different GigE card?
+> 
+> Tony Luck wrote..
+> >> No I am using the object(beginning space) to store the links. When
+> >> allocated, I can initialize the space occupied by the link address.
+> 
+> >You can't use the start of the object (or any other part) in this way,
+> >you'll have no way to restore the value you overwrote.
+> 
+> >Take a look at Jeff Bonwick's paper on slab allocators which explains
+> >this a lot better than I can:
+> 
+> >
+> http://www.usenix.org/publications/library/proceedings/bos94/full_papers/bon
+> 
+> >wick.a
+> 
+> In the present design there is a limit on how many free objects are held
+> in the per cpu array. So when an object is freed it might end in another
+> cpu more often.  The main cost lies in memory latency than execution of
+> initializing the fields.  I doubt if we get the same gain as explained in
+> the paper by preserving the fields between uses on an SMP/NUMA machines.
+> 
+> I agree that preserving read only variables that can be used between uses
+> will help performance. We still can do that by revising the assumption to
+> leave the first 4 or whatever bytes needed to store the links. What do you
+> think?
 
-My board won't even POST with a tg3 card in it. With a newer BIOS it
-passes the POST test and seems to work with the kernel fixups for the 
-PCI bridges. There are also multiple people who had 3ware problems with
-very fast machines, but I gather the latest driver merge fixed that.
+Mala,
 
-So 2.4.9 I'd certainly expect to fail dismally. 2.4.18 ought to be ok as
-should 2.4.19rc4. I run my board with an aacraid scsi and with netgear
-ethernet and its stable. 
+Isn't it possible to tune the cpucache limit by writing to
+/proc/slabinfo so that you avoid frequent draining of free objects ?
+Am I missing something here ?
 
-Alan
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

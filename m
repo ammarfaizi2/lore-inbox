@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVAROwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVAROyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVAROwk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 09:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAROwk
+	id S261311AbVAROyD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 09:54:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAROyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 09:52:40 -0500
-Received: from mail6.hitachi.co.jp ([133.145.228.41]:12006 "EHLO
-	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S261307AbVAROwi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 09:52:38 -0500
-Message-ID: <41ED22AE.40809@sdl.hitachi.co.jp>
-Date: Tue, 18 Jan 2005 23:52:30 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: ja, en-us, en
+	Tue, 18 Jan 2005 09:54:02 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:53643 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261311AbVAROxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 09:53:50 -0500
+Message-ID: <41ED22F6.7040704@kolivas.org>
+Date: Wed, 19 Jan 2005 01:53:42 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lkst-develop@lists.sourceforge.net
-Subject: Re: [Lkst-develop] Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <41ECF0B6.30106@sdl.hitachi.co.jp> <20050118114632.GN43344@muc.de>
-In-Reply-To: <20050118114632.GN43344@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
+ scheduling
+References: <41ED08AB.5060308@kolivas.org>
+In-Reply-To: <41ED08AB.5060308@kolivas.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB1B3824E5CF1D1013267EBCB"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB1B3824E5CF1D1013267EBCB
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Andi Kleen wrote:
-> On Tue, Jan 18, 2005 at 08:19:18PM +0900, Masami Hiramatsu wrote:
-> 
->>Hello,
->>
->>I?m a developer of yet another kernel tracer, LKST. I and co-developers 
->>are very glad to hear that LTT was merged into -mm tree and to talk 
->>about the kernel tracer on this ML. Because we think that the kernel 
->>event tracer is useful to debug Linux systems, and to improve the kernel 
->>reliability.
-> 
-> 
-> I haven't looked at your code, but I would suggest you also post
-> for review it so that it can be evaluated in the same way
-> as other more noisy proposals.
-> 
-> Perhaps Andrew can test both for some time in MM like he used
-> to do for the various schedulers.
+Con Kolivas wrote:
+> This patch for 2.6.11-rc1 provides a method of providing real time
+> scheduling to unprivileged users which increasingly is desired for
+> multimedia workloads.
 
-Thanks to your advice.
-The latest release package of LKST baesd on linux-2.6.9 can be 
-downloaded from
-http://sourceforge.net/projects/lkst/
+I should have mentioned. Many thanks to Alex Nyberg for generous 
+debugging help.
 
-I'll release the LKST based on the latest kernel as soon as possible.
+Cheers,
+Con
 
-Regards,
+--------------enigB1B3824E5CF1D1013267EBCB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- 
-Masami HIRAMATSU
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Hitachi, Ltd., Systems Development Laboratory
-E-mail: hiramatu@sdl.hitachi.co.jp
+iD8DBQFB7SL2ZUg7+tp6mRURAg4YAKCUpgxb2EMYc+9+E/ccmFYHX8NFpACfYErE
+e+/4n0rWxtjGCxlH/8Ou04M=
+=gXea
+-----END PGP SIGNATURE-----
+
+--------------enigB1B3824E5CF1D1013267EBCB--

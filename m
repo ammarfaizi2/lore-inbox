@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUELGML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264993AbUELGVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUELGML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUELGML
+	id S264993AbUELGVn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbUELGVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:12:11 -0400
-Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:51502
-	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
-	id S264991AbUELGMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:12:08 -0400
-thread-index: AcQ36H3Sk9+cQm9FQmu9h5iCd+6BGw==
-X-Sieve: Server Sieve 2.2
-Date: Wed, 12 May 2004 07:15:15 +0100
-From: "Christoph Hellwig" <hch@infradead.org>
-To: <Administrator@vger.kernel.org>
-Cc: <akpm@osdl.org>, <benh@kernel.crashing.org>,
-       <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-Message-ID: <000001c437e8$7de0a070$d100000a@sbs2003.local>
-Subject: Re: [PATCH 1/2] PPC32: New OCP core support
-Content-Transfer-Encoding: 7bit
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,Matt Porter <mporter@kernel.crashing.org>, akpm@osdl.org,benh@kernel.crashing.org, linux-kernel@vger.kernel.org,linuxppc-dev@lists.linuxppc.org
-References: <20040511170150.A4743@home.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-X-Mailer: Microsoft CDO for Exchange 2000
+	Wed, 12 May 2004 02:21:42 -0400
+Received: from findaloan.ca ([66.11.177.6]:33154 "EHLO findaloan.ca")
+	by vger.kernel.org with ESMTP id S264993AbUELGMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 02:12:16 -0400
+Date: Tue, 11 May 2004 09:34:28 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, len.brown@intel.com
+Subject: Re: Linux 2.6.6
+Message-ID: <20040511133428.GA5635@mark.mielke.cc>
+Mail-Followup-To: Tomas Szepe <szepe@pinerecords.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	len.brown@intel.com
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510105129.GB25969@picchio.gall.it> <20040510204450.GA2758@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040511170150.A4743@home.com>; from mporter@kernel.crashing.org on Tue, May 11, 2004 at 05:01:50PM -0700
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-X-me-spamlevel: not-spam
-Content-Class: urn:content-classes:message
-Importance: normal
-X-me-spamrating: 3.125262
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
-X-OriginalArrivalTime: 12 May 2004 06:15:15.0921 (UTC) FILETIME=[7E01E410:01C437E8]
+In-Reply-To: <20040510204450.GA2758@louise.pinerecords.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 10, 2004 at 10:44:50PM +0200, Tomas Szepe wrote:
+> On May-10 2004, Mon, 12:51 +0200
+> Daniele Venzano <webvenza@libero.it> wrote:
+> > I have problems booting 2.6.6 (2.6.5 was fine). The boot stops at ide
+> > detection, on cdrom probing, the last two messages I am seeing are:
+> > ide-cd: cmd 0x5a timed out
+> > hdc: lost interrupt
+> This problem also affects my 2001 1.0 GHz Athlon box (VIA KT133a chipset).
+> Len's final patch (proposed fix) from the "hdc: lost interrupt..." thread
+> seems to work for me, too.
 
-On Tue, May 11, 2004 at 05:01:50PM -0700, Matt Porter wrote:
-> New OCP infrastructure ported from 2.4 along with several
-> enhancements. Please apply.
+I was also affected by this - 1200 Mhz Athlon, VIA KT133 chipset as well.
 
-The old-style PM callback (using struct pm_dev) is bogus, please kill
-that part.
+I won't be trying Len's patch until tonight.
 
+mark
 
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

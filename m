@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBNNiq>; Wed, 14 Feb 2001 08:38:46 -0500
+	id <S129055AbRBNNoR>; Wed, 14 Feb 2001 08:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129093AbRBNNih>; Wed, 14 Feb 2001 08:38:37 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:20211 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129051AbRBNNic>;
-	Wed, 14 Feb 2001 08:38:32 -0500
-Date: Wed, 14 Feb 2001 05:38:29 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
-        Alan Cox <alan@redhat.com>, Donald Becker <becker@scyld.com>,
-        Jes Sorensen <jes@linuxcare.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device
-In-Reply-To: <E14T1dB-0004s2-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0102140535470.14404-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131951AbRBNNoH>; Wed, 14 Feb 2001 08:44:07 -0500
+Received: from t2.redhat.com ([199.183.24.243]:50929 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129055AbRBNNny>; Wed, 14 Feb 2001 08:43:54 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <862569F2.006FADCD.00@smtpnotes.altec.com> 
+In-Reply-To: <862569F2.006FADCD.00@smtpnotes.altec.com> 
+To: Wayne.Brown@altec.com
+Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [LK] Re: lkml subject line 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 14 Feb 2001 13:39:46 +0000
+Message-ID: <6043.982157986@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, Alan Cox wrote:
 
-> > The way I understand it, IA64 and Alpha cope with it, but at the expense 
-> > of taking an exception for each packet -- so it's not worth it.
-> 
-> You want to copy_checksum the frame on these platforms, 
+Wayne.Brown@altec.com said:
+>  I haven't complained about any of this on the list until now, because
+> I know I'm in the minority and I don't expect most people to care
+> about my problems.  But it bothered me seeing the criticism Mike
+> Harrold has gotten for his request. Not everyone has problems because
+> they're lazy.  Some of us are boxed in by decisions that are beyond
+> our control.  For my part, if anyone can tell me a method (that
+> doesn't require Notes administrator assistance) to get my mail, with
+> headers intact, out of Notes and into elm or pine, I'd be ecstatic.
 
-That's what we're doing...
+If your employer can't run a decent mail system - they lock you into crap
+clients, don't add X-rbl-warning headers for ORBS-listed hosts, or they
+can't manage to set up a reliable and efficient mail system - or maybe you'd
+just be embarrassed to post to technical fora from a domain with only one MX
+record - then just don't use it. Use a personal account elsewhere for all
+mail which isn't strictly confidential.
 
-> or better yet use
-> a decent network card that can start the frame on odd word alignment. You need
-> either the CPU or card to be able to handle misaligns efficiently.
+It works for me.
 
-Oh well. It's not too bad as long as Rx traffic is kept to a minimum, 
-because Tx is not affected. So use it for anon ftp servers or web servers. 
-:)
+--
+dwmw2
 
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 

@@ -1,57 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131582AbQKJVg5>; Fri, 10 Nov 2000 16:36:57 -0500
+	id <S131647AbQKJVh5>; Fri, 10 Nov 2000 16:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131647AbQKJVgr>; Fri, 10 Nov 2000 16:36:47 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:18948 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131582AbQKJVgk>;
-	Fri, 10 Nov 2000 16:36:40 -0500
-Message-ID: <20001110155800.B33@bug.ucw.cz>
-Date: Fri, 10 Nov 2000 15:58:00 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "James A. Sutherland" <jas88@cam.ac.uk>, Andi Kleen <ak@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Oliver Xymoron <oxymoron@waste.org>,
-        barryn@pobox.com, linux-kernel@vger.kernel.org,
-        jamal <hadi@cyberus.ca>
-Subject: Re: [PATCH] document ECN in 2.4 Configure.help
-In-Reply-To: <3A068C00.272BD5D2@uow.edu.au> <E13sk36-00066o-00@the-village.bc.nu> <20001106121153.A14104@gruyere.muc.suse.de> <00110613333600.01541@dax.joh.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <00110613333600.01541@dax.joh.cam.ac.uk>; from James A. Sutherland on Mon, Nov 06, 2000 at 01:31:23PM +0000
+	id <S131926AbQKJVhr>; Fri, 10 Nov 2000 16:37:47 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14840 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131647AbQKJVhb>;
+	Fri, 10 Nov 2000 16:37:31 -0500
+Date: Fri, 10 Nov 2000 16:37:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] more kmap fixes
+Message-ID: <Pine.GSO.4.21.0011101635590.17943-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+	Couple of places missed in Jeff's patch:
 
-> > > >        with the TCP ECN_ECHO and CWR flags set, to indicate
-> > > >        ECN-capability, then the sender should send its second
-> > > >        SYN packet without these flags set. This is because
-> > > 
-> > > Now that is nice. The end user perceived effect is that folks with faulty 
-> > > firewalls have horrible slow web sites with a 3 or 4 second wait for each
-> > > page. The perfect incentive. If only someone could do the same to path mtu
-> > > discovery incompetents.
-> > 
-> > And it penalizes good guys.
-> > If the host cannot answer to the first SYN for some legitimate reason 
-> > then it'll never be able to use ECN. 
-> 
-> It could be a good idea to retry as normal with ECN set; iff that fails
-> (so the user would normally see an error connecting) try again with
-> ECN clear. This way, ECN-capable hosts will only see non-ECN
-> connections under circumstances where the connection would
-> otherwise have failed completely.
+diff -urN rc11-2/fs/ncpfs/mmap.c rc11-2-kmap/fs/ncpfs/mmap.c
+--- rc11-2/fs/ncpfs/mmap.c	Sun Aug  6 13:43:18 2000
++++ rc11-2-kmap/fs/ncpfs/mmap.c	Fri Nov 10 16:31:01 2000
+@@ -37,7 +37,7 @@
+ 	struct dentry *dentry = file->f_dentry;
+ 	struct inode *inode = dentry->d_inode;
+ 	struct page* page;
+-	unsigned long pg_addr;
++	char *pg_addr;
+ 	unsigned int already_read;
+ 	unsigned int count;
+ 	int bufsize;
+@@ -71,7 +71,7 @@
+ 			if (ncp_read_kernel(NCP_SERVER(inode),
+ 				     NCP_FINFO(inode)->file_handle,
+ 				     pos, to_read,
+-				     (char *) (pg_addr + already_read),
++				     pg_addr + already_read,
+ 				     &read_this_time) != 0) {
+ 				read_this_time = 0;
+ 			}
+@@ -87,8 +87,7 @@
+ 	}
+ 
+ 	if (already_read < PAGE_SIZE)
+-		memset((char*)(pg_addr + already_read), 0, 
+-		       PAGE_SIZE - already_read);
++		memset(pg_addr + already_read, 0, PAGE_SIZE - already_read);
+ 	flush_dcache_page(page);
+ 	kunmap(page);
+ 	return page;
+diff -urN rc11-2/fs/udf/inode.c rc11-2-kmap/fs/udf/inode.c
+--- rc11-2/fs/udf/inode.c	Tue Sep  5 16:07:30 2000
++++ rc11-2-kmap/fs/udf/inode.c	Fri Nov 10 16:32:09 2000
+@@ -158,7 +158,6 @@
+ {
+ 	struct buffer_head *bh = NULL;
+ 	struct page *page;
+-	unsigned long kaddr = 0;
+ 	int block;
+ 
+ 	/* from now on we have normal address_space methods */
+@@ -183,10 +182,10 @@
+ 		PAGE_BUG(page);
+ 	if (!Page_Uptodate(page))
+ 	{
+-		kaddr = kmap(page);
+-		memset((char *)kaddr + UDF_I_LENALLOC(inode), 0x00,
++		char *kaddr = kmap(page);
++		memset(kaddr + UDF_I_LENALLOC(inode), 0x00,
+ 			PAGE_CACHE_SIZE - UDF_I_LENALLOC(inode));
+-		memcpy((char *)kaddr, bh->b_data + udf_file_entry_alloc_offset(inode),
++		memcpy(kaddr, bh->b_data + udf_file_entry_alloc_offset(inode),
+ 			UDF_I_LENALLOC(inode));
+ 		flush_dcache_page(page);
+ 		SetPageUptodate(page);
 
-Hmm, so you want to wait 5 minutes for your TCP connection? TCP
-retries for _long_ time.
-
-I do not think that's such a good idea.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

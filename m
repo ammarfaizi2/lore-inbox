@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131149AbRAQXVC>; Wed, 17 Jan 2001 18:21:02 -0500
+	id <S131310AbRAQXVc>; Wed, 17 Jan 2001 18:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131310AbRAQXUw>; Wed, 17 Jan 2001 18:20:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24842 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131149AbRAQXUf>;
-	Wed, 17 Jan 2001 18:20:35 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101172319.XAA01099@raistlin.arm.linux.org.uk>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-To: adilger@turbolinux.com (Andreas Dilger)
-Date: Wed, 17 Jan 2001 23:19:23 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        adilger@turbolinux.com (Andreas Dilger),
-        Venkateshr@ami.com (Venkatesh Ramamurthy),
-        hbryan@us.ibm.com ('Bryan Henderson'), linux-kernel@vger.kernel.org
-In-Reply-To: <200101171012.f0HACMM04543@webber.adilger.net> from "Andreas Dilger" at Jan 17, 2001 03:12:22 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131378AbRAQXV0>; Wed, 17 Jan 2001 18:21:26 -0500
+Received: from gatekeeper.kati.fi ([194.197.204.34]:41737 "EHLO
+	gatekeeper.kati.fi") by vger.kernel.org with ESMTP
+	id <S131310AbRAQXVK>; Wed, 17 Jan 2001 18:21:10 -0500
+Date: Thu, 18 Jan 2001 01:13:09 +0200 (EET)
+From: Juhani Rautiainen <jrauti@kati.fi>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: VIA VT82C686 serial port over 115200
+Message-ID: <Pine.LNX.4.10.10101180042280.3437-100000@sasu1.kati.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
-> Same thing, really.  You have to poke each drive to get the serial
-> number.  What if they are IDE or SCSI or FCAL or RAID array?  Probably
-> reading a block from a disk is safer than trying to find the drive
-> serial number.
 
-If you apply the "read block from disk" method to a RAID1 array, how
-you do you know whether you mean:
+I've made little kernel module which enables high speed modes (230Kb and
+460Kb) with VIA VT82C686* southbridge equipped motherboards. I've been using
+module with ISDN-TA and haven't had any problems. If you want to try
+module it's available at http://www.kati.fi/viahss/viahss-0.9.tar.gz.
+Some brief documentation can be found at http://www.kati.fi/viahss/ 
+(read this before using module).
 
-1) An active disk in the array
-2) The actual array itself.
+This is my first try with kernel modules so you can consider yourself 
+warned. My huge test team (2 people) have tested module with both 686A and
+686B chipsets and it seems to work. Module does same as SHSMOD
+patches but doesn't require serial driver patching. So if you have ISDN-TA
+and serial port limits it's speed give this module a try.
 
-Hint: With Raid 1, the disks are complete images of each other.  You can
-mount a single disk which is/was part of a raid 1 array and read all data
-off it.
+Module works with 2.4 kernels but I don't see any reason why it shouldn't
+work with 2.2 kernels.
 
-If someone thinks about going down this road, make sure you check the
-multiple-device arrays BEFORE the physical disks!
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+-- 
+Juhani Rautiainen			jrauti@iki.fi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

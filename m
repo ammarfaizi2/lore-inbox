@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUGPMBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266528AbUGPMP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbUGPMBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 08:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbUGPMBO
+	id S266528AbUGPMP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 08:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUGPMP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 08:01:14 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:12189 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266345AbUGPMBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 08:01:11 -0400
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Date: Fri, 16 Jul 2004 08:01:10 -0400
-To: linux-kernel@vger.kernel.org
-Subject: observations of swsusp and s3
-Message-ID: <20040716120110.GA26122@butterfly.hjsoft.com>
+	Fri, 16 Jul 2004 08:15:29 -0400
+Received: from burro.logi-track.com ([213.239.193.212]:6803 "EHLO
+	mail.logi-track.com") by vger.kernel.org with ESMTP id S266528AbUGPMPY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 08:15:24 -0400
+Date: Fri, 16 Jul 2004 14:15:21 +0200
+From: Markus Schaber <schabios@logi-track.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: New mobo question
+Message-Id: <20040716141521.02c5422f@kingfisher.intern.logi-track.com>
+In-Reply-To: <20040716112007.GA14641@taniwha.stupidest.org>
+References: <200407160552.27074.gene.heskett@verizon.net>
+	<20040716112007.GA14641@taniwha.stupidest.org>
+Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
+X-PGP-Key: http://schabi.de/pubkey.asc
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Chris,
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 16 Jul 2004 04:20:07 -0700
+Chris Wedgwood <cw@f00f.org> wrote:
 
-1. using kernel 2.6.7 on my dell inspiron 3800, i've noticed that the=20
-clock that assigns start times to processes is running behind, and i=20
-suspect it could have something to do with having suspended (s4) the=20
-machine:
+> On Fri, Jul 16, 2004 at 05:52:27AM -0400, Gene Heskett wrote:
+> 
+> > I've ordered a new mobo as I'm having what appears to be data bus
+> > problems with this one after a rather spectacular failure of a
+> > gforce2 video card, memtest86 says I have a lot of errors where
+> > 00000020 was written, but 00000000 came back, at semi-random
+> > locations scattered thoughout half a gig of dimms running at half
+> > their rated DDR266 speed.  The last nibble of the address is always
+> > zero, and the next nibble is always even.
+> 
+> Get the board replaced.
 
-john@density:~$ date
-Fri Jul 16 07:42:29 EDT 2004
-john@density:~$ ps u | grep ps
-john      4194  0.0  0.2  2528  848 pts/11   R+   Jul15   0:00 ps u
-john      4195  0.0  0.1  1576  460 pts/11   S+   Jul15   0:00 grep ps
+Read his first sentence and you will see that he has already ordered a
+new board.
 
-2. swsusp will fail to get free enough space if laptop_mode is
-enabled.  disabling laptop_mode (in /proc/sys) before s4
-suspending allows it to work.  i was pretty sure it should have
-worked, since i only have 384M ram and i saw 600M swap free.
+> > Is there a way to prebuild a kernel that will run on both boards?,
+> > this older board is a VIA82686/VIA8233 based board, a Biostar M7VIB.
+> 
+> If I read you correctly you're getting random corruptions all over the
+> place so there isn't much you an do.
 
-3. when swsusp was broken, i found that s3 actually worked for
-the most part.  my script switches from my x session on vt7 to
-vt12, suspends, and when it resumes, i have it chvt back to 12.
-this enabled the display again nicely.  if i try to switch to a
-console login (vt1-6), they're completely black.  closing the
-lcd lid and reopening it turns it back on, so it's _really_
-close to functioning nicely.
+As far as I read him, he wants to build a kernel that runs on his new
+board as well as on his old board.
 
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
+Basically, he has to just compile a kernel that includes hardware
+support for both chipsets, and all of the other hardware that is on the
+boards. For processor selection, he should find the best compromise
+between both processors (so try to select one that has all features that
+both real processors have in common), and he might try the generic X86
+optimizations, too.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+HTH,
+Markus
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA98OGCGPRljI8080RAvHhAJ9DVzy5qQPni+N0PZu83WWracYqfgCfYaMJ
-sQs2ota+PxVHXxbNrxSO/6k=
-=rxlu
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+-- 
+markus schaber | dipl. informatiker
+logi-track ag | rennweg 14-16 | ch 8001 zürich
+phone +41-43-888 62 52 | fax +41-43-888 62 53
+mailto:schabios@logi-track.com | www.logi-track.com

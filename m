@@ -1,110 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264290AbTKLUB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 15:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264287AbTKLUB6
+	id S264295AbTKLTyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 14:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbTKLTyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 15:01:58 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:59836 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S264286AbTKLUBw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 15:01:52 -0500
-Date: Wed, 12 Nov 2003 14:01:19 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: davidm@hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Inefficient TLB flushing 
-Message-ID: <20031112200119.GA22429@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Nov 2003 14:54:38 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:20693 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264288AbTKLTye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 14:54:34 -0500
+Date: Wed, 12 Nov 2003 20:54:29 +0100 (MET)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <kai.germaschewski@gmx.de>, <isdn4linux@listserv.isdn4linux.de>,
+       <kkeil@suse.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.6 eicon/ and hardware/eicon/ drivers using the
+ samesymbols (fwd)
+In-Reply-To: <20031112183817.GB5962@fs.tum.de>
+Message-ID: <Pine.LNX.4.31.0311122051300.6019-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I already send a patch to Linus and asked him to remove the
+old driver in drivers/isdn/eicon.
 
+The new driver in drivers/isdn/hardware/eicon will take over
+for the Eicon ISDN PCI cards including a lot of new features.
 
-Something appears broken in TLB flushing on IA64 (& possibly other
-architectures). Functionally, it works but performance is bad on 
-systems with large cpu counts. 
+Armin
 
-The result is that TLB flushing in exit_mmap() is frequently being done via
-IPIs to all cpus rather than with a "ptc" instruction or with a new context..
-
-
-
-Take a look at exit_mmap()  (in mm/mmap.c):
-
-	void exit_mmap(struct mm_struct *mm)
-	{
-  (1)		tlb = tlb_gather_mmu(mm, 1);
-  		unmap_vmas(&tlb,...
-		...
-  (2)		tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
-		...
-	}
-
-
-	static inline void
-	tlb_finish_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
-	{
-		...
-		ia64_tlb_flush_mmu(tlb, start, end);
-		...
-	}
-
-
-	static inline void
-	ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
-	{
-		...
-   (3)		if (tlb->fullmm) {
-			flush_tlb_mm(tlb->mm);
-   (4)		} else if (unlikely (end - start >= 1TB ...
-			/* This should be very rare and is not worth optimizing for.
-   (5)			flush_tlb_all();
-		...
-
-	flush_tlb_all() flushes with IPI to every cpu
-
-
-<start> & <end> are passed from exit_mmap at line (2) as 0..MM_VM_SIZE which is
-0..0xa000000000000000 (on IA64) & the expression at (4) is always TRUE. If tlb->fullmm is 
-false, the code in ia64_tlb_flush_mmu calls flush_tlb_all. flush_tlb_all uses IPIs to 
-do the TLB flushing.
-
-
-Normally, tlb->fullmm at line (3) is 1 since it is initialized to 1 at line (1). However, in 
-unmap_vmas(), if a resched interrupt occurs during VMA teardown, the tlb flushing
-is reinitialized & tlb_gather_mmu() is called with tlb_gather_mmu(mm, 0). When the
-call to tlb_finish_mmu() is made at line (2), TLB flushing is done with an IPI
-
-
-Does this analysis look correct??  AFAICT, this bug (inefficiency) may apply to other
-architectures although I cant access it's peformance impact.
-
-
-Here is the patch that I am currently testing:
-
-
---- /usr/tmp/TmpDir.19957-0/linux/mm/memory.c_1.79	Wed Nov 12 13:56:25 2003
-+++ linux/mm/memory.c	Wed Nov 12 12:57:25 2003
-@@ -574,9 +574,10 @@
- 			if ((long)zap_bytes > 0)
- 				continue;
- 			if (need_resched()) {
-+				int fullmm = (*tlbp)->fullmm;
- 				tlb_finish_mmu(*tlbp, tlb_start, start);
- 				cond_resched_lock(&mm->page_table_lock);
--				*tlbp = tlb_gather_mmu(mm, 0);
-+				*tlbp = tlb_gather_mmu(mm, fullmm);
- 				tlb_start_valid = 0;
- 			}
- 			zap_bytes = ZAP_BLOCK_SIZE;
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
+On Wed, 12 Nov 2003, Adrian Bunk wrote:
+>
+> The patch forwarded below is still required in -test9.
+>
+> Please apply
+> Adrian
+>
+>
+> ----- Forwarded message from Armin Schindler <armin@melware.de> -----
+>
+> Date:	Thu, 25 Sep 2003 13:33:53 +0200 (MEST)
+> From: Armin Schindler <armin@melware.de>
+> To: Adrian Bunk <bunk@fs.tum.de>
+> Cc: <isdn4linux@listserv.isdn4linux.de>,
+> 	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+> Subject: [PATCH] Re: 2.6 eicon/ and hardware/eicon/ drivers using the samesymbols
+>
+> On Thu, 25 Sep 2003, Adrian Bunk wrote:
+> > I got the link error below in 2.6.0-test5-mm4 (but it doesn't seem to be
+> > specific to -mm).
+> >
+> > It seems some drivers under eicon/ and hardware/eicon/ use the same
+> > symbols. Either some symbols should be renamed or Kconfig dependencies
+> > should ensure that you can't build two such drivers statically into the
+> > kernel at the same time.
+>
+> The legacy eicon driver in drivers/isdn/eicon is the old one and will be
+> removed as soon as all features went to the new driver.
+> Anyway this old driver was never meant to be non-module.
+>
+> This patch should do it.
+>
+> Armin
+>
+>
+>
+> --- linux-2.5/drivers/isdn/eicon/Kconfig.orig	Thu Sep 25 13:28:07 2003
+> +++ linux-2.5/drivers/isdn/eicon/Kconfig	Thu Sep 25 13:27:01 2003
+> @@ -13,7 +13,7 @@
+>  choice
+>  	prompt "Eicon active card support"
+>  	optional
+> -	depends on ISDN_DRV_EICON && ISDN
+> +	depends on ISDN_DRV_EICON && ISDN && m
+>
+>  config ISDN_DRV_EICON_DIVAS
+>  	tristate "Eicon driver"
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> ----- End forwarded message -----
+>
+> _______________________________________________
+> isdn4linux mailing list
+> isdn4linux@listserv.isdn4linux.de
+> https://www.isdn4linux.de/mailman/listinfo/isdn4linux
+>
 

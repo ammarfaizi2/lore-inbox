@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262725AbTCPSoI>; Sun, 16 Mar 2003 13:44:08 -0500
+	id <S262727AbTCPTDn>; Sun, 16 Mar 2003 14:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262726AbTCPSoI>; Sun, 16 Mar 2003 13:44:08 -0500
-Received: from nat9.steeleye.com ([65.114.3.137]:26631 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262725AbTCPSoH>; Sun, 16 Mar 2003 13:44:07 -0500
-Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Osamu Tomita <tomita@cinet.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 16 Mar 2003 12:54:43 -0600
-Message-Id: <1047840886.4371.34.camel@mulgrave>
+	id <S262728AbTCPTDn>; Sun, 16 Mar 2003 14:03:43 -0500
+Received: from holomorphy.com ([66.224.33.161]:46294 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262727AbTCPTDm>;
+	Sun, 16 Mar 2003 14:03:42 -0500
+Date: Sun, 16 Mar 2003 11:14:09 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: cpu-2.5.64-1
+Message-ID: <20030316191409.GK20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+References: <20030316113254.GH20188@holomorphy.com> <200303161242.h2GCg1PO001746@eeyore.valparaiso.cl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303161242.h2GCg1PO001746@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-16 at 12:36, Geert Uytterhoeven wrote:
-> Actually, it was my suggestion to remove the dereference for PIO accesses. In
-> that case SASR contains the I/O port register.
+William Lee Irwin III <wli@holomorphy.com> said:
+>> Another thought I had was wrapping things in structures for both small
+>> and large, even UP systems so proper typechecking is enforced at all
+>> times. That would probably need a great deal of arch sweeping to do,
+>> especially as a number of arches are UP-only (non-SMP case's motive #2).
 
-There's still something wrong with the implementation in this patch. 
-For non PIO SASR is defined as volatile unsigned char *SASR.  Its access
-has gone from being outb(n, *regs.SASR) to outb(n, regs.SASR).  What
-expansion can outb have on m68k and MIPS that makes this change
-idempotent?
+On Sun, Mar 16, 2003 at 08:42:01AM -0400, Horst von Brand wrote:
+> AFAIU, gcc doesn't put structures in registers (even when they fit).
 
-James
+Bugreport and/or wishlist time.
 
 
+-- wli

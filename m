@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbTDJClK (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 22:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTDJClK (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 22:41:10 -0400
-Received: from adsl-b3-74-41.telepac.pt ([213.13.74.41]:17866 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id S263732AbTDJClK (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 22:41:10 -0400
-Message-ID: <3E94DCA1.5020106@vgertech.com>
-Date: Thu, 10 Apr 2003 03:53:21 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: Hermann Himmelbauer <dusty@violin.dyndns.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.20 on a 4 MB Laptop
-References: <200304091601.55821.dusty@violin.dyndns.org>
-In-Reply-To: <200304091601.55821.dusty@violin.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S263775AbTDJC5g (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 22:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTDJC5g (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 22:57:36 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1040 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263775AbTDJC5f (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 22:57:35 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: kernel support for non-english user messages
+Date: Thu, 10 Apr 2003 03:08:33 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b72n7h$fgd$1@penguin.transmeta.com>
+References: <3E93A958.80107@si.rr.com>
+X-Trace: palladium.transmeta.com 1049944134 24269 127.0.0.1 (10 Apr 2003 03:08:54 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 10 Apr 2003 03:08:54 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+In article <3E93A958.80107@si.rr.com>, Frank Davis  <fdavis@si.rr.com> wrote:
+>
+>I wish to suggest a possible 2.6 or 2.7 feature (too late for 2.4.x and 
+>2.5.x, I believe) that I believe would be helpful. Currently, printk 
+>messages are all in english, and I was wondering if printk could be 
+>modified to print out user messages that are in the default language of 
+>the machine. For example,
 
-Hermann Himmelbauer wrote:
-> 
-> Well - anyway, the kernel boots but right stops after:
-> INIT: Entering runlevel:3
-> 
-> The next line is:
-> INIT: open(/dev/console): Input/output error
-> INIT: Id "2" respawning too fast: disabled for 5 minutes
-> ...
-> 
-> That's it.
+This has come up before.
 
-Maybe you striped too much and didn't include *any* console type 
-(serial, vga or framebuffer)? :)
+The answer is: go ahead and do it, but don't do it in the kernel. Do it
+in klogd or similar.
 
-Regards,
-Nuno Silva
+I refuse to clutter the kernel with inane and fragile (and totally
+unmaintainable) internationalization code. The string lookup can equally
+well be done in user space where it isn't a stability and complexity
+issue.
 
-
-
+		Linus

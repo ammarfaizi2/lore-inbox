@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUI1NOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUI1NbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267806AbUI1NOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 09:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUI1NOi
+	id S267708AbUI1NbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 09:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUI1NbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 09:14:38 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13572 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267807AbUI1NME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 09:12:04 -0400
-In-Reply-To: <1096374908.21271.38.camel@linux.local>
-References: <20040928075545.GA3298@cenedra.walrond.org> <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua> <1096374908.21271.38.camel@linux.local>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <F7151E9B-114F-11D9-A7ED-000D9352858E@linuxmail.org>
+	Tue, 28 Sep 2004 09:31:12 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:7082 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267708AbUI1NbG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 09:31:06 -0400
+Date: Tue, 28 Sep 2004 06:29:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robin Holt <holt@sgi.com>
+Cc: jlan@engr.sgi.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, csa@oss.sgi.com, akpm@osdl.org,
+       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
+       corliss@digitalmages.com
+Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
+Message-Id: <20040928062949.2ab2249e.pj@sgi.com>
+In-Reply-To: <20040928113858.GA1090@lnx-holt.americas.sgi.com>
+References: <4158956F.3030706@engr.sgi.com>
+	<41589927.5080803@engr.sgi.com>
+	<20040928023350.611c84d8.pj@sgi.com>
+	<20040928113858.GA1090@lnx-holt.americas.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
-Date: Tue, 28 Sep 2004 15:11:52 +0200
-To: Norbert van Nobelen <Norbert@edusupport.nl>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 28, 2004, at 14:35, Norbert van Nobelen wrote:
+Robin wrote:
+> I have benchmarked these hooks a very long time ago.  The number and
+> location has not changed appreciably.
 
-> The document shows some interesting points though:
-> - They describe what they did to make redhat/apache perform better
-> - ISAPI is pretty fast compared to CGI (Didn't apache recently release 
-> a
-> programming interface which is cross platform and does something like
-> this too?)
+These results seem reasonable ... thanks.
 
-Of course ISAPI is faster than CGI. The same happens with NSAPI. 
-However, both are proprietary, have a steep learning curve, and 
-usually, xSAPI extensions run on the same address space as the Web 
-server, improving performance but decreasing stability. However, CGI 
-runs as a separate process which adds a lot of overhead. There are 
-solutions like FastCGI with less overhead and that allow persistence 
-(the executable CGI is not destroyed, but stays in memory waiting for 
-future requests).
+> The size was never very noticable.
 
-MS commissioned studies are totally useless: they only probe what MS 
-wants. If MS wants us to believe earth is flat, a MS commissioned study 
-will reveal so.
+But would the time cost of being out of line be noticable either?
+Actually, being out of line might be a tick faster, if it reduced by a
+cache line what was needed for a common execution path.
 
+> Originally, there was a 5% decrease in performance with the writing of
+> the accounting data.  There was another unfortunate side effect that some
+> of the CSA metrics became much worse.  This problem was later identified
+> and fixed. 
+
+Is there any non-trivial risk that some other "unfortunate side affect"
+exists today, that we'd find on benchmarking?
+
+I'm not sure its worth benchmarking again, but I slightly suspect it is,
+and if benchmarking was done, I'd do it with these calls both inline and
+out of line, to see what affect that had on runtime.  If no affect on
+runtime, I'd tend toward the out of line calls - at least saving a
+little kernel text space.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269407AbRH3O4l>; Thu, 30 Aug 2001 10:56:41 -0400
+	id <S272246AbRH3PEn>; Thu, 30 Aug 2001 11:04:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272245AbRH3O4b>; Thu, 30 Aug 2001 10:56:31 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:36800 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S269407AbRH3O4N>;
-	Thu, 30 Aug 2001 10:56:13 -0400
-Date: Thu, 30 Aug 2001 12:47:00 +0200
-From: Stefan Fleiter <stefan.fleiter@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
-Message-ID: <20010830124700.A3694@shuttle.mothership.home.dhs.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010829120440.B12825@kroah.com> <20010829221246.B30945@vitelus.com> <20010829222206.B14791@kroah.com> <20010829222726.C30945@vitelus.com> <20010829222731.A14937@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010829222731.A14937@kroah.com>
-User-Agent: Mutt/1.3.20i
+	id <S272255AbRH3PEd>; Thu, 30 Aug 2001 11:04:33 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:9477 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S272256AbRH3PEW>; Thu, 30 Aug 2001 11:04:22 -0400
+Message-ID: <3B8E55F3.EA83A325@didntduck.org>
+Date: Thu, 30 Aug 2001 11:04:19 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: EISA irq probing problem (ESIC chip)
+In-Reply-To: <3B8E35E3.51DBDC34@pandora.be>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg!
+Bart Vandewoestyne wrote:
+> 
+> I am trying to write a linux driver for an EISA data aquisition card.
+> More info on my little special project is at
+> http://mc303.ulyssis.org/heim/
+> 
 
-On Wed, 29 Aug 2001 Greg KH wrote:
+Out of curiosity, have you tried a recent -ac kernel with PnP BIOS
+enabled?  EISA devices might possibly show up there.
 
-> I realize that not all /bin/sh is really bash, that's why the scripts
-> explicitly ask for bash.  I'm guessing some bashisms are in there :)
+--
 
-Does it really make any sense to optimize for size and at the same time
-force the user to install a bash compatible shell?
-
-Stefan
+				Brian Gerst

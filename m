@@ -1,53 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274789AbRJFAjH>; Fri, 5 Oct 2001 20:39:07 -0400
+	id <S274774AbRJFAe5>; Fri, 5 Oct 2001 20:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274790AbRJFAir>; Fri, 5 Oct 2001 20:38:47 -0400
-Received: from [209.237.5.66] ([209.237.5.66]:24728 "EHLO clyde.stargateip.com")
-	by vger.kernel.org with ESMTP id <S274789AbRJFAiq>;
-	Fri, 5 Oct 2001 20:38:46 -0400
-From: "Ian Thompson" <ithompso@stargateip.com>
-To: "Russell King" <rmk@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: How can I jump to non-linux address space?
-Date: Fri, 5 Oct 2001 17:38:53 -0700
-Message-ID: <NFBBIBIEHMPDJNKCIKOBCELFCAAA.ithompso@stargateip.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S274784AbRJFAer>; Fri, 5 Oct 2001 20:34:47 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:26342 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S274774AbRJFAej>; Fri, 5 Oct 2001 20:34:39 -0400
+Subject: Re: Wierd /proc/cpuinfo with 2.4.11-pre4
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Dan Merillat <harik@chaos.ao.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1570684149.1002298064@mbligh.des.sequent.com>
+In-Reply-To: <1570684149.1002298064@mbligh.des.sequent.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20011004213523.D14538@flint.arm.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+X-Mailer: Evolution/0.14 (Preview Release)
+Date: 06 Oct 2001 02:37:22 +0200
+Message-Id: <1002328646.1085.1.camel@dolphin>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Essentially, you have 2 choices:
->
-> 1. Turn off the MMU.
-> 2. insert a 1:1 physical to virtual mapping for the ROM and call the code.
->    (with interrupts disabled).
->
-> Which one works depends on what the ROM code requires.
->
-> There is an example of (1) in the current ARM kernel sources - the RiscPC
-> port uses this method to reboot - we can't activate the hardware reset
-line
-> on these machines, so our only option is to use this method.
+On Sat, 2001-10-06 at 01:07, Martin J. Bligh wrote:
+> > Doesn't build here...
+> 
+> Looks like you need the other patch I posted here too.
 
-I tried both of these, and I must be doing something wrong.  For (1), I
-grabbed the code you mentioned from the RiscPC port (setup_mm_for_reboot()
-and some code from the soft reset routine).  After calling
-setup_mm_for_reboot, if I call __ioremap(), the processor hangs.  If I shut
-down the MMU, I get the same results.
+Thanks, builds - boots - fixes /proc/cpuinfo on my UP :)
 
-Where would be a good place to find an example of how to implement your
-second suggestion?
+> Combined reformated patch below:
+> 
+> diff -urN virgin-2.4.11-pre4/arch/i386/kernel/setup.c numa-2.4.11-pre4/arch/i386/kernel/setup.c
+> --- virgin-2.4.11-pre4/arch/i386/kernel/setup.c	Fri Oct  5 15:39:54 2001
+> +++ numa-2.4.11-pre4/arch/i386/kernel/setup.c	Fri Oct  5 15:42:37 2001
+> @@ -2420,7 +2420,7 @@
+>  	 * WARNING - nasty evil hack ... if we print > 8, it overflows the
+>  	 * page buffer and corrupts memory - this needs fixing properly
+>  	 */
+> -	for (n = 0; n < 8; n++, c++) {
+> +	for (n = 0; n < (clustered_apic_mode ? 8 : NR_CPUS); n++, c++) {
+>  	/* for (n = 0; n < NR_CPUS; n++, c++) { */
+>  		int fpu_exception;
+>  #ifdef CONFIG_SMP
+> diff -urN virgin-2.4.11-pre4/include/asm-i386/smp.h numa-2.4.11-pre4/include/asm-i386/smp.h
+> --- virgin-2.4.11-pre4/include/asm-i386/smp.h	Fri Oct  5 15:40:46 2001
+> +++ numa-2.4.11-pre4/include/asm-i386/smp.h	Fri Oct  5 15:44:57 2001
+> @@ -22,7 +22,7 @@
+>  #endif
+>  #endif
+>  
+> -#if CONFIG_SMP
+> +#ifdef CONFIG_SMP
+>  # ifdef CONFIG_MULTIQUAD
+>  #  define TARGET_CPUS 0xf     /* all CPUs in *THIS* quad */
+>  #  define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+> @@ -31,9 +31,20 @@
+>  #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
+>  # endif
+>  #else
+> +# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+>  # define TARGET_CPUS 0x01
+>  #endif
+>  
+> +#ifndef clustered_apic_mode
+> + #ifdef CONFIG_MULTIQUAD
+> +  #define clustered_apic_mode (1)
+> +  #define esr_disable (1)
+> + #else /* !CONFIG_MULTIQUAD */
+> +  #define clustered_apic_mode (0)
+> +  #define esr_disable (0)
+> + #endif /* CONFIG_MULTIQUAD */
+> +#endif 
+> +
+>  #ifdef CONFIG_SMP
+>  #ifndef ASSEMBLY
+>  
+> @@ -76,16 +87,6 @@
+>  extern volatile int physical_apicid_to_cpu[MAX_APICID];
+>  extern volatile int cpu_to_logical_apicid[NR_CPUS];
+>  extern volatile int logical_apicid_to_cpu[MAX_APICID];
+> -
+> -#ifndef clustered_apic_mode
+> - #ifdef CONFIG_MULTIQUAD
+> -  #define clustered_apic_mode (1)
+> -  #define esr_disable (1)
+> - #else /* !CONFIG_MULTIQUAD */
+> -  #define clustered_apic_mode (0)
+> -  #define esr_disable (0)
+> - #endif /* CONFIG_MULTIQUAD */
+> -#endif 
+>  
+>  /*
+>   * General functions that each host system must provide.
+>
 
-thanks.  sorry to keep bothering you.  i'll also try asking on the arm
-newsgroup...
--ian
+
+--alessandro
+
+ "this is no time to get cute, it's a mad dog's promenade
+  so walk tall, or baby don't walk at all"
+                (Bruce Springsteen, 'New York City Serenade')
 

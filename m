@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266397AbUGWVxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268099AbUGWWAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266397AbUGWVxS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 17:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267847AbUGWVxS
+	id S268099AbUGWWAL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 18:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268101AbUGWWAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 17:53:18 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:35751 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266397AbUGWVxQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 17:53:16 -0400
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: [PATCH] consolidate sched domains
-Date: Fri, 23 Jul 2004 14:50:46 -0700
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <41008386.9060009@yahoo.com.au> <20040723153022.GA16563@sgi.com>
-In-Reply-To: <20040723153022.GA16563@sgi.com>
+	Fri, 23 Jul 2004 18:00:11 -0400
+Received: from mail.gmx.net ([213.165.64.20]:51885 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268099AbUGWWAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 18:00:06 -0400
+X-Authenticated: #4512188
+Message-ID: <41018A66.4010309@gmx.de>
+Date: Sat, 24 Jul 2004 00:00:06 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040710)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2gYABj4f5vlndSJ"
-Message-Id: <200407231450.47070.suresh.b.siddha@intel.com>
-X-OriginalArrivalTime: 23 Jul 2004 21:51:35.0321 (UTC) FILETIME=[39480890:01C470FF]
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] German court says the GPL is effective
+References: <20040723212423.GQ19329@fs.tum.de>
+In-Reply-To: <20040723212423.GQ19329@fs.tum.de>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---Boundary-00=_2gYABj4f5vlndSJ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Adrian Bunk wrote:
+[snip]
 
-On Friday 23 July 2004 08:30, Dimitri Sivanich wrote:
-> On Fri, Jul 23, 2004 at 01:18:30PM +1000, Nick Piggin wrote:
-> > The attached patch is against 2.6.8-rc1-mm1. Tested on SMP, UP and SMP+HT
-> > here and it seems to be OK.
-> >
-> > I have included the cpu_sibling_map for ppc64, although Anton said he did
-> > have an implementation floating around which he would probably prefer,
-> > but I'll let him deal with that.
->
-> Do other architectures need to define their own cpu_sibling_maps, or am I
-> missing something that would define that for IA64 and others?
+| It's quite nice to hear that a court has decided that the GPL is
+| enforceable under German law.
 
-Nick means, all the architectures which use CONFIG_SCHED_SMT needs to define 
-cpu_sibling_map.
+| [1] http://www.jbb.de/urteil_lg_muenchen_gpl.pdf
+|
 
-Nick, aren't you missing the attached fix in your patch?
+Well, actually I am not sure whether it says it. Unfortunately I don't
+know the English terms. As far as I have understood it: This was just a
+"quick" decision making, a "real" court case comes later. So far the
+court finds it reasonable to enforce the cease and desist letter until
+the final decision comes, as the "probability" is high, that the GPL is
+compatible with German laws and even if not, the company wouldn't be
+allowed to use the GPLed software.
 
-thanks,
-suresh
+bye,
 
---Boundary-00=_2gYABj4f5vlndSJ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="cpu_power-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="cpu_power-fix.patch"
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---- linux-2.6.8-rc1/kernel/sched.c~	2004-07-23 13:19:48.000000000 -0700
-+++ linux-2.6.8-rc1/kernel/sched.c	2004-07-23 13:34:49.000000000 -0700
-@@ -3845,6 +3845,8 @@
- 		sd->groups->cpu_power = power;
- 
- #ifdef CONFIG_NUMA
-+		if (i != first_cpu(sd->groups->cpumask))
-+			continue;
- 		sd = &per_cpu(node_domains, i);
- 		sd->groups->cpu_power += power;
- #endif
-
---Boundary-00=_2gYABj4f5vlndSJ--
+iD8DBQFBAYpmxU2n/+9+t5gRAqTjAJ93fR5uTIRjuHm0jQkfk8bTAGppTwCcCnjt
+3AZo/Vmt8ooeFs4izDTuY+E=
+=Oa1e
+-----END PGP SIGNATURE-----

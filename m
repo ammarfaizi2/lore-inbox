@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUBDPRB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 10:17:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUBDPRB
+	id S263088AbUBDPTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 10:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUBDPTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 10:17:01 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:23556 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262913AbUBDPQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 10:16:58 -0500
-Date: Wed, 4 Feb 2004 15:16:47 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Steve Lord <lord@xfs.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
-       Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
-Message-ID: <20040204151647.A19158@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steve Lord <lord@xfs.org>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <bv8qr7$m2v$1@news.cistron.nl> <20040129063009.GD2474@frodo> <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040129063009.GD2474@frodo> <20040129232033.GA10541@cistron.nl> <20040204000315.A12127@infradead.org> <401FAC70.8070104@xfs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <401FAC70.8070104@xfs.org>; from lord@xfs.org on Tue, Feb 03, 2004 at 08:13:04AM -0600
+	Wed, 4 Feb 2004 10:19:19 -0500
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:10921
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S263088AbUBDPTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 10:19:15 -0500
+Message-ID: <40210D6C.1020405@portrix.net>
+Date: Wed, 04 Feb 2004 16:19:08 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031226 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Simon Gate <simon@noir.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Orinoco in 2.6.1
+References: <20040204151532.0b81878d.simon@noir.se>
+In-Reply-To: <20040204151532.0b81878d.simon@noir.se>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7B4E55343BF80FBA3C0C8CEB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03, 2004 at 08:13:04AM -0600, Steve Lord wrote:
-> >  			ip->i_rdev = rdev;
-> > -		else if (S_ISDIR(mode))
-> > -			validate_fields(ip);
-> > +		validate_fields(ip);
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7B4E55343BF80FBA3C0C8CEB
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Simon Gate wrote:
+> Hey.
 > 
-> There was some reason this was only necessary on directories, but I
-> cannot remember why just now.
+> Is there a patch to get the monitor function on my orinoco wireless card with 2.6.1?
+> 
 
-Well, it is nessecary now to update i_size.  Or rather it was, I think
-I can get rid of it again after taking care of initialize_vnode.
+I last tried it with test7, but back then the patches from
 
-> I think this should work, it just leaves the extending O_DIRECT write
-> case.
+http://airsnort.shmoo.com/orinocoinfo.html
 
-And initialize_vnode.  I have a working patch for the latter, but I still
-need to take a look at O_DIRECT.
+just worked (applied with -p1 in the drivers/net/wireless directory).
 
-> Keeping the revalidate call out of the path for creating regular
-> files would be nice though, why did you deem that necessary?
+Regards,
 
-I thought I need it for i_size udates, but we should be able to take
-care of it in initialize_vnode.
+Jan
 
+--------------enig7B4E55343BF80FBA3C0C8CEB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAIQ1sLqMJRclVKIYRAq5AAJ9dmuO9hhYHlnUJbVDpn8lmTTon0gCfenzG
+THXfjb2/goio55WIbZVatj0=
+=+/tC
+-----END PGP SIGNATURE-----
+
+--------------enig7B4E55343BF80FBA3C0C8CEB--

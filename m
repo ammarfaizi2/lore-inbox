@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132950AbRADOli>; Thu, 4 Jan 2001 09:41:38 -0500
+	id <S129267AbRADOv2>; Thu, 4 Jan 2001 09:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133116AbRADOl2>; Thu, 4 Jan 2001 09:41:28 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28174 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133113AbRADOlH>; Thu, 4 Jan 2001 09:41:07 -0500
-Subject: Re: So, what about kwhich on RH6.2?
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Thu, 4 Jan 2001 14:42:58 +0000 (GMT)
-Cc: ak@suse.de (Andi Kleen), zaitcev@metabyte.com (Pete Zaitcev),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A54332E.58374060@uow.edu.au> from "Andrew Morton" at Jan 04, 2001 07:24:14 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129348AbRADOvT>; Thu, 4 Jan 2001 09:51:19 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:34244 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S129267AbRADOvL>; Thu, 4 Jan 2001 09:51:11 -0500
+From: Benjamin Herrenschmidt <bh40@calva.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, <dledford@redhat.com>
+Subject: Re: aic7xxx.c vs. Adaptec 29160N
+Date: Thu, 4 Jan 2001 15:50:52 +0100
+Message-Id: <19341129082236.10998@mailhost.mipsys.com>
+In-Reply-To: <19341129080544.842@mailhost.mipsys.com>
+In-Reply-To: <19341129080544.842@mailhost.mipsys.com>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14EBba-0005oR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And break compilation on all non RedHat 7, non connectiva systems ?
-> 
-> I don't buy that.  The compulsory modutils upgrade a couple of months
-> back caused, what?  Ten emails?
+>Anything I can do to help tracking the problem ? It's difficult to get
+>the actual output of the driver in verbose mode as it is scrolling quite
+>fast and I have nothing like a serial console on this box. The kernel
+>won't boot without noprobe so I can't dump dmesg output.
 
-Most people are still using the old old modutils
+I was wrong, even no_probe won't help, I have to physically disconnect
+the drive to get the kernel to boot.
+
+Ben.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

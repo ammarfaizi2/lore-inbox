@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290657AbSBOTPz>; Fri, 15 Feb 2002 14:15:55 -0500
+	id <S290658AbSBOTQF>; Fri, 15 Feb 2002 14:16:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290662AbSBOTPr>; Fri, 15 Feb 2002 14:15:47 -0500
-Received: from zero.tech9.net ([209.61.188.187]:782 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290657AbSBOTP3>;
-	Fri, 15 Feb 2002 14:15:29 -0500
-Subject: Re: oops with 2.4.18-pre9-mjc2
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16bmT9-0003m3-00@the-village.bc.nu>
-In-Reply-To: <E16bmT9-0003m3-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 15 Feb 2002 14:15:20 -0500
-Message-Id: <1013800521.807.1004.camel@phantasy>
+	id <S290662AbSBOTPz>; Fri, 15 Feb 2002 14:15:55 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:57870 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290658AbSBOTPl>;
+	Fri, 15 Feb 2002 14:15:41 -0500
+Date: Fri, 15 Feb 2002 11:11:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        lkml <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
+Message-ID: <20020215191123.GA3082@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0202150956400.829-100000@segfault.osdlab.org> <Pine.LNX.4.33.0202151019590.829-100000@segfault.osdlab.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0202151019590.829-100000@segfault.osdlab.org>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 18 Jan 2002 17:10:29 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-02-15 at 12:48, Alan Cox wrote:
+On Fri, Feb 15, 2002 at 10:22:05AM -0800, Patrick Mochel wrote:
+> 
+> On Fri, 15 Feb 2002, Patrick Mochel wrote:
+> 
+> > 
+> > > no, it doesn't solve the problem. i would like to test it whith 
+> > > preemtible kernel not set but it doesn't boot.
+> > 
+> > While Greg's patch did fix part of the problem, the rest of it was on my 
+> > end. Could you try this patch, and see if helps?
+> 
+> Actually, the patch that I sent is against my current tree, which includes 
+> some changes that I've already pushed to Linus. If you're using BK, you 
+> should be able to pull his current tree (if you're into that kinda thing). 
+> Or, wait until -pre2. Sorry about that.
 
-> Please take your bug report to Nvidia. You'll find the binary module
-> needs recompiling for pre-empt. Have fun with them 8)
+Your current tree, + this patch, + my patch solves all of the unloading,
+removing, and loading problems that I had been seeing.
 
-According to his config, preempt-kernel wasn't enabled.
+Thanks for finding this.
 
-We don't tend to see problems with preempt-kernel + evil-closed-nvidia
-driver (for whatever odd reason), anyway.
-
-	Robert Love
-
+greg k-h

@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266118AbTLaFGa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 00:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbTLaFGa
+	id S266121AbTLaFOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 00:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266125AbTLaFOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 00:06:30 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:31872 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266118AbTLaFG1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 00:06:27 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 30 Dec 2003 21:06:18 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create
-In-Reply-To: <20031231042016.958DC2C04B@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0312302100550.1457-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Dec 2003 00:14:46 -0500
+Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:49832 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S266121AbTLaFOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 00:14:44 -0500
+Message-Id: <5.1.1.5.2.20031231155606.03376908@brain.sedal.usyd.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 31 Dec 2003 16:13:05 +1100
+To: rusty@rustcorp.com.au
+From: auntvini <auntvini@sedal.usyd.edu.au>
+Subject: task_struct and uid of a task
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Dec 2003, Rusty Russell wrote:
+Hi Rusty,
 
-> +struct kt_message
-> +{
-> +	struct task_struct *from, *to;
-> +	void *info;
-> +};
-> +
-> +static struct kt_message ktm;
-> +
-> +static void ktm_send(struct task_struct *to, void *info)
-> +{
-> +	spin_lock(&ktm_lock);
-> +	ktm.to = to;
-> +	ktm.from = current;
-> +	ktm.info = info;
-> +	if (ktm.to)
-> +		wake_up_process(ktm.to);
-> +	spin_unlock(&ktm_lock);
-> +}
-> +
-> +static struct kt_message ktm_receive(void)
-> +{
-> +	struct kt_message m;
-> +
-> +	for (;;) {
-> +		spin_lock(&ktm_lock);
-> +		if (ktm.to == current)
-> +			break;
-> +		current->state = TASK_INTERRUPTIBLE;
-> +		spin_unlock(&ktm_lock);
-> +		schedule();
-> +	}
-> +	m = ktm;
-> +	spin_unlock(&ktm_lock);
-> +	return m;
-> +}
+I hope I am not disturbing you.
 
-Wouldn't it be better to put a kt_message inside a tast_struct?
+I am building the linux kernel to calculate the Load Average of the tasks 
+in a different manner.
+
+That would be to separate the tasks under respective login user and then 
+calculate Load Averages. I was successful partly but there is a problem.
+
+ps command gives a good idea  about my effort.
+
+Though I was able to introduce new code, now I find that as far as a child 
+processors are concerned uid is not the original user id (say 500, 501 etc) 
+of that child processor. This is because the child inherits the user id of 
+the Parent.
+
+As a result of that my separation of tasks under differant users is not 
+accurate.
+
+Previously I thought that the uid in the struct task_struct
+is going to be original user id. Now I find it is not the case always as 
+child inherits parent uid
+
+Then I used p->uid. which is not true.
 
 
+Do you know any global structure that keeps the original user id (say 500, 
+501 etc)?
 
-- Davide
+Or I may have to introduce another variable in this regard.
 
-
+Thanks
+Sena Seneviratene
+Computer Engineering Lab
+Sydney University
 

@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263483AbTDVTeC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 15:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDVTeC
+	id S263409AbTDVTpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 15:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTDVTpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 15:34:02 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:2712 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263483AbTDVTeB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 15:34:01 -0400
-Date: Tue, 22 Apr 2003 23:45:28 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: [2.4] Memleak in Aironet 4500 Pcmcia driver
-Message-ID: <20030422194528.GA7471@linuxhacker.ru>
+	Tue, 22 Apr 2003 15:45:34 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:49862 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263409AbTDVTpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 15:45:32 -0400
+Date: Tue, 22 Apr 2003 21:57:32 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ANNOUNCE] Linux 2.5.68-ce2
+Message-ID: <20030422195732.GD12947@wohnheim.fh-wedel.de>
+References: <200304221430_MC3-1-357B-1D59@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304221430_MC3-1-357B-1D59@compuserve.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 22 April 2003 14:26:21 -0400, Chuck Ebbert wrote:
+> diff -u --exclude-from=/home/me/.exclude -r a/arch/i386/kernel/entry.S b/arch/i386/kernel/entry.S
+> --- a/arch/i386/kernel/entry.S	Sat Mar 29 09:16:32 2003
+> +++ b/arch/i386/kernel/entry.S	Sun Apr 20 14:29:01 2003
+> @ -382,10 +382,11 @
+>  ENTRY(interrupt)
+>  .text
+>  
+> +	.align 16,0x90			# make ENTRY have correct address
+>  vector=0
+>  ENTRY(irq_entries_start)
+>  .rept NR_IRQS
+> -	ALIGN
+> +	.align 16,0x90			# should be cacheline-aligned?
+>  1:	pushl $vector-256
+>  	jmp common_interrupt
+>  .data
+> @ -394,17 +395,18 @
+>  vector=vector+1
+>  .endr
+>  
+> -	ALIGN
+> +	.align 16,0x90
+>  common_interrupt:
+>  	SAVE_ALL
+>  	call do_IRQ
+>  	jmp ret_from_intr
+>  
+>  #define BUILD_INTERRUPT(name, nr)	\
+> +	.align 16,0x90;			\
+>  ENTRY(name)				\
+>  	pushl $nr-256;			\
+>  	SAVE_ALL			\
+> -	call smp_/**/name;	\
+> +	call smp_/**/name;		\
+>  	jmp ret_from_intr;
+>  
+>  /* The include is where all of the SMP etc. interrupts come from */
 
-   There is a memleak in Aironet 4500 Pcmcia driver on error exit path
-   that is trivial to fix.
-   Please consider following path.
-   Found with help of smatch's unfree script.
+How about the following?
 
-Bye,
-    Oleg
-===== drivers/net/pcmcia/aironet4500_cs.c 1.8 vs edited =====
---- 1.8/drivers/net/pcmcia/aironet4500_cs.c	Wed Aug  7 22:27:37 2002
-+++ edited/drivers/net/pcmcia/aironet4500_cs.c	Tue Apr 22 23:40:53 2003
-@@ -282,7 +282,7 @@
- 	};
- 	memset(dev,0,sizeof(struct net_device));
- 	dev->priv = kmalloc(sizeof(struct awc_private), GFP_KERNEL);
--	if (!dev->priv ) {printk(KERN_CRIT "out of mem on dev priv alloc \n"); return NULL;};
-+	if (!dev->priv ) {printk(KERN_CRIT "out of mem on dev priv alloc \n"); kfree(dev); return NULL;};
- 	memset(dev->priv,0,sizeof(struct awc_private));
- 	
- //	link->dev->minor = dev->minor;
++#include <linux/cache.h>
++#define CACHELINE_ALIGN .align L1_CACHE_BYTES,0x90
+...
+-	ALIGN
++	CACHELINE_ALIGN
+...
+
+Or was this a bad guess of what you wanted to do?
+
+Jörn
+
+-- 
+Do not stop an army on its way home.
+-- Sun Tzu

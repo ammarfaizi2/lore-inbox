@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129437AbQLDPKY>; Mon, 4 Dec 2000 10:10:24 -0500
+	id <S129541AbQLDPfq>; Mon, 4 Dec 2000 10:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129775AbQLDPKO>; Mon, 4 Dec 2000 10:10:14 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:65468 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129437AbQLDPKH>; Mon, 4 Dec 2000 10:10:07 -0500
-Date: Mon, 4 Dec 2000 09:39:32 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: "Garst R. Reese" <reese@isn.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre4 drivers/net/dummy
-In-Reply-To: <Pine.LNX.3.96.1001204020417.19309C-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.30.0012040937470.14256-200000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1104939946-975940772=:14256"
+	id <S129775AbQLDPfh>; Mon, 4 Dec 2000 10:35:37 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:28173 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129541AbQLDPfV>;
+	Mon, 4 Dec 2000 10:35:21 -0500
+Date: Mon, 4 Dec 2000 15:00:43 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+Message-ID: <20001204150043.C8700@redhat.com>
+In-Reply-To: <3A29008E.F05E5C95@uow.edu.au> <Pine.GSO.4.21.0012021015310.28923-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0012021015310.28923-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Dec 02, 2000 at 10:33:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
----1463811839-1104939946-975940772=:14256
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Sat, Dec 02, 2000 at 10:33:36AM -0500, Alexander Viro wrote:
+> 
+> On Sun, 3 Dec 2000, Andrew Morton wrote:
+> 
+> > It appears that this problem is not fixed.
+> Sure, it isn't. Place where the shit hits the fan: fs/buffer.c::unmap_buffer().
+> Add the call of remove_inode_queue(bh) there and see if it helps. I.e.
 
-Ok, so here's the proper patch for those who dont want to wait for t5 =)
-Ignore previous.
+unmap_buffer() calls mark_buffer_clean() calls refile_buffer() calls
+remove_inode_queue(), which is why we don't see this all the time.
 
-On Mon, 4 Dec 2000, Jeff Garzik wrote:
+However, refile_buffer() is only calling the remove_inode_queue() if
+the buffer disposition changes.  I'm looking to see where we may be
+going wrong here --- the refile_buffer() is not atomic wrt. the
+bh->b_inode structures.
 
-> the fix is in module.h which needs extra parens in the def of
-> set_module_owner...
->
-> 	Jeff
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
----1463811839-1104939946-975940772=:14256
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="module.h-t12p4.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0012040939320.14256@viper.haque.net>
-Content-Description: 
-Content-Disposition: attachment; filename="module.h-t12p4.diff"
-
-LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvbW9kdWxlLmgub3JpZwlNb24gRGVj
-ICA0IDA5OjE1OjM4IDIwMDANCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L21v
-ZHVsZS5oCU1vbiBEZWMgIDQgMDk6MzU6MjUgMjAwMA0KQEAgLTM0NSw3ICsz
-NDUsNyBAQA0KICNlbmRpZiAvKiBNT0RVTEUgKi8NCiANCiAjaWZkZWYgQ09O
-RklHX01PRFVMRVMNCi0jZGVmaW5lIFNFVF9NT0RVTEVfT1dORVIoc29tZV9z
-dHJ1Y3QpIGRvIHsgc29tZV9zdHJ1Y3QtPm93bmVyID0gVEhJU19NT0RVTEU7
-IH0gd2hpbGUgKDApDQorI2RlZmluZSBTRVRfTU9EVUxFX09XTkVSKHNvbWVf
-c3RydWN0KSBkbyB7IChzb21lX3N0cnVjdCktPm93bmVyID0gVEhJU19NT0RV
-TEU7IH0gd2hpbGUgKDApDQogI2Vsc2UNCiAjZGVmaW5lIFNFVF9NT0RVTEVf
-T1dORVIoc29tZV9zdHJ1Y3QpIGRvIHsgfSB3aGlsZSAoMCkNCiAjZW5kaWYN
-Cg==
----1463811839-1104939946-975940772=:14256--
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,91 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130587AbRCLUYy>; Mon, 12 Mar 2001 15:24:54 -0500
+	id <S130216AbRCLU1E>; Mon, 12 Mar 2001 15:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130588AbRCLUYo>; Mon, 12 Mar 2001 15:24:44 -0500
-Received: from smtp1.sentex.ca ([199.212.134.4]:35332 "EHLO smtp1.sentex.ca")
-	by vger.kernel.org with ESMTP id <S130587AbRCLUYa>;
-	Mon, 12 Mar 2001 15:24:30 -0500
-Message-ID: <3AAD2F0F.AC96318F@coplanar.net>
-Date: Mon, 12 Mar 2001 15:18:23 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Hicks <mort@bork.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and PPPoE problem
-In-Reply-To: <20010312145749.A8645@plato.bork.org>
+	id <S130586AbRCLU0z>; Mon, 12 Mar 2001 15:26:55 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:53764 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130216AbRCLU0u>;
+	Mon, 12 Mar 2001 15:26:50 -0500
+Date: Mon, 12 Mar 2001 22:26:06 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac19
+Message-ID: <20010312222606.T23336@mea-ext.zmailer.org>
+In-Reply-To: <E14cYWp-0002Xu-00@the-village.bc.nu> <20010312211917.A2461@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010312211917.A2461@werewolf.able.es>; from jamagallon@able.es on Mon, Mar 12, 2001 at 09:19:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hicks wrote:
+On Mon, Mar 12, 2001 at 09:19:17PM +0100, J . A . Magallon wrote:
+> On 03.12 Alan Cox wrote:
+> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> Silly idea: could you put the full path of the bz2 patch instead of only
+> the dir ?
+> 
+> So people will only have to cut'n'paste for wget...
 
-> Hello,
->
-> I'm using PPPoE with an i586 machine running 2.4.2.
+	Sigh...  "The Man is smart, the man is stupid panicy ..."
+	(never seen that written -- from MiB, anyway)
 
-are you using the kernel pppoe or the user-space one (rp-pppoe, etc)?
-did it work on other kernels?
+	Folks, you are SUPPOSED to be smart and replace 'ftp.kernel.org'
+	with   ftp.XX.kernel.org  where XX is your NEAREST ccTLD.
+	When you do that, does it really matter that you have to use
+	some other tool than wget ?
 
->
->
-> The machine connects fine and allows network traffic to pass
-> through the link.
->
-> However, certain websites seem to choke.
-> (notable ones are www.chapters.ca and www.hp.com)
->
-> Using Lynx or Netscape I get the same results, a few bytes of
-> traffic are received and then nothing (eventually the connection
-> times out).
->
-> The same does not happen in windows.  (ugh)
->
-> I have not encountered any machine that I have telnet/ftp/ssh
-> access to that breaks in this way so I can only confirm that http traffic
-> is not working.
->
-> This gateway machine does masquerading, and internal machines and the external
-> machine react the same way.
+> -- 
+> J.A. Magallon                                                      $> cd pub
+> mailto:jamagallon@able.es                                          $> more beer
 
-are you positive the external (2.4.2 machine, right?) acts this way?
-
-you can send me a tcpdump trace of a session or two that chokes.
-
->
->
-> TIA
-> mh
->
-> Here is some useful info:
->
-> mort@galileo:~$ uname -a
-> Linux galileo 2.4.2 #4 Thu Feb 22 14:13:23 EST 2001 i586 unknown
->
-> mort@galileo:~$ /sbin/ifconfig ppp0
-> ppp0      Link encap:Point-to-Point Protocol
->           inet addr:209.217.122.37  P-t-P:209.217.122.1  Mask:255.255.255.255
->           UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1480  Metric:1
->           RX packets:1272056 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:1476697 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:3
->           RX bytes:430171737 (410.2 Mb)  TX bytes:1260803415 (1202.3 Mb)
->
-> mort@galileo:~$ /sbin/route
-> Kernel IP routing table
-> Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-> magma           *               255.255.255.255 UH    0      0        0 ppp0
-> 192.168.69.0    *               255.255.255.0   U     0      0        0 eth0
-> default         magma           0.0.0.0         UG    0      0        0 ppp0
->
-> --
-> Martin Hicks   || mort@bork.org
-> Use PGP/GnuPG  || DSS PGP Key: 0x4C7F2BEE
-> Beer: So much more than just a breakfast drink.
->
->   ------------------------------------------------------------------------
->    Part 1.2Type: application/pgp-signature
-
+/Matti Aarnio

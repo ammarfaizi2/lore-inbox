@@ -1,61 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270825AbTGVM56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 08:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270827AbTGVM56
+	id S270827AbTGVM6T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270828AbTGVM6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 08:57:58 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:18914 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S270825AbTGVM54 (ORCPT
+	Tue, 22 Jul 2003 08:58:19 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:28677 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S270827AbTGVM6M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 08:57:56 -0400
-Date: Tue, 22 Jul 2003 15:12:59 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: "Deas, Jim" <James.Deas@warnerbros.com>
+	Tue, 22 Jul 2003 08:58:12 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH][2.6.0-test1]:Removes obsolete EXPORT_NO_SYMBOL
+Date: Tue, 22 Jul 2003 18:45:52 +0530
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmalloc - kmalloc and page locks
-Message-ID: <20030722131259.GD31455@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <S270817AbTGVMp3/20030722124529Z+5562@vger.kernel.org> <20030722130718.GB31455@vega.digitel2002.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030722130718.GB31455@vega.digitel2002.hu>
-X-Operating-System: vega Linux 2.6.0-test1 i686
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307221845.52636.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Errrrr ... Sorry, I did not read your mail carefully ;-(
-I meant in case of a user process you can use mlock() and such :)
-AFAIK the kernel itself is not pagable ...
+Hi, 
 
-On Tue, Jul 22, 2003 at 03:07:18PM +0200, Gábor Lénárt wrote:
-> Please read something about the mlock() and/or mlockall() functions.
-> The prototype can be found in [/usr/include/]sys/mman.h
-> You can read there:
-> 
-> /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
->    be memory resident.  */
-> extern int mlock (__const void *__addr, size_t __len) __THROW;
-> [...]
-> /* Cause all currently mapped pages of the process to be memory resident
->    until unlocked by a call to the `munlockall', until the process exits,
->    or until the process calls `execve'.  */
-> extern int mlockall (int __flags) __THROW;
-> 
-> On Tue, Jul 22, 2003 at 06:00:14AM -0700, Deas, Jim wrote:
-> > How can I look at what memory are being paged out of memory in the kernel
-> > or how to lock kmalloc and vmalloc pages so they do not get put to swap?
-> [...]
-> 
-> - Gábor (larta'H)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This patch removes the obsolete EXPORT_NO_SYMBOL
+from many sources.
 
--- 
-- Gábor (larta'H)
+The patch is against 2.6.0-test1.
+Please do apply.
+
+Regards
+KK
+
+
+============================================
+diffstat output
+
+arch/cris/arch-v10/drivers/pcf8563.c |    1 -
+drivers/net/meth.c                           |    3 ---
+sound/oss/swarm_cs4297a.c           |    2 --
+3 files changed, 6 deletions(-)
+
+============================================
+The following is the patch:-
+
+
+
+diff -urN -X dontdiff linux-2.6.0-test1.orig/arch/cris/arch-v10/drivers/pcf8563.c linux-2.6.0-test1/arch/cris/arch-v10/drivers/pcf8563.c
+--- linux-2.6.0-test1.orig/arch/cris/arch-v10/drivers/pcf8563.c	2003-07-14 09:02:40.000000000 +0530
++++ linux-2.6.0-test1/arch/cris/arch-v10/drivers/pcf8563.c	2003-07-22 18:24:11.000000000 +0530
+@@ -282,6 +282,5 @@
+ 	return 0;
+ }
+ 
+-EXPORT_NO_SYMBOLS;
+ module_init(pcf8563_init);
+ module_exit(pcf8563_exit);
+diff -urN -X dontdiff linux-2.6.0-test1.orig/drivers/net/meth.c linux-2.6.0-test1/drivers/net/meth.c
+--- linux-2.6.0-test1.orig/drivers/net/meth.c	2003-07-14 09:07:16.000000000 +0530
++++ linux-2.6.0-test1/drivers/net/meth.c	2003-07-22 18:24:50.000000000 +0530
+@@ -844,9 +844,6 @@
+ 		printk("meth: error %i registering device \"%s\"\n",
+ 		       result, meth_devs->name);
+ 	else device_present++;
+-#ifndef METH_DEBUG
+-	EXPORT_NO_SYMBOLS;
+-#endif
+ 	
+ 	return device_present ? 0 : -ENODEV;
+ }
+diff -urN -X dontdiff linux-2.6.0-test1.orig/sound/oss/swarm_cs4297a.c linux-2.6.0-test1/sound/oss/swarm_cs4297a.c
+--- linux-2.6.0-test1.orig/sound/oss/swarm_cs4297a.c	2003-07-14 09:04:39.000000000 +0530
++++ linux-2.6.0-test1/sound/oss/swarm_cs4297a.c	2003-07-22 18:25:25.000000000 +0530
+@@ -90,7 +90,6 @@
+ #include <asm/sibyte/64bit.h>
+ 
+ struct cs4297a_state;
+-EXPORT_NO_SYMBOLS;
+ 
+ static void stop_dac(struct cs4297a_state *s);
+ static void stop_adc(struct cs4297a_state *s);
+@@ -2734,7 +2733,6 @@
+ 
+ // --------------------------------------------------------------------- 
+ 
+-EXPORT_NO_SYMBOLS;
+ 
+ MODULE_AUTHOR("Kip Walker, kwalker@broadcom.com");
+ MODULE_DESCRIPTION("Cirrus Logic CS4297a Driver for Broadcom SWARM board");
+
+-

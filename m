@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268407AbTCCH3G>; Mon, 3 Mar 2003 02:29:06 -0500
+	id <S268417AbTCCHZT>; Mon, 3 Mar 2003 02:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268414AbTCCH3G>; Mon, 3 Mar 2003 02:29:06 -0500
-Received: from [196.12.44.6] ([196.12.44.6]:52440 "EHLO students.iiit.net")
-	by vger.kernel.org with ESMTP id <S268407AbTCCH3F>;
-	Mon, 3 Mar 2003 02:29:05 -0500
-Date: Mon, 3 Mar 2003 13:09:29 +0530 (IST)
-From: Prasad <prasad_s@students.iiit.net>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: redirecting printk to the Serial port
-In-Reply-To: <96100000.1046676676@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0303031307570.30529-100000@students.iiit.net>
+	id <S268422AbTCCHZS>; Mon, 3 Mar 2003 02:25:18 -0500
+Received: from [203.199.140.162] ([203.199.140.162]:25103 "EHLO
+	calvin.codito.co.in") by vger.kernel.org with ESMTP
+	id <S268417AbTCCHZR>; Mon, 3 Mar 2003 02:25:17 -0500
+From: Amit Shah <shahamit@gmx.net>
+To: Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] taskqueue to workqueue update for riscom8 driver
+Date: Mon, 3 Mar 2003 13:05:22 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <20030302043804.A17185@parcelfarce.linux.theplanet.co.uk> <200303021751.01224.shahamit@gmx.net> <20030302163427.C7301@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030302163427.C7301@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303031305.22854.shahamit@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 02 Mar 2003 22:04, Matthew Wilcox wrote:
+> So it only compiles on UP.  Not terribly interesting.
+>
+> BTW, I wouldn't necessarily expect it to work.  Work queues run in
+> process context; the code you replaced ran in bottom half context.
+> If you're going to do this kind of lame hack, it should be converted
+> to a tasklet, not a work queue.
 
-the output stopped after it printed the line "Freeing unused kernel 
-memory".  How do we manage to get the printk's to the serial line after 
-this. I can see the messages using 'dmesg' but am not getting them over 
-the serial line.
+A simple grep for cli() in drivers/char reveals that many of those drivers 
+still use cli(), which means even they haven't yet been converted to the new 
+framework.
 
-Prasad.
+As for the patch, other drivers, like cyclades, for example, too have been 
+modified in the same manner.... on digging, I found that the original patch 
+that converted the taskqueues to workqueues had also done it the same way.
 
-On Sun, 2 Mar 2003, Martin J. Bligh wrote:
-
-> 
-> 
-> --On Monday, March 03, 2003 12:58:24 +0530 Prasad <prasad_s@students.iiit.net> wrote:
-> 
-> > 
-> > 
-> > I have seen the Documentation/serial-console.txt and accordingly gave the 
-> > kernel arguments console=/dev/ttyS0,9600n8, but even after giving that i 
-> > am not getting anything to the other end. To check if the serial 
-> > communication was in place... i tried echo "abc" > /dev/ttyS0 and that 
-> > worked.
-> 
-> I use "console=ttyS0,57600n8" - no "/dev".
-> 
-> M.
-> 
+Amit.
 
 -- 
-Failure is not an option
+Amit Shah
+http://amitshah.nav.to/
+
+The most exciting phrase to hear in science, the one that heralds new
+discoveries, is not "Eureka!" (I found it!) but "That's funny ..."
+                -- Isaac Asimov
 

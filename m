@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290818AbSC0Utt>; Wed, 27 Mar 2002 15:49:49 -0500
+	id <S290983AbSC0UvJ>; Wed, 27 Mar 2002 15:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSC0Utk>; Wed, 27 Mar 2002 15:49:40 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:27014 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S290818AbSC0Ut1>;
-	Wed, 27 Mar 2002 15:49:27 -0500
-Date: Tue, 26 Mar 2002 19:08:43 +0000
+	id <S291279AbSC0UvE>; Wed, 27 Mar 2002 15:51:04 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:28806 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S290120AbSC0Uty>;
+	Wed, 27 Mar 2002 15:49:54 -0500
+Date: Tue, 26 Mar 2002 18:52:39 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: [patch] Device model update (with power state transitions)
-Message-ID: <20020326190842.C324@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0203261458000.3237-100000@segfault.osdl.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Wakko Warner <wakko@animx.eu.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE and hot-swap disk caddies
+Message-ID: <20020326185238.A324@toy.ucw.cz>
+In-Reply-To: <20020325152617.A18605@animx.eu.org> <Pine.LNX.4.10.10203251319100.1305-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -21,24 +22,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> 3. Adds the routines for power state transitions:
+> > > >   The way you say that makes me think that it does support at some other
+> > > > level... hot swap controller? Doesn't match MY hardware. Hot swap
+> > > 
+> > > Controller level hotswap works mostly (think about pcmcia ide for example)
+> > 
+> > Just to throw this out there.  Is it possible to make the ide subsystem look
+> > like a scsi controller ?  that way the scsi layer could insert/remove
+> > devices.  say: ide0/1 = scsi0 (assuming no other scsi controllers) and hda =
+> > scsi0 channel0 id0 lun0  and hdc = scsi0 channel1 id0 lun0 ...
+> > 
+> > Personally, if it's doable, i'd like it.
 > 
-> - device_suspend - forward iteration of list, calling suspend callback of 
->   each node
-> - device_resume - backward iteration of list, calling resume callback of 
->   each node
-> - device_shutdown - forward iteration of list, calling remove callback of 
->   each node
-> 
-> This should provide the mechanism for replacing the reboot notifiers and 
-> doing properly ordered power management transtions. Comments welcome. 
-> 
-> Testing welcome also, though I wouldn't expect one to get very far, since 
-> they're not actually used. ;) Which, brings up another question - what 
+> Hardware is different.
+> You can paint a goose yellow and call it a duck, but it is still a goose.
+> The electrical/electronic interface will kill you!
 
-Well, I have patches for S3 that rely on them... I can post them to the
-list if it helps testing ;-).
+We already have support for SCSI-(raid)controllers which use IDE disks for
+storage, so...
 
+USB mass storage is not SCSI (in some cases), either. [Ouch, and some
+usb-storage devices *are* IDE.]
+
+So it makes sense to view IDE as very odd SCSI controllers.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

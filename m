@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273598AbRIQMd0>; Mon, 17 Sep 2001 08:33:26 -0400
+	id <S273588AbRIQMl2>; Mon, 17 Sep 2001 08:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273596AbRIQMdR>; Mon, 17 Sep 2001 08:33:17 -0400
-Received: from koala.ichpw.zabrze.pl ([195.82.164.33]:40196 "EHLO
-	koala.ichpw.zabrze.pl") by vger.kernel.org with ESMTP
-	id <S273588AbRIQMdK>; Mon, 17 Sep 2001 08:33:10 -0400
-Message-Id: <200109171244.f8HCiTZ00707@koala.ichpw.zabrze.pl>
-From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 17 Sep 2001 14:33:19 -0400 (EDT)
-Reply-To: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-X-Mailer: (Demonstration) PMMail 2.00.1500 for OS/2 Warp 3.00
+	id <S273597AbRIQMlS>; Mon, 17 Sep 2001 08:41:18 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:61202 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273588AbRIQMlP>;
+	Mon, 17 Sep 2001 08:41:15 -0400
+Date: Mon, 17 Sep 2001 09:41:17 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010917122559Z16382-2758+129@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0109170936010.2990-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Subject: PCI - Tseng ET6000 - bad memory amount  detection 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking  for lscpci  output  I have found that amount of detected
-memory on my  SVGA Tseng ET6000 is incorrect :
+On Mon, 17 Sep 2001, Daniel Phillips wrote:
 
-00:0f.0 VGA compatible controller: Tseng Labs Inc ET6000 (rev 30)
-(prog-if 00 [V
-GA])
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Step
-ping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow
->TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at e5000000 (32-bit,
-non-prefetchable)[size=16M]
-        Region 1: I/O ports at e800 [size=256]
-        Expansion ROM at <unassigned> [disabled] [size=16M]
+> Drifting a little further offtopic.  As far as I can tell, there's no
+> fundamental reason why we cannot make the current strategy work as
+> well as Rik's rmaps probably will, with some more blood, sweat and
+> code study.
 
-The card has only 2 M  - and this incorrect detection  makes 
-problems in use mtrr under  XFree4.x .
+I don't see any possibility to get that to work without
+reverse mapping. Of course, that could be me overlooking
+some possibility, but I'm not holding by breath waiting
+for somebody to invent this other possibility.
 
+> On the other hand, Matt Dillon, the reigning champion of
+> virtual memory managment, was quite firm in stating that we should
+> drop the current virtually scanning strategy in favor of 100%
+> physical scanning as BSD uses, relying on reverse mapping.
+>
+>    http://mail.nl.linux.org/linux-mm/2000-05/msg00419.html
+>    (Matt Dillon holds forth on the design of BSD's memory manager)
 
- Is it   hardware problem    or error  in PCI detection routines ?
-     
+His claims are backed up by FreeBSD's VM performance,
+so I'm inclined to believe them. If you think you can
+come up with something better, I'll believe you when
+you show it...
 
---------------------------------------------------------
- Marek Mentel  mmark@koala.ichpw.zabrze.pl  2:484/3.8          
- INSTITUTE FOR CHEMICAL PROCESSING OF COAL , Zabrze , POLAND
- NOTE: my opinions are strictly my own and not those of my employer
+regards,
 
+Rik
+-- 
+IA64: a worthy successor to i860.
 
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

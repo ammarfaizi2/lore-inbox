@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310344AbSCGONd>; Thu, 7 Mar 2002 09:13:33 -0500
+	id <S310335AbSCGOUY>; Thu, 7 Mar 2002 09:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310340AbSCGONX>; Thu, 7 Mar 2002 09:13:23 -0500
-Received: from sip-11a.usol.com ([63.64.148.11]:34832 "EHLO
-	dns1.civic.twp.ypsilanti.mi.us") by vger.kernel.org with ESMTP
-	id <S310335AbSCGONR>; Thu, 7 Mar 2002 09:13:17 -0500
-Subject: 8139too on Proliant
-From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S310346AbSCGOUN>; Thu, 7 Mar 2002 09:20:13 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:55285 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S310335AbSCGOUB>; Thu, 7 Mar 2002 09:20:01 -0500
+Message-ID: <3C877710.CAE1AFD3@redhat.com>
+Date: Thu, 07 Mar 2002 14:20:00 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCHED_YIELD undeclared with Trond's NFS patch w/2.4.19-pre2-ac2
+In-Reply-To: <20020307084514.C16224@lapsony.mydomain.here> <Pine.LNX.3.95.1020307085809.19727A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 07 Mar 2002 09:13:19 -0500
-Message-Id: <1015510399.25062.1.camel@smiddle>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a Compaq Proliant ML350.  We've added an additional PCI based
-D-Link 530TX network card to the machine.  However, the driver (8139too)
-fails to load.  The errors given are below.  We are using Debian Sid
-(kernel 2.4.9-686).  If a new kernel or recompile is needed to fix this
-problem, I'm willing, but if there's another way, I'd be *more* willing
-to do that (putting new kernelson this machine is not fun).
+ 
+> You need to change loops that do something like:
+> 
+>     while(something)
+>     {
+>         current->policy |= SCHED_YIELD;
+>         schedule();
+>     }
+> 
+>     to:
+> 
+>     while(something)
+>         sys_sched_yield();
+> 
 
-I have tried changing the IRQ's for the card, that didn't seem to help. 
-PnP is off, I believe (hard to tell with the Compaq BIOS).  Right now,
-it's sharing IRQ 15 with the onboard eepro100 based card.  The add-on
-card has been tested while sharing IRQ's with both the SCSI controllers
-and the serial ports (the only options the BIOS gives us), and got the
-exact same messages as below.
-
-And, of course, like many people, I'm not subscribed to list.  CC on
-replies would be spiffy.  Thanks!
-
-On the console:
-/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: init_module: No
-such device
-/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod
-/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o failed
-/lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod 8139too
-failed
-Hint: insmod errors can be caused by incorrect module parameters,
-including invalid IO or IRQ parameters
-
-/var/log/messages:
-Mar  7 09:00:25 dns1 kernel: 8139too Fast Ethernet driver 0.9.18a
-Mar  7 09:00:25 dns1 kernel: PCI: Found IRQ 15 for device 00:04.0
-Mar  7 09:00:25 dns1 kernel: PCI: Unable to reserve I/O region
-#1:100@3000 for device 00:04.0
-Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-<00003000-000030ff>
-Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-<b0800000-b08000ff>
-Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-<00003000-000030ff>
-Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-<b0800000-b08000ff>
-
+such loops are a great way to create livelock and other nasties in the
+kernel
+and should be avoided at all cost (esp if you use preemptable kernels)

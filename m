@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292839AbSCIUkx>; Sat, 9 Mar 2002 15:40:53 -0500
+	id <S292836AbSCIUlx>; Sat, 9 Mar 2002 15:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292836AbSCIUkc>; Sat, 9 Mar 2002 15:40:32 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:17188 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S292654AbSCIUka>; Sat, 9 Mar 2002 15:40:30 -0500
-Message-ID: <3C7EF02B001C2A55@mail.libertysurf.net> (added by
-	    postmaster@libertysurf.fr)
-Content-Type: text/plain; charset=US-ASCII
-From: William Stinson <wstinson@infonie.fr>
-Reply-To: wstinson@infonie.fr
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix xconfig in 2.5.6
-Date: Sat, 9 Mar 2002 21:40:40 +0000
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S292916AbSCIUlj>; Sat, 9 Mar 2002 15:41:39 -0500
+Received: from prahaa-4-18.dialup.vol.cz ([195.122.214.89]:56194 "EHLO
+	pida.in.idoox.com") by vger.kernel.org with ESMTP
+	id <S292654AbSCIUlV>; Sat, 9 Mar 2002 15:41:21 -0500
+Date: Sat, 9 Mar 2002 21:32:09 +0100
+From: David Hajek <hajek@systinet.com>
+To: Thomas Hood <jdthood@mail.com>
+Subject: Re: apm problems on thinkpad
+Message-ID: <20020309213209.A6012@pida.in.idoox.com>
+Reply-To: hajek@systinet.com
+In-Reply-To: <1015705324.941.233.camel@thanatos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1015705324.941.233.camel@thanatos>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.18
+Organization: Systinet, Inc. [formerly Idoox]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+> > Standby mode (apm -s) does not work properly,
+> > because all fans are running.
+> 
+> What does standby mode do under windows?
+> 
+> I have a ThinkPad 600.  I never use standby;
+> only suspend.
 
-this is a small patch to fix error: 
-	/tkparse < ../arch/i386/config.in >> kconfig.tk
-	sound/core/Config.in: 4: can't handle dep_bool/dep_mbool/dep_tristate condition
-upon make xconfig got with 2.5.6
+Dunno, but I think that standby means suspend under
+win ? - they offer standby and hibernate modes.
 
-Please CC me for any answers/comments.
+Doesn't matter, fans should stop in all cases.
 
-I also put this patch at http://www.chez.com/wstinson/linux/kernel/patch-sound-core-Config.in
-
-William Stinson (wstinson@infonie.fr)
-
-
-
---- linux-2.5.6/sound/core/Config.in	Sat Mar  9 21:03:45 2002
-+++ linux-local/sound/core/Config.in	Sat Mar  9 21:04:57 2002
-@@ -1,13 +1,13 @@
- # ALSA soundcard-configuration
- 
- if [ "$CONFIG_X86_64" = "y" -a "$CONFIG_IA32_EMULATION" = "y" ]; then
--  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
-+  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
- fi
- if [ "$CONFIG_PPC64" = "y" ]; then
--  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
-+  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
- fi
- if [ "$CONFIG_SPARC64" = "y" ]; then
--  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL
-+  dep_tristate '  Emulation for 32-bit applications' CONFIG_SND_BIT32_EMUL $CONFIG_SND
- fi
- dep_tristate '  Sequencer support' CONFIG_SND_SEQUENCER $CONFIG_SND
- if [ "$CONFIG_SND_SEQUENCER" != "n" ]; then
-
-
-
-
+-D

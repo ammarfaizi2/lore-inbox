@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbUK2Tys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUK2T7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbUK2Tys (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUK2TxO
+	id S261622AbUK2T7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUK2Twy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:53:14 -0500
-Received: from ANantes-252-1-25-208.w82-126.abo.wanadoo.fr ([82.126.22.208]:61200
-	"HELO anantes-252-1-25-208.w82-126.abo.wanadoo.fr") by vger.kernel.org
-	with SMTP id S261633AbUK2TmM (ORCPT
+	Mon, 29 Nov 2004 14:52:54 -0500
+Received: from mail.signalz.com ([66.37.214.166]:38076 "EHLO mail.signalz.com")
+	by vger.kernel.org with ESMTP id S261622AbUK2TuX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:42:12 -0500
-From: "Bingham" <cbqqovkllkbhje@wanadoo.fr>
-MIME-Version: 1.0
-Subject: out entangled affairs. Very
-Message-ID: <6423718099-95629047@wanadoo.fr>
+	Mon, 29 Nov 2004 14:50:23 -0500
+Subject: Promise SX8  driver performance
+From: Matt <matt@signalz.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Signal Advertising
+Message-Id: <1101757822.4309.37.camel@schroder.signalz.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 29 Nov 2004 14:50:22 -0500
 Content-Transfer-Encoding: 7bit
-To: "Burrell Linux-net" <linux-net@vger.kernel.org>
-Content-Type: text/plain;
-	charset="iso-8859-6";
-Date: Mon, 29 Nov 2004 23:15:42 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest financial news. Economy is still very unstable and 
-ra t es will  jump up to 10% before a new year. A new bill just 
-passed and you have  very little time to - re f i nance. 
+Hello all. I've got a Promise SX8 SATA controller and the performance
+seems a little off. I'm using a debian-built 2.6.9 kernel and the
+read/write I/O seems to level off around 80-90 MB/s. When I use the same
+hardware in Windows, sequential I/O goes up to 218 MB/s. (That's about
+the limit of my motherboard's buses.) If I move some disks to the
+on-board SATA controller, I can get the I/O to go higher but never as
+high as in Windows.
 
-Do it today before its to late !
-
-You are already   ap p roved  with 4.5 % here
-http://www.ylyrtdq.com/ 
+Is this a problem with my expectations, my testing, or the driver? 
 
 
+Some Bonnie numbers for a raid 0 array of Seagate 7200.7's (2 GB file,
+sequential, MB/s):
+
+Disks/cntl        Write    Read
+-----             -----    ----
+1 (sx8)              57      63
+2 (sx8)              69      75
+2 (ESB)             111     121
+3 (sx8)              75      79
+3 (1 sx8, 2 ESB)    141     125
+4 (sx8)              89      80
+4 (2 sx8, 2 ESB)    135     150
+5 (sx8)              88      79
+6 (sx8)              91      75
+
+Some numbers from Sandra (ugh) in W2K Pro with the latest Promise
+drivers and using software RAID 0 (sequential, MB/s):
+
+Disks/cntl      Write    Read
+-----           -----    ----
+1 (sx8)            56      62
+2 (sx8)           106     122
+3 (sx8)           151     176
+4 (sx8)           178     209
+5 (sx8)           180     218
+6 (sx8)           179     218
+6 (4 sx8, 2 ESB)  169     207
 
 
-Eeligible a itsitsmadeira
-we Bcathodic via be me decide
-the was a amply schweitzer
-genre greek Nurn oxidate
-Sadulterate I amok lacrosse
-no of bystander craftsperson coddington
-our to cloudburst - to alkaloid
+My full hardware:
+
+Supermicro P4SCi motherboard (7210 chipset, 6300ESB SATA on-board)
+3.0 GHz P4 Northwood w/ HT enabled
+(2) 512MB DDR400 dual channel (non-ECC)
+Promise SX8 SATA controller
+(6) 200 GB Seagate 7200.7
+(1) 40 GB Seagate Baraccuda IV (boot)
+Adaptec 2940U
+
+
+
 

@@ -1,46 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261314AbTCOHun>; Sat, 15 Mar 2003 02:50:43 -0500
+	id <S261321AbTCOH4m>; Sat, 15 Mar 2003 02:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261316AbTCOHun>; Sat, 15 Mar 2003 02:50:43 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:46992 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261314AbTCOHum>;
-	Sat, 15 Mar 2003 02:50:42 -0500
-Date: Sat, 15 Mar 2003 09:01:14 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (14/26) input
-Message-ID: <20030315090114.B3075@ucw.cz>
-References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217141223.GN4799@yuzuki.cinet.co.jp> <20030314092248.A27902@ucw.cz> <3E72C390.9CF1A9ED@cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E72C390.9CF1A9ED@cinet.co.jp>; from tomita@cinet.co.jp on Sat, Mar 15, 2003 at 03:09:20PM +0900
+	id <S261317AbTCOH4m>; Sat, 15 Mar 2003 02:56:42 -0500
+Received: from mail.casabyte.com ([209.63.254.226]:24081 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP
+	id <S261316AbTCOH4j>; Sat, 15 Mar 2003 02:56:39 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: "Chris Fowler" <cfowler@outpostsentinel.com>
+Cc: "Ed Vance" <EdV@macrolink.com>, "'Linux PPP'" <linuxppp@indiainfo.com>,
+       <linux-serial@vger.kernel.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: RS485 communication
+Date: Sat, 15 Mar 2003 00:07:22 -0800
+Message-ID: <PEEPIDHAKMCGHDBJLHKGCEGACDAA.rwhite@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1047598241.5292.2.camel@hp.outpostsentinel.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 15, 2003 at 03:09:20PM +0900, Osamu Tomita wrote:
-> Vojtech Pavlik wrote:
-> > 
-> > On Mon, Feb 17, 2003 at 11:12:23PM +0900, Osamu Tomita wrote:
-> > 
-> > > This is patchset to support NEC PC-9800 subarchitecture
-> > > against 2.5.61 (14/26).
-> > >
-> > > Drivers for PC98 standard keyboard/mouse.
-> > 
-> > Thanks, applied.
-> Thanks.
-> Please check my patch agaist 2.5.64 I posted. That has update
-> (only one line) to syncronize parameter change of interrupt
-> function.
+Yes, that, but that is only part of it.
 
-Already there, too.
+The RS485 is a proper bus, so this custom program (or programs) will have to
+act as full bus arbiters and a kind of router.  Each PPP daemon must receive
+ONLY the data that its peer daemon transmits.  That means that each slave
+must know to ignore the data not destined for it.  Further, the master,
+which would have multiple PPP instances running on it, will need to decide
+which of those instances get which of the receiving bytes.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+So just like an Ethernet transceiver puts a protocol frame around the data
+to get it to the destination, the transport program will have to put
+envelopes around the data.  THEN the master transport program will tell each
+slave when and how many of its envelopes it may send.  The only way that can
+work (because there is no "ring" you can't pass a "token") is for the master
+to ask each slave in turn: "Got anything to send?"
+
+This usually devolves to a sequence of "#1, say your piece", "#2 say your
+piece" etc.  That is a very bad performance model.
+
+So every frame of data will need to be arbitrarily wide, meaning a length
+code, and will need an in-multiplexor address.
+
+So the master, for instance, will say "slave 1, go".  The slave 1 will send
+a packet (not necessarily a PPP packet, as the multiplexor will have
+overhead data etc.)
+
+The master will look at the address and decide which local pty the data is
+for and send it there.  (Think a simple byte pump here)
+
+When that pty has response data, and when the master says "slave 0 (e.g. me)
+go" it will frame a message that slave #1 will receive and put through to
+its local pty.  Slave 1 also has the job of ignoring data for slaves 2
+through N and the Master (Slave 0).
+
+In short, he has to write a distributed application that pumps data into and
+out of a broadcast medium, and makes sure that each participant gets only
+the data intended for itself.  (This is what both the Ethernet hardware
+layer, and the IP protocols do.)
+
+In communications you almost always put protocols inside of protocols to
+some significant depth.
+
+For instance, when you play Unreal Tournament 2003:
+Unreal Tournament's data is carried by UDP,
+The UDP is carried by IP,
+The IP is carried by the Ethernet hardware access layer (raw Ethernet),
+Those packets may go to your cable modem which either wraps the Ethernet
+hardware packets or decodes them and reencodes the IP  into whatever it
+does.
+
+>From there, if your cable modem is doing PPPoE there are even more layers.
+
+This guy will only have to write a multiplexing layer, but it won't be fun.
+
+Then again, the Ethernet people have done all that, which is why it is
+cheaper and easier to just get the Ethernet hardware and use it.
+
+Rob.
+
+-----Original Message-----
+From: Chris Fowler [mailto:cfowler@outpostsentinel.com]
+Sent: Thursday, March 13, 2003 3:31 PM
+To: Robert White
+Cc: Ed Vance; 'Linux PPP'; linux-serial@vger.kernel.org; 'linux-kernel'
+Subject: RE: RS485 communication
+
+
+Are you saying that for him to to use PPPD that he will have to write a
+program that will run on a master and tell all the slave nodes when they
+can transmit their data.  In this case it would be ppp data.  Hopfully
+in block sizes that are at least the size of the MTU ppp is running.
+
+Chris
+
+

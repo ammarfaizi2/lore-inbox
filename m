@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129602AbQLGREZ>; Thu, 7 Dec 2000 12:04:25 -0500
+	id <S131494AbQLGRFP>; Thu, 7 Dec 2000 12:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbQLGREP>; Thu, 7 Dec 2000 12:04:15 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:2783 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S129602AbQLGREE>; Thu, 7 Dec 2000 12:04:04 -0500
-From: Ulrich.Weigand@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: linux-kernel@vger.kernel.org
-cc: schwidefsky@de.ibm.com
-Message-ID: <C12569AE.005AF14B.00@d12mta01.de.ibm.com>
-Date: Thu, 7 Dec 2000 17:33:17 +0100
-Subject: bug: merge_segments vs. lock_vma_mappings?
+	id <S131493AbQLGRFF>; Thu, 7 Dec 2000 12:05:05 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:47533 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131478AbQLGREz>;
+	Thu, 7 Dec 2000 12:04:55 -0500
+Date: Thu, 7 Dec 2000 17:34:28 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: attempt to access beyond end of device
+Message-ID: <20001207173428.A23936@veritas.com>
+In-Reply-To: <20001207165659.A1167@gondor.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001207165659.A1167@gondor.com>; from jan@gondor.com on Thu, Dec 07, 2000 at 04:56:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 07, 2000 at 04:56:59PM +0100, Jan Niehusmann wrote:
+> ll_rw_blk.c: generic_make_request() contains the following code:
+> 
+> if (maxsector < count || maxsector - count < sector) {
+> 	bh->b_state &= (1 << BH_Lock) | (1 << BH_Mapped);
+> 	if (blk_size[major][MINOR(bh->b_rdev)]) {
+> 
+> 		/* This may well happen - the kernel calls bread()
+> 		   without checking the size of the device, e.g.,
+> 		   when mounting a device. */
+> 		printk(KERN_INFO
+> 		       "attempt to access beyond end of device\n");
+> 		printk(KERN_INFO "%s: rw=%d, want=%d, limit=%d\n",
+> 		       kdevname(bh->b_rdev), rw,
+> 		       (sector + count)>>1,
+> 		       blk_size[major][MINOR(bh->b_rdev)]);
+> 	}
+> 	bh->b_end_io(bh, 0);
+> 	return;
+> }
+> 
+> 
+> That means that if blk_size[major][MINOR(bh->b_rdev)] == 0, the request
+> is canceled but no message is printed. Shouldn't there be a warning message?
 
+Maybe that code fragment is mine. If so, then at some point
+in time I decided that the answer to your question is no.
 
-Hello,
-
-since test11, the merge_segments() routine assumes that every
-VMA that it frees has been locked with lock_vma_mappings().
-
-While most callers have been adapted to perform this locking,
-at least two, do_mlock and sys_mprotect, do *not* currently.
-This causes a deadlock in certain situations.
-
-What's the correct way to fix this?  In mlock and mprotect,
-potentially many segments could be freed; do we need to
-call lock_vma_mappings on all of them before calling
-merge_segments?
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

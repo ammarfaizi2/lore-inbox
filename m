@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbVCXFhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263044AbVCXFoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbVCXFhP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 00:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbVCXFhN
+	id S263044AbVCXFoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 00:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbVCXFoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 00:37:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58291 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S263037AbVCXFgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 00:36:52 -0500
-Message-ID: <424251E3.5060204@pobox.com>
-Date: Thu, 24 Mar 2005 00:36:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Thu, 24 Mar 2005 00:44:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14057 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262687AbVCXFo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 00:44:27 -0500
+Message-ID: <4242538A.10200@osdl.org>
+Date: Wed, 23 Mar 2005 21:43:38 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Christoph Lameter <christoph@lameter.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Tina Yang <tinay@chelsio.com>,
-       Scott Bardone <sbardone@chelsio.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [-mm patch] drivers/net/chelsio/osdep.h: small cleanups
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050324031026.GV1948@stusta.de> <Pine.LNX.4.58.0503231934430.11120@server.graphe.net> <42424ECB.4060807@osdl.org>
-In-Reply-To: <42424ECB.4060807@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, David McCullough <davidm@snapgear.com>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <20050315133644.GA25903@beast>	<20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <42424D52.7070508@pobox.com>
+In-Reply-To: <42424D52.7070508@pobox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> Christoph Lameter wrote:
+Jeff Garzik wrote:
+> Andrew Morton wrote:
 > 
->> We just send an update to Andrew and Jeff that also fixes this issue.
->> Sadly that patch is >300k so we cannot post it to the list.
+>> David McCullough <davidm@snapgear.com> wrote:
+>>
+>>> Here is a small patch for 2.6.11 that adds a routine:
+>>>
+>>>     add_true_randomness(__u32 *buf, int nwords);
+>>
+>>
+>>
+>> It neither applies correctly nor compiles in current kernels.  2.6.11 is
+>> very old in kernel time.
 > 
 > 
-> you can post it to netdev@oss.sgi.com
-> it doesn't seem to block large patches.
+> Hrm.  This is getting pretty lame, if you can't take patches from the 
+> -latest- stable release.  It's pretty easy in BK:
+> 
+>     bk clone -ql -rv2.6.11 linux-2.6 rng-2.6.11
+>     cd rng-2.6.11
+>     { apply patch }
+>     bk pull ../linux-2.6
+> 
+> Can you set up something like that?
 
+I thought that the latest stable release was 2.6.11.5.
 
-Well, it's still not kosher to send large patches.  Not everybody has 
-broadband, you know :)  It clogs up archives and other stuff.
+However, what I really want to do is ask what patches should be
+made against.  I suggested on linux-scsi a day or 2 ago that
+they should be made against the latest linus-bk (or snapshot)
+unless the patch only applies to -mm, then they should obviously
+be made against -mm.  2.6.11 plain is relatively aged IMO also....
 
-	Jeff
-
-
+-- 
+~Randy

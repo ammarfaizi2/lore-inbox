@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbUKSCAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUKSCDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbUKSCAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 21:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUKSB6K
+	id S261228AbUKSCDB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 21:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUKSCBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 20:58:10 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:61124 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261232AbUKSB4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 20:56:09 -0500
-From: kernel-stuff <kernel-stuff@comcast.net>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: X86_64: Many Lost ticks
-Date: Thu, 18 Nov 2004 20:56:02 -0500
-User-Agent: KMail/1.7.1
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
-       acurrid@nvidia.com
-References: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net> <20041118184904.GN17532@wotan.suse.de>
-In-Reply-To: <20041118184904.GN17532@wotan.suse.de>
+	Thu, 18 Nov 2004 21:01:17 -0500
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:42215
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S261232AbUKSB7h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:59:37 -0500
+Date: Thu, 18 Nov 2004 20:58:26 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
+Subject: Re: [patch] 2.6.10-rc2-mm2: MTD_XIP dependencies
+In-Reply-To: <20041118232527.GI4943@stusta.de>
+Message-ID: <Pine.LNX.4.61.0411182041130.12260@xanadu.home>
+References: <20041118021538.5764d58c.akpm@osdl.org> <20041118154110.GE4943@stusta.de>
+ <1100793112.8191.7315.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.61.0411181132440.12260@xanadu.home> <20041118213232.GG4943@stusta.de>
+ <Pine.LNX.4.61.0411181727010.12260@xanadu.home> <20041118232527.GI4943@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411182056.03184.kernel-stuff@comcast.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi / Zwane
-Ignore my earlier mail about the DMA timeouts and NMI errors after applying 
-the ACPI timer override patch.  My bad.  I forgot to recompile the modules 
-after I applied your patch - and I believe thats what caused those errors. 
-I recompiled and reinstalled the modules this time and no errors [well, apart 
-from those lost ticks, which anyway is a separate issue]  with the ACPI Timer 
-override for NVIDIA chipset. 
+On Fri, 19 Nov 2004, Adrian Bunk wrote:
 
-Alan - Needless to say you should keep Andi's NVIDIA ACPI Timer override patch 
-in -ac. It works.
+> On Thu, Nov 18, 2004 at 05:31:32PM -0500, Nicolas Pitre wrote:
+> >...
+> > Can we make it conditional on CONFIG_XIP_KERNEL instead?
+> > It would be less messy IMHO.
+> 
+> I copied the dependency from the #ifdef before the #error.
+> 
+> The #error should either go or be the same than the Kconfig dependency.
 
-Sorry for the confusion!
+And on what basis?  This just doesn't make sense.
 
-Parry
+CONFIG_MTD_XIP is there to be compatible with kernels which are made 
+XIP.  This currently means _all_ ARM flavours the kernel currently 
+supports.  Yet there is only SA11x0 and PXA2xx which have proper MTD_XIP 
+primitives ence the #error.
 
-On Thursday 18 November 2004 13:49, Andi Kleen wrote:
-> On Thu, Nov 18, 2004 at 05:02:37PM +0000, kernel-stuff@comcast.net wrote:
-> > I tried all the newer kernels including -ac. All have the same problem.
-> >
-> > Andi -  On a side note, your change  "NVidia ACPI timer override" present
-> > in 2.6.9-ac8 breaks on my laptop - I get some NMI errors ("Do you have a
-> > unusual power management setup?") and DMA timeouts - happens regularly.
->
-> Hmm, I was told Timer overrides are always bogus on Nvidia and
-> that it was the last remaining known apic bug.
-> But perhaps there are other APIC bugs in there.
->
-> Can you submit a full boot.msg of the problem?
->
-> -Andi
+My position is therefore that the CONFIG_MTD_XIP should depend on 
+CONFIG_XIP_KERNEL since this is what it is for, and the #error stay as 
+is.  If ever you make x86 kernel XIPable you'll need to add the missing 
+bits guarded by the #error anyway.
+
+And no, allyesconfig makes little sense on ARM as it has been discussed 
+on lkml before.
+
+
+Nicolas

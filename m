@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUJNOYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUJNO3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUJNOYi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 10:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUJNOYi
+	id S265222AbUJNO3y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 10:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUJNO3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 10:24:38 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:19946 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S265161AbUJNOW5 (ORCPT
+	Thu, 14 Oct 2004 10:29:54 -0400
+Received: from ida.rowland.org ([192.131.102.52]:4868 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265222AbUJNO0y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 10:22:57 -0400
-Date: Thu, 14 Oct 2004 16:22:42 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: David Woodhouse <dwmw2@infradead.org>
-cc: David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <1097755890.318.700.camel@hades.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.61.0410141554330.877@scrub.home>
-References: <Pine.LNX.4.61.0410132346080.7182@scrub.home> 
- <1097626296.4013.34.camel@localhost.localdomain>  <1096411448.3230.22.camel@localhost.localdomain>
-  <1092403984.29463.11.camel@bach> <20040810002741.GA7764@kroah.com> 
- <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com> 
- <30797.1092308768@redhat.com>  <20040812111853.GB25950@devserv.devel.redhat.com>
-  <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com> 
- <27175.1095936746@redhat.com> <30591.1096451074@redhat.com> 
- <10345.1097507482@redhat.com>  <1097507755.318.332.camel@hades.cambridge.redhat.com>
-  <1097534090.16153.7.camel@localhost.localdomain> 
- <1097570159.5788.1089.camel@baythorne.infradead.org>  <27277.1097702318@redhat.com>
- <16349.1097752349@redhat.com>  <Pine.LNX.4.61.0410141357380.877@scrub.home>
- <1097755890.318.700.camel@hades.cambridge.redhat.com>
+	Thu, 14 Oct 2004 10:26:54 -0400
+Date: Thu, 14 Oct 2004 10:26:53 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Ganesan R <rganesan@myrealbox.com>
+cc: John Stoffel <stoffel@lucent.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       <torsten.scherer@uni-bielefeld.de>
+Subject: Re: [linux-usb-devel] Re: Linux 2.6.x wrongly recognizes USB 2.0
+ DVD writer
+In-Reply-To: <416E7E39.4040102@myrealbox.com>
+Message-ID: <Pine.LNX.4.44L0.0410141025360.952-100000@ida.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 14 Oct 2004, Ganesan R wrote:
 
-On Thu, 14 Oct 2004, David Woodhouse wrote:
+> Thanks for the info. As I mentioned, the enclosure works flawlessly for 
+> me under 2.4.27. It's getting detected incorrectly only in 2.6.x. 
+> Another user reported a similar problem but was able to get dvd burning 
+> working by removing the checks from the writing tool. So, it looks like 
+> detection has been messed up only in 2.6.x.
+> 
+> Once again, 2.6.8 reports it as
+> 
+> ======
+> scsi3 : SCSI emulation for USB Mass Storage devices
+>   Vendor: Revoltec  Model: USB/IDE Bridge (  Rev: 0103
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> Attached scsi removable disk sdb at scsi3, channel 0, id 0, lun 0
+> ======
+> 
+> whereas 2.4.27 correctly reports
+> 
+> ========                                                               
+> scsi2 : SCSI emulation for USB Mass Storage                            
+>    Vendor: _NEC      Model: DVD_RW ND-2500A                            
+>    Type:   CD-ROM    ANSI SCSI revision: 02                            
+> Attached scsi CD-ROM sr1 at scsi2, channel 0, id 0, lun 0              
+> sr1: scsi-1 drive                                                      
+> USB Mass Storage support registered.                                   
+> ========                                                               
+> 
+> I checked the kernel sources. Sure enough, 
+> drivers/usb/storage/unusual_devs.h
+> has a new entry in the 2.6 tree:
+> 
+> ========
+> /* <torsten.scherer@uni-bielefeld.de>: I don't know the name of the bridge
+>  * manufacturer, but I've got an external USB drive by the Revoltec company
+>  * that needs this. otherwise the drive is recognized as /dev/sda, but any
+>  * access to it blocks indefinitely.
+>  */
+> UNUSUAL_DEV(  0x0402, 0x5621, 0x0103, 0x0103,
+>         "Revoltec",
+>         "USB/IDE Bridge (ATA/ATAPI)",
+>         US_SC_DEVICE, US_PR_DEVICE, NULL, US_FL_FIX_INQUIRY),
+> ========
+> 
+> I have not yet tested after removing this entry, but this looks to be 
+> the likely problem. The enclosure actually supports both 3.5 IDE hard 
+> disks as well as 5.25 CD/DVD drives. I have no clue why this entry 
+> should cause the drive to be wrongly detected. CCing linux-usb-devel for 
+> help.
 
-> How are they related? If you don't trust the _build_ system on which the
-> kernel and modules were compiled and signed, the whole game is lost
-> anyway.
+Certainly that entry is the problem.  It has been removed in the latest 
+development kernels; it may already be gone in 2.6.9-rc4.
 
-Well, how do you want to win the whole game? Modules are just one part of 
-it, what about the rest? If I'd be that much concerned about modules, I 
-would disable module loading completely.
+Alan Stern
 
-> Insmod is running on the live system, and has nothing to do with the
-> build system.
-
-Only a minority of people do cross compile kernels, most people compile 
-kernel and modules on the same machine, so that there enough points left 
-to attack the system. Even if the kernel is compiled on a different 
-machine, how can you trust the kernel you're going to boot next time?
-I'm missing how this does fit into the big picture, throwing lots of 
-code onto modules doesn't make it more safe. In the meantime there are 
-simpler measures to get the system more secure.
-
-bye, Roman

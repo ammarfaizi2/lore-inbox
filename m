@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUCFQUF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 11:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUCFQUF
+	id S261685AbUCFQcm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 11:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUCFQcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 11:20:05 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:55017 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261684AbUCFQUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 11:20:02 -0500
-To: linux-kernel@vger.kernel.org
-From: Karl Dahlke <eklhad@comcast.net>
-Reply-to: Karl Dahlke <eklhad@comcast.net>
-Subject: dhclient, 2.6.0, config_filter
-Date: Sat, 06 Mar 2004 11:21:54
+	Sat, 6 Mar 2004 11:32:42 -0500
+Received: from ns.suse.de ([195.135.220.2]:10719 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261685AbUCFQcl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 11:32:41 -0500
+Date: Thu, 11 Mar 2004 21:13:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: jsimmons@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] i810 fb and x86-64
+Message-Id: <20040311211341.412abdd5.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <S261684AbUCFQUC/20040306162003Z+795@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps this has been asked many times here; I don't usually read this list,
-but I can't find an answer anywhere else.
 
-I upgraded to kernel 2.6.0, then 2.6.3,
-and dhclient won't work, because I didn't say yes to CONFIG_FILTER.
-But aha, CONFIG_FILTER is gone.  Nowhere to be found.
-The config options before and after this one are still there,
-but CONFIG_FILTER is not in Kconfig at all.
-What should I do?
+i810fb most likely is needed on x86-64 too because there are Intel chipsets
+for it now.  So far it only linked on i386, fix this.
+
+-Andi
+
+diff -u linux-2.6.4rc2-amd64/drivers/video/i810/i810_main.h-o linux-2.6.4rc2-amd64/drivers/video/i810/i810_main.h
+--- linux-2.6.4rc2-amd64/drivers/video/i810/i810_main.h-o	2004-03-05 18:28:00.000000000 +0100
++++ linux-2.6.4rc2-amd64/drivers/video/i810/i810_main.h	2004-03-11 21:08:26.000000000 +0100
+@@ -84,7 +84,7 @@
+ extern void i810fb_load_front     (u32 offset, struct fb_info *info);
+ 
+ /* Conditionals */
+-#if defined(__i386__)
++#ifdef CONFIG_X86
+ inline void flush_cache(void)
+ {
+ 	asm volatile ("wbinvd":::"memory");

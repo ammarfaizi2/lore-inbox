@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbUAXWDd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 17:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUAXWDc
+	id S262674AbUAXWTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 17:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbUAXWTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 17:03:32 -0500
-Received: from ozlabs.org ([203.10.76.45]:51170 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261733AbUAXWDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 17:03:31 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 24 Jan 2004 17:19:08 -0500
+Received: from port117.ds1-abc.adsl.cybercity.dk ([212.242.125.56]:38250 "EHLO
+	mail.fluxmod.dk") by vger.kernel.org with ESMTP id S262674AbUAXWTG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 17:19:06 -0500
+Date: Sat, 24 Jan 2004 23:19:01 +0100
+From: Nuno Alexandre <na@fluxmod.dk>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+Message-Id: <20040124231901.7a2fdd28@Genbox>
+In-Reply-To: <Pine.LNX.4.58.0401242140230.30233@student.dei.uc.pt>
+References: <401177DB.8010901@nortelnetworks.com>
+	<20040124095208.GA20489@zombie.inka.de>
+	<yw1xbrot7j89.fsf@ford.guide>
+	<20040124103029.GL10487@boetes.org>
+	<Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>
+	<Pine.LNX.4.58.0401242140230.30233@student.dei.uc.pt>
+Organization: Fluxmod - www.fluxmod.dk
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-Date: Sat, 24 Jan 2004 21:49:26 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: davidm@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16401.57298.175645.749468@napali.hpl.hp.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger writes:
+On Sat, 24 Jan 2004 21:41:19 +0000 (WET) 
+Marcos D. Marado Torres wrote:
 
-> How about something along these lines?  If you want to standardize on
-> a single instruction-address format, I'd strongly favor using the
-> location-relative addresses used on Alpha and ia64 (it makes no sense
-> to uses a full 64-bit address for those members).
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> 1213.6, as a matter of fact ;-)
+> Well, I guess that with this URL you pro's will get really higher
+> hi-scores...
+> 
+> Mind Booster Noori
 
-Won't you have to change the offset when you move the entry, if the
-value you store is relative to the address of the entry?  You could
-get around that by storing the offset relative to the start of the
-exception table, I guess.
 
-Paul.
+hi.
+thx for the url.
+
+1214.9 here :)
+http://ikaro.homepage.dk/pingu.jpg

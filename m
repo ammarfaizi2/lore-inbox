@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUJEQwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269083AbUJEQvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269136AbUJEQwX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 12:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUJEQps
+	id S269083AbUJEQvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 12:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJEQvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:45:48 -0400
-Received: from seattlemail.seattlemortgage.com ([65.121.191.30]:29388 "EHLO
-	seattleexchange.SMC.LOCAL") by vger.kernel.org with ESMTP
-	id S270165AbUJEQoB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:44:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 5 Oct 2004 12:51:00 -0400
+Received: from siaag1ag.compuserve.com ([149.174.40.13]:6227 "EHLO
+	siaag1ag.compuserve.com") by vger.kernel.org with ESMTP
+	id S269083AbUJEQto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 12:49:44 -0400
+Date: Tue, 5 Oct 2004 12:46:34 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [Patch] new serial flow control
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Message-ID: <200410051249_MC3-1-8B8B-5504@compuserve.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: /dev/misc/inotify 0.11
-Date: Tue, 5 Oct 2004 09:43:58 -0700
-Message-ID: <82C88232E64C7340BF749593380762028A1D02@seattleexchange.SMC.LOCAL>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: /dev/misc/inotify 0.11
-Thread-Index: AcSq+oJ2AREhWkX4Rni3/ICJW6iQ+Q==
-From: "David Busby" <DBusby@SeattleSavingsBank.com>
-To: <linux-kernel@vger.kernel.org>
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-List,
-  I patched my 2.6.8.1 kernel with the inotify-0.11.  There were some
-sample utils that in C that came with it.  Thanks.  I've successfully
-used those to work with inotify.  Here's what's bad:
+Samual Thibault wrote:
 
-1> When I say `cat /dev/misc/inotify' my machine stops responding
-instantly.  I've not had a chance to see what happens.  I know I'll not
-normally say that but when I say something else dumb like cat
-/dev/misc/rtc cat will simply wait, not choke up my whole system.
+>+      } else if (info->flags & ASYNC_TVB_FLOW) {
+>+              if (status & UART_MSR_CTS) {
+>+                      if (!(info->MCR & UART_MCR_RTS)) {
+>+                              /* start of TVB frame, raise RTS to greet data */
+>+                              info->MCR |= UART_MCR_RTS;
+>+                              serial_out(info, UART_MCR, info->MCR);
+>+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
+>+                              printk("TVB frame start...");
+>+#endif
+>+                      }
+>+              } else {
+>+                      if (info->MCR & UART_MCR_RTS) {
+>+                              /* CTS went down, lower RTS as well */
+>+                              info->MCR &= ~UART_MCR_RTS;
+>+                              serial_out(info, UART_MCR, info->MCR);
+>+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
+>+                              printk("TVB frame started...");
+>+#endif
+                                                  ^^^^^^^
 
-2> Reading from /dev/misc/inotify with PERL produces the same effect.
-
-I don't know enough about kernel hacking to really debug this really
-well.  I peeked at the code and there still seems to be calls to dnotify
-functions, can't I remove those?  I said this in
-drivers/char/inotify.c(54) static int inotify_debug_flags =
-INOTIFY_DEBUG_ALL; so I'll recompile and see what happens.
+Shouldn't this be "ended"? ... or "end" since frame begin msg says "start"
+i.e. is not past tense?
 
 
-David Busby
-Edoceo, Inc.
-http://www.edoceo.com/
-
-Linux version 2.6.8.1 (root@busby-devel) (gcc version 3.2.2) #1 Mon Oct
-4 12:50:38 PDT 2004
+--Chuck Ebbert

@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263344AbRFFOma>; Wed, 6 Jun 2001 10:42:30 -0400
+	id <S263357AbRFFOtk>; Wed, 6 Jun 2001 10:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbRFFOmU>; Wed, 6 Jun 2001 10:42:20 -0400
-Received: from cloven-ext.nks.net ([216.139.204.130]:7959 "EHLO
-	homer.mkintl.com") by vger.kernel.org with ESMTP id <S263344AbRFFOmB>;
-	Wed, 6 Jun 2001 10:42:01 -0400
-Message-ID: <3B1E4131.83F76073@illusionary.com>
-Date: Wed, 06 Jun 2001 10:41:53 -0400
-From: Derek Glidden <dglidden@illusionary.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+	id <S263393AbRFFOta>; Wed, 6 Jun 2001 10:49:30 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30361 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263357AbRFFOtS>;
+	Wed, 6 Jun 2001 10:49:18 -0400
+Message-ID: <3B1E42EA.B0AE7F6E@mandrakesoft.com>
+Date: Wed, 06 Jun 2001 10:49:14 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-		<Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
-		<3B1D927E.1B2EBE76@uow.edu.au>  <20010605231908.A10520@illusionary.com> <991815578.30689.1.camel@nomade>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Tom Vier <tmv5@home.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+In-Reply-To: <Pine.GSO.3.96.1010606115046.23232A-100000@delta.ds2.pg.gda.pl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
+"Maciej W. Rozycki" wrote:
 > 
-> Did you try to put twice as much swap as you have RAM ? (e.g. add a 512M
-> swapfile to your box)
-> This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
-> anything less won't do any good: 2.4 overallocates swap even if it
-> doesn't use it all. So in your case you just have enough swap to map
-> your RAM, and nothing to really swap your apps.
+> On Wed, 6 Jun 2001, Ivan Kokshaysky wrote:
+> 
+> > > No need to patch arch_get_unmapped_area(), but OSF/1 compatibility code
+> > > might need fixing.  I suppose an OSF/1 binary must have an appropriate
+> > > flag set in its header after building with the -taso option so that the
+> > > system knows the binary wants 32-bit addressing.
+> >
+> > I'm not sure if COFF headers have such flag at all. I'll check this.
+> 
+>  Then how does OSF/1, especially the dynamic linker, know if a binary
+> needs 32-bit addressing?  I suppose we could use the same way of
+> selection.
 
-Yes, the example given is against the machine at work, which is
-configured 512/512.  My machine at home is configured 512/1024 and has
-the same problems.  Further, this machine *used* to have only 256MB of
-RAM, and I could still cause the misbehaviour.
+There are two things you can do here, one is easy:  use linker tricks to
+make sure that an application built on alpha -- with 64-bit pointers --
+uses no more than the lower 32 bits of each pointer for addressing. 
+This should fix a ton of applications which cast pointer values to ints
+and similar garbage.
+
+The other option, hacking gcc to output "32-bit alpha" binary code, is a
+tougher job.
+
+I had mentioned this to Richard Henderson a while back, when I was
+wondering how easy it is to implement -taso under Linux, and IIRC he
+seemed to think that linker tricks were much easier.
+
+	Jeff
+
 
 -- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#!/usr/bin/perl -w
-$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
-{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
-$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
-[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
-"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
-unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
->>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
-8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
-print+x"C*",@a}';s/x/pack+/g;eval 
-
-usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
-    | extract_mpeg2 | mpeg2dec - 
-
-http://www.eff.org/                    http://www.opendvd.org/ 
-         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/
+Jeff Garzik      | An expert is one who knows more and more about
+Building 1024    | less and less until he knows absolutely everything
+MandrakeSoft     | about nothing.

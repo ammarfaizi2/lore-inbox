@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272284AbTHDXGg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272286AbTHDXGb
+	id S272286AbTHDXIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 19:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272289AbTHDXIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:06:31 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:22430
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S272284AbTHDXGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:06:24 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	Mon, 4 Aug 2003 19:08:25 -0400
+Received: from rj.sgi.com ([192.82.208.96]:13803 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S272286AbTHDXIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 19:08:20 -0400
+Date: Mon, 4 Aug 2003 16:08:15 -0700
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix free_all_bootmem_core for virtual memmap
+Message-ID: <20030804230815.GA2551@sgi.com>
+Mail-Followup-To: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20030804230511.GA2478@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16174.59114.386209.649300@wombat.chubb.wattle.id.au>
-Date: Tue, 5 Aug 2003 09:06:18 +1000
-To: davidm@hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: milstone reached: ia64 linux builds out of Linus' tree
-In-Reply-To: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <20030804230511.GA2478@sgi.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
+On Mon, Aug 04, 2003 at 04:05:11PM -0700, jbarnes wrote:
+> Currently, free_all_bootmem_core() assumes that the bdata for a given
+> node will begin where the node's memory map begins.  This isn't
+> necessarily true on machines that use a virtual memory map (e.g. ia64
+> discontig machines), so we fix page to point to the first actual page of
+> RAM on the node, which _does_ contain the bdata struct.
 
-David> Now that Linus' tree works for ia64, the next question is how
-David> we can keep it that way.  I think it would be useful to have
-David> someone setup a cron job which does daily builds/automated
-David> tests off of Linus tree.  If something breaks, the person doing
-David> this could perhaps come up with a minimal patch which gets
-David> Linus' tree to build again (and submit a patch to the
-David> appropriate maintainer, with cc to the linux-ia64 list).  I
-David> plan on continuing to put out roughly monthly ia64-specific
-David> patches and during those normal cycles, I'd then integrate the
-David> "quick fix up" patches as needed.  Does this sound reasonable?
-David> Anybody want to volunteer for this "Linus watchdog" role?
+Oops, fix a spelling error.
 
-We can do this.  We're tracking Linus's tree anyway for the work we're
-doing.  
-
-  We'd probably do daily automated builds to check that the kernel
-still compiles cleanly for HPSIM, DIG, and ZX1, but test only weekly.
-
-If you have anyu specific configuration options you think should be
-included, let us know.
+Jesse
 
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
+===== mm/bootmem.c 1.20 vs edited =====
+--- 1.20/mm/bootmem.c	Fri Aug  1 03:01:02 2003
++++ edited/mm/bootmem.c	Mon Aug  4 16:01:22 2003
+@@ -267,7 +267,7 @@
+ 
+ static unsigned long __init free_all_bootmem_core(pg_data_t *pgdat)
+ {
+-	struct page *page = pgdat->node_mem_map;
++	struct page *page;
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long i, count, total = 0;
+ 	unsigned long idx;
+@@ -276,6 +276,8 @@
+ 	if (!bdata->node_bootmem_map) BUG();
+ 
+ 	count = 0;
++	/* first extant page of the node */
++	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+ 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+ 	map = bdata->node_bootmem_map;
+ 	for (i = 0; i < idx; ) {

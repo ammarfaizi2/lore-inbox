@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbUBIQzF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 11:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbUBIQzE
+	id S265268AbUBIQ5a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 11:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUBIQ5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 11:55:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63368 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264949AbUBIQzB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 11:55:01 -0500
-Date: Mon, 9 Feb 2004 11:54:53 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: 2.6.3-rc1-mm1
-In-Reply-To: <20040209014035.251b26d1.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0402091153210.2328-100000@thoron.boston.redhat.com>
+	Mon, 9 Feb 2004 11:57:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35463 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265268AbUBIQ5P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 11:57:15 -0500
+Message-ID: <4027BBDE.1090300@pobox.com>
+Date: Mon, 09 Feb 2004 11:57:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thomas Horsten <thomas@horsten.com>
+CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.)
+ BIOS RAID development
+References: <Pine.LNX.4.40.0402091220130.8715-100000@jehova.dsm.dk>
+In-Reply-To: <Pine.LNX.4.40.0402091220130.8715-100000@jehova.dsm.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Feb 2004, Andrew Morton wrote:
+Thomas Horsten wrote:
+> My gut feeling is that if it is provided by the BIOS and reliable
+> autodetection is possible, it should be autodetected. Why require the user
+> to discover and supply information that the kernel could easily and
+> reliably find out by itself? Besides, if there is no autodetection, the
 
-> +highmem-equals-user-friendliness.patch
-> 
->  Enhance and document the `highmem=' ia32 kernel boot option.  This also
->  gives us highmem emulation on <= 896M boxes.
+The autodetection will occur, reliably and without additional user 
+information, from initramfs.
 
-This seems to be breaking initrd when highmem is enabled:
+As Arjan said, we are moving this type of stuff out of the kernel.
 
-  initrd extends beyond end of memory (0x37feffc9 > 0x30400000)
-  disabling initrd
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+	Jeff
 
 

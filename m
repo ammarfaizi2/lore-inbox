@@ -1,67 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132174AbRCVUFR>; Thu, 22 Mar 2001 15:05:17 -0500
+	id <S132166AbRCVT7H>; Thu, 22 Mar 2001 14:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132175AbRCVUE5>; Thu, 22 Mar 2001 15:04:57 -0500
-Received: from netel-gw.online.no ([193.215.46.129]:4621 "EHLO
-	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
-	id <S132174AbRCVUE4>; Thu, 22 Mar 2001 15:04:56 -0500
-Message-ID: <3ABA5A9A.7B85B5B9@powertech.no>
-Date: Thu, 22 Mar 2001 21:03:38 +0100
-From: Geir Thomassen <geirt@powertech.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre5 i686)
-X-Accept-Language: en
+	id <S132176AbRCVT65>; Thu, 22 Mar 2001 14:58:57 -0500
+Received: from newscon07-ext.news.prodigy.com ([207.115.63.147]:4 "EHLO
+	newscon07.news.prodigy.com") by vger.kernel.org with ESMTP
+	id <S132166AbRCVT6o>; Thu, 22 Mar 2001 14:58:44 -0500
+Date: Thu, 22 Mar 2001 14:57:58 -0500 (EST)
+From: Owner of NEWS <root@prodigy.com>
+Reply-To: Usenet News Admin <news@prodigy.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: pcnet32 broken in 2.4.3-pre6
+Message-ID: <Pine.LNX.4.30.0103221456130.15606-100000@newscon07.news.prodigy.com>
 MIME-Version: 1.0
-To: Trent Jarvi <trentjarvi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Serial port latency
-In-Reply-To: <Pine.LNX.4.20.0103221219410.3343-100000@linuxtaj.korpivaara.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trent Jarvi wrote:
-> 
-> Hi,
-> 
-> I'm not on the kernel list.  I just ran across your email while looking at the
-> weekly archive.
-> 
-> I think you want to enable software flow control.
-> 
->         tcgetattr( fd, &ttyset );
->         ttyset.c_iflag |= IXOFF;
->         tcsetattr( fd, TCSANOW, &ttyset );
-> 
+On modules_install:
 
-Just tested it, it didn't change anything. The response from the controller
-can contain ^S/^Q, so it would be a bad idea anyway ....
+cd /lib/modules/2.4.3-pre6; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.3-pre6; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.3-pre6/kernel/drivers/net/pcnet32.o
+depmod:         is_valid_ether_addr
 
-> Someone reported that the Java CommAPI driver at http://www.rxtx.org got
-> 150-200ms latency with (9600,N,8,1,XON/XOFF).  Beyond that you may have to
-> look at something like the realtime support.  I guess 2 ms is normal on
-> win98.
 
-Win98 is the problem I am trying to solve with my program ...
+Note: if you need more info, use davidsen@tmr.com
 
-> Since you have the scope hooked up you may look at hardware flow control too.
-> 
->         tcgetattr( fd, &ttyset );
->         ttyset.c_cflag |= HARDWARE_FLOW_CONTROL;
->         tcsetattr( fd, TCSANOW, &ttyset );
-
-Do you mean CRTSCTS ? HARDWARE_FLOW_CONTROL is not defined in my header files.
-I use CLOCAL, which should make the driver ignore modem control lines.
-
-> Let me know if you find anything out.  I'm the maintainer of rxtx and would
-> be interested in documenting this for others.
-
-sure ...
-
-> --
-> Trent Jarvi
-> TrentJarvi@yahoo.com
-
-Thanks anyway
-
-Geir

@@ -1,79 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267885AbRGZMbh>; Thu, 26 Jul 2001 08:31:37 -0400
+	id <S267859AbRGZMaR>; Thu, 26 Jul 2001 08:30:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267875AbRGZMb1>; Thu, 26 Jul 2001 08:31:27 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:65029 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S267904AbRGZMbO>;
-	Thu, 26 Jul 2001 08:31:14 -0400
-Date: Thu, 26 Jul 2001 14:29:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Anton Blanchard <anton@samba.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: highmem-2.4.7-A0 [Re: kmap() while holding spinlock]
-In-Reply-To: <Pine.LNX.4.33.0107261409110.3796-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0107261423020.3796-200000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-338918117-996150274=:3796"
-Content-ID: <Pine.LNX.4.33.0107261428370.4257@localhost.localdomain>
+	id <S267875AbRGZMaI>; Thu, 26 Jul 2001 08:30:08 -0400
+Received: from pD951F257.dip.t-dialin.net ([217.81.242.87]:35457 "EHLO
+	emma1.emma.line.org") by vger.kernel.org with ESMTP
+	id <S267859AbRGZM34>; Thu, 26 Jul 2001 08:29:56 -0400
+Date: Thu, 26 Jul 2001 14:30:02 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010726143002.E17244@emma1.emma.line.org>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"ext3-users@redhat.com" <ext3-users@redhat.com>
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au>, <3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org> <3B60022D.C397D80E@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3B60022D.C397D80E@zip.com.au>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thu, 26 Jul 2001, Andrew Morton wrote:
 
---8323328-338918117-996150274=:3796
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0107261428371.4257@localhost.localdomain>
+> > In ordered and journal mode, are meta data operations, namely creating a
+> > file, rename(), link(), unlink() "synchronous" in the sense that after
+> > the call has returned, the effect of this call is never lost, i. e., if
+> > link(2) has returned and the machine crashes immediately, will the next
+> > recovery ALWAYS recover the link?
+> 
+> No, they're not synchronous by default.  After recovery they
+> will either be wholly intact, or wholly absent.
+> 
+> > Or will ext3 still need chattr +S?
+> 
+> Yes, if the app doesn't support O_SYNC or fsync().  I believe
+> that MTA's *do* support those things.
+>  
+> > Does it still support chattr +S at all?
+> 
+> Yes.
+> 
+> > Synchronous meta data operations are crucial for mail transfer agents
+> > such as Postfix or qmail. Postfix has up until now been setting
+...
+> A middle-ground solution may be to add an fs-private `osync' mount
+> option, so all files are treated similarly to O_SYNC, which would
+> work well.
+
+You seem to be missing the point, because I wasn't verbose enough, so I
+will try to rephrase this and explain. This may turn out to be a feature
+request. :-}
+
+Before going into detail, MTAs do know about fsync(). ext3 synching
+relevant directory parts as part of fsync() is a great achievement.
+Finally, more than five years after initial complaints, Linux is SLOWLY
+getting somewhere for speeding up reliable MTA operation.
+
+But that's the smaller piece. Common MTAs such as Postfix or qmail
+rename or link files into place (their queues, the mail spool). With the
+advent of journalling came the atomicity of rename operations. That's
+also a great achievement.
+
+However, the remaining problem is being synchronous with respect to open
+(fixed for ext3 with your fsync() as I understand it), rename, link and
+unlink. With ext2, and as you write it, with ext3 as well, there is
+currently no way to tell when the link/rename has been committed to
+disk, unless you set mount -o sync or chattr +S or call sync() (the
+former is not an option because it's far too expensive).
 
 
-> [...] or to do the clearing (and copying) speculatively, after
-> allocating the page but before locking the pagetable lock. This might
-> lead to a bit more work in the pagefault-race case, but we dont care
-> about that window. It will on the other hand reduce pagetable_lock
-> contention (because the clearing/copying is done outside the lock), so
-> perhaps this solution is better.
+The official statement by Dr. Wietse Venema (who wrote Postfix) is,
+Postfix REQUIRES synchronous directory updates (open, rename, link,
+unlink, in order of decreasing importance). Wietse refuses to wrap all
+these calls for Linux.
 
-the attached highmem-2.4.7-A0 patch implements this method in both
-affected functions. Comments?
+Similar assumptions hold for qmail.
 
-	Ingo
 
---8323328-338918117-996150274=:3796
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="highmem-2.4.7-A0"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0107261424340.3796@localhost.localdomain>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="highmem-2.4.7-A0"
+So, what would help the common MTA? osync wouldn't, MTAs know how to use
+fsync().  dirsync or bsdstyle or however it's called, as chattr and
+mount options, would help. This option should make all directory
+operations (open/creat/fsync, rename, link, unlink, symlink, possibly
+close) synchronous in respect to affected directory and meta data while
+leaving application data (payload) operations asynchronous (applications
+can then choose when to call fsync() to flush the data to disk).
 
-LS0tIGxpbnV4L21tL21lbW9yeS5jLm9yaWcJVGh1IEp1bCAyNiAxMzo1Mjo0
-MSAyMDAxDQorKysgbGludXgvbW0vbWVtb3J5LmMJVGh1IEp1bCAyNiAxNDow
-Mjo1NCAyMDAxDQpAQCAtODY1LDcgKzg2NSw2IEBADQogc3RhdGljIGlubGlu
-ZSB2b2lkIGJyZWFrX2NvdyhzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKiB2bWEs
-IHN0cnVjdCBwYWdlICoJb2xkX3BhZ2UsIHN0cnVjdCBwYWdlICogbmV3X3Bh
-Z2UsIHVuc2lnbmVkIGxvbmcgYWRkcmVzcywgDQogCQlwdGVfdCAqcGFnZV90
-YWJsZSkNCiB7DQotCWNvcHlfY293X3BhZ2Uob2xkX3BhZ2UsbmV3X3BhZ2Us
-YWRkcmVzcyk7DQogCWZsdXNoX3BhZ2VfdG9fcmFtKG5ld19wYWdlKTsNCiAJ
-Zmx1c2hfY2FjaGVfcGFnZSh2bWEsIGFkZHJlc3MpOw0KIAllc3RhYmxpc2hf
-cHRlKHZtYSwgYWRkcmVzcywgcGFnZV90YWJsZSwgcHRlX21rd3JpdGUocHRl
-X21rZGlydHkobWtfcHRlKG5ld19wYWdlLCB2bWEtPnZtX3BhZ2VfcHJvdCkp
-KSk7DQpAQCAtOTM4LDYgKzkzNyw4IEBADQogCSAqLw0KIAlzcGluX3VubG9j
-aygmbW0tPnBhZ2VfdGFibGVfbG9jayk7DQogCW5ld19wYWdlID0gYWxsb2Nf
-cGFnZShHRlBfSElHSFVTRVIpOw0KKwlpZiAobmV3X3BhZ2UpDQorCQljb3B5
-X2Nvd19wYWdlKG9sZF9wYWdlLG5ld19wYWdlLGFkZHJlc3MpOw0KIAlzcGlu
-X2xvY2soJm1tLT5wYWdlX3RhYmxlX2xvY2spOw0KIAlpZiAoIW5ld19wYWdl
-KQ0KIAkJcmV0dXJuIC0xOw0KQEAgLTExNjQsNiArMTE2NSw4IEBADQogCQkv
-KiBBbGxvY2F0ZSBvdXIgb3duIHByaXZhdGUgcGFnZS4gKi8NCiAJCXNwaW5f
-dW5sb2NrKCZtbS0+cGFnZV90YWJsZV9sb2NrKTsNCiAJCXBhZ2UgPSBhbGxv
-Y19wYWdlKEdGUF9ISUdIVVNFUik7DQorCQlpZiAocGFnZSkNCisJCQljbGVh
-cl91c2VyX2hpZ2hwYWdlKHBhZ2UsIGFkZHIpOw0KIAkJc3Bpbl9sb2NrKCZt
-bS0+cGFnZV90YWJsZV9sb2NrKTsNCiAJCWlmICghcGFnZSkNCiAJCQlyZXR1
-cm4gLTE7DQpAQCAtMTE3Miw3ICsxMTc1LDYgQEANCiAJCQlyZXR1cm4gMTsN
-CiAJCX0NCiAJCW1tLT5yc3MrKzsNCi0JCWNsZWFyX3VzZXJfaGlnaHBhZ2Uo
-cGFnZSwgYWRkcik7DQogCQlmbHVzaF9wYWdlX3RvX3JhbShwYWdlKTsNCiAJ
-CWVudHJ5ID0gcHRlX21rd3JpdGUocHRlX21rZGlydHkobWtfcHRlKHBhZ2Us
-IHZtYS0+dm1fcGFnZV9wcm90KSkpOw0KIAl9DQo=
---8323328-338918117-996150274=:3796--
+A much better file system for an MTA might be ext3fs with
+data=journalled and dirsync mount/chattr option. Would you deem it
+possible to get such an option done before ext3fs 1.0.0?
+
+I hope this makes the requirements of this particular group of
+applications clear.
+
+Thanks again to everyone involved with the ext3fs development.
+
+-- 
+Matthias Andree

@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVBLNIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVBLNKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVBLNIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 08:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVBLNHg
+	id S261400AbVBLNKO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 08:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVBLNKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 08:07:36 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38093 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261396AbVBLNH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 08:07:26 -0500
-Date: Sat, 12 Feb 2005 13:06:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Richard F. Rebel" <rrebel@whenu.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/*/statm, exactly what does "shared" mean?
-In-Reply-To: <1108161173.32711.41.camel@rebel.corp.whenu.com>
-Message-ID: <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
-References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
+	Sat, 12 Feb 2005 08:10:14 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:22752 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261400AbVBLNJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 08:09:58 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [RFC] Reliable video POSTing on resume
+To: Kendall Bennett <kendallb@scitechsoft.com>, mjg59@srcf.ucam.org,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 12 Feb 2005 14:10:42 +0100
+References: <fa.fmtnc0t.131o1g5@ifi.uio.no> <fa.eiu608d.10522qb@ifi.uio.no>
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1Czx2p-0000ih-I7@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Feb 2005, Richard F. Rebel wrote:
-> 
-> I can't seem to find clear documentation about the 'share' column
-> from /proc/<pid>/statm.
-> 
-> Does this include pages that are shared with forked children marked as
-> copy-on-write?
-> 
-> Does this only reflect libraries that are dynamically loaded?  What
-> about shared memory segments/mmaps (ala shmat or mmmap)?
-> 
-> If there is a place where I might find documentation that is more clear
-> beyond the proc.txt in the kernel docs and then man pages for procfs,
-> I'd welcome a pointer.
+Kendall Bennett <kendallb@scitechsoft.com> wrote:
 
-You may not be entirely happy with this answer.
-It is a count of "pages of the process" which are "shared" in some sense.
-But precisely what that means has changed from time to time: depending on
-our perception of what we can safely afford the overhead of counting.
+> Laptops are a little different as they will make calls from the Video
+> BIOS into the system BIOS, so you need to make sure that the system BIOS
+> is also available in the execution environment.
 
-You may want to look at fs/proc proc_pid_statm() source for the release
-of interest, and follow that back to see exactly what is being counted.
+Any video BIOS (especially EGA) may call system BIOS functions, e.g. via the
+old INT10 (which will get copied to INT42).
 
-Throughout 2.4 (and 2.2 too I think) it was the count of those pages
-instantiated in the process address space which currently have a page
-count greater than 1.  That would include private pages shared with
-forked children, pages from the pagecache (including pages mapped
-from executable or library or shared memory or file mmap), those
-private pages which currently have swap allocated (so they're also
-in the swapcache), and any pages which transitorily have page count
-raised for whatever reason (they'd likely already be in one of the
-above categories).  A ragbag of meanings, but that's all you can
-get from looking at page count.
-
-Counting up that not very meaningful number, at frequent intervals
-on large process address spaces, is a waste of valuable time.
-
->From 2.5.37 to 2.6.9, it's the total extent of file-backed areas
-(file including executable or library or shared memory) in the
-process address space: a total extent (in pagesize units),
-not a count of instantiated pages.  Much quicker to calculate.
-
-But there were complaints about that, and a need to revert from
-total extent to count of instantiated pages.
-
->From 2.6.10 onwards, for the foreseeable future, it is the count
-of those pages instantiated in the process address space which are
-shared with a file (including executable or library or shared memory)
-i.e. those pages which are not anonymous, not private.  That count
-does not include private pages shared with forked children, nor
-does it include private pages which happen to have swap allocated.
-
-Hugh
+HGC and VGA are in the system BIOS. They don't need magic, but they need to
+be initialized on order to keep the monitor from burning. On the other hand,
+they used to be initialised correctly.

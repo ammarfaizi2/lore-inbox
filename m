@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129035AbRBILhH>; Fri, 9 Feb 2001 06:37:07 -0500
+	id <S130699AbRBILj1>; Fri, 9 Feb 2001 06:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130482AbRBILg6>; Fri, 9 Feb 2001 06:36:58 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:3595 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129035AbRBILgs>;
-	Fri, 9 Feb 2001 06:36:48 -0500
-Date: Fri, 9 Feb 2001 12:36:40 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Miles Lane <miles@megapathdsl.net>
+	id <S130700AbRBILjR>; Fri, 9 Feb 2001 06:39:17 -0500
+Received: from mgw-x3.nokia.com ([131.228.20.26]:55175 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S130699AbRBILjM>;
+	Fri, 9 Feb 2001 06:39:12 -0500
+Message-ID: <6D1A8E7871B9D211B3B00008C7490AA5645313@treis03nok>
+From: Patrick.Stickler@nokia.com
+To: snwahofm@mi.uni-erlangen.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-Message-ID: <20010209123640.B17129@almesberger.net>
-In-Reply-To: <3A83B6B0.8261F3CF@idb.hist.no> <3A83C4A1.5090903@megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A83C4A1.5090903@megapathdsl.net>; from miles@megapathdsl.net on Fri, Feb 09, 2001 at 02:21:21AM -0800
+Subject: RE: Kernel panics on C1VN and RH 6.2 or 7.0
+Date: Fri, 9 Feb 2001 13:38:46 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2652.78)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> Since, as Christophe mentions, the boot messages would
-> still be accessible via CTRL-ALT-F2, I don't see what 
-> the problem is with at least making this an option.
+ 
+The serial capture approach is tough, as it has no serial
+port, only USB, etc. (Sony calls it a "legacy free" machine,
+and presumes that's a good thing ;-)
 
-Except if some initialization hangs your machine so badly that it even
-won't respond to Ctrl-Alt-F2.
+The second approach sounds more feasible. Forgive the
+ignorant question: how do I lookup the faulting address in the
+System.map file of my kernel -- especially since it probably
+is in the RAM disk used for the installation, and hence
+goes bye bye when the machine goes belly up?
 
-This could of course be cured by a little window where the last three or
-four printk lines are shown ...
+Thanks,
 
-- Werner
+Patrick
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+patrick.stickler@nokia.com
+
+-----Original Message-----
+From: ext Walter Hofmann
+To: Patrick.Stickler@nokia.com
+Sent: 2/9/01 1:31 PM
+Subject: RE: Kernel panics on C1VN and RH 6.2 or 7.0
+
+
+
+On Fri, 9 Feb 2001 Patrick.Stickler@nokia.com wrote:
+
+>  
+> I'll try, though since the system locks up in an unbootable
+> state and most of the message scrolls off the screen and is
+> unretrievable, it is difficult.
+
+If you compile in the serial driver and activate the serial console, you
+can then grab the oops with a second computer.
+
+Alternatively you could just lookup the faulting address in the
+System.map file of your kernel.
+
+Walter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946075AbWGPOeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWGPOd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946075AbWGPOeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 10:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946080AbWGPOeO
+	id S1751589AbWGPOd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 10:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWGPOd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 10:34:14 -0400
-Received: from thing.hostingexpert.com ([67.15.235.34]:35984 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1946075AbWGPOeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 10:34:11 -0400
-Message-ID: <44BA4E5E.7060803@linuxtv.org>
-Date: Sun, 16 Jul 2006 10:34:06 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc2 | UTS Release version does not match current
- version
-References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 16 Jul 2006 10:33:58 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56966 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751588AbWGPOd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 10:33:58 -0400
+Date: Thu, 1 Jan 1970 13:26:35 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <gregkh@suse.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [stable] Linux 2.6.16.25
+Message-ID: <19700101132635.GB3561@ucw.cz>
+References: <20060715025906.GA11167@kroah.com> <20060715032907.GB5944@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060715032907.GB5944@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ok, there it is, in all the usual places.
->
-> I think the bulk of it are some MIPS and UML updates, along with a e1000 
-> driver update, but there's various more random things, including just lots 
-> of cleanups.
->   
+Hi!
 
-I get this when building using debian's make-kpkg:
+> > We (the -stable team) are announcing the release of the 2.6.16.25 kernel.
+> 
+> Oops, please note that we now have some reports that this patch breaks
+> some versions of HAL.  So if you're relying on HAL, you might not want
+> to use this fix just yet (please evaluate the risks of doing this on
+> your own.)
+> 
+> Note that HAL usually does not run on servers, so this should be safe
+> there.  We'll try to provide a better fix soon...
 
-The UTS Release version in include/linux/version.h
-     ""
-does not match current version:
-     "2.6.18-rc2"
-Please correct this.
+So there's going to be one more 2.6.16, good.
 
+Did you receive that fix-pdflush-after-wakeup? I believe I mailed it
+to stable@kernel.org, but I got no reply...
+						Pavel
 
-I didnt test building -rc1 this way yet, so I dont know when this was 
-introduced, but I don't have this problem with 2.6.17.y
-
--Mike
+-- 
+Thanks for all the (sleeping) penguins.

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286655AbRL1B6d>; Thu, 27 Dec 2001 20:58:33 -0500
+	id <S286687AbRL1CGn>; Thu, 27 Dec 2001 21:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286649AbRL1B6X>; Thu, 27 Dec 2001 20:58:23 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:22791 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286685AbRL1B6N>;
-	Thu, 27 Dec 2001 20:58:13 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system 
-In-Reply-To: Your message of "Thu, 27 Dec 2001 17:47:23 -0800."
-             <20011227174723.V25698@work.bitmover.com> 
+	id <S286692AbRL1CGd>; Thu, 27 Dec 2001 21:06:33 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:63945 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286687AbRL1CGP>; Thu, 27 Dec 2001 21:06:15 -0500
+Date: Fri, 28 Dec 2001 02:06:45 +0000
+From: Dave Jones <davej@suse.de>
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        andre@linux-ide.org, axboe@suse.de
+Subject: Re: [PATCH] ide-probe does not set removable flag for ide-floppy devices
+Message-ID: <20011228020645.A10548@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Kevin P. Fleming" <kevin@labsysgrp.com>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org, andre@linux-ide.org, axboe@suse.de
+In-Reply-To: <009c01c1842a$d281f670$6caaa8c0@kevin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 12:57:58 +1100
-Message-ID: <19047.1009504678@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <009c01c1842a$d281f670$6caaa8c0@kevin>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001 17:47:23 -0800, 
-Larry McVoy <lm@bitmover.com> wrote:
->On Fri, Dec 28, 2001 at 12:41:48PM +1100, Keith Owens wrote:
->> On Thu, 27 Dec 2001 17:37:39 -0800, 
->> Larry McVoy <lm@bitmover.com> wrote:
->> >A couple of questions:
->> >
->> >a) will 2.5 be as fast as the current system?  Faster?
->> 
->> At the moment kbuild 2.5 ranges from 10% faster on small builds to 100%
->> slower on a full kernel build.  
->
->I don't understand why it would be slower.  Maybe I'm clueless but I thought
->you were moving more towards a single makefile system
+On Thu, Dec 13, 2001 at 04:06:39PM -0700, Kevin P. Fleming wrote:
+ > Small patch, relative to 2.4.17-pre8, but should apply to any recent version
+ > 
+ > diff -urN -X dontdiff linux/drivers/ide/ide-probe.c
+ > linux-new/drivers/ide/ide-probe.c
+ > --- linux/drivers/ide/ide-probe.c Wed Dec 12 11:01:24 2001
+ > +++ linux-new/drivers/ide/ide-probe.c Sun Dec  9 11:41:15 2001
+ > @@ -122,6 +122,7 @@
+ >        printk("cdrom or floppy?, assuming ");
+ >       if (drive->media != ide_cdrom) {
+ >        printk ("FLOPPY");
+ > +      drive->removable = 1;
+ >        break;
+ >       }
+ >      }
 
-It uses a single generated Makefile, that is not the problem.  The slow
-code is extracting the dependencies.
+<nitpick old mails time>
+To me, this looks like it would make more sense to set this to 1 _before_
+the switch statement, and set to 0 as necessary, as most of the cases
+look removable to me. Should cut out a few lines of code, and also mark
+things like ide-tape as removable in the process too. Or is this not
+desired behaviour for some reason ?
 
-Unlike the broken make dep, kbuild 2.5 extracts accurate dependencies
-by using the -MD option of cpp and post processing the cpp list.  The
-post processing code is slow because the current design requires every
-compile to read a complete list of all the files, giving O(n^2)
-effects.  Mark 2 of the core code will use a shared database with
-concurrent update so post processing is limited to looking up just the
-required files, instead of reading the complete list every time.
+Dave.
 
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

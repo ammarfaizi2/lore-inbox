@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262862AbSJLJsZ>; Sat, 12 Oct 2002 05:48:25 -0400
+	id <S262867AbSJLJvA>; Sat, 12 Oct 2002 05:51:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262867AbSJLJsY>; Sat, 12 Oct 2002 05:48:24 -0400
-Received: from gw.openss7.com ([142.179.199.224]:28433 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S262862AbSJLJsY>;
-	Sat, 12 Oct 2002 05:48:24 -0400
-Date: Sat, 12 Oct 2002 03:54:06 -0600
+	id <S262868AbSJLJvA>; Sat, 12 Oct 2002 05:51:00 -0400
+Received: from gw.openss7.com ([142.179.199.224]:31249 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S262867AbSJLJu6>;
+	Sat, 12 Oct 2002 05:50:58 -0400
+Date: Sat, 12 Oct 2002 03:56:42 -0600
 From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Arjan van de Ven <arjanv@fenrus.demon.nl>
-Cc: Ole Husgaard <osh@sparre.dk>, Christoph Hellwig <hch@infradead.org>,
-       David Grothe <dave@gcom.com>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>,
-       Dave Miller <davem@redhat.com>
+To: Ole Husgaard <osh@sparre.dk>
+Cc: Christoph Hellwig <hch@infradead.org>, David Grothe <dave@gcom.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
 Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-Message-ID: <20021012035406.A14955@openss7.org>
+Message-ID: <20021012035642.B14955@openss7.org>
 Reply-To: bidulock@openss7.org
-Mail-Followup-To: Arjan van de Ven <arjanv@fenrus.demon.nl>,
-	Ole Husgaard <osh@sparre.dk>, Christoph Hellwig <hch@infradead.org>,
-	David Grothe <dave@gcom.com>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	linux-kernel@vger.kernel.org,
-	LiS <linux-streams@gsyc.escet.urjc.es>,
-	Dave Miller <davem@redhat.com>
-References: <5.1.0.14.2.20021010115616.04a0de70@localhost> <4386E3211F1@vcnet.vc.cvut.cz> <5.1.0.14.2.20021010115616.04a0de70@localhost> <20021010182740.A23908@infradead.org> <5.1.0.14.2.20021010140426.0271c6a0@localhost> <20021011180209.A30671@infradead.org> <20021011142657.B32421@openss7.org> <3DA78926.FB2299A@sparre.dk> <1034415141.2962.0.camel@localhost.localdomain>
+Mail-Followup-To: Ole Husgaard <osh@sparre.dk>,
+	Christoph Hellwig <hch@infradead.org>, David Grothe <dave@gcom.com>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+	LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
+References: <5.1.0.14.2.20021010115616.04a0de70@localhost> <4386E3211F1@vcnet.vc.cvut.cz> <5.1.0.14.2.20021010115616.04a0de70@localhost> <20021010182740.A23908@infradead.org> <5.1.0.14.2.20021010140426.0271c6a0@localhost> <20021011180209.A30671@infradead.org> <20021011142657.B32421@openss7.org> <3DA78926.FB2299A@sparre.dk>
 Mime-Version: 1.0
-Content-Type: application/pgp; x-action=sign; format=text
-Content-Disposition: inline; filename="msg.pgp"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1034415141.2962.0.camel@localhost.localdomain>; from arjanv@fenrus.demon.nl on Sat, Oct 12, 2002 at 11:32:21AM +0200
+In-Reply-To: <3DA78926.FB2299A@sparre.dk>; from osh@sparre.dk on Sat, Oct 12, 2002 at 04:29:58AM +0200
 Organization: http://www.openss7.org/
 Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ole,
 
-Arjan,
+I don't think that exporting putpmsg and getpmsg as _GPL will
+stop proprietary modules from being linked with LiS.  LiS exports
+its symbols on a different basis.  There is no need for a proprietary
+module using LiS to access putpmsg or getpmsg or the syscall
+registration facility for that matter.  Is you concern that LiS
+using a _GPL only facility will force GPL on modules linked with LiS
+even though LiS is LGPL?
 
-On Sat, 12 Oct 2002, Arjan van de Ven wrote:
+--brian
 
-> On Sat, 2002-10-12 at 04:29, Ole Husgaard wrote:
-> > "Brian F. G. Bidulock" wrote:
-> > > On Fri, 11 Oct 2002, Christoph Hellwig wrote:
-> > > > It is not.  Sys_call_table was exported to allow iBCS/Linux-ABI
-> > > 
-> > > I don't know if it matters, but these two calls putpmsg and getpmsg
-> > > are the calls used by iBCS.
+On Sat, 12 Oct 2002, Ole Husgaard wrote:
+
+> "Brian F. G. Bidulock" wrote:
+> > On Fri, 11 Oct 2002, Christoph Hellwig wrote:
+> > > It is not.  Sys_call_table was exported to allow iBCS/Linux-ABI
 > > 
-> > AFAIK, iBCS use these syscalls to emulate TLI, and iBCS
-> iBCS doesn't exist for 2.4 or 2.5 kernels
-> it's called linux-abi now and does NOT use these syscalls
+> > I don't know if it matters, but these two calls putpmsg and getpmsg
+> > are the calls used by iBCS.
+> 
+> AFAIK, iBCS use these syscalls to emulate TLI, and iBCS
+> only has this emulation working for the IP protocol suite.
+> 
+> LiS is hooking the same syscalls, and is more protocol
+> independent.
+> 
+> In this way, iBCS and LiS are competing projects, even
+> if their base objectives are very different (iBCS aims
+> for user-level binary portability from SysV, while LiS
+> aims for kernel-level STREAMS code portability from SysV
+> to extend to Linux).
+> 
+> > No, I don't think anyone wants proprietary syscalls to be registered
+> > with this facility.  If _GPL can allow an LGPL module to use the
+> > facility without problems, that will be the best way to go.
+> 
+> An LGPL module with proprietary code linked into it will
+> taint the kernel. LiS is often linked with proprietary
+> code, since it is under LGPL.
+> 
+> IMHO, A not-GPL-only export from the kernel is needed
+> here.
+> 
+> That will not make these syscalls proprietary. Even with
+> proprietary drivers linked into LiS, it is impossible to
+> deviate from the SysV definition of putpmsg/getpmsg
+> unless the code of LiS itself is modified.
+> 
+> Best Regards,
+> 
+> Ole Husgaard.
 
-This is true, but there is a large chunk of iBCS code still under
-the sparc archictecture under solaris.  This code is not linked
-into the putpmsg or getpmsg syscalls, but is still distributed with
-the kernel.  As it is unused, will this code be removed?  Or, has it
-already been removed in 2.5 kernels?
-
-- --brian
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9p/E8MYOP2up1d2URAkl+AJ4/4s8+wXsT/mn4EQODKQffWygJpgCg5DDu
-SZlzwCYroXY48cibs/dEf/8=
-=zPWr
------END PGP SIGNATURE-----
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

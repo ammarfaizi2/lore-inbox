@@ -1,72 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274268AbRIYANX>; Mon, 24 Sep 2001 20:13:23 -0400
+	id <S274276AbRIYATX>; Mon, 24 Sep 2001 20:19:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274272AbRIYANN>; Mon, 24 Sep 2001 20:13:13 -0400
-Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:41628
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S274268AbRIYANE>; Mon, 24 Sep 2001 20:13:04 -0400
-Message-ID: <004f01c14557$39b8acc0$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "David Grant" <davidgrant79@hotmail.com>, "Greg Ward" <gward@python.net>,
-        <bugs@linux-ide.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz> <OE3183UV8wAddX47sFo00001649@hotmail.com> <20010922110945.B678@gerg.ca> <OE48GTjkifTNRMOKS310000192c@hotmail.com> <20010924103544.A1572@suse.cz> <m1k7yo77v7.fsf@frodo.biederman.org> <20010925004431.A197@suse.cz>
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-Date: Mon, 24 Sep 2001 17:15:47 -0700
-Organization: LSG, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S274277AbRIYATN>; Mon, 24 Sep 2001 20:19:13 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:5139 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S274276AbRIYATD> convert rfc822-to-8bit; Mon, 24 Sep 2001 20:19:03 -0400
+Date: Tue, 25 Sep 2001 02:19:28 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+Message-ID: <20010925021928.C22073@emma1.emma.line.org>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <20010924215825Z274182-761+12384@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20010924215825Z274182-761+12384@vger.kernel.org>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have multiple machines here that do exactly that. If "PNP OS" is set to
-_Yes_, only possible boot devices are initialized. When I boot a machine
-with good ol'd DOS (to use Symantec Ghost), the network cards are unusable
-unless PNP OS is set to No, because no interrupt has been assigned. And yes,
-these are PCI network cards.
+On Mon, 24 Sep 2001, Dieter Nützel wrote:
 
------ Original Message -----
-From: "Vojtech Pavlik" <vojtech@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "David Grant" <davidgrant79@hotmail.com>; "Greg Ward"
-<gward@python.net>; <bugs@linux-ide.org>; <linux-kernel@vger.kernel.org>
-Sent: Monday, September 24, 2001 3:44 PM
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+[fast write cache]
+> Do you know of a Linux SCSI tool to enable it for testing purposes?
 
-
-> On Mon, Sep 24, 2001 at 12:37:32PM -0600, Eric W. Biederman wrote:
->
-> > > The PnP stuff is for ISA PnP cards. If you don't have those, it's
-> > > irrelevant. When "PnP OS Installed" is set to "No", the BIOS does the
-> > > ISAPnP initialization. If it is set to "Yes", it skips that step.
-Linux
-> > > prefers to have the ISAPnP cards pre-initialized, though it can do it
-> > > all by itself.
-> >
-> > "PnP OS Installed" applies to PCI as well as ISA PnP.  The rule is
-> > something like all possible boot devices must be initialized but that
-> > is all.
->
-> Well, I know of no BIOS that would, with PnP OS Installed set to Yes not
-> configure all PCI cards in the system.
->
-> --
-> Vojtech Pavlik
-> SuSE Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
-
+scsiinfo and scsi-config should do. They shipped with my SuSE Linux 7.0
+and have been available on SuSE systems for ages.

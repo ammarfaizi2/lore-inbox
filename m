@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272517AbTGZOlH (ORCPT <rfc822;willy@w.ods.org>);
+	id S272524AbTGZOlH (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 26 Jul 2003 10:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272524AbTGZOj6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272518AbTGZOhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:39:58 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:50225 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272525AbTGZOct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:49 -0400
-Date: Sat, 26 Jul 2003 16:51:56 +0200
-Message-Id: <200307261451.h6QEpusD002436@callisto.of.borg>
+	Sat, 26 Jul 2003 10:37:23 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:44319 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272521AbTGZOcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:45 -0400
+Date: Sat, 26 Jul 2003 16:51:53 +0200
+Message-Id: <200307261451.h6QEpr4i002412@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>,
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] MIPS DEC/SGI Linux logo
+Subject: [PATCH] Sun-3 SCSI warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MIPS: Show the correct logo on DEC and SGI machines.
+Sun-3 SCSI: Kill a warning about a nonmatching prototype after recent SCSI
+proc_info() changes.
 
---- linux-2.6.x/drivers/video/logo/logo.c	Tue May 27 19:03:30 2003
-+++ linux-m68k-2.6.x/drivers/video/logo/logo.c	Sat Jun 28 14:54:12 2003
-@@ -66,7 +66,7 @@
- #endif
- #ifdef CONFIG_LOGO_DEC_CLUT224
- 		/* DEC Linux logo on MIPS/MIPS64 */
--		if (mips_machgroup == MACH_GROUP_SGI)
-+		if (mips_machgroup == MACH_GROUP_DEC)
- 			logo = &logo_dec_clut224;
- #endif
- #ifdef CONFIG_LOGO_MAC_CLUT224
+--- linux-2.6.x/drivers/scsi/sun3_NCR5380.c	Sun Jun 15 09:38:41 2003
++++ linux-m68k-2.6.x/drivers/scsi/sun3_NCR5380.c	Mon Jun 23 13:04:29 2003
+@@ -754,8 +754,8 @@
+ static
+ char *lprint_Scsi_Cmnd (Scsi_Cmnd *cmd, char *pos, char *buffer, int length);
+ 
+-static int NCR5380_proc_info (struct Scsi_Host *instance, char *buffer, char **start, off_t offset,
+-			      int length, int inout)
++int NCR5380_proc_info (struct Scsi_Host *instance, char *buffer, char **start,
++		       off_t offset, int length, int inout)
+ {
+     char *pos = buffer;
+     struct NCR5380_hostdata *hostdata;
 
 Gr{oetje,eeting}s,
 

@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130032AbRAaSeH>; Wed, 31 Jan 2001 13:34:07 -0500
+	id <S130113AbRAaSeG>; Wed, 31 Jan 2001 13:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130157AbRAaSdr>; Wed, 31 Jan 2001 13:33:47 -0500
-Received: from zurich.ai.mit.edu ([18.43.0.244]:8721 "EHLO zurich.ai.mit.edu")
-	by vger.kernel.org with ESMTP id <S130032AbRAaSd0>;
-	Wed, 31 Jan 2001 13:33:26 -0500
-To: Padraig@antefacto.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3A7852A9.1060600@AnteFacto.com> (Padraig@AnteFacto.com)
-Subject: 2.4.1-pre10 -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK
+	id <S130032AbRAaSd4>; Wed, 31 Jan 2001 13:33:56 -0500
+Received: from md.aacisd.com ([64.23.207.34]:10001 "HELO md.aacisd.com")
+	by vger.kernel.org with SMTP id <S130113AbRAaSdo>;
+	Wed, 31 Jan 2001 13:33:44 -0500
+Message-ID: <8FED3D71D1D2D411992A009027711D671880@md>
+From: Nathan Black <NBlack@md.aacisd.com>
+To: "'bert hubert'" <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: drive/block device write scheduling, buffer flushing?
+Date: Wed, 31 Jan 2001 13:29:05 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-User-Agent: IMAIL/1.9; Edwin/3.105; MIT-Scheme/7.5.13
-Message-Id: <E14O247-0002aT-00@qiwi.ai.mit.edu>
-From: Chris Hanson <cph@zurich.ai.mit.edu>
-Date: Wed, 31 Jan 2001 13:33:11 -0500
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Wed, 31 Jan 2001 18:00:09 +0000
-   From: Padraig Brady <Padraig@AnteFacto.com>
+That is what I wanted to do...Write directly to the disk. But the
+kernel(2.4.1) is caching the io...
 
-   Can we sort this out once and for all? There are a few emails
-   everyday relating to this bug.
 
-   The following patch posted by "Troels Walsted Hansen" <troels@thule.no>
-   on Jan 11th fixes this. The problem is that when 2 consequtive
-   NULLs are sent to klogd it goes into a busy loop. Andrew Mortons
-   3c59x driver does this, but also on Jan 11th he replied that he had
-   fixed it. I'm using 2.4ac4 with no problems, so I presume some
-   of these patches have been lost along the way?
 
-Yes, that did it.  It also explains why my desktop works fine, since
-it uses an eepro100 network card.
+-----Original Message-----
+From: bert hubert [mailto:ahu@ds9a.nl]
+Sent: Wednesday, January 31, 2001 12:51 PM
+To: Nathan Black
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: drive/block device write scheduling, buffer flushing?
+
+
+On Wed, Jan 31, 2001 at 11:52:25AM -0500, Nathan Black wrote:
+> I was wondering if there is a way to make the kernel write to disk faster.
+
+> I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a
+computer,
+> but it caches and doesn't start writing to disk until I hit about 700 MB.
+At
+> that point, it pauses(presumably while the kernel is flushing some of the
+> buffers) and I will have missed data that I am trying to capture.
+
+try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
+this sounds like an application for a raw device, whereby you can write
+directly to the disk, with no caching in between.
+
+Regards,
+
+bert
+
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

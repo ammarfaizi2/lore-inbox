@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276743AbRJUVEA>; Sun, 21 Oct 2001 17:04:00 -0400
+	id <S276759AbRJUVJl>; Sun, 21 Oct 2001 17:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276753AbRJUVDu>; Sun, 21 Oct 2001 17:03:50 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:49033 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S276743AbRJUVDh>; Sun, 21 Oct 2001 17:03:37 -0400
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	id <S276761AbRJUVJa>; Sun, 21 Oct 2001 17:09:30 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:15245 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S276759AbRJUVJT>; Sun, 21 Oct 2001 17:09:19 -0400
+Content-Type: text/plain; charset=US-ASCII
 From: Tim Jansen <tim@tjansen.de>
-To: lgb@lgb.hu
-Subject: LPP (was: The new X-Kernel !)
-Date: Sun, 21 Oct 2001 23:06:29 +0200
+To: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+Date: Sun, 21 Oct 2001 23:12:19 +0200
 X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya> <20011022013747.I5511@higherplane.net> <20011021220346.D19390@vega.digitel2002.hu>
-In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu>
+In-Reply-To: <E15vO29-0008ED-00@calista.inka.de>
+In-Reply-To: <E15vO29-0008ED-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <15vPl5-14xxS4C@fmrl02.sul.t-online.com>
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15vPqi-1pZTN2C@fmrl02.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 October 2001 22:03, Gábor Lénárt wrote:
-> Errrm ;-) It's very bad thing to hide boot messages even for novice users.
-> They can't bugreport in this way ... 
+On Sunday 21 October 2001 21:13, Bernd Eckenfels wrote:
+> Well, it is not a question of moving X or Office into Kernel Space. But
+> current development clearly shows, that some things like Video Card Access
+> need Kernel Support. IMHO the Amount of GDI related Functions in NT Kernel
+> are too much, but X11 is not exactly the Windowing System you can consider
+> well suited for Desktop and Game Use.
 
-You can switch to the regular console using some key. You probably don't want 
-bug reports from users who can't even do this, so basically it's a filter :)
-
-> messages should remain IMHO. But this bar indicator confuses me. How do you
-> calculate the remaining percentage? And of course this is kernel boot only.
-> After init, you can start costum process to show an indicator bar to
-> messure remaining tasks before hitting xdm/kdm/gdm/login/whatever.
-
-No, the LPP screen remains until X starts. You set the progress by writing to 
-a file called /proc/progress. So there is a patch (at least for debian) that 
-changes the init scripts to report the progress of booting. You can easily 
-calculate the percentage when you count the scripts in /etc/rcX that you have 
-to start.
+Actually some gfx code has already been moved into the kernel, see DRI and 
+the nvidia kernel modules. And AFAIK there aren't any noticably speed 
+differences between nvidia's linux drivers and the Windows drivers, at least 
+not for 3D, so X11 can't be that bad.
 
 bye...
+

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283697AbRLDOo3>; Tue, 4 Dec 2001 09:44:29 -0500
+	id <S283675AbRLDOo3>; Tue, 4 Dec 2001 09:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283667AbRLDOnA>; Tue, 4 Dec 2001 09:43:00 -0500
-Received: from ns.suse.de ([213.95.15.193]:4357 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284362AbRLDOZU> convert rfc822-to-8bit;
-	Tue, 4 Dec 2001 09:25:20 -0500
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
-        marcelo@conectiva.com.br, davem@redhat.com
-Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
-In-Reply-To: <20011203160059.A2022@devserv.devel.redhat.com>
-X-Yow: The FALAFEL SANDWICH lands on my HEAD and I become a VEGETARIAN...
-From: Andreas Schwab <schwab@suse.de>
-Date: 04 Dec 2001 15:25:15 +0100
-In-Reply-To: <20011203160059.A2022@devserv.devel.redhat.com> (Arjan van de Ven's message of "Mon, 3 Dec 2001 16:00:59 -0500")
-Message-ID: <je4rn7njuc.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1.30
+	id <S283134AbRLDOnD>; Tue, 4 Dec 2001 09:43:03 -0500
+Received: from [165.139.124.200] ([165.139.124.200]:47289 "EHLO
+	xinul2.hobart.k12.in.us") by vger.kernel.org with ESMTP
+	id <S283433AbRLDNGR>; Tue, 4 Dec 2001 08:06:17 -0500
+From: "Russell Mellon" <mellonr@hobart.k12.in.us>
+To: "Stefan Smietanowski" <stesmi@stesmi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: IP address 10.1.1.0/16 not valid
+Date: Tue, 4 Dec 2001 07:07:07 -0600
+Message-ID: <PDEDJCHJOFMEOMMKOPDGGEDNCLAA.mellonr@hobart.k12.in.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <3C0C93DB.2040909@stesmi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> writes:
+Ok, you are right, it was about 3am when I wrote the message...
+Still, the kernel should allow the address 10.1.1.0/16.
+-Russ
 
-|> Hi,
-|> 
-|> The patch below (against 2.4.16) makes the ia64 port no longer use the (VERY
-|> slow) software IO mmu but makes it use the same mechanism the x86 PAE port
-|> uses: it lets the higher layers take care of the proper bouncing of
-|> PCI-unreachable memory. The implemenation is pretty simple; instead of
-|> having a 4Gb GFP_DMA zone and a <rest of ram> GFP_KERNEL zone, the ia64 port
-|> now has a 4Gb GFP_DMA zone and a <rest of ram> GFP_HIGH zone.
-|> Since the ia64 cpu can address all of this memory directly, the kmap() and
-|> related functions are basically nops. 
+-----Original Message-----
+From: Stefan Smietanowski [mailto:stesmi@stesmi.com]
+Sent: Tuesday, December 04, 2001 3:14 AM
+To: Russell Mellon
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IP address 10.1.1.0/16 not valid
 
-I tried it, but it doesn't compile: kmap_prot and kmap_pte are undefined.
-If they are not used on ia64, then the reference in kernel/ksyms.c must be
-removed.
 
-Andreas.
+Russell Mellon wrote:
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+> Why is it that the kernel seems to reject using the address 10.1.1.0 on a
+> 255.255.0.0 netmask.  That address isn't the broadcast address, 10.1.0.0
+is.
+
+
+To be pendantic, 10.1.0.0 is the network address and 10.1.255.255 is the
+broadcast :)
+
+// Stefan
+

@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275079AbTHLHTK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 03:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275093AbTHLHTK
+	id S275080AbTHLH04 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 03:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275092AbTHLH04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 03:19:10 -0400
-Received: from dyn-ctb-210-9-241-99.webone.com.au ([210.9.241.99]:54790 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S275079AbTHLHTG
+	Tue, 12 Aug 2003 03:26:56 -0400
+Received: from matav-4.matav.hu ([145.236.252.35]:55103 "EHLO
+	Forman.fw.matav.hu") by vger.kernel.org with ESMTP id S275080AbTHLH0z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 03:19:06 -0400
-Message-ID: <3F3894CB.3010200@cyberone.com.au>
-Date: Tue, 12 Aug 2003 17:18:35 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Tue, 12 Aug 2003 03:26:55 -0400
+Message-ID: <3F3896B7.6090304@narancs.tii.matav.hu>
+Date: Tue, 12 Aug 2003 09:26:47 +0200
+From: narancs <narancs@narancs.tii.matav.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.3) Gecko/20030312
+X-Accept-Language: hu, en-us
 MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Mike Galbraith <efault@gmx.de>, rob@landley.net,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308110248.09399.rob@landley.net> <200308050207.18096.kernel@kolivas.org> <200308052022.01377.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au> <200308110248.09399.rob@landley.net> <5.2.1.1.2.20030812075224.01988de8@pop.gmx.net> <3F389221.6080202@cyberone.com.au>
-In-Reply-To: <3F389221.6080202@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DEC KZPSA SCSI card - is there a linux driver?
+References: <3F37A962.4030505@narancs.tii.matav.hu> <Pine.LNX.4.56.0308111147160.2855@filesrv1.baby-dragons.com>
+In-Reply-To: <Pine.LNX.4.56.0308111147160.2855@filesrv1.baby-dragons.com>
+X-Enigmail-Version: 0.74.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I have tried first but no success, that's why I wrote to the list.
+Google gave me no usuable info about this card. In a mail I found that 
+this card maybe qlogic and qla10x0 driver runs it, but there is no such 
+driver in the kernel now afaik. I only found qla1280, but that is not 
+working.
 
+Maybe I'll give up and try to beg for another scsi card :(
 
-Nick Piggin wrote:
+Mr. James W. Laferriere írta:
 
+>	Hello Narancs ,  Try a google or altavista on KZPSA .
+>	I found quite a few mentions for the device .  Another thing to
+>	try is to look the board over very carefully & see if it might be
+>	actually made by another company & just re-stamped with the DEC
+>	name & partno. ,  Like the DAC960's were renamed to KZSPC's by
+>	DEC .  Hth ,  JimL
 >
+>  
 >
-> Mike Galbraith wrote:
->
->> At 12:51 PM 8/12/2003 +1000, Nick Piggin wrote:
->>
->>
->>> Rob Landley wrote:
->>>
->>>> On Tuesday 05 August 2003 06:32, Nick Piggin wrote:
->>>>
->>>>
->>>>> But by employing the kernel's services in the shape of a blocking
->>>>> syscall, all sleeps are intentional.
->>>>
->>>>
->>>>
->>>> Wrong.  Some sleeps indicate "I have run out of stuff to do right 
->>>> now, I'm going to wait for a timer or another process or something 
->>>> to wake me up with new work".
->>>>
->>>>
->>>>
->>>> Some sleeps indicate "ideally this would run on an enormous ramdisk 
->>>> attached to gigabit ethernet, but hard drives and internet 
->>>> connections are just too slow so my true CPU-hogness is hidden by 
->>>> the fact I'm running on a PC instead of a mainframe."
->>>
->>>
->>>
->>> I don't quite understand what you are getting at, but if you don't 
->>> want to
->>> sleep you should be able to use a non blocking syscall. But in some 
->>> cases
->>> I think there are times when you may not be able to use a non 
->>> blocking call.
->>> And if a process is a CPU hog, its a CPU hog. If its not its not. 
->>> Doesn't
->>> matter how it would behave on another system.
->>
->>
->>
->> Ah, but there is something there.  Take the X and xmms's gl thread 
->> thingy I posted a while back.  (X runs long enough to expire in the 
->> presence of a couple of low priority cpu hogs.  gl thread, which is a 
->> mondo cpu hog, and normally runs and runs and runs at cpu hog 
->> priority, suddenly acquires extreme interactive priority, and X, 
->> which is normally sleepy suddenly becomes permanently runnable at cpu 
->> hog priority)  The gl thread starts sleeping because X isn't getting 
->> enough cpu to be able to get it's work done and go to sleep.  The gl 
->> thread isn't voluntarily sleeping, and X isn't voluntarily running.  
->> The behavior change is forced upon both.
->
->
->
-> It does... It is I tell ya!
->
-> Look, the gl thread is probably _very_ explicitly asking to sleep. No I
-> don't know how X works, but I have an idea that select is generally used
-> as an event notification, right?
->
-> Now the gl thread is essentially saying "wait until X finishes the work
-> I've given it, or I get some other event": ie. "put me to sleep until
-> this fd becomes readable".
->
-> OK maybe your scenario is a big problem. Its not due to any imagined
-> semantics in the way things are sleeping. Its due to the scheduler.
-
-
-And no, X isn't intentionally sleeping. Its being preempted which is
-obviously not intentional.
 

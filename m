@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288338AbSBKLtA>; Mon, 11 Feb 2002 06:49:00 -0500
+	id <S288158AbSBKLzV>; Mon, 11 Feb 2002 06:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288158AbSBKLsk>; Mon, 11 Feb 2002 06:48:40 -0500
-Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:37898
-	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
-	id <S288338AbSBKLsg>; Mon, 11 Feb 2002 06:48:36 -0500
-Message-ID: <3C67B1D6.5020408@alpha.dyndns.org>
-Date: Mon, 11 Feb 2002 03:58:14 -0800
-From: Mark McClelland <mark@alpha.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: video4linux-list@redhat.com
-CC: Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
-Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
-In-Reply-To: <20020209194602.A23061@bytesex.org> <3C65EFF4.2000906@alpha.dyndns.org> <20020210101130.A28225@bytesex.org> <3C666D98.70600@alpha.dyndns.org> <20020211105534.A4745@bytesex.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288611AbSBKLzM>; Mon, 11 Feb 2002 06:55:12 -0500
+Received: from grisu.bik-gmbh.de ([194.233.237.82]:18449 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
+	id <S288158AbSBKLy7>; Mon, 11 Feb 2002 06:54:59 -0500
+Date: Mon, 11 Feb 2002 12:55:28 +0100
+To: Heinz Diehl <hd@cavy.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disk-I/O and kupdated@99.9% system (2.4.18-pre9)
+Message-ID: <20020211115527.GA336@bik-gmbh.de>
+In-Reply-To: <20020208164250.GA321@bik-gmbh.de> <20020210115509.GA493@chiara.cavy.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020210115509.GA493@chiara.cavy.de>
+User-Agent: Mutt/1.3.24i
+From: Florian Hars <hars@bik-gmbh.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
+Heinz Diehl wrote:
+> Downgrade to 2.4.18-pre8 and use Michael Cohen's patch from
+> "ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/",
 
->On Sun, Feb 10, 2002 at 04:54:48AM -0800, Mark McClelland wrote:
->
->>BTW, is there any chance for vmalloc() and pals to be moved to 
->>videodev.c, or something higher-up?
->>
->
->What do you mean exactly?  bttv's memory management code, which has
->been copied to various places, and which is now broken in 2.5.x due
->to virt_to_bus() being gone finally?
->
+That doesn't help. I tried 2.4.16 with Debian modifications, said 
+kernel patched to 2.4.18-pre9, stock 2.4.17, stock 2.4.18-pre9 and
+2.4.18-pre8-mjc with preempt and lockbreak, and all behave alike.
 
-Sorry, I meant to type rvmalloc().
+On a plain ext2-filesystem on a primary partition I get (with -mjc):
 
-Many drivers (eg. USB webcam drivers), don't need virt_to_bus(). They 
-only need a way to allocate reserved pages that they can safely do 
-remap_page_range() on, for mmap().
+During the sync the system is extremly sluggish, and once during my
+tests it froze completely (it did still return pings with a normal
+speed) so that I had to press reset.
 
->Some of this is work-in-progress.  I'm talking to Dave to put some
->helper functions to handle DMA to vmalloced memory blocks to some
->sensible place within the kernel.  If someone wants to have a look
->(not final yet): http://bytesex.org/patches/15_pci-2.4.18-pre8.diff
->
+The same operations on a slower computer running 2.2.20 are consideraby
+faster:
 
-Thanks, that's exactly what I was looking for. pci_vmalloc_to_page() 
-should satisfy all of the USB drivers, if they override 
-vma->vm_ops->nopage().
+$ time tar -xzf linux-2.4.17.tar.gz; time sync
 
--- 
-Mark McClelland
-mmcclell@bigfoot.com
+real    0m7.716s
+user    0m5.430s
+sys     0m2.110s
 
+real    0m6.332s
+user    0m0.000s
+sys     0m0.120s
+ 
+> Latency in stock 2.4.17/18-pre kernels is well known :\
 
+this looks like more than a latency issue :-(.
 
+Yours, Florian Hars.

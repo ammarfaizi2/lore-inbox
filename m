@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTFDQEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 12:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTFDQEZ
+	id S263587AbTFDQuO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 12:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTFDQuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 12:04:25 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:34779 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263496AbTFDQEY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 12:04:24 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Vladimir Saveliev <vs@namesys.com>
-Organization: namesys
-To: linux-kernel@vger.kernel.org
-Subject: file write performance drop between 2.5.60 and 2.5.70
-Date: Wed, 4 Jun 2003 20:17:53 +0400
-User-Agent: KMail/1.4.1
-Cc: reiserfs-dev@namesys.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306042017.53435.vs@namesys.com>
+	Wed, 4 Jun 2003 12:50:14 -0400
+Received: from mail009.syd.optusnet.com.au ([210.49.20.137]:48611 "EHLO
+	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263587AbTFDQuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 12:50:13 -0400
+Date: Thu, 5 Jun 2003 03:02:15 +1000
+To: Jeremy Salch <salch@tblx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Access past end of device
+Message-ID: <20030604170215.GA9732@cancer>
+References: <001d01c32ab4$2cb8e320$9fdeae3f@TBLXM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001d01c32ab4$2cb8e320$9fdeae3f@TBLXM>
+User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Jun 04, 2003 at 11:13:02AM -0500, Jeremy Salch wrote:
+> I'm using a dell powerall web 120 with scsi drives installed
+> Using redhat 7.2 with the 2.4.18-19.7.x kernel installed 
+> 
+> Attempt to access beyond end of device
+> 08:06: rw=0, want=1044196, limit=1044193
+> 1044192
+> Pass completed, 1 bad blocks found.
+> And fdisk reports there to be 1044193+ blocks in the partition ?
 
-It looks like file write performance dropped somewhere between 2.5.60 and 
-2.5.70.
-Doing
-time dd if=/dev/zero of=file bs=4096 count=60000
+Sounds like the partition map is a bit incorrect.
 
-on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
-I get for ext2
-2.5.60: 	real	1.42 sys 0.77
-2.5.70: 	real 1.73 sys 1.23
-for reiserfs
-2.5.60: 	real 1.62 sys 1.56
-2.5.70: 	real 1.90 sys 1.86
+Try running badblocks on the drive itself (/dev/hda, not hda1).
+If the problem disappears then it's with the partition map (i'd guess).
 
-Any ideas of what could cause this drop?
-
-Thanks,
-vs
-
+- stew
 

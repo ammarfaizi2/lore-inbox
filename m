@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUHWK3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267638AbUHWKde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267646AbUHWK3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 06:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUHWK3g
+	id S267638AbUHWKde (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 06:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUHWKde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 06:29:36 -0400
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:51873 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S267646AbUHWK3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 06:29:17 -0400
-Date: Mon, 23 Aug 2004 11:29:15 +0100 (BST)
+	Mon, 23 Aug 2004 06:33:34 -0400
+Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:62152 "EHLO
+	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S267638AbUHWK3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 06:29:37 -0400
+Date: Mon, 23 Aug 2004 11:29:34 +0100 (BST)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/20] Re: [2.6-BK-URL] NTFS 2.1.17 release
-In-Reply-To: <Pine.LNX.4.60.0408231128020.24220@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0408231128550.24220@hermes-1.csi.cam.ac.uk>
+Subject: Re: [PATCH 3/20] Re: [2.6-BK-URL] NTFS 2.1.17 release
+In-Reply-To: <Pine.LNX.4.60.0408231128550.24220@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0408231129180.24220@hermes-1.csi.cam.ac.uk>
 References: <Pine.LNX.4.60.0408231055290.24220@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0408231128020.24220@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0408231128550.24220@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
@@ -26,13 +27,11 @@ X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 2/20 in the series.  It contains the following ChangeSet:
+This is patch 3/20 in the series.  It contains the following ChangeSet:
 
-<aia21@cantab.net> (04/07/08 1.1784.14.2)
-   NTFS: Change ntfs_write_inode to return 0 on success and -errno on error
-         and create a wrapper ntfs_write_inode_vfs that does not have a
-         return value and use the wrapper for the VFS super_operations
-         write_inode function.
+<aia21@cantab.net> (04/07/08 1.1784.14.3)
+   NTFS: Implement fsync, fdatasync, and msync both for files (fs/ntfs/file.c)
+         and directories (fs/ntfs/dir.c).
    
    Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
@@ -47,94 +46,164 @@ WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
 ===================================================================
 
-diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
---- a/fs/ntfs/inode.c	2004-08-18 20:49:49 +01:00
-+++ b/fs/ntfs/inode.c	2004-08-18 20:49:49 +01:00
-@@ -2314,8 +2314,10 @@
-  * marking the page (and in this case mft record) dirty but we do not implement
-  * this yet as write_mft_record() largely ignores the @sync parameter and
-  * always performs synchronous writes.
-+ *
-+ * Return 0 on success and -errno on error.
-  */
--void ntfs_write_inode(struct inode *vi, int sync)
-+int ntfs_write_inode(struct inode *vi, int sync)
- {
- 	ntfs_inode *ni = NTFS_I(vi);
- #if 0
-@@ -2332,7 +2334,7 @@
- 	 */
- 	if (NInoAttr(ni)) {
- 		NInoClearDirty(ni);
--		return;
-+		return 0;
- 	}
- 	/* Map, pin, and lock the mft record belonging to the inode. */
- 	m = map_mft_record(ni);
-@@ -2410,7 +2412,7 @@
- 	if (unlikely(err))
- 		goto err_out;
- 	ntfs_debug("Done.");
--	return;
-+	return 0;
- #if 0
- unm_err_out:
- 	unmap_mft_record(ni);
-@@ -2426,7 +2428,31 @@
- 				"as bad.  You should run chkdsk.", -err);
- 		make_bad_inode(vi);
- 	}
--	return;
-+	return err;
-+}
-+
-+/**
-+ * ntfs_write_inode_vfs - write out a dirty inode
-+ * @vi:		inode to write out
-+ * @sync:	if true, write out synchronously
-+ *
-+ * Write out a dirty inode to disk including any extent inodes if present.
-+ *
-+ * If @sync is true, commit the inode to disk and wait for io completion.  This
-+ * is done using write_mft_record().
-+ *
-+ * If @sync is false, just schedule the write to happen but do not wait for i/o
-+ * completion.  In 2.6 kernels, scheduling usually happens just by virtue of
-+ * marking the page (and in this case mft record) dirty but we do not implement
-+ * this yet as write_mft_record() largely ignores the @sync parameter and
-+ * always performs synchronous writes.
-+ *
-+ * This functions does not have a return value which is the required behaviour
-+ * for the VFS super_operations ->dirty_inode function.
-+ */
-+void ntfs_write_inode_vfs(struct inode *vi, int sync)
-+{
-+	ntfs_write_inode(vi, sync);
+diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog	2004-08-18 20:49:53 +01:00
++++ b/fs/ntfs/ChangeLog	2004-08-18 20:49:53 +01:00
+@@ -31,6 +31,8 @@
+ 	- Add support for readv/writev and aio_read/aio_write (fs/ntfs/file.c).
+ 	  This is done by setting the appropriate file operations pointers to
+ 	  the generic helper functions provided by mm/filemap.c.
++	- Implement fsync, fdatasync, and msync both for files (fs/ntfs/file.c)
++	  and directories (fs/ntfs/dir.c).
+ 
+ 2.1.15 - Invalidate quotas when (re)mounting read-write.
+ 
+diff -Nru a/fs/ntfs/dir.c b/fs/ntfs/dir.c
+--- a/fs/ntfs/dir.c	2004-08-18 20:49:53 +01:00
++++ b/fs/ntfs/dir.c	2004-08-18 20:49:53 +01:00
+@@ -1495,10 +1495,69 @@
+ 	return 0;
  }
  
- #endif /* NTFS_RW */
-diff -Nru a/fs/ntfs/inode.h b/fs/ntfs/inode.h
---- a/fs/ntfs/inode.h	2004-08-18 20:49:49 +01:00
-+++ b/fs/ntfs/inode.h	2004-08-18 20:49:49 +01:00
-@@ -285,7 +285,8 @@
++#ifdef NTFS_RW
++
++/**
++ * ntfs_dir_fsync - sync a directory to disk
++ * @filp:	directory to be synced
++ * @dentry:	dentry describing the directory to sync
++ * @datasync:	if non-zero only flush user data and not metadata
++ *
++ * Data integrity sync of a directory to disk.  Used for fsync, fdatasync, and
++ * msync system calls.  This function is based on file.c::ntfs_file_fsync().
++ *
++ * Write the mft record and all associated extent mft records as well as the
++ * $INDEX_ALLOCATION and $BITMAP attributes and then sync the block device.
++ *
++ * If @datasync is true, we do not wait on the inode(s) to be written out
++ * but we always wait on the page cache pages to be written out.
++ *
++ * Note: In the past @filp could be NULL so we ignore it as we don't need it
++ * anyway.
++ *
++ * Locking: Caller must hold i_sem on the inode.
++ *
++ * TODO: We should probably also write all attribute/index inodes associated
++ * with this inode but since we have no simple way of getting to them we ignore
++ * this problem for now.  We do write the $BITMAP attribute if it is present
++ * which is the important one for a directory so things are not too bad.
++ */
++static int ntfs_dir_fsync(struct file *filp, struct dentry *dentry,
++		int datasync)
++{
++	struct inode *vi = dentry->d_inode;
++	ntfs_inode *ni = NTFS_I(vi);
++	int err, ret;
++
++	ntfs_debug("Entering for inode 0x%lx.", vi->i_ino);
++	BUG_ON(!S_ISDIR(vi->i_mode));
++	if (NInoIndexAllocPresent(ni) && ni->itype.index.bmp_ino)
++		write_inode_now(ni->itype.index.bmp_ino, !datasync);
++	ret = ntfs_write_inode(vi, 1);
++	write_inode_now(vi, !datasync);
++	err = sync_blockdev(vi->i_sb->s_bdev);
++	if (unlikely(err && !ret))
++		ret = err;
++	if (likely(!ret))
++		ntfs_debug("Done.");
++	else
++		ntfs_warning(vi->i_sb, "Failed to f%ssync inode 0x%lx.  Error "
++				"%u.", datasync ? "data" : "", vi->i_ino, -ret);
++	return ret;
++}
++
++#endif /* NTFS_RW */
++
+ struct file_operations ntfs_dir_ops = {
+ 	.llseek		= generic_file_llseek,	/* Seek inside directory. */
+ 	.read		= generic_read_dir,	/* Return -EISDIR. */
+ 	.readdir	= ntfs_readdir,		/* Read directory contents. */
++#ifdef NTFS_RW
++	.fsync		= ntfs_dir_fsync,	/* Sync a directory to disk. */
++	/*.aio_fsync	= ,*/			/* Sync all outstanding async
++						   i/o operations on a kiocb. */
++#endif /* NTFS_RW */
++	/*.ioctl	= ,*/			/* Perform function on the
++						   mounted filesystem. */
+ 	.open		= ntfs_dir_open,	/* Open directory. */
+ };
+-
+diff -Nru a/fs/ntfs/file.c b/fs/ntfs/file.c
+--- a/fs/ntfs/file.c	2004-08-18 20:49:53 +01:00
++++ b/fs/ntfs/file.c	2004-08-18 20:49:53 +01:00
+@@ -48,6 +48,60 @@
+ 	return generic_file_open(vi, filp);
+ }
  
- extern int ntfs_setattr(struct dentry *dentry, struct iattr *attr);
- 
--extern void ntfs_write_inode(struct inode *vi, int sync);
-+extern int ntfs_write_inode(struct inode *vi, int sync);
-+extern void ntfs_write_inode_vfs(struct inode *vi, int sync);
- 
- static inline void ntfs_commit_inode(struct inode *vi)
- {
-diff -Nru a/fs/ntfs/super.c b/fs/ntfs/super.c
---- a/fs/ntfs/super.c	2004-08-18 20:49:49 +01:00
-+++ b/fs/ntfs/super.c	2004-08-18 20:49:49 +01:00
-@@ -2050,7 +2050,7 @@
- #ifdef NTFS_RW
- 	//.dirty_inode	= NULL,			/* VFS: Called from
- 	//					   __mark_inode_dirty(). */
--	.write_inode	= ntfs_write_inode,	/* VFS: Write dirty inode to
-+	.write_inode	= ntfs_write_inode_vfs,	/* VFS: Write dirty inode to
- 						   disk. */
- 	//.drop_inode	= NULL,			/* VFS: Called just after the
- 	//					   inode reference count has
++#ifdef NTFS_RW
++
++/**
++ * ntfs_file_fsync - sync a file to disk
++ * @filp:	file to be synced
++ * @dentry:	dentry describing the file to sync
++ * @datasync:	if non-zero only flush user data and not metadata
++ *
++ * Data integrity sync of a file to disk.  Used for fsync, fdatasync, and msync
++ * system calls.  This function is inspired by fs/buffer.c::file_fsync().
++ *
++ * If @datasync is false, write the mft record and all associated extent mft
++ * records as well as the $DATA attribute and then sync the block device.
++ *
++ * If @datasync is true and the attribute is non-resident, we skip the writing
++ * of the mft record and all associated extent mft records (this might still
++ * happen due to the write_inode_now() call).
++ *
++ * Also, if @datasync is true, we do not wait on the inode to be written out
++ * but we always wait on the page cache pages to be written out.
++ *
++ * Note: In the past @filp could be NULL so we ignore it as we don't need it
++ * anyway.
++ *
++ * Locking: Caller must hold i_sem on the inode.
++ *
++ * TODO: We should probably also write all attribute/index inodes associated
++ * with this inode but since we have no simple way of getting to them we ignore
++ * this problem for now.
++ */
++static int ntfs_file_fsync(struct file *filp, struct dentry *dentry,
++		int datasync)
++{
++	struct inode *vi = dentry->d_inode;
++	int err, ret = 0;
++
++	ntfs_debug("Entering for inode 0x%lx.", vi->i_ino);
++	BUG_ON(S_ISDIR(vi->i_mode));
++	if (!datasync || !NInoNonResident(NTFS_I(vi)))
++		ret = ntfs_write_inode(vi, 1);
++	write_inode_now(vi, !datasync);
++	err = sync_blockdev(vi->i_sb->s_bdev);
++	if (unlikely(err && !ret))
++		ret = err;
++	if (likely(!ret))
++		ntfs_debug("Done.");
++	else
++		ntfs_warning(vi->i_sb, "Failed to f%ssync inode 0x%lx.  Error "
++				"%u.", datasync ? "data" : "", vi->i_ino, -ret);
++	return ret;
++}
++
++#endif /* NTFS_RW */
++
+ struct file_operations ntfs_file_ops = {
+ 	.llseek		= generic_file_llseek,	  /* Seek inside file. */
+ 	.read		= generic_file_read,	  /* Read from file. */
+@@ -63,9 +117,7 @@
+ 						     how to use this to discard
+ 						     preallocated space for
+ 						     write opened files. */
+-	/*.fsync	= ,*/			  /* Sync a file to disk.  See
+-						     fs/buffer.c::sys_fsync()
+-						     and file_fsync(). */
++	.fsync		= ntfs_file_fsync,	  /* Sync a file to disk. */
+ 	/*.aio_fsync	= ,*/			  /* Sync all outstanding async
+ 						     i/o operations on a
+ 						     kiocb. */

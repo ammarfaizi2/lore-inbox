@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286172AbRLTGJb>; Thu, 20 Dec 2001 01:09:31 -0500
+	id <S286178AbRLTGMm>; Thu, 20 Dec 2001 01:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286170AbRLTGJT>; Thu, 20 Dec 2001 01:09:19 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:51210 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286166AbRLTGIV>; Thu, 20 Dec 2001 01:08:21 -0500
-Message-ID: <3C218014.48597D84@zip.com.au>
-Date: Wed, 19 Dec 2001 22:07:16 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S286176AbRLTGM1>; Thu, 20 Dec 2001 01:12:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19729 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286158AbRLTGKr>; Thu, 20 Dec 2001 01:10:47 -0500
+Date: Wed, 19 Dec 2001 22:09:40 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <bcrl@redhat.com>, <cs@zip.com.au>, <billh@tierra.ucsd.edu>,
+        <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
+Subject: Re: aio
+In-Reply-To: <20011219.220247.101870714.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0112192206400.19394-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: blesson paul <blessonpaul@msn.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: exported functions in 2.2.16
-In-Reply-To: <F38RfLC7A9BzqREGcvc0000f97a@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blesson paul wrote:
-> 
-> Hi all
->         I am using  kernel 2.2.16.  I  need to use the following functions which of
-> course are exported from a kernel 2.4.5.
-> 
->         interruptible_sleep_on_timeout
 
-That has been exported since forever.  Maybe you have a build problem?
+Could we get back on track, and possibly discuss the patches themselves,
+ok? We want _constructive_ criticism of the interfaces.
 
->         schedule_task
+I think it's clear that many people do want to have aio support. At least
+as far as I'm concerned, that's not the reason I want to have public
+discussion. I want to make sure that the interfaces are good for aio
+users, and that the design isn't stupid.
 
-Was first introduced into the 2.2 series at 2.2.19-pre16.  It
-is exported there also.
+If somebody can point to a better way of doing aio, and giving good
+arguments for that, more power to him. But let's not go down the path of
+"_I_ don't like aio, so _you_ must be stupid".
 
--
+		Linus
+

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131172AbRCGUYN>; Wed, 7 Mar 2001 15:24:13 -0500
+	id <S130423AbRCGU3n>; Wed, 7 Mar 2001 15:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131177AbRCGUYD>; Wed, 7 Mar 2001 15:24:03 -0500
-Received: from [209.102.105.34] ([209.102.105.34]:20235 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S131172AbRCGUXs>;
-	Wed, 7 Mar 2001 15:23:48 -0500
-Date: Wed, 7 Mar 2001 12:22:22 -0800
-From: Tim Wright <timw@splhi.com>
-To: Ettore Perazzoli <ettore@ximian.com>
-Cc: timw@splhi.com, linux-kernel@vger.kernel.org
-Subject: Re: Interesting fs corruption story
-Message-ID: <20010307122222.A1254@kochanski.internal.splhi.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Ettore Perazzoli <ettore@ximian.com>, timw@splhi.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0103042043320.27829-100000@trna.ximian.com> <20010306170102.B1095@kochanski.internal.splhi.com> <983927410.11517.0.camel@milkplus.unknown.domain>
+	id <S131175AbRCGU3d>; Wed, 7 Mar 2001 15:29:33 -0500
+Received: from [199.183.24.200] ([199.183.24.200]:11061 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130423AbRCGU3X>; Wed, 7 Mar 2001 15:29:23 -0500
+Date: Wed, 7 Mar 2001 15:28:47 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: zaitcev@redhat.com
+Subject: Q. about oops backtrace
+Message-ID: <20010307152847.C19671@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <983927410.11517.0.camel@milkplus.unknown.domain>; from ettore@ximian.com on Tue, Mar 06, 2001 at 08:10:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 06, 2001 at 08:10:10PM -0500, Ettore Perazzoli wrote:
-> On 06 Mar 2001 17:01:02 -0800, Tim Wright wrote:
-[...]
-> > The fix for me was to rebuild the kernel and make sure CONFIG_APM_ALLOW_INTS
-> > was enabled. So, do you ever use power management and is this similar, or do
-> > you have a completely different problem ?
-> 
->   Wow, this sounds like this might be the problem.  I just checked my
-> `.config' and indeed `CONFIG_APM_ALLOW_INTS' is not enabled.  And indeed
-> I have been suspending/resuming the machine a few times before the
-> partition got corrupted.
-> 
->   So, does DMA work correctly on your system after setting this option?
+Hello:
 
-Yes, it does. I have the drive running in UDMA mode 2, and get ~16MB/s from
-'hdparm -t -T'. I have the "use DMA automatically" option turned on in the
-kernel, so I inherit the BIOS settings which are correct.
+I was investigating an oops and the trace looked like this:
 
-I've used standby and hibernation with complete success since.
+>>EIP; c01c54a9 <lvm_do_remove_proc_entry_of_vg+9/c0>   <=====
+Trace; c01c3654 <lvm_do_vg_rename+84/250>
+Trace; c01c0f0f <lvm_chr_ioctl+30f/6d0>
+Trace; c015e7e2 <ext2_getblk+72/e0>
+Trace; c01155a6 <do_page_fault+166/440>
+Trace; c01272a9 <do_no_page+49/a0>
+Trace; c0127414 <handle_mm_fault+114/1a0>
+Trace; c0136a2d <kunmap_high+7d/90>
+Trace; c012722e <do_anonymous_page+de/110>
+Trace; c0127290 <do_no_page+30/a0>
+Trace; c0127414 <handle_mm_fault+114/1a0>
+Trace; c014cdec <dput+1c/170>
+Trace; c0143f80 <cached_lookup+10/50>
+Trace; c0144aae <path_walk+85e/940>
+Trace; c014cdec <dput+1c/170>
+Trace; c01392c9 <chrdev_open+59/a0>
+Trace; c0138130 <dentry_open+c0/150>
+Trace; c013805d <filp_open+4d/60>
+Trace; c0148b97 <sys_ioctl+247/2a0>
+Trace; c01091c7 <system_call+33/38>
 
-Regards,
+What is with those recursive handle_mm_fault calls?
+That does not look quite right. I _assume_ that the
+stack would collapse properly upon return, but still...
+I would appreciate a suggestion about what .S file to read
+for the explanation.
 
-Tim
-
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+-- Pete

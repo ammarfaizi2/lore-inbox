@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284809AbSADUUc>; Fri, 4 Jan 2002 15:20:32 -0500
+	id <S284794AbSADUUM>; Fri, 4 Jan 2002 15:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284755AbSADUUX>; Fri, 4 Jan 2002 15:20:23 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:10383 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S284728AbSADUUJ>;
-	Fri, 4 Jan 2002 15:20:09 -0500
-Date: Fri, 4 Jan 2002 21:19:31 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Vojtech Pavlik <vojtech@suse.cz>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104211931.D5235@khan.acc.umu.se>
-In-Reply-To: <20020103133454.A17280@suse.cz> <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl> <20020104200410.E21887@suse.cz> <20020104140538.A19746@thyrsus.com> <20020104202151.A22445@suse.cz> <20020104144146.A20097@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20020104144146.A20097@thyrsus.com>; from esr@thyrsus.com on Fri, Jan 04, 2002 at 02:41:46PM -0500
+	id <S284755AbSADUUC>; Fri, 4 Jan 2002 15:20:02 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:15096 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S284728AbSADUTy>; Fri, 4 Jan 2002 15:19:54 -0500
+Date: Fri, 4 Jan 2002 21:19:48 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrey Nekrasov <andy@spylog.ru>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+In-Reply-To: <Pine.LNX.4.33.0201042056150.11338-100000@localhost.localdomain>
+Message-ID: <Pine.NEB.4.43.0201042111580.19208-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 02:41:46PM -0500, Eric S. Raymond wrote:
+On Fri, 4 Jan 2002, Ingo Molnar wrote:
 
-[snip]
+> On Fri, 4 Jan 2002, Andrey Nekrasov wrote:
+>
+> > ipconfig.c: In function `ip_auto_config':
+> > ipconfig.c:1148: `UNNAMED_MAJOR' undeclared (first use in this function)
+> > ipconfig.c:1148: (Each undeclared identifier is reported only once
+> > ipconfig.c:1148: for each function it appears in.)
+>
+> > ps. vanilla kernel compile ok.
+>
+> hm, the patch does not change ipconfig.c.
 
-> This is one reason I want /sys/dmi -- because if I *don't* see it, that
-> means I should assume the machine is old enough to take ISA cards.  This
-> filter should make the blacklist relatively small -- we wouldn't have to
-> track even PCI motherboards older than the DMI standard.
+It seems the following part of your patch broke it (net/ipv4/ipconfig.c
+includes include/linux/sched.h; linux/tty.h includes linux/major.h that
+defines UNNAMED_MAJOR):
 
-If you find an MCA-bus, you can suppress most (but not all) ISA-cards
-too (some of the cards support MCA without having any extra MCA-related
-code in the drivers, such as the eexpress-driver, but I can help with
-such a list if necessary.)
+--- linux/include/linux/sched.h.orig    Thu Jan  3 18:49:58 2002
++++ linux/include/linux/sched.h Fri Jan  4 15:27:20 2002
+@@ -21,7 +21,6 @@
+ #include <asm/mmu.h>
+
+ #include <linux/smp.h>
+-#include <linux/tty.h>
+ #include <linux/sem.h>
+ #include <linux/signal.h>
+ #include <linux/securebits.h>
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+
+The right solution is perhaps for ipconfig.c to include major.h directly?
+
+--- net/ipv4/ipconfig.c.old	Fri Jan  4 21:14:50 2002
++++ net/ipv4/ipconfig.c	Fri Jan  4 21:15:39 2002
+@@ -32,6 +32,7 @@
+ #include <linux/types.h>
+ #include <linux/string.h>
+ #include <linux/kernel.h>
++#include <linux/major.h>
+ #include <linux/sched.h>
+ #include <linux/random.h>
+ #include <linux/init.h>
+
+
+> 	Ingo
+
+cu
+Adrian
+
+
+

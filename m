@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVANQlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVANQo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVANQlb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 11:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVANQl3
+	id S262020AbVANQo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 11:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVANQo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 11:41:29 -0500
-Received: from maxipes.logix.cz ([217.11.251.249]:42428 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S261929AbVANQkt (ORCPT
+	Fri, 14 Jan 2005 11:44:29 -0500
+Received: from mx1.starman.ee ([62.65.192.16]:21693 "EHLO mx1.starman.ee")
+	by vger.kernel.org with ESMTP id S261830AbVANQmt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 11:40:49 -0500
-Date: Fri, 14 Jan 2005 17:40:39 +0100 (CET)
-From: Michal Ludvig <michal@logix.cz>
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       cryptoapi@lists.logix.cz, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers
- at a time
-In-Reply-To: <1105712446.18687.33.camel@ghanima>
-Message-ID: <Pine.LNX.4.61.0501141709250.17481@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0411301009560.11945-100000@thoron.boston.redhat.com>
-  <Pine.LNX.4.61.0411301722270.4409@maxipes.logix.cz> 
- <20041130222442.7b0f4f67.davem@davemloft.net>  <Pine.LNX.4.61.0412031353120.17402@maxipes.logix.cz>
-  <Pine.LNX.4.61.0501111805470.2233@maxipes.logix.cz> 
- <Pine.LNX.4.61.0501141356310.10530@maxipes.logix.cz> <1105712446.18687.33.camel@ghanima>
+	Fri, 14 Jan 2005 11:42:49 -0500
+Reply-To: <jyri.poldre@artecdesign.ee>
+From: "=?iso-8859-4?B?SvxyaSBQ9WxkcmU=?=" <jyri.poldre@artecdesign.ee>
+To: <linux-kernel@vger.kernel.org>
+Subject: Ethernet driver link state propagation to ip stack
+Date: Fri, 14 Jan 2005 18:42:54 +0200
+Message-ID: <JJEGJLLALGANNBPNAIMMOEGLDGAA.jyri.poldre@artecdesign.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-4"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005, Fruhwirth Clemens wrote:
+All,
 
-> On Fri, 2005-01-14 at 14:10 +0100, Michal Ludvig wrote:
-> 
-> > This patch extends crypto/cipher.c for offloading the whole chaining modes
-> > to e.g. hardware crypto accelerators. It is much faster to let the 
-> > hardware do all the chaining if it can do so.
-> 
-> Is there any connection to Evgeniy Polyakov's acrypto work? It appears,
-> that there are two project for one objective. Would be nice to see both
-> parties pulling on one string.
+I am experiencing issues with connecting two network adapters to the same
+subnet, eg.
 
-These projects do not compete at all. Evgeniy's work is a complete 
-replacement for current cryptoapi and brings the asynchronous 
-operations at the first place. My patches are simple and straightforward 
-extensions to current cryptoapi that enable offloading the chaining to 
-hardware where possible.
+eth0 192.168.100.200
+eth1 192.168.100.201
 
-> > +	void (*cia_ecb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-> > +			size_t nbytes, int encdec, int inplace);
-> > +	void (*cia_cbc)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-> > +			size_t nbytes, int encdec, int inplace);
-> > +	void (*cia_cfb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-> > +			size_t nbytes, int encdec, int inplace);
-> > +	void (*cia_ofb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-> > +			size_t nbytes, int encdec, int inplace);
-> > +	void (*cia_ctr)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
-> > +			size_t nbytes, int encdec, int inplace);
-> 
-> What's the use of adding mode specific functions to the tfm struct? And
-> why do they all have the same function type? For instance, the "iv" or
-> "inplace" argument is meaningless for ECB.
+The task is to have redundant connections to two different hubs. In case one
+link goes down the connection should go through the other. The driver
+handles link events with netif_carrier_ok and netif_carrier_on from
+linux/netdevice.h. These eventually send messages to networking stack with
+netdev_change_state from net/core/dev.c
 
-The prototypes must be the same in my implementation, because in crypt() 
-only a pointer to the appropriate mode function is taken and further used 
-as "(func*)(arg, arg, ...)".
+My question is:  Does the kernel handle  the interface state/routing tables
+modifications due to link changing automatically or is there some external
+daemon required to do that. Any links are greatly appreciated.
 
-BTW these functions are not added to "struct crypto_tfm", but to "struct 
-crypto_alg" which describes what a particular module supports (i.e. along 
-with the block size, algorithm name, etc). In this case it can say that 
-e.g. padlock.ko supports encryption in CBC mode in addition to a common 
-single-block processing.
 
-BTW I'll look at the pointers of the tweakable api over the weekend...
+Sincerely,
+Jyri Põldre.
 
-Michal Ludvig
--- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal

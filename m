@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVCVVAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVCVVH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVCVVAO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVCVVAO
+	id S261307AbVCVVH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCVVH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:00:14 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1292 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261942AbVCVU77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 15:59:59 -0500
-Date: Tue, 22 Mar 2005 21:59:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: drivers/pci/hotplug/cpqphp_ctrl.c: board_replaced: dead code
-Message-ID: <20050322205956.GJ1948@stusta.de>
+	Tue, 22 Mar 2005 16:07:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61371 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261307AbVCVVHW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:07:22 -0500
+Date: Tue, 22 Mar 2005 13:06:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?B?UGF3ZV9f?= Sikora <pluto@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH][alpha] "pm_power_off"
+ [drivers/char/ipmi/ipmi_poweroff.ko] undefined!
+Message-Id: <20050322130657.7502418d.akpm@osdl.org>
+In-Reply-To: <200503152335.48995.pluto@pld-linux.org>
+References: <200503152335.48995.pluto@pld-linux.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker correctly noted, that in function board_replaced in 
-drivers/pci/hotplug/cpqphp_ctrl.c, the variable src always has the
-value 8, and therefore much code after the
+Pawe__ Sikora <pluto@pld-linux.org> wrote:
+>
+> Fix for modpost warning:
+>  "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko] undefined!
+> 
+>  --- linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c.orig	2005-03-13 07:44:05.000000000 +0100
+>  +++ linux-2.6.11.3/arch/alpha/kernel/alpha_ksyms.c	2005-03-15 23:20:00.405832368 +0100
+>  @@ -67,6 +67,9 @@
+>   EXPORT_SYMBOL(alpha_using_srm);
+>   #endif /* CONFIG_ALPHA_GENERIC */
+>   
+>  +#include <linux/pm.h>
+>  +EXPORT_SYMBOL(pm_power_off);
+>  +
+>   /* platform dependent support */
+>   EXPORT_SYMBOL(strcat);
+>   EXPORT_SYMBOL(strcmp);
+>  --- linux-2.6.11.3/arch/alpha/kernel/process.c.orig	2005-03-13 07:44:40.000000000 +0100
+>  +++ linux-2.6.11.3/arch/alpha/kernel/process.c	2005-03-15 23:28:15.687538104 +0100
+>  @@ -183,6 +183,8 @@
+>   
+>   EXPORT_SYMBOL(machine_power_off);
+>   
+>  +void (*pm_power_off)(void) = machine_power_off;
+>  +
+>   /* Used by sysrq-p, among others.  I don't believe r9-r15 are ever
+>      saved in the context it's used.  */
 
-...
-                        if (rc || src) {
-...
-                                if (rc)
-                                        return rc;
-                                else
-                                        return 1;
-                        }
-...
+There doesn't seem to be a lot of point in defining it and not using it.
 
-
-can never be called.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Perhaps IPMI is making untoward assumptions about the architecture's power
+management?  Should we instead be disabling CONFIG_IPMI_POWEROFF on alpha
+(and others?)
 

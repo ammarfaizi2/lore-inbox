@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277357AbRJOJfw>; Mon, 15 Oct 2001 05:35:52 -0400
+	id <S277358AbRJOJkW>; Mon, 15 Oct 2001 05:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277361AbRJOJfm>; Mon, 15 Oct 2001 05:35:42 -0400
-Received: from eispost12.serverdienst.de ([212.168.16.111]:7175 "EHLO imail")
-	by vger.kernel.org with ESMTP id <S277357AbRJOJfb>;
-	Mon, 15 Oct 2001 05:35:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-To: Peter Jay Salzman <p@dirac.org>
-Subject: Re: something's wrong with the 2.4.12 compilation
-Date: Mon, 15 Oct 2001 11:35:25 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20011014235017.A17420@dirac.org>
-In-Reply-To: <20011014235017.A17420@dirac.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S277359AbRJOJkD>; Mon, 15 Oct 2001 05:40:03 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:25186 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S277358AbRJOJju>; Mon, 15 Oct 2001 05:39:50 -0400
+Date: Mon, 15 Oct 2001 10:29:39 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: crc32 cleanups 
+In-Reply-To: <16790.1002968731@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.3.96.1011015101708.22179A-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011015114275.SM00161@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 15. Oktober 2001 08:50 schrieb Peter Jay Salzman:
-> hi all,
->
-> grabbed 2.4.12, copied .config from my current 2.4.10, did a make
-> oldconfig and make dep && make bzImage.   here's the error:
->
->   ieee1284_ops.c: In function `ecp_forward_to_reverse':
->   ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first
-> use in this function)
->   ieee1284_ops.c:365: (Each undeclared identifier is reported
-> only once ieee1284_ops.c:365: for each function it appears in.)
->   ieee1284_ops.c: In function `ecp_reverse_to_forward':
->   ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first
-> use in this function)
->   make[3]: *** [ieee1284_ops.o] Error 1
->   make[3]: Leaving directory
-> `/usr/src/linux-2.4.12/drivers/parport' make[2]: *** [first_rule]
-> Error 2
->   make[2]: Leaving directory
-> `/usr/src/linux-2.4.12/drivers/parport' make[1]: ***
-> [_subdir_parport] Error 2
->   make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
->   make: *** [_dir_drivers] Error 2
->   satan#
->
-> i don't need 2.4.12 for anything in particular, so please don't
-> feel like i need help or anything.  i'm perfectly happy with
-> 2.4.10.
->
-> my only concern is for the kernel itself.  someone out there may
-> really depend on the new release.
->
-> if you want to ask any questions or a copy of .config, please
-> email me at p(at)dirac.org.
+On Sat, 13 Oct 2001, Keith Owens wrote:
+> Does not work if all the code that uses crc32 is in a module.  No
+> references from the main kernel so crc32 is not included by the linker.
 
-You have run into the parport compile bug.
-It is fixed in 2.4.13-pre1
+So make the CRC32 code a module itself ?
 
->
-> thank you!  :)
->
-> pete
+> ???!  __initcall entries are executed in the order that they are linked
+> into the kernel.  The linkage order is controlled by the order that
+> Makefiles are processed during kbuild and by line order within each
+> Makefile.  There is definitely a priority order for __initcall code.
 
-hth,
- Robert
+That is in practice an unuseable "priority" (I'd like to consider that a
+highly stochastic variable :) 
 
--- 
-Where do you want to be tomorrow?
+Not to mention that as an individual sub-project maintainer you can't go
+around changing higher level makefiles all the time just to get your
+particular initcall chain in order (again, in practice).
 
-Entracom. Building Linux systems.
-http://www.entracom.de
+You could _conceivably_ build an initcall dependency system by adding some
+"initcall_requires" macros which put the dependant other calls into
+another linker table, which the kernel would resolve at boot. 
+
+/BW
+

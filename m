@@ -1,88 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbTJCLZA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 07:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTJCLZA
+	id S263717AbTJCLll (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 07:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTJCLll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 07:25:00 -0400
-Received: from mail.midmaine.com ([66.252.32.202]:56289 "HELO
-	mail.midmaine.com") by vger.kernel.org with SMTP id S263709AbTJCLY6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 07:24:58 -0400
+	Fri, 3 Oct 2003 07:41:41 -0400
+Received: from VIA-PPPD24017.vianetworks.es ([213.236.24.17]:37098 "EHLO
+	servidor.eurogaran.com") by vger.kernel.org with ESMTP
+	id S263717AbTJCLlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 07:41:39 -0400
+Date: Fri, 3 Oct 2003 13:41:36 +0200
 To: linux-kernel@vger.kernel.org
-Subject: CMD680, kernel 2.4.21, and heartache
-X-Eric-Conspiracy: There Is No Conspiracy
-From: Erik Bourget <erik@midmaine.com>
-Date: Fri, 03 Oct 2003 07:23:58 -0400
-Message-ID: <87brsybm41.fsf@loki.odinnet>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+Subject: PROBLEM: If Linux is to be run with CPU cache disabled then this is no bug (but please tell me if so).
+Message-ID: <20031003114136.GA11539@eurogaran.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: =?iso-8859-1?Q?Juanjo_Garc=EDa_Carr=E9?= <juanjo@eurogaran.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+-Foreword: I am not complaining; just hoping to help in developing
+a better kernel.
 
-I've got a Big Problem.
+-Symptom: When accelerating graphics, the machine freezes completely
+(no response to emergency sys req keys or net access).
+As a consequence, NOTHING GETS LOGGED (sorry).
 
-Day 0: 8 new NFS servers go online, they are P4-2.4GHz boxes with two each
-120GB Samsung drives attached to CMD680/SiI680 IDE controllers.  They run
-Debian stable on a 2.4.21 kernel, with SMP enabled though they are uniproc
-boxes, running NFSv3-via-TCP and reiserfs.  CMD680/siimage support compiled
-in, obviously.  Software RAID, mirroring drives.
+-How to reproduce:
+1) Use the following hardware:
+	Radeon 9200 AGP graphics card.
+	CPU PentiumII Deschutes  (Tried the same card on an Athlon machine
+-all the rest being equal- and the problem did not happen).
+	baseplate Tyan (This means Intel 440BX and Intel AGP bus 2x )
 
-Out of 8 boxes:  
+2) Enable in BIOS the CPU internal cache to "Write Back" mode.
+(Either "Write Thru" or "Disabled" will eliminate the problem,
+at the expense of an extremely low performance).
 
-*) One has crashed hard.  I'm about to drive to the datacenter to plug in a
-   KVM and take a picture.
-*) Three have had DMA turned off and have given extremely spooky errors.
-   Read below.
+3) Use ANY Linux-2.6.0-test kernel, or ANY linux-2.4 kernel, (in which
+case you will need an updated version for the radeon module).
 
-Some factors that are definitely NOT a problem:
-- Faulty run of drives.  This has also happened to Hitachi 80GB drives in the
-  same configurations.
+4) Use XFree86 4.3.0 or over (for radeon acceleration support).
 
-- Heat.  They're in a chilly room.  The cases haven't overheated.  We've had
-  guys checking this every few hours after the first one went bonkers.
+5) In the XF86Config-4 file, specify the chipset of a Radeon 9100 or another
+radeon for which acceleration is already supported (I know this is not the
+culprit factor, since -as I said before- it works on an Athlon machine).
 
-Possible problems -
-- Simple software problem that somebody can fix and save the day. :)
-- All Dell Poweredge 650 servers are broken.  :/
+6) In the XF86Config-4 file, make sure the option ForcePCIMode is off
+(when it is enabled, everything works fine, safe for halving performance).
+_ALL_ the other options are indifferent in order to reproduce the problem,
+(even the option to use the XFree GPL radeon driver or the propietary
+FireGL drivers from Ati).
 
-Days 1-6: Faithful service.
+7) Make sure the agpgart module (and the intel_agp module for 2.6 kernels)
+are loaded before launching XFree.
 
-Day 7: 
-Sep 29 09:06:42 mailstore2-1 -- MARK --
-Sep 29 09:12:18 mailstore2-1 kernel: hdc: dma_timer_expiry: dma status == 0x20
-Sep 29 09:12:18 mailstore2-1 kernel: hdc: status timeout: status=0xd0 { Busy }
-Sep 29 09:12:18 mailstore2-1 kernel: 
-Sep 29 09:12:18 mailstore2-1 kernel: ide1: reset: success
-Sep 29 09:26:42 mailstore2-1 -- MARK --
+8) Launch X. Everything seems to work; glxinfo says Yes as to direct
+rendering. Now launch an OpenGL application, like glxgears: 
+It runs for some instants, then becomes blocked, as the rest of the system.
 
-Few more days of faithful service.
 
-Little bit ago:
-Oct  1 07:28:40 mailstore2-1 -- MARK --
-Oct  1 07:47:47 mailstore2-1 kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-Oct  1 07:47:47 mailstore2-1 kernel: hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=37694874, high=2, low=4140442, sector=35220864
-Oct  1 07:47:47 mailstore2-1 kernel: end_request: I/O error, dev 03:03 (hda), sector 35220864
-Oct  1 07:47:47 mailstore2-1 kernel: ^IOperation continuing on 1 devices
-Oct  1 07:47:47 mailstore2-1 kernel: md: updating md0 RAID superblock on device
-Oct  1 07:47:47 mailstore2-1 kernel: md: hdc3 [events: 00000004]<6>(write) hdc3's sb offset: 115949056
-Oct  1 07:47:47 mailstore2-1 kernel: md: recovery thread got woken up ...
-Oct  1 07:47:47 mailstore2-1 kernel: md: recovery thread finished ...
-Oct  1 07:47:47 mailstore2-1 kernel: md: (skipping faulty hda3 )
-Oct  1 08:08:41 mailstore2-1 -- MARK --
+Please reply with Cc to  juanjo@eurogaran.com  because I am not suscribed
+to any kernel mailing list.
 
-Oct  1 10:48:45 mailstore2-1 -- MARK --
-Oct  1 10:50:44 mailstore2-1 kernel: hdc: dma_timer_expiry: dma status == 0x20
-Oct  1 10:50:44 mailstore2-1 kernel: hdc: status timeout: status=0xd0 { Busy }
-Oct  1 10:50:44 mailstore2-1 kernel: 
-Oct  1 10:50:44 mailstore2-1 kernel: ide1: reset: success
-Oct  1 11:08:46 mailstore2-1 -- MARK --
-
-I'll post again when I've got the text of the kernel panic.
-
-- Erik
+Thank you.
 

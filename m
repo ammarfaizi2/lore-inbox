@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUGOTt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUGOTxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUGOTt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 15:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUGOTt4
+	id S266316AbUGOTxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 15:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUGOTxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 15:49:56 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:23171 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S266311AbUGOTtv (ORCPT
+	Thu, 15 Jul 2004 15:53:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52097 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266316AbUGOTxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 15:49:51 -0400
-Date: Thu, 15 Jul 2004 21:49:51 +0200
-From: Martin Mares <mj@ucw.cz>
-To: "Max T. Woodbury" <max.teneyck.woodbury@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI configuration changes getting lost.
-Message-ID: <20040715194951.GA4950@ucw.cz>
-References: <40F693EE.5D65D02F@verizon.net>
+	Thu, 15 Jul 2004 15:53:13 -0400
+Subject: Re: Dumb question about Voluntary Kernel Preemption Patch
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <40F6E504.1@techsource.com>
+References: <40F6E504.1@techsource.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-469pUkF7LRL/NdwMfeld"
+Organization: Red Hat UK
+Message-Id: <1089921188.2710.31.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F693EE.5D65D02F@verizon.net>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 15 Jul 2004 21:53:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> The BIOS puts junk (0xFF) in the INTERRUPT_LINE register of the PCMCIA
-> configuration registers.  I can put the correct value (0x05) in with
-> 'setpci', but the information is not propagated to the /proc space.
-> The information is not preserved after an 'init 6'.
+--=-469pUkF7LRL/NdwMfeld
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The INTERRUPT_LINE register doesn't affect interrupt routing a single bit,
-it's merely a scratch pad register used for passing the interrupt
-number from BIOS to the drivers (or Linux kernel in this case).
 
-BTW which kernel do you use?
+> My question is this:  Do your reschedule points (might_sleep or whatever
+> you end up using) ALWAYS reschedule, or do they only reschedule after a
+> certain period of time (timer interrupt increments counter, and
+> reschedule point does nothing if it's too early)?
 
-What do the boot-up messages say?
+they only reschedule when there is a higher priority task is waiting to
+be run. In all other cases the current code just keeps running.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Lottery -- a tax on people who can't do math.
+
+--=-469pUkF7LRL/NdwMfeld
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA9uCjxULwo51rQBIRAp61AJ9QZvnJHc5FosCqVPzOgBWcGAwKMQCfbGR4
+Qe0x9l2/udd6QU5M0pHL3+Y=
+=Do3U
+-----END PGP SIGNATURE-----
+
+--=-469pUkF7LRL/NdwMfeld--
+

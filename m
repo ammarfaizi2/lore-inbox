@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264215AbTDPDTS (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 23:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264216AbTDPDTS 
+	id S264216AbTDPETS (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 00:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264217AbTDPETS 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 23:19:18 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:1221 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S264215AbTDPDTR (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 23:19:17 -0400
-Message-ID: <3E9CCE5A.30708@myrealbox.com>
-Date: Tue, 15 Apr 2003 20:30:34 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4a) Gecko/20030415
-X-Accept-Language: en-us, en
+	Wed, 16 Apr 2003 00:19:18 -0400
+Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:8388 "HELO
+	mx100.mysite4now.com") by vger.kernel.org with SMTP id S264216AbTDPETR 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 00:19:17 -0400
+From: Udo Hoerhold <maillists@goodontoast.com>
+To: Alistair Strachan <alistair@devzero.co.uk>
+Subject: Re: SoundBlaster Live! with kernel 2.5.x
+Date: Wed, 16 Apr 2003 00:29:22 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200304160140.23873.alistair@devzero.co.uk>
+In-Reply-To: <200304160140.23873.alistair@devzero.co.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
-References: <fa.chdor2j.u72387@ifi.uio.no> <fa.gs8uudl.196640l@ifi.uio.no> <3E9C8FE2.8040001@myrealbox.com> <20030415162515.A362@beaverton.ibm.com>
-In-Reply-To: <20030415162515.A362@beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304160029.22234.maillists@goodontoast.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield wrote:
-> On Tue, Apr 15, 2003 at 04:04:02PM -0700, walt wrote:
-> 
-> 
->>Yes!  Thank you.  This patch fixes the segfault of modprobe that I've 
->>been seeing for ages.
->>
->>Note that the problems I have been seeing are completely different from 
->>Geert's problems.  I have had no problems mounting a FAT-16 fs with the 
->>2.5.x kernels but modprobe has been segfaulting all along, even though 
->>the ppa module works fine for me once it has been loaded.
-> 
-> 
-> The other problem seems to be for removable media. Is your parallel zip
-> have removable media and does the boot/dmesg output from sd attach show it
-> as such? I haven't used a zip drive, I thought they had to be marked
-> removable.
+On Tuesday 15 April 2003 08:40 pm, Alistair Strachan wrote:
+> Udo Hoerhold wrote:
+> > Hello,
+> >
+> > I've been running Debian woody with 2.4.20 kernel.  I'm trying to switch
+> > to
+> > 2.5.  I built 2.5.67 with emu10k driver in the kernel (same as I had with
+> > 2.4.20), but I get only a lot of popping sounds from the sound card.  I
+> > also
+> > tried 2.5.50 and 2.5.67-mm3, with the same result.  I googled for emu10k
+> > and soundblaster with 2.5, but I haven't seen anyone else with the same
+> > problem. Does anyone know what this problem is?
+>
+> Are you using the OSS or ALSA driver?
+>
+> [alistair] 01:38am [~] dmesg | egrep -e EMU10K1
+> Creative EMU10K1 PCI Audio Driver, version 0.20, 15:35:08 Apr 14 2003
+> emu10k1: EMU10K1 rev 7 model 0x8026 found, IO at 0xe400-0xe41f, IRQ 12
+>
+> The soundcard is working perfectly with the OSS driver, for me, in
+> 2.5.67-mm1. I'm running the latest version of the emu-tools. Please try
+> matching this configuration.
+>
+> Cheers,
+> Alistair.
+>
 
-Seems to be:
+OK, I was using ALSA, but I tried OSS instead.  I don't get the popping sounds 
+anymore, but I don't get any sound at all.
 
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 32 bit
-ppa: Found device at ID 6, Attempting to use SPP
-ppa: Communication established with ID 6 using SPP
-scsi0 : Iomega VPI0 (ppa) interface
-   Vendor: IOMEGA    Model: ZIP 100           Rev: C.18
-   Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
-  /dev/scsi/host0/bus0/target6/lun0: p4
-Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
-               ^^^^^^^^^
+udo:~$ dmesg | grep EMU10K
+Creative EMU10K1 PCI Audio Driver, version 0.20, 20:58:14 Apr 15 2003
+emu10k1: EMU10K1 rev 7 model 0x8061 found, IO at 0xdf80-0xdf9f, IRQ 10
+
+Maybe this is not a kernel problem now, although 2.4.20 worked without any 
+other configuration.  I'm running KDE, and I don't have emu-tools, but maybe 
+I can poke around and see if I can find the problem.
+
+Thanks,
+
+Udo
+
 

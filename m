@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVDFJui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVDFJv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbVDFJui (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 05:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVDFJuf
+	id S262155AbVDFJv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 05:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVDFJv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 05:50:35 -0400
-Received: from gwbw.xs4all.nl ([213.84.100.200]:11714 "EHLO
-	laptop.blackstar.nl") by vger.kernel.org with ESMTP id S262153AbVDFJua
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 05:50:30 -0400
-Subject: NOMMU - How to reserve 1 MB in top of memory in a clean way
-From: Bas Vermeulen <bvermeul@blackstar.xs4all.nl>
-To: linux-kernel@vger.kernel.org
+	Wed, 6 Apr 2005 05:51:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15288 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262155AbVDFJvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 05:51:43 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1112765751.3874.14.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
 Content-Type: text/plain
-Message-Id: <1112781027.2687.6.camel@laptop.blackstar.nl>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 06 Apr 2005 11:50:28 +0200
 Content-Transfer-Encoding: 7bit
+Message-Id: <1112781070.1981.34.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 06 Apr 2005 10:51:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+Hi,
 
-I am currently working on the bfinnommu linux port for the BlackFin 533.
-I need to grab the top 1 MB of memory so I can give it out to drivers
-that need non-cached memory for DMA operations.
+On Wed, 2005-04-06 at 06:35, Mingming Cao wrote:
 
-I've tried the following approaches (which each failed, in different
-ways):
+> It seems we are holding the rsv_block while searching the bitmap for a
+> free bit.  
 
-1. Allocate 1 MB in ZONE_DMA. This doesn't work because ZONE_DMA needs
-to be in the bottom of memory (and I couldn't find a way around that),
-and needs to be a minimum of 4 MB.
-2. Create ZONE_NORMAL with all memory in it, but add a hole of 1 MB.
-This crashes in the swapper somewhere.
+Probably something to avoid!
 
-What I want is a way to cleanly grab all pages in the top megabyte of
-memory, so I can give them out in an implementation (to be written) of
-dma_alloc_coherent and friends. That top megabyte would be set to
-non-cached in the software cache manager.
+> In alloc_new_reservation(), we first find a available to
+> create a reservation window, then we check the bitmap to see if it
+> contains any free block. If not, we will search for next available
+> window, so on and on. During the whole process we are holding the global
+> rsv_lock.  We could, and probably should, avoid that.  Just unlock the
+> rsv_lock before the bitmap search and re-grab it after it.  We need to
+> make sure that the available space that are still available after we re-
+> grab the lock. 
 
-If anyone can point me in the right direction, that would be great.
+Not necessarily.  As long as the windows remain mutually exclusive in
+the rbtree, it doesn't matter too much if we occasionally allocate a
+full one --- as long as that case is rare, the worst that happens is
+that we fail to allocate from the window and have to repeat the window
+reserve.
 
-Regards,
+The difficulty will be in keeping it rare.  What we need to avoid is the
+case where multiple tasks need a new window, they all drop the lock,
+find the same bits free in the bitmap, then all try to take that
+window.  One will succeed, the others will fail; but as the files in
+that bit of the disk continue to grow, we risk those processes
+*continually* repeating the same stomp-on-each-others'-windows operation
+and raising the allocation overhead significantly.
 
-Bas Vermeulen
+> Another option is to hold that available window before we release the
+> rsv_lock, and if there is no free bit inside that window, we will remove
+> it from the tree in the next round of searching for next available
+> window.
+
+Possible, but not necessarily nice.  If you've got a nearly-full disk,
+most bits will be already allocated.  As you scan the bitmaps, it may
+take quite a while to find a free bit; do you really want to (a) lock
+the whole block group with a temporary window just to do the scan, or
+(b) keep allocating multiple smaller windows until you finally find a
+free bit?  The former is bad for concurrency if you have multiple tasks
+trying to allocate nearby on disk --- you'll force them into different
+block groups.  The latter is high overhead.
+
+--Stephen
 

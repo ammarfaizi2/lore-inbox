@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSGDW5N>; Thu, 4 Jul 2002 18:57:13 -0400
+	id <S314680AbSGDXhQ>; Thu, 4 Jul 2002 19:37:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSGDW5M>; Thu, 4 Jul 2002 18:57:12 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:30992 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314634AbSGDW5L>; Thu, 4 Jul 2002 18:57:11 -0400
-Message-Id: <200207042259.g64MxdH03605@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Andre Hedrick <andre@linux-ide.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
-       sullivan@austin.ibm.com
-Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot! 
-In-Reply-To: Message from Andre Hedrick <andre@linux-ide.org> 
-   of "Thu, 04 Jul 2002 15:20:10 PDT." <Pine.LNX.4.10.10207041517530.19028-100000@master.linux-ide.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Jul 2002 18:59:39 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S314702AbSGDXhP>; Thu, 4 Jul 2002 19:37:15 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:20868 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314680AbSGDXhO>;
+	Thu, 4 Jul 2002 19:37:14 -0400
+Message-ID: <3D24DC8C.4060801@us.ibm.com>
+Date: Thu, 04 Jul 2002 16:38:52 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] remove BKL from driverfs
+References: <3D23EA93.7090106@us.ibm.com> <20020704071004.GI29657@kroah.com> <3D23F88C.2050502@us.ibm.com> <20020704222357.GD418@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andre@linux-ide.org said:
-> The whole reason for my replacement was to add driverfs to IDE and
-> remove devfs and ultimately "de-gooch" the kernel.  So we are nearly
-> 100 patches in and the primary reason for ousting is still a failure,
-> NICE! 
+CC'ing Al for comments...
 
-Well, perhaps we have slightly different agendas.  I think driverfs will solve 
-a whole series of enumeration and mapping problems that occur in the SCSI 
-mid-layer and which get especially tortuous with Fibre Channel.  I also think 
-it will help us bring the SCSI and IDE views closer together.
+Greg KH wrote:
+> bleah, a proliferation of a zillion little spinlocks all across the
+> kernel is not my idea of fun :(
 
-I persuaded Linus to put the SCSI driverfs patches in the kernel even though I 
-knew they touched more than SCSI (the partitions code) and were not as modular 
-as I would have liked.  The reason is that we need to get as much visibility 
-on this as possible before the code freeze.  I'm fully prepared to sort out 
-any problems with this as they arise (and indeed the panic is already fixed).
+A zillion locks each with a single purpose is a lot more fun than 1 
+lock with a zillion different uses.
 
-I believe it's a variation of a principle attributable to a wise Australian:  
-get the right solution in, even if not quite the right implementation.  That 
-way, everyone will be extrememly motivated to help produce the right 
-implementation.
+> I don't know if a simple spinlock can help us here.  Look at
+> driverfs_get_inode() and follow that into the vfs layer.  Make sure all
+> of that is race safe (and isn't currently relying on the BKL.)  I'll
+> defer to Al Viro's opinion about this, as I don't quite know all of the
+> side effects going on at this moment in time.
 
-James
+OK, I agree a simple spinlock is not the way to go because I now see 
+the sleepable operations in there.  But, I don't think 
+driverfs_get_inode() needs any more locking.  The inode that it 
+references is freshly allocated and my only concern would be about 
+access from the inode_in_use list.  Maybe down()ing i_sem will provide 
+a bit more protection, but unless the access through inode_in_use is 
+already a problem, i_sem isn't needed.  Any thoughts, Al?
 
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

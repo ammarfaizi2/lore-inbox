@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318326AbSGWUzX>; Tue, 23 Jul 2002 16:55:23 -0400
+	id <S318311AbSGWUwe>; Tue, 23 Jul 2002 16:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318337AbSGWUzW>; Tue, 23 Jul 2002 16:55:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15630 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318326AbSGWUyW>;
-	Tue, 23 Jul 2002 16:54:22 -0400
-Message-ID: <3D3DC2BD.BC3B371@zip.com.au>
-Date: Tue, 23 Jul 2002 13:55:25 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] page-writeback.c compile warning fix
-References: <1027457453.931.111.camel@sinai>
+	id <S318312AbSGWUwe>; Tue, 23 Jul 2002 16:52:34 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:50226 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318311AbSGWUwd>; Tue, 23 Jul 2002 16:52:33 -0400
+Date: Tue, 23 Jul 2002 22:56:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: David F Barrera <dbarrera@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at page_alloc.c:92! & page allocation failure. order:0, mode:0x0
+Message-ID: <20020723205628.GM1117@dualathlon.random>
+References: <OF6F39340B.FF1F1097-ON85256BFF.005C6460@pok.ibm.com> <3D3DAD54.6825F86@zip.com.au> <20020723203445.GK1117@dualathlon.random> <3D3DC0E0.EDE4CF20@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D3DC0E0.EDE4CF20@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Tue, Jul 23, 2002 at 01:47:28PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > On Tue, Jul 23, 2002 at 12:24:04PM -0700, Andrew Morton wrote:
+> > > David F Barrera wrote:
+> > > >
+> > > > I have experienced the following errors while running a test suite (LTP
+> > > > test suite)  on the 2.4.26 kernel.  Has anybody seen this problem, and, if
+> > > > so, is there a patch for it?  Thanks.
+> > > >
+> > > > kernel BUG at page_alloc.c:92!
+> > >
+> > > Could you please replace the put_page(page) in
+> > > kernel/ptrace.c:access_process_vm() with page_cache_release(page)
+> > > and retest?
+> > 
+> > I prefer to drop page_cache_release and to have __free_pages_ok to deal
+> > with the lru pages like it's been fixed in 2.4.
 > 
-> Andrew and Linus,
+> That would fix it too.  But a __free_pages_ok call from interrupt
+> context can deadlock the box.
+
+I guess you mean it can corrupt the lru list, not necessairly deadlock
+the box. That's not the case either though, see the in_interrupt() check
+in my tree in free_pages_ok, only normal context is allowed to play with
+pagecache. (async-io isn't in my tree)
+
 > 
-> Compile of mm/page-writeback.c gives a warning of undefined use of
-> "writeback_backing_dev()".
-> 
+> The removal of pages from the LRU is rather a mess.  It's getting
+> better, and we can fix up some more of this if/when pagemap_lru_lock
+> becomes an interrupt-safe lock.
 
-Yeah, sorry.  I missed a file when generating the diff.  I have
-this in the pending pile:
+that will allow irq to manage pagecahce but the fact it's not interrupt
+safe it's really a irq latency feature, the fact disabling irqs during
+the critical section decreases contention on the lock is kind of hack,
+that is true for all spinlocks out there, by that argument all spinlocks
+should be irq safe.
 
- writeback.h |    5 +++++
- 1 files changed, 5 insertions(+)
-
---- 2.5.27/include/linux/writeback.h~writeback-warning	Mon Jul 22 12:33:39 2002
-+++ 2.5.27-akpm/include/linux/writeback.h	Mon Jul 22 12:33:44 2002
-@@ -8,6 +8,8 @@
- #ifndef WRITEBACK_H
- #define WRITEBACK_H
- 
-+struct backing_dev_info;
-+
- extern spinlock_t inode_lock;
- extern struct list_head inode_in_use;
- extern struct list_head inode_unused;
-@@ -38,6 +40,9 @@ void wake_up_inode(struct inode *inode);
- void __wait_on_inode(struct inode * inode);
- void sync_inodes_sb(struct super_block *, int wait);
- void sync_inodes(int wait);
-+void writeback_backing_dev(struct backing_dev_info *bdi, int *nr_to_write,
-+			enum writeback_sync_modes sync_mode,
-+			unsigned long *older_than_this);
- 
- /* writeback.h requires fs.h; it, too, is not included from here. */
- static inline void wait_on_inode(struct inode *inode)
-
-.
+Andrea

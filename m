@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136731AbREHB4U>; Mon, 7 May 2001 21:56:20 -0400
+	id <S135540AbREHC3s>; Mon, 7 May 2001 22:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136737AbREHB4K>; Mon, 7 May 2001 21:56:10 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:50443 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136731AbREHB4F>;
-	Mon, 7 May 2001 21:56:05 -0400
-Date: Mon, 7 May 2001 21:56:18 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010507215618.B21552@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <E14wO7g-000240-00@the-village.bc.nu> <20010507105950.A771@opus.bloom.county> <20010507213140.I16535@thyrsus.com> <20010507184315.A2378@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010507184315.A2378@opus.bloom.county>; from trini@kernel.crashing.org on Mon, May 07, 2001 at 06:43:15PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S136007AbREHC3j>; Mon, 7 May 2001 22:29:39 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36364 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135540AbREHC3W>; Mon, 7 May 2001 22:29:22 -0400
+Date: Mon, 7 May 2001 19:29:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105071920080.7515-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0105071921110.8237-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org>:
-> Only sort-of.  There are some cases where you can get away with that.  
-> Probably.  eg If you ask for PARPORT, on x86 that means yes to PARPORT_PC,
-> always (right?)
 
-Yes.  So the right answer there isn't to use a derivation but to say:
+On Mon, 7 May 2001, Marcelo Tosatti wrote:
+> 
+> So lets fix it and make it look for the swap counts. 
 
-require X86 and PARPORT implies PARPORT_PC
-unless X86==n suppress PARPORT_PC
+Ehh.
 
-which forces PARPORT_PC==y and makes the question invisible on X86 machines,
-but leaves the question visible on all others.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Which you MUST NOT do without holding the page lock.
 
-The real point of audits is to instill fear, not to extract revenue;
-the IRS aims at winning through intimidation and (thereby) getting
-maximum voluntary compliance
-	-- Paul Strassel, former IRS Headquarters Agent Wall St. Journal 1980
+Hint: it needs "page->index", and without holding the page lock you don't
+know what it could be. An out-of-bounds page index could do anything,
+including oopsing the kernel. It so happens that right now you'll only get
+a printk from swap_count(), because of defensive programming, but the fact
+remains that you _cannot_ decide on whether a page is a dead swap-cache
+entry until you've gotten the page lock.
+
+> My point is that its _ok_ for us to check if the page is a dead swap cache
+> page _without_ the lock since writepage() will recheck again with the page
+> _locked_. Quoting you two messages back: 
+
+Yes. But MY point is that the patch is buggy, and should be reverted. 
+
+Move the swap_count check into the page lock. It's such a heavy operation
+that you should, anyway. 
+
+My message is true: you can do some "early out" optimizations. The code
+has always done that. But if you look at the old code, it never did any
+swap-count calculations or anything like that: it only looked at simple
+bits in the "struct page" structure and the page count.
+
+But once the level of complexity reaches actually doing function calls
+etc, you should not call them early-out optimizations any more. Especially
+not on data that could be stale, and that is used to dereference other
+data structures (ie the swap count maps).
+
+		Linus
+

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267368AbSLKXyK>; Wed, 11 Dec 2002 18:54:10 -0500
+	id <S267369AbSLKXzM>; Wed, 11 Dec 2002 18:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267369AbSLKXyK>; Wed, 11 Dec 2002 18:54:10 -0500
-Received: from mail.hometree.net ([212.34.181.120]:6602 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267368AbSLKXyJ>; Wed, 11 Dec 2002 18:54:09 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Is this going to be true ?
-Date: Thu, 12 Dec 2002 00:01:55 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <at8jlj$nc6$1@forge.intermeta.de>
-References: <yw1xbs3smtx0.fsf@gladiusit.e.kth.se> <Pine.LNX.3.95.1021211111221.24200A-100000@chaos.analogic.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039651315 10792 212.34.181.4 (12 Dec 2002 00:01:55 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 12 Dec 2002 00:01:55 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S267371AbSLKXzL>; Wed, 11 Dec 2002 18:55:11 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:34768 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267369AbSLKXzK>;
+	Wed, 11 Dec 2002 18:55:10 -0500
+Message-ID: <8A9A5F4E6576D511B98F00508B68C20A1508E39A@orsmsx106.jf.intel.com>
+From: "Shureih, Tariq" <tariq.shureih@intel.com>
+To: "Lmkl (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
+Subject: Slow SCSI AIC7xxx on 2.5.48
+Date: Wed, 11 Dec 2002 16:02:46 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+Has anyone noticed some serious degradation in performance using AIC7xxx
+driver in 2.5.48?
 
->> Why would that be good?  People would start using their programs and
->> blame Linux when they crash.
+I have a system with Intel's SL2 dual PIII Xeon 933 with on board scsi
+adaptec.
 
->Well, when the program crashes, you get to run it again under Linux
->and Unix operating systems. Not so with Windows. With Windows, you
->reinstall windows after first booting DOS from a floppy and using
+When I load the 2.4.19 kernel, everything is fine.
 
-Grow up and stop spreading FUD. I haven't had to reinstall a Windows
-2000 server ever since it was released (not that there were many that
-I ever used. But I actually did and deployed apps on them). 95, 98 and
-ME maybe. NT4 almost never and W2K is a quite stable platform even
-under load.
+Using 2.5.48, when I login it takes it sometimes up to 1 minute 34 seconds
+to return me a prompt and good luck with "ps".
+No errors or messages though.
 
-I'm amazed that the most violent Windows critique comes from people
-that claim to "never have touched a M$ operating system in their whole
-life".  But then again, same goes to the Linux critics... :-)
+I have not tried it with 2.5.51 to see if anything changed. 
 
-	Regards
-		Henning
+Is this known?
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+*_*_*_*_*_*
+Tariq Shureih
+*_*_*_*_*_*_*_*_*
+Opinions are my own and don't represent my employer
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+

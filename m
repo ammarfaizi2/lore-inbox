@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVCPKar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVCPKaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVCPKar (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 05:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVCPKar
+	id S262324AbVCPKaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 05:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVCPKaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 05:30:47 -0500
-Received: from 213-239-212-8.clients.your-server.de ([213.239.212.8]:16334
-	"EHLO live1.axiros.com") by vger.kernel.org with ESMTP
-	id S262341AbVCPKae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 05:30:34 -0500
-In-Reply-To: <20050315233620.GC14380@redhat.com>
-References: <20050315152448.A1697@unix-os.sc.intel.com> <20050315233620.GC14380@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-6--482212001"
-Message-Id: <3a4f52e0e5292d8f3588e5347c2bb21d@axiros.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-From: Daniel Egger <de@axiros.com>
-Subject: Re: [PATCH] Reading deterministic cache parameters and exporting it in /sysfs
-Date: Wed, 16 Mar 2005 11:29:34 +0100
-To: Dave Jones <davej@redhat.com>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 16 Mar 2005 05:30:22 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:58287 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262324AbVCPKaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 05:30:06 -0500
+Date: Wed, 16 Mar 2005 11:29:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rostedt@goodmis.org, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+Message-ID: <20050316102951.GA18247@elte.hu>
+References: <20050315120053.GA4686@elte.hu> <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu> <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org> <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org> <20050316101209.GA16893@elte.hu> <20050316022638.237f72cd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050316022638.237f72cd.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Apple-Mail-6--482212001
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+* Andrew Morton <akpm@osdl.org> wrote:
 
-On 16.03.2005, at 00:36, Dave Jones wrote:
+> I forget how much of the 1000% came from that, but it was quite a lot.
+> 
+> Removing the BKL was the first step.  That took the context switch
+> rate under high load from ~10,000/sec up to ~300,000/sec.  Because the
+> first thing a CPU hit on entry to the fs was then a semaphore. 
+> Performance rather took a dive.
+> 
+> Of course the locks also became much finer-grained, so the contention
+> opportunities lessened.  But j_list_lock and j_state_lock have fs-wide
+> scope, so I'd expect the context switch rate to go up quite a lot
+> again.
+> 
+> The hold times are short, and a context switch hurts rather ore than a
+> quick spin.
 
-> I really want to live to see the death of /proc/cpuinfo one day,
+which particular workload was this - dbench? (I can try PREEMPT_RT on an
+8-way, such effects will show up tenfold.)
 
-Please don't. cpuinfo contains a vast amount of useful
-information for a quick inspection which cannot be determined
-usefully from userspace (think embedded devices) for very
-little code.
-
-Servus,
-       Daniel
-
---Apple-Mail-6--482212001
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (Darwin)
-
-iD8DBQFCOAqOchlzsq9KoIYRAoHlAKCF6oUYYw5CqDWnRZHBJSwrDadv9QCeKj84
-sOpiKe7qv1B2vPBprvIowQs=
-=HbPa
------END PGP SIGNATURE-----
-
---Apple-Mail-6--482212001--
-
+	Ingo

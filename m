@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265450AbTF3QwM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 12:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbTF3QwM
+	id S265452AbTF3Qy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 12:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTF3Qy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 12:52:12 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:16272 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265450AbTF3QwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 12:52:10 -0400
-Message-ID: <3F006421.4090408@colorfullife.com>
-Date: Mon, 30 Jun 2003 18:24:01 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Mon, 30 Jun 2003 12:54:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:27028 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265452AbTF3Qyz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 12:54:55 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: "Leonard Milcin Jr." <thervoy@post.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: File System conversion -- ideas
+Date: Mon, 30 Jun 2003 12:04:03 -0500
+User-Agent: KMail/1.5
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <bdpn3c$te5$1@tangens.hometree.net> <3F006C76.7010308@post.pl>
+In-Reply-To: <3F006C76.7010308@post.pl>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Ray Bryant <raybry@sgi.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to
- hang in 2.4.22-pre2 -- second try
-References: <20030630051515.E9F992C0D5@lists.samba.org>
-In-Reply-To: <20030630051515.E9F992C0D5@lists.samba.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306301204.03852.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-
->2.5 has exactly the same issue: perhaps 2.4 should take this patch,
->and 2.5 should try something better (I'd suggest trying the embedded
->minitable approach).
+On Monday 30 June 2003 11:59, Leonard Milcin Jr. wrote:
+> Henning P. Schmiedehausen wrote:
+> > "David D. Hagood" <wowbagger@sktc.net> writes:
+> >>For example, suppose you have a 60G disk, 55G of data, in ext2, and you
+> >>wish to convert to ReiserFS.
+> >>
+> >>
+> >>Step 1: Shrink the volume to 55G. This requires a "shrink disk" utility
+> >>for the source file system (which exists for the major file systems in
+> >>use today).
+> >
+> > You have a 6 GB file. You lose. :-)
+> >
+> > 	Regards
+> > 		Henning
 >
->  
->
-I tried it, but Linus didn't like the idea of on-stack minitables. The 
-patches are still at
-http://www.colorfullife.com/~manfred/Linux-Kernel/poll/
+> Hey folk! I don't used LVM, but I think it allows file to be splitted
+> between diferent filesystems. Yes?
 
---
-    Manfred
+Um, no. Volume managers allow you to span a volume across multiple disks. But 
+a filesystem (and thus all of its files) is still fully contained within a 
+single volume. IOW, volume management is a method for managing block-devices. 
+Filesystems are a method for managing files. There is a distinct line between 
+them.
+
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

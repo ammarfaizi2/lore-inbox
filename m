@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbTBEUCY>; Wed, 5 Feb 2003 15:02:24 -0500
+	id <S264749AbTBEUAK>; Wed, 5 Feb 2003 15:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbTBEUBn>; Wed, 5 Feb 2003 15:01:43 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:23168 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S264797AbTBEUBf>;
-	Wed, 5 Feb 2003 15:01:35 -0500
-Date: Wed, 5 Feb 2003 21:10:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
+	id <S264756AbTBET7l>; Wed, 5 Feb 2003 14:59:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:18075 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264749AbTBET7h>;
+	Wed, 5 Feb 2003 14:59:37 -0500
+Date: Wed, 5 Feb 2003 12:09:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
 Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030205201055.GL19678@dualathlon.random>
-References: <20030205174021.GE19678@dualathlon.random> <200302051404.21524.shaggy@austin.ibm.com>
+Message-Id: <20030205120903.1e84c12e.akpm@digeo.com>
+In-Reply-To: <20030205195151.GJ19678@dualathlon.random>
+References: <20030205174021.GE19678@dualathlon.random>
+	<20030205102308.68899bc3.akpm@digeo.com>
+	<20030205184535.GG19678@dualathlon.random>
+	<20030205114353.6591f4c8.akpm@digeo.com>
+	<20030205195151.GJ19678@dualathlon.random>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302051404.21524.shaggy@austin.ibm.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Feb 2003 20:09:07.0819 (UTC) FILETIME=[707F2BB0:01C2CD52]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 02:04:21PM -0600, Dave Kleikamp wrote:
-> On Wednesday 05 February 2003 11:40, Andrea Arcangeli wrote:
-> > I'd appreciate if you could check why bitkeeper thinks such function
-> > is nobh_truncate_page and not block_truncate_page as my GPL software
-> > pretends while it checkouts all the changesets from the bitkeeper
-> > servers.
-> 
-> Andrea,
-> The change from block_truncate_page to nobh_truncate_page was done in 
-> Changeset 1.879.43.1.  This was created on January 9th, but not merged 
-> into Linus' tree until Monday, so it is not in 2.5.59.  I think the 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> it might be simply an error in the tarball, maybe Linus's tree isn't in
+> full sync with bk head. But something definitely is corrupt between
+> tarball and bk.
 
-if you think it's normal the thing sounds very messy. I mean, how can
-a changeset be numbered 1.879.43.1 and not be included in 2.5.59?
+Well, the 2.5.59 BK tree shows that function using block_truncate_page() as
+well.
 
-The way I understood it is that when Linus merges "stuff", this "stuff"
-gets a changeset number in the future, not in the past. No matter if the
-"stuff" was created in the past. Is this the case or not?
-
-I mean, somehow there must be a way to number the changesets so that
-applying them in order generates something coherent.
-
-Andrea
+The question is why did the Jan 9 changeset in the 2.5.55 timeframe not
+appear in the tree until post-2.5.59.  Maybe on Jan 9 Linus only part-merged
+it by some means (making the web interface claim it is there), and this week
+completed the merge and updated the checkin comment?

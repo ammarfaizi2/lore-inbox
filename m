@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264776AbSKAMAE>; Fri, 1 Nov 2002 07:00:04 -0500
+	id <S263249AbSKAMEc>; Fri, 1 Nov 2002 07:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbSKAMAE>; Fri, 1 Nov 2002 07:00:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47289 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264776AbSKAMAD>;
-	Fri, 1 Nov 2002 07:00:03 -0500
-Date: Fri, 1 Nov 2002 13:06:18 +0100
+	id <S264954AbSKAMEc>; Fri, 1 Nov 2002 07:04:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14778 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263249AbSKAMEb>;
+	Fri, 1 Nov 2002 07:04:31 -0500
+Date: Fri, 1 Nov 2002 13:10:45 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd still borken for me in 2.5.45
-Message-ID: <20021101120618.GJ8428@suse.de>
-References: <Pine.LNX.4.44.0211010537410.917-100000@dad.molina>
+To: chrisl@vmware.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Sasha Malchik <sasha@vmware.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE CDROM packet command buffer size restriction.
+Message-ID: <20021101121045.GK8428@suse.de>
+References: <20021101044646.GB8603@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211010537410.917-100000@dad.molina>
+In-Reply-To: <20021101044646.GB8603@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01 2002, Thomas Molina wrote:
-> I have been building my system to use ide-scsi for ages now because of 
-> reqiurements for cdrecord.  With the announced intention to get rid of 
-> ide-scsi in 2.5.44 I have started trying ide-cd with no success.  I 
-> previously reported this problem for 2.5.44 and 2.5.45 continues the 
-> issue.  My system is based on RedHat 7.3, with an A7V133 motherboard and 
-> an Athlon 1.3GHz processor.  
+On Thu, Oct 31 2002, chrisl@vmware.com wrote:
+> Hi Alan,
 > 
-> Building ide-cd monolithic (or modular and attempting a modprobe) gives me 
-> endless streams of the following error messages (hand-copied from 
-> console):
-> 
-> hdc: irq timeout: status=0x90 {Busy}
-> hdc: irq timeout: error=0x01IllegalLengthIndication
-> hdc: drive not ready for command
-> hdc: ATAPI reset timed-out, status=0x80
-> ide1: reset: success
+> Jens seems too busy to check out this patch. I post it here again
+> hopefully to get boarder audiences:
 
-Interesting. Please send me a detailed list of your hardware, boot
-messages should suffice. Does 2.5.43 work correctly?
+Yes sorry, it's fallen through the cracks.
+
+> VMware try to use the generic packet interface (CDROM_SEND_PACKET)
+> for cdrom simulation. There are some packet command used by windows
+> can return different data size, depend on the type of CD in the CDROM.
+> Current linux kernel will fail the ioctl call if packet command return
+> data less than expected.
+> 
+> ide-scsi driver do not have this problem.
+> 
+> We make a patch allow kernel return successful and return the actual
+> transfer data size. Is it the prefer behavior in this case? If not,
+> what is the best way to solve this problem?
+
+The patch does look good, thanks.
+
+> P.S. I am very surprised to find out that, vmware suffers from bugs
+> in cdrom driver for years. Developers give up after some attempt to
+> submit patches to kernel, it is not easy to make it right at the first
+> time. The broken sense data bug should have been fix long time ago if
+> they try hard enough.
+
+I can only say resend and resend. It's no secret that I regurlarly loose
+patches and don't respond to emails, because there are just so many of
+them.
 
 -- 
 Jens Axboe

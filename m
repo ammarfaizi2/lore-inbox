@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVAHT6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVAHUBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVAHT6c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 14:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVAHT6c
+	id S261295AbVAHUBg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 15:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVAHUBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 14:58:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45275 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261288AbVAHT63 (ORCPT
+	Sat, 8 Jan 2005 15:01:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56541 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261295AbVAHUBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 14:58:29 -0500
-Date: Sat, 8 Jan 2005 11:57:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: gandalf@wlug.westbo.se, xhejtman@mail.muni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: Swapoff inifinite loops on 2.6.10-bk (was: .6.10-bk8 swapoff
- after resume)
-Message-Id: <20050108115759.1e4f7fed.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0501081547260.2688-100000@localhost.localdomain>
-References: <1105080812.1087.37.camel@tux.rsn.bth.se>
-	<Pine.LNX.4.44.0501081547260.2688-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 8 Jan 2005 15:01:32 -0500
+Date: Sat, 8 Jan 2005 15:00:47 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: clameter@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: panic on bootup due to __GFP_ZERO patch
+Message-ID: <20050108200047.GC10190@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wright <chrisw@osdl.org>, clameter@sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20050108010629.M469@build.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050108010629.M469@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
->  > I'm pretty sure it's an infinite loop, I left it like that while
->  > shaving. It produces the same sound over and over again as the head
->  > seeks back in order to try again and again...
-> 
->  You're right, and yes, I could then reproduce it.  Looks like I'd only
->  been testing on 3levels (HIGHMEM64G), and this only happens on 2levels.
-> 
->  Patch below, please verify it fixes your problems.  And please, could
->  someone else check I haven't screwed up swapoff on 4levels (x86_64)?
+On Sat, Jan 08, 2005 at 01:06:30AM -0800, Chris Wright wrote:
+ > I'm getting a panic during pidmap_init with a backtrace that looks
+ > something like:
+ > 
+ > buffered_rmqueue
+ > __alloc_pages
+ > get_zeroed_page
+ > pidmap_init
+ > start_kernel
+ > 
+ > Reverting the __GFP_ZERO patch fixes the issue, haven't drilled down
+ > any deeper yet to see what in the patch is causing the problem.  This is
+ > x86 w/out HIGHMEM (and no NUMA).
 
-Thanks.  I'll do the x86_64 testing.
+ACK, there has been a number of folks hit by this since I updated
+the Fedora rawhide kernel to snapshots including this change.
+
+https://bugzilla.redhat.com/beta/show_bug.cgi?id=144480
+
+I've also hit in on my test box that has 256MB.
+The pattern so far does seem to be 'no highmem', though
+I've not actually tried a recent snapshot on my highmem box.
+
+		Dave
+

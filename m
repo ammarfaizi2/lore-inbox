@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265042AbRGNW4N>; Sat, 14 Jul 2001 18:56:13 -0400
+	id <S265101AbRGNX1Q>; Sat, 14 Jul 2001 19:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265101AbRGNW4D>; Sat, 14 Jul 2001 18:56:03 -0400
-Received: from smarty.smart.net ([207.176.80.102]:38411 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S265042AbRGNWz6>;
-	Sat, 14 Jul 2001 18:55:58 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200107142310.TAA07985@smarty.smart.net>
+	id <S265128AbRGNX1G>; Sat, 14 Jul 2001 19:27:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17858 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265101AbRGNX0x>;
+	Sat, 14 Jul 2001 19:26:53 -0400
+Date: Sat, 14 Jul 2001 19:26:55 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: __KERNEL__ removal
-To: linux-kernel@vger.kernel.org
-Date: Sat, 14 Jul 2001 19:10:30 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <200107142310.TAA07985@smarty.smart.net>
+Message-ID: <Pine.GSO.4.21.0107141922150.21170-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Jeff Garzik
->If there -must- be parts of the kernel that are visible to userspace,
->yes, we should separate them and make that separation obvious.  I would
->not call our current setup obvious :)
 
 
-There are. -must-. Plan 9 minimizes them. It ain't POSIX, I'm guessing,
-never having seen a POSIX in real life myself. I do happen to have K&R2
-right here though. Hmmm, unistd.h is not in the 89 spec. Well of course
-not. It's not C. You need need need that (which is why I did libsys.a),
-and I think Plan 9 has a thing that lays out calling conventions for
-syscalls, and some other things about the local CPU. Actually, Plan 9 lays
-out lots of CPUs, being heterogenously distributed. That's where I get
-dizzy, and start to wax unix-traditional. With all my twisted antics, I've
-never cross-compiled anything. You also need ioctls for userland probably,
-which Plan 9 either doesn't have or they actually figured out how to hide
-them.
+On Sat, 14 Jul 2001, Rick Hohensee wrote:
 
-There's also a level below unistd.h maybe. A libcpu or something. Dono.
+> >Jeff Garzik
+> >If there -must- be parts of the kernel that are visible to userspace,
+> >yes, we should separate them and make that separation obvious.  I would
+> >not call our current setup obvious :)
+> 
+> 
+> There are. -must-. Plan 9 minimizes them. It ain't POSIX, I'm guessing,
 
-Rick Hohensee
-		www.clienux.com
+[snip]
+
+FWIW, folks, proper context is: Rick just finished a trolling run on 9fans.
+Rick, would you mind hauling your sorry ass somewhere else? You oscillations
+between l-k and 9fans are getting tiresome. If you can't think of anything
+that would be on-topic for either list - piss off and stop wasting the
+bandwidth.
+

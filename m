@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264452AbTCXSSu>; Mon, 24 Mar 2003 13:18:50 -0500
+	id <S264414AbTCXSRF>; Mon, 24 Mar 2003 13:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264456AbTCXSSt>; Mon, 24 Mar 2003 13:18:49 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:8692 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S264452AbTCXSSs>; Mon, 24 Mar 2003 13:18:48 -0500
-Subject: Re: ancient block_dev patch
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Christoph Hellwig <hch@infradead.org>
-Cc: davej@codemonkey.org.uk, akpm@zip.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20030324181636.A22228@infradead.org>
-References: <200303241642.h2OGg735008305@deviant.impure.org.uk>
-	 <20030324181636.A22228@infradead.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fx9xEKuP5/2ahrfmVzvI"
-Organization: Red Hat, Inc.
-Message-Id: <1048530588.1636.6.camel@laptop.fenrus.com>
+	id <S264415AbTCXSRF>; Mon, 24 Mar 2003 13:17:05 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:19074 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S264414AbTCXSRE>; Mon, 24 Mar 2003 13:17:04 -0500
+Date: Mon, 24 Mar 2003 18:28:02 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: henrique.gobbi@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cyclades region handling updates from 2.4
+Message-ID: <20030324182802.GC8300@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	henrique.gobbi@cyclades.com, linux-kernel@vger.kernel.org
+References: <200303241641.h2OGft35008188@deviant.impure.org.uk> <3E7ED5F6.9090301@cyclades.com> <20030324180211.GA8300@suse.de> <3E7ED9DF.5020909@cyclades.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 24 Mar 2003 19:29:48 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E7ED9DF.5020909@cyclades.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<linus taken out of cc>
 
---=-fx9xEKuP5/2ahrfmVzvI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Mon, Mar 24, 2003 at 10:11:43AM +0000, Henrique Gobbi wrote:
 
-On Mon, 2003-03-24 at 19:16, Christoph Hellwig wrote:
-> On Mon, Mar 24, 2003 at 04:41:54PM +0000, davej@codemonkey.org.uk wrote:
-> > Andrew,
-> >  What became of this patch ? Is it needed ?
->=20
-> It's not needed but a nice speedup for certain loads.  IIRC one of them
-> was INN directly using blockdevices
+ > >if you have customers depending on 2.5 right now, you have bigger problems.
+ > >Note this is only stuff that has already been merged into 2.4
+ > 
+ > No, there's no customers using 2.5. But there's a lot of them using 2.4. 
+ >  Let's do like this. I'll test your patch and, if it works, Marcelo can 
+ > merge it into the oficial 2.4.x tree.
 
-and certain dvd players
+I think you've completley misunderstood whats going on.
+This patch _already_ went into 2.4
+I've forward ported the fixes to 2.5, and sent these on.
+There is nothing to do here for 2.4
 
---=-fx9xEKuP5/2ahrfmVzvI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+		Dave
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+f06cxULwo51rQBIRAuswAJ9xpLRUdiLDPMSWPGeoyi9zT1VbzwCdFVwN
-Gh98QWW3VhrdcgoZR6nYj88=
-=kK5j
------END PGP SIGNATURE-----
-
---=-fx9xEKuP5/2ahrfmVzvI--

@@ -1,129 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265078AbTLWKE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 05:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265079AbTLWKE0
+	id S265083AbTLWKRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 05:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbTLWKRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 05:04:26 -0500
-Received: from [213.140.2.58] ([213.140.2.58]:33179 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S265078AbTLWKEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 05:04:23 -0500
-Subject: Re: Ooops with kernel 2.4.22 and reiserfs
-From: Carlo <devel@integra-sc.it>
-To: Oleg Drokin <green@linuxhacker.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <200312222205.hBMM5vLv012067@car.linuxhacker.ru>
-References: <1072126808.21200.3.camel@atena>
-	 <200312222205.hBMM5vLv012067@car.linuxhacker.ru>
-Content-Type: text/plain
-Message-Id: <1072173894.21198.36.camel@atena>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 11:04:59 +0100
+	Tue, 23 Dec 2003 05:17:25 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:9607 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265083AbTLWKRY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 05:17:24 -0500
+Message-ID: <3FE81563.7040505@cyberone.com.au>
+Date: Tue, 23 Dec 2003 21:13:55 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+References: <7F740D512C7C1046AB53446D372001736187E6@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D372001736187E6@scsmsx402.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il lun, 2003-12-22 alle 23:05, Oleg Drokin ha scritto:
-> Hello!
-
-> C> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
-> C> DataRequest }
-> C> ide0: Drive 0 didn't accept speed setting. Oh, well.
-> C> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> C> hda: CHECK for good STATUS
-> 
-> Do you always get these IDE errors prior to oops?
-
-No, on 6 oops only one has this error!
 
 
+Nakajima, Jun wrote:
 
+>BTW, Nick, does your SMT scheduler have "idle package prioritization"
+>which chooses an idle logical processor with the other local processor
+>idle if any (rather than just an idle processor with other local
+>processor running at full speed), when the scheduler requires an idle
+>local processor? That would prevent situations like two logical
+>processors run at full speed in the same processor package, with the
+>other processor package(s) idle in a same processor package(s). I
+>haven't reviewed your latest patch closely, and that is the one of the
+>things I want to do during the holidays.
+>
 
-> C> Unable to handle kernel paging request at virtual address ffffffe0
-............
-> Also please run your oops through ksymoops.
+Yep,
+sched_balance_wake wakes to idle siblings if your domain has SD_FLAG_WAKE
+and idle_balance tries pulling tasks from any domain with SD_FLAG_NEWIDLE
+set if we're just about to become idle.
 
-ksymoops 2.4.4 on i686 2.4.22.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22/ (default)
-     -m /boot/System.map-2.4.22-WE (specified)
-                                                                                                 
-Dec 22 19:23:57 webeye kernel: Unable to handle kernel paging request at
-virtual address ffffffe0Dec 22 19:23:57 webeye kernel: c0146553
-Dec 22 19:23:57 webeye kernel: *pde = 00002063
-Dec 22 19:23:57 webeye kernel: Oops: 0000
-Dec 22 19:23:57 webeye kernel: CPU:    0
-Dec 22 19:23:57 webeye kernel: EIP:    0010:[<c0146553>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Dec 22 19:23:57 webeye kernel: EFLAGS: 00010213
-Dec 22 19:23:57 webeye kernel: eax: cbf85168   ebx: ffffffe0   ecx:
-cbf85000   edx: 0000000f
-Dec 22 19:23:57 webeye kernel: esi: 00000000   edi: cbf85f40   ebp:
-cbf85f68   esp: c594df24
-Dec 22 19:23:57 webeye kernel: ds: 0018   es: 0018   ss: 0018
-Dec 22 19:23:57 webeye kernel: Process rmdir (pid: 11938,
-stackpage=c594d000)
-Dec 22 19:23:57 webeye kernel: Stack: 00000000 cbf85f40 cbf85f40
-c6096b40 cbf85f40 bffffb18 c0146Dec 22 19:23:57 webeye kernel:       
-cbf85f40 c013fa0f cbf85f40 000001fe c6461540 c6096b40 cbf85Dec 22
-19:23:57 webeye kernel:        c013fb69 cbf85f40 cbf859c0 c594df9c
-00000000 fffffff0 cbf85Dec 22 19:23:57 webeye kernel: Call Trace:   
-[<c01465dd>] [<c013fa0f>] [<c018d840>] [<c013fb69>]Dec 22 19:23:57
-webeye kernel:   [<c0114d00>] [<c01088a3>]
-Dec 22 19:23:57 webeye kernel: Code: 8b 03 8b 36 85 c0 75 32 8d 4b 18 8b
-51 04 8b 43 18 89 50 04
-                                                                                                 
->>EIP; c0146553 <select_parent+33/a0>   <=====
-Trace; c01465dd <shrink_dcache_parent+1d/30>
-Trace; c013fa0f <d_unhash+2f/50>
-Trace; c018d840 <reiserfs_rmdir+0/270>
-Trace; c013fb69 <vfs_rmdir+139/1c0>
-Trace; c013fc84 <sys_rmdir+94/e0>
-Trace; c0114d00 <do_page_fault+0/48c>
-Trace; c01088a3 <system_call+33/38>
-Code;  c0146553 <select_parent+33/a0>
-00000000 <_EIP>:
-Code;  c0146553 <select_parent+33/a0>   <=====
-   0:   8b 03                     mov    (%ebx),%eax   <=====
-Code;  c0146555 <select_parent+35/a0>
-   2:   8b 36                     mov    (%esi),%esi
-Code;  c0146557 <select_parent+37/a0>
-   4:   85 c0                     test   %eax,%eax
-Code;  c0146559 <select_parent+39/a0>
-   6:   75 32                     jne    3a <_EIP+0x3a> c014658d
-<select_parent+6d/a0>
-Code;  c014655b <select_parent+3b/a0>
-   8:   8d 4b 18                  lea    0x18(%ebx),%ecx
-Code;  c014655e <select_parent+3e/a0>
-   b:   8b 51 04                  mov    0x4(%ecx),%edx
-Code;  c0146561 <select_parent+41/a0>
-   e:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  c0146564 <select_parent+44/a0>
-  11:   89 50 04                  mov    %edx,0x4(%eax)
-                                                                                                 
-I hope this is what you want. I had never use ksymoops before.
-This oops raise every time i use my program (a perl script that erase
-files).
-If it's necessary i can send the full /var/log/messages  passed through
-ksymoops with a lot of "Unable to handle kernel paging request at
-virtual address" but it's aboute 500Kb.
+>
+>One question. Why did you remove SD_FLAG_IDLE flag from cpu_domain
+>initialization in the w27 patch? We've been seeing some performance
+>degradation with w27, compared to w26.
+>
 
-Thanks for your interest.
+I reworked things to not require this hopefully. w26 was quite broken
+with respect to the active balancing stuff. One thing I did in w27 was
+accidently release the code with cache_hot_time for the SMT domain set
+to 1ms instead of 0 in w26, so SD_FLAG_NEWIDLE is sometimes not allowed
+to pull a ready-to-run task off a sibling...
 
-Marry Christmas :-) 
-Saluti Carlo!
+I haven't been able to do a great deal of performance tuning though,
+there is probably quite a bit of room for improvement.
 
-
-
-> Bye,
->     Oleg
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

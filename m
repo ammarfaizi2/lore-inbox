@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUDNRna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbUDNRn3
+	id S261468AbUDNRst (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 13:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUDNRst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:43:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:54255 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264297AbUDNRn2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:43:28 -0400
-Subject: Re: [Ext2-devel] Re: [RFC] extents,delayed allocation,mballoc for
-	ext3
-From: Mingming Cao <cmm@us.ibm.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <m3ekqqoj3m.fsf@bzzz.home.net>
-References: <m365c3pthi.fsf@bzzz.home.net>  <m3ekqqoj3m.fsf@bzzz.home.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Apr 2004 10:49:59 -0700
-Message-Id: <1081965005.15980.6906.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 14 Apr 2004 13:48:49 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51482 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261468AbUDNRss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 13:48:48 -0400
+Date: Wed, 14 Apr 2004 18:48:40 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Benchmarking objrmap under memory pressure
+In-Reply-To: <20040414162700.GS2150@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404141836570.3975-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-14 at 05:10, Alex Tomas wrote:
+On Wed, 14 Apr 2004, Andrea Arcangeli wrote:
 > 
-> I've just benched ext3 vs. ext3+reservation vs. ext3+delalloc vs. xfs.
-> it was tiobench.
-> ext3                          1024  4096   32    8.12 9.872%     8.111    82
-> ext3-dalloc                   1024  4096   32   24.83 20.01%     2.995   124
-> ext3-reserv                   1024  4096   32   22.72 29.51%     3.282    77
-> xfs                           1024  4096   32   25.47 21.75%     2.247   117
-> 
-Hi Alex,
+> BTW, I've no idea idea why you used an UP machine for this, (plus if you
+> can load kde on it it'd be better because kde is extremely smart at
+> optimizing the ram usage with cow anonymous memory, the thing anon-vma
+> can optimize and anonmm not, plus kde may use even mremap on this
+> anonymous ram, and the very single reason it was impossible for me to
+> take anonmm in production is that there's no way I can preodict which
+> critical app is using mremap on anonymous COW memory to save ram). You
+> definitely should use your 32-way booted with mem=512m to run this test
+> or there's no way you'll ever botice the additional boost in scalability
+> that anon-vma provides compared to anonmm, and that anonmm will never be
+> able to reach.
 
-Nice comparison! The ext3 reservation system use more cpus because we do
-reservations in memory( not on disk) and we have a global lock per
-filesystem to guard the operation.  The current search for a new
-reservation window algorithm is not perfect right now.  
+This is just your guess at present, isn't it, Andrea?  Any evidence?
 
-extents and delayed allocation probably is the right way to go for next
-generation (maybe ext4).  Currently I just try to fix the missing
-preallocation feature in ext3, without break the disk compatibility and
-involve too much changes....
+Our current intention is to merge anonmm into mainline in a day or two.
+The current consensus (in your absence!) seemed to be that anonmm is
+likely to be good enough, no obvious need to go beyond it.
 
-Thanks for your interest.
+We'll happily replace it with anon_vma once we see the practical
+problems which anon_vma solves and anonmm cannot, so long as the
+greater cost of anon_vma (in complexity, memory usage, and vma
+merge limitations) is worth it.  Can happen just days later,
+but would need evidence.
 
-Mingming
+Hugh
 

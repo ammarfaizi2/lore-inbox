@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292935AbSB0WGD>; Wed, 27 Feb 2002 17:06:03 -0500
+	id <S291775AbSB0WAu>; Wed, 27 Feb 2002 17:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292989AbSB0WFg>; Wed, 27 Feb 2002 17:05:36 -0500
-Received: from [198.16.16.39] ([198.16.16.39]:47675 "EHLO carthage")
-	by vger.kernel.org with ESMTP id <S292991AbSB0WFU>;
-	Wed, 27 Feb 2002 17:05:20 -0500
-Date: Wed, 27 Feb 2002 16:01:38 -0600
-From: James Curbo <jcurbo@acm.org>
-To: linux-kernel@vger.kernel.org
-Subject: (2.5.5-dj2) still getting .text.exit linker errors
-Message-ID: <20020227220138.GA5644@carthage>
-Reply-To: James Curbo <jcurbo@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Debian GNU/Linux
-Organization: Henderson State University, Arkadelphia, AR
+	id <S292991AbSB0V7G>; Wed, 27 Feb 2002 16:59:06 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34312 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292841AbSB0V5m>;
+	Wed, 27 Feb 2002 16:57:42 -0500
+Date: Wed, 27 Feb 2002 18:57:24 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: crypto (was Re: Congrats Marcelo,)
+In-Reply-To: <20020227161519.A13912@alcove.wittsend.com>
+Message-ID: <Pine.LNX.4.33L.0202271855230.2801-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[note: I am not subscribed, please cc: me in replies]
+On Wed, 27 Feb 2002, Michael H. Warfield wrote:
+> On Tue, Feb 26, 2002 at 07:33:50PM -0300, Rik van Riel wrote:
+> > On Tue, 26 Feb 2002, Jeff Garzik wrote:
+>
+> > > IMO it's time to get a good IPsec implementation in the kernel...
+>
+> > Where would we get one of those ?
+>
+> > The freeswan folks seem quite determined to not let any
+> > americans touch their code, so inclusion of their stuff
+> > into the kernel is out.
+>
+> 	No...  That's patently not true.
+>
+> 	They won't accept contributions from us, but we touch
+> their code all the time.  If we didn't, how would we get any testing
+> done, which they do accept from us.
 
-When compiling 2.5.5-dj2, I am still getting a .text.exit linker error:
+> 	They won't accept contributions from US developers to their code
+> base.  That does NOT mean that they will not accept contributing the IPSec
+> kernel code to the kernel and the incorporation of klips into the kernel
+> source tree.
 
-drivers/net/net.o(.data+0x1274): undefined reference to `local symbols 
-in discarded section .text.exit'
+Wouldn't that result in the following scenario:
 
-I am using Debian unstable, binutils 2.11.93.0.2:
+1) freeswan gets merged into the kernel
 
-ii  binutils       2.11.93.0.2-2
+2) davem fixes a networking thing which
+   happens to touch freeswan
 
-I can get it to link if I follow the directions that the Debian
-maintainer has been giving out (deleting the .text.exit line from
-vmlinux.lds) but that isn't the right solution, and I don't have the
-abilities to actually fix it. My ver_linux output is appeneded at the
-end. Thanks in advance.
+3) the freeswan developers don't take davem's
+   fix into their tree
 
-James
+4) the next patch by the freeswan people doesn't
+   apply to what's in the kernel
 
-Linux carthage 2.5.5-dj2 #1 Wed Feb 27 01:08:00 CST 2002 i686 unknown
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.13
-e2fsprogs              1.26
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         emu10k1 ac97_codec sound
+Somehow this scenario doesn't seem like it would make
+the ipsec implementation very maintainable.
 
+Maybe it would be better to use what the usagi people
+are building, just to have an easier maintainable system?
+
+regards,
+
+Rik
 -- 
-James Curbo <jcurbo@acm.org> <jc108788@rc.hsu.edu>
-Undergraduate Computer Science, Henderson State University
-PGP Keys at <http://reddie.henderson.edu/~curboj/>
-Public Keys: PGP - 1024/0x76E2061B GNUPG - 1024D/0x3EEA7288
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

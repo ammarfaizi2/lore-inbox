@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271129AbTHHA7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 20:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271134AbTHHA7V
+	id S271188AbTHHBBP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 21:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHHBBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 20:59:21 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:46229
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S271129AbTHHA7T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 20:59:19 -0400
-Date: Thu, 7 Aug 2003 20:59:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [bk patches] 2.4.x net driver updates
-Message-ID: <20030808005919.GA14081@gtf.org>
-Reply-To: netdev@oss.sgi.com
-Mime-Version: 1.0
+	Thu, 7 Aug 2003 21:01:15 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:3792 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S271188AbTHHBBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 21:01:14 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Aug 2003 11:00:54 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16178.63046.43567.551323@gargle.gargle.HOWL>
+Cc: dan@debian.org, linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: ext3 badness in 2.6.0-test2
+In-Reply-To: message from Andrew Morton on Tuesday August 5
+References: <20030804142245.GA1627@nevyn.them.org>
+	<20030804132219.2e0c53b4.akpm@osdl.org>
+	<16176.41431.279477.273718@gargle.gargle.HOWL>
+	<20030805235735.4c180fa4.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(this will be sent to Marcelo when 2.4.23-pre1 opens)
+On Tuesday August 5, akpm@osdl.org wrote:
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> > ...
+> > Aug  6 15:22:05 adams kernel: EXT3-fs error (device md1): ext3_add_entry: bad entry in directory #41
+> > 009295: rec_len is smaller than minimal - offset=0, inode=3265411686, rec_len=0, name_len=0
+> 
+> It looks like we had a block full of zeroes come back from the device
+> driver.  I find it distinctly fishy how this happens so much with
+> ext3-on-md, and so little with ext3-on-just-a-disk.
 
-BK users:
+Well, they're not *all* zero.....
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
+I can reproduce this easily with various configurations of ext3 over
+raid5, and get a similar problem with ext2 over raid5 (corrupt inodes
+rather than directory entries) but ext3 over raid0 is rock-solid.
 
-GNU diff:
+So I guess the finger points generally in the direction of raid5.
+Now I've just got to figure if it is a bug in r5, or some assumption
+that it makes that is no longer valid (I was briefly suspicious of
+PF_READAHEAD which could have made a real mess of raid5, but that
+wouldn't have this symptom)
 
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-rc1-netdrvr1.patch.bz2
-
-This will update the following files:
-
- drivers/net/bonding/bond_main.c |   17 +++--------------
- drivers/net/bonding/bonding.h   |    2 +-
- drivers/net/net_init.c          |    3 ++-
- drivers/net/wireless/airo.c     |   31 +++++++++++++++++++------------
- include/linux/netdevice.h       |    2 ++
- 5 files changed, 27 insertions(+), 28 deletions(-)
-
-through these ChangeSets:
-
-<amir.noam@intel.com> (03/08/07 1.1072)
-   [netdrvr bonding] embed stats struct inside bonding private struct
-   
-   Simplification: Don't allocate the stats struct via kmalloc,
-   embed it inside it's parent bonding_t.
-
-<amir.noam@intel.com> (03/08/07 1.1071)
-   [net] export alloc_netdev
-
-<achirica@telefonica.net> (03/08/07 1.1070)
-   [PATCH] Fix adhoc config
-
-<achirica@telefonica.net> (03/08/07 1.1069)
-   [PATCH] Safer unload code
-
-<achirica@telefonica.net> (03/08/07 1.1068)
-   [PATCH] MIC support with newer firmware
-
-<achirica@telefonica.net> (03/08/07 1.1067)
-   [PATCH] Missing lines for Wireless Extensions 16
-
-<achirica@telefonica.net> (03/08/07 1.1066)
-   [netdrvr airo] MAC type changed to unsigned
-
-<achirica@telefonica.net> (03/08/07 1.1065)
-   [netdrvr airo] Missing defines (only for documentation)
-
+NeilBrown

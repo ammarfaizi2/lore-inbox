@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289311AbSAVOIC>; Tue, 22 Jan 2002 09:08:02 -0500
+	id <S289313AbSAVOKC>; Tue, 22 Jan 2002 09:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289312AbSAVOHo>; Tue, 22 Jan 2002 09:07:44 -0500
-Received: from firewall.esrf.fr ([193.49.43.1]:42458 "HELO out.esrf.fr")
-	by vger.kernel.org with SMTP id <S289311AbSAVOHj>;
-	Tue, 22 Jan 2002 09:07:39 -0500
-Date: Tue, 22 Jan 2002 15:07:03 +0100
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: umounting
-Message-ID: <20020122150703.B13509@pcmaftoul.esrf.fr>
+	id <S289312AbSAVOJx>; Tue, 22 Jan 2002 09:09:53 -0500
+Received: from mail2.infineon.com ([192.35.17.230]:40698 "EHLO
+	mail2.infineon.com") by vger.kernel.org with ESMTP
+	id <S289314AbSAVOJi>; Tue, 22 Jan 2002 09:09:38 -0500
+X-Envelope-Sender-Is: Erez.Doron@savan.com (at relayer mail2.infineon.com)
+Subject: solved: ( was Re: non volatile ram disk)
+From: Erez Doron <erez@savan.com>
+To: linux kernel <linux-kernel@vger.kernel.org>, ilug <linux-il@linux.org.il>
+In-Reply-To: <1011618928.2825.5.camel@hal.savan.com>
+In-Reply-To: <1011618928.2825.5.camel@hal.savan.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Jan 2002 15:53:45 +0200
+Message-Id: <1011707625.1835.3.camel@hal.savan.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello people,
-I use firewire devices and implements it for users at work.
+well, i finanly managed to make a ramdisk which will not earsed by
+reboot.
 
-I had to do some test and noticed a "bizarre" behaviour ( not really sure it is
-):
-User 1 is comming, He plugs his disk, mounts it and copy several datas.
-Once finished, He unplug it without umounting it (what is bad, but
-that's not the point).
-User 2 comes, plugs his disk, tries to mount it but he can't because
-it's already mounted. Without unplugging his disk, he umounts the
-removed disk and then he tries mounting his one.
-If user 1 had an ext2 disk, when user 2 umounts the filesystem with his
-disk plugged his filesystem got broken ( tested with ext2 and vfat).
-If user 1 had a vfat disk, then user 2 can cleanly umount the disk
-without breaking any filesystem.
-That's it.
-Not sure whether it is an ext2, vfat or filesystem issue, or maybe not a
-(kernel?)issue at all.
-        Sam
+the solution is to give mem=32m, and use ioremap to map the rest of the
+32m to virtual adresses
+
+now it works !!!
+
+thanks anyway
+erez.
+
+
+
+On Mon, 2002-01-21 at 15:15, Erez Doron wrote:
+> hi
+> 
+> I'm looking for a way to make a ramdisk which is not erased on reboot
+> this is for use with ipaq/linux.
+> 
+> i tought of booting with mem=32m and map a block device to the rest of
+> the 32M ram i have.
+> 
+> the probelm is that giving mem=32m to the kernel will cause the kernel
+> to map only the first 32m of physical memory to virtual one, so using
+> __pa(ptr) on the top 32m causes a kernel oops.
+> 
+> any idea ?
+> 
+> 
+> regards
+> erez.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287558AbSALV5g>; Sat, 12 Jan 2002 16:57:36 -0500
+	id <S287205AbSALWAR>; Sat, 12 Jan 2002 17:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287572AbSALV50>; Sat, 12 Jan 2002 16:57:26 -0500
-Received: from colorfullife.com ([216.156.138.34]:51217 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S287558AbSALV5R>;
-	Sat, 12 Jan 2002 16:57:17 -0500
-Message-ID: <3C40B134.3FE631B4@colorfullife.com>
-Date: Sat, 12 Jan 2002 22:57:08 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre11 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Tim Hockin <thockin@sun.com>, linux-kernel@vger.kernel.org,
-        jgarzik@mandrakesoft.com
-Subject: Re: [PATCH] Rx FIFO Overrun error found
-In-Reply-To: <200201122111.g0CLBhK00442@www.hockin.org>
+	id <S287572AbSALWAG>; Sat, 12 Jan 2002 17:00:06 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:11152 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S287205AbSALV7s>;
+	Sat, 12 Jan 2002 16:59:48 -0500
+Date: Sat, 12 Jan 2002 23:59:45 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "James C. Owens" <owensjc@bellatlantic.net>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler ver H6 - more straightforward timeslice macros
+Message-ID: <20020112235945.G1914@mea-ext.zmailer.org>
+In-Reply-To: <3C408B78.6050102@bellatlantic.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C408B78.6050102@bellatlantic.net>; from owensjc@bellatlantic.net on Sat, Jan 12, 2002 at 02:16:08PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
+On Sat, Jan 12, 2002 at 02:16:08PM -0500, James C. Owens wrote:
+> Ingo,
 > 
-> >       if (dspcfg != DSPCFG_VAL) {
-> >               if (!netif_queue_stopped(dev)) {
-> > +                     spin_unlock_irq(&np->lock);
-> >                       printk(KERN_INFO
-> >                               "%s: possible phy reset: re-initializing\n",
-> >                               dev->name);
-> >                       disable_irq(dev->irq);
-> >                       spin_lock_irq(&np->lock);
-> > +                     natsemi_reset(dev);
-> > +                     reinit_ring(dev);
-> >                       init_registers(dev);
-> >                       spin_unlock_irq(&np->lock);
-> >                       enable_irq(dev->irq);
+> I like the new scheduler. It seems like the timeslice macros in sched.h 
+> could be more straighforward - i.e. instead of
+
+   (I quote too much, but to illustriate the point...)
+
+> #define PRIO_TO_TIMESLICE(p) \
+>   ((( (MAX_USER_PRIO-1-USER_PRIO(p))*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+>      MAX_USER_PRIO-1) / MAX_USER_PRIO) + MIN_TIMESLICE)
 > 
-> I'm not sure you want or need a natsemi_reset here - I'll need to check my
-> notes on this when I get back to work.  Can I ask why this change was made?
-> This is a very hard case to reproduce, so I'm not very comfortable changing
-> the codepath :)  We've had National looking at this buggy behavior for
-> months now, with little result.
->
-
-init_registers() reinitialized the rx and tx ring pointers as seen by
-the nic. You called it without init_ring(), i.e. the ring pointers as
-seen by the driver didn't match the values used by the nic. It probably
-only worked by chance. And changing the ring pointers while the nic is
-in the middle of a data transfers just asks for trouble.
-I agree that natsemi_stop_rxtx() instead of reset would be enough.
-
-> >               /* enable the WOL interrupt.
-> >                * Could be used to send a netlink message.
-> >                */
-> > -             writel(readl(ioaddr + IntrMask) | WOLPkt, ioaddr + IntrMask);
-> > +             writel(WOLPkt, ioaddr + IntrMask);
-> > +             writel(1, ioaddr + IntrEnable);
+> #define RT_PRIO_TO_TIMESLICE(p) \
+>   ((( (MAX_RT_PRIO-(p)-1)*(MAX_TIMESLICE-MIN_TIMESLICE) + \
+>      MAX_RT_PRIO-1) / MAX_RT_PRIO) + MIN_TIMESLICE)
 > 
-> is this intended to blow away the other bits in IntrMask?  Keep in mind
-> that Wake-On-Phy requires the PHY interrupt enabled, but I don't know if it
-> needs it on in intrmask or just in the Phy intr reg.
->
+> why not
+> 
+> #define PRIO_TO_TIMESLICE(p) \
+>   (MAX_TIMESLICE - 
+>    (USER_PRIO(p)/(MAX_USER_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+> 
+> #define RT_PRIO_TO_TIMESLICE(p) \
+>   (MAX_TIMESLICE - (p/(MAX_RT_PRIO-1))*(MAX_TIMESLICE-MIN_TIMESLICE))
+> 
+> 
+> The second way seems simpler to me, and really illustrates what you are 
+> doing in a more straightforward manner.
 
-Yes, they are always 0. Actually the code is (and was) never executed.
-Everyone calls enable_wol_mode(,0).
+   Except that the math is INTEGER, not floating-point,
+   which means that this way you loose precission.
 
---
-        Manfred
+   You HAVE TO do multiplications first, only then (finally) the division.
 
+   Depending the value-spaces, small-enough value-spaces might be
+   turnable into table mappings.  However that has lots of dependencies
+   in hardware architecture, e.g. memory access speeds, cache pollution,
+   speed of multiply/divide operations, etc.
+
+   If dividers/multipliers are constants, and powers of two, the math
+   can happen with constant shifts, which are fast at all systems.
+   If not, things get rather complicated.   (And thus a careless -1,
+   or lack of one, may be costly.)
+
+> I also cleaned up some of the comments. The sched.h diff between the H6 
+> version of the scheduler applied to 2.4.18-pre3 and vanilla 2.4.18-pre3 
+> follows: (Note that I changed the min and max timeslices to 20 and 100 
+> for my own use.)
+...
+
+  "uni-diff please, use '-u' option for the diff"
+
+> To lkml - please cc me on any response, as I do not subscribe to the 
+> lkml - I read it via a news gateway.
+> 
+> 
+> Jim Owens
+
+/Matti Aarnio

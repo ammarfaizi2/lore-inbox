@@ -1,104 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbSKARYO>; Fri, 1 Nov 2002 12:24:14 -0500
+	id <S265431AbSKARmN>; Fri, 1 Nov 2002 12:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSKARYN>; Fri, 1 Nov 2002 12:24:13 -0500
-Received: from [24.31.182.33] ([24.31.182.33]:58752 "EHLO
-	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
-	id <S265508AbSKARYM>; Fri, 1 Nov 2002 12:24:12 -0500
-Date: Fri, 1 Nov 2002 12:28:07 -0500
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] Fix 2.5-bk build error
-Message-ID: <20021101172807.GA982@caphernaum.rivenstone.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net> <20021101004751.GB1683@rivenstone.net> <20021101010607.GC1683@rivenstone.net> <Pine.LNX.4.44.0211011239290.6949-100000@serv>
+	id <S265438AbSKARmN>; Fri, 1 Nov 2002 12:42:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:8855 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265431AbSKARmM>;
+	Fri, 1 Nov 2002 12:42:12 -0500
+Subject: [PATCH] trivial fix for raw compiled as module 2.5.45
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <jens@suse.de>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Nov 2002 09:48:30 -0800
+Message-Id: <1036172910.3316.68.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211011239290.6949-100000@serv>
-User-Agent: Mutt/1.4i
-From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can't compile raw.c as module because blkdev_ioctl is not exported.
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.877   -> 1.878  
+#	drivers/block/ioctl.c	1.51    -> 1.52   
+#	drivers/block/Makefile	1.12    -> 1.13   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/11/01	shemminger@osdl.org	1.878
+# Export block dev to allow raw to be built as a module
+# --------------------------------------------
+#
+diff -Nru a/drivers/block/Makefile b/drivers/block/Makefile
+--- a/drivers/block/Makefile	Fri Nov  1 09:45:40 2002
++++ b/drivers/block/Makefile	Fri Nov  1 09:45:40 2002
+@@ -8,8 +8,8 @@
+ # In the future, some of these should be built conditionally.
+ #
+ 
+-export-objs	:= elevator.o ll_rw_blk.o loop.o genhd.o acsi.o \
+-		   scsi_ioctl.o deadline-iosched.o
++export-objs	:= elevator.o ll_rw_blk.o ioctl.o loop.o genhd.o acsi.o \
++		   scsi_ioctl.o deadline-iosched.o 
+ 
+ obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o deadline-iosched.o
+ 
+diff -Nru a/drivers/block/ioctl.c b/drivers/block/ioctl.c
+--- a/drivers/block/ioctl.c	Fri Nov  1 09:45:40 2002
++++ b/drivers/block/ioctl.c	Fri Nov  1 09:45:40 2002
+@@ -1,4 +1,5 @@
+ #include <linux/sched.h>		/* for capable() */
++#include <linux/module.h>
+ #include <linux/blk.h>			/* for set_device_ro() */
+ #include <linux/blkpg.h>
+ #include <linux/backing-dev.h>
+@@ -214,3 +215,5 @@
+ 	}
+ 	return -ENOTTY;
+ }
++
++EXPORT_SYMBOL(blkdev_ioctl);
 
-On Fri, Nov 01, 2002 at 12:56:20PM +0100, Roman Zippel wrote:
-> On Thu, 31 Oct 2002, Joseph Fannin wrote:
->=20
-> > > # Meta block cache for Extended Attributes (ext2/ext3)
-> > > config FS_MBCACHE
-> > >        tristate
-> > >        depends on EXT2_FS_XATTR || EXT3_FS_XATTR
-> > >        default m if EXT2_FS=3Dm || EXT3_FS=3Dm
-> > >        default y if EXT2_FS=3Dy || EXT3_FS=3Dy
-> >=20
-> >     "If multiple default statements are visible only the first is
-> > used."
-> >=20
-> >     So the two default lines above need to be reversed.  This seems
-> > backwards to me (the last should be used), but I've said enough.
->=20
-> Well, I had to pick something and using the first is easier to implement,=
-=20
-> it's just different to cml1, which used the last definition.
-> BTW xconfig is a nice way to see how the config back end works, you can=
-=20
-> enable "Show All Options" and above entry will also be visible and you ca=
-n=20
-> watch how the value changes depending on the inputs.
-> BTW2 in the future above can be simplified into
->=20
-> config FS_MBCACHE
-> 	tristate
-> 	depends on EXT2_FS_XATTR || EXT3_FS_XATTR
-> 	default EXT2_FS || EXT3_FS
->=20
-
-    Okay, here's a patch that does that.  Linus, this fixes a build
-error in your current -bk tree that happens when one of ext[23] is a
-module and the other is built-in.  Please apply it.
-
-
-
-diff -urN linux-2.5.45/fs/Kconfig linux/fs/Kconfig
---- linux-2.5.45/fs/Kconfig	2002-11-01 11:42:04.000000000 -0500
-+++ linux/fs/Kconfig	2002-11-01 11:59:50.000000000 -0500
-@@ -1457,8 +1457,7 @@
- config FS_MBCACHE
- 	tristate
- 	depends on EXT2_FS_XATTR || EXT3_FS_XATTR
--	default m if EXT2_FS=3Dm || EXT3_FS=3Dm
--	default y if EXT2_FS=3Dy || EXT3_FS=3Dy
-+	default EXT2_FS || EXT3_FS
-=20
- # Posix ACL utility routines (for now, only ext2/ext3)
- config FS_POSIX_ACL
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.
-
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9wrmnWv4KsgKfSVgRAvjPAJwOvQfy4PdVbTk+cpKStFvDA94TUgCeKqdA
-dXF3lYGPp2nqD4BcU2uJ7ZU=
-=XGB0
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--

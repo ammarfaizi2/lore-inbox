@@ -1,43 +1,26 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSE1AQE>; Mon, 27 May 2002 20:16:04 -0400
+	id <S316795AbSE1BA7>; Mon, 27 May 2002 21:00:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316790AbSE1AQD>; Mon, 27 May 2002 20:16:03 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:8201 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316789AbSE1AQD>;
-	Mon, 27 May 2002 20:16:03 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config 
-In-Reply-To: Your message of "Mon, 27 May 2002 16:54:20 +0200."
-             <20020527145420.GA6738@werewolf.able.es> 
+	id <S316792AbSE1BA6>; Mon, 27 May 2002 21:00:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52892 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316791AbSE1BA5>;
+	Mon, 27 May 2002 21:00:57 -0400
+Date: Mon, 27 May 2002 17:40:12 -0700 (PDT)
+Message-Id: <20020527.174012.03124690.davem@redhat.com>
+To: colin@gibbs.dhs.org
+Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org, tcallawa@redhat.com,
+        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
+Subject: Re: 2.4 SRMMU bug revisited
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1022525198.19147.29.camel@monolith>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 May 2002 10:15:52 +1000
-Message-ID: <2195.1022544952@ocs3.intra.ocs.com.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 May 2002 16:54:20 +0200, 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->Due to Alan's advice, it also adds a check that will panic if a PII or
->higher kernel is run on a PPro or lesser (plz, I put that code in the
->place I thought it was the best, but probably I'm wrong...).
->+static void __init check_intel_compat(struct cpuinfo_x86 *c)
->+{
->+#if defined(CONFIG_MPENTIUMII) || defined(CONFIG_MPENTIUMIII) || defined(CONFIG_MPENTIUM4)
->+	if (c->x86 <= 5)
->+		panic("Kernel is unsafe/incompatible with this CPU model. Check your build settings !\n");
->+#endif
->+}
 
-Don't rely on that working.  When you compile with -march=i686, gcc
-emits cmov instructions all over the place, including in printk code.
-The first cmov takes a fault and tries to panic, the panic code uses
-printk which hits a second cmov and the machine is dead with no
-messages.
-
+I pushed this fix to Marcelo already and it is already in
+his BK tree.

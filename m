@@ -1,127 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUJZSA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbUJZSCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbUJZSA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 14:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUJZR7b
+	id S261360AbUJZSCg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 14:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUJZSBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:59:31 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:31875 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261369AbUJZR6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:58:21 -0400
-Subject: Re: 2.6.9-mm1
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-References: <20041022032039.730eb226.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1098813484.10011.226.camel@boxen>
+	Tue, 26 Oct 2004 14:01:35 -0400
+Received: from hera.kernel.org ([63.209.29.2]:39850 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261369AbUJZSA0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 14:00:26 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: My thoughts on the "new development model"
+Date: Tue, 26 Oct 2004 11:01:45 -0700
+Organization: Open Source Development Lab
+Message-ID: <20041026110145.1a0052e4@zqx3.pdx.osdl.net>
+References: <7aaed09104102213032c0d7415@mail.gmail.com>
+	<7aaed09104102214521e90c27c@mail.gmail.com>
+	<417E74DD.6000203@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 26 Oct 2004 19:58:04 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+X-Trace: build.pdx.osdl.net 1098813621 16367 172.20.1.73 (26 Oct 2004 18:00:21 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 26 Oct 2004 18:00:21 +0000 (UTC)
+X-Newsreader: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by hera.kernel.org id i9QI0MaA014095
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 12:20, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
+On Tue, 26 Oct 2004 12:01:33 -0400
+John Richard Moser <nigelenki@comcast.net> wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> - Lots of new patches.
+> 
+> 
+> Espen Fjellvær Olsen wrote:
+> | This may come a bit late now, since the "new development model" was
+> | put through late this summer.
+> | But anyway i'm going to come with som thoughts about it.
+> |
+> | I think that 2.6 should be frozen from now on, just security related
+> | stuff should be merged.
+> | This would strengthen Linux's reputation as a stable and secure
+> | system, not a unstable and a system just used for fun.
+> | A 2.7 should be created where all new experimental stuff is merged
+> | into it, and where people could begin to think new again.
+> | New thoughts are good in all ways, it is for sure very much code in
+> | the current kernels that should be revised, rewritten and maybe marked
+> | as deprecated.
+> |
+> | :)
+> 
+> I agree fully.
+> 
+> I've been quite worried and annoyed.  While I do think the newest
+> releases and the changes in 2.6.9 and .10 are damn cool, and i want
+> them, I also won't let go of PaX.  PaX stopped at 2.6.7 because of
+> internal VM changes; the kernel's unstable state is making it an undue
+> amount of work for the PaX team to update PaX for the newest kernels.
+> If all the time is spent porting it up to the new VM changes, then there
+> is no time for bugfixes and improvements.
+> 
+> PaX is a core component of GrSecurity as well; as long as the PaX
+> project is halted at 2.6.7, GrSec can't pass 2.6.7.  How many other
+> projects are going to sit at 2.6.7, or are going to spend too much time
+> up-porting and not enough time bugfixing and enhancing?
+>
 
-Two different boxes, hits when running the ltp tests'./runltp -x 4'. El
-problemo is that it doesn't happen when running it as a normal user.
-Both are with ltp-full-20041007, how well is this trusted?
+The Linux development model is not setup to be convenient for out of tree
+kernel development. This is intentional, if the project is out of tree no
+kernel developer is going to see it or fix it. Submit it and get it reviewed
+and into the process or quit complaining and make and maintain your
+own "stable" tree.
 
-Even worse, when I throw in CONFIG_SLAB_DEBUG & CONFIG_DEBUG_PAGEALLOC
-the errors seem to go away, bleh, why do I always end up with these
-weird errors.
+> I do not propose freezing *now* if it's not convenient; I say you pick
+> what you want to finish up (maybe some of the Montavista stuff; I'd
+> personally like voluntary pre-empt and friends at least), get that in,
+> and slate any new developments for a 2.6.7 branch to be forked off
+> whenever is appropriate.
 
-Anything I can do to provide more info? I'm clueless on fs-debugging.
+Everyone's list of what they want added to 2.6 is different. So the
+kernel work continues and is the union of everyone's good ideas (and
+a few bad ones).
 
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c016d77c
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c016d77c>]    Not tainted VLI
-EFLAGS: 00010203   (2.6.9-mm1)
-EIP is at dio_cleanup+0x1c/0x60
-eax: 00000000   ebx: cf12f200   ecx: 00000000   edx: 00000000
-esi: cf12f200   edi: 00000000   ebp: 00000000   esp: c8fcfcd0
-ds: 007b   es: 007b   ss: 0068
-Process diotest4 (pid: 13094, threadinfo=c8fcf000 task=c583b020)
-Stack: 00000000 c016e59f c0196c49 c0b7d95c 00000000 00000000 00c4f000 00000000
-       cbad54fc c8fcfef0 00000001 cf12f200 00000000 08051000 0000000c c016ea7c
-       c8fcfeb0 00c4f000 00000000 00000001 0000000c c01832d0 00000000 cf12f200
-Call Trace:
- [<c016e59f>] direct_io_worker+0x2cf/0x5c0
- [<c0196c49>] journal_put_journal_head+0x39/0xb0
- [<c016ea7c>] __blockdev_direct_IO+0x1ec/0x2d6
- [<c01832d0>] ext3_direct_io_get_blocks+0x0/0xe0
- [<c01841f9>] ext3_direct_IO+0xc9/0x230
- [<c01832d0>] ext3_direct_io_get_blocks+0x0/0xe0
- [<c0132604>] generic_file_direct_IO+0x74/0x90
- [<c01316f6>] generic_file_direct_write+0x76/0x180
- [<c0131ff8>] generic_file_aio_write_nolock+0x298/0x480
- [<c01060d8>] do_IRQ+0x58/0x80
- [<c0132310>] generic_file_aio_write+0x70/0xe0
- [<c0181440>] ext3_file_write+0x30/0xb0
- [<c014c941>] do_sync_write+0xa1/0xe0
- [<c011240a>] do_page_fault+0x19a/0x5aa
- [<c0113951>] finish_task_switch+0x31/0x90
- [<c0129d80>] autoremove_wake_function+0x0/0x50
- [<c0104708>] common_interrupt+0x18/0x20
- [<c0113951>] finish_task_switch+0x31/0x90
- [<c014ca30>] vfs_write+0xb0/0x100
- [<c014d7e3>] fget_light+0x3/0xa0
- [<c014cb47>] sys_write+0x47/0x80
- [<c0103d9b>] syscall_call+0x7/0xb
-Code: fe ff 8b 46 08 eb d1 e8 e3 5c 10 00 eb b9 90 53 89 c3 8b 80 9c 01 00 00 3b 83 98 01 00 00 75 02 5b c3 89 d8 e8 56 fc ff ff 89 c2 <8b> 00 f6 c4 08 75 11 8b 42 04 40 74 24 83 42 04 ff 0f 98 c0 84
-
-
-Unable to handle kernel paging request at virtual address 47ce20ac
- printing eip:
-c016d3e1
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c016d3e1>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.9-mm1)
-EIP is at dio_get_page+0x11/0x50
-eax: 61048c05   ebx: c3bbf000   ecx: 00000000   edx: 00000001
-esi: c3bbf000   edi: 00000000   ebp: 00000000   esp: c61e6cc8
-ds: 007b   es: 007b   ss: 0068
-Process diotest1 (pid: 4564, threadinfo=c61e6000 task=c5897020)
-Stack: c3bbf000 c016d77a 00000000 c016e59f c0196c49 d7cfa44c 00000000 00000000
-       00000000 00000000 def1f84c c61e6ef0 00000001 c3bbf000 00000000 08050000
-       0000000c c016ea7c c61e6eb0 00000000 00000000 00000001 0000000c c01832d0
-Call Trace:
- [<c016d77a>] dio_cleanup+0x1a/0x60
- [<c016e59f>] direct_io_worker+0x2cf/0x5c0
- [<c0196c49>] journal_put_journal_head+0x39/0xb0
- [<c016ea7c>] __blockdev_direct_IO+0x1ec/0x2d6
- [<c01832d0>] ext3_direct_io_get_blocks+0x0/0xe0
- [<c01841f9>] ext3_direct_IO+0xc9/0x230
- [<c01832d0>] ext3_direct_io_get_blocks+0x0/0xe0
- [<c0132604>] generic_file_direct_IO+0x74/0x90
- [<c01316f6>] generic_file_direct_write+0x76/0x180
- [<c0131ff8>] generic_file_aio_write_nolock+0x298/0x480
- [<c0132310>] generic_file_aio_write+0x70/0xe0
- [<c0181440>] ext3_file_write+0x30/0xb0
- [<c014c941>] do_sync_write+0xa1/0xe0
- [<c011240a>] do_page_fault+0x19a/0x5aa
- [<c0140481>] vma_merge+0x121/0x190
- [<c0129d80>] autoremove_wake_function+0x0/0x50
- [<c0141885>] do_brk+0x175/0x230
- [<c0113951>] finish_task_switch+0x31/0x90
- [<c014ca30>] vfs_write+0xb0/0x100
- [<c014cb47>] sys_write+0x47/0x80
- [<c0103d9b>] syscall_call+0x7/0xb
-Code: 9c 01 00 00 01 00 00 00 c7 85 98 01 00 00 00 00 00 00 89 85 98 00 00 00 eb 9f 53 89 c3 8b 80 98 01 00 00 39 83 9c 01 00 00 74 12 <8b> 94 83 98 00 00 00 40 89 83 98 01 00 00 89 d0 5b c3 89 d8 e8
 
 

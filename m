@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265138AbUETMoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUETNT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265138AbUETMoM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 08:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUETMoM
+	id S265127AbUETNT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 09:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbUETNT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 08:44:12 -0400
-Received: from legolas.drinsama.de ([62.91.17.164]:22457 "EHLO
-	legolas.drinsama.de") by vger.kernel.org with ESMTP id S265138AbUETMoI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 08:44:08 -0400
-Subject: Bug in interface removal from bridges.
-From: Erich Schubert <erich@debian.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1084542378.17594.12.camel@wintermute.xmldesign.de>
-References: <1084542378.17594.12.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Organization: Debian GNU/Linux Developers
-Message-Id: <1085057048.13106.5.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Thu, 20 May 2004 14:44:08 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 20 May 2004 09:19:26 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:18923 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S265127AbUETNTZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 09:19:25 -0400
+Subject: protecting source code in 2.6
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 20 May 2004 18:48:09 +0530
+Content-class: urn:content-classes:message
+Message-ID: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: protecting source code in 2.6
+Thread-Index: AcQ+bOUisDDizou9Q82Xv3rWdOFD2A==
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: <kernelnewbies@nl.linux.org>,
+       "Surendra I." <surendrai@esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-this is the straight backport from 2.6.5 of the fix.
-Can someone with authority review this and forward it to marcelo for
-inclusion in the next 2.4.x release?
+Hi All,
 
-To verify your system is vulnerable (need bridge support):
-$ brctl addbr br0
-$ brctl addbr br1
-$ brctl addif br0 eth0
-$ brctl delif br1 eth0
-(note br1 in last line, not br0!)
+We are developing a block device driver on linux-2.6.x kernel. We want
+to distribute our driver as sum of source code and librabry/object code.
 
-Here's the fix as taken from 2.6:
-(fixed sometime in 2.5.x it seems; it might be worth looking at when
-this was fixed - it might contain other fixes, too.)
+We have divided the source code into two parts. The os interface module 
+and the device interface module. The os interface module (osint.c) has 
+all the os interface functions (init, exit, open, close, ioctl, request
+queue handling etc). The device interface module (devint.c) on the other
+hand has all the device interface functions (initialize device, read, 
+write etc), these don't use system calls or kernel APIs.
 
---- net/bridge/br_if.c.2.4.21	2004-05-20 14:34:50.000000000 +0200
-+++ net/bridge/br_if.c	2004-05-20 14:37:22.000000000 +0200
-@@ -254,6 +254,10 @@
- int br_del_if(struct net_bridge *br, struct net_device *dev)
- {
- 	int retval;
-+	struct net_bridge_port *p;
-+
-+	if ((p = dev->br_port) == NULL || p->br != br)
-+		return -EINVAL;
- 
- 	br_write_lock_bh(BR_NETPROTO_LOCK);
- 	write_lock(&br->lock);
+The device interface module is proprietary source and we don't intend
+to distribute it with source code on GPL license.
 
-Greetings,
-Erich
+What we intend to do is, distribute the os interface module (osint.c)
+with
+source code and the device interface module as object code or library.
+The
+user will compile the os interface module on the target box and link it 
+with the device interface module to generate the .ko (loadable module).
 
+We are not very sure of how to achieve this. 
+Please help us address this issue.
+
+Thanks in advance,
+-Jinu 

@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUEBQs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUEBR0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbUEBQs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 12:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUEBQs0
+	id S263182AbUEBR0h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 13:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUEBR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 12:48:26 -0400
-Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:61347 "EHLO
-	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263162AbUEBQsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 12:48:25 -0400
-From: Edward Macfarlane Smith <snowfire@blueyonder.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mmc/sd drivers
-Date: Sun, 2 May 2004 17:49:46 +0100
-User-Agent: KMail/1.6.1
-Cc: Pavel Machek <pavel@suse.cz>, tj <999alfred@comcast.net>
-References: <408D3DC0.8080700@comcast.net> <20040427141453.GQ2595@openzaurus.ucw.cz>
-In-Reply-To: <20040427141453.GQ2595@openzaurus.ucw.cz>
+	Sun, 2 May 2004 13:26:37 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:65441 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263182AbUEBR0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 13:26:33 -0400
+Message-ID: <40952E29.2070903@t-online.de>
+Date: Sun, 02 May 2004 19:21:45 +0200
+From: mikeb1@t-online.de (Michael Berger)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031007
+X-Accept-Language: de, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: Error in installing kernel 2.6.5 compiled with GCC 3.4.0 and
+ -mregparm=3
+References: <408BBCB2.9010804@t-online.de> <m2d65n2hw9.fsf@p4.localdomain>
+In-Reply-To: <m2d65n2hw9.fsf@p4.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405021749.46941.snowfire@blueyonder.co.uk>
-X-OriginalArrivalTime: 02 May 2004 16:48:26.0806 (UTC) FILETIME=[4A356560:01C43065]
+X-Seen: false
+X-ID: rIveBMZLYenO92jr93vfl8Frij0XAkTdosVL91IUpqnb-jNhQBphca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 April 2004 15:14, Pavel Machek wrote:
-> Hi!
->
-> > Where can the latest mmc drivers in the kernel source be located? I
-> > am not talking about mass-storage usb or pcmcia drivers. I downloaded
-> > 2.2.26 and there is no drivers/mmc directory. Where can the mmc
-> > drivers be located from their original distribution point?
->
-> 2.2 is old.
->
-> MMC is supported for example on sharp zaurus, look
-> there for sources. SD requires binary-only module. Avoid it.
+Dear Peter
 
-Thats not completely true. Last weekend I was using a 512Mb SD card on my iPAQ 
-5550 with the 2.4.19 hh36.9 kernel from Handhelds.org. It was rather slow 
-access (playing mp3s directly off the sd card had problems with pauses), but 
-did work. I haven't actually got around to building a kernel for an ARM 
-machine yet, but if you need the source I suggest you look round 
-handhelds.org.
-Regards,
-Edward
+Thank you for your reply. I receive LKML through my ISP. I have only 
+this messages in my messages file:
+
+===============================================================================================
+
+Apr 25 12:58:55 Loki modprobe: FATAL: Error inserting loop 
+(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
+d module format
+Apr 25 12:58:55 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
+REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
+3.4'
+Apr 25 12:58:55 Loki modprobe: FATAL: Error inserting loop 
+(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
+d module format
+Apr 25 12:58:55 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
+REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
+3.4'
+Apr 25 13:01:13 Loki modprobe: FATAL: Error inserting loop 
+(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
+d module format
+Apr 25 13:01:13 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
+REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
+3.4'
+Apr 25 13:01:13 Loki modprobe: FATAL: Error inserting loop 
+(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
+d module format
+Apr 25 13:01:13 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
+REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
+3.4'
+Apr 25 13:18:04 Loki kernel: loop: loaded (max 8 devices)
+
+==================================================================================================
+
+This is after I rebooted the machine with the "new kernel" compiled with 
+-mregparm=3. For the installation I loaded by hand the loop
+and ext2 module and installed the kernel. After rebooting I have now 
+this messages in my log files. I switched back to without
+-mregparm=3 kernel 2.6.5 and this messages are away. I will do more 
+tests on a scratch box and with different config files and compilers.
+
+Best regards,
+
+Michael
+

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUJST2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269473AbUJST2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269596AbUJST2E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269558AbUJST0N
+	id S269473AbUJST2D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbUJST01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:26:13 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:48062
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S269741AbUJSTSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 15:18:12 -0400
-Date: Tue, 19 Oct 2004 15:24:07 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Message-ID: <20041019192406.GE8253@kurtwerks.com>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
+	Tue, 19 Oct 2004 15:26:27 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8392 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S269788AbUJSTWJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:22:09 -0400
+Date: Tue, 19 Oct 2004 21:18:17 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 page allocation failures?
+Message-ID: <20041019191817.GA13208@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.61.0410191207000.10356@p500>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <417550FB.8020404@drdos.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.4.26
-X-Woot: Woot!
+In-Reply-To: <Pine.LNX.4.61.0410191207000.10356@p500>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004, Jeff V. Merkey took 66 lines to troll:
-> 
-> Although we do not work with them and are in fact on the the other side 
-> of Unixware from a
-> competing viewpoint, SCO has contacted us and identifed with precise 
-> detail and factual
-> documentation the code and intellectual property in Linux they claim was 
-> taken from Unix.
-> We have reviewed their claims and they appear to create enough 
-> uncertianty to warrant
-> removal of the infringing portions.
+Justin Piszcz <jpiszcz@lucidpixels.com> :
+[...]
+> lftp: page allocation failure. order:0, mode:0x20
+>  [<c01391a7>] __alloc_pages+0x247/0x3b0
+>  [<c0139328>] __get_free_pages+0x18/0x40
+>  [<c013c9af>] kmem_getpages+0x1f/0xc0
+>  [<c013d6f0>] cache_grow+0xc0/0x1a0
+>  [<c013d99b>] cache_alloc_refill+0x1cb/0x210
+>  [<c013de01>] __kmalloc+0x71/0x80
+>  [<c036f463>] alloc_skb+0x53/0x100
+>  [<c031f9f8>] e1000_alloc_rx_buffers+0x48/0xf0
+>  [<c031f6fe>] e1000_clean_rx_irq+0x18e/0x440
 
-But, naturally, you can't reveal the precise files and lines of code that
-SCO claim was stolen. For $DEITY's sake, you're still a Canopy stooge and
-hanger on, even though you're smart enough to know better. How much did
-NFT or Canopy give you to agree to this preposterous claim?
+If you are using TSO, try patch below by Herbert Xu (available
+from http://marc.theaimsgroup.com/?l=linux-netdev&m=109799935603132&w=3)
 
-Welcome to my killfile.
+--- 1.67/net/ipv4/tcp_output.c	2004-10-01 13:56:45 +10:00
++++ edited/net/ipv4/tcp_output.c	2004-10-17 18:58:47 +10:00
+@@ -455,8 +455,12 @@
+ {
+ 	struct tcp_opt *tp = tcp_sk(sk);
+ 	struct sk_buff *buff;
+-	int nsize = skb->len - len;
++	int nsize;
+ 	u16 flags;
++
++	nsize = skb_headlen(skb) - len;
++	if (nsize < 0)
++		nsize = 0;
+ 
+ 	if (skb_cloned(skb) &&
+ 	    skb_is_nonlinear(skb) &&
 
-Kurt
--- 
-Naeser's Law:
-	You can make it foolproof, but you can't make it
-damnfoolproof.

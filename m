@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314284AbSFBVRE>; Sun, 2 Jun 2002 17:17:04 -0400
+	id <S314340AbSFBVTJ>; Sun, 2 Jun 2002 17:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSFBVRD>; Sun, 2 Jun 2002 17:17:03 -0400
-Received: from pD9E239B5.dip.t-dialin.net ([217.226.57.181]:17374 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314284AbSFBVRC>; Sun, 2 Jun 2002 17:17:02 -0400
-Date: Sun, 2 Jun 2002 15:16:56 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMB filesystem
-In-Reply-To: <3CFA875D.1050300@linkvest.com>
-Message-ID: <Pine.LNX.4.44.0206021515160.29405-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314389AbSFBVTI>; Sun, 2 Jun 2002 17:19:08 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:55444 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S314340AbSFBVTH>;
+	Sun, 2 Jun 2002 17:19:07 -0400
+Date: Sun, 2 Jun 2002 23:18:58 +0200
+From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+To: James Mayer <james@cobaltmountain.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: radeon framebuffer problem
+Message-Id: <20020602231858.5982571f.hanno@gmx.de>
+In-Reply-To: <20020602201758.GA19815@galileo>
+Organization: Mecronome Webdesign - http://www.mecronome.de/
+X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > My card is a Radeon Mobility M6 LY.
+> > All kernels are with radeon framebuffer compiled in as the only
+> > framebuffer.
+> 
+> You might want to try this, I have an M6 LY with what I suspect is the
+> same problem.
 
-On Sun, 2 Jun 2002, Jean-Eric Cuendet wrote:
-> [blah]
-> How do you think is the best way of doing things?
-> Making a minimal FS kernel driver that communicate with a complex 
-> userspace daemon?
+That patch works! Thanks.
 
-Virtual loop device? Have an userspace daemon feed it into a loop device, 
-and make the kernel mount that. Just suggesting...
-
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+Any plans when it will be included into the main kernel? (I currently have to apply three patches for a working kernel ;-)

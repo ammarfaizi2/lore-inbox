@@ -1,44 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbTFARIu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 13:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFARIu
+	id S264670AbTFARFj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 13:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTFARFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 13:08:50 -0400
-Received: from smtp1.wanadoo.es ([62.37.236.135]:2487 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id S264671AbTFARIt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 13:08:49 -0400
-Message-ID: <3EDA361C.4080702@wanadoo.es>
-Date: Sun, 01 Jun 2003 19:21:32 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Hyper-threading
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sun, 1 Jun 2003 13:05:39 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:6931 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S264670AbTFARFh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 13:05:37 -0400
+Subject: Re: Question about style when converting from K&R to ANSI C.
+From: Steven Cole <elenstev@mesatop.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Jonathan Lundell <linux@lundell-bros.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030601165252.GD3012@work.bitmover.com>
+References: <1054446976.19557.23.camel@spc>
+	 <20030601132626.GA3012@work.bitmover.com>
+	 <20030601134942.GA10750@alpha.home.local>
+	 <20030601140602.GA3641@work.bitmover.com>
+	 <p05210609baffd3a79cfb@[207.213.214.37]>
+	 <20030601161133.GC3012@work.bitmover.com> <1054485978.19557.93.camel@spc>
+	 <20030601165252.GD3012@work.bitmover.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054487927.19551.99.camel@spc>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 01 Jun 2003 11:18:47 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello,
+On Sun, 2003-06-01 at 10:52, Larry McVoy wrote:
+> > Thanks for the input.  You've convinced me.  When going through
+> > arch/ppc/xmon/xmon.c, I will leave things like the following unchanged:
+> > 
+> > /* Command interpreting routine */
+> > static int
+> > cmds(struct pt_regs *excp)
+> > {
 > 
-> Anybody know how to enable hyperthreading? I
-> have an ABIT IC7-G motherboard (absolute garbage)
-> with a Phoenix AwardBIOS. They don't provide
-> any BIOS upgrades and say you have to contact
-> the board vendor. ABIT doesn't answer email
-> and www.abit.com ends up being answered by
-> www.motherboards.com that doesn't provide
-> any support.
+> Great.
+> 
+> > My changes will be similar to the following:
+> > 
+> > @@ -1837,9 +1818,7 @@
+> >         return *lineptr++;
+> >  }
+> > 
+> > -void
+> > -take_input(str)
+> > -char *str;
+> > +void take_input(char *str)
+> >  {
+> >         lineptr = str;
+> >  }
+> 
+> OK, I'm confused.  You said you were convinced but then shouldn't that be
+> 
+> void
+> take_input(char *str)
+> {
+>        lineptr = str;
+> }
+> 
+> ??
+Yeah, I realized the inconsistency of that after sending.  This is with
+that change backed out (same as your example above):
 
-all latest bios of ABIT are here:
-http://fae.abit.com.tw/eng/download/bios/i_new.htm
+@@ -1838,8 +1819,7 @@
+ }
 
-regards,
--- 
-Software is like sex, it's better when it's bug free.
+ void
+-take_input(str)
+-char *str;
++take_input(char *str)
+ {
+        lineptr = str;
+ }
+
+
+My guiding principle in all this is "first, do no harm".  That's why I
+posted my question in the first place.  Thanks for the help.
+
+Steven
 

@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132500AbRDWWrc>; Mon, 23 Apr 2001 18:47:32 -0400
+	id <S132527AbRDWWue>; Mon, 23 Apr 2001 18:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132502AbRDWWr1>; Mon, 23 Apr 2001 18:47:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25606 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132500AbRDWWqE>;
-	Mon, 23 Apr 2001 18:46:04 -0400
-Date: Tue, 24 Apr 2001 00:45:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 3-Ware Raid driver fails to update GenDisk head
-Message-ID: <20010424004535.V9357@suse.de>
-In-Reply-To: <20010423120852.A32097@vger.timpanogas.org> <20010423214701.A18855@win.tue.nl> <20010423135500.B32378@vger.timpanogas.org> <20010423231312.A18870@win.tue.nl> <20010423163212.A1131@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010423163212.A1131@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Apr 23, 2001 at 04:32:12PM -0600
+	id <S132516AbRDWWs6>; Mon, 23 Apr 2001 18:48:58 -0400
+Received: from venus.Sun.COM ([192.9.25.5]:5334 "EHLO venus.Sun.COM")
+	by vger.kernel.org with ESMTP id <S132511AbRDWWrv>;
+	Mon, 23 Apr 2001 18:47:51 -0400
+From: "Pawel Worach" <pworach@mysun.com>
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Reply-To: pawel.worach@mysun.com
+Message-ID: <3829d3430e.3430e3829d@mysun.com>
+Date: Tue, 24 Apr 2001 00:39:23 +0200
+X-Mailer: Netscape Webmail
+MIME-Version: 1.0
+Content-Language: en
+Subject: Re: i810_audio broken?
+X-Accept-Language: en
+Content-Type: multipart/mixed; boundary="--aea49455cd24094"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23 2001, Jeff V. Merkey wrote:
-> On Mon, Apr 23, 2001 at 11:13:12PM +0200, Guest section DW wrote:
-> > On Mon, Apr 23, 2001 at 01:55:00PM -0600, Jeff V. Merkey wrote:
-> > > On Mon, Apr 23, 2001 at 09:47:01PM +0200, Guest section DW wrote:
-> > > > On Mon, Apr 23, 2001 at 12:08:52PM -0600, Jeff V. Merkey wrote:
-> > > > > 
-> > > > > I am still working on this, but would appreciate some help from
-> > > > > whomever owns this driver proper.  I have discovered that the 
-> > > > > 3Ware drivers are not updating the gendisk_head with devices
-> > > > > reported and exposed to user space as /dev/sda, sdb, etc.
-> > > > 
-> > > > But that is the job of sd.c, not of a driver.
-> > > 
-> > > These drivers are an IDE driver that simulates a SCSI interface.  It 
-> > > reported IDE devices as SCSI handles, so there's some holes.  I guess
-> > > you were not aware of this, or you would have known that standard sd.c
-> > > is not working.
-> > 
-> > Just like ide-scsi.c you mean?
+This is a multi-part message in MIME format.
+
+----aea49455cd24094
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+Ok building mpg123 without eSound worked for me too,
+so guess this is not a Linux kernel issue, sorry for this.
+
+I tried the fstodell hack but it seems to be obsoluted.
+Now it works without any tweaks.
+
+eSound sux?
+
+Thanks guys!
+Back to work (with music :)
+
+----- Original Message -----
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: Tuesday, April 24, 2001 1:34 am
+Subject: Re: i810_audio broken?
+
+> "Pawel Worach" <pworach@mysun.com> writes:
 > 
-> No.  They're not that clean and well organized, though they are rather 
-> clever adapters and are pretty cool.
+> > I was using mpg123 (xmms and c/o does exactly the same)
+> > if I run it like this Moby sounds very stupid... :)
+> 
+> i got the same problem when using mpg123 compiled with esd on my dell
+> workstation (which has a need to have set explictely to a clocking of
+> 41194 via ftsodell option), compiling without esd seems fix the prob
+> for me.
+> 
+> -- 
+> Chmouel
+> 
 
-Come on Jeff, what Andries is saying is that it _works_ like ide-scsi.
-It registers itself as a SCSI hba like a "regular" SCSI card, hence it
-uses the SCSI infrastructure -- alas, disks driven by sd.c
+----aea49455cd24094
+Content-Type: text/x-vcard; name="pworach.vcf"; charset=us-ascii
+Content-Disposition: attachment; filename="pworach.vcf
+Content-Description: Card for <pworach@mysun.com>
+Content-Transfer-Encoding: 7bit
 
--- 
-Jens Axboe
+begin:vcard
+n:Worach;Pawel
+fn:Pawel Worach
+version:2.1
+email;internet:pawel.worach@mysun.com
+end:vcard
+
+----aea49455cd24094--
 

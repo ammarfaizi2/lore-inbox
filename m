@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267566AbSLSIQs>; Thu, 19 Dec 2002 03:16:48 -0500
+	id <S267536AbSLSIq7>; Thu, 19 Dec 2002 03:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbSLSIQs>; Thu, 19 Dec 2002 03:16:48 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:5018 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S267566AbSLSIQr> convert rfc822-to-8bit; Thu, 19 Dec 2002 03:16:47 -0500
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] TIObench performance of mm2 patch. Latencies come down.
-Date: Thu, 19 Dec 2002 13:54:33 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867201E1BB@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] TIObench performance of mm2 patch. Latencies come down.
-Thread-Index: AcKnOA5t4RQbTnhFT3ayxcStVTgx4g==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Dec 2002 08:24:33.0578 (UTC) FILETIME=[0F41E8A0:01C2A738]
+	id <S267573AbSLSIq7>; Thu, 19 Dec 2002 03:46:59 -0500
+Received: from holomorphy.com ([66.224.33.161]:15552 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267536AbSLSIq6>;
+	Thu, 19 Dec 2002 03:46:58 -0500
+Date: Thu, 19 Dec 2002 00:54:26 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.52-mm2
+Message-ID: <20021219085426.GJ1922@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+	linux-mm@kvack.org
+References: <3E015ECE.9E3BD19@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E015ECE.9E3BD19@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Here are the results of comparison of kernel 2.5.52 with mm2 and 2.5.52 with mm1. 
-on TIObench. key findings are listed in the table. Values in the table indicate approximate percentage change with respect to previous result. 
+On Wed, Dec 18, 2002 at 09:53:18PM -0800, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.52/2.5.52-mm2/
 
-* Maximum latency has come down for this patch. This was on rise from last 5.52 release. 
+Kernel compile on ramfs, shpte off, overcommit on (probably more like a
+stress test for shpte):
 
--------------------------------------------------------------
-test					2.5.52-mm2 (as compared to
-					2.5.52 mm1) APPRXIMATE % change
--------------------------------------------------------------
-rate (megabytes per second)	5% increase
-CPU % utilization			lessthan 2% increase
-Average Latency			10% decrease
-Maximum latency			10 % decrease 
-CPU efficiency			less than 5% increase
--------------------------------------------------------------
+c0116810 187174   0.528821    pfn_to_nid
+c01168b8 192912   0.545032    x86_profile_hook
+c0163c0c 267362   0.755375    d_lookup
+c014e530 286920   0.810632    get_empty_filp
+c01b0b18 287959   0.813567    __copy_from_user
+c01320cc 307597   0.86905     find_get_page
+c011a6b0 331219   0.935789    scheduler_tick
+c0140890 342427   0.967455    vm_enough_memory
+c013fc60 353705   0.999319    handle_mm_fault
+c014eb49 358710   1.01346     .text.lock.file_table
+c011a1f8 379521   1.07226     load_balance
+c01b0ab0 840162   2.3737      __copy_to_user
+c013f5a0 1040429  2.93951     do_anonymous_page
+c01358c8 1056576  2.98513     __get_page_state
+c014406c 1260931  3.56249     page_remove_rmap
+c0143e68 1265355  3.57499     page_add_rmap
+c0106f38 21236731 59.9999     poll_idle
 
-Here are the complete results.
+shpte on will follow.
 
 
-No size specified, using 252 MB
+Bill
 
-Unit information
-================
-File size = megabytes
-Blk Size  = bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
-
-Sequential Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.52                        252   4096   10    9.08 5.545%    11.806     1837.19   0.00000  0.00000   164
-
-Random Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.52                        252   4096   10    0.48 0.770%   215.442     1346.07   0.00000  0.00000    62
-
-Sequential Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.52                        252   4096   10   17.59 32.71%     3.810    23958.10   0.05625  0.00156    54
-
-Random Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.52                        252   4096   10    0.77 1.067%     0.710     1113.98   0.00000  0.00000    72
-
-Regards,
-Aniruddha Marathe
-WIPRO Technologies, India
-aniruddha.marathe@wipro.com
-+91-80-5502001 extn 5092 

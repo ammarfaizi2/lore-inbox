@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269692AbUJVGbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269640AbUJVHCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269692AbUJVGbU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 02:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUJVGYW
+	id S269640AbUJVHCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 03:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269504AbUJVHBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 02:24:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31961 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267388AbUJVGXh (ORCPT
+	Fri, 22 Oct 2004 03:01:50 -0400
+Received: from codepoet.org ([166.70.99.138]:15059 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S269640AbUJVGyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 02:23:37 -0400
-Date: Fri, 22 Oct 2004 08:19:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041022061901.GM32465@suse.de>
-References: <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com>
+	Fri, 22 Oct 2004 02:54:12 -0400
+Date: Fri, 22 Oct 2004 00:54:09 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Pekka Pietikainen <pp@ee.oulu.fi>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Message-ID: <20041022065409.GA32400@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	"Jeff V. Merkey" <jmerkey@drdos.com>,
+	Pekka Pietikainen <pp@ee.oulu.fi>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <20041019210254.GA561@ee.oulu.fi> <417578B2.3070008@drdos.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041021203821.GA24628@nietzsche.lynx.com>
+In-Reply-To: <417578B2.3070008@drdos.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Bill Huey wrote:
-> On Thu, Oct 21, 2004 at 10:33:50PM +0200, Jens Axboe wrote:
-> > On Thu, Oct 21 2004, Bill Huey wrote:
-> > > You use a semaphore to protect data, a completion isn't protecting data
-> > > but preserving a certain kind of wait ordering in the code. The
-> > > possibility of overloading the current mutex_t for PI makes for a conceptual
-> > > mismatch when used in this case since having a kind of priority for
-> > > completions is a bit odd. It's better to flat out use a completion
-> > > instead, IMO.
+On Tue Oct 19, 2004 at 02:27:30PM -0600, Jeff V. Merkey wrote:
+> Pekka Pietikainen wrote:
+> >arch/m68k/sun3/leds.c is available (dual BSD/GPL) for the price of two 
+> >beers (I believe nobody else has touched it so it should be all mine). 
+> >
+> >The other files of the port to that very fine architecture are largely done
+> >by other people, so unfortunately I can't relicense those.
+> >
 > > 
-> > Linux semaphores (being counted) have always been a fine fit for things
-> > like the loop use, where you get to down it 10 times because you have 10
-> > items pending. I know this isn't the traditional mutex and that it
-> > doesn't protect data as such, but is was never abuse. It isn't overload.
-> > Doing it with a traditional mutex (I'm assuming this is what mutex_t is
-> > in Ingos tree) would be overload and a bad idea, indeed.
-> 
-> Well, this is something that's got to be considered by the larger Linux
-> community and whether these conventions are to be kept or removed. It's
-> a larger issue than what can be address in Ingo's preemption patch, but
-> with inevitable need for something like this in the kernel (hard RT)
-> it's really unavoidable collision. IMO, it's got to go, which is a nasty
-> change.
+> >
+> Hurray!  Got one.  You're added to the list.
 
-It has to go, why? Because your deadlock detection breaks? Doesn't seem
-a very strong reason to me at all, sorry.
+Do remember to replace the included inlines with your own code.
 
--- 
-Jens Axboe
+ -Erik
 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

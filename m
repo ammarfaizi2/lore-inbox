@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310976AbSCHRnW>; Fri, 8 Mar 2002 12:43:22 -0500
+	id <S310455AbSCHSC0>; Fri, 8 Mar 2002 13:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310978AbSCHRnN>; Fri, 8 Mar 2002 12:43:13 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:64251 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S310976AbSCHRnB>; Fri, 8 Mar 2002 12:43:01 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 8 Mar 2002 10:42:28 -0700
-To: Jacky Lam <snakie@ismart.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel patches
-Message-ID: <20020308174228.GD24615@turbolinux.com>
-Mail-Followup-To: Jacky Lam <snakie@ismart.net>,
+	id <S310979AbSCHSCQ>; Fri, 8 Mar 2002 13:02:16 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11768
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S310455AbSCHSCK>; Fri, 8 Mar 2002 13:02:10 -0500
+Date: Fri, 8 Mar 2002 10:02:57 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: Boszormenyi Zoltan <zboszor@mail.externet.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Ext2/Ext3 partition label abuse
+Message-ID: <20020308180257.GG28141@matchmail.com>
+Mail-Followup-To: Guest section DW <dwguest@win.tue.nl>,
+	Boszormenyi Zoltan <zboszor@mail.externet.hu>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <00ea01c1c6c6$083faea0$eb4a0a3d@homeuc1hfbdu7w>
+In-Reply-To: <3C88890C.6010303@mail.externet.hu> <20020308143345.GA13406@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00ea01c1c6c6$083faea0$eb4a0a3d@homeuc1hfbdu7w>
+In-Reply-To: <20020308143345.GA13406@win.tue.nl>
 User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 09, 2002  01:23 +0800, Jacky Lam wrote:
->     I want to make some statistics on all kernel patches. Could someone tell
-> me how can I gather all the patches sending to Linus, Alan Cox.....?
+On Fri, Mar 08, 2002 at 03:33:45PM +0100, Guest section DW wrote:
+> On Fri, Mar 08, 2002 at 10:49:00AM +0100, Boszormenyi Zoltan wrote:
+> 
+> [I had two disks with the same labels on one machine and that caused
+> problems with booting]
+> 
+> Yes, if you have an fstab file that says: mount the filesystem with
+> label "ROOTDISK" on /, and then come with two filesystems that both are
+> labeled "ROOTDISK", then it is hardly surprising when problems arise.
+> The same will happen if you use UUID instead of label but created the
+> other disk by copying the first using dd.
+> 
+> You can change fstab for example with an editor.
+> You can change labels for example with the e2label utility.
+> 
+> Labels have an advantage for example when you add or remove a SCSI disk:
+> the label stays the same but the disks are renumbered.
+> Also when you add or remove partitions, causing a renumbering.
+> Using UUID is slightly more stable, slightly less user-friendly.
+> 
+> Attaching a significance to the order of items in /proc/partitions
+> is a bad idea.
 
-Search mail archives for the subject [PATCH].  Note that it would be
-very difficult to correlate _submitted_ patches with _accepted_ patches,
-unless you had some smarts to detect that a later kernel had that patch
-applied.  That is complicated by the fact that submitted and applied
-patches are not always exactly the same.
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+It would be nice if the raid code could do that with drive serial numbers...

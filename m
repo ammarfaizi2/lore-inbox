@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280763AbRKKBBi>; Sat, 10 Nov 2001 20:01:38 -0500
+	id <S280766AbRKKBma>; Sat, 10 Nov 2001 20:42:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280764AbRKKBBS>; Sat, 10 Nov 2001 20:01:18 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:20522 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S280763AbRKKBBR>; Sat, 10 Nov 2001 20:01:17 -0500
-Date: Sat, 10 Nov 2001 20:01:13 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        "David S. Miller" <davem@redhat.com>, jakub@redhat.com,
-        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] take 2 of the tr-based current
-Message-ID: <20011110200113.I17437@redhat.com>
-In-Reply-To: <20011108211143.A4797@redhat.com> <20011109041327.T4087@devserv.devel.redhat.com> <3BEBEE0B.BA1FD7EE@colorfullife.com> <20011109.070312.88700201.davem@redhat.com> <3BEBF730.86CAE1CC@colorfullife.com> <20011111110107.A4064@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011111110107.A4064@krispykreme>; from anton@samba.org on Sun, Nov 11, 2001 at 11:01:08AM +1100
+	id <S280769AbRKKBmU>; Sat, 10 Nov 2001 20:42:20 -0500
+Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:31616 "EHLO
+	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S280766AbRKKBmF>; Sat, 10 Nov 2001 20:42:05 -0500
+Date: Sun, 11 Nov 2001 12:42:00 +1100 (EST)
+From: Tim Connors <tcon@Physics.usyd.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Laptop harddisk spindown?
+In-Reply-To: <200111080502.fA852im17980@vegae.deep.net>
+Message-ID: <Pine.SOL.3.96.1011111123736.18524B-100000@suphys.physics.usyd.edu.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 11:01:08AM +1100, Anton Blanchard wrote:
-> static inline struct Paca *get_paca(void) __attribute__ ((pure));
-> static inline struct Paca *get_paca(void)
-> {
-> 	struct Paca *rval;
-> 	__asm__ ("mfspr %0,0x113" : "=r" (rval));
-> 	return rval;
-> }
+On Thu, 8 Nov 2001, Samium Gromoff wrote:
+
+> "  Dominik Kubla wrote:"
+> > 
+> > On Thu, Nov 08, 2001 at 01:51:05AM +0300, Samium Gromoff wrote:
+> > >      I`m sorry folks, i dont quite recall whether i poked lkml with that,
+> > >   but here it is:
+> > > 	2.4.13, reiserfs
+> > > 	i have a disk access _every_ 5 sec, unregarding the system load, 
+> > >     24x7x365, so i suppose while it doesnt hurts me, it hurts folks with power
+> > >     bound boxes...
+> > >         I must add that i `m experiencing this on -ac tree too, adn this is true
+> > >     as far as my memory goes... (in the kernel-version context i mean)
+> > > 
+> > > cheers, Samium Gromoff
+> > 
+> > That's a FAQ: you have cron running...
+>    hehe...
+>    i`ve actually compiled cron only a week ago, so its not an issue ;)
+>    (i havent had cron before on my homemmade linux)
 > 
-> Alan Modra came to the rescue and found that gcc was optimising too much
-> and since the function did not touch any global variables, it would
-> upgrade the pure to const. This was on gcc 3.0.X.
+>    i mean i`m not this lame, and i told *no_system_load*... :-)
 
-Hmmm.  Would adding a fake global input help with that?  Something like a 
-"g" (aligned_data) input.
+Not to mention that 5 second obviously implies it can't be cron (given
+that it runs once a minute), and points to bdflush, since that is the
+flushing interval.
 
-		-ben
+Now, on my home box, If I run /bin/sync, the disk seeks, whether there is
+data to write or not. Before you point to me that I need to mount noatime
+- already done :) I think it also did this when bdflush told it to sync,
+but after installing noflushd (and hacking the b0rked init scripts),
+all was fine. At least, until I installed ext3 :(
+
+
+
+
 -- 
-Fish.
+TimC -- http://www.physics.usyd.edu.au/~tcon/
+
+Some witty text here,
+can be any number of lines
+long
+

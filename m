@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAXXoJ>; Wed, 24 Jan 2001 18:44:09 -0500
+	id <S129413AbRAXXp3>; Wed, 24 Jan 2001 18:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAXXoA>; Wed, 24 Jan 2001 18:44:00 -0500
-Received: from ruddock-157.caltech.edu ([131.215.90.157]:64267 "EHLO
-	alex.caltech.edu") by vger.kernel.org with ESMTP id <S129406AbRAXXnt>;
-	Wed, 24 Jan 2001 18:43:49 -0500
-Date: Wed, 24 Jan 2001 15:44:57 -0800
-From: David Bustos <bustos@its.caltech.edu>
-To: sailer@ife.ee.ethz.ch, mj@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: es1371 freezes 2.4.0 hard
-Message-ID: <20010124154457.A491@alex.caltech.edu>
+	id <S132478AbRAXXpT>; Wed, 24 Jan 2001 18:45:19 -0500
+Received: from jalon.able.es ([212.97.163.2]:5847 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129413AbRAXXpJ>;
+	Wed, 24 Jan 2001 18:45:09 -0500
+Date: Thu, 25 Jan 2001 00:44:54 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: "Justin T . Gibbs" <gibbs@scsiguy.com>
+Subject: warning in 2.4.1pre10
+Message-ID: <20010125004454.C930@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After upgrading to 2.4.0, insertion of the es1371 modules causes my
-machine to freeze right after printing
+In file included from /usr/src/linux/include/linux/raid/md.h:51,
+                 from init/main.c:25:
+/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
+/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end of
+non-void function
 
-	es1371: version v0.26 time 14:24:35 Jan 24 2001
-	es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x02
-	PCI: Assigned IRQ11 for device 00:0a.0
+It is harmless, 'cause the last sentence in the funtion is a panic, but it
+is good to add the 'return 0', just to shut up the compiler.
 
-The box becomes unresponsive to the keyboard, the mouse, and the
-network.  The same thing happens when the driver is compiled directly
-into the kernel.
+The same happens in the aic7xxx drivers v 6.0.9b, file aic7xxx_linux.h, line
+824.
 
-Since the module worked ok in 2.4.0-test10, I tried reverting
-drivers/sound/es1371.c to that version, but the same thing happened, so
-I suspect it's a PCI problem.
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-I've got a K6-2/350 with the VIA MVP3 chipset.  I used Debian's 2.95.3
-to compile 2.4.0.
+Linux werewolf 2.4.1-pre10 #4 SMP Wed Jan 24 00:20:15 CET 2001 i686
 
-
-lspci -v output for the card:
-
-00:0a.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 02)
-        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
-        Flags: bus master, slow devsel, latency 64, IRQ 11
-        I/O ports at e800 [size=64]
-        Capabilities: [dc] Power Management version 1
-
-
-Any ideas as to what is going on here?
-
-
-Thanks,
-David Bustos
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbULFBEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbULFB2C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbULFBEf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 20:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULFBEf
+	id S261444AbULFB2C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 20:28:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbULFB2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 20:04:35 -0500
-Received: from smtpq3.home.nl ([213.51.128.198]:50835 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S261440AbULFBE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 20:04:29 -0500
-Message-ID: <41B3B016.4010906@keyaccess.nl>
-Date: Mon, 06 Dec 2004 02:04:22 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: matthieu castet <castet.matthieu@free.fr>
-CC: Adam Belay <ambx1@neo.rr.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
-References: <41B3A963.4090003@keyaccess.nl> <41B3ABFE.5090105@free.fr>
-In-Reply-To: <41B3ABFE.5090105@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------020005090901020301050006"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Sun, 5 Dec 2004 20:28:02 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11790 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261444AbULFB2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 20:28:00 -0500
+Date: Mon, 6 Dec 2004 02:27:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       selinux@tycho.nsa.gov
+Subject: Re: [2.6 patch] selinux: possible cleanups
+Message-ID: <20041206012745.GP2953@stusta.de>
+References: <20041128190139.GD4390@stusta.de> <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil> <20041206004831.GM2953@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041206004831.GM2953@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020005090901020301050006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Forgot the patch (on top of the main patch):
 
-matthieu castet wrote:
 
->> -            if (option_independent == option)
->> -                printk(KERN_WARNING "PnPBIOS: Missing 
->> SMALL_TAG_STARTDEP tag\n");
-> 
-> this one shouldn't be removed
-> 
->>              option = option_independent;
->>              break;
->>  
->>          case SMALL_TAG_END:
->> -            if (option_independent != option)
->> -                printk(KERN_WARNING "PnPBIOS: Missing 
->> SMALL_TAG_ENDDEP tag\n");
-> 
-> ok for this one, may be change it to pnp_dbg(...)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Works for me to. Updated patch attached that only removes the missing 
-ENDDEP warning.
-
-Rene.
-
---------------020005090901020301050006
-Content-Type: text/x-patch;
- name="linux-2.6.10-rc3_rsparser2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.10-rc3_rsparser2.diff"
-
---- linux-2.6.10-rc3.orig/drivers/pnp/pnpbios/rsparser.c	2004-12-04 03:10:03.000000000 +0100
-+++ linux-2.6.10-rc3/drivers/pnp/pnpbios/rsparser.c	2004-12-06 01:59:44.000000000 +0100
-@@ -439,11 +439,7 @@
- 			break;
+--- linux-2.6.10-rc2-mm4-full/security/selinux/ss/avtab.c.old	2004-12-06 01:49:40.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/security/selinux/ss/avtab.c	2004-12-06 01:49:54.000000000 +0100
+@@ -54,7 +54,7 @@
+ 	return newnode;
+ }
  
- 		case SMALL_TAG_END:
--			if (option_independent != option)
--				printk(KERN_WARNING "PnPBIOS: Missing SMALL_TAG_ENDDEP tag\n");
--			p = p + 2;
--        		return (unsigned char *)p;
--			break;
-+        		return p + 2;
- 
- 		default: /* an unkown tag */
- 			len_err:
+-int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_datum *datum)
++static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_datum *datum)
+ {
+ 	int hvalue;
+ 	struct avtab_node *prev, *cur, *newnode;
 
---------------020005090901020301050006--

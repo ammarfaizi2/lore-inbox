@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270514AbTGND2m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 23:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270515AbTGND2l
+	id S270515AbTGNDkh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 23:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270516AbTGNDkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 23:28:41 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:11925 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270514AbTGND2k
+	Sun, 13 Jul 2003 23:40:37 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:51972 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270515AbTGNDkf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 23:28:40 -0400
-Date: Mon, 14 Jul 2003 04:42:44 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: "David S. Miller" <davem@redhat.com>, Eric Varsanyi <e0206@foo21.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kuznet@ms2.inr.ac.ru
-Subject: Re: POLLRDONCE optimisation for epoll users (was: epoll and half closed TCP connections)
-Message-ID: <20030714034244.GC23534@mail.jlokier.co.uk>
-References: <Pine.LNX.4.55.0307130956530.14680@bigblue.dev.mcafeelabs.com> <20030713191559.GA20573@mail.jlokier.co.uk> <Pine.LNX.4.55.0307131542000.15022@bigblue.dev.mcafeelabs.com> <20030714014135.GA22769@mail.jlokier.co.uk> <20030714022412.GD22769@mail.jlokier.co.uk> <Pine.LNX.4.55.0307131927580.15022@bigblue.dev.mcafeelabs.com> <20030714025644.GA23110@mail.jlokier.co.uk> <Pine.LNX.4.55.0307131958120.15022@bigblue.dev.mcafeelabs.com> <20030714031614.GD23110@mail.jlokier.co.uk> <Pine.LNX.4.55.0307132018200.15022@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Jul 2003 23:40:35 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Nigel Cunningham <ncunningham@clear.net.nz>, Pavel Machek <pavel@suse.cz>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
+Date: Mon, 14 Jul 2003 11:41:23 +0800
+User-Agent: KMail/1.5.2
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1057963547.3207.22.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux>
+In-Reply-To: <1058147684.2400.9.camel@laptop-linux>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307132018200.15022@bigblue.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307141141.25149.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> > > > 	(a) fd isn't a socket
-> > > > 	(b) fd isn't a TCP socket
-> > > > 	(c) kernel version <= 2.5.75
-> > > > 	(d) SO_RCVLOWAT < s
-> > > > 	(e) there is urgent data with OOBINLINE (I think)
+On Monday 14 July 2003 09:54, Nigel Cunningham wrote:
+> Okay.
+>
+> Having listened to the arguments, I'll make pressing Escape to cancel
+> the suspend a feature which defaults to being disabled and can be
+> enabled via a proc entry in 2.4. 
+
+OK!
+
+I won't add code to poll for ACPI (or
+> APM) events :>
+
+Sounds like a reasonable tradeoff
+
+>
+> Regards,
+>
+> Nigel
+>
+> On Mon, 2003-07-14 at 09:09, Pavel Machek wrote:
+> > Hi!
 > >
-> > > Jamie, did you smoke that stuff again ? :)
-> > > With Eric patch in the proper places it is just fine. You just make
-> > > f_op->poll() to report the extra flag other that POLLIN. What's the problem ?
+> > > Escape is more intuitively obvious though - I would expect the suspend
+> > > button to only start a suspend. And the idea of escape cancelling
+> > > anything is well in-grained in peoples' minds.
 > >
-> > The problem in cases (a)-(e) is your loop will call read() just once
-> > when it needs to call read() until it sees EAGAIN.
+> > You did not initiate suspend from keyboard => you should not
+> > terminate it from keyboard.
 > >
-> > What's wrong is the behaviour of your program when the extra flag
-> > _isn't_ set.
-> 
-> Jamie, the loop will call read(2) until data is available. With the trick
-> of checking the returned number of bytes you can avoid the extra EAGAIN
-> read(2). That's the point of the read(2) trick.
 
-That _only_ works if none of those conditions (a)-(e) applies.
-Otherwise, short reads are possible when there is more to come.
 
-Sure, if you're willing to assert that the program is running on
-kernel >= 2.5.76, all its fds are for sure TCP sockets and you added
-the POLLPRI check, then yes it's fine.
+Overruled ;)
+-- 
+Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
 
-I think mine is better because it works always, and you are free to
-code the optimisation in any programs, libraries etc.
+My current linux related activities:
+- 2.5 yenta_socket testing
+- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
+- Everyday usage of 2.5 kernel
 
-> The final check for RDHUP will tell that it has no more to wait for
-> POLLINs since there's no more someone sending.
+More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
+More info on swsusp: http://sourceforge.net/projects/swsusp/
 
-Sure, _that_ check is fine.
-
--- Jamie

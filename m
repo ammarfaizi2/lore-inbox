@@ -1,129 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVAUNsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVAUNtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbVAUNsj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 08:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVAUNsj
+	id S262364AbVAUNtt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 08:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVAUNtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 08:48:39 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:30176 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262362AbVAUNrg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 08:47:36 -0500
-Message-ID: <41F116DB.3BA37CEB@tv-sign.ru>
-Date: Fri, 21 Jan 2005 17:51:07 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 21 Jan 2005 08:49:49 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:59101 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262364AbVAUNtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 08:49:32 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
+Date: Fri, 21 Jan 2005 14:42:54 +0100
+User-Agent: KMail/1.7.1
+Cc: hugang@soulinfo.com, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200501202032.31481.rjw@sisk.pl> <20050121022348.GA18166@hugang.soulinfo.com> <20050121103028.GF18373@elf.ucw.cz>
+In-Reply-To: <20050121103028.GF18373@elf.ucw.cz>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix put_user under mmap_sem in sys_get_mempolicy()
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501211442.55274.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-sys_get_mempolicy() accesses user memory with mmap_sem held.
-If I understand correctly, this can cause deadlock:
+On Friday, 21 of January 2005 11:30, Pavel Machek wrote:
+> Hi!
+> 
+> > Full patch still can get from
+> >  http://soulinfo.com/~hugang/swsusp/2005-1-21/
+> 
+> From a short look:
+> 
+> core.eatmem.diff of course helps, but is wrong. You should talk to
+> akpm to find out why shrink_all_memory is not doing its job.
+> 
+> i386: +       repz movsl %ds:(%esi),%es:(%edi)
+> I do not think movsl has any parameters. What is repz? Repeat as long
+> as it is non-zero?
 
-sys_get_mempolicy:		Another thread, same mm:
+No, it's "repeat until %ecx is zero or ZF is cleared", but the latter never happens
+with movsl.  It's intended for cmpsl, scasl and friends (the assembler should
+complain about using it here).
 
-down_read(mmap_sem);
-				down_write(mmap_sem);
-put_user();
-do_page_fault:
-down_read(mmap_sem);
+> I think this should be "rep movsl".
 
-Compile tested only, I have no NUMA machine.
+Yes, it should.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---- 2.6.11-rc1/mm/mempolicy.c~	Wed Jan 12 11:44:55 2005
-+++ 2.6.11-rc1/mm/mempolicy.c	Fri Jan 21 17:41:47 2005
-@@ -482,26 +482,38 @@ asmlinkage long sys_get_mempolicy(int __
- 				  unsigned long maxnode,
- 				  unsigned long addr, unsigned long flags)
- {
--	int err, pval;
--	struct mm_struct *mm = current->mm;
--	struct vm_area_struct *vma = NULL;
-+	int err, pval = 0; /* make compiler happy */
- 	struct mempolicy *pol = current->mempolicy;
- 
- 	if (flags & ~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR))
- 		return -EINVAL;
- 	if (nmask != NULL && maxnode < MAX_NUMNODES)
- 		return -EINVAL;
-+
- 	if (flags & MPOL_F_ADDR) {
-+		struct mm_struct *mm = current->mm;
-+		struct vm_area_struct *vma;
-+
-+		err = 0;
- 		down_read(&mm->mmap_sem);
- 		vma = find_vma_intersection(mm, addr, addr+1);
--		if (!vma) {
--			up_read(&mm->mmap_sem);
--			return -EFAULT;
-+		if (!vma)
-+			err = -EFAULT;
-+		else {
-+			if (vma->vm_ops && vma->vm_ops->get_policy)
-+				pol = vma->vm_ops->get_policy(vma, addr);
-+			else
-+				pol = vma->vm_policy;
-+
-+			if (flags & MPOL_F_NODE) {
-+				pval = lookup_node(mm, addr);
-+				if (pval < 0)
-+					err = pval;
-+			}
- 		}
--		if (vma->vm_ops && vma->vm_ops->get_policy)
--			pol = vma->vm_ops->get_policy(vma, addr);
--		else
--			pol = vma->vm_policy;
-+		up_read(&mm->mmap_sem);
-+		if (err)
-+			goto out;
- 	} else if (addr)
- 		return -EINVAL;
- 
-@@ -509,17 +521,14 @@ asmlinkage long sys_get_mempolicy(int __
- 		pol = &default_policy;
- 
- 	if (flags & MPOL_F_NODE) {
--		if (flags & MPOL_F_ADDR) {
--			err = lookup_node(mm, addr);
--			if (err < 0)
-+		if (!(flags & MPOL_F_ADDR)) {
-+			if (pol == current->mempolicy &&
-+					pol->policy == MPOL_INTERLEAVE) {
-+				pval = current->il_next;
-+			} else {
-+				err = -EINVAL;
- 				goto out;
--			pval = err;
--		} else if (pol == current->mempolicy &&
--				pol->policy == MPOL_INTERLEAVE) {
--			pval = current->il_next;
--		} else {
--			err = -EINVAL;
--			goto out;
-+			}
- 		}
- 	} else
- 		pval = pol->policy;
-@@ -534,10 +543,7 @@ asmlinkage long sys_get_mempolicy(int __
- 		get_zonemask(pol, nodes);
- 		err = copy_nodes_to_user(nmask, maxnode, nodes, sizeof(nodes));
- 	}
--
-- out:
--	if (vma)
--		up_read(&current->mm->mmap_sem);
-+out:
- 	return err;
- }
+> core:
+> @@ -576,92 +989,31 @@ static void copy_data_pages(void)
+>                 for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+>                         if (saveable(zone, &zone_pfn)) {
+>                                 struct page * page;
+> +                               pbe = find_pbe_by_index(pagedir_nosave, nr_copy_pages-to_copy);
+> +                               BUG_ON(pbe == NULL);
+>                                 page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
+> 
+> Don't you introduce O(n^2) behaviour here? Should not it be something
+> like pbe_next? And it is the only user of find_pbe_by_index().
+> 
+> I think that read_one_pbe() is too short to be uninlined... Same for
+> read_one_pagedir and write_one_pbe().
+> 
+> alloc_one_pagedir: why not just alloc page as zeroed?
+> 
+> Okay, it is still too big to merge directly. Would it be possible to
+> get mod_printk_progress(), introduce *_for_each (but leave there old
+> implementations), introduce pagedir_free() (but leave old
+> implementation). Better collision code should already be there, that
+> should make patch smaller, too. Try not to move code around.
+
+I have a suggestion.
+
+hugang, you are currently replacing an array of pbes with a list of arrays
+of pbes contained within individual pages.
+
+I would go further and replace it with a single one-directional list
+of pbes.  Namely, I would modify "struct pbe" in the following way:
+
+struct pbe {
+	unsigned long address;
+	unsigned long orig_address;
+	swp_entry_t swap_address;	
+	struct pbe *next;
+};
+
+(AFAICT, the "dummy" field is only used by hugang - as a pointer)
+and I would define "for_each_pbe()" as:
+
+#define for_each_pbe(pbe, pblist) \
+	for (pbe = pblist;  pbe;  pbe = pbe->next)
+
+Then, the only non-trivial changes would be in alloc_pagedir() and
+in swsusp_pagedir_relocate(), where I would need to link pbes to
+each other.
+
+This also would make the assembly parts independent of the
+sizeof(struct pbe), which is currently hardcoded there.
+
+What do you think?
+
+Greets,
+RJW
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

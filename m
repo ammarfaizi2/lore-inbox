@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310475AbSCPRcx>; Sat, 16 Mar 2002 12:32:53 -0500
+	id <S310474AbSCPReN>; Sat, 16 Mar 2002 12:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310474AbSCPRcp>; Sat, 16 Mar 2002 12:32:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57355 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310480AbSCPRc0>;
-	Sat, 16 Mar 2002 12:32:26 -0500
-Message-ID: <3C93818C.7070207@mandrakesoft.com>
-Date: Sat, 16 Mar 2002 12:31:56 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S310479AbSCPRdz>; Sat, 16 Mar 2002 12:33:55 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4105 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310474AbSCPRdi>; Sat, 16 Mar 2002 12:33:38 -0500
+Subject: Re: [PATCH], tiser module: TI graphing calculators
+To: roms@lpg.ticalc.org
+Date: Sat, 16 Mar 2002 17:49:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Kernel List),
+        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), tytso@mit.edu (Theodore T'so)
+In-Reply-To: <3C937EBD.C0308D21@free.fr> from "Romain =?iso-8859-1?Q?Li=E9vin?=" at Mar 16, 2002 06:19:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-In-Reply-To: <E16mI5y-0006ls-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16mIJB-0006oL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> This driver directly accesses some UART registers in a way similar to
+> serial.c. 
+> A better method should be to do some ioctl for toggling UART lines
+> rather than by-passing the ttySx driver.
 
->>If it makes it easier for some, I consider poweroff not as an act unto 
->>itself, but as a transition to state D3cold. :)  And since we will 
->>
->
->That isnt neccessarily a good idea. Not every BIOS is terribly keen when
->faced with a soft boot and someone having powered off all the PCI bridges.
->
-
-s/D3cold/D2bios/ if that's easier to think about :)  I think we can 
-apply reboot and poweroff scenarios to the device tree without a 
-problem, was the basic point.  It's just another device powerdown state. 
- Instead of powering off the PCI bridge, (random example) we restore the 
-PCI bridge settings to exactly the state it was in when the BIOS booted 
-the kernel.
-
-    Jeff
-
-
-
-
+TIOCM* sounds promising. You ought to be able to bitbang enough lines in
+user space not to need a driver. 

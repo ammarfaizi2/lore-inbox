@@ -1,161 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265056AbSJWPa6>; Wed, 23 Oct 2002 11:30:58 -0400
+	id <S265029AbSJWP2r>; Wed, 23 Oct 2002 11:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265057AbSJWPa5>; Wed, 23 Oct 2002 11:30:57 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:24847 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S265056AbSJWPab>; Wed, 23 Oct 2002 11:30:31 -0400
-Date: Wed, 23 Oct 2002 09:32:48 -0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/10] 2.5.44 cciss factor dup'ed code
-Message-ID: <20021023093248.G14917@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
+	id <S265051AbSJWP2r>; Wed, 23 Oct 2002 11:28:47 -0400
+Received: from 86.33.202.62.dial.bluewin.ch ([62.202.33.86]:12688 "EHLO
+	k3.hellgate.ch") by vger.kernel.org with ESMTP id <S265029AbSJWP2p>;
+	Wed, 23 Oct 2002 11:28:45 -0400
+Date: Wed, 23 Oct 2002 17:34:53 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine weirdness with via kt8235 Southbridge
+Message-ID: <20021023153453.GA12338@k3.hellgate.ch>
+Mail-Followup-To: Christian Guggenberger <christian.guggenberger@physik.uni-regensburg.de>,
+	linux-kernel@vger.kernel.org
+References: <20021023154824.C14930@pc9391.uni-regensburg.de> <20021023154931.E14930@pc9391.uni-regensburg.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021023154931.E14930@pc9391.uni-regensburg.de>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.44 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch 7 of 10
-The whole set can be grabbed via anonymous cvs (empty password):
-cvs -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss login
-cvs -z3 -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss co 2.5.44
+On Wed, 23 Oct 2002 15:49:31 +0200, Christian Guggenberger wrote:
+> This concerns both 2.4 and 2.5 kernels  (testet with 2.4.20pre*aa series,
+> and with 2.5.43, 2.5.44 and 2.5.44-ac1):
+> 
+> When I enable APIC in the Bios, the via-rhine module will insert
+> properly, but I won't get a link... With APIC disabled, link is ok.  Ok,
+> this could be caused by buggy bios, so I'll try again, when a new
+> biosversion is available.
 
-DESC
-Factor out duplicated read capacity code into common routine
+Yeah, it seems there's a problem with IO-APICs. I currently don't have a
+machine with IO-APIC for testing, though, so...
 
+> 2.
+> This only happens with the 2.5 series (testet with 2.5.43 and above):
 
- drivers/block/cciss.c |   96 ++++++++++++++++----------------------------------
- 1 files changed, 31 insertions, 65 deletions
+2.5 is carrying an old version of the driver. I will post an update with
+additional fixes for both 2.4 and 2.5 before it's 2.6 :-).
 
---- linux-2.5.44/drivers/block/cciss.c~factor_duped_code	Mon Oct 21 12:06:02 2002
-+++ linux-2.5.44-root/drivers/block/cciss.c	Mon Oct 21 12:06:02 2002
-@@ -113,6 +113,9 @@ static void cciss_getgeometry(int cntl_n
- 
- static inline void addQ(CommandList_struct **Qptr, CommandList_struct *c);
- static void start_io( ctlr_info_t *h);
-+static int sendcmd( __u8 cmd, int ctlr, void *buff, size_t size,
-+	unsigned int use_unit_num, unsigned int log_unit, __u8 page_code,
-+	unsigned char *scsi3addr);
- 
- #ifdef CONFIG_PROC_FS
- static int cciss_proc_get_info(char *buffer, char **start, off_t offset, 
-@@ -1002,6 +1005,30 @@ case CMD_HARDWARE_ERR:
-         return(return_status);
- 
- }
-+static void
-+cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
-+		int withirq, unsigned int *total_size, unsigned int *block_size)
-+{
-+	int return_code;
-+	memset(buf, 0, sizeof(*buf));
-+	if (withirq)
-+		return_code = sendcmd_withirq(CCISS_READ_CAPACITY,
-+			ctlr, buf, sizeof(*buf), 1, logvol, 0 );
-+	else
-+		return_code = sendcmd(CCISS_READ_CAPACITY,
-+			ctlr, buf, sizeof(*buf), 1, logvol, 0, NULL );
-+	if (return_code == IO_OK) {
-+		*total_size = be32_to_cpu(*((__u32 *) &buf->total_size[0]))+1;
-+		*block_size = be32_to_cpu(*((__u32 *) &buf->block_size[0]));
-+	} else { /* read capacity command failed */
-+		printk(KERN_WARNING "cciss: read capacity failed\n");
-+		*total_size = 0;
-+		*block_size = BLOCK_SIZE;
-+	}
-+	printk(KERN_INFO "      blocks= %d block_size= %d\n",
-+		*total_size, *block_size);
-+	return;
-+}
- static int register_new_disk(int ctlr)
- {
-         struct gendisk *disk;
-@@ -1148,38 +1175,8 @@ static int register_new_disk(int ctlr)
- 		/* there could be gaps in lun numbers, track hightest */
- 	if(hba[ctlr]->highest_lun < lunid)
- 		hba[ctlr]->highest_lun = logvol;
--		
--	memset(size_buff, 0, sizeof(ReadCapdata_struct));
--	return_code = sendcmd_withirq(CCISS_READ_CAPACITY, ctlr, size_buff,
--		sizeof( ReadCapdata_struct), 1, logvol, 0 );
--	if (return_code == IO_OK)
--	{
--		total_size = (0xff & 
--			(unsigned int)(size_buff->total_size[0])) << 24;
--		total_size |= (0xff & 
--				(unsigned int)(size_buff->total_size[1])) << 16;
--		total_size |= (0xff & 
--				(unsigned int)(size_buff->total_size[2])) << 8;
--		total_size |= (0xff & (unsigned int)
--				(size_buff->total_size[3])); 
--		total_size++; // command returns highest block address
--
--		block_size = (0xff & 
--				(unsigned int)(size_buff->block_size[0])) << 24;
--               	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[1])) << 16;
--               	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[2])) << 8;
--               	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[3]));
--	} else /* read capacity command failed */ 
--	{
--			printk(KERN_WARNING "cciss: read capacity failed\n");
--			total_size = 0;
--			block_size = BLOCK_SIZE;
--	}	
--	printk(KERN_INFO "      blocks= %u block_size= %d\n", 
--					total_size, block_size);
-+	cciss_read_capacity(ctlr, logvol, size_buff, 1,
-+		&total_size, &block_size);
- 	/* Execute the command to read the disk geometry */
- 	memset(inq_buff, 0, sizeof(InquiryData_struct));
- 	return_code = sendcmd_withirq(CISS_INQUIRY, ctlr, inq_buff,
-@@ -2175,39 +2172,8 @@ static void cciss_getgeometry(int cntl_n
- 		ld_buff->LUN[i][0], ld_buff->LUN[i][1],ld_buff->LUN[i][2], 
- 		ld_buff->LUN[i][3], hba[cntl_num]->drv[i].LunID);
- #endif /* CCISS_DEBUG */
--
--	  	memset(size_buff, 0, sizeof(ReadCapdata_struct));
--	  	return_code = sendcmd(CCISS_READ_CAPACITY, cntl_num, size_buff, 
--				sizeof( ReadCapdata_struct), 1, i, 0, NULL );
--	  	if (return_code == IO_OK)
--		{
--			total_size = (0xff & 
--				(unsigned int)(size_buff->total_size[0])) << 24;
--			total_size |= (0xff & 
--				(unsigned int)(size_buff->total_size[1])) << 16;
--			total_size |= (0xff & 
--				(unsigned int)(size_buff->total_size[2])) << 8;
--			total_size |= (0xff & (unsigned int)
--				(size_buff->total_size[3])); 
--			total_size++; // command returns highest block address
--
--			block_size = (0xff & 
--				(unsigned int)(size_buff->block_size[0])) << 24;
--                	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[1])) << 16;
--                	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[2])) << 8;
--                	block_size |= (0xff & 
--				(unsigned int)(size_buff->block_size[3]));
--		} else /* read capacity command failed */ 
--		{
--			printk(KERN_WARNING "cciss: read capacity failed\n");
--			total_size = 0;
--			block_size = BLOCK_SIZE;
--		}	
--		printk(KERN_INFO "      blocks= %d block_size= %d\n", 
--					total_size, block_size);
--
-+		cciss_read_capacity(cntl_num, i, size_buff, 0,
-+			&total_size, &block_size);
- 		/* Execute the command to read the disk geometry */
- 		memset(inq_buff, 0, sizeof(InquiryData_struct));
- 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
-
-.
+Roger

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293125AbSB1Nt7>; Thu, 28 Feb 2002 08:49:59 -0500
+	id <S293341AbSB1OMi>; Thu, 28 Feb 2002 09:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293400AbSB1Nrc>; Thu, 28 Feb 2002 08:47:32 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38415 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293395AbSB1NpH>; Thu, 28 Feb 2002 08:45:07 -0500
-Date: Thu, 28 Feb 2002 14:44:55 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Davidovac Zoran <zdavid@unicef.org.yu>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/mounts: two different loop devices mounted on same mountpoint?!
-Message-ID: <20020228134455.GA28490@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020228095948.GG774@elf.ucw.cz> <Pine.LNX.4.33.0202281200230.15246-100000@unicef.org.yu>
+	id <S293400AbSB1OKM>; Thu, 28 Feb 2002 09:10:12 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:11443 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S293348AbSB1OIw>;
+	Thu, 28 Feb 2002 09:08:52 -0500
+Date: Thu, 28 Feb 2002 15:08:39 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Henrique Gobbi <henrique@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Generic HDLC Protocols
+Message-ID: <20020228150839.A6847@fafner.intra.cogenit.fr>
+In-Reply-To: <02022809445800.00921@henrique.cyclades.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0202281200230.15246-100000@unicef.org.yu>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <02022809445800.00921@henrique.cyclades.com.br>; from henrique@cyclades.com on Thu, Feb 28, 2002 at 09:44:58AM -0300
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Henrique Gobbi <henrique@cyclades.com> :
+[...]
+> I'd like to know what RFC's the protocols provided by Generic HDLC (PPP, 
+> Frame-Relay ansy & CCITT, CISCO and X.25) support.
+> I look up in the source code but this information is not there (should it 
+> be?).
 
-> I think that is normal behaviour in 2.4.X
-> that one can mount more than once
-> on same mount point.
+Which code specifically:
+- 2.4.x ?
+- ftp://ftp.pm.waw.pl/pub/Linux/hdlc/experimental/hdlc-2.5.3.patch.gz ?
+(see last weeks discussions on l-k for this one)
 
-But two different devices? What's the semantics, then?
-> > Hi!
-> >
-> > Kernel 2.4.17:
-> >
-> > pavel@amd:~/misc$ cat /proc/mounts
-> > /dev/root / ext2 rw 0 0
-> > /dev/hda3 /suse ext2 rw 0 0
-> > none /proc proc rw 0 0
-> > none /proc/bus/usb usbdevfs rw 0 0
-> > /dev/cfs0 /overlay coda rw 0 0
-> > /dev/loop0 /mnt ext2 rw 0 0
-> > /dev/loop1 /mnt ext2 rw 0 0
-> > pavel@amd:~/misc$
-> >
-> > Both /dev/loop0 *and* /dev/loop1 mounted on /mnt at same time? Oops?
-> > What's the semantics of that? [And I guess it should not be allowed)
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+> Can someone give me this information ?
+
+Maintener (khc@pm.waw.pl) will return from holidays in 3 weeks.
+Afaicr it's rfc1490 style for FR. Krzysztof's last framework is interesting
+if you want to adress missing areas. 
+
+-- 
+Ueimor

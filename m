@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130214AbRB1PRW>; Wed, 28 Feb 2001 10:17:22 -0500
+	id <S130220AbRB1PWR>; Wed, 28 Feb 2001 10:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130217AbRB1PRK>; Wed, 28 Feb 2001 10:17:10 -0500
-Received: from 2-031.cwb-adsl.telepar.net.br ([200.193.161.31]:32242 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S130214AbRB1PQ5>; Wed, 28 Feb 2001 10:16:57 -0500
-Date: Wed, 28 Feb 2001 10:37:56 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: peg@bitmap.phx.mcd.mot.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't compile 2.4.2-ac6
-Message-ID: <20010228103756.G24856@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	peg@bitmap.phx.mcd.mot.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010228061317.A28217@bitmap.phx.mcd.mot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <20010228061317.A28217@bitmap.phx.mcd.mot.com>; from peg@bitmap.phx.mcd.mot.com on Wed, Feb 28, 2001 at 06:13:18AM -0700
-X-Url: http://advogato.org/person/acme
+	id <S130217AbRB1PWD>; Wed, 28 Feb 2001 10:22:03 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14291 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130220AbRB1PVr>;
+	Wed, 28 Feb 2001 10:21:47 -0500
+Date: Wed, 28 Feb 2001 10:21:44 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Ph. Marek" <marek@mail.bmlv.gv.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel bug in inode.c:885 when floppy disk removed
+In-Reply-To: <3.0.6.32.20010228160302.0092f100@pop3.bmlv.gv.at>
+Message-ID: <Pine.GSO.4.21.0102281020390.7107-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Feb 28, 2001 at 06:13:18AM -0700, peg@bitmap.phx.mcd.mot.com escreveu:
-> I just pulled down the ac6 patch to 2.4.2 kernel and after applying it without
-> problems I did a make menuconfig with the following result:
+
+
+On Wed, 28 Feb 2001, Ph. Marek wrote:
+
+> Hi everybody!
 > 
-> Menuconfig has encountered a possible error in one of the kernel's
-> configuration files and is unable to continue.  Here is the error
-> report:
+> Hope I didn't forget something necessary.
 > 
->  Q> scripts/Menuconfig: MCmenu0: command not found
+> 
+> 
+> 1:
+> Kernel bug/Segmentation fault when floppy disk removed 2nd time
+> 
+> 
+> 2: 
+> Segmentation fault in a program, 
+> hanging processes in "D"-state,
+> Kernel bug in inode.c:885!
+> 
+> when removing floppy disk before unmounting and then using again
 
-I think this patch from Keith cures this
-
-
-Index: 2.9/arch/i386/config.in
---- 2.9/arch/i386/config.in Wed, 28 Feb 2001 12:44:01 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
-+++ 2.9(w)/arch/i386/config.in Wed, 28 Feb 2001 12:46:03 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
-@@ -379,6 +379,6 @@ bool '  Memory mapped I/O debugging' CON
- bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
- bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
- bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
--endmenu
--
- fi
-+
-+endmenu
+- Doctor, it hurts when I do it!
+- Don't do it, then.
 

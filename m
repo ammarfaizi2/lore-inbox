@@ -1,55 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVCaL0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVCaL3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVCaL0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCaL0e
+	id S261353AbVCaL3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCaL3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:26:34 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:6579 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261329AbVCaL0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:26:31 -0500
-Date: Thu, 31 Mar 2005 13:26:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-25
-Message-ID: <20050331112602.GA27286@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F3673231CD@MAILIT.keba.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231CD@MAILIT.keba.co.at>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 31 Mar 2005 06:29:24 -0500
+Received: from pcsmail.patni.com ([203.124.139.197]:28357 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261360AbVCaL3R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 06:29:17 -0500
+Message-ID: <001001c535e4$c79789e0$5e91a8c0@patni.com>
+Reply-To: "lk" <linux_kernel@patni.com>
+From: "lk" <linux_kernel@patni.com>
+To: "Banu R Reefath" <reefathbanur@myw.ltindia.com>,
+       <linux-kernel@vger.kernel.org>
+References: <s24be47e.095@EMAIL>
+Subject: Re: Timers to threads
+Date: Thu, 31 Mar 2005 03:28:36 -0800
+Organization: Patni
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If u search for usleep in google then first document says that usleep will
+have max range of 1,000,000 microseconds as the max sleep delay and
+after the delay time expires the actual execution may get delayed because
+of high system activity.
 
-* kus Kusche Klaus <kus@keba.com> wrote:
+If you are writing kernel modules, you may  use schedule_timeout().
+schedule_timeout() uses dynamic timers and when schedule( ) is invoked,
+another process
+is selected for execution; when the former process resumes its execution,
+the function
+schedule_timeout removes the dynamic timer.
 
-> > i have released the -V0.7.41-25 Real-Time Preemption patch, 
-> > which can be 
-> > downloaded from the usual place:
-> 
-> 1. Does not compile without RT_DEADLOCK_DETECT:
-> kernel/rt.c: In function `change_owner':
-> kernel/rt.c:556: error: structure has no member named `debug'
+code snippet
+for(;;){
+  set_current_state(TASK_UNINTERRUPTIBLE);
+  schedule_timeout(unsigned long timeout); /* schedule_timeout(10*HZ) will
+suspend process & resume execution after 10 seconds */
+  set_current_state(TASK_RUNNING);
+}
+hope it helps
+regards
+lk
+----- Original Message ----- 
+From: "Banu R Reefath" <reefathbanur@myw.ltindia.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, March 30, 2005 10:22 PM
+Subject: Timers to threads
 
-ok - i fixed this in -42-01.
 
-> 2. My problem (see my LKML mails yesterday) is not yet solved: The 
-> latency tracer shows latencies of at most 40 microseconds, but my test 
-> program at rtprio 99 sometimes did not get any CPU for milliseconds...
+> Dear Sir/Mam
+>   We are using Linux in one of our embedded products.This is the first
+time we are  working in this Platform.We have few doubts regarding
+implementing s/w timers & how  to pass the  timer interrupts to threads .
+>  In net we coudnt find exactly what we want .Could you please help us in
+this regard?
+>
+> Ideas from us
+> 1. If we want a thread to execute at particular intervals should it be
+done only through
+> usleep()  system call ? Will it be accurate enough ?
+> Because it is a real time design for a Medical Product.
+>
+> 2. If we use kernel timers to invoke at particular time intervals using
+add_timer () how to  pass on to the application that the time has elapsed?
+>
+> A piece of code demonstartion would be much more helpful to us
+>
+> Thanks & Regards,
+> Reefath Banu Rajali
+> Software Engineer
+> Larsen & Toubro
+> Embedded Systems & Software
+> Mysore
+> India
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-(please Cc: me on PREEMPT_RT related mails - i might not notice lkml 
-mails.) I'll reply to your lkml mail in a separate thread.
 
-	Ingo

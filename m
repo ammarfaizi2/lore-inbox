@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVBALrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVBAL5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbVBALrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 06:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVBALrP
+	id S261996AbVBAL5H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 06:57:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBAL5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 06:47:15 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:31125 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261998AbVBALrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 06:47:12 -0500
-Date: Tue, 1 Feb 2005 12:46:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Busser <busser@m-privacy.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050201114659.GA30978@elte.hu>
-References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org> <200502011044.39259.busser@m-privacy.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502011044.39259.busser@m-privacy.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 1 Feb 2005 06:57:07 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:18907 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261996AbVBAL5D convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 06:57:03 -0500
+Date: Tue, 1 Feb 2005 12:49:20 +0100 (CET)
+To: adobriyan@mail.ru, aurelien@aurel32.net
+Subject: Re: [PATCH 2.6] I2C: New chip driver: sis5595
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <VJ70nUPw.1107258560.0805790.khali@localhost>
+In-Reply-To: <200502011420.17466.adobriyan@mail.ru>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Greg KH" <greg@kroah.com>, "LKML" <linux-kernel@vger.kernel.org>,
+       "LM Sensors" <sensors@Stimpy.netroedge.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Peter Busser <busser@m-privacy.de> wrote:
+Hi Alexey,
 
-> > ok the paxtest 0.9.5 I downloaded from a security site (not yours) had
-> > this gem in:
+> Maybe you should call sis5595_update_device() in initialization function
+> and get rid of "value" field. It's sole purpose to fill "struct sis5595"
+> when it's known that "last_updated" field contains crap.
 
-> > +               do_mprotect((unsigned long)argv & ~4095U, 4096, PROT_READ|PROT_WRITE|PROT_EXEC);
+I assume you meant "valid" field.
 
-> > which is clearly there to sabotage any segmentation based approach (eg
-> > execshield and openwall etc); it cannot have any other possible use or
-> > meaning.
+Doesn't work. If you discard the "valid" field and call the update
+function at init time, you cannot be sure that the update function will
+actually do something. It all depends on the jiffies value relative to
+last_updated (0 at this point). This is exactly what "valid" is there
+for.
 
-> > the paxtest 0.9.6 that John Moser mailed to this list had this gem in
-> > it:
+An alternative is to add a parameter to the update function, that would
+force the update to happen regardless of time consideration. This
+doesn't really change anything though, you simply remove a structure
+member and replace it with a function parameter. How does it help?
 
-> > +       /* Dummy nested function */
-> > +       void dummy(void) {}
+Third possibility would be to initialize "last_updated" to anything
+less than jiffies-(HZ+HZ/2) at init time, so as to be sure that the next
+update will occur. Is it doable? Or maybe if we initialize
+"last_updated" to the max possible jiffies count, it'll have the same
+effect. But is it doable?
 
-> > which is clearly there with the only possible function of sabotaging the
-> > automatic PT_GNU_STACK setting by the toolchain (which btw is not fedora
-> > specific but happens by all new enough (3.3 or later) gcc compilers on
-> > all distros) since that requires an executable stack.
-[...]
+At any rate, the exact same issue exists in every over existing hardware
+monitoring driver. If we change our mind we'll do it for all drivers,
+not only this new one (sis5595), so Aurelien's patch is fine with me.
 
-> No, these things are also in the officially released sources. I put
-> them in myself in fact.
-
-*PLONK*
-
-	Ingo
+Thanks,
+--
+Jean Delvare

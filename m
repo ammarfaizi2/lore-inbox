@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262737AbSJHS7t>; Tue, 8 Oct 2002 14:59:49 -0400
+	id <S263274AbSJHTS2>; Tue, 8 Oct 2002 15:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261753AbSJHS6s>; Tue, 8 Oct 2002 14:58:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14096 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262602AbSJHS6l>; Tue, 8 Oct 2002 14:58:41 -0400
-Subject: PATCH: (forwarded) fix atm errors with gcc 3.2
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 19:55:50 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S263272AbSJHTRV>; Tue, 8 Oct 2002 15:17:21 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20748 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S263267AbSJHTQp>; Tue, 8 Oct 2002 15:16:45 -0400
+Date: Tue, 8 Oct 2002 15:14:25 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Nick Sanders <sandersn@btinternet.com>
+cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
+       szonyi calin <caszonyi@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.40 DMA and mm issues
+In-Reply-To: <200210051207.39518.sandersn@btinternet.com>
+Message-ID: <Pine.LNX.3.96.1021008151144.5056H-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17yzWI-0004rd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/atm/firestream.c linux.2.5.41-ac1/drivers/atm/firestream.c
---- linux.2.5.41/drivers/atm/firestream.c	2002-10-02 21:33:21.000000000 +0100
-+++ linux.2.5.41-ac1/drivers/atm/firestream.c	2002-10-03 13:45:25.000000000 +0100
-@@ -330,8 +330,8 @@
- #define FS_DEBUG_QSIZE   0x00001000
- 
- 
--#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " __FUNCTION__ "\n")
--#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  " __FUNCTION__ "\n")
-+#define func_enter() fs_dprintk(FS_DEBUG_FLOW, "fs: enter %s\n", __FUNCTION__ )
-+#define func_exit()  fs_dprintk(FS_DEBUG_FLOW, "fs: exit %s\n", __FUNCTION__ )
- 
- 
- struct fs_dev *fs_boards = NULL;
-@@ -814,7 +814,7 @@
- 				skb_put (skb, qe->p1 & 0xffff); 
- 				ATM_SKB(skb)->vcc = atm_vcc;
- 				atomic_inc(&atm_vcc->stats->rx);
--				skb->stamp = xtime;
-+				do_gettimeofday(&skb->stamp);
- 				fs_dprintk (FS_DEBUG_ALLOC, "Free rec-skb: %p (pushed)\n", skb);
- 				atm_vcc->push (atm_vcc, skb);
- 				fs_dprintk (FS_DEBUG_ALLOC, "Free rec-d: %p\n", pe);
+On Sat, 5 Oct 2002, Nick Sanders wrote:
+
+> On Friday 04 October 2002 9:12 pm, Zwane Mwaikambo wrote:
+> > On Fri, 4 Oct 2002, Nick Sanders wrote:
+> > > I get the same 'DMA disabled' messages with 2.5 but DMA is never actually
+> > > disabled so I wouldn't rely on them being accurate (see below)
+> > >
+> > > Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> > > ide: Assuming 33MHz system bus speed for PIO modes; override with
+> > > idebus=xx VP_IDE: IDE controller at PCI slot 00:11.1
+> > > PCI: Hardcoded IRQ 14 for device 00:11.1
+> > > VP_IDE: chipset revision 6
+> > > VP_IDE: not 100% native mode: will probe irqs later
+> > > ide: Assuming 33MHz system bus speed for PIO modes; override with
+> > > idebus=xx VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on
+> > > pci00:11.1 ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
+> > > ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:pio hda: WDC
+> > > WD400BB-00CAA0, ATA DISK drive
+> > > hdb: TOSHIBA DVD-ROM SD-M1402, ATAPI CD/DVD-ROM drive
+> > > hda: DMA disabled
+> > > hdb: DMA disabled
+> > > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > > hdc: LITE-ON LTR-24102B, ATAPI CD/DVD-ROM drive
+> > > hdc: DMA disabled
+> > > ide1 at 0x170-0x177,0x376 on irq 15
+> > > hda: host protected area => 1
+> > > hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=4865/255/63,
+> > > UDMA(100)
+> >
+> > IIRC not according to that line.
+> >
+> 
+> What line? All I meant was that the 'hda: DMA disabled' lines didn't actually 
+> disable DMA unless it's reenabled quietly somewhere later on. 
+
+Some systems, such as Redhat, seem to enable DMA for disks. You *may* be
+able to boot single and avoid this.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

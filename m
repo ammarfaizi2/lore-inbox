@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132585AbRDLGx6>; Thu, 12 Apr 2001 02:53:58 -0400
+	id <S132692AbRDLHBT>; Thu, 12 Apr 2001 03:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132685AbRDLGxs>; Thu, 12 Apr 2001 02:53:48 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55713 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132585AbRDLGxg>;
-	Thu, 12 Apr 2001 02:53:36 -0400
-Message-ID: <3AD550F0.8058FAA@mandrakesoft.com>
-Date: Thu, 12 Apr 2001 02:53:36 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andreas Dilger <adilger@turbolinux.com>, kowalski@datrix.co.za,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Fwd: Re: memory usage - dentry_cacheg
-In-Reply-To: <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu>
-Content-Type: multipart/mixed;
- boundary="------------4F4986E4763062C15AF567C0"
+	id <S133054AbRDLHBK>; Thu, 12 Apr 2001 03:01:10 -0400
+Received: from danielle.hinet.hr ([195.29.254.157]:7695 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S132692AbRDLHA4>; Thu, 12 Apr 2001 03:00:56 -0400
+Date: Thu, 12 Apr 2001 09:00:42 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: Ryan Butler <rbutler@adiis.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Few Qs regarding COMPAQ Proliant 6500
+Message-ID: <20010412090042.A31070@danielle.hinet.hr>
+In-Reply-To: <20010411132734.B24141@danielle.hinet.hr> <20010411133411.C24141@danielle.hinet.hr> <3AD45F53.2060208@adiis.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AD45F53.2060208@adiis.net>; from rbutler@adiis.net on Wed, Apr 11, 2001 at 08:42:43AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------4F4986E4763062C15AF567C0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Alexander Viro wrote:
-> We _have_ VM pressure there. However, such loads had never been used, so
-> there's no wonder that system gets unbalanced under them.
+> >> Any pointers ? Patches to apply ?
+> > 
+> > Don't you people hate to followup yourself ..
+> > 
+> > Anyway it's updated RH70 on 2.4.3 kernel !
 > 
-> I suspect that simple replacement of goto next; with continue; in the
-> fs/dcache.c::prune_dcache() may make situation seriously better.
+> You didn't mention what type of 6500 it is?  PPro?  PII? PIII?  How man 
+> processors installed?
 
-Awesome.  With the obvious patch attached, some local ramfs problems
-disappeared, and my browser and e-mail program are no longer swapped out
-when doing a kernel build.
+COMPAQ Proliant 6500 (P11), two PIII ->
 
-Thanks :)
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 7
+model name      : Pentium III (Katmai)
+stepping        : 3
+cpu MHz         : 499.870
+cache size      : 1024 KB
+
+Latest BIOS flashed (11/08/2000) and with 4.90 smartstart set as Linux.
+
+> We use almost exclusively proliants where I work, most 3000's, but we do 
+> have a 6500 that is a quad PPro 200.  I have spoke with Compaq and they 
+> didn't believe there was any driver
+> for the LCD screen nor were they going to contribute to one (this was 
+> about a year ago.)
+
+Well, I was hoping that that is changed !:)
+
+> The 6500 also used to freeze up a lot under NT4, but since switching to 
+> linux we have experienced no ill effects with it.
+
+We have here 14 6500 and few 800 and all of them (except that one) work
+fine so far.
+
+ps
+	any other relevant info avaiable on request
+
+TIA
 
 -- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
---------------4F4986E4763062C15AF567C0
-Content-Type: text/plain; charset=us-ascii;
- name="dcache.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dcache.patch"
-
-Index: fs/dcache.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/fs/dcache.c,v
-retrieving revision 1.1.1.16
-diff -u -r1.1.1.16 dcache.c
---- fs/dcache.c	2001/03/13 04:23:27	1.1.1.16
-+++ fs/dcache.c	2001/04/12 06:51:56
-@@ -340,7 +340,7 @@
- 		if (dentry->d_flags & DCACHE_REFERENCED) {
- 			dentry->d_flags &= ~DCACHE_REFERENCED;
- 			list_add(&dentry->d_lru, &dentry_unused);
--			goto next;
-+			continue;
- 		}
- 		dentry_stat.nr_unused--;
- 
-
---------------4F4986E4763062C15AF567C0--
-
+Mario Mikoèeviæ (Mozgy)
+My favourite FUBAR ...

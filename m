@@ -1,295 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbUCCMb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 07:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUCCMb0
+	id S261582AbUCCMeb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 07:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbUCCMeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 07:31:26 -0500
-Received: from nhugin.diku.dk ([130.225.96.140]:14829 "EHLO nhugin.diku.dk")
-	by vger.kernel.org with ESMTP id S261589AbUCCMbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 07:31:17 -0500
-Date: Wed, 3 Mar 2004 13:31:14 +0100 (MET)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [NET_SCHED] BUG in qdisc TBF (token bucket filter)
-Message-ID: <Pine.LNX.4.58.0403031323140.6655@ask.diku.dk>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-511516320-137269394-1078317074=:7033"
+	Wed, 3 Mar 2004 07:34:31 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:65213 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261582AbUCCMe3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 07:34:29 -0500
+Date: Wed, 3 Mar 2004 18:08:58 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>
+Subject: [RFC] 0/6 sysfs backing store version 0.2
+Message-ID: <20040303123858.GC2469@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi All,
 
----511516320-137269394-1078317074=:7033
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Following patch set has the sysfs backing store version 0.2. Thanks to
+John Stulz, Martin Bligh, Christian Borntraeger, Carsten Otte for testing 
+out the patch set and reporting problems. 
 
-
-BUG in qdisc TBF (token bucket filter).
-
- Problem in    : Kernel 2.4.22 (and newer, tested till 2.4.25-rc2)
- Problem NOT in: kernel 2.4.21 (and older)
-
-Problem:
---------
- After I add an tbf qdisc to an htb class, then the htb class disappear
- from the output-listing "tc -s class ls dev ethX".
-
-tc-versions:
- I have tested with different version of the "tc" utility.
- And different versions of the htb patch.
-
- "tc utility, iproute2-ss010824" (debian's iproute)
- "tc utility, iproute2-ss020116" (with htb3.6-020525)
-
-I've not tested if the tfb qdisc and htb class still works, but only
-that the output-listing is wrong.  (I'm running 2.4.21 on my
-router/firewall to be on the safe side.)
-
-Howto reproduce:
-----------------
- #Removing previous 'root' handle/classification
- /sbin/tc qdisc del dev eth0 root
- #
- /sbin/tc qdisc add dev eth0 root handle 1: htb default 10
- #
- /sbin/tc class add dev eth0 parent 1: classid 1:10 htb rate 500kbit
-
- # output-listing of class'es
- tc -s class ls dev eth0
- #
- # output:
- class htb 1:10 root prio 0 rate 500Kbit ceil 500Kbit burst 2239b cburst 2239b
-  Sent 812 bytes 6 pkts (dropped 0, overlimits 0)
-  lended: 6 borrowed: 0 giants: 0
-  tokens: 27239 ctokens: 27239
-
- # the tbf line
- /sbin/tc qdisc add dev eth0 parent 1:10 handle 4210: tbf rate 500kbit \
-          latency 50ms burst 2239b
-
- # output-listing of class'es
- tc -s class ls dev eth0
- #
- # output:
- <NOTHING>
-
-The output-listing of class'es returns, if I remove the tbf qdisc again.
-
-Diff between file /net/sched/sch_tbf.c in kernel 2.4.21 and 2.4.22 is
-attached.
+Please refer to previous posting for more details/numbers etc
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=107589464818859&w=2
 
 
-Hilsen
-  Jesper Brouer
+Changes in version 0.2
+----------------------
+o fixed d_move panic as found by John Stulz/Martin Bligh
+o fixed errors during "ls -la /sys/devices/qeth/0.0.f5ed" as found by Carsten
+  Otte & Christian Borntraeger on S390.
+o Miscellaneous error checking corrections.
 
---
--------------------------------------------------------------------
-System Administrator
-Dept. of Computer Science, University of Copenhagen
-E-mail: hawk@diku.dk, Direct Tel.: 353 21464
--------------------------------------------------------------------
+Details of the coded changes are mentioned in respective patches. Patch
+set is against 2.6.4-rc1. As usual code review, suggestions, bug reports 
+are eagerly awaited.
 
----511516320-137269394-1078317074=:7033
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sch_tbf.2.4.21-22.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0403031331140.7033@ask.diku.dk>
-Content-Description: 
-Content-Disposition: attachment; filename="sch_tbf.2.4.21-22.diff"
+Thanks
+Maneesh
 
-LS0tIGxpbnV4LTIuNC4yMS9uZXQvc2NoZWQvc2NoX3RiZi5jCUZyaSBEZWMg
-MjEgMTg6NDI6MDYgMjAwMQ0KKysrIGxpbnV4LTIuNC4yMi9uZXQvc2NoZWQv
-c2NoX3RiZi5jCU1vbiBBdWcgMjUgMTM6NDQ6NDQgMjAwMw0KQEAgLTcsNiAr
-Nyw4IEBADQogICoJCTIgb2YgdGhlIExpY2Vuc2UsIG9yIChhdCB5b3VyIG9w
-dGlvbikgYW55IGxhdGVyIHZlcnNpb24uDQogICoNCiAgKiBBdXRob3JzOglB
-bGV4ZXkgS3V6bmV0c292LCA8a3V6bmV0QG1zMi5pbnIuYWMucnU+DQorICoJ
-CURtaXRyeSBUb3Jva2hvdiA8ZHRvckBtYWlsLnJ1PiAtIGFsbG93IGF0dGFj
-aGluZyBpbm5lciBxZGlzY3MgLQ0KKyAqCQkJCQkJIG9yaWdpbmFsIGlkZWEg
-YnkgTWFydGluIERldmVyYQ0KICAqDQogICovDQogDQpAQCAtMTIzLDYyICsx
-MjUsNjMgQEANCiAJbG9uZwlwdG9rZW5zOwkJLyogQ3VycmVudCBudW1iZXIg
-b2YgUCB0b2tlbnMgKi8NCiAJcHNjaGVkX3RpbWVfdAl0X2M7CQkvKiBUaW1l
-IGNoZWNrLXBvaW50ICovDQogCXN0cnVjdCB0aW1lcl9saXN0IHdkX3RpbWVy
-OwkvKiBXYXRjaGRvZyB0aW1lciAqLw0KKwlzdHJ1Y3QgUWRpc2MJKnFkaXNj
-OwkJLyogSW5uZXIgcWRpc2MsIGRlZmF1bHQgLSBiZmlmbyBxdWV1ZSAqLw0K
-IH07DQogDQogI2RlZmluZSBMMlQocSxMKSAgICgocSktPlJfdGFiLT5kYXRh
-WyhMKT4+KHEpLT5SX3RhYi0+cmF0ZS5jZWxsX2xvZ10pDQogI2RlZmluZSBM
-MlRfUChxLEwpICgocSktPlBfdGFiLT5kYXRhWyhMKT4+KHEpLT5QX3RhYi0+
-cmF0ZS5jZWxsX2xvZ10pDQogDQotc3RhdGljIGludA0KLXRiZl9lbnF1ZXVl
-KHN0cnVjdCBza19idWZmICpza2IsIHN0cnVjdCBRZGlzYyogc2NoKQ0KK3N0
-YXRpYyBpbnQgdGJmX2VucXVldWUoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3Ry
-dWN0IFFkaXNjKiBzY2gpDQogew0KIAlzdHJ1Y3QgdGJmX3NjaGVkX2RhdGEg
-KnEgPSAoc3RydWN0IHRiZl9zY2hlZF9kYXRhICopc2NoLT5kYXRhOw0KKwlp
-bnQgcmV0Ow0KIA0KLQlpZiAoc2tiLT5sZW4gPiBxLT5tYXhfc2l6ZSkNCi0J
-CWdvdG8gZHJvcDsNCi0JX19za2JfcXVldWVfdGFpbCgmc2NoLT5xLCBza2Ip
-Ow0KLQlpZiAoKHNjaC0+c3RhdHMuYmFja2xvZyArPSBza2ItPmxlbikgPD0g
-cS0+bGltaXQpIHsNCi0JCXNjaC0+c3RhdHMuYnl0ZXMgKz0gc2tiLT5sZW47
-DQotCQlzY2gtPnN0YXRzLnBhY2tldHMrKzsNCi0JCXJldHVybiAwOw0KLQl9
-DQotDQotCS8qIERyb3AgYWN0aW9uOiB1bmRvIHRoZSB0aGluZ3MgdGhhdCB3
-ZSBqdXN0IGRpZCwNCi0JICogaS5lLiBtYWtlIHRhaWwgZHJvcA0KLQkgKi8N
-Ci0NCi0JX19za2JfdW5saW5rKHNrYiwgJnNjaC0+cSk7DQotCXNjaC0+c3Rh
-dHMuYmFja2xvZyAtPSBza2ItPmxlbjsNCi0NCi1kcm9wOg0KLQlzY2gtPnN0
-YXRzLmRyb3BzKys7DQorCWlmIChza2ItPmxlbiA+IHEtPm1heF9zaXplIHx8
-IHNjaC0+c3RhdHMuYmFja2xvZyArIHNrYi0+bGVuID4gcS0+bGltaXQpIHsN
-CisJCXNjaC0+c3RhdHMuZHJvcHMrKzsNCiAjaWZkZWYgQ09ORklHX05FVF9D
-TFNfUE9MSUNFDQotCWlmIChzY2gtPnJlc2hhcGVfZmFpbD09TlVMTCB8fCBz
-Y2gtPnJlc2hhcGVfZmFpbChza2IsIHNjaCkpDQorCQlpZiAoc2NoLT5yZXNo
-YXBlX2ZhaWwgPT0gTlVMTCB8fCBzY2gtPnJlc2hhcGVfZmFpbChza2IsIHNj
-aCkpDQogI2VuZGlmDQotCQlrZnJlZV9za2Ioc2tiKTsNCi0JcmV0dXJuIE5F
-VF9YTUlUX0RST1A7DQotfQ0KLQ0KLXN0YXRpYyBpbnQNCi10YmZfcmVxdWV1
-ZShzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgUWRpc2MqIHNjaCkNCi17
-DQotCV9fc2tiX3F1ZXVlX2hlYWQoJnNjaC0+cSwgc2tiKTsNCisJCQlrZnJl
-ZV9za2Ioc2tiKTsNCisJDQorCQlyZXR1cm4gTkVUX1hNSVRfRFJPUDsNCisJ
-fQ0KKwkNCisJaWYgKChyZXQgPSBxLT5xZGlzYy0+ZW5xdWV1ZShza2IsIHEt
-PnFkaXNjKSkgIT0gMCkgew0KKwkJc2NoLT5zdGF0cy5kcm9wcysrOw0KKwkJ
-cmV0dXJuIHJldDsNCisJfQkNCisJDQorCXNjaC0+cS5xbGVuKys7DQogCXNj
-aC0+c3RhdHMuYmFja2xvZyArPSBza2ItPmxlbjsNCisJc2NoLT5zdGF0cy5i
-eXRlcyArPSBza2ItPmxlbjsNCisJc2NoLT5zdGF0cy5wYWNrZXRzKys7DQog
-CXJldHVybiAwOw0KIH0NCiANCi1zdGF0aWMgaW50DQotdGJmX2Ryb3Aoc3Ry
-dWN0IFFkaXNjKiBzY2gpDQorc3RhdGljIGludCB0YmZfcmVxdWV1ZShzdHJ1
-Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgUWRpc2MqIHNjaCkNCiB7DQotCXN0
-cnVjdCBza19idWZmICpza2I7DQorCXN0cnVjdCB0YmZfc2NoZWRfZGF0YSAq
-cSA9IChzdHJ1Y3QgdGJmX3NjaGVkX2RhdGEgKilzY2gtPmRhdGE7DQorCWlu
-dCByZXQ7DQorCQ0KKwlpZiAoKHJldCA9IHEtPnFkaXNjLT5vcHMtPnJlcXVl
-dWUoc2tiLCBxLT5xZGlzYykpID09IDApIHsNCisJCXNjaC0+cS5xbGVuKys7
-IA0KKwkJc2NoLT5zdGF0cy5iYWNrbG9nICs9IHNrYi0+bGVuOw0KKwl9DQor
-CQ0KKwlyZXR1cm4gcmV0Ow0KK30NCiANCi0Jc2tiID0gX19za2JfZGVxdWV1
-ZV90YWlsKCZzY2gtPnEpOw0KLQlpZiAoc2tiKSB7DQotCQlzY2gtPnN0YXRz
-LmJhY2tsb2cgLT0gc2tiLT5sZW47DQorc3RhdGljIHVuc2lnbmVkIGludCB0
-YmZfZHJvcChzdHJ1Y3QgUWRpc2MqIHNjaCkNCit7DQorCXN0cnVjdCB0YmZf
-c2NoZWRfZGF0YSAqcSA9IChzdHJ1Y3QgdGJmX3NjaGVkX2RhdGEgKilzY2gt
-PmRhdGE7DQorCXVuc2lnbmVkIGludCBsZW47DQorCQ0KKwlpZiAoKGxlbiA9
-IHEtPnFkaXNjLT5vcHMtPmRyb3AocS0+cWRpc2MpKSAhPSAwKSB7DQorCQlz
-Y2gtPnEucWxlbi0tOw0KKwkJc2NoLT5zdGF0cy5iYWNrbG9nIC09IGxlbjsN
-CiAJCXNjaC0+c3RhdHMuZHJvcHMrKzsNCi0JCWtmcmVlX3NrYihza2IpOw0K
-LQkJcmV0dXJuIDE7DQogCX0NCi0JcmV0dXJuIDA7DQorCXJldHVybiBsZW47
-DQogfQ0KIA0KIHN0YXRpYyB2b2lkIHRiZl93YXRjaGRvZyh1bnNpZ25lZCBs
-b25nIGFyZykNCkBAIC0xODksMTkgKzE5MiwxOSBAQA0KIAluZXRpZl9zY2hl
-ZHVsZShzY2gtPmRldik7DQogfQ0KIA0KLXN0YXRpYyBzdHJ1Y3Qgc2tfYnVm
-ZiAqDQotdGJmX2RlcXVldWUoc3RydWN0IFFkaXNjKiBzY2gpDQorc3RhdGlj
-IHN0cnVjdCBza19idWZmICp0YmZfZGVxdWV1ZShzdHJ1Y3QgUWRpc2MqIHNj
-aCkNCiB7DQogCXN0cnVjdCB0YmZfc2NoZWRfZGF0YSAqcSA9IChzdHJ1Y3Qg
-dGJmX3NjaGVkX2RhdGEgKilzY2gtPmRhdGE7DQogCXN0cnVjdCBza19idWZm
-ICpza2I7DQogCQ0KLQlza2IgPSBfX3NrYl9kZXF1ZXVlKCZzY2gtPnEpOw0K
-Kwlza2IgPSBxLT5xZGlzYy0+ZGVxdWV1ZShxLT5xZGlzYyk7DQogDQogCWlm
-IChza2IpIHsNCiAJCXBzY2hlZF90aW1lX3Qgbm93Ow0KIAkJbG9uZyB0b2tz
-Ow0KIAkJbG9uZyBwdG9rcyA9IDA7DQotDQorCQl1bnNpZ25lZCBpbnQgbGVu
-ID0gc2tiLT5sZW47DQorCQkNCiAJCVBTQ0hFRF9HRVRfVElNRShub3cpOw0K
-IA0KIAkJdG9rcyA9IFBTQ0hFRF9URElGRl9TQUZFKG5vdywgcS0+dF9jLCBx
-LT5idWZmZXIsIDApOw0KQEAgLTIxMCwxOCArMjEzLDE5IEBADQogCQkJcHRv
-a3MgPSB0b2tzICsgcS0+cHRva2VuczsNCiAJCQlpZiAocHRva3MgPiAobG9u
-ZylxLT5tdHUpDQogCQkJCXB0b2tzID0gcS0+bXR1Ow0KLQkJCXB0b2tzIC09
-IEwyVF9QKHEsIHNrYi0+bGVuKTsNCisJCQlwdG9rcyAtPSBMMlRfUChxLCBs
-ZW4pOw0KIAkJfQ0KIAkJdG9rcyArPSBxLT50b2tlbnM7DQogCQlpZiAodG9r
-cyA+IChsb25nKXEtPmJ1ZmZlcikNCiAJCQl0b2tzID0gcS0+YnVmZmVyOw0K
-LQkJdG9rcyAtPSBMMlQocSwgc2tiLT5sZW4pOw0KKwkJdG9rcyAtPSBMMlQo
-cSwgbGVuKTsNCiANCiAJCWlmICgodG9rc3xwdG9rcykgPj0gMCkgew0KIAkJ
-CXEtPnRfYyA9IG5vdzsNCiAJCQlxLT50b2tlbnMgPSB0b2tzOw0KIAkJCXEt
-PnB0b2tlbnMgPSBwdG9rczsNCi0JCQlzY2gtPnN0YXRzLmJhY2tsb2cgLT0g
-c2tiLT5sZW47DQorCQkJc2NoLT5zdGF0cy5iYWNrbG9nIC09IGxlbjsNCisJ
-CQlzY2gtPnEucWxlbi0tOw0KIAkJCXNjaC0+ZmxhZ3MgJj0gflRDUV9GX1RI
-Uk9UVExFRDsNCiAJCQlyZXR1cm4gc2tiOw0KIAkJfQ0KQEAgLTI0NSwyMCAr
-MjQ5LDI1IEBADQogCQkgICBUaGlzIGlzIHRoZSBtYWluIGlkZWEgb2YgYWxs
-IEZRIGFsZ29yaXRobXMNCiAJCSAgIChjZi4gQ1NaLCBIUEZRLCBIRlNDKQ0K
-IAkJICovDQotCQlfX3NrYl9xdWV1ZV9oZWFkKCZzY2gtPnEsIHNrYik7DQot
-DQorCQkNCisJCWlmIChxLT5xZGlzYy0+b3BzLT5yZXF1ZXVlKHNrYiwgcS0+
-cWRpc2MpICE9IE5FVF9YTUlUX1NVQ0NFU1MpIHsNCisJCQkvKiBXaGVuIHJl
-cXVldWUgZmFpbHMgc2tiIGlzIGRyb3BwZWQgKi8gDQorCQkJc2NoLT5xLnFs
-ZW4tLTsNCisJCQlzY2gtPnN0YXRzLmJhY2tsb2cgLT0gbGVuOw0KKwkJCXNj
-aC0+c3RhdHMuZHJvcHMrKzsNCisJCX0JDQorCQkNCiAJCXNjaC0+ZmxhZ3Mg
-fD0gVENRX0ZfVEhST1RUTEVEOw0KIAkJc2NoLT5zdGF0cy5vdmVybGltaXRz
-Kys7DQogCX0NCiAJcmV0dXJuIE5VTEw7DQogfQ0KIA0KLQ0KLXN0YXRpYyB2
-b2lkDQotdGJmX3Jlc2V0KHN0cnVjdCBRZGlzYyogc2NoKQ0KK3N0YXRpYyB2
-b2lkIHRiZl9yZXNldChzdHJ1Y3QgUWRpc2MqIHNjaCkNCiB7DQogCXN0cnVj
-dCB0YmZfc2NoZWRfZGF0YSAqcSA9IChzdHJ1Y3QgdGJmX3NjaGVkX2RhdGEg
-KilzY2gtPmRhdGE7DQogDQorCXFkaXNjX3Jlc2V0KHEtPnFkaXNjKTsNCiAJ
-c2tiX3F1ZXVlX3B1cmdlKCZzY2gtPnEpOw0KIAlzY2gtPnN0YXRzLmJhY2ts
-b2cgPSAwOw0KIAlQU0NIRURfR0VUX1RJTUUocS0+dF9jKTsNCkBAIC0yNjgs
-NiArMjc3LDMxIEBADQogCWRlbF90aW1lcigmcS0+d2RfdGltZXIpOw0KIH0N
-CiANCitzdGF0aWMgc3RydWN0IFFkaXNjICp0YmZfY3JlYXRlX2RmbHRfcWRp
-c2Moc3RydWN0IG5ldF9kZXZpY2UgKmRldiwgdTMyIGxpbWl0KQ0KK3sNCisJ
-c3RydWN0IFFkaXNjICpxID0gcWRpc2NfY3JlYXRlX2RmbHQoZGV2LCAmYmZp
-Zm9fcWRpc2Nfb3BzKTsNCisgICAgICAgIHN0cnVjdCBydGF0dHIgKnJ0YTsN
-CisJaW50IHJldDsNCisJDQorCWlmIChxKSB7DQorCQlydGEgPSBrbWFsbG9j
-KFJUQV9MRU5HVEgoc2l6ZW9mKHN0cnVjdCB0Y19maWZvX3FvcHQpKSwgR0ZQ
-X0tFUk5FTCk7DQorCQlpZiAocnRhKSB7DQorCQkJcnRhLT5ydGFfdHlwZSA9
-IFJUTV9ORVdRRElTQzsNCisJCQlydGEtPnJ0YV9sZW4gPSBSVEFfTEVOR1RI
-KHNpemVvZihzdHJ1Y3QgdGNfZmlmb19xb3B0KSk7IA0KKwkJCSgoc3RydWN0
-IHRjX2ZpZm9fcW9wdCAqKVJUQV9EQVRBKHJ0YSkpLT5saW1pdCA9IGxpbWl0
-Ow0KKwkJCQ0KKwkJCXJldCA9IHEtPm9wcy0+Y2hhbmdlKHEsIHJ0YSk7DQor
-CQkJa2ZyZWUocnRhKTsNCisJCQkNCisJCQlpZiAocmV0ID09IDApDQorCQkJ
-CXJldHVybiBxOw0KKwkJfQ0KKwkJcWRpc2NfZGVzdHJveShxKTsNCisJfQ0K
-Kw0KKwlyZXR1cm4gTlVMTDsJDQorfQ0KKw0KIHN0YXRpYyBpbnQgdGJmX2No
-YW5nZShzdHJ1Y3QgUWRpc2MqIHNjaCwgc3RydWN0IHJ0YXR0ciAqb3B0KQ0K
-IHsNCiAJaW50IGVyciA9IC1FSU5WQUw7DQpAQCAtMjc2LDYgKzMxMCw3IEBA
-DQogCXN0cnVjdCB0Y190YmZfcW9wdCAqcW9wdDsNCiAJc3RydWN0IHFkaXNj
-X3JhdGVfdGFibGUgKnJ0YWIgPSBOVUxMOw0KIAlzdHJ1Y3QgcWRpc2NfcmF0
-ZV90YWJsZSAqcHRhYiA9IE5VTEw7DQorCXN0cnVjdCBRZGlzYyAqY2hpbGQg
-PSBOVUxMOw0KIAlpbnQgbWF4X3NpemUsbjsNCiANCiAJaWYgKHJ0YXR0cl9w
-YXJzZSh0YiwgVENBX1RCRl9QVEFCLCBSVEFfREFUQShvcHQpLCBSVEFfUEFZ
-TE9BRChvcHQpKSB8fA0KQEAgLTMwOCw4ICszNDMsMTQgQEANCiAJfQ0KIAlp
-ZiAobWF4X3NpemUgPCAwKQ0KIAkJZ290byBkb25lOw0KKwkNCisJaWYgKHEt
-PnFkaXNjID09ICZub29wX3FkaXNjKSB7DQorCQlpZiAoKGNoaWxkID0gdGJm
-X2NyZWF0ZV9kZmx0X3FkaXNjKHNjaC0+ZGV2LCBxb3B0LT5saW1pdCkpID09
-IE5VTEwpDQorCQkJZ290byBkb25lOw0KKwl9DQogDQogCXNjaF90cmVlX2xv
-Y2soc2NoKTsNCisJaWYgKGNoaWxkKSBxLT5xZGlzYyA9IGNoaWxkOw0KIAlx
-LT5saW1pdCA9IHFvcHQtPmxpbWl0Ow0KIAlxLT5tdHUgPSBxb3B0LT5tdHU7
-DQogCXEtPm1heF9zaXplID0gbWF4X3NpemU7DQpAQCAtMzQyLDYgKzM4Myw4
-IEBADQogCWluaXRfdGltZXIoJnEtPndkX3RpbWVyKTsNCiAJcS0+d2RfdGlt
-ZXIuZnVuY3Rpb24gPSB0YmZfd2F0Y2hkb2c7DQogCXEtPndkX3RpbWVyLmRh
-dGEgPSAodW5zaWduZWQgbG9uZylzY2g7DQorDQorCXEtPnFkaXNjID0gJm5v
-b3BfcWRpc2M7DQogCQ0KIAlpZiAoKGVyciA9IHRiZl9jaGFuZ2Uoc2NoLCBv
-cHQpKSAhPSAwKSB7DQogCQlNT0RfREVDX1VTRV9DT1VOVDsNCkBAIC0zNTks
-NiArNDAyLDkgQEANCiAJCXFkaXNjX3B1dF9ydGFiKHEtPlBfdGFiKTsNCiAJ
-aWYgKHEtPlJfdGFiKQ0KIAkJcWRpc2NfcHV0X3J0YWIocS0+Ul90YWIpOw0K
-KwkNCisJcWRpc2NfZGVzdHJveShxLT5xZGlzYyk7DQorCXEtPnFkaXNjID0g
-Jm5vb3BfcWRpc2M7DQogDQogCU1PRF9ERUNfVVNFX0NPVU5UOw0KIH0NCkBA
-IC0zOTEsMTAgKzQzNyw5MyBAQA0KIAlyZXR1cm4gLTE7DQogfQ0KIA0KK3N0
-YXRpYyBpbnQgdGJmX2R1bXBfY2xhc3Moc3RydWN0IFFkaXNjICpzY2gsIHVu
-c2lnbmVkIGxvbmcgY2wsDQorCSAgICAgICAJCSAgc3RydWN0IHNrX2J1ZmYg
-KnNrYiwgc3RydWN0IHRjbXNnICp0Y20pDQorew0KKwlzdHJ1Y3QgdGJmX3Nj
-aGVkX2RhdGEgKnEgPSAoc3RydWN0IHRiZl9zY2hlZF9kYXRhKilzY2gtPmRh
-dGE7DQorDQorCWlmIChjbCAhPSAxKSAJLyogb25seSBvbmUgY2xhc3MgKi8g
-DQorCQlyZXR1cm4gLUVOT0VOVDsNCisgICAgDQorCXRjbS0+dGNtX3BhcmVu
-dCA9IFRDX0hfUk9PVDsNCisJdGNtLT50Y21faGFuZGxlID0gMTsNCisJdGNt
-LT50Y21faW5mbyA9IHEtPnFkaXNjLT5oYW5kbGU7DQorDQorCXJldHVybiAw
-Ow0KK30NCisNCitzdGF0aWMgaW50IHRiZl9ncmFmdChzdHJ1Y3QgUWRpc2Mg
-KnNjaCwgdW5zaWduZWQgbG9uZyBhcmcsIHN0cnVjdCBRZGlzYyAqbmV3LA0K
-KwkJICAgICBzdHJ1Y3QgUWRpc2MgKipvbGQpDQorew0KKwlzdHJ1Y3QgdGJm
-X3NjaGVkX2RhdGEgKnEgPSAoc3RydWN0IHRiZl9zY2hlZF9kYXRhICopc2No
-LT5kYXRhOw0KKw0KKwlpZiAobmV3ID09IE5VTEwpDQorCQluZXcgPSAmbm9v
-cF9xZGlzYzsNCisNCisJc2NoX3RyZWVfbG9jayhzY2gpOwkNCisJKm9sZCA9
-IHhjaGcoJnEtPnFkaXNjLCBuZXcpOw0KKwlxZGlzY19yZXNldCgqb2xkKTsN
-CisJc2NoX3RyZWVfdW5sb2NrKHNjaCk7DQorCQ0KKwlyZXR1cm4gMDsNCit9
-DQorDQorc3RhdGljIHN0cnVjdCBRZGlzYyAqdGJmX2xlYWYoc3RydWN0IFFk
-aXNjICpzY2gsIHVuc2lnbmVkIGxvbmcgYXJnKQ0KK3sNCisJc3RydWN0IHRi
-Zl9zY2hlZF9kYXRhICpxID0gKHN0cnVjdCB0YmZfc2NoZWRfZGF0YSAqKXNj
-aC0+ZGF0YTsNCisJcmV0dXJuIHEtPnFkaXNjOw0KK30NCisNCitzdGF0aWMg
-dW5zaWduZWQgbG9uZyB0YmZfZ2V0KHN0cnVjdCBRZGlzYyAqc2NoLCB1MzIg
-Y2xhc3NpZCkNCit7DQorCXJldHVybiAxOw0KK30NCisNCitzdGF0aWMgdm9p
-ZCB0YmZfcHV0KHN0cnVjdCBRZGlzYyAqc2NoLCB1bnNpZ25lZCBsb25nIGFy
-ZykNCit7DQorfQ0KKw0KK3N0YXRpYyBpbnQgdGJmX2NoYW5nZV9jbGFzcyhz
-dHJ1Y3QgUWRpc2MgKnNjaCwgdTMyIGNsYXNzaWQsIHUzMiBwYXJlbnRpZCwg
-DQorCQkJc3RydWN0IHJ0YXR0ciAqKnRjYSwgdW5zaWduZWQgbG9uZyAqYXJn
-KQ0KK3sNCisJcmV0dXJuIC1FTk9TWVM7DQorfQ0KKw0KK3N0YXRpYyBpbnQg
-dGJmX2RlbGV0ZShzdHJ1Y3QgUWRpc2MgKnNjaCwgdW5zaWduZWQgbG9uZyBh
-cmcpDQorew0KKwlyZXR1cm4gLUVOT1NZUzsNCit9DQorDQorc3RhdGljIHZv
-aWQgdGJmX3dhbGsoc3RydWN0IFFkaXNjICpzY2gsIHN0cnVjdCBxZGlzY193
-YWxrZXIgKndhbGtlcikNCit7DQorCXN0cnVjdCB0YmZfc2NoZWRfZGF0YSAq
-cSA9IChzdHJ1Y3QgdGJmX3NjaGVkX2RhdGEgKilzY2gtPmRhdGE7DQorDQor
-CWlmICghd2Fsa2VyLT5zdG9wKSB7DQorCQlpZiAod2Fsa2VyLT5jb3VudCA+
-PSB3YWxrZXItPnNraXApIA0KKwkJCWlmICh3YWxrZXItPmZuKHNjaCwgKHVu
-c2lnbmVkIGxvbmcpcSwgd2Fsa2VyKSA8IDApIHsgDQorCQkJCXdhbGtlci0+
-c3RvcCA9IDE7DQorCQkJCXJldHVybjsNCisJCQl9DQorCQl3YWxrZXItPmNv
-dW50Kys7DQorCX0NCit9DQorDQorc3RhdGljIHN0cnVjdCBRZGlzY19jbGFz
-c19vcHMgdGJmX2NsYXNzX29wcyA9DQorew0KKwkuZ3JhZnQJCT0gCXRiZl9n
-cmFmdCwNCisJLmxlYWYJCT0JdGJmX2xlYWYsDQorCS5nZXQJCT0JdGJmX2dl
-dCwNCisJLnB1dAkJPQl0YmZfcHV0LA0KKwkuY2hhbmdlCQk9CXRiZl9jaGFu
-Z2VfY2xhc3MsDQorCS5kZWxldGUJCT0JdGJmX2RlbGV0ZSwNCisJLndhbGsJ
-CT0JdGJmX3dhbGssDQorCS5kdW1wCQk9CXRiZl9kdW1wX2NsYXNzLA0KK307
-DQorDQogc3RydWN0IFFkaXNjX29wcyB0YmZfcWRpc2Nfb3BzID0NCiB7DQog
-CU5VTEwsDQotCU5VTEwsDQorCSZ0YmZfY2xhc3Nfb3BzLA0KIAkidGJmIiwN
-CiAJc2l6ZW9mKHN0cnVjdCB0YmZfc2NoZWRfZGF0YSksDQogDQo=
-
----511516320-137269394-1078317074=:7033--
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-5268553
+T/L : 9243696

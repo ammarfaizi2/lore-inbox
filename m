@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbREOVl6>; Tue, 15 May 2001 17:41:58 -0400
+	id <S261576AbREOVhS>; Tue, 15 May 2001 17:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbREOVls>; Tue, 15 May 2001 17:41:48 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:53496 "EHLO tytlal")
-	by vger.kernel.org with ESMTP id <S261590AbREOVle>;
-	Tue, 15 May 2001 17:41:34 -0400
-Date: Tue, 15 May 2001 14:40:20 -0700
-From: Chip Salzenberg <chip@valinux.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
+	id <S261578AbREOVhI>; Tue, 15 May 2001 17:37:08 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2315 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261576AbREOVg7>; Tue, 15 May 2001 17:36:59 -0400
+Date: Tue, 15 May 2001 14:36:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: Jonathan Lundell <jlundell@pobox.com>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
         "H. Peter Anvin" <hpa@transmeta.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010515144020.H3098@valinux.com>
-In-Reply-To: <Pine.LNX.4.21.0105150204020.1078-100000@penguin.transmeta.com> <E14zb68-0002Fq-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14zb68-0002Fq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 15, 2001 at 10:26:32AM +0100
+In-Reply-To: <344250272.989965778@[169.254.198.40]>
+Message-ID: <Pine.LNX.4.21.0105151434530.2741-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Alan Cox:
-> Given a file handle 'X' how do I find out what ioctl groups I should
-> apply to it.
 
-Wouldn't it be better just to *try* ioctls and see which ones work and
-which ones don't?
+On Tue, 15 May 2001, Alex Bligh - linux-kernel wrote:
+> 
+> Q: Let us assume you have dynamic numbering disk0..N as you suggest,
+>    and you have some s/w RAID of SCSI disks. A disk fails, and is (hot)
+>    removed. Life continues. You reboot the machine. Disks are now numbered
+>    disk0..(N-1). If the RAID config specifies using disk0..N thusly,
 
-This ioctl situation reminds me of how novice programmers assume that
-they have to call access() or stat() and check a file for existence
-and readability before calling open().  But that's just stupid when
-you think about it, because if the file isn't there and the open()
-fails, that's OK!  Failures are not fatal.
+If you have a raid config like that, then you're screwed _whatever_ you
+do.
 
-Similarly, ioctl failures are not fatal.  Just Try Them.
--- 
-Chip Salzenberg              - a.k.a. -             <chip@valinux.com>
- "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+Look into using UUID's, which fix this properly.
+
+And note, btw, how I think the md autorun stuff do all of this the RIGHT
+way. Where RIGHT very much includes not using positional information etc.
+
+		Linus
+

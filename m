@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUK0Slr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbUK0SqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUK0Slr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 13:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUK0Slr
+	id S261301AbUK0SqG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 13:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbUK0SqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 13:41:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52926 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261300AbUK0Sku
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 13:40:50 -0500
-Date: Sat, 27 Nov 2004 18:40:48 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Vladimir Saveliev <vs@namesys.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: should delete_inode be allowed to be called from shrink_dcache?
-Message-ID: <20041127184048.GJ26051@parcelfarce.linux.theplanet.co.uk>
-References: <1101555657.2229.54.camel@tribesman.namesys.com>
+	Sat, 27 Nov 2004 13:46:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43141 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261301AbUK0SqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 13:46:03 -0500
+Date: Sat, 27 Nov 2004 10:46:00 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
+Subject: Re: [PATCH 2.4] usb serial write fix
+Message-ID: <20041127104600.55395d78@lembas.zaitcev.lan>
+In-Reply-To: <1099409108.2856.35.camel@deimos.microgate.com>
+References: <mailman.1099321382.10097.linux-kernel2news@redhat.com>
+	<20041101193616.2d517e77@lembas.zaitcev.lan>
+	<1099404208.2856.25.camel@deimos.microgate.com>
+	<1099409108.2856.35.camel@deimos.microgate.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101555657.2229.54.camel@tribesman.namesys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2004 at 02:40:57PM +0300, Vladimir Saveliev wrote:
-> Hello
-> 
-> Is there anything wrong that
-> 
-> mkdir dir
-> cd dir
-> rmdir ../dir
-> ls file
-> cd ..
-> 
-> leaves after itself two dentries - negative one ("file") and dentry of
-> directory "dir" which is attached to inode of that directory?
+On Tue, 02 Nov 2004 09:25:08 -0600, Paul Fulghum <paulkf@microgate.com> wrote:
 
-No, it's legitimate (and can happen in other scenarios).
- 
-> After that a process may get into somefs_delete_inode trying to free
-> pages by shrinking dcache (it will first free negative dentry and then
-> its parent).
-> If process is doing that being already in somefs_write (for example)
-> some filesystems may have problems.
+> On Tue, 2004-11-02 at 08:03, Paul Fulghum wrote:
+> > On Mon, 2004-11-01 at 21:36, Pete Zaitcev wrote:
+> > > Why testing for signals? Do you expect any?
+> > 
+> > post_helper can run in a user process as well
+> > as keventd. The user process can get a signal
+> > like HUP to pppd.
 
-Details, please...  All filesystems I'm familiar with won't (AFAICS) have
-any problems with that.  What exactly do you have in mind?  Note that
-in a lot of areas you get GFP_NOFS allocations anyway - that's the primary
-defense against deadlocks and it's almost always enough.  The only trouble
-I can recall more or less recently was hpfs - there we had (among shitpiles
-of other races) several places that required explicit GFP_NOFS.  Usually
-it just works...
+> Signals sent to one user process can interfere with
+> the processing of write requests from a different process.
+
+This is a problem only _if_ we apply your patch (which checks for
+signals), this is why I asked about it in the first place.
+
+-- Pete

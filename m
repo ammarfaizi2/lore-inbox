@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315449AbSGVJVW>; Mon, 22 Jul 2002 05:21:22 -0400
+	id <S316342AbSGVFsT>; Mon, 22 Jul 2002 01:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSGVJVW>; Mon, 22 Jul 2002 05:21:22 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:52488 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315449AbSGVJVW>; Mon, 22 Jul 2002 05:21:22 -0400
-Date: Mon, 22 Jul 2002 11:23:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Andreas Schwab <schwab@suse.de>, Keith Owens <kaos@ocs.com.au>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-In-Reply-To: <20020722095528.A2534@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207221120370.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316397AbSGVFsT>; Mon, 22 Jul 2002 01:48:19 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:64680 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S316342AbSGVFsS>; Mon, 22 Jul 2002 01:48:18 -0400
+Subject: Re: PATCH: 2.5.27 port thunderlan to the new DMA API
+From: Nicholas Miell <nmiell@attbi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com, davej@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <E17WN0K-0007Yb-00@the-village.bc.nu>
+References: <E17WN0K-0007Yb-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 21 Jul 2002 22:51:19 -0700
+Message-Id: <1027317081.1092.3.camel@entropy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2002-07-21 at 13:08, Alan Cox wrote:
+> Tested and running on my Compaq both in bbuf and direct mode.
+> 
 
-On Mon, 22 Jul 2002, Russell King wrote:
+I need this to compile, which leads me to believe that perhaps that
+wasn't your final patch...
 
-> What Roman is meaning is something like this:
->
-> if [ "$CONFIG_FOO" = "y" ]; then
->    choice ...
-> fi
-
-BTW that's not the only problem, a symbol might be defined in
-arch/foo/config.in, but not in arch/bar/config.in, so even xconfig doesn't
-see everything.
-
-bye, Roman
+--- linux-2.5.27/drivers/net/tlan.c.~1~	Sun Jul 21 18:20:49 2002
++++ linux-2.5.27/drivers/net/tlan.c	Sun Jul 21 22:40:31 2002
+@@ -1536,7 +1536,7 @@
+ 				new_skb->dev = dev;
+ 				skb_reserve( new_skb, 2 );
+ 				t = (void *) skb_put( new_skb, TLAN_MAX_FRAME_SIZE );
+-				head_list->buffer[0].address = pci_map_single(priv->pciDev, newskb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
++				head_list->buffer[0].address = pci_map_single(priv->pciDev, new_skb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
+ 				head_list->buffer[8].address = (u32) t;
+ #ifdef __LP64__
+ #error "Not 64bit clean"
 

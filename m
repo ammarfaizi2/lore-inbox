@@ -1,110 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSGPLOb>; Tue, 16 Jul 2002 07:14:31 -0400
+	id <S314548AbSGPLNP>; Tue, 16 Jul 2002 07:13:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315278AbSGPLOa>; Tue, 16 Jul 2002 07:14:30 -0400
-Received: from mail4.ucc.ie ([143.239.1.34]:43018 "EHLO mail4.ucc.ie")
-	by vger.kernel.org with ESMTP id <S314553AbSGPLO1>;
-	Tue, 16 Jul 2002 07:14:27 -0400
-Message-ID: <9FBB394A25826C46B2C6F0EBDAD42755018E6E3C@xch2.ucc.ie>
-From: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [rl@hellgate.ch: [PATCH] #8 VIA Rhine (stalls, stats, backoff
-	 , clean up)]
-Date: Tue, 16 Jul 2002 12:17:17 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S314553AbSGPLNO>; Tue, 16 Jul 2002 07:13:14 -0400
+Received: from hub-r.franken.de ([194.94.249.2]:32525 "EHLO hub-r.franken.de")
+	by vger.kernel.org with ESMTP id <S314548AbSGPLNN>;
+	Tue, 16 Jul 2002 07:13:13 -0400
+Subject: Problems with Promise PDC 20265 and 2.4.19-rc1
+From: Ernst Lehmann <lehmann@acheron.franken.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5.99 
+Date: 16 Jul 2002 13:16:02 +0200
+Message-Id: <1026818162.1039.19.camel@hadley>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just thought I'd mention, my chip is a VT6102, so the original stalling
-problem was with more than just the VT86C100A chip. With the patch, my chip
-now recovers successfully from a TxAbort, so I'm able to download large
-files again.
+Hi,
 
------Original Message-----
-From: O'Riordan, Kevin [mailto:K.ORiordan@ucc.ie] 
-Sent: 16 July 2002 09:11
-To: 'Roger Luethi '
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: RE: [rl@hellgate.ch: [PATCH] #8 VIA Rhine (stalls, stats, backoff ,
-clean up)]
+sorry, if this has been asked before, but I could not find any in the
+archives.
 
-Have tested this patch against 2.4.19-rc1 on a via rhine-II chip. Seems to
-work fine with no ill effects. No longer getting timeout errors, or problem
-where chip refuses to reset.
-Have been testing with downloading several large ISOs.
- 
-From: Roger Luethi <rl@hellgate.ch>
-Subject: [PATCH] #8 VIA Rhine (stalls, stats, backoff, clean up)
-To: linux-kernel@vger.kernel.org
-Cc: Urban Widmark <urban@teststation.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>
-Date:	Mon, 15 Jul 2002 15:36:15 +0200
-User-Agent: Mutt/1.3.27i
-X-Mailing-List:	linux-kernel@vger.kernel.org
+I have a Gigabyte GA7DXR with a onboard Promise PDC20265 IDE-Controller.
 
-This patch is a more comprehensive and cleaned up version of earlier VIA
-Rhine patches I posted in May. It should be self-explanatory. The change
-summary reads:
+Attached to this Controller are 4 Maxtor 120 GB Disks.
 
-- show confused chip where to continue after Tx error; this is known to
-fix
-  at least some (hopefully all) of the infamous Rhine stalls under load
+Booting with 2.4.18 works fine. The partitons of the disk are detecded,
+and I can access them.
 
-- location of collision counter is chip specific (underflow counter,
-too)
+Booting with 2.4.19-rc1 hangs on bootup.
 
-- allow selecting backoff algorithm -- added new module parameter;
-  this is a trade-off; higher performance typically means many aborts
-due
-  to excessive collisions and performance degradation for other users.
-  Default comes from EEPROM and depends on the card.
+The Promise is detected correctly.
 
-- cosmetic cleanups
+But when it comes to the partition-check the systems hangs:
 
-Note: Testing on several cards seems to indicate that waiting for the
-chip
-before restarting the Tx engine is pointless; in the rare case where the
-flag is not down by the time the driver is ready to restart, it will
-stay
-up forever, but restarting the Tx engine immediately still works.
+looks like this:
 
-Beware: It seems that in certain cases, the interrupt status the driver
-relies on for error handling is wrong. In those cases, only the
-respective
-buffer descriptor carries the correct error information. Should this
-turn
-out to be a problem in real life, the error handling handling can be
-moved
-into via_rhine_rx(), or the correct error code can be passed to
-via_rhine_error() alternatively.
+------snippel-------
+PDC20265: chipset revision 2
+PDC20265: not 100% native mode: will probe irqs later
+PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xc800-0xc807, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xc808-0xc80f, BIOS settings: hdg:DMA, hdh:DMA
+hda: IBM-DHEA-36481, ATA DISK drive
+hde: Maxtor 4G120J6, ATA DISK drive
+hdf: Maxtor 4G120J6, ATA DISK drive
+hdg: Maxtor 4G120J6, ATA DISK drive
+hdh: Maxtor 4G120J6, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide2 at 0xb800-0xb807,0xbc02 on irq 11
+ide3 at 0xc000-0xc007,0xc402 on irq 11
+hda: 12692736 sectors (6499 MB) w/472KiB Cache, CHS=790/255/63, UDMA(33)
+hde: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
+UDMA(100)
+hdf: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
+UDMA(100)
+hdg: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
+UDMA(100)
+hdh: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
+UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3
+ hde:
 
-Some changes in the statistics section are tentative. They are coded
-according to the specs, and they assume that the old code worked for the
-VT86C100A, and that all chips but the VT86C100A work like the VT6102,
-for
-which the changes have been tested. FWIW, some counters work with the
-VT6102 for the first time with this patch (it's not as if anybody cared,
-or
-the broken counters wouldn't have gone unnoticed for such a long time).
+--------------
 
-The patch is against the latest version in Jeff's public tree. It is
-most
-definitely an improvement for many Rhine users and should not create any
-problems. Unless somebody finds bugs, I don't intend to release a new
-version anytime soon.
+And here it hangs
 
-Roger
 
------ End forwarded message -----
+Because the patch between 2.4.18 and 2.4.19-rc1 is very big, there seem
+to be a lot of changes.
+
+
+Thanks in andvance for any help.....
+
+
+
 
 -- 
-Expenditures rise to meet income.
- <<via-rhine.c.8.patch>> 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+Bye
+
+	Ernst
+---------
+Ernst Lehmann             Email: lehmann@acheron.franken.de
+
+

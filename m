@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262217AbSIZHGz>; Thu, 26 Sep 2002 03:06:55 -0400
+	id <S262221AbSIZHM1>; Thu, 26 Sep 2002 03:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262216AbSIZHGz>; Thu, 26 Sep 2002 03:06:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24082 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262215AbSIZHGy>;
-	Thu, 26 Sep 2002 03:06:54 -0400
-Message-ID: <3D92B323.4090504@pobox.com>
-Date: Thu, 26 Sep 2002 03:11:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, patman@us.ibm.com,
-       andmike@us.ibm.com
+	id <S262222AbSIZHM1>; Thu, 26 Sep 2002 03:12:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59075 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262221AbSIZHMY>;
+	Thu, 26 Sep 2002 03:12:24 -0400
+Date: Thu, 26 Sep 2002 09:17:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] deadline io scheduler
-References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de> <20020926070615.GX22942@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020926071726.GE12862@suse.de>
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <3D92B369.7AFD28D4@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D92B369.7AFD28D4@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> Hmm, qlogicisp.c isn't really usable because the disks are too slow, it
-> needs bounce buffering, and nobody will touch the driver (and I don't
-> seem to be able to figure out what's going on with it myself), and the
-> FC stuff seems to need out-of-tree drivers to work. I wonder if I some
-> help converting them to this might be found.
+On Thu, Sep 26 2002, Andrew Morton wrote:
+> Andrew Morton wrote:
+> > 
+> > I'll test scsi now.
+> > 
+> 
+> aic7xxx, Fujitsu "MAF3364L SUN36G" (36G SCA-2)
+> 
+> 
+> Maximum number of TCQ tags=253
+> 
+> 	fifo_batch		time cat kernel/*.c (seconds)
+> 	    64				58
+> 	    32				54
+> 	    16				20
+> 	     8				58
+> 	     4				1:15
+> 	     2				53
+> 
+> Maximum number of TCQ tags=4
+> 
+> 	fifo_batch		time cat kernel/*.c (seconds)
+> 	    64				53
+> 	    32				39
+> 	    16				33
+> 	     8				21
+> 	     4				22
+> 	     2				36
+> 	     1				22
+> 
+> 
+> Maximum number of TCQ tags = 0:
+> 
+> 	fifo_batch		time cat kernel/*.c (seconds)
+> 	    64				22
+> 	    32				10.3
+> 	    16				10.5
+> 	     8				5.5
+> 	     4				3.2
+> 	     2				1.9
+> 
+> I selected fifo_batch=16 and altered writes_starved and read_expires
+> again.  They made no appreciable difference.
 
+Abysmal. BTW, fifo_batch value less than seek cost doesn't make too much
+sense, unless the drive has really slow streaming io performance.
 
-I use this driver on my ancient ev56 Alpha, if you need me to do some 
-testing.
+> >From this I can only conclude that my poor little read was stuck
+> in the disk for ages while TCQ busily allowed new incoming writes
+> to bypass already-sent reads.
+> 
+> A dreadful misdesign.  Unless we can control this with barriers,
+> and if Fujutsu is typical, TCQ is just uncontrollable.  I, for
+> one, would not turn it on in a pink fit.
 
-Unfortunately it is fragile and known to have obscure bugs...   Compaq 
-was beating up on this driver for quite a while, but I never saw 
-anything but bandaids [and they fully admitted their fixes were bandaids].
+I have this dream that we might be able to control this if we get our
+hands on the queueing at the block level. The above looks really really
+bad though, in the past I've had quite good experience with a tag depth
+of 4. I should try ide tcq again, to see how that goes.
 
-There is an out-of-tree qlogic driver that is reported to be far better 
--- but not necessarily close to Linux kernel coding style.
-
-/me wonders if people are encouraged or scared off, at this point...
+-- 
+Jens Axboe
 

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267992AbTBMJXt>; Thu, 13 Feb 2003 04:23:49 -0500
+	id <S267995AbTBMJ3p>; Thu, 13 Feb 2003 04:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267995AbTBMJXt>; Thu, 13 Feb 2003 04:23:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51864 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267992AbTBMJXs>;
-	Thu, 13 Feb 2003 04:23:48 -0500
-Date: Thu, 13 Feb 2003 01:19:03 -0800 (PST)
-Message-Id: <20030213.011903.32136660.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Routing problem with udp, and a multihomed host in 2.4.20
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15947.25922.785515.945307@notabene.cse.unsw.edu.au>
-References: <15946.54853.37531.810342@notabene.cse.unsw.edu.au>
-	<1045120278.5115.0.camel@rth.ninka.net>
-	<15947.25922.785515.945307@notabene.cse.unsw.edu.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267996AbTBMJ3p>; Thu, 13 Feb 2003 04:29:45 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:29874 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S267995AbTBMJ3p>;
+	Thu, 13 Feb 2003 04:29:45 -0500
+Date: Thu, 13 Feb 2003 10:38:35 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
+In-Reply-To: <Pine.GSO.4.21.0302122149470.14562-100000@vervain.sonytel.be>
+Message-ID: <Pine.GSO.4.21.0302131034360.14689-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Thu, 13 Feb 2003 20:28:34 +1100
+On Wed, 12 Feb 2003, Geert Uytterhoeven wrote:
+> On Wed, 12 Feb 2003, James Simmons wrote:
+> > > > > All comments are welcomed! Thanks!
+> > > > 
+> > > > Come on, is there really no one to comment on this??
+> > > 
+> > > Except a question why it's not merged yet? :)
+> > 
+> > Looking for work has keot me busy. I merged it. One change I did do was 
+> > changed the CONFIG_FB_LOGO_* to CONFIG_LOGO_. In theory any one can use 
+> > the logo (i.e newport console). It is a much welcomed improvement. I 
+> 
+> OK.
 
-   On  February 12, davem@redhat.com wrote:
-   > On Wed, 2003-02-12 at 15:18, Neil Brown wrote:
-   > > Is this a bug, or is there some configuration I can change?
-   > 
-   > Specify the correct 'src' parameter in your 'ip' route
-   > command invocations.
-   
-   Thanks... but I think I need a bit more help.
-   
-Sorry, I forgot to add that you need to enable the
-arp_filter sysctl as well to make this work properly.
+BTW, most of the logo drawing is still not protected by CONFIG_(FB_)_LOGO. This
+needs to change before it's submitted to Linus.
 
-It should work once you do this.
+And why is the logo drawn from fbcon_switch() (which is not __init)? Does this
+also explain why it's drawn twice (at least on some fbdevs)?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

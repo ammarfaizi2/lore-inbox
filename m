@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262159AbSJNVYv>; Mon, 14 Oct 2002 17:24:51 -0400
+	id <S262194AbSJNV0P>; Mon, 14 Oct 2002 17:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262188AbSJNVYv>; Mon, 14 Oct 2002 17:24:51 -0400
-Received: from balu.sch.bme.hu ([152.66.208.40]:53163 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S262159AbSJNVYt>;
-	Mon, 14 Oct 2002 17:24:49 -0400
-Date: Mon, 14 Oct 2002 23:30:35 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: "Murray J. Root" <murrayr@brain.org>
+	id <S262195AbSJNV0O>; Mon, 14 Oct 2002 17:26:14 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:28056 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262194AbSJNVZw>;
+	Mon, 14 Oct 2002 17:25:52 -0400
+Subject: Re: [PATCH 2.5.42] aacraid code changes
+From: Mark Haverkamp <markh@osdl.org>
+To: Alan Cox <alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.42 loses keyboard and mouse when starting X
-Message-ID: <20021014233035.A20926@balu.sch.bme.hu>
-References: <20021012094833.GA1622@Master.Wizards>
+In-Reply-To: <1034619906.5419.34.camel@markh1.pdx.osdl.net>
+References: <1034619906.5419.34.camel@markh1.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Oct 2002 14:32:46 -0700
+Message-Id: <1034631166.23163.5.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012094833.GA1622@Master.Wizards>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found a source for the rq_dev element elsewhere in the Scsi_Cmnd
+structure.  This patch contains a replacement for the one I sent
+earlier.
 
-On Sat, Oct 12, 2002 at 05:48:33AM -0400, Murray J. Root wrote:
-> Not sure what info is needed here - there are no error messages
-> anywhere.
-> 
-> ASUS P4S533 (SiS645DX chipset)
-> P4 2Ghz cpu
-> 1G PC2700 RAM
-> SBLive! value (using ALSA driver)
-> NVidia GeForce2 GTS (using XFree86 nv driver)
-> PS/2 Keyboard & mouse
-> 
-> Mandrake 9.0
-> XFree86 4.2.1
-> 
-> Boot to console & login with no problem.
-> Run console apps with no problem.
-> run startx and X appears to start normally, but keyboard and mouse
-> are dead.
-> Only thing in .xinitrc is
->   exec /usr/X11R6/bin/startfluxbox
-> 
-> No new messages in any log files.
-> 
-> Happens with all 2.5.4x including -ac
+Mark.
 
-Do you have a PS/2 mouse? Try starting X without mouse, to see if it is 
-the problem.
+diff -Nru  base_linux-2.5/drivers/scsi/aacraid/aachba.c linux-2.5/drivers/scsi/aacraid/aachba.c
+--- base_linux-2.5/drivers/scsi/aacraid/aachba.c	Mon Oct  7 13:03:15 2002
++++ linux-2.5/drivers/scsi/aacraid/aachba.c	Mon Oct 14 14:24:16 2002
+@@ -1060,7 +1060,8 @@
+ 			 */
+ 			 
+ 			spin_unlock_irq(scsicmd->host->host_lock);
+-			fsa_dev_ptr->devno[cid] = DEVICE_NR(scsicmd->sc_request->sr_request->rq_dev);
++			fsa_dev_ptr->devno[cid] = 
++					DEVICE_NR(scsicmd->request->rq_dev);
+ 			ret = aac_read(scsicmd, cid);
+ 			spin_lock_irq(scsicmd->host->host_lock);
+ 			return ret;
+diff -Nru base_linux-2.5/drivers/scsi/aacraid/commctrl.c linux-2.5/drivers/scsi/aacraid/commctrl.c
+--- base_linux-2.5/drivers/scsi/aacraid/commctrl.c	Mon Oct  7 13:03:15 2002
++++ linux-2.5/drivers/scsi/aacraid/commctrl.c	Mon Oct 14 10:35:04 2002
+@@ -424,7 +424,12 @@
+ 		status = aac_get_pci_info(dev,arg);
+ 		break;
+ 	default:
+-		status = -ENOTTY;
++		/*
++		 * Return EINVAL instead of ENOTTY because blkdev_ioctl 
++		 * understands the EINVAL return code to mean that the
++		 * ioctl wasn't handled and blk_ioctl should be called.
++		 */
++		status = -EINVAL;
+ 	  	break;	
+ 	}
+ 	return status;
 
--- 
-pozsy
+

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129798AbRBYDYX>; Sat, 24 Feb 2001 22:24:23 -0500
+	id <S129799AbRBYDfz>; Sat, 24 Feb 2001 22:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129799AbRBYDYN>; Sat, 24 Feb 2001 22:24:13 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:56845 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129798AbRBYDYI>; Sat, 24 Feb 2001 22:24:08 -0500
-Date: Sun, 25 Feb 2001 16:23:57 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeremy Jackson <jerj@coplanar.net>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, netdev@oss.sgi.com,
-        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New net features for added performance
-Message-ID: <20010225162357.A12123@metastasis.f00f.org>
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <3A986EDB.363639E7@coplanar.net>
+	id <S129800AbRBYDfp>; Sat, 24 Feb 2001 22:35:45 -0500
+Received: from mnh-1-08.mv.com ([207.22.10.40]:49415 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129799AbRBYDfj>;
+	Sat, 24 Feb 2001 22:35:39 -0500
+Message-Id: <200102250446.XAA03828@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.39-2.4.2
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A986EDB.363639E7@coplanar.net>; from jerj@coplanar.net on Sat, Feb 24, 2001 at 09:32:59PM -0500
-X-No-Archive: Yes
+Date: Sat, 24 Feb 2001 23:46:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 24, 2001 at 09:32:59PM -0500, Jeremy Jackson wrote:
+The user-mode port of 2.4.2 is available.
 
-    Related question: are there any 100Mbit NICs with cpu's onboard?
+For the particularly paranoid, the ubd device now has the option of doing all 
+writes O_SYNC, either as a config option for all devices or on a 
+device-by-device basis.  This is thanks to Lennert Buytenhek.
 
-Yes, but the only ones I've seen to date are magic and do special
-things (like VPN or hardware crypto). I'm not sure without 'magic'
-requirements there is much point for 100M on modern hardware.
+A couple of hostfs bugs were fixed.
 
-Not affordable and whilst moving some of the IP stack onto the card
-(I think this is what are alluding to) would be extremely non-trivial
-especially if you want all the components (host OS, multiple networks
-cards) to talk to each other asynchronously and you would all have to
-deal with buggy hardware that doesn't like doing PCI-PCI transfers
-and such like.
+A crash involving breakpoints set at the very beginning or very end of an 
+interrupt handler was fixed.
 
-That said, it would be an extemely neat thing to do from a technical
-perspective, but I don't know if you would ever get really good
-performance from it.
+SIGFPE is now passed along to processes correctly.
+
+The SIGIO handler tries harder to empty file descriptors by giving tasklets 
+more chances to feed the input to a process.
+
+A crash involving the tracing thread trying, and failing, to allocate memory 
+was fixed.
+
+Fixed a race which caused timer interrupts to stop being handled.
+
+Temporary files are not created in /tmp.  This apparently provides a noticable 
+performance improvement when tmpfs is mounted on /tmp.  This is also due to 
+Lennert.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at http://sourceforge.net/project/filelist.php?group_id
+=429 (which Sourceforge has managed to break) and ftp://ftp.nl.linux.org/pub/um
+l/
+
+				Jeff
 
 
-
-
-  --cw

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266928AbSKKSQS>; Mon, 11 Nov 2002 13:16:18 -0500
+	id <S266907AbSKKSLD>; Mon, 11 Nov 2002 13:11:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266930AbSKKSQS>; Mon, 11 Nov 2002 13:16:18 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:63709 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id <S266928AbSKKSQR>; Mon, 11 Nov 2002 13:16:17 -0500
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: programming for preemption (was: [PATCH] 2.5.46: access permission filesystem)
-References: <Pine.LNX.4.44.0211101609220.2335-200000@barbarella.hawaga.org.uk>
-	<87k7jkg969.fsf@goat.bogus.local> <3DCF1593.CB9C7AA4@digeo.com>
-	<87znsgov9e.fsf@goat.bogus.local>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 11 Nov 2002 10:23:05 -0800
-In-Reply-To: <87znsgov9e.fsf@goat.bogus.local>
-Message-ID: <528z00neye.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S266908AbSKKSLD>; Mon, 11 Nov 2002 13:11:03 -0500
+Received: from packet.digeo.com ([12.110.80.53]:39390 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266907AbSKKSLB>;
+	Mon, 11 Nov 2002 13:11:01 -0500
+Message-ID: <3DCFF447.43EE55FE@digeo.com>
+Date: Mon, 11 Nov 2002 10:17:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+CC: Ben Clifford <benc@hawaga.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: programming for preemption (was: [PATCH] 2.5.46: accesspermission 
+ filesystem)
+References: <Pine.LNX.4.44.0211101609220.2335-200000@barbarella.hawaga.org.uk>
+		<87k7jkg969.fsf@goat.bogus.local> <3DCF1593.CB9C7AA4@digeo.com> <87znsgov9e.fsf@goat.bogus.local>
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Nov 2002 18:23:01.0890 (UTC) FILETIME=[5E94FE20:01C289AF]
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Nov 2002 18:17:43.0761 (UTC) FILETIME=[A0F65C10:01C289AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Olaf" == Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
+Olaf Dietsche wrote:
+> 
+> Andrew Morton <akpm@digeo.com> writes:
+> 
+> > Olaf Dietsche wrote:
+> >>
+> >> Ben Clifford <benc@hawaga.org.uk> writes:
+> >>
+> >> > I still get those stack traces, though...
+> >>
+> >> I retested with CONFIG_PREEMPT=y and now I get those stack traces,
+> >> too. So, it seems my code is not preempt safe.
+> >>
+> >
+> > It's not that your code is unsafe with preemption.  It's just that
+> > CONFIG_PREEMPT=y turns on the debugging infrastructure which allows
+> > us to detect things like calling kmalloc(GFP_KERNEL) inside spinlock.
+> 
+> Thanks for this hint. So this means kmalloc(GFP_KERNEL) inside
+> spinlock is not necessarily dangerous, but should be avoided if
+> possible?
 
-    Olaf> So this means kmalloc(GFP_KERNEL) inside spinlock is not
-    Olaf> necessarily dangerous, but should be avoided if possible? Is
-    Olaf> using a semaphore better than using spinlocks?
+It can lock an SMP kernel up.  This CPU can switch to another task in the
+page allocator and then, within the context of the new task, come around
+and try to take the same lock.
 
-You should never kmalloc(GFP_KERNEL) while holding a spinlock, since
-it is dangerous even without preempt.  kmalloc(GFP_KERNEL) may sleep,
-which will lead to deadlock (the code holding the spinlock gets
-scheduled out because of the kmalloc, then some other code tries to
-take the lock -- deadlock).
+> Is using a semaphore better than using spinlocks?
 
-A semaphore is safer, because if you fail to get the semaphore you
-will go to sleep, which allows the process that holds the semaphore to
-get scheduled again and release it.  However you cannot use semaphores
-in interrupt handlers -- you must be in process context when you
-down() the semaphore.  (Note that it is OK to up() a semaphore from an
-interrupt handler)
+A semaphore won't have that problem.  If your CPU comes around again onto
+the already-held lock it will just switch to another task.
 
-Best,
-  Roland
+> Is
+> there a list of dos and don'ts for preempt kernels beside
+> Documentation/preempt-locking.txt?
+
+Not that I'm aware of.  (This is not preempt-related though.  Generally,
+correct SMP coding is correct preempt coding)
+ 
+> And btw, who is "us"?
+> 
+
+It is a broad term for "those who code on the kernel".

@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268165AbUHQIVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUHQIZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268165AbUHQIVs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUHQIUY
+	id S268148AbUHQIZe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUHQIZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:20:24 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:35286 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268167AbUHQITl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:19:41 -0400
-Message-ID: <4121BE82.1080003@namesys.com>
-Date: Tue, 17 Aug 2004 01:14:58 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Tue, 17 Aug 2004 04:25:33 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:21971 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S268148AbUHQIXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:23:18 -0400
+Message-ID: <4121C392.6060109@shadowconnect.com>
+Date: Tue, 17 Aug 2004 10:36:34 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, Thomas Charbonnel <thomas@undata.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-References: <1092622121.867.109.camel@krustophenia.net>	 <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net>	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>	 <1092627691.867.150.camel@krustophenia.net>	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>	 <20040816113131.GA30527@elte.hu>  <412108E0.4090300@namesys.com> <1092688732.13981.28.camel@krustophenia.net>
-In-Reply-To: <1092688732.13981.28.camel@krustophenia.net>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Andrew Morton <akpm@osdl.org>
+CC: Warren Togami <wtogami@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Merge I2O patches from -mm
+References: <411F37CC.3020909@redhat.com> <20040816191508.428f1022.akpm@osdl.org>
+In-Reply-To: <20040816191508.428f1022.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Hi...
 
->
->When will reiser4 will be in the stock kernel?
->
->Lee 
->
->
->
->  
->
-I hope for 3-6 weeks from now, but it is not my decision.....
+Andrew Morton wrote:
+> Warren Togami <wtogami@redhat.com> wrote:
+>>This is a request to please merge the I2O patches currently in Andrew 
+>>Morton's -mm tree into the mainline kernel.  They resolve all known 
+>>reported issues with I2O RAID devices.  If they can be included soon, it 
+>>would be possible to implement and test direct installation before FC3 
+>>Test2 freeze.
+> We'll get it in when Linus returns.
 
-We are going into -mm this week.
+Wowww, great news \:D/
+
+>>Also because Markus would never ask himself, I nominate Markus Lidel as 
+>>the "maintainer" of the 2.6 generic I2O layer.  He has put a tremendous 
+>>amount of work into improving an otherwise neglected part of the kernel. 
+> No problem with that, but we wouldn't want to go adding Markus to
+> ./MAINTAINERS without his approval.
+
+It would be a great honor for me to be the maintainer of the I2O subsystem.
+
+
+Best regads,
+
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

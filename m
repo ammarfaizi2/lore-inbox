@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUDWUey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUDWUjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUDWUey (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUDWUey
+	id S261389AbUDWUjW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUDWUjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:34:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261347AbUDWUew
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:34:52 -0400
-Date: Fri, 23 Apr 2004 16:34:21 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-cc: Paul Jackson <pj@sgi.com>, Timothy Miller <miller@techsource.com>,
-       tytso@mit.edu, miquels@cistron.nl, linux-kernel@vger.kernel.org
-Subject: Re: File system compression, not at the block layer
-In-Reply-To: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>
-Message-ID: <Pine.LNX.4.53.0404231624010.1352@chaos>
-References: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Apr 2004 16:39:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48393 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261389AbUDWUjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:39:20 -0400
+Date: Fri, 23 Apr 2004 21:39:16 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Message-ID: <20040423213916.D2896@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcel Holtmann <marcel@holtmann.org>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Simon Kelley <simon@thekelleys.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net> <1082723147.1843.14.camel@merlin> <20040423205504.B2896@flint.arm.linux.org.uk> <1082751264.4294.1.camel@pegasus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1082751264.4294.1.camel@pegasus>; from marcel@holtmann.org on Fri, Apr 23, 2004 at 10:14:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Apr 2004, Joel Jaeggli wrote:
+On Fri, Apr 23, 2004 at 10:14:24PM +0200, Marcel Holtmann wrote:
+> should we apply the pcmcia_get_sys_device() patch from Dmitry for now to
+> fix the current drivers that need a device for loading the firmware?
 
-> On Fri, 23 Apr 2004, Paul Jackson wrote:
->
-> > > SO... in addition to the brilliance of AS, is there anything else that
-> > > can be done (using compression or something else) which could aid in
-> > > reducing seek time?
-> >
-> > Buy more disks and only use a small portion of each for all but the
-> > most infrequently accessed data.
->
-> faster drives. The biggest disks at this point are far slower that the
-> fastest... the average read service time on a maxtor atlas 15k is like
-> 5.7ms on 250GB western digital sata, 14.1ms, so that more than twice as
-> many reads can be executed on the fastest disks you can buy now... of
-> course then you pay for it in cost, heat, density, and controller costs.
-> everthing is a tradeoff though.
->
+I don't think so - it obtains the struct device for the bridge itself
+which has nothing to do with the card inserted in the slot.
 
-If you want to have fast disks, then you should do what I
-suggested to Digital 20 years ago when they had ST-506
-interfaces and SCSI was available only from third-parties.
-It was called "striping" (I'm serious!). Not the so-called
-RAID crap that took the original idea and destroyed it.
-If you have 32-bits, you design an interface board for 32
-disks. The interface board strips each bit to the data that
-each disk gets. That makes the whole array 32 times faster
-than a single drive and, of course, 32 times larger.
-
-There is no redundancy in such an array, just brute-force
-speed. One can add additional bits and CRC correction which
-would allow the failure (or removal) of one drive at a time.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

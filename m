@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbRAISgl>; Tue, 9 Jan 2001 13:36:41 -0500
+	id <S130984AbRAISgn>; Tue, 9 Jan 2001 13:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130984AbRAISgX>; Tue, 9 Jan 2001 13:36:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56079 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130902AbRAISgR>; Tue, 9 Jan 2001 13:36:17 -0500
-Date: Tue, 9 Jan 2001 10:36:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <20010109153119.G9321@redhat.com>
-Message-ID: <Pine.LNX.4.10.10101091024150.2070-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130902AbRAISgY>; Tue, 9 Jan 2001 13:36:24 -0500
+Received: from smtpgw.bnl.gov ([130.199.3.16]:2060 "EHLO smtpgw.sec.bnl.local")
+	by vger.kernel.org with ESMTP id <S129792AbRAISgN>;
+	Tue, 9 Jan 2001 13:36:13 -0500
+Date: Tue, 9 Jan 2001 13:35:21 -0500
+From: Tim Sailer <sailer@bnl.gov>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, Andrew Morton <andrewm@uow.edu.au>,
+        linux-kernel@vger.kernel.org, jfung@bnl.gov
+Subject: Re: Network Performance?
+Message-ID: <20010109133521.C32135@bnl.gov>
+In-Reply-To: <20010109085555.A28548@bnl.gov> <Pine.LNX.4.21.0101091748270.952-100000@tux.rsn.hk-r.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0101091748270.952-100000@tux.rsn.hk-r.se>; from gandalf@wlug.westbo.se on Tue, Jan 09, 2001 at 05:52:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
-> > 
-> > It's worse: The issue we are talking about is SYSV IPC_LOCK.
+On Tue, Jan 09, 2001 at 05:52:34PM +0100, Martin Josefsson wrote:
+> On Tue, 9 Jan 2001, Tim Sailer wrote:
 > 
-> The issue is locked VA pages.  SysV is just one of the ways in which
-> it can happen: the solution has got to address both that and
-> mlock()/mlockall().
+> > On Mon, Jan 08, 2001 at 07:07:18PM +0100, Erik Mouw wrote:
+> > > I had similar problems two weeks ago. Turned out the connection between
+> > > two switches: one of them was hard wired to 100Mbit/s full duplex, the
+> > > other one to 100Mbit/s half duplex. Just to rule out the obvious...
+> > 
+> > We check that as the first thing. Both are set the same. No collisions
+> > out of the ordinary.
+> 
+> Are you using netfilter? And if so, does netfilter support window-scaling
 
-No, mlock() and mlockall() already works. Exactly because mlocked pages
-will never be removed from the VM, the VM layer knows how to deal with
-them (or "not deal with them" as the case is more properly stated). They
-won't ever get on the inactive list, and because refill_inactive_scan()
-won't be able to move handle them (the count is elevated by the VM
-mappings), the VM will correctly and gracefully fall back on scanning the
-page tables to find some _other_ blocks.
+Nope. We have it stripped down bare at this point to try to pinpoint
+the problem.
 
-So mlock works fine.
+Tim
 
-The reason shm locked segments do _not_ work fine is exactly because they
-are not locked down in the VM, and for that reason they can end up being
-detached from everything and thus moved to the inactive list. That counts
-as "progress" as far as the VM is concerned, so we get into this endless
-loop where we move the page to the inactive list, then try to write it
-out, fail, and move it back to the active list again. The VM _thinks_ it
-is making progress, but obviously isn't. 
+> without the tcp-window-tracking patch?
+> 
+> /Martin
 
-End result: lockup.
-
-Marking the pages with a magic flag would solve it. Then we could 
-just make refill_inactive_scan() ignore such pages. Something like
-"PG_Reallydirty".
-
-		Linus
-
+-- 
+Tim Sailer <sailer@bnl.gov> Cyber Security Operations
+Brookhaven National Laboratory  (631) 344-3001
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

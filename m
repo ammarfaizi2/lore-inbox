@@ -1,107 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTFYUSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbTFYUSZ
+	id S265045AbTFYUVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTFYUV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:18:25 -0400
-Received: from ihemail1.lucent.com ([192.11.222.161]:14065 "EHLO
-	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265030AbTFYURh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:17:37 -0400
+	Wed, 25 Jun 2003 16:21:28 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:36872 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S265040AbTFYUVJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:21:09 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Larry McVoy" <lm@bitmover.com>
+Cc: "Werner Almesberger" <wa@almesberger.net>,
+       "Stephan von Krawczynski" <skraw@ithnet.com>,
+       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Wed, 25 Jun 2003 13:35:09 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGCEDODBAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16122.1630.134766.108510@gargle.gargle.HOWL>
-Date: Wed, 25 Jun 2003 16:30:22 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br, kpfleming@cox.net, stoffel@lucent.com,
-       gibbs@scsiguy.com, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <20030625214221.2cd9613f.skraw@ithnet.com>
-References: <20030509150207.3ff9cd64.skraw@ithnet.com>
-	<41560000.1055306361@caspian.scsiguy.com>
-	<20030611222346.0a26729e.skraw@ithnet.com>
-	<16103.39056.810025.975744@gargle.gargle.HOWL>
-	<20030613114531.2b7235e7.skraw@ithnet.com>
-	<20030625191655.GA15970@alpha.home.local>
-	<20030625214221.2cd9613f.skraw@ithnet.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030625034930.GA11956@work.bitmover.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Stephan" == Stephan von Krawczynski <skraw@ithnet.com> writes:
+That is very sad.  The fact that I know that I am not the kind of salesman
+one needs to be to run a business does not magically disqualify me from all
+business knowledge.  In fact it puts me somewhat higher on the spectrum than
+most people who run a business.
 
-Stephan> On Wed, 25 Jun 2003 21:16:55 +0200
-Stephan> Willy Tarreau <willy@w.ods.org> wrote:
+If you automatically dismiss knowledge from others if they aren't talking
+directly down the mountain to you, you likely have more, and more serious,
+business problems coming than having people mimic your product.
 
->> Hmmm no, you're right, I forgot about this case. I think that
->> access time or other time-dependant informations may change often
->> enough to make a big diff on checksums. I have no more idea at the
->> moment. Or perhaps tar to a disk file instead of the tape and check
->> that file :-/
+A good businessman, a man who can transcend the difficult period between
+entrepreneurship to corporation, needs to have the ability to delegate, and
+let go of things, but more importantly he has to be a person who can see and
+harvest the smarts of the people around him who are not trying to be
+entrepreneurs themselves.  The simple facts are that "having run a business"
+does not qualify a person in the slightest for understanding the software
+development process and dissemination of ideas.
 
-Stephan> I have tried that already but never managed to get
-Stephan> verification errors on tar archives written to disk.  Maybe I
-Stephan> try again some more...
+The converse is, of course, also true.  Then again, this thread isn't first
+nor foremost a discussion of running a business is it?  It is a discussion
+on transfer of ideas, trying to halt said transfer (a task I hold to be
+impossible and undesirable); it is a conversation about whether being "in
+business" or "in open source" (as if the two are mutually exclusive) nets
+more innovation; and only *after* those concerns, is it wise to build a
+business strategy solely around the production of software.
 
-I've been trying to get tar errors myself, while writing a 35gb
-filesystem to a DLT7000.  I'm now running 2.4.21-pre5-ac1 and I
-haven't seen any errors.  Yet.  I'm using the 6.2.8 version of the
-driver as well.  The filesystem is just a copy of my home directory
-and some MP3s and other random files and such.  Lots of text and jpegf
-files, along with some other stuff. 
+Since we contend on the first two points, the third is immaterial.  And as
+such, you are unwise to discard my opinion on the first two just because you
+don't aspire to "my spot" in the business food chain because I don't in turn
+aspire to yours.
 
-Maybe I need to try and generate 15-18 files 2gb+ each and dump them
-to tape with tar and see how that's handled, and if we get erorrs.
+I have done what I can do to help, but now I suppose it is time, as it must
+always eventually be, to settle back, and watch as the market and the
+realities of business become your judge, jury, and if appropriate your
+executioner.
 
-Stephan, can you double check your version info as well?  And it would
-be great to get some info on your 3ware setup as well, just so we can
-work on narrowing down the issues.
+But don't expect sympathy from anyone for your position, now or in the
+future, if you publicly discard the positions of others based on whether
+they have the same life-goals as you.
 
-Unfortunately, due to the way I have to setup things, the RAID array
-and the tape drive are on the same channel, which slows down things
-I'm sure.  
+[That is, it would be rational to discard my opinions on business if I had
+repeatedly failed at business.  Discarding them because I have no desire to
+be a businessman, and so have studied the realities of business from a
+different angle, the angle of "only" an active daily participant, is
+foolish.]
 
-Here are some timings from dumping and verifying the data to tape:
+Rob.
 
-  jfsnew:/# time tar -c-W -b 128 -f /dev/st0 /scratch
-  tar: Removing leading `/' from member names
-  408.840u 869.730s 4:03:02.80 8.7%       0+0k 0+0io 258pf+0w
 
-  jfsnew:/# time tar -c-W -b 256 -f /dev/st0 /scratch
-  tar: Removing leading `/' from member names
-  443.210u 1104.930s 4:07:00.89 10.4%     0+0k 0+0io 264pf+0w
+-----Original Message-----
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Tuesday, June 24, 2003 8:50 PM
+To: Robert White
+Cc: Larry McVoy; Werner Almesberger; Stephan von Krawczynski;
+miquels@cistron-office.nl; linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
 
-My filesystem is a as follows:
 
-  jfsnew:/home# mdadm -D /dev/md1
-  /dev/md1:
-	  Version : 00.90.00
-    Creation Time : Mon Jun 23 22:51:43 2003
-       Raid Level : raid0
-       Array Size : 44457600 (42.40 GiB 45.57 GB)
-     Raid Devices : 5
-    Total Devices : 5
-  Preferred Minor : 1
-      Persistence : Superblock is persistent
+On Tue, Jun 24, 2003 at 08:22:13PM -0700, Robert White wrote:
+> [I don't have employees and I haven't created a sustainable business]
+>
+> -- I also know a flawed business model when I see one.
 
-      Update Time : Mon Jun 23 22:51:43 2003
-	    State : dirty, no-errors
-   Active Devices : 5
-  Working Devices : 5
-   Failed Devices : 0
-    Spare Devices : 0
+Hmm.  With all due respect, I think that arguing business with someone
+who has yet to be sucessful at it is not likely to help me or help the
+open source world.  I think you have some really interesting thoughts and
+it's clear that you have thought hard about this stuff.  I'm also someone
+who has thought hard about a lot of things I haven't done only to find
+that my opinions changed dramatically once I started doing those things.
+Theory and practice and all that.
 
-       Chunk Size : 64K
-
-      Number   Major   Minor   RaidDevice State
-	 0       8       48        0      active sync   /dev/sdd
-	 1       8       64        1      active sync   /dev/sde
-	 2       8       80        2      active sync   /dev/sdf
-	 3       8       96        3      active sync   /dev/sdg
-	 4       8      112        4      active sync   /dev/sdh
-	     UUID : ffa7efb1:1c151f2d:4f6a138c:77085f29
+No offense intended, but I'll pass on this for the time being.  I look
+forward to watching you create and run a business based on your principles.
+If it's successful, who knows?, maybe I'll be working for you one day and
+that would be cool, I'd love to work for someone with a better vision.
+--
+---
+Larry McVoy              lm at bitmover.com
+http://www.bitmover.com/lm
 

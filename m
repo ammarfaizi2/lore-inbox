@@ -1,96 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVBAM5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVBANGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVBAM5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 07:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVBAM5L
+	id S262011AbVBANGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 08:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVBANGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 07:57:11 -0500
-Received: from guri.is.scarlet.be ([193.74.71.22]:49070 "EHLO
-	guri.is.scarlet.be") by vger.kernel.org with ESMTP id S262010AbVBAM5D
+	Tue, 1 Feb 2005 08:06:15 -0500
+Received: from bay15-f12.bay15.hotmail.com ([65.54.185.12]:5993 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262011AbVBANGB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 07:57:03 -0500
-Date: Tue, 1 Feb 2005 13:56:56 +0100
+	Tue, 1 Feb 2005 08:06:01 -0500
+Message-ID: <BAY15-F12673F8354333867F55E6CA47D0@phx.gbl>
+X-Originating-IP: [128.243.74.2]
+X-Originating-Email: [dav1dblunk3tt@hotmail.com]
+From: "david blunkett" <dav1dblunk3tt@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: M7101 unhiding patch
-Message-ID: <20050201125656.GD627@frans.deprez-aerts.dyndns.org>
+Subject: parport / ppdev problem
+Date: Tue, 01 Feb 2005 13:05:24 +0000
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="f0KYrhQ4vYSV2aJu"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: maartendeprez@scarlet.be
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 01 Feb 2005 13:06:00.0759 (UTC) FILETIME=[C6F17C70:01C5085E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear List,
 
---f0KYrhQ4vYSV2aJu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Since upgrading from k2.4 to k2.6 (2.6.5-1.358 and similar) my user space 
+code that utilises the ppdev driver has been broken (code below).  I can 
+confirm that this code still works under 2.4.
 
-Can this patch to drivers/pci/quirks.c be incorporated into the kernel? It fixes a bug in some BIOSes that hide the M7101 PMU and SMBUS device and is needed for some boards to use the i2c-ali15x3 driver. lm_sensors includes a module that makes that device visible. i got this patch from the kernel mailing list and adapted it to the kernel coding style.
+Under 2.6 the code compiles runs without error but there is no change in the 
+output of the parport.  I cannot find any documentation that indicates a 
+change and looking through the ppdev.c code I can't find any clues as to why 
+it shouldn't work.
 
-Maarten Deprez
+I do not know if this is a kernel or installation (k2.4 from rh9 vs k2.6 
+from fedora 2)  issue but I have spent a long time looking for information 
+and so far drawn a blank.
 
---f0KYrhQ4vYSV2aJu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="m7101.patch"
+Anyone know anything that might help?
 
---- linux-2.6.11-rc2-mm1/drivers/pci/quirks.c.orig	2005-01-28 10:55:20.524801664 +0100
-+++ linux-2.6.11-rc2-mm1/drivers/pci/quirks.c	2005-01-28 11:24:34.626137728 +0100
-@@ -281,6 +281,55 @@
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL,	PCI_DEVICE_ID_AL_M7101,		quirk_ali7101_acpi );
- 
- /*
-+ * ALi 1533 fixup to enable the M7101 SMBus Controller
-+ *          ported from prog/hotplug of the lm_sensors
-+ *          package
-+ */
-+static void __devinit quirk_ali1533_smbus(struct pci_dev *dev)
-+{
-+	u8 val = 0;
-+	struct pci_dev *m7101;
-+
-+	m7101 = pci_get_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, NULL);
-+
-+	if (m7101)
-+		return;
-+
-+	/* enable device */
-+
-+	pci_read_config_byte(dev, 0x5F, &val);
-+
-+	if (val & 0x04) {
-+		pci_write_config_byte(dev, 0x5F, val & ~0x04);
-+		pci_read_config_byte(dev, 0x5F, &val);
-+
-+		if (val & 0x4) {
-+			printk(KERN_INFO "PCI: Failed to enable M7101 SMBus Controller\n");
-+			return;
-+		}
-+	}
-+
-+	m7101 = pci_scan_single_device(dev->bus, 0x18);
-+
-+	/* unlock registers */
-+
-+	if (pci_read_config_byte(m7101, 0x5B, &val)) {
-+		printk(KERN_INFO "PCI: Failed to enable M7101 SMBus Controller\n");
-+		return;
-+	}
-+
-+	if (val & 0x06) {
-+		if (pci_write_config_byte(m7101, 0x5B, val & ~0x06)) {
-+			printk(KERN_INFO "PCI: Failed to enable M7101 SMBus Controller\n");
-+			return;
-+		}
-+	}
-+
-+	printk(KERN_INFO "PCI: Enabled M7101 SMBus Controller\n");
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL,	PCI_DEVICE_ID_AL_M1533,		quirk_ali1533_smbus );
-+
-+/*
-  * PIIX4 ACPI: Two IO regions pointed to by longwords at
-  *	0x40 (64 bytes of ACPI registers)
-  *	0x90 (32 bytes of SMB registers)
+Thanks,
 
---f0KYrhQ4vYSV2aJu--
+SA
+
+working machine:
+uname -a
+Linux diesel.eee.nottingham.ac.uk 2.4.20-24.9 #1 Mon Dec 1 11:43:36 EST 2003 
+i68                                                                          
+    6 athlon i386 GNU/Linux
+lsmod: ...parport                29640  3 ppdev,parport_pc,lp...
+
+not working machine, eg:
+uname -a
+Linux rug.eee.nott.ac.uk 2.6.5-1.358 #1 Sat May 8 09:04:50 EDT 2004 i686 
+athlon i386 GNU/Linux
+lsmod: ...parport                29640  3 ppdev,parport_pc,lp...
+
+user land code in both cases
+//----------------------------------------------
+int parport=0;
+unsigned char parport_data=0;
+void open_parport(char *);
+void close_parport(void);
+void parport_out(unsigned char);
+
+main(){
+int i;
+        open_parport("/dev/parport0");
+        printf("Counting up\n");
+        for(i=0;i<255;i++){
+                parport_out((unsigned char)i);
+                usleep(10000);
+                }
+        close_parport();
+        }
+
+void open_parport(char * name){
+        parport=open(name,O_RDWR);
+        if(parport<0){
+                printf("parport: fatal error cannot open \"%s\"\n",name);
+                printf("Error number is %d\n",errno);
+                perror("open_parport: error");
+                exit(1);
+                }
+        /* set up exclusive rights to the parport */
+        ioctl(parport,PPEXCL); /* note that robi doesn't use this....*/
+        ioctl(parport,PPCLAIM);
+        parport_data=0;
+        parport_out(parport_data);
+        }
+
+void close_parport(void){
+        ioctl(parport,PPRELEASE);
+        close(parport);
+        }
+//-------------------------------
+void parport_out(unsigned char data){
+        if(ioctl(parport,PPWDATA,&data)==0)
+                parport_data=data;
+        }
+
+not working machine:
+
+_________________________________________________________________
+FREE pop-up blocking with the new MSN Toolbar – get it now! 
+http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
+

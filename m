@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264982AbTGKTOI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbTGKS6V
+	id S265176AbTGKTH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 15:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbTGKTEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:58:21 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:47576
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S265036AbTGKSdk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:33:40 -0400
-Date: Fri, 11 Jul 2003 14:48:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: switch maestro3 to new ac97
-Message-ID: <20030711184822.GE16037@gtf.org>
-References: <200307111815.h6BIFQET017362@hraefn.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Fri, 11 Jul 2003 15:04:21 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:64415 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S265110AbTGKTDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 15:03:19 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Henrique Oliveira <henrique2.gobbi@cyclades.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kevin Curtis <kevin.curtis@farsite.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk>
+	<Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva>
+	<003101c34712$a9b8f480$602fa8c0@henrique>
+	<1057914760.8028.27.camel@dhcp22.swansea.linux.org.uk>
+	<013901c347cd$44586f60$602fa8c0@henrique>
+	<Pine.LNX.4.55L.0307111416100.29959@freak.distro.conectiva>
+	<20030711172747.GK2210@gtf.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 11 Jul 2003 20:05:25 +0200
+In-Reply-To: <20030711172747.GK2210@gtf.org>
+Message-ID: <m3isq9djmi.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307111815.h6BIFQET017362@hraefn.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 07:15:26PM +0100, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/maestro3.c linux-2.5.75-ac1/sound/oss/maestro3.c
-> --- linux-2.5.75/sound/oss/maestro3.c	2003-07-10 21:14:15.000000000 +0100
-> +++ linux-2.5.75-ac1/sound/oss/maestro3.c	2003-07-11 16:47:14.000000000 +0100
-> @@ -2301,9 +2301,8 @@
->  {
->      struct ac97_codec *codec;
->  
-> -    if ((codec = kmalloc(sizeof(struct ac97_codec), GFP_KERNEL)) == NULL)
-> +    if ((codec = ac97_alloc_codec()) == NULL)
->          return -ENOMEM;
-> -    memset(codec, 0, sizeof(struct ac97_codec));
->  
->      codec->private_data = card;
->      codec->codec_read = m3_ac97_read;
-> @@ -2313,13 +2312,13 @@
->  
->      if (ac97_probe_codec(codec) == 0) {
->          printk(KERN_ERR PFX "codec probe failed\n");
-> -        kfree(codec);
-> +        ac97_release_codec(codec);
->          return -1;
->      }
->  
->      if ((codec->dev_mixer = register_sound_mixer(&m3_mixer_fops, -1)) < 0) {
->          printk(KERN_ERR PFX "couldn't register mixer!\n");
-> -        kfree(codec);
-> +        ac97_release_codec(codec);
+Jeff Garzik <jgarzik@pobox.com> writes:
 
+> New HDLC stuff (already in 2.5) was also developed for 2.4.  It changes
+> the 2.4 HDLC userland ABI... but pretty much everybody who still
+> cares about HDLC is using the new (changed) ABI.
 
-I note another positive attribute as well:
-
-This new AC97 stuff makes object lifetime much more obvious, and makes
-it easy for someone to add refcounting later, if that comes up.
-
-This patch is an excellent example of such.
-
-	Jeff
-
-
-
+Precisely. Still, the old HDLC is now a history, 2.4.21 contains the new
+ABI/API. It's just missing some regular updates (not breaking the ABI).
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284948AbRLQBDW>; Sun, 16 Dec 2001 20:03:22 -0500
+	id <S284953AbRLQBVT>; Sun, 16 Dec 2001 20:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284951AbRLQBDN>; Sun, 16 Dec 2001 20:03:13 -0500
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:36741 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S284952AbRLQBCz>; Sun, 16 Dec 2001 20:02:55 -0500
-Message-Id: <200112170102.fBH12sV28094@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: es1371 damaged after 2.2.x 
-In-Reply-To: Your message of "Sat, 15 Dec 2001 17:56:31 MST."
-             <200112160056.fBG0uVW21900@vindaloo.ras.ucalgary.ca> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Mon, 17 Dec 2001 02:02:54 +0100
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	id <S284952AbRLQBVJ>; Sun, 16 Dec 2001 20:21:09 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:38665 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S284950AbRLQBU7>; Sun, 16 Dec 2001 20:20:59 -0500
+Message-ID: <3C1D4871.82053E7A@zk3.dec.com>
+Date: Sun, 16 Dec 2001 20:20:49 -0500
+From: Peter Rival <frival@zk3.dec.com>
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc1 does not boot my Alphas
+In-Reply-To: <20011216160404.A2945@mail.harddata.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Try again, this time adding "srmcons" to the boot flags.  You're croaking
+before we get the console set up under Linux so none of the boot messages are
+getting out; srmcons uses the SRM console to print its messages.  This won't
+fix the bugs, but at least we'll be able to see exactly where you die.
 
-Hi,
+ - Pete
 
-No fix, but behaviour confirmed ..
+Michal Jaegermann wrote:
 
-	greetings,
-	Rob van Nieuwkerk
-
->   Hi, all. I've finally sat down and looked at a problem that's been
-> annoying me for a long time: the es1371 driver in 2.4.x does not allow
-> me to set the mic recording gain as high as the 2.2.x driver does.
-> 
-> With 2.2.20, the mixer channels SOUND_MIXER_MIC (7) and
-> SOUND_MIXER_RECLEV (11) can both be adjusted to control the recoding
-> level. The default levels are sufficient for my needs, and I can
-> adjust them to a much higher level.
-> 
-> With 2.4.17-rc1, I can only control the recording level with
-> SOUND_MIXER_IGAIN (12), and even setting it to the maximum 0x6464
-> value does not yield a satisfactory recording level. Changing
-> SOUND_MIXER_MIC (7) does not affect the recording level (unlike
-> 2.2.x). Further, SOUND_MIXER_RECLEV (11) is not available for reading
-> or writing.
-> 
-> My guess is that the change in 2.3.x to use the ac97_codec driver for
-> es1371 is the cause of this damage. Under 2.4.x, the maximum available
-> recording level is barely usable for my application. Does anyone have
-> a fix for this?
-> 
-> Note that when I say "recording level", I do mean recording. For later
-> processing. I don't mean "gain from mic to headphones".
-> 
-> 				Regards,
-> 
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
+> I just happen to have an access right now to two Alpha machines,
+> UP1100 and UP1500, both with Nautilus chipset.  Neither of these
+> can be booted with 2.4.16 or 2.4.17rc1. On an attempt to boot
+> I can see only messages from a boot loader (aboot):
+> .....
+> zero-filling 155872 bytes at 0xffffc0000ad1308
+> starting kernel vmlinux.......
+>
+> and that is it.  The only thing which works now is a power switch.
+> The same happens if I try 2.4.17aa1rc1 (Andrea patches).
+>
+> A kernel with the highest version which I managed to boot so far,
+> on both machines, is 2.4.13-ac8.  Anybody with a handly on what is
+> going on?  I did not check yet if various Alpha specific patches
+> which were present in "ac" were merged into mainline.  But so
+> far things seem to be quite thorougly broken for Alpha (or at
+> least Nautilus).
+>
+>   Michal
+>   michal@harddata.com
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
 

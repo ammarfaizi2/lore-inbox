@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313707AbSDZITc>; Fri, 26 Apr 2002 04:19:32 -0400
+	id <S313711AbSDZI0D>; Fri, 26 Apr 2002 04:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313711AbSDZITb>; Fri, 26 Apr 2002 04:19:31 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:12814 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S313707AbSDZITb>; Fri, 26 Apr 2002 04:19:31 -0400
-Message-ID: <3CC90DC6.7030909@loewe-komp.de>
-Date: Fri, 26 Apr 2002 10:20:22 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
+	id <S313712AbSDZI0C>; Fri, 26 Apr 2002 04:26:02 -0400
+Received: from cs145025.pp.htv.fi ([213.243.145.25]:22799 "EHLO chip.2y.net")
+	by vger.kernel.org with ESMTP id <S313711AbSDZI0C>;
+	Fri, 26 Apr 2002 04:26:02 -0400
+Date: Fri, 26 Apr 2002 11:25:33 +0300 (EEST)
+From: Panu Matilainen <pmatilai@welho.com>
+X-X-Sender: pmatilai@chip.2y.net
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: nfs@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: 1279 mounts
+In-Reply-To: <20020425162106.A30736@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0204261120520.19032-100000@chip.2y.net>
 MIME-Version: 1.0
-To: Michael De Nil <linux@aerythmic.be>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mass Storage -> Asus Stick
-In-Reply-To: <Pine.LNX.4.44.0204252135440.16629-100000@LiSa>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael De Nil wrote:
-> Heyz
-> 
-> I have an Asus USB Mass Storage Stick here, but when connecting it to my
-> laptop running GNU/Linux 2.4.17, my system freezes... (It takes a couple
-> of seconds between connection & freez)
-> 
-> I don't get any oops or something like that, ...
-> 
+On Thu, 25 Apr 2002, Pete Zaitcev wrote:
 
-It seems there are deadlock situations in usb-storage and the filesystem.
-I get lockups on SMP boxes, hanging insmod usb-storage on UP with
-Datafab (special transport) but also lockups with Transcend/ScanLogic.
+> I updated my patch that allows to mount unholy numbers of volumes.
+> The old version was for 2.4.9 and did not apply anymore.
+> I split the unnamed majors patch and the NFS patch.
+> Also, CONFIG_ option is gone, because it made the code ugly.
+> 
+> Majors part:
+>  http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-unmaj.diff
+> NFS part:
+>  http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-nores.diff
+> Userland for NFS:
+>  http://people.redhat.com/zaitcev/linux/util-linux-2.11q-nores1.diff
+> 
+> Is anyone actually interested? Random people periodically ask
+> me for patches, get them and disappear into the void. I hear
+> nothing good or bad (well, nothing since Trond reviewed it
+> several months ago, and also someone found a conflict with NFS
+> server code, since fixed). I am thinking about submitting,
+> but if users do not ask, why add extra bloat and negotiate
+> with LANANA...
 
-Until now, I don't have a clue
+I've got quite a few users here who "need" this functionality and it's 
+included in our RH-based custom kernels. Having it as a separate patch 
+for 2.4 is no problem, for 2.5 I'm hoping we finally move to 32bit device 
+numbers...
+
+	- Panu -
 

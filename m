@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263438AbTCNS0x>; Fri, 14 Mar 2003 13:26:53 -0500
+	id <S263470AbTCNSc5>; Fri, 14 Mar 2003 13:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263441AbTCNS0x>; Fri, 14 Mar 2003 13:26:53 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:55459 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263438AbTCNS0w>; Fri, 14 Mar 2003 13:26:52 -0500
-Date: Fri, 14 Mar 2003 10:27:45 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Eli Carter <eli.carter@inet.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: kgdb (kernel debugger)
-Message-ID: <122350000.1047666465@flay>
-In-Reply-To: <3E7111C6.9070702@inet.com>
-References: <3E7111C6.9070702@inet.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S263471AbTCNSc4>; Fri, 14 Mar 2003 13:32:56 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:51725 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263470AbTCNScz>;
+	Fri, 14 Mar 2003 13:32:55 -0500
+Date: Fri, 14 Mar 2003 10:32:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org, david-b@pacbell.net,
+       wahrenbruch@kobil.de, torvalds@transmeta.com
+Subject: Re: Memleak in KOBIL USB Smart Card Terminal Driver
+Message-ID: <20030314183227.GE6649@kroah.com>
+References: <20030312200050.GA28090@linuxhacker.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030312200050.GA28090@linuxhacker.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hey! Watch where you point that flame-thrower!
+On Wed, Mar 12, 2003 at 11:00:50PM +0300, Oleg Drokin wrote:
+> Hello!
 > 
-> At the risk of stoking those old fires:
-> Has anyone looked into getting kgdb working on 2.5?  On any architecture?  (I'm mostly interested in XScale, but I thought I'd start here in the hope that another arch has done the heavy lifting. ;) )
+>    There is a memleak on error exit path in KOBIL USB Smart Card Terminal
+>    Driver in both current 2.4 and 2.5.
+>    See the patch.
+>    Found with help of smatch + enhanced unfree script.
 
-It does already, it's in both current -mm and -mjb trees. There was a 
-fancy new version floating around at one point, not sure what happened
-to that, but the old one works fine.
+Applied to both my 2.4 and 2.5 trees, thanks.
 
-M.
-
+greg k-h

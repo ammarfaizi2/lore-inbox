@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSJ1Q4s>; Mon, 28 Oct 2002 11:56:48 -0500
+	id <S261369AbSJ1Q4H>; Mon, 28 Oct 2002 11:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSJ1Q4s>; Mon, 28 Oct 2002 11:56:48 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:2976 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261370AbSJ1Q4q>;
-	Mon, 28 Oct 2002 11:56:46 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 28 Oct 2002 18:02:53 +0100 (MET)
-Message-Id: <UTC200210281702.g9SH2rk26154.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: psmouse.c: Lost synchronization
+	id <S261370AbSJ1Q4H>; Mon, 28 Oct 2002 11:56:07 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:61345 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261369AbSJ1Q4F>; Mon, 28 Oct 2002 11:56:05 -0500
+Date: Mon, 28 Oct 2002 08:57:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>
+cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
+       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
+Message-ID: <524720000.1035824241@flay>
+In-Reply-To: <200210281734.41115.efocht@ess.nec.de>
+References: <200210280132.33624.efocht@ess.nec.de> <3128418467.1035736310@[10.10.2.3]> <200210281734.41115.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I regularly see wild mouse jumps, very annoying.
-At the same moment messages like
+> The pool data is needed to be able to loop over the CPUs of one node,
+> only. I'm convinced we'll need to do that sometime, no matter how simple
+> the core of the NUMA scheduler is.
 
-17:15:42 psmouse.c: Lost synchronization, throwing 1 bytes away.
-17:15:42 psmouse.c: Lost synchronization, throwing 2 bytes away.
-17:16:59 psmouse.c: Lost synchronization, throwing 2 bytes away.
-17:16:59 psmouse.c: Lost synchronization, throwing 1 bytes away.
-17:18:13 psmouse.c: Lost synchronization, throwing 1 bytes away.
-17:18:13 psmouse.c: Lost synchronization, throwing 2 bytes away.
-17:31:48 psmouse.c: Lost synchronization, throwing 1 bytes away.
-17:31:48 psmouse.c: Lost synchronization, throwing 2 bytes away.
-17:31:51 psmouse.c: Lost synchronization, throwing 1 bytes away.
-17:31:51 psmouse.c: Lost synchronization, throwing 2 bytes away.
+Hmmm ... is using node_to_cpumask from the topology stuff, then looping
+over that bitmask insufficient?
+ 
+> The pool_lock is protecting that data while it is built. This can happen
+> in future more often, if somebody starts hotplugging CPUs.
 
-appear in the log.
-Since packets are 3 bytes long and subsequent pairs of messages
-(with the same time stamp) always throw out 3 bytes, the conclusion
-is that in reality sync was never lost.
-Indeed, it is only with 2.5 that this mouse has problems.
+Heh .... when someone actually does that, we'll have a lot more problems
+than just this to solve. Would be nice to keep this stuff simple for now, if 
+possible.
 
-So, the test
+> Sorry, the comment came from a former version...
 
-        if (psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/20)) {
-                printk(KERN_WARNING "psmouse.c: Lost synchronization, "
-				    "throwing %d bytes away.\n",
-		       psmouse->pktcnt);
-                psmouse->pktcnt = 0;
-        }
+No problem, I suspected that was all it was.
+ 
+>> just block). If you really still need to do this, RCU is now
+>> in the kernel ;-) If not, can we just chuck all that stuff?
+> 
+> I'm preparing a core patch which doesn't need the pool_lock. I'll send it
+> out today.
 
-is no good. I just replaced HZ/20 by 5*HZ.
+Cool! Thanks,
 
-If mouse sync is really lost (which I never observed in the past ten years)
-then I am quite willing to wait a moment. But it is bad when nothing
-is wrong, just a slow machine, and the kernel invents and creates
-the problems itself.
+M.
 
-Andries
-
-
-[This was 2.5.44.]

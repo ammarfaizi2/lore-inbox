@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbTJAKUT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTJAKUT
+	id S261685AbTJAK3j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbTJAK3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:20:19 -0400
-Received: from [212.97.163.22] ([212.97.163.22]:54148 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S261842AbTJAKUN (ORCPT
+	Wed, 1 Oct 2003 06:29:39 -0400
+Received: from gprs146-6.eurotel.cz ([160.218.146.6]:36992 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261685AbTJAK3i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:20:13 -0400
-Date: Wed, 1 Oct 2003 12:20:01 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linuxabi
-Message-ID: <20031001102001.GA3495@werewolf.able.es>
-References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl>
+	Wed, 1 Oct 2003 06:29:38 -0400
+Date: Wed, 1 Oct 2003 12:26:31 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Makan Pourzandi <Makan.Pourzandi@ericsson.ca>
+Cc: linux-kernel@vger.kernel.org,
+       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
+       Vincent Roy <vincent.roy@ericsson.ca>,
+       David Gordon <davidgordonca@yahoo.ca>, socrate@infoiasi.ro
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries
+Message-ID: <20031001102631.GC398@elf.ucw.cz>
+References: <3F733FD3.60502@ericsson.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl> (from Andries.Brouwer@cwi.nl on Wed, Oct 01, 2003 at 02:01:23 +0200)
-X-Mailer: Balsa 2.0.15
+In-Reply-To: <3F733FD3.60502@ericsson.ca>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 10.01, Andries.Brouwer@cwi.nl wrote:
-> Hi Linus,
+> overview
+> =======
 > 
-> Something we have talked about for a long time is
-> separating out from the kernel headers the parts
-> fit for inclusion in user space.
-> 
-> This is a very large project, and it will take a long
-> time, especially if we want the user space headers to
-> be a pleasure to look at, instead of just a cut-n-paste
-> copy of whatever we find in the current headers.
-> 
-> Some start is required, and the very first step is
-> making sure that you agree with the project.
-> Immediately following is the choice of directory names.
-> 
-> Below
->   (i) a small textfile "linuxabi" describing the naming
-> (subdirectories linuxabi and linuxabi-alpha etc of include),
+> Instead of writing a long detailed explication, I rather give you an 
+> example of how you can use it.
 
-Why not just 'abi' ? Simpler, and allows glibc to include
-just 'abi/xxxx' in other systems if they follow the same convention (BSD?) ?
+Can you also add example *why* one would want to use it?
 
-Where would this live in userspace, /usr/include/abi or /usr/include/linux/abi ?
-How would this relate to current /usr/include/linux 
-(symlink /usr/include/linux to /usr/include/abi) ?
-
-Just curious.
+AFAICS if I want to exec something, I can avoid exec() syscall and do
+mmaps by hand...
+								Pavel
 
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

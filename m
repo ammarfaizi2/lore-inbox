@@ -1,65 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVBVSuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVBVSxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVBVSuw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVBVSuw
+	id S261216AbVBVSxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBVSxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:50:52 -0500
-Received: from cantor.suse.de ([195.135.220.2]:24751 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261325AbVBVSuj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:50:39 -0500
-Date: Tue, 22 Feb 2005 19:49:15 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>, ak@muc.de,
-       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview II
-Message-ID: <20050222184915.GA8981@wotan.suse.de>
-References: <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de> <20050220143023.3d64252b.pj@sgi.com> <20050220223510.GB14486@wotan.suse.de> <42199EE8.9090101@sgi.com> <20050221121010.GC17667@wotan.suse.de> <421AD3E6.8060307@sgi.com> <20050222180122.GO23433@wotan.suse.de> <421B7DC1.8070504@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421B7DC1.8070504@sgi.com>
+	Tue, 22 Feb 2005 13:53:38 -0500
+Received: from mailman2.ppco.com ([138.32.33.140]:50870 "EHLO
+	mailman2.ppco.com") by vger.kernel.org with ESMTP id S261216AbVBVSxP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 13:53:15 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Problems with 2.6.11-rc4, Opteron server and MPTBase
+Date: Tue, 22 Feb 2005 12:53:12 -0600
+Message-ID: <D821697F08061F4FBB069FA1AAAA92370C44F7@hoexmb7.conoco.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with 2.6.11-rc4, Opteron server and MPTBase
+Thread-Index: AcUZD8GauRWrk1DOTQKVAz6YLx6Scw==
+From: "Weathers, Norman R." <Norman.R.Weathers@conocophillips.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Feb 2005 18:53:12.0473 (UTC) FILETIME=[C2498890:01C5190F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22, 2005 at 12:45:21PM -0600, Ray Bryant wrote:
-> Andi Kleen wrote:
-> 
-> >
-> >How about you add the va_start, va_end but only accept them 
-> >when pid is 0 (= current process). Otherwise enforce with EINVAL
-> >that they are both 0. This way you could map the
-> >shared object into the batch manager, migrate it there, then
-> >mark it somehow to not be migrated further, and then
-> >migrate the anonymous pages using migrate_pages(pid, ...) 
-> >
-> 
-> We'd have to use up a struct page flag (PG_MIGRATED?) to mark
-> the page as migrated to keep the call to migrate_pages() for
-> the anonymous pages from migrating the pages again.  Then we'd
 
-I was more thinking of a new mempolicy or a flag for one.
-Flag would be probably better.  No need to keep state in struct page.
+To all whom it may concern:
 
-> How about ignoring the va_start and va_end values unless
-> either:
-> 
->       pid == current->pid
->   or  current->euid == 0 /* we're root */
-> 
-> I like the first check a bit better than checking for 0.  Are
-> there other system calls that follow that convention (e. g.
-> pid = 0 implies current?)
-> 
-> The second check lets a sufficiently responsible task manipulate
-> other tasks.  This task can choose to have the target tasks
-> suspended before it starts fussing with them.
 
-I don't like that. The idea behind this restriction is to simplify
-things by making sure only processes change their own VM. Letting
-root overwrite this doesn't make much sense.
+I am having trouble with several of the 2.6 kernels.  The last one is
+the one that is perhaps most annoying.
 
--Andi
+I have a dual Opteron based NFS server that keeps crashing when I try to
+boot up with 2.6.11-rc4.
+
+The node is trying to boot from an mptbase device, and it is also
+loading modules for a qlogic fiber card (module is qla2300, qla2xxx, and
+the scsi_transport_fc).  Now, as it is scanning the drives, it does a
+perfect impersonation of a dying duck and crashes.  
+
+Here is the output from the crash:'
+
+Fusion MPT base driver 3.01.18
+Loading scsi_modCopyright (c) 1999-2004 LSI Logic Corporation
+.ko module
+Loadmptbase: Initiating ioc0 bringup
+ing sd_mod.ko module
+Loading mptbase.ko module
+ioc0: 53C1030: Capabilities={Initiator}
+Unable to handle kernel paging request at 00000000000025b0 RIP: 
+<ffffffff8012064d>{vmalloc_fault+557}
+PGD 821ad067 PUD 2c50067 PMD 0 
+Oops: 0000 [1] SMP 
+CPU 0 
+Modules linked in: mptbase sd_mod scsi_mod
+Pid: 0, comm: swapper Not tainted 2.6.11-rc4
+RIP: 0010:[<ffffffff8012064d>] <ffffffff8012064d>{vmalloc_fault+557}
+RSP: 0000:ffffffff80455230  EFLAGS: 00010212
+RAX: 00000000000fe050 RBX: 0000000000000001 RCX: 0000000000000018
+RDX: 0000000000000000 RSI: 03fffffffffff000 RDI: 00003fffffffffff
+RBP: 0000000000000000 R08: ffff8100fba3c000 R09: 00000000fba3c000
+R10: 0000000000000008 R11: ffff810081b44760 R12: ffffffff80455338
+R13: 0000000000000003 R14: ffffc20000000044 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffffffff804c1800(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 00000000000025b0 CR3: 0000000002c58000 CR4: 00000000000006e0
+Process swapper (pid: 0, threadinfo ffffffff804c8000, task
+ffffffff80358380)
+Stack: ffffffff801207ce 0000000000000001 0000000000000001
+ffffffff80455278 
+       ffffffff80358380 ffffffff80455338 ffffffff80317933
+0000000000000000 
+       0000000b0000000e 0000000000000082 
+Call Trace:<IRQ> <ffffffff801207ce>{do_page_fault+238}
+<ffffffff8014c179>{autoremove
+_wake_function+9} 
+       <ffffffff80131d83>{__wake_up_common+67}
+<ffffffff8010eddd>{error_exit+0} 
+       <ffffffff8802c02d>{:mptbase:mpt_interrupt+45}
+<ffffffff8013fbd9>{update_wall_
+time+9} 
+       <ffffffff8015777c>{handle_IRQ_event+44}
+<ffffffff8015788e>{__do_IRQ+222} 
+       <ffffffff80111392>{do_IRQ+66} <ffffffff8010e981>{ret_from_intr+0}
+
+        <EOI> <ffffffff802f7c4a>{thread_return+42}
+<ffffffff8010c420>{default_idle+0
+} 
+       <ffffffff8010c444>{default_idle+36}
+<ffffffff8010c58a>{cpu_idle+58} 
+       <ffffffff804ca910>{start_kernel+416}
+<ffffffff804ca294>{x86_64_start_kernel+4
+04} 
+       
+
+Code: 48 2b 82 b0 25 00 00 48 8d 34 c5 00 00 00 00 48 29 c6 48 8b 
+RIP <ffffffff8012064d>{vmalloc_fault+557} RSP <ffffffff80455230>
+CR2: 00000000000025b0
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+
+Has anyone seen this in this kernel?  2.6.7 - 2.6.10 has not had a
+problem booting, but there has been other problems that are forcing us
+to move up to a newer kernel (2.6.7 has stability issues, 2.6.9 had some
+interesting issues with our IBM servers and USB keyboards (complete
+lockups), and I had problems with kswapd on 2.6.7 - 2.6.10).
+
+Thanks for any help you may be able to shed on this problem.  Please CC
+me.  I was on the kernel list, but I think my company has blocked that
+email due to the volume of the traffic.
+
+Norman Weathers
+

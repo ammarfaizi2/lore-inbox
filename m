@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262185AbSJFVAj>; Sun, 6 Oct 2002 17:00:39 -0400
+	id <S262186AbSJFUzL>; Sun, 6 Oct 2002 16:55:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbSJFVAj>; Sun, 6 Oct 2002 17:00:39 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:60290 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262185AbSJFVAj>; Sun, 6 Oct 2002 17:00:39 -0400
-Date: Sun, 6 Oct 2002 18:06:04 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Skip Ford <skip.ford@verizon.net>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <1033923759.21282.35.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0210061805531.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262184AbSJFUzK>; Sun, 6 Oct 2002 16:55:10 -0400
+Received: from [213.187.195.158] ([213.187.195.158]:24302 "EHLO
+	kokeicha.ingate.se") by vger.kernel.org with ESMTP
+	id <S262183AbSJFUzJ>; Sun, 6 Oct 2002 16:55:09 -0400
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-net@vger.kernel.org,
+       edward_peng@dlink.com.tw
+Subject: DFE-580TX packet drop persist (Re: Linux 2.4.20-pre9)
+References: <Pine.LNX.4.44L.0210032203570.6478-100000@freak.distro.conectiva>
+From: Marcus Sundberg <marcus@ingate.com>
+Date: 06 Oct 2002 23:00:40 +0200
+In-Reply-To: <Pine.LNX.4.44L.0210032203570.6478-100000@freak.distro.conectiva>
+Message-ID: <veu1jze0zr.fsf@inigo.ingate.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Oct 2002, Alan Cox wrote:
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-> I would really like a linux-patches@vger.kernel.org list that was
-> nothing but all the patches people planned to submit, with minimal
-> commentaries, and which had a reply to pointing at linux-kernel.
+> Summary of changes from v2.4.20-pre8 to v2.4.20-pre9
+> ============================================
 
-Seconded. </AOL>
+>   o sundance net drvr: fix DFE-580TX packet drop issue, further reset_tx fixes (contributed by Edward Peng @ D-Link)
 
-Rik
+Hi,
+
+I'm sorry to say that the packet drop issue is still not solved
+with a DF580-TX using four of these chips:
+        Class 0200: 1186:1002 (rev 12)
+        Subsystem: 1186:1012
+
+Sending bi-directional streams of UDP-packets with 200-byte payload
+through the machine I get zero packet loss and 15% CPU usage with
+either eepro100 or tulip-based cards. Using the DFE-580TX I get
+15% packet loss and 25% CPU usage. Ifconfig also shows packets
+being dropped:
+
+eth1      Link encap:Ethernet  HWaddr 00:05:5D:E6:14:BE  
+          inet addr:10.230.0.1  Bcast:10.230.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2439797 errors:0 dropped:287381 overruns:0 frame:0
+          TX packets:2461746 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          Interrupt:18 Base address:0xa400 
+
+eth2      Link encap:Ethernet  HWaddr 00:05:5D:E6:14:BF  
+          inet addr:10.230.1.1  Bcast:10.230.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2463601 errors:0 dropped:286106 overruns:0 frame:0
+          TX packets:2437637 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          Interrupt:19 Base address:0xa000 
+
+//Marcus
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+---------------------------------------+--------------------------
+  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
+ Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

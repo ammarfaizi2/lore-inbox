@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbUCERdU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 12:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbUCERdT
+	id S262662AbUCERkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbUCERkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 12:33:19 -0500
-Received: from hermes.dur.ac.uk ([129.234.4.9]:39161 "EHLO hermes.dur.ac.uk")
-	by vger.kernel.org with ESMTP id S262178AbUCERdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 12:33:18 -0500
-Subject: Potential bug in fs/binfmt_elf.c?
-From: Mike Hearn <mike@navi.cx>
-Reply-To: mike@navi.cx
+	Fri, 5 Mar 2004 12:40:55 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:2192 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262662AbUCERkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 12:40:52 -0500
+Date: Fri, 5 Mar 2004 14:40:49 -0300
+From: Flavio Bruno Leitner <fbl@conectiva.com.br>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1078508281.3065.33.camel@linux.littlegreen>
+Subject: kernel BUG at kernel/timer.c:370!
+Message-ID: <20040305174049.GA1759@conectiva.com.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 05 Mar 2004 17:38:01 +0000
-Content-Transfer-Encoding: 7bit
-X-DurhamAcUk-MailScanner: Found to be clean, Found to be clean
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.5.1i
+X-Bogosity: No, tests=bogofilter, spamicity=0.495734, version=0.16.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I believe there is a problem in fs/binfmt_elf.c, around line 700 (kernel
-2.6.1)
+Hello!
 
-When mapping a nobits PT_LOAD segment with a memsize > filesize, the
-kernel calls set_brk (which in turns calls do_brk) to map and clear the
-area, but this discards access permissons on the mapping leading to rwx
-protection. This causes a load failure on systems where the VM cannot
-reserve swap space for the segment, unless overcommit is active (on many
-systems it's not on by default).
+My laptop is an Acer TravelMate 630 and somewhere between 2.6.2 and 2.6.3-rc2 
+begins returning an oops right after boot.
 
-I don't know this code well, but it seems that this discarding of access
-permissions on the unlikely codepath is incorrect. I filed bug #2255 [1]
-on it.
+kernel BUG at kernel/timer.c:370!
+invalid operand: 0000 [#1]
+CPU:	0
+EIP:	0060:[<c0127177>]	Not tainted
+EFLAGS: 00010006
+EIP is at cascade+0x44/0x4e
+eax: c03e4368	ebx: c03e02b0	ecx: fffce200	edx: c03e03b0
+esi: c03e0398	edi: c03dfa80	ebp: c0387f08	esp: c0387ef4
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c0386000 task=c0306520)
+Stack: c03dfa80 cde229c4 00000000 c03df7a8 c0387f20 c0387f38 c0127732 c03dfa80
+       c03e0288 00000022 c0387f34 c0387f20 c0387f20 c0308d64 00000001 c03df7a8
+       0000000a c0387f54 c0123b7c c03df7a8 00000046 00000000 c037da00 c0308d64
+Call Trace:
+  [<c0127732>] run_timer_softirq+0xec/0x16b
+  [<c0123b7c>] do_softirq+0x98/0x9a
+  [<c010d2ff>] do_IRQ+0xe4/0x11c
+  [<c010b974>] common_interrupt+0x18/0x20
+  [<d08c8257>] acpi_processor_idle+0xe9/0x1e5 [processor]
+  [<c0105000>] _stext+0x0/0x2a
+  [<c01090b7>] cpu_idle+0x2f/0x38
+  [<c038c70a>] start_kernel+0x185/0x1c9
+  [<c038c44a>] unknow_bootoption+0x0/0x108
 
-Could somebody who understands the ELF loading code please check to see
-if this is a bug, and if so produce a patch? 
+Code: 0f 0b 72 01 3b 05 2d c0 eb d4 55 89 e5 56 53 83 ec 04 0f bf
 
-The ability to define a new (large) ELF section which isn't backed by
-swap space nor disk space and that will be mapped to a specific VMA
-range is needed by Wine to reserve the PE load area. 
 
-Currently the fact that the section is always mapped rwx despite being
-marked read-only in the binary prevents us from using this as a solution
-to the problems caused by exec-shield/prelink, meaning the only solution
-is to bootstrap the ELF interpreter ourselves from a statically linked
-binary. Clearly we'd rather not do that.
+Here is the function:
+static int cascade(tvec_base_t *base, tvec_t *tv, int index)
+{
+        /* cascade all the timers from tv up one level */
+        struct list_head *head, *curr;
 
-Thanks to pageexec@freemail.hu for bringing the matter to my attention.
+        head = tv->vec + index;
+        curr = head->next;
+        /*
+         * We are removing _all_ timers from the list, so we don't  have to
+         * detach them individually, just clear the list afterwards.
+         */
+        while (curr != head) {
+                struct timer_list *tmp;
 
-Your assistance is appreciated,
-thanks -mike
+                tmp = list_entry(curr, struct timer_list, entry);
+                BUG_ON(tmp->base != base);
+                curr = curr->next;
+                internal_add_timer(base, tmp);
+        }
+        INIT_LIST_HEAD(head);
 
-[1] http://bugzilla.kernel.org/show_bug.cgi?id=2255
+        return index;
+}
 
+
+Any ideas about this one?
+Thanks!
+
+
+-- 
+Flávio Bruno Leitner <fbl@conectiva.com.br>
+[ E74B 0BD0 5E05 C385 239E  531C BC17 D670 7FF0 A9E0 ]

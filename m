@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129956AbRBIEbe>; Thu, 8 Feb 2001 23:31:34 -0500
+	id <S129930AbRBIEcO>; Thu, 8 Feb 2001 23:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129951AbRBIEbZ>; Thu, 8 Feb 2001 23:31:25 -0500
-Received: from Mail.ubishops.ca ([192.197.190.5]:11283 "EHLO Mail.ubishops.ca")
-	by vger.kernel.org with ESMTP id <S129930AbRBIEbH>;
-	Thu, 8 Feb 2001 23:31:07 -0500
-Message-ID: <3A83727A.7E70944C@yahoo.co.uk>
-Date: Thu, 08 Feb 2001 23:30:50 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129951AbRBIEcE>; Thu, 8 Feb 2001 23:32:04 -0500
+Received: from brooks.civeng.adelaide.edu.au ([129.127.78.254]:26756 "EHLO
+	brooks.civeng.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id <S129930AbRBIEba>; Thu, 8 Feb 2001 23:31:30 -0500
+From: "Stephen Carr" <sgcarr@civeng.adelaide.edu.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Bug: 2.4.0 w/ PCMCIA on ThinkPad: KERNEL: 
- assertion(dev->ip_ptr==NULL)failed at 
- dev.c(2422):netdev_finish_unregister
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 9 Feb 2001 14:58:24 +1030
+Subject: Panic in 2.2.2-pre2 SMP several panics
+Reply-to: sgcarr@civeng.adelaide.edu.au
+Message-ID: <3A840590.11464.D9B937@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem has been resolved (sort of).  See the follow up to 
-"[PATCH] to deal with bad dev->refcnt in unregister_netdevice()"
+Dear Kernel Gurus
 
-Thomas Hood
+Sorry if this is a bit of a repeat - I think the prior message was 
+incorrectly addressed.
 
-> Here is a patch which may not solve the underlying
-> problem but which does prevent the kernel from 
-> generating an infinite number of error messages
-> on "cardctl eject" and from hanging up on shutdown.
-> 
-> ----------------------------------------------------
-> jdthood@thanatos:/usr/src/kernel-source-2.4.1-ac3/net/core# diff dev.c_ORIG dev.c
-> 2558c2558
-> < 	while (atomic_read(&dev->refcnt) != 1) {
-> ---
-> > 	while (atomic_read(&dev->refcnt) > 1) {
-> -----------------------------------------------------
-> 
-> The underlying problem is that refcnt is zero or less
-> at this point.  This is erroneous.  The error in 
-> maintaining the refcnt appears to occur only when 
-> I configure the eth0 interface using pump or dhclient.
-> Be that as it may, because of the erroneous refcnt,
-> this while loop loops forever in the original.  As
-> modified it falls through; and this makes the kernel
-> usable for me.
-> 
-> I hope the networking gurus can find the real bug.
-> 
-> Thomas Hood
->
+System Dual 500 Mhz Pentium III 256MB ram with Adaptec 2940 
+UW scsi controller - WD disc and HP DAT tape.
+
+I have been getting kernel panics when doing backups over the 
+network. I have used both the eepro100 driver and Intel's e100 driver 
+the general type of error is a panic - Aiee -- killing the interrupt 
+driver.
+
+I have tried the 2.4.0, 2.4.1 and lately the 2.2.2-pre2 kernels.
+
+Panics below for 2.4.2-pre2 kernel.
+
+The error I have got is spkput:over: d0826d4b put:1514 dev:eth0 
+kernel BUG at skbuff.c:93 using the e100 driver
+
+The NIC is an Intel Ether ExpressPro 100 set to 100Mbs full duplex 
+connected to an HP2424M switch.
+
+I switched to the eepro100 drive and got this panic with system 
+"idle" and I was typing sudo -s.
+
+Unable to handle kernel paging request at virtual address 18000080 
+Bad EIP value. Killing the interrupt handler.
+
+Any ideas?
+
+Stephen Carr
+
+
+-----------------
+Computing Officer
+Department of Civil and Environmental Engineering
+University of Adelaide
+Adelaide, South Australia,
+Australia 5005
+Phone +618 8303-4313
+Fax   +618 8303-4359
+Email sgcarr@civeng.adelaide.edu.au
+-----------------------------------------------------------
+This email message is intended only for the addressee(s)
+and contains information which may be confidential and/or
+copyright.  If you are not the intended recipient please
+do not read, save, forward, disclose, or copy the contents
+of this email. If this email has been sent to you in error,
+please notify the sender by reply email and delete this
+email and any copies or links to this email completely and
+immediately from your system.  No representation is made
+that this email is free of viruses.  Virus scanning is
+recommended and is the responsibility of the recipient.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

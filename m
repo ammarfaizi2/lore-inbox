@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSHSLY0>; Mon, 19 Aug 2002 07:24:26 -0400
+	id <S315282AbSHSLar>; Mon, 19 Aug 2002 07:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314811AbSHSLY0>; Mon, 19 Aug 2002 07:24:26 -0400
-Received: from dsl-213-023-038-065.arcor-ip.net ([213.23.38.65]:65502 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313181AbSHSLYZ>;
-	Mon, 19 Aug 2002 07:24:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] printk from userspace
-Date: Mon, 19 Aug 2002 13:28:47 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0208140016140.3712-100000@weyl.math.psu.edu> <3D59E365.B0115D78@zip.com.au> <3D59EB50.6050801@zytor.com>
-In-Reply-To: <3D59EB50.6050801@zytor.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17gkiG-0003Cq-00@starship>
+	id <S317371AbSHSLar>; Mon, 19 Aug 2002 07:30:47 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23310 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315282AbSHSLaq>; Mon, 19 Aug 2002 07:30:46 -0400
+Date: Mon, 19 Aug 2002 12:34:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: reiserfs-dev@namesys.com
+Subject: Reiserfs merge error?
+Message-ID: <20020819123445.A17471@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 August 2002 07:32, H. Peter Anvin wrote:
-> Alright, klibc 0.35 uses /dev/kmsg for syslog(3).
+I've just been reading some of the reiserfs code in 2.5.31, and came
+across this little gem in fs/reiserfs/super.c:reiserfs_fill_super():
 
-Could we please have '/dev/kmessage' instead of 'kmsg'?
+    sbi->s_mount_state = SB_REISERFS_STATE(s);
+    sbi->s_mount_state = REISERFS_VALID_FS ;
+
+it looks like a merge error; the reiserfs people should probably take
+a look at it.
 
 -- 
-Daniel
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTFKORI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 10:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTFKORH
+	id S261970AbTFKOWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 10:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTFKOWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 10:17:07 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:31480 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S262000AbTFKORF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 10:17:05 -0400
-Subject: pci_domain_nr vs. /sys/devices
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Matthew Wilcox <willy@debian.org>
-Content-Type: text/plain
+	Wed, 11 Jun 2003 10:22:23 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:10934 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261970AbTFKOWW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 10:22:22 -0400
+Date: Wed, 11 Jun 2003 07:36:00 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70 (virgin) hangs running SDET
+Message-ID: <26960000.1055342159@[10.10.2.4]>
+In-Reply-To: <20030610222116.2fb9c001.akpm@digeo.com>
+References: <60380000.1055188542@flay><20030609140834.11ad0d63.akpm@digeo.com><5930000.1055254447@[10.10.2.4]><12190000.1055266471@flay><20030610124613.40e65da7.akpm@digeo.com><25140000.1055307962@[10.10.2.4]> <20030610222116.2fb9c001.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055341842.754.3.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 11 Jun 2003 16:30:42 +0200
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new pci_domain_nr() is good for adding the PCI domain number to
-the /sys/devices/pciN/* names, but I think that's not the proper
-representation. It should really be
+>> OK, did that. your patches + debug up the wazoo. Bugger all output,
+>>  and a hang that looks similar, but the culprit is hiding even more,
+>>  as far as I can't see ;-(
+> 
+> yes, nobody's spinning on the /proc lock any more.
+> 
+> I don't understand why all the tasks in set_cpus_allowed() are showing up
+> as being in " R " state.  Possibly the wait_for_completion() in there is
+> stack gunk and they're really spinning on the runqueue lock?
 
-  /sys/devices/pci-domainN/pciN/*
+Damn it, we really need this shit to use frame pointers, and give accurate
+info ;-(
+ 
+> You haven't tried disabling sched_migrate_task() yet?
 
-So we can pave the way for when we'll stop play bus number tricks and
-actually have overlapping PCI bus numbers between domains. (I don't plan
-to do that immediately because that would break userland & /proc/bus/pci
-backward compatiblity)
+Nope, will do that next, but I presume you mean balance on exec, from
+previous conversations ... 
 
-What do you think ?
+Thanks,
 
-Ben.
+M.
+
 

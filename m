@@ -1,90 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263776AbTKRSfN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 13:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTKRSfN
+	id S263751AbTKRSmO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 13:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTKRSmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 13:35:13 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:52109 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263776AbTKRSfE
+	Tue, 18 Nov 2003 13:42:14 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:37613 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263751AbTKRSmK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 13:35:04 -0500
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-From: john stultz <johnstul@us.ibm.com>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Ronny V. Vindenes" <s864@ii.uib.no>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, cat@zip.com.au,
-       gawain@freda.homelinux.org, gene.heskett@verizon.net,
-       papadako@csd.uoc.gr
-In-Reply-To: <3FBA44CD.8060605@gmx.de>
-References: <1069071092.3238.5.camel@localhost.localdomain>
-	 <3FB8C92E.7030201@gmx.de>  <200311172046.17736.schlicht@uni-mannheim.de>
-	 <1069104441.11424.1979.camel@cog.beaverton.ibm.com> <3FB950EE.10806@gmx.de>
-	 <1069109719.11424.1994.camel@cog.beaverton.ibm.com>
-	 <1069110272.11438.2000.camel@cog.beaverton.ibm.com>
-	 <3FBA1D78.8060502@gmx.de>  <3FBA44CD.8060605@gmx.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1069180130.11436.2071.camel@cog.beaverton.ibm.com>
+	Tue, 18 Nov 2003 13:42:10 -0500
+Date: Tue, 18 Nov 2003 10:42:00 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Larry McVoy <lm@bitmover.com>, Sven Dowideit <svenud@ozemail.com.au>,
+       Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031118184200.GA13966@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
+	Sven Dowideit <svenud@ozemail.com.au>,
+	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311141624.32108.andrew@walrond.org> <20031114164640.GA1618@work.bitmover.com> <200311141734.57122.andrew@walrond.org> <20031114174303.GC32466@work.bitmover.com> <1068959565.889.5.camel@sven> <20031118153054.GB10584@work.bitmover.com> <20031118183058.GS476@phunnypharm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 18 Nov 2003 10:28:50 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031118183058.GS476@phunnypharm.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-11-18 at 08:11, Prakash K. Cheemplavam wrote:
-> Prakash K. Cheemplavam wrote:
-> >>
-> >> After sending out multiple patches I should have been more clear. Just
-> >> to avoid confusion:
-> >>
-> >> * the init_cpu_khz patch goes along side Thomas' patch.
-> >> * the more experimental sched_clock() -> monotonic_clock() patch I just
-> >> sent out for testing replaces Thomas' patch.
-> > 
-> > 
-> > 
-> > I now tried the second one and it seems to work, tough I am not sure 
-> > whether the performance is as good as APCI timer deavt. It seems that 
-> > now CPU Hz is not shown anymore. Have a look at my dmesg:
-
-The init_cpu_khz patch is the one that displays the calibrated CPU
-frequency. The two patches listed above address independent bugs. 
-
-> So I deactivated the PM timer again and my computer is much faster 
-> again. Haven prime in the background taking 100% doesn't noticeable 
-> affect deskop performance. But I think I know where the problem lies:
-
-Yes, Thomas pointed out that the sched_clock->monotonic_clock patch
-didn't seem to work for pmtmr. I'm looking into if the pmtmr's
-montonic_clock call is doing the right thing (didn't have my laptop
-yesterday). 
-
-For now Thomas' patch to switch on "use_tsc" is the best fix when using
-the pmtmr. 
-
-> current: c0499a60
-> current->thread_info: c0528000
-> Initializing CPU#0
-> PID hash table entries: 4096 (order 12: 32768 bytes)
-> Detected 2004.698 MHz processor.
-> Using tsc for high-res timesource
+On Tue, Nov 18, 2003 at 01:30:58PM -0500, Ben Collins wrote:
+> > Just to be clear, what we are talking about is a free client which talks to
+> > a modified BK server.  The client has the ability to 
 > 
-> 
-> In above dmesg you can see that nothing was used as timesource, but here 
-> in current dmesg tsc is used. Is this normal or a bug? Need I pass a 
-> kernel paramtere when pm timer is enbaled?
+> I just wanted to be clear on what you meant by "free". Is that free as
+> in binary with less restrictive license than the current bk client, or
+> "free" as in includes the source under the GPL? If the latter, you can
+> bet your ass I'd use it. If the former, it would allow me to use it, but
+> I can't guarantee I would.
 
-No, its just cosmetic. Both Thomas and I have sent out a patch that
-initializes the name field in the pmtmr's timer_opts struct. 
+It would be free as in w/ source, probably BSD rather than GPL but some
+license you'd like.  About the only thing we'd need to worry about is
+our commercial customers taking this and using it as a way to not pay
+for some seats so there is some chance that we'd want to put in some
+hook there, I'd have to think about that before promising anything.
 
-See: http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0983.html
+I'm curious as to why you would think this is better than the CVS gateway.
+The CVS gateway is actually a really nice thing.  The whiners think we
+have somehow hamstrung the data in the gateway but that's only because
+they haven't looked at the data, if they had done a careful comparison 
+then they'd know it's all in there.
 
-I appreciate the testing and feedback!
-
-thanks,
--john
-
-
+So what's the attraction?  Having a client that will work with any BK
+server?  Do you realize that the client is just a way to get at the head?
+And tagged releases?  It doesn't have 1/10th the functionality of BK itself.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263892AbTEFPqa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTEFPqa
+	id S263893AbTEFPrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbTEFPrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:46:30 -0400
-Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:15751 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S263892AbTEFPq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:46:29 -0400
-Message-ID: <3EB7DBC0.40907@comcast.net>
-Date: Tue, 06 May 2003 08:58:56 -0700
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030504
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tmb@iki.fi, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 May 2003 11:47:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:52679 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263893AbTEFPrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:47:08 -0400
+Date: Tue, 6 May 2003 08:56:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: X unlock bug revisited
+Message-Id: <20030506085623.4fe97953.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0305061141300.1272-100000@oddball.prodigy.com>
+References: <Pine.LNX.4.44.0305061141300.1272-100000@oddball.prodigy.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is a problem with this, ...
-> If we calculate the exact memory like this, there wont be any
-> memory remapped to do double/tripple buffering...
-> So the question is: shoud one take the formula and add ' * 2' to
-> atleast get the double buffering supported...
-> (in the patch I made for mdk, I kept a modified override part so that
-> the user can change this, if he needs it....)
+On Tue, 6 May 2003 11:50:22 -0400 (EDT) Bill Davidsen <davidsen@tmr.com> wrote:
 
-Hello.  I realize that there won't be enough memory for double/triple
-buffering using my patch. I even thought of doing the *2 thing, but
-decided against it. The idea I had is that more and more video cards are
-coming out with 128+ MB Ram, and that machines with >=1GB Ram are also
-becoming common, especially for gamers etc...  Those users, I believe,
-are less likely to use vesafb for anything other than graphics boot
-splash and this just removes one little out-of-the-box problem many have
-been having. I thought it to be a safer default than attempting to
-ioremap the entire framebuffer. Just my thoughts,
+| Some months ago I noted that a new kernel introduced a failure to be able 
+| to unlock X after locking. Still there in 2.5.69 for RH 7.2, 7.3, and 8.0.
+| 
+| Is there any plan to address whatever causes this problem with a kernel 
+| fix, or is a 2.4 kernel still the way to go if you need to lock X. I 
+| realize many developers work in environments where there's no need.
 
--Walt Holman
+This still bites me when I use xscreensaver, so I just use the KDE
+screen saver/locker instead.  Eventually the pain level will be too
+much, though.
 
-
-
+--
+~Randy

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268453AbUJJTmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268467AbUJJUd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268453AbUJJTmH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 15:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUJJTmH
+	id S268467AbUJJUd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 16:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268468AbUJJUd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 15:42:07 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17659 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S268453AbUJJTmE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 15:42:04 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       linux-kernel@vger.kernel.org,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. " Com <amakarov@ru.mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-In-Reply-To: <20041010084633.GA13391@elte.hu>
-References: <41677E4D.1030403@mvista.com>  <20041010084633.GA13391@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1097437314.17309.136.camel@dhcp153.mvista.com>
+	Sun, 10 Oct 2004 16:33:28 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:28330 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S268467AbUJJUd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 16:33:26 -0400
+Date: Sun, 10 Oct 2004 16:33:23 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+Message-ID: <20041010203323.GA3166@fastmail.fm>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 10 Oct 2004 12:41:56 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
+From: neroden@fastmail.fm (Nathanael Nerode)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-10 at 01:46, Ingo Molnar wrote:
->  - the generic irq subsystem: irq threading is a simple ~200-lines,
->    architecture-independent add-on to this. It makes no sense to offer 3
->    different implementations - pick one and help make it work well.
-> 
->  - preemptible BKL. Related to this is new debugging infrastructure in
->    -mm that allows the safe and slow conversion of spinlocks to mutexes. 
->    In the case of the BKL this conversion is expected to be permanent, 
->    for most of the other spinlocks it will be optional - but the 
->    debugging code can still be used.
+Some thread necromancy...
 
-	Are you referring to the lock metering? I've ported our changes to
--mm3-VP-T3 on top of lock metering. It needs some clean up but It will
-be released soon. It's very similar to our rc3 release only without the
-IRQ threads patch.
+On Sun, 23 May 2004 02:20:58 +0000, Andrew Morton wrote:
+>Willy Tarreau <willy <at> w.ods.org> wrote:
+>>
+>>  On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
+>>  > on first look it seems to be missing a bunch of get_user() calls and
+>>  > does direct access instead....
+>> 
+>>  It was intentional for speed purpose. The areas are checked once with
+>>  verify_area() when we need to access memory, then data is copied directly
+>>  from/to memory. I don't think there's any risk, but I can be wrong.
+>
+>verify_area() simply checks that the address is a legal one for a userspace
+>access (it's not a chunk of kernel memory).  But the kernel can still take
+>a pagefault when accessing the address, so you need to use the uaccess
+>functions which will handle the fault appropriately.
+>
+>That's put_user(), get_user(), copy_*_user(), etc.  Those functions
+>internally perform verify_area(), so if you've already done a verify_area()
+>you can use __put_user(), __get_user(), etc which skip the verify_area()
+>but which still know how to deal with user address faults.
 
-Daniel Walker
+After reviewing the thread, this seems to be the most important reason
+why this patch can't be included.  So I thought, "Hey, I'll fix that."
 
+But put_user, get_user, etc. may sleep (of course).
+They're also "user context only".
+
+This is a hardware trap handler.  What sort of context is that?  Is
+it really "user context"?  Worse, we're attempting to emulate an
+*atomic* instruction (CMPXCHG).
+
+So how do I guarantee:
+(1) the original process doesn't get resumed during the sleep
+(perhaps this is guaranteed by other things?)
+(2) nobody else messes with the data we're messing with, so that this is
+actually atomic.  (Note that we're assuming there's no SMP, because this
+is an i386 and there are no known i386 SMP machines supported by Linux.
+So the only problem is stuff woken during sleep.)  Basically, this means
+no other process which might share the memory can be woken up during the
+sleep either.  :-P
+
+Is this possible, or hopelessly difficult?
+
+-- 
+This space intentionally left blank.

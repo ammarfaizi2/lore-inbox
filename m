@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUF2QZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265801AbUF2Qcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265799AbUF2QZg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 12:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUF2QZg
+	id S265801AbUF2Qcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 12:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265803AbUF2Qcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 12:25:36 -0400
-Received: from phobos.hpl.hp.com ([192.6.19.124]:40394 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S265799AbUF2QZd (ORCPT
+	Tue, 29 Jun 2004 12:32:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17841 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265801AbUF2Qcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 12:25:33 -0400
-Date: Tue, 29 Jun 2004 09:23:39 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>
-Subject: Updated Wireless Extension patches
-Message-ID: <20040629162339.GA4356@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Tue, 29 Jun 2004 12:32:41 -0400
+Date: Tue, 29 Jun 2004 09:32:34 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
+Message-Id: <20040629093234.459c46c6@dell_ss3.pdx.osdl.net>
+In-Reply-To: <40E0EAC1.50101@redhat.com>
+References: <40E0EAC1.50101@redhat.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0, required 7)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+On Mon, 28 Jun 2004 21:06:25 -0700
+Ulrich Drepper <drepper@redhat.com> wrote:
 
-	I've been working a bit more on my current set of Wireless
-Extension patches (WPA, Wireless-RtNetlink, ...). I've just updated
-them on my personal web page :
-	http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#wext
+> POSIX does not specify the if_indextoname and if_nameindex functions,
+> they are only vaguely specified in an RFC.  So there is some room for
+> interpretation but still I think it is an issue.
+> 
+> If SIOCGIFCONF to query the system's interfaces only active interfaces
+> are returned.  But SIOCGIFNAME (and SIOCGIFINDEX) allow querying
+> interfaces which are down and not fully initialized.
+> 
+> RFC 3493 says if_nameindex should return *all* interfaces.  This means
+> that neither if_indextoname or if_nametoindex (defined in the same rfc)
+> should define more interfaces.
+> 
 
-	The main change is that I'm now happy of the format of
-Wireless over RtNetlink, so it should be close to definitive. I've
-also split all the minor changes as a separate patch (WE-17), so it
-doesn't have to wait for WPA and Wireless-RtNetlink that still need a
-bit of work, and I plan to push this patch soon.
-	You will also find patches for various drivers to take
-advantage of the new features. I would like to thank the various
-driver authors that sent me patches, suggestions and comments, and
-thank them for their patience.
+The bridge utilities depends on being able to do if_indextoname and
+if_nametoindex for interfaces that aren't active to IP.  Other non-IP
+usage probably does as well.
 
-	Have fun...
-
-	Jean
-
+-- 
+Stephen Hemminger 		mailto:shemminger@osdl.org
+Open Source Development Lab	http://developer.osdl.org/shemminger

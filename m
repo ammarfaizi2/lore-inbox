@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132752AbRDDGue>; Wed, 4 Apr 2001 02:50:34 -0400
+	id <S132751AbRDDGpZ>; Wed, 4 Apr 2001 02:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132753AbRDDGuY>; Wed, 4 Apr 2001 02:50:24 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:28319 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S132752AbRDDGuK>;
-	Wed, 4 Apr 2001 02:50:10 -0400
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <65256A24.00233ECF.00@sandesh.hss.hns.com>
-Date: Wed, 4 Apr 2001 12:00:58 +0530
-Subject: get_pid() : enahancement
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132746AbRDDGpO>; Wed, 4 Apr 2001 02:45:14 -0400
+Received: from 61-218-105-170.HINET-IP.hinet.net ([61.218.105.170]:29285 "EHLO
+	maillog.sis.com.tw") by vger.kernel.org with ESMTP
+	id <S132752AbRDDGpD>; Wed, 4 Apr 2001 02:45:03 -0400
+Message-ID: <004701c0bcd2$e2f90ae0$d9d113ac@sis.com.tw>
+From: "Alex Huang" <alexjoy@sis.com.tw>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: a question about block device driver
+Date: Wed, 4 Apr 2001 14:45:49 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-In 2.4 kernel we now have no limit on the number of tasks running on a system
-(no NR_TASKS anymore)...
+ Hi
+ Thank you very much for your help.
+ In the linux kernel version 2.4.X,
+ Does anybody mount a hard drive with MSDOS type file system ??
 
-I was just wondering on the efficiency of get_pid() implemetation... Although
-'next_safe' concept in this function seems useful but I think we now need a
-robust PID allocator..
+When I mount this hard drive using the command :
+    mount -t msdos /dev/hda1 /mnt/hd -o blocksize=1024
+ After mounting a hard disk, I read a file , and the system occours errors.
+ After I check the msdos file system in "usr/src/linux/fs/fat/cvf.c"
 
-We can have a discussion so that get_pid() can be made more effecient in future
-kernel.
+ Iin the codes,
+ struct cvf_format bigblock_cvf={
+     :
+     :
+     :
+    default_fat_bmap,
+    NULL,
+    default_fat_file_write,
+     :
+     :
+ }
 
-Amol
+
+ I check the data struct , the NULL field is defined a file_read callback
+ function. So , when I read a file , will cause the system error.
+
+ In the kernel version 2.2.17, I can mount a MSDOS filesystem with the
+option
+ "-o blocksize=1024", and the driver can read/write two pages at the same
+ time. But in the kernel version 2.4.X, it doesn't work.
+
+  how two read/write two or more pages(blocks) at the same time in
+ the kernel version 2.4.X ??
+
+ Thanks
+
 
 

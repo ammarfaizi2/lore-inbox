@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268609AbRGYSpT>; Wed, 25 Jul 2001 14:45:19 -0400
+	id <S267076AbRGYSzA>; Wed, 25 Jul 2001 14:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268611AbRGYSpI>; Wed, 25 Jul 2001 14:45:08 -0400
-Received: from web14801.mail.yahoo.com ([216.136.224.217]:21776 "HELO
-	web14801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268609AbRGYSox>; Wed, 25 Jul 2001 14:44:53 -0400
-Message-ID: <20010725184459.95230.qmail@web14801.mail.yahoo.com>
-Date: Wed, 25 Jul 2001 11:44:59 -0700 (PDT)
-From: Sumit Bhardwaj <bsumit3@yahoo.com>
-Reply-To: bsumit3@users.sourceforge.net
-To: linux-kernel@vger.kernel.org
+	id <S267215AbRGYSyu>; Wed, 25 Jul 2001 14:54:50 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:64522 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267076AbRGYSyj>;
+	Wed, 25 Jul 2001 14:54:39 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107251854.WAA10018@ms2.inr.ac.ru>
+Subject: Re: Patch suggestion for proxy arp on shaper interface
+To: berto@fatamorgana.com (Roberto Arcomano)
+Date: Wed, 25 Jul 2001 22:54:16 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01072520050001.01036@berto.casa.it> from "Roberto Arcomano" at Jul 25, 1 08:05:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I tried to compile linux 2.4.5 with gcc-3.0. It gave
-the following error
+Hello!
 
-kernel/sched.c : 'xtime' definition clash
-In file include/linux/timer.h: line no. 540
+> As I said in my first message, I tested it with 2.4.6 and it "appears" (I 
+> tested it in a very little net) to work well
 
-after making the declaration
+The patch works right, I think. But it is so utterly ugly and its scope
+is so narrow, that I do think this is acceptable.
 
-extern volatile struct xtime;
+Actually, you may use CBQ instead it does not create problems of this
+kind. Seems, scripts to setup it can be found in LRP. I can send it,
+but I am not sure that my copy is the newest.
 
-things worked fine.
-
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+Alexey

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314457AbSESO6p>; Sun, 19 May 2002 10:58:45 -0400
+	id <S314468AbSESPRz>; Sun, 19 May 2002 11:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314469AbSESO6o>; Sun, 19 May 2002 10:58:44 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:2725 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S314457AbSESO6m>;
-	Sun, 19 May 2002 10:58:42 -0400
-Date: Sun, 19 May 2002 10:58:43 -0400
-From: Jeff Garzik <garzik@gtf.org>
-To: Anssi Saari <as@sci.fi>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-        linux-ide@vger.kernel.org
-Subject: Re: IO/MMIO 2.4 ATA/IDE driver recore near complete
-Message-ID: <20020519105843.B10528@gtf.org>
-In-Reply-To: <Pine.LNX.4.10.10205180230290.774-100000@master.linux-ide.org> <20020519103323.GA28335@sci.fi>
+	id <S314475AbSESPRy>; Sun, 19 May 2002 11:17:54 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:35744 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S314468AbSESPRx>;
+	Sun, 19 May 2002 11:17:53 -0400
+Date: Sun, 19 May 2002 17:17:35 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: livio@cyclades.com
+Cc: khc@pm.waw.pl, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: HDLC driver: Frame-relay Inverse ARP]
+Message-ID: <20020519171735.A18735@fafner.intra.cogenit.fr>
+In-Reply-To: <3CE40B22.199C4F07@cyclades.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 19, 2002 at 01:33:24PM +0300, Anssi Saari wrote:
-> I wonder if this would help me with my audio CD writing problem which
-> seems to use PIO mode and slow my system to a snails pace?
+Greetings,
 
-Nope.  It depends on your ATA controller, and the vast majority of
-controllers currently on the market use PIO.
+Livio Ceci <livio@cyclades.com.br> :
+[rfc2390 for linux fr]
+> I attached a diff file with the changes I did, and also the sethdlc.
+> Please analyse them and send me back your comments, and if possible,
+> something that help me to "fill the blanks" I left as ??? in the code.
 
-You are thinking about PIO versus DMA, which are the two data transfer
-modes of ATA.  We are talking about a situation which replaces PIO with
-MMIO, but otherwise looks and acts similarly to PIO+DMA.
+May be something like this:
+net/ipv4/arp.c
+/*
+ *     Special case: We must set Frame Relay source Q.922 address
+ */
+        if (dev_type == ARPHRD_DLCI) {
+                sha = dev->broadcast;
+                if (arp->ar_op == __constant_htons(ARPOP_InREQUEST)) {
+                        /*
+                         * Use fib_lookup in order to comply with
+                         * address selection in rfc2390 - 7.1 and
+                         * set tip consequently
+                         */
+                        ...
+                } else if (arp->ar_op == __constant_htons(ARPOP_InREPLY))
+                        arp->ar_op = ARPOP_REPLY;
+        }
 
-	Jeff
+Then one forces ARPOP_InREQUEST to follow the same path as ARPOP_REQUEST,
+arp_send(ARPOP_InREPLY,...) being the sole difference.
+               ^^
+Remarks ?
 
-
-
+-- 
+Ueimor

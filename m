@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280712AbRKBQKB>; Fri, 2 Nov 2001 11:10:01 -0500
+	id <S280718AbRKBQOX>; Fri, 2 Nov 2001 11:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280716AbRKBQJv>; Fri, 2 Nov 2001 11:09:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27142 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280712AbRKBQJg>; Fri, 2 Nov 2001 11:09:36 -0500
-Subject: Re: ECS k7s5a audio sound SiS 735 - 7012
-To: jtf24@cam.ac.uk (John Fremlin)
-Date: Fri, 2 Nov 2001 16:16:04 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <86itct6unz.fsf_-_@cam.ac.uk> from "John Fremlin" at Nov 02, 2001 03:48:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280719AbRKBQOM>; Fri, 2 Nov 2001 11:14:12 -0500
+Received: from mail315.mail.bellsouth.net ([205.152.58.175]:6826 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280718AbRKBQOJ>; Fri, 2 Nov 2001 11:14:09 -0500
+Message-ID: <3BE2C64A.C7EB2258@mandrakesoft.com>
+Date: Fri, 02 Nov 2001 11:14:02 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Via onboard audio
+In-Reply-To: <1004716867.4883.8.camel@smiddle>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15zgzE-0002nC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [ALSA has one I believe]
+Sean Middleditch wrote:
 > 
-> I couldn't see one. Do you know what name it would have or where I can
-> get the datasheet for it?
-
-Apparently I was misinformed.
-
-> The ECS K75S5A motherboard is built around a SiS735 chipset with
-> integrated sound, called a SiS7012 by SiS. According to
-> http://www.sis.com/support/driver/audio.htm one MS-Windows driver
-> covers the chipsets SiS635, SiS735, SiS633, and SiS733.
+> Hi!
 > 
-> There allegedly exist non-free Linux drivers from OSS called the
-> SiS7012. 
+> I've recently purchased a Compaq Presario 700 laptop that has a Via
+> motherboard with onboard audio.
+> 
+> When I load the via82cxxx_audio driver (kernel 2.4.12), I hear the
+> speakers pop, but no sound ever plays.  I'm check the mixer, and the
+> volume is up as necessary.  Interrupts are occuring for the device in
+> /proc/interrupts.  All the necessary (that I know of) modules are
+> loaded, such as sound/soundcore/ac97_codec.
 
-I guess someone who wants the driver needs to talk to SiS about datasheets
+Are master volume -and- PCM volume up to 75-95%?  (do not exceed 98%)
+
+Here is a patch that is outstanding and waiting for Linus to apply, you
+can try this:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.14/via-audio-2.4.14.6.patch.bz2
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

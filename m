@@ -1,88 +1,428 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVARXer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVARXiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbVARXer (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 18:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVARXer
+	id S261483AbVARXiK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 18:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVARXiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 18:34:47 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:51331 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261479AbVARXej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 18:34:39 -0500
-Message-ID: <41ED9D06.1070301@yahoo.com.au>
-Date: Wed, 19 Jan 2005 10:34:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Tue, 18 Jan 2005 18:38:10 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:30891 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261483AbVARXgZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 18:36:25 -0500
+Message-ID: <41ED9D73.40103@us.ibm.com>
+Date: Tue, 18 Jan 2005 17:36:19 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: pipe performance regression on ia64
-References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com> <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andi Kleen <ak@muc.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, paulus@samba.org,
+       benh@kernel.crashing.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+References: <41E2AC74.9090904@us.ibm.com> <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com> <1105454259.15794.7.camel@localhost.localdomain> <20050111173332.GA17077@muc.de> <1105626399.4664.7.camel@localhost.localdomain> <20050113180347.GB17600@muc.de> <1105641991.4664.73.camel@localhost.localdomain> <20050113202354.GA67143@muc.de> <41ED27CD.7010207@us.ibm.com> <20050118233103.GC66256@muc.de>
+In-Reply-To: <20050118233103.GC66256@muc.de>
+Content-Type: multipart/mixed;
+ boundary="------------050805060907060905010301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+This is a multi-part message in MIME format.
+--------------050805060907060905010301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Andi Kleen wrote:
+> On Tue, Jan 18, 2005 at 09:14:21AM -0600, Brian King wrote:
 > 
-> On Tue, 18 Jan 2005, Luck, Tony wrote:
-> 
->>David Mosberger:
+>>Andi Kleen wrote:
 >>
->>>So, when we run bw_pipe on a low load SMP machine, the kernel running in
->>>a way load balancer always trying to spread out 2 processes while the
->>>wake_up_interruptible_sync() is always trying to draw them back into
->>>1 cpu.
->>>
->>>Linus's patch will reduce the change to call wake_up_interruptible_sync()
->>>a lot.
->>>
->>>For bw_pipe writer or reader, the buffer size is 64k.  In a 16k page
->>>kernel. The old kernel will call wake_up_interruptible_sync 4 times but
->>>the new kernel will call wakeup only 1 time.
+>>>As Brian said the device he was working with would just not answer,
+>>>leading to a bus abort.  This would get ffffffff on a PC.
+>>>You could simulate this if you want, although I think a EBUSY or EIO
+>>>is better.
+>>
+>>Alan - are you satisfied with the most recent patch, or would you prefer 
+>>the patch not returning failure return codes and just bit bucketing 
+>>writes and returning all ff's on reads? Either way works for me.
 > 
 > 
-> Yes, it will depend on the buffer size, and on whether the writer actually 
-> does any _work_ to fill it, or just writes it.
+> Hmm, I think i haven't seen a recent patch. But as long as it doesn't
+> block in pci_config_* and is light weight there it's fine for me.
 > 
-> The thing is, in real life, the "wake_up()" tends to be preferable, 
-> because even though we are totally synchronized on the pipe semaphore 
-> (which is a locking issue in itself that might be worth looking into), 
-> most real loads will actually do something to _generate_ the write data in 
-> the first place, and thus you actually want to spread the load out over 
-> CPU's.
-> 
-> The lmbench pipe benchmark is kind of special, since the writer literally 
-> does nothing but write and the reader does nothing but read, so there is 
-> nothing to parallellize.
-> 
-> The "wake_up_sync()" hack only helps for the special case where we know 
-> the writer is going to write more. Of course, we could make the pipe code 
-> use that "synchronous" write unconditionally, and benchmarks would look 
-> better, but I suspect it would hurt real life.
-> 
-> The _normal_ use of a pipe, after all, is having a writer that does real
-> work to generate the data (like 'cc1'), and a sink that actually does real
-> work with it (like 'as'), and having less synchronization is a _good_ 
-> thing.
-> 
-> I don't know how to make the benchmark look repeatable and good, though.  
-> The CPU affinity thing may be the right thing.
+> -Andi
 > 
 
-Regarding scheduler balancing behaviour:
+Here is my latest patch.
 
-The problem could also be magnified in recent -bk kernels by the
-"wake up to an idle CPU" code in sched.c:try_to_wake_up(). To turn
-this off, remove SD_WAKE_IDLE from include/linux/topology.h:SD_CPU_INIT
-and include/asm/topology.h:SD_NODE_INIT
 
-David I remember you reporting a pipe bandwidth regression, and I had
-a patch for it, but that hurt other workloads, so I don't think we
-ever really got anywhere. I've recently begun having another look at
-the multiprocessor balancer, so hopefully I can get a bit further with
-it this time.
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center
 
+--------------050805060907060905010301
+Content-Type: text/plain;
+ name="pci_block_user_config_io_during_bist_again.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_block_user_config_io_during_bist_again.patch"
+
+
+Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
+they issue BIST to the adapter to reset the card. If, during the time
+it takes to complete BIST, userspace attempts to access PCI config space, 
+the host bus bridge will master abort the access since the ipr adapter 
+does not respond on the PCI bus for a brief period of time when running BIST. 
+On PPC64 hardware, this master abort results in the host PCI bridge
+isolating that PCI device from the rest of the system, making the device
+unusable until Linux is rebooted. This patch is an attempt to close that
+exposure by introducing some blocking code in the PCI code. When blocked,
+writes will be humored and reads will return the cached value. Ben
+Herrenschmidt has also mentioned that he plans to use this in PPC power
+management.
+
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
+
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
+
+ linux-2.6.11-rc1-bjking1/drivers/pci/access.c    |   81 +++++++++++++++++++++++
+ linux-2.6.11-rc1-bjking1/drivers/pci/pci-sysfs.c |   10 +-
+ linux-2.6.11-rc1-bjking1/drivers/pci/proc.c      |   28 +++----
+ linux-2.6.11-rc1-bjking1/drivers/pci/syscall.c   |   12 +--
+ linux-2.6.11-rc1-bjking1/include/linux/pci.h     |   12 +++
+ 5 files changed, 117 insertions(+), 26 deletions(-)
+
+diff -puN drivers/pci/access.c~pci_block_user_config_io_during_bist_again drivers/pci/access.c
+--- linux-2.6.11-rc1/drivers/pci/access.c~pci_block_user_config_io_during_bist_again	2005-01-13 15:57:15.000000000 -0600
++++ linux-2.6.11-rc1-bjking1/drivers/pci/access.c	2005-01-13 15:57:54.000000000 -0600
+@@ -60,3 +60,84 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
+ EXPORT_SYMBOL(pci_bus_write_config_byte);
+ EXPORT_SYMBOL(pci_bus_write_config_word);
+ EXPORT_SYMBOL(pci_bus_write_config_dword);
++
++#define PCI_USER_READ_CONFIG(size,type)	\
++int pci_user_read_config_##size	\
++	(struct pci_dev *dev, int pos, type *val)	\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	u32 data = -1;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_ucfg_access))				\
++		ret = dev->bus->ops->read(dev->bus, dev->devfn, pos, sizeof(type), &data); \
++	else if (pos < sizeof(dev->saved_config_space))		\
++		data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	*val = (type)data;					\
++	return ret;							\
++}
++
++#define PCI_USER_WRITE_CONFIG(size,type)	\
++int pci_user_write_config_##size	\
++	(struct pci_dev *dev, int pos, type val)		\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_ucfg_access))					\
++		ret = dev->bus->ops->write(dev->bus, dev->devfn, pos, sizeof(type), val); \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	return ret;							\
++}
++
++PCI_USER_READ_CONFIG(byte, u8)
++PCI_USER_READ_CONFIG(word, u16)
++PCI_USER_READ_CONFIG(dword, u32)
++PCI_USER_WRITE_CONFIG(byte, u8)
++PCI_USER_WRITE_CONFIG(word, u16)
++PCI_USER_WRITE_CONFIG(dword, u32)
++
++/**
++ * pci_block_user_cfg_access - Block userspace PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function blocks any userspace PCI config accesses from occurring.
++ * When blocked, any writes will return -EBUSY and reads will return the
++ * data saved using pci_save_state for the first 64 bytes of config
++ * space and return -EBUSY for all other config reads.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_block_user_cfg_access(struct pci_dev *dev)
++{
++	unsigned long flags;
++
++	pci_save_state(dev);
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_ucfg_access = 1;
++	spin_unlock_irqrestore(&pci_lock, flags);
++}
++EXPORT_SYMBOL(pci_block_user_cfg_access);
++
++/**
++ * pci_unblock_user_cfg_access - Unblock userspace PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function allows userspace PCI config accesses to resume.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_unblock_user_cfg_access(struct pci_dev *dev)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_ucfg_access = 0;
++	spin_unlock_irqrestore(&pci_lock, flags);
++}
++EXPORT_SYMBOL(pci_unblock_user_cfg_access);
+diff -puN drivers/pci/pci-sysfs.c~pci_block_user_config_io_during_bist_again drivers/pci/pci-sysfs.c
+--- linux-2.6.11-rc1/drivers/pci/pci-sysfs.c~pci_block_user_config_io_during_bist_again	2005-01-13 15:57:15.000000000 -0600
++++ linux-2.6.11-rc1-bjking1/drivers/pci/pci-sysfs.c	2005-01-13 15:57:15.000000000 -0600
+@@ -110,7 +110,7 @@ pci_read_config(struct kobject *kobj, ch
+ 
+ 	while (off & 3) {
+ 		unsigned char val;
+-		pci_read_config_byte(dev, off, &val);
++		pci_user_read_config_byte(dev, off, &val);
+ 		buf[off - init_off] = val;
+ 		off++;
+ 		if (--size == 0)
+@@ -119,7 +119,7 @@ pci_read_config(struct kobject *kobj, ch
+ 
+ 	while (size > 3) {
+ 		unsigned int val;
+-		pci_read_config_dword(dev, off, &val);
++		pci_user_read_config_dword(dev, off, &val);
+ 		buf[off - init_off] = val & 0xff;
+ 		buf[off - init_off + 1] = (val >> 8) & 0xff;
+ 		buf[off - init_off + 2] = (val >> 16) & 0xff;
+@@ -130,7 +130,7 @@ pci_read_config(struct kobject *kobj, ch
+ 
+ 	while (size > 0) {
+ 		unsigned char val;
+-		pci_read_config_byte(dev, off, &val);
++		pci_user_read_config_byte(dev, off, &val);
+ 		buf[off - init_off] = val;
+ 		off++;
+ 		--size;
+@@ -154,7 +154,7 @@ pci_write_config(struct kobject *kobj, c
+ 	}
+ 
+ 	while (off & 3) {
+-		pci_write_config_byte(dev, off, buf[off - init_off]);
++		pci_user_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		if (--size == 0)
+ 			break;
+@@ -171,7 +171,7 @@ pci_write_config(struct kobject *kobj, c
+ 	}
+ 
+ 	while (size > 0) {
+-		pci_write_config_byte(dev, off, buf[off - init_off]);
++		pci_user_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		--size;
+ 	}
+diff -puN drivers/pci/proc.c~pci_block_user_config_io_during_bist_again drivers/pci/proc.c
+--- linux-2.6.11-rc1/drivers/pci/proc.c~pci_block_user_config_io_during_bist_again	2005-01-13 15:57:15.000000000 -0600
++++ linux-2.6.11-rc1-bjking1/drivers/pci/proc.c	2005-01-13 15:57:15.000000000 -0600
+@@ -79,7 +79,7 @@ proc_bus_pci_read(struct file *file, cha
+ 
+ 	if ((pos & 1) && cnt) {
+ 		unsigned char val;
+-		pci_read_config_byte(dev, pos, &val);
++		pci_user_read_config_byte(dev, pos, &val);
+ 		__put_user(val, buf);
+ 		buf++;
+ 		pos++;
+@@ -88,7 +88,7 @@ proc_bus_pci_read(struct file *file, cha
+ 
+ 	if ((pos & 3) && cnt > 2) {
+ 		unsigned short val;
+-		pci_read_config_word(dev, pos, &val);
++		pci_user_read_config_word(dev, pos, &val);
+ 		__put_user(cpu_to_le16(val), (unsigned short __user *) buf);
+ 		buf += 2;
+ 		pos += 2;
+@@ -97,7 +97,7 @@ proc_bus_pci_read(struct file *file, cha
+ 
+ 	while (cnt >= 4) {
+ 		unsigned int val;
+-		pci_read_config_dword(dev, pos, &val);
++		pci_user_read_config_dword(dev, pos, &val);
+ 		__put_user(cpu_to_le32(val), (unsigned int __user *) buf);
+ 		buf += 4;
+ 		pos += 4;
+@@ -106,7 +106,7 @@ proc_bus_pci_read(struct file *file, cha
+ 
+ 	if (cnt >= 2) {
+ 		unsigned short val;
+-		pci_read_config_word(dev, pos, &val);
++		pci_user_read_config_word(dev, pos, &val);
+ 		__put_user(cpu_to_le16(val), (unsigned short __user *) buf);
+ 		buf += 2;
+ 		pos += 2;
+@@ -115,7 +115,7 @@ proc_bus_pci_read(struct file *file, cha
+ 
+ 	if (cnt) {
+ 		unsigned char val;
+-		pci_read_config_byte(dev, pos, &val);
++		pci_user_read_config_byte(dev, pos, &val);
+ 		__put_user(val, buf);
+ 		buf++;
+ 		pos++;
+@@ -150,7 +150,7 @@ proc_bus_pci_write(struct file *file, co
+ 	if ((pos & 1) && cnt) {
+ 		unsigned char val;
+ 		__get_user(val, buf);
+-		pci_write_config_byte(dev, pos, val);
++		pci_user_write_config_byte(dev, pos, val);
+ 		buf++;
+ 		pos++;
+ 		cnt--;
+@@ -159,7 +159,7 @@ proc_bus_pci_write(struct file *file, co
+ 	if ((pos & 3) && cnt > 2) {
+ 		unsigned short val;
+ 		__get_user(val, (unsigned short __user *) buf);
+-		pci_write_config_word(dev, pos, le16_to_cpu(val));
++		pci_user_write_config_word(dev, pos, le16_to_cpu(val));
+ 		buf += 2;
+ 		pos += 2;
+ 		cnt -= 2;
+@@ -168,7 +168,7 @@ proc_bus_pci_write(struct file *file, co
+ 	while (cnt >= 4) {
+ 		unsigned int val;
+ 		__get_user(val, (unsigned int __user *) buf);
+-		pci_write_config_dword(dev, pos, le32_to_cpu(val));
++		pci_user_write_config_dword(dev, pos, le32_to_cpu(val));
+ 		buf += 4;
+ 		pos += 4;
+ 		cnt -= 4;
+@@ -177,7 +177,7 @@ proc_bus_pci_write(struct file *file, co
+ 	if (cnt >= 2) {
+ 		unsigned short val;
+ 		__get_user(val, (unsigned short __user *) buf);
+-		pci_write_config_word(dev, pos, le16_to_cpu(val));
++		pci_user_write_config_word(dev, pos, le16_to_cpu(val));
+ 		buf += 2;
+ 		pos += 2;
+ 		cnt -= 2;
+@@ -186,7 +186,7 @@ proc_bus_pci_write(struct file *file, co
+ 	if (cnt) {
+ 		unsigned char val;
+ 		__get_user(val, buf);
+-		pci_write_config_byte(dev, pos, val);
++		pci_user_write_config_byte(dev, pos, val);
+ 		buf++;
+ 		pos++;
+ 		cnt--;
+@@ -474,10 +474,10 @@ static int show_dev_config(struct seq_fi
+ 
+ 	drv = pci_dev_driver(dev);
+ 
+-	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+-	pci_read_config_byte (dev, PCI_LATENCY_TIMER, &latency);
+-	pci_read_config_byte (dev, PCI_MIN_GNT, &min_gnt);
+-	pci_read_config_byte (dev, PCI_MAX_LAT, &max_lat);
++	pci_user_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
++	pci_user_read_config_byte (dev, PCI_LATENCY_TIMER, &latency);
++	pci_user_read_config_byte (dev, PCI_MIN_GNT, &min_gnt);
++	pci_user_read_config_byte (dev, PCI_MAX_LAT, &max_lat);
+ 	seq_printf(m, "  Bus %2d, device %3d, function %2d:\n",
+ 	       dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
+ 	class = pci_class_name(class_rev >> 16);
+diff -puN drivers/pci/syscall.c~pci_block_user_config_io_during_bist_again drivers/pci/syscall.c
+--- linux-2.6.11-rc1/drivers/pci/syscall.c~pci_block_user_config_io_during_bist_again	2005-01-13 15:57:15.000000000 -0600
++++ linux-2.6.11-rc1-bjking1/drivers/pci/syscall.c	2005-01-13 15:57:15.000000000 -0600
+@@ -38,13 +38,13 @@ sys_pciconfig_read(unsigned long bus, un
+ 	lock_kernel();
+ 	switch (len) {
+ 	case 1:
+-		cfg_ret = pci_read_config_byte(dev, off, &byte);
++		cfg_ret = pci_user_read_config_byte(dev, off, &byte);
+ 		break;
+ 	case 2:
+-		cfg_ret = pci_read_config_word(dev, off, &word);
++		cfg_ret = pci_user_read_config_word(dev, off, &word);
+ 		break;
+ 	case 4:
+-		cfg_ret = pci_read_config_dword(dev, off, &dword);
++		cfg_ret = pci_user_read_config_dword(dev, off, &dword);
+ 		break;
+ 	default:
+ 		err = -EINVAL;
+@@ -112,7 +112,7 @@ sys_pciconfig_write(unsigned long bus, u
+ 		err = get_user(byte, (u8 __user *)buf);
+ 		if (err)
+ 			break;
+-		err = pci_write_config_byte(dev, off, byte);
++		err = pci_user_write_config_byte(dev, off, byte);
+ 		if (err != PCIBIOS_SUCCESSFUL)
+ 			err = -EIO;
+ 		break;
+@@ -121,7 +121,7 @@ sys_pciconfig_write(unsigned long bus, u
+ 		err = get_user(word, (u16 __user *)buf);
+ 		if (err)
+ 			break;
+-		err = pci_write_config_word(dev, off, word);
++		err = pci_user_write_config_word(dev, off, word);
+ 		if (err != PCIBIOS_SUCCESSFUL)
+ 			err = -EIO;
+ 		break;
+@@ -130,7 +130,7 @@ sys_pciconfig_write(unsigned long bus, u
+ 		err = get_user(dword, (u32 __user *)buf);
+ 		if (err)
+ 			break;
+-		err = pci_write_config_dword(dev, off, dword);
++		err = pci_user_write_config_dword(dev, off, dword);
+ 		if (err != PCIBIOS_SUCCESSFUL)
+ 			err = -EIO;
+ 		break;
+diff -puN include/linux/pci.h~pci_block_user_config_io_during_bist_again include/linux/pci.h
+--- linux-2.6.11-rc1/include/linux/pci.h~pci_block_user_config_io_during_bist_again	2005-01-13 15:57:15.000000000 -0600
++++ linux-2.6.11-rc1-bjking1/include/linux/pci.h	2005-01-13 15:57:15.000000000 -0600
+@@ -557,7 +557,8 @@ struct pci_dev {
+ 	/* keep track of device state */
+ 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+-	
++	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
++
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+@@ -801,6 +802,13 @@ static inline int pci_write_config_dword
+ 	return pci_bus_write_config_dword (dev->bus, dev->devfn, where, val);
+ }
+ 
++int pci_user_read_config_byte(struct pci_dev *dev, int where, u8 *val);
++int pci_user_read_config_word(struct pci_dev *dev, int where, u16 *val);
++int pci_user_read_config_dword(struct pci_dev *dev, int where, u32 *val);
++int pci_user_write_config_byte(struct pci_dev *dev, int where, u8 val);
++int pci_user_write_config_word(struct pci_dev *dev, int where, u16 val);
++int pci_user_write_config_dword(struct pci_dev *dev, int where, u32 val);
++
+ int pci_enable_device(struct pci_dev *dev);
+ int pci_enable_device_bars(struct pci_dev *dev, int mask);
+ void pci_disable_device(struct pci_dev *dev);
+@@ -896,6 +904,8 @@ extern void pci_disable_msix(struct pci_
+ extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
+ #endif
+ 
++extern void pci_block_user_cfg_access(struct pci_dev *dev);
++extern void pci_unblock_user_cfg_access(struct pci_dev *dev);
+ #endif /* CONFIG_PCI */
+ 
+ /* Include architecture-dependent settings and functions */
+_
+
+--------------050805060907060905010301--

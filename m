@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267670AbRHDUaT>; Sat, 4 Aug 2001 16:30:19 -0400
+	id <S269860AbRHDUtT>; Sat, 4 Aug 2001 16:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269857AbRHDU37>; Sat, 4 Aug 2001 16:29:59 -0400
-Received: from pine.novastar.com ([209.83.178.162]:38153 "HELO
-	pine.novastar.com") by vger.kernel.org with SMTP id <S267670AbRHDU3u>;
-	Sat, 4 Aug 2001 16:29:50 -0400
-Date: Sat, 4 Aug 2001 11:48:13 -0500
-From: David Blackman <david@whizziwig.com>
-To: linux-kernel@vger.kernel.org, apmd-list@nit.ca
-Subject: APM on Acer Travelmate 350te
-Message-ID: <20010804114813.A21252@zaphod.whizziwig.com>
-Reply-To: david@whizziwig.com
+	id <S269861AbRHDUtK>; Sat, 4 Aug 2001 16:49:10 -0400
+Received: from mx1.eskimo.com ([204.122.16.48]:7940 "EHLO mx1.eskimo.com")
+	by vger.kernel.org with ESMTP id <S269860AbRHDUtB>;
+	Sat, 4 Aug 2001 16:49:01 -0400
+Date: Sat, 4 Aug 2001 13:48:55 -0700
+From: Elladan <elladan@eskimo.com>
+To: redph0enix@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux C2-Style Audit Capability
+Message-ID: <20010804134854.A2270@eskimo.eskimo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey All-
+This is a classic producer-consumer problem.  There are only two solutions:
 
-	I have an acer travelmate 350te laptop, everything works
-underlinux except the modem (duh) and power managment. With APM, apm
---suspend works, but the laptop never wakes up, and just shows the last
-contents of the vga buffer, acpi in prior kernel versions (2.4.2 ->
-2.4.5) would have a /proc/power, so I could get battery info by hand,
-but no suspend, 2.4.7 has no /proc/power, or /proc/sys/acpi at all. 
+* Discard log events (unacceptable for security - anyone could just turn off 
+  logging whenever they want by spamming the system with spurious log events)
+* Block the producer
 
-	I don't know much about what I can do to fix the problem.
-	
-	The bios says version 'V3.3 R01-A0A'.
+So, really, you have no choice but to block the producer of the log events, eg.
+block all logged system calls until the buffer is depleted again.
 
-	Under 2.4.5 with acpi, I get this output:
+Of course, this leads to all sorts of enjoyable deadlock conditions in the
+system...  The audit daemon itself cannot block on anything safely, really.
+Eg:
 
-ACPI: Core Subsystem version [20010208]
-ACPI: Subsystem enabled
-ACPI: System firmware supports: C2 C3
-ACPI: plvl2lat=99 plvl3lat=999
-ACPI: C2 enter=1417 C2 exit=354
-ACPI: C3 enter=42905 C3 exit=3575
-ACPI: Using ACPI idle
-ACPI: If experiencing system slowness, try adding "acpi=no-idle" to cmdline
-ACPI: System firmware supports: S0 S1 S4 S5
-ACPI: found EC @ (0x62,0x66,GPE 34 GL 34)
-AC Adapter: found
-Cmbatt: Battery socket 0 occupied
+What if the audit daemon is just passing the log events on to a log daemon on
+the same machine?  The log daemon itself gets logged, so it gets blocked
+waiting for the audit buffer.  The audit daemon is trying to deplete its own
+buffer by sending to the log daemon, which will never be available...  Poof!
 
-	2.4.5 with apm
+What if the audit daemon is just passing the log events on to an external log
+daemon on another machine?  This seems ok, as long as the other machine is
+visible.  As soon as it dies, the audited machine will hang until the log host
+comes back.  It can't even be shut down, since the shutdown command will be
+logged ...
 
-apm: BIOS version 1.2 Flags 0x0f (Driver version 1.14)
+...  But what if the logging machine itself is just a router that sends off
+streams from multiple machines to be warehoused?  This seems fine, except...
+What if the warehousing machine is itself audited?  It tries to log its audit
+stream back to the router, which comes back to itself, which blocks the entire
+computer network until someone kicks something.  Ack! 
 
-	I've tried every combination of driver opts to apm, as well as 
-	changing	 apm_bios_entry.offset = apm_bios_info.offset;
-	to 		 apm_bios_entry.offset = apm_bios_info.offset & 0xffff;
-	which was a fix that worked for some older travelmates.
-
-any help would be appreciated, if there's any more data I can extract
-from my end, please let me know.
-
-thanks,
---dave
+So it seems that to avoid losing a few system calls in a kernel ring buffer,
+you've now crashed an entire NOC.  :-)
 
 
+The audit daemon will have to be smart and log to some sort of ring buffer on
+disk, but of course, disk space is not infinite, so eventually it will have to
+start throwing away old log events, just as the kernel does.  So we're right
+back where we started.  But perhaps it will take a few days before you have to
+do this, with a big disk buffer.  
 
+(Or perhaps not...  If you logged every lstat(), and each log line was 100 
+bytes, it seems a malicious user could generate 103 gigabytes of log data in 1
+hour, thus erasing their malicious actions at the start of the hour.)
 
-
-
-
-
+-J

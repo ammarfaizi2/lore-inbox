@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130367AbRA0Lqa>; Sat, 27 Jan 2001 06:46:30 -0500
+	id <S129905AbRA0Mor>; Sat, 27 Jan 2001 07:44:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130761AbRA0LqU>; Sat, 27 Jan 2001 06:46:20 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:53292 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S130367AbRA0LqH>; Sat, 27 Jan 2001 06:46:07 -0500
-Message-ID: <3A72B4D9.1FD0D281@linux.com>
-Date: Sat, 27 Jan 2001 11:45:29 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en
+	id <S130309AbRA0Moh>; Sat, 27 Jan 2001 07:44:37 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:35253 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S129905AbRA0Mo2>;
+	Sat, 27 Jan 2001 07:44:28 -0500
+Date: Sat, 27 Jan 2001 07:43:31 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A726087.764CC02E@uow.edu.au>
+Message-ID: <Pine.GSO.4.30.0101270729270.24088-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
-In-Reply-To: <200101271014.f0RAE0G04370@moisil.dev.hydraweb.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
 
-> On Sat, 27 Jan 2001 08:01:14 +0000, David Ford <david@linux.com> wrote:
-> > Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
-> > 4/5 systems I have now overflow the buffer during boot before init is
-> > even launched.
+
+On Sat, 27 Jan 2001, Andrew Morton wrote:
+
+> (Please keep netdev copied, else Jamal will grump at you, and
+>  you don't want that).
 >
-> Hmm, are you sure? man dmesg:
-> [...]
->        -sbufsize
->               use  a  buffer  of bufsize to query the kernel ring
->               buffer.  This is 8196 by default (this matches  the
->               default  kernel  syslog  buffer  size in 2.0.33 and
->               2.1.103).  If you have set  the  kernel  buffer  to
->               larger  than  the  default  then this option can be
->               used to view the entire buffer.
+
+Thanks, Andrew ;-> Isnt netdev where networking stuff should be
+discussed? I think i give up and will join lk, RSN ;->
+
+> The kernels which were tested were 2.4.1-pre10 with and without the
+> zerocopy patch.  We only look at client load (the TCP sender).
 >
-> So try dmesg -s 16384. That's good enough for me on a 4-way SMP
-> box with lots of SCSI on-board (and trust me, SMP generates a *huge*
-> amount of kernel logging).
+> The link throughput was 11.5 mbytes/sec at all times (saturated 100baseT)
+>
+> 2.4.1-pre10-vanilla, using sendfile():          29.6% CPU
+> 2.4.1-pre10-vanilla, using read()/write():      34.5% CPU
+>
+> 2.4.1-pre10+zercopy, using sendfile():          18.2% CPU
+> 2.4.1-pre10+zercopy, using read()/write():      38.1% CPU
+>
+> 2.4.1-pre10+zercopy, using sendfile():          22.9% CPU    * hardware tx checksums disabled
+> 2.4.1-pre10+zercopy, using read()/write():      39.2% CPU    * hardware tx checksums disabled
+>
+>
+> What can we conclude?
+>
+> - sendfile is 10% cheaper than read()-then-write() on 2.4.1-pre10.
+>
+> - sendfile() with the zerocopy patch is 40% cheaper than
+>   sendfile() without the zerocopy patch.
+>
 
-Well, as I said, the (current) 16K buffer is overflowed before init is
-started.  Being that I'd like to review the first page or two of boot
-messages, I have to increase this limit all the time.  The above man page
-needs updated, the buffer size in 2.4.0 is 16K and it doesn't matter how
-large you set the dmesg -s parameter, the kernel's buffer size is the most
-you can retrieve from it.
+It is also useful to have both client and server stats.
+BTW, since the laptop (with the 3C card) is the client, the SG
+shouldnt kick in at all.
 
--d
+> - hardware Tx checksums don't make much difference.  hmm...
+>
+> Bear in mind that the 3c59x driver uses a one-interrupt-per-packet
+> algorithm.  Mitigation reduces this to 0.3 ints/packet.
+> So we're absorbing 4,500 interrupts/sec while processing
+> 12,000 packets/sec.  gigE NICs do much better mitigation than
+> this and the relative benefits of zerocopy will be much higher
+> for these.  Hopefully Jamal can do some testing.
+>
 
+I dont have my babies right now, but as soon as i can get access to
+them
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+> BTW: I could not reproduce Jamal's oops when sending large
+> files (2 gigs with sendfile()).
 
+Alexey was concerned about this. Good. But maybe it will still
+happen with my setupo. We'll see.
 
+>
+> The test tool is, of course, documented [ :-)/2 ].  It's at
+>
+> 	http://www.uow.edu.au/~andrewm/linux/#zc
+>
+
+I'll give this a shot later. Can you try with the sendfiled-ttcp?
+http://www.cyberus.ca/~hadi/ttcp-sf.tar.gz
+Anyways, you are NIC-challenged ;-> Get GigE. 100Mbps doesnt give
+much information.
+
+cheers,
+jamal
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

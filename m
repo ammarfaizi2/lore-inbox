@@ -1,85 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTKZWIx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 17:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTKZWIx
+	id S264354AbTKZWTg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 17:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKZWTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 17:08:53 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:44207 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264372AbTKZWIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 17:08:51 -0500
-Subject: Re: [BUG]Missing i_sb NULL pointer check in destroy_inode()
-From: Mingming Cao <cmm@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com, Paul.McKenney@us.ibm.com
-In-Reply-To: <20031125083643.A15777@infradead.org>
-References: <1068066524.10726.289.camel@socrates>
-	<20031106033817.GB22081@thunk.org> <1068145132.10735.322.camel@socrates>
-	<20031106123922.Y10197@schatzie.adilger.int>
-	<1068148881.10730.337.camel@socrates> <1068230146.10726.359.camel@socrates>
-	<20031109130826.2b37219d.akpm@osdl.org> <1068419747.687.28.camel@socrates>
-	<20031109152936.3a9ffb69.akpm@osdl.org>
-	<1069700440.16649.19433.camel@localhost.localdomain> 
-	<20031125083643.A15777@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Nov 2003 14:09:52 -0800
-Message-Id: <1069884594.1137.22744.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 26 Nov 2003 17:19:36 -0500
+Received: from web40909.mail.yahoo.com ([66.218.78.206]:46504 "HELO
+	web40909.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264354AbTKZWTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 17:19:33 -0500
+Message-ID: <20031126221933.93553.qmail@web40909.mail.yahoo.com>
+Date: Wed, 26 Nov 2003 14:19:33 -0800 (PST)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: Beaver In Detox AND IEEE1394 badness message
+To: Ben Collins <bcollins@debian.org>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-11-25 at 00:36, Christoph Hellwig wrote:
-> On Mon, Nov 24, 2003 at 11:00:38AM -0800, Mingming Cao wrote:
-> > Hello, Andrew, Marcelo,
-> > 
-> > destroy_inode() dereferences inode->i_sb without checking if it is NULL.
-> > This is inconsistent with its caller: iput() and clear_inode(),  both of
-> > which check inode->i_sb before dereferencing it. Since iput() calls
-> > destroy_inode() after calling file system's .clear_inode method(via
-> > clear_inode()),  some file systems might choose to clear the i_sb in the
-> > .clear_inode super block operation. This results in a crash in
-> > destroy_inode().
-> > 
-> > This issue exists in both 2.6, 2.4 and 2.4 kernel.  A simple fix against
-> > 2.6.0-test9 is included below. 2.4 based fix should be very similar to
-> > this one.  Please take a look and consider include it.  
-> 
-> inode->i_sb can't be NULL.  We should remove all those checks.
-> 
-Sorry I can not agree with this. Maybe the inode->i_sb should not be
-NULL, but the kernel still allows the file system to do so.  In fact
-JFS's diReadSpecial() function clears the inode->i_sb to NULL before
-calling iput().  
+Mr. Collins,
 
-Acutally iput() in 2.6 is missing the check too.(in 2.4 the check is
-there).  Here is the the incremental fix for 2.6 only:
+After loading the detoxed beaver kernel, I noticed that the IEEE1394 badness message
+has changed location:
 
-diff -urNp linux-2.6.0-test10/fs/inode.c a/fs/inode.c
---- linux-2.6.0-test10/fs/inode.c	2003-11-23 17:33:24.000000000 -0800
-+++ a/fs/inode.c	2003-11-26 13:59:34.000000000 -0800
-@@ -1084,13 +1084,13 @@ static inline void iput_final(struct ino
- void iput(struct inode *inode)
- {
- 	if (inode) {
--		struct super_operations *op = inode->i_sb->s_op;
--
-+		struct super_block *sb = inode->i_sb;
-+		
- 		if (inode->i_state == I_CLEAR)
- 			BUG();
- 
--		if (op && op->put_inode)
--			op->put_inode(inode);
-+		if (sb && sb->op && sb->op->put_inode)
-+			sb->op->put_inode(inode);
- 
- 		if (atomic_dec_and_lock(&inode->i_count, &inode_lock))
- 			iput_final(inode);
+ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
+ohci1394_0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[e8207000-e82077ff]  Max
+Packet=[2048]
+Debug: sleeping function called from invalid context at mm/slab.c:1856
+in_atomic():1, irqs_disabled():0
+Call Trace:
+ [<c01217dc>] __might_sleep+0xab/0xcb
+ [<c0153164>] kmem_cache_alloc+0x1c8/0x1cd
+ [<c01221b7>] dup_task_struct+0x28/0xc9
+ [<c01239d3>] copy_process+0xd9/0x10c8
+ [<c014bba1>] mempool_free+0xe2/0x214
+ [<c027f3db>] freed_request+0xa0/0xa8
+ [<c0124a1e>] do_fork+0x5c/0x1f3
+ [<c0125ec4>] call_console_drivers+0x69/0x11f
+ [<c010733d>] kernel_thread+0x8e/0x96
+ [<e08ded8f>] nodemgr_host_thread+0x0/0x1a8 [ieee1394]
+ [<c01072a4>] kernel_thread_helper+0x0/0xb
+ [<e08df2aa>] nodemgr_add_host+0x186/0x1d2 [ieee1394]
+ [<e08ded8f>] nodemgr_host_thread+0x0/0x1a8 [ieee1394]
+ [<e08da629>] highlevel_add_host+0x6b/0x6f [ieee1394]
+ [<e08d9c40>] hpsb_add_host+0x6d/0x95 [ieee1394]
+ [<e0894b43>] ohci1394_pci_probe+0x512/0x620 [ohci1394]
+ [<e0891b0d>] ohci_irq_handler+0x0/0x1129 [ohci1394]
+ [<c02176df>] pci_device_probe_static+0x52/0x63
+ [<c021772b>] __pci_device_probe+0x3b/0x4e
+ [<c021776a>] pci_device_probe+0x2c/0x4a
+ [<c027a952>] bus_match+0x3f/0x6a
+ [<c027aa64>] driver_attach+0x56/0x80
+ [<c027ad36>] bus_add_driver+0x9f/0xb1
+ [<c027b19a>] driver_register+0x8c/0x90
+ [<c0217956>] pci_register_driver+0x8c/0xab
+ [<e0886013>] ohci1394_init+0x13/0x3d [ohci1394]
+ [<c0145b7b>] sys_init_module+0x213/0x3e6
+ [<c0172a0f>] sys_read+0x42/0x63
+ [<c010a171>] sysenter_past_esp+0x52/0x71
+
+blk: queue dfd658cc, I/O limit 4095Mb (mask 0xffffffff)
+
+The badness message appears AFTER this line:
+
+ohci1394_0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[e8207000-e82077ff]  Max
+Packet=[2048]
+
+It used to appear BEFORE this line. Do the IEEE1394 fixes in the detoxed beaver
+kernel have something to do with that? Or was it a fix in an earlier kernel?
+
+TIA
+
+Brad
+
+=====
 
 
-
-
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

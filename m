@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTLCDiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 22:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLCDiO
+	id S264495AbTLCDnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 22:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTLCDnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 22:38:14 -0500
-Received: from dhcp024-209-033-037.neo.rr.com ([24.209.33.37]:46979 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S264489AbTLCDiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 22:38:12 -0500
-Date: Tue, 2 Dec 2003 22:31:03 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: file2alias for pnp (Re: modules.pnpmap output support)
-Message-ID: <20031202223103.GB1718@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Takashi Iwai <tiwai@suse.de>, Andrey Borzenkov <arvidjaar@mail.ru>,
-	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-References: <s5hoevbjdjj.wl@alsa2.suse.de> <s5h65hf1iou.wl@alsa2.suse.de> <s5hn0ahdgbm.wl@alsa2.suse.de> <200311272159.00184.arvidjaar@mail.ru> <s5hk75kbsm1.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Dec 2003 22:43:08 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:61171 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S264495AbTLCDnE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 22:43:04 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Xose Vazquez Perez <xose@wanadoo.es>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ATI boards [was Re: Linux 2.4 future]
+Date: Tue, 2 Dec 2003 22:43:03 -0500
+User-Agent: KMail/1.5.1
+References: <3FCD5533.8050105@wanadoo.es>
+In-Reply-To: <3FCD5533.8050105@wanadoo.es>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <s5hk75kbsm1.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312022243.03166.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.54.127] at Tue, 2 Dec 2003 21:43:03 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 28, 2003 at 01:11:18PM +0100, Takashi Iwai wrote:
-> Adam, any plan to give the card id to sysfs ?
+On Tuesday 02 December 2003 22:14, Xose Vazquez Perez wrote:
+>Harald Arnesen wrote:
+>> I second that. I have an ATI Radeon 9200, and I can play Tuxracer,
+>> America's Army (BOO!), and any other 3D-game without any problem.
 >
+>Torvalds was talking about R200 chip. Those boards are 8500, and
+>9100/8500 LE. IMO they are the best for FOSS.
+>
+That would make those cards a bit long in the tooth by now.  OTOH, if 
+the 9200 works for Linus, I think thats probably good enough for me. 
+:)
 
-Sure, would you prefer to see it in the isapnp device's parent
-card device under "id" or in the device's own directory under
-"card_id"?
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-Thanks,
-Adam

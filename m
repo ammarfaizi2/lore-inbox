@@ -1,90 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266478AbTAPLhX>; Thu, 16 Jan 2003 06:37:23 -0500
+	id <S266995AbTAPLfY>; Thu, 16 Jan 2003 06:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266560AbTAPLhX>; Thu, 16 Jan 2003 06:37:23 -0500
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:22795 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S266478AbTAPLhV>; Thu, 16 Jan 2003 06:37:21 -0500
-Date: Thu, 16 Jan 2003 12:47:17 +0100
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: Greg KH <greg@kroah.com>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, john.cagle@hp.com,
-       dan.zink@hp.com
-Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
-Message-ID: <20030116114717.GC1222@tmathiasen>
-References: <20030115095513.GA2761@tmathiasen> <20030115230554.GC25816@kroah.com>
+	id <S266999AbTAPLfY>; Thu, 16 Jan 2003 06:35:24 -0500
+Received: from nowaydude.rearden.com ([64.160.169.126]:6603 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S266995AbTAPLfX>; Thu, 16 Jan 2003 06:35:23 -0500
+Date: Thu, 16 Jan 2003 03:45:19 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 2.5.5{4,5,6,7,8} with contest
+Message-Id: <20030116034519.7753395c.akpm@digeo.com>
+In-Reply-To: <200301162114.12467.conman@kolivas.net>
+References: <200301162114.12467.conman@kolivas.net>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030115230554.GC25816@kroah.com>
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.20-pre11 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jan 2003 11:44:14.0611 (UTC) FILETIME=[98137630:01C2BD54]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure. I started out doing the patch for 2.5, but hit some hotplug bugs so I
-decided to get it working for 2.4 first and then port it to 2.5. I'll get on
-that.
-
-A few comments below.
- 
-> > +static char *get_speed_string (int speed)
-> > +{
-> > +	switch(speed) {
-> > +		case(PCI_SPEED_33MHz):
-> > +			return "33MHz PCI";
-> > +		case(PCI_SPEED_66MHz):
-> > +			return "66MHz PCI";
-> > +		case(PCI_SPEED_50MHz_PCIX):
-> > +			return "50MHz PCI-X";
-> > +		case(PCI_SPEED_66MHz_PCIX):
-> > +			return "66MHz PCI-X";
-> > +		case(PCI_SPEED_100MHz_PCIX):
-> > +			return "100MHz PCI-X";
-> > +		case(PCI_SPEED_133MHz_PCIX):
-> > +			return "133MHz PCI-X";
-> > +		default:
-> > +			return "UNKNOWN";
-> > +	}
-> > +}
-> 
-> Ick, why?  Just for a debugging message?  That /proc file is on the
-> short list of things to delete :)
+Con Kolivas <conman@kolivas.net> wrote:
 >
+> dbench_load:
+> Kernel [runs]   Time    CPU%    Loads   LCPU%   Ratio
+> 2.5.54      3   118     66.1    3       24.6    1.49
+> 2.5.55      3   117     68.4    2       16.2    1.50
+> 2.5.56      3   89      60.7    4       24.7    1.13
+> 2.5.57      4   96      64.6    2       20.7    1.22
+> 2.5.58      3   122     64.8    3       24.6    1.54
 
-I wanted the user to be able to know exactly which bus speed/mode the driver
-switched to in case of a freq/mode change. Besides that it also put the info in
-proc as you mention.
+Is this statistically significant?
 
-> > --- linux-2.4.20/drivers/hotplug/pci_hotplug.h	Thu Nov 28 17:53:13 2002
-> > +++ linux-2.4.20-pcix/drivers/hotplug/pci_hotplug.h	Mon Jan  6 22:54:47 2003
-> > @@ -33,9 +33,10 @@
-> >  enum pci_bus_speed {
-> >  	PCI_SPEED_33MHz			= 0x00,
-> >  	PCI_SPEED_66MHz			= 0x01,
-> > -	PCI_SPEED_66MHz_PCIX		= 0x02,
-> > -	PCI_SPEED_100MHz_PCIX		= 0x03,
-> > -	PCI_SPEED_133MHz_PCIX		= 0x04,
-> > +	PCI_SPEED_50MHz_PCIX		= 0x02,
-> > +	PCI_SPEED_66MHz_PCIX		= 0x03,
-> > +	PCI_SPEED_100MHz_PCIX		= 0x04,
-> > +	PCI_SPEED_133MHz_PCIX		= 0x05,
-> >  	PCI_SPEED_66MHz_PCIX_266	= 0x09,
-> >  	PCI_SPEED_100MHz_PCIX_266	= 0x0a,
-> >  	PCI_SPEED_133MHz_PCIX_266	= 0x0b,
+Looks like the I/O scheduler has slipped a bit.  Nick did some testing which
+shows that read-latency2 is still outperforming 2.5 by a factor of twenty on
+read-vs-write fairness.  He's working on that, but there is still a lot to do
+on this front.  We are nowhere near good enough yet.
+
+
+> A full set of archived results and hardware specs can be found here:
+> http://www.osdl.org/projects/ctdevel/results/
 > 
-> Where are you getting the PCI_SPEED_50MHz_PCIX value from?  I took these
-> values from the Hotplug PCI draft spec.  Has 02 been reserved for 50MHz
-> PCIX and the other values changed?
+> This is a good time to repeat the bug report that looked like spam last time I 
+> posted it (sorry my mailer seemed to bork):
 > 
-> If it's not in the spec, I'd recommend adding it to the end of the list,
-> with a big comment about why it's different from the spec values.
->
+> Since moving contest to c I get an error trying to fork with all 2.5 kernels I 
+> try after running it on the 6th load. The error does not occur with any 2.4 
+> kernels. I have confirmed it is still present on 2.5.58.
+> 
+> To reproduce the problem:
+> Run the latest version of contest without arguments (0.61pre) and after
+> no_load,cacherun,process_load,ctar_load,xtar_load and io_load it bombs out 
+> with:
+> bmark.c:43: SYSTEM ERROR: Cannot allocate memory : fork error
+> 
+> It seems to occur only after a few loads followed by io_load.
+> 
 
-Sure, we used to ship a system that only supported 50MHz PCI-X, but I'll have
-to get more details on that.
+Ho hum.  "it works for me".
 
-Torben
+My guess would be that ext3 has confused vm_enough_memory().  See, if you
+delete an ext3 file immediately after writing it (as io_load does), ext3 will
+leave all the pages on the page LRU, with attached buffers.
+
+These pages are trivially reclaimable, but as far as the VM accounting is
+concerned these pages are nowhere to be seen.  So vm_enough_memory() says
+"nope, not enough memory to fork".   Perhaps.
+
+Could you please do
+
+	echo 1 > /proc/sys/vm/overcommit_memory
+
+and see if it goes away?
+
+I don't know what to do about this yet.  Probably need to try to release
+those buffers in ext3.
 

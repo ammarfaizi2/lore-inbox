@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277255AbRJIO2Q>; Tue, 9 Oct 2001 10:28:16 -0400
+	id <S277253AbRJIO3Q>; Tue, 9 Oct 2001 10:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277253AbRJIO2G>; Tue, 9 Oct 2001 10:28:06 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:34972 "EHLO
-	pimout4-int.prodigy.net") by vger.kernel.org with ESMTP
-	id <S277255AbRJIO1s>; Tue, 9 Oct 2001 10:27:48 -0400
-Date: Tue, 9 Oct 2001 10:28:18 -0400 (EDT)
-From: Bill Davidsen <davidsen@prodigy.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S277256AbRJIO3H>; Tue, 9 Oct 2001 10:29:07 -0400
+Received: from [217.141.181.238] ([217.141.181.238]:27227 "HELO hobbes.wired")
+	by vger.kernel.org with SMTP id <S277253AbRJIO2y>;
+	Tue, 9 Oct 2001 10:28:54 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
-In-Reply-To: <3BC2F4FA.B29F2546@leoninedev.com>
-Message-ID: <Pine.LNX.4.21.0110091021230.11335-100000@deathstar.prodigy.com>
+Date: Tue, 9 Oct 2001 16:27:46 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <LAW2-OE3760Ov0Hvk1w000079df@hotmail.com> <140103605516.20011009134517@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <140103605516.20011009134517@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011009142746.49C1C9856E@hobbes.wired>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Bryan Mayland wrote:
+Il 13:45, martedì 9 ottobre 2001, VDA ha scritto:
 
-> I'm happy with this patch too, as it stops my machine from crashing when switching to user-space.
-> I've run several LMbench tests against both 686-optimized and Athlon-optimized kernels.  The
-> results waver across multiple tests, one kernel winning some tests one time and losing the next,
-> but the values are all close.  I can post the results of any benchmarks 686 vs Athlon anyone wants
-> me to run if we can get this patch in soon!
+> Anybody still insist that 'Athlon bug' patch is not to be
+> included into mainstream kernel?
+> If someone doesn't like it, feel free to make it a config
+> option (enabled by default!) and submit an updated patch.
+> My original patch against 2.4.9 is at the end.
+>
+> Tuesday, October 09, 2001, 11:32:24 AM,
+> "Marco Berizzi" <pupilla@hotmail.com> wrote:
+> MB> I updated my motherboard from ASUS A7V to ABIT KT7A (VIA Apollo KT133A
+> MB> chipset). The kernel I had (2.4.10) started crashing on boot  usually
+> MB> right after starting init. I tryed a i686 kernel and noticed it works
+> MB> OK, so I recompiled my crashy kernel only switching the processor type
+> MB> and it also worked. Changed it back to Athlon/K7/Duron and it starts
+> MB> crashing.
 
-That's what I see... the patch doesn't make things faster, it prevents the
-system from failing due to user space code. If it was just a speed thing I
-wouldn't feel strongly about getting it in production.
-
-The other thing is that I don't buy "some people don't need it" when some
-people can't run without it and no one yet has stated that it impaired the
-function of their system.
-
-Given that some systems are vulnerable to user code induced failuers
-without the patch, and there are no reports that the patch causes problems
-on any system, and it's optional in config anyway, why the resistance. The
-"we know what you need" attitude belongs in that other o/s, not
-Linux. Make it experimental, there are lots of other "use at your own
-risk" options in config!
-
--- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
-
+Same problem here (oops at boot, athlon 1.2GHz, kernels 2.4.9 ->10, athlon 
+optimization. All goes right if I set i686 processor) but the patch didn't 
+work. I have a GA-7VMM / VIA KLE 133 AGPset Motherboard. The kernel still 
+oopses , it only changes color:) (white on black without patch, green on 
+black with patch applied.)
+I will be happy to test any new patch, if this can help.
+--
+Fabio Coatti
+Ferrara Linux User Group

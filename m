@@ -1,63 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbTHXVZG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 17:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbTHXVZG
+	id S261324AbTHXVms (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 17:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTHXVms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 17:25:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32520 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261318AbTHXVZC (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Sun, 24 Aug 2003 17:25:02 -0400
-Message-ID: <3F492DC7.6040307@sbcglobal.net>
-Date: Sun, 24 Aug 2003 16:27:35 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomasz Torcz <zdzichu@irc.pl>
-CC: LKML <linux-kernel@vger.redhat.com>
-Subject: Re: 2.6.0-test4 - lost ACPI
-References: <20030823105243.GA1245@irc.pl> <20030823145545.2b7d6ec9.akpm@osdl.org> <20030823220438.GB1155@irc.pl>
-In-Reply-To: <20030823220438.GB1155@irc.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Aug 2003 17:42:48 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:7049
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261325AbTHXVmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 17:42:46 -0400
+Date: Sun, 24 Aug 2003 23:43:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hannes Reinecke <Hannes.Reinecke@suse.de>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       uweigand@de.ibm.com
+Subject: Re: Dumb question: BKL on reboot ?
+Message-ID: <20030824214316.GA1460@dualathlon.random>
+References: <3F434BD1.9050704@suse.de> <20030820112918.0f7ce4fe.akpm@osdl.org> <20030820113520.281fe8bb.davem@redhat.com> <1061411024.9371.33.camel@nighthawk> <3F447D40.5020000@suse.de> <20030821154113.GE29612@dualathlon.random> <3F44EB85.5000108@suse.de> <20030821163938.GG29612@dualathlon.random> <3F45BA87.1060902@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F45BA87.1060902@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't recall seeing the ACPI disabled line, but mine had the same 
-problem halting between PS/2 init and serio.  The change I noticed was 
-that IRQ's were being allocated differently, and that is what I 
-attributed this failure to.  My motherboard worked with 2.6.0-test3-mm2, 
-but has not worked since 2.6.0-test3-mm3 (when the new ACPI code was 
-added). 
+Hi Hannes,
 
-I'll have to try this acpi=force and pci=noacpi, otherwise I have to 
-disable USB and sound to get it to boot. 
+On Fri, Aug 22, 2003 at 08:39:03AM +0200, Hannes Reinecke wrote:
+> Agreed, this smp_processor_id() == 0 thing is interesting. I'll try you 
+> suggestion and see how far I'll progress.
 
-Wes
+Ulrich pointed me out that only cpu0 can call into the VM (thanks!), and
+in turn the s390 code I tocuehd was infact correct (despite it looked
+suspect given the trace and the special ==0 case). After a closer
+inspection my (last ;) conclusion is this (cut-and-past from bugzilla)
 
-Tomasz Torcz wrote:
+----------------------
+[..]
+But the data.started counter is already enforcing a good enough
+guarantee, that the CPU1 will execute
+"signal_processor(smp_processor_id(), sigp_stop);" only when the CPU0 is
+already executing inside the IPI handler. So I can't imagine the IPI on
+CPU0 getting lost. 
+ 
+the last explanation I can think, is that the CPU0 executes the IPI,
+waits for cpu_restart_map to become 0 (i.e. CPU1 offline), and
+eventually executes this code correctly: 
+ 
+                do_store_status(); 
+                /* 
+                 * Finally call reipl. Because we waited for all other 
+                 * cpus to enter this function we know that they do 
+                 * not hold any s390irq-locks (the cpus have been 
+                 * interrupted by an external interrupt and s390irq 
+                 * locks are always held disabled). 
+                 */ 
+                reipl(S390_lowcore.ipl_device); 
+        } 
+        signal_processor(smp_processor_id(), sigp_stop); 
+ 
+but the box doesn't reboot and the CPU0 returns from the IPI and goes
+idle until kupdate kicks in (finds the first idle cpu and tries to take
+the big kernel lock that is correctly held by CPU1 in sys_reboot). 
+ 
+This seems a bug in the s390 lowlevel code above, it just doesn't reboot
+the machine. 
+----------------------
 
->On Sat, Aug 23, 2003 at 02:55:45PM -0700, Andrew Morton wrote:
->  
->
->>Tomasz Torcz <zdzichu@irc.pl> wrote:
->>
->>    
->>
->>> ACPI disabled because your bios is from 00 and too old
->>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>>      
->>>
->>Add "acpi=force" to your kernel boot command line and everything should work
->>as before.
->>    
->>
->
->It does not work. It halts in beetween ps/2 mouse init and serio init.
->Adding "acpi=force pci=noacpi" solves that.
->
->  
->
+Maybe it's related to signal_processor(smp_processor_id(), sigp_stop)
+failing inside IPI handlers or whatever similar arch specific, dunno.
 
+The patch removing the BKL from sys_reboot shouldn't help either if my
+above theory is correct: when the IPI runs in cpu0, it's not even
+running on top of the BKL. It's just that the machine not rebooting,
+eventually will have the first idle cpu (cpu0) execute kupdate in mean
+in 2.5 sec, and it will eventually go in the state you found in lkcd
+since the BKL is held by cpu1 in sys_reboot that is already offline (no
+valid EIP in lkcd).
+
+So if you want to test, probably one interesting info you could generate
+to confirm my above theory, is to reproduce the very same deadlock even
+with the BKL removal patch applied to sys_reboot. Not sure how easy it
+is to reproduce it. If you can hang it again, it would not deadlock in
+kupdate anymore: you should find cpu0 stuck in the idle loop instead of
+sync_old_buffers.
+
+It maybe something slightly different going wrong too, but still I'm
+convinced the lock_kernel in sys_reboot is absoltely innocent and needed
+(at least in 2.4).
+
+Andrea

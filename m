@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVBYXCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVBYXEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262793AbVBYXCT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 18:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVBYXCS
+	id S262800AbVBYXEc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 18:04:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVBYXC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 18:02:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54237 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262793AbVBYXCG (ORCPT
+	Fri, 25 Feb 2005 18:02:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58845 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262789AbVBYXCJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 18:02:06 -0500
-Date: Fri, 25 Feb 2005 14:39:27 -0800
+	Fri, 25 Feb 2005 18:02:09 -0500
+Date: Fri, 25 Feb 2005 15:00:14 -0800
 From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
-Message-ID: <20050225223926.GB28014@kroah.com>
-References: <courier.4217CBC9.000027C1@mail.farside.org.uk> <20050222190412.GA23687@suse.de> <courier.421C5047.00003EBA@mail.farside.org.uk> <20050224233458.GB26941@suse.de> <loom.20050225T020954-395@post.gmane.org>
+To: Corey Minyard <minyard@acm.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] I2C patch 2 - break up the SMBus formatting
+Message-ID: <20050225230014.GB28235@kroah.com>
+References: <421E62DD.5030608@acm.org> <20050225214439.GC27270@kroah.com> <421FAACB.4080207@acm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <loom.20050225T020954-395@post.gmane.org>
+In-Reply-To: <421FAACB.4080207@acm.org>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 25, 2005 at 01:35:13AM +0000, Kay Sievers wrote:
-> Greg KH <gregkh <at> suse.de> writes:
+On Fri, Feb 25, 2005 at 04:46:35PM -0600, Corey Minyard wrote:
+> Greg KH wrote:
 > 
+> >On Thu, Feb 24, 2005 at 05:27:25PM -0600, Corey Minyard wrote:
 > > 
-> > On Wed, Feb 23, 2005 at 09:43:35AM +0000, Malcolm Rowe wrote:
-> > > Greg KH writes: 
-> > > 
-> > > >>Following the discussion in [1], the attached patch creates 
-> > > >>/sys/class/block
-> > > >>as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7.  
-> > > >>
-> > > >>Please cc: me on any replies - I'm not subscribed to the mailing list. 
-> > > >Hm, your patch is linewrapped, and can't be applied :(
-> > > 
-> > > Bah, and I did send it to myself first, but I guess my mailer un-flowed it 
-> > > for me .  I'll try to find a better mailer. 
-> > > 
-> > > >But more importantly:
-> > > >>static void disk_release(struct kobject * kobj)
-> > > >
-> > > >Did you try to remove a disk (like a usb device) and see what happens
-> > > >here?  Hint, this isn't the proper place to remove the symlink...
-> > > 
-> > > Er, yeah. Oops. 
-> > > 
-> > > *Is* there a sensible place to remove the symlink from, though?  Nobody 
-> > > seems to call subsystem_unregister(&block_subsys), which is the place I'd 
-> > > expect to add a call to, and I can't see anything that's otherwise 
-> > > obvious... 
+> >
+> >>+
+> >>+	/* It's wierd, but we use a usecount to track if an q entry is
+> >>+	   in use and when it should be reported back to the user. */
+> >>+	atomic_t usecount;
+> >>   
+> >>
+> >
+> >Please use a kref here instead of rolling your own.
 > > 
-> > If the subsystem is never unregistered, then don't worry about undoing
-> > the symlink.
+> >
+> There's a trick I'm playing to avoid having to use a lock on the normal 
+> entry_put() case.  It let's the entry_get() routine detect that the 
+> object is about to be destroyed.  You can't do it with the current kref, 
+> but you could easily extend kref to allow it.
+
+No, kref is ment to have an external lock protect it from this kind of
+race.  That's documented.
+
+> It's simple to implement, but the documentation on how to use it will
+> be 10 times larger than the code :).
 > 
-> This symlink will break a lot of applications out there. If there is not a
-> _very_ good reason for it, we should not do that.
+> I'll work on a patch to kref to add that, if you don't mind.
 
-People seem to want it for some odd reason, I haven't seen a good reason
-yet though, let alone a working patch :)
-
-> The "dev" file unfortunately does not tell you if it's a char or block
-> device node and that should be solved by something better than matching a
-> magic string somewhere in the middle of a devpath.
-
-Use the subsystem value.  If it's "block", it's a block device,
-otherwise it's a char device.  Don't we already do this in udev today?
-
-> The hotplug events will still have the /block/* devpath, so this symlink
-> will give us nothing than problems.
-
-It will not give hotplug programs issues, as the block devpath still
-remains the same.
+I'll always look at patches :)
 
 thanks,
 

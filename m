@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316834AbSEWPwp>; Thu, 23 May 2002 11:52:45 -0400
+	id <S316867AbSEWPxo>; Thu, 23 May 2002 11:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316867AbSEWPwo>; Thu, 23 May 2002 11:52:44 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:30479 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316834AbSEWPwn>; Thu, 23 May 2002 11:52:43 -0400
-Date: Thu, 23 May 2002 17:52:37 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
-Message-ID: <20020523155237.GB24260@louise.pinerecords.com>
-In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.2.21 SMP
-X-Architecture: sparc
-X-Uptime: 19:02
+	id <S316869AbSEWPxn>; Thu, 23 May 2002 11:53:43 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:25095 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S316867AbSEWPxl>;
+	Thu, 23 May 2002 11:53:41 -0400
+Date: Thu, 23 May 2002 08:51:40 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: kb25 manual [was Re: [Linux-usb-users] Re: What to do with all
+ of the USB UHCI drivers in the kernel?]
+In-Reply-To: <20020523154252.GA24260@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.33L2.0205230850080.4119-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If that's a bad cable, why it is only happens when both drives are working
-> in DMA mode?
+On Thu, 23 May 2002, Tomas Szepe wrote:
 
-Because, as you probably know, cable problems usually manifest themselves
-during high transfer rates, where DMA is the prerequisite. Up to ATA33, you
-might nearly hook your drives up using a shoelace w/o running into trouble,
-ATA66+, however, seems to be very sensitive to good cabling.
+| > BTW> one of the reasons I never bothered myself with kbuild-2.5
+| > is for example that nio matter how frequently Keith
+| > is advertising it - every time I go there to have a look at it
+| > at sf what I find is a scatter heap of .tar.gz. The documentation
+| > about how to install it makes me nervous, since I would
+| > rather just expect a diff and a README how to use it, so I never
+| > look after it.
+|
+| Duh... All you need is the core package (diff #1), the architecture
+| independent modifications package (diff #2) and finally diff #3 that
+| adds the arch-specific stuff. Everything's in a single list on sf.
+|
+| then just do s/t like
+| cd /usr/src/linux-2.4.19-pre8 && zcat \
+| 	../kbuild-2.5-core-14.gz \
+| 	../kbuild-2.5-common-2.4.19-pre8-1.gz \
+| 	../kbuild-2.5-i386-2.4.19-pre8-1.gz \
+| 	| patch -sp1
+|
+| and read the comprehensive manual in Documentation/kbuild/
+|
+| What's there to be nervous about?
 
-How about trying out what Andre Hedrick's convert.10 has to say about your
-setup if you're convinced the cable is ok?
+so there should just be a short, simple readme about how to
+install and use it -- not one that is 2400 lines long.
+Other than that, I like it.
 
-T.
+-- 
+~Randy
 
-Sidenote: I'd recommend putting the two drives on separate channels, you're
-losing quite a bit of performance this way when doing hda<->hdb transfers.

@@ -1,87 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268018AbTAKUPK>; Sat, 11 Jan 2003 15:15:10 -0500
+	id <S268102AbTAKUP2>; Sat, 11 Jan 2003 15:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268102AbTAKUPK>; Sat, 11 Jan 2003 15:15:10 -0500
-Received: from dialin-145-254-062-029.arcor-ip.net ([145.254.62.29]:31360 "EHLO
-	portable.localnet") by vger.kernel.org with ESMTP
-	id <S268018AbTAKUPJ> convert rfc822-to-8bit; Sat, 11 Jan 2003 15:15:09 -0500
-Date: Sat, 11 Jan 2003 21:20:56 +0100 (CET)
-Message-Id: <20030111.212056.607951684.rene.rebe@gmx.net>
-To: kernel@nn7.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: choice of raid5 checksumming algorithm wrong ?
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <1042314720.1225.4.camel@sun>
-References: <3E203C00.5060403@inet6.fr>
-	<20030111.203913.846936097.rene.rebe@gmx.net>
-	<1042314720.1225.4.camel@sun>
-X-Mailer: Mew version 2.2 on XEmacs 21.4.10 (Military Intelligence)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S268130AbTAKUP2>; Sat, 11 Jan 2003 15:15:28 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:54422 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S268102AbTAKUPZ>; Sat, 11 Jan 2003 15:15:25 -0500
+Date: Sat, 11 Jan 2003 12:29:23 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: 2.5.56 won't boot (but 2.5.53 will)
+To: linux-kernel@vger.kernel.org
+Message-id: <3E207EA3.2090504@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+So 2.5 is newly an obstacle on the machines I use for development
+and testing.  There's the Cardbus issue (appeared in 2.5.53 as
+far as I can tell) ... then there's this one (appeared in 2.5.54)
+which I haven't seen posted before.
 
-In the case s.o. wants to pull the patch:
+Symptom:  system hangs during boot, right where it's shown in the
+annotated log below.  On 2.5.56 I also tried after disabling SMP
+and all the local APIC stuff in the build, but it didn't matter.
+These are otherwise the same .config setups, modulo whatever
+magic "make oldconfig" did.
 
-http://www.rocklinux.org/sources/package/base/linux24/82-raid5-niceer-output.patch
+In case it matters, this is kt333-based with a vt8235 south bridge.
+It's never shown this type of boot problem before.
 
-It is only a one-liner. It is not really nice since I print the
-"writing arround L2 cache" text when XOR_SELECT_TEMPLATE is defined -
-this might also be the case for an later AlitVec version for PowerPC
-or so. So we might want a more generic text - or a text in the
-appropriated .h file whetre XOR_SELECT_TEMPLATE is defined ...
+Suggestions, or patches?
 
-On: 11 Jan 2003 20:52:00 +0100,
-    Soeren Sonnenburg <kernel@nn7.de> wrote:
-> On Sat, 2003-01-11 at 20:39, Rene Rebe wrote:
-> > Hi.
-> > 
-> > I also consider the kprint message a useability bug - and this is why
-> > I posted a patch that prints out that the algorithm is choosen to
-> > write "arround" the L2 cache ... - We patch this in our ROCK Linux
-> > standard patches ...
-> 
-> I would vote for such a cosmetic patch to be included...
-> 
-> Soeren.
-> 
-> > On: Sat, 11 Jan 2003 16:45:04 +0100,
-> >     Lionel Bouton <Lionel.Bouton@inet6.fr> wrote:
-> > > Soeren Sonnenburg wrote:
-> > > 
-> > > >Hi!
-> > > >
-> > > >I really do wonder whether the displayed message is wrong or why it
-> > > >always chooses the slowest checksumming function (happens with 2.4.19 -
-> > > >21pre3)
-> > > >  
-> > > >
-> > > SSE is always preferred because unlike other checksumming code it 
-> > > doesn't use the processor caches when reading/writing data/checksum.
-> > > This is slower (if several GB/s can be considered slow) for the 
-> > > checksumming but far better for the overall system performance.
-> > > 
-> > > LB.
-> > 
-> > - René
-> > 
-> > --  
-> > René Rebe - Europe/Germany/Berlin
-> > e-mail:   rene.rebe@gmx.net, rene@rocklinux.org
-> > web:      www.rocklinux.org, drocklinux.dyndns.org/rene/
-> > 
-> > Anyone sending unwanted advertising e-mail to this address will be
-> > charged $25 for network traffic and computing time. By extracting my
-> > address from this message or its header, you agree to these terms.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+- Dave
+
+
+Linux version 2.5.53 (root@helium) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #10 SMP 
+Fri Jan 3 11:47:10 PST 2003
+Video mode to be used for restore is f00
+BIOS-provided physical RAM map:
+  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+  BIOS-e820: 0000000000100000 - 0000000020000000 (usable)
+  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+512MB LOWMEM available.
+found SMP MP-table at 000f50e0
+hm, page 000f5000 reserved twice.
+hm, page 000f6000 reserved twice.
+hm, page 000f1000 reserved twice.
+hm, page 000f2000 reserved twice.
+	
+	right here is where 2.5.56 (and 2.5.54) stops booting:
+	before messages about zone allocations.  Alt-SysRQ-B works.
+
+On node 0 totalpages: 131072
+   DMA zone: 4096 pages, LIFO batch:1
+   Normal zone: 126976 pages, LIFO batch:16
+   HighMem zone: 0 pages, LIFO batch:1
+Intel MultiProcessor Specification v1.4
+     Virtual Wire compatibility mode.
+OEM ID: OEM00000 Product ID: PROD00000000 APIC at: 0xFEE00000
+Processor #0 6:6 APIC version 17
+I/O APIC #2 Version 17 at 0xFEC00000.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Processors: 1
+Building zonelist for node : 0
+Kernel command line: ro root=/dev/hda9 nmi_watchdog=1
+Initializing CPU#0
+Detected 1532.634 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 3014.65 BogoMIPS
+Memory: 515688k/524288k available (1508k kernel code, 7864k reserved, 725k data, 112k init, 0k highmem)
+
+

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267200AbSLEDGE>; Wed, 4 Dec 2002 22:06:04 -0500
+	id <S267198AbSLEDLC>; Wed, 4 Dec 2002 22:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267201AbSLEDGE>; Wed, 4 Dec 2002 22:06:04 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:42506 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S267200AbSLEDGD>; Wed, 4 Dec 2002 22:06:03 -0500
-Message-Id: <200212050313.gB53DXV05743@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: David Gibson <david@gibson.dropbear.id.au>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
+	id <S267199AbSLEDLB>; Wed, 4 Dec 2002 22:11:01 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:16260 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267198AbSLEDLB>; Wed, 4 Dec 2002 22:11:01 -0500
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation 
-In-Reply-To: Message from David Gibson <david@gibson.dropbear.id.au> 
-   of "Thu, 05 Dec 2002 13:38:47 +1100." <20021205023847.GA1500@zax.zax> 
-Mime-Version: 1.0
+Subject: Re: [RFC] generic device DMA implementation
+References: <20021205004744.GB2741@zax.zax>
+	<200212050144.gB51iH105366@localhost.localdomain>
+	<20021205023847.GA1500@zax.zax>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 05 Dec 2002 12:17:55 +0900
+In-Reply-To: <20021205023847.GA1500@zax.zax>
+Message-ID: <buohedtrw64.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 04 Dec 2002 21:13:33 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-david@gibson.dropbear.id.au said:
+David Gibson <david@gibson.dropbear.id.au> writes:
+> It seems the "try to get consistent memory, but otherwise give me
+> inconsistent" is only useful on machines which:
+> 	(1) Are not fully consisent, BUT
+> 	(2) Can get consistent memory without disabling the cache, BUT
+> 	(3) Not very much of it, so you might run out.
+> 
 > The point is, there has to be an advantage to using consistent memory
-> if it is available AND the possibility of it not being available. 
+> if it is available AND the possibility of it not being available.
+...
+> Are there actually any machines with the properties described above?
 
-I'm really thinking of this from the driver writer's point of view.  The 
-advantage of consistent memory is that you don't have to think about where to 
-place all the sync points (sync points can be really subtle and nasty and an 
-absolute pain---I shudder to recall all of the problems I ran into writing a 
-driver on a fully inconsistent platform).
+As I mentioned in my previous message, one of my platforms is like that
+-- PCI consistent memory must be allocated from a special pool of
+memory, which is only 2 megabytes in size.
 
-The advantage here is that you can code the driver only to use consistent 
-memory and not bother with the sync points (whatever the cost of this is).  
-Most platforms support reasonably cheap consistent memory, so most people 
-simply don't want to bother with inconsistent memory if they can avoid it.
-
-If you do the sync points, you can specify the DMA_CONFORMANCE_NON_CONSISTENT 
-level and have the platform choose what type of memory you get.  For a 
-platform which makes memory consistent by turning off CPU caching at the page 
-level, it's probably better to return non-consistent memory if the driver can 
-cope with it.
-
-James
-
-
+-Miles
+-- 
+`Life is a boundless sea of bitterness'

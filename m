@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262912AbSJAXR6>; Tue, 1 Oct 2002 19:17:58 -0400
+	id <S262863AbSJAXWm>; Tue, 1 Oct 2002 19:22:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262279AbSJAXR6>; Tue, 1 Oct 2002 19:17:58 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28055 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262912AbSJAXRq>;
-	Tue, 1 Oct 2002 19:17:46 -0400
-Date: Wed, 2 Oct 2002 00:26:34 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.20-pre8-jam1
-Message-ID: <20021001232634.GA4566@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021001224206.GB3927@werewolf.able.es> <20021001225500.GA11744@suse.de> <20021001225635.GF3927@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001225635.GF3927@werewolf.able.es>
-User-Agent: Mutt/1.4i
+	id <S262853AbSJAXWm>; Tue, 1 Oct 2002 19:22:42 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:60682 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S262863AbSJAXWS>;
+	Tue, 1 Oct 2002 19:22:18 -0400
+Date: Wed, 2 Oct 2002 01:25:58 +0200 (CEST)
+From: venom@sns.it
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
+       Alexander Viro <viro@math.psu.edu>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+In-Reply-To: <20021001191249.GJ15537@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.43.0210020124240.16927-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 12:56:35AM +0200, J.A. Magallon wrote:
 
- > On 2002.10.02 Dave Jones wrote:
- > >On Wed, Oct 02, 2002 at 12:42:06AM +0200, J.A. Magallon wrote:
- > > > 17-cache-detection.bz2
- > > > 	Fix cache detection (trace cache) in P3s.
- > > > 	Author: Dave Jones <davej@codemonkey.org.uk>
- > >
- > >s/P3/P4/
- > >
- > ></pendantic> :-)
- > >
- > 
- > Opps, didn't code refer to Tualatins ??
+EVMS is powerfull, but actually has a so ugly command line...
+fortunatelly EVMS architecture command line could be exchanged...
 
-Same patch moved a tualatin workaround into its proper place.
-Two fixes for the price of one. For one day only. Buy now!!
 
-		Dave.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+On Tue, 1 Oct 2002, Matthias Andree wrote:
+
+> Date: Tue, 1 Oct 2002 21:12:49 +0200
+> From: Matthias Andree <matthias.andree@gmx.de>
+> To: linux-kernel@vger.kernel.org
+> Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
+>      Alexander Viro <viro@math.psu.edu>,
+>      Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+>      Linus Torvalds <torvalds@transmeta.com>
+> Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+>
+> On Tue, 01 Oct 2002, Dave Jones wrote:
+>
+> > On Tue, Oct 01, 2002 at 04:52:44PM +0200, venom@sns.it wrote:
+> >  > A Logical Volume Manager is needed on Unix servers, and so it is needed
+> >  > also on Linux.
+> >  > If this LVM is obsoleted, then when will LVM2 be merged?
+> >  > really we cannot have a 2.6 or 3.0 tree without a Volume Manager, it would
+> >  > be a big fault.
+> >
+> > No-one suggested 2.6.0 shipping without /something/, but having a dead
+> > LVM1 in _2.5_ doesn't help anyone. We've gone 6 months with it being in
+> > a broken/uncompilable state, going another month without it isn't a big
+> > deal. Getting something in before halloween is however a goal the
+> > Sistina folks should be aiming for.
+>
+> How about EVMS kernel-space merge instead?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

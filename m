@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271421AbRHZS5f>; Sun, 26 Aug 2001 14:57:35 -0400
+	id <S271466AbRHZTGz>; Sun, 26 Aug 2001 15:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271431AbRHZS5Z>; Sun, 26 Aug 2001 14:57:25 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59406 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271421AbRHZS5P>;
-	Sun, 26 Aug 2001 14:57:15 -0400
-Date: Sun, 26 Aug 2001 15:56:34 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: <pcg@goof.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010826172310Z16216-32383+1477@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0108261555340.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S271467AbRHZTGp>; Sun, 26 Aug 2001 15:06:45 -0400
+Received: from qn-212-127-164-130.quicknet.nl ([212.127.164.130]:53263 "EHLO
+	mail.loesberg.com") by vger.kernel.org with ESMTP
+	id <S271466AbRHZTGb>; Sun, 26 Aug 2001 15:06:31 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marcel Loesberg <mhll@dds.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with module esssolo1.o
+Date: Sun, 26 Aug 2001 22:00:20 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01082622002001.00938@sharkie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Daniel Phillips wrote:
-> On August 26, 2001 04:49 am, pcg@goof.com ( Marc) (A.) (Lehmann ) wrote:
+Hi,
 
-> > Anyway, I compiled and bootet into linux-2.4.8-ac9. I jused ac8 on my
-> > desktop machines and was not pleased with absolute performance but, unlike
-> > the linus' series, I can listen to mp3's while working which was the
-> > killer feature for me ;)
->
-> Yes, this probably points at a bug in linus's tree.
+I'm not a kernel developer and I have no idea where I should send this 
+request to. I hope you can forward it to the right person/list.
+Please also ask if he/she/they can "Cc:" me on the discussion because I'm not
+a member of the list.
 
-"It works, it must be a bug!"
+My problem:
 
-> > So the ac9 kernel seems to work much better (than the linus' series),
-> > although the number of connections was below the critical limit. I'll
-> > check this when I get higher loads again.
->
-> The reason for that is still unclear.
+When I try to compile and install the esssolo1.o module I get the following
+error after typing "make modules_install".
 
-I've tried to explain it to you about 10 times now.
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.8/kernel/drivers/sound/esssolo1.o
+depmod:         gameport_register_port
+depmod:         gameport_unregister_port
 
-regards,
+I tried this with kernel 2.4.8 and 2.4.9
+My system is a IBM Thinkpad 390e (the version with a Celeron CPU).
+The sound card is a ESS Solo 1 that is build into the laptop.
+The laptop/soundcard doesn't have a gameport.
+With the kernel that ships with RedHat Linux 7.1 (2.4.2-2) the soundcard does
+work.
 
-Rik
--- 
-IA64: a worthy successor to i860.
+I hope you can tell me how I can get it working with the latest kernel.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+With kind regards,
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Marcel Loesberg

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267281AbSK3Sf7>; Sat, 30 Nov 2002 13:35:59 -0500
+	id <S267284AbSK3Sml>; Sat, 30 Nov 2002 13:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267282AbSK3Sf7>; Sat, 30 Nov 2002 13:35:59 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:5037 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267281AbSK3Sf6>;
-	Sat, 30 Nov 2002 13:35:58 -0500
-Date: Sat, 30 Nov 2002 19:43:17 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: khromy <khromy@lnuxlab.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Exaggerated swap usage
-Message-ID: <20021130184317.GH28164@dualathlon.random>
-References: <20021130013832.GF15682@jerry.marcet.dyndns.org> <Pine.LNX.4.50.0211292103200.26051-100000@montezuma.mastecende.com> <3DE82A4C.B8332D8E@digeo.com> <Pine.LNX.4.50.0211292306000.2495-100000@montezuma.mastecende.com> <20021130064807.GA20277@lnuxlab.ath.cx> <20021130064910.GD15426@jerry.marcet.dyndns.org> <20021130182345.GA21410@lnuxlab.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021130182345.GA21410@lnuxlab.ath.cx>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S267285AbSK3Sml>; Sat, 30 Nov 2002 13:42:41 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:46852 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S267284AbSK3Smi> convert rfc822-to-8bit;
+	Sat, 30 Nov 2002 13:42:38 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5.50, APM] "apm -s" doesn't put TP 600 to sleep
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Sat, 30 Nov 2002 14:55:50 +0100
+Message-ID: <87ptsnrwk9.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 30, 2002 at 01:23:45PM -0500, khromy wrote:
-> On Sat, Nov 30, 2002 at 07:49:10AM +0100, Javier Marcet wrote:
-> > * khromy <khromy@lnuxlab.ath.cx> [021130 07:33]:
-> > 
-> > >BTW, I'm running 2.4.20-rc4-ac1+preempt and it seems to run good but
-> > >whenever I leave for a few hours or wake up in the morning mozilla is
-> > >swaped out.. Any idea when/how this might be fixed?
-> > 
-> > I have the problem without leaving it a few hours, but when I do it gets
-> > definitely worse. Last vmstat output I quoted here showed around 256MB
-> > swapped. A few hours later - the computer had been sitting idle, only
-> > the mail server for three users was running which poses no overhead at
-> > all -, the entire 512MB SWAP space was used. Why, I don't know.
-> > 
-> > I'm about to try 2.4.20-jam0, -aa derived. I'll post results from that
-> > kernel later.
-> 
-> aa runs beautifully but it locked up once on me..
 
-send me SYSRQ+T SYSRQ+P and everything else you know about it. if you
-have AGP enabled try to reproduce with 10_x86-fast-pte-2 backed out.
-thanks,
+I use a Thinkpad 600 here, 2.4 APM works quite well.  With 2.5.50 I
+get when running "apm -s":
 
-Andrea
+Nov 30 15:51:44 gswi1164 bad: scheduling while atomic!
+Nov 30 15:51:44 gswi1164 kernel: Call Trace: [schedule+61/712]
+[schedule_timeout+132/164]  [process_timeout+0/12]  [<c6abefa1>]
+[<c6abf33b>]  [<c6ac1287>]  [<c6ab0f4c>]  [start_request+154/344]
+[start_request+249/344]  [ide_do_request+724/820]  [schedule+616/712]
+[journal_cancel_revoke+243/364]  [ext3_get_block_handle+182/776]
+[journal_cancel_revoke+243/364]  [journal_cancel_revoke+243/364]
+[journal_cancel_revoke+243/364]  [do_get_write_access+1272/1308]
+[journal_dirty_metadata+423/472]  [ext3_free_inode+835/968]
+[ext3_free_inode+922/968]  [__wake_up+32/64]  [journal_stop+596/612]
+[ext3_delete_inode+0/404]  [ext3_destroy_inode+19/24]
+[destroy_inode+61/84]  [generic_delete_inode+194/200]
+[generic_drop_inode+16/32]  [iput+102/108]  [d_delete+106/192]
+[dput+25/340]  [sys_unlink+224/288]  [capable+27/60]
+[sys_ioctl+541/628]  [syscall_call+7/11]
+Nov 30 15:51:44 gswi1164 kernel: drivers/usb/core/hcd-pci.c: suspend 00:07.2 to state 3
+Nov 30 15:51:44 gswi1164 kernel: atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+Nov 30 15:51:44 gswi1164 kernel: apm: suspend: Unable to enter requested state
+Nov 30 15:51:44 gswi1164 kernel: drivers/usb/core/hcd-pci.c: resume 00:07.2
+
+Jochen
+
+-- 
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

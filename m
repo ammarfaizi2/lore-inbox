@@ -1,97 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275956AbSIVA4E>; Sat, 21 Sep 2002 20:56:04 -0400
+	id <S275990AbSIVBNH>; Sat, 21 Sep 2002 21:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275990AbSIVA4E>; Sat, 21 Sep 2002 20:56:04 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46857
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S275956AbSIVA4D>; Sat, 21 Sep 2002 20:56:03 -0400
-Date: Sat, 21 Sep 2002 17:57:17 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Greg KH <greg@kroah.com>
-cc: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org,
-       hardeneddrivers-discuss@lists.sourceforge.net
-Subject: Re: my review of the Device Driver Hardening Design Spec
-In-Reply-To: <20020921224235.GA28936@kroah.com>
-Message-ID: <Pine.LNX.4.10.10209211754000.25090-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275993AbSIVBNH>; Sat, 21 Sep 2002 21:13:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55053 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275990AbSIVBNG>; Sat, 21 Sep 2002 21:13:06 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+Date: Sun, 22 Sep 2002 01:21:06 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <amj5u2$20t$1@penguin.transmeta.com>
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <20020920231112.GC24813@kroah.com> <3D8BDF9A.305@pacbell.net> <20020921033137.GA26017@kroah.com>
+X-Trace: palladium.transmeta.com 1032657488 3976 127.0.0.1 (22 Sep 2002 01:18:08 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 22 Sep 2002 01:18:08 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20020921033137.GA26017@kroah.com>, Greg KH  <greg@kroah.com> wrote:
+>On Fri, Sep 20, 2002 at 07:55:22PM -0700, David Brownell wrote:
+>> 
+>> How about a facility to create the character (or block?) special file
+>> node right there in the driverfs directory?  Optional of course.
+>
+>No, Linus has stated that this is not ok to do.  See the lkml archives
+>for the whole discussion about this.
 
+I'm not totally against it, it's just that it has some issues:
 
-#ifndef __MYDRVR_H__
-#define __MYDRVR_H__
+ - naming policy in general. Trivially handled by just always calling
+   the special node something truly boring and nautral like "node", and
+   be done with it. The _path_ is the real name, the "node" would be
+   just an openable entity.
 
-#define MYDRVR_IOCTL_MAGIC 'm'
+ - the issue of persistent permissions and ownership. 
 
-#define MYDRVR_IOCTL_RCV    _IO(MYDRVR_IOCTL_MAGIC, 0)
+The latter is the real problem.  And I personally think the only sane
+policy is to just let "/sbin/hotplug" handle it, which definitely
+implies _not_ having the kernel create the real device node. That way
+user-space can have any policy it damn well pleases, including having
+some default heuristics along with "a priori known nodes".
 
-typedef struct _MYDRVR_CONTEXT {
+But clearly that user-space hotplug entity needs to know major and minor
+numbers in order to create the real device node, and that's where the
+"node" thing may be acceptable - as a template, nothing more.  Although
+I suspect that there are other, simpler and more acceptable templates
+(ie export the dang thing as just a "node" text-file, which describes
+the majors and minors and "char vs block" issues)
 
-   unsigned long cRCV;  /* number of RCV ioctls made */
-   unsigned long cDeviceOpen; /* device open count */
-
-} MYDRVR_CONTEXT, *PMYDRVR_CONTEXT;
-
-#define ZEROMEMORY(pAddr, cbSize)               \
-{                                               \
-    int i;                                      \
-    char *d = (char *)(pAddr);                  \
-    for ( i = 0; i < (cbSize); i++, *d++ = 0 ); \
-}
-
-#endif /* __MYDRVR_H__ */
-
-SHEESH, COULD THEY LEARN THERE IS MORE TO LIFE THAN ALL CAPS??
-
-Sweet, that is "stick ugly"!
-
-stick ugly : beating with a stick and it can not made any uglier than it
-		is presently.
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sat, 21 Sep 2002, Greg KH wrote:
-
-> On Sat, Sep 21, 2002 at 11:52:19PM +0200, Francois Romieu wrote:
-> > [Cc list trimmed]
-> > 
-> > Greg KH <greg@kroah.com> :
-> > [...]
-> > > Oh, there's lots of code:
-> > > 	A "hardened" binary kernel driver:
-> > > 		http://unc.dl.sourceforge.net/sourceforge/hardeneddrivers/sampledriver-0.1-1.i386.rpm
-> > > 	(um people, why a binary?  Where's the source for this?)
-> > 
-> > In the cvs. See:
-> > http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/hardeneddrivers/sample_driver/src/
-> 
-> Thanks for pointing this out, I missed it.
-> 
-> Hm, if this is the code that the CG group is proposing for reliable
-> drivers, we are all in trouble.  See:
-> 	http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/hardeneddrivers/sample_driver/src/sampledriver.h?rev=1.1.1.1
-> 
-> as a very small example of what not to do :)
-> 
-> I'd be glad to provide concrete criticism of the other files in this
-> directory, if I thought people would actually change their programming
-> style to follow what their own spec says to do...
-> 
-> {sigh}
-> 
-> http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/hardeneddrivers/sample_driver/src/sampledriver_init.c?rev=1.1.1.1
-> contains so many examples of bad style, and real bugs...
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+		Linus

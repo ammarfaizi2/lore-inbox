@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262022AbREYXT6>; Fri, 25 May 2001 19:19:58 -0400
+	id <S262020AbREYXQ2>; Fri, 25 May 2001 19:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262027AbREYXTs>; Fri, 25 May 2001 19:19:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53771 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262022AbREYXTn>; Fri, 25 May 2001 19:19:43 -0400
-Date: Fri, 25 May 2001 20:19:39 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+	id <S262022AbREYXQS>; Fri, 25 May 2001 19:16:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5892 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262020AbREYXQK>; Fri, 25 May 2001 19:16:10 -0400
 Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
-In-Reply-To: <E153Qld-0007Df-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105252018310.10469-100000@duckman.distro.conectiva>
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Sat, 26 May 2001 00:13:13 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105251919480.10469-100000@duckman.distro.conectiva> from "Rik van Riel" at May 25, 2001 07:20:20 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E153Qld-0007Df-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Alan Cox wrote:
+> On Fri, 25 May 2001, Linus Torvalds wrote:
+> > On Fri, 25 May 2001, Rik van Riel wrote:
+> > >
+> > > OK, shoot me.  Here it is again, this time _with_ patch...
+> >
+> > I'm not going to apply this as long as it plays experimental games with
+> > "shrink_icache()" and friends. I haven't seen anybody comment on the
+> > performance on this,
+> 
+> Yeah, I guess the way Linux 2.2 balances things is way too
+> experimental ;)
 
-> But Linus is right I think - VM changes often prove
-> 'interesting'. Test it in -ac , gets some figures for real world
-> use then plan further
+Compared to the 2.0 performance - yes. 2.0 is faster than 2.2 is twice the
+speed of 2.4 starting X and the session apps on my MediaGX box with 64Mb
 
-Oh well. As long as he takes the patch to page_alloc.c, otherwise
-everybody _will_ have to "experiment" with the -ac kernels just
-to have a system with highmem which doesn't deadlock ;)
+But Linus is right I think - VM changes often prove 'interesting'. Test it in
+-ac , gets some figures for real world use then plan further
 
-cheers,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

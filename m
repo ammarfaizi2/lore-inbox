@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVCOOpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVCOOrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVCOOpF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 09:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVCOOpF
+	id S261297AbVCOOrg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 09:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCOOrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 09:45:05 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59877 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261286AbVCOOom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 09:44:42 -0500
-Date: Tue, 15 Mar 2005 15:44:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@cpushare.com>
-Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
-Message-ID: <20050315144428.GA13318@elte.hu>
-References: <20050224224134.GE20715@opteron.random> <20050225211453.GC3311@stusta.de> <20050226013137.GO20715@opteron.random> <20050301003247.GY4021@stusta.de> <20050301004449.GV8880@opteron.random> <20050303145147.GX4608@stusta.de> <20050303135556.5fae2317.akpm@osdl.org> <20050315100903.GA32198@elte.hu> <20050315112712.GA3497@elte.hu> <20050315130046.GK7699@opteron.random>
+	Tue, 15 Mar 2005 09:47:35 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44815 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261297AbVCOOrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 09:47:17 -0500
+Date: Tue, 15 Mar 2005 15:47:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/ipv6/ndisc.c: make a function static
+Message-ID: <20050315144712.GM3189@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050315130046.GK7699@opteron.random>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch makes a needlessly global function static.
 
-* Andrea Arcangeli <andrea@cpushare.com> wrote:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> > technical comment: seccomp goes outside the audit/selinux framework,
-> > which i believe is a bug. Andrea?
-> 
-> I intentionally left it out of audit/selinux. To the less dependencies
-> it has on other parts of the kernel and the simpler it is, the better
-> IMHO. Seccomp should be fixed in stone, people shouldn't go hack on it
-> every day.
+--- linux-2.6.11-mm3-full/net/ipv6/ndisc.c.old	2005-03-15 13:33:29.000000000 +0100
++++ linux-2.6.11-mm3-full/net/ipv6/ndisc.c	2005-03-15 13:34:03.000000000 +0100
+@@ -1594,10 +1594,11 @@
+ 	return ret;
+ }
+ 
+-int ndisc_ifinfo_sysctl_strategy(ctl_table *ctl, int __user *name, int nlen,
+-				 void __user *oldval, size_t __user *oldlenp,
+-				 void __user *newval, size_t newlen,
+-				 void **context)
++static int ndisc_ifinfo_sysctl_strategy(ctl_table *ctl, int __user *name,
++					int nlen, void __user *oldval,
++					size_t __user *oldlenp,
++					void __user *newval, size_t newlen,
++					void **context)
+ {
+ 	struct net_device *dev = ctl->extra1;
+ 	struct inet6_dev *idev;
 
-let me put it another way: this is a security hole. seccomp is now a way
-to evade the auditing of read/write syscalls done to an opened file. 
-Please fix this.
-
-	Ingo

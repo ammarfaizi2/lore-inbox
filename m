@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262444AbSJESfv>; Sat, 5 Oct 2002 14:35:51 -0400
+	id <S262445AbSJESga>; Sat, 5 Oct 2002 14:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262445AbSJESfv>; Sat, 5 Oct 2002 14:35:51 -0400
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:64133 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S262444AbSJESfu> convert rfc822-to-8bit; Sat, 5 Oct 2002 14:35:50 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.40 (BK of today) vmstat SIGSEGV after reading /proc/stat
-Date: Sat, 5 Oct 2002 20:41:18 +0200
-User-Agent: KMail/1.4.7
-Cc: Robert Love <rml@tech9.net>, Patrick Mau <Patrick.Mau@t-online.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	id <S262447AbSJESg3>; Sat, 5 Oct 2002 14:36:29 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:18438 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S262445AbSJESg1>;
+	Sat, 5 Oct 2002 14:36:27 -0400
+Date: Sat, 5 Oct 2002 20:41:53 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+Message-ID: <20021005184153.GJ17492@marowsky-bree.de>
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200210052041.18854.Dieter.Nuetzel@hamburg.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021005112552.A9032@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 5. Oktober 2002 17:59 schrieb Robert Love:
-> On Sat, 2002-10-05 at 13:12, Patrick Mau wrote:
->
-> > The BK tree of today changed the data returned in /proc/stat.
-> > A 'vmstat -n 10' immediatly segfaults after reading ...
-> >
-> > open("/proc/stat", O_RDONLY)            = 6
-> > read(6, "cpu  404408 506514 8240 154301 1"..., 4095) = 714
-> > close(6)                                = 0
-> > --- SIGSEGV (Segmentation fault) ---
-> > +++ killed by SIGSEGV +++
->
-> The format changed, on purpose.  You need vmstat from a newer version of
-> procps.  The newest version (2.0.9) and CVS dumps as-of yesterday are
-> available at:
->
->        http://tech9.net/rml/procps
->
-> as both tarballs and RPM packages.
+On 2002-10-05T11:25:52,
+   Larry McVoy <lm@bitmover.com> said:
 
-2.5.40/2.5.40-mcp1 gave me same.
-"top" showed only one CPU.
+> > I've also been wanting to use bitkeeper to create a Subversion mirror of
+> > the kernel repository, but I suspect that my usage falls seriously into
+> > this category, as my reasons for doing so are three-fold; allow access
+> > to the bkbits repo to folks who don't want to use bk, but with all the
+> > joys of an SCM (history, changesets, etc.);
 
-Solution:
+Larry, could you please explain whether _this_ part is fine doing (even if not
+by a subversion developer as per your license). Then someone (who wasn't
+involved in building the gateway) can run it and not break your license.
 
-Get 2.5.40-ac3. Alan "fixed" that.
+I'd suggest that you need to have an interoperability clause for Open Source
+software. Otherwise using BK for kernel development suddenly seems like a very
+bad idea, because the community has suddenly been locked out of developing a
+free SCM (ie, working on CVS, Subversion etc); he couldn't be an effective
+kernel developer today (ie, using BK) and also continue working on the other
+open source project...
+
+You know I am rather fond of BK and your goals in general, but that would just
+suck.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
+Principal Squirrel
+Research and Development, SuSE Linux AG
+ 
+``Immortality is an adequate definition of high availability for me.''
+	--- Gregory F. Pfister
 

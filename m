@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbTARV0H>; Sat, 18 Jan 2003 16:26:07 -0500
+	id <S265093AbTARVgg>; Sat, 18 Jan 2003 16:36:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbTARV0H>; Sat, 18 Jan 2003 16:26:07 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:56719 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265092AbTARV0G>; Sat, 18 Jan 2003 16:26:06 -0500
-Date: Sat, 18 Jan 2003 13:34:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Theurer <habanero@us.ibm.com>
-cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Lse-tech] NUMA sched -> pooling scheduler (inc HT)
-Message-ID: <559200000.1042925659@titus>
-In-Reply-To: <550960000.1042923260@titus>
-References: <Pine.LNX.4.44.0301171607510.10244-100000@localhost.localdomain> <270920000.1042822723@titus> <550960000.1042923260@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265096AbTARVgg>; Sat, 18 Jan 2003 16:36:36 -0500
+Received: from packet.digeo.com ([12.110.80.53]:46739 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265093AbTARVgf>;
+	Sat, 18 Jan 2003 16:36:35 -0500
+Date: Sat, 18 Jan 2003 13:47:01 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [BENCHMARK] 2.5.59{-mm2} with contest
+Message-Id: <20030118134701.555c9728.akpm@digeo.com>
+In-Reply-To: <200301190051.13781.conman@kolivas.net>
+References: <200301190051.13781.conman@kolivas.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 18 Jan 2003 21:45:30.0257 (UTC) FILETIME=[EBA9B010:01C2BF3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mmm... seems I may have got the ordering of the cpus wrong.
-Something like this might work better in sched_topo_ht.h
-(yeah, it's ugly. I don't care).
+Con Kolivas <conman@kolivas.net> wrote:
+>
+> io_load:
+> Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
+> 2.5.58          3       136     58.8    6       12.4    1.84
+> 2.5.58-mm1      3       138     55.8    7       13.0    1.86
+> 2.5.59          4       113     68.1    4       9.7     1.53
+> 2.5.59-mm2      3       563     12.8    38      17.4    7.61
 
-static inline int pool_to_cpu_mask (int pool)
-{
-	return ( (1UL << pool) || (1UL << cpu_sibling_map[pool]));
-}
+I don't see such gross variations here, and there's nothing between -mm1 and
+-mm2 which could cause this.  (BTW: what idiot broke diffstat as distributed
+in rh8.0?  It fails to understand interdiff output, which is quite
+legitimately formatted).
 
-static inline cpu_to_pool (int cpu)
-{
-	return min(cpu, cpu_sibling_map[cpu]);
-}
+However there are some interesting snippets.  Elapsed time for io_load:
 
-Thanks to Andi, Zwane, and Bill for the corrective baseball bat strike.
-I changed the macros to inlines to avoid the risk of double eval.
+2.5.59: 					182,183,180
+2.5.59 + deadline-np-42:			198,114,106,112,183,140
+2.5.59 + deadline-np-42 + deadline-np-43:	224,224
+2.5.59-mm2:					212,239
 
-M.
+So it looks like deadline-np-42.patch lessens starvation of reads by writes,
+and deadline-np-43.patch considerably worsens it.
+
+But this is all just fiddling around.  Nick is working on an implementation
+of anticipatory scheduling, which is a whole new ball game.  The pressure is
+on ;)
+
 

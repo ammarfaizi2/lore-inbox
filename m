@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264594AbTKNVE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTKNVE0
+	id S264377AbTKNVTT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbTKNVTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:04:26 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:34690
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264594AbTKNVEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:04:24 -0500
-Date: Fri, 14 Nov 2003 16:01:38 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Jens Gecius <jens@gecius.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hardlock oops on 2.6.0-test3 smp
-In-Reply-To: <87n0azj8ti.fsf@maniac.gecius.de>
-Message-ID: <Pine.LNX.4.53.0311141559320.27998@montezuma.fsmlabs.com>
-References: <87n0azj8ti.fsf@maniac.gecius.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Nov 2003 16:19:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3721 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264377AbTKNVTR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:19:17 -0500
+Date: Fri, 14 Nov 2003 21:19:13 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: Harald Welte <laforge@netfilter.org>, linux-kernel@vger.kernel.org
+Subject: Re: seq_file API strangeness
+Message-ID: <20031114211912.GL24159@parcelfarce.linux.theplanet.co.uk>
+References: <20031114202327.GK24159@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0311142048520.849-100000@einstein.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311142048520.849-100000@einstein.homenet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003, Jens Gecius wrote:
-
-> Hi!
+On Fri, Nov 14, 2003 at 08:55:48PM +0000, Tigran Aivazian wrote:
+> In the ->open() method I allocate a seq->private like this:
 > 
-> Just came back from vacation and found this nasty screen:
+>   err = seq_open(file, sop);
+>   if (!err) {
+> 	struct seq_file *m = file->private_data;
 > 
-> Oops 0002 [<#1>]
-> CPU: 1
-> EIP: 0060:[<c91386f3>] Not tainted
-> EFLAGS: 00010082
-> EIP is at detach_pid+0x23/0x110
-> eax: 6b6b6b6b  ebx: 6b6b6b6b  ecx: d379ba20  edx: d379b970
-> esi: 6b6b6b6b  edi: 00100100  ebp: 00000000  esp: f5641ef8
-> ds: 007b  es: 007b  ss: 0668
-> Process tcplogd (pid: 1712, threadinfo=f5640000 task=f7606670)
-> Stack: d379b920 d379b920 f5640000 d379bf1c c012641c d379b920 c0126522 d379b920
->        d379b9c4 d379b920 bfffd28c 00000000 0000674b c01285db d379b920 f4be6774
->        00000000 c026af61 d379b920 d379b920 f7606670 d379b9c4 f760670c c0128acd
-> Call Trace: [<c01264c1>] __unhash_process+0x5c/0xb0
->             [<c0126522>] release_task+0xb2/0x250
->             [<c01285db>] wait_task_zombie+0x1ab/0x230
->             [<c026af61>] selinux_task_wait+0x41/0x50
->             [<c0128acd>] sys_wait4+0x24d/0x260
->             [<c011fd40>] default_wake_funktion+0x0/0x30
->             [<c011fd40>] default_wake_funktion+0x0/0x30
->             [<c010b4cb>] syscall_call+0x7/0xb
-> Code: 89 58 04 89 03 c7 41 04 00 03 30 00 89 ba b0 00 00 00 f0 ff
+> 	m->private = kmalloc(sizeof(struct ctask), GFP_KERNEL);
+>         if (!m->private) {
+>                         kfree(file->private_data);
+>                         return -ENOMEM;
+>         }
+>   }
+> 
+> Now, freeing the structure that I did not allocate (file->private_data 
+> allocated in seq_open()) is not nice. But calling seq_release() from 
+> ->open() method is not nice either (different arguments, namely 'inode'
 
-This has been fixed, try running -test9
+I beg your pardon?  What different arguments?
 
-Thanks
+->open() gets struct inode * and struct file *
+->release() gets exactly the same.
+seq_release() is what you use as ->release()
 
+What's the problem?
+
+> and also m->buf is NULL at that point, although I believe kfree(NULL) is 
+> not illegal).
+
+Of course it is not illegal.  Moreover, if you just do open() immediately
+followed by close(), you won't get non-NULL ->buf at all.  It's a perfectly
+normal situation and seq_release() can handle it - no problems with that.
+
+> What do you think?
+
+	if (!m->private) {
+		seq_release(inode, file);
+		return -ENOMEM;
+	}
+
+Same as e.g. fs/proc/base.c does in similar situation (see mounts_open()).

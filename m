@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271335AbTHRJPd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 05:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271341AbTHRJPd
+	id S271341AbTHRJ3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 05:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271343AbTHRJ3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 05:15:33 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:37569 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S271335AbTHRJPc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 05:15:32 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "David D. Hagood" <wowbagger@sktc.net>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
-Date: Mon, 18 Aug 2003 02:15:29 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEBAFDAA.davids@webmaster.com>
+	Mon, 18 Aug 2003 05:29:12 -0400
+Received: from mid-1.inet.it ([213.92.5.18]:64978 "EHLO mid-1.inet.it")
+	by vger.kernel.org with ESMTP id S271341AbTHRJ3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 05:29:09 -0400
+From: Paolo Ornati <javaman@katamail.com>
+Subject: [OT] Documentation for PC Architecture
+Date: Mon, 18 Aug 2003 11:27:43 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
+Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F3EB8FA.1080605@sktc.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Message-Id: <200308181127.43093.javaman@katamail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+(sorry for the OT but I think here someone will relpy :-)
 
-> Valdis.Kletnieks@vt.edu wrote:
+Problem: I'm interested on PC architecture and looking for documentation I've 
+found al lot of good doc for the CPU (Intel manuals...) but about the basic 
+hardware that surround it I've found only a lot of "pieces of a puzzle"!
 
-> > Consider this code:
-> >
-> > 	char *foo = 0;
-> > 	sigset(SIGSEGV,SIG_IGNORE);
-> > 	for(;;) { *foo = '\5'; }
-> >
-> > Your logfiles just got DoS'ed....
+IOW: there is an (un)official document spoking about general PC architecture?
 
-> Why not then just log uncaught exceptions?
+In this document I want to find some basic things about PC hardware and 
+especially about these themes (from the logical point of view):
 
-	Because deliberately creating an uncaught exception is a perfectly sane,
-reasonable thing to do with well-defined semantics. Applications should feel
-free to do such reasonable things without getting complaints from the system
-administrator that their log is being flooded with garbage.
+1) communication between CPU, memory, I/O devices:
+Example:
+If I write byte 'A' to physical address 0xb8000 how does this go to video 
+memory instead of RAM?
+I know about memory mapped I/O but I don't know who "decides" WHAT must go 
+WHERE.
+Since the CPU can't know if it's writing to memory or some memory mapped I/O 
+device I suppose that is the "BUS CONTROLLER" (PCI BRIDGE in case of a PCI 
+BUS) to write the byte 'A' to the right device.
+But how does the "BUS CONTROLLER" do this association?
+For now I think in this simple way:
+- all the devices are on the BUS and anyone has his own memory mapped I/O 
+addresses;
+- if no devices own the address that the CPU ask for the request go to real 
+memory.
 
-	There is no mechanism that is guaranteed to terminate a process other than
-sending yourself an exception that is not caught. So in cases where you must
-guarantee that your process terminates, it is perfectly reasonable to send
-yourself a SIGILL.
+Curiosity: since the memory addresses from 640KB to 1MB are reserved for 
+memory mapped I/O (video memory) and BIOS ROM... the corrispondent range in 
+the REAL MEMORY isn't usable and so we lost 384KB of memory. Is this right?
 
-	FreeBSD logs any number of normal things that sane, reasonable processes do
-and it's very annoying. A very annoying example is FreeBSD's desire to log
-calls to 'wait' functions with 'SIGCHLD' ignored. How else can portable
-programs say, "I want you to automatically reap my zombies if you can, but
-otherwise, I'll reap them if needed by calling waitpid(WNOHANG) every once
-in a while".
+And what about the I/O address space (IN, OUT x86 instructions)?
+I know this is a separate address space but...
+- how are the addresses assigned? In a static way?
+- for these instructions the CPU uses the same address (and data) lines that 
+when it try to acces to memory, how does this work?
 
-	DS
+2) Compatibilty issues:
+for example something about A20 line... is it possible that I found 
+information about this only in unofficial docs?
+I didn't know about it before. A day I've found on a web page something like 
+"enabling A20 line" and I've said: "A20 line? What is it?" ;-)
 
+...
+
+Must I search info for any "piece of the puzzle"? This is OK for me but I want 
+to know AT LEAST which are the pieces!
+
+
+Bye,
+	Paolo
 

@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTF2UTR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTF2UTQ
+	id S262499AbTF2UUk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTF2UUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:19:16 -0400
-Received: from smtp-out.comcast.net ([24.153.64.116]:42598 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S264869AbTF2UTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:19:09 -0400
-Date: Sun, 29 Jun 2003 16:31:48 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: File System conversion -- ideas
-In-reply-to: <20030629200239.GI27348@parcelfarce.linux.theplanet.co.uk>
-To: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Message-id: <200306291631480200.023DA0C0@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
- <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
- <200306291445470220.01DC8D9F@smtp.comcast.net> <3EFF3FFA.60806@post.pl>
- <20030629194423.GE26258@mail.jlokier.co.uk>
- <20030629200239.GI27348@parcelfarce.linux.theplanet.co.uk>
+	Sun, 29 Jun 2003 16:20:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31749 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262499AbTF2UUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:20:34 -0400
+Date: Sun, 29 Jun 2003 21:34:50 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@redhat.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org
+Subject: Re: [PATCH] Fix mtdblock / mtdpart / mtdconcat
+Message-ID: <20030629213450.B5653@flint.arm.linux.org.uk>
+Mail-Followup-To: David Woodhouse <dwmw2@redhat.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-mtd@lists.infradead.org
+References: <20030623010031.E16537@flint.arm.linux.org.uk> <1056544988.24294.9.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1056544988.24294.9.camel@passion.cambridge.redhat.com>; from dwmw2@redhat.com on Wed, Jun 25, 2003 at 01:43:09PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 25, 2003 at 01:43:09PM +0100, David Woodhouse wrote:
+> On Mon, 2003-06-23 at 01:00, Russell King wrote:
+> > Dirtily disable ECC support; it doesn't work when mtdpart is layered
+> > on top of mtdconcat on top of CFI flash.
+> > 
+> > There is probably a better fix, but that's for someone else to find.
+> 
+> I had to run 'indent' on mtdconcat.c before I could stand to even look
+> for it, so I haven't attached the patch here -- but could you try v1.6
+> from CVS, which should refrain from pretending to have ecc/oob access
+> functions of none of the subdevices have them, and hence fix the problem
+> you observed.
 
+While looking over the changes between 1.5 and 1.6, I spotted this.  You
+may want to fix this change:
 
-*********** REPLY SEPARATOR  ***********
+-                   concat->mtd.eccsize != subdev[i]->eccsize) {
++                   concat->mtd.eccsize != subdev[i]->eccsize ||
++                   !concat->mtd.read_ecc != !concat->mtd.read_ecc ||
++                   !concat->mtd.write_ecc != !concat->mtd.write_ecc ||
++                   !concat->mtd.read_oob != !concat->mtd.read_oob ||
++                   !concat->mtd.write_oob != !concat->mtd.write_oob) {
 
-On 6/29/2003 at 9:02 PM viro@parcelfarce.linux.theplanet.co.uk wrote:
-
->On Sun, Jun 29, 2003 at 08:44:23PM +0100, Jamie Lokier wrote:
->> Leonard Milcin Jr. wrote:
->> > >Nrrrg.  Yeah, I've got 80 gig and only CDR's to back up to, and no
->money.
->> > >A CDR may read for me the day it's written, and then not work the next
->> > >day.  Still a risk.
->> >
->> > Say, why you would want to change filesystem type?
->>
->> I'd like to try reiser4 when it is available because I heard from Hans
->> that it is faster...
->>
->> Isn't that a good reason?
->
->Not really.  Never, ever, try a new code on live system.  Put together
->a test box and/or test disk.  Regardless of nature of code in question -
->if you want to test something, go for a dedicated test setup.
-
-Umm, reiser4 isn't going to be released as stable until it's well tested.
-I heard months ago that initial betas were out--BETAs, as in IT'S DONE--
-and stability was predicted by June.  If the code has been thoroughly
-tested, then it satisfies this basic security principle, and thus he just
-wants to try it out to see how it works.
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

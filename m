@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269800AbUJVHds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269799AbUJVHdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269800AbUJVHds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 03:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbUJVHcs
+	id S269799AbUJVHdr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 03:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269839AbUJVHc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 03:32:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:30391 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S269839AbUJSQsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:48:04 -0400
-Date: Tue, 19 Oct 2004 18:55:59 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: ebiederm@xmission.com
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Fri, 22 Oct 2004 03:32:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61838 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269799AbUJSQtL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:49:11 -0400
+Date: Tue, 19 Oct 2004 17:49:10 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: John Cherry <cherry@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9...
-In-Reply-To: <m13c0bto1o.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.61.0410191852420.2932@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
- <m13c0bto1o.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Linux v2.6.9... (compile stats)
+Message-ID: <20041019164910.GJ23987@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019161834.GA23821@one-eyed-alien.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Oct 2004 ebiederm@xmission.com wrote:
-
-> Linus Torvalds <torvalds@osdl.org> writes:
+On Tue, Oct 19, 2004 at 09:18:34AM -0700, Matthew Dharm wrote:
+> These are x86-based stats, yes?  I'm sure other arches will likely tease
+> out more...
 > 
-> > Ok,
-> >  despite some naming confusion (expanation: I'm a retard), I did end up
-> > doing the 2.6.9 release today. And it wasn't the same as the "-final" test
-> > release (see explanation above).
-> > 
-> > Excuses aside, not a lot of changes since -rc4 (which was the last
-> > announced test-kernel), mainly some UML updates that don't affect anybody
-> > else. And a number of one-liners or compiler fixes. Full list appended.
+> A lot of these seem to be related to readl/writel (readb/writeb, etc).
+> Those should be straightforward one-line changes, I think... perhaps a job
+> for more automated scripting?
 > 
-> The ChangeLog-2.6.9 only list changes from v2.6.9-rc4 and not 2.6.8
-> 
-> ChangeLogs that don't cover the same set of changes their corresponding
-> patches cover just don't seem right somehow.
-> 
-I agree, that was bugging me as well. Having the full ChangeLog to the 
-previous version in kernel.org/pub/linux/kernel/v2.6/ is useful, having 
-only a partial log is less so.
-Could we please get the complete 2.6.8 -> 2.6.9 ChangeLog there?
+> At the very least, it would be nice to post-process the data to show which
+> modules are the offenders (and by how much).
 
+Note that quite a few of them are already fixed, and no, not all fixes
+had been trivial (read: there had been real bugs found by these warnings).
 
---
-Jesper Juhl
-
+I'm going to do 2.6.9-bird1 once netdev situation settles down (a bunch of
+patches from -bird are getting merged into bk-net).

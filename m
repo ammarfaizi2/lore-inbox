@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268892AbRG0QuT>; Fri, 27 Jul 2001 12:50:19 -0400
+	id <S268891AbRG0Qu3>; Fri, 27 Jul 2001 12:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268893AbRG0QuB>; Fri, 27 Jul 2001 12:50:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45065 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268891AbRG0Qts>; Fri, 27 Jul 2001 12:49:48 -0400
-Subject: Re: ext3-2.4-0.9.4
-To: leg+@andrew.cmu.edu (Lawrence Greenfield)
-Date: Fri, 27 Jul 2001 17:50:29 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Lawrence Greenfield" at Jul 27, 2001 12:24:56 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268894AbRG0QuN>; Fri, 27 Jul 2001 12:50:13 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:37391 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268892AbRG0Qt5>; Fri, 27 Jul 2001 12:49:57 -0400
+Message-ID: <3B619B7E.379636F2@namesys.com>
+Date: Fri, 27 Jul 2001 20:49:02 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+Subject: Early Flush
+In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107271706460G.00285@starship> <3B6189E2.77F072DD@namesys.com> <0107271830220J.00285@starship>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15QAon-00061p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> This sort of attitude is just ridiculous.  Unix had a defined set of
-> semantics.  This might have been stupid semantics, but it had them.
+Daniel Phillips wrote:
+> 
+> On Friday 27 July 2001 17:33, Hans Reiser wrote:
+> > Daniel Phillips wrote:
+> > > On Friday 27 July 2001 16:18, Joshua Schmidlkofer wrote:
+> > > > I've almost quit using reiser, because everytime I have a power
+> > > > outage, the last 2 or three files that I've editted, even ones
+> > > > that I haven't touched in a while, will usually be hopelessly
+> > > > corrupted.
+> > >
+> > > My early flush patch will fix this, or at least it will if I get
+> > > together with the ReiserFS guys and figure out how to integrate
+> > > their flushing mechanism with the standard bdflush.  Or they could
+> > > incorporate the ideas from my early flush in their own flush
+> > > daemon, though generalizing the standard flush would have more
+> > > value in the long run.
+> >
+> > Can you describe early flush?
+> 
+> The idea is to do what amounts to a sync within a tenth of a second of
+> disk bandwidth usage falling below a certain threshhold.
+> 
+> The original posts/patches are here:
+> 
+>     [RFC] Early flush (was: spindown)
+>     [RFC] Early flush: new, improved (updated)
+> 
+> and there are long threads attached to each of them.  The clearest
+> explanation is probably Jonathan Corbet's writeup on lwn:
+> 
+>    http://lwn.net/2001/0628/kernel.php3
+> 
+> (Thanks, Jonathan, I often get the feeling I understand what I actually
+> did only *after* reading your writeups:-)
+> 
+> The second of the two patches needs more work - I think I goofed on
+> some needed "volatile" handling, see the current flam^H^H^H^H thread
+> about that.
+> 
+> --
+> Daniel
+Daniel, what you have done is something that I have wanted and believed in for a long time.
 
-The unix defined semantics are very simple and very clear. They btw
-dont contain the guarantees that certain email system authors think they do
-and they never have.
+Spell out what you need from us and we will support you.
 
-rename() itself is new as of 4BSD, rather than ever being in true unix.
-True unix did the right thing. It said 'this problem is hard, this problem
-is application specific, do it at application level'.
-
-> When I contacted the Linux JFS team about the semantics of link(), I
-> was told that there is _no way_ of forcing a link() to disk.  Not an
-> fsync() on the file, not an fsync() on the directory, just _not
-> possible_.
-
-I would expect an fsync of the directory to do that. It does on other
-Linux file systems so it violates the least suprise bit. Right now JFS
-isnt a standard file system on Linux however, and they have much left to do.
-I suspect its something to ask them about.
-
-> Thus why all reasonably paranoid MTAs and other mail programs say "use
-> chattr +S on ext2"---we need ordered metadata writes.
-
-And then your IDE disk gets you anyway. Also if you write metadata first 
-then you risk delivering email to the wrong person instead. 
-
-> You want to help performance?  Give us an fsync() that works on
-> multiple file descriptors at once, or an async fsync() call.  Don't
-> make us fight the OS on getting data to disk.
-
-And what pray does an asynchronous fsync do. It seems to be a nop to me.
-
-Doing reliabile transactions on disk is a hard problem. That is why oracle
-and friends have spent many man years of research on this kind of problem. 
-Current unix mailers do the smoke mirrors and prayer bit to reduce the
-probability a little that is all, regardless of fs and os.
-
-Alan
+Hans

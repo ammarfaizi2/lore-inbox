@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132201AbRAGWIn>; Sun, 7 Jan 2001 17:08:43 -0500
+	id <S132701AbRAGWMQ>; Sun, 7 Jan 2001 17:12:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132701AbRAGWIX>; Sun, 7 Jan 2001 17:08:23 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:42487 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S132201AbRAGWIT>; Sun, 7 Jan 2001 17:08:19 -0500
-Date: Sun, 7 Jan 2001 20:07:52 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "John O'Donnell" <johnod@voicefx.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0:  __alloc_pages: 3-order allocation failed.
-In-Reply-To: <3A58E69D.30005@voicefx.com>
-Message-ID: <Pine.LNX.4.21.0101072006450.21675-100000@duckman.distro.conectiva>
+	id <S133096AbRAGWMF>; Sun, 7 Jan 2001 17:12:05 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:27802 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S132701AbRAGWMB>; Sun, 7 Jan 2001 17:12:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: dep <dennispowell@earthlink.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>, newbie@XFree86.Org
+Subject: performance boost from merging linux-2.4.0, xfree86-4.02
+Date: Sun, 7 Jan 2001 17:14:59 -0500
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010717145901.00573@depoffice.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, John O'Donnell wrote:
+for what it's worth:
 
-> What does this message mean in my dmesg output?
-> 
-> __alloc_pages: 3-order allocation failed.
+this afternoon i conducted an experiment: i copied everything that 
+was newer from 
+[xfree-4.02-sourcedir]/xc/programs/Xserver/hw/xfree86/os-support/linux/drm/kernel 
+to my [linux-2.4.0-sourcedir]/drivers/char/drm and then built a 
+monolithic kernel containing agpgart, dri, and mga support. the 
+performance improvement is simply tremendous -- gears, for instance, 
+in the XscreenSavers module form, is running at at least 75 fps at 
+1280x1024. really screaming.
 
-It means something in the kernel is trying to allocate an
-area of 8 physically contiguous pages, but that wasn't
-available so the allocation failed...
+obviously, anybody wanting to play with this needs to backup 
+everything first. but i think the experiment is well worth it for 
+anyone competent to build a kernel and who is interested in the 
+potential of the dri stuff in X.
 
-This debugging check should probably be removed around
-2.4.5, in the mean time it is much too useful to track
-down badly behaving device drivers ;)
-
-regards,
-
-Rik
+this also suggests that probably the kernel dri stuff could stand an 
+update.
+-- 
+dep
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+bipartisanship: an illogical construct not unlike the idea that
+if half the people like red and half the people like blue, the 
+country's favorite color is purple.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

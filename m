@@ -1,101 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbUCQXSv (ORCPT <rfc822;willy@w.ods.org>);
+	id S262153AbUCQXSv (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 17 Mar 2004 18:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUCQXQp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbUCQXQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 18:16:45 -0500
-Received: from aea152.neoplus.adsl.tpnet.pl ([83.31.137.152]:1796 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S262142AbUCQXPX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 18:15:23 -0500
-Date: Thu, 18 Mar 2004 00:22:03 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.4: Oops on rmmod uhci-hcd when device is still accessed
-Message-ID: <20040317232203.GA3510@satan.blackhosts>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Wed, 17 Mar 2004 18:16:26 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:40196 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262153AbUCQXPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 18:15:40 -0500
+Date: Wed, 17 Mar 2004 23:15:36 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Marek Szuba <scriptkiddie@wp.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4, or what I still don't quite like about the new stable
+ branch
+In-Reply-To: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
+Message-ID: <Pine.LNX.4.44.0403172308290.19415-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just gave 2.6.4 a try (after 102 days of uptime on 2.6.0-test11
-- "almost stable" if I knew what not to do ;) - but now I experienced
-some strange deadlocks in programs accessing some resource, probably
-memory, so I had to reboot).
 
-When shutting down 2.6.0-test11 I noticed oops message on stopping
-hotplug service - and this bug is still present in Linux 2.6.4.
+> 1. Matrox framebuffer keeps on messing up the consoles when I have X
+> running and switch back and forth. As far as I know this problem is
+> known to you (in fact, I use the temporary workaround patch Petr has
+> released which as far as I can see only leaves the issue of scrolling
+> lines occasionally losing the screen bottom, especially with programs
+> using ncurses) and besides things seem to have got much better thanks to
+> the general-fbcon patches introduced in 2.6.3 and 2.6.4, so I only
+> mention it here pro forma.
 
-Oops occurs on "rmmod uhci-hcd" when device connected to USB is still
-accessed by modem_run program (it's Alcatel Speedtouch ADSL modem).
+I need to get around to fixing that problem. I'm glad the general patch 
+that went in fixed alot of problems :-) It's a matter of the framebuffer 
+driver restoring its state when switching back to the console. Most 
+drivers have a problem with that. The current approach is to use the
+xxfb_blank function to fix this up.
 
-dmesg then contains:
+> 2. While fbcon is active, setfont only works on the foreground VT. It
+> happens with X both running and not running, as well as on both matroxfb
+> and vesafb (I haven't tested the others); I don't think this is a kbd
+> bug (my version is 1.10 and I don't see anything in the 1.10->1.12
+> changelog which could be related with the issue). Hope this one gets
+> fixed soon, as it's the most annoying of the whole bunch.
 
-uhci_hcd 0000:00:07.2: remove, state 1
-usb usb1: USB disconnect, address 1
-usb 1-2: USB disconnect, address 2
-usbfs: USBDEVFS_CONTROL failed cmd modem_run dev 2 rqt 192 rq 18 len 1 ret -19
-usbfs: usb_submit_urb returned -19
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-printing eip:
-d884c3c8
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<d884c3c8>]    Not tainted
-EFLAGS: 00010246
-EIP is at releaseintf+0x68/0x80 [usbcore]
-eax: 00000000   ebx: d6101824   ecx: d6101824   edx: 00000000
-esi: d6101800   edi: 00000000   ebp: d6213ac0   esp: d1653f30
-ds: 007b   es: 007b   ss: 0068
-Process modem_run (pid: 4022, threadinfo=d1652000 task=d17e4c00)
-Stack: d6213ac0 00000000 d7fe4600 d1625540 d884c796 d194bc00 00000000 c014bf8f
-d1c37a40 d194bc00 00000000 d1fb1200 00000001 c014a6df ffffffff 00000001
-00000006 d1fb1200 c011ba89 d1fb1200 d2804ba0 d17e4c00 0000ff00 c011c5fd
-Call Trace:
-[<d884c796>] usbdev_release+0xa6/0xb0 [usbcore]
-[<c014bf8f>] __fput+0xff/0x110
-[<c014a6df>] filp_close+0x4f/0x80
-[<c011ba89>] put_files_struct+0x59/0xb0
-[<c011c5fd>] do_exit+0x18d/0x3f0
-[<c011c902>] do_group_exit+0x32/0xa0
-[<c0108c5b>] syscall_call+0x7/0xb
+This is normal behavior. In 2.4.X you have the same behavior. Only vgacon 
+doesn't do this because it doesn't handle the differences in screen size 
+on VC switching. 
 
-Code: 8b 54 90 0c b8 a0 8a 85 d8 e8 2a 7f ff ff eb c6 90 8d b4 26
-<6>uhci_hcd 0000:00:07.2: USB bus 1 deregistered
-uhci_hcd 0000:00:07.3: remove, state 1
-usb usb2: USB disconnect, address 1
-uhci_hcd 0000:00:07.3: USB bus 2 deregistered
-
-
-It's in drivers/usb/core/devio.c:388:
-
-|        down(&dev->serialize);
-|        if (test_and_clear_bit(intf, &ps->ifclaimed)) {
-|                iface = dev->actconfig->interface[intf];
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-|                usb_driver_release_interface(&usbdevfs_driver, iface);
-|                err = 0;
-|        }
-|        up(&dev->serialize);
-
-and looks like dev->actconfig is NULL
-
-
-My USB-related configuration options:
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_SPEEDTOUCH=m
-(the rest is not set)
-
-Whole .config is available at
-http://cyber.cs.net.pl/~qboosh/misc/kernel-2.6.4.config
-
-
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/

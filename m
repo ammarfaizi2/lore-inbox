@@ -1,70 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbTA1LeP>; Tue, 28 Jan 2003 06:34:15 -0500
+	id <S265177AbTA1Ll6>; Tue, 28 Jan 2003 06:41:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265174AbTA1LeP>; Tue, 28 Jan 2003 06:34:15 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:9732 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265171AbTA1LeO>;
-	Tue, 28 Jan 2003 06:34:14 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301281144.h0SBi0ld000233@darkstar.example.net>
-Subject: Re: Bootscreen
-To: rob@r-morris.co.uk (Robert Morris)
-Date: Tue, 28 Jan 2003 11:44:00 +0000 (GMT)
-Cc: Raphael_Schmid@CUBUS.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> from "Robert Morris" at Jan 28, 2003 11:20:31 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265197AbTA1Ll6>; Tue, 28 Jan 2003 06:41:58 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18304
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id <S265177AbTA1Ll5>; Tue, 28 Jan 2003 06:41:57 -0500
+Subject: Re: Problem - See attached dmesg dump
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Enlight <enlight@bentonrea.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <000e01c2c5c5$fc3731a0$0101a8c0@localdomain>
+References: <000e01c2c5c5$fc3731a0$0101a8c0@localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043754625.1328.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 28 Jan 2003 11:50:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It is my very understanding one can not have, conveniently it should be,
-> > a simple *bootscreen* under Linux. I don't *want* any simple picture, I
-> > want as complex a picture as it gets.
-> > 
-> > I realize these ideas may sound kind of alien to you, but they make sense.
-> > Windows, MacOS all have bootscreens. There really is no way why Linux
-> > shouldn't.
+On Mon, 2003-01-27 at 05:36, Enlight wrote:
+> To who can help,
 > 
-> There is a very simple reason why Linux shouldn't have a "bootscreen" - 
-> its a lame idea.
+> While running make to build xfce3.8.18 I get an internal gcc error
+> segmentation fault.  Also got similar error running rpmdrake.  Needless to
+> say I can't finish the build.
 
-For a desktop or server machine, yes.
+Send reports about vendor kernels to the vendor concerned. Vendors add various
+custom changes to the base kernel, they also know a lot more about the patterns
+of problems their users see
 
-> Most of the machines I maintain are very seldom rebooted, but if someone 
-> was to do a reboot, I would want them to be able to observe any errors or 
-> other abnormal output from the boot-up process.
-
-Agreed, for standard desktops and servers.
-
-> A "bootscreen" makes it more likely that such an error message would
-> be more likely to go unnoticed - and, if they became commonplace,
-> may eventually result in developers making the on-boot output less
-> verbose/informative/etc, on the basis that it isn't likely to be
-> seen in the first place!
-
-There is no reason why the boot data can't go to a secondary display,
-or a serial terminal, or a printer, or a speaker as a bleep code, etc.
-
-> The stuff you see on your screen when your Linux installation boots up 
-> weren't put there for no reason. Please lets leave them there!
-
-There are applications where it is not appropriate to have it, though,
-what if you were using Linux in an embedded device such as a set top
-box?
-
-It's perfectly possible that somebody might want to make a television
-set top box out of a standard x86 motherboard and VGA card, and not
-have anything displayed until X starts, because the television would
-not accept the standard VGA scanrate, but X can easily re-program that
-to around 15 Khz.
-
-In this case, boot data could be sent to a serial port, and the
-graphics card initialised by the boot loader to display a "Please
-wait, set top box booting up" screen, using a scan rate, which would
-be acceptable to the television.  In this case, we do not want the
-kernel to change the video card setup at all.
-
-John

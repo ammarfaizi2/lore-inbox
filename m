@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263631AbTDIRO1 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTDIRO1 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:14:27 -0400
-Received: from smtp03.web.de ([217.72.192.158]:12820 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263631AbTDIROZ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 13:14:25 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Process falls into uninterruptible sleep
-Date: Wed, 9 Apr 2003 19:26:00 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	id S263638AbTDIRQx (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbTDIRQx (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:16:53 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:35545 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S263638AbTDIRQw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 13:16:52 -0400
+Subject: Re: i2c questions in kernel 2.5.67
+From: Stian Jordet <liste@jordet.nu>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030409162537.GB1518@kroah.com>
+References: <1049902006.1362.6.camel@chevrolet.hybel>
+	 <20030409162537.GB1518@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049909342.1269.0.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Apr 2003 19:29:03 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304091926.00422.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+ons, 09.04.2003 kl. 18.25 skrev Greg KH:
+> On Wed, Apr 09, 2003 at 05:26:46PM +0200, Stian Jordet wrote:
+> > Hi,
+> > 
+> > I have a Asus CUV266-DLS motherboard, with a as99127f hardware monitor
+> > chip. This is supposed to be supported by the W83781D sensor driver.
+> 
+> Does this motherboard work with this driver on 2.4?  (I'd recommend
+> getting the lm_sensors package from their web site to check this out.)
 
-I have a problem, since I'm using linux-2.4.21-pre6
+Of course I should have checked this better before I sent the first
+mail. I need the i2c-viapro module (in 2.4), which hasn't been ported
+yet.
 
-Sometimes (there seems to be no reason for it) a process
-(doesn't matter what process) falls into an
-"uninterruptible sleep" while doing something with it.
-This problem isn't reproducible or bound to a specific process.
-It happens when it "want's to happen" :)
+Really sorry about the noise.
 
-Here an example of a locked kmail:
-
-mb@lfs:~> ps aux | grep kmail
-mb       27979  0.2  8.8 43124 22728 ?       D    15:56   0:35 kmail
-
-I'm not able to kill the processes.
-I don't know if it is really a kernel-problem, but I think it is one.
-
-Regards
-Michael Buesch.
-
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+Best regards,
+Stian
 

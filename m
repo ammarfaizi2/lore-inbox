@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbUKABP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKABQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUKABP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 20:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbUKABP5
+	id S261776AbUKABQU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 20:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUKABQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 20:15:57 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:36839 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261775AbUKABPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 20:15:52 -0500
-Message-ID: <41858F6E.5070208@comcast.net>
-Date: Sun, 31 Oct 2004 17:20:46 -0800
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Sun, 31 Oct 2004 20:16:20 -0500
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:18877 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261776AbUKABQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 20:16:11 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Map extra keys on compaq evo
+Date: Sun, 31 Oct 2004 20:16:08 -0500
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@suse.cz>, vojtech@suse.cz
+References: <20041031213859.GA6742@elf.ucw.cz>
+In-Reply-To: <20041031213859.GA6742@elf.ucw.cz>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@users.sf.net>
-CC: Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>	<1099170891.1424.1.camel@krustophenia.net>	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	<1099175138.1424.18.camel@krustophenia.net> <20041031150637.6311a2ec.diegocg@teleline.es> <418550C1.1060203@comcast.net> <418576CA.2020005@users.sf.net>
-In-Reply-To: <418576CA.2020005@users.sf.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410312016.08468.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito wrote:
-> Z Smith wrote:
+On Sunday 31 October 2004 04:38 pm, Pavel Machek wrote:
+> Hi!
+> 
+> Compaq Evo notebooks seem to use non-standard keycodes for their extra
+> keys. I workaround that quirk with dmi hook.
+> 
 
-> The fastest computer that I have at my disposal is this one with a Duron 
-> 600MHz processor. My father uses a Pentium MMX 200MHz with 64MB of RAM. 
-> Unfortunately, for financial reasons, I don't see we upgrading our 
-> computers too soo.
+Why don't you just call "setkeycodes" from your init script?
 
-It seems that as time goes by, more and more people are
-coming to be financially limited. In some cases the cause
-is clearly the IMF / World Bank / WTO triad.
-
-Some casual reading:
-http://www.gregpalast.com/printerfriendly.cfm?artid=96
-
-Zack
+-- 
+Dmitry

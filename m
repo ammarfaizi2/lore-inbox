@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbUKDUcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbUKDUgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbUKDUcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUKDUL7
+	id S262433AbUKDUgO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUKDUft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 15:11:59 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4747 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262376AbUKDUIq (ORCPT
+	Thu, 4 Nov 2004 15:35:49 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:45508 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262410AbUKDUfQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 15:08:46 -0500
-Date: Thu, 4 Nov 2004 12:07:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Robert Love <rml@novell.com>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, herbert@gondor.apana.org.au,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [patch] kobject_uevent: fix init ordering
-Message-ID: <20041104200709.GB21149@kroah.com>
-References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com> <20041104180550.GA16744@kroah.com> <1099592851.31022.145.camel@betsy.boston.ximian.com> <1099596532.31022.151.camel@betsy.boston.ximian.com>
+	Thu, 4 Nov 2004 15:35:16 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [patch 2.4.28-rc1] Avoid oops in proc_delete_inode 
+In-reply-to: Your message of "Thu, 04 Nov 2004 16:29:17 BST."
+             <200411041629.17443@WOLK> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099596532.31022.151.camel@betsy.boston.ximian.com>
-User-Agent: Mutt/1.5.6i
+Date: Fri, 05 Nov 2004 07:35:05 +1100
+Message-ID: <11726.1099600505@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 02:28:52PM -0500, Robert Love wrote:
-> On Thu, 2004-11-04 at 13:27 -0500, Robert Love wrote:
-> 
-> > Looks like kobject_uevent_init is executed before netlink_proto_init and
-> > consequently always fails.  Not cool.
-> > 
-> > Attached patch switches the initialization over from core_initcall (init
-> > level 1) to postcore_initcall (init level 2).  Netlink's initialization
-> > is done in core_initcall, so this should fix the problem.  We should be
-> > fine waiting until postcore_initcall.
-> > 
-> > Also a couple white space changes mixed in, because I am anal.
-> 
-> Greg, sir, here is a patch rediff'ed off current BK.
+On Thu, 4 Nov 2004 16:29:17 +0100, 
+Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com> wrote:
+>On Thursday 04 November 2004 03:35, Keith Owens wrote:
+>
+>Marcelo,
+>
+>I just saw you applied this to bk. Cool, but please apply a right version ;)
+>
+>> Under heavy load, vmstat, top and other programs that access /proc can
+>> oops.  PROC_INODE_PROPER(inode) is sometimes false for pid entries
+>> (usually zombies), but inode->u.generic_ip is not NULL.
+>>
+>> Backport a fix by AL Viro from 2.5.7-pre2 to 2.4.28-rc1.
+>>
+>> Signed-off-by: Keith Owens <kaos@sgi.com>
+>>
+>> Index: 2.4.28-rc1/fs/proc/base.c
+>> ===================================================================
+>> --- 2.4.28-rc1.orig/fs/proc/base.c 2004-08-08 10:10:49.000000000 +1000
+>> +++ 2.4.28-rc1/fs/proc/base.c 2004-11-04 13:25:16.402602459 +1100
+>> @@ -780,6 +780,7 @@ out:
+>>   return inode;
+>>
+>>  out_unlock:
+>> + node->u.generic_ip = NULL;
+>
+>has to be:
+>
+>  + inode->u.generic_ip = NULL;
+>
+>>   iput(inode);
+>>   return NULL;
+>>  }
 
-"Sir"?  Geesh, I'm not that old looking am I?  :)
+Oops, copied the old patch into the mail.  Where did I put that brown
+paper bag?
 
-applied, thanks.
-
-greg k-h

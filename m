@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVCWCYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVCWCYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVCWCYF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 21:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVCWCXl
+	id S262714AbVCWCYG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 21:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVCWCX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 21:23:41 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:19084 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262721AbVCWCPH (ORCPT
+	Tue, 22 Mar 2005 21:23:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:32902 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262714AbVCWCOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 21:15:07 -0500
+	Tue, 22 Mar 2005 21:14:54 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=h9b3szfNxnCOjIITMUl5uxWxXIgdut3VgbyUV3IQP5WAveodGDR7L4Ygameop7m6XWcOYf+hK7PEBkmRRlW9RBKx6MoqS/Epn8IIbDity5t1MLmkgevI83FsePSCYuWhXUSkMHHEBn4y88TS0g3f6ZKrSPqvXtntmwQ4isMuAXY=
+        b=hGcOZoImxco5i/2Xwl6VxoPYRoWtdBKVr8+UPBJmxYEV+328FTvoKX5Ukmnf/dhyCPMaD5TRmCW8a1oFJX2Nj8S+tCC6sZQpczZNrxOo+sTn7TSfIFsnfM4OamPcG8MDIKX7WbZB+28R1MTflqLD7sQ/JydMlcelcAyneglNqt4=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -20,46 +20,250 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050323021335.960F95F8@htj.dyndns.org>
 In-Reply-To: <20050323021335.960F95F8@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
-Message-ID: <20050323021335.4682C732@htj.dyndns.org>
-Date: Wed, 23 Mar 2005 11:14:59 +0900 (KST)
+Subject: Re: [PATCH scsi-misc-2.6 06/08] scsi: remove meaningless scsi_cmnd->serial_number_at_timeout field
+Message-ID: <20050323021335.D8B64507@htj.dyndns.org>
+Date: Wed, 23 Mar 2005 11:14:49 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-08_scsi_hot_unplug_fix.patch
+06_scsi_remove_serial_number_at_timeout.patch
 
-	When hot-unplugging using scsi_remove_host() function (as usb
-	does), scsi_forget_host() used to be called before
-	scsi_host_cancel().  So, the device gets removed first without
-	request cleanup and scsi_host_cancel() never gets to call
-	scsi_device_cancel() on the removed devices.  This results in
-	premature completion of hot-unplugging process with active
-	requests left in queue, eventually leading to hang/offlined
-	device or oops when the active command times out.
-
-	This patch makes scsi_remove_host() call scsi_host_cancel()
-	first such that the host is first transited into cancel state
-	and all requests of all devices are killed, and then, the
-	devices are removed.  This patch fixes the oops in eh after
-	hot-unplugging bug.
+	scsi_cmnd->serial_number_at_timeout doesn't serve any purpose
+	anymore.  All serial_number == serial_number_at_timeout tests
+	are always true in abort callbacks.  Kill the field.  Also, as
+	->pid always equals ->serial_number and ->serial_number
+	doesn't have any special meaning anymore, update comments
+	above ->serial_number accordingly.  Once we remove all uses of
+	this field from all lldd's, this field should go.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- hosts.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/BusLogic.c             |    7 -------
+ drivers/scsi/advansys.c             |    5 ++---
+ drivers/scsi/ips.c                  |    7 -------
+ drivers/scsi/ncr53c8xx.c            |   14 ++------------
+ drivers/scsi/qla2xxx/qla_dbg.c      |    6 ++----
+ drivers/scsi/scsi.c                 |    2 --
+ drivers/scsi/scsi_error.c           |    7 -------
+ drivers/scsi/scsi_lib.c             |    1 -
+ drivers/scsi/sym53c8xx_2/sym_glue.c |    6 ------
+ include/scsi/scsi_cmnd.h            |   22 +++++++++-------------
+ 10 files changed, 15 insertions(+), 62 deletions(-)
 
-Index: scsi-export/drivers/scsi/hosts.c
+Index: scsi-export/drivers/scsi/BusLogic.c
 ===================================================================
---- scsi-export.orig/drivers/scsi/hosts.c	2005-03-23 09:39:36.000000000 +0900
-+++ scsi-export/drivers/scsi/hosts.c	2005-03-23 09:40:11.000000000 +0900
-@@ -74,8 +74,8 @@ void scsi_host_cancel(struct Scsi_Host *
-  **/
- void scsi_remove_host(struct Scsi_Host *shost)
- {
--	scsi_forget_host(shost);
- 	scsi_host_cancel(shost, 0);
-+	scsi_forget_host(shost);
- 	scsi_proc_host_rm(shost);
+--- scsi-export.orig/drivers/scsi/BusLogic.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/BusLogic.c	2005-03-23 09:40:11.000000000 +0900
+@@ -2958,13 +2958,6 @@ static int BusLogic_AbortCommand(struct 
+ 	struct BusLogic_CCB *CCB;
+ 	BusLogic_IncrementErrorCounter(&HostAdapter->TargetStatistics[TargetID].CommandAbortsRequested);
+ 	/*
+-	   If this Command has already completed, then no Abort is necessary.
+-	 */
+-	if (Command->serial_number != Command->serial_number_at_timeout) {
+-		BusLogic_Warning("Unable to Abort Command to Target %d - " "Already Completed\n", HostAdapter, TargetID);
+-		return SUCCESS;
+-	}
+-	/*
+ 	   Attempt to find an Active CCB for this Command.  If no Active CCB for this
+ 	   Command is found, then no Abort is necessary.
+ 	 */
+Index: scsi-export/drivers/scsi/advansys.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/advansys.c	2005-03-23 09:40:09.000000000 +0900
++++ scsi-export/drivers/scsi/advansys.c	2005-03-23 09:40:11.000000000 +0900
+@@ -9198,9 +9198,8 @@ asc_prt_scsi_cmnd(struct scsi_cmnd *s)
+         s->use_sg, s->sglist_len, s->abort_reason);
  
- 	set_bit(SHOST_DEL, &shost->shost_state);
+     printk(
+-" serial_number 0x%x, serial_number_at_timeout 0x%x, retries %d, allowed %d\n",
+-        (unsigned) s->serial_number, (unsigned) s->serial_number_at_timeout,
+-         s->retries, s->allowed);
++" serial_number 0x%x, retries %d, allowed %d\n",
++        (unsigned) s->serial_number, s->retries, s->allowed);
+ 
+     printk(
+ " timeout_per_command %d, timeout_total %d, timeout %d\n",
+Index: scsi-export/drivers/scsi/ips.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/ips.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/ips.c	2005-03-23 09:40:11.000000000 +0900
+@@ -833,13 +833,6 @@ ips_eh_abort(Scsi_Cmnd * SC)
+ 	if (!ha->active)
+ 		return (FAILED);
+ 
+-	if (SC->serial_number != SC->serial_number_at_timeout) {
+-		/* HMM, looks like a bogus command */
+-		DEBUG(1, "Abort called with bogus scsi command");
+-
+-		return (FAILED);
+-	}
+-
+ 	/* See if the command is on the copp queue */
+ 	item = ha->copp_waitlist.head;
+ 	while ((item) && (item->scsi_cmd != SC))
+Index: scsi-export/drivers/scsi/ncr53c8xx.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/ncr53c8xx.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/ncr53c8xx.c	2005-03-23 09:40:11.000000000 +0900
+@@ -7601,24 +7601,14 @@ static int ncr53c8xx_abort(struct scsi_c
+ 	struct scsi_cmnd *done_list;
+ 
+ #if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
+-	printk("ncr53c8xx_abort: pid=%lu serial_number=%ld serial_number_at_timeout=%ld\n",
+-		cmd->pid, cmd->serial_number, cmd->serial_number_at_timeout);
++	printk("ncr53c8xx_abort: pid=%lu serial_number=%ld\n",
++		cmd->pid, cmd->serial_number);
+ #else
+ 	printk("ncr53c8xx_abort: command pid %lu\n", cmd->pid);
+ #endif
+ 
+ 	NCR_LOCK_NCB(np, flags);
+ 
+-#if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
+-	/*
+-	 * We have to just ignore abort requests in some situations.
+-	 */
+-	if (cmd->serial_number != cmd->serial_number_at_timeout) {
+-		sts = SCSI_ABORT_NOT_RUNNING;
+-		goto out;
+-	}
+-#endif
+-
+ 	sts = ncr_abort_command(np, cmd);
+ out:
+ 	done_list     = np->done_list;
+Index: scsi-export/drivers/scsi/qla2xxx/qla_dbg.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/qla2xxx/qla_dbg.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/qla2xxx/qla_dbg.c	2005-03-23 09:40:11.000000000 +0900
+@@ -1050,10 +1050,8 @@ qla2x00_print_scsi_cmd(struct scsi_cmnd 
+ 	for (i = 0; i < cmd->cmd_len; i++) {
+ 		printk("0x%02x ", cmd->cmnd[i]);
+ 	}
+-	printk("\n  seg_cnt=%d, allowed=%d, retries=%d, "
+-	    "serial_number_at_timeout=0x%lx\n",
+-	    cmd->use_sg, cmd->allowed, cmd->retries,
+-	    cmd->serial_number_at_timeout);
++	printk("\n  seg_cnt=%d, allowed=%d, retries=%d\n",
++	    cmd->use_sg, cmd->allowed, cmd->retries);
+ 	printk("  request buffer=0x%p, request buffer len=0x%x\n",
+ 	    cmd->request_buffer, cmd->request_bufflen);
+ 	printk("  tag=%d, transfersize=0x%x\n",
+Index: scsi-export/drivers/scsi/scsi.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/scsi.c	2005-03-23 09:40:10.000000000 +0900
++++ scsi-export/drivers/scsi/scsi.c	2005-03-23 09:40:11.000000000 +0900
+@@ -687,7 +687,6 @@ void scsi_init_cmd_from_req(struct scsi_
+ 	cmd->request = sreq->sr_request;
+ 	memcpy(cmd->data_cmnd, sreq->sr_cmnd, sizeof(cmd->data_cmnd));
+ 	cmd->serial_number = 0;
+-	cmd->serial_number_at_timeout = 0;
+ 	cmd->bufflen = sreq->sr_bufflen;
+ 	cmd->buffer = sreq->sr_buffer;
+ 	cmd->retries = 0;
+@@ -766,7 +765,6 @@ void __scsi_done(struct scsi_cmnd *cmd)
+ 	 * Set the serial numbers back to zero
+ 	 */
+ 	cmd->serial_number = 0;
+-	cmd->serial_number_at_timeout = 0;
+ 	cmd->state = SCSI_STATE_BHQUEUE;
+ 	cmd->owner = SCSI_OWNER_BH_HANDLER;
+ 
+Index: scsi-export/drivers/scsi/scsi_error.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/scsi_error.c	2005-03-23 09:40:10.000000000 +0900
++++ scsi-export/drivers/scsi/scsi_error.c	2005-03-23 09:40:11.000000000 +0900
+@@ -80,11 +80,6 @@ int scsi_eh_scmd_add(struct scsi_cmnd *s
+ 	 */
+ 	scmd->owner = SCSI_OWNER_ERROR_HANDLER;
+ 	scmd->state = SCSI_STATE_FAILED;
+-	/*
+-	 * Set the serial_number_at_timeout to the current
+-	 * serial_number
+-	 */
+-	scmd->serial_number_at_timeout = scmd->serial_number;
+ 	list_add_tail(&scmd->eh_entry, &shost->eh_cmd_q);
+ 	set_bit(SHOST_RECOVERY, &shost->shost_state);
+ 	shost->host_failed++;
+@@ -1060,7 +1055,6 @@ static int scsi_try_bus_reset(struct scs
+ 	SCSI_LOG_ERROR_RECOVERY(3, printk("%s: Snd Bus RST\n",
+ 					  __FUNCTION__));
+ 	scmd->owner = SCSI_OWNER_LOWLEVEL;
+-	scmd->serial_number_at_timeout = scmd->serial_number;
+ 
+ 	if (!scmd->device->host->hostt->eh_bus_reset_handler)
+ 		return FAILED;
+@@ -1092,7 +1086,6 @@ static int scsi_try_host_reset(struct sc
+ 	SCSI_LOG_ERROR_RECOVERY(3, printk("%s: Snd Host RST\n",
+ 					  __FUNCTION__));
+ 	scmd->owner = SCSI_OWNER_LOWLEVEL;
+-	scmd->serial_number_at_timeout = scmd->serial_number;
+ 
+ 	if (!scmd->device->host->hostt->eh_host_reset_handler)
+ 		return FAILED;
+Index: scsi-export/drivers/scsi/scsi_lib.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/scsi_lib.c	2005-03-23 09:40:10.000000000 +0900
++++ scsi-export/drivers/scsi/scsi_lib.c	2005-03-23 09:40:11.000000000 +0900
+@@ -386,7 +386,6 @@ static int scsi_init_cmd_errh(struct scs
+ {
+ 	cmd->owner = SCSI_OWNER_MIDLEVEL;
+ 	cmd->serial_number = 0;
+-	cmd->serial_number_at_timeout = 0;
+ 	cmd->abort_reason = 0;
+ 
+ 	memset(cmd->sense_buffer, 0, sizeof cmd->sense_buffer);
+Index: scsi-export/drivers/scsi/sym53c8xx_2/sym_glue.c
+===================================================================
+--- scsi-export.orig/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-03-23 09:39:36.000000000 +0900
++++ scsi-export/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-03-23 09:40:11.000000000 +0900
+@@ -799,12 +799,6 @@ static int sym_eh_handler(int op, char *
+ 
+ 	dev_warn(&cmd->device->sdev_gendev, "%s operation started.\n", opname);
+ 
+-#if 0
+-	/* This one should be the result of some race, thus to ignore */
+-	if (cmd->serial_number != cmd->serial_number_at_timeout)
+-		goto prepare;
+-#endif
+-
+ 	/* This one is queued in some place -> to wait for completion */
+ 	FOR_EACH_QUEUED_ELEMENT(&np->busy_ccbq, qp) {
+ 		struct sym_ccb *cp = sym_que_entry(qp, struct sym_ccb, link_ccbq);
+Index: scsi-export/include/scsi/scsi_cmnd.h
+===================================================================
+--- scsi-export.orig/include/scsi/scsi_cmnd.h	2005-03-23 09:40:09.000000000 +0900
++++ scsi-export/include/scsi/scsi_cmnd.h	2005-03-23 09:40:11.000000000 +0900
+@@ -43,21 +43,17 @@ struct scsi_cmnd {
+ 	void (*done) (struct scsi_cmnd *);	/* Mid-level done function */
+ 
+ 	/*
+-	 * A SCSI Command is assigned a nonzero serial_number when internal_cmnd
+-	 * passes it to the driver's queue command function.  The serial_number
+-	 * is cleared when scsi_done is entered indicating that the command has
+-	 * been completed.  If a timeout occurs, the serial number at the moment
+-	 * of timeout is copied into serial_number_at_timeout.  By subsequently
+-	 * comparing the serial_number and serial_number_at_timeout fields
+-	 * during abort or reset processing, we can detect whether the command
+-	 * has already completed.  This also detects cases where the command has
+-	 * completed and the SCSI Command structure has already being reused
+-	 * for another command, so that we can avoid incorrectly aborting or
+-	 * resetting the new command.
+-	 * The serial number is only unique per host.
++	 * A SCSI Command is assigned a nonzero serial_number before passed
++	 * to the driver's queue command function.  The serial_number is
++	 * cleared when scsi_done is entered indicating that the command
++	 * has been completed.  It currently doesn't have much use other
++	 * than printk's.  Some lldd's use this number for other purposes.
++	 * It's almost certain that such usages are either incorrect or
++	 * meaningless.  Please kill all usages other than printk's.  Also,
++	 * as this number is always identical to ->pid, please convert
++	 * printk's to use ->pid, so that we can kill this field.
+ 	 */
+ 	unsigned long serial_number;
+-	unsigned long serial_number_at_timeout;
+ 
+ 	int retries;
+ 	int allowed;
 

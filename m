@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277702AbRJLSi7>; Fri, 12 Oct 2001 14:38:59 -0400
+	id <S277348AbRJLSjL>; Fri, 12 Oct 2001 14:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277687AbRJLSit>; Fri, 12 Oct 2001 14:38:49 -0400
-Received: from colorfullife.com ([216.156.138.34]:24587 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S277348AbRJLSih>;
-	Fri, 12 Oct 2001 14:38:37 -0400
-Message-ID: <3BC738AD.A0329BBF@colorfullife.com>
-Date: Fri, 12 Oct 2001 20:38:37 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org,
-        Sean Cavanaugh <seanc@gearboxsoftware.com>
-Subject: Re: P4 SMP load balancing
+	id <S277687AbRJLSjA>; Fri, 12 Oct 2001 14:39:00 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:519 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S277536AbRJLSil>;
+	Fri, 12 Oct 2001 14:38:41 -0400
+Date: Fri, 12 Oct 2001 11:31:14 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Hotplug PCI driver for 2.4.13-pre1
+Message-ID: <20011012113114.A20602@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-> > ovendev:~# cat /proc/interrupts 
-> >            CPU0       CPU1       
-> >   0:    6348212          0    IO-APIC-edge  timer
-> >   1:          2          0    IO-APIC-edge  keyboard
-> >   2:          0          0          XT-PIC  cascade
-> >   8:          1          0    IO-APIC-edge  rtc
-> >   9:          0          0    IO-APIC-edge  acpi
-> >  16:      92620          0   IO-APIC-level  eth0
-> >  18:       5085          0   IO-APIC-level  aic7xxx, aic7xxx
-> > NMI:          0          0 
-> > LOC:    6348388    6348427 
-> > ERR:          0
-> > MIS:          0
-> 
-> I don't think this should happen. In the event of both procs having equal 
-> priority (linux never changes them, so they always do), we should fall back 
-> to the arbitration priority of the lapic. Whether you have 1 or 2 I/O apics
-> working shouldn't make a difference. 
+Another release of the Compaq Hotplug PCI driver is available against
+2.4.13-pre1 is at:
+	http://www.kroah.com/linux/hotplug/pci-hotplug-2001_10_12-2.4.13-pre1.patch.gz
+With a full changelog at:
+	http://www.kroah.com/linux/hotplug/pci-hotplug-Changelog
 
-The P 4 has a new apic, and lowest priority delivery doesn't work
-anymore.
+The latest version of modutils is required to use this version of the
+patch.
 
-<<<<<<< Chapter 7.6.10 of 24547202.pdf
-In operating systems that use the lowest priority interrupt delivery
-mode
-but do not update the TPR, the TPR information saved in the chipset will
-potentially cause the interrupt to be always delivered to the same
-processor from the logical set. This behavior is functionally backward
-compatible with the P6 family processor but may result in unexpected
-performance implications.
-<<<<<<< (search for 245472 on google for the pdf file)
+I have also included the ddfs patch from Pat Mochel in this patch, as
+the hotplug pci driver now uses it as its interface to userspace.  I
+have fixed a few minor bugs that I ran into in the ddfs patch, so people
+interested in ddfs might want to take a look at this version.
 
+Changes since the last release:
+ 	- forward ported to 2.4.13-pre1
+	- changed the identifying feature of a hotplug pci slot from an
+	  int to a char * due to the PPC hotplug pci driver's needs.
+	- cleaned up the hotplug pci slot structure a bit to hid hotplug
+	  pci core structures from the hotplug pci drivers.
+ 	- removed the last known direct hardware access code.  If anyone
+	  sees any places that the Compaq driver does not use the proper
+	  kernel apis to access hardware, please let me know.
+	- removed all *_sleep_on() calls to eliminate the potential
+	  races in those usages.
+	
+TODO:
+	- move the filesystem code into the hotplug pci core, removing
+	  it's dependency on the ddfs patch.
+	- possibly merge the 2 passes of the pci bus when removing a
+	  device as the /proc logic that required that is now gone.
+	- Port the Linux PPC hotplug pci controller driver to the
+	  hotplug pci core  interface, whenever Anton sends me an
+	  updated file...
 
---
-	Manfred
+thanks,
+
+greg k-h

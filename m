@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263061AbVCDUwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263200AbVCDVAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263061AbVCDUwD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbVCDUsh
+	id S263200AbVCDVAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 16:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbVCDU6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:48:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263113AbVCDUoy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:44:54 -0500
-Date: Fri, 4 Mar 2005 12:44:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.11.1
-Message-Id: <20050304124431.676fd7cf.akpm@osdl.org>
-In-Reply-To: <20050304175302.GA29289@kroah.com>
-References: <20050304175302.GA29289@kroah.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Mar 2005 15:58:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8610 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263165AbVCDUye convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:34 -0500
+Cc: ben-linux@fluff.org
+Subject: [PATCH] I2C: S3C2410 missing I2C_CLASS_HWMON
+In-Reply-To: <11099685961021@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:36:37 -0800
+Message-Id: <11099685971397@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> A few of us $suckers will be trying to maintain a 2.6.x.y set of
->  	releases that happen after 2.6.x is released.
+ChangeSet 1.2109, 2005/03/02 15:02:43-08:00, ben-linux@fluff.org
 
-Just to test things out a bit...
+[PATCH] I2C: S3C2410 missing I2C_CLASS_HWMON
 
-Here's the list of things which we might choose to put into 2.6.11.2.  I was
-planning on sending them in for 2.6.12 when that was going to be
-errata-only.
+None of the standard sensor drivers currently recognise the s3c24xx
+I2C controller as it does not have I2C_CLASS_HWMON set in the
+adapter class field.
+
+The attached patch initialises the adapter class to I2C_CLASS_HWMON
+
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
->From 2.6.11-mm1:
+ drivers/i2c/busses/i2c-s3c2410.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-cramfs-small-stat2-fix.patch
-setup_per_zone_lowmem_reserve-oops-fix.patch
-dv1394-ioctl-retval-fix.patch
-ppc32-compilation-fixes-for-ebony-luan-and-ocotea.patch
-nfsd--sgi-921857-find-broken-with-nohide-on-nfsv3.patch
-nfsd--exportfs-reduce-stack-usage.patch
-nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
-nfsd--svcrpc-rename-pg_authenticate.patch
-nfsd--svcrpc-move-export-table-checks-to-a-per-program-pg_add_client-method.patch
-nfsd--nfs4-use-new-pg_set_client-method-to-simplify-nfs4-callback-authentication.patch
-nfsd--lockd-dont-try-to-match-callback-requests-against-export-table.patch
-audit-mips-fix.patch
-make-st-seekable-again.patch
 
-wrt the nfsd patches, Neil said:
-
-The problem they fix is that currently:
-    Client A holds a lock
-    Client B tries to get the lock and blocks
-    Client A drops the lock
-  **Client B doesn't get the lock immediately, but has to wait for a
-           timeout. (several seconds)
-
+diff -Nru a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+--- a/drivers/i2c/busses/i2c-s3c2410.c	2005-03-04 12:23:28 -08:00
++++ b/drivers/i2c/busses/i2c-s3c2410.c	2005-03-04 12:23:28 -08:00
+@@ -569,6 +569,7 @@
+ 		.name			= "s3c2410-i2c",
+ 		.algo			= &s3c24xx_i2c_algorithm,
+ 		.retries		= 2,
++		.class			= I2C_CLASS_HWMON,
+ 	},
+ };
+ 
 

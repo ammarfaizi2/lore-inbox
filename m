@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316490AbSFEWXk>; Wed, 5 Jun 2002 18:23:40 -0400
+	id <S316499AbSFEWZ1>; Wed, 5 Jun 2002 18:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316484AbSFEWXk>; Wed, 5 Jun 2002 18:23:40 -0400
-Received: from p508EB45E.dip.t-dialin.net ([80.142.180.94]:5383 "EHLO
-	wilmskamp.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316492AbSFEWXj> convert rfc822-to-8bit; Wed, 5 Jun 2002 18:23:39 -0400
+	id <S316503AbSFEWZ0>; Wed, 5 Jun 2002 18:25:26 -0400
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:13 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id <S316499AbSFEWZ0>; Wed, 5 Jun 2002 18:25:26 -0400
+Message-Id: <200206052219.g55MJa301032@fachschaft.cup.uni-muenchen.de>
 Content-Type: text/plain; charset=US-ASCII
-From: Oliver Wegner <oliver@wilmskamp.dyndns.org>
-To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-Date: Thu, 6 Jun 2002 00:23:42 +0200
-X-Mailer: KMail [version 1.4]
-In-Reply-To: <Pine.LNX.3.95.1020605172819.12226A-100000@chaos.analogic.com>
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: Patrick Mochel <mochel@osdl.org>
+Subject: Re: device model documentation 2/3
+Date: Wed, 5 Jun 2002 23:54:55 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>,
+        <linux-hotplug-devel@lists.sourceforge.net>,
+        <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33.0206051205150.654-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200206060023.42180.oliver@wilmskamp.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 5. Juni 2002 23:37 schrieb Richard B. Johnson:
-> On Wed, 5 Jun 2002, Oliver Wegner wrote:
-> > Am Mittwoch, 5. Juni 2002 21:08 schrieb Eric Kristopher Sandall:
-> > > On Wed, 5 Jun 2002, John Tyner wrote:
-> > > > > Just put the module name in /etc/modules
-> > > >
-> > > > This is distribution dependent isn't it?
-> > >
-> > > afaik, it is not distro dependent.  I've used /etc/modules in
-> > > RedHat, Debian, Sorcery, Source Mage, and Mandrake, all to the same
-> > > effect.
+Am Mittwoch, 5. Juni 2002 21:11 schrieb Patrick Mochel:
+> On Wed, 5 Jun 2002, Oliver Neukum wrote:
+> > > SUSPEND_DISABLE tells the device to stop I/O transactions. When it
+> > > stops transactions, or what it should do with unfinished transactions
+> > > is a policy of the driver. After this call, the driver should not
+> > > accept any other I/O requests.
 > >
-> > well, i havent found that file /etc/modules in SuSE. am not aware
-> > right now how they handle loading modules during boot process... ;)
-> >
-> > Oliver
+> > Does this mean that memory allocations in the suspend/resume
+> > implementations must be made with GFP_NOIO respectively
+> > GFP_ATOMIC ?
+> > It would seem so.
 >
-> This is getting "tired". I told you how to find out this information.
+> Why would you allocate memory on a resume transition?
 
-all i wanted to point out was that it doesnt seem to be distribution 
-independent as someone had stated before because that file /etc/modules 
-for example doesnt exist under SuSE. i wasnt asking anything about it 
-myself.
+We need to send messages to the device to restore state, don't we ?
+Any activity on USB can allocate memory. We've had to change the API
+to fix deadlock problems due to this already.
 
-anyway i will be able to find out that information if i need to sometime. 
-thanks.
-
-Oliver
-
--- 
-The first myth of management is that it exists.  The second myth of
-management is that success equals skill.
-		-- Robert Heller
-
+	Regards
+		Oliver

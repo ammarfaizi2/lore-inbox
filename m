@@ -1,404 +1,375 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268627AbTBZCyg>; Tue, 25 Feb 2003 21:54:36 -0500
+	id <S268626AbTBZCwT>; Tue, 25 Feb 2003 21:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268622AbTBZCw4>; Tue, 25 Feb 2003 21:52:56 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:24889 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S268625AbTBZCut>;
+	id <S268628AbTBZCvl>; Tue, 25 Feb 2003 21:51:41 -0500
+Received: from [24.77.48.240] ([24.77.48.240]:23609 "EHLO aiinc.aiinc.ca")
+	by vger.kernel.org with ESMTP id <S268618AbTBZCut>;
 	Tue, 25 Feb 2003 21:50:49 -0500
 Date: Tue, 25 Feb 2003 19:01:09 -0800
 From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200302260301.h1Q319V07251@aiinc.aiinc.ca>
+Message-Id: <200302260301.h1Q319D07249@aiinc.aiinc.ca>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Spelling fixes for 2.5.63 - guarantee
+Subject: [PATCH] Spelling fixes for 2.5.63 - boundary
 Cc: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one was suggested to me by Joe Perches.
-
 This fixes:
-    guarentee -> guarantee
-    guarenteed -> guaranteed
-    guarentees -> guarantees
+    boundry -> boundary
+    boundries -> boundaries
 
 Fixes 33 occurrences in all.
 
-diff -ur a/arch/alpha/kernel/pci_iommu.c b/arch/alpha/kernel/pci_iommu.c
---- a/arch/alpha/kernel/pci_iommu.c	Mon Feb 24 11:05:47 2003
-+++ b/arch/alpha/kernel/pci_iommu.c	Tue Feb 25 17:17:06 2003
-@@ -318,7 +318,7 @@
- /* Unmap a single streaming mode DMA translation.  The DMA_ADDR and
-    SIZE must match what was provided for in a previous pci_map_single
-    call.  All other usages are undefined.  After this call, reads by
--   the cpu to the buffer are guarenteed to see whatever the device
-+   the cpu to the buffer are guaranteed to see whatever the device
-    wrote there.  */
+diff -ur a/arch/m68k/sun3/config.c b/arch/m68k/sun3/config.c
+--- a/arch/m68k/sun3/config.c	Mon Feb 24 11:05:36 2003
++++ b/arch/m68k/sun3/config.c	Tue Feb 25 17:58:48 2003
+@@ -119,7 +119,7 @@
+ {
+ 	unsigned long start_page;
  
- void
-diff -ur a/arch/ia64/lib/swiotlb.c b/arch/ia64/lib/swiotlb.c
---- a/arch/ia64/lib/swiotlb.c	Mon Feb 24 11:05:38 2003
-+++ b/arch/ia64/lib/swiotlb.c	Tue Feb 25 17:17:11 2003
-@@ -359,7 +359,7 @@
-  * was provided for in a previous swiotlb_map_single call.  All other usages are
-  * undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see whatever the
-+ * After this call, reads by the cpu to the buffer are guaranteed to see whatever the
-  * device wrote there.
-  */
- void
-diff -ur a/arch/mips64/sgi-ip27/ip27-pci-dma.c b/arch/mips64/sgi-ip27/ip27-pci-dma.c
---- a/arch/mips64/sgi-ip27/ip27-pci-dma.c	Mon Feb 24 11:05:38 2003
-+++ b/arch/mips64/sgi-ip27/ip27-pci-dma.c	Tue Feb 25 17:17:15 2003
-@@ -74,7 +74,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr,
-diff -ur a/arch/sparc/kernel/ioport.c b/arch/sparc/kernel/ioport.c
---- a/arch/sparc/kernel/ioport.c	Mon Feb 24 11:06:01 2003
-+++ b/arch/sparc/kernel/ioport.c	Tue Feb 25 17:17:37 2003
-@@ -599,7 +599,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t ba, size_t size,
+-	/* align start/end to page boundries */
++	/* align start/end to page boundaries */
+ 	memory_start = ((memory_start + (PAGE_SIZE-1)) & PAGE_MASK);
+ 	memory_end = memory_end & PAGE_MASK;
+ 		
+diff -ur a/arch/sparc/kernel/init_task.c b/arch/sparc/kernel/init_task.c
+--- a/arch/sparc/kernel/init_task.c	Mon Feb 24 11:05:34 2003
++++ b/arch/sparc/kernel/init_task.c	Tue Feb 25 17:56:18 2003
+@@ -12,7 +12,7 @@
+ struct mm_struct init_mm = INIT_MM(init_mm);
+ struct task_struct init_task = INIT_TASK(init_task);
+ 
+-/* .text section in head.S is aligned at 8k boundry and this gets linked
++/* .text section in head.S is aligned at 8k boundary and this gets linked
+  * right after that so that the init_thread_union is aligned properly as well.
+  * If this is not aligned on a 8k boundry, then you should change code
+  * in etrap.S which assumes it.
+diff -ur a/arch/sparc/lib/blockops.S b/arch/sparc/lib/blockops.S
+--- a/arch/sparc/lib/blockops.S	Mon Feb 24 11:06:03 2003
++++ b/arch/sparc/lib/blockops.S	Tue Feb 25 17:56:20 2003
+@@ -38,7 +38,7 @@
+ 	 * and (2 * PAGE_SIZE) (for kernel stacks)
+ 	 * and with a second arg of zero.  We assume in
+ 	 * all of these cases that the buffer is aligned
+-	 * on at least an 8 byte boundry.
++	 * on at least an 8 byte boundary.
+ 	 *
+ 	 * Therefore we special case them to make them
+ 	 * as fast as possible.
+diff -ur a/arch/sparc/lib/checksum.S b/arch/sparc/lib/checksum.S
+--- a/arch/sparc/lib/checksum.S	Mon Feb 24 11:05:34 2003
++++ b/arch/sparc/lib/checksum.S	Tue Feb 25 17:56:24 2003
+@@ -336,7 +336,7 @@
+ 	bne	cc_dword_align		! yes, we check for short lengths there
+ 	 andcc	%g1, 0xffffff80, %g0	! can we use unrolled loop?
+ 3:	be	3f			! nope, less than one loop remains
+-	 andcc	%o1, 4, %g0		! dest aligned on 4 or 8 byte boundry?
++	 andcc	%o1, 4, %g0		! dest aligned on 4 or 8 byte boundary?
+ 	be	ccdbl + 4		! 8 byte aligned, kick ass
+ 5:	CSUMCOPY_BIGCHUNK(%o0,%o1,%g7,0x00,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
+ 	CSUMCOPY_BIGCHUNK(%o0,%o1,%g7,0x20,%o4,%o5,%g2,%g3,%g4,%g5,%o2,%o3)
 diff -ur a/arch/sparc/mm/sun4c.c b/arch/sparc/mm/sun4c.c
 --- a/arch/sparc/mm/sun4c.c	Mon Feb 24 11:05:39 2003
-+++ b/arch/sparc/mm/sun4c.c	Tue Feb 25 17:17:39 2003
-@@ -1042,7 +1042,7 @@
- 		get_locked_segment(addr);
- 
- 	/* We are changing the virtual color of the page(s)
--	 * so we must flush the cache to guarentee consistency.
-+	 * so we must flush the cache to guarantee consistency.
- 	 */
- 	sun4c_flush_page(pages);
- #ifndef CONFIG_SUN4	
-diff -ur a/arch/sparc64/kernel/traps.c b/arch/sparc64/kernel/traps.c
---- a/arch/sparc64/kernel/traps.c	Mon Feb 24 11:06:01 2003
-+++ b/arch/sparc64/kernel/traps.c	Tue Feb 25 17:17:18 2003
-@@ -571,7 +571,7 @@
- 	unsigned long flush_linesize = ecache_flush_linesize;
- 	unsigned long flush_size = ecache_flush_size;
- 
--	/* Run through the whole cache to guarentee the timed loop
-+	/* Run through the whole cache to guarantee the timed loop
- 	 * is really displacing cache lines.
- 	 */
- 	__asm__ __volatile__("1: subcc	%0, %4, %0\n\t"
-diff -ur a/arch/sparc64/lib/U3copy_from_user.S b/arch/sparc64/lib/U3copy_from_user.S
---- a/arch/sparc64/lib/U3copy_from_user.S	Mon Feb 24 11:05:11 2003
-+++ b/arch/sparc64/lib/U3copy_from_user.S	Tue Feb 25 17:19:19 2003
-@@ -416,7 +416,7 @@
- 
- 2:	VISEntryHalf					! MS+MS
- 
--	/* Compute (len - (len % 8)) into %g2.  This is guarenteed
-+	/* Compute (len - (len % 8)) into %g2.  This is guaranteed
- 	 * to be nonzero.
- 	 */
- 	andn		%o2, 0x7, %g2			! A0	Group
-@@ -425,7 +425,7 @@
- 	 * one 8-byte longword past the end of src.  It actually
- 	 * does not, as %g2 is subtracted as loads are done from
- 	 * src, so we always stop before running off the end.
--	 * Also, we are guarenteed to have at least 0x10 bytes
-+	 * Also, we are guaranteed to have at least 0x10 bytes
- 	 * to move here.
- 	 */
- 	sub		%g2, 0x8, %g2			! A0	Group (reg-dep)
-diff -ur a/arch/sparc64/lib/U3copy_in_user.S b/arch/sparc64/lib/U3copy_in_user.S
---- a/arch/sparc64/lib/U3copy_in_user.S	Mon Feb 24 11:05:16 2003
-+++ b/arch/sparc64/lib/U3copy_in_user.S	Tue Feb 25 17:19:26 2003
-@@ -447,7 +447,7 @@
- 
- 2:	VISEntryHalf					! MS+MS
- 
--	/* Compute (len - (len % 8)) into %g2.  This is guarenteed
-+	/* Compute (len - (len % 8)) into %g2.  This is guaranteed
- 	 * to be nonzero.
- 	 */
- 	andn		%o2, 0x7, %g2			! A0	Group
-@@ -456,7 +456,7 @@
- 	 * one 8-byte longword past the end of src.  It actually
- 	 * does not, as %g2 is subtracted as loads are done from
- 	 * src, so we always stop before running off the end.
--	 * Also, we are guarenteed to have at least 0x10 bytes
-+	 * Also, we are guaranteed to have at least 0x10 bytes
- 	 * to move here.
- 	 */
- 	sub		%g2, 0x8, %g2			! A0	Group (reg-dep)
-diff -ur a/arch/sparc64/lib/U3copy_to_user.S b/arch/sparc64/lib/U3copy_to_user.S
---- a/arch/sparc64/lib/U3copy_to_user.S	Mon Feb 24 11:05:04 2003
-+++ b/arch/sparc64/lib/U3copy_to_user.S	Tue Feb 25 17:19:31 2003
-@@ -463,7 +463,7 @@
- 
- 2:	VISEntryHalf					! MS+MS
- 
--	/* Compute (len - (len % 8)) into %g2.  This is guarenteed
-+	/* Compute (len - (len % 8)) into %g2.  This is guaranteed
- 	 * to be nonzero.
- 	 */
- 	andn		%o2, 0x7, %g2			! A0	Group
-@@ -472,7 +472,7 @@
- 	 * one 8-byte longword past the end of src.  It actually
- 	 * does not, as %g2 is subtracted as loads are done from
- 	 * src, so we always stop before running off the end.
--	 * Also, we are guarenteed to have at least 0x10 bytes
-+	 * Also, we are guaranteed to have at least 0x10 bytes
- 	 * to move here.
- 	 */
- 	sub		%g2, 0x8, %g2			! A0	Group (reg-dep)
-diff -ur a/arch/sparc64/lib/U3memcpy.S b/arch/sparc64/lib/U3memcpy.S
---- a/arch/sparc64/lib/U3memcpy.S	Mon Feb 24 11:06:02 2003
-+++ b/arch/sparc64/lib/U3memcpy.S	Tue Feb 25 17:19:33 2003
-@@ -344,7 +344,7 @@
- 
- 2:	VISEntryHalf					! MS+MS
- 
--	/* Compute (len - (len % 8)) into %g2.  This is guarenteed
-+	/* Compute (len - (len % 8)) into %g2.  This is guaranteed
- 	 * to be nonzero.
- 	 */
- 	andn		%o2, 0x7, %g2			! A0	Group
-@@ -353,7 +353,7 @@
- 	 * one 8-byte longword past the end of src.  It actually
- 	 * does not, as %g2 is subtracted as loads are done from
- 	 * src, so we always stop before running off the end.
--	 * Also, we are guarenteed to have at least 0x10 bytes
-+	 * Also, we are guaranteed to have at least 0x10 bytes
- 	 * to move here.
- 	 */
- 	sub		%g2, 0x8, %g2			! A0	Group (reg-dep)
-diff -ur a/drivers/block/cciss_scsi.c b/drivers/block/cciss_scsi.c
---- a/drivers/block/cciss_scsi.c	Mon Feb 24 11:05:12 2003
-+++ b/drivers/block/cciss_scsi.c	Tue Feb 25 17:17:43 2003
-@@ -210,7 +210,7 @@
- 	stk = &sa->cmd_stack; 
- 	size = sizeof(struct cciss_scsi_cmd_stack_elem_t) * CMD_STACK_SIZE;
- 
--	// pci_alloc_consistent guarentees 32-bit DMA address will
-+	// pci_alloc_consistent guarantees 32-bit DMA address will
- 	// be used
- 
- 	stk->pool = (struct cciss_scsi_cmd_stack_elem_t *)
-diff -ur a/drivers/char/vt.c b/drivers/char/vt.c
---- a/drivers/char/vt.c	Mon Feb 24 11:05:41 2003
-+++ b/drivers/char/vt.c	Tue Feb 25 17:17:44 2003
-@@ -1882,7 +1882,7 @@
- 		buf = con_buf;
++++ b/arch/sparc/mm/sun4c.c	Tue Feb 25 17:56:29 2003
+@@ -533,7 +533,7 @@
  	}
+ }
  
--	/* At this point 'buf' is guarenteed to be a kernel buffer
-+	/* At this point 'buf' is guaranteed to be a kernel buffer
- 	 * and therefore no access to userspace (and therefore sleeping)
- 	 * will be needed.  The con_buf_sem serializes all tty based
- 	 * console rendering and vcs write/read operations.  We hold
-diff -ur a/drivers/net/pppoe.c b/drivers/net/pppoe.c
---- a/drivers/net/pppoe.c	Mon Feb 24 11:05:36 2003
-+++ b/drivers/net/pppoe.c	Tue Feb 25 17:17:47 2003
-@@ -292,7 +292,7 @@
+-/* Addr is always aligned on a page boundry for us already. */
++/* Addr is always aligned on a page boundary for us already. */
+ static void sun4c_map_dma_area(unsigned long va, u32 addr, int len)
+ {
+ 	unsigned long page, end;
+diff -ur a/arch/sparc64/kernel/init_task.c b/arch/sparc64/kernel/init_task.c
+--- a/arch/sparc64/kernel/init_task.c	Mon Feb 24 11:06:01 2003
++++ b/arch/sparc64/kernel/init_task.c	Tue Feb 25 17:56:10 2003
+@@ -12,7 +12,7 @@
+ static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
+ struct mm_struct init_mm = INIT_MM(init_mm);
  
- 				/* Now restart from the beginning of this
- 				 * hash chain.  We always NULL out pppoe_dev
--				 * so we are guarenteed to make forward
-+				 * so we are guaranteed to make forward
- 				 * progress.
- 				 */
- 				po = item_hash_table[hash];
-diff -ur a/drivers/net/sungem.c b/drivers/net/sungem.c
---- a/drivers/net/sungem.c	Mon Feb 24 11:05:47 2003
-+++ b/drivers/net/sungem.c	Tue Feb 25 17:17:50 2003
-@@ -2991,7 +2991,7 @@
- 	gem_begin_auto_negotiation(gp, NULL);
- 	spin_unlock_irq(&gp->lock);
+-/* .text section in head.S is aligned at 2 page boundry and this gets linked
++/* .text section in head.S is aligned at 2 page boundary and this gets linked
+  * right after that so that the init_thread_union is aligned properly as well.
+  * We really don't need this special alignment like the Intel does, but
+  * I do it anyways for completeness.
+diff -ur a/arch/sparc64/kernel/iommu_common.h b/arch/sparc64/kernel/iommu_common.h
+--- a/arch/sparc64/kernel/iommu_common.h	Mon Feb 24 11:06:02 2003
++++ b/arch/sparc64/kernel/iommu_common.h	Tue Feb 25 17:56:12 2003
+@@ -40,7 +40,7 @@
  
--	/* It is guarenteed that the returned buffer will be at least
-+	/* It is guaranteed that the returned buffer will be at least
- 	 * PAGE_SIZE aligned.
- 	 */
- 	gp->init_block = (struct gem_init_block *)
-diff -ur a/drivers/net/sungem.h b/drivers/net/sungem.h
---- a/drivers/net/sungem.h	Mon Feb 24 11:05:33 2003
-+++ b/drivers/net/sungem.h	Tue Feb 25 17:17:53 2003
-@@ -830,7 +830,7 @@
-  * RX Kick register) by the driver it must make sure the buffers are
-  * truly ready and that the ownership bits are set properly.
+ /* Two addresses are "virtually contiguous" if and only if:
+  * 1) They are equal, or...
+- * 2) They are both on a page boundry
++ * 2) They are both on a page boundary
+  */
+ #define VCONTIG(__X, __Y)	(((__X) == (__Y)) || \
+ 				 (((__X) | (__Y)) << (64UL - PAGE_SHIFT)) == 0UL)
+diff -ur a/arch/sparc64/kernel/sbus.c b/arch/sparc64/kernel/sbus.c
+--- a/arch/sparc64/kernel/sbus.c	Mon Feb 24 11:06:02 2003
++++ b/arch/sparc64/kernel/sbus.c	Tue Feb 25 17:56:15 2003
+@@ -24,7 +24,7 @@
+ #include "iommu_common.h"
+ 
+ /* These should be allocated on an SMP_CACHE_BYTES
+- * aligned boundry for optimal performance.
++ * aligned boundary for optimal performance.
   *
-- * Even though GEM modifies the RX descriptors, it guarentees that the
-+ * Even though GEM modifies the RX descriptors, it guarantees that the
-  * buffer DMA address field will stay the same when it performs these
-  * updates.  Therefore it can be used to keep track of DMA mappings
-  * by the host driver just as in the TX descriptor case above.
+  * On SYSIO, using an 8K page size we have 1GB of SBUS
+  * DMA space mapped.  We divide this space into equally
+diff -ur a/drivers/char/nwflash.c b/drivers/char/nwflash.c
+--- a/drivers/char/nwflash.c	Mon Feb 24 11:06:02 2003
++++ b/drivers/char/nwflash.c	Tue Feb 25 17:56:31 2003
+@@ -215,7 +215,7 @@
+ 	temp = ((int) (p + count) >> 16) - nBlock + 1;
+ 
+ 	/*
+-	 * write ends at exactly 64k boundry?
++	 * write ends at exactly 64k boundary?
+ 	 */
+ 	if (((int) (p + count) & 0xFFFF) == 0)
+ 		temp -= 1;
+diff -ur a/drivers/net/acenic.c b/drivers/net/acenic.c
+--- a/drivers/net/acenic.c	Mon Feb 24 11:05:31 2003
++++ b/drivers/net/acenic.c	Tue Feb 25 17:56:33 2003
+@@ -1378,7 +1378,7 @@
+ 	 * On this platform, we know what the best dma settings
+ 	 * are.  We use 64-byte maximum bursts, because if we
+ 	 * burst larger than the cache line size (or even cross
+-	 * a 64byte boundry in a single burst) the UltraSparc
++	 * a 64byte boundary in a single burst) the UltraSparc
+ 	 * PCI controller will disconnect at 64-byte multiples.
+ 	 *
+ 	 * Read-multiple will be properly enabled above, and when
+diff -ur a/drivers/net/b44.h b/drivers/net/b44.h
+--- a/drivers/net/b44.h	Mon Feb 24 11:05:36 2003
++++ b/drivers/net/b44.h	Tue Feb 25 17:56:34 2003
+@@ -424,7 +424,7 @@
+ };
+ 
+ /* There are only 12 bits in the DMA engine for descriptor offsetting
+- * so the table must be aligned on a boundry of this.
++ * so the table must be aligned on a boundary of this.
+  */
+ #define DMA_TABLE_BYTES		4096
+ 
+diff -ur a/drivers/net/fc/iph5526.c b/drivers/net/fc/iph5526.c
+--- a/drivers/net/fc/iph5526.c	Mon Feb 24 11:05:12 2003
++++ b/drivers/net/fc/iph5526.c	Tue Feb 25 17:58:52 2003
+@@ -499,7 +499,7 @@
+ 		fi->q.ptr_tachyon_header[i] = fi->q.ptr_tachyon_header_base + 16*i;
+ 	
+ 	/* Allocate memory for indices.
+-	 * Indices should be aligned on 32 byte boundries. 
++	 * Indices should be aligned on 32 byte boundaries. 
+ 	 */
+ 	fi->q.host_ocq_cons_indx = kmalloc(2*32, GFP_KERNEL);
+ 	if (fi->q.host_ocq_cons_indx == NULL){ 
+diff -ur a/drivers/net/sunhme.c b/drivers/net/sunhme.c
+--- a/drivers/net/sunhme.c	Mon Feb 24 11:05:15 2003
++++ b/drivers/net/sunhme.c	Tue Feb 25 17:56:37 2003
+@@ -1198,7 +1198,7 @@
+  * (ETH_FRAME_LEN + 64 + 2) = (1514 + 64 + 2) = 1580 bytes.
+  *
+  * First our alloc_skb() routine aligns the data base to a 64 byte
+- * boundry.  We now have 0xf001b040 as our skb data address.  We
++ * boundary.  We now have 0xf001b040 as our skb data address.  We
+  * plug this into the receive descriptor address.
+  *
+  * Next, we skb_reserve() 2 bytes to account for the Happy Meal offset.
+diff -ur a/drivers/net/sunhme.h b/drivers/net/sunhme.h
+--- a/drivers/net/sunhme.h	Mon Feb 24 11:05:30 2003
++++ b/drivers/net/sunhme.h	Tue Feb 25 17:56:40 2003
+@@ -298,7 +298,7 @@
+ #define CSCONFIG_NDISABLE       0x8000  /* Disable NRZI                */
+ 
+ /* Happy Meal descriptor rings and such.
+- * All descriptor rings must be aligned on a 2K boundry.
++ * All descriptor rings must be aligned on a 2K boundary.
+  * All receive buffers must be 64 byte aligned.
+  * Always write the address first before setting the ownership
+  * bits to avoid races with the hardware scanning the ring.
+diff -ur a/drivers/net/sunlance.c b/drivers/net/sunlance.c
+--- a/drivers/net/sunlance.c	Mon Feb 24 11:05:14 2003
++++ b/drivers/net/sunlance.c	Tue Feb 25 17:56:42 2003
+@@ -647,7 +647,7 @@
+ 	u8 *p8;
+ 	unsigned long pbuf = (unsigned long) piobuf;
+ 
+-	/* We know here that both src and dest are on a 16bit boundry. */
++	/* We know here that both src and dest are on a 16bit boundary. */
+ 	*p16++ = sbus_readw(pbuf);
+ 	p32 = (u32 *) p16;
+ 	pbuf += 2;
 diff -ur a/drivers/net/tg3.c b/drivers/net/tg3.c
 --- a/drivers/net/tg3.c	Mon Feb 24 11:05:33 2003
-+++ b/drivers/net/tg3.c	Tue Feb 25 17:19:35 2003
-@@ -2194,7 +2194,7 @@
- 	int i;
++++ b/drivers/net/tg3.c	Tue Feb 25 17:56:46 2003
+@@ -5941,7 +5941,7 @@
  
- #if !PCI_DMA_BUS_IS_PHYS
--	/* IOMMU, just map the guilty area again which is guarenteed to
-+	/* IOMMU, just map the guilty area again which is guaranteed to
- 	 * use different addresses.
- 	 */
+ 	/* Force memory write invalidate off.  If we leave it on,
+ 	 * then on 5700_BX chips we have to enable a workaround.
+-	 * The workaround is to set the TG3PCI_DMA_RW_CTRL boundry
++	 * The workaround is to set the TG3PCI_DMA_RW_CTRL boundary
+ 	 * to match the cacheline size.  The Broadcom driver have this
+ 	 * workaround but turns MWI off all the times so never uses
+ 	 * it.  This seems to suggest that the workaround is insufficient.
+diff -ur a/drivers/net/tokenring/smctr.c b/drivers/net/tokenring/smctr.c
+--- a/drivers/net/tokenring/smctr.c	Mon Feb 24 11:05:32 2003
++++ b/drivers/net/tokenring/smctr.c	Tue Feb 25 17:56:54 2003
+@@ -417,7 +417,7 @@
+         tp->tx_buff_end[BUG_QUEUE] = (__u16 *)smctr_malloc(dev, 0);
  
-@@ -2229,7 +2229,7 @@
- 		return -1;
- 	}
+         /* Allocate MAC receive data buffers.
+-         * MAC Rx buffer doesn't have to be on a 256 byte boundry.
++         * MAC Rx buffer doesn't have to be on a 256 byte boundary.
+          */
+         tp->rx_buff_head[MAC_QUEUE] = (__u16 *)smctr_malloc(dev,
+                 RX_DATA_BUFFER_SIZE * tp->num_rx_bdbs[MAC_QUEUE]);
+@@ -438,7 +438,7 @@
+          * To guarantee a minimum of 256 contigous memory to
+          * UM_Receive_Packet's lookahead pointer, before a page
+          * change or ring end is encountered, place each rx buffer on
+-         * a 256 byte boundry.
++         * a 256 byte boundary.
+          */
+         smctr_malloc(dev, TO_256_BYTE_BOUNDRY(tp->sh_mem_used));
+         tp->rx_buff_head[NON_MAC_QUEUE] = (__u16 *)smctr_malloc(dev,
+@@ -1331,7 +1331,7 @@
+         mem_used += tp->tx_buff_size[BUG_QUEUE];
  
--	/* New SKB is guarenteed to be linear. */
-+	/* New SKB is guaranteed to be linear. */
- 	entry = *start;
- 	new_addr = pci_map_single(tp->pdev, new_skb->data, new_skb->len,
- 				  PCI_DMA_TODEVICE);
-diff -ur a/drivers/net/tokenring/madgemc.c b/drivers/net/tokenring/madgemc.c
---- a/drivers/net/tokenring/madgemc.c	Mon Feb 24 11:05:45 2003
-+++ b/drivers/net/tokenring/madgemc.c	Tue Feb 25 17:19:38 2003
-@@ -80,7 +80,7 @@
- static void madgemc_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+         /* Allocate MAC receive data buffers.
+-         * MAC receive buffers don't have to be on a 256 byte boundry.
++         * MAC receive buffers don't have to be on a 256 byte boundary.
+          */
+         mem_used += RX_DATA_BUFFER_SIZE * tp->num_rx_bdbs[MAC_QUEUE];
+ 
+@@ -1348,7 +1348,7 @@
+          *
+          * Make sure the mem_used offset at this point is the
+          * same as in allocate_shared memory or the following
+-         * boundry adjustment will be incorrect (i.e. not allocating
++         * boundary adjustment will be incorrect (i.e. not allocating
+          * the non-mac receive buffers above cannot change the 256
+          * byte offset).
+          *
+@@ -3930,7 +3930,7 @@
+         return (err);
+ }
+ 
+-/* Adapter RAM test. Incremental word ODD boundry data test. */
++/* Adapter RAM test. Incremental word ODD boundary data test. */
+ static int smctr_ram_memory_test(struct net_device *dev)
+ {
+         struct net_local *tp = (struct net_local *)dev->priv;
+@@ -3947,7 +3947,7 @@
+         pages_of_ram    = tp->ram_size / tp->ram_usable;
+         pword           = tp->ram_access;
+ 
+-        /* Incremental word ODD boundry test. */
++        /* Incremental word ODD boundary test. */
+         for(page = 0; (page < pages_of_ram) && (~err);
+                 page++, start_pattern += 0x8000)
+         {
+diff -ur a/drivers/parisc/sba_iommu.c b/drivers/parisc/sba_iommu.c
+--- a/drivers/parisc/sba_iommu.c	Mon Feb 24 11:05:39 2003
++++ b/drivers/parisc/sba_iommu.c	Tue Feb 25 17:56:59 2003
+@@ -1114,7 +1114,7 @@
  
  /*
-- * These work around paging, however they dont guarentee you're on the
-+ * These work around paging, however they dont guarantee you're on the
-  * right page.
-  */
- #define SIFREADB(reg) (inb(dev->base_addr + ((reg<0x8)?reg:reg-0x8)))
-@@ -436,7 +436,7 @@
-  * both with their own disadvantages...
-  *
-  * 1)  	Read in the SIFSTS register from the TMS controller.  This
-- *	is guarenteed to be accurate, however, there's a fairly
-+ *	is guaranteed to be accurate, however, there's a fairly
-  *	large performance penalty for doing so: the Madge chips
-  *	must request the register from the Eagle, the Eagle must
-  *	read them from its internal bus, and then take the route
-diff -ur a/fs/bio.c b/fs/bio.c
---- a/fs/bio.c	Mon Feb 24 11:05:34 2003
-+++ b/fs/bio.c	Tue Feb 25 17:18:00 2003
-@@ -334,7 +334,7 @@
-  *	@bdev:  I/O target
-  *
-  *	Return the approximate number of pages we can send to this target.
-- *	There's no guarentee that you will be able to fit this number of pages
-+ *	There's no guarantee that you will be able to fit this number of pages
-  *	into a bio, it does not account for dynamic restrictions that vary
-  *	on offset.
-  */
-diff -ur a/fs/mpage.c b/fs/mpage.c
---- a/fs/mpage.c	Mon Feb 24 11:05:12 2003
-+++ b/fs/mpage.c	Tue Feb 25 17:18:02 2003
-@@ -598,7 +598,7 @@
-  * If a page is already under I/O, generic_writepages() skips it, even
-  * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
-  * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
-- * and msync() need to guarentee that all the data which was dirty at the time
-+ * and msync() need to guarantee that all the data which was dirty at the time
-  * the call was made get new I/O started against them.  So if called_for_sync()
-  * is true, we must wait for existing IO to complete.
-  *
-diff -ur a/include/asm-alpha/pci.h b/include/asm-alpha/pci.h
---- a/include/asm-alpha/pci.h	Mon Feb 24 11:05:04 2003
-+++ b/include/asm-alpha/pci.h	Tue Feb 25 17:18:05 2003
-@@ -97,7 +97,7 @@
- /* Unmap a single streaming mode DMA translation.  The DMA_ADDR and
-    SIZE must match what was provided for in a previous pci_map_single
-    call.  All other usages are undefined.  After this call, reads by
--   the cpu to the buffer are guarenteed to see whatever the device
-+   the cpu to the buffer are guaranteed to see whatever the device
-    wrote there.  */
+ ** Two address ranges are DMA contiguous *iff* "end of prev" and
+-** "start of next" are both on a page boundry.
++** "start of next" are both on a page boundary.
+ **
+ ** (shift left is a quick trick to mask off upper bits)
+ */
+diff -ur a/drivers/scsi/qlogicpti.c b/drivers/scsi/qlogicpti.c
+--- a/drivers/scsi/qlogicpti.c	Mon Feb 24 11:05:37 2003
++++ b/drivers/scsi/qlogicpti.c	Tue Feb 25 17:57:01 2003
+@@ -776,7 +776,7 @@
+ }
  
- extern void pci_unmap_single(struct pci_dev *, dma_addr_t, size_t, int);
-diff -ur a/include/asm-mips/pci.h b/include/asm-mips/pci.h
---- a/include/asm-mips/pci.h	Mon Feb 24 11:05:38 2003
-+++ b/include/asm-mips/pci.h	Tue Feb 25 17:18:09 2003
-@@ -102,7 +102,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
+ /* The request and response queues must each be aligned
+- * on a page boundry.
++ * on a page boundary.
   */
- extern inline void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr,
-diff -ur a/include/asm-mips64/pci.h b/include/asm-mips64/pci.h
---- a/include/asm-mips64/pci.h	Mon Feb 24 11:05:07 2003
-+++ b/include/asm-mips64/pci.h	Tue Feb 25 17:18:07 2003
-@@ -126,7 +126,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- static inline void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr,
-diff -ur a/include/asm-sh/pci.h b/include/asm-sh/pci.h
---- a/include/asm-sh/pci.h	Mon Feb 24 11:05:36 2003
-+++ b/include/asm-sh/pci.h	Tue Feb 25 17:18:11 2003
-@@ -118,7 +118,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- static inline void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr,
-diff -ur a/include/asm-sparc/pci.h b/include/asm-sparc/pci.h
---- a/include/asm-sparc/pci.h	Mon Feb 24 11:05:39 2003
-+++ b/include/asm-sparc/pci.h	Tue Feb 25 17:18:18 2003
-@@ -59,7 +59,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- extern void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr, size_t size, int direction);
-diff -ur a/include/asm-sparc64/pbm.h b/include/asm-sparc64/pbm.h
---- a/include/asm-sparc64/pbm.h	Mon Feb 24 11:06:03 2003
-+++ b/include/asm-sparc64/pbm.h	Tue Feb 25 17:18:14 2003
-@@ -59,7 +59,7 @@
- 	unsigned long	iommu_ctxflush;		/* IOMMU context flush register */
- 
- 	/* This is a register in the PCI controller, which if
--	 * read will have no side-effects but will guarentee
-+	 * read will have no side-effects but will guarantee
- 	 * completion of all previous writes into IOMMU/STC.
- 	 */
- 	unsigned long	write_complete_reg;
-diff -ur a/include/asm-sparc64/pci.h b/include/asm-sparc64/pci.h
---- a/include/asm-sparc64/pci.h	Mon Feb 24 11:05:11 2003
-+++ b/include/asm-sparc64/pci.h	Tue Feb 25 17:18:16 2003
-@@ -67,7 +67,7 @@
-  * must match what was provided for in a previous pci_map_single call.  All
-  * other usages are undefined.
-  *
-- * After this call, reads by the cpu to the buffer are guarenteed to see
-+ * After this call, reads by the cpu to the buffer are guaranteed to see
-  * whatever the device wrote there.
-  */
- extern void pci_unmap_single(struct pci_dev *hwdev, dma_addr_t dma_addr, size_t size, int direction);
-diff -ur a/net/ipv4/netfilter/ip_conntrack_irc.c b/net/ipv4/netfilter/ip_conntrack_irc.c
---- a/net/ipv4/netfilter/ip_conntrack_irc.c	Mon Feb 24 11:05:39 2003
-+++ b/net/ipv4/netfilter/ip_conntrack_irc.c	Tue Feb 25 17:18:25 2003
-@@ -107,7 +107,7 @@
- static int help(const struct iphdr *iph, size_t len,
- 		struct ip_conntrack *ct, enum ip_conntrack_info ctinfo)
+ static int __init qpti_map_queues(struct qlogicpti *qpti)
  {
--	/* tcplen not negative guarenteed by ip_conntrack_tcp.c */
-+	/* tcplen not negative guaranteed by ip_conntrack_tcp.c */
- 	struct tcphdr *tcph = (void *) iph + iph->ihl * 4;
- 	const char *data = (const char *) tcph + tcph->doff * 4;
- 	const char *_data = data;
+diff -ur a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+--- a/fs/jfs/jfs_dmap.c	Mon Feb 24 11:05:41 2003
++++ b/fs/jfs/jfs_dmap.c	Tue Feb 25 17:57:03 2003
+@@ -1112,7 +1112,7 @@
+ 	 * current allocation in place if the number of additional blocks
+ 	 * can fit into a dmap, the last block of the current allocation
+ 	 * is not the last block of the file system, and the start of the
+-	 * inplace extension is not on an allocation group boundry.
++	 * inplace extension is not on an allocation group boundary.
+ 	 */
+ 	if (addnblocks > BPERDMAP || extblkno >= bmp->db_mapsize ||
+ 	    (extblkno & (bmp->db_agsize - 1)) == 0) {
+diff -ur a/include/asm-m68k/dvma.h b/include/asm-m68k/dvma.h
+--- a/include/asm-m68k/dvma.h	Mon Feb 24 11:05:34 2003
++++ b/include/asm-m68k/dvma.h	Tue Feb 25 17:58:58 2003
+@@ -45,7 +45,7 @@
+ #define IOMMU_ENTRIES 120
+ 
+ /* empirical kludge -- dvma regions only seem to work right on 0x10000 
+-   byte boundries */
++   byte boundaries */
+ #define DVMA_REGION_SIZE 0x10000
+ #define DVMA_ALIGN(addr) (((addr)+DVMA_REGION_SIZE-1) & \
+                          ~(DVMA_REGION_SIZE-1))
+diff -ur a/include/asm-ppc/page.h b/include/asm-ppc/page.h
+--- a/include/asm-ppc/page.h	Mon Feb 24 11:05:14 2003
++++ b/include/asm-ppc/page.h	Tue Feb 25 17:57:21 2003
+@@ -58,7 +58,7 @@
+ #endif
+ 
+ 
+-/* align addr on a size boundry - adjust address up if needed -- Cort */
++/* align addr on a size boundary - adjust address up if needed -- Cort */
+ #define _ALIGN(addr,size)	(((addr)+(size)-1)&(~((size)-1)))
+ 
+ /* to align the pointer to the (next) page boundary */
+diff -ur a/include/asm-ppc64/page.h b/include/asm-ppc64/page.h
+--- a/include/asm-ppc64/page.h	Mon Feb 24 11:05:05 2003
++++ b/include/asm-ppc64/page.h	Tue Feb 25 17:57:19 2003
+@@ -114,11 +114,11 @@
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+-/* align addr on a size boundry - adjust address up/down if needed */
++/* align addr on a size boundary - adjust address up/down if needed */
+ #define _ALIGN_UP(addr,size)	(((addr)+((size)-1))&(~((size)-1)))
+ #define _ALIGN_DOWN(addr,size)	((addr)&(~((size)-1)))
+ 
+-/* align addr on a size boundry - adjust address up if needed */
++/* align addr on a size boundary - adjust address up if needed */
+ #define _ALIGN(addr,size)     _ALIGN_UP(addr,size)
+ 
+ /* to align the pointer to the (next) double word boundary */
+diff -ur a/sound/oss/cs46xx.c b/sound/oss/cs46xx.c
+--- a/sound/oss/cs46xx.c	Mon Feb 24 11:05:05 2003
++++ b/sound/oss/cs46xx.c	Tue Feb 25 17:57:23 2003
+@@ -1016,7 +1016,7 @@
+ 	}
+ 		
+ 	/*
+-	 * ganularity is byte boundry, good part.
++	 * ganularity is byte boundary, good part.
+ 	 */
+ 	if(dmabuf->enable & DAC_RUNNING)
+ 	{
+diff -ur a/sound/oss/maestro3.c b/sound/oss/maestro3.c
+--- a/sound/oss/maestro3.c	Mon Feb 24 11:05:43 2003
++++ b/sound/oss/maestro3.c	Tue Feb 25 17:57:27 2003
+@@ -1916,8 +1916,8 @@
+      * the amazingly complicated prog_dmabuf wants it.
+      *
+      * pci_alloc_sonsistent guarantees that it won't cross a natural
+-     * boundry; the m3 hardware can't have dma cross a 64k bus
+-     * address boundry.
++     * boundary; the m3 hardware can't have dma cross a 64k bus
++     * address boundary.
+      */
+     for (order = 16-PAGE_SHIFT; order >= 1; order--) {
+         db->rawbuf = pci_alloc_consistent(pci_dev, PAGE_SIZE << order,

@@ -1,100 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbSKZR2C>; Tue, 26 Nov 2002 12:28:02 -0500
+	id <S266433AbSKZR3t>; Tue, 26 Nov 2002 12:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266433AbSKZR2C>; Tue, 26 Nov 2002 12:28:02 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:43512 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S266431AbSKZR2B>; Tue, 26 Nov 2002 12:28:01 -0500
-Message-ID: <002001c29572$2ce2b2e0$94d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: <trog@wincom.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <3de395e1.2c79.0@wincom.net>
-Subject: Re: A Kernel Configuration Tale of Woe
-Date: Tue, 26 Nov 2002 09:35:12 -0800
+	id <S266434AbSKZR3t>; Tue, 26 Nov 2002 12:29:49 -0500
+Received: from tao.natur.cuni.cz ([195.113.56.1]:19472 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id <S266433AbSKZR3r>;
+	Tue, 26 Nov 2002 12:29:47 -0500
+X-Obalka-From: mmokrejs@natur.cuni.cz
+X-Obalka-To: <linux-kernel@vger.kernel.org>
+Date: Tue, 26 Nov 2002 18:37:02 +0100 (CET)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic with 2.4.20-rc3
+In-Reply-To: <Pine.OSF.4.44.0211261616490.71135-100000@tao.natur.cuni.cz>
+Message-ID: <Pine.OSF.4.44.0211261818310.84542-100000@tao.natur.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I started doing a little doodling, and I came up with a very rough sort of
-relationship
-> map. I don't present this as the ideal data model - it's a start point at
-best.
->
->
-> A "box" is composed of "devices" and "subcomponents"
-> A "subcomponent" is composed of "chipsets"
-> A "chipset" provides a set of "capabilities"
-> A "device" requires a  set of "capabilities"
-> A "chipset->capability::capablility<-device" pair defines an "interface"
-> An "interface" has associated with it:
->    a) the kernel version where it first became availible
->    b) the kernel config switches that activate it
->
-> So what is needed is some way to start at the "box" level, and given the
-set
-> of subcomponents and devices associated with it, spit out a list of a) and
-b)
->
->
-> Here's the mini-eureka I've had - that need not actually be a part of the
-kernel
-> config system, although the kernel config system might potentially make
-use
-> of it.
->
-> What would suffice would be some sort of online database, published in a
-highly
-> visible location, and crosslinked from hell and back to make it likely to
-be
-> discovered in a Google-driven troubleshooting session. Provide motherboard
-make
-> and model (a subcomponent) any expansion cards (also subcomponents) and
-the
-> make and model numbers of drives et al (devices) and then query the
-database
-> and present the report.
->
-> I'm envisioning something very much like the CDDB service. This is a
-little
-> more complex, but the concept is similar. And like the CDDB service, it
-could
-> be queried over the network by some future "make" option if somebody
-decided
-> to implement that.
->
-> Also like the CDDB service, it makes use of network effects. No one person
-has
-> to populate the _entire_ database. The association of "subcomponents" to
-"chipsets"
-> (or "devices" to "capabilities") might be done by the manufacturer, or it
-might
-> be done by the developer who actually debugged the original driver
-instance,
-> or it might even be done by someone like myself (a sufficiently clued-in
-sysadmin
-> who did it the hard way and wants to help those who will follow after him)
->
-> All that matters is that _somebody_ contribute one little portion of the
-mapping,
-> and then, given enough somebodies, the entire map assembles itself.
->
+On Tue, 26 Nov 2002, Martin MOKREJ© wrote:
 
-So how would you deal with somebody contributing bogus mappings?
-What if somebody was just wrong, or uploading a mapping in error?
+Hi,
+  I should say the kernel panic I got during bootup process, and here I've
+tried to resolve some addresses. Home this makes sense to you:
+
+ksymoops 2.4.6 on i686 2.4.19.  Options used
+     -v /usr/src/linux-2.4.19/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.20-rc3/kernel/drivers/ide/ide-cd.o -o /lib/modules/2.4.20-rc3/kernel/drivers/block/nbd.o -o /lib/modules/
+2.4.20-rc3/kernel/fs/binfmt_misc.o -o /lib/modules/2.4.20-rc3/kernel/fs/nls/nls_cp1250.o -o /lib/modules/2.4.20-rc3/kernel/arch/i3
+86/kernel/cpuid.o (specified)
+     -m /boot/System.map-2.4.20-rc3 (specified)
+
+No modules in ksyms, skipping objects
+Error (regular_file): Oops_next_file /lib/modules/2.4.20-rc3/kernel/fs/nls is not a regular file, ignored
+Unable to handle kernel NULL pointer dereference at virtual address 00000026
+c01cd7fd
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<c01cd7fd>]          Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000 ebx: 00000000 ecx: c031a070 edx: 00001022
+esi: c034ffc4 edi: 00000000 ebp: 0008e000 esp: c1c17fc8
+ds: 0018 es: 0018 ss:0018
+Stack: c036922c c035cf24 c02c5c12 c02c5c09 c035075a 00010f00 c035079f c0105037
+       00010f00 c034ffc4 c01055b8 00000000 00000078 0009fe00
+Call trace: [<c0105037>][<c0155b8>]
+Code: 0f b7 40 26 3d 13 74 00 00 74 09 3d 43 74 00 00 74 11 eb 1f
 
 
-> And if Microsoft hasn't dared attempt such a thing... well, then that
-would
-> make it an "innovation", wouldn't it? ;)
+>>EIP; c01cd7fd <amd76x_pm_main+7d/130>   <=====
+
+>>ecx; c031a070 <amd_sb_tbl+38/68>
+>>esi; c034ffc4 <init_task_union+1fc4/2000>
+
+Trace; c0105037 <init+7/110>
+Trace; 0c0155b8 Before first symbol
+
+Code;  c01cd7fd <amd76x_pm_main+7d/130>
+00000000 <_EIP>:
+Code;  c01cd7fd <amd76x_pm_main+7d/130>   <=====
+   0:   0f b7 40 26               movzwl 0x26(%eax),%eax   <=====
+Code;  c01cd801 <amd76x_pm_main+81/130>
+   4:   3d 13 74 00 00            cmp    $0x7413,%eax
+Code;  c01cd806 <amd76x_pm_main+86/130>
+   9:   74 09                     je     14 <_EIP+0x14> c01cd811 <amd76x_pm_main+91/130>
+Code;  c01cd808 <amd76x_pm_main+88/130>
+   b:   3d 43 74 00 00            cmp    $0x7443,%eax
+Code;  c01cd80d <amd76x_pm_main+8d/130>
+  10:   74 11                     je     23 <_EIP+0x23> c01cd820 <amd76x_pm_main+a0/130>
+Code;  c01cd80f <amd76x_pm_main+8f/130>
+  12:   eb 1f                     jmp    33 <_EIP+0x33> c01cd830 <amd76x_pm_main+b0/130>
+
+<0> Kernel panic: Attempted to kill init!
+
+1 error issued.  Results may not be reliable.
+
+
+> Hi,
+>   I have a kernel panic on ASUS A7V333 ACPI BIOS Rev 1014 Beta 002 system,
+> no SMP kernel, HIGMEM enabled with Athlon 2000+:
 >
-> DG
+> BTW: Would someone tell me how to save the stack trace, so I do not have
+> to write it down manually? Thanks. ;)
+>
+> On the console is left:
+>
+> Real Time Clock Driver: v1.10e
+> amd76x_pm: version 20020730
+> Unable to handle kernel NULL pointer dereference at virtual address 00000026
+> printing eip:
+> c01cd7fd
+> *pde = 00000000
+> Oops: 0000
+> CPU: 0
+> EIP: 0010:[<c01cd7fd>]		Not tainted
+> EFLAGS: 00010246
+> eax: 00000000 ebx: 00000000 ecx: c031a070 edx: 00001022
+> esi: c034ffc4 edi: 00000000 ebp: 0008e000 esp: c1c17fc8
+> ds: 0018 es: 0018 ss:0018
+> Process swapper (pid: 1, stackpage = c1c17000)
+> Stack: c036922c c035cf24 c02c5c12 c02c5c09 c035075a 00010f00 c035079f c0105037
+> 	00010f00 c034ffc4 c01055b8 00000000 00000078 0009fe00
+> Call trace: [<c0105037>][<c0155b8>]
+> Code: 0f b7 40 26 3d 13 74 00 00 74 09 3d 43 74 00 00 74 11 eb 1f
+> <0> Kernel panic: Attempted to kill init!
+>
+> after a while appeared
+>
+> spurious 8259A interrupt: IRQ7
+>
+> Needless to say this surious interrupt I've seen also on this machine running 2.4.19 kernel.
+>
+> Any ideas what should I do? I'm a bit new to debugging kernel. ;)
+> Please Cc: me in replies. Thanks!
+>
+
+-- 
+Martin Mokrejs <mmokrejs@natur.cuni.cz>, <m.mokrejs@gsf.de>
+PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+tel.: +49-89-3187 3683 , fax: +49-89-3187 3585
+
 

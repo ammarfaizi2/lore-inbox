@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbUCKUer (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUCKUbV
+	id S261672AbUCKUep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUCKUbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:31:21 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:517 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261718AbUCKUaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:30:24 -0500
-Subject: Re: 2.6.4-mm1
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Redeeman <lkml@metanurb.dk>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079024816.5325.2.camel@redeeman.linux.dk>
+	Thu, 11 Mar 2004 15:31:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39627 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261712AbUCKUYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:24:01 -0500
+Date: Thu, 11 Mar 2004 21:23:53 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: 2.6.4-mm1: modular quota needs unknown symbol
+Message-ID: <20040311202352.GD14833@fs.tum.de>
 References: <20040310233140.3ce99610.akpm@osdl.org>
-	 <1079024816.5325.2.camel@redeeman.linux.dk>
-Content-Type: text/plain
-Message-Id: <1079036974.856.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 11 Mar 2004 21:29:34 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-11 at 18:06, Redeeman wrote:
-> hey andrew, i have a problem with this kernel, when it boots, it lists
-> vp_ide and stuff, and then suddenly after that my screen gets flodded
-> with sys traces and stuff, i cant even read it, so fast they come, and
-> the syste doesnet go further, i havent tried 2.6.4 vanilla yet, but i
-> will now.
+On Wed, Mar 10, 2004 at 11:31:40PM -0800, Andrew Morton wrote:
+>...
+> ext3-journalled-quotas-2.patch
+>   ext3: journalled quota
+>...
 
-I'm having similar problems, with the kernel crashing with not syncing
-in interrupt error after a lot of oopses and BUGs. I'm trying to find
-which patch is causing this, since 2.6.4-rc2-mm1 and 2.6.4 work fine.
+This patch broke modular quota:
+  WARNING: /lib/modules/2.6.4-mm1/kernel/fs/quota_v2.ko needs unknown 
+  symbol mark_info_dirty
 
-I'll post my findings, when they are ready.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

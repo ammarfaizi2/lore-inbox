@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267320AbTAGGnQ>; Tue, 7 Jan 2003 01:43:16 -0500
+	id <S267321AbTAGGn7>; Tue, 7 Jan 2003 01:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbTAGGnQ>; Tue, 7 Jan 2003 01:43:16 -0500
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:63468 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S267320AbTAGGnP>;
-	Tue, 7 Jan 2003 01:43:15 -0500
-Date: Tue, 7 Jan 2003 07:51:46 +0100 (CET)
-From: Peter Svensson <petersv@psv.nu>
-To: Dave Airlie <airlied@linux.ie>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dummy ethernet driver
-In-Reply-To: <Pine.LNX.4.44.0301062229330.29921-100000@skynet>
-Message-ID: <Pine.LNX.4.44.0301070744430.13867-100000@cheetah.psv.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267322AbTAGGn6>; Tue, 7 Jan 2003 01:43:58 -0500
+Received: from [65.186.235.69] ([65.186.235.69]:11209 "EHLO bach.dynet.com")
+	by vger.kernel.org with ESMTP id <S267321AbTAGGny>;
+	Tue, 7 Jan 2003 01:43:54 -0500
+Date: Tue, 7 Jan 2003 00:52:29 -0600
+From: Charlton Harrison <charlton@dynet.com>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 2.4.19 & 2.4.20 hang without oops...
+Message-ID: <20030107005229.A28504@bach.dynet.com>
+Reply-To: charlton@dynet.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003, Dave Airlie wrote:
-
-> > If you want to talk to local systems why don't you use the netlink
-> > interface/ethertap stuff ?
-> 
-> because I'm unconscionably lazy, and the VAX simulator code is already
-> written to use pcap and I'd rather not rewrite it, why fix something when
-> a quick hack will suffice :-)
-
-Just as an aside, the ts10 vax emulator uses the tap driver. Combined with
-the kernel bridging code you can create all kinds of network
-configurations.
-
-The last time i looked at simh Bob Supnik mentioned that the ethernet 
-simulation layer was to be targeted at tap/tun driver among others.
-
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
+Hello Everyone,
 
 
+I'd like to report a (probable) kernel bug in v2.4.19 and v2.4.20.
+This problem does NOT appear in 2.4.18 and I've had to go back to
+that kernel for now.
+
+The problem is as follows:
+While attempting to copy about 50GB of data onto an NFS-mounted partition,
+the `cp -a` process will go for a while, then my machine will hang/freeze up.
+
+I can reproduce it very easily and quickly on kernel 2.4.19 and 2.4.20,
+and most of the time happens before even copying 10GB worth of data.
+I am unable to reproduce the problem on kernel 2.4.18.
+
+Here are the specifics:
+
+HARDWARE:
+
+Dual (SMP) P3-500,  supermicro MB,  512MB ECC buffered SDRAM.
+3c905b ethernet card.
+EIDE hard drive operating on a 16MHz (UDMA *disabled*) bus.
+
+
+SOFTWARE:
+
+Compiled the kernel with Redhat GCC v2.96.
+(I also compiled v2.4.18 the same way and it works)
+
+
+I am very concerned about this bug and that it doesn't seem to be fixed
+in the latest Linux 2.4 kernels.
+
+For additional information,  please feel free to e-mail me.  Or, if you
+happen to know something about this bug already,  please e-mail me.
+
+Thanks!
+
+
+Charlton Harrison
+charlton@dynet.com

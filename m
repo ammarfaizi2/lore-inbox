@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVDCWJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVDCWbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVDCWJK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 18:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVDCWJK
+	id S261919AbVDCWbj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 18:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVDCWbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 18:09:10 -0400
-Received: from smtpout.mac.com ([17.250.248.44]:17121 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261445AbVDCWJG (ORCPT
+	Sun, 3 Apr 2005 18:31:38 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56739 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261919AbVDCWb3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 18:09:06 -0400
-In-Reply-To: <1112559934.5268.9.camel@tiger>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com>
+	Sun, 3 Apr 2005 18:31:29 -0400
+Date: Sun, 3 Apr 2005 15:30:56 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403153056.0ad6ee8e.pj@engr.sgi.com>
+In-Reply-To: <20050403150102.GA25442@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403071227.666ac33d.pj@engr.sgi.com>
+	<20050403150102.GA25442@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Renate Meijer <kleuske@xs4all.nl>,
-       linux-kernel@vger.kernel.org, Dag Arne Osvik <da@osvik.no>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Use of C99 int types
-Date: Sun, 3 Apr 2005 18:08:42 -0400
-To: Kenneth Johansson <ken@kenjo.org>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 03, 2005, at 16:25, Kenneth Johansson wrote:
-> But is this not exactly what Dag Arne Osvik was trying to do ??
-> uint_fast32_t means that we want at least 32 bits but it's OK with
-> more if that happens to be faster on this particular architecture.
-> The problem was that the C99 standard types are not defined anywhere
-> in the kernel headers so they can not be used.
+Ingo wrote:
+> if_ there is a significant hierarchy between CPUs it
+> should be represented via a matching sched-domains hierarchy,
 
-Uhh, so what's wrong with "int" or "long"?  On all existing archs
-supported by linux, "int" is 32 bits, "long long" is 64 bits, and
-"long" is an efficient word-sized value that can hold a casted
-pointer.  I suppose it's theoretical that linux could be ported to
-some arch where int is 16 bits, but so much stuff implicitly depends
-on at least 32-bits in int that I think that's unlikely.  GCC will
-generally do the right thing if you just tell it "int".
+Agreed.
 
-Cheers,
-Kyle Moffett
+I'll see how the sched domains hierarchy looks on a bigger SN2 systems.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+If the CPU hierarchy is not reflected in the sched-domain hierarchy any
+better there, then I will look to involve the "SN2 sched domain
+hierarchy experts" in improving SN2 the sched-domain hierarchy.
 
+Ok - that works.  Your patch of yesterday provides just the tool
+I need to measure this.  Cool.
 
+> i'll first try the bottom-up approach to speed up detection (getting to
+> the hump is very fast most of the time).
+
+Good.
+
+> then we can let the arch override the cpu_distance() method
+
+I'm not aware we need that, yet anyway.  First I should see if
+the SN2 sched_domains need improving.  Take a shot at doing it
+'the right way' before we go inventing overrides.  I suspect
+you agree.
+
+> the migration cost matrix we can later use to tune all the other 
+> sched-domains balancing related tunables as well
+
+That comes close to my actual motivation here.  I hope to expose a
+"cpu_distance" such as based on this cost matrix, to userland.
+
+We already expose the SLIT table node distances (using SN2 specific
+/proc files today, others are working on an arch-neutral mechanism).
+
+As we push more cores and hyperthreads into a single package on one end,
+and more complex numa topologies on the other end, this becomes
+increasingly interesting to NUMA aware user software.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTDUSKx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbTDUSKx
+	id S261832AbTDUSLi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTDUSLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:10:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9741 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261825AbTDUSKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:10:51 -0400
-Date: Mon, 21 Apr 2003 11:22:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Roman Zippel <zippel@linux-m68k.org>, "David S. Miller" <davem@redhat.com>,
-       <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new system call mknod64
-In-Reply-To: <20030421191013.A9655@infradead.org>
-Message-ID: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+	Mon, 21 Apr 2003 14:11:38 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:49600 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261832AbTDUSLf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:11:35 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780C263699@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Greg KH'" <greg@kroah.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'karim@opersys.com'" <karim@opersys.com>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
+       "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: RE: [patch] printk subsystems
+Date: Mon, 21 Apr 2003 11:23:13 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 21 Apr 2003, Christoph Hellwig wrote:
+
+> From: Greg KH [mailto:greg@kroah.com]
 > 
-> Not anymore for blockdevices.  And now that Al's back not anymore soon
-> for charater devices, too :)
+> > Yep, that is the point, and it is small enough (5 ulongs) that
+> > it can be embedded anywhere without being of high impact and
+> > having to allocate it [first example that comes to mind is
+> > for sending a device connection message; you can embed a short
+> > message in the device structure and query that for delivery;
+> > no buffer, no nothing, the data straight from the source].
+> 
+> And the device is removed from the system, the memory for that device is
+> freed, and then a user comes along and trys to read that message.
+> 
+> oops...  :)
 
-Actually, we still do it for both block _and_ character devices.
+Hey! Come on! You don't think I am that lame, do you? Man what
+a fame I do have!
 
-Look at "nfs*xdr.c" to see what's up.
+Before the device vaporizes, it recalls the message, so there is 
+no message to read - the same way you take away the sysfs data from
+the sysfs tree ...
 
-In other words, that split is definitely not virtual. It's a real thing 
-with real visibility for users.
-
-The fact that the kernel internally has generalized it away doesn't 
-matter. Any kernel virtualization of the number still _has_ to account for 
-the fact that it's a real thing.
-
-Put another way:
-
-	0x0000000000000101
-
-_has_ to open the same file as
-
-	0x0000000100000001
-
-because otherwise the kernel virtualization is broken (since they will
-look the same to a user, and they will end up being written to disk the
-same way).
-
-Thus any code that only looks at 64-bit dev_t without taking this into 
-account is BUGGY. 
-
-One way to avoid the bug is to always keep all dev_t numbers in "canonical 
-format". Which happens automatically if the interface is <major, minor> 
-rather than a 64-bit blob.
-
-I personally think that anything that uses "dev_t" in _any_ other way than 
-<major,minor> is fundamentally broken.
-
-		Linus
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

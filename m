@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135661AbRARPCJ>; Thu, 18 Jan 2001 10:02:09 -0500
+	id <S132312AbRARP3Y>; Thu, 18 Jan 2001 10:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135802AbRARPB7>; Thu, 18 Jan 2001 10:01:59 -0500
-Received: from [202.123.212.187] ([202.123.212.187]:6917 "EHLO ns1.b2s.com")
-	by vger.kernel.org with ESMTP id <S135801AbRARPBp>;
-	Thu, 18 Jan 2001 10:01:45 -0500
-Message-ID: <3A67056F.ECB60B8@vtc.edu.hk>
-Date: Thu, 18 Jan 2001 23:02:08 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S132571AbRARP3O>; Thu, 18 Jan 2001 10:29:14 -0500
+Received: from adsl-nrp10-C8B0F87C.sao.terra.com.br ([200.176.248.124]:31219
+	"EHLO thor.gds-corp.com") by vger.kernel.org with ESMTP
+	id <S132312AbRARP3M> convert rfc822-to-8bit; Thu, 18 Jan 2001 10:29:12 -0500
+Date: Thu, 18 Jan 2001 13:30:09 -0200 (BRST)
+From: Joel Franco Guzmán <joel@gds-corp.com>
+To: Mike Dresser <mdresser@windsormachine.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
+In-Reply-To: <3A670078.E8DF3229@windsormachine.com>
+Message-ID: <Pine.LNX.4.30.0101181325550.1017-100000@thor.gds-corp.com>
 MIME-Version: 1.0
-To: Kernel list <linux-kernel@vger.kernel.org>
-Subject: rsync + ssh fail on raid; okay on 2.2.x
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear folks,
+On Thu, 18 Jan 2001, Mike Dresser wrote:
 
-I use rsync to transfer my mail (including this list) from work to home
-over ppp ussing OpenSSH 2.3.0.  I have no problem transfering  hundreds
-of megabytes of my babies' photos from a non-raid partition (going to
-work), but I get:
+> Sorry if this has been asked of you before, but what happens if you put just
+> the 64 meg module in?
 
-nsmail/Inbox
-Write failed: Cannot allocate memory
-unexpected EOF in read_timeout
+Ok. i've not analised that possibility. I've tested that just now.
+But, the system work perfect. Without the sound card problem.
+I've exchanged the modules. FAIL.
+The memory sets in the BIOS is 3-3-3-10.
+The 64M and the 128M is PC100.
+Another more one thing. I think that be a software problem, because with
+the kernel 2.2.18 it's not happening.
 
-about 19 times out of 20 (1 success so far)
-Kernel: 2.4.0, no patches
-PIII 450MHz, 256MB RAM, Acus P3B-F motherboard (Intel 440BX)
-Mail going to Raid 1 device
-The file Inbox is only 2.9MB
-OS = Red Hat 7 with all updates, both home and work.
-Same with ppp 2.3.x and ppp 2.4.0
-Same whether work machine runs 2.2.16 or 2.4.0 kernel.
+thank you, Mike.
+>
+> > Bug Report
+> > ----------
+> > 1. 128M memory OK, but with 192M the sound card generate a noise while
+> > use the DSP.
+> > 2. i got the problem when I just put more 64M memory to the my machine.
+> > With 128M the problem is not present, but with 192M it is. The only
+> > difference is the memory quantity, or in other words, the additional slot
+> > occupied by the new memory card.
+>
+> My instinct is the pc100 ram being run at 133.  Sometimes you get away with
+> it(my pre-ratings, but supposed to be pc66 - hyundai ram runs at 100 just
+> fine, but won't go any higher), and maybe your new 64 megger can't do it.
+>
+> Mike Dresser
+>
 
-Any suggestions on where to begin to look for the problem?  I really
-need my email.
-
---
-Nick Urbanik, Dept. of Computing and Mathematics
-Hong Kong Institute of Vocational Education (Tsing Yi)
-email: nicku@vtc.edu.hk
-Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
-
-
+-- 
+    Joel Franco Guzmán
+GDS - Global Dynamic Systems
+   joelfranco@bigfoot.com
+ICQ 19354050 | (16) 270-6867
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

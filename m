@@ -1,156 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265742AbUBBRv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 12:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbUBBRv7
+	id S265736AbUBBRuk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 12:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUBBRuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 12:51:59 -0500
-Received: from keskus.netlab.hut.fi ([130.233.154.176]:12223 "EHLO
-	keskus.netlab.hut.fi") by vger.kernel.org with ESMTP
-	id S265742AbUBBRvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 12:51:53 -0500
-Message-ID: <401E8E33.7050305@netlab.hut.fi>
-Date: Mon, 02 Feb 2004 19:51:47 +0200
-From: Emmanuel Guiton <emmanuel@netlab.hut.fi>
-Reply-To: emmanuel@netlab.hut.fi
-Organization: HUT Networking Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
-To: Duncan Sands <baldrick@free.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Freeing skbuff (was: Re: Sending built-by-hand packet and kernel
- panic.)
-References: <401E62C3.60503@netlab.hut.fi> <200402021602.56242.baldrick@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Feb 2004 12:50:40 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:36804 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265736AbUBBRuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 12:50:39 -0500
+Date: Mon, 2 Feb 2004 09:50:21 -0800
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040202175021.GA643@sgi.com>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20040201100644.GA2201@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040201100644.GA2201@ucw.cz>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Feb 01, 2004 at 11:06:44AM +0100, Vojtech Pavlik wrote:
+> Problems:
+> ~~~~~~~~~
+> 
+> I'm getting double clicks when I click only once.
+> My scroll wheel scrolls by two lines/screens instead of one.
+> My mouse moves too fast.
+> 
+> Solution:
+> ~~~~~~~~~
+> 
+> Check your XFree86 config file. 
+> 
+> You probably have two "mouse" entries there, one pointing to /dev/psaux and
+> the other to /dev/input/mice, so that you can get both your PS/2 and USB
+> mouse working on 2.4.
+> 
+> 2.6 uses the input subsystem for both PS2 and USB, and thus both devices
+> will report events from both mice, resulting in doubled events.
+> 
+> Remove either the /dev/psaux or /dev/input/mice entry, depending what suits
+> you better for 2.4 compatibility should you ever need go back to 2.4.
 
-Thanks a lot for pointing out these problems. I had completely missed them.
-However, my overall problem is not solved. As far as my investigations 
-led me, my sk_buff structure is never released after having been sent on 
-the wire. So I guess I need an explicit destructor function in my 
-sk_buff as the following is present in the definition of struct sk_buff:
-void         (*destructor)(struct sk_buff *);    /* Destruct function    
-    */
+Finally!  Thanks so much for putting together this FAQ Vojtech!  This
+mouse thing has been driving me crazy, and despite all my googling
+around for a solution, I never found the one above.
 
-Well, until now what I tried lead to even more quicker kernel panics. If 
-anyone has a good advice, I'd appreciate a lot.
-
-'Thank you again,
-
-         Emmanuel
-
-
-Duncan Sands wrote:
-
->Hi Emmanuel, I don't know anything about network programming
->but I did notice a few strange things:
->
->  
->
->>        /* skb is allocated 56 bytes = TCP message with no data
->>(detailed hereafter)
->>         * + 2 extra bytes before the ethernet header (see hereafter)
->>         */
->>    skb = alloc_skb(56, GFP_ATOMIC);
->>    
->>
->
->Why is this GFP_ATOMIC when you use GFP_KERNEL later on?
->
->  
->
->>    skb_reserve(skb, 2); /* for 16-bit alignment*/
->>        /* ethernet header is 14 byte long */
->>    eth = (__u8 *) skb_put(skb, 14);
->>        /* ip header is 20 byte long */
->>    iph = (struct iphdr *)skb_put(skb, sizeof(struct iphdr));
->>        /* tcp header (no options) is 20 byte long */
->>    tcph = (struct tcphdr *)skb_put(skb, sizeof(struct tcphdr));
->>
->>    /* skb->dst AND skb->dev (the latter is set by the former) */
->>    if (ip_route_output(&rt, ip_dst, 0, 0, 0) != 0)
->>    {
->>        printk("ip_route_output failed.\n");
->>        return -1;
->>    }
->>    skb->dst = (struct rt_entry *) rt; /* A trick from ip_route_input.c */
->>    skb->dev = skb->dst->dev;
->>
->>    /* Socket allocation. */
->>    if (sock_create(PF_INET, SOCK_RAW, IPPROTO_RAW, &sending_socket) < 0)
->>    {
->>        printk("Error socket creation.\n");
->>        sock_release(sending_socket);
->>        return -1;
->>    }
->>    sk = kmalloc(sizeof(struct sock), GFP_KERNEL);
->>    memcpy(&(sending_socket->sk), sk, sizeof(struct sock));
->>    
->>
->
->Here you are copying the (uninitialized) sk into sending_socket->sk.
->I guess you got the arguments to memcpy the wrong way round.
->
->  
->
->>    sock_release(sending_socket);
->>    
->>
->
->Maybe this drops reference counts to various objects, in which
->case it is wrong to reference them via sk.
->
->  
->
->>    if (sk == NULL)
->>    {
->>        printk("Error: sk == NULL\n");
->>        return -1;
->>    }
->>        /* Now, set the sock field. */
->>    skb->sk = sk;
->>
->>    /* TRANSPORT HEADER: TCP */
->>        /* here, TCP header data is filled in tcph. */
->>    skb->h.th = tcph;
->>    /* NETWORK HEADER: IP */
->>        /* here, IP header data is filled in iph*/
->>    skb->nh.iph = iph;
->>    /* LINK HEADER: ETHERNET */
->>        /* here, ethernet header data is filled in iph*/
->>    skb->mac.ethernet = ((u8 *)iph) - 14;
->>
->>    /* Fix me:
->>     * Scheduling priority put at max, choose more correct value.
->>     */
->>    skb->priority = 15;
->>    /* To choose right pkt_type when receiving a packet.
->>     * We're not receivng anything, but I set the value like the guys
->>     * in pktgen.c did, there should be a reason for that.
->>     */
->>    skb->protocol = __constant_htons(ETH_P_IP);
->>
->>    /* TIMESTAMP */
->>        /* last, so it's closest to sending time. */
->>    do_gettimeofday(&skb->stamp);
->>
->>printk("Going to send initialized skb! ...\n");
->>//    if (NF_HOOK(PF_INET, NF_IP_LOCAL_OUT, skb, NULL, skb->dev,
->>output_maybe_reroute) < 0)
->>    NF_HOOK(PF_INET, NF_IP_LOCAL_OUT, skb, NULL, skb->dev,
->>ip_finish_output) < 0
->>    
->>
->
->All the best,
->
->Duncan.
->  
->
-
-
-
+Jesse

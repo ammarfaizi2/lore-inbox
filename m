@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbTA1MMc>; Tue, 28 Jan 2003 07:12:32 -0500
+	id <S265230AbTA1MN0>; Tue, 28 Jan 2003 07:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbTA1MMc>; Tue, 28 Jan 2003 07:12:32 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:32896 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S265238AbTA1MMb>;
-	Tue, 28 Jan 2003 07:12:31 -0500
-Date: Tue, 28 Jan 2003 13:24:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Srihari Vijayaraghavan <harisri@bigpond.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Solved 2.4.21-pre3aa1 and RAID-0 issue (was: Re: 2.4.21-pre3aa1 and RAID0 issue]
-Message-ID: <20030128122407.GK1237@dualathlon.random>
-References: <200212270856.13419.harisri@bigpond.com> <200301271441.11112.harisri@bigpond.com> <20030127113002.GB889@suse.de> <200301282046.58473.harisri@bigpond.com> <20030128094433.GX17791@suse.de>
+	id <S265242AbTA1MN0>; Tue, 28 Jan 2003 07:13:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22400
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id <S265230AbTA1MMv>; Tue, 28 Jan 2003 07:12:51 -0500
+Subject: Re: PID of multi-threaded core's file name is wrong in 2.5.59
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030125.135611.74744521.maeda@jp.fujitsu.com>
+References: <20030125.135611.74744521.maeda@jp.fujitsu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043756485.1328.26.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030128094433.GX17791@suse.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 28 Jan 2003 12:21:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 10:44:33AM +0100, Jens Axboe wrote:
-> On Tue, Jan 28 2003, Srihari Vijayaraghavan wrote:
-> > Hello Jens,
-> > 
-> > On Monday 27 January 2003 22:30, Jens Axboe wrote:
-> > > Could you please try this patch on top of 2.4.21-pre3aa1 instead of
-> > > backing out blk-atomic? Does that work, too? Thanks!
-> > 
-> > Yes, the RAID-0 works fine on 2.4.21-pre3aa1 after applying your patch on top 
-> > of it.
+On Sat, 2003-01-25 at 04:56, MAEDA Naoaki wrote:
+> Hi,
 > 
-> Great, thanks for confirming that it solves the problem.
+> I found sometimes pid of muitl-threaded core's file name shows
+> wrong number in 2.5.59 with NPTL-0.17. Problem is, pid of core file
+> name comes from currnet->pid, but I think it should be current->tgid.
 
-thanks. the patch is obviously right indeed.
+The value needs to be unique so that you can dump multiple threads
+at the same time and not have one overwrite another. You might want
+to add the tgid as another format type to the core name formatting so
+users can select the behaviour you desire however ?
 
-Andrea

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbTIMU13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 16:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTIMU13
+	id S262183AbTIMUef (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 16:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbTIMUef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 16:27:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48146 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262193AbTIMU1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 16:27:22 -0400
-Date: Sat, 13 Sep 2003 21:27:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: presario laptop pcmcia loading problems
-Message-ID: <20030913212719.A23169@flint.arm.linux.org.uk>
-Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain>
+	Sat, 13 Sep 2003 16:34:35 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:59037 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262183AbTIMUee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 16:34:34 -0400
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030913185319.GC10047@gtf.org>
+References: <20030913125103.GE27368@fs.tum.de>
+	 <20030913161149.GA1750@redhat.com> <20030913182159.GA10047@gtf.org>
+	 <20030913183758.GQ1191@redhat.com>  <20030913185319.GC10047@gtf.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063485121.9400.2.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain>; from tmolina@cablespeed.com on Fri, Sep 12, 2003 at 04:20:23PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Sat, 13 Sep 2003 21:32:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 04:20:23PM -0400, Thomas Molina wrote:
-> My Presario 12XL325 laptop is having a number of problems (see bugzilla 
-> 973).  During late test4 or early test5 it started refusing to properly 
-> initialize my wireless ethernet card, an SMC2632W.  I am getting the 
-> following output when the card is inserted:
+On Sad, 2003-09-13 at 19:53, Jeff Garzik wrote:
+> You're not understanding the model.  I understand your comment about
+> using 386 kernels for install kernels.  If Adrian's patch is done
+> right, _absolutely nothing should change_ in your described scenario.
 
-> # CONFIG_ISA is not set
+Duh sorry - althoug Im unconvinced the ifdef explosion is worth it for
+the tiny ones (the few hundred byte workarounds)
 
-Turn this on.
-
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core

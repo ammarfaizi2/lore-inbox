@@ -1,173 +1,669 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277915AbRJITJc>; Tue, 9 Oct 2001 15:09:32 -0400
+	id <S277913AbRJITHk>; Tue, 9 Oct 2001 15:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277917AbRJITJX>; Tue, 9 Oct 2001 15:09:23 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:3752 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S277915AbRJITJG>;
-	Tue, 9 Oct 2001 15:09:06 -0400
-Date: Tue, 9 Oct 2001 21:09:29 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: netdev@oss.sgi.com
-cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
-Subject: NMI Watchdog detected LOCKUP on CPU1
-Message-ID: <Pine.LNX.4.21.0110092049150.23078-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277914AbRJITHX>; Tue, 9 Oct 2001 15:07:23 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:14178 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277913AbRJITHD>; Tue, 9 Oct 2001 15:07:03 -0400
+Date: Tue, 9 Oct 2001 21:07:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: memory balancing highmem/dma fixes against pre6
+Message-ID: <20011009210709.G724@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Here it is how I fixed the highmem faliures in 2.4.11pre6aa1. I think
+you won't like some of the things I did sorry. Also temporarly removed
+the oom killer again, until I hook it into a better place (not kswpad)
+and I don't kill in function of the size of the task that I'd hate on my
+machines where big but innocent things runs all the time.
 
-(Sorry for the crosspost but I don't know on which list the people capable
-of helping are subscribed :) (it's kernel, networkrelated and possibly
-netfilter related)
+This seems to work just fine here with highmem emulation, and the
+refill_inactive and friends are now highmem aware and this fixes the
+problem completly in the testing I did (and it's certainly much more
+efficient than looping over and over again always doing the wrong thing
+for a long time). Now I think real hardware will like it as well, but
+that still has to be demonstrated.
 
-As you can see (see topic) I have a small problem.
+But now the memory balancing seems completly relaible and swap behaviour
+seems really nice. cache behaviour should be the same as 2.4.11pre6
+except I don't penalize readahead compared to "used once" data and I
+avoid rolling over the inactive list in case there's no readahead for
+example. 
 
-I got this while stresstesting an SMP router here.
+I also avoided the decreasing priority per Linus's suggestion to avoid
+banging too much on the inactive list while we swapout.
 
-hardware:
-2 x pIII 600
-440BX chipset motherboard
-2 x 32MB pc100 ram
-128MB flashdisk
-D-Link DFE570-TX (quad DECchip 21143) NIC
-Berkshire PCI watchdogcard.
+diff -urN 2.4.11pre6/include/linux/mmzone.h vm/include/linux/mmzone.h
+--- 2.4.11pre6/include/linux/mmzone.h	Mon Oct  8 04:28:58 2001
++++ vm/include/linux/mmzone.h	Tue Oct  9 06:49:39 2001
+@@ -41,6 +41,7 @@
+ 	unsigned long		free_pages;
+ 	unsigned long		pages_min, pages_low, pages_high;
+ 	int			need_balance;
++	int			nr_active_pages, nr_inactive_pages;
+ 
+ 	/*
+ 	 * free areas of different sizes
+diff -urN 2.4.11pre6/include/linux/swap.h vm/include/linux/swap.h
+--- 2.4.11pre6/include/linux/swap.h	Tue Oct  9 00:11:22 2001
++++ vm/include/linux/swap.h	Tue Oct  9 06:49:39 2001
+@@ -131,7 +131,6 @@
+ extern struct page * read_swap_cache_async(swp_entry_t);
+ 
+ /* linux/mm/oom_kill.c */
+-extern int out_of_memory(void);
+ extern void oom_kill(void);
+ 
+ /* linux/mm/swapfile.c */
+@@ -173,27 +172,91 @@
+ 		BUG();				\
+ } while (0)
+ 
++#define inc_nr_active_pages(page)				\
++do {								\
++	pg_data_t * __pgdat;					\
++	zone_t * __classzone, * __overflow;			\
++								\
++	__classzone = (page)->zone;				\
++	__pgdat = __classzone->zone_pgdat;			\
++	__overflow = __pgdat->node_zones + __pgdat->nr_zones;	\
++								\
++	while (__classzone < __overflow) {			\
++		__classzone->nr_active_pages++;			\
++		__classzone++;					\
++	}							\
++	nr_active_pages++;					\
++} while (0)
++
++#define dec_nr_active_pages(page)				\
++do {								\
++	pg_data_t * __pgdat;					\
++	zone_t * __classzone, * __overflow;			\
++								\
++	__classzone = (page)->zone;				\
++	__pgdat = __classzone->zone_pgdat;			\
++	__overflow = __pgdat->node_zones + __pgdat->nr_zones;	\
++								\
++	while (__classzone < __overflow) {			\
++		__classzone->nr_active_pages--;			\
++		__classzone++;					\
++	}							\
++	nr_active_pages--;					\
++} while (0)
++
++#define inc_nr_inactive_pages(page)				\
++do {								\
++	pg_data_t * __pgdat;					\
++	zone_t * __classzone, * __overflow;			\
++								\
++	__classzone = (page)->zone;				\
++	__pgdat = __classzone->zone_pgdat;			\
++	__overflow = __pgdat->node_zones + __pgdat->nr_zones;	\
++								\
++	while (__classzone < __overflow) {			\
++		__classzone->nr_inactive_pages++;		\
++		__classzone++;					\
++	}							\
++	nr_inactive_pages++;					\
++} while (0)
++
++#define dec_nr_inactive_pages(page)				\
++do {								\
++	pg_data_t * __pgdat;					\
++	zone_t * __classzone, * __overflow;			\
++								\
++	__classzone = (page)->zone;				\
++	__pgdat = __classzone->zone_pgdat;			\
++	__overflow = __pgdat->node_zones + __pgdat->nr_zones;	\
++								\
++	while (__classzone < __overflow) {			\
++		__classzone->nr_inactive_pages--;		\
++		__classzone++;					\
++	}							\
++	nr_inactive_pages--;					\
++} while (0)
++
+ #define add_page_to_active_list(page)		\
+ do {						\
+ 	DEBUG_LRU_PAGE(page);			\
+ 	SetPageActive(page);			\
+ 	list_add(&(page)->lru, &active_list);	\
+-	nr_active_pages++;			\
++	inc_nr_active_pages(page);		\
+ } while (0)
+ 
+ #define add_page_to_inactive_list(page)		\
+ do {						\
+ 	DEBUG_LRU_PAGE(page);			\
+-	SetPageInactive(page);		\
++	SetPageInactive(page);			\
+ 	list_add(&(page)->lru, &inactive_list);	\
+-	nr_inactive_pages++;			\
++	inc_nr_inactive_pages(page);		\
+ } while (0)
+ 
+ #define del_page_from_active_list(page)		\
+ do {						\
+ 	list_del(&(page)->lru);			\
+ 	ClearPageActive(page);			\
+-	nr_active_pages--;			\
++	dec_nr_active_pages(page);		\
+ 	DEBUG_LRU_PAGE(page);			\
+ } while (0)
+ 
+@@ -201,7 +264,7 @@
+ do {						\
+ 	list_del(&(page)->lru);			\
+ 	ClearPageInactive(page);		\
+-	nr_inactive_pages--;			\
++	dec_nr_inactive_pages(page);		\
+ 	DEBUG_LRU_PAGE(page);			\
+ } while (0)
+ 
+diff -urN 2.4.11pre6/mm/filemap.c vm/mm/filemap.c
+--- 2.4.11pre6/mm/filemap.c	Tue Oct  9 00:11:25 2001
++++ vm/mm/filemap.c	Tue Oct  9 06:49:41 2001
+@@ -1633,7 +1633,7 @@
+ 	 * and possibly copy it over to another page..
+ 	 */
+ 	old_page = page;
+-	mark_page_accessed(page);
++	activate_page(page);
+ 	if (no_share) {
+ 		struct page *new_page = alloc_page(GFP_HIGHUSER);
+ 
+@@ -2746,8 +2746,15 @@
+ 		}
+ unlock:
+ 		kunmap(page);
++
++		/*
++		 * Mark the page accessed if we wrote the
++		 * beginning or we just did an lseek.
++		 */
++		if (!offset || !file->f_reada)
++			mark_page_accessed(page);
++
+ 		/* Mark it unlocked again and drop the page.. */
+-		SetPageReferenced(page);
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+ 
+diff -urN 2.4.11pre6/mm/oom_kill.c vm/mm/oom_kill.c
+--- 2.4.11pre6/mm/oom_kill.c	Tue Oct  9 00:11:25 2001
++++ vm/mm/oom_kill.c	Tue Oct  9 06:49:39 2001
+@@ -192,67 +192,3 @@
+ 	schedule();
+ 	return;
+ }
+-
+-static inline int node_zones_low(pg_data_t *pgdat)
+-{
+-	zone_t * zone;
+-	int i;
+-
+-	for (i = pgdat->nr_zones-1; i >= 0; i--) {
+-		zone = pgdat->node_zones + i;
+-
+-		if (zone->free_pages > (zone->pages_low))
+-			return 0;
+-
+-	}
+-	return 1;
+-}
+-
+-static int all_zones_low(void)
+-{
+-	pg_data_t * pgdat = pgdat_list;
+-
+-	pgdat = pgdat_list;
+-	do {
+-		if (node_zones_low(pgdat))
+-			continue;
+-		return 0;
+-	} while ((pgdat = pgdat->node_next));
+-
+-	return 1;
+-}
+-
+-/**
+- * out_of_memory - is the system out of memory?
+- *
+- * Returns 0 if there is still enough memory left,
+- * 1 when we are out of memory (otherwise).
+- */
+-int out_of_memory(void)
+-{
+-	long cache_mem, limit;
+-
+-	/* Enough free memory?  Not OOM. */
+-	if (!all_zones_low())
+-		return 0;
+-
+-	/* Enough swap space left?  Not OOM. */
+-	if (nr_swap_pages > 0)
+-		return 0;
+-
+-	/*
+-	 * If the buffer and page cache (including swap cache) are over
+-	 * their (/proc tunable) minimum, we're still not OOM.  We test
+-	 * this to make sure we don't return OOM when the system simply
+-	 * has a hard time with the cache.
+-	 */
+-	cache_mem = atomic_read(&page_cache_size);
+-	limit = 2;
+-	limit *= num_physpages / 100;
+-
+-	if (cache_mem > limit)
+-		return 0;
+-
+-	/* Else... */
+-	return 1;
+-}
+diff -urN 2.4.11pre6/mm/page_alloc.c vm/mm/page_alloc.c
+--- 2.4.11pre6/mm/page_alloc.c	Tue Oct  9 00:11:25 2001
++++ vm/mm/page_alloc.c	Tue Oct  9 06:49:39 2001
+@@ -232,10 +232,8 @@
+ static struct page * balance_classzone(zone_t * classzone, unsigned int gfp_mask, unsigned int order, int * freed)
+ {
+ 	struct page * page = NULL;
+-	int __freed = 0;
++	int __freed;
+ 
+-	if (!(gfp_mask & __GFP_WAIT))
+-		goto out;
+ 	if (in_interrupt())
+ 		BUG();
+ 
+@@ -299,7 +297,6 @@
+ 		}
+ 		current->nr_local_pages = 0;
+ 	}
+- out:
+ 	*freed = __freed;
+ 	return page;
+ }
+@@ -357,7 +354,6 @@
+ 
+ 	/* here we're in the low on memory slow path */
+ 
+-rebalance:
+ 	if (current->flags & PF_MEMALLOC) {
+ 		zone = zonelist->zones;
+ 		for (;;) {
+@@ -376,32 +372,47 @@
+ 	if (!(gfp_mask & __GFP_WAIT))
+ 		return NULL;
+ 
++ rebalance:
+ 	page = balance_classzone(classzone, gfp_mask, order, &freed);
+ 	if (page)
+ 		return page;
+ 
+ 	zone = zonelist->zones;
+-	for (;;) {
+-		zone_t *z = *(zone++);
+-		if (!z)
+-			break;
++	if (likely(freed)) {
++		for (;;) {
++			zone_t *z = *(zone++);
++			if (!z)
++				break;
+ 
+-		if (zone_free_pages(z, order) > z->pages_min) {
+-			page = rmqueue(z, order);
+-			if (page)
+-				return page;
++			if (zone_free_pages(z, order) > z->pages_min) {
++				page = rmqueue(z, order);
++				if (page)
++					return page;
++			}
+ 		}
+-	}
++		if (!order)
++			goto rebalance;
++	} else {
++		/* 
++		 * Check that no other task is been killed meanwhile,
++		 * in such a case we can succeed the allocation.
++		 */
++		for (;;) {
++			zone_t *z = *(zone++);
++			if (!z)
++				break;
+ 
+-	/* Don't let big-order allocations loop */
+-	if (order)
+-		return NULL;
++			if (zone_free_pages(z, order) > z->pages_high) {
++				page = rmqueue(z, order);
++				if (page)
++					return page;
++			}
++		}
++	}
+ 
+-	/* Yield for kswapd, and try again */
+-	current->policy |= SCHED_YIELD;
+-	__set_current_state(TASK_RUNNING);
+-	schedule();
+-	goto rebalance;
++	printk(KERN_NOTICE "__alloc_pages: %u-order allocation failed (gfp=0x%x/%i) from %p\n",
++	       order, gfp_mask, !!(current->flags & PF_MEMALLOC), __builtin_return_address(0));
++	return NULL;
+ }
+ 
+ /*
+@@ -516,25 +527,24 @@
+ 		zone_t *zone;
+ 		for (zone = tmpdat->node_zones;
+ 			       	zone < tmpdat->node_zones + MAX_NR_ZONES; zone++)
+-			printk("Zone:%s freepages:%6lukB min:%6luKB low:%6lukB " 
+-				       "high:%6lukB\n", 
+-					zone->name,
+-					(zone->free_pages)
+-					<< ((PAGE_SHIFT-10)),
+-					zone->pages_min
+-					<< ((PAGE_SHIFT-10)),
+-					zone->pages_low
+-					<< ((PAGE_SHIFT-10)),
+-					zone->pages_high
+-					<< ((PAGE_SHIFT-10)));
+-			
++			printk("Zone:%s freepages:%6lukB|%lu min:%6luKB|%lu low:%6lukB|%lu high:%6lukB:%lu active:%6dkB|%d inactive:%6dkB|%d\n",
++			       zone->name,
++			       zone->free_pages << (PAGE_SHIFT-10),
++			       zone->free_pages,
++			       zone->pages_min << (PAGE_SHIFT-10),
++			       zone->pages_min,
++			       zone->pages_low << (PAGE_SHIFT-10),
++			       zone->pages_low,
++			       zone->pages_high << (PAGE_SHIFT-10),
++			       zone->pages_high,
++			       zone->nr_active_pages << (PAGE_SHIFT-10),
++			       zone->nr_active_pages,
++			       zone->nr_inactive_pages << (PAGE_SHIFT-10),
++			       zone->nr_inactive_pages);
++
+ 		tmpdat = tmpdat->node_next;
+ 	}
+ 
+-	printk("Free pages:      %6dkB (%6dkB HighMem)\n",
+-		nr_free_pages() << (PAGE_SHIFT-10),
+-		nr_free_highpages() << (PAGE_SHIFT-10));
+-
+ 	printk("( Active: %d, inactive: %d, free: %d )\n",
+ 	       nr_active_pages,
+ 	       nr_inactive_pages,
+@@ -709,6 +719,7 @@
+ 		zone->zone_pgdat = pgdat;
+ 		zone->free_pages = 0;
+ 		zone->need_balance = 0;
++		zone->nr_active_pages = zone->nr_inactive_pages = 0;
+ 		if (!size)
+ 			continue;
+ 
+diff -urN 2.4.11pre6/mm/swap.c vm/mm/swap.c
+--- 2.4.11pre6/mm/swap.c	Sun Sep 23 21:11:43 2001
++++ vm/mm/swap.c	Tue Oct  9 06:49:39 2001
+@@ -54,6 +54,7 @@
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
+ 	}
++	ClearPageReferenced(page);
+ }	
+ 
+ void deactivate_page(struct page * page)
+@@ -79,6 +80,7 @@
+ 	spin_lock(&pagemap_lru_lock);
+ 	activate_page_nolock(page);
+ 	spin_unlock(&pagemap_lru_lock);
++	SetPageReferenced(page);
+ }
+ 
+ /**
+diff -urN 2.4.11pre6/mm/vmscan.c vm/mm/vmscan.c
+--- 2.4.11pre6/mm/vmscan.c	Tue Oct  9 00:11:25 2001
++++ vm/mm/vmscan.c	Tue Oct  9 06:49:41 2001
+@@ -47,20 +47,22 @@
+ {
+ 	pte_t pte;
+ 	swp_entry_t entry;
+-	int right_classzone;
+ 
+ 	/* Don't look at this pte if it's been accessed recently. */
+ 	if (ptep_test_and_clear_young(page_table)) {
+ 		flush_tlb_page(vma, address);
++		mark_page_accessed(page);
+ 		return 0;
+ 	}
+ 
+-	if (TryLockPage(page))
++	if (PageActive(page))
+ 		return 0;
+ 
+-	right_classzone = 1;
+ 	if (!memclass(page->zone, classzone))
+-		right_classzone = 0;
++		return 0;
++
++	if (TryLockPage(page))
++		return 0;
+ 
+ 	/* From this point on, the odds are that we're going to
+ 	 * nuke this pte, so read and clear the pte.  This hook
+@@ -89,7 +91,7 @@
+ 		{
+ 			int freeable = page_count(page) - !!page->buffers <= 2;
+ 			page_cache_release(page);
+-			return freeable & right_classzone;
++			return freeable;
+ 		}
+ 	}
+ 
+@@ -283,14 +285,14 @@
+ 	return count;
+ }
+ 
+-static int FASTCALL(swap_out(unsigned int priority, zone_t * classzone, unsigned int gfp_mask, int nr_pages));
+-static int swap_out(unsigned int priority, zone_t * classzone, unsigned int gfp_mask, int nr_pages)
++static int FASTCALL(swap_out(zone_t * classzone, unsigned int gfp_mask, int nr_pages));
++static int swap_out(zone_t * classzone, unsigned int gfp_mask, int nr_pages)
+ {
+ 	int counter;
+ 	struct mm_struct *mm;
+ 
+ 	/* Then, look at the other mm's */
+-	counter = mmlist_nr / priority;
++	counter = mmlist_nr;
+ 	do {
+ 		if (unlikely(current->need_resched)) {
+ 			__set_current_state(TASK_RUNNING);
+@@ -331,8 +333,7 @@
+ {
+ 	struct list_head * entry;
+ 
+-	spin_lock(&pagemap_lru_lock);
+-	while (max_scan && (entry = inactive_list.prev) != &inactive_list) {
++	while (max_scan && classzone->nr_inactive_pages && (entry = inactive_list.prev) != &inactive_list) {
+ 		struct page * page;
+ 
+ 		if (unlikely(current->need_resched)) {
+@@ -345,22 +346,23 @@
+ 
+ 		page = list_entry(entry, struct page, lru);
+ 
+-		if (unlikely(!PageInactive(page) && !PageActive(page)))
++		if (unlikely(!PageInactive(page)))
+ 			BUG();
+ 
+ 		list_del(entry);
+ 		list_add(entry, &inactive_list);
+-		if (PageTestandClearReferenced(page))
++		ClearPageReferenced(page);
++
++		if (!memclass(page->zone, classzone))
+ 			continue;
+ 
+ 		max_scan--;
+ 
+-		if (unlikely(!memclass(page->zone, classzone)))
+-			continue;
+-
+ 		/* Racy check to avoid trylocking when not worthwhile */
+-		if (!page->buffers && page_count(page) != 1)
++		if (!page->buffers && page_count(page) != 1) {
++			activate_page_nolock(page);
+ 			continue;
++		}
+ 
+ 		/*
+ 		 * The page is locked. IO in progress?
+@@ -499,13 +501,13 @@
+  * We move them the other way when we see the
+  * reference bit on the page.
+  */
+-static void refill_inactive(int nr_pages)
++static void FASTCALL(refill_inactive(int nr_pages, zone_t * classzone));
++static void refill_inactive(int nr_pages, zone_t * classzone)
+ {
+ 	struct list_head * entry;
+ 
+-	spin_lock(&pagemap_lru_lock);
+ 	entry = active_list.prev;
+-	while (nr_pages-- && entry != &active_list) {
++	while (nr_pages && entry != &active_list) {
+ 		struct page * page;
+ 
+ 		page = list_entry(entry, struct page, lru);
+@@ -515,15 +517,24 @@
+ 			list_add(&page->lru, &active_list);
+ 			continue;
+ 		}
++		if (!memclass(page->zone, classzone))
++			continue;
++		if (!page->buffers && page_count(page) != 1)
++			continue;
++		nr_pages--;
+ 
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
++		SetPageReferenced(page);
++	}
++	if (entry != &active_list) {
++		list_del(&active_list);
++		list_add(&active_list, entry);
+ 	}
+-	spin_unlock(&pagemap_lru_lock);
+ }
+ 
+-static int FASTCALL(shrink_caches(int priority, zone_t * classzone, unsigned int gfp_mask, int nr_pages));
+-static int shrink_caches(int priority, zone_t * classzone, unsigned int gfp_mask, int nr_pages)
++static int FASTCALL(shrink_caches(zone_t * classzone, unsigned int gfp_mask, int nr_pages));
++static int shrink_caches(zone_t * classzone, unsigned int gfp_mask, int nr_pages)
+ {
+ 	int max_scan;
+ 	int chunk_size = nr_pages;
+@@ -533,38 +544,52 @@
+ 	if (nr_pages <= 0)
+ 		return 0;
+ 
++	spin_lock(&pagemap_lru_lock);
+ 	nr_pages = chunk_size;
+ 	/* try to keep the active list 2/3 of the size of the cache */
+-	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
+-	refill_inactive(ratio);
+-  
+-	max_scan = nr_inactive_pages / priority;
++	ratio = (unsigned long) nr_pages * classzone->nr_active_pages / ((classzone->nr_inactive_pages * 2) + 1);
++	/* allow the active cache to grow */
++	if (ratio > nr_pages)
++		ratio = nr_pages;
++	refill_inactive(ratio, classzone);
++
++	max_scan = classzone->nr_inactive_pages / DEF_PRIORITY;
+ 	nr_pages = shrink_cache(nr_pages, max_scan, classzone, gfp_mask);
+ 	if (nr_pages <= 0)
+ 		return 0;
+ 
+-	shrink_dcache_memory(priority, gfp_mask);
+-	shrink_icache_memory(priority, gfp_mask);
+-#ifdef CONFIG_QUOTA
+-	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+-#endif
++	shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
++	shrink_icache_memory(DEF_PRIORITY, gfp_mask);
+ 
+ 	return nr_pages;
+ }
+ 
++static int FASTCALL(check_classzone_need_balance(zone_t * classzone));
++
+ int try_to_free_pages(zone_t * classzone, unsigned int gfp_mask, unsigned int order)
+ {
+ 	int ret = 0;
+-	int priority = DEF_PRIORITY;
+-	int nr_pages = SWAP_CLUSTER_MAX;
+ 
+-	do {
+-		nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
+-		if (nr_pages <= 0)
+-			return 1;
++	for (;;) {
++		int tries = DEF_PRIORITY << 1;
++		int nr_pages = SWAP_CLUSTER_MAX;
++
++		do {
++			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages);
++			if (nr_pages <= 0)
++				return 1;
+ 
+-		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
+-	} while (--priority);
++			ret |= swap_out(classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
++		} while (--tries);
++
++		if (likely(ret))
++			break;
++		if (likely(current->pid != 1) || !check_classzone_need_balance(classzone))
++			break;
++		current->policy |= SCHED_YIELD;
++		__set_current_state(TASK_RUNNING);
++		schedule();
++	}
+ 
+ 	return ret;
+ }
+@@ -598,7 +623,7 @@
+ 		if (!try_to_free_pages(zone, GFP_KSWAPD, 0)) {
+ 			zone->need_balance = 0;
+ 			__set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(HZ);
++			schedule_timeout(HZ*5);
+ 			continue;
+ 		}
+ 		if (check_classzone_need_balance(zone))
+@@ -621,9 +646,6 @@
+ 		do
+ 			need_more_balance |= kswapd_balance_pgdat(pgdat);
+ 		while ((pgdat = pgdat->node_next));
+-		if (need_more_balance && out_of_memory()) {
+-			oom_kill();	
+-		}
+ 	} while (need_more_balance);
+ }
+ 
 
-Kernel: 2.4.8-ac12 (got a hang on 2.4.9-ac18 too but didn't have a monitor
-or serial console attached to it and the watchdogcard rebooted it)
-
-The tulipdriver I'm using isn't the "vanilla" one, it's the optimized
-polling version by Jamal and Robert (ANK was involved here too I think?)
-
-I can't rule this driver out but I don't think it's at fault here.
-
-I was running a quite heavy stresstest between 3 ports on the NIC.
-All was going just fine until I heard the watchdog go *beep* as it
-rebooted the router. And then I found this on the serial-console:
-
-"NMI Watchdog detected LOCKUP on CPU1, registers:" and a stackdump
-(decoded below)
-
-loaded modules:
-
-ipt_MASQUERADE          1360   1  (autoclean)
-ip_nat_irc              2768   0  (unused)
-ip_conntrack_irc        2496   0  [ip_nat_irc]
-ip_nat_ftp              3184   0  (unused)
-ip_conntrack_ftp        3280   0  [ip_nat_ftp]
-iptable_nat            13424   7  [ipt_MASQUERADE ip_nat_irc ip_nat_ftp]
-ip_conntrack           14224   8  [ipt_MASQUERADE ip_nat_irc ip_conntrack_irc ip_nat_ftp ip_conntrack_ftp iptable_nat]
-iptable_filter          1728   0  (unused)
-ip_tables              10592   5  [ipt_MASQUERADE iptable_nat iptable_filter]
-tulip                  42224   3 
-
-/proc/version:
-Linux version 2.4.8-ac12 (root@tux) (gcc version 2.95.4 20010604 (Debian
-prerelease)) #7 SMP Sun Aug 26 22:02:31 CEST 2001
-
-the router is set up to SNAT packets going out of eth0 and then I have a
-portforward leading in to a machine on another port in the NIC.
-
-I had one machine on each of eth0, eth1 and eth3 generating and recieving
-traffic. (the traffic was generated by 'nc ip port < /dev/zero' and
-revieced by 'nc -l -p port > /dev/null' so there's some pipeing going on
-too.)
-
-two streams coming in on eth1 and eth3 where SNAT'd out via eth0 and one
-stream coming in on eth0 was DNAT'd to the machine on eth1.
-And then there where two streams between eth1 and eth3, one in each
-direction.
-
-= there where quite a lot of packets.
-
-The router had been running this test for over 36 hours when it died.
-As I wrote earlier, 2.4.9-ac18 died too, within a few hours but I had no
-chance of getting the output :(
-
-Decoded Oops:
-
-ksymoops 2.4.1 on i686 2.4.9-ac5.  Options used
-     -V (default)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m System.map-2.4.8-ac12 (specified)
-
-NMI Watchdog detected LOCKUP on CPU1, registers:            
-CPU:    1                                       
-EIP:    0010:[<c0105c5f>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000087         
-eax: c483f2a4   ebx: c1e8c200   ecx: c1e8c29c   edx: c1120000
-esi: c1e8c2d0   edi: c11b2158   ebp: 5671b6f9   esp: c1121d58
-ds: 0018   es: 0018   ss: 0018                               
-Process swapper (pid: 0, stackpage=c1121000)
-Stack: c483e8b5 c1e8c200 c11b2140 c4816734 c1e8c200 00000000 c022394e c1e8c200 
-       00000000 c11b2158 c48065b1 c1970c80 c1679320 c26a3740 c11b2000 c02482d0 
-       000000c8 c11b2158 00000000 5671b6f9 00000006 00000000 00000282 c11b2140 
-Call Trace: [<c483e8b5>] [<c4816734>] [<c022394e>] [<c48065b1>] [<c02482d0>]   
-   [<c022e71b>] [<c0226e9d>] [<c0248390>] [<c022d408>] [<c0245950>] [<c02482b2>] 
-   [<c02482d0>] [<c02459aa>] [<c022d408>] [<c02458e8>] [<c0245950>] [<c0244aed>] 
-   [<c0244910>] [<c022d408>] [<c0244776>] [<c0244910>] [<c022771e>] [<c011956f>] 
-   [<c010861b>] [<c01051b0>] [<c01051b0>] [<c010a714>] [<c01051b0>] [<c01051b0>] 
-   [<c01051dd>] [<c0105242>] [<c011577b>]                                        
-Code: 81 38 00 00 00 01 75 f8 f0 81 28 00 00 00 01 0f 85 e4 ff ff 
-
->>EIP; c0105c5f <__write_lock_failed+7/20>   <=====
-Trace; c483e8b5 <END_OF_CODE+4466b65/????>
-Trace; c4816734 <END_OF_CODE+443e9e4/????>
-Trace; c022394e <__kfree_skb+96/134>
-Trace; c48065b1 <END_OF_CODE+442e861/????>
-Trace; c02482d0 <ip_finish_output2+0/f8>
-Trace; c022e71b <qdisc_restart+6b/17c>
-Trace; c0226e9d <dev_queue_xmit+111/2ec>
-Trace; c0248390 <ip_finish_output2+c0/f8>
-Trace; c022d408 <nf_hook_slow+110/194>
-Trace; c0245950 <ip_forward_finish+0/60>
-Trace; c02482b2 <ip_finish_output+12a/134>
-Trace; c02482d0 <ip_finish_output2+0/f8>
-Trace; c02459aa <ip_forward_finish+5a/60>
-Trace; c022d408 <nf_hook_slow+110/194>
-Trace; c02458e8 <ip_forward+1f8/260>
-Trace; c0245950 <ip_forward_finish+0/60>
-Trace; c0244aed <ip_rcv_finish+1dd/220>
-Trace; c0244910 <ip_rcv_finish+0/220>
-Trace; c022d408 <nf_hook_slow+110/194>
-Trace; c0244776 <ip_rcv+3b6/400>
-Trace; c0244910 <ip_rcv_finish+0/220>
-Trace; c022771e <net_rx_action+1da/334>
-Trace; c011956f <do_softirq+6f/cc>
-Trace; c010861b <do_IRQ+db/ec>
-Trace; c01051b0 <default_idle+0/34>
-Trace; c01051b0 <default_idle+0/34>
-Trace; c010a714 <call_do_IRQ+5/d>
-Trace; c01051b0 <default_idle+0/34>
-Trace; c01051b0 <default_idle+0/34>
-Trace; c01051dd <default_idle+2d/34>
-Trace; c0105242 <cpu_idle+3e/54>
-Trace; c011577b <_call_console_drivers+53/58>
-Code;  c0105c5f <__write_lock_failed+7/20>
-00000000 <_EIP>:
-Code;  c0105c5f <__write_lock_failed+7/20>   <=====
-   0:   81 38 00 00 00 01         cmpl   $0x1000000,(%eax)   <=====
-Code;  c0105c65 <__write_lock_failed+d/20>
-   6:   75 f8                     jne    0 <_EIP>
-Code;  c0105c67 <__write_lock_failed+f/20>
-   8:   f0 81 28 00 00 00 01      lock subl $0x1000000,(%eax)
-Code;  c0105c6e <__write_lock_failed+16/20>
-   f:   0f 85 e4 ff ff 00         jne    fffff9 <_EIP+0xfffff9> c1105c58 <END_OF_CODE+d2df08/????>
-
-
-To me it looks like ip_finish_output2 freaked and did something nasty.
-
-I hope someone who knows the networking a little better than me can help
-with this one. My goal is to make linux survive at least a month of
-stresstesting :) 
-
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
+Andrea

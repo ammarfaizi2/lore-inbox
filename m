@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270964AbTGPRNd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270985AbTGPRMC
+	id S271015AbTGPRnj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271001AbTGPRlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:12:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51136 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270966AbTGPRKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:10:37 -0400
-Date: Wed, 16 Jul 2003 19:25:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       vojtech@suse.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 16 Jul 2003 13:41:52 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:41875 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270993AbTGPRl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:41:26 -0400
+Date: Wed, 16 Jul 2003 18:55:35 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Valdis.Kletnieks@vt.edu, vojtech@suse.cz,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716172531.GP833@suse.de>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de>
+Message-ID: <20030716175534.GA25712@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jens Axboe <axboe@suse.de>, Valdis.Kletnieks@vt.edu,
+	vojtech@suse.cz, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <200307161710.h6GHAsU1001493@turing-police.cc.vt.edu> <20030716171706.GN833@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716172331.GD21896@suse.de>
+In-Reply-To: <20030716171706.GN833@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16 2003, Dave Jones wrote:
-> On Wed, Jul 16, 2003 at 07:16:07PM +0200, Jens Axboe wrote:
-> 
->  > > > SG_IO, that way you can use dma (and zero copy) for the rips. That will
->  > > > be lots more smooth.
->  > > So why isnt this occuring on 2.4 .. thats the important question here is
->  > > this a logging thing, a new input layer bug, an ide bug or what ?
->  > Dave, have you tried 2.4 newest?
-> 
-> I've not booted a 2.4 kernel since 2.4.20..
+On Wed, Jul 16, 2003 at 07:17:06PM +0200, Jens Axboe wrote:
+ > > Dumb user question - which rippers support SG_IO?  I've been using
+ > > cdparanoia mostly for lack of a good reason to migrate - but this
+ > > sounds like a good reason. ;)
+ > 
+ > Not a dumb question at all, see my previous mail :). In short, I don't
+ > know. I'm sure a little collective effort could hunt some down (cdda2wav
+ > should work, since it uses libscg presumable).
 
-You should try 2.4.21, basically any 2.4 with the newer ide stuff.
+For info, I just tried cdda2wav, and whilst it used less CPU than
+cdparanoia, the dancing mouse effect still occurs 8-(
 
->  > Some of the newer IDE stuff kept
->  > interrupts off for ages, maybe it's on 2.4 also.
-> 
-> I can try sometime if you want to know.. (I've got plenty more
-> CDs that need encoding, so I'll have plenty of opportunity to
-> see this bug if its there 8-)
-
-Would be interesting to hear how they compare.
-
->  > Also Dave, can you try
->  > and do a vmstat 1 while ripping and PS2 dropping out?
-> 
-> Ok, I just fired that up in another window.
-> When it happens next, I'll mail off a snapshot..
-
-Thanks.
+		Dave
 
 -- 
-Jens Axboe
-
+ Dave Jones     http://www.codemonkey.org.uk

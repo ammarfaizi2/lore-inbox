@@ -1,35 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265282AbUENNnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265283AbUENNq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265282AbUENNnb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbUENNnb
+	id S265283AbUENNq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbUENNq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:43:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57509 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265282AbUENNn2
+	Fri, 14 May 2004 09:46:29 -0400
+Received: from legolas.drinsama.de ([62.91.17.164]:13729 "EHLO
+	legolas.drinsama.de") by vger.kernel.org with ESMTP id S265283AbUENNqX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:43:28 -0400
-Date: Fri, 14 May 2004 14:43:26 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Santiago Garcia Mantinan <manty@manty.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cramfs as initrd still fails in 2.4.27-pre2 [PATCH]
-Message-ID: <20040514134326.GK17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040514132955.GA6190@man.manty.net>
+	Fri, 14 May 2004 09:46:23 -0400
+Subject: Bug in bridge interface removal?
+From: Erich Schubert <erich@debian.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Debian GNU/Linux Developers
+Message-Id: <1084542378.17594.12.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040514132955.GA6190@man.manty.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Fri, 14 May 2004 15:46:19 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 03:29:55PM +0200, Santiago Garcia Mantinan wrote:
-> In Debian official kernel packages cramfs is being used as the initrd, so I
-> had a look at Debian's kernel patches and extracted this one that makes
-> initrd work for me in 2.4.26 and 2.4.27-pre2:
+Hi, on an embedded system i had a crash when doing the following
+(invalid) sequence of commands:
+Note that this is an outdated kernel, 2.4.19-uc1 with some
+modifications; i'm not sure if this is maybe already fixed.
 
-Patch in debian kernel package is a mindless crap.  cramfs has no business
-messing with block size (or buffer cache in general, to start with).  2.6
-has it fixed the right way, there's a backport to 2.4 and IIRC it was
-scheduled for inclusion.
+brctl addbr br0
+brctl addbr br1
+brctl addif br0 eth0
+brctl delif br1 eth0
+(causing a kernel crash after a second)
+
+yes, i'm deleting the interface from the wrong bridge. Since this
+requires root privileges, this isn't much of an "exploit" or so. But it
+takes down the system reliably here (but it is an MMUless ARM, you can
+take that one down really easy...)
+
+Having a short look at the source i didn't see any safety measure in
+http://lxr.linux.no/source/net/bridge/br_if.c#L254
+(Neither in 2.4.x, nor in 2.6.x)
+
+I'd suggest adding the following line to the beginning of br_del_if:
+
+if (dev->br_port->br != br) return -EINVAL;
+
+After adding this line i get
+  device eth1 is not a slave of br0
+instead of the reboot.
+
+Greetings,
+Erich
+

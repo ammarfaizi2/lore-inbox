@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269736AbTGKAwu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 20:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269739AbTGKAwt
+	id S269744AbTGKA5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 20:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269745AbTGKA5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 20:52:49 -0400
-Received: from holomorphy.com ([66.224.33.161]:31413 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269736AbTGKAwq (ORCPT
+	Thu, 10 Jul 2003 20:57:36 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:3534 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S269744AbTGKA5f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 20:52:46 -0400
-Date: Thu, 10 Jul 2003 18:08:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, Jamie Lokier <jamie@shareable.org>,
-       Davide Libenzi <davidel@xmailserver.org>, Mel Gorman <mel@csn.ul.ie>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030711010812.GA15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@arcor.de>,
-	Peter Chubb <peter@chubb.wattle.id.au>,
-	Jamie Lokier <jamie@shareable.org>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Memory Management List <linux-mm@kvack.org>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307100059.57398.phillips@arcor.de> <16140.51447.73888.717087@wombat.chubb.wattle.id.au> <200307110304.11216.phillips@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307110304.11216.phillips@arcor.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 10 Jul 2003 20:57:35 -0400
+Date: Fri, 11 Jul 2003 03:12:14 +0200 (MEST)
+Message-Id: <200307110112.h6B1CEfR006510@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de
+Subject: [PATCH] fix x86-64 FIOQSIZE compile error in 2.4.22-pre4
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 03:04:11AM +0200, Daniel Phillips wrote:
-> Thinking strictly about the needs of sound processing, what's needed is a 
-> guarantee of so much cpu time each time the timer fires, and a user limit to 
-> prevent cpu hogging.  It's worth pondering the difference between that and 
-> rate-of-forward-progress.  I suspect some simple improvements to the current 
-> scheduler can be made to do the job, and at the same time, avoid the 
-> priorty-based starvation issue that seems to have been practically mandated 
-> by POSIX.
+2.4.22-pre4 added a FIOQSIZE ioctl but the x86-64 ioctls.h
+wasn't updated: the result is a compile error is fs/ somewhere
+(sorry I forgot exactly where). Fix below.
 
-Such scheduling policies are called "isochronous".
+/Mikael
 
-
--- wli
+--- linux-2.4.22-pre4/include/asm-x86_64/ioctls.h.~1~   2002-11-30 17:12:31.000000000 +0100
++++ linux-2.4.22-pre4/include/asm-x86_64/ioctls.h       2003-07-11 02:04:05.159562760 +0200
+@@ -67,6 +67,7 @@
+ #define TIOCGICOUNT    0x545D  /* read serial port inline interrupt counts */
+ #define TIOCGHAYESESP   0x545E  /* Get Hayes ESP configuration */
+ #define TIOCSHAYESESP   0x545F  /* Set Hayes ESP configuration */
++#define FIOQSIZE       0x5460
+ 
+ /* Used for packet mode */
+ #define TIOCPKT_DATA            0

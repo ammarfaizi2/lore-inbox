@@ -1,21 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317980AbSGZS3l>; Fri, 26 Jul 2002 14:29:41 -0400
+	id <S317981AbSGZSVX>; Fri, 26 Jul 2002 14:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317984AbSGZS3l>; Fri, 26 Jul 2002 14:29:41 -0400
-Received: from internal-bristol34.naxs.com ([216.98.66.34]:20212 "EHLO
-	coredump.electro-mechanical.com") by vger.kernel.org with ESMTP
-	id <S317980AbSGZS3k>; Fri, 26 Jul 2002 14:29:40 -0400
-Date: Fri, 26 Jul 2002 14:20:20 -0400
-From: William Thompson <wt@electro-mechanical.com>
+	id <S317982AbSGZSVX>; Fri, 26 Jul 2002 14:21:23 -0400
+Received: from email.careercast.com ([216.39.101.233]:22963 "HELO
+	email.careercast.com") by vger.kernel.org with SMTP
+	id <S317981AbSGZSVW>; Fri, 26 Jul 2002 14:21:22 -0400
+Subject: How to mount "multimedia" audio cdroms
+From: Matt Simonsen <matt@careercast.com>
 To: linux-kernel@vger.kernel.org
-Subject: pdcraid in 2.4.x
-Message-ID: <20020726142020.J16597@coredump.electro-mechanical.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 26 Jul 2002 11:26:55 -0700
+Message-Id: <1027708015.3260.17.camel@mattlaptop.careercast.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why doesn't this driver support BLKRRPART?  it's quite annoying to have to
-reboot to get the partitions changed.
+Is there a way to mount multimedia audio cds under Linux so that instead
+of the .inf file and video you can listen to the audio tracks?
+
+Thanks
+Matt
+
+
+

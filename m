@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUEMWqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUEMWri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbUEMWqK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 18:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUEMWqK
+	id S265233AbUEMWri (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 18:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUEMWrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 18:46:10 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:4068 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S265219AbUEMWqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 18:46:01 -0400
-Message-ID: <40A3FAB4.7090401@am.sony.com>
-Date: Thu, 13 May 2004 15:46:12 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Thu, 13 May 2004 18:47:37 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:17423 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265233AbUEMWrR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 18:47:17 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] allow console drivers to be called early
+Date: Thu, 13 May 2004 15:47:14 -0700
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Todd Poynor <tpoynor@mvista.com>, mochel@digitalimplant.org,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Hotplug events for system suspend/resume
-References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com> <40A17251.2000500@mvista.com> <20040512150818.GE10924@kroah.com>
-In-Reply-To: <20040512150818.GE10924@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_yr/oAkGvy4eI0aV"
+Message-Id: <200405131547.14062.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
-> On Tue, May 11, 2004 at 05:39:45PM -0700, Todd Poynor wrote:
-> 
->>But again, I'll let the embedded system designers jump in here if they'd 
->>like to add some insight.  In both of the above cases, some ad-hoc 
->>method of kernel-to-userspace notification could be used, but I am 
->>trying to gauge interest in using hotplug as a generic notifier for these. 
-> 
-> Ok, I'm not going to accept this until some people who would actually
-> use it step up and want to push for its inclusion.  None of this "patch
-> by proxy" stuff...
+--Boundary-00=_yr/oAkGvy4eI0aV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Sony is one of MontaVista's customers that is keenly interested
-in user-space notifiers for power management state changes.
-We are interested in uniform handling of power-change events,
-in user space, whether they are initiated by other user apps
-or from kernel.
+This is a simple patch to allow arches to set early_printk_ok if they've 
+registered console drivers that support early operation.  I've got an ia64 
+specific bit and an sn2 specific bit that I can post for reference if 
+anyone's interested, but they're pretty straightforward, so I'm just posting 
+this for comments.  The ia64 one just adds a register_early_consoles() 
+function to the ia64 code that gets called early on in setup_arch.  All it 
+does is call the init routines of console drivers that are setup to do early 
+printks.
 
-Here's one use case:
-The system clock usually runs at 30MHz but it needs to run
-at at 33MHz when I/O is performed on a particular compact flash
-controller (but only when I/O is active).
-Here are the state transitions:
-         0. System Clock is running at 30MHz
-	1. Compact Flash card is inserted
-	2. CF controller is activated and detects CF I/O type
-	3. kernel notifies that CF I/O is now activated, to
-	user-space PM policy manager
-	4. User-space PM policy manager changes the clock speed to 33 MHz
+Jesse
 
-Here is another case, which is similar, but triggered by application
-action:
-         0. System Clock is running at 30MHz and the I/O mentioned above is
-         turned off
-	1. An application opens up I/O on the compact flash device
-         2. device driver turns on the I/O, but cannot get operational
-         state.
-         3. kernel notifies that the CF I/O is now activated, to
-	user-space PM policy manager
-         4. user-space PM policy manager changes clock speed to 33MHz
+--Boundary-00=_yr/oAkGvy4eI0aV
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="early-printk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="early-printk.patch"
 
-Pardon the delay in responding, but these things take time to
-translate, distill and pass on, in international organizations.
-(And I'm still not sure I got the details right here, please bear
-with me.)
+===== kernel/printk.c 1.37 vs edited =====
+--- 1.37/kernel/printk.c	Tue May  4 10:48:06 2004
++++ edited/kernel/printk.c	Fri May  7 15:01:33 2004
+@@ -54,6 +54,7 @@
+ EXPORT_SYMBOL(console_printk);
+ 
+ int oops_in_progress;
++int early_printk_ok;
+ 
+ /*
+  * console_sem protects the console_drivers list, and also
+@@ -526,7 +527,7 @@
+ 			log_level_unknown = 1;
+ 	}
+ 
+-	if (!cpu_online(smp_processor_id()) &&
++	if (!early_printk_ok && !cpu_online(smp_processor_id()) &&
+ 	    system_state != SYSTEM_RUNNING) {
+ 		/*
+ 		 * Some console drivers may assume that per-cpu resources have
+===== include/linux/kernel.h 1.48 vs edited =====
+--- 1.48/include/linux/kernel.h	Mon Apr 12 10:53:58 2004
++++ edited/include/linux/kernel.h	Fri May  7 16:16:49 2004
+@@ -107,6 +107,7 @@
+ }
+ 
+ extern void bust_spinlocks(int yes);
++extern int early_printk_ok;		/* If set, console drivers will be called even if the system isn't up yet */
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ extern int panic_on_oops;
+ extern int system_state;		/* See values below */
 
-Sony has experience with notifiers using /proc in a 2.4 kernel, so
-I don't know if we can directly comment on the details of a hotplug-based
-notification scheme.  But I can say that kernel-to-user notifications
-is an important feature for us.
-
-I hope this is helpful.
-
-=============================
-Tim Bird
-Architecture Group Co-Chair
-CE Linux Forum
-Senior Staff Engineer
-Sony Electronics
-E-mail: Tim.Bird@am.sony.com
-=============================
-
+--Boundary-00=_yr/oAkGvy4eI0aV--

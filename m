@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261308AbTCJNET>; Mon, 10 Mar 2003 08:04:19 -0500
+	id <S261309AbTCJNKN>; Mon, 10 Mar 2003 08:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261309AbTCJNET>; Mon, 10 Mar 2003 08:04:19 -0500
-Received: from pD95193BE.dip.t-dialin.net ([217.81.147.190]:4480 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S261308AbTCJNER>;
-	Mon, 10 Mar 2003 08:04:17 -0500
-Date: Mon, 10 Mar 2003 14:14:58 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] 2.5.64 ACPI suspend/resume locking fix
-Message-ID: <20030310131458.GA1063@note.hausnetz>
-Reply-To: andi@rhlx01.fht-esslingen.de
+	id <S261310AbTCJNKN>; Mon, 10 Mar 2003 08:10:13 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:25570 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S261309AbTCJNKM>; Mon, 10 Mar 2003 08:10:12 -0500
+Date: Mon, 10 Mar 2003 14:14:22 +0100
+From: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Arun Prasad <arun@netlab.hcltech.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: 2.5.51 CRC32 undefined
+Message-ID: <20030310131422.GA525@wohnheim.fh-wedel.de>
+References: <1047040816.32200.59.camel@passion.cambridge.redhat.com> <Pine.LNX.4.44.0303070922580.26430-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0303070922580.26430-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 7 March 2003 09:27:07 -0600, Kai Germaschewski wrote:
+> On 7 Mar 2003, David Woodhouse wrote:
+> 
+> > The problem is that crc32.o isn't actually linked into the kernel,
+> > because no symbols from it are referenced when the linker is asked to
+> > pull in lib/lib.a
+> > 
+> > Set CONFIG_CRC32=m. We probably shouldn't allow it to be set to 'Y' in
+> > the first place., given the above.
+> 
+> I think it'd be much nicer to just make it work, which can easily be done 
+> by moving the EXPORT_SYMBOL() to kernel/ksyms.c. Or, just move the entire 
+> file into kernel/ (which unfortunately isn't a very natural place for it. 
+> The real problem is that we need a lib/dont_drop_unreferenced/)
 
-doing an
-echo 1 >/proc/acpi/sleep
-caused quite some trouble on resume, such as
-bad: scheduling while atomic!
-Call Trace:
- [<c011d4c0>] schedule+0x220/0x230
- [<c0140608>] __pdflush+0x98/0x1e0
- [<c0140750>] pdflush+0x0/0x20
- [<c0140761>] pdflush+0x11/0x20
- [<c010826d>] kernel_thread_helper+0x5/0x18
+Is it just me, or does lib/lib._a_ not make too much sense? It is nice
+to be speaking about the kernel library, but what are the benefits of
+it being a .a instead of a .o?
 
-(see BugZilla #455).
-
-Turned out that the suspend handling in __pdflush() was abusing
-pdflush_lock, by not relocking before going back up the loop (which then
-unlocked again --> refcount -1 --> haywire!).
-
-With the locking fix below,
-doing
-echo 1 >/proc/acpi/sleep
-now suspends/resumes beautifully without giving further errors.
-
-Note that my machine still gets killed completely if I do
-echo 3 >/proc/acpi/sleep
-, however. Any ideas? How to debug this?
-
-Thanks,
-
-Andreas Mohr
-
---- mm/pdflush.c.org	2003-03-10 14:04:00.000000000 +0100
-+++ mm/pdflush.c	2003-03-10 13:14:57.000000000 +0100
-@@ -106,6 +106,7 @@
- 		schedule();
- 		if (current->flags & PF_FREEZE) {
- 			refrigerator(PF_IOTHREAD);
-+			spin_lock_irq(&pdflush_lock);
- 			continue;
- 		}
- 
+Jörn
 
 -- 
-Andreas Mohr                        Stauferstr. 6, D-71272 Renningen, Germany
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979

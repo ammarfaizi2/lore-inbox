@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUD1ELV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUD1E1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUD1ELV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 00:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbUD1ELV
+	id S264639AbUD1E1R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 00:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUD1E1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 00:11:21 -0400
-Received: from mail.tpgi.com.au ([203.12.160.57]:34764 "EHLO mail1.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S264633AbUD1EKy (ORCPT
+	Wed, 28 Apr 2004 00:27:17 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:28289 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264639AbUD1E1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 00:10:54 -0400
-Date: Wed, 28 Apr 2004 14:00:35 +1000
-From: "Nigel Cunningham" <ncunningham@linuxmail.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: What does tainting actually mean?
-Reply-To: ncunningham@linuxmail.org
-Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
-User-Agent: Opera M2/7.50 (Linux, build 663)
-X-TPG-Antivirus: Passed
+	Wed, 28 Apr 2004 00:27:16 -0400
+Message-Id: <200404280210.i3S2Aiva022887@pincoya.inf.utfsm.cl>
+To: Marc Boucher <marc@linuxant.com>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, rusty@rustcorp.com.au,
+       pmarques@grupopie.com, c-d.hailfinger.kernel.2004@gmx.net,
+       jon787@tesla.resnet.mtu.edu, malda@slashdot.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
+In-Reply-To: Message from Marc Boucher <marc@linuxant.com> 
+   of "Tue, 27 Apr 2004 12:58:19 -0400." <20040427165819.GA23961@valve.mbsi.ca> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 27 Apr 2004 22:10:44 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Marc Boucher <marc@linuxant.com> said:
+> On Tue, Apr 27, 2004 at 04:09:36AM +0200, Carl-Daniel Hailfinger wrote:
+> > Hi,
 
-I'm probably going to regret this, but seeing the current discussion on  
-binary modules makes me wonder:
+> > LinuxAnt offers binary only modules without any sources.
 
-What does tainting actually mean?
+> Not true. Linuxant modules come with full source for operating-system
+> specific code.
 
-What I mean is, how does it help to know that a kernel is tainted? When  
-I'm working on Software Suspend and someone sends me an oops, I don't  
-really care whether it's marked as tainted or not. For all I know, even if  
-it's not tainted, they may have thrown in half a dozen different patches  
-aside from Suspend, any one of which could be playing a role in the  
-appearance of the oops. It doesn't help me to know that the kernel was  
-tainted. It helps me to know what the non-standard additions are (and how  
-the kernel was configured), regardless of whether the additions mark the  
-kernel tainted or not.
-
-Of course I realise at the same time that maybe tainting has nothing to do  
-with saying 'This isn't an unmodified tree' and everything to do with  
-saying 'This kernel has had non-GPL code interacting with it'. If that's  
-the case, I don't see the relevance of saying (as Paul did a little while  
-ago):
-
-"You deceived maintainers who receive "untainted" bug reports."
-
-Indeed, the surrounding lines seem to make it clear that the real issue is  
-not fixing bugs but politics. Thus my question: What does tainting  
-actually mean?
-
-Regards,
-
-Nigel
+If they don't distribute _all_ source, it is not distribution under GPL.
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614, Australia.
-+61 (2) 6251 7727 (wk)
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

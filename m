@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317376AbSFCLe2>; Mon, 3 Jun 2002 07:34:28 -0400
+	id <S317374AbSFCLcW>; Mon, 3 Jun 2002 07:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317377AbSFCLe1>; Mon, 3 Jun 2002 07:34:27 -0400
-Received: from oak.sktc.net ([208.46.69.4]:10511 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id <S317376AbSFCLe0>;
-	Mon, 3 Jun 2002 07:34:26 -0400
-Message-ID: <3CFB5442.7020504@sktc.net>
-Date: Mon, 03 Jun 2002 06:34:26 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: SMB filesystem
-In-Reply-To: <3CFB03B3.90353B54@kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317375AbSFCLcV>; Mon, 3 Jun 2002 07:32:21 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26377 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S317374AbSFCLcV>; Mon, 3 Jun 2002 07:32:21 -0400
+Date: Mon, 3 Jun 2002 13:32:21 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: suspend.c: This is broken, fixme
+Message-ID: <20020603113221.GA17228@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020603095507.GA3030@elf.ucw.cz> <20020603110816.GI820@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
+Hi!
 
-> I've been hoping somebody would take this on.
-> Question: how will you carry the SMB token around? 
+> > @@ -300,7 +301,8 @@
+> >  static void do_suspend_sync(void)
+> >  {
+> >         while (1) {
+> > -               run_task_queue(&tq_disk);
+> > +               blk_run_queues();
+> > +#error this is broken, FIXME
+> >                 if (!TQ_ACTIVE(tq_disk))
+> >                         break;
+> > 
+> > . Why is it broken?
+> 
+> Hey, I even cc'ed you on the patch when it went to Linus... Lets
+> look at
+
+Okay; I thought I corrected it in the meantime, that's why I got confused.
+
+> what happened before: run tq_disk, then check if it is active. What
+> prevents tq_disk from being active right after you issue the TQ_ACTIVE
+> check? Nothing. And I'm not sure exactly what semantics you think
+> running tq_disk has. I suspect you are looking for a 'start any pending
+> i/o and return when it has completed', which is far from what happens.
+> Running tq_disk will _try_ to start _some_ I/O, and eventually, in time,
+> the currently pending requests will have completed. In the mean time,
+> more I/O could have been added though.
+
+I'm alone at the system at that point. All user tasks are stopped and
+I'm only thread running. There's noone that could submit requests at
+that point.
+
+In such case, killing #error is right solution, right?
+								Pavel
 
 
-How about using much the same approach that SSH uses - have a daemon 
-that is launched from the user's .profile, that listens on an Unix 
-domain socket created in the user's home directory and tracks the login 
-tokens?
 
-Additionally, that daemon could allow another user space program to 
-listen to a socket, and be notified when a request for a non-existant 
-token is made - this way when a user is running a GUI, the GUI could 
-have a program that can pop up a prompt for the login, and then pass it 
-on to the daemon, and then the daemon can inform the process that made 
-the request to try again.
-
-I do agree with some of the other posters, though - it seems to me the 
-best approach would be a plug-in for autofs that used SMBFS.
-
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

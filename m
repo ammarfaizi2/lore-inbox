@@ -1,41 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUJIWVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUJIWWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUJIWVe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 18:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267319AbUJIWVe
+	id S267505AbUJIWWK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 18:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJIWWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 18:21:34 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:59875 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S267254AbUJIWVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 18:21:31 -0400
-Date: Sat, 9 Oct 2004 15:20:11 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Colin Ngam <cngam@sgi.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Grant Grundler <iod00d@hp.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Message-ID: <20041009222011.GA10422@cup.hp.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <41644301.9EC028B3@sgi.com> <20041006195424.GF25773@cup.hp.com> <200410061327.28572.jbarnes@engr.sgi.com> <20041006204832.GB26459@cup.hp.com> <20041006210525.GI16153@parcelfarce.linux.theplanet.co.uk> <41645BDE.E9732310@sgi.com> <4166AF3D.9080808@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4166AF3D.9080808@sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 9 Oct 2004 18:22:09 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:36522 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S267505AbUJIWWB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 18:22:01 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext-rt-dev@mvista.com
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+References: <41677E4D.1030403@mvista.com> <yw1xk6u0hw2m.fsf@mru.ath.cx>
+	<1097356829.1363.7.camel@krustophenia.net>
+	<yw1xis9ja82z.fsf@mru.ath.cx>
+	<1097358925.1363.17.camel@krustophenia.net>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Date: Sun, 10 Oct 2004 00:21:50 +0200
+In-Reply-To: <1097358925.1363.17.camel@krustophenia.net> (Lee Revell's
+ message of "Sat, 09 Oct 2004 17:55:25 -0400")
+Message-ID: <yw1x4ql3a5xd.fsf@mru.ath.cx>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 10:16:13AM -0500, Colin Ngam wrote:
-> Now, if we can remove the static from pci_root_ops, I can use it in 
-> io_init.c, that would be cleanest and that was what we started with.  
+Lee Revell <rlrevell@joe-job.com> writes:
 
+> On Sat, 2004-10-09 at 17:35, Måns Rullgård wrote:
+>> Lee Revell <rlrevell@joe-job.com> writes:
+>> 
+>> > On Sat, 2004-10-09 at 09:15, Måns Rullgård wrote:
+>> >> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+>> >> Now it seems to be running quite well.  I am, however, getting
+>> >> occasional "bad: scheduling while atomic!" messages, all alike:
+>> >> 
+>> >
+>> > I am getting the same message.   Also, leaving all the default debug
+>> > options on, I got this debug output, but it did not coincide with the
+>> > "bad" messages.
+>> >
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+>> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+>> 
+>> Well, those don't give me any clues.
+>> 
+>> I had the system running that kernel for a bit over an hour and got
+>> five of the "bad" messages, approximately evenly spaced in a
+>> two-minute interval about 20 minutes after boot.
+>> 
+>
+> I am getting these too:
+>
+> bad: scheduling while atomic!
+>  [<c0279c5a>] schedule+0x62a/0x630
+>  [<c013b137>] kmutex_unlock+0x37/0x50
+>  [<c013ab0d>] __p_mutex_down+0x1ed/0x360
+>  [<c013b1e0>] kmutex_is_locked+0x20/0x40
+>  [<c01cba47>] journal_dirty_data+0x77/0x230
+>  [<c01bf2e2>] ext3_journal_dirty_data+0x12/0x40
 
-willy already agreed:
-http://marc.theaimsgroup.com/?l=linux-ia64&m=109709521721980&w=2
+My machine is mostly XFS, which might explain why I haven't seen any
+of those.  I've found XFS to perform better with the multi-gigabyte
+files I often deal with.
 
-I'm ok with it too.
-
-hth,
-grant
+-- 
+Måns Rullgård
+mru@mru.ath.cx

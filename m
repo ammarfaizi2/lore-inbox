@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTJLWa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 18:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTJLWa7
+	id S261190AbTJLW31 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 18:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTJLW31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 18:30:59 -0400
-Received: from neors.cat.cc.md.us ([204.153.79.3]:44233 "EHLO
-	student.ccbc.cc.md.us") by vger.kernel.org with ESMTP
-	id S261193AbTJLWa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 18:30:58 -0400
-Date: Sun, 12 Oct 2003 18:26:24 -0400 (EDT)
-From: John R Moser <jmoser5@student.ccbc.cc.md.us>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Need help with compressed page cache
-Message-ID: <Pine.A32.3.91.1031012181545.25312A-100000@student.ccbc.cc.md.us>
+	Sun, 12 Oct 2003 18:29:27 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:2549 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S261190AbTJLW3Z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 18:29:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Richard J Moore <rasman@uk.ibm.com>
+Organization: Linux Technoilogy Centre - RAS team
+To: "David S. Miller" <davem@redhat.com>, karim@opersys.com
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+Date: Sun, 12 Oct 2003 23:23:48 +0000
+User-Agent: KMail/1.4.1
+Cc: jmorris@redhat.com, zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
+       bob@watson.ibm.com
+References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com> <3F86C519.4030209@opersys.com> <20031011103429.5ebe3085.davem@redhat.com>
+In-Reply-To: <20031011103429.5ebe3085.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200310122323.48885.rasman@uk.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The linuxcompressed-devel list at sourceforge is nonresponsive (I'm talking
-to myself on there) right now it seems.  I've been trying to continue the
-work of Rodrigo Castro at linux-compressed.sf.net for the past few days just
-a bit, mainly I'm just trying to do a quick rewrite to allow more than one
-algorithm to be used at a time (i.e. so the alg can be switched on-the-fly
-without having to reencode all compressed pages).  Check the archive at
-http://sourceforge.net/mailarchive/forum.php?forum_id=2050 to see what I'm
-doing. 
+On Sat 11 October 2003 5:34 pm, David S. Miller wrote:
+> On Fri, 10 Oct 2003 10:41:29 -0400
+>
+> Karim Yaghmour <karim@opersys.com> wrote:
+> > The question isn't whether netlink can transfer hundreds of thousands of
+> > data units in one fell swoop. The question is: is it more efficient than
+> > relayfs at this?
+>
+> Wrong, it's the queueing model that's important for applications
+> like this.
 
-At any rate, i'm having trouble.  It seems to compress just fine, but 
-when i get to decompressing a page, it now crashes.  I've had the kernel 
-spit out several oopses or something on my screen about not being able to 
-handle a paging request at some virtual address.  I can't debug it and 
-I'm starting to insert dirty hacks.  I'm a newbie at this, can i get some 
-help?
+Why is a queuing model relvant to low-level kernel tracing, which is the prime 
+target of relayfs? In otherwords why would netlink be the infrastructure of 
+choice on which to implenment tracing, say in a GB ethernet driver?
 
-What I'm really looking for is a quick hand-out.  Somebody figure out 
-what's wrong, how to fix it, TELL ME (important thing this:  I won't 
-learn if you just go around cleaning up after my screw-ups) what I 
-screwed up, and give me the fixed code.  Once it works I'll continue to 
-divide the code out away from the core, and set it up so that each 
-compression algorithm registers with the core on initialization.  I 
-should be able to make it so that the alg can be set with a sysctl while 
-running WITHOUT crashing (yes I've found the sysctl code on my own, no I 
-don't understand it but I'll figure it out; you don't have to hold my 
-paw you know).
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Any takers?  If you want to help, contact me directly at this e-mail 
-address.  Meanwhile I'll blindly hammer it and try not to do more damage 
-that I've already done ^_^;
-
---Bluefox Icy
+-- 
+Richard J Moore
+IBM Linux Technology Centre

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270619AbTGNMhr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270584AbTGNMhZ
+	id S270599AbTGNMhR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270585AbTGNMhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:37:25 -0400
-Received: from maild.telia.com ([194.22.190.101]:49888 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S270600AbTGNMZC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:25:02 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Software suspend and RTL 8139too in 2.6.0-test1
-From: Peter Osterlund <petero2@telia.com>
-Date: 14 Jul 2003 14:37:47 +0200
-Message-ID: <m2wuelqo6c.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Jul 2003 08:37:14 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:30213 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S270599AbTGNMVl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:21:41 -0400
+Date: Mon, 14 Jul 2003 14:27:31 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: marcelo@conectiva.com.br
+Cc: =?unknown-8bit?Q?Frantisek_Rys=E1nek?= <rysanek@fccps.cz>,
+       henrique2.gobbi@cyclades.com, Krzysztof Halasa <khc@pm.waw.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+Message-ID: <20030714142731.A28581@electric-eye.fr.zoreil.com>
+References: <20030711212551.A25528@electric-eye.fr.zoreil.com> <002a01c349fc$23a0e8c0$ec00000a@fccps.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <002a01c349fc$23a0e8c0$ec00000a@fccps.cz>; from rysanek@fccps.cz on Mon, Jul 14, 2003 at 01:36:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Frantisek Rysánek <rysanek@fccps.cz> :
+[...]
+> As for the userspace sethdlc.c by Krzystof Halasa: I was using ver.1.12,
+> modified by Mr. Romieu, who has "cut some non-compiling functionality."
+> The current version from Krzysztof Halasa is 1.15.
 
-This patch is needed to make software suspend work with the 8139too
-driver loaded.
+To be fair to Krzysztof, the "non-compiling functionality" I cut simply
+came from the fact that latest sethdlc utility contained code related to
+CONFIG_HDLC_RAW_ETH option which wasn't available in vanilla 2.4.21-pre.
+Please note that this specific code exists in 2.4.22-pre3-ac but not in
+plain Marcelo's 2.4.22-pre. 
 
---- linux/drivers/net/8139too.c.old	Mon Jul 14 14:28:27 2003
-+++ linux/drivers/net/8139too.c	Mon Jul 14 13:23:07 2003
-@@ -110,6 +110,7 @@
- #include <linux/mii.h>
- #include <linux/completion.h>
- #include <linux/crc32.h>
-+#include <linux/suspend.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- 
-@@ -1597,6 +1598,9 @@
- 		timeout = next_tick;
- 		do {
- 			timeout = interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
-+			/* make swsusp happy with our thread */
-+			if (current->flags & PF_FREEZE)
-+				refrigerator(PF_IOTHREAD);
- 		} while (!signal_pending (current) && (timeout > 0));
- 
- 		if (signal_pending (current)) {
+Regards
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+--
+Ueimor

@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263318AbRFWXdq>; Sat, 23 Jun 2001 19:33:46 -0400
+	id <S263257AbRFWXdq>; Sat, 23 Jun 2001 19:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263257AbRFWXdh>; Sat, 23 Jun 2001 19:33:37 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:46995 "HELO
+	id <S263329AbRFWXdh>; Sat, 23 Jun 2001 19:33:37 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:49555 "HELO
 	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S263318AbRFWXdY>; Sat, 23 Jun 2001 19:33:24 -0400
+	id <S263333AbRFWXdY>; Sat, 23 Jun 2001 19:33:24 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@webofficenow.com>
 Reply-To: landley@webofficenow.com
-To: wichert@cistron.nl (Wichert Akkerman), linux-kernel@vger.kernel.org
-Subject: Re: Missing help entries in 2.4.6pre5
-Date: Fri, 22 Jun 2001 10:13:28 -0400
+To: "Mike Jagdis" <mjagdis@kokuacom.com>,
+        "Alan Chandler" <alan@chandlerfamily.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft and Xenix.
+Date: Sat, 23 Jun 2001 13:11:33 -0400
 X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010621160309.A6744@thyrsus.com> <20010622094934.A13075@thyrsus.com> <9gvj2g$khc$1@picard.cistron.nl>
-In-Reply-To: <9gvj2g$khc$1@picard.cistron.nl>
+In-Reply-To: <LPBBLLNMNCOEDEJFALHPEEJBGNAA.mjagdis@kokuacom.com>
+In-Reply-To: <LPBBLLNMNCOEDEJFALHPEEJBGNAA.mjagdis@kokuacom.com>
 MIME-Version: 1.0
-Message-Id: <0106221013280M.00692@localhost.localdomain>
+Message-Id: <01062313113305.00696@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 June 2001 10:00, Wichert Akkerman wrote:
-> In article <20010622094934.A13075@thyrsus.com>,
+On Saturday 23 June 2001 13:57, Mike Jagdis wrote:
+> > I hope the following adds a more direct perspective on this, as I
+> > was a user at the time.
 >
-> Eric S. Raymond <esr@thyrsus.com> wrote:
-> >You're a bit irritated.  That's good.  I *want* people who don't write
-> >help entries for their configuration symbols to be a bit irritated.
-> >That way, they might get around to actually doing what they ought to.
->
-> You mean you actually want people to start ignoring you?
+> I was _almost_ at university :-). However I do have a first edition
+> of the IBM Xenix Software Development Guide from december 1984. It has
+> '84 IBM copyright and '83 MS copyright. The SCO stuff I have goes back
+> to '83 - MS copyrights on it go back to '81 but that's probably just
+> the compiler and DOS compatibility.
 
+Ooh!  Ooh!  I don't suppose I could borrow that?  (Hmm...  Driving to london 
+isn't quite something my car's up to.  For one thing, there's no gas stations 
+in the middle of the atlantic.)
 
-There's a really simple solution to that.  Eric can just make up his own help 
-file entries that are wildly inaccurate and actively insulting to whoever it 
-is who owns the symbol.  Something along the lines of:
+The copyright dates back to when they shipped it.  I believe Microsoft's 
+license with AT&T was signed in 1979 and actual work started in 1980, but 
+that's in a different notebook...
 
-"Enabling this subsystem may cause your house to burn down and your dog to 
-explode.  The prevailing opinion is that Linus was probably blackmailed into 
-including this option by someone with naked pictures of his cat.  It's 
-useless and irritating, and just might be removed soon, so don't count on it 
-continuing to be there.  Nobody knows how to use it because they didn't 
-provide any documentation for it."
+>   Basically Xenix was the first MS/IBM attempt at a "real OS" for the
+> PC. MS realised that multiuser/multitasking was less important than
+> colour graphics for PC owners and decided to pull out of the Xenix
+> business. IBM licensed it under their name to keep their desktop computer
+> concept alive while the Xenix team emerged from the shake out to form SCO.
 
-Then they're welcome to ignore it. :)
+Don't make the mistake of treating IBM -OR- Microsoft as a monolithic entity. 
+ IBM had a dozen departments constantly at war with each other: Unix had its 
+pockets of supporters at IBM, some of whom did AIX.
+
+At Microsoft, Paul Allen was the bix Unix fan.  Gates was indifferent to it, 
+and was far more interested in the Xerox Parc perspective.
+
+Both Bell Labs and Xerox Parc totally revolutionized computing.  Bell Labs 
+worked from the inside out, how the machine works and what programmers can 
+get it to do.  Multitasking, hierarchical filesystem, block and character 
+device drivers, streams, pipes, etc.  Xerox Parc worked from the outside in, 
+how the user interacts with the computer and what they experience.  Wysiwyg 
+printing, Windows and Icons and Mice in a GUI.  (Xerox also did object 
+oriented programming, and networking which was related to both the user and 
+system level.  Then again Unix spun out of porting a flight simulator to the 
+PDP 7.  It's not QUITE that black and white...)
+
+In any case, gates was on the Xerox side and Allen was on the BTL side.  When 
+Allen left microsoft, Xenix followed soon after.  (First SCO was "helping", 
+then over the next few years the whole thing was gradually dumped on them and 
+the umbilical severed.)
+
+Remember, Xenix hadn't made much of a splash in the PC world before 1984 
+because the PC simply didn't have the power to run it.  YOU try doing 
+anything useful with Unix in -LESS- than 512k of ram.  That doesn't mean it 
+wasn't having a big impact behind the scenes at Microsoft.  (Similarly, 
+windowing interfaces were Jobs's passion for 4 or 5 years before the 
+macintosh launch, whether or not Apple's revenues or customers even knew 
+about it.)
 
 Rob
-
-(As mel brooks said, it's good to be the help file maintainer...)
 

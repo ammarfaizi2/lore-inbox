@@ -1,88 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbTEEMgv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 08:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTEEMgv
+	id S262164AbTEEMjo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 08:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTEEMjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 08:36:51 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:35324 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S262163AbTEEMgu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 08:36:50 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org, Devilkin-lkml@blindguardian.org
-Subject: Re: [2.5.69] Irda troubles
-Date: Mon, 5 May 2003 14:49:53 +0200
-User-Agent: KMail/1.5.1
-References: <200305051437.30347.devilkin-lkml@blindguardian.org>
-In-Reply-To: <200305051437.30347.devilkin-lkml@blindguardian.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
+	Mon, 5 May 2003 08:39:44 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:31754 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262164AbTEEMjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 08:39:43 -0400
+Date: Mon, 5 May 2003 13:52:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030505135211.A21658@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Terje Eggestad <terje.eggestad@scali.com>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
+References: <1052122784.2821.4.camel@pc-16.office.scali.no> <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305051449.58730.devilkin-lkml@blindguardian.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1052133798.2821.122.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Mon, May 05, 2003 at 01:23:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 05, 2003 at 01:23:19PM +0200, Terje Eggestad wrote:
+> The problem occur when you 
+> 1. pinn a buffer  
+> 2. sbrk(-n) or munmap() (usually thru free()) the area the buffer  
+> 3. a new malloc() resulting in a sbrk(+n) or mmap()
+> 4. then my new buffer has the exactly same virtual address as the prev.
+> 
+> (belive it or not this happens, and relatively frequently). 
 
-On Monday 05 May 2003 14:37, DevilKin wrote:
-> Hello list,
->
-> Today I've tried to get my infrared synchronisation to my palm pilot
-> working. Unfortunately, it doesn't work - I get nothing at all. It worked
-> fine under 2.4.20.
->
-> The modules in question are irda, ircomm and ircomm_tty.
->
-> Upon load of the modules, this is shown in the logs:
->
-> IrCOMM protocol (Dag Brattli)
-> Module ircomm_tty cannot be unloaded due to unsafe usage in
-> include/linux/module.h:457
-> ircomm_tty_attach_cable()
-> ircomm_tty_ias_register()
-> ircomm_tty_close()
-> ircomm_tty_shutdown()
-> ircomm_tty_detach_cable()
-> ircomm_close()
->
-> And that's all. I cannot open /dev/ircomm0 or ircomm1, which are:
->
-> laptop:/usr/src/linux/net/irda/ircomm# ls -l /dev/ircomm*
-> crw-rw----    1 root     dialout  161,   0 Dec 16 14:34 /dev/ircomm0
-> crw-rw----    1 root     dialout  161,   1 Dec 16 14:34 /dev/ircomm1
->
+That only shows that you really don't want to use glibc's malloc and
+sbrk implementations, but ones that are implemented as mmap in your
+driver so you can keep track of it properly. LD_PRELOAD is your friend.
 
-Furthermore, I forgot to add this:
+> Lets deal, I'll GPL the trace module if you get me a 
+> EXPORT_SYMBOL_GPL(sys_call_table);
 
-laptop:/home/devilkin# findchip -v
-Found SMC FDC37N958FR Controller at 0x3f0, DevID=0x01, Rev. 1
-    SIR Base 0x2f8, FIR Base 0x280
-    IRQ = 3, DMA = 4
-    Enabled: yes, Suspended: no
-    UART compatible: yes
-    Half duplex delay = 3 us
-
-CONFIG_IRDA=m
-CONFIG_IRLAN=m
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-CONFIG_IRDA_DEBUG=y
-CONFIG_IRTTY_SIR=m
-CONFIG_IRPORT_SIR=m
-
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+tl3zpuyeqyCEh60RAimgAJwKhpL6VIB23/LNgo6ba8/bvCkC6wCeNTsJ
-0jbz0gZfeybqHy5NT2obsgY=
-=x/Ml
------END PGP SIGNATURE-----
+Who cares about your trace module?  That's the wrong approach to start
+with.  And the removal of the sys_call_table export is not a political
+issue but a technical one.   The interesting thing would be your memory
+manager, but given the above hints you really should be able to fix it yourself
+now..
 

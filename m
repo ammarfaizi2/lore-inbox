@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSCOIsa>; Fri, 15 Mar 2002 03:48:30 -0500
+	id <S286647AbSCOIzv>; Fri, 15 Mar 2002 03:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbSCOIsM>; Fri, 15 Mar 2002 03:48:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:54202 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S285850AbSCOIru>;
-	Fri, 15 Mar 2002 03:47:50 -0500
-Date: Fri, 15 Mar 2002 08:43:38 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-In-Reply-To: <Pine.LNX.4.33.0203141426200.1477-100000@biker.pdb.fsc.net>
-Message-ID: <Pine.LNX.4.44.0203150834050.11415-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286825AbSCOIzm>; Fri, 15 Mar 2002 03:55:42 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2970 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S286521AbSCOIzV>;
+	Fri, 15 Mar 2002 03:55:21 -0500
+Date: Fri, 15 Mar 2002 00:51:55 -0800 (PST)
+Message-Id: <20020315.005155.93361168.davem@redhat.com>
+To: ian@ianduggan.net
+Cc: alan@lxorguk.ukuu.org.uk, rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 Preempt Freezeups
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C91B30D.A887A033@ianduggan.net>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net>
+	<E16lhBg-0002Yc-00@the-village.bc.nu>
+	<3C91B30D.A887A033@ianduggan.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ian Duggan <ian@ianduggan.net>
+   Date: Fri, 15 Mar 2002 00:38:37 -0800
+   
+   What is required for preempt beyond "SMP safe" code? I thought the whole
+   idea was to make the preemptions transparent to other code by utilizing
+   the SMP critical regions?
 
-On Thu, 14 Mar 2002, Martin Wilck wrote:
+Pre-empt makes things like per-cpu data structures require
+preemption disables around cpu-local critical regions.
 
-> > let me know whether this fixes your problem,
-> 
-> The patch distributes the IRQs nicely between CPUs, but unfortunately
-> does not fix our timer IRQ problem.
-
-that is a different issue, a fix for it was sent to lkml.
-
-> Btw is it correct that one could also use the APIC Task Priority
-> Registers to implement "fair" IRQ routing? (If linux adjusted them,
-> which it currently doesn't).
-
-no. The TPR has a number of limitations, and it suffers from the same
-problem that lowest priority routing is suffering.
-
-1) the TRP is not really finegrained and does not match Linux's irq
-architecture, it's a rather spl-alike metric to allow irqs in below/above
-a certain level. Since Linux distributes IRQ sources in essence randomly,
-there is no point in TPR-limiting a certain half of the IRQ vector
-spectrum.
-
-2) i initially played with the TPR and it does not really solve the P4
-problem. It can be used to force irqs away from a busy CPU, but in the
-common (idle, or mostly idle) case the TPR will be equivalent across CPUs,
-resulting in the same 'ugly' IRQ inbalance that you see.
-
-3) the irqbalance patch also takes CPU affinity into account, ie. it will
-try to keep the same IRQ source on a single CPU, for some time. So the
-micro-distribution of IRQ sources is 'CPU affine', while the
-macro-distribution is statistically random, in a load-weighted way. The
-TPR approach results in the same 'one IRQ goes to CPU1, next IRQ goes to
-CPU2' type of cache-affinity problems.
-
-4) irqbalance is a software-based distribution method. It was time for the
-Linux/x86 IRQ routing code to 'grow up' and actually be clever in a number
-of ways. The hardware did bad decisions - even in lowestprio mode.
-
-eg. apply the irqbalance patch, start a single CPU-using script like:
-
-	while [ 1 ]; do N=1; done
-
-and watch IRQ load wander to the idle CPU(s) instantly.
-
-	Ingo
-
+Code that works before just because it knows the data structure is
+only even accessed by the current cpu doesn't work because preemption
+can cause a context switch at any time.

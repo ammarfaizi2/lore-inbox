@@ -1,69 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUD3UD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUD3ULh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbUD3UD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 16:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbUD3UD7
+	id S265247AbUD3ULh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbUD3ULh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:03:59 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:63728 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S265249AbUD3UCl
+	Fri, 30 Apr 2004 16:11:37 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:13223 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S265247AbUD3ULc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:02:41 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Timothy Miller <miller@techsource.com>, Peter Williams <peterw@aurema.com>
+	Fri, 30 Apr 2004 16:11:32 -0400
+In-Reply-To: <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
+Content-Transfer-Encoding: 7bit
+Cc: "'Sean Estabrooks'" <seanlkml@rogers.com>,
+       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
+       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Peter Williams'" <peterw@aurema.com>, Hua Zhong <hzhong@cisco.com>,
+       "'Timothy Miller'" <miller@techsource.com>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       koke@sindominio.net, "'Rusty Russell'" <rusty@rustcorp.com.au>,
+       "'David Gibson'" <david@gibson.dropbear.id.au>
+From: Marc Boucher <marc@linuxant.com>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 15:01:46 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marc Boucher <marc@linuxant.com>, Sean Estabrooks <seanlkml@rogers.com>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Wagland <paul@wagland.net>,
-       Rik van Riel <riel@redhat.com>, koke@sindominio.net,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Gibson <david@gibson.dropbear.id.au>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4091D6D4.8070507@aurema.com> <40927A86.30207@techsource.com>
-In-Reply-To: <40927A86.30207@techsource.com>
-MIME-Version: 1.0
-Message-Id: <04043015014600.23067@tabby>
-Content-Transfer-Encoding: 8bit
+Date: Fri, 30 Apr 2004 16:11:29 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 April 2004 11:10, Timothy Miller wrote:
-> Peter Williams wrote:
-> >> "DriverLoader technology is the ideal Linux solution to support
-> >> devices for
-> >>  which no adequate native open-source drivers are available. It also
-> >> allows
-> >>  vendors to drastically reduce time to market or eliminate the need to
-> >> support
-> >>  multiple drivers for Windows and Linux. By using the same driver on
-> >> both platforms, significant resources can be saved."
-> >>
-> >> Rusty was right.
-> >
-> > Why did you omit the next paragraph (which completes the story):
-> >
-> > "We have attempted to reduce the inconvenience of binary-only drivers by
-> > separating the proprietary code from the operating-system specific code.
-> > The latter is provided in source form, allowing users to install the
-> > drivers under any supported version (2.4 or later) of the Linux kernel."
+
+Like Hua said, this ought to be "my last email on this topic. If it 
+weren't Linus I would have stopped. :-)"
+
+On Apr 30, 2004, at 3:19 PM, Linus Torvalds wrote:
 >
-> While it does allow for Linux to get certain kinds of drivers quicker,
-> it turns hardware developers into slackers who don't want to REALLY
-> support Linux and eats away at the spirit of Linux as an open system.
+> On Fri, 30 Apr 2004, Hua Zhong wrote:
+>>
+>> I have not heard so much WINING about WINE. I even see kernel 
+>> developers add
+>> more support in the kernel to support WINE. Why do people like to 
+>> pick on
+>> closed-source drivers being run by a wrapper? I see nothing wrong 
+>> with that.
 >
-> What you're doing may short-term enhance hardware support for Linux, but
-> in the long term, it is a set-back for Linux because it does not
-> encourage hardware vendors to support Linux directly and even pushes
-> true Linux support further into the future.
+> What is so hard to understand about the problem with bugs?
+>
+> All software has bugs. Binary modules just mean that those bugs are
+>  - FATAL to the system, including possibly being a huge security hole.
+>  - impossible to debug
+>  - impossible to fix
 
-And worse -
+All bugs are possibly fatal, or huge security holes, regardless of 
+whether they are in binary-only code or open-source.
+All bugs can be debugged or fixed, it's a matter of how hard it is to 
+do (generally easier with open-source) and *who* is responsible for 
+doing it (i.e. supporting the modules).
 
-It hangs the users out to dry if the vendor drops support of the
-driver/hardware.
+>
+> In contrast, wine was _written_ to do this emulation, so by definition 
+> any
+> "bugs" are in wine itself (although I suspect that wine people 
+> sometimes
+> would prefer it if Office came with sources ;).
 
-With full source code the community or the user would be able to continue
-to update/fix the driver for new kernels.
+The same can be said about DriverLoader.
+
+>
+>> Linuxant did a wrong thing by working around the warning message, but 
+>> I
+>> don't think it's fair to accuse of their business because they allow 
+>> binary
+>> drivers run on Linux.
+>
+> Nobody has sued them over copyright infringement. What they are doing 
+> is
+> likely legal - APART from the fact that they lied about the license, 
+> which
+> is not only horribly immoral, it's also likely illegal under the DMCA.
+
+The purpose of the workaround is not to circumvent any protection, but 
+to fix a real usability issue for systems in the field, which, as an 
+expert you perhaps do not see, but users definitely massively felt and 
+complained about.
+
+>
+> Note: to me, the immoral part is the big one. If you want to flaunt the
+> DMCA and take the risk of the feds coming after you as a matter of 
+> civil
+> disobedience, all the more power to you. Let's not be hypocritical and
+> claim to like the DMCA.
+
+I don't see our actions as being immoral at all. But in retrospect, I 
+admit that the issue should have been differently handled (i.e. by 
+sending patches, and perhaps starting a discussion on the lkml before 
+implementing a workaround).
+
+> But let's not kid about this: adding that '\0' thing to try to make the
+> kernel believe it was GPL'd code is not ethical, and there is no way to
+> claim that it's needed, since the _only_ thing it suppresses are a few
+> messages saying that the kernel is tainted as a result. Which it IS.
+
+Most kernels are already potentially "tainted" by the use of 
+proprietary binary-only BIOS code, use of non-standard custom patches, 
+reliance on untrusted external data, etc.. This illustrates that the 
+MODULE_LICENSE tainting concept is flawed, and needlessly 
+scary/confusing for users.
+
+>
+> So don't bother trying to stand up for Linuxant.
+
+I can understand that you do not really like what we are doing to 
+provide alternative options so that people can use otherwise 
+unsupported hardware.
+
+> What they did was WRONG,
+> and there are no excuses for it.
+
+But the main justification for the regrettable \0 trick remains that 
+the tainted messages are redundant, confusing, and do not convey key 
+information (i.e. who is responsible for supporting the third-party 
+module) to ordinary users.
+
+> And I hope that they have it fixed
+> already and we can hereby just forget about this discussion.
+
+We are working on a new release, which will be on the website shortly.
+
+And I hope that you will agree to deal with the root problem by 
+incorporating some of the suggestions (or equivalent ones) that people 
+have made to fix the messages.
+
+> 		Linus
+>
+>
+
+Regards
+Marc
+

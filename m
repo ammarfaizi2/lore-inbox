@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287193AbSALRCS>; Sat, 12 Jan 2002 12:02:18 -0500
+	id <S287196AbSALR1O>; Sat, 12 Jan 2002 12:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287196AbSALRCJ>; Sat, 12 Jan 2002 12:02:09 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:42607 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S287193AbSALRCB>; Sat, 12 Jan 2002 12:02:01 -0500
-Date: Sat, 12 Jan 2002 18:00:16 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: yodaiken@fsmlabs.com
-Cc: jogi@planetzork.ping.de, Robert Love <rml@tech9.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020112180016.T1482@inspiron.school.suse.de>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com>
-Mime-Version: 1.0
+	id <S287200AbSALR1F>; Sat, 12 Jan 2002 12:27:05 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:50185 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S287196AbSALR0w>;
+	Sat, 12 Jan 2002 12:26:52 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201121726.g0CHQZ7369540@saturn.cs.uml.edu>
+Subject: Re: [PATCH] 1-2-3 GB
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Sat, 12 Jan 2002 12:26:35 -0500 (EST)
+Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+In-Reply-To: <20020112141738.L1482@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 12, 2002 02:17:38 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020112095209.A5735@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Sat, Jan 12, 2002 at 09:52:09AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 09:52:09AM -0700, yodaiken@fsmlabs.com wrote:
-> On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
-> > I did my usual compile testings (untar kernel archive, apply patches,
-> > make -j<value> ...
-> 
-> If I understand your test, 
-> you are testing different loads - you are compiling kernels that may differ
-> in size and makefile organization, not to mention different layout on the
-> file system and disk.
+Andrea Arcangeli writes:
+> On Fri, Jan 11, 2002 at 11:32:37PM -0800, H. Peter Anvin wrote:
+>> By author:    rwhron@earthlink.net
 
-Ouch, I assumed this wasn't the case indeed.
+>>> --- linux.aa2/arch/i386/config.in       Fri Jan 11 20:57:58 2002
+>>> +++ linux/arch/i386/config.in   Fri Jan 11 22:20:32 2002
+>>> @@ -169,7 +169,11 @@
+>>>  if [ "$CONFIG_HIGHMEM64G" = "y" ]; then
+>>>     define_bool CONFIG_X86_PAE y
+>>>  else
+>>> -   bool '3.5GB user address space' CONFIG_05GB
+>>> +   choice 'Maximum Virtual Memory' \
+>>> +       "3GB            CONFIG_1GB \
+>>> +        2GB            CONFIG_2GB \
+>>> +        1GB            CONFIG_3GB \
+>>> +        05GB           CONFIG_05GB" 3GB
+>>>  fi
+>>
+>> Calling this "Maximum Virtual Memory" is misleading at best.  This is
+>> best described as "kernel:user split" (3:1, 2:2, 1:3, 3.5:0.5);
+>> "maximum virtual memory" sounds to me a lot like the opposite of what
+>> your parameter is.
+>
+> actually it is really max virtual memory.. but from the user point of
+> view, user is supposed to care about the virtual memory he can manage,
+> not about what the kernel will do with the rest. So if the user wants
+> 3GB of virtual memory available to each task he will select 3GB. I
+> really don't mind if you want to change it from the kernel point of
+> view, but given it's the user who's supposed to compile it, also the
+> current patch looks good enough to me.
 
-> 
-> What happens when you do the same test, compiling one kernel under multiple
-> different kernels?
+The numbers are wrong anyway, because of vmalloc() and PCI space.
+The PCI space is motherboard-dependent AFAIK, but you could at
+least account for the 128 MB vmalloc() area:
 
-Andrea
+user virtual space / non-kmap physical memory
+
+3584/384
+3072/896
+2048/1920
+1024/2944  (sure this works, even for syscalls w/ bad pointers?)
+512/3456   (sure this works, even for syscalls w/ bad pointers?)

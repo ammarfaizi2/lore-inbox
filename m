@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269139AbUIXU7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUIXVL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269139AbUIXU7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUIXU7f
+	id S262279AbUIXVL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 17:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUIXVL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:59:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39067 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269139AbUIXU7d (ORCPT
+	Fri, 24 Sep 2004 17:11:26 -0400
+Received: from scrye.com ([216.17.180.1]:44433 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S262279AbUIXVLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:59:33 -0400
-Date: Fri, 24 Sep 2004 13:59:31 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Chris Wright <chrisw@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040924135931.V1924@build.pdx.osdl.net>
-References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <4154867F.7030108@nortelnetworks.com> <20040924134602.U1924@build.pdx.osdl.net> <41548989.8040107@nortelnetworks.com>
-Mime-Version: 1.0
+	Fri, 24 Sep 2004 17:11:23 -0400
+Date: Fri, 24 Sep 2004 15:09:53 -0600
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <41548989.8040107@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Fri, Sep 24, 2004 at 02:54:33PM -0600
+Content-Transfer-Encoding: 7bit
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+X-Draft-From: ("scrye.linux.kernel" 70809)
+References: <20040924021956.98FB5A315A@voldemort.scrye.com>
+	<20040924143714.GA826@openzaurus.ucw.cz>
+Message-Id: <20040924210958.A3C5AA2073@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Friesen (cfriesen@nortelnetworks.com) wrote:
-> Chris Wright wrote:
-> 
-> > The info is stored in the memory mapping info that's necessarily blown
-> > away at execve(2) because that's where you are overlaying a new image.
-> 
-> Yeah, I just saw that on the man page for mlockall.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's required for SUSv3 (mlock too).
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-> I though maybe it was stored on the task struct or something.
+Pavel> Hi!
+>> Was trying to swsusp my 2.6.9-rc2-mm1 laptop tonight. It churned
+>> for a while, but didn't hibernate. Here are the messages.
+>> 
+>> ....................................................................................................
+>> .........................swsusp: Need to copy 34850 pages Sep 23
+>> 16:53:37 voldemort kernel: hibernate: page allocation
+>> failure. order:8, mode:0x120 Sep 23 16:53:37 voldemort kernel:
+Pavel> Out of memory... Try again with less loaded system. 
 
-Nope, default from MCL_FUTURE is ->mm->def_flags otherwise it's per
-vma->vm_flags.
+The system was no more loaded than usual. I have 1GB memory and 4GB of
+swap defined. I almost never touch swap. It might have been 100mb into
+the 4Gb of swap when this happened. 
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+What would cause it to be out of memory? 
+swsup needs to be reliable... rebooting when you are using your memory
+kinda defeats the purpose of swsusp. 
+
+Felipe W Damasio <felipewd@terra.com.br> sent me a patch, but I
+haven't had a chance to try it yet:
+
+- --- linux-2.6.9-rc2-mm2/kernel/power/swsusp.c.orig	2004-09-23 23:46:49.292975768 -0300
++++ linux-2.6.9-rc2-mm2/kernel/power/swsusp.c	2004-09-24 00:07:01.933626368 -0300
+@@ -657,6 +657,9 @@
+ 	int diff = 0;
+ 	int order = 0;
+ 
++	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
++	nr_copy_pages += 1 << order;
++
+ 	do {
+ 		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
+ 		if (diff) {
+
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFBVI0m3imCezTjY0ERAgI1AJ0VatDEm27SAh2dvS65XwNNpReSEACeNBkn
+uRXNP9tQcUlEZ1BAKON1nSo=
+=3rnm
+-----END PGP SIGNATURE-----

@@ -1,26 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274669AbRJAHfI>; Mon, 1 Oct 2001 03:35:08 -0400
+	id <S274680AbRJAHg6>; Mon, 1 Oct 2001 03:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274680AbRJAHe6>; Mon, 1 Oct 2001 03:34:58 -0400
-Received: from rj.sgi.com ([204.94.215.100]:59558 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S274669AbRJAHeq>;
-	Mon, 1 Oct 2001 03:34:46 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@melbourne.sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: kdb v1.9 updates
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 Oct 2001 17:34:46 +1000
-Message-ID: <31742.1001921686@kao2.melbourne.sgi.com>
+	id <S274681AbRJAHgs>; Mon, 1 Oct 2001 03:36:48 -0400
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:47623 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S274680AbRJAHgg>;
+	Mon, 1 Oct 2001 03:36:36 -0400
+Date: Mon, 1 Oct 2001 09:36:48 +0200 (CEST)
+From: Peter Svensson <petersv@psv.nu>
+To: Evan Harris <eharris@puremagic.com>
+cc: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: RAID5: mkraid --force /dev/md0 doesn't work properly
+In-Reply-To: <Pine.LNX.4.33.0110010113420.2459-100000@kinison.puremagic.com>
+Message-ID: <Pine.LNX.4.33.0110010934330.20107-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kdb v1.9 is now available for 2.4.10-ac1, 2.4.10-ia64-010924 and
-2.4.11-pre1.  There is also kdb v1.8 for 2.4.10-ac1, 2.4.10-ia64-010924
-and 2.4.10 as a fallback, those will be the last patches for kdb v1.8.
+On Mon, 1 Oct 2001, Evan Harris wrote:
 
-ftp://oss.sgi.com/projects/kdb/download/{ix86,ia64}
+>
+> md0 : active raid5 sde1[6] sdi1[5] sdh1[4] sdg1[3] sdf1[2] sdd1[0]
+>       179203840 blocks level 5, 256k chunk, algorithm 0 [6/5] [U_UUUU]
+>       [=>...................]  recovery =  8.4% (3023688/35840768)
+> finish=88.9min speed=6148K/sec
+>
+> Now, my question is: the hotadd seems to have reordered the disks, so when
+> the rebuild is completed, do I need to reorder my raidtab to reflect this?
+> Like this?
+
+Once the resync has completed the hotadded disk will drop into its slot.
+Ie there is no need to change the numbers in /etc/raidtab, they wil be
+correct once the array has recovered.
+
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
+
 

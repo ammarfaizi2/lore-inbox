@@ -1,159 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSGSExr>; Fri, 19 Jul 2002 00:53:47 -0400
+	id <S314529AbSGSE5F>; Fri, 19 Jul 2002 00:57:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSGSExr>; Fri, 19 Jul 2002 00:53:47 -0400
-Received: from p50887DBB.dip.t-dialin.net ([80.136.125.187]:27008 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314396AbSGSExp>; Fri, 19 Jul 2002 00:53:45 -0400
-Date: Thu, 18 Jul 2002 22:55:58 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: James Antill <james@and.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more thoughts on a new jail() system call
-In-Reply-To: <m33cugnye9.fsf@code.and.org>
-Message-ID: <Pine.LNX.4.44.0207182248110.3378-200000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1262670546-1027054558=:3378"
+	id <S315445AbSGSE5F>; Fri, 19 Jul 2002 00:57:05 -0400
+Received: from smtp.eol.ca ([205.189.152.19]:29383 "HELO smtp.eol.ca")
+	by vger.kernel.org with SMTP id <S314529AbSGSE5F>;
+	Fri, 19 Jul 2002 00:57:05 -0400
+Date: Fri, 19 Jul 2002 01:00:06 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual Athlon MP 1900+ on MSI K7D Master-L
+Message-ID: <20020719050006.GB3590@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200207190331.57158.Dieter.Nuetzel@hamburg.de> <200207182114.30806.kelledin+LKML@skarpsey.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207182114.30806.kelledin+LKML@skarpsey.dyndns.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thu, Jul 18, 2002 at 09:14:30PM -0500, Kelledin wrote:
+> On Thursday 18 July 2002 08:31 pm, Dieter N?tzel wrote:
+> > Alan, were should I put the "-j2/-j3" make flag for the kernel
+> > compilation? /usr/src/linux/Documentation/smp.txt is way
+> > outdated ;-(
+...
+> In general, I find it best to set the number of jobs to the 
+> number of CPUs _plus 1_--i.e. for single CPU, use make -j2, and 
+> for dual CPUs, use make -j3.  Going for that "plus 1" makes most 
+> builds just a smidgen faster.  For me, on my dual PPro box, the 
+> process would be something like:
+> 
+> make menuconfig
+> make -j3 MAKE="make -j3" dep clean bzImage modules
 
----1463811839-1262670546-1027054558=:3378
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I usually have better luck if I use only one target per 'make':
+    make menuconfig
+    make -j3 dep
+    make clean
+    make -j3 bzlilo
+    make -j3 modules
+    make -j3 modules_install
+Especially, 'modules' and 'modules_install' must be done separately.
 
-Hi,
-
-On 19 Jul 2002, James Antill wrote:
->  The more general spelling is FIONREAD, and I generally find that only
-> crap network applications need to use it. Good ones just try and read
-> a largish amount of data into a buffer.
-
-That doesn't matter as long as you haven't got any idea on how much data 
-will be read. Especially relaying between two completely different hosts, 
-possibly unknown protocols, you don't have a chance to know who will send 
-next. Without TIOCINQ you'll almost be shot if you have received lots of 
-lots of stuff from the client and expect any response from the server. You 
-just won't get it.
-
-Give me another version of the appended piece of code that won't use 
-ioctl, and I'll consider an acknowledgement.
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
----1463811839-1262670546-1027054558=:3378
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="portforwarder.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0207182255580.3378@hawkeye.luckynet.adm>
-Content-Description: 
-Content-Disposition: attachment; filename="portforwarder.c"
-
-I2luY2x1ZGUgPGVycm5vLmg+DQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNs
-dWRlIDxzdGRsaWIuaD4NCiNpbmNsdWRlIDxzdHJpbmcuaD4NCiNpbmNsdWRl
-IDx1bmlzdGQuaD4NCiNpbmNsdWRlIDxhcnBhL2luZXQuaD4NCiNpbmNsdWRl
-IDxzeXMvaW9jdGwuaD4NCiNpbmNsdWRlIDxuZXRpbmV0L2luLmg+DQojaW5j
-bHVkZSA8c3lzL3NvY2tldC5oPg0KDQojZGVmaW5lIF9wZXJyb3IocykgcGVy
-cm9yKHMpOyBlcnJubyA9IDANCiNkZWZpbmUgX3Byb2JhYmx5X3BlcnJvcihz
-KSBpZiAoZXJybm8pIHsgcGVycm9yKHMpOyBlcnJubyA9IDA7IH0NCg0KdW5z
-aWduZWQgc2hvcnQgcG9ydGZyb20sIHBvcnR0bzsNCmludCBzb2NrLCBjbGll
-bnQsIHNlcnZlciwgcGVlcl9zaXplOw0Kc3RydWN0IHNvY2thZGRyX2luICps
-b2NhbCwgKnBlZXIsICpyZW1vdGU7DQpjaGFyICpidWZmZXI7DQoNCmludCBt
-YWluKGludCBhcmdjLCBjaGFyICoqYXJndikgew0KCWJ1ZmZlciAgICA9IG1h
-bGxvYyg2NTUzNyk7DQoJcmVtb3RlICAgID0gbWFsbG9jKHNpemVvZihzdHJ1
-Y3Qgc29ja2FkZHJfaW4pKTsNCglsb2NhbCAgICAgPSBtYWxsb2Moc2l6ZW9m
-KHN0cnVjdCBzb2NrYWRkcl9pbikpOw0KCXBlZXIgICAgICA9IG1hbGxvYyhz
-aXplb2Yoc3RydWN0IHNvY2thZGRyX2luKSk7DQoJcGVlcl9zaXplID0gc2l6
-ZW9mKHN0cnVjdCBzb2NrYWRkcl9pbik7DQoJcG9ydGZyb20gID0gMjY7DQoJ
-cG9ydHRvICAgID0gMjU7DQoNCglpZiAoYXJnYyA+PSAzKSB7DQoJCXBvcnRm
-cm9tID0gKHNob3J0KShhdG9sKGFyZ3ZbMV0pICYgMHhGRkZGKTsNCgkJcG9y
-dHRvICAgPSAoc2hvcnQpKGF0b2woYXJndlsyXSkgJiAweEZGRkYpOw0KCX0N
-Cg0KCWxvY2FsLT5zaW5fZmFtaWx5ICAgICAgID0gQUZfSU5FVDsNCglsb2Nh
-bC0+c2luX3BvcnQgICAgICAgICA9IGh0b25zKHBvcnRmcm9tKTsNCglsb2Nh
-bC0+c2luX2FkZHIuc19hZGRyICA9IGh0b25sKElOQUREUl9BTlkpOw0KDQoJ
-cmVtb3RlLT5zaW5fZmFtaWx5ICAgICAgPSBBRl9JTkVUOw0KCXJlbW90ZS0+
-c2luX3BvcnQgICAgICAgID0gaHRvbnMocG9ydHRvKTsNCglyZW1vdGUtPnNp
-bl9hZGRyLnNfYWRkciA9IGluZXRfYWRkcigiMTkyLjE2OC4xLjEiKTsNCg0K
-CXByaW50ZigiVGFyZ2V0IGFkZHJlc3M6ICVpLiVpLiVpLiVpOiVpXG4iLA0K
-CSAgICAgICByZW1vdGUtPnNpbl9hZGRyLnNfYWRkciAmIDB4RkYsDQoJICAg
-ICAgIChyZW1vdGUtPnNpbl9hZGRyLnNfYWRkciA+PiA4KSAmIDB4RkYsDQoJ
-ICAgICAgIChyZW1vdGUtPnNpbl9hZGRyLnNfYWRkciA+PiAxNikgJiAweEZG
-LA0KCSAgICAgICAocmVtb3RlLT5zaW5fYWRkci5zX2FkZHIgPj4gMjQpICYg
-MHhGRiwNCgkgICAgICAgbnRvaHMocmVtb3RlLT5zaW5fcG9ydCkpOw0KDQoJ
-c29jayA9IHNvY2tldChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19U
-Q1ApOw0KCWlmIChzb2NrID09IC0xKSB7DQoJCV9wZXJyb3IoInNvY2tldCAo
-Y29udHJvbGxlcikiKTsNCgkJZXhpdCgxKTsNCgl9DQoJaWYgKGJpbmQoc29j
-aywgKHN0cnVjdCBzb2NrYWRkciAqKWxvY2FsLA0KCQkgc2l6ZW9mKHN0cnVj
-dCBzb2NrYWRkcl9pbikpIDwgMCkgew0KCQlfcGVycm9yKCJiaW5kIik7DQoJ
-CWV4aXQoMSk7DQoJfQ0KCWlmIChsaXN0ZW4oc29jaywgMTApIDwgMCkgew0K
-CQlfcGVycm9yKCJsaXN0ZW4iKTsNCgkJZXhpdCgxKTsNCgl9DQoJd2hpbGUg
-KChjbGllbnQgPSBhY2NlcHQoc29jaywgKHN0cnVjdCBzb2NrYWRkciAqKXBl
-ZXIsDQoJCQkJJnBlZXJfc2l6ZSkpID49IDApIHsNCgkJdW5zaWduZWQgbG9u
-ZyBzOw0KCQlpbnQgaW5fcmVjdnEsIG92ZXJoZWFkID0gMCwgbnJfbG9vcHMg
-PSAwOw0KDQoJCWZvciAocyA9IDA7IHMgPCA2NTUzNjsgcysrKQ0KCQkJYnVm
-ZmVyW3NdID0gMDsNCg0KCQlwcmludGYoIkNvbm5lY3Rpb24gZnJvbSAlczol
-aVxuIiwNCgkJICAgICAgIGluZXRfbnRvYShwZWVyLT5zaW5fYWRkciksDQoJ
-CSAgICAgICBudG9ocyhwZWVyLT5zaW5fcG9ydCkpOw0KDQoJCXNlcnZlciA9
-IHNvY2tldChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19UQ1ApOw0K
-CQlpZiAoc2VydmVyID09IC0xKSB7DQoJCQlfcGVycm9yKCJzb2NrZXQgKHNl
-cnZlcikiKTsNCgkJCWV4aXQoMSk7DQoJCX0NCgkJaWYgKGNvbm5lY3Qoc2Vy
-dmVyLCAoc3RydWN0IHNvY2thZGRyICopcmVtb3RlLA0KCQkJICAgIHNpemVv
-ZihzdHJ1Y3Qgc29ja2FkZHJfaW4pKSA8IDApIHsNCgkJCV9wZXJyb3IoImNv
-bm5lY3QgKHNlcnZlcikiKTsNCgkJCWdvdG8gb3V0Ow0KCQl9DQoNCgkJcHJp
-bnRmKCJTZXJ2ZXIgY29ubmVjdGlvbiBpcyB1cC5cbiIpOw0KCQl1c2xlZXAo
-MTAwKTsNCg0KCQlpZiAoaW9jdGwoc2VydmVyLCBUSU9DSU5RLCAmaW5fcmVj
-dnEpICE9IDApIHsNCgkJCV9wZXJyb3IoIlRJT0NJTlEgKHNlcnZlcikiKTsN
-CgkJCWdvdG8gb3V0Ow0KCQl9DQoNCglkYXRhX3dhaXRpbmc6DQoJCWlmIChv
-dmVyaGVhZCAtIG5yX2xvb3BzID49IDEwMCkNCgkJCWdvdG8gb3V0Ow0KDQoJ
-CXdoaWxlIChpbl9yZWN2cSkgew0KCQkJbnJfbG9vcHMrKzsNCgkJCW92ZXJo
-ZWFkID0gbnJfbG9vcHM7DQoJCQlmb3IgKHMgPSAwOyBzIDwgNjU1MzY7IHMr
-KykNCgkJCQlidWZmZXJbc10gPSAwOw0KDQoJCQlpZiAocmVjdihzZXJ2ZXIs
-YnVmZmVyLCA2NTUzNSwgMCkgPCAwKSB7DQoJCQkJX3BlcnJvcigicmVjdiAo
-c2VydmVyKSIpOw0KCQkJCWdvdG8gb3V0Ow0KCQkJfQ0KCQkJcHJpbnRmKCIl
-cyIsIGJ1ZmZlcik7DQoJCQlpZiAoc2VuZChjbGllbnQsIGJ1ZmZlciwgc3Ry
-bGVuKGJ1ZmZlciksIDApIDwgMCkgew0KCQkJCV9wZXJyb3IoInNlbmQgKHNl
-cnZlcikiKTsNCgkJCQlnb3RvIG91dDsNCgkJCX0NCgkJCWlmIChpb2N0bChz
-ZXJ2ZXIsIFRJT0NJTlEsICZpbl9yZWN2cSkgIT0gMCkgew0KCQkJCV9wZXJy
-b3IoIlRJT0NJTlEgKHNlcnZlcikiKTsNCgkJCQlnb3RvIG91dDsNCgkJCX0N
-CgkJfQ0KDQoJCWlmIChpb2N0bChjbGllbnQsIFRJT0NJTlEsICZpbl9yZWN2
-cSkgIT0gMCkgew0KCQkJX3BlcnJvcigiVElPQ0lOUSAoY2xpZW50KSIpOw0K
-CQkJZ290byBvdXQ7DQoJCX0NCg0KCQl3aGlsZSAoaW5fcmVjdnEpIHsNCgkJ
-CW5yX2xvb3BzKys7DQoJCQlvdmVyaGVhZCA9IG5yX2xvb3BzOw0KCQkJZm9y
-IChzID0gMDsgcyA8IDY1NTM2OyBzKyspDQoJCQkJYnVmZmVyW3NdID0gMDsN
-Cg0KCQkJaWYgKHJlY3YoY2xpZW50LCBidWZmZXIsIDY1NTM1LCAwKSA8IDAp
-IHsNCgkJCQlfcGVycm9yKCJyZWN2IChjbGllbnQpIik7DQoJCQkJZ290byBv
-dXQ7DQoJCQl9DQoJCQlwcmludGYoIiVzIiwgYnVmZmVyKTsNCgkJCWlmIChz
-ZW5kKHNlcnZlciwgYnVmZmVyLCBzdHJsZW4oYnVmZmVyKSwgMCkgPCAwKSB7
-DQoJCQkJX3BlcnJvcigic2VuZCAoc2VydmVyKSIpOw0KCQkJCWdvdG8gb3V0
-Ow0KCQkJfQ0KCQkJaWYgKGlvY3RsKGNsaWVudCwgVElPQ0lOUSwgJmluX3Jl
-Y3ZxKSAhPSAwKSB7DQoJCQkJX3BlcnJvcigiVElPQ0lOUSAoY2xpZW50KSIp
-Ow0KCQkJCWdvdG8gb3V0Ow0KCQkJfQ0KCQl9DQoNCgkJaWYgKGlvY3RsKHNl
-cnZlciwgVElPQ0lOUSwgJmluX3JlY3ZxKSAhPSAwKSB7DQoJCQlfcGVycm9y
-KCJUSU9DSU5RIChzZXJ2ZXIpIik7DQoJCQlnb3RvIG91dDsNCgkJfQ0KDQoJ
-CW92ZXJoZWFkKys7DQoNCgkJdXNsZWVwKDEwMCk7DQoJCWdvdG8gZGF0YV93
-YWl0aW5nOw0KCW91dDoNCgkJcHJpbnRmKCJDb25uZWN0aW9uIGNsb3Npbmcu
-XG4iKTsNCgkJc2h1dGRvd24oY2xpZW50LCBTSFVUX1JEV1IpOw0KCQlfcHJv
-YmFibHlfcGVycm9yKCJzaHV0ZG93biAoY2xpZW50KSIpOw0KCQlzaHV0ZG93
-bihzZXJ2ZXIsIFNIVVRfUkRXUik7DQoJCV9wcm9iYWJseV9wZXJyb3IoInNo
-dXRkb3duIChzZXJ2ZXIpIik7DQoJCWNsb3NlKGNsaWVudCk7DQoJCV9wcm9i
-YWJseV9wZXJyb3IoImNsb3NlIChjbGllbnQpIik7DQoJCWNsb3NlKHNlcnZl
-cik7DQoJCV9wcm9iYWJseV9wZXJyb3IoImNsb3NlIChzZXJ2ZXIpIik7DQoJ
-fQ0KDQoJaWYgKGNsb3NlKHNvY2spKSB7DQoJCV9wZXJyb3IoImNsb3NlIChj
-b250cm9sbGVyKSIpOw0KCX0NCg0KCWV4aXQoMCk7DQp9DQoNCi8qDQogKiBM
-b2NhbCB2YXJpYWJsZXM6DQogKiAgY29tcGlsZS1jb21tYW5kOiAiZ2NjIC1X
-IC1XYWxsIC1PcyAtbyBwZiBwb3J0Zm9yd2FyZGVyLmMiDQogKiAgYy1iYXNp
-Yy1vZmZzZXQ6IDgNCiAqIEVuZDoNCiAqLw0K
----1463811839-1262670546-1027054558=:3378--
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+8-CPU Cluster, Hosting, NAS, Linux, LaTeX, python, vim, mutt, tin

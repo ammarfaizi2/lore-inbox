@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJVRZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUJVRc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUJVRZy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 13:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJVRMt
+	id S266009AbUJVRc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 13:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUJVR1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 13:12:49 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:29208 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265805AbUJVRIJ (ORCPT
+	Fri, 22 Oct 2004 13:27:09 -0400
+Received: from daffy.napanet.net ([206.81.96.18]:47119 "EHLO mx1.napanet.net")
+	by vger.kernel.org with ESMTP id S266888AbUJVRSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:08:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=lsImcVc2ttOeGG/QHR2WKBWjzpRIZg1rBmvv8dTX2DdSjmzrlwqD1MVmd/Pjc6Poys7bvz400/nzIEW/C0Lcx/p4xro8D9Jrp/UTLTlxVhxwk9oqOavAWLq2LKsIpBW7Y790IdWzp/FNY5xr468QaggW5LvHG9l1250QH1bPA9g=
-Message-ID: <9e473391041022100835da7baf@mail.gmail.com>
-Date: Fri, 22 Oct 2004 13:08:08 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: getting rid of inter_module_xx
+	Fri, 22 Oct 2004 13:18:53 -0400
+Date: Fri, 22 Oct 2004 10:15:29 -0700
+From: Stephen Lewis <lewis@napanet.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-Id: <20041022101529.732254eb.lewis@napanet.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.8; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking at getting rid of DRM's use of inter_module_xx. DRM makes
-use of this to locate and use the AGP module. AGP is an optional
-module since some system only have PCI graphics.
+Timothy Miller wrote:
 
-Right now DRM uses inter_module_get("AGP") to locate the module if it
-exists. It then changes behavior if this call secedes or fails.
+> The reason this idea came up is because I, as a user of Linux, am often 
+> frustrated by the lack of open-source support for graphics cards which
+> are not "pre-owned".  Sure, SOME companies release specs so that we can 
+> develop open source drivers, but those cards tend to be prohibitively 
+> expensive, slower than their cheaper counterparts from ATI or nVidia, 
+> and they STILL don't document the internals of the BIOS so that the card 
+> can be ported to a non-x86 system.
 
-If I remove inter_module_get("AGP") and use the symbols directly, such
-as agp_backend_acquire(), how do I resolve the symbol link when AGP is
-not loaded? If the symbols link as NULL DRM will see that and act
-correctly.
+What has this to do with the kernel? More relevant on X server, OpenGL or GPGPU lists?
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Baseline - I can get accelerated 3D graphics and video overlay
+and YV12 and VGA registers with open source driver that compiles
+for PowerPC and DEC Alpha today for $85 - Radeon 7500 PCI. 
+X.org 'ati' driver at http://x.org
+http://freedesktop.org/cgi-bin/viewcvs.cgi/xc/programs/Xserver/hw/xfree86/drivers/ati/?root=xorg
+If you can improve on that then I will buy one for each of my Alpha and PowerPC systems.
+
+http://www.gpgpu.org/ are programming multivendor graphics cards for
+general purpose computing BUT the toolchain involves a proprietary
+compiler which is single platform.
+What good is a card with open source hardware and open source
+driver that is programmable BUT the toolchain is proprietary?
+
+Stephen Lewis

@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267955AbTBYPD2>; Tue, 25 Feb 2003 10:03:28 -0500
+	id <S267952AbTBYPU2>; Tue, 25 Feb 2003 10:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267952AbTBYPD2>; Tue, 25 Feb 2003 10:03:28 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:799 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id <S267955AbTBYPD1>;
-	Tue, 25 Feb 2003 10:03:27 -0500
-Date: Tue, 25 Feb 2003 16:13:41 +0100
-To: Robert <robert.woerle@symplon.com>
-Cc: Ducrot Bruno <ducrot@poupinou.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Robert Woerle <robert@paceblade.com>
-Subject: Re: [ACPI] PaceBlade broken acpi/memory map
-Message-ID: <20030225151341.GI13404@poup.poupinou.org>
-References: <20030220172144.GA15016@elf.ucw.cz> <20030224164209.GD13404@poup.poupinou.org> <20030224183955.GC517@atrey.karlin.mff.cuni.cz> <20030225143505.GH13404@poup.poupinou.org> <3E5B835E.7050601@symplon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E5B835E.7050601@symplon.com>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+	id <S267968AbTBYPU2>; Tue, 25 Feb 2003 10:20:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27659 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267952AbTBYPU0>; Tue, 25 Feb 2003 10:20:26 -0500
+Date: Tue, 25 Feb 2003 07:27:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Schwab <schwab@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+In-Reply-To: <je7kbo5y9y.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.44.0302250712110.10210-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 03:53:18PM +0100, Robert wrote:
-> 
-> 
-> Ducrot Bruno schrieb:
-> 
-> >On Mon, Feb 24, 2003 at 07:39:55PM +0100, Pavel Machek wrote:
-> > 
-> >
-> >>Hi!
-> >>
-> >>   
-> >>
-> >>>>I have PaceBlade here, and its memory map is wrong, which leads to
-> >>>>ACPI refusing to load. [It does not mention "ACPI data" in the memory
-> >>>>map at all!]
-> >>>>       
-> >>>>
-> >>>I have made those patches to workaround that.  I have no time
-> >>>     
-> >>>
-> >>Yes, I have seen those... I also made a patch that enables you to do
-> >>that workaround from mem= options at kernel command line.
-> >>
-> >>   
-> >>
-> >
-> >I doubt you received the latest one, since I have not make it public
-> >unless this day.
-> > 
-> >
-> i did sent it to him since he recieved our machine from Suse Nuernberg
-> 
 
-Ah, OK.  Wasn't aware of that.  But why then making a mem= opitons in
-that case.  I have take care to *not* use any mem= at all because that
-can make things worse.
+On Tue, 25 Feb 2003, Andreas Schwab wrote:
+> |> 
+> |> The point is that the compiler should see that the run-time value of i is 
+> |> _obviously_never_negative_ and as such the warning is total and utter 
+> |> crap.
+> 
+> This requires a complete analysis of the loop body, which means that the
+> warning must be moved down from the front end (the common type of the
+> operands only depends on the type of the operands, not of any current
+> value of the expressions).
 
--- 
-Ducrot Bruno
+So? Gcc does that anyway. _Any_ good compiler has to.
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+And if the compiler isn't good enough to do it, then the compiler 
+shouldn't be warning about something that it hasn't got a clue about.
+
+> |>    and anybody who writes 'array[5UL]' is considered a stupid git and a 
+> |>    geek. Face it.
+> 
+> But array[-1] is wrong.  An array can never have a negative index (I'm
+> *not* talking about pointers).
+
+You're wrong.
+
+Yes, when declaring an array, you cannot use "array[-1]". But that's not 
+because the thing is unsigned: the standard says that the array 
+declaration has to be a "integer value larger than zero". It is not 
+unsigned: it's _positive_.
+
+However, in _indexing_ an array (as opposed to declaring it), "array[-1]" 
+is indeed perfectly fine, and is defined by the C language to be exactly 
+the same as "*(array-1)". And negative values are perfectly fine, even for 
+arrays. Trivial example:
+
+	int x[2][2];
+
+	int main(int argc, char **argv)
+	{
+		return x[1][-1];
+	}
+
+
+the above is actually a well-defined C program, and 100%
+standards-conforming ("strictly conforming").
+
+		Linus
+

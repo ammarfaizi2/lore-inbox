@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287875AbSAHBoM>; Mon, 7 Jan 2002 20:44:12 -0500
+	id <S287558AbSAHCJZ>; Mon, 7 Jan 2002 21:09:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287874AbSAHBoA>; Mon, 7 Jan 2002 20:44:00 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:8201 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S287876AbSAHBns>;
-	Mon, 7 Jan 2002 20:43:48 -0500
-Message-Id: <200201080143.CAA19970@webserver.ithnet.com>
-Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
-Date: Tue, 08 Jan 2002 02:43:42 +0100
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: Petro <petro@auctionwatch.com>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-In-Reply-To: <20020107202927.GC1227@auctionwatch.com>
-From: Stephan von Krawczynski <skraw@ithnet.com>
+	id <S287511AbSAHCJP>; Mon, 7 Jan 2002 21:09:15 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:59147 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id <S287565AbSAHCJE>;
+	Mon, 7 Jan 2002 21:09:04 -0500
+Date: Tue, 8 Jan 2002 03:09:15 +0100
+From: Felix von Leitner <felix-dietlibc@fefe.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, dietlibc@fefe.de
+Subject: Re: [ANNOUNCE] klibc 0.1 release
+Message-ID: <20020108020915.GA13168@codeblau.de>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	dietlibc@fefe.de
+In-Reply-To: <20020108014100.GD10145@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020108014100.GD10145@kroah.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 07, 2002 at 03:33:48PM +0100, Stephan von Krawczynski   
-wrote:                                                                
-> > mysql question: is this a binary from some distro or              
-self-compiled? If                                                     
-> > self-compiled can you show your ./configure paras, please?        
->                                                                     
->     It's the binary from mysql.com.                                 
-                                                                      
-Beta or stable release?                                               
-                                                                      
-> > [...] I would try Martins small VM patch, as it looks like being a
-bit                                                                   
-> > more efficient in low mem conditions and this may well be the case
-you are                                                               
-> > running into. This means 2.4.17 standard + patch.                 
->                                                                     
->      Is there a reasonable chance that martins patch will get       
-mainlined                                                             
->      in the near future?                                            
-                                                                      
-I really can't know. But to me the results look interesting enough to 
-give it a try on certain problem situations (like yours) to find out  
-if it is any better than the stock version. If you and others can     
-confirm that things get better then I have no real doubts that Marcelo
-can pick it up.                                                       
-                                                                      
-> One of the big reasons I chose to upgrade to a                      
->      later kernel version (from 2.4.8ac<something>+LVMpatches+...)  
-was                                                                   
->      to get away from having to apply patches (and document which   
->      patches and where to get them etc).                            
-                                                                      
-Well, there is really nothing wrong with upgrading mainline kernels,  
-as the are getting better with every release, so I would always       
-suggest to take the releases up lets say a week after being out. Only 
-your situation maybe can help to improve more, if you input some of   
-your experiences in LKML with a patch like Martins. Feedback _is_     
-required to find a solution to an existing problem.                   
-                                                                      
->      If this is the route I have to go, I'll do it but, well, I'm   
-not                                                                   
->      that comfortable with it.                                      
-                                                                      
-Well, my suggestions: don't patch around too much, but try single     
-patches on stock kernel and evaluate them here.                       
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-                                                                      
+Thus spake Greg KH (greg@kroah.com):
+> As many people have recently realized, it looks like we need to have
+> some kind of klibc library for the initramfs programs due to problems
+> with the existing libc implementations (if people disagree with this,
+> please feel free to speak up.)
+
+> With this in mind, I took the work that I did to merge dietLibc into the
+> dietHotplug build process, and created a first snapshot of a klibc
+> project.  I have successfully used it to build a version of dietHotplug,
+> but that's probably about all that will build against the library at
+> this time :)
+
+I wonder if it is wise to fork the project.
+The diet libc does not yet work for all platforms; work is underway but
+as yet incomplete on S/390, and no sh-linux and no ia64-linux at all.
+
+I understand that's OK for diet hotplug, so it's OK to take just enough
+code to make your project work.  The important question probably is
+whether diet hotplug will be part of the kernel distribution or not.
+If not, I don't think it makes much sense to not just reference the diet
+libc.  Maybe we can put the diet libc distribution on ftp.kernel.org to
+show the affinity better (and make it more widely mirrored).
+
+But forking means you will have to watch our CVS and port stuff from
+here to there every now and then.
+
+Compared to the kernel sources, the diet libc tarball is two orders of
+magnitude smaller, so I am not sure I understand the need to make it
+even smaller.
+
+Felix

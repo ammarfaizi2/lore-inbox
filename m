@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312885AbSDFXjI>; Sat, 6 Apr 2002 18:39:08 -0500
+	id <S312886AbSDFXlC>; Sat, 6 Apr 2002 18:41:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312886AbSDFXjH>; Sat, 6 Apr 2002 18:39:07 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7817 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S312885AbSDFXjG>; Sat, 6 Apr 2002 18:39:06 -0500
-Date: Sat, 6 Apr 2002 16:37:56 -0700
-Message-Id: <200204062337.g36Nbuk03085@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.12 available
+	id <S312889AbSDFXlB>; Sat, 6 Apr 2002 18:41:01 -0500
+Received: from zero.tech9.net ([209.61.188.187]:6151 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312886AbSDFXlA>;
+	Sat, 6 Apr 2002 18:41:00 -0500
+Subject: Re: [CFT][RFC][PATCH][CLEANUP] task->state cleanup: pilot
+From: Robert Love <rml@tech9.net>
+To: Paul P Komkoff Jr <i@stingr.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020406220612.GF839@stingr.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 06 Apr 2002 18:41:01 -0500
+Message-Id: <1018136462.899.119.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.12 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Sat, 2002-04-06 at 17:06, Paul P Komkoff Jr wrote:
+> This is the pilot of task->state cleanup in 2.4.x. Feel free to blame me for
+> incorrect use of set_task_state vs. __set_task_state
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+Nice cleanup.  Awful lot of [items] in the subject though :)
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+You don't have to worry about your choices wrt set_current_state vs
+__set_current_state - by using only set_current_state you erred on the
+side of caution.  set_current_state enforces a memory barrier around the
+write on SMP (on UP it is the same code) while __set_current_state does
+not.
 
-This is against 2.4.19-pre6. Highlights of this release:
+If anyone can verify where it is safe in this code to use
+__set_current_state instead, speak up so Paul can make the micro
+optimization accordingly.
 
-- Updated README from master HTML file
+	Robert Love
 
-- Changed fs/devfs/util.c to kdev_t compatibility macros
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

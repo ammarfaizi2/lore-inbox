@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274505AbRJJDeO>; Tue, 9 Oct 2001 23:34:14 -0400
+	id <S274509AbRJJDfz>; Tue, 9 Oct 2001 23:35:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274509AbRJJDeE>; Tue, 9 Oct 2001 23:34:04 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:28430 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S274505AbRJJDdv>;
-	Tue, 9 Oct 2001 23:33:51 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S274513AbRJJDfr>; Tue, 9 Oct 2001 23:35:47 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:18941 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S274509AbRJJDfa>; Tue, 9 Oct 2001 23:35:30 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 9 Oct 2001 21:35:26 -0600
+To: Xuan Baldauf <xuan--lkml@baldauf.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dynamic swap prioritizing
+Message-ID: <20011009213526.J6348@turbolinux.com>
+Mail-Followup-To: Xuan Baldauf <xuan--lkml@baldauf.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BC373A8.CD94917B@baldauf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15299.49574.450686.706920@cargo.ozlabs.ibm.com>
-Date: Wed, 10 Oct 2001 13:33:58 +1000 (EST)
-To: Richard Henderson <rth@twiddle.net>
-Cc: Paul McKenney <Paul.McKenney@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-In-Reply-To: <20011009100023.A27427@twiddle.net>
-In-Reply-To: <OF296D0EDC.4D1AE07A-ON88256AE0.00568638@boulder.ibm.com>
-	<20011009100023.A27427@twiddle.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <3BC373A8.CD94917B@baldauf.org>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson writes:
+On Oct 10, 2001  00:01 +0200, Xuan Baldauf wrote:
+> I have a linux box with 3 harddisks of different
+> characteristics (size, seek time, throughput), each capable
+> of holding a swap partition. Sometimes, one harddisk is
+> driven heavily (e.g. database application), sometimes, the
+> other harddisk is busy.
 
-> I am suggesting that the lock-free algorithms should add the
-> read barriers, and that failure to do so indicates that they
-> are incomplete.  If nothing else, it documents where the real
-> dependancies are.
+Daniel Phillips was working on something which may be useful in
+this regard.  Basically, he was trying to determine how "busy" a
+disk was, so that if there are dirty pages to be written on an
+"idle" disk they would be written immediately.  The theory is
+that if you wait longer, the disk may be busy with other I/O and
+you have "wasted" the resource of disk bandwidth doing nothing.
 
-Please, let's not go adding rmb's in places where there is already an
-ordering forced by a data dependency - that will hurt performance
-unnecessarily on x86, ppc, sparc, ia64, etc.
+Similarly, if you knew how busy each disk with a swap partition
+was, you could swap to the most idle disk (assuming equal speed)
+or at least take this into account if the speeds are different.
 
-It seems to me that there are two viable alternatives:
+If this is to be generally useful, it would be good to find things
+like max sequential read speed, max sequential write speed, and max
+seek time (at least).  Estimates for max sequential read speed and
+seek time could be found at boot time for each disk relatively
+easily, but write speed may have to be found only at runtime (or
+it could all be fed in to the kernel from user space from benchmarks
+run previously).
 
-1. Define an rmbdd() which is a no-op on all architectures except for
-   alpha, where it is an rmb.  Richard can then have the job of
-   finding all the places where an rmbdd is needed, which sounds like
-   one of the smellier labors of Hercules to me. :)  
+Once we had data like that, it would be relatively easy to keep
+track of the queue depth for each device to determine "business"
+and estimated time to an empty queue and make intelligent disk
+I/O scheduling decisions (e.g. which MD RAID 1 disk to read from,
+which disk to swap to, guaranteed I/O rate for XFS, etc).
 
-2. Use Paul McKenney's scheme.
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-I personally don't really mind which gets chosen.  Scheme 1 will
-result in intermittent hard-to-find bugs on alpha (since the vast
-majority of kernel hackers will not understand where or why rmbdd's
-are required), but if Richard prefers that to scheme 2, it's his call
-IMHO.
-
-Regards,
-Paul.

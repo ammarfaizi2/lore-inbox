@@ -1,94 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272323AbRIEV2Y>; Wed, 5 Sep 2001 17:28:24 -0400
+	id <S272328AbRIEVbf>; Wed, 5 Sep 2001 17:31:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272324AbRIEV2O>; Wed, 5 Sep 2001 17:28:14 -0400
-Received: from ns2.auctionwatch.com ([64.14.24.2]:22281 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S272323AbRIEV2G>; Wed, 5 Sep 2001 17:28:06 -0400
-Message-ID: <5179B27750A9D411B968009027E06E2702EB5FCE@exback.corp.auctionwatch.com>
-From: "Michael S. Fischer" <michael@auctionwatch.com>
-To: "'mingo@redhat.com'" <mingo@redhat.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Oops in md_error/set_disk_faulty
-Date: Wed, 5 Sep 2001 14:28:43 -0700 
+	id <S272329AbRIEVbZ>; Wed, 5 Sep 2001 17:31:25 -0400
+Received: from mail.mbi-berlin.de ([194.95.11.12]:16082 "EHLO
+	mail.mbi-berlin.de") by vger.kernel.org with ESMTP
+	id <S272328AbRIEVbN>; Wed, 5 Sep 2001 17:31:13 -0400
+Message-ID: <3B969A08.A343546A@informatik.hu-berlin.de>
+Date: Wed, 05 Sep 2001 23:32:56 +0200
+From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: OOPS and hard locks when trying to access an CD-RW drive via 
+ ide-scsi
+In-Reply-To: <3B9570F0.5E6DF01B@informatik.hu-berlin.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel: 2.4.8-ac8
-raidsetfaulty v0.3d compiled for md raidtools-0.90
+Hi,
 
-I accidentally entered the wrong disk device in a raidsetfaulty command,
-which caused a kernel oops and appears to have locked the thread (so that
-subsequent commands just hang).
+I should have paid more attention to this error message:
 
-The md device in question was:
+>         scsi : aborting command due to timeout pid 0, scsi 1, channel 0, id 0,
+> lun 0 Read (10) 00 00 00 00 00 00 00 01 00
+>         hda: timeout waiting for DMA
+>         ide_dmaproc : chipset supported ide_dma_timeout func only: 14
 
-md2 : active raid1 sdb4[0] sda4[1]
-      5839552 blocks [2/2] [UU]
+I disabled dma with hdparm, now the RICOH works like a charm.
 
-And the command I entered was 
+As for the oops ... if there's anything I can try out, let me now.
 
-# raidsetfaulty /dev/md2 /dev/hdb4 
-Segmentation fault
-
-Then, I realized I put in the wrong device, so I tried to fix it...
-
-# raidsetfaulty /dev/md2 /dev/sdb4
-[hangs eternally]
-
-I checked the kernel logs, and sure enough:
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000034
- printing eip:
-c01f36ff
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01f36ff>]
-EFLAGS: 00010292
-eax: 00000000   ebx: 00000000   ecx: f7d33494   edx: f7dc2920
-esi: f7d33480   edi: 00000344   ebp: 00000000   esp: e57d3ed0
-ds: 0018   es: 0018   ss: 0018
-Process raidsetfaulty (pid: 9586, stackpage=e57d3000)
-Stack: 00000344 f7d33480 00000002 c01f2b26 f7d33480 00000344 00000902
-f7d33480 
-       00000344 c01f325f f7d33480 00000344 00000929 ffffffe7 00000344
-c2e86de0 
-       f74edd60 f74edd60 c061cba0 00000000 f7d33480 00000000 bffffe88
-bffffb1c 
-Call Trace: [<c01f2b26>] [<c01f325f>] [<c0146969>] [<c013bac8>] [<c0142af9>]
-
-   [<c0106d4b>] 
-
->>EIP; c01f36ff <md_error+43/bc>   <=====
-Trace; c01f2b26 <set_disk_faulty+22/28>
-Trace; c01f325f <md_ioctl+733/7d0>
-Trace; c0146969 <dput+19/144>
-Trace; c013bac8 <blkdev_ioctl+28/38>
-Trace; c0142af9 <sys_ioctl+2ad/2f4>
-Trace; c0106d4b <system_call+33/38>
-Code;  c01f36ff <md_error+43/bc>
-00000000 <_EIP>:
-Code;  c01f36ff <md_error+43/bc>   <=====
-   0:   83 7b 34 00               cmpl   $0x0,0x34(%ebx)   <=====
-Code;  c01f3703 <md_error+47/bc>
-   4:   74 0b                     je     11 <_EIP+0x11> c01f3710
-<md_error+54/bc>
-Code;  c01f3705 <md_error+49/bc>
-   6:   31 c0                     xor    %eax,%eax
-Code;  c01f3707 <md_error+4b/bc>
-   8:   eb 6b                     jmp    75 <_EIP+0x75> c01f3774
-<md_error+b8/bc>
-Code;  c01f3709 <md_error+4d/bc>
-   a:   8d b4 26 00 00 00 00      lea    0x0(%esi,1),%esi
-Code;  c01f3710 <md_error+54/bc>
-  11:   8b 46 04                  mov    0x4(%esi),%eax
-
---
-Michael S. Fischer / michael at auctionwatch.com
-Systems Engineer, AuctionWatch Inc. / Phone: +1 650 808 5842  
+Viktor
+-- 
+Viktor Rosenfeld
+WWW: http://www.informatik.hu-berlin.de/~rosenfel/

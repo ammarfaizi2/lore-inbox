@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265984AbUA2Oiv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 09:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbUA2Oiv
+	id S266163AbUA2PFS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 10:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266176AbUA2PFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 09:38:51 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:64387 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S265984AbUA2Oit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 09:38:49 -0500
-Date: Thu, 29 Jan 2004 16:38:47 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1: process start times by procps
-Message-ID: <20040129143847.GA4544@elektroni.ee.tut.fi>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040123194714.GA22315@elektroni.ee.tut.fi> <20040125110847.GA10824@elektroni.ee.tut.fi> <20040127155254.GA1656@elektroni.ee.tut.fi> <1075342912.1592.72.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
+	Thu, 29 Jan 2004 10:05:18 -0500
+Received: from hoemail2.lucent.com ([192.11.226.163]:32487 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S266163AbUA2PFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 10:05:10 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075342912.1592.72.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16409.7239.119612.861354@gargle.gargle.HOWL>
+Date: Thu, 29 Jan 2004 09:44:23 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Eric <eric@cisu.net>
+Cc: Andrew Morton <akpm@osdl.org>, stoffel@lucent.com, ak@muc.de,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
+       linux-kernel@vger.kernel.org
+Subject: 2.6.2-rc2-mm1 now boots, 2.6.2-rc? doesn't
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for answering,
 
-On Wed, Jan 28, 2004 at 06:21:52PM -0800, john stultz wrote:
-> On Tue, 2004-01-27 at 07:52, Petri Kaukasoina wrote:
-> > I made an experiment shown below. I know nothing about kernel programming,
-> > so this is probably not correct, but at least btime seemed to stay constant.
-> > (I don't believe this fixes procps, though. If HZ if off by 180 ppm then I
-> > guess ps can't possibly get its calculations involving HZ right. But at
-> > least the bootup time reported by procinfo stays constant.)
-> 
-> 
-> Uh, what does your /etc/ntp/drift file show?
+Hi Andrew,
 
-ntp.drift is -22.251 on linux-2.6.1. But on linux-2.4.24 it stabilizes at
-about -5.4.
+Thank you for your -mm1 patch to 2.6.2-rc2, I've now got my system up
+and running again.  I'm not sure where the problem was, since I didn't
+find the problem point after sprinkling a bunch of AAA(); debugging
+printks() all over the stuff in arch/i386/kernel/setup.c and some
+other files in there as well.  
 
-> The basic equation is: 
-> btime ~= gettimeodfay() - uptime
->
-> Thus if your time of day is adjusted by NTP, btime will change as well.
-> Uptime is calculated calculated by jiffies/HZ, and HZ is not NTP
-> adjusted, so if your system is running 180ppm too fast or slow, btime
-> would be expected to change. 
-> 
+Would it make sense for me to try and work backwards from the -mm1 and
+see which patch(es) makes the difference?  
 
-Yes, on linux-2.2.24 I can see that /proc/uptime is just the jiffies and
-btime is current time - jiffies. But in linux-2.6.1 /proc/uptime is now
-do_posix_clock_monotonic_gettime(), whatever that means, and /proc/uptime
-gives a correct value. But btime is still gettimeofday-jiffies and it does
-not stay constant. My patch changed btime to be
-gettimeofday-do_posix_clock_monotonic_gettime() and after that it stays
-constant.
+One thing I notice is that now my interrupts are all on just one
+processor:
 
-In other words, on linux-2.2.24, if I print the current time with 'date +%s'
-and subtract uptime (/proc/uptime) from that, I do get the same number that
-is in the btime field in /proc/stat. But not on linux-2.6.1 without my
-patch. (ntp running in both cases.)
+   > cat /proc/interrupts            CPU0       CPU1       
+     0:   59000197         20    IO-APIC-edge  timer
+     1:       1867          1    IO-APIC-edge  i8042
+     2:          0          0          XT-PIC  cascade
+     8:          3          1    IO-APIC-edge  rtc
+    11:          1          0    IO-APIC-edge  Cyclom-Y
+    12:        703          1    IO-APIC-edge  i8042
+    14:        281          0    IO-APIC-edge  ide0
+    16:      42762          3   IO-APIC-level  ide2, ide3, ohci_hcd
+    17:     183325          1   IO-APIC-level  ehci_hcd, eth0
+    18:     119211          1   IO-APIC-level  aic7xxx, aic7xxx, Ensoniq AudioPCI
+    19:          0          0   IO-APIC-level  ohci_hcd
+   NMI:          0          0 
+   LOC:   58999640   58999802 
+   ERR:          0
+   MIS:         26
 
-> I'm not yet sure how that is related to the ps start time being wrong.
+Should I think about using that daemon to move interrupts around?
+Gotta go find the pointer to that stuff again.
 
-I guess it's not. The relative error was just the same in both. On
-linux-2.2.24, ps start time is correct but on linux-2.6.1 it shows times in
-future. How much in future, about minute per four days of uptime. But if I
-multiply Hertz by e.g. 1.000172 in the ps source, then I get the right
-results on linux-2.6.1.
+Thanks again Andrew!
 
-I'll do an experiment and boot to linux-2.6.1 without ntpd next...
-
-Thanks,
-
--Petri
+John

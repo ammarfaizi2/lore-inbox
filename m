@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130237AbQL1LvT>; Thu, 28 Dec 2000 06:51:19 -0500
+	id <S132259AbQL1LwV>; Thu, 28 Dec 2000 06:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132126AbQL1LvJ>; Thu, 28 Dec 2000 06:51:09 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:44012 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S130237AbQL1Lu4>; Thu, 28 Dec 2000 06:50:56 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <brian@worldcontrol.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Which resource is temporarily unavailable
-Date: Thu, 28 Dec 2000 03:20:28 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKKELLMKAA.davids@webmaster.com>
+	id <S132238AbQL1LwL>; Thu, 28 Dec 2000 06:52:11 -0500
+Received: from colorfullife.com ([216.156.138.34]:42513 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132126AbQL1LwC>;
+	Thu, 28 Dec 2000 06:52:02 -0500
+Message-ID: <3A4B234E.7A950A76@colorfullife.com>
+Date: Thu, 28 Dec 2000 12:26:06 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: david@linux.com, linux-kernel@vger.kernel.org
+Subject: Re: NETDEV WATCHDOG: eth0: transmit timed out
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20001228001949.A7365@top.worldcontrol.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> zsh: fork failed: resource temporarily unavailable
+David wrote:
 >
-> on a machine.  It has 510 processes which are mostly
-> asleep, running under various user ids.
+> Same old story, bugger still does it. Have to set the link down/up to 
+> get it running again. 
+>
+> 00:12.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 
+> 20) 
+>
 
-> How do I determine which resource is the problem so I can
-> fix the shortage?
+I missed your earlier mails, could you resend the details? 
+I'm interested in the output from
 
-	Sounds like processes/tasks is the resource in question. Probably a system
-limit of 512 processes.
+	tulip-diag -m -a -f
 
-	DS
+before and after a link failure.
 
+
+I'm aware that the tulip drivers doesn't handle cable disconnects and
+reconnects with MII pnic cards. I have a patch for that problem, but it
+affects _all_ MII tulip cards, and thus it won't be included soon. If
+tulip-diag says "10mbps-serial", then you have run into that bug.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

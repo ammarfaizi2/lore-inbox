@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbUJ1RCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbUJ1RDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUJ1RCn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbUJ1RCm
+	id S261890AbUJ1RDj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1RDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:02:42 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:50445 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261756AbUJ1RAC
+	Thu, 28 Oct 2004 13:03:39 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:3696 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261758AbUJ1RBC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:00:02 -0400
-Date: Thu, 28 Oct 2004 21:00:20 +0200
+	Thu, 28 Oct 2004 13:01:02 -0400
+Date: Thu, 28 Oct 2004 21:01:19 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        linux-arch@vger.kernel.org
-Subject: New kbuild filename: Kbuild
-Message-ID: <20041028190020.GB9004@mars.ravnborg.org>
+Subject: kbuild: generic support for offsets.h
+Message-ID: <20041028190119.GC9004@mars.ravnborg.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
 	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
 References: <20041028185917.GA9004@mars.ravnborg.org>
@@ -26,65 +26,100 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kbuild: Prefer Kbuild as name of the kbuild files
+kbuild: introduce a generic method to generate offsets.h
    
-The kbuild syntax is unique and does only have very few things in common with
-usual Makefile syntax. So to avoid confusion make the filename 'Kbuild' be
-the preferred name as replacement for 'Makefile'.
-No global renaming planned to take place for now, but new stuff expected to use
-the new 'Kbuild' filename.
+The following patch will break most architectures because it introduce a new way to
+generate the offsets.h file. The main rationale is to use correct dependencies for
+the offsets.h file. Before one could change a .h file with no recompile of
+offsets.h resulting in assembler code to use wrong constants - horror.
+Follow-up patches will try to unbreak all relevant architectures.
+   
+As an added bonus give a nice print-out when .config is missing.
    
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-diff -Nru a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
---- a/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
-+++ b/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
-@@ -6,7 +6,7 @@
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-10-28 20:46:51 +02:00
++++ b/Makefile	2004-10-28 20:46:51 +02:00
+@@ -476,6 +476,9 @@
+ -include .config.cmd
  
- 	=== 1 Overview
- 	=== 2 Who does what
--	=== 3 The kbuild Makefiles
-+	=== 3 The kbuild files
- 	   --- 3.1 Goal definitions
- 	   --- 3.2 Built-in object goals - obj-y
- 	   --- 3.3 Loadable module goals - obj-m
-@@ -101,11 +101,14 @@
- This document is aimed towards normal developers and arch developers.
+ include .config
++$(if $(wildcard .config),, \
++	$(warning *** Use 'make *config' to generate .config.) \
++	$(error Try 'make help'!))
  
+ # If .config needs to be updated, it will be done via the dependency
+ # that autoconf has on .config.
+@@ -758,6 +761,7 @@
+ prepare1: prepare2 outputmakefile
  
--=== 3 The kbuild Makefiles
-+=== 3 The kbuild files
+ prepare0: prepare1 include/linux/version.h include/asm include/config/MARKER
++	$(Q)$(MAKE) $(build)=$(srctree)/include/asm
+ ifneq ($(KBUILD_MODULES),)
+ 	$(Q)rm -rf $(MODVERDIR)
+ 	$(Q)mkdir -p $(MODVERDIR)
+@@ -904,26 +908,6 @@
  
- Most Makefiles within the kernel are kbuild Makefiles that use the
- kbuild infrastructure. This chapter introduce the syntax used in the
- kbuild makefiles.
-+The preferred name for the kbuild files is 'Kbuild' but 'Makefile' will
-+continue to be supported. All new developmen is expected to use the
-+Kbuild filename.
+ endif # CONFIG_MODULES
  
- Section 3.1 "Goal definitions" is a quick intro, further chapters provide
- more details, with real examples.
-diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
---- a/scripts/Makefile.build	2004-10-28 20:46:24 +02:00
-+++ b/scripts/Makefile.build	2004-10-28 20:46:24 +02:00
-@@ -10,7 +10,7 @@
- # Read .config if it exist, otherwise ignore
- -include .config
+-# Generate asm-offsets.h 
+-# ---------------------------------------------------------------------------
+-
+-define filechk_gen-asm-offsets
+-	(set -e; \
+-	 echo "#ifndef __ASM_OFFSETS_H__"; \
+-	 echo "#define __ASM_OFFSETS_H__"; \
+-	 echo "/*"; \
+-	 echo " * DO NOT MODIFY."; \
+-	 echo " *"; \
+-	 echo " * This file was generated by arch/$(ARCH)/Makefile"; \
+-	 echo " *"; \
+-	 echo " */"; \
+-	 echo ""; \
+-	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
+-	 echo ""; \
+-	 echo "#endif" )
+-endef
+-
+-
+ ###
+ # Cleaning is done on three levels.
+ # make clean     Delete most generated files
+@@ -946,7 +930,7 @@
+ #
+ clean: rm-dirs  := $(CLEAN_DIRS)
+ clean: rm-files := $(CLEAN_FILES)
+-clean-dirs      := $(addprefix _clean_,$(vmlinux-alldirs))
++clean-dirs      := $(addprefix _clean_,$(vmlinux-alldirs) include/asm-$(ARCH))
  
--include $(obj)/Makefile
-+include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- include scripts/Makefile.lib
- 
-diff -Nru a/scripts/Makefile.clean b/scripts/Makefile.clean
---- a/scripts/Makefile.clean	2004-10-28 20:46:24 +02:00
-+++ b/scripts/Makefile.clean	2004-10-28 20:46:24 +02:00
-@@ -7,7 +7,7 @@
- .PHONY: __clean
- __clean:
- 
--include $(obj)/Makefile
-+include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- # Figure out what we need to build from the various variables
- # ==========================================================================
+ .PHONY: $(clean-dirs) clean archclean
+ $(clean-dirs):
+diff -Nru a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/include/asm-generic/Kbuild	2004-10-28 20:46:51 +02:00
+@@ -0,0 +1,24 @@
++# kbuild file for asm-generic contains generic support
++# for usage in asm-$(ARCH)
++# This file is included from include/asm-$(ARCH)/Kbuild
++
++
++# Generate asm-offsets.h 
++# ---------------------------------------------------------------------------
++
++define filechk_gen-asm-offsets
++	(set -e; \
++	 echo "#ifndef __ASM_OFFSETS_H__"; \
++	 echo "#define __ASM_OFFSETS_H__"; \
++	 echo "/*"; \
++	 echo " * DO NOT MODIFY."; \
++	 echo " *"; \
++	 echo " * This file was generated by arch/$(ARCH)/Makefile"; \
++	 echo " *"; \
++	 echo " */"; \
++	 echo ""; \
++	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
++	 echo ""; \
++	 echo "#endif" )
++endef
++

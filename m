@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbTAAP7Q>; Wed, 1 Jan 2003 10:59:16 -0500
+	id <S267259AbTAAQFC>; Wed, 1 Jan 2003 11:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTAAP7Q>; Wed, 1 Jan 2003 10:59:16 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:24511 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267253AbTAAP7P>; Wed, 1 Jan 2003 10:59:15 -0500
-Date: Wed, 1 Jan 2003 17:07:39 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] only show the PCMCIA/CardBus submenu if "PCMCIA/CardBus support" is selected
-Message-ID: <20030101160739.GD15200@louise.pinerecords.com>
-Mime-Version: 1.0
+	id <S267260AbTAAQFC>; Wed, 1 Jan 2003 11:05:02 -0500
+Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:40210
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id <S267259AbTAAQFA>; Wed, 1 Jan 2003 11:05:00 -0500
+Message-ID: <3E1313A8.18854119@justirc.net>
+Date: Wed, 01 Jan 2003 11:13:28 -0500
+From: Mark Rutherford <mark@justirc.net>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10212312340420.421-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial: This is a follow-up to your "Gigabit Ethernet submenu" precedent.
+OK....
+I have a suggestion..
+We all concede (with the exception of a few) that Nvidia did nothing wrong with
+including headers in their driver.
+I dont think they did...
+I use their product, and it works well for me.
+I would LOVE to see Nvidia open source, but that might just drive a nail in the
+right place for them.. and they go under.
+We cannot force our ideas on a company, all they will do is turn and walk away.
+We can show them our way, if they like it, good. if not, we tried.
+I think we have tried, and I think Nvidia is well aware of our way here.
+Now, on to the suggestion!
 
-Only show the PCMCIA/CardBus submenu if the PCMCIA/CardBus entry
-is selected.
+lets let this thread die. its been argued before, over and over.
+please?
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
 
-diff -urN a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
---- a/drivers/pcmcia/Kconfig	2002-10-31 02:33:50.000000000 +0100
-+++ b/drivers/pcmcia/Kconfig	2003-01-01 17:03:59.000000000 +0100
-@@ -5,10 +5,8 @@
- # by the integrated kernel driver.
- #
- 
--menu "PCMCIA/CardBus support"
--	depends on HOTPLUG
--
- config PCMCIA
-+	depends on HOTPLUG
- 	tristate "PCMCIA/CardBus support"
- 	---help---
- 	  Say Y here if you want to attach PCMCIA- or PC-cards to your Linux
-@@ -29,6 +27,9 @@
- 	  and ds.o.  If you want to compile it as a module, say M here and
- 	  read <file:Documentation/modules.txt>.
- 
-+menu "PCMCIA/CardBus support config"
-+	depends on PCMCIA
-+
- config CARDBUS
- 	bool "CardBus support"
- 	depends on PCMCIA && PCI
+
+
+
+Andre Hedrick wrote:
+
+> Hell.Surfers,
+>
+> On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
+>
+> > You must understand the GNU/LINUX community is being manipulated by NVidia.
+>
+>    NVIDIA Corporate Office:
+>    2701 San Tomas Expressway
+>    Santa Clara, CA 95050
+>    Tel: 408-486-2000
+>    Fax: 408-486-2200
+>    info@nvidia.com
+>    Directions to Corporate Office
+>
+> > Dean. Three ways to kill yourself, and ive been drove in one...
+>
+> GO FOR IT!
+>
+> I will love to see the fall out.
+>
+> Regards,
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--
+Regards,
+Mark Rutherford
+mark@justirc.net
+
+
+
+

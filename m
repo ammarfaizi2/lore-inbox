@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUH1VUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266887AbUH1VWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267986AbUH1VUP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266887AbUH1VQz
+	id S266887AbUH1VWA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUH1VUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:16:55 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:27915 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267926AbUH1VNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:13:47 -0400
-Date: Sat, 28 Aug 2004 22:13:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] arm Kconfig fixes
-Message-ID: <20040828221345.A11901@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408280309.i7S39PPv000756@hera.kernel.org> <20040828210533.GD6301@redhat.com>
+	Sat, 28 Aug 2004 17:20:49 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51892 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267926AbUH1VRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 17:17:02 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+In-Reply-To: <20040828211334.GA32009@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys>
+	 <1093715573.8611.38.camel@krustophenia.net>
+	 <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu>
+	 <20040828203116.GA29686@elte.hu>
+	 <1093727453.8611.71.camel@krustophenia.net>
+	 <20040828211334.GA32009@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093727817.860.1.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040828210533.GD6301@redhat.com>; from davej@redhat.com on Sat, Aug 28, 2004 at 10:05:33PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 17:16:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 10:05:33PM +0100, Dave Jones wrote:
-> Even if not,  I think I'd actually prefer a whitelist of drivers that *do*
-> support agpgart in the Kconfig, than the above which needs to be added to
-> all the time.  Something like if X86 && ALPHA && IA64 should cover it currently.
+On Sat, 2004-08-28 at 17:13, Ingo Molnar wrote:
+> ok, will add this to -Q4.
+> 
 
-PPC
+Hrm, Q3 broke my PS/2 keyboard.
+
+Lee
 

@@ -1,91 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbTHSS43 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTHSSx6
+	id S261241AbTHSTDK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTHSTDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:53:58 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:44542 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261291AbTHSSv6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:51:58 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <vda@port.imtp.ilyichevsk.odessa.ua>, "Mike Fedyk" <mfedyk@matchmail.com>,
-       "Hank Leininger" <hlein@progressive-comp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
-Date: Tue, 19 Aug 2003 11:51:50 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGEKJFDAA.davids@webmaster.com>
+	Tue, 19 Aug 2003 15:03:04 -0400
+Received: from granite.aspectgroup.co.uk ([212.187.249.254]:61684 "EHLO
+	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
+	id S261243AbTHSTAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:00:54 -0400
+Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB5F@post.pc.aspectgroup.co.uk>
+From: Richard Underwood <richard@aspectgroup.co.uk>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Tue, 19 Aug 2003 20:00:44 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote: 
+> > 	IP packets you mean? You don't? ;) It would depend on why you're
+> > doing it naturally. Mostly, I'd have thought that if a host 
+> doesn't have an
+> > IP number it doesn't get to use ARP.
+> 
+> Of course it gets to use ARP, nothing prevents this.
+> 
+> If I know that IP X has my configuration information, I
+> have every right to send X a packet from zero-net to
+> ask for that information before I have any IP addresses
+> attached to the interface.
+> 
+	Ick! And how is IP X going to get the information back? Broadcast
+it, too? Here was me thinking that protocols like BOOTP and DHCP were
+appropriate for this.
 
-> On 19 August 2003 01:39, David Schwartz wrote:
+	If you are going to send from 0.0.0.0, then I assume there's
+something in the ARP standard to say "don't cache this ARP request" - I must
+have missed it. If so, that's a special case - no need to spoil things
+elsewhere, though.
 
-> > > And why not just catch the ones sent from the kernel?  That's
-> > > the one that
-> > > is killing the program because it crashed, and that's the one the
-> > > origional
-> > > poster wants logged...
+> Also, when one specifies a specific device in an output
+> address and we cannot find the IP part of the address
+> in the routing tables, we still procure a valid route for
+> the requester.
+> 
+	Well, what do you do currently? If the packet you're routeing came
+from another host, there's no way in hell you can use their IP address in an
+ARP request ... is there? I certainly hope you don't go that far!!!
 
-> > 	Because sometimes a program wants to terminate. And it is
-> > perfectly legal
-> > for a programmer who needs to terminate his program as quickly
-> > as possible
-> > to do this:
-> >
-> > char *j=NULL;
-> > signal(SIGSEGV, SIG_DFL);
-> > *j++;
+	If it's a locally generated packet, then the next hop must be on the
+same subnet as the address it's coming from - there's your IP number.
 
-> > 	This is a perfectly sensible thing for a program to do with
-> > well-defined
-> > semantics. If a program wants to create a child every minute
-> > like this and
-> > kill it, that's perfectly fine. We should be able to do that in
-> > the default
-> > configuration without a sysadmin complaining that we're DoSing
-> > his syslogs.
+> Besides normal IP addresses, multicast tools use these
+> facilities.
+> 
+	Multicast uses ARP? That's news to me!
 
-> I disagree. _exit(2) is the most sensible way to terminate.
-
-	Read the documentation for _exit. You will see that it is useless in the
-case of a portable program that needs to terminate as quickly as possible
-and, in fact, isn't guaranteed to cause program termination at all:
-
-       The function _exit is like exit(), but does not  call  any
-       functions  registered with the ANSI C atexit function, nor
-       any registered signal handlers. Whether it  flushes  stan-
-       dard  I/O buffers and removes temporary files created with
-       tmpfile(3)  is  implementation-dependent.   On  the  other
-       hand, _exit does close open file descriptors, and this may
-       cause an unknown delay, waiting for pending output to fin-
-       ish.  If  the delay is undesired, it may be useful to call
-       functions like tcflush() before calling _exit().   Whether
-       any pending I/O is cancelled, and which pending I/O may be
-       cancelled upon _exit(), is implementation-dependent.
-
-	One major problem with _exit() is that it touches various structures. If
-the program's execution environment is no longer trusted, calling _exit()
-can cause an endless loop. In multithreaded programs, _exit() may need to
-acquire mutexes. This can take an indeterminate amount of time. Portable
-programs cannot rely on _exit() in a case where they need to terminate as
-soon as possible.
-
-	Now, if you have a better way for a portable program that needs to
-terminate immediately to do so, that's fine, tell me what it is. Otherwise,
-you are *forcing* people to DoS your syslog.
-
-	DS
-
-
+		Richard

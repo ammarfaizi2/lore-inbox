@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTJONWy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 09:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTJONWy
+	id S263189AbTJONcm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 09:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTJONcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 09:22:54 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:35285 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263162AbTJONWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 09:22:51 -0400
-Date: Wed, 15 Oct 2003 15:22:50 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Message-ID: <20031015132250.GH20846@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031014143047.GA6332@ncsu.edu> <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl> <20031015114514.GC20846@lug-owl.de> <20031015130645.GJ765@holomorphy.com>
+	Wed, 15 Oct 2003 09:32:42 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:7084 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S263189AbTJONck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 09:32:40 -0400
+Date: Wed, 15 Oct 2003 15:32:31 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+Message-ID: <20031015133231.GK9850@admingilde.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Anton Blanchard <anton@samba.org>, wli@holomorphy.com,
+	linux-kernel@vger.kernel.org
+References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org> <20031014121753.GA610@krispykreme> <20031014053154.469255e5.akpm@osdl.org> <20031014124457.GB610@krispykreme> <20031014164004.5f698467.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HNNtJsP7AmKg7nRJ"
+	protocol="application/pgp-signature"; boundary="/hqscKNKvKAHUg2m"
 Content-Disposition: inline
-In-Reply-To: <20031015130645.GJ765@holomorphy.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031014164004.5f698467.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---HNNtJsP7AmKg7nRJ
-Content-Type: text/plain; charset=iso-8859-1
+--/hqscKNKvKAHUg2m
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2003-10-15 06:06:45 -0700, William Lee Irwin III <wli@holomorphy.co=
-m>
-wrote in message <20031015130645.GJ765@holomorphy.com>:
-> On Tue, 2003-10-14 18:27:05 +0200, Maciej Zenczykowski <maze@cela.pl>
-> > wrote in message <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>:
-> On Wed, Oct 15, 2003 at 01:45:14PM +0200, Jan-Benedict Glaw wrote:
-> > Right. For a real lowmem system (4MB RAM) I defined printk to a no-op
-> > and gained 90K at the compressed image IIRC. This was 2.2.x, though.
-> > MfG, JBG
->=20
-> The compressed image is hard to predict a runtime effect from; what did
-> it do to reserved memory at boot-time?
+hi :)
 
-I'm not sure since this it's quite long ago (TM), but the effect was of
-about 210K IIRC. The apps we had running on that box (think embedded)
-*really* liked that 200K extra RAM. It made the difference between "swap
-to death" and "nearly not swapping"...
+On Tue, Oct 14, 2003 at 04:40:04PM -0700, Andrew Morton wrote:
+> + *	min_free_kbytes =3D lowmem_kbytes / sqrt(lowmem_kbytes)
 
-MfG, JBG
+you do have a strange sqrt here ;)
+
+if you do a 'x*=3D2' at the start of your int_sqrt, your results
+are closer to a real sqrt.
+
+then, to get similar min_free_kbytes results, you could do
+	min_free_kbytes =3D int_sqrt(2*lowmem_kbytes);
+
+which is easier to understand, me thinks ;)
 
 --=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  Department of Computer Science 3       _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
 
---HNNtJsP7AmKg7nRJ
+--/hqscKNKvKAHUg2m
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/jUoqHb1edYOZ4bsRAuZ7AJ9LXj1c8T+bkt28Me3rZ0HsVJqV6wCfXATi
-P8CZQ9k0F98jV+QqM1ryFjQ=
-=IBvM
+iD8DBQE/jUxuj/Eaxd/oD7IRAhNZAKCCpu7gK9n7zVNcx1K5/5Eqo3KDwQCcDoSn
+icY8rTfKWp4LoOiMqbnZjEM=
+=lSzs
 -----END PGP SIGNATURE-----
 
---HNNtJsP7AmKg7nRJ--
+--/hqscKNKvKAHUg2m--

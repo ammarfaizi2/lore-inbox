@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbRCLHp1>; Mon, 12 Mar 2001 02:45:27 -0500
+	id <S129568AbRCLHt5>; Mon, 12 Mar 2001 02:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRCLHpR>; Mon, 12 Mar 2001 02:45:17 -0500
-Received: from tigershark.villa-bosch.de ([195.185.79.56]:64529 "EHLO
-	ktaemail01.villa-bosch.de") by vger.kernel.org with ESMTP
-	id <S129408AbRCLHpC>; Mon, 12 Mar 2001 02:45:02 -0500
-Message-ID: <3AAC7E4E.5C511F1D@eml.villa-bosch.de>
-Date: Mon, 12 Mar 2001 08:44:14 +0100
-From: Ralph Gauges <ralph.gauges@eml.villa-bosch.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
-X-Accept-Language: en
+	id <S129569AbRCLHtr>; Mon, 12 Mar 2001 02:49:47 -0500
+Received: from bart.one-2-one.net ([195.94.80.12]:4103 "EHLO
+	bart.one-2-one.net") by vger.kernel.org with ESMTP
+	id <S129568AbRCLHtj>; Mon, 12 Mar 2001 02:49:39 -0500
+Date: Mon, 12 Mar 2001 08:50:23 +0100 (CET)
+From: Martin Diehl <home@mdiehl.de>
+To: Steven Walter <srwalter@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE on 2.4.2
+In-Reply-To: <20010311153752.A29108@hapablap.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.21.0103120118480.571-100000@notebook.diehl.home>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ps2 keyboard not recognized in 2.4.2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am not exactly new to linux, but right now I am clueless.
-I have been running Kernel 2.4.0ac4 for a while and now I tried to
-upgrade to 2.4.2. Everything went well, but after boot, I can not use
-the keyboard. I can not type a thing, the only way to reboot is to hit
-the reset switch.
-The keyboard is connected to the ps2 port and the mouse is connected to
-the serial port.
-After booting the old kernel, searched through the boot messages, but I
-could not find an error message anywhere.
-I also tried 2.4.2ac16 with the same result.
-Since this a single machine not connected to any other, I can not log in
-to check some things, so I would be very happy if someone could tell me
-what is going wrong.
+On Sun, 11 Mar 2001, Steven Walter wrote:
 
-Machine Specs are:
+> > on insmod). This is with SiS5513 rev 208 IDE function from SiS5591
+> > chipset with CONFIG_BLK_DEV_SIS5513 and autotune enabled (default).
+> 
+> I have this exact same chip on my board (a PCChips M599-LMR or something
+> like that) which works flawlessly on 2.4.2, even with UDMA66.
 
-Athlon 500 on Ausu K7M
-256 MB RAM
-Matrox G400DH
-3x IDE HDD
-1xISA ISDN Card
-Pinnacle Bt848 Board
-Adaptec 2940U2W
-1x DVD-ROM SCSI
-1x ZIP SCSI
-1x YAMAHA CD-RW SCSI
+Do you have CONFIG_BLK_DEV_SIS5513 and autotuning enabled at the
+same time? Unless I enable them both it works flawlessly for me too - up
+to UDMA33. In fact, I've never seen any docs claiming the 5591/5513 would
+even provide UDMA66 support. How do you program the controler to do UDMA66
+cycles?
+Anyway, might be interesting to have a look at your lspci -d:5513 -vvvxxx
+report from working UDMA33/66 setups!
+
+Martin
 
 
-Thanks a lot
-
-Ralph
 

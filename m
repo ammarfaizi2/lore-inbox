@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266182AbUGLPnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUGLPzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266182AbUGLPnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 11:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUGLPnR
+	id S266837AbUGLPzA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 11:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUGLPzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 11:43:17 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:40892 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266182AbUGLPnE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 11:43:04 -0400
-Date: Mon, 12 Jul 2004 17:40:27 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Colin LEROY <colin@colino.net>
-cc: michael@mihu.de, Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/PPC on APUS development 
-	<linux-apus-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] fix saa7146 compilation on 2.6.8-rc1
-In-Reply-To: <0cee01c46825$4d9f2310$3cc8a8c0@epro.dom>
-Message-ID: <Pine.GSO.4.58.0407121737400.17199@waterleaf.sonytel.be>
-References: <20040712082545.GA416@jack.colino.net>
- <Pine.GSO.4.58.0407121718270.17199@waterleaf.sonytel.be>
- <0cee01c46825$4d9f2310$3cc8a8c0@epro.dom>
+	Mon, 12 Jul 2004 11:55:00 -0400
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:34713 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S266837AbUGLPy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 11:54:58 -0400
+From: Eric Bambach <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: Naveen Kumar <naveenkrg@yahoo.com>
+Subject: Re: Sending messages from kernel
+Date: Mon, 12 Jul 2004 10:55:02 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040712111714.10763.qmail@web41108.mail.yahoo.com>
+In-Reply-To: <20040712111714.10763.qmail@web41108.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407121055.02790.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Colin LEROY wrote:
-> > On Mon, 12 Jul 2004 colin@colino.net wrote:
-> > > this patch fixes a compilation error on 2.6.8-rc1. Here's the error:
-> > > drivers/media/common/saa7146_video.c:3: conflicting types for `memory'
-> > > include/asm-m68k/setup.h:365: previous declaration of `memory'
-> > > make[3]: *** [drivers/media/common/saa7146_video.o] Error 1
-> >
-> > But there's nothing named plain `memory' in include/asm-m68k/setup.h?!?!?
-> > Actually there never has been...
+On Monday 12 July 2004 06:17 am, Naveen Kumar wrote:
+> Hi,
 >
-> Right, but (i should have specified, sorry), I compiled on ppc32, and there's
+> I was trying to check if you can send a
+> notification/message from kernel to a user space
+> daemon.
 >
-> #define m68k_num_memory num_memory
-> #define m68k_memory memory
-> #include <asm-m68k/setup.h
+> If you have answers/suggestions please mail me on
+> this,
 >
-> in include/asm-ppc/setup.h.
+> Thanks in advance,
+> Naveen.
 
-Ah, didn't think of that (I should have known ;-)
+Have you seen copy_to_user() and copy_from_user()?
 
-Looks like the APUS code can need some clean up. E.g. arch/ppc/amiga/bootinfo.c
-operates on both memory and m68k_memory, while they are identical due to
-<asm/setup.h>...
+> __________________________________
+> Do you Yahoo!?
+> New and Improved Yahoo! Mail - Send 10MB messages!
+> http://promotions.yahoo.com/new_mail
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Gr{oetje,eeting}s,
+-- 
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-EB

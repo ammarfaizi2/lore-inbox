@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbULMSEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbULMSJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbULMSEy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 13:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbULMSEy
+	id S261313AbULMSJX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 13:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbULMSJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 13:04:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6660 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261304AbULMSEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 13:04:50 -0500
-Date: Mon, 13 Dec 2004 18:04:42 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Stefan Seyfried <seife@suse.de>,
-       Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-Message-ID: <20041213180441.F24748@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Buesch <mbuesch@freenet.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-	Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrea Arcangeli <andrea@suse.de>
-References: <20041211142317.GF16322@dualathlon.random> <1102949565.2687.2.camel@localhost.localdomain> <20041213162355.E24748@flint.arm.linux.org.uk> <200412131853.47652.mbuesch@freenet.de>
+	Mon, 13 Dec 2004 13:09:23 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:24632 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261306AbULMSJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 13:09:18 -0500
+Cc: openib-general@openib.org
+In-Reply-To: 
+X-Mailer: Roland's Patchbomber
+Date: Mon, 13 Dec 2004 10:09:16 -0800
+Message-Id: <20041213109.xPBcb5yOtGKuT24L@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200412131853.47652.mbuesch@freenet.de>; from mbuesch@freenet.de on Mon, Dec 13, 2004 at 06:53:40PM +0100
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v3][0/21] Initial submission of InfiniBand patches for review
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 13 Dec 2004 18:09:17.0521 (UTC) FILETIME=[DC678410:01C4E13E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 06:53:40PM +0100, Michael Buesch wrote:
-> Quoting Russell King <rmk+lkml@arm.linux.org.uk>:
-> > the system is idle.  So far, in all my Linux kernel experience, I've
-> > yet to see a kernel where it's possible to stay in the idle thread
-> > for more than half a second.  (The ARM kernels I run are always
-> > configured with IDLE LED support, so I can _see_ when it gets kicked
-> > out of the idle thread.)
-> 
-> I guess IDLE LED support is not in mainline kernel, is it?
-> Where can I get it?
+The following series of patches is the latest version of the OpenIB
+InfiniBand drivers.  We believe that this version is suitable for
+merging when 2.6.11 opens (or into -mm immediately), although of
+course we are willing to go through as many more iterations as
+required to fix any remaining issues.
 
-It's an ARM only thing, and it's in mainline kernels for ARM platforms
-which have general purpose LEDs available.
+We appreciate all of the excellent feedback we received for our
+previous posting, and we believe we have addressed all of the problems
+that were identified.  We did not intentionally ignore any issues --
+if we did not address some of your comments, please rest assured that
+it was an error on our part.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Based on the discussion on cleaning up kernel headers, we have left
+our .h files under drivers/infiniband/include.  None of these .h files
+are used outside of drivers/infiniband, so it seems that it is better
+not to add them to the global include/ namespace.
+
+Thanks,
+  Roland Dreier
+  OpenIB Alliance
+  www.openib.org
+

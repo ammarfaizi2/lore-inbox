@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265242AbUEMXCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUEMXCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265242AbUEMXCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 19:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbUEMXCN
+	id S265241AbUEMXCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 19:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbUEMXCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 19:02:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32926 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265242AbUEMXBw (ORCPT
+	Thu, 13 May 2004 19:02:08 -0400
+Received: from bay5-f8.bay5.hotmail.com ([65.54.173.8]:10244 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S265241AbUEMXBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 19:01:52 -0400
-Date: Thu, 13 May 2004 15:40:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml@lpbproduction.scom.kroah.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm2
-Message-ID: <20040513224035.GB20521@kroah.com>
-References: <20040513032736.40651f8e.akpm@osdl.org> <200405130514.44462.lkml@lpbproductions.com> <20040513112447.5b8abca0.akpm@osdl.org>
+	Thu, 13 May 2004 19:01:39 -0400
+X-Originating-IP: [62.254.0.14]
+X-Originating-Email: [tristian2003@msn.com]
+From: "tristian radford" <tristian2003@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel bugs with Nvidia drivers
+Date: Fri, 14 May 2004 00:01:36 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040513112447.5b8abca0.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY5-F8jRveQLTFhL8x000163dd@hotmail.com>
+X-OriginalArrivalTime: 13 May 2004 23:01:36.0736 (UTC) FILETIME=[3E30D600:01C4393E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 11:24:47AM -0700, Andrew Morton wrote:
-> "Matt H." <lkml@lpbproductions.com> wrote:
-> >
-> > Just attempted to compile 2.6.6-mm2 and got this error
-> > 
-> >    CC [M]  drivers/usb/core/driverfs.o
-> >    CC [M]  drivers/usb/core/hcd-pci.o
-> >    LD [M]  drivers/usb/core/usbcore.o
-> >    LD      drivers/usb/host/built-in.o
-> >    CC [M]  drivers/usb/host/ehci-hcd.o
-> >    CC [M]  drivers/usb/host/ohci-hcd.o
-> >  In file included from drivers/usb/host/ohci-hcd.c:129:
-> >  drivers/usb/host/ohci-hub.c: In function `ohci_rh_resume':
-> >  drivers/usb/host/ohci-hub.c:313: error: `hcd' undeclared (first use in this 
-> >  function)
-> 
-> hm, not sure what's happened there...
+I have picked up a majour bug in kernel 2.6 regerding the Nvidia graphic 
+drivers which are cousing my screen to go funny when I halt my machine 
+making the terminal to go dodgy but I can still work around it.
+It looks like somthing from a old sinclair spectrum when the tape is loading 
+or a moron who tried to use a 1024x768 resoultion under a 14" monitor (my 
+monitor is 15"!)
 
-Oops, didn't check with CONFIG_PM disabled, sorry.
+_________________________________________________________________
+It's fast, it's easy and it's free. Get MSN Messenger today! 
+http://www.msn.co.uk/messenger
 
-Applied, thanks.
-
-greg k-h

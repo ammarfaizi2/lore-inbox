@@ -1,50 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTLHT5D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:57:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLHT5D
+	id S262038AbTLHT42 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTLHT42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:57:03 -0500
-Received: from ca1.symonds.net ([66.92.42.136]:26295 "EHLO symonds.net")
-	by vger.kernel.org with ESMTP id S262040AbTLHT4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:56:38 -0500
-Message-ID: <022e01c3bdc5$651137a0$7a01a8c0@gandalf>
-From: "Mark Symonds" <mark@symonds.net>
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Harald Welte" <laforge@netfilter.org>
-References: <Pine.LNX.4.44.0312080815460.30140-100000@logos.cnet>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-Date: Mon, 8 Dec 2003 11:56:39 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 14:56:28 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:45701
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S262038AbTLHT4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:56:11 -0500
+Subject: Re: [NFS client] NFS locks not released on abnormal process
+	termination
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Philippe Troin <phil@fifi.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+In-Reply-To: <877k17rzai.fsf@ceramic.fifi.org>
+References: <20031208033933.16136.qmail@web20024.mail.yahoo.com>
+	 <shszne3risb.fsf@charged.uio.no>  <877k17rzai.fsf@ceramic.fifi.org>
+Content-Type: multipart/mixed; boundary="=-oqgWc3Gv82hj8jqjrEkA"
+Message-Id: <1070913367.2941.137.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 08 Dec 2003 14:56:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > 
-> > I'm using ipchains compatability in there, looks like 
-> > this is a possible cause - getting a patch right now,
-> > will test and let y'all know (and then switch to 
-> > iptables, finally). 
-> 
-> Mark,
-> 
-> Please try the latest BK tree. There was a known bug in the netfilter code 
-> which could cause the lockups. 
-> 
+--=-oqgWc3Gv82hj8jqjrEkA
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-What I did a couple of days ago was remove ipchains and switch 
-to iptables (instead of applying any patches or anything).  Ever 
-since the ipchains code was removed from my kernel, the box has 
-been running fine.
+P=E5 m=E5 , 08/12/2003 klokka 12:32, skreiv Philippe Troin:
+> Trond, do you think I should push the patch to Marcelo, or should I
+> wait for a better fix?
 
-Thanks much! 
+No. If I wanted a partial fix, I could just as well have pushed it to
+Marcelo myself. When I said "feel free" I was referring to pursuing the
+remaining signalling bugs.
 
--- 
-Mark
- 
+I have a feeling the second race case of your test is that you are
+interrupting the fcntl(F_SETLK) call while it is on the wire. If you do
+that, then the server may record the lock as taken, but the client will
+never receive the reply, and so will not know that it must clean up
+locks...
+Hmm... For that case, we probably want to have the locking code record
+the call as having succeeded in order to ensure that we do indeed clear
+out the lock on process exit. See if the appended patch helps...
+
+Cheers,
+  Trond
+
+
+--=-oqgWc3Gv82hj8jqjrEkA
+Content-Description: 
+Content-Disposition: attachment; filename=linux-2.4.23-lock_race.dif
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4LTIuNC4yMy1yYzEvZnMvbmZzL2ZpbGUuYy5vcmlnCTIwMDMtMTEtMTYgMTk6Mjg6
+NTIuMDAwMDAwMDAwIC0wNTAwDQorKysgbGludXgtMi40LjIzLXJjMS9mcy9uZnMvZmlsZS5jCTIw
+MDMtMTItMDggMTQ6NTM6MTIuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMjQxLDYgKzI0MSw5MiBAQA0K
+IAlnb3RvIG91dDsNCiB9DQogDQorc3RhdGljIGludA0KK2RvX2dldGxrKHN0cnVjdCBpbm9kZSAq
+aW5vZGUsIGludCBjbWQsIHN0cnVjdCBmaWxlX2xvY2sgKmZsKQ0KK3sNCisJaW50IHN0YXR1czsN
+CisNCisJbG9ja19rZXJuZWwoKTsNCisJc3RhdHVzID0gbmxtY2xudF9wcm9jKGlub2RlLCBjbWQs
+IGZsKTsNCisJdW5sb2NrX2tlcm5lbCgpOw0KKwlyZXR1cm4gc3RhdHVzOw0KK30NCisNCitzdGF0
+aWMgaW50DQorZG9fdW5sayhzdHJ1Y3QgaW5vZGUgKmlub2RlLCBpbnQgY21kLCBzdHJ1Y3QgZmls
+ZV9sb2NrICpmbCkNCit7DQorCXNpZ3NldF90IG9sZHNldDsNCisJaW50IHN0YXR1czsNCisNCisJ
+cnBjX2NsbnRfc2lnbWFzayhORlNfQ0xJRU5UKGlub2RlKSwgJm9sZHNldCk7DQorCS8qDQorCSAq
+IEZsdXNoIGFsbCBwZW5kaW5nIHdyaXRlcyBiZWZvcmUgZG9pbmcgYW55dGhpbmcNCisJICogd2l0
+aCBsb2Nrcy4uDQorCSAqLw0KKwlmaWxlbWFwX2ZkYXRhc3luYyhpbm9kZS0+aV9tYXBwaW5nKTsN
+CisJZG93bigmaW5vZGUtPmlfc2VtKTsNCisJbmZzX3diX2FsbChpbm9kZSk7DQorCXVwKCZpbm9k
+ZS0+aV9zZW0pOw0KKwlmaWxlbWFwX2ZkYXRhd2FpdChpbm9kZS0+aV9tYXBwaW5nKTsNCisNCisJ
+LyogTk9URTogc3BlY2lhbCBjYXNlDQorCSAqCUlmIHdlJ3JlIHNpZ25hbGxlZCB3aGlsZSBjbGVh
+bmluZyB1cCBsb2NrcyBvbiBwcm9jZXNzIGV4aXQsIHdlDQorCSAqCXN0aWxsIG5lZWQgdG8gY29t
+cGxldGUgdGhlIHVubG9jay4NCisJICovDQorCWxvY2tfa2VybmVsKCk7DQorCXN0YXR1cyA9IG5s
+bWNsbnRfcHJvYyhpbm9kZSwgY21kLCBmbCk7DQorCXVubG9ja19rZXJuZWwoKTsNCisJcnBjX2Ns
+bnRfc2lndW5tYXNrKE5GU19DTElFTlQoaW5vZGUpLCAmb2xkc2V0KTsNCisJcmV0dXJuIHN0YXR1
+czsNCit9DQorDQorc3RhdGljIGludA0KK2RvX3NldGxrKHN0cnVjdCBpbm9kZSAqaW5vZGUsIGlu
+dCBjbWQsIHN0cnVjdCBmaWxlX2xvY2sgKmZsKQ0KK3sNCisJaW50IHN0YXR1czsNCisNCisJLyoN
+CisJICogRmx1c2ggYWxsIHBlbmRpbmcgd3JpdGVzIGJlZm9yZSBkb2luZyBhbnl0aGluZw0KKwkg
+KiB3aXRoIGxvY2tzLi4NCisJICovDQorCXN0YXR1cyA9IGZpbGVtYXBfZmRhdGFzeW5jKGlub2Rl
+LT5pX21hcHBpbmcpOw0KKwlpZiAoc3RhdHVzID09IDApIHsNCisJCWRvd24oJmlub2RlLT5pX3Nl
+bSk7DQorCQlzdGF0dXMgPSBuZnNfd2JfYWxsKGlub2RlKTsNCisJCXVwKCZpbm9kZS0+aV9zZW0p
+Ow0KKwkJaWYgKHN0YXR1cyA9PSAwKQ0KKwkJCXN0YXR1cyA9IGZpbGVtYXBfZmRhdGF3YWl0KGlu
+b2RlLT5pX21hcHBpbmcpOw0KKwl9DQorCWlmIChzdGF0dXMgPCAwKQ0KKwkJcmV0dXJuIHN0YXR1
+czsNCisNCisJbG9ja19rZXJuZWwoKTsNCisJc3RhdHVzID0gbmxtY2xudF9wcm9jKGlub2RlLCBj
+bWQsIGZsKTsNCisJLyogSWYgd2Ugd2VyZSBzaWduYWxsZWQgd2Ugc3RpbGwgbmVlZCB0byBlbnN1
+cmUgdGhhdA0KKwkgKiB3ZSBjbGVhbiB1cCBhbnkgc3RhdGUgb24gdGhlIHNlcnZlci4gV2UgdGhl
+cmVmb3JlDQorCSAqIHJlY29yZCB0aGUgbG9jayBjYWxsIGFzIGhhdmluZyBzdWNjZWVkZWQgaW4g
+b3JkZXIgdG8NCisJICogZW5zdXJlIHRoYXQgbG9ja3NfcmVtb3ZlX3Bvc2l4KCkgY2xlYW5zIGl0
+IG91dCB3aGVuDQorCSAqIHRoZSBwcm9jZXNzIGV4aXRzLg0KKwkgKi8NCisJaWYgKHN0YXR1cyA9
+PSAtRUlOVFIgfHwgc3RhdHVzID09IC1FUkVTVEFSVFNZUykNCisJCXBvc2l4X2xvY2tfZmlsZShm
+aWxwLCBmbCwgMCk7DQorCXVubG9ja19rZXJuZWwoKTsNCisJaWYgKHN0YXR1cyA8IDApDQorCQly
+ZXR1cm4gc3RhdHVzOw0KKw0KKwkvKg0KKwkgKiBNYWtlIHN1cmUgd2UgY2xlYXIgdGhlIGNhY2hl
+IHdoZW5ldmVyIHdlIHRyeSB0byBnZXQgdGhlIGxvY2suDQorCSAqIFRoaXMgbWFrZXMgbG9ja2lu
+ZyBhY3QgYXMgYSBjYWNoZSBjb2hlcmVuY3kgcG9pbnQuDQorCSAqLw0KKwlmaWxlbWFwX2ZkYXRh
+c3luYyhpbm9kZS0+aV9tYXBwaW5nKTsNCisJZG93bigmaW5vZGUtPmlfc2VtKTsNCisJbmZzX3di
+X2FsbChpbm9kZSk7ICAgICAgLyogd2UgbWF5IGhhdmUgc2xlcHQgKi8NCisJdXAoJmlub2RlLT5p
+X3NlbSk7DQorCWZpbGVtYXBfZmRhdGF3YWl0KGlub2RlLT5pX21hcHBpbmcpOw0KKwluZnNfemFw
+X2NhY2hlcyhpbm9kZSk7DQorCXJldHVybiAwOw0KK30NCisNCiAvKg0KICAqIExvY2sgYSAocG9y
+dGlvbiBvZikgYSBmaWxlDQogICovDQpAQCAtMjQ4LDggKzMzNCw2IEBADQogbmZzX2xvY2soc3Ry
+dWN0IGZpbGUgKmZpbHAsIGludCBjbWQsIHN0cnVjdCBmaWxlX2xvY2sgKmZsKQ0KIHsNCiAJc3Ry
+dWN0IGlub2RlICogaW5vZGUgPSBmaWxwLT5mX2RlbnRyeS0+ZF9pbm9kZTsNCi0JaW50CXN0YXR1
+cyA9IDA7DQotCWludAlzdGF0dXMyOw0KIA0KIAlkcHJpbnRrKCJORlM6IG5mc19sb2NrKGY9JTR4
+LyVsZCwgdD0leCwgZmw9JXgsIHI9JUxkOiVMZClcbiIsDQogCQkJaW5vZGUtPmlfZGV2LCBpbm9k
+ZS0+aV9pbm8sDQpAQCAtMjY2LDggKzM1MCw4IEBADQogCS8qIEZha2UgT0sgY29kZSBpZiBtb3Vu
+dGVkIHdpdGhvdXQgTkxNIHN1cHBvcnQgKi8NCiAJaWYgKE5GU19TRVJWRVIoaW5vZGUpLT5mbGFn
+cyAmIE5GU19NT1VOVF9OT05MTSkgew0KIAkJaWYgKElTX0dFVExLKGNtZCkpDQotCQkJc3RhdHVz
+ID0gTE9DS19VU0VfQ0xOVDsNCi0JCWdvdG8gb3V0X29rOw0KKwkJCXJldHVybiBMT0NLX1VTRV9D
+TE5UOw0KKwkJcmV0dXJuIDA7DQogCX0NCiANCiAJLyoNCkBAIC0yODAsNDIgKzM2NCw5IEBADQog
+CWlmICghZmwtPmZsX293bmVyIHx8IChmbC0+ZmxfZmxhZ3MgJiAoRkxfUE9TSVh8RkxfQlJPS0VO
+KSkgIT0gRkxfUE9TSVgpDQogCQlyZXR1cm4gLUVOT0xDSzsNCiANCi0JLyoNCi0JICogRmx1c2gg
+YWxsIHBlbmRpbmcgd3JpdGVzIGJlZm9yZSBkb2luZyBhbnl0aGluZw0KLQkgKiB3aXRoIGxvY2tz
+Li4NCi0JICovDQotCXN0YXR1cyA9IGZpbGVtYXBfZmRhdGFzeW5jKGlub2RlLT5pX21hcHBpbmcp
+Ow0KLQlkb3duKCZpbm9kZS0+aV9zZW0pOw0KLQlzdGF0dXMyID0gbmZzX3diX2FsbChpbm9kZSk7
+DQotCWlmIChzdGF0dXMyICYmICFzdGF0dXMpDQotCQlzdGF0dXMgPSBzdGF0dXMyOw0KLQl1cCgm
+aW5vZGUtPmlfc2VtKTsNCi0Jc3RhdHVzMiA9IGZpbGVtYXBfZmRhdGF3YWl0KGlub2RlLT5pX21h
+cHBpbmcpOw0KLQlpZiAoc3RhdHVzMiAmJiAhc3RhdHVzKQ0KLQkJc3RhdHVzID0gc3RhdHVzMjsN
+Ci0JaWYgKHN0YXR1cyA8IDApDQotCQlyZXR1cm4gc3RhdHVzOw0KLQ0KLQlsb2NrX2tlcm5lbCgp
+Ow0KLQlzdGF0dXMgPSBubG1jbG50X3Byb2MoaW5vZGUsIGNtZCwgZmwpOw0KLQl1bmxvY2tfa2Vy
+bmVsKCk7DQotCWlmIChzdGF0dXMgPCAwKQ0KLQkJcmV0dXJuIHN0YXR1czsNCi0JDQotCXN0YXR1
+cyA9IDA7DQotDQotCS8qDQotCSAqIE1ha2Ugc3VyZSB3ZSBjbGVhciB0aGUgY2FjaGUgd2hlbmV2
+ZXIgd2UgdHJ5IHRvIGdldCB0aGUgbG9jay4NCi0JICogVGhpcyBtYWtlcyBsb2NraW5nIGFjdCBh
+cyBhIGNhY2hlIGNvaGVyZW5jeSBwb2ludC4NCi0JICovDQotIG91dF9vazoNCi0JaWYgKChJU19T
+RVRMSyhjbWQpIHx8IElTX1NFVExLVyhjbWQpKSAmJiBmbC0+ZmxfdHlwZSAhPSBGX1VOTENLKSB7
+DQotCQlmaWxlbWFwX2ZkYXRhc3luYyhpbm9kZS0+aV9tYXBwaW5nKTsNCi0JCWRvd24oJmlub2Rl
+LT5pX3NlbSk7DQotCQluZnNfd2JfYWxsKGlub2RlKTsgICAgICAvKiB3ZSBtYXkgaGF2ZSBzbGVw
+dCAqLw0KLQkJdXAoJmlub2RlLT5pX3NlbSk7DQotCQlmaWxlbWFwX2ZkYXRhd2FpdChpbm9kZS0+
+aV9tYXBwaW5nKTsNCi0JCW5mc196YXBfY2FjaGVzKGlub2RlKTsNCi0JfQ0KLQlyZXR1cm4gc3Rh
+dHVzOw0KKwlpZiAoSVNfR0VUTEsoY21kKSkNCisJCXJldHVybiBkb19nZXRsayhpbm9kZSwgY21k
+LCBmbCk7DQorCWlmIChmbC0+ZmxfdHlwZSA9PSBGX1VOTENLKQ0KKwkJcmV0dXJuIGRvX3VubGso
+aW5vZGUsIGNtZCwgZmwpOw0KKwlyZXR1cm4gZG9fc2V0bGsoaW5vZGUsIGNtZCwgZmwpOw0KIH0N
+Cg==
+
+--=-oqgWc3Gv82hj8jqjrEkA--

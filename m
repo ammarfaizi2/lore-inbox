@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262325AbSJKBbY>; Thu, 10 Oct 2002 21:31:24 -0400
+	id <S262261AbSJKB2J>; Thu, 10 Oct 2002 21:28:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbSJKB3w>; Thu, 10 Oct 2002 21:29:52 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:64473 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id <S262265AbSJKB2O>; Thu, 10 Oct 2002 21:28:14 -0400
+	id <S262266AbSJKB2J>; Thu, 10 Oct 2002 21:28:09 -0400
+Received: from pheriche.sun.com ([192.18.98.34]:19890 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id <S262261AbSJKB2C>;
+	Thu, 10 Oct 2002 21:28:02 -0400
 From: Timothy Hockin <th122948@scl2.sfbay.sun.com>
-Message-Id: <200210110133.g9B1Xot18453@scl2.sfbay.sun.com>
-Subject: [BK PATCH 4/4] fix NGROUPS hard limit
+Message-Id: <200210110133.g9B1Xjb18401@scl2.sfbay.sun.com>
+Subject: [BK SUMMARY] fix NGROUPS hard limit
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 10 Oct 2002 18:33:50 -0700 (PDT)
+Date: Thu, 10 Oct 2002 18:33:45 -0700 (PDT)
 Reply-To: thockin@sun.com
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
@@ -19,36 +19,66 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.741   -> 1.742  
-#	include/linux/nfsiod.h	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/10	thockin@freakshow.cobalt.com	1.742
-# convert nfsiod to use OLD_NGROUPS - does anyone _use_ this file anymore?
-# --------------------------------------------
-#
-diff -Nru a/include/linux/nfsiod.h b/include/linux/nfsiod.h
---- a/include/linux/nfsiod.h	Thu Oct 10 18:19:48 2002
-+++ b/include/linux/nfsiod.h	Thu Oct 10 18:19:48 2002
-@@ -10,6 +10,7 @@
- 
- #include <linux/rpcsock.h>
- #include <linux/nfs_fs.h>
-+#include <linux/limits.h>
- 
- #ifdef __KERNEL__
- 
-@@ -36,7 +37,7 @@
- 	/* user creds */
- 	uid_t			rq_fsuid;
- 	gid_t			rq_fsgid;
--	int			rq_groups[NGROUPS];
-+	int			rq_groups[OLD_NGROUPS];
- 
- 	/* retry handling */
- 	int			rq_retries;
+Linus,
+
+This patchset removes the hard NGROUPS limit.  It has been in use in a similar
+form (but with a sysctl-set limit) on our systems for some time.
+
+The last changeset is of questionable value - nfsiod is not included by or
+referenced by anything.  Perhaps it should just be removed?
+
+I have a separate patch to convert XFS to the generic qsort(), which I will
+bounce to SGI if/when this gets pulled.
+
+There is a small change needed for glibc, and I will send that patch to the
+glibc people if/when this gets pulled.
+
+Lastly, this does not fixup all the architectures.  I have other patchsets for
+that, which need to be reviewed by arch maintainers.
+
+Tim
+
+
+Please do a
+
+	bk pull http://suncobalt.bkbits.net/ngroups-2.5
+
+This will update the following files:
+
+ fs/nfsd/auth.c                 |   11 +-
+ fs/proc/array.c                |    2 
+ include/asm-i386/param.h       |    4 
+ include/linux/init_task.h      |    1 
+ include/linux/kernel.h         |    5 +
+ include/linux/limits.h         |    3 
+ include/linux/nfsiod.h         |    3 
+ include/linux/sched.h          |    3 
+ include/linux/sunrpc/svcauth.h |    4 
+ kernel/exit.c                  |    7 +
+ kernel/fork.c                  |    4 
+ kernel/sys.c                   |   88 +++++++++++++++-----
+ kernel/uid16.c                 |   63 ++++++++++----
+ lib/Makefile                   |    5 -
+ lib/bsearch.c                  |   49 +++++++++++
+ lib/qsort.c                    |  180 +++++++++++++++++++++++++++++++++++++++++
+ net/sunrpc/svcauth.c           |    4 
+ 17 files changed, 384 insertions(+), 52 deletions(-)
+
+through these ChangeSets (diffs in separate email):
+
+<thockin@freakshow.cobalt.com> (02/10/10 1.742)
+   convert nfsiod to use OLD_NGROUPS - does anyone _use_ this file anymore?
+
+<thockin@freakshow.cobalt.com> (02/10/10 1.741)
+   fix usage of NGROUPS in nfsd and svcauth
+
+<thockin@freakshow.cobalt.com> (02/10/10 1.740)
+   Remove the limit of 32 groups.  We now have a per-task, dynamic array of
+   groups, which is kept sorted and refcounted.
+
+   This ChangeSet incorporates all the core functionality. but does not fixup
+   all the incorrect usages of groups.  That is in a seperate ChangeSet.
+
+<thockin@freakshow.cobalt.com> (02/10/10 1.739)
+   Add generic qsort() and bsearch(): qsort() from BSD, bsearch() from glibc
+

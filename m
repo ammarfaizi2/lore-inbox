@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289441AbSAJNhn>; Thu, 10 Jan 2002 08:37:43 -0500
+	id <S289447AbSAJOEe>; Thu, 10 Jan 2002 09:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289440AbSAJNhd>; Thu, 10 Jan 2002 08:37:33 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:63142 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S289441AbSAJNhX>; Thu, 10 Jan 2002 08:37:23 -0500
-Date: Thu, 10 Jan 2002 15:37:02 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Henrique de Moraes Holschuh <hmh@debian.org>
-Cc: linux-kernel@vger.kernel.org, Jani Forssell <jani.forssell@viasys.com>
-Subject: Re: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
-Message-ID: <20020110133702.GB34841@niksula.cs.hut.fi>
-In-Reply-To: <20020109235722.L1200@niksula.cs.hut.fi> <Pine.LNX.4.21.0201100025440.14057-100000@tux.rsn.bth.se> <20020110100101.A25366@khazad-dum>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020110100101.A25366@khazad-dum>
-User-Agent: Mutt/1.3.25i
+	id <S289448AbSAJOEY>; Thu, 10 Jan 2002 09:04:24 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:267 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S289447AbSAJOEI>;
+	Thu, 10 Jan 2002 09:04:08 -0500
+Date: Thu, 10 Jan 2002 15:04:05 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Simple local DOS
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: matthias.andree@stud.uni-dortmund.de,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3C3D9F55.8C617D80@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si> <1010671055.26821.4.camel@bip>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 10:01:02AM -0200, you [Henrique de Moraes Holschuh] claimed:
+Xavier Bestel wrote:
 > 
-> The IDE corruption and lockups you can fix, just apply the latest IDE
-> patches, the 2.4.18pre IDE subsystem is not to be used on a KT133, it will
-> not work at all if you give it a slightly bigger load on the promise
-> controller, for example.
+> On Thu, 2002-01-10 at 14:46, David Balazic wrote:
+> > > chvt,
+> >
+> > how do I start chvt if I have a locked up console system ?
+> 
+> Ctrl-Alt-F1 ?
 
-We just tried with 2.4.18pre2 + Hedrick ATA patch, but it oopsed just like
-2.4.18pre2 vanilla. I reckon the ide corruption will also happen if we leave
-the "ping -f" out of the equation.
+Which part of "locked up console system" you don't understand ? :-)
 
-This is propably a pci issue, not an ide issue.
+( There is a smiley on that line. It was ment to be funny. No need
+to get mad at me and send me suspicios white powder over snail mail ! )
 
- 
--- v --
+Maybe I did not describe the problem detailed enough. I thought everybody
+can check it for themselves :-)
 
-v@iki.fi
+After running "X 2>&1 | less" you get a black screen and it does not respond to
+any keypresses any more.
+
+I will take this to the xfree people as David S. Miler suggested.
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

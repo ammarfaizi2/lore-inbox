@@ -1,96 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271386AbTGRJWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 05:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271397AbTGRJWN
+	id S271397AbTGRJX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 05:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271421AbTGRJX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 05:22:13 -0400
-Received: from izanami.macs.hw.ac.uk ([137.195.13.6]:37570 "EHLO
-	izanami.macs.hw.ac.uk") by vger.kernel.org with ESMTP
-	id S271386AbTGRJWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 05:22:11 -0400
-From: Ross Macintyre <raz@macs.hw.ac.uk>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-megaraid-devel@dell.com,
-       salvini@macs.hw.ac.uk, donald@macs.hw.ac.uk
-In-Reply-To: <200307161601.h6GG1IR25744@devserv.devel.redhat.com>
-Message-ID: <SIMEON.10307181006.C@pcraz.macs.hw.ac.uk>
-Date: Fri, 18 Jul 2003 10:37:06 +0100 (GMT Daylight Time)
-X-Mailer: Simeon for Win32 Version 4.1.4 Build (40)
-X-Authentication: none
-MIME-Version: 1.0
-Subject: Re: new raid server crashed - no idea why!
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+	Fri, 18 Jul 2003 05:23:59 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:9798 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S271397AbTGRJX5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 05:23:57 -0400
+Date: Fri, 18 Jul 2003 11:38:51 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: rephrase acpi init messages for i386/x86_64
+Message-ID: <20030718093851.GA1434@spaans.vs19.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Attach: /home/spaans/JasperSpaans.vcf
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for replying Alan. Now I've got your attention, and I've checked 
-some of the logs, maybe I can give you a bit more information and ask 
-some other questions.
+Hello,
 
-On Wed, 16 Jul 2003 12:01:18 -0400 (EDT) Alan Cox <alan@redhat.com> 
-wrote:
+Below is a simple patch which changes the wording of 'BIOS passes blacklist'
+into something which is more clear - not being a native speaker of English I
+was wondering whether 'BIOS passes blacklist' meant that my machine was
+listed or not.
 
-> > RedHat 8.0 software and the latest raid drivers from LSILogic.
-> > The spec of the machine is dual processor - AMD MP 2400+ with
-> > LSILogic MegaRAID 320-2, and adaptec ultra wide scsi.
-> 
-> The data roughly speaking says "it broke". Its not useful log data
-> alas.
-> 
-> >   BIOS failed to enable PCI standards compliance, fixing this error.
-> >   mtrr: your CPUs had inconsistent fixed MTRR settings
-> >   mtrr: probably your BIOS does not setup all CPUs)
-> 
-> Linux fixed both of these up. The former may indicate old BIOS rather
-> than anything much to worry about
+Furthermore, nothing is displayed in the case a BIOS /is/ listed - adding a
+warning in that case seems useful to me.
 
-I'm not too concerned about these but I thought I'd mention them. I 
-applied the latest BIOS update but these messages didn't disappear.
 
-> 
-> 
-> If its a dual athlon run memtest86 on it for a few hours - thats my first
-> guess fro the traces and the fact the dual athlons are infamously 
-> sensitive about ram
+Index: arch/i386/kernel/acpi/boot.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/i386/kernel/acpi/boot.c,v
+retrieving revision 1.5
+diff -u -r1.5 boot.c
+--- CVS/arch/i386/kernel/acpi/boot.c	2 Apr 2003 05:01:48 -0000	1.5
++++ linux-2.5/arch/i386/kernel/acpi/boot.c	18 Jul 2003 08:05:29 -0000
+@@ -310,11 +310,12 @@
+ 
+ 	result = acpi_blacklisted();
+ 	if (result) {
++		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
+ 		acpi_disabled = 1;
+ 		return result;
+ 	}
+ 	else
+-		printk(KERN_NOTICE PREFIX "BIOS passes blacklist\n");
++		printk(KERN_NOTICE PREFIX "BIOS not listed in blacklist\n");
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 
+Index: arch/x86_64/kernel/acpi/boot.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/x86_64/kernel/acpi/boot.c,v
+retrieving revision 1.4
+diff -u -r1.4 boot.c
+--- CVS/arch/x86_64/kernel/acpi/boot.c	26 Jun 2003 16:25:45 -0000	1.4
++++ linux-2.5/arch/x86_64/kernel/acpi/boot.c	18 Jul 2003 08:05:35 -0000
+@@ -313,10 +313,11 @@
+ 
+ 	result = acpi_blacklisted();
+ 	if (result) {
++		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
+ 		acpi_disabled = 1;
+ 		return result;
+ 	} else
+-               printk(KERN_NOTICE PREFIX "BIOS passes blacklist\n");
++               printk(KERN_NOTICE PREFIX "BIOS not listed in blacklist\n");
+ 
+ 
+ 	extern int disable_apic;
 
-Could you be a bit more specific about this please?
-
-This isn't so easy for me to do as it means taking my main server down 
-for a while but I will do this if I need to. I have a machine which is 
-a clone of the problem machine that isn't live, and if need be, I could 
-swap the memory about and run memtest86 on the problem machine's memory 
-in the other machine. (I am assuming here that the machine needs to be 
-shut down to run memtest86?)
-
-I have run 'lastcomm' on the machine that had to be reset, and found 
-this:
-
-initlog                 root     ??         0.00 secs Wed Jul 16 10:23
-initlog                 root     ??         0.00 secs Wed Jul 16 10:23
-accton            S     root     ??         0.00 secs Wed Jul 16 10:23
-kswapd             F    root     ??       15385.60 secs Mon Jun 23 12:12
-automount          F    root     ??         0.00 secs Tue Jul 15 23:14
-portmap            F    rpc      ??         0.00 secs Tue Jul 15 23:14
-automount          F    root     ??         0.00 secs Tue Jul 15 23:14
-
-(The machine was reset on Wed Jul 16 10:23)
-This suggests to me that kswapd stopped and was the last process to run 
-on the machine, which is also what the kernel trace in message log 
-suggested. What I have done is check the swap area by remaking it with 
-'mkswap -c' but it passed this test ok. 
-I feel I really need to get to the bottom of this as this machine will 
-be the home server for everyone in this department and I can't afford 
-to have it crashing on me, but before I test the memory, I want to have 
-looked at all the other possibilities first.
-
-Any more suggestions?
-Thanks in advanve,
-
-Ross
-
---
-Ross Macintyre
-Heriot-Watt University
-raz@macs.hw.ac.uk
-
+VrGr,
+-- 
+Jasper Spaans                 http://jsp.vs19.net/contact/

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVAOVkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVAOVnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVAOVkw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVAOVkw
+	id S262333AbVAOVnp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVAOVnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:40:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18193 "HELO
+	Sat, 15 Jan 2005 16:43:02 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22545 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262329AbVAOVkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:40:04 -0500
-Date: Sat, 15 Jan 2005 22:39:59 +0100
+	id S262334AbVAOVkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:40:15 -0500
+Date: Sat, 15 Jan 2005 22:40:10 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 cyrix.c: make a function static (fwd)
-Message-ID: <20050115213959.GS4274@stusta.de>
+Subject: [2.6 patch] i386 efi.c: make some code static (fwd)
+Message-ID: <20050115214010.GX4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,27 +30,72 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Mon, 29 Nov 2004 00:03:58 +0100
+Date:	Wed, 1 Dec 2004 22:42:04 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 cyrix.c: make a function static
+Subject: [2.6 patch] i386 efi.c: make some code static
 
-The patch below makes a needlessly global function static.
+The patch below makes one struct and two functions static.
+
+Additionally, print_efi_memmap is only required #if EFI_DEBUG.
+
+
+diffstat output:
+ arch/i386/kernel/efi.c |    8 +++++---
+ include/linux/efi.h    |    1 -
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cyrix.c.old	2004-11-28 21:04:34.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cyrix.c	2004-11-28 21:04:42.000000000 +0100
-@@ -12,7 +12,7 @@
+--- linux-2.6.10-rc2-mm4-full/include/linux/efi.h.old	2004-12-01 07:56:59.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/efi.h	2004-12-01 07:57:09.000000000 +0100
+@@ -300,7 +300,6 @@
+ extern int __init efi_uart_console_only (void);
+ extern void efi_initialize_iomem_resources(struct resource *code_resource,
+ 					struct resource *data_resource);
+-extern efi_status_t phys_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc);
+ extern unsigned long __init efi_get_time(void);
+ extern int __init efi_set_rtc_mmss(unsigned long nowtime);
+ extern struct efi_memory_map memmap;
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/efi.c.old	2004-12-01 07:56:26.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/efi.c	2004-12-01 08:07:19.000000000 +0100
+@@ -46,7 +46,7 @@
+ 
+ struct efi efi;
+ EXPORT_SYMBOL(efi);
+-struct efi efi_phys __initdata;
++static struct efi efi_phys __initdata;
+ struct efi_memory_map memmap __initdata;
+ 
  /*
-  * Read NSC/Cyrix DEVID registers (DIR) to get more detailed info. about the CPU
-  */
--void __init do_cyrix_devid(unsigned char *dir0, unsigned char *dir1)
-+static void __init do_cyrix_devid(unsigned char *dir0, unsigned char *dir1)
+@@ -151,7 +151,7 @@
+ 	return status;
+ }
+ 
+-efi_status_t
++static efi_status_t
+ phys_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc)
  {
- 	unsigned char ccr2, ccr3;
- 	unsigned long flags;
+ 	efi_status_t status;
+@@ -240,7 +240,8 @@
+ 		printk(KERN_ERR PFX "Could not remap the EFI memmap!\n");
+ }
+ 
+-void __init print_efi_memmap(void)
++#if EFI_DEBUG
++static void __init print_efi_memmap(void)
+ {
+ 	efi_memory_desc_t *md;
+ 	int i;
+@@ -254,6 +255,7 @@
+ 			(md->num_pages >> (20 - EFI_PAGE_SHIFT)));
+ 	}
+ }
++#endif  /*  EFI_DEBUG  */
+ 
+ /*
+  * Walks the EFI memory map and calls CALLBACK once for each EFI
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -59,4 +104,5 @@ More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
 
 ----- End forwarded message -----
+
 

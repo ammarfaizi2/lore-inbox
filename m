@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLLWkT>; Tue, 12 Dec 2000 17:40:19 -0500
+	id <S129267AbQLLW55>; Tue, 12 Dec 2000 17:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129969AbQLLWkJ>; Tue, 12 Dec 2000 17:40:09 -0500
-Received: from mandy.eunet.fi ([193.66.1.129]:3303 "EHLO mandy.eunet.fi")
-	by vger.kernel.org with ESMTP id <S129543AbQLLWjw>;
-	Tue, 12 Dec 2000 17:39:52 -0500
-Message-ID: <3A36A163.3F01277D@jlaako.pp.fi>
-Date: Wed, 13 Dec 2000 00:06:27 +0200
-From: Jussi Laako <jussi@jlaako.pp.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129521AbQLLW5h>; Tue, 12 Dec 2000 17:57:37 -0500
+Received: from uucp.nl.uu.net ([193.79.237.146]:47240 "EHLO uucp.nl.uu.net")
+	by vger.kernel.org with ESMTP id <S129267AbQLLW50>;
+	Tue, 12 Dec 2000 17:57:26 -0500
+Date: Tue, 12 Dec 2000 23:13:25 +0100 (CET)
+From: kees <kees@schoen.nl>
 To: linux-kernel@vger.kernel.org
-Subject: VM problem (2.4.0-test11)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: EMU10K1 not working under 2.2.18 (fwd)
+Message-ID: <Pine.LNX.4.21.0012122312310.1108-100000@schoen3.schoen.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hello,
+I have a SMP mobo MSI 694D with (2xPIII667MHz).
+Under 2.2.18 the EMU10K1 *is* recognised (var/log/boot)
 
-Would it be possible to implement some VM CPUtime/bandwidth limitation?
+<6>Creative EMU10K1 PCI Audio Driver, version 0.6, 18:26:49 Dec  6 2000
+<6>emu10k1: EMU10K1 rev 8 model 0x8027 found, IO at 0xe400-0xe41f, IRQ 18
 
-We have server used by multiple developers. Problem is when someone happens
-to implement memory hole to application the system goes wild swapping and
-ALL other activity stops. No response to keyboard/mouse events nor any
-network traffic. Only disk system running wildly. No way to stop the
-memoryhog application, only way out of this situation is to hit reset-button
-and hope that no important data is lost. Same thing happens when I forget to
-end some large matrix operation with semicolon in Octave... (and 2.2.x
-kernels at least with Octave) I'm still considering this as local DOS attack
-because normal user is able to overload the system.
+But produce no mixer device for instance. 
 
-Rebooting system all the time is annoying.
+Booting 2.2.17 back up: all is normal. Basically I did make oldconfig with
+only:
+> CONFIG_MICROCODE=y
+> CONFIG_X86_MSR=y
+> CONFIG_X86_CPUID=m 
+and a couple of usb selections as modules. 
+The other odd thing is that the 2 penguins are displayed correct with 
+2.2.17 buth in a weird color with 2.2.18.
+Both versions are build with the same compiler (SuSE 7.0)
 
-It would be nice to be able to tell system that "this process may use max
-256 MB of memory and 10% of disk IO bandwidth and 25% of network bandwidth
-and network IO latency is critical and disk io is not".
 
-Kernel is stock except Andrew Morton's lowlatency patch.
+Kees
 
-Regards,
+P.S. Why is there no '/dev/sndstat' ?
 
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at: ldap://certserver.pgp.com, http://keys.pgp.com:11371
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

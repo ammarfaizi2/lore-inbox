@@ -1,89 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUDAS7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 13:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbUDAS7p
+	id S263059AbUDAS7a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUDAS7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 13:59:45 -0500
-Received: from holomorphy.com ([207.189.100.168]:6575 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263062AbUDAS7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 13:59:37 -0500
-Date: Thu, 1 Apr 2004 10:59:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-ID: <20040401185928.GK791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-	linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-References: <20040401135920.GF18585@dualathlon.random> <20040401164825.GD791@holomorphy.com> <20040401165952.GM18585@dualathlon.random> <20040401171625.GE791@holomorphy.com> <20040401103425.03ba8aff.akpm@osdl.org>
+	Thu, 1 Apr 2004 13:59:30 -0500
+Received: from supermail.mweb.co.za ([196.2.53.171]:48902 "EHLO
+	supermail.mweb.co.za") by vger.kernel.org with ESMTP
+	id S263059AbUDAS70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 13:59:26 -0500
+Date: Thu, 1 Apr 2004 21:00:04 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-aa1
+Message-Id: <20040401210004.6f30c8e2@bongani>
+In-Reply-To: <200404011221.21476@WOLK>
+References: <20040331030921.GA2143@dualathlon.random>
+	<20040331211620.19a8f725@bongani>
+	<200404011157.33051@WOLK>
+	<200404011221.21476@WOLK>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040401103425.03ba8aff.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__1_Apr_2004_21_00_16_+0200_gjLvmy1texCIoVbN"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 10:34:25AM -0800, Andrew Morton wrote:
-> What is the Oracle requirement in detail?
-> If it's for access to hugetlbfs then there are the uid= and gid= mount
-> options.
-> If it's for access to SHM_HUGETLB then there was some discussion about
-> extending the uid= thing to shm, but nothing happened.  This could be
-> resurrected.
-> If it's just generally for the ability to mlock lots of memory then
-> RLIMIT_MEMLOCK would be preferable.  I don't see why we'd need the sysctl
-> when `ulimit -m' is available?  (Where is that patch btw?)
+--Signature=_Thu__1_Apr_2004_21_00_16_+0200_gjLvmy1texCIoVbN
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-I don't speak for Oracle (obviously), but it's basically for non-root
-users to get at the stuff. There's an issue with a few pieces of
-userspace that drive the kernel's capability bits being nonstandard
-and/or broken (out-of-date? I can't even find the stuff).
+On Thu, 01 Apr 2004 12:21:21 +0200
+Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
 
-DB2 gets away with using the C capability libraries directly because
-its launcher scripts are basically setuid, then it arranges to avoid
-dropping the capabilities. This is actually not ideal even for DB2, and
-other databases don't use analogous launching scripts able to do this.
+> On Thursday 01 April 2004 11:57, Marc-Christian Petersen wrote:
+> 
+> Hi again,
+> 
+> > > I'm running 2.6.5-rc2-aa4, when I woke-up in the morning almost all of my
+> > > memory was gone, but my swap was never touched. I managed to get only the
+> > > output of SysRq-M before it hard-locked. For some reason it doesn't swap.
+> > > I'll try to reproduce.
+> 
+> > hmm, I am running 2.6.5-rc3-aa1 stuff ontop of 2.6.5-rc3-mm3. It works very
+> > well. What is the value of /proc/sys/vm/swappiness?
+> 
+> I really manage it to forget something again and again ;(
 
-The "right" way from the userspace angle is basically either pam_cap or
-the mlock rlimit, so when you log in as the database user, you get the
-capabilities and/or rlimits. I don't appear to be able to decipher
-what's going on with pam_cap and I'm not entirely sure anyone else has
-either. The mlock rlimits appear to have a more coherent userspace
-support story, and are "supposed" to be there anyway. The implementation
-just seems to be missing pieces.
+8<
 
+> cat /proc/sys/vm/swappiness 
+> 48
+> 
+> ciao, Marc
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> There are a couple of off-by-ones in there I've got fixes for below.
+My swappiness is 60, and 2.6.5-rc2-aa4 was running fine for a while until that occured. 
+Andrea sent me a python script that showed that it does swap. I'll try to reproduce it still.
 
-On Thu, Apr 01, 2004 at 10:34:25AM -0800, Andrew Morton wrote:
-> Using the security framework is neat.  There are currently large spinlock
-> contention problems in avc_has_perm_noaudit() which I suspect will make
-> SELinux problematic in some server environments.  But I trust it is
-> possible to disable SELinux in config while using Bill's security module?
-> I guess we could live with sysctl which simply nukes CAP_IPC_LOCK, but it
-> has to be the when-all-else-failed option, yes?
+--Signature=_Thu__1_Apr_2004_21_00_16_+0200_gjLvmy1texCIoVbN
+Content-Type: application/pgp-signature
 
-The module I wrote acts as one of a number of different alternative
-security policies (choosable at compile-time, and even at runtime if
-I'd figured out how to actually do loadable modules properly). The
-entire callback infrastructure configures out, and choices of security
-models configure each other out in turn. It's somewhat more general
-than it has to be, and amounts to what's basically a semi-open security
-model with the monotonic etc. properties of capabilities removed since
-r/w fs access to /proc/sys/capabilities/* entails all others. In theory,
-this could be used for other things (CAP_SYS_NICE and CAP_SYS_RAWIO
-come to mind), though I'm not aware of any outcry for things like this
-for any other capabilities but CAP_IPC_LOCK.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-I guess I can say that I'm not actually very wild about the security
-module I wrote myself (it was more of an isolation-from-the-core effort
-than a thing I wanted in and of itself). Some pieces may be able to be
-made safer for users with Steven's suggestions.
+iD8DBQFAbGbM+pvEqv8+FEMRAnGwAJ9uPZ3d48OQGZaCJDkq1recyTR/4QCfdRAv
+69YQCuhgp3zBPPx6bOp2Pzk=
+=mUqw
+-----END PGP SIGNATURE-----
 
-
--- wli
+--Signature=_Thu__1_Apr_2004_21_00_16_+0200_gjLvmy1texCIoVbN--

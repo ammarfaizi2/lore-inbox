@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289272AbSCOKdI>; Fri, 15 Mar 2002 05:33:08 -0500
+	id <S289243AbSCOKgt>; Fri, 15 Mar 2002 05:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289243AbSCOKc7>; Fri, 15 Mar 2002 05:32:59 -0500
-Received: from angband.namesys.com ([212.16.7.85]:12417 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S289272AbSCOKcq>; Fri, 15 Mar 2002 05:32:46 -0500
-Date: Fri, 15 Mar 2002 13:32:41 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020315133241.A1636@namesys.com>
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020311154852.3981c188.skraw@ithnet.com> <20020311165140.A1839@namesys.com> <15500.47144.705329.809604@charged.uio.no> <20020311165722.692209c3.skraw@ithnet.com>
+	id <S289298AbSCOKgj>; Fri, 15 Mar 2002 05:36:39 -0500
+Received: from mark.mielke.cc ([216.209.85.42]:35337 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S289243AbSCOKg1>;
+	Fri, 15 Mar 2002 05:36:27 -0500
+Date: Fri, 15 Mar 2002 05:32:11 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UNIX bench better on 2.2 than 2.4?
+Message-ID: <20020315053211.A5619@mark.mielke.cc>
+In-Reply-To: <3C91A822.7030304@linkvest.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020311165722.692209c3.skraw@ithnet.com>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C91A822.7030304@linkvest.com>; from jean-eric.cuendet@linkvest.com on Fri, Mar 15, 2002 at 08:52:02AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Mar 15, 2002 at 08:52:02AM +0100, Jean-Eric Cuendet wrote:
+> Results:
+> Host1: 2xPIII 550MHz / 1Gb RAM / RAID5 SCSI / 2.4.6smp + LVM
+>        Result: 164.7
+> Host2: 2xPIII 866MHz / 1Gb RAM / RAID1 soft IDE / 2.4.16smp + LVM
+>        Result: 195.7
+> Host3: 1xPIII 800MHz / 512Mb RAM / IDE / 2.2.19 RedHat 6.2
+>        Result: 208.6
+> Host4: 1xPIII 600MHz / 256Mb RAM / IDE / 2.4.19-pre2-ac4-preempt
+>        Result: 153.6
 
-On Mon, Mar 11, 2002 at 04:57:22PM +0100, Stephan von Krawczynski wrote:
+I dunno what Unix bench is... but isn't 153.6/208.6 close to 600/800
+in terms of a fraction?
 
-> Conclusion: reiserfs has a problem being nfs-mounted as the only fs to a
-> client. If you add another fs (here ext2) mount, then even reiserfs is happy.
-> The problem is originated at the server side.
-> Any ideas for a fix?
+It isn't really fair to compare different machine configurations with
+different OS's, and declare that the OS is the only factor involved.
 
-Ok I tried your scenario of mounting fs1, then mounting fs2, do io on fs2,
-umount fs2 and access fs1 and everything went fine.
-I cannot reproduce this at all. :(
+Make Host3 or Host4 have both versions of the linux kernel in /boot
+and try each on the same machine.
 
-Bye,
-    Oleg
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

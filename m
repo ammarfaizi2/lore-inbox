@@ -1,50 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUIDMz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269886AbUIDND2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267829AbUIDMz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 08:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUIDMz5
+	id S269886AbUIDND2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 09:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUIDND2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 08:55:57 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:12908 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267829AbUIDMz4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 08:55:56 -0400
-Date: Sat, 4 Sep 2004 14:58:38 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-Message-ID: <20040904125838.GA8318@mars.ravnborg.org>
-Mail-Followup-To: Dave Airlie <airlied@linux.ie>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Keith Whitwell <keith@tungstengraphics.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <41399CA2.3080607@yahoo.com.au> <Pine.LNX.4.58.0409041151200.25475@skynet>
+	Sat, 4 Sep 2004 09:03:28 -0400
+Received: from cantor.suse.de ([195.135.220.2]:58771 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269886AbUIDNDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 09:03:19 -0400
+Date: Sat, 4 Sep 2004 15:00:22 +0200
+From: Andi Kleen <ak@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
+Message-ID: <20040904130022.GB21912@wotan.suse.de>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> <20040903151710.GB12956@wotan.suse.de> <1094242317.14662.556.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409041151200.25475@skynet>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1094242317.14662.556.camel@cog.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 11:54:06AM +0100, Dave Airlie wrote:
-> >
-> > Just out of interest, what would the scenario be if you do if you could
-> > get a compatible driver?
+On Fri, Sep 03, 2004 at 01:11:58PM -0700, john stultz wrote:
+> The timeofday_hook (should be timeofday_interrupt_hook, my bad) is
+> called by the semi-periodic-irregular-interval(also known as "timer")
+> interrupt. Its what does the housekeeping for all the timeofday code so
+> we don't run into a counter overflow. 
 > 
-> you just grab a DRI snapshot which contains new userspace and DRM, and
-> install it... it builds the DRM against your current kernel, now if your
-> current kernel has a DRM module built-in which is a different version, you
-> are screwed, snapshot process breaks..
+> monotonic_clock() is an accessor that returns the amount of time that
+> has been accumulated since boot in nanoseconds. 
 
-So they are just building an external driver for the kernel.
-No binary compatibility - and maybe a thin compat layer.
-Not a big deal to maintain - only a small diff to latest kernel tree.
+Ok, but you need different low level drivers for those.  The TSC is not
+stable enough as a long term time source, but it is best&fastest for
+the offset calculation between timer interrupts.
 
-	Sam
+Or you would need to make the single driver handle both TSC
+and HPET/PIT, which would probably defeat the extensibility of
+the new architecture. Even in that case you would need different
+read() calls.
+
+
+> > 
+> > Hmm, I am missing something here, but how do you handle
+> > the case where the timer interrupt uses HPET, but the offset
+> > from last timer interrupt is determined using TSC.  But
+> > some machines don't have a reliable TSC, so it may need
+> > to use a different "offset" source.
+> > 
+> > I guess you would need two different drivers here? 
+> 
+> Not really, this is very doable. Time of day is now completely isolated
+> from the timer interrupt code, so it doesn't care who calls the
+> timeofday_interrupt_hook (HPET's interrupt or the i8253's interrupt
+> could do it). Also it doesn't have to be regular or exact, just frequent
+> enough that the timesource doesn't overflow.
+
+I am not talking about the interrupt source here, just from which
+time source xtime is refreshed.
+
+> 
+> > > o vsyscalls/userspace gettimeofday()
+> > > 	- Mark functions and data w/  __vsyscall attribute
+> > > 	- Use linker to put all __vsyscall data in the same set of pages
+> > 
+> > That won't work because the kernel needs to write to 
+> > these variables (e.g. to update the wall time from the interrupt
+> > handler). So in general you need two different mappings, one
+> > read only for user space and another writable one for the kernel.
+> 
+> Well, I was thinking about this and I don't see why the kernel and
+> userspace can't share the same data and functions for read only access?
+
+For reading only kernel & user could probably share, although
+you may run into some interesting problems on architecturs
+that use truly different "segments" for user and kernel space
+(like sparc64 or m68k or possibly s390) 
+
+> Why exactly does it need to be mapped twice? We only write to the data
+> from kernel mode using different functions, so the same symbols should
+> be usable. 
+
+The kernel needs to write too. And at least on x86 there
+is no way to make a page read only for user space and writable
+for kernel space on the same mapping.
+
+> the simplest way to use ANY time source, no matter how strange.
+> cycle_t's are basically magic cookies given by the timesource that can
+> be manipulated generically and converted into nanoseconds. It is likely
+> an over-virtualization, but I'd prefer to keep things general and
+> flexible until more arch maintainers tell me its unnecessary.
+
+Sounds like a redundancy with the cputime type the s390 people did.
+I don't think we should have two ADTs who do such similar things.
+
+-Andi

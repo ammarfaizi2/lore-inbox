@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131796AbRCOTcD>; Thu, 15 Mar 2001 14:32:03 -0500
+	id <S131809AbRCOThn>; Thu, 15 Mar 2001 14:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131798AbRCOTby>; Thu, 15 Mar 2001 14:31:54 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:21987 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131796AbRCOTbo>; Thu, 15 Mar 2001 14:31:44 -0500
-Message-Id: <l0313030eb6d6c75fcbf8@[192.168.239.101]>
-In-Reply-To: <15025.3553.176799.382488@robur.slu.se>
-In-Reply-To: <Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
- <15024.53099.41814.716733@robur.slu.se>
- <Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 15 Mar 2001 19:30:56 +0000
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-From: Jonathan Morton <chromi@cyberspace.org>
+	id <S131810AbRCOThd>; Thu, 15 Mar 2001 14:37:33 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:9988 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S131809AbRCOThX>;
+	Thu, 15 Mar 2001 14:37:23 -0500
+Date: Thu, 15 Mar 2001 14:36:11 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: J Sloan <jjs@toyota.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: How to optimize routing performance
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <20010315143611.E30509@xi.linuxpower.cx>
+In-Reply-To: <Pine.LNX.4.33.0103152304570.1320-100000@duckman.distro.conectiva> <3AB1153F.802BEBA9@toyota.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <3AB1153F.802BEBA9@toyota.com>; from jjs@toyota.com on Thu, Mar 15, 2001 at 11:17:19AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And we have done experiments with controlling interrupts and running
-> the RX at "lower" priority. The idea is take RX-interrupt and immediately
-> postponing the RX process to tasklet. The tasklet opens for new RX-ints.
-> when its done.  This way dropping now occurs outside the box since and
-> dropping becomes very undramatically.
+On Thu, Mar 15, 2001 at 11:17:19AM -0800, J Sloan wrote:
+> Rik van Riel wrote:
+> > On Thu, 15 Mar 2001, J Sloan wrote:
+> >
+> > > There are some scheduler patches that are not part of the
+> > > main kernel tree at this point (mostly since they have yet to
+> > > be optimized for the common case) which make quite a big
+> > > difference under heavy load - you might want to check out:
+> > >
+> > >     http://lse.sourceforge.net/scheduling/
+> >
+> > Unrelated.   Fun, but unrelated to networking...
+> 
+> under high load, where the sheer numbet of interrupts
+> per second begins to overwhelm the kernel, might it
+[snip]
+> Or are you saying that the bottleneck is somewhere
+> else completely, or that there wouldn't be a bottleneck
+> in this case if certain kernel parameters were correctly
+> set?
 
-<snip>
-
-> A bit of explanation. Above is output from tulip driver. We are forwarding
-> 44079 and we are dropping  49913 packets per second!  This box has
-> full BGP. The DoS attack was going on for about 30 minutes BGP survived
-> and the box was manageable. Under a heavy attack it still performs well.
-
-Nice.  Any chance of similar functionality finding its' way outside the
-Tulip driver, eg. to 3c509 or via-rhine?  I'd find those useful, since one
-or two of my Macs appear to be capable of generating pseudo-DoS levels of
-traffic under certain circumstances which totally lock a 486 (for the
-duration) and heavily load a P166 - even though said Macs "only" have
-10baseT Ethernet.
-
-OTOH, proper management of the circumstances under which this flooding
-occurs (it's an interaction bug which occurs when the Linux machine ends up
-with a zero-sized TCP receive window) would also be rather helpful.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+The scheduler schedules tasks not interrupts. Unless it manages to thrash the
+cache, the scheduler can not affect routing performance.
 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272451AbRIYSo2>; Tue, 25 Sep 2001 14:44:28 -0400
+	id <S272244AbRIYSqs>; Tue, 25 Sep 2001 14:46:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272404AbRIYSoS>; Tue, 25 Sep 2001 14:44:18 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:41454 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S271924AbRIYSoL>;
-	Tue, 25 Sep 2001 14:44:11 -0400
-Date: Tue, 25 Sep 2001 20:44:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: john slee <indigoid@higherplane.net>
-Cc: arjan@fenrus.demon.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10aa1 (00_vm-tweaks-1)
-Message-ID: <20010925204428.A8350@athlon.random>
-In-Reply-To: <E15lH4e-0000VP-00@the-village.bc.nu> <m15lH5A-000OVWC@amadeus.home.nl> <20010925183357.E29541@higherplane.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010925183357.E29541@higherplane.net>; from indigoid@higherplane.net on Tue, Sep 25, 2001 at 06:33:57PM +1000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272345AbRIYSqi>; Tue, 25 Sep 2001 14:46:38 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:4298 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S272244AbRIYSqf>; Tue, 25 Sep 2001 14:46:35 -0400
+Message-ID: <3BB0D0F3.3090005@korseby.net>
+Date: Tue, 25 Sep 2001 20:46:11 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Burning a CD image slow down my connection
+In-Reply-To: <1001401550.1017.4.camel@piccoli> <20010925183403.A324@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 06:33:57PM +1000, john slee wrote:
-> On Sun, Sep 23, 2001 at 10:46:36PM +0100, arjan@fenrus.demon.nl wrote:
-> > In article <E15lH4e-0000VP-00@the-village.bc.nu> you wrote:
-> > >> If you took my patch for it, PLEASE don't send it for inclusion; it's an
-> > >> evil hack and no longer needed when Intel fixes the bug in their 440GX bios.
-> > 
-> > > "when" is not a word I find useful about most bios bugs. Try "if" or
-> > > "less likely that being hit on the head by an asteroid"
-> > 
-> > This case is different. Intel promised the update "soon". For them it's
-> 
-> oh, they _promised_!  great!
-> 
-> on another note...
-> 
-> 2.4.10 is great incidentally, noticeably improved performance for
-> a somewhat large postgresql db on raid0 (35GB, ~100 million rows)
+Karel Kulhavy wrote:
 
-This was actually the first priority and it's nice to hear it is
-apparently been achieved successfully.
+> Aren't you connected over a serial port (modem)? I have the same problem,
+> but not when burning an image, but when dumping long cunks of data from CD
+> (for example, when studying a content of audio CD). I just see a big packet
+> loss.
 
-I also take the opportunity to remind everybody to keep the
-00_vm-tweaks-1 from 2.4.10aa1 applied on top of 2.4.10, it seems quite
-important here.
 
-thanks,
-Andrea
+That's definitely DMA related. I have an old cdwriter that don't understands it 
+and so the whole bus is extremely busy during writing. Even my harddisk is very 
+slow as well as modem and other things. PCI and ISA cards seem not related. 
+(Send packets over tr0 && eth0 without any loss.)
+
+Kristian
+
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
+

@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUA0WpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUA0WpH
+	id S263486AbUA0W7R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 17:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUA0W7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:45:07 -0500
-Received: from relay1.eltel.net ([195.209.236.38]:23174 "EHLO relay1.eltel.net")
-	by vger.kernel.org with ESMTP id S264450AbUA0WpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:45:02 -0500
-Date: Wed, 28 Jan 2004 01:45:00 +0300
-From: Andrew Zabolotny <zap@homelink.ru>
-To: linux-kernel@vger.kernel.org
-Subject: A small fix to ac97 OSS driver
-Message-Id: <20040128014500.7c2ff5e3.zap@homelink.ru>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+	Tue, 27 Jan 2004 17:59:17 -0500
+Received: from [62.97.69.192] ([62.97.69.192]:31872 "EHLO
+	sacarino.pirispons.net") by vger.kernel.org with ESMTP
+	id S263486AbUA0W7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 17:59:15 -0500
+Date: Tue, 27 Jan 2004 23:59:09 +0100
+From: Kiko Piris <kernel@pirispons.net>
+To: Xan <DXpublica@telefonica.net>
+Cc: Zack Winkles <winkie@linuxfromscratch.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
+Message-ID: <20040127225909.GA5271@sacarino.pirispons.net>
+Mail-Followup-To: Xan <DXpublica@telefonica.net>,
+	Zack Winkles <winkie@linuxfromscratch.org>,
+	linux-kernel@vger.kernel.org
+References: <200401270153.12568.DXpublica@telefonica.net> <200401271324.33883.DXpublica@telefonica.net> <20040127131922.GA20659@pirispons.net> <200401271859.03309.DXpublica@telefonica.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401271859.03309.DXpublica@telefonica.net>
+User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 27/01/2004 at 18:59, Xan wrote:
 
---Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> I did _not_ booted fine. I tried if with vga=795 it booted fine as you and the 
+> same result as 791 obtained: black screen until X window appears. When I 
+> switch to pty, black screen or color (and deformed) puzzle of X window 
+> contain.
 
-Hello!
+In 2.6.1 I could use framebuffer through vesafb just with that parameter
+(vga=795, ie. 1280x10224 16M).
 
-There is a small obvious bug in sound/oss/ac97_codec.c. I've found the
-bug in handhelds.org' branch of kernel 2.6 which is a little behind
-the mainstream kernel so please don't kill me if this has been already
-fixed.
+In 2.6.2-rc* it does not work for me, just blank screen if I try to use
+vesafb.
 
---
-Greetings,
-   Andrew
+Zack Winkles pointed me that I could try passing
+video=vesafb:ywrap,pmipal,mtrr,vga=795 to get vesafb working.
 
---Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG
-Content-Type: application/x-gzip;
- name="ac97_codec.diff.gz"
-Content-Disposition: attachment;
- filename="ac97_codec.diff.gz"
-Content-Transfer-Encoding: base64
+Thanks for it. Right now I'm on travel and I can not try it, I will be
+able to do so on thursday.
 
-H4sICKvkFkAAA2FjOTdfY29kZWMuZGlmZgClUE1PwzAMPSe/wqepU5t1/dgmOnWqxAk0cQBxrqbE
-hYguQUlbhtD+O2nL0IbghOUoznsvz5ZvlMBDBjt+tSq5FshnnOb/D3p//QCVrDGDkHc2rKVqD+EL
-GoV1vAytbpUItbXheeOgowYbI7GT6gmMu6zUCqLZggpZVcBaYMa9LqdljF0AJE7gTncQz+cJRMss
-TbMkATZ3QXor3/d/6Fdwu1O9PoU4zlwmi1FPiwJYlKarIErAH4sUioICcSn0m/Img0tpcT9dO6yW
-tikF1qVUsvEmwsgODdv0sOMZof5JVGlT4o4/e3UAo4mdOu7DHcIhh0GEqjHvvcI2puXN2dwBfHsS
-WXmcbcZekOcwVlPq/0nB0IacxjO41x16zvSLH2zPPsLd43a77g1/R4/O7jhupX293Mkni89EPGEC
-AAA=
+> It's rare thing: I could promise that I compiled 2.6.0 with the same 
+> configuration and it worked.
 
---Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG--
+I did not try 2.6.0 with that radeon 9200 (I didn't have it then).
+vesafb stopped working for me in 2.6.2-rc1.
+
+> Can you explain me what means 791, 795, ... and what number belongs to 
+> 1024x768 and 16 colors, and if 800x600 and 256?...
+
+You can see it in Documentation/fb/vesafb.txt (that file has the numbers
+in hexadecimal, and kernel wants the boot parameter in decimal, just
+convert it).
+
+Althoug, I would prefer to use radeonfb instead of vesafb (radeonfb
+turns off my monitor and vesafb does not).
+
+Anyone with a Radeon 9200 does use radeonfb ? If yes, any special boot
+parameter?
+
+-- 
+Kiko

@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266721AbSLCX5p>; Tue, 3 Dec 2002 18:57:45 -0500
+	id <S266736AbSLDACx>; Tue, 3 Dec 2002 19:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbSLCX5o>; Tue, 3 Dec 2002 18:57:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40717 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266721AbSLCX5m>;
-	Tue, 3 Dec 2002 18:57:42 -0500
-Message-ID: <3DED4698.60209@pobox.com>
-Date: Tue, 03 Dec 2002 19:04:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20 gets duplex wrong on NIC
-References: <Pine.LNX.4.44.0212031818310.1176-200000@oddball.prodigy.com>
-In-Reply-To: <Pine.LNX.4.44.0212031818310.1176-200000@oddball.prodigy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266746AbSLDACx>; Tue, 3 Dec 2002 19:02:53 -0500
+Received: from cda1.e-mind.com ([195.223.140.107]:13184 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S266736AbSLDACw>;
+	Tue, 3 Dec 2002 19:02:52 -0500
+Date: Wed, 4 Dec 2002 01:09:56 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@sgi.com>,
+       rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021204000956.GH11730@dualathlon.random>
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <124510000.1038949781@titus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <124510000.1038949781@titus>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> In spite of modules.conf the system boots with the NIC in half duplex. I 
-> verified this with the mii-tool, I can set it full with mii-tool and it 
-> works right (copied a CD image 650MB), and the blade in the switch has 
-> been set either full or auto without gain. Yes, I tried the e100 driver as 
-> well.
+On Tue, Dec 03, 2002 at 01:09:42PM -0800, Martin J. Bligh wrote:
+> >>please try with my tree.
+> >
+> >It is greatly improved.  It is still not as smooth as the standard 2.4
+> >scheduler, but I'd characterise it as "a bit jerky" rather than "makes
+> >me want to punch a hole in the monitor".
+> >
+> >The difference is unlikely to be noticed by many.  (But it should be
+> >_better_ than stock 2.4)
 > 
-> Info I think shows this attached to prevent munging, let me know if more 
-> is needed.
+> ...
+> 
+> >>can you reproduce with my tree?
+> >
+> >Again, hugely improved over normal O(1) behaviour, but not as responsive
+> >as the stock 2.4 scheduler.
+> 
+> Andrea, which patches in your tree are the ones that fix this?
+> If it's the big-monster one ... any chance you could split out
+> the bits actually fix it? I'd love to be able to apply your fixes
+> to 2.5 and try them there ....
 
+it's all in these patches:
 
-Lots of feedback/questions/response:
+andrea@dualathlon:~/remote/kernel.org/kernels/v2.4/2.4.20aa1> ls -1 *sched*
+00_flush-inode-reschedule-2
+00_sched-O1-aa-2.4.19rc3-5.gz
+10_sched-o1-bluetooth-1
+10_sched-o1-hyperthreading-3
+20_apm-o1-sched-1
+20_sched-o1-fixes-8
+71_xfs-sched-1
 
-When you're on a network, more is always needed :)
+I'm fixing the RT case too right now, in a few days a further fix will
+be available to avoid deadlocks of some app with RT enabled.
 
-Please give _plenty_ of details about what is on the other side of the 
-cable: hub? switch? vendor of hub/switch?  crossover to another NIC? 
-what is the port configuration and what are the capabilities of the 
-other end?  is it set to autonegotiate (on the other end)?
-
-Why do you force full duplex?  It is often the wrong thing to do.
-
-For eepro100, you should use module option 'options' to specify 
-10baseT-FD... full_duplex appears to be somewhat redundant in the 
-context of your problem.
-
-For e100, you should use 'e100_speed_duplex' module option to specify media.
-
-Finally, I would be very interested to know the results of using ethtool 
-to set, and get, your media settings.  It's in every distro these days, 
-plus you can d/l it from http://sf.net/projects/gkernel/
-
-	Jeff
-
-
-
+Andrea

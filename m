@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136713AbREAUuD>; Tue, 1 May 2001 16:50:03 -0400
+	id <S136720AbREAUyx>; Tue, 1 May 2001 16:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136715AbREAUty>; Tue, 1 May 2001 16:49:54 -0400
-Received: from cc78409-a.hnglo1.ov.nl.home.com ([213.51.107.234]:24842 "EHLO
-	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S136713AbREAUtq>; Tue, 1 May 2001 16:49:46 -0400
-Date: Tue, 1 May 2001 22:49:43 +0200
-From: Erik Hensema <erik@hensema.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Meaning of major kernel version number
-Message-ID: <20010501224943.A21208@hensema.xs4all.nl>
+	id <S136715AbREAUyr>; Tue, 1 May 2001 16:54:47 -0400
+Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:44367
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S136717AbREAUyh>; Tue, 1 May 2001 16:54:37 -0400
+Message-Id: <200105012052.QAA02265@localhost.localdomain>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Eric.Ayers@intec-telecom-systems.com, dledford@redhat.com (Doug Ledford),
+        James.Bottomley@steeleye.com (James Bottomley),
+        Chris.Roets@compaq.com (Roets Chris), linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Tue, 01 May 2001 21:38:26 BST." <E14uguj-0002KC-00@the-village.bc.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Date: Tue, 01 May 2001 16:52:31 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Eric.Ayers@intec-telecom-systems.com said:
+> Does this package also tell the kernel to "re-establish" a reservation
+> for all devices after a bus reset, or at least inform a user level
+> program?  Finding out when there has been a bus reset has been a
+> stumbling block for me. 
 
-A little question which may be a FAQ: what does the major version number
-[1] of the Linux kernel (still) mean? What is the policy on increasing the
-major version (eg. on what basis it is decided the next kernel isn't going
-to be 2.6 but 3.0)?
+alan@lxorguk.ukuu.org.uk said:
+> You cannot rely on a bus reset. Imagine hot swap disks on an FC
+> fabric. I  suspect the controller itself needs to call back for
+> problem events 
 
-I'm asking this question because I think there isn't going to be a
-kernel which is as different from the previous one as 2.0 compared to 1.2.
-As a little reminder: 2.0 brought us SMP, modules, multi-platform support
-(did 1.2 support Alpha? I don't remember), quota support, MD support, loop
-device, to name a few.
+Essentially, there are many conditions which cause a quiet loss of a SCSI-2 
+reservation.  Even in parallel SCSI: Reservations can be silently lost because 
+of LUN reset, device reset or even simple powering off the device.
 
-If this is true, may have to rethink the current versioning scheme, or
-we'll stick to 2.x.y forever...
+The way we maintain reservations for LifeKeeper is to have a user level daemon 
+ping the device with a reservation command every few minutes.  If you get a 
+RESERVATION_CONFLICT return you know that something else stole your 
+reservation, otherwise you maintain it.  There is a window in this scheme 
+where the device may be accessible by other initiators but that's the price 
+you pay for using SCSI-2 reservations instead of the more cluster friendly 
+SCSI-3 ones.  In a kernel scheme, you may get early notification of 
+reservation loss by putting a hook into the processing of 
+CHECK_CONDITION/UNIT_ATTENTION, but it won't close the window entirely.
 
--- 
-Erik Hensema (erik@hensema.xs4all.nl)
+James
+
+
+
+

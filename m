@@ -1,72 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbUCLPDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 10:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUCLPDs
+	id S262169AbUCLPFw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 10:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUCLPFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 10:03:48 -0500
-Received: from lax-gate3.raytheon.com ([199.46.200.232]:35447 "EHLO
-	lax-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S262165AbUCLPDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 10:03:45 -0500
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mfedyk@matchmail.com, m.c.p@wolk-project.de,
-       owner-linux-mm@kvack.org, plate@gmx.tm
-X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
-Message-ID: <OF62A00090.6117DDE8-ON86256E55.004FED23@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Fri, 12 Mar 2004 09:00:43 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.0.2CF2|July 23, 2003) at
- 03/12/2004 09:00:45 AM
+	Fri, 12 Mar 2004 10:05:52 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:51589 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262169AbUCLPFe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 10:05:34 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16465.53692.106520.847235@laputa.namesys.com>
+Date: Fri, 12 Mar 2004 18:05:32 +0300
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Matthias Urlichs <smurf@smurf.noris.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
+In-Reply-To: <4051C5F1.2050605@cyberone.com.au>
+References: <404FACF4.3030601@cyberone.com.au>
+	<200403111825.22674@WOLK>
+	<40517E47.3010909@cyberone.com.au>
+	<20040312012703.69f2bb9b.akpm@osdl.org>
+	<pan.2004.03.12.11.08.02.700169@smurf.noris.de>
+	<4051B0C6.2070302@cyberone.com.au>
+	<4051C5F1.2050605@cyberone.com.au>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin writes:
+ > 
 
+[...]
 
+ > 
+ > By the way, I would be interested to know the rationale behind
+ > mark_page_accessed as it is without this patch, also what is it doing in
+ > rmap.c (I know hardly anything actually uses page_test_and_clear_young, but
+ > still). It seems to me like it only serves to make VM behaviour harder to
+ > understand, but I'm probably missing something. Andrew?
 
+With your patch, once a page got into inactive list, its PG_referenced
+bit will only be checked by VM scanner when page wanders to the tail of
+list. In particular, if is impossible to tell pages that were accessed
+only once while on inactive list from ones that were accessed multiple
+times. Original mark_page_accessed() moves page to the active list on
+the second access, thus making it less eligible for the reclaim.
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->Mark_H_Johnson@Raytheon.com wrote:
->>Nick Piggin <piggin@cyberone.com.au> wrote:
->>
->>>Andrew Morton wrote:
->>>
->>
->>>>That effect is to cause the whole world to be swapped out when people
->>>>return to their machines in the morning.  Once they're swapped back in
->>>>
-[this is the symptom being reported]
->>Just a question, but I remember from VMS a long time ago that
->>as part of the working set limits, the "free list" was used to keep
->>pages that could be freely used but could be put back into the working
->>set quite easily (a "fast" page fault). Could you keep track of the
->>swapped pages in a similar manner so you don't have to go to disk to
->>get these pages [or is this already being done]? You would pull them
->>back from the free list and avoid the disk I/O in the morning.
->
->Not too sure what you mean. If we've swapped out the pages, it is
->because we need the memory for something else. So no.
+I actually tried quite an opposite modification:
+(ftp://ftp.namesys.com/pub/misc-patches/unsupported/extra/2004.03.10-2.6.4-rc3/a_1[5678]*)
 
-Actually - no, from what Andrew said, the system was not under memory
-pressure and did not need the memory for something else. The swapping
-occurred "just because". In that case, it would be better to keep track
-of where the pages came from (i.e., swap them in from the free list).
+/* roughly, modulo locking, etc. */
+void fastcall mark_page_accessed(struct page *page)
+{
+		if (!PageReferenced(page))
+			SetPageReferenced(page);
+		else if (!PageLRU(page))
+			continue;
+		else if (!PageActive(page)) {
+			/* page is on inactive list */
+			del_page_from_inactive_list(zone, page);
+			SetPageActive(page);
+			add_page_to_active_list(zone, page);
+			inc_page_state(pgactivate);
+			ClearPageReferenced(page);
+		} else {
+			/* page is on active list, move it to head */
+			list_move(&page->lru, &zone->active_list);
+			ClearPageReferenced(page);
+		}
+}
 
-Don't get me wrong - that behavior may be the "right thing" from an
-overall performance standpoint. A little extra disk I/O when the system
-is relatively idle may provide needed reserve (free pages) for when the
-system gets busy again.
+That is, referenced and active page is moved to head of the active
+list. While somewhat improving file system performance it badly affects
+anonymous memory, because (it seems) file system pages tend to push
+mapped ones out of active list. Probably it should have better effect
+with your split active lists.
 
->One thing you could do is re read swapped pages when you have
->plenty of free memory and the disks are idle.
-That may also be a good idea. However, if you keep a mapping between
-pages on the "free list" and those in the swap file / partition, you
-do not actually have to do the disk I/O to accomplish that.
+ > 
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+Nikita.

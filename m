@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266356AbSKUGXB>; Thu, 21 Nov 2002 01:23:01 -0500
+	id <S266386AbSKUG0z>; Thu, 21 Nov 2002 01:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266363AbSKUGXB>; Thu, 21 Nov 2002 01:23:01 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40198
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266356AbSKUGXA>; Thu, 21 Nov 2002 01:23:00 -0500
-Date: Wed, 20 Nov 2002 22:29:42 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-cc: "'LKML '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.5.47-ac6 IDE test result
-In-Reply-To: <E6D19EE98F00AB4DB465A44FCF3FA46903A318@ns.cinet.co.jp>
-Message-ID: <Pine.LNX.4.10.10211202218280.3892-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266387AbSKUG0z>; Thu, 21 Nov 2002 01:26:55 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:61712 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S266386AbSKUG0y>; Thu, 21 Nov 2002 01:26:54 -0500
+Date: Thu, 21 Nov 2002 01:32:03 -0500 (EST)
+Message-Id: <20021121.013203.100868154.yoshfuji@linux-ipv6.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+CC: davem@redhat.com, kuznet@ms2.inr.ac.ru.ee.t.u-tokyo.ac.jp,
+       usagi@linux-ipv6.org
+Subject: [PATCH] IPv6: Fix BUG When Received Unknown Protocol
+Organization: USAGI Project
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Osamu,
+Since 2.5.43, kernel panics by executing BUG() when
+received unknown protocol in IPv6 packet. 
+This is because ip6_input_finish() try to kfree_skb() 
+while icmpv6_param_prob() has already kfree_skb()'ed the skb.
 
-I know the fix need for taskfile but have not architech the solution in
-closed form yet.
+Thanks.
 
-Cheers,
+Patch-Name: Fix BUG When Received Unknown Protocol
+Patch-Author: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+Index: net/ipv6/ip6_input.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi/kernel/linux25/net/ipv6/ip6_input.c,v
+retrieving revision 1.1.1.3
+retrieving revision 1.2
+diff -u -r1.1.1.3 -r1.2
+--- net/ipv6/ip6_input.c	31 Oct 2002 03:58:27 -0000	1.1.1.3
++++ net/ipv6/ip6_input.c	21 Nov 2002 05:30:59 -0000	1.2
+@@ -182,9 +182,10 @@
+ 		if (!raw_sk) {
+ 			IP6_INC_STATS_BH(Ip6InUnknownProtos);
+ 			icmpv6_param_prob(skb, ICMPV6_UNK_NEXTHDR, nhoff);
+-		} else
++		} else {
+ 			IP6_INC_STATS_BH(Ip6InDelivers);
+-		kfree_skb(skb);
++			kfree_skb(skb);
++		}
+ 	}
+ 
+ 	return 0;
 
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Thu, 21 Nov 2002, Osamu Tomita wrote:
-
-> Hi.
-> I've tested IDE HDD performance on 2.5.47-ac6.
-> Using old pentium-classic PC-9800 box, it has no DMA mode.
-> 
->  1. "hdparm -t /dev/hda3" results (PIO mode)
->   2.5.47-ac6 with Task file IO:    2.86MB/s
->   2.5.47-ac6 without Task file IO: 2.90MB/s
->   2.4.19 without Task file IO:     2.93MB/s
-> 
->  2. Heavy usage test
->   "cp -pr /usr/src /tmp/foo" (in same HDD)
->   about 92000files/total size 2.3GB
->   I had always "lost interrupt" message and FS corruption
->    by this test at 2.5.20 days.
->   2.5.47-ac6 works fine. (takes about 30 minutes.)
-> 
-> Thanks,
-> Osamu Tomita
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

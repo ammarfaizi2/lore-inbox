@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267655AbRGPSdL>; Mon, 16 Jul 2001 14:33:11 -0400
+	id <S267656AbRGPSeD>; Mon, 16 Jul 2001 14:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267628AbRGPSdC>; Mon, 16 Jul 2001 14:33:02 -0400
-Received: from kermit.one-2-one.net ([217.115.142.66]:6929 "EHLO
-	kermit.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S267623AbRGPScp>; Mon, 16 Jul 2001 14:32:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dominik Sacher <sacher@dvoid.org>
-To: linux-kernel@vger.kernel.org
-Subject: Unable to handle kernel paging request at virtual address
-Date: Mon, 16 Jul 2001 20:27:21 +0200
-X-Mailer: KMail [version 1.2]
+	id <S267649AbRGPSdm>; Mon, 16 Jul 2001 14:33:42 -0400
+Received: from cmn2.cmn.net ([206.168.145.10]:45384 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S267623AbRGPSdh>;
+	Mon, 16 Jul 2001 14:33:37 -0400
+Message-ID: <3B533349.2070201@valinux.com>
+Date: Mon, 16 Jul 2001 12:32:41 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01071620272102.02650@jukebox.juke.net>
-Content-Transfer-Encoding: 7BIT
+CC: John Cavan <johnc@damncats.org>, linux-kernel@vger.kernel.org
+Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
+In-Reply-To: <E15M6jC-0005PK-00@the-village.bc.nu> 	<3B532BB7.1050300@valinux.com> <995307155.32445.36.camel@nomade>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi !
-i not a kernel hacker, so i don't know, whom to write to.
-maybe you can help !
-i get several application-crashs on my redhat7.1 (updated to kernel 2.4.3-12) 
-and every crash produces some kind of this:
+Xavier Bestel wrote:
 
-----------------------------------------------------------------------------
-Jul 16 20:04:35 jukebox kernel:  <1>Unable to handle kernel paging request at 
-virtual address 41648370
-Jul 16 20:04:35 jukebox kernel:  printing eip:
-Jul 16 20:04:35 jukebox kernel: c013f6bc
-Jul 16 20:04:35 jukebox kernel: pgd entry c8dd6414: 0000000000000000
-Jul 16 20:04:35 jukebox kernel: pmd entry c8dd6414: 0000000000000000
-Jul 16 20:04:35 jukebox kernel: ... pmd not present!
-Jul 16 20:04:35 jukebox kernel: Oops: 0000
-Jul 16 20:04:35 jukebox kernel: CPU:    0
-Jul 16 20:04:35 jukebox kernel: EIP:    0010:[d_lookup+96/260]
-Jul 16 20:04:35 jukebox kernel: EIP:    0010:[<c013f6bc>]
-Jul 16 20:04:35 jukebox kernel: EFLAGS: 00010a87
-Jul 16 20:04:35 jukebox kernel: eax: c1640000   ebx: 41648328   ecx: 0000000f 
-  edx: 134b8ec9
-Jul 16 20:04:35 jukebox kernel: esi: 134b8ec9   edi: c6c99f84   ebp: 41648340 
-  esp: c6c99eb4
-Jul 16 20:04:35 jukebox kernel: ds: 0018   es: 0018   ss: 0018
-Jul 16 20:04:35 jukebox kernel: Process gkrellm (pid: 6233, 
-stackpage=c6c99000)
-Jul 16 20:04:35 jukebox kernel: Stack: c1648340 c43e000a 134b8ec9 00000005 
-c6c99f18 134b8ec9 c6c99f84 c43e000f 
-Jul 16 20:04:35 jukebox kernel:        c01377f6 ca020f60 c6c99f18 c6c99f18 
-c0137eb7 ca020f60 c6c99f18 00000000 
-Jul 16 20:04:35 jukebox kernel:        c6c99f04 c6c99f04 00000001 00000000 
-00000000 c33df7e0 000009f7 000001f4 
-Jul 16 20:04:35 jukebox kernel: Call Trace: [cached_lookup+14/72] 
-[path_walk+1275/1880] [open_namei+145/1456] [filp_open+50/80] [getname+92/
-152] 
-Jul 16 20:04:35 jukebox kernel: Call Trace: [<c01377f6>] [<c0137eb7>] 
-[<c01385c1>] [<c012dd72>] [<c0137608>] 
-Jul 16 20:04:35 jukebox kernel:    [sys_open+49/148] [system_call+51/56] 
-Jul 16 20:04:35 jukebox kernel:    [<c012e029>] [<c0106c1f>] 
-Jul 16 20:04:35 jukebox kernel: 
-Jul 16 20:04:35 jukebox kernel: Code: 39 53 48 8b 6d 00 0f 85 80 00 00 00 8b 
-44 24 24 39 43 0c 75 
-----------------------------------------------------------------------------
+> On 16 Jul 2001 12:00:23 -0600, Jeff Hartmann wrote:
+> [...]
+> 
+>> will do this.  This will make the 4.0 -> 4.1 have to be a compile time 
+>> decision, but 4.1 -> 4.1.1 and higher will just coexist with each 
+>> other.  I'm currently working out integrating this into the kernel 
+>> build, and I should hopefully have a patch for Linus and Alan soon.
+> 
+> 
+> I would have preferred if you were just versionning vs the API, not the
+> X version (and keep the API rather stable).
 
-i even can compile me a new kernel (2.4.6 / 2.2.19), because everytime i try, 
-i get this bug and the "make" process dies.
-maybe someone can give a hint.
+The problem is that the API can't be completely stable because of the 3D 
+client-side drivers, 2D ddx drivers, and the drm kernel modules have to 
+be tightly coupled.  The drm kernel module has to provide a secure 
+method of sending data to the card, but we also want it to be efficent.  
+For example, the mesa-3.5 versions of the drm kernel modules can send 
+multiple states inside one dma buffer, this greatly increases the 
+efficency of the driver, but it costs API compatibility.  We do version 
+the API, and will not attempt to use the drivers if their API versions 
+are wrong.  However we want multiple versions of the API to coexist.  
+Adding the version number to the module name will allow for all the 
+versions to coexist.
 
-thanks a lot !
-d.sacher
+>  I wouldn't like to update my
+> kernel just to go from X 4.1.1 to X 4.1.1-pl1.
+
+Well if there are changes to the drm kernel drivers, you have to update 
+your kernel or compile the kernel modules by hand.  We could easily 
+create a stable API if cards were secure, or we did not care about 
+security.  Unfortunately neither one is the case, so the API is not 
+completely static.
+
+-Jeff
 

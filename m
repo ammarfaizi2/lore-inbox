@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264451AbTLGQY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 11:24:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTLGQY3
+	id S264444AbTLGQTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 11:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLGQTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 11:24:29 -0500
-Received: from web40514.mail.yahoo.com ([66.218.78.131]:51269 "HELO
-	web40514.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264451AbTLGQYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 11:24:25 -0500
-Message-ID: <20031207162424.25571.qmail@web40514.mail.yahoo.com>
-Date: Sun, 7 Dec 2003 08:24:24 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-To: Mark Symonds <mark@symonds.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <03e201c3bc94$6b1a1900$7a01a8c0@gandalf>
-MIME-Version: 1.0
+	Sun, 7 Dec 2003 11:19:30 -0500
+Received: from smtp.mailix.net ([216.148.213.132]:30045 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S264444AbTLGQT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 11:19:26 -0500
+Date: Sun, 7 Dec 2003 17:19:20 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] FIx 'noexec' behavior
+Message-ID: <20031207161920.GA1715@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031207133906.GA1140@steel.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031207133906.GA1140@steel.home>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it be possible to swap the RAM from another
-machine? 
-
-
---- Mark Symonds <mark@symonds.net> wrote:
-
+On 2003-12-07 13:42:00, wli wrote:
+> > I had to put a check for 'file' (as Ulrich suggested).
+> > Otherwise it deadlocks again.
+> > Is it possible for ->f_vfsmnt to be NULL at all? Should it be tested?
+> > diff -Nru a/mm/mmap.c b/mm/mmap.c
+> > --- a/mm/mmap.c Sun Dec  7 14:37:33 2003
+> > +++ b/mm/mmap.c Sun Dec  7 14:37:33 2003
+> > @@ -478,7 +478,7 @@
+> >         if (file && (!file->f_op || !file->f_op->mmap))
+> >                 return -ENODEV;
+> >  
+> > -       if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+> > +       if ((prot & PROT_EXEC) && file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+> >                 return -EPERM;
+> >  
+> >         if (!len)
+> 
+> This does not resemble the code I was looking at from current bk.
 > 
 
-> > I had the exact same thing happen to me about 
+probably you were looking at the already fixed code:
 
-> > a year ago, with the same error message. It
+ChangeSet@1.1512, 2003-12-06 14:34:40-08:00, torvalds@home.osdl.org +1 -0
+  Fix the PROT_EXEC breakage on anonymous mmap.
 
-> > started after I had upraded my kernel. It 
+  Clean up the tests while at it.
 
-> > turned out one of my RAM sticks had gone
+	if (file) {
+		if (!file->f_op || !file->f_op->mmap)
+			return -ENODEV;
 
-> > bad. Do you have another machine you can
-
-> > test 2.4.23 with?
-
-> > 
-
-> 
-
-> I do, but not with identical hardware.  Thing is 
-
-> it ran just fine for months on previous kernels,
-
-> and even now will run just fine with them.  The
-
-> crashing only happens when using 2.4.23. 
-
-> 
-
-> -- 
-
-> Mark
-
-> 
+		if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+			return -EPERM;
+	}
 
 
-=====
-I code, therefore I am
+The code I was looking at was the one from Ulrich:
 
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
+ChangeSet 1.1507 2003/12/04 22:26:06 drepper@redhat.com
+  [PATCH] Fix 'noexec' behaviour
+
+  We should not allow mmap() with PROT_EXEC on mounts marked "noexec",
+  since otherwise there is no way for user-supplied executable loaders
+  (like ld.so and emulator environments) to properly honour the
+  "noexec"ness of the target.
+
+	if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+		return -EPERM;
+
+

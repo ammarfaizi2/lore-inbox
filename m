@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262454AbSJ1NK5>; Mon, 28 Oct 2002 08:10:57 -0500
+	id <S262523AbSJ1NXX>; Mon, 28 Oct 2002 08:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262457AbSJ1NK5>; Mon, 28 Oct 2002 08:10:57 -0500
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:46535 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id <S262454AbSJ1NK4>; Mon, 28 Oct 2002 08:10:56 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Angus Sawyer <angus.sawyer@dsl.pipex.com>
-Reply-To: angus.sawyer@dsl.pipex.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] EXT3 fs divide by 0 in ext3_fill_super (2.5.44)
-Date: Mon, 28 Oct 2002 13:17:16 +0000
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210281317.16268.angus.sawyer@dsl.pipex.com>
+	id <S262597AbSJ1NXX>; Mon, 28 Oct 2002 08:23:23 -0500
+Received: from p043.as-l031.contactel.cz ([212.65.234.235]:10880 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S262523AbSJ1NXW>;
+	Mon, 28 Oct 2002 08:23:22 -0500
+Date: Mon, 28 Oct 2002 14:27:52 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "Zephaniah E. Hull" <warp@mercury.d2dc.net>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Problem with mousedev.c
+Message-ID: <20021028132752.GB1253@ppc.vc.cvut.cz>
+References: <20021027010538.GA1690@babylon.d2dc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021027010538.GA1690@babylon.d2dc.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-problem:
+On Sat, Oct 26, 2002 at 09:05:38PM -0400, Zephaniah E. Hull wrote:
+> To make a long story short, mousedev.c does not properly implement the
+> EXPS/2 protocol, specificly dealing with the wheel.
+> 
+> The lower 8 bits of the 4th byte are supposed to be 0x1 or 0xf to
+> indicate movement of the first wheel, and 0x2 or 0xe for the second
+> wheel.
 
-attempting to mount an ext3 fs on a stopped md/raid1 array caused a divide by 
-0 error in ext3_fill_super.
+Hi,
+  I was talking about this problem with Vojtech some months ago,
+and unfortunately we were not able to find correct way to implement it:
+there are mouses (probably majority) which have only one wheel, and
+which reports fast wheel movement as 2,3,4... or 0xe,0xd,.... Protocol
+is documented this way on Microsoft web pages.
 
-Fix duplicates check already in ext2.
+  Then there is another group of mices (mine A4Tech with two wheels
+being one of them) which reports vertical wheel always as 1/0xF, and
+horizontal as 2/0xE (and if you move both, they reports once horizontal
+and once vertical wheel).
 
-patch:
+  Unfortunately we were not able to find how to detect these mouses in
+advance, and when I asked A4Tech, I got back answer that I should use
+their mouse driver, and not one delivered by Microsoft (although Linux
+was every third word in question). From this answer I conclude that
+there is no way to autodetect it, and it has to be specified by some
+options passed to mouse driver.
 
---- linux-2.5.44/fs/ext3/super.c	Wed Oct 23 16:19:08 2002
-+++ linux/fs/ext3/super.c	Mon Oct 28 11:29:33 2002
-@@ -986,6 +986,10 @@
- 		goto out_fail;
- 
- 	blocksize = sb_min_blocksize(sb, EXT3_MIN_BLOCK_SIZE);
-+	if (!blocksize) {
-+		printk(KERN_ERR "EXT3-fs: unable to set blocksize\n");
-+		goto out_fail;
-+	}
- 
- 	/*
- 	 * The ext3 superblock will not be buffer aligned for other than 1kB
+					Petr Vandrovec
+					vandrove@vc.cvut.cz
 

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264479AbRFLNmH>; Tue, 12 Jun 2001 09:42:07 -0400
+	id <S262614AbRFLOFW>; Tue, 12 Jun 2001 10:05:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264475AbRFLNl5>; Tue, 12 Jun 2001 09:41:57 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:44817 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S264467AbRFLNlg>;
-	Tue, 12 Jun 2001 09:41:36 -0400
-Date: Tue, 12 Jun 2001 15:40:59 +0200
-From: sebastien person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: net.agent ?
-Message-Id: <20010612154059.432b0279.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264475AbRFLOFM>; Tue, 12 Jun 2001 10:05:12 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:43276
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S262614AbRFLOFB>; Tue, 12 Jun 2001 10:05:01 -0400
+Date: Tue, 12 Jun 2001 10:04:03 -0400
+From: Chris Mason <mason@suse.com>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Chua <jchua@silk.corp.fedex.com>
+Subject: Re: reiserfs problem on SMP
+Message-ID: <274630000.992354643@tiny>
+In-Reply-To: <Pine.LNX.4.33.0106121714030.26519-100000@boston.corp.fedex.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm porting a driver on 2.4. , I've done the necessary to get him working,
-but 
-when I read the logs I found something like this after doing that :
 
-insmod my_module
-ifconfig up my_module
+On Tuesday, June 12, 2001 05:25:46 PM +0800 Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
 
->my_module : received ioctl 35585
->/etc/hotplug/net.agent : register event not handled
+> 
+> Got the following journaling error on 2.4.5 SMP during shutdown ...
+> 
 
-Somebody know how ensure that the ioctl call come from net.agent ?
-Am I obliged to handle the ioctl for compatibilty or something else ?
-coud I just ignore it ?
+Known 2.4.5 problem.  Fix below is from Al Viro:
 
-I'm using redhat 7.1 kernel 2.4.2
+-chris
 
-Thanks
+diff -Nru a/fs/super.c b/fs/super.c
+--- a/fs/super.c	Sat Jun  2 13:27:07 2001
++++ b/fs/super.c	Sat Jun  2 13:27:07 2001
+@@ -873,6 +873,7 @@
+ 	}
+ 	spin_unlock(&dcache_lock);
+ 	down_write(&sb->s_umount);
++	lock_kernel();
+ 	sb->s_root = NULL;
+ 	/* Need to clean after the sucker */
+ 	if (fs->fs_flags & FS_LITTER)
+@@ -901,6 +902,7 @@
+ 	put_filesystem(fs);
+ 	sb->s_type = NULL;
+ 	unlock_super(sb);
++	unlock_kernel();
+ 	up_write(&sb->s_umount);
+ 	if (bdev) {
+ 		blkdev_put(bdev, BDEV_FS);
 
-sebastien person

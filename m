@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTKBMeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 07:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTKBMeS
+	id S261683AbTKBMwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 07:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTKBMwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 07:34:18 -0500
-Received: from cmt-webdesign-gbr.de ([217.160.130.145]:4835 "EHLO
-	p15103836.pureserver.info") by vger.kernel.org with ESMTP
-	id S261681AbTKBMeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 07:34:17 -0500
-From: Christoph Lehnberger <debian@internetists.de>
-Reply-To: debian@internetists.de
-Organization: internetists.de
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [2.4.23-pre9] Compilation Error
-Date: Sun, 2 Nov 2003 13:34:21 +0100
-User-Agent: KMail/1.5.4
-References: <200311011242.01886.debian@internetists.de> <20031101155807.GC530@alpha.home.local>
-In-Reply-To: <20031101155807.GC530@alpha.home.local>
+	Sun, 2 Nov 2003 07:52:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8462 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261683AbTKBMwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 07:52:39 -0500
+Date: Sun, 2 Nov 2003 12:52:03 +0000
+From: Dave Jones <davej@redhat.com>
+To: Geoffrey Lee <glee@gnupilgrims.org>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch] reproducible athlon mce fix
+Message-ID: <20031102125202.GA7992@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Geoffrey Lee <glee@gnupilgrims.org>, linux-kernel@vger.kernel.org
+References: <20031102055748.GA1218@anakin.wychk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311021334.21187.debian@internetists.de>
+In-Reply-To: <20031102055748.GA1218@anakin.wychk.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 1. November 2003 16:58 schrieben Sie:
-> Hello,
->
-> On Sat, Nov 01, 2003 at 12:42:01PM +0100, Christoph Lehnberger wrote:
-> > cc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes
-> > -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
-> > -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix
-> > include -DKBUILD_BASENAME=inode  -c -o inode.o inode.c
-> > inode.c:968: error: redefinition of `iget4'
-> > /usr/src/linux-2.4.22/include/linux/fs.h:1415: error: `iget4' previously
-> > defined here
->
-> Did the 2.4.23-pre9 patch apply cleanly there ? I didn't get such errors.
-> BTW, what compiler are you using, and could you post your config file once
-> you have checked that the patch is ok ?
->
-> Willy
+On Sun, Nov 02, 2003 at 01:57:48PM +0800, Geoffrey Lee wrote:
 
-Hello,
+ >  	preempt_disable(); 
+ > +#if CONFIG_MK7
+ > +	for (i=1; i<nr_mce_banks; i++) {
+ > +#else
+ >  	for (i=0; i<nr_mce_banks; i++) {
+ > +#endif
+ >  		rdmsr (MSR_IA32_MC0_STATUS+i*4, low, high);
 
-after repatching the kernel-tree now it works.....
+This needs to be a runtime check. In 2.6, a K7 can boot
+a P4 kernel, and vice versa.
 
-Thanks a lot
+		Dave
 
-Christoph Lehnberger
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

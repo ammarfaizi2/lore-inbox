@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVBKPxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVBKQBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbVBKPxz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 10:53:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVBKPxz
+	id S262265AbVBKQBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 11:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVBKQAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 10:53:55 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:13727 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S262261AbVBKPxw
+	Fri, 11 Feb 2005 11:00:53 -0500
+Received: from nina-2.cs.keele.ac.uk ([160.5.89.35]:28619 "EHLO
+	nina.cs.keele.ac.uk") by vger.kernel.org with ESMTP id S262263AbVBKQAs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 10:53:52 -0500
-Date: Fri, 11 Feb 2005 07:53:51 -0800
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050211155351.GB16507@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Alexandre Oliva <aoliva@redhat.com>, Theodore Ts'o <tytso@mit.edu>,
-	Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com> <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br> <20050210222403.GA5920@thunk.org> <or650z6syt.fsf@livre.redhat.lsd.ic.unicamp.br>
-Mime-Version: 1.0
+	Fri, 11 Feb 2005 11:00:48 -0500
+Subject: Re: aacraid fails under kernel 2.6
+To: markh@osdl.org (Mark Haverkamp)
+Date: Fri, 11 Feb 2005 16:00:44 +0000 (GMT)
+Cc: jonathan@cs.keele.ac.uk (Jonathan Knight),
+       linux-kernel@vger.kernel.org (linux-kernel),
+       mark_salyzyn@adaptec.com (Mark Salyzyn)
+In-Reply-To: <1108135751.10361.6.camel@markh1.pdx.osdl.net> from "Mark Haverkamp" at Feb 11, 2005 07:29:11 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <or650z6syt.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1CzdDo-0007dA-00@nina.cs.keele.ac.uk>
+From: Jonathan Knight <jonathan@cs.keele.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 01:01:46PM -0200, Alexandre Oliva wrote:
-> I don't believe his claim, and I can prove it with a dumb example.
-> 
-> Consider three patches, A, J and U, such that A and U are identical,
-> and J is a patch that reverses them.
-> 
-> You can determine the final state of the tree given these 3 patches,
-> but you can't determine the history.  It could be that A was installed
-> first, then J reverted it, then U put it back in.  Or it could be that
-> U went in first, J reverted it, and A was put back in.  How could one
-> know?  Presumably by looking at the check in messages, presumably.
+> A number of people have seen problems like this going from 2.4 to 2.6.
+> Mark Salyzyn from Adaptec has suggested in those cases to make sure that
+> the board firmware is up to date.  I've copied Mark on this mail.
 
-They all have dates, that's one hint, and they all should apply with no
-patch rejects, that's another hint.  You're right that this still
-doesn't make it possible to create exactly the same tree as the BK tree
-but it makes it possible to create a useful tree.
 
-You are also right that figuring out the merges is a pain.  So what?
-We never said that we'd figure out how to do all this well and then
-teach you how to do it well.  
+We think we're on the latest everything.  The BIOS is A07 and the firmware
+on the controller is 2.8.0 build 6092
+
+
+
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+  ______    jonathan@cs.keele.ac.uk    Jonathan Knight,
+    /                                  Department of Computer Science
+   / _   __ Telephone: +44 1782 583437 University of Keele, Keele,
+(_/ (_) / / Fax      : +44 1782 713082 Staffordshire.  ST5 5BG.  U.K.

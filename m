@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262865AbRFRWMY>; Mon, 18 Jun 2001 18:12:24 -0400
+	id <S263378AbRFRWbR>; Mon, 18 Jun 2001 18:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262995AbRFRWMP>; Mon, 18 Jun 2001 18:12:15 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:27426 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S262865AbRFRWMF>; Mon, 18 Jun 2001 18:12:05 -0400
-Date: Mon, 18 Jun 2001 18:12:00 -0400 (EDT)
-From: Scott Murray <scottm@somanetworks.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't I flush /dev/ram0? (fwd)
-Message-ID: <Pine.LNX.4.30.0106181807490.1182-100000@rancor.yyz.somanetworks.com>
+	id <S263395AbRFRWbG>; Mon, 18 Jun 2001 18:31:06 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:50441 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S263378AbRFRWav>; Mon, 18 Jun 2001 18:30:51 -0400
+Date: Mon, 18 Jun 2001 15:30:50 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Jan Hudec <bulb@ucw.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Client receives TCP packets but does not ACK
+In-Reply-To: <a05101000b753df30ddaa@[192.168.239.105]>
+Message-ID: <Pine.LNX.4.33.0106181527050.13084-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
-
-Any chance you can finally merge this fix or suggest what better one you
-are looking for?  When this bug bit me in early April, an investigation
-showed that this particular fix has been in the ac kernels since last
-November.
-
-Thanks,
-
-Scott
 
 
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+On Mon, 18 Jun 2001, Jonathan Morton wrote:
 
----------- Forwarded message ----------
-Date: Mon, 18 Jun 2001 23:55:37 +0200
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: Kelledin Tane <runesong@earthlink.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why can't I flush /dev/ram0?
-
-On Mon, 18 Jun 2001, Kelledin Tane wrote:
-
-> At this point, I'm trying to get an initrd working properly.  So far, it
-> works, the system boots, etc. etc., but whenever I try to do a "blockdev
-> --flushbufs /dev/ram0", I get "device or resource busy"
+> >  > Btw: can the aplication somehow ask the tcp/ip stack what was
+> >actualy acked?
+> >>  (ie. how many bytes were acked).
+> >
+> >no, but it's not necessarily a useful number anyhow -- because it's
+> >possible that the remote end ACKd bytes but the ACK never arrives.  so you
+> >can get into a situation where the remote application has the entire
+> >message but the local application doesn't know.  the only way to solve
+> >this is above the TCP layer.  (message duplicate elimination using an
+> >unique id.)
 >
-> When I mount the filesystem to check it out, nothing appears to have
-> anything open on the filesystem.  So why am I not able to flush it
-> clean?
+> No, because if the ACK doesn't reach the sending machine, the sender
+> will retry the data until it does get an ACK.
 
-Because of a bug present in Linus tree. Try this patch:
+if the network goes down in between, the sender may never get the ACK.
+the sender will see a timeout eventually.  the receiver may already be
+done with the connection and closed it and never see the error.  if it
+were a protocol such as SMTP then the sender would retry later, and the
+result would be a duplicate message.  (which you can eliminate above the
+TCP layer using unique ids.)
 
---- linux.orig/drivers/block/rd.c	Mon Nov 20 02:07:47 2000
-+++ linux/drivers/block/rd.c	Mon Nov 20 04:03:42 2000
-@@ -690,6 +690,7 @@
- done:
- 	if (infile.f_op->release)
- 		infile.f_op->release(inode, &infile);
-+	blkdev_put(out_inode->i_bdev, BDEV_FILE);
- 	set_fs(fs);
- 	return;
- free_inodes: /* free inodes on error */
-
-BTW, it's fixed in -ac patches.
-
-Jan
--- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-dean
 

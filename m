@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312680AbSDAWpt>; Mon, 1 Apr 2002 17:45:49 -0500
+	id <S293092AbSDAWv7>; Mon, 1 Apr 2002 17:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312684AbSDAWp3>; Mon, 1 Apr 2002 17:45:29 -0500
-Received: from [194.106.46.201] ([194.106.46.201]:43075 "EHLO
-	asus.verdurin.priv") by vger.kernel.org with ESMTP
-	id <S312680AbSDAWp1>; Mon, 1 Apr 2002 17:45:27 -0500
-Date: Mon, 1 Apr 2002 23:45:14 +0100
-From: Adam Huffman <bloch@verdurin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops in emu10k1 driver
-Message-ID: <20020401224514.GC2718@asus.verdurin.priv>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020401215107.GA28180@asus.verdurin.priv> <E16sAU4-0000gd-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S312684AbSDAWvt>; Mon, 1 Apr 2002 17:51:49 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:30734 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S293092AbSDAWvc>; Mon, 1 Apr 2002 17:51:32 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7742@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Jason Czerak'" <Jason-Czerak@Jasnik.net>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: RE: ECC memory and SMP lockups on Gateway 6400 server
+Date: Mon, 1 Apr 2002 14:51:21 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Apr 2002, Alan Cox wrote:
+Jason Czerak wrote:
+> 
+> The OEM 128 and 64 meg stick of ECC that came with the machine 
+> works fine. I got an aftermarket ECC stick that NT likes but 
+> linux doesn't. 
 
-> > VMware died when I put an audio CD into my DVD drive.  I wouldn't have
-> > mentioned it here but for the fact that there was an Oops and when
-> > decoded it pointed to the emu10k1 driver:
-> 
-> Yes but we don't know what vmware has been doing. Please try the same thing
-> a few times without vmware running
-> 
-> > kernel BUG at audio.c:1474!
-> > invalid operand: 0000
-> 
-> 
-> This one does look like a real bug in the emu10k driver, rather than a
-> vmware caused funny
+Reminded me of the time I got burned by swap meet bargain memory vendor. The
+timing config info in the DIMM's SPD EEPROM was very optimistic compared to
+the datasheet spec for the actual memory chips used. 
 
-Haven't been able to reproduce it with the VMware modules removed.
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+

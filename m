@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318143AbSIJVFG>; Tue, 10 Sep 2002 17:05:06 -0400
+	id <S318141AbSIJVPO>; Tue, 10 Sep 2002 17:15:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318130AbSIJVFG>; Tue, 10 Sep 2002 17:05:06 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:27405 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S318143AbSIJVFC>;
-	Tue, 10 Sep 2002 17:05:02 -0400
-Date: Tue, 10 Sep 2002 23:09:45 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] scripts: Removed mrproper targets, they are now handled automagically 5/6
-Message-ID: <20020910230945.E18386@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20020910225530.A17094@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020910225530.A17094@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Sep 10, 2002 at 10:55:30PM +0200
+	id <S318144AbSIJVPO>; Tue, 10 Sep 2002 17:15:14 -0400
+Received: from triton.neptune.on.ca ([205.233.176.2]:53178 "EHLO
+	triton.neptune.on.ca") by vger.kernel.org with ESMTP
+	id <S318141AbSIJVPN>; Tue, 10 Sep 2002 17:15:13 -0400
+Date: Tue, 10 Sep 2002 17:19:53 -0400 (EDT)
+From: Steve Mickeler <steve@neptune.ca>
+X-X-Sender: steve@triton.neptune.on.ca
+To: linux-kernel@vger.kernel.org
+Cc: davem@redhat.com
+Subject: Linux 2.4.20-pre6 tg3 compile errors
+In-Reply-To: <20020910211222.37684.qmail@web14001.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0209101716300.17602-100000@triton.neptune.on.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed mrproper targets from scripts/Makefile and scripts/lxdialog/Makefile
-The new clean: and mrproper: handling will delete the files in question.
 
-For lxdialog added a few files that could be left if build were stopped
-unexpected.
+Compiling in tg3 support using the tg3.c and tg3.h from 2.4.20-pre6
 
-	Sam
+distro: debian woody
 
-diff -Nru a/scripts/Makefile b/scripts/Makefile
---- a/scripts/Makefile	Tue Sep 10 22:38:01 2002
-+++ b/scripts/Makefile	Tue Sep 10 22:38:01 2002
-@@ -9,6 +9,8 @@
- # conmakehash:	 Create arrays for initializing the kernel console tables
- # tkparse: 	 Used by xconfig
- 
-+clean    := kconfig.tk
-+
- all: fixdep split-include docproc conmakehash __chmod
- 
- # The following temporary rule will make sure that people's
-@@ -57,9 +59,4 @@
- $(obj)/split-include $(obj)/docproc $(addprefix $(obj)/,$(tkparse-objs)) \
- $(obj)/conmakehash lxdialog: $(obj)/fixdep
- 
--mrproper:
--	@echo 'Making mrproper (scripts)'
--	@rm -f $(tkparse-objs) $(obj)/kconfig.tk
--	@rm -f core $(host-progs)
--	@$(MAKE) -C lxdialog mrproper
- 
-diff -Nru a/scripts/lxdialog/Makefile b/scripts/lxdialog/Makefile
---- a/scripts/lxdialog/Makefile	Tue Sep 10 22:38:01 2002
-+++ b/scripts/lxdialog/Makefile	Tue Sep 10 22:38:01 2002
-@@ -15,8 +15,12 @@
- endif
- endif
- 
--host-progs := lxdialog
-+# Files removed during make clean
-+clean := a.out lxtemp.c
- 
-+# Host executable
-+host-progs := lxdialog
-+# Additional object files for lxdialog
- lxdialog-objs := checklist.o menubox.o textbox.o yesno.o inputbox.o \
- 		 util.o lxdialog.o msgbox.o
- 
-@@ -39,5 +43,3 @@
- 		exit 1 ;\
- 	fi
- 
--mrproper:
--	@rm -f core $(host-progs) $(lxdialog-objs) ncurses
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+gcc version 2.95.4 20011002 (Debian prerelease)
+
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.19/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=tg3  -c -o
+tg3.o tg3.c
+tg3.c: In function `tg3_rx':
+tg3.c:1977: warning: implicit declaration of function `netif_receive_skb'
+tg3.c: In function `tg3_poll':
+tg3.c:2054: structure has no member named `quota'
+tg3.c:2055: structure has no member named `quota'
+tg3.c:2060: structure has no member named `quota'
+tg3.c:2067: warning: implicit declaration of function `netif_rx_complete'
+tg3.c: In function `tg3_interrupt_main_work':
+tg3.c:2094: warning: implicit declaration of function
+`netif_rx_schedule_prep'
+tg3.c:2100: warning: implicit declaration of function
+`__netif_rx_schedule'
+tg3.c: In function `__tg3_set_rx_mode':
+tg3.c:4881: structure has no member named `vlgrp'
+tg3.c: In function `tg3_init_one':
+tg3.c:6641: structure has no member named `poll'
+tg3.c:6642: structure has no member named `weight'
+make[3]: *** [tg3.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.19/drivers/net'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.19/drivers/net'
+make[1]: *** [_subdir_net] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.19/drivers'
+make: *** [_dir_drivers] Error 2
+
+
+[-] Steve Mickeler [ steve@neptune.ca ]
+
+[|] Todays root password is brought to you by /dev/random
+
+[+] 1024D/9AA80CDF = 4103 9E35 2713 D432 924F  3C2E A7B9 A0FE 9AA8 0CDF
+
+

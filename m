@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261712AbTCLAIF>; Tue, 11 Mar 2003 19:08:05 -0500
+	id <S261674AbTCLAD5>; Tue, 11 Mar 2003 19:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261681AbTCLAHZ>; Tue, 11 Mar 2003 19:07:25 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:16266 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261691AbTCLAEF>;
-	Tue, 11 Mar 2003 19:04:05 -0500
-Subject: [PATCH] (3/8) Eliminate brlock from vlan
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+	id <S261683AbTCLAD5>; Tue, 11 Mar 2003 19:03:57 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:13208 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S261674AbTCLADx>; Tue, 11 Mar 2003 19:03:53 -0500
+Subject: Re: [patch] oprofile for ppc
+From: Albert Cahalan <albert@users.sf.net>
+To: mikpe@csd.uu.se
+Cc: Andrew Fleming <afleming@motorola.com>,
+       Segher Boessenkool <segher@koffie.nl>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       o.oppitz@web.de, linux-kernel@vger.kernel.org
+In-Reply-To: <15982.29106.674299.704117@gargle.gargle.HOWL>
+References: <3E6D469C.8060209@koffie.nl>
+	<FEB94991-540B-11D7-BAD1-000393C30512@motorola.com> 
+	<15982.29106.674299.704117@gargle.gargle.HOWL>
 Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1047428085.15869.101.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Mar 2003 16:14:45 -0800
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 11 Mar 2003 19:10:53 -0500
+Message-Id: <1047427855.5973.80.camel@cube>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eliminate brlock from vlan
+On Tue, 2003-03-11 at 18:30, mikpe@csd.uu.se wrote:
+>>>>> Benjamin Herrenschmidt wrote:
 
-diff -urN -X dontdiff linux-2.5.64/net/8021q/vlan.c linux-2.5-nobrlock/net/8021q/vlan.c
---- linux-2.5.64/net/8021q/vlan.c	2003-03-11 09:08:01.000000000 -0800
-+++ linux-2.5-nobrlock/net/8021q/vlan.c	2003-03-11 14:31:28.000000000 -0800
-@@ -29,7 +29,6 @@
- #include <net/p8022.h>
- #include <net/arp.h>
- #include <linux/rtnetlink.h>
--#include <linux/brlock.h>
- #include <linux/notifier.h>
- 
- #include <linux/if_vlan.h>
-@@ -68,7 +67,6 @@
- 	.dev =NULL,
- 	.func = vlan_skb_recv, /* VLAN receive method */
- 	.data = (void *)(-1),  /* Set here '(void *)1' when this code can SHARE SKBs */
--	.next = NULL
- };
- 
- /* End of global variables definitions. */
-@@ -231,9 +229,10 @@
- 				real_dev->vlan_rx_kill_vid(real_dev, vlan_id);
- 			}
- 
--			br_write_lock(BR_NETPROTO_LOCK);
- 			grp->vlan_devices[vlan_id] = NULL;
--			br_write_unlock(BR_NETPROTO_LOCK);
-+
-+			/* wait for RCU in network receive */
-+			synchronize_kernel();
- 
- 
- 			/* Caller unregisters (and if necessary, puts)
-diff -urN -X dontdiff linux-2.5.64/net/8021q/vlan_dev.c linux-2.5-nobrlock/net/8021q/vlan_dev.c
---- linux-2.5.64/net/8021q/vlan_dev.c	2003-03-11 09:08:01.000000000 -0800
-+++ linux-2.5-nobrlock/net/8021q/vlan_dev.c	2003-03-10 15:49:52.000000000 -0800
-@@ -31,7 +31,6 @@
- #include <net/datalink.h>
- #include <net/p8022.h>
- #include <net/arp.h>
--#include <linux/brlock.h>
- 
- #include "vlan.h"
- #include "vlanproc.h"
+>>>>>> Beware though that some G4s have a nasty bug that
+>>>>>> prevents using the performance counter interrupt
+>>>>>> (and the thermal interrupt as well).
+...
+> Is this bug restricted to 7400/7410 only, or does it
+> affect the 750 (and relatives) and 604/604e too?
+>
+> I'm thinking about ppc support for my perfctr driver,
+> and whether overflow interrupts are worth supporting
+> or not given the errata.
 
+604/604e doesn't even have performance monitoring AFAIK.
+I've heard nothing to suggest that the 750 is affected.
+
+I'll give you a hand; point me to the latest perfctr code
+and explain how it is supposed to interact with oprofile.
 
 

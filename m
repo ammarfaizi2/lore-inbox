@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIRfe>; Tue, 9 Jan 2001 12:35:34 -0500
+	id <S129324AbRAIRjO>; Tue, 9 Jan 2001 12:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130850AbRAIRfY>; Tue, 9 Jan 2001 12:35:24 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:59633 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129324AbRAIRfK>; Tue, 9 Jan 2001 12:35:10 -0500
-Date: Tue, 9 Jan 2001 11:35:09 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-        Linux MM mailing list <linux-mm@kvack.org>
-Subject: ioremap doesn't increment page->count, but iounmap decrements it
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-Id: <20010109173515Z129324-400+2363@vger.kernel.org>
+	id <S129431AbRAIRjG>; Tue, 9 Jan 2001 12:39:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15885 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129226AbRAIRiy>; Tue, 9 Jan 2001 12:38:54 -0500
+Subject: Re: wavelan has fatal error with 2.4.0 (but worked in 2.4.0-test12)
+To: jt@hpl.hp.com
+Date: Tue, 9 Jan 2001 17:13:42 +0000 (GMT)
+Cc: rutt@chezrutt.com (John Ruttenberg),
+        linux-kernel@vger.kernel.org (Linux kernel mailing list),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20010109090427.A30175@bougret.hpl.hp.com> from "Jean Tourrilhes" at Jan 09, 2001 09:04:27 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14G2LB-0006zy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just discovered an oddity in 2.2.18pre15.  When ioremap() is used to map
-reserved pages (of real RAM), it does not increment the "count" field for the
-page it remaps (i.e. page->count).  However, when you call iounmap on that
-memory, that function decrements page->count.  Since the count was originally
-zero, it gets decremented to -1, and that's when things start to go bad.
+> 	This is a bug with the definition of udelay(). Somebody tried
+> to be too clever with udelay(), and the end result is that it breaks
+> perfectly good and valid code.
+> 	Therefore, it should be reported as such on LKML, a bug in udelay().
 
-I get the feeling that if I remap reserved memory, I'm not supposed to ever
-unmap it.  But that means that my driver will have a memory leak.  Can someone
-help me out?
+It is a bug in the driver.
 
+> there. For my part, I insist that the code is correct, that replacing
+> an inline function by a #define is going backwards and that udelay()
+> should be fixed one way or another (easy, just define __bad_udelay()
+> as returning a compilation warning or an error message).
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+You can't #define a function to a #warning or #error in C. Language limitation
 
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,133 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRCPKVj>; Fri, 16 Mar 2001 05:21:39 -0500
+	id <S130442AbRCPKz1>; Fri, 16 Mar 2001 05:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130216AbRCPKV3>; Fri, 16 Mar 2001 05:21:29 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41234 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129854AbRCPKVT>; Fri, 16 Mar 2001 05:21:19 -0500
-Date: Fri, 16 Mar 2001 05:36:12 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Reserved memory for highmem bouncing (fwd)
-In-Reply-To: <Pine.LNX.4.21.0103160358230.4571-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0103160523370.5054-100000@freak.distro.conectiva>
+	id <S130438AbRCPKzQ>; Fri, 16 Mar 2001 05:55:16 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:65033 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S130442AbRCPKzE>;
+	Fri, 16 Mar 2001 05:55:04 -0500
+Date: Fri, 16 Mar 2001 10:54:13 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.CX>
+To: <Andries.Brouwer@cwi.nl>
+cc: <kaboom@gatech.edu>, <linux-kernel@vger.kernel.org>,
+        <seberino@spawar.navy.mil>
+Subject: Re: [PATCH] Improved version reporting
+In-Reply-To: <UTC200103141929.UAA178418.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.30.0103161035180.20436-100000@infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andries.
 
-Well, here it is. 
+ > [Yes, I wrote, replying to your mail, just because I happened to
+ > notice the incorrect or debatable lines in your patch. Let me cc
+ > the Changes maintainer - maybe Chris Ricker.]
 
-I would like to know if this makes a big difference on highmem (2GB or
-more) machines with heavy IO workloads.
+ >>>> -o  util-linux             2.10o                   # fdformat --version
+ >>>> +o  util-linux         #   2.10o        # fdformat --version
 
-I don't have such a machine here to be able to test it. (it works with a
-1GB machine, but it needs to be tested with lots of highmem to show the
-improvement)
+ >>> Looking at fdformat to get the util-linux version is perhaps not
+ >>> the most reliable way - some people have fdformat from elsewhere.
+ >>> Using mount --version would be better - I am not aware of any
+ >>> other mount distribution.
 
+ >> RedHat distribute mount separately from util-linux and I
+ >> wouldnae be surprised if others do the same...
 
-diff -Nur linux.orig/fs/buffer.c linux/fs/buffer.c
---- linux.orig/fs/buffer.c	Fri Mar 16 13:01:09 2001
-+++ linux/fs/buffer.c	Fri Mar 16 13:37:27 2001
-@@ -2557,7 +2557,7 @@
-    as all dirty buffers lives _only_ in the DIRTY lru list.
-    As we never browse the LOCKED and CLEAN lru lists they are infact
-    completly useless. */
--static int flush_dirty_buffers(int check_flushtime)
-+int flush_dirty_buffers(int check_flushtime, int lowmem)
- {
- 	struct buffer_head * bh, *next;
- 	int flushed = 0, i;
-@@ -2577,6 +2577,11 @@
- 		if (buffer_locked(bh))
- 			continue;
- 
-+#ifdef CONFIG_HIGHMEM
-+		if (lowmem && PageHighMem(bh->b_page))
-+			continue;
-+#endif
-+
- 		if (check_flushtime) {
- 			/* The dirty lru list is chronologically ordered so
- 			   if the current bh is not yet timed out,
-@@ -2616,7 +2621,7 @@
- 		wake_up_process(bdflush_tsk);
- 
- 		if (block)
--			flush_dirty_buffers(0);
-+			flush_dirty_buffers(0, 0);
- 	}
- }
- 
-@@ -2635,7 +2640,7 @@
- 	sync_inodes(0);
- 	unlock_kernel();
- 
--	flush_dirty_buffers(1);
-+	flush_dirty_buffers(1, 0);
- 	/* must really sync all the active I/O request to disk here */
- 	run_task_queue(&tq_disk);
- 	return 0;
-@@ -2732,7 +2737,7 @@
- 	for (;;) {
- 		CHECK_EMERGENCY_SYNC
- 
--		flushed = flush_dirty_buffers(0);
-+		flushed = flush_dirty_buffers(0, 0);
- 		if (free_shortage())
- 			flushed += page_launder(GFP_KERNEL, 0);
- 
-diff -Nur linux.orig/include/linux/fs.h linux/include/linux/fs.h
---- linux.orig/include/linux/fs.h	Fri Mar 16 13:01:14 2001
-+++ linux/include/linux/fs.h	Fri Mar 16 13:36:57 2001
-@@ -1288,6 +1288,7 @@
- extern unsigned int get_hardblocksize(kdev_t);
- extern struct buffer_head * bread(kdev_t, int, int);
- extern void wakeup_bdflush(int wait);
-+extern int flush_dirty_buffers(int, int);
- 
- extern int brw_page(int, struct page *, kdev_t, int [], int);
- 
-diff -Nur linux.orig/mm/highmem.c linux/mm/highmem.c
---- linux.orig/mm/highmem.c	Fri Mar 16 13:01:13 2001
-+++ linux/mm/highmem.c	Fri Mar 16 13:44:01 2001
-@@ -21,6 +21,7 @@
- #include <linux/highmem.h>
- #include <linux/swap.h>
- #include <linux/slab.h>
-+#include <linux/fs.h>
- 
- /*
-  * Virtual_count is not a pure "count".
-@@ -280,9 +281,11 @@
- 	if (page)
- 		return page;
- 	/*
--	 * No luck. First, kick the VM so it doesnt idle around while
--	 * we are using up our emergency rations.
-+	 * No luck. First, try to flush some low memory buffers.
-+	 * This will throttle highmem writes when low memory gets full.
- 	 */
-+	flush_dirty_buffers(0, 1);
-+
- 	wakeup_bdflush(0);
- 
- 	/*
-@@ -317,9 +320,11 @@
- 	if (bh)
- 		return bh;
- 	/*
--	 * No luck. First, kick the VM so it doesnt idle around while
--	 * we are using up our emergency rations.
-+	 * No luck. First, try to flush some low memory buffers.
-+	 * This will throttle highmem writes when low memory gets full.
- 	 */
-+	flush_dirty_buffers(0, 1);
-+	
- 	wakeup_bdflush(0);
- 
- 	/*
+ > I am not aware of any distribution that ships some version of
+ > util-linux, but replaces its mount part by an older version. I
+ > think that even in cases where, because of historical reasons,
+ > util-linux is repackaged in several parts, mount --version gives
+ > the right answer.
+
+Neither am I - but, according to comments from RedHat a while back,
+they repackage mount separately because they provide a NEWER version
+of mount than is in the util-linux package. This will ALSO result in
+`mount --version` giving the wrong answer...
+
+ >>>> +In addition, it is wise to ensure that the following packages are
+ >>>> +at least at the versions suggested below, although these may not
+ >>>> +be required, depending on the exact configuration of your system:
+ >>>> +
+ >>>> +o  Console Tools      #   0.3.3        # loadkeys -V
+ >>>> +o  Mount              #   2.10e        # mount --version
+
+ >>> Concerning mount:
+ >>>
+ >>> (i) the version mentioned is too old,
+
+ >> As stated in my original post, I've no idea what the correct
+ >> version should be as it's not documented anywhere I can find.
+
+ >>> (ii) mount is in util-linux.
+
+ >> Not on RedHat systems.
+
+ > There is no other source. Some people like to repack but that
+ > has no influence on versions.
+
+Unless one can guarantee that the util-linux and mount packages are
+the SAME version, mount can't be guaranteed to report the version of
+the util-linux package installed. RedHat provide a NEWER version of
+mount to util-linux so that guarantee doesnae exist.
+
+ >>> Conclusion: the mount line should be deleted entirely.
+
+Conclusion: Both the mount and util-linux lines are REQUIRED.
+
+ >>> Concerning Console Tools: maybe kbd-1.05 is uniformly better.
+ >>> I am not aware of any reason to recommend the use of
+ >>> console-tools.
+
+ >> Neither am I. The ver_linux script has lines for determining the
+ >> versions for both Console Tools and Kbd but on EVERY system I've
+ >> tried, including Slackware, RedHat, Debian, Caldera, and SuSE
+ >> based ones, the line for determining Kbd versiondoesnae work.
+ >> I've just included the line that worked, and ignored the Kbd one
+ >> as I can see no point including something that doesnae work.
+
+ > You are mistaken, as is proved by the reports that contain a kbd
+ > line: a grep on linux-kernel for this Februari shows people with
+ > Kbd 0.96, 0.99 and 1.02.
+
+{Shrug} Please explain why I was unable to get ver_linux to report a
+kbd line on ANY of the systems I tried, including systems with it
+definately installed. I tried it out manually on several such systems,
+and ALL reported the SAME error message to the `loadkeys -h` command
+used in scripts/ver_linux which is:
+
+ Q> $ loadkeys -h 2>&1 > x
+ Q> Usage: loadkeys [option...] [mapfile...]
+ Q> valid options are:
+ Q>   -c --clearcompose clear kernel compose table
+ Q>   -d --default      load default keymap file
+ Q>   -m --mktable      output a "defkeymap.c" to stdout
+ Q>   -s --clearstrings clear kernel string table
+ Q>   -q --quiet        be silent
+ Q>   -v --verbose      report the changes
+ Q>   -v --verbose      report more changes
+ Q>   -h --help         display this help text and exit
+ Q>   -V --version      display version information and exit
+ Q> $
+
+Also, please advise where the version number is in that text...
+
+Best wishes from Riley.
 

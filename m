@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267962AbUHKGf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267966AbUHKGhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267962AbUHKGf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 02:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267963AbUHKGf7
+	id S267966AbUHKGhH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 02:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267964AbUHKGhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 02:35:59 -0400
-Received: from web52907.mail.yahoo.com ([206.190.39.184]:6577 "HELO
-	web52907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267962AbUHKGf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 02:35:56 -0400
-Message-ID: <20040811063556.44421.qmail@web52907.mail.yahoo.com>
-Date: Wed, 11 Aug 2004 07:35:56 +0100 (BST)
-From: =?iso-8859-1?q?Ankit=20Jain?= <ankitjain1580@yahoo.com>
-Subject: problem with pointers in asm
-To: gcc <gcc-help@gcc.gnu.org>
-Cc: linux <linux-kernel@vger.kernel.org>
+	Wed, 11 Aug 2004 02:37:07 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:41950 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267963AbUHKGgz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 02:36:55 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Hugetlb demanding paging for -mm tree
+Date: Tue, 10 Aug 2004 23:36:10 -0700
+Message-ID: <01EF044AAEE12F4BAAD955CB750649430205DE92@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hugetlb demanding paging for -mm tree
+Thread-Index: AcR/VQtfC7Hsv+suSWKB+R6c+Ue2JwAFswGA
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 11 Aug 2004 06:36:12.0981 (UTC) FILETIME=[7EDD4650:01C47F6D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+William Lee Irwin III <> wrote on Tuesday, August 10, 2004 5:45 PM:
 
-well i want to understand how assembler treats
-pointers?
+> William Lee Irwin III <mailto:wli@holomorphy.com> wrote on Tuesday,
+>>> Could you rephrase that? I'm having trouble figuring out what you
+>>> meant.
+> 
+> On Tue, Aug 10, 2004 at 05:28:27PM -0700, Seth, Rohit wrote:
+>> I was thinking that we only need to worry about the d-cache
+>> coherency at the time of hugepage fault.  But that is not a safe
+>> assumption.  You are right that we will need update_mmu_cache in the
+>> hugetlb page fault path. Though I'm wondering if we can hide this
+>> update_mmu_cache fucntionality behind the arch specific set_huge_pte
+>> function in the demand paging patch for hugepage.  If so then we may
+>> not need to make any changes in the existing update_mmu_cache API.
+> 
+> Most arches seem to be okay with the API, but it may be more
+> useful/etc. to e.g. explicitly pass the page size, particularly when
+> constant folding is possible.
+> 
+> 
 
-my code is:
+Are you working on the patch to provide this updated API for
+update_mmu_cache.
 
-      1	#include<inttypes.h>
-      2
-      3
-      4 int main()
-      5 {
-      6   uint8_t
-a[8]={1,2,3,4,5,6,7,8},b[8]={0,0,0,0,0,0},i;
-      7   uint8_t *m,*m1;
-      8 
-      9   m=a;
-     10   m1=b;         //i have pointed m1 to b
-     11   for(i=0;i<8;i++)
-     12      printf("%d ",a[i]);
-     13   printf("\n");
-     14   asm("movq (%1), %%mm0 \n"
-     15       "movq %%mm0, (%0) \n"
-     16       :"=r"(m1)
-     17       :"r"(m)
-     18       );
-     19 
-     20   for(i=0;i<8;i++)
-     21      printf("%d ",b[i]);
-     22   return 0;
-     23 }
-well this problem is not solved yet. because when i
-display b array then it prints all 0's. according to
-me since i have initialised this m1 pointer then by b
-then b whould have all the values which i have moved
-
-some have advised me to use arrays here as constraint
-but i want to use pointers. i am using r constraint
-and it says it says that m1 will use a register (i
-guess there is no problem in that)
-
-what is the complete problem HOW THIS ASSEMBLER IS
-TREATING THIS POINTER m1?
-
-thanks 
-
-ankit jain
-
-________________________________________________________________________
-Yahoo! Messenger - Communicate instantly..."Ping" 
-your friends today! Download Messenger Now 
-http://uk.messenger.yahoo.com/download/index.html

@@ -1,58 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVAMTuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVAMTnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVAMTuq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVAMTrk
+	id S261404AbVAMTnR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVAMTki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:47:40 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:60099 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261442AbVAMTn6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:43:58 -0500
-To: "Justin M. Forbes" <jmforbes@linuxtx.org>
-Cc: sander@humilis.net, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Subject: Re: NUMA or not on dual Opteron
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
-	<200501121824.44327.rathamahata@ehouse.ru>
-	<Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
-	<20050113094537.GB2547@favonius> <41E6472B.5020701@imag.fr>
-	<20050113170733.GA14524@linuxtx.org>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 13 Jan 2005 20:43:54 +0100
-In-Reply-To: <20050113170733.GA14524@linuxtx.org> (Justin M. Forbes's
- message of "Thu, 13 Jan 2005 11:07:33 -0600")
-Message-ID: <m1k6qh2jyd.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Thu, 13 Jan 2005 14:40:38 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:52973 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261402AbVAMTf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:35:28 -0500
+Message-ID: <41E6CD92.9030508@comcast.net>
+Date: Thu, 13 Jan 2005 14:35:46 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Norbert van Nobelen <norbert-kernel@edusupport.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org> <41E6C507.5050302@comcast.net> <200501132022.03472.norbert-kernel@edusupport.nl>
+In-Reply-To: <200501132022.03472.norbert-kernel@edusupport.nl>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin M. Forbes" <jmforbes@linuxtx.org> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-> This is somewhat true.  There are 2 types of dual opteron boards. Those in
-> the $200 US range only have one memory bank, which is attached to CPU0.
-> They operate as a single node, and may perform better with numa turned off.
-> Those in the $400+ range tend to have one bank per CPU and will certainly
-> perform better with numa on.  They do usually have a bios option to
-> interleave the nodes which would show up as a single node, and probably
-> perform better with numa turned off, but a better solution is to turn off
-> the node interleave in bios and run the kernel with numa support.
-> Basically if you have 2 CPUs and only one memory bank, maybe turning numa
-> off will give better performance, but if you have one memory bank per CPU
-> numa should be on.
 
-[agreed, except:]
+Norbert van Nobelen wrote:
+> On Thursday 13 January 2005 19:59, you wrote:
+> 
 
-There is no significant performance difference between NUMA on and off
-on the crippled boards. So best is to always enable CONFIG_NUMA on x86-64. 
-The distribution kernels for x86-64 should ship in this configuration
-too.
+[...]
 
-I would recommend to always disable node interleaved on the non crippled
-board with multiple memory banks. Most boards ship with this disabled by 
-default, only a few enable it.
+>>You can't guarantee you can guess a password.  You could for example
+>>write a pam module that mandates a 3 second delay on failed
+>>authentication for a user (it does it for the console currently; use 3
+>>separate consoles and you can do the attack 3 times faster).  Now you
+>>have to guess the password with one try every 3 seconds.
+> 
+> 
+> Already done, actually standard practice. This does not mean actually that you 
+> can not guess a password, just that it will take longer (on average).
+> Luck and some knowledge about the system and people speeds up the process, so 
+> the standard procedure if you really want to get into a system with a 
+> password is to get information.
+> 
+> 
 
--Andi
+I'm pretty sure that you only get a 3 second delay on the specific
+console.  I've mistyped my root password on tty1, and switched to tty2
+to log in before the delay was up.
+
+as a test, switch to vc/0 and enter 'root', then press enter.  Type a
+bogus password.
+
+Switch to vc/1, and enter 'root', then press enter.  Type your real root
+password.
+
+Go back to vc/0 and hit enter so you submit your false password, then
+immediately switch to vc/1 and hit enter.
+
+You should get a bash shell and have enough time to switch to vc/0 and
+see it still waiting for a second or two, before returning "login
+incorrect."
+
+Automating an attack on about 10 different ssh connections shouldn't be
+a problem.  Just keep creating them.
+
+> 
+>>aA1# 96 possible values per character, 8 characters.  7.2139x10^15
+>>combinations.  It takes 686253404.7 years to go through all those at one
+>>every 3 seconds.  You've got a good chance at half that.
+>>
+>>This isn't "hard," it's "infeasible."  I think the idea is to make it so
+>>an attacker doesn't have to put lavish amounts of work into creating an
+>>exploit that reliably re-exploits a hole over and over again; but to
+>>make it so he can't make an exploit that actually works, unless it works
+>>only by rediculously remote chance.
+>>
+>>
+>>>So all security issues are about balancing cost vs gain. I'm convinced
+>>>that the gain from openness is higher than the cost. Others will
+>>>disagree.
+>>
+>>Yes.  Nobody code audits your binaries.  You need source code to do
+>>source code auditing.  :)
+>>
+>>
+>>>		Linus
+>>>-
+>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+>>>in the body of a message to majordomo@vger.kernel.org
+>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB5s2QhDd4aOud5P8RAlwhAJ9G8SWcxq1HFCM58VIeEWJPevg9qgCeMpxt
+MHGB3N3TMy5n8MWnkUctqhM=
+=3mYn
+-----END PGP SIGNATURE-----

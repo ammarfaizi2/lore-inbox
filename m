@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUFOSYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265824AbUFOSYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUFOSYG (ORCPT <rfc822;willy@w.ods.org>);
+	id S265824AbUFOSYG (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Jun 2004 14:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUFOSWs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUFOSW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 14:22:48 -0400
-Received: from dsl254-100-188.nyc1.dsl.speakeasy.net ([216.254.100.188]:23941
-	"EHLO chewbaka.solo.net") by vger.kernel.org with ESMTP
-	id S265823AbUFOSVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 14:21:08 -0400
-Date: Tue, 15 Jun 2004 14:21:13 -0400 (EDT)
-From: Hans Solo <hans@hanssolo.org>
-X-X-Sender: hans@chewbaka.solo.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: ieee1394 still utterly broken in 2.6.7-rc3
-Message-ID: <Pine.LNX.4.44.0406151404160.3815-100000@chewbaka.solo.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Jun 2004 14:22:58 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:22858 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265682AbUFOSWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 14:22:22 -0400
+Date: Tue, 15 Jun 2004 11:32:29 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: ak@muc.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       anton@samba.org
+Subject: Re: NUMA API observations
+Message-Id: <20040615113229.054e02e2.pj@sgi.com>
+In-Reply-To: <40CF33D6.80302@colorfullife.com>
+References: <40CE824D.9020300@colorfullife.com>
+	<20040615110320.GD50463@colin2.muc.de>
+	<40CF33D6.80302@colorfullife.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred wrote:
+> What's the largest number of cpus that are supported right now? 256?
 
-Ben Collins wrote:
-> On Tue, Jun 15, 2004 at 05:53:54PM +0200, Felix von Leitner wrote:
->>
->> It's an Athlon mainboard with VIA chipset.
->
-> Is firewire built-in to the kernel? I haven't seen any of these problems
-> _at all_, but I use modules. I have a 250gig firewire disk that is used
-> for nightly backups for 5 systems via rsync and ssh, and it never shows
-> any problems.
+Kernels for SGI's SN2 boxes are usually compiled with NR_CPUS == 512.
+A quick grep of the default config files shows that is the largest.
 
-I have a similar setup here; 250Gb on an Oxford922 doing nightly
-backups via rsync. Athlon mainboard with VIA chipset. ieee1394,
-ohci1394, sbp2 as modules. I get seemingly random crashes that
-freeze the system solid, no oopses. Sometimes I get a few of these:
+> First call sysctl or whatever. If it fails, then glibc can assume 256. 
 
-Jun 13 06:12:14 chewbaka kernel: ieee1394: sbp2: aborting sbp2 command
-Jun 13 06:12:14 chewbaka kernel: Write (10) 00 00 89 4c 33 00 00 08 00 
+Yes, one _could_ write code such as that.
 
-but I can't decide if this is related.
-
-If I unplugg the drive and then re-plugg it, the failure is
-easiy reproduced with some heavy disk activity (copying a file-
-system to the firewire disk for example).
-
-Any idea about where to start looking? I have tried various
-options for sbp2 in /etc/modprobe.conf. Let me know if you
-want my .config etc.
-
-
-Thanks,
-
-Hans
-
-
+Spend a little time looking at what glibc has done so far with these
+API's.  You will then doubt that the code you recommend would actually
+happen consistently.  Be forewarned - if you are on anti-depressant
+medications, make sure your prescription is filled first.
 
 -- 
-()  ascii ribbon campaign - against html e-mail
-/\                        - against microsoft attachments
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

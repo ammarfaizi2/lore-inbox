@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270764AbTGVNJr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 09:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbTGVNJq
+	id S270508AbTGVNJM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 09:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTGVNJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 09:09:46 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:64921 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S270764AbTGVNJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 09:09:40 -0400
-Date: Tue, 22 Jul 2003 15:24:15 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Samuel Flory <sflory@rackable.com>, Charles Lepple <clepple@ghz.cc>,
-       michaelm <admin@www0.org>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: Make menuconfig broken
-Message-ID: <20030722132415.GA19115@ucw.cz>
-References: <20030721163517.GA597@www0.org> <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc> <3F1C8739.2030707@rackable.com> <3F1C888B.8040500@rackable.com> <Pine.LNX.4.44.0307221146120.714-100000@serv>
+	Tue, 22 Jul 2003 09:09:11 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:44255 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270508AbTGVNJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 09:09:08 -0400
+Date: Tue, 22 Jul 2003 14:23:33 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Asfand Yar Qazi <email@asfandyar.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA kt600 chipset supported in Linux?
+Message-ID: <20030722132333.GA30567@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Asfand Yar Qazi <email@asfandyar.cjb.net>,
+	linux-kernel@vger.kernel.org
+References: <3F1CEAFB.2000607@asfandyar.cjb.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307221146120.714-100000@serv>
+In-Reply-To: <3F1CEAFB.2000607@asfandyar.cjb.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 11:50:47AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 21 Jul 2003, Samuel Flory wrote:
-> 
-> >   Try this in 2.6.0-test1:
-> > rm .config
-> > make mrproper
-> > make menuconfig
-> > 
-> >   There is no option for CONFIG_VT, and CONFIG_VT_CONSOLE under 
-> > character devices in "make menuconfig.
-> 
-> Try enabling CONFIG_INPUT.
-> 
-> Vojtech, how about the patch below? This way CONFIG_VT isn't hidden behind 
-> CONFIG_INPUT, but CONFIG_INPUT is selected if needed.
+On Tue, Jul 22, 2003 at 08:42:51AM +0100, Asfand Yar Qazi wrote:
+ > As subject really: I don't want any nVidia proprietry rubbish, just nice 
+ > clean vanilla kernel configuring and running.
+ > 
+ > For both 2.4 and 2.6?
 
-Fine with me.
+AGP at least isn't supported on the KT600. Though it should be
+a case of just adding the PCI ID. For AGP x8 you'll need 2.5.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+		Dave

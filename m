@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUJOShL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268303AbUJOSjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268295AbUJOShL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 14:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUJOShL
+	id S268303AbUJOSjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 14:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUJOShe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 14:37:11 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:5801 "EHLO
+	Fri, 15 Oct 2004 14:37:34 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:6313 "EHLO
 	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S268295AbUJOSgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 14:36:50 -0400
+	id S268298AbUJOSg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 14:36:56 -0400
 From: "Kendall Bennett" <KendallB@scitechsoft.com>
 Organization: SciTech Software, Inc.
-To: "Antonino A. Daplas" <adaplas@hotpop.com>, linux-kernel@vger.kernel.org
+To: Gerd Knorr <kraxel@bytesex.org>, linux-fbdev-devel@lists.sourceforge.net
 Date: Fri, 15 Oct 2004 11:36:04 -0700
 MIME-Version: 1.0
 Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-fbdev-devel@lists.sourceforge.net,
-       penguinppc-team@lists.penguinppc.org
-Message-ID: <416FB624.17156.1D23C23@localhost>
-In-reply-to: <200410150827.38943.adaplas@hotpop.com>
+CC: linux-kernel@vger.kernel.org, penguinppc-team@lists.penguinppc.org
+Message-ID: <416FB624.27698.1D23BA6@localhost>
+In-reply-to: <87d5zkqj8h.fsf@bytesex.org>
 References: <416E6ADC.3007.294DF20D@localhost>
 X-mailer: Pegasus Mail for Windows (4.21c)
 Content-type: text/plain; charset=US-ASCII
@@ -28,50 +27,42 @@ X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@hotpop.com> wrote:
+Gerd Knorr <kraxel@bytesex.org> wrote:
 
-> On Friday 15 October 2004 03:02, Kendall Bennett wrote:
-> > So what we would like to find out is how much interest there might be in
-> > both an updated VESA framebuffer console driver as well as the code for
-> > the Video card BOOT process being contributed to the maintstream kernel.
-> > If there is interest, we would start out by first contributing the core
-> > emulator and Video BOOT code, and then work on building a better VESA
-> > framebuffer console driver.
-> >
-> > So what do you guys think?
+> "Kendall Bennett" <KendallB@scitechsoft.com> writes:
 > 
-> I'm for it, if you can get the code in the kernel.  If not, what
-> are the arguments against doing this in userspace? 
+> > Note that the SNAPBoot code uses the x86emu BIOS emulator project as the 
+> > core CPU emulation technology, and project we have been actively involved 
+> > with for many years since the licensing on the project was changed to 
+> > MIT/BSD style licensing and incorporated into the XFree86 project.
+> 
+> > So what we would like to find out is how much interest there might be in 
+> > both an updated VESA framebuffer console driver as well as the code for 
+> > the Video card BOOT process being contributed to the maintstream kernel. 
+> 
+> It certainly would be nice to have that.  Not nessesarely in the
+> kernel through, people tend not to like such complex stuff like
+> cpu emulation in the kernel for good reasons.  
 
-At least for the 2.4 kernels it is not possible to run code from user 
-space early enough in the boot sequence to bring up the video card when 
-the framebuffer console driver starts. Alan Cox said there is work under 
-way for 2.6 that might allow this, but it would have to be done very 
-early in the boot sequence.
+Well think about it as an x86 p-code interpreter then ;-) Kind of like a 
+forth interpreter for Open Firmware but we use an x86 image instead.
 
-Remember this project is for non-x86 platforms such as PowerPC and MIPS 
-embedded machines where there is no way to set a graphics mode using the 
-BIOS before the kernel starts loading (well, you can do something using U-
-Boot but a lot of projects don't always use U-Boot).
+> The kernel can run userspace apps (modprobe, hotplug), that
+> mechanism could be used to invoke a userspace tool which does the
+> boot / mode switching. Having it in userspace likely also makes it
+> easier to share code with X11. 
 
-> If you remember about 2 years ago, there was a thread which you
-> started about vesafbd.  From that, I've worked on vm86d which is a
-> generic approach to running BIOS code in user space. I stopped
-> development on this though, but it should be easy to revive. 
+I agree entirely, provided we can find a way to get this to run really 
+early in the boot sequence. We need this for non-x86 embedded machines 
+such as PowerPC and MIPS, not for x86 platforms where the BIOS can be 
+called from the boot loader easily.
 
-Yes, I am aware of this project. It is a great project for x86 platforms, 
-but falls short for non-x86 due to the inability to set a basic display 
-mode prior to user space access becoming available.
+> Have you talked to the powermanagement guys btw.?  One of the
+> major issues with suspend-to-ram is to get the graphics card back
+> online, and SNAPBoot might help to fix this too.  I'm not sure a
+> userspace solution would work for *that* through. 
 
-> There is also vesafb-tng. I think it runs BIOS code in kernel
-> space. 
-
-I am not familiar with that. Can you point me to a URL?
-
-> The video BOOT code is also nice, especially for non-primary
-> graphics cards. 
-
-Yep.
+That is a good point. Another good reason to have the code in there ;-)
 
 Regards,
 

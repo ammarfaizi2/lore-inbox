@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129081AbRBAGFi>; Thu, 1 Feb 2001 01:05:38 -0500
+	id <S129129AbRBAGGS>; Thu, 1 Feb 2001 01:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129129AbRBAGF2>; Thu, 1 Feb 2001 01:05:28 -0500
-Received: from cx838204-a.alsv1.occa.home.com ([24.16.83.66]:33548 "HELO
-	gw.rupa.com") by vger.kernel.org with SMTP id <S129081AbRBAGFN>;
-	Thu, 1 Feb 2001 01:05:13 -0500
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Andries.Brouwer@cwi.nl, mlord@pobox.com, ole@linpro.no,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problems with Promise IDE controller under 2.4.1
-In-Reply-To: <Pine.LNX.4.10.10101311201390.13711-100000@master.linux-ide.org>
-From: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
-Mail-Copies-To: never
-Date: 31 Jan 2001 22:05:08 -0800
-In-Reply-To: <Pine.LNX.4.10.10101311201390.13711-100000@master.linux-ide.org> (Andre Hedrick's message of "Wed, 31 Jan 2001 12:03:04 -0800 (PST)")
-Message-ID: <m3hf2fdjl7.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129336AbRBAGGM>; Thu, 1 Feb 2001 01:06:12 -0500
+Received: from npt12056206.cts.com ([216.120.56.206]:8461 "HELO
+	forty.spoke.nols.com") by vger.kernel.org with SMTP
+	id <S129129AbRBAGGF>; Thu, 1 Feb 2001 01:06:05 -0500
+Date: Wed, 31 Jan 2001 22:06:03 -0800
+From: David Rees <dbr@spoke.nols.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK
+Message-ID: <20010131220603.D1192@spoke.nols.com>
+Mail-Followup-To: David Rees <dbr@spoke.nols.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E14O1Qe-00021Z-00@qiwi.ai.mit.edu> <3A7852A9.1060600@AnteFacto.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A7852A9.1060600@AnteFacto.com>; from Padraig@AnteFacto.com on Wed, Jan 31, 2001 at 06:00:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
-
-> On 31 Jan 2001, Rupa Schomaker wrote:
+On Wed, Jan 31, 2001 at 06:00:09PM +0000, Padraig Brady wrote:
+> Chris Hanson wrote:
 > 
-> > Andre Hedrick <andre@linux-ide.org> writes:
+> >    Date: Wed, 31 Jan 2001 17:48:50 +0000
+> >    From: Padraig Brady <Padraig@AnteFacto.com>
 > > 
+> >    Are you using the 3c59x driver?
 > > 
-> > > > But there is no indication of what the problems could be,
-> > > > or what he thinks the geometry should be (and why).
-> > > > I see nothing very wrong in the posted data.
-> > > 
-> > > We agree Andries, but the enduser wants to see stuff the same.
-> > 
-> > In my case, I have two identical Maxtor drives, but they reported
-> > different geometry.  How could that be?  Move the "virgin" drive to
-> > the motherboard IDE controller and suddenly the geometry is the same.
-> > Use fdisk and partition the disk, write it, and then move to the
-> > promise controller and the "correct" geometry was used (that is, it is
-> > now the same as when hooked up to the motherboard ide controller).
-> > 
-> > Why was it important to me?  I'm doing RAID1 and it is really nice to
-> > have the same geometry so that the partition info is the same between
-> > the two drives.   Makes life easier.
+> > Yes.
 > 
-> Please read the above and pass the geometry to the kernel.
-> Mother boards have to do a translation to use the drive completely.
+> Can we sort this out once and for all? There are a few emails
+> everyday relating to this bug.
+> 
+> The following patch posted by "Troels Walsted Hansen" <troels@thule.no>
+> on Jan 11th fixes this. The problem is that when 2 consequtive
+> NULLs are sent to klogd it goes into a busy loop. Andrew Mortons
+> 3c59x driver does this, but also on Jan 11th he replied that he had
+> fixed it. I'm using 2.4ac4 with no problems, so I presume some
+> of these patches have been lost along the way?
+<snip of patch>
 
-Andre,
+And if you are using RedHat, you can also grab the latest sysklogd
+from rawhide which includes the patch:
+ftp://ftp.redhat.com/rawhide/i386/RedHat/RPMS/sysklogd-1.4-5.i386.rpm
 
-But now it doesn't matter.  The drive was tainted (fdisk run while
-attached to the mainboard controller) and now that geometry is
-"stuck".  <shrug>  I was mostly explaining why it is nice to get the
-same geometry on two identical drives (RAID1 is easier for the human
-to deal with).
-
--- 
--rupa
+-Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

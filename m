@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUD3OtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUD3PMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265214AbUD3OtN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 10:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUD3OtN
+	id S265119AbUD3PMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 11:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUD3PMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 10:49:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49379 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265214AbUD3OtJ
+	Fri, 30 Apr 2004 11:12:32 -0400
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:48774 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S265119AbUD3PMb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 10:49:09 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Peter Williams <peterw@aurema.com>
+	Fri, 30 Apr 2004 11:12:31 -0400
+Date: Fri, 30 Apr 2004 16:06:33 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@einstein.homenet
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Marc Boucher <marc@linuxant.com>, Sean Estabrooks <seanlkml@rogers.com>,
+       <koke@sindominio.net>, <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>, <riel@redhat.com>,
+       <david@gibson.dropbear.id.au>, <torvalds@osdl.org>,
+       <miller@techsource.com>, <paul@wagland.net>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 16:49:56 +0200
-User-Agent: KMail/1.5.3
-Cc: Marc Boucher <marc@linuxant.com>, Sean Estabrooks <seanlkml@rogers.com>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Wagland <paul@wagland.net>,
-       Rik van Riel <riel@redhat.com>, Timothy Miller <miller@techsource.com>,
-       koke@sindominio.net, Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Gibson <david@gibson.dropbear.id.au>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <200404300618.37718.bzolnier@elka.pw.edu.pl> <4091D6D4.8070507@aurema.com>
-In-Reply-To: <4091D6D4.8070507@aurema.com>
+In-Reply-To: <40920881.6070300@pobox.com>
+Message-ID: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404301649.56477.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 of April 2004 06:32, Peter Williams wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Friday 30 of April 2004 04:15, Marc Boucher wrote:
-> >>Dear Sean,
-> >>
-> >>On Apr 29, 2004, at 7:55 PM, Sean Estabrooks wrote:
-> >>>Perhaps others on this list are getting as tired as I am of your using
-> >>>the term "religious bias" as a negative connotation against people who
-> >>>support and protect the open source nature of Linux.   Maybe you could
-> >>>at least pretend to respect the people who you supposedly apologized
-> >>>to.
-> >>
-> >>I not only highly respect Rusty but have closely worked and been
-> >>friends with him for several years. The same applies to several other
-> >>kernel developers.
-> >>
-> >>Please don't get me wrong. We are entirely for the open-source nature
-> >>of Linux, and I have been personally contributing for the last 15 years
-> >>to many open-source projects (for examples, see the AUTHORS section of
-> >>"man iptables", or search google for my previous email addresses
-> >>marc@mbsi.ca & marc@cam.org to get more historical background).
-> >
-> > Well, people change over time.  8)
-> >
-> > from http://www.linuxant.com/driverloader/
-> >
-> > "DriverLoader technology is the ideal Linux solution to support devices
-> > for which no adequate native open-source drivers are available. It also
-> > allows vendors to drastically reduce time to market or eliminate the need
-> > to support multiple drivers for Windows and Linux. By using the same
-> > driver on both platforms, significant resources can be saved."
-> >
-> > Rusty was right.
->
-> Why did you omit the next paragraph (which completes the story):
->
-> "We have attempted to reduce the inconvenience of binary-only drivers by
-> separating the proprietary code from the operating-system specific code.
-> The latter is provided in source form, allowing users to install the
-> drivers under any supported version (2.4 or later) of the Linux kernel."
+On Fri, 30 Apr 2004, Jeff Garzik wrote:
+> DriverLoader significantly lowers that cost, while not providing an open 
+> source solution at all.
 
-It is unimportant here, using GPL-ed wrappers to load
-closed-source drivers is like using LILO to boot Windows. ;)
+Ah, I see.... that makes a HUGE difference. Now I understand what the fuss
+is all about. So, that is why everyone jumped on Marc Boucher's throat
+trying to annihilate, humiliate, frighten by unsubstantiated allegations
+and generally grind him into tiny specks of dust, at the same time falsely
+pretending that all the fuss was only about that silly '\0' byte they 
+left in their license string (I wish they knew better not to do that --- 
+there are millions of ways to achieve what they want).
 
-Open-source drivers are one of the fundamental advantages
-of Linux and drivers are part of operating system.
+Why didn't someone say that from the beginning, that what he (Marc 
+Boucher's company) is doing was to lower the cost of avoiding to support 
+the native Linux drivers and that is certainly damaging to us, though we 
+can't really do anything about it because it is fair and perfectly legal. 
+In fact, the only thing we can do is to make their life harder (i.e. 
+by being unfair) and reduce the number of GPL-exported symbols to almost 
+nothing.
 
-Splitting driver by "separating the proprietary code from the
-operating-system specific code." weakens this advantage.
+Imho, it is best when people honestly state what the goal and the reasons 
+of debate are, instead of unacceptable and unfair techniques such as lying 
+about GPL directory content etc.
 
-There is a question about integrity when you say that you promote
-open-source nature of Linux but you don't promote open-source drivers.
+I think you (Jeff) have pointed out the key thing and it explained 
+everything very nicely (at least to me, it did). Thank you. I always found 
+your emails informative and to the point :)
 
-Regards,
-Bartlomiej
+Kind regards
+Tigran
 

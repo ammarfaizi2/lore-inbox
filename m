@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129195AbQKFRFz>; Mon, 6 Nov 2000 12:05:55 -0500
+	id <S129213AbQKFRf4>; Mon, 6 Nov 2000 12:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129093AbQKFRFe>; Mon, 6 Nov 2000 12:05:34 -0500
-Received: from puce.csi.cam.ac.uk ([131.111.8.40]:52622 "EHLO
-	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129089AbQKFRF1>; Mon, 6 Nov 2000 12:05:27 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-Date: Mon, 6 Nov 2000 17:01:36 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: David Woodhouse <dwmw2@infradead.org>, Keith Owens <kaos@ocs.com.au>,
+	id <S129525AbQKFRfq>; Mon, 6 Nov 2000 12:35:46 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:20212 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129213AbQKFRf3>;
+	Mon, 6 Nov 2000 12:35:29 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E13spve-0006Pt-00@the-village.bc.nu> 
+In-Reply-To: <E13spve-0006Pt-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
         linux-kernel@vger.kernel.org
-In-Reply-To: <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl>
-In-Reply-To: <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl>
-MIME-Version: 1.0
-Message-Id: <00110617033201.01646@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Nov 2000 17:34:33 +0000
+Message-ID: <9399.973532073@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2000, Horst von Brand wrote:
-> [Chopped down Cc: list]
-> "James A. Sutherland" <jas88@cam.ac.uk> said:
-> > On Mon, 06 Nov 2000, David Woodhouse wrote:
-> 
-> [...]
-> 
-> > > It does not know them. Correct. But with persistent module storage, it 
-> > > _could_ know them.
-> 
-> > No it cannot. The desired levels have not been defined: there are no
-> > desired levels to determine! Don't tamper with settings you don't need
-> > to. 
-> 
-> The problem (AFAIU) is that if the levels aren't set on startup, they are
-> random in some cases.
 
-So set them on startup. NOT when the driver is first loaded. Put it in
-the rc.d scripts.
+alan@lxorguk.ukuu.org.uk said:
+> > No! The best way to do it are just *persistently loaded* modules.
+> > It's THAT simple!
+>
+ So you want to split every sound driver into two or more modules ? 
 
-> So you'd have to save (at least) the fact that they
-> have been initalized. 
+The point here is that although I've put up with just keeping the sound 
+driver loaded for the last few years, permanently taking up a large amount 
+of DMA memory, the inter_module_xxx stuff that Keith is proposing would 
+give us a simple way of storing the data which we want to store. 
 
-No, you don't.
+It's even simpler (and cleaner) than having to split all the sound drivers 
+up into data and worker modules.
 
-> Just that would be easy: Set aside a word in the
-> kernel, which is set to 0 when booting, and which then gets the value 1
-> when the hardware is initialized.
+Someone suggested combining the 'data' modules so that one data module was 
+shared by different 'worker' modules.
 
-Why bother? Just set the settings *explicitly* on boot, rather than in the
-driver itself.
+Build that into the kernel rather than making it a module.
 
-> For more fancy stuff, splitting the
-> module into data/code (as I suggested) should do the trick with minimal
-> impact on the rest.
+Call its functions 'inter_module_get' et al.
 
-No need. Let userspace save it somewhere, if that's needed.
+We seem to have returned to what I was suggesting in the first place.
+
+Being able to do it completely in userspace would be neater, though.
+
+--
+dwmw2
 
 
-James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSHGKp6>; Wed, 7 Aug 2002 06:45:58 -0400
+	id <S316951AbSHGL0s>; Wed, 7 Aug 2002 07:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317302AbSHGKp6>; Wed, 7 Aug 2002 06:45:58 -0400
-Received: from dsl-213-023-062-133.arcor-ip.net ([213.23.62.133]:31751 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S317194AbSHGKp6>;
-	Wed, 7 Aug 2002 06:45:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Feiler <kiza@gmx.net>
-To: Brad Hards <bhards@bigpond.net.au>, Greg KH <greg@kroah.com>
-Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
-Date: Wed, 7 Aug 2002 12:50:33 +0200
-User-Agent: KMail/1.4.1
-Cc: Tyler Longren <tyler@captainjack.com>, LKML <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-References: <20020805003427.7e7fc9f4.tyler@captainjack.com> <20020805165601.GA27503@kroah.com> <200208060702.29360.bhards@bigpond.net.au>
-In-Reply-To: <200208060702.29360.bhards@bigpond.net.au>
-X-PGP-KeyID: 0x561D4FD2
-X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S316957AbSHGL0r>; Wed, 7 Aug 2002 07:26:47 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:32519 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316951AbSHGL0r>; Wed, 7 Aug 2002 07:26:47 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208071250.44353.kiza@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15697.1225.84051.277799@laputa.namesys.com>
+Date: Wed, 7 Aug 2002 15:30:17 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: kernel thread exit race
+In-Reply-To: <1028722283.18156.274.camel@irongate.swansea.linux.org.uk>
+References: <15696.59115.395706.489896@laputa.namesys.com>
+	<1028719111.18156.227.camel@irongate.swansea.linux.org.uk>
+	<15696.61666.452460.264138@laputa.namesys.com>
+	<1028722283.18156.274.camel@irongate.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Tom-Swifty: "You pinhead," Tom said pointedly.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Alan Cox writes:
+ > On Wed, 2002-08-07 at 11:05, Nikita Danilov wrote:
+ > > Ah I see, thank you and Russell. But this depends on no architecture
+ > > ever accessing spinlock data after letting waiters to run, otherwise
+ > > there still is (tiny) window for race at the end of complete() call,
+ > > right?
+ > 
+ > complete() as opposed to spinlocks/semaphores is defined to be safe to
+ > free the object once the complete finishes
 
-Hello all,
+So, complete() is not-arch dependent because spinlocks are "good" in all
+architectures? complete() ends with spin_unlock_irqrestore() so it
+cannot be any better than spinlocks, until there is some hidden magic.
 
-I have another addition to this thread. I found the same problem happening to 
-my analog joystick. It's connected with a SBLive gameport. Compiling the 
-driver into the kernel (or using 2.4.18 with the driver as module) gives:
+Let me clarify this. Suppose there is some obscure architecture that
+maintains in spinlocks some additional data for debugging. Then,
 
-gameport0: Emu10k1 Gameport at 0xd000 size 8 speed 1242 kHz
-input0: Analog 3-axis 4-button joystick at gameport0.0 [TSC timer, 898 MHz 
-clock, 832 ns res]
+complete_and_exit()->complete()->spin_unlock_irqrestore() 
 
-Compiling this driver as a module with 2.4.19:
+"wakes up" thread on another CPU and proceeds to access spin-lock data
+(to check/update debugging information, for example), but by this time
+woken up thread manages to unload module and to un-map page containing
+spin-lock data.
 
-analog.c: Unknown joystick device found  (data=0x2, gameport0), probably n
-ot analog joystick.
+ > 
 
-So maybe the hid mouse problem is not withing the USB code, but somewhere 
-else?
-
-- -Oliver
-
-- -- 
-Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
-http://www.lionking.org/~kiza/  <--   homepage
-PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
-http://www.lionking.org/~kiza/journal/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9UPuEOpifZVYdT9IRAljnAJ9HiUvxhxlMCn57GUzIMAiJuKX31ACeKDeO
-UtsuM3T23F5hXUCvPGANoBE=
-=3pMD
------END PGP SIGNATURE-----
-
+Nikita.

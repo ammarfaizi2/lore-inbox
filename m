@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSFNVxO>; Fri, 14 Jun 2002 17:53:14 -0400
+	id <S314485AbSFNVwG>; Fri, 14 Jun 2002 17:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314500AbSFNVxN>; Fri, 14 Jun 2002 17:53:13 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:27537 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S314491AbSFNVxM>;
-	Fri, 14 Jun 2002 17:53:12 -0400
-Date: Fri, 14 Jun 2002 23:53:09 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206142153.XAA03026@harpo.it.uu.se>
-To: davej@suse.de, johnstul@us.ibm.com
-Subject: Re: [Patch] tsc-disable_A5
-Cc: Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
+	id <S314491AbSFNVwF>; Fri, 14 Jun 2002 17:52:05 -0400
+Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:35572 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S314485AbSFNVwE>; Fri, 14 Jun 2002 17:52:04 -0400
+Date: Fri, 14 Jun 2002 17:52:04 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+X-X-Sender: <becker@presario>
+To: Matthew Hall <matt@ecsc.co.uk>
+cc: Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] sundance on d-link dfe-580tx
+In-Reply-To: <1024070779.972.53.camel@smelly.dark.lan>
+Message-ID: <Pine.LNX.4.33.0206141750480.1042-100000@presario>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002 21:56:54 +0200, Dave Jones wrote:
->On Fri, Jun 14, 2002 at 12:04:18PM -0700, john stultz wrote:
+On 14 Jun 2002, Matthew Hall wrote:
+
+> Sorry to bother you again Donald, but I'm still having problems,
+> The following error comes up when I make modules with the 1.06 version:
 >
-> > .config that looked like:
-> > 
-> > CONFIG_X86_TSC=y
-> > ...
-> > # CONFIG_X86_TSC is not set
-> > So I assumed CONFIG_X86_TSC would still hold. Am I wrong, or is there
-> > another way to do this?
->
->Ugh, I hadn't realised the .config generation was so primitive.
->That's quite unfortunate. That needs fixing at some point.
+> sundance.c: In function `sundance_probe1':
+> sundance.c:464: `pci_tbl' undeclared (first use in this function)
 
-Unless my memory is failing me, I believe the simplest approach
-is to (1) don't set CONFIG_X86_TSC, and (2) pass "notsc" as a
-kernel boot parameter.
+The line before these said that 'pci-scan.h' couldn't be found.
 
-CONFIG_X86_TSC means "the machine has working TSC, period".
-That's an intensional optimisation.
+  ftp://www.scyld.com/pub/network/pci-scan.h
 
-Without CONFIG_X86_TSC, Linux manages without TSC, but will
-detect and use it if it's there.
+Read
+  http://www.scyld.com/network/updates.html
 
-Finally, the "notsc" kernel parameter is for obscure cases
-where the TSC is present, but should not be used for whatever
-reason. I guess the present issue qualifies...
+> I've checked the code of sundance.c, pci-scan.h and kern_compat.c and
+> pci_tbl isn't defined or declared anywhere in these files, am I missing
+> something else, or going crazy?
 
-/Mikael
+-- 
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
+

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132946AbRDEP5c>; Thu, 5 Apr 2001 11:57:32 -0400
+	id <S132949AbRDEQDv>; Thu, 5 Apr 2001 12:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132945AbRDEP5W>; Thu, 5 Apr 2001 11:57:22 -0400
-Received: from m97-mp1-cvx1a.col.ntl.com ([213.104.68.97]:18692 "EHLO
-	[213.104.68.97]") by vger.kernel.org with ESMTP id <S132943AbRDEP5P>;
-	Thu, 5 Apr 2001 11:57:15 -0400
-To: <root@chaos.analogic.com>
-Cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: how to let all others run
-In-Reply-To: <Pine.LNX.3.95.1010404165539.4737A-100000@chaos.analogic.com>
-From: John Fremlin <chief@bandits.org>
-Date: 05 Apr 2001 16:55:50 +0100
-In-Reply-To: "Richard B. Johnson"'s message of "Wed, 4 Apr 2001 17:00:32 -0400 (EDT)"
-Message-ID: <m2itkjwdbt.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132948AbRDEQDc>; Thu, 5 Apr 2001 12:03:32 -0400
+Received: from t2.redhat.com ([199.183.24.243]:17915 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S132947AbRDEQD1>; Thu, 5 Apr 2001 12:03:27 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <911e4990c632.90c632911e49@student.uva.nl> 
+In-Reply-To: <911e4990c632.90c632911e49@student.uva.nl> 
+To: rudmer.vandijk@student.uva.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cannot compile kernel 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+Date: Thu, 05 Apr 2001 17:02:44 +0100
+Message-ID: <18969.986486564@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-> On 4 Apr 2001, John Fremlin wrote:
-> > 
-> > Hi Oliver!
-> > 
-> >  Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
-> > 
-> > > is there a way to let all other runable tasks run until they block
-> > > or return to user space, before the task wishing to do so is run
-> > > again ?
-> > 
-> > Are you trying to do this in kernel or something? From userspace you
-> > can use nice(2) then sched_yield(2), though I don't know if the linux
-> > implementations will guarrantee anything.
-> > 
-> 
-> I recommend using usleep(0) instead of sched_yield(). Last time I
-> checked, sched_yield() seemed to spin and eat CPU cycles, usleep(0)
-> always gives up the CPU.
+Rudmer.vanDijk@student.uva.nl said:
+> compiler (gcc --version): pgcc-2.95.2 
 
-What is wrong with this? sched_yield only yields to processes with
-lower priority (hence suggestion to use nice(2)). Does sched_yield()
-fail to yield in cases when a higher priority process wants to run? 
-usleep() wastes time if no other such process is waiting, surely?
+> I hope i have included enough information for you and that you will be
+>  able to solve my problem. 
 
-[...]
+grep --context pgcc Documentation/Changes
 
--- 
+See also http://www.tux.org/lkml/#s8-9, #s8-5 and indeed most of the rest
+of §8.
 
-	http://www.penguinpowered.com/~vii
+--
+dwmw2
+
+

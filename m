@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317904AbSGPPgo>; Tue, 16 Jul 2002 11:36:44 -0400
+	id <S317869AbSGPPpg>; Tue, 16 Jul 2002 11:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317905AbSGPPgn>; Tue, 16 Jul 2002 11:36:43 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:747 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S317904AbSGPPgm>; Tue, 16 Jul 2002 11:36:42 -0400
-Date: Tue, 16 Jul 2002 17:39:26 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716153926.GR7955@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Gerhard Mack <gmack@innerfire.net>,
-	Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	linux-kernel@vger.kernel.org
-References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net>
+	id <S317868AbSGPPpf>; Tue, 16 Jul 2002 11:45:35 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:48912 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S317865AbSGPPpe>; Tue, 16 Jul 2002 11:45:34 -0400
+Date: Tue, 16 Jul 2002 16:48:17 +0100
+From: Bob Dunlop <bob.dunlop@xyzzy.org.uk>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [GENERIC HDLC LAYER] Messages of a hdlc device
+Message-ID: <20020716164817.B10878@xyzzy.org.uk>
+References: <200207151111.22555.henrique@cyclades.com> <m37kjvg6nq.fsf@defiant.pm.waw.pl> <20020716135818.GB1231@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020716135818.GB1231@conectiva.com.br>; from acme@conectiva.com.br on Tue, Jul 16, 2002 at 03:57:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 11:11:20AM -0400, Gerhard Mack wrote:
+Hi,
 
-> In other words you have a backup system that works some of the time or
-> even most of the time... brilliant!
+On Tue, Jul 16,  Arnaldo Carvalho de Melo wrote:
+> Em Tue, Jul 16, 2002 at 03:10:33PM +0200, Krzysztof Halasa escreveu:
+> > henrique <henrique@cyclades.com> writes:
+> > 
+> > > I'm using the generic hdlc layer with PPP protocol against a Lucent MAX6000. 
+> > > Everything works OK but there a kernel message bothering me:
+> > > 
+> > > 	protocol 0008 is buggy, dev hdlc0
+> > > 
+> > > I get this message nearly once per minute.
+> > > 
+> > > Do anyone know what is this message about ?
+>  
+> > Not sure what exactly causes it. I was getting it while running tcpdump
+> > on PPP device.
+> 
+> This is becoming a FAQ... see net/core/dev.c, line 907 on 2.5:
+> 
+>     /* skb->nh should be correctly
+>        set by sender, so that the second statement is
+>        just protection against buggy protocols.
+>      */
+>     skb2->mac.raw = skb2->data;
+> 
+>     if (skb2->nh.raw < skb2->data || skb2->nh.raw > skb2->tail) {
+>             if (net_ratelimit())
+>                     printk(KERN_DEBUG "protocol %04x is buggy, dev %s\n",
+> 			   skb2->protocol, dev->name);
+>             skb2->nh.raw = skb2->data;
+>     }
 
-Dump is a backup system that works 100% of the time when used as 
-it was designed to: on unmounted filesystems (or mounted R/O).
+Not exactly a FAQ answer though.  How about:
 
-It is indeed brilliant to have it work, even most of the time,
-in conditions it wasn't designed for.
+The error would appear to be benign.  Something in the protocol stack is
+not setting one of the header fields correctly and this code has corrected
+the fault.
 
-Stelian.
+This error is only seen when running network monitoring software such as
+tcpdump as that is the only time the particular code path that detects
+the error is followed.
+
+
+Also shouldn't that be:
+>                     printk(KERN_DEBUG "protocol %04x is buggy, dev %s\n",
+>                          htons(skb2->protocol), dev->name);
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+        Bob Dunlop

@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbTIWSxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbTIWSxH
+	id S262798AbTIWSwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTIWSwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:53:07 -0400
-Received: from lpbproductions.com ([68.98.208.147]:58807 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S262803AbTIWSwm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:52:42 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-       "Johnson, Richard" <rjohnson@analogic.com>
-Subject: Re: Horiffic SPAM
-Date: Tue, 23 Sep 2003 11:53:04 -0700
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com> <20030923183648.GE1269@velociraptor.random>
-In-Reply-To: <20030923183648.GE1269@velociraptor.random>
+	Tue, 23 Sep 2003 14:52:07 -0400
+Received: from [69.26.131.105] ([69.26.131.105]:26540 "EHLO jaz.jportfolio.com")
+	by vger.kernel.org with ESMTP id S262798AbTIWSvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 14:51:12 -0400
+Message-ID: <3F709609.9000206@ofbiz.org>
+Date: Tue, 23 Sep 2003 14:50:49 -0400
+From: Andy Zeneski <jaz@ofbiz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309231153.09298.lkml@lpbproductions.com>
+To: linux-kernel@vger.kernel.org
+Subject: Mouse (PS/2) Problem 2.6.0-test5-bk9
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is my first post to the kernel lists, so please excuse me if I'm 
+not totally informed.
 
-Ive been living in a mail hole theese past few years.. Where does one get this 
-baesyan algorithm ?? 
+I have searched the archives for this, but didn't have much luck. So, 
+please bare with me.
 
-Matt H.
+I have just installed the 2.6.0-test5 kernel moving from 2.4.20/22. I 
+like most of the enhancements, but have a problem with one.
 
-On Tuesday 23 September 2003 11:36 am, Andrea Arcangeli wrote:
-> On Tue, Sep 23, 2003 at 02:11:59PM -0400, Richard B. Johnson wrote:
-> > Hello all,
-> >
-> > I took root@chaos.analogic.com off the linux-kernel list
-> > for a few days so I can trap the spammers and write their
-> > addresses to `ipchains`. I have been getting approximately
-> > 12,000 email messages per day on that system, making it
-> > impossible to use. It's all about the servers spreading
-> > the M$ email virus with the phony message to update to the
->
-> the baesyan algorithm learnt about them pretty quickly, so they don't
-> hurt me anymore (besides some wasted bandwidth).
->
-> I doubt answerning those messages will do any good besides generating
-> more traffic, but I don't know the detail of the virus so I could be
-> wrong.
->
-> Andrea - If you prefer relying on open source software, check these links:
-> 	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-> 	    http://www.cobite.com/cvsps/
-> 	    svn://svn.kernel.org/linux-2.[46]/trunk
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+I have an IBM Thinkpad T30 with both Trackpoint and TouchPad. I disable 
+the touchpad in bios, and only use the trackpoint. I compiled in PS/2 
+support with out the Synaptics support. The mouse works fine, it 
+actually works too good.
 
-iD8DBQE/cJaTleY/n9G/oZ8RAoPjAKCHtX9SsUNSjI+MsXlKwVbxRP5+SwCeIIHB
-SdEfk80hkuGGV1tj3bnU5ns=
-=+yr7
------END PGP SIGNATURE-----
+In the 2.4 kernel, the middle button (when configured in X) would allow 
+me to use the eraser head and scroll, like a wheel mouse. Now, in the 
+2.6 kernel I still have this ability, but the added ability of using 
+this button as an actual middle mouse button. Which can be considered a 
+great enhancement.
+
+However, as soon as you start dragging items around your desktop when 
+only trying to scroll, and random blocks of text gets pasted while 
+scrolling, this becomes a bit annoying.
+
+Are there any patches, which either disable the middle button support 
+(as it was in 2.4) or instead of activating on press, activate on 
+release for paste (maybe time the length of the press and if it was 
+pressed then released, paste if held for x milliseconds don't paste). 
+I'd have to figure out something with the dragging, but that may be 
+something I can configure in X.
+
+Please, any suggestions? I love this new kernel and hate the idea of 
+having to go back when my only major problem is a middle mouse button. :)
+
+Thanks for everything!
+-Andy
+

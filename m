@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSJ1WZv>; Mon, 28 Oct 2002 17:25:51 -0500
+	id <S261542AbSJ1Wax>; Mon, 28 Oct 2002 17:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbSJ1WZu>; Mon, 28 Oct 2002 17:25:50 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13012 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261599AbSJ1WZs>; Mon, 28 Oct 2002 17:25:48 -0500
-Date: Mon, 28 Oct 2002 16:32:07 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rob Landley <landley@trommello.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44: what's .tmp_export-objs for?
-In-Reply-To: <200210281054.16008.landley@trommello.org>
-Message-ID: <Pine.LNX.4.44.0210281626380.26960-100000@chaos.physics.uiowa.edu>
+	id <S261630AbSJ1Wax>; Mon, 28 Oct 2002 17:30:53 -0500
+Received: from momus.sc.intel.com ([143.183.152.8]:32199 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S261542AbSJ1Wav>; Mon, 28 Oct 2002 17:30:51 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE76E2@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+Date: Mon, 28 Oct 2002 14:36:31 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Rob Landley wrote:
+Looks like they don't want us to use "threads" for various reasons. Those
+could be even religious/branding issues, which I have no interests in. My
+interest is to have consistent format/info for HT cpuinfo among the kernels.
 
-> I accidentally did a 2.5.44 kernel build as root rather than my normal user, 
-> so I'm trying to see what clean steps I need to so (as root) to be able to 
-> build the tree again.  A normal make clean failed (permission denied deleting 
-> files), so I did an su and a make clean.  Exit back to normal user, make 
-> clean, life is good, do a make dep, and it complains about the directory 
-> .tmp_export-objs.
+So can you please change like:
+
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "logical cpus\t: %d per package\n",
+smp_num_siblings);
++	}
++#endif
+
+This is consistent with the spec/manual from Intel. They use logical
+processor (and thread :-), physical processor, physical package, etc.
+
+Thanks,
+Jun
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Friday, October 25, 2002 3:15 PM
+To: Nakajima, Jun
+Cc: Robert Love; 'Dave Jones'; 'akpm@digeo.com';
+'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+
+
+On Fri, 2002-10-25 at 22:50, Nakajima, Jun wrote:
+> Sorry,
 > 
-> 1) Why does the build process use a hidden directory?
+> Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for
+example,
+> is already doing it:
 
-The "make dep" stage generates .ver files for all files listed in 
-*/Makefile:export-objs. At the same time, it creates a zero-length file
-corresponding to each .ver file in .tmp_export-objs, which are needed to 
-afterwards construct include/linux/modversions.h, which is basically
+Could do
+> 
+> +#ifdef CONFIG_SMP
+> +	if (cpu_has_ht) {
+> +		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
+> +		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
+> +	}
+> +#endif
 
-	#include <linux/module/path/obj.ver>
 
-for all objects we created the .ver files for earlier. Basically,
-.tmp_export-objs is a complicated way to create a list of filenames,
-the reason we cannot just append names to one file is that multiple
-'make's may run in parallel (make -j), so that appending to a single file
-would be racy.
+Im just wondering what we would then use to describe a true multiple cpu
+on a die x86. Im curious what the powerpc people think since they have
+this kind of stuff - is there a generic terminology they prefer ?
 
-> 2) Why isn't make clean removing something with "tmp" in the name?
-
-Well, for some traditional reasons, there is a distinction between
-"make clean" and "make mrproper", where only the latter really removes 
-everything.
-
---Kai
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVCWXQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVCWXVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbVCWXQg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCWXQg
+	id S262089AbVCWXVE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCWXVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:16:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58009 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261479AbVCWXQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:16:29 -0500
-Message-ID: <4241F8BA.6070108@pobox.com>
-Date: Wed, 23 Mar 2005 18:16:10 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernard Blackham <bernard@blackham.com.au>
-CC: Matt <matt@signalz.com>, linux-kernel@vger.kernel.org
-Subject: Re: Promise SX8 performance issues and CARM_MAX_Q
-References: <20050323175707.GA10481@blackham.com.au>
-In-Reply-To: <20050323175707.GA10481@blackham.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 23 Mar 2005 18:21:04 -0500
+Received: from fire.osdl.org ([65.172.181.4]:729 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262089AbVCWXU5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 18:20:57 -0500
+Date: Wed, 23 Mar 2005 15:20:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: cmm@us.ibm.com, andrea@suse.de, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-Id: <20050323152055.6fc8c198.akpm@osdl.org>
+In-Reply-To: <17250000.1111619602@flay>
+References: <20050315204413.GF20253@csail.mit.edu>
+	<20050316003134.GY7699@opteron.random>
+	<20050316040435.39533675.akpm@osdl.org>
+	<20050316183701.GB21597@opteron.random>
+	<1111607584.5786.55.camel@localhost.localdomain>
+	<20050323144953.288a5baf.akpm@osdl.org>
+	<17250000.1111619602@flay>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernard Blackham wrote:
-> Hi,
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> > It would be interesting if you could run the same test on 2.6.11.  
 > 
-> Playing with a recently acquired Promise SX8 card, we've found
-> similar performance results to Matt's post to lkml a few months back
-> at http://marc.theaimsgroup.com/?l=linux-kernel&m=110175890323356&w=2
-> 
-> It appears that the driver is only submitting one command at a time
-> per port, which is at least one cause of the slowdowns. By raising
-> CARM_MAX_Q from 1 to 3 in drivers/block/sx8.c (it was 3 in an
-> earlier pre-merge incarnation of carmel.c), we're getting very
-> notable speed improvements, with no side effects just yet.
-> 
-> Knowing very little about what this change has actually done, I've a
-> few questions: 
-> 
->  - Should this be considered dangerous?
->  - Why was it taken from 3 to 1?
->  - Is CARM_MAX_Q a number defined (or limited) by the hardware?
+> One thing I'm finding is that it's hard to backtrace who has each page
+> in this sort of situation. My plan is to write a debug patch to walk
+> mem_map and dump out some info on each page. I would appreciate ideas
+> on what info would be useful here. Some things are fairly obvious, like
+> we want to know if it's anon / mapped into address space (& which),
+> whether it's slab / buffers / pagecache etc ... any other suggestions
+> you have would be much appreciated.
 
-In multi-port stress tests, we couldn't get SX8 to function reliably 
-without locking up or corrupting data, with more than one outstanding 
-command.
+You could use
 
-Maybe a new firmware has solved this by now.
+	page-owner-tracking-leak-detector.patch
+	make-page_owner-handle-non-contiguous-page-ranges.patch
+	add-gfp_mask-to-page-owner.patch
 
-	Jeff
+which sticks an 8-slot stack backtrace into each page, recording who
+allocated it.
 
+But that's probably not very interesting info for pagecache pages.
 
-
+Nothing beats poking around in a dead machine's guts with kgdb though.

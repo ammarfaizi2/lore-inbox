@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUHQSGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUHQSIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268370AbUHQSGv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 14:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268369AbUHQSGr
+	id S268368AbUHQSIK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 14:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUHQSIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 14:06:47 -0400
-Received: from gprs214-122.eurotel.cz ([160.218.214.122]:8321 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268363AbUHQSGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 14:06:13 -0400
-Date: Tue, 17 Aug 2004 20:03:13 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: swsusp: fix default and merge upstream?
-Message-ID: <20040817180313.GD19009@elf.ucw.cz>
-References: <20040817111128.GA4164@elf.ucw.cz> <20040817104745.683581dd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817104745.683581dd.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Aug 2004 14:08:10 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:50772 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268374AbUHQSIB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 14:08:01 -0400
+Message-ID: <412247FF.5040301@microgate.com>
+Date: Tue, 17 Aug 2004 13:01:35 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+References: <2a4f155d040817070854931025@mail.gmail.com>
+In-Reply-To: <2a4f155d040817070854931025@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Perhaps now is the right time to merge -mm swsusp up to Linus?
+ismail dönmez wrote:
+> cartman@southpark:~$ echo "foo" > foo
+> cartman@southpark:~$ cat foo
+> foo
+> cartman@southpark:~$ less foo
+> cartman@southpark:~$ 
 > 
-> I suppose so.  The way to do that is for Pat to merge up the various
-> patches which are hanging around and then ask Linus to do the bk pull.
+> As you see less doesn't show up anything. Strace shows this piece of info :
+> 
+> <snip>
+> 
+> open("/dev/tty", O_RDONLY|O_LARGEFILE)  = 3
+> ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, 0xbffff430) = -1 ENOTTY
+> (Inappropriate ioctl for device)
+> 
+> </snip>
+> 
+> Any ideas whats going on?
+> 
+> P.S : 2.6.8 was working just fine.
 
--mm plus two patches I sent today works pretty much okay. Are they
-swsusp-related things in your tree that are not in patrick's bk?
+Since this involves the controlling tty, try backing out
+selinux-revalidate-access-to-controlling-tty.patch
+(available in the broken-out mm patches)
 
-driver-tree changes (enums etc) are pretty much orthogonal and can go
-in anytime later.
-
-> What's the testing status of the new code in bk-power.patch?
-
-Works for me, some users reported success (after being advised to use
-"shutdown" method), and suse pulled it into internal tree and it got
-basic testing there by Stefan. I guess that counts like "pretty well
-tested".
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+--
+Paul Fulghum
+paulkf@microgate.com

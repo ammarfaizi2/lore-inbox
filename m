@@ -1,87 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbUB1VWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 16:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbUB1VWx
+	id S261921AbUB1VYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 16:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbUB1VYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 16:22:53 -0500
-Received: from main.gmane.org ([80.91.224.249]:7850 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261918AbUB1VWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 16:22:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike <Mike@kordik.net>
-Subject: Re: 2.6.3-bk9 QA testing: firewire good, USB printing dead
-Date: Sat, 28 Feb 2004 16:22:45 -0500
-Message-ID: <pan.2004.02.28.21.22.44.153321@kordik.net>
-References: <1077933682.14653.23.camel@wave.gentoo.org> <20040228021040.GA14836@kroah.com> <1077937052.14653.40.camel@wave.gentoo.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: user-0c936ii.cable.mindspring.com
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+	Sat, 28 Feb 2004 16:24:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42664 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261920AbUB1VXv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 16:23:51 -0500
+Message-ID: <404106D7.8050809@pobox.com>
+Date: Sat, 28 Feb 2004 16:23:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH/RFT] libata "DMA timeout" fix
+References: <4040E7B5.4020709@pobox.com> <1078001357.2020.90.camel@mulgrave>
+In-Reply-To: <1078001357.2020.90.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 19:57:32 -0700, Daniel Robbins wrote:
+James Bottomley wrote:
+> On Sat, 2004-02-28 at 13:10, Jeff Garzik wrote:
+> 
+>>===== drivers/scsi/libata-core.c 1.19 vs edited =====
+>>--- 1.19/drivers/scsi/libata-core.c	Wed Feb 25 22:41:13 2004
+>>+++ edited/drivers/scsi/libata-core.c	Sat Feb 28 14:03:18 2004
+>>@@ -2130,6 +2130,14 @@
+>> 				cmd->result = SAM_STAT_CHECK_CONDITION;
+>> 			else
+>> 				ata_to_sense_error(qc);
+>>+
+>>+			/* hack alert! we need this to get past the
+>>+			 * first check in scsi_done().  libata is the
+>>+			 * -only- user of ->eh_strategy_handler() in
+>>+			 * any kernel tree, which exposes some incorrect
+>>+			 * assumptions in the SCSI layer.
+>>+			 */
+>>+			scsi_add_timer(cmd, 2000 * HZ, NULL);
+>> 		} else {
+>> 			cmd->result = SAM_STAT_GOOD;
+>> 		}
+> 
+> 
+> You can't do this.  Supposing there command's delayed, the timer fires
+> and then the command returns with a sense error?  The done will go
+> through automatically completing the command, but your strategy handler
+> will still think it has a failed command to handle.
 
-> On Fri, 2004-02-27 at 19:10, Greg KH wrote:
->> Yes, I am.  Do you get any error messages in your syslog when the
->> printer hangs?
-> 
-> In some cases, I did. In other cases, I did not. Here are some "greatest
-> hits... and I was also turning printers on and off and changing cables
-> and testing different USB ports, so this first batch of log messages
-> could correspond to those types of changes:
-> 
->  Feb 27 10:52:11 [kernel] drivers/usb/class/usblp.c: usblp0: off-line
-> Feb 27 10:52:44 [kernel] drivers/usb/class/usblp.c: usblp0: error -71
-> reading printer status
->                 - Last output repeated 1140 times -
-> Feb 27 10:52:45 [kernel] usb 1-4: USB disconnect, address 9 Feb 27
-> 10:52:45 [kernel] drivers/usb/class/usblp.c: usblp0: error -71 reading
-> printer status Feb 27 10:52:45 [kernel] drivers/usb/class/usblp.c:
-> usblp0: removed
-> 
-> Then when I was doing my initial testing with the Epson Stylus Photo 960
-> and the escputil program (as well as catting printer data directly to
-> the printer,) I saw a bunch of stuff like this:
-> 
-> Feb 27 10:30:30 [kernel] usb 1-4.3: new full speed USB device using
-> address 11 Feb 27 10:30:30 [kernel] ehci_hcd 0000:00:02.2: qh c1b91700
-> (#0) state 1 Feb 27 10:30:30 [kernel] drivers/usb/class/usblp.c: usblp0:
-> USB Bidirectional printer dev 11 if 0 alt 0 proto 2 vid 0x04B8 pid
-> 0x0005 Feb 27 10:31:01 [kernel] drivers/usb/class/usblp.c: usblp0: on
-> fire
-> 
-> Specific symptoms were not having the printers respond to an escputil
-> (Epson printer utility from gimp-print) head cleaning run. On the laser
-> printer, data would get to the printer, but seemingly slowly, and I'd
-> need to hit the "go" button on the printer to get the sheet to print
-> rather than have the printer print on its own. It seems that both
-> printers did not get the full amount of data that they were expecting,
-> and either didn't respond at all or didn't complete the print job
-> without manual assistance.
-> 
-> The problems with the laser printer didn't generally produce any log
-> messages. Those with the Epson (particularly escputil) generally did.
-> 
-> With 2.6.3-bk9, I also had a block of two mainboard USB ports simply
-> stop functioning -- to the point of even no longer sending power to the
-> USB hub that I was using.
-> 
-> Hope that helps and let me know if you need any more info,
-> 
-> Daniel
+hmmm, yeah that will be a problem iff we are not already in the strategy 
+handler.
 
-FYI these problems started for me about two weeks ago. I don't know what
-event started it but I am running the Gentoo distro, with 2.6.3-mm2 (it
-started these probs before 2.6.3-mm2), usb 1.1 OHCI with an Epson C80.
-Print jobs would hang and I had to unplug my usb cable to clear the job. I
-have reinstalled everything having to do with printing and I can now at
-least print but it hangs on the last page. I have to turn the printer
-off/on to continue. I assumed this was a cups issue but it sounds like a
-usb issue with the kernel?
+
+> The correct fix is this, I think (uncompiled, but you get the idea):
+
+Yeah, that's much better.  That function is not exported though ;-)
+
+	Jeff
+
+
 

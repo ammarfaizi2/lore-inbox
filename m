@@ -1,37 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281437AbRKPO62>; Fri, 16 Nov 2001 09:58:28 -0500
+	id <S281448AbRKPP01>; Fri, 16 Nov 2001 10:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281439AbRKPO6I>; Fri, 16 Nov 2001 09:58:08 -0500
-Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:57863 "EHLO
-	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
-	id <S281437AbRKPO6C>; Fri, 16 Nov 2001 09:58:02 -0500
-Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8405730CC1@srvmail-mtl.ubisoft.qc.ca>
-From: Patrick Allaire <pallaire@gameloft.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: gdbserver ?
-Date: Fri, 16 Nov 2001 09:54:58 -0500
+	id <S281449AbRKPP0R>; Fri, 16 Nov 2001 10:26:17 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:45450 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S281448AbRKPP0H>; Fri, 16 Nov 2001 10:26:07 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200111161525.PAA15561@mauve.demon.co.uk>
+Subject: Kmsgdump/...
+To: linux-kernel@vger.kernel.org
+Date: Fri, 16 Nov 2001 15:25:35 +0000 (GMT)
+In-Reply-To: <Pine.LNX.4.33.0111160718370.12990-100000@jbourne2.mtroyal.ab.ca> from "James Bourne" at Nov 16, 2001 07:25:44 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Where can I get gdbserver source or binary package ... its not included with
-Mandrake 8.1
-
-On the web we can find 1000+ page talking about how to use it ... but I cant
-find a place from where to get it.
-
-thank you
-
-
-Patrick Allaire
-mailto:pallaire@gameloft.com
-If you can see it, but it's not there, it's virtual. 
-If you can't see it, but it is there, it's hidden. 
-It you can't see it and it isn't there, it's gone.
-
-
+I've been looking for kmsgdump, or similar for 2.4.xx, but am not 
+finding anything that will patch.
+Can anyone give me some URLs?

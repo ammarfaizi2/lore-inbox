@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTIJLOy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTIJLOx
+	id S262230AbTIJLQV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTIJLQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:14:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:12210 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262001AbTIJLOw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:14:52 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Kernel-janitors] [PATCH] Remove modules.txt
-Date: Wed, 10 Sep 2003 13:14:41 +0200
-User-Agent: KMail/1.5.1
-Cc: kernel-janitors@osdl.org
-References: <20030910075240.F17CB2C75C@lists.samba.org>
-In-Reply-To: <20030910075240.F17CB2C75C@lists.samba.org>
+	Wed, 10 Sep 2003 07:16:21 -0400
+Received: from 11.ylenurme.ee ([193.40.6.11]:61677 "EHLO linking.ee")
+	by vger.kernel.org with ESMTP id S262230AbTIJLQS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 07:16:18 -0400
+Message-ID: <37546.195.80.106.123.1063195928.squirrel@mail.linking.ee>
+Date: Wed, 10 Sep 2003 14:12:08 +0200 (EET)
+Subject: Re: softraid + serverraid locking FS
+From: <elmer@linking.ee>
+To: <arjanv@redhat.com>
+In-Reply-To: <1063181415.5021.0.camel@laptop.fenrus.com>
+References: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
+        <1063181415.5021.0.camel@laptop.fenrus.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.6)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309101314.41460.arnd@arndb.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 September 2003 09:45, Rusty Russell wrote:
-> modules.txt contains mainly ancient information which is replicated
-> in the kconfig help message, README, makefile.txt or the modprobe manual
-> page.  
 
-I found another such gem in Documentation/smp.tex, which was last updated
-more than five years ago. Favorite quote:
+the same problem with vanilla 2.4.22 (SMP kernel on UP hw)
 
- "A single lock is maintained across all processors. This lock is
-  required to access the kernel space."
+for example, after startup:
 
-The whole file has only historic value and should probably be removed
-or have a comment that it does not apply to the current code.
+1. cp -dpR lotsfiles4GB /testcopy
+2. load goes with minutes to 13
+3. /bin/sync  blocks
+4. Ctrl-Z to cp
+5. ps axlef waits 3-10 secs before answer as raid1 sync goes with 14kB/sec
+
+previous problem was without raid sync, currently just it takes time to
+test without it
+NB! the same copy from the same softraid partition to the same softraid
+partition sucks a bit, but load does not grow steadily, remains 3changing raid1sync speed affects a bit the whole thing, but does not end it.
+
+the same copy within serverraid partition is ok.
+
+Currently I havent managed to get softdog into action, but behaviour is
+still bad enough to call it a BUG.
 
 
-	Arnd <><
+
+
+> On Wed, 2003-09-10 at 10:52, elmer@linking.ee wrote:
+>>  cp -dpR lotsfiles2GB /testcopy
+>>
+>>                     SMP x335   UP x335
+>> serverraid-serverraid  OK          OK
+>> softraid-softraid      OK          OK
+>> softraid-serverraid    OK          OK
+>> serverraid5E-softraid  SLEEPY       X
+>> serverraid1E-softraid     X       PROBLEM
+>>
+>> it is redhat AS 2.4.9-25 kernel, SMP kernel for both.
+>
+> that kernel is very old and heavily patched; lkml is not the place to
+> report problems, your Red Hat support contact is...
+
+
+

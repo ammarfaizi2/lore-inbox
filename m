@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbSJIU6X>; Wed, 9 Oct 2002 16:58:23 -0400
+	id <S262089AbSJIU7j>; Wed, 9 Oct 2002 16:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262077AbSJIU6X>; Wed, 9 Oct 2002 16:58:23 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19206
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262076AbSJIU6W>; Wed, 9 Oct 2002 16:58:22 -0400
+	id <S262080AbSJIU7j>; Wed, 9 Oct 2002 16:59:39 -0400
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:43024 "EHLO
+	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
+	id <S262089AbSJIU7i>; Wed, 9 Oct 2002 16:59:38 -0400
+Date: Wed, 9 Oct 2002 17:05:22 -0400
+Message-Id: <200210092105.g99L5MB17433@marc2.theaimsgroup.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: BK kernel commits list
-From: Robert Love <rml@tech9.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <19506.1034196772@passion.cambridge.redhat.com>
-References: <20021009195918.GR26771@phunnypharm.org> 
-	<20021009144414.GZ26771@phunnypharm.org>
-	<20021009.045845.87764065.davem@redhat.com>
-	<18079.1034115320@passion.cambridge.redhat.com>
-	<20021008.175153.20269215.davem@redhat.com>
-	<200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net>
-	<7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com>
-	<27367.1034175300@passion.cambridge.redhat.com>
-	<3DA4882A.8000909@pobox.com>  
-	<19506.1034196772@passion.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 17:02:50 -0400
-Message-Id: <1034197370.753.17.camel@phantasy>
-Mime-Version: 1.0
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 16:52, David Woodhouse wrote:
-
-> Oh, and would anyone mind if, after feeding the mail through diffstat and 
-> seeing zero lines of change, I aborted sending the mail?
-
-You mean so we did not see empty emails (usually those of the form
-"merge from x into y")?
-
-Not only do I not mind, I encourage... please do so.
-
-	Robert Love
-
+On 2002-10-09, "David S. Miller" <davem@redhat.com> wrote: 
+ 
+> I've created: 
+>     bk-commits-head@vger.kernel.org 
+>     bk-commits-24@vger.kernel.org 
+ 
+FYI, I added these to the MARC list archives: 
+ 
+http://marc.theaimsgroup.com/?l=bk-commits-head&r=1&w=2 
+http://marc.theaimsgroup.com/?l=bk-commits-24&r=1&w=2 
+ 
+...Sometime last night, so they've got all of today's traffic. 
+ 
+-- 
+Hank Leininger <hlein@progressive-comp.com>  
+   

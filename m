@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbTJ1Ikd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 03:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTJ1Ikd
+	id S263890AbTJ1IdV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 03:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTJ1IdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 03:40:33 -0500
-Received: from eta.fastwebnet.it ([213.140.2.50]:22180 "EHLO eta.fastwebnet.it")
-	by vger.kernel.org with ESMTP id S263886AbTJ1Ikb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 03:40:31 -0500
-Message-ID: <3F9E2B6C.30000@revicon.com>
-Date: Tue, 28 Oct 2003 09:40:12 +0100
-From: Lars Knudsen <gandalf@revicon.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, mufasa@sis.com.tw
-Subject: SiS900 driver multicast problems and patch.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 28 Oct 2003 03:33:20 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:60934 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263890AbTJ1IdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 03:33:19 -0500
+Subject: Re: [pm] fix time after suspend-to-*
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+Content-Type: text/plain
+Message-Id: <1067329994.861.3.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
+Date: Tue, 28 Oct 2003 09:33:14 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After upgrading to kernel 2.4.22 we discovered that multicast was no 
-longer handled properly by the SiS900. Examining the changes between 
-2.4.19 and 2.4.22 it is clear that the handling of multicast was changed 
-but a bug was introduced.
+On Tue, 2003-10-28 at 00:43, Patrick Mochel wrote:
 
-A simple set_bit call from 2.4.19 was changed to the following:
+> Userspace behavior on suspend transitions is still a bit fuzzy at best. I 
+> am beginning to look at userspace requirements, so if anyone wants to send 
+> me suggestions, no matter how trivial or wacky, please feel free (on- or 
+> off-list). 
 
-u16 mc_filter[16] = {0};
+Many userspace applications are not prepared for suspension, like
+Evolution. When suspending the machine for a long time, all IMAP
+sessions are broken as their counterpart TCP sockets timeout. While
+resuming, Evolution is unable to handle this condition and simply
+informs the network connection has been dropped.
 
-unsigned int bit_nr =
-         sis900_mcast_bitnr(mclist->dmi_addr, revision);
-          mc_filter[bit_nr >> 4] |= (1 << bit_nr);
-
-This will not work for bit_nr larger than 16 and hence the failure. 
-Reverting to use set_bit causes multicast to be handled properly.
-
-\Lars Knudsen
-
---- sis900.c    Mon Oct 27 17:49:36 2003
-+++ sis900.c.orig       Mon Oct 27 17:48:52 2003
-@@ -2101,8 +2101,9 @@
-                rx_mode = RFAAB;
-                for (i = 0, mclist = net_dev->mc_list; mclist && i < 
-net_dev->mc_count;
-                     i++, mclist = mclist->next) {
--                       set_bit(sis900_mcast_bitnr(mclist->dmi_addr, 
-revision),
--                               mc_filter);
-+                       unsigned int bit_nr =
-+                               sis900_mcast_bitnr(mclist->dmi_addr, 
-revision);
-+                       mc_filter[bit_nr >> 4] |= (1 << bit_nr);
-                }
-        }
-
+What about sending the SIGPWR signal to all userspace processes before
+suspending so applications like Evolution can be improved to handle this
+signal, drop their IMAP connections and then, when resuming, reestablish
+them?
 

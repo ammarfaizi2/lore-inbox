@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbTJONZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 09:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTJONZT
+	id S263210AbTJONjS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 09:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbTJONjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 09:25:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:22165 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263154AbTJONZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 09:25:17 -0400
-Date: Wed, 15 Oct 2003 06:28:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: mem=16MB laptop testing
-Message-ID: <20031015132824.GS16158@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org> <20031015121208.GA692@elf.ucw.cz> <20031015125109.GQ16158@holomorphy.com> <20031015132054.GA840@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Oct 2003 09:39:18 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7052
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263210AbTJONjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 09:39:17 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: Preemptible kernel makes mpg123 skip a lot under 2.6.0-testing7 and very high load average under low usage.
+Date: Wed, 15 Oct 2003 23:44:29 +1000
+User-Agent: KMail/1.5.4
+Cc: Dru <andru@treshna.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031015132054.GA840@elf.ucw.cz>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310152344.29920.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 03:20:54PM +0200, Pavel Machek wrote:
-> Do you want to say that calculation is different, already? We should
-> probably make 2.5 version match 2.4 version, that's what users
-> expect. Who changed it and why?
+Hi.
 
-No idea when it changed, but I was at least duly disturbed by the tiny
-384KB ZONE_NORMAL materializing out of thin air when I booted mem=16m.
+I quote from your output:
 
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+22953 andru     15   0 10100 5316 9464 S  3.7  0.6   2:02.39 mpg123
+ 1067 root       5 -10  595m  58m 539m S  3.3  6.6 391:41.29 XFree86
+ 1176 andru     15   0 47488  26m  13m S  1.0  3.0  11:52.32 gnome-terminal
+25063 root      17   0  2004 1096 1792 R  0.7  0.1   0:00.03 top
 
--- wli
+The kernel is now tuned to give much more priority to reniced tasks and it is 
+not recommended to run your X server nice -10. This is the cause of your 
+problem as X is starving your audio application. Some distributions do this 
+by default to get around the limitations of the old cpu scheduler not being 
+able to make X smooth enough at nice 0. This hack/workaround is no longer 
+recommended for 2.6 kernels. You will find nice performance of X at nice 0 
+now and audio will not skip when the nice value of X is the same as your 
+audio application.
+
+Con
+

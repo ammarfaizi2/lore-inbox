@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUEMXD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265244AbUEMXHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUEMXD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 19:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUEMXCX
+	id S265244AbUEMXHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 19:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbUEMXEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 19:02:23 -0400
-Received: from mail.kroah.org ([65.200.24.183]:43934 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265244AbUEMXB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 19:01:58 -0400
-Date: Thu, 13 May 2004 15:40:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Duncan Sands <baldrick@free.fr>,
-       Nuno Ferreira <nuno.ferreira@graycell.biz>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: PATCH: (as279) Don't delete interfaces until all are unbound
-Message-ID: <20040513224044.GC20521@kroah.com>
-References: <200405131845.29812.baldrick@free.fr> <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 May 2004 19:04:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18890 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265244AbUEMXCk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 19:02:40 -0400
+Message-ID: <40A3FE80.8010302@pobox.com>
+Date: Thu, 13 May 2004 19:02:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: paul@wagland.net, mingo@elte.hu, wli@holomorphy.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       davidel@xmailserver.org, Valdis.Kletnieks@vt.edu
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+References: <40A26FFA.4030701@pobox.com>	<20040512193349.GA14936@elte.hu>	<200405121947.i4CJlJm5029666@turing-police.cc.vt.edu>	<Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com>	<200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu>	<20040512202807.GA16849@elte.hu>	<20040512203500.GA17999@elte.hu>	<20040512205028.GA18806@elte.hu>	<20040512140729.476ace9e.akpm@osdl.org>	<20040512211748.GB20800@elte.hu>	<20040512221823.GK1397@holomorphy.com>	<61D92BA6-A504-11D8-BD91-000A95CD704C@wagland.net>	<20040513121141.37f32035.akpm@osdl.org>	<40A3CA34.60202@pobox.com>	<20040513154002.4988b7f2.akpm@osdl.org>	<20040513154040.6acc8121.akpm@osdl.org> <20040513154116.6bb639c1.akpm@osdl.org>
+In-Reply-To: <20040513154116.6bb639c1.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 01:56:32PM -0400, Alan Stern wrote:
-> On Thu, 13 May 2004, Duncan Sands wrote:
-> 
-> > No, but the pointer for another (previous) interface may just have been
-> > set to NULL, causing an Oops when usb_ifnum_to_if loops over all
-> > interfaces.
-> 
-> Of course!  I trust you won't mind me changing your suggested fix
-> slightly.  This should do an equally good job of repairing things, and it
-> will prevent other possible invalid references as well.
-> 
-> Greg, please apply.
+Patches look good to me...
 
-Applied, thanks.
 
-greg k-h

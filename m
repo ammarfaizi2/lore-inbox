@@ -1,100 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289107AbSAVAgu>; Mon, 21 Jan 2002 19:36:50 -0500
+	id <S289104AbSAVAhK>; Mon, 21 Jan 2002 19:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289106AbSAVAgl>; Mon, 21 Jan 2002 19:36:41 -0500
-Received: from [24.131.1.59] ([24.131.1.59]:13981 "EHLO
-	mnmai05.mn.mediaone.net") by vger.kernel.org with ESMTP
-	id <S289104AbSAVAg2> convert rfc822-to-8bit; Mon, 21 Jan 2002 19:36:28 -0500
-From: Steve Brueggeman <brewgyman@mediaone.net>
-To: linux-kernel@vger.kernel.org
+	id <S289106AbSAVAgv>; Mon, 21 Jan 2002 19:36:51 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:29792 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289104AbSAVAgq>; Mon, 21 Jan 2002 19:36:46 -0500
+Date: Tue, 22 Jan 2002 01:37:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: reid.hekman@ndsu.nodak.edu, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+        alan@lxorg.ukuu.org
 Subject: Re: Athlon PSE/AGP Bug
-Date: Mon, 21 Jan 2002 18:36:15 -0600
-Message-ID: <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
-In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>, <20020121.053724.124970557.davem@redhat.com>; from davem@redhat.com on Mon, Jan 21, 2002 at 05:37:24AM -0800 <20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au>
-In-Reply-To: <3C4C5B26.3A8512EF@zip.com.au>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+Message-ID: <20020122013743.M8292@athlon.random>
+In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com> <20020121175410.G8292@athlon.random> <20020121.141931.105134927.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20020121.141931.105134927.davem@redhat.com>; from davem@redhat.com on Mon, Jan 21, 2002 at 02:19:31PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, this one hit home this weekend.
+On Mon, Jan 21, 2002 at 02:19:31PM -0800, David S. Miller wrote:
+>    From: Andrea Arcangeli <andrea@suse.de>
+>    Date: Mon, 21 Jan 2002 17:54:10 +0100
+>    
+>    correct, furthmore it cannot even trigger if you invlpg with an address
+>    page aligned (4mbyte aligned in this case) like we would always do in
+>    linux anyways, we never use invlpg on misaligned addresses, no matter if
+>    the page is a 4M or a 4k page.
+> 
+> That's not true, see the ptrace() helper code.  Russell King pointed
+> this out to me last week and it's on my TODO list to fix it up.
 
-I bought a new computer at a computer fair.
-ECS K7S5A Motherboard
-1.8Ghz (1.5actually) Athelon XP
-3DForce2-MX
-256MB DDR SDRAM PC-2100
-AHA2940UW SCSI Controller
-Compaq CDROM (reused from other upgraded system)
+Where? :) ptrace doesn't change pagetables, no need to flush any tlb in
+ptrace.
 
-Spent all of Saturday trying to install Mandrake Linux 8.1 with random crashes,
-segfaults, IDE-Timeouts.  Figuring this to be a memory problem, I ran memtest86
-for 4 hours without any errors.  Was getting late, and said screw-it and went to
-bed.  
+Anyways if the problem is in the nvidia driver they may be really doing
+an invlpg on a misaligned 4M page address for no good reason, this
+sounds unlikely though.  What's certain is that the stuff into the
+mainline kernel shouldn't really be affected for the reason you also
+said previously (we never invalidate 4M pages with invlpg). In the very
+worst case nvidia guys just need to mask the lower (not significant)
+bits before passing the address to invlpg, which is going to be a one
+liner.
 
-Sunday, set the memory and CPU both to 100Mhz, still have problems. so I set
-both back to 133Mhz.  Booted kernel 2.2.19 from 2nd CD in Mandrake set, and had
-better luck.  Got it installed after 3 restarts.  Figuring this was somehow
-related to APM or ACPI, I compiled a standard Marcello  kernel 2.4.17, but could
-not make it through a whole compile without segfaults.  I'd just restart the
-compile, letting make skip past the stuff that was already compiled.  Got an
-average of 3-4 segfaults on compile run, and I tried about 5 runs.
-
-Boot to linux-2.4.17 with APM and ACPI disabled, and only stuff in my system
-enabled, and no Frame Buffer, still get segfaults when compiling kernel.
-
-Then by sheer luck, while doing my normal check of linuxtoday.com, the top
-article mentioned this Athelon bug.  I figure, "Hey, this sounds somewhat
-familar", so I reboot with mem=nopentium as they suggested.
-
-I've compiled the linux-2.4.17 about 10 times now, without a single segfault.
-
-So, add me to the "Yes I've got this problem" list, and Yes, it appears to be
-related to Nvidia AGP boards.
-
-I've been running a 1Ghz Thunderbird for about a year now, with 2 different ATI
-boards without any problems.  I'll try swapping the ATI and Nvidia display
-adapters and see if it follows.
-
-Steve Brueggeman
-
-On Mon, 21 Jan 2002 10:17:10 -0800, you wrote:
-
->Andrea Arcangeli wrote:
->> 
->> ...
->> 
->> I think this is a very very minor issue, I doubt anybody ever triggered
->> it in real life with linux.
->
->It is said that the crashes cease when the `nopentium' option
->is used, so it does appear that something is up.
->
->I does seem that the nVidia driver is usually involved.
->
->> And Gentoo is shipping a kernel with preempt and rmaps included, so it
->> can crash anytime anyways, no matter how good the cpu is, so if they
->> got crashes with such a kernel (maybe even with nvidia driver) that's
->> normal. I was speaking today with a trusted party doing vm benchmarking
->> and rmap crashes the kernel reproducibly under a stright calloc while
->> swapping heavily, so clearly the implementation is still broken.
->
->-rmap is still young.  I did some heavy stress testing on it a couple
->of days ago and it was rock-solid, and performed well.
->
->> preempt additionally will mess up all the locking into the nvidia driver as
->> well. so if the combination of the two runs for some time without any
->> lockup that's pure luck IMHO.
->
->Yup.  But don't forget about the `nopentium' observations.
->
->-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+Andrea

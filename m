@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271744AbTGRNjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 09:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271757AbTGRNjv
+	id S271770AbTGRNll (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 09:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271771AbTGRNll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 09:39:51 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:47239 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S271744AbTGRNjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 09:39:49 -0400
-Message-ID: <3F17FF5B.2040409@genebrew.com>
-Date: Fri, 18 Jul 2003 10:08:27 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+	Fri, 18 Jul 2003 09:41:41 -0400
+Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:36737 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S271770AbTGRNld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 09:41:33 -0400
+Message-ID: <3F17FC8D.9080209@comcast.net>
+Date: Fri, 18 Jul 2003 06:56:29 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030704
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Dave Jones <davej@codemonkey.org.uk>,
-       "Andrew S. Johnson" <andy@asjohnson.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DRM, radeon, and X 4.3
-References: <200307170539.25702.andy@asjohnson.com>	 <20030717172625.GA16502@suse.de> <1058532934.19558.31.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1058532934.19558.31.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davzaffiro@tasking.nl
+Subject: Re: [PATCH] pdcraid and weird IDE geometry
+References: <3F160965.7060403@comcast.net> <1058431742.5775.0.camel@laptop.fenrus.com> <3F16B49E.8070901@comcast.net> <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk> <20030717173413.A2393@pclin040.win.tue.nl> <3F175C5C.3030708@comcast.net> <20030718105810.A2925@pclin040.win.tue.nl>
+In-Reply-To: <20030718105810.A2925@pclin040.win.tue.nl>
+X-Enigmail-Version: 0.76.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2003-07-17 at 18:26, Dave Jones wrote:
+Andries Brouwer wrote:
+ >
+> I don't understand. Did you introduce some float? Remove it immediately.
 > 
->> > Linux agpgart interface v0.100 (c) Dave Jones
->> > [drm] Initialized radeon 1.9.0 20020828 on minor 0
->> > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
->> > [drm:radeon_unlock] *ERROR* Process 1929 using kernel context 0
->> > 
->> > There is something X doesn't like.  How do I fix this?
->>
->>Looks like there isn't an agp chipset module also loaded
->>(via-agp.o, intel-agp.o etc...)
+> You just replace
+> 
+>         lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
+>         lba = lba * (ideinfo->head*ideinfo->sect);
+>         lba = lba - ideinfo->sect;
+> 
+> by
+> 
+> 	lba = ideinfo->capacity - 63;
+> 
+> Then everything works for you, I suppose.
+> Subsequently we wait for other people with the same hardware
+> and see how the 63 varies as a function of their setup.
+> (Or maybe you can go into the BIOS and specify different
+> translations yourself?)
+> 
+> (By the way, didnt your boot parameters lead to ideinfo->head = 16
+> and ideinfo->sect = 63?)
+> 
+> Andries
 > 
 > 
-> Still shouldnt do that - also the radeon doesn't require AGP
 
-FWIW, I can reproduce the "problem" here. Perhaps a less cryptic error 
-message could be printked.
+No, you're right. I was just trying to clarify the changes that I had
+originally made. It seemed as there may have been some confusion that I
+was doing more than the original. In my case, the simplified
+ideinfo->capacity - ideinfo->sect should work just fine.
+The boot parameters did take. The geometry was reported (correctly?) as
+I had passed, but when trying to load the pdcraid module, access to the
+disk failed with I/O errors. Seemed as if it was trying to read beyond
+the end of the device. I used the identical geometry as reported by the
+working drive.
+Unfortunately, since this is the embedded FastTrak stuff, the BIOS
+doesn't allow me to setup geometry for the drives.
 
-Thanks,
-Rahul
+I've just tried the simplified method and it works fine. I'll stick with
+that on my end. Thanks for the help,
+
+-Walt
 

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280970AbRKYSXd>; Sun, 25 Nov 2001 13:23:33 -0500
+	id <S280983AbRKYSrT>; Sun, 25 Nov 2001 13:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280969AbRKYSXY>; Sun, 25 Nov 2001 13:23:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34058 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280970AbRKYSXL>; Sun, 25 Nov 2001 13:23:11 -0500
-Date: Sun, 25 Nov 2001 10:17:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Dominik Kubla <kubla@sciobyte.de>, <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280982AbRKYSrJ>; Sun, 25 Nov 2001 13:47:09 -0500
+Received: from chabotc.xs4all.nl ([213.84.192.197]:51341 "EHLO
+	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S280981AbRKYSrC>; Sun, 25 Nov 2001 13:47:02 -0500
+Subject: Re: Severe Linux 2.4 kernel memory leakage
+From: Chris Chabot <chabotc@reviewboard.com>
+To: Phil Sorber <aafes@psu.edu>
+Cc: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1006708651.3088.5.camel@praetorian>
+In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> 
+	<tgy9kuevtw.fsf@mercury.rus.uni-stuttgart.de> 
+	<1006702226.1316.2.camel@gandalf.chabotc.com> 
+	<1006702918.3088.3.camel@praetorian> 
+	<1006703464.1316.6.camel@gandalf.chabotc.com> 
+	<1006708651.3088.5.camel@praetorian>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 25 Nov 2001 19:44:02 +0100
+Message-Id: <1006713843.1214.1.camel@gandbook.chabotc.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for the headsup, yea i saw the news on ... well just about every
+linux news site, and add a few ;-) Figured i could wait for 2.4.16 since
+i hope it will be released before i have to unmount anything ;-)
 
-On Sun, 25 Nov 2001, Stephan von Krawczynski wrote:
->
-> The "problem" effectively arises from _fast_ releasing "stable" versions.
+	-- Chris
 
-Actually, I think that is just the _symptom_ of the basic issue: I do not
-like being a maintainer.
+On Sun, 2001-11-25 at 18:17, Phil Sorber wrote:
+> On Sun, 2001-11-25 at 10:51, Chris Chabot wrote:
+> > Nov 24 10:46 bzImage-2.4.15
+> 
+> are you running this now? cause it has a major bug too :) i am running
+> it, but i patched. just a heads up if you didn't see this on the list
+> already...
+> 
+> -- 
+> Phil Sorber
+> AIM: PSUdaemon
+> IRC: irc.openprojects.net #psulug PSUdaemon
+> GnuPG: keyserver - pgp.mit.edu
 
-Let's face it, we had similar problems in 2.2.x, for all the same reasons:
-I'm simply not a good maintainer, because I'm too impatient and get too
-bored with it.
-
-The fact that I've held on to 2.4.x for too long, mostly due to the VM
-problems, really doesn't help. That just makes me _less_ likely to be
-careful. Especially when the last known VM problem was fixed (ie the
-Oracle highmem deadlock), I had a very strong urge to just "get the d*mn
-thing out to Marcelo".
-
-I'm much happier doing development, and what I'm best at for Linux is at
-doing the "hard decisions" - and not necessarily because of technical
-reasons, but simply because I _can_ make them without too many people
-grumbling. An example of this is to do the VM reorg in the first place,
-something that at the time a lot of people disagreed with.
-
-But I'm not a good, careful, maintainer. I never claim to be.
-
-I bet you'll see better, more consistent quality from Marcelo.
-
-		Linus
 

@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269477AbRHGWFm>; Tue, 7 Aug 2001 18:05:42 -0400
+	id <S269671AbRHGWMw>; Tue, 7 Aug 2001 18:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269478AbRHGWFd>; Tue, 7 Aug 2001 18:05:33 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:57104 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269477AbRHGWFV>; Tue, 7 Aug 2001 18:05:21 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-Date: Tue, 7 Aug 2001 22:03:40 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9kpojs$14d$1@penguin.transmeta.com>
-In-Reply-To: <3B7030B3.9F2E8E67@zip.com.au> <Pine.LNX.4.33.0108071426380.30280-100000@touchme.toronto.redhat.com>
-X-Trace: palladium.transmeta.com 997221881 29112 127.0.0.1 (7 Aug 2001 22:04:41 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 7 Aug 2001 22:04:41 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S269491AbRHGWMm>; Tue, 7 Aug 2001 18:12:42 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:9746 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269649AbRHGWMe>;
+	Tue, 7 Aug 2001 18:12:34 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac8 
+In-Reply-To: Your message of "Tue, 07 Aug 2001 08:43:06 -0400."
+             <200108071243.f77Ch6IN025609@pincoya.inf.utfsm.cl> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Aug 2001 08:12:34 +1000
+Message-ID: <23793.997222354@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0108071426380.30280-100000@touchme.toronto.redhat.com>,
-Ben LaHaise  <bcrl@redhat.com> wrote:
+On Tue, 07 Aug 2001 08:43:06 -0400, 
+Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+>Keith Owens <kaos@ocs.com.au> said:
+>> @@ -27,7 +27,6 @@ AIC7XXX_OBJS += aic7xxx_pci.o
+>>  endif
+>>  
+>>  # Override our module desitnation
+>> -MOD_DESTDIR = $(shell cd .. && $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
+>>  MOD_TARGET = aic7xxx.o
+>>  
+>>  include $(TOPDIR)/Rules.make
 >
->Yes, but I'm using raid 0.  The ratio of highmem to normal memory is
->~3.25:1, and it would seem that this is breaking write throttling somehow.
+>You probably should get rid of the comment before the MOD_DESTDIR too.
 
-Ahh - I see it. 
+The MOD_TARGET still overrides the target, yet another aic7xxx kludge
+because the maintainer does not want to rename the source files.
 
-Check "nr_free_buffer_pages()" - and notice how the function is meant to
-return the number of pages that can be used for buffers.
-
-But the function doesn't understand about the limitations of buffer
-allocations inherent in GFP_NOFS, namely that it won't ever allocate a
-high-mem buffer. So it just stupidly adds up the number of free pages,
-coming to the conclusion that we have a _lot_ of memory that buffers
-could use..
-
-This obviously makes the whole balance_dirty() algorithm not work at
-all.
-
-This should be fairly easy to do. Instead of counting all zones,
-nr_free_buffer_pages() should count only the zones that are listed in
-the GFP_NOFS zonelist. So instead of using
-
-	unsigned int sum;
-
-	sum = nr_free_pages();
-	sum += nr_inactive_clean_pages();
-	sum += nr_inactive_dirty_pages;
-
-it should do something like this instead (but please hide the "zonelist"
-lookup behind some nice macro, I almost lost my lunch when I wrote that
-;)
-
-	unsigned int sum = 0;
-	zonelist_t *zonelist = contig_page_data.node_zonelists+(gfp_mask & GFP_ZONEMASK);
-	zone_t **zonep = zonelist->zones, *zone;
-
-	for (;;) {
-		zone_t *zone = *zonep;
-		if (!zone)
-			return sum;
-		sum += zone->free_pages + zone->inactive_clean_pages + zone->inactive_dirty_pages;
-	}
-
-which is more accurate, and actually faster to boot (look at what
-"nr_free_pages()" and friends do - they already walk all the zones)
-
-I can't easily test this - mind giving it a whirl?
-
-		Linus

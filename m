@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbTD1VV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 17:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTD1VV1
+	id S261311AbTD1V2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 17:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbTD1V2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 17:21:27 -0400
-Received: from watch.techsource.com ([209.208.48.130]:18855 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S261279AbTD1VV1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 17:21:27 -0400
-Message-ID: <3EAD9E94.2000602@techsource.com>
-Date: Mon, 28 Apr 2003 17:35:16 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Mon, 28 Apr 2003 17:28:49 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:21517 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261311AbTD1V2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 17:28:48 -0400
+Date: Mon, 28 Apr 2003 23:40:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Larry McVoy <lm@bitmover.com>
+cc: Chris Adams <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+In-Reply-To: <20030428212404.GA29041@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0304282338500.12110-100000@serv>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net>
+ <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com>
+ <20030427223255.GH23068@work.bitmover.com> <20030428200424.GA9252@citd.de>
+ <20030428201816.GB23581@work.bitmover.com> <20030428202231.GA556185@hiwaay.net>
+ <20030428212404.GA29041@work.bitmover.com>
 MIME-Version: 1.0
-To: rmoser <mlmoser@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Swap Compression
-References: <200304251832440510.00D02649@smtp.comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Mon, 28 Apr 2003, Larry McVoy wrote:
 
-rmoser wrote:
+> > Please site a successful ruling to that effect.  In the two most
+> > well-known look-and-feel court cases, Apple lost their suit against
+> > Microsoft, and Lotus lost theirs (on appeal) against Borland.
+> 
+> It was written up on slashdot in the last year or so, I think it was
+> some GUI thing maybe with Adobe.  Poke around, if you can't find it
+> I'll go look.
 
->Yeah you did but I'm going into a bit more detail, and with a very tight algorithm.  Heck the algo was originally designed based on another compression algorithm, but for a 6502 packer.  I aimed at speed, simplicity, and minimal RAM usage (hint:  it used 4k for the code AND the compressed data on a 6502, 336 bytes for code, and if I turn it into just a straight packer I can go under 200 bytes on the 6502).
->
->Honestly, I just never looked.  I look in my kernel.  But still, the stuff I defined about swapon options, swap-on-ram, and how the compression works (yes, compressed without headers) is all the detail you need about it to go do it AFAIK.  Preplanning should be done there--done meaning workable, not "the absolute best."
->  
->
-I think we might be able to deal with a somewhat more heavy-weight 
-compression.  Considering how much faster the compression is than the 
-disk access, the better the compression, the better the performance.  
+That one involved patents:
+http://news.com.com/2100-1040-898061.html
 
-Usually, if you have too much swapping, the CPU usage will drop, because 
-things aren't getting done.  That means we have plenty of head room to 
-spend time compressing rather than waiting.  The speed over-all would go 
-up.  Theoretically, we could run into a situation where the compression 
-time dominates.  In that case, it would be beneficial to have a tuning 
-options which uses a less CPU-intensive compression algorithm.
-
->  
->
-
+bye, Roman
 

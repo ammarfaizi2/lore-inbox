@@ -1,93 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVB1TRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVB1TTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVB1TRj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 14:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVB1TRU
+	id S261712AbVB1TTG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 14:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVB1TTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 14:17:20 -0500
-Received: from chello212017098056.surfer.at ([212.17.98.56]:8204 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id S261712AbVB1TQy (ORCPT
+	Mon, 28 Feb 2005 14:19:05 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:19915 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261712AbVB1TS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 14:16:54 -0500
-From: Der Herr Hofrat <der.herr@hofr.at>
-Message-Id: <200502281913.j1SJDUG23870@hofr.at>
-Subject: Re: Signals/ Communication from kernel to user!
-In-Reply-To: <042701c51dab$561ef650$280e000a@blr.velankani.com> from Ravindra
- Nadgauda at "Feb 28, 2005 09:06:57 pm"
-To: Ravindra Nadgauda <rnadgauda@velankani.com>
-Date: Mon, 28 Feb 2005 20:13:30 +0100 (CET)
-CC: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Feb 2005 14:18:58 -0500
+Date: Mon, 28 Feb 2005 20:18:56 +0100
+From: Stelian Pop <stelian@popies.net>
+To: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
+Message-ID: <20050228191855.GC17559@sd291.sivit.org>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	"emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>,
+	linux-kernel@vger.kernel.org, arjan@infradead.org
+References: <20050228164456.GB17559@sd291.sivit.org> <Pine.GSO.4.40.0502281817001.27182-100000@ensisun>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.40.0502281817001.27182-100000@ensisun>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 28, 2005 at 06:29:39PM +0100, emmanuel.colbus@ensimag.imag.fr wrote:
+
+> Well, without it, it gives :
 > 
 > 
-> Hello,
->    We wanted to establish a communication from kernel module (possibly a
-> driver) to a user level process.
 > 
->    Wanted to know whether signals can be used for this purpose OR there any
-> other (better) methods of communication??
->
-a bit brute force but you can simply run through the task list and kick
-the pid of your user-space app (example for 2.4 kernel): 
+> --- old/drivers/char/vt.c 2004-12-24 22:35:25.000000000 +0100
+> +++ new/drivers/char/vt.c 2005-02-28 18:19:11.782717810 +0100
+> @@ -1655,8 +1655,8 @@
+> vc_state = ESnormal;
+> return;
+> case ESsquare:
+> - for(npar = 0 ; npar < NPAR ; npar++)
+> - par[npar] = 0;
+> + memset(par, 0, NPAR*sizeof(unsigned int));
+> npar = 0;
+> vc_state = ESgetpars;
+> if (c == '[') { /* Function key */
+> 
+> 
+> 
+> 
+> Any other comments/remarks, or is _this_ patch version acceptable?
 
-hofrat
+A not whitespace-mangled version of it could be.
 
----snip---
-/*
- * Copywrite 2002 Der Herr Hofrat
- * License GPL V2
- * Author der.herr@hofr.at
- */
-/*
- * run through the task list of linux search for the passed pid and send it
- * a SIGKILL . run as  insmod pid=#  to send process with pid # a kill signal
- */ 
-
-#include <bits/signum.h>  /* signal number macros SIGHUP etc. */ 
-#include <linux/kernel.h> /* printk level */
-#include <linux/module.h> /* kernel version etc. */
-#include <linux/sched.h>  /* task_struct */
-
-MODULE_LICENSE("GPL v2");
-MODULE_AUTHOR("Der Herr Hofrat");
-MODULE_DESCRIPTION("Signal to a user-space app from a kernel module");
-
-int pid=0; 
-MODULE_PARM(pid,"i");
-
-int 
-ksignal(int pid,int signum) 
-{
-	struct task_struct *p;
-
-	/* run through the task list of linux until we find our pid */
-	for_each_task(p){
-		if(p->pid == pid){
-			printk("sending signal %d for pid %d\n",signum,(int)p->pid);
-			/* don't have a sig_info struct to send along - pass 0 */
-			return send_sig(signum,p,0);
-		}
-	}
-	/* did not find the requested pid */
-	return -1;
-}
-
-int
-init_module(void)
-{
-	/* send pid a SIGKILL */
-	ksignal(pid,SIGKILL);
-	return 0;
-}
-
-void 
-cleanup_module(void) 
-{
-	printk("out of here\n");
-}
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRLGNP4>; Fri, 7 Dec 2001 08:15:56 -0500
+	id <S280805AbRLGNY5>; Fri, 7 Dec 2001 08:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280805AbRLGNPd>; Fri, 7 Dec 2001 08:15:33 -0500
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:47375 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280190AbRLGNPX>; Fri, 7 Dec 2001 08:15:23 -0500
-Subject: Re: kernel: ldt allocation failed
-From: James Davies <james_m_davies@yahoo.com>
+	id <S280814AbRLGNYs>; Fri, 7 Dec 2001 08:24:48 -0500
+Received: from uisge.3dlabs.com ([193.133.230.45]:40402 "EHLO uisge.3dlabs.com")
+	by vger.kernel.org with ESMTP id <S280805AbRLGNY3>;
+	Fri, 7 Dec 2001 08:24:29 -0500
+Date: Fri, 7 Dec 2001 13:23:17 +0000
+From: Paul Sargent <Paul.Sargent@3dlabs.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kiril Vidimce <vkire@pixar.com>, Dan Maas <dmaas@dcine.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16CHXs-0005DY-00@the-village.bc.nu>
-In-Reply-To: <E16CHXs-0005DY-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 23:10:36 +1000
-Message-Id: <1007730652.1575.1.camel@Lord>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2GB process crashing on 2.4.14
+Message-ID: <20011207132317.E31161@3dlabs.com>
+In-Reply-To: <20011207125821.D31161@3dlabs.com> <E16CKrx-0005nL-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16CKrx-0005nL-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 19:43, Alan Cox wrote:
-> > The nVidia kernel drivers are open source. You can get them from
-> > ftp://ftp.nvidia.com/pub/drivers/english/XFree86_40/1.0-2313/NVIDIA_kernel-1.0-2313.tar.gz
-> 
-> The Nvidia drivers are not open source. Please stop pedalling this myth. All
-> you are doing is risking confusing other unfortunates into buying nvidia
-> hardware and finding there is no open 3D support.
+On Fri, Dec 07, 2001 at 01:16:49PM +0000, Alan Cox wrote:
+> Most probably the process is running out of address space to allocate from.
+> There is 3Gb of available space. 
 
-I wan't trying to state that it is GPL or similar, but the kernel driver
-source code IS available for free under a restrictive license. the GLX
-drivers are closed. 
+That would be from 0x00000000 to 0xC0000000, Right?
 
-> > bad rep. But the 1.0 series are faster and more stable than their
-> > windows counterparts- I havn't had one crash, even with a faulty card
-> > that kills windows constantly. 
-> 
-> So tell me why I keep getting people who remove the Nvidia drivers and have
-> their machine work. I'm sure some of them are hardware related issues, but
-> all of them ?
+> Of that some is your stack, some your
+> binary, some your libraries.  Getting above 3Gb/process on x86 is very hairy
+> with a bad performance hit
 
-I can't comment on the stability in all configurations, but I've found
-them to work quite well with my box since 1.0 came out. the 0.9 serious
-were notorious for crashing though.
- 
-> Alan
+So if I was hitting this limit then I should see no / very few gaps, in the
+/proc/<pid>/maps. Is that true?
 
+Paul
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+-- 
+Paul Sargent
+Tel: +44 (1784) 476669
+Fax: +44 (1784) 470699
+mailto: Paul.Sargent@3Dlabs.com

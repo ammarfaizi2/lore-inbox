@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbVAQOpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVAQOwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbVAQOpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 09:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVAQOpq
+	id S262813AbVAQOwq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 09:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVAQOwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 09:45:46 -0500
-Received: from gate.firmix.at ([80.109.18.208]:32646 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S262812AbVAQOpj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 09:45:39 -0500
-Subject: Re: IBM Patents
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501170842540.21983@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501170842540.21983@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: Firmix Software GmbH
-Message-Id: <1105973138.28592.26.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Mon, 17 Jan 2005 15:45:38 +0100
-Content-Transfer-Encoding: 8bit
+	Mon, 17 Jan 2005 09:52:46 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:61864 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262813AbVAQOwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 09:52:43 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Date: Mon, 17 Jan 2005 15:53:02 +0100
+User-Agent: KMail/1.7.1
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200501152243.21483.rjw@sisk.pl> <20050116215145.GF2757@elf.ucw.cz>
+In-Reply-To: <20050116215145.GF2757@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501171553.02565.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-17 at 08:44 -0500, linux-os wrote:
-> Tue Jan 11 07:07:40 EST 2005
+Hi,
+
+On Sunday, 16 of January 2005 22:51, Pavel Machek wrote:
+> Hi!
 > 
-> IBM has announced that it will provide free access to about
-
-No, they only promise now to not sue anyone given the following
-criteria. No one knows what happens in 5 years.
-
-> 500 of its existing software patents to users and groups
-
-They have ca. 40000 AFAIK. So 500 is 1,25 %.
-And IBM is actually lobbying for patents so this is only a marketing
-thing.
-
-> working on open source software.
+> > > > > Has this patch been ported to x86_64?  Or is there a newer version of it anywhere,
+> > > > > or an alternative?
+> > > > > 
+> > > > 
+> > > > Ok, Here is a new patch with x86_64 support, But I have not machine, So
+> > > > Need someone test it. 
+> > > 
+> > > OK, I will.
+> > 
+> > I have tested it and it works well.  For me, it speeds up the resume process significantly,
+> > so I vote for including it into -mm (at least ;-)).  I'll be testing it further to see if it really
+> > solves my "out of memory" problems on resume.
 > 
->  	http://www.ibm.com/news/us/
-> 
-> Many of these patents relate to interoperability, communications,
-> file-export protocols, and dynamic linking.
+> Try Lukas's patch, it should provide equivalent speedups.
 
-And almost all of them are pure software-patents and probably prior art.
-Thus they are - at least in Europe - not relevant and actually illegal
-if you believe in the current European patent law as defined by the
-European Patent Convention (see §52(2) for details).
+It does.  Still, I don't think it'll solve memory allocation problems on resume,
+and the hugang's patch has such a potential.
 
-	Bernd
+Greets,
+RJW
+
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

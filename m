@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269592AbUICJp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269613AbUICJp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269592AbUICJp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICJk4
+	id S269613AbUICJp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269592AbUICJos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:40:56 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:64918 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S269602AbUICJk2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:40:28 -0400
-X-Envelope-From: kraxel@bytesex.org
-To: Frederik Deweerdt <frederik.deweerdt@laposte.net>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/4] v4l: bttv driver update.
-References: <20040831152405.GA15658@bytesex>
-	<20040901073206.GA21887@gilgamesh.home.res>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 02 Sep 2004 09:39:00 +0200
-In-Reply-To: <20040901073206.GA21887@gilgamesh.home.res>
-Message-ID: <87acw9i0h7.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Fri, 3 Sep 2004 05:44:48 -0400
+Received: from holomorphy.com ([207.189.100.168]:40067 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269586AbUICJmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:42:53 -0400
+Date: Fri, 3 Sep 2004 02:42:47 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [1/4] standardize bit waiting data type
+Message-ID: <20040903094247.GP3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Martin Wilck <martin.wilck@fujitsu-siemens.com>,
+	linux-kernel@vger.kernel.org
+References: <2xoKb-2Pa-27@gated-at.bofh.it> <2y3X5-73V-37@gated-at.bofh.it> <2y46A-798-17@gated-at.bofh.it> <2y4T1-7GM-17@gated-at.bofh.it> <2y52E-7Li-11@gated-at.bofh.it> <2y5ci-7Qz-7@gated-at.bofh.it> <2y5m3-7VH-5@gated-at.bofh.it> <2y7Hd-1aP-21@gated-at.bofh.it> <41383F33.4050503@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41383F33.4050503@fujitsu-siemens.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederik Deweerdt <frederik.deweerdt@laposte.net> writes:
+William Lee Irwin III wrote:
+>>+	prepare_to_wait(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
+>>+	if (buffer_locked(bh)) {
+>>+		sync_buffer(bh);
+>>+		io_schedule();
+>>+	}
+>> 	finish_wait(wqh, &wait.wait);
+>> }
 
-> Le Tue, Aug 31, 2004 at 05:24:05PM +0200, Gerd Knorr écrivit:
-> >   Hi,
-> [...] 
-> > -	rc=bttv_I2CRead(btv,(PX_I2C_PIC<<1),NULL);
-> > +	rc=bttv_I2CRead(btv,(PX_I2C_PIC<<1),0);
-> 
-> Sorry if it's irrelevant here, but I though there had been a 
-> campaign advocating "NULL instead of 0 in the Linux Kernel"?
-> Ref: http://lkml.org/lkml/2004/7/8/9
+On Fri, Sep 03, 2004 at 11:53:55AM +0200, Martin Wilck wrote:
+> Why don't you need a do..while loop any more ?
+> There is also no loop in __wait_on_bit() in the completed patch series.
 
-Oops, that one slipped through when merging the 2.6.9-rc1 changes into
-my tree.  Chunk can be dropped.
+Part of the point of filtered waitqueues is to reestablish wake-one
+semantics. This means two things:
+(a) those waiting merely for a bit to clear with no need to set it,
+	i.e. all they want is to know a transition from set to
+	clear occurred, are only woken once and don't need to loop
+	waking and sleeping
+(b) Of those tasks waiting for a bit to clear so they can set it
+	exclusively, only one needs to be woken, and after the first
+	is woken, it promises to clear the bit again, so there is no
+	need to wake more tasks.
 
-  Gerd
+These two aspects of wake-one semantics give it highly attractive
+performance characteristics.
 
--- 
-return -ENOSIG;
+
+-- wli

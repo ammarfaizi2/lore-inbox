@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULNWiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbULNWfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbULNWiS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbULNWfk
+	id S261704AbULNWfV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbULNWdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:35:40 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25011 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261694AbULNWdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:33:24 -0500
-Date: Tue, 14 Dec 2004 14:33:02 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: libc-alpha@sources.redhat.com
-cc: Roland McGrath <roland@redhat.com>, george@mvista.com,
-       linux-kernel@vger.kernel.org
-Subject: Support for additional kernel clocks in glibc
-Message-ID: <Pine.LNX.4.58.0412141431230.4769@schroedinger.engr.sgi.com>
+	Tue, 14 Dec 2004 17:33:36 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:10982 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261716AbULNW3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:29:11 -0500
+Message-ID: <41BF6935.3040300@free.fr>
+Date: Tue, 14 Dec 2004 23:29:09 +0100
+From: Vince <fuzzy77@free.fr>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: cannot eject drive using pktcdvd
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004, Roland McGrath wrote:
+I see the following bug since I've enabled packet writing for my dvd 
+drive (using the udftools package):
 
-> > It seems that this code does now support extra clocks like
-> > CLOCK_REALTIME_HR, CLOCK_MONOTONIC_HR and CLOCK_SGI_CYCLE right?
->
-> Here I think you are talking about glibc, not kernel code.  If you mean
-> this about the kernel code, then please clarify (and I'm not sure what the
-> question means in that context).  If you are asking about the glibc code,
-> please take that to the libc mailing list and we won't bother the kernel
-> folks with that discussion.
+- eject won't open the tray unless I'm root
 
-The clock_id's are now passed through since you also have to pass your
-bitmapped performance clocks through. I think this may also satisfy
-George Anzinger's long standing request for the possibility of additional
-clock support in glibc. The clocks are now defined only in the
-kernel header files though.
+- whether I'm root or not, I get the following error when running eject:
+     "eject: unable to eject, last error: Invalid argument"
+   and in the system logs:
+"program eject is using a deprecated SCSI ioctl, please convert it to SG_IO"
 
-Could you make the three clocks also available in glibc header files?
-What do we do if additional clocks become available through the posix
-layer in Linux?
+The command: pktsetup dvd /dev/cdrom ; eject
+should allow anyone with a cd/dvd writer to reproduce this bug.
 
+Disabling packet writing ("pktsetup -d dvd") solves the problem and 
+everything works fine (no strange message in the logs).
+
+I _think_ this could be related to Redhat bug 137349 
+(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=137349),
+but I could be wrong...
+
+Regards,
+
+Vince
+
+(Please CC: me as I'm not subscribed)

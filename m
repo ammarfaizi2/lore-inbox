@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTJQCTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 22:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTJQCTx
+	id S263286AbTJQCfK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 22:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbTJQCfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 22:19:53 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:5127 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263277AbTJQCTv
+	Thu, 16 Oct 2003 22:35:10 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:45221 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263286AbTJQCfH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 22:19:51 -0400
-Date: Thu, 16 Oct 2003 19:19:48 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031017021948.GI29279@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017013245.GA6053@ncsu.edu>
+	Thu, 16 Oct 2003 22:35:07 -0400
+Date: Thu, 16 Oct 2003 19:34:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: /proc reliability & performance
+Message-ID: <20031017023437.GB28158@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1066356438.15931.125.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031017013245.GA6053@ncsu.edu>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This Outlook installation has been found to be susceptible to misuse.
+In-Reply-To: <1066356438.15931.125.camel@cube>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 09:32:45PM -0400, jlnance@unity.ncsu.edu wrote:
-> On Thu, Oct 16, 2003 at 04:04:48PM -0700, jw schultz wrote:
-> > 
-> > The idea of this sort of block level hashing to allow
-> > sharing of identical blocks seems attractive but i wouldn't
-> > trust any design that did not accept as given that there
-> > would be false positives.
-> 
-> But at the same time we rely on TCP/IP which uses a hash (checksum)
-> to detect back packets.  It seems to work well in practice even
-> though the hash is weak and the network corrupts a lot of packets.
-> 
-> Lots of machines dont have ECC ram and seem to work reasonably well.
+On Thu, Oct 16, 2003 at 10:07:18PM -0400, Albert Cahalan wrote:
+> I created a process with 360 thousand threads,
 
-That is because most of the errors (which are few) get lost
-in the noise of BSODs or are trivial data errors.  Can you
-tell whether your application crashed because it had a bug
-or because a bit in memory flipped?  Is tiis a typm or did a
-bit or two flip on this email message?  There is a big
-difference between single bit errors and having an entire
-block of a file be wrong.
+And your real need for 360,000 threads is?
 
-> It seems like these two are a lot more likely to bit you than hash
-> collisions in MD5.  But Ill have to go read the paper to see what
-> Im missing.
-
-There is a big difference between the probability of any
-random pair of blocks getting a false positive, much less a
-given block with some corruption still hashing the same and
-a false positive between one block and any of millions of
-others.
-
-It is a bit like the difference in odds between you winning
-at this weeks lotto and anyone winning this week.  Are you
-willing to bet that nobody wins this weeks lotto?  Would you
-stake your life savings on it?
-
-
+I tend to believe that there are hundreds, nay, thousands, nay, 360 thousand
+better things to work on in the kernel.
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

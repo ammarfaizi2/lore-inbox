@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289694AbSA2O4d>; Tue, 29 Jan 2002 09:56:33 -0500
+	id <S289670AbSA2O7M>; Tue, 29 Jan 2002 09:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289670AbSA2O4W>; Tue, 29 Jan 2002 09:56:22 -0500
-Received: from chmls06.mediaone.net ([24.147.1.144]:53419 "EHLO
-	chmls06.mediaone.net") by vger.kernel.org with ESMTP
-	id <S289667AbSA2O4U>; Tue, 29 Jan 2002 09:56:20 -0500
-Date: Tue, 29 Jan 2002 09:40:39 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+	id <S289679AbSA2O7D>; Tue, 29 Jan 2002 09:59:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25860 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289670AbSA2O6r>; Tue, 29 Jan 2002 09:58:47 -0500
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020129094039.A10150@pimlott.ne.mediaone.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020129005155.A6726@pimlott.ne.mediaone.net> <E16VXxh-0003pj-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: mingo@elte.hu
+Date: Tue, 29 Jan 2002 14:54:55 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (linux-kernel),
+        axboe@suse.de (Jens Axboe)
+In-Reply-To: <Pine.LNX.4.33.0201291733500.11959-100000@localhost.localdomain> from "Ingo Molnar" at Jan 29, 2002 05:36:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16VXxh-0003pj-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VZex-00047c-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 01:06:09PM +0000, Alan Cox wrote:
-> Andrew wrote:
-> > Two, Linus has argued that maintainers are his patch penguins;
-> > whereas you favor a single integration point between the maintainers
-> > and Linus.  This has advantages and disadvantages, but on the whole,
-> > I think it is better if Linus works directly with subsystem
-> 
-> Perl I think very much shows otherwise.
+>  ARPD SUPPORT
+>  P:	Jonathan Layes
+> -M:	layes@loran.com
+>  L:	linux-net@vger.kernel.org
+>  S:	Maintained
 
-I'm really not sure about this example.  I assume you mean Perl 5.
-Last I checked, Perl didn't really operate the way Rob suggests.
-There is a "patch pumpking", but he is more analogous to Linus than
-to Alan.  In particular, Larry Wall does not review the pumpking's
-work at all (he instead sets general direction and makes key design
-decisions).  If Perl doesn't have the problems observed in Linux, I
-think it is because 1) Perl is smaller, 2) Perl 5 is largely in
-bug-fix mode, 3) Perl has a culture of accepting patches with less
-scrutiny (without meaning this as a slam, I think you can see
-evidence of this in the Perl 5 source base).
+A correct patch for this one giving a new maintainer was posted to Linux
+kernel already
 
-> When you have one or two integrators you have a single tree pretty
-> much everyone builds new stuff from and which people maintain
-> small diffs relative to. At the end of the day that ends up like
-> the older -ac tree, and with the same conditions - notably that
-> anything in it might be going to see /dev/null not Linus if its
-> shown to be flawed or not done well.
+>  DRM DRIVERS
+>  P:	Rik Faith
+> -M:	faith@valinux.com
+>  L:	dri-devel@lists.sourceforge.net
+>  S:	Supported
 
-There is an upper bound to the size of the delta one person can
-maintain (well, assuming his goal is to sync those changes with
-Linus).  Unless Linus's throughput increases dramatically, the
-integrator's delta will grow until it reaches that bound.  At that
-point, the integrator has to drop patches (or give up!).  How do you
-get around this?
+Rik moved from VA so I suspect you want to look in the RH internal directory
+for the correct one there 8)
 
-Andrew
+Alan

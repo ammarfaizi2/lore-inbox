@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbULNT7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbULNUIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbULNT7R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULNT7R
+	id S261587AbULNUIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 15:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbULNUII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:59:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58860 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261628AbULNT7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:59:13 -0500
-Date: Tue, 14 Dec 2004 11:58:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Werner Almesberger <wa@almesberger.net>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <20041214194531.GB13811@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.58.0412141150460.3279@ppc970.osdl.org>
-References: <20041214135029.A1271@almesberger.net>
- <200412141923.iBEJNCY9011317@laptop11.inf.utfsm.cl> <20041214194531.GB13811@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 15:08:08 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:49082 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261587AbULNUIE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 15:08:04 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <20041214132834.GA32390@elte.hu>
+References: <20041116134027.GA13360@elte.hu>
+	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
+	 <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
+	 <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
+	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
+	 <20041207141123.GA12025@elte.hu>  <20041214132834.GA32390@elte.hu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1103054849.12653.102.camel@cmn37.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Dec 2004 12:07:30 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 14 Dec 2004, Sam Ravnborg wrote:
+On Tue, 2004-12-14 at 05:28, Ingo Molnar wrote:
+> i have released the -V0.7.33-0 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
 > 
-> Today we only pull in stdarg.h from userspace - actually a compiler
-> dependent file.
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is mainly a port from -rc2-mm3 to -rc3-mm1. Changes:
+> 
+> - due to 2.6.10 release work the -mm kernel now is in fixes-mostly mode,
+>   but there's one interesting new feature: -rc3-mm1 introduced the
+>   ->unlocked_ioctl method which is now an official way to do BKL-less
+>   ioctls. I changed the ALSA ->ioctl_bkl changes in -RT to use this
+>   facility. The ALSA/sound guys might be interested in these bits. Thus
+>   another chunk of -RT could go upstream.
 
-Indeed. You'll notice that gcc doesn't even put stdarg.h in /usr/include, 
-it's in the compiler-specific header file directory, usually something 
-like /usr/lib/gcc-lib/<vendor>/<version>/include.
+If I build a cvs version of alsa without those patches, will it work on
+top of the 0.7.33 kernel? Or do I have to try to isolate the patches and
+apply them to current alsa cvs?
 
-We used to compile with "-nostdinc" to make sure that you couldn't include 
-user files even by mistake, but that was removed for some reason I can't 
-for the life of me remember any more.
+-- Fernando
 
-We probably should do it again. Something vaguely like
 
-	CFLAGS += -nostdinc -I $(CC -print-file-name=include)
-
-should do it (and still pick up "stdarg.h").
-
-		Linus

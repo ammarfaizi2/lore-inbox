@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318857AbSHET7G>; Mon, 5 Aug 2002 15:59:06 -0400
+	id <S318858AbSHEUIt>; Mon, 5 Aug 2002 16:08:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318858AbSHET7G>; Mon, 5 Aug 2002 15:59:06 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:61964 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318857AbSHET7E>; Mon, 5 Aug 2002 15:59:04 -0400
-Date: Mon, 5 Aug 2002 22:02:39 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Chris Mason <mason@suse.com>
-Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-In-Reply-To: <Pine.LNX.4.44.0208052113150.31879-101000@pc40.e18.physik.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.44.0208052157040.1357-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S318859AbSHEUIt>; Mon, 5 Aug 2002 16:08:49 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:49807 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318858AbSHEUIs>; Mon, 5 Aug 2002 16:08:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating usermode linux]
+Date: Mon, 5 Aug 2002 22:01:31 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208050922570.1753-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0208050922570.1753-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <17boD0-1BMTyaC@fmrl08.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-On Mon, 5 Aug 2002, Roland Kuhn wrote:
+> Also, people who play games with FP actually change the FP data on the
+> stack frame, and depend on signal return to reload it. Admittedly I've
+> only ever seen this on SIGFPE, but anyway - this is all done with integer
+> instructions that just touch bitpatterns on the stack.. The kernel can't
+> catch it sanely.
 
-> > So, on ftp.suse.com/pub/people/mason/patches/data-logging
-> > 
-> > Apply:
-> > 01-relocation-4.diff
-> > 02-commit_super-8.diff # this is the one you want, but it depends on 01.
-> > 
-> Okay, will try.
-> 
-> > And try again.  If that doesn't do it, try 04-write_times.diff (which
-> > doesn't depend on anything).
-> > 
-> Is there a documentation about what this patch does as a whole?
-> 
-Sorry, stupid question for the 04 one. What my brain wanted to say: The 
-patches 01 and 02 seem to aim at dirtying the super block less often. If 
-there is serious writing activity, will this lead to fewer but longer 
-commits? The problem with our current (kinda stupid) software is that 
-lower write() latency is more important than a few percent more 
-throughput.
+Could the fp state be put on its own page and the dirty bit
+evaluated in the decision whether to restore fpu state ?
 
-Ciao,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
-
+	Regards
+		Oliver

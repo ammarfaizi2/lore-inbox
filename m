@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCCDyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVCBW7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVCCDyF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVCCDvP
+	id S261277AbVCBW7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVCBW6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 22:51:15 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:57356 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S261446AbVCCDqa (ORCPT
+	Wed, 2 Mar 2005 17:58:47 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:35400 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261154AbVCBWzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 22:46:30 -0500
-Date: Wed, 2 Mar 2005 22:46:28 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 2 Mar 2005 17:55:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=To/0PboM8i6yNoTNapFzfUXqEiWI//+Ee07pkoztkJT6StoeuxkuoDlqfnJQ3dQA3uZwoUynFLYsBL2UdIukOIJaTPEinoy4UklHa04WhzJfIutcNjimQlkIwmhKnMtFz5bK4jnA0B3STyRwObmAxhsafpgJxmCbmgEYEtRq134=
+Message-ID: <d120d50005030214551146b1a3@mail.gmail.com>
+Date: Wed, 2 Mar 2005 17:55:23 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Linus Torvalds <torvalds@osdl.org>
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303034627.GF7828@mythryan2.michonline.com>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
-> The problem with major development trees like 2.4.x vs 2.5.x was that the 
-> release cycles were too long, and that people hated the back- and 
-> forward-porting. That said, it did serve a purpose - people kind of knew 
-> where they stood, even though we always ended up having to have big 
-> changes in the stable tree too, just to keep up with a changing landscape.
+On Wed, 2 Mar 2005 14:21:38 -0800 (PST), Linus Torvalds
+<torvalds@osdl.org> wrote:
+> 
+> Comments?
+> 
 
-How about this idea, instead:
+Just rename:
 
-At 2.6.12, make two parallel BitKeeper trees:
-
-2.6 and 2.7
-
-Push bugfixes into 2.6.
-
-Push *everything* that's not a bugfix into 2.7.
-"bk pull" the 2.6 tree into the 2.7 tree each day when you wake up.
-
-A week later, release 2.6.12.1 from the 2.6 tree, then immediately bk
-pull the 2.7 tree into the 2.6 tree.
-
-Release 2.6.13-rc1 at about the same time, and again only take bugfixes
-into the 2.6 tree.
-
-In 3-7 weeks, after a few more -rc iterations with just bugfixes,
-release 2.6.13.
-
-This should keep the differences between the trees down to something
-somewhat... sane, and, hopefully, keep the stable tree stable.
-
-People working on big changes can do them against 2.6.x if they need
-stability, and know that if they stay current with each 2.6.x release as
-they work, they should have a controllable amount of pain for merges.
-
-My thinking is simply that if you're going to use BitKeeper, you might
-as well abuse it for all that it's worth.
+2.<even>.<odd>-rcX  ->  2.<even>.y-preX
+2.<even>.<odd>      ->  2.<even>.y-rcX
+2.<even>.<even>     ->  2.<even>.y
 
 -- 
-
-Ryan Anderson
-  sometimes Pug Majere
+Dmitry

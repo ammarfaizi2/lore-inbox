@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264241AbTLOWHk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLOWHk
+	id S264257AbTLOWOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbTLOWOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:07:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:43394 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264241AbTLOWHi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:07:38 -0500
-Date: Mon, 15 Dec 2003 17:10:00 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Felix von Leitner <felix-kernel@fefe.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: request: capabilities that allow users to drop privileges further
-In-Reply-To: <20031215213912.GA29281@codeblau.de>
-Message-ID: <Pine.LNX.4.53.0312151700320.15531@chaos>
-References: <20031215213912.GA29281@codeblau.de>
+	Mon, 15 Dec 2003 17:14:36 -0500
+Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:20660 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264257AbTLOWOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:14:32 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16350.12846.591123.874866@wombat.chubb.wattle.id.au>
+Date: Tue, 16 Dec 2003 09:14:06 +1100
+To: =?ISO-8859-1?Q?Damien_Courouss=E9?= <damien.courousse@imag.fr>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: PCI lib for 2.4
+In-Reply-To: <6414C79D-2EED-11D8-82D9-000393C76BFA@imag.fr>
+References: <16348.59126.537876.178991@wombat.chubb.wattle.id.au>
+	<6414C79D-2EED-11D8-82D9-000393C76BFA@imag.fr>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003, Felix von Leitner wrote:
+>>>>> "Damien" == Damien Courouss <Damien> writes:
 
-> I would like to be able to drop capabilities that every normal user has,
-> so that network servers can limit the impact of possible future security
-> problems further.  For example, I want my non-cgi web server to be able
-> to drop the capabilities to
->
->   * fork
->   * execve
->   * ptrace
->   * load kernel modules
->   * mknod
->   * write to the file system
->
-> and I would like to modify my smtpd to not be able to
->
->   * fork
->   * execve
->   * ptrace
->   * load kernel modules
->   * mknod
->
-> I can kludge around some of these, for example I can disable fork with
-> resource limits, and I can limit writing to the file system with chroot
-> and proper permissions in the file systems, but I'm not aware of a way
-> to disable ptrace for example, or pthread_create.
->
-> I know that there are patches to provide an extended "jail" chroot
-> support, but being able to drop capabilities like this would be a more
-> general solution.
->
-> Felix
+Damien> Hi, Actually, it will be first a user-space driver.
 
-So you expect kernel support?  Normally, real people write or
-modify applications to provide for specific exceptions to
-the standards. They don't expect an operating system to
-modify itself to unique situations. That's not what
-operating systems have generally done in the past.
+Damien> Maybe I wasn't clear:
 
-The 'C' runtime library interfaces to the kernel. You
-can use the ld.so.preload capabilities to substitute
-private functions for fork(), etc. This has the additional
-benefit of allowing crappy, poorly-written, executables
-that may have buffer overflows to be executed with
-increased confidence. Of course, some root-shell programs
-bypass the 'C' runtime libraries.
+The user-space libpci.a has headers in /usr/include/pci/pci.h
+Do #include <pci/pci.h> to get at them.
+On debian, at least, you need the pciutils-dev package.
+Unfortunately, there are no manual pages (yet?)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+And *do* look at the example code that comes with libpci.a
 
+pci_resource_start() and so on are kernel functions; you get the same
+info in a different way using libpci.a -- Look at the source of lspci
+to see what you can do.
 
+(In brief:
+        struct pci_access *pacc;
+        struct pci_dev *dev;
+
+	pacc = pci_alloc();
+
+        pci_init(pacc);
+        pci_scan_bus(pacc);
+        for (dev = pacc->devices; dev; dev = dev->next)
+        {
+                if (dev->vendor_id == PCI_VENDOR_ID_AAA &&
+                    dev->device_id == PCI_DEVICE_ID_AAA_BBB)
+                    break;
+        }
+        if (dev == NULL){
+                fprintf(stderr, "No AAA BBB device\n");
+		exit(1);
+	}
+        
+        pciconf = xmalloc(sizeof *pciconf);
+        pciconf->pciconfig.accesstype = PCI_CONFIG;
+        pciconf->pciconfig.devp = dev;
+
+        pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_BASES | PCI_FILL_IRQ); 
+
+        /*
+         * Get the first 64-bytes of config space
+         */
+        pci_read_block(dev, 0, config, 64);
+)
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

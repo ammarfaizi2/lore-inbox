@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbTBTPBG>; Thu, 20 Feb 2003 10:01:06 -0500
+	id <S265051AbTBTPLR>; Thu, 20 Feb 2003 10:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbTBTPBG>; Thu, 20 Feb 2003 10:01:06 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:42245 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S264984AbTBTPBF>; Thu, 20 Feb 2003 10:01:05 -0500
-Date: Thu, 20 Feb 2003 18:10:27 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: FBdev updates.
-Message-ID: <20030220181027.A9625@jurassic.park.msu.ru>
-References: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org>
-Mime-Version: 1.0
+	id <S265097AbTBTPLR>; Thu, 20 Feb 2003 10:11:17 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:58128 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S265051AbTBTPLQ>; Thu, 20 Feb 2003 10:11:16 -0500
+Date: Thu, 20 Feb 2003 08:20:13 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Sahani Himanshu <honeyuee@iitr.ernet.in>, linux-kernel@vger.kernel.org
+Subject: Re: Adaptec drivers causing problem in RHL 8.0
+Message-ID: <1316810000.1045754413@aslan.scsiguy.com>
+In-Reply-To: <Pine.GSO.4.05.10302201550440.2763-100000@iitr.ernet.in>
+References: <Pine.GSO.4.05.10302201550440.2763-100000@iitr.ernet.in>
+X-Mailer: Mulberry/3.0.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Thu, Feb 20, 2003 at 01:09:33AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 01:09:33AM +0000, James Simmons wrote:
-> <jsimmons@maxwell.earthlink.net> (03/02/19 1.913.1.1)
-...
-> using standard macros for vgacon.c.
+> Hi All,
+> 
+> May be you will say that this has been answered somewhere, but I am not
+> really able to understand what to do?
+> 
+> I recently installed RHL 8.0 on a SGI1200 server. The server has 
+> "Adaptec AIC-7896 SCSI BIOS v2.20S1B1" installed.
+> 
+> When I boot the system, the two SCSI channels are recognised, and then the
+> system is not able to initialise. The partial error codes are:
+> 
+> aic7xxx_abort returns 0x2002
+> SCSI 0:0:0:0: Attempting to queue TARGET RESET message
+> SCSI 0:0:0:0: Is not an active device
 
-Unfortunately, this makes vgacon on non-legacy platforms where
-the I/O port address doesn't fit in unsigned short almost
-unfixable. :-(
+Those messages point to an interrupt routing problem.  The driver is
+not able to see interrupts from the chip, so timeouts occur.  Have
+you tries some of the various "apic/noapic" kernel options to see if
+your interrupt routing improves?  Often switching between UP and
+SMP kernels will change how interrupt routing is performed too.
 
-Ivan.
+--
+Justin
+

@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267991AbTCFKwc>; Thu, 6 Mar 2003 05:52:32 -0500
+	id <S268006AbTCFLLn>; Thu, 6 Mar 2003 06:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268000AbTCFKwc>; Thu, 6 Mar 2003 05:52:32 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:15547 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S267991AbTCFKwb>;
-	Thu, 6 Mar 2003 05:52:31 -0500
-Date: Thu, 6 Mar 2003 12:01:53 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <1154551109.20030306120153@tnonline.net>
-To: Erik Hensema <usenet@hensema.net>
-CC: linux-kernel@vger.kernel.org, erik@hensema.net
-Subject: Re: Entire LAN goes boo  with 2.5.64
-In-Reply-To: <slrnb6e6uv.18e.usenet@bender.home.hensema.net>
-References: <195124534734.20030306103604@tnonline.net>
- <185124756546.20030306103945@tnonline.net>
- <slrnb6e6uv.18e.usenet@bender.home.hensema.net>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S268012AbTCFLLn>; Thu, 6 Mar 2003 06:11:43 -0500
+Received: from packet.digeo.com ([12.110.80.53]:26593 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268006AbTCFLLm>;
+	Thu, 6 Mar 2003 06:11:42 -0500
+Date: Thu, 6 Mar 2003 03:22:08 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] work around gcc-3.x inlining bugs
+Message-Id: <20030306032208.03f1b5e2.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2003 11:22:08.0731 (UTC) FILETIME=[A007FAB0:01C2E3D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anders Widman (andewid@tnonline.net) wrote:
->> 
->>>    Hello,
->> 
->>>    Trying  out  the  2.5.64  kernel  to try to solve some IDE specific
->>>    problems  with 2.4.x kernels. Now I have another problem. We have a
->>>    Windows LAN and a Windows XP with WinRoute Pro as gateway.
->> 
->>>    When  booting  the linux-machine with the 2.5.64 kernel the windows
->>>    machine goes to 100% cpu and the switch (Dlink) goes crazy (loosing
->>>    link, other machines get 100k/s instead of 10-12MiB/s etc).
->> 
->>>    I  compiled  the  2.5.64  with  as  few  options  as  possible,  no
->>>    netfilter, or IPSec or similar stuff.
->> 
->>>    What can be the problem?
->> 
->>    Forgot to say I am using a Intel Pro100+ NIC and I have tested with
->>    both the Becker driver and the Intel driver.
 
-> I've seen something similar [1] happen to a LAN with one Windows XP machine
-> running vcool: http://vcool.occludo.net/ . This is also available for Linux
-> (http://vcool.occludo.net/VC_Linux.html). Are you running this patch or a
-> similar one?
+This patch:
 
-Nope, no vcool or anything similar. But it is very odd that the switch
-would go crazy too!
-
-> [1] all machines were seeing frame errors on packets > 250 bytes; it was a
-> 10 mbit coax lan.
-
-Using 100mbit switched network.
+--- 25/include/linux/compiler.h~gcc3-inline-fix	2003-03-06 03:02:43.000000000 -0800
++++ 25-akpm/include/linux/compiler.h	2003-03-06 03:11:42.000000000 -0800
+@@ -1,6 +1,11 @@
+ #ifndef __LINUX_COMPILER_H
+ #define __LINUX_COMPILER_H
+ 
++#if __GNUC__ >= 3
++#define inline __inline__ __attribute__((always_inline))
++#define __inline__ __inline__ __attribute__((always_inline))
++#endif
++
+ /* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
+    a mechanism by which the user can annotate likely branch directions and
+    expect the blocks to be reordered appropriately.  Define __builtin_expect
 
 
-   
+shrinks my 3.2.1-compiled kernel text by about 64 kbytes:
 
+   text    data     bss     dec     hex filename
+3316138  574844  726816 4617798  467646 vmlinux-before
+3249255  555436  727204 4531895  4526b7 vmlinux-after
 
+mnm:/tmp> nm vmlinux-before|grep __constant_c_and_count_memset | wc
+    233     699    9553
+mnm:/tmp> nm vmlinux-after|grep __constant_c_and_count_memset | wc
+     13      39     533
 
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
+Can anyone see a problem with it?
 

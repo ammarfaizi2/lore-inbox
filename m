@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSE3VDF>; Thu, 30 May 2002 17:03:05 -0400
+	id <S316877AbSE3VGh>; Thu, 30 May 2002 17:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316865AbSE3VDE>; Thu, 30 May 2002 17:03:04 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:40933 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S316864AbSE3VDD>;
-	Thu, 30 May 2002 17:03:03 -0400
-Date: Thu, 30 May 2002 23:03:06 +0200
-From: Angelo Archie Amoruso <aamoruso@libero.it>
-To: linux-kernel@vger.kernel.org
-Subject: 3c59x.c Linux driver patch
-Message-Id: <20020530230306.7a2caa09.aamoruso@libero.it>
-Organization: Archie Dynodns
-X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S316881AbSE3VGg>; Thu, 30 May 2002 17:06:36 -0400
+Received: from mta3n.bluewin.ch ([195.186.1.212]:3240 "EHLO mta3n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S316877AbSE3VGf>;
+	Thu, 30 May 2002 17:06:35 -0400
+Message-ID: <3CF69444.2080503@bluewin.ch>
+Date: Thu, 30 May 2002 23:06:12 +0200
+From: Nicolas Aspert <Nicolas.Aspert@bluewin.ch>
+Reply-To: Nicolas.Aspert@epfl.ch
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: skidley@crrstv.net, Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH*]2.4.19-pre9-ac2 agp compile error
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
+Hello
 
-I'm sending you a diff file for a patch to the Linux
-3c59x.c driver (from the 2.4.18 vanilla source tree), 
-in order to support some strange 3C905-B
-cards which map themselves on PCI device 00B7:9055.
+There was a few typos in the patch I sent to the list previously. A 
+remaining '&'  from a cut'n paste and INTEL_I815_APCONT instead of 
+INTEL_815_APCONT
 
-Here come's the diff output:
-============================
+The full correct patch for Intel815 (against 2.4.19-pre8-ac5, but easily 
+adaptable to 2.4.19-pre9-ac2) is available at 
+http://ltswww.epfl.ch/~aspert/patches/patch-intel_815-2.4.19-pre8-ac5
 
---- 3c59x.c.old Thu May 23 18:22:47 2002
-+++ 3c59x.c     Thu May 23 21:23:14 2002
-@@ -166,6 +166,10 @@
-     - Rename wait_for_completion() to issue_and_wait() to avoid completion.h
-       clash.
+The rest *should* be OK, please test.
 
-+    LK1.1.17 23 May 2002 Angelo Archie Amoruso (aamoruso@libero.it)
-+    - Added entry on the vortex_pci_tbl[] in order to support 3c905b cards
-+      which map to PCI device 00B7:9055
-+
-     - See http://www.uow.edu.au/~andrewm/linux/#3c59x-2.3 for more details.
-     - Also see Documentation/networking/vortex.txt
- */
-@@ -181,8 +185,8 @@
+I wish I had a dedicated computer on which I could compile all this 
+stuff... Maybe one day ;-)
 
+Best regards
 
- #define DRV_NAME       "3c59x"
--#define DRV_VERSION    "LK1.1.16"
--#define DRV_RELDATE    "19 July 2001"
-+#define DRV_VERSION    "LK1.1.17"
-+#define DRV_RELDATE    "22 May 2002"
-
-
-
-@@ -554,6 +558,7 @@
-        { 0x10B7, 0x9050, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905_1 },
-        { 0x10B7, 0x9051, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905_2 },
-        { 0x10B7, 0x9055, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905B_1 },
-+        { 0x00B7, 0x9055, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905B_1 },
-
-        { 0x10B7, 0x9058, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905B_2 },
-        { 0x10B7, 0x905A, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905B_FX },
-
-
--- 
-
-       /|
-      /=|rchie 
 
 

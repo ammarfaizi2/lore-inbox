@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314101AbSD0SZe>; Sat, 27 Apr 2002 14:25:34 -0400
+	id <S314206AbSD0SZt>; Sat, 27 Apr 2002 14:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314206AbSD0SZd>; Sat, 27 Apr 2002 14:25:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39435 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314101AbSD0SZd>; Sat, 27 Apr 2002 14:25:33 -0400
-Date: Sat, 27 Apr 2002 19:25:26 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-Message-ID: <20020427192526.A26394@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0204271103290.5887-100000@k2-400.lameter.com>
-Mime-Version: 1.0
+	id <S314338AbSD0SZs>; Sat, 27 Apr 2002 14:25:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53009 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314206AbSD0SZr>; Sat, 27 Apr 2002 14:25:47 -0400
+Subject: Re: The tainted message
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Sat, 27 Apr 2002 19:41:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        rthrapp@sbcglobal.net (Richard Thrapp),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3CCAB53F.8030707@evision-ventures.com> from "Martin Dalecki" at Apr 27, 2002 04:27:11 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171X8t-0000GV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 11:13:35AM -0700, Christoph Lameter wrote:
-> I do not even know how BK works and I am not interested ...
-> just offended by ppl making access to development kernel source code
-> difficult and offended by someone with a star status apparently being
-> able to abuse the system.
+> What about:
+> "WARNING: You are about to leaving the american sector."?
 
-*BEFORE* we start yet another flame war.  TAKE IT OFF THIS MAILING LIST.
-
-I'm sick and tired of this BK/anti-BK crap advocates keep bring up.
-Create a new list to argue the toss, please.  Don't distract the people
-actually trying to get some useful kernel work done.
-
-Thanks.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Wrong way around surely 8)

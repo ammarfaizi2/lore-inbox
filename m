@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUAKFaM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 00:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUAKFaL
+	id S265764AbUAKFTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 00:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265766AbUAKFTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 00:30:11 -0500
-Received: from mail.intercable.net ([207.248.32.22]:59654 "EHLO
-	macross.intercable.net") by vger.kernel.org with ESMTP
-	id S265766AbUAKFaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 00:30:08 -0500
-Message-ID: <4000DE12.7020100@intercable.net>
-Date: Sat, 10 Jan 2004 23:24:34 -0600
-From: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en
+	Sun, 11 Jan 2004 00:19:03 -0500
+Received: from stinkfoot.org ([65.75.25.34]:36994 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S265764AbUAKFTA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 00:19:00 -0500
+Message-ID: <4000DCD0.6080904@stinkfoot.org>
+Date: Sun, 11 Jan 2004 00:19:12 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031224
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: GIVEUP [bootup kernel panic 2.6.x] no root partition detected?
-References: <40005E9C.3030309@intercable.net> <4000D463.3040707@intercable.net> <200401110010.09341.gene.heskett@verizon.net>
-In-Reply-To: <200401110010.09341.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: 2.6.1 and irq balancing
+References: <40008745.4070109@stinkfoot.org> <200401102139.09883.edt@aei.ca>
+In-Reply-To: <200401102139.09883.edt@aei.ca>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ed Tomlinson wrote:
+> Hi,
+> 
+> What is the load on the box when this is happening?  If its low think
+> this is optimal (for cache reasons).
+> 
 
-Thanks for your answer, I use LILO but that root is refering to
-presisely the root partition, in my case it its /dev/hda5...
-It is well configured in lilo, I can enter with kernel 2.4... but not
-with 2.6...
-if you want to know, the exact Kernel error at the begining is:
+Admittedly, the machine's load was not high when I took this sample. 
+However, creating a great deal of load does not change these statistics 
+at all.  Being that there are patches available for 2.4.x kernels to fix 
+this, I don't think this at all by design, but what do I know? =)
 
-VFS: Cannot open root device "305" or hda5
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on hda5
+2.6.0 running on a non-HT SMP machine I have (old Compaq proliant 
+2xPentium2) does interrupt on all CPU's with "noirqbalance" bootparam.
 
-but I know hda5 is the partition, maybe there has something to be with
-the fact that the root partition is logical, in the extended partiton...
-I mean is not a primary partition... could this be true???
+Regarding the keyboard, I noticed something interesting
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+2.6.1-rc1 shows the i8042 in /proc/interrupts:
 
-iD8DBQFAAN4SOGkG8a1Mf+oRAqD6AJ0UJi0lArcbh8SPk6b+z8jIdPULPwCgrTOE
-IeWde/UI3AjoojonFRtB9AY=
-=YXTH
------END PGP SIGNATURE-----
+   1:       1871          0          0          0    IO-APIC-edge  i8042
 
+(keyboard still does not work, though..)
+
+2.6.1 final does not show this at all, and [kseriod] eats a constant 5% 
+  CPU.  Something's awry =)
+
+
+-Ethan

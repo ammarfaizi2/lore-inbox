@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267203AbSKPCK3>; Fri, 15 Nov 2002 21:10:29 -0500
+	id <S267202AbSKPCIE>; Fri, 15 Nov 2002 21:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267204AbSKPCK3>; Fri, 15 Nov 2002 21:10:29 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:47536 "EHLO
+	id <S267203AbSKPCIE>; Fri, 15 Nov 2002 21:08:04 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:46768 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267203AbSKPCK2>; Fri, 15 Nov 2002 21:10:28 -0500
-Subject: Re: Reserving "special" port numbers in the kernel ?
+	id <S267202AbSKPCIE>; Fri, 15 Nov 2002 21:08:04 -0500
+Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arun Sharma <arun.sharma@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <uel9mbcyi.fsf@unix-os.sc.intel.com>
-References: <uel9mbcyi.fsf@unix-os.sc.intel.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021115185632.GY23425@holomorphy.com>
+References: <20021115081044.GI18180@conectiva.com.br>
+	<20021115084915.GS23425@holomorphy.com>
+	<20021115094827.GT23425@holomorphy.com>
+	<20021115120233.GC25902@atrey.karlin.mff.cuni.cz>
+	<1037366172.877.30.camel@zion> <20021115181247.GB8763@elf.ucw.cz> 
+	<20021115185632.GY23425@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Nov 2002 02:43:58 +0000
-Message-Id: <1037414638.21937.20.camel@irongate.swansea.linux.org.uk>
+Date: 16 Nov 2002 02:41:24 +0000
+Message-Id: <1037414484.21974.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-16 at 00:00, Arun Sharma wrote:
-> One of the Intel server platforms has a magic port number (623) that
-> it uses for remote server management. However, neither the kernel nor
-> glibc are aware of this special port.
+On Fri, 2002-11-15 at 18:56, William Lee Irwin III wrote:
+> But like I said, it's very unlikely any strong interest will ever
+> arise specifically in large-scale i386 checkpointing. Computational
+> workloads are very attached to having clean and efficient FPU's, which
+> i386 lacks. RISC etc. boxen with clean FPU's are more important for
+> that. OTOH if highmem works, why wouldn't bigger highmem boxen work? NFI
 
-I can't find it in the IETF standards documents either.
+Most large scale FP computation jobs are done on x86. RISC stuff isnt
+that much faster if at all. It may be elegant but the PIV and Athlon go
+at 2.5Ghz so make up for elegance by being stupid very fast (note that
+by the PIV and athlon the FPU's are not actually very veryy smart)
 
-> As a result, when someone requests a privileged port using
-> bindresvport(3), they may get this port back and bad things happen.
-
-They have at least as much right to it as you do
-
-> Has anyone run into this or similar problems before ? Thoughts on
-> what's the right place to handle this issue ?
-
-Run your remote management daemon from xinetd, it'll then get the port
-nice and early in the system runtime.
+Alan
 

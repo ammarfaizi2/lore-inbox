@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266995AbUBRWoF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266927AbUBRWoF
+	id S267172AbUBSAPo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 19:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267174AbUBSAPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:44:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40399 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266995AbUBRWnz (ORCPT
+	Wed, 18 Feb 2004 19:15:44 -0500
+Received: from mx.eastlink.ca ([24.222.0.20]:8254 "EHLO mx.eastlink.ca")
+	by vger.kernel.org with ESMTP id S267172AbUBSAPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:43:55 -0500
-Date: Wed, 18 Feb 2004 14:43:46 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, selinux@tycho.nsa.gov
-Subject: Re: [SELINUX] Event notifications via Netlink
-Message-ID: <20040218144346.B22989@build.pdx.osdl.net>
-References: <20040218125545.6c499296.davem@redhat.com> <Xine.LNX.4.44.0402181621390.28705-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Xine.LNX.4.44.0402181621390.28705-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Wed, Feb 18, 2004 at 04:22:51PM -0500
+	Wed, 18 Feb 2004 19:15:42 -0500
+Date: Wed, 18 Feb 2004 20:06:47 -0400 (AST)
+From: Steve Bromwich <kernel@fop.ns.ca>
+Subject: Re: harddisk or kernel problem?
+In-reply-to: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@redhat.com) wrote:
-> +static int selnl_msglen(int msgtype)
-> +	default:
-> +		BUG();
-> +static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *data)
-> +	default:
-> +		BUG();
+On Wed, 18 Feb 2004, Bruce Allen wrote:
 
-Is BUG() the best error here, or too draconian?
+> > 194 Temperature_Celsius     0x0022   100   050   000    Old_age   Always
+> > -       48 (Lifetime Min/Max 14/65)
+> >
+> > If I'm reading this correctly, you've been running the drive when it's
+> > extremely cold and extremely hot (Min/Max 14/65, I'm guessing that's
+> > either Fahrenheit or a raw unconverted reading from the thermistor).
+>
+> Neither.  Fujitsu uses Celsuis: 14, 48, and 65 are all in Celsuis.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Good grief... I'm not surprised the drive's dying, then! I've seen drives
+lock up around 35C, I'm quite impressed the drive is still chugging along
+(to some extent, at least) at 48C - and a max of 65C? Looking at a few of
+Fujitsu's pages (eg,
+http://www.fujitsu.ca/products/mobile_hdd/mht_ah/physical_specs.html),
+ambient operating temperature is 5C to 55C - perhaps that's the cause of
+the drive dying?
+
+Just out of curiosity, Nico, what're you doing with these drives that
+they're running so hot?
+
+Cheers, Steve

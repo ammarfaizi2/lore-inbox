@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264985AbTFCMml (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264986AbTFCMmk
+	id S264982AbTFCMio (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbTFCMio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:42:40 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:21407 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264985AbTFCMmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:42:38 -0400
-Date: Tue, 3 Jun 2003 13:59:40 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-       mikpe@csd.uu.se, torvalds@transmeta.com
-Subject: Re: [PATCH] Support for mach-xbox (updated)
-Message-ID: <20030603125940.GC13838@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org,
-	Sam Ravnborg <sam@ravnborg.org>, mikpe@csd.uu.se,
-	torvalds@transmeta.com
-References: <20030603091113.GD13285@h55p111.delphi.afb.lu.se>
+	Tue, 3 Jun 2003 08:38:44 -0400
+Received: from boden.synopsys.com ([204.176.20.19]:53938 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S264982AbTFCMil
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:38:41 -0400
+Date: Tue, 3 Jun 2003 14:52:03 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Miles Lane <miles.lane@attbi.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk7 -- drivers/net/irda/w83977af_ir.ko needs unknown	symbol setup_dma
+Message-ID: <20030603125203.GD11885@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Miles Lane <miles.lane@attbi.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <3EDBCC44.8000009@attbi.com> <1054612898.9352.3.camel@rth.ninka.net> <3EDC3B52.6030604@attbi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030603091113.GD13285@h55p111.delphi.afb.lu.se>
+In-Reply-To: <3EDC3B52.6030604@attbi.com>
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 11:11:13AM +0200, Anders Gustafsson wrote:
- > Updated according to Sam and Mikaels comments.
+Miles Lane, Tue, Jun 03, 2003 08:08:18 +0200:
+> David S. Miller wrote:
+> >On Mon, 2003-06-02 at 15:14, Miles Lane wrote:
+> >
+> >>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70-bk7; fi
+> >>WARNING: /lib/modules/2.5.70-bk7/kernel/drivers/net/irda/w83977af_ir.ko 
+> >>needs unknown symbol setup_dma
+> >
+> >
+> >What platform is this?  It needs to set CONFIG_ISA correctly.
+> 
+> It's PPC.
+> 
+> CONFIG_PPC=y
+> CONFIG_PPC32=y
+> CONFIG_6xx=y
+> 
+> #
+> # General setup
+> #
+> # CONFIG_HIGHMEM is not set
+> # CONFIG_ISA is not set
+> CONFIG_PCI=y
+> 
 
-you missed one 8-)
+i386 as well:
 
- > +static void xbox_pic_cmd(u8 command)
- > +{
- > +	outw_p(((XBOX_PIC_ADDRESS) << 1),XBOX_SMB_HOST_ADDRESS);
- > +        outb_p(SMC_CMD_POWER, XBOX_SMB_HOST_COMMAND);
- > +        outw_p(command, XBOX_SMB_HOST_DATA);
- > +        outw_p(inw(XBOX_SMB_IO_BASE),XBOX_SMB_IO_BASE);
- > +        outb_p(0x0a,XBOX_SMB_GLOBAL_ENABLE);
- > +}
+*** Warning: "setup_dma" [drivers/net/irda/w83977af_ir.ko] undefined!
+*** Warning: "setup_dma" [drivers/net/irda/smsc-ircc2.ko] undefined!
+*** Warning: "setup_dma" [drivers/net/irda/nsc-ircc.ko] undefined!
+*** Warning: "setup_dma" [drivers/net/irda/ali-ircc.ko] undefined!
 
-Last 4 lines all use spaces instead of tabs.
+grep 'ISA\|PCI' .config
+CONFIG_GENERIC_ISA_DMA=y
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+CONFIG_PCI=y
+# CONFIG_ISA is not set
 
- >  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
- > +ifeq ($(CONFIG_X86_XBOX),y)
- > +#XXX Compiling with optimization makes 1.1-xboxen 
- > +#    crash while decompressing the kernel
- > +CFLAGS_misc.o   := -O0
- > +endif
-
-curious. does it matter which version of gcc you used ?
-this sounds like a band-aid for something else that needs fixing.
-
- 		Dave
 

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRDDSTq>; Wed, 4 Apr 2001 14:19:46 -0400
+	id <S129292AbRDDST5>; Wed, 4 Apr 2001 14:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129446AbRDDSTh>; Wed, 4 Apr 2001 14:19:37 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:8206 "EHLO quark.didntduck.org")
-	by vger.kernel.org with ESMTP id <S129282AbRDDSTS>;
-	Wed, 4 Apr 2001 14:19:18 -0400
-Message-ID: <3ACB6524.C5986233@didntduck.org>
-Date: Wed, 04 Apr 2001 14:17:08 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Vik Heyndrickx <vik.heyndrickx@pandora.be>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 kernel hangs on 486 machine at boot
-In-Reply-To: <E14krU0-0002P8-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129446AbRDDSTr>; Wed, 4 Apr 2001 14:19:47 -0400
+Received: from palrel1.hp.com ([156.153.255.242]:59659 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S129292AbRDDSTg>;
+	Wed, 4 Apr 2001 14:19:36 -0400
+From: Scott Rhine <rhine@rsn.hp.com>
+Message-Id: <200104041818.NAA25008@hueco-e.rsn.hp.com>
+Subject: [Lse-tech] HP Plug In Policies vs Multiqueue Scheduler (fwd)
+To: linux-kernel@vger.kernel.org
+Date: Wed, 04 Apr 2001 13:18:48 CDT
+X-Mailer: Elm [revision: 111.1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Problem: Linux kernel 2.4 consistently hangs at boot on 486 machine
-> >
-> > Shortly after lilo starts the kernel it hangs at the following message:
-> > Checking if this processor honours the WP bit even in supervisor mode...
-> > <blinking cursor>
-> 
-> Does this happen on 2.4.3-ac kernel trees ? I thought i had it zapped
-> 
+There has been a little cross talk lately about the "HP" schedulers that
+may be sowing some confusion.
 
-Yes, that fix in -ac should take care of it.  As to why only the 486
-showed the problem, most 386's will not fault on the write protected
-page (the whole reason for this test) and pentiums and later don't run
-the test at all (assumed good).
+1) Pluggable policies provides a minimally intrusive way to develop and
+   test new scheduler policies such as Processor Sets, or the Fair Share
+   Scheduler.  It provides a good way to test a theory without rebooting.
+   (Linus said that this approach was useful for experiments but was too 
+    dangerous to allow in the main line kernel. sigh. We're still working on a
+    way to get *some* flexibility via goodness, etc.)
 
---
+2) The Multi-queue approach I put on our web site is not pluggable, because
+   the prototype didn't generate enough interest or performance improvement.
+   It was an academic exercise showing what I considered the minimum change 
+   necessary.  It took about two days to code and measure the revised scaling.
+   Consider it the opening volley of a group discussion, not a finished product.
 
-				Brian Gerst
+3) the cpu stealing rules try to mimic those for a earlier kernel for an i386
+   architecture.  Due to the ~20 penalty, stealing was not mathematically 
+   possible between cpus until everything with preference for that CPU has 
+   reached 0 count.  When one queue is empty, I try to emulate the single 
+   queue behavior and pick the best job from all queues.  This was for 
+   simplicity and compatibility, not fairness or speed.
+
+What they say is true, there is no such thing as bad publicity.  I've had more
+MQ downloads this week than I did when they were new.

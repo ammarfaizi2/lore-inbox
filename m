@@ -1,112 +1,405 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUKHRsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbUKHRvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUKHRsL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbUKHRrz
+	id S261973AbUKHRvg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUKHRu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:47:55 -0500
-Received: from mail45.messagelabs.com ([140.174.2.179]:50084 "HELO
-	mail45.messagelabs.com") by vger.kernel.org with SMTP
-	id S261791AbUKHRqn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 12:46:43 -0500
-X-VirusChecked: Checked
-X-Env-Sender: justin.piszcz@mitretek.org
-X-Msg-Ref: server-23.tower-45.messagelabs.com!1099936001!7215312!1
-X-StarScan-Version: 5.4.2; banners=-,-,-
-X-Originating-IP: [66.10.26.57]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 8 Nov 2004 12:50:28 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16342 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261897AbUKHRqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 12:46:20 -0500
+Message-ID: <418FB0EA.90006@mvista.com>
+Date: Mon, 08 Nov 2004 11:46:18 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: error on kern.log
-Date: Mon, 8 Nov 2004 12:46:39 -0500
-Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC403E@email1.mitretek.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: error on kern.log
-thread-index: AcTFuGfkOyHhdKJPQba0DZb1W6rVdgAAAZCgAACVxdA=
-From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
-       "Mike Tesliuk" <mike@001admin.com.br>,
-       "kernel" <linux-kernel@vger.kernel.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] small IPMI cleanup
+References: <20041106222839.GS1295@stusta.de>
+In-Reply-To: <20041106222839.GS1295@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I spoke too fast, I see you are running 2.6.4, my problems began with
-2.6.9, it would be interesting if you have the same problem however, I
-did not recall experiencing this issue in kernels <= 2.6.8.1.
+Adrian,
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Piszcz, Justin
-Michael
-Sent: Monday, November 08, 2004 12:33 PM
-To: Mike Tesliuk; kernel
-Subject: RE: error on kern.log
+All these things are tools used by external modules that have not yet 
+made it into the mainstream kernel.  Also, there are other users of 
+these functions that are perhaps not in the kernel yet (and perhaps 
+never make it into the mainstream kernel).  Some of the statics do need 
+to be cleaned up, though.
 
-This is a known bug, it has to do with your network card using TSO
-(tcp-sementation-offload), hopefully, it will be fixed in 2.6.10.
+The IPMI driver was designed so that in-kernel users can use it as 
+easily as userland users.  So these are important parts of the interface.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1326.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1684.html
+-Corey
 
+Adrian Bunk wrote:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Mike Tesliuk
-Sent: Monday, November 08, 2004 11:54 AM
-To: kernel
-Subject: error on kern.log
+>The patch below does the following changes to the IPMI code:
+>- remove some completely unused code
+>- make some needlessly global code static
+>
+>This inlcldes the removal of some EXPORT_SYMBOL'ed code with zero users.
+>
+>Is this patch OK or are in-kernel users for these functions pending?
+>
+>
+>diffstat output:
+> drivers/char/ipmi/ipmi_msghandler.c |   99 ----------------------------
+> drivers/char/ipmi/ipmi_poweroff.c   |    6 -
+> drivers/char/ipmi/ipmi_si_intf.c    |    4 -
+> drivers/char/ipmi/ipmi_watchdog.c   |   17 ----
+> include/linux/ipmi.h                |   63 -----------------
+> 5 files changed, 7 insertions(+), 182 deletions(-)
+>
+>
+>Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+>--- linux-2.6.10-rc1-mm3-full/include/linux/ipmi.h.old	2004-11-06 22:09:50.000000000 +0100
+>+++ linux-2.6.10-rc1-mm3-full/include/linux/ipmi.h	2004-11-06 22:10:56.000000000 +0100
+>@@ -253,7 +253,6 @@
+> {
+> 	msg->done(msg);
+> }
+>-struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+> 
+> struct ipmi_user_hndl
+> {
+>@@ -303,32 +302,6 @@
+> unsigned char ipmi_get_my_LUN(ipmi_user_t user);
+> 
+> /*
+>- * Send a command request from the given user.  The address is the
+>- * proper address for the channel type.  If this is a command, then
+>- * the message response comes back, the receive handler for this user
+>- * will be called with the given msgid value in the recv msg.  If this
+>- * is a response to a command, then the msgid will be used as the
+>- * sequence number for the response (truncated if necessary), so when
+>- * sending a response you should use the sequence number you received
+>- * in the msgid field of the received command.  If the priority is >
+>- * 0, the message will go into a high-priority queue and be sent
+>- * first.  Otherwise, it goes into a normal-priority queue.
+>- * The user_msg_data field will be returned in any response to this
+>- * message.
+>- *
+>- * Note that if you send a response (with the netfn lower bit set),
+>- * you *will* get back a SEND_MSG response telling you what happened
+>- * when the response was sent.  You will not get back a response to
+>- * the message itself.
+>- */
+>-int ipmi_request(ipmi_user_t      user,
+>-		 struct ipmi_addr *addr,
+>-		 long             msgid,
+>-		 struct kernel_ipmi_msg *msg,
+>-		 void             *user_msg_data,
+>-		 int              priority);
+>-
+>-/*
+>  * Like ipmi_request, but lets you specify the number of retries and
+>  * the retry time.  The retries is the number of times the message
+>  * will be resent if no reply is received.  If set to -1, the default
+>@@ -351,18 +324,6 @@
+> 			 unsigned int     retry_time_ms);
+> 
+> /*
+>- * Like ipmi_request, but lets you specify the slave return address.
+>- */
+>-int ipmi_request_with_source(ipmi_user_t      user,
+>-			     struct ipmi_addr *addr,
+>-			     long             msgid,
+>-			     struct kernel_ipmi_msg  *msg,
+>-			     void             *user_msg_data,
+>-			     int              priority,
+>-			     unsigned char    source_address,
+>-			     unsigned char    source_lun);
+>-
+>-/*
+>  * Like ipmi_request, but with messages supplied.  This will not
+>  * allocate any memory, and the messages may be statically allocated
+>  * (just make sure to do the "done" handling on them).  Note that this
+>@@ -381,16 +342,6 @@
+> 			     int                  priority);
+> 
+> /*
+>- * Do polling on the IPMI interface the user is attached to.  This
+>- * causes the IPMI code to do an immediate check for information from
+>- * the driver and handle anything that is immediately pending.  This
+>- * will not block in anyway.  This is useful if you need to implement
+>- * polling from the user like you need to send periodic watchdog pings
+>- * from a crash dump, or something like that.
+>- */
+>-void ipmi_poll_interface(ipmi_user_t user);
+>-
+>-/*
+>  * When commands come in to the SMS, the user can register to receive
+>  * them.  Only one user can be listening on a specific netfn/cmd pair
+>  * at a time, you will get an EBUSY error if the command is already
+>@@ -420,17 +371,6 @@
+> int ipmi_set_gets_events(ipmi_user_t user, int val);
+> 
+> /*
+>- * Register the given user to handle all received IPMI commands.  This
+>- * will fail if anyone is registered as a command receiver or if
+>- * another is already registered to receive all commands.  NOTE THAT
+>- * THIS IS FOR EMULATION USERS ONLY, DO NOT USER THIS FOR NORMAL
+>- * STUFF.
+>- */
+>-int ipmi_register_all_cmd_rcvr(ipmi_user_t user);
+>-int ipmi_unregister_all_cmd_rcvr(ipmi_user_t user);
+>-
+>-
+>-/*
+>  * Called when a new SMI is registered.  This will also be called on
+>  * every existing interface when a new watcher is registered with
+>  * ipmi_smi_watcher_register().
+>@@ -463,9 +403,6 @@
+> /* Validate that the given IPMI address is valid. */
+> int ipmi_validate_addr(struct ipmi_addr *addr, int len);
+> 
+>-/* Return 1 if the given addresses are equal, 0 if not. */
+>-int ipmi_addr_equal(struct ipmi_addr *addr1, struct ipmi_addr *addr2);
+>-
+> #endif /* __KERNEL__ */
+> 
+> 
+>--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_msghandler.c.old	2004-11-06 22:11:18.000000000 +0100
+>+++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_msghandler.c	2004-11-06 22:12:58.000000000 +0100
+>@@ -49,7 +49,7 @@
+> #define PFX "IPMI message handler: "
+> #define IPMI_MSGHANDLER_VERSION "v33"
+> 
+>-struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+>+static struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+> static int ipmi_init_msghandler(void);
+> 
+> static int initialized = 0;
+>@@ -294,44 +294,6 @@
+> 	unsigned int events;
+> };
+> 
+>-int
+>-ipmi_register_all_cmd_rcvr(ipmi_user_t user)
+>-{
+>-	unsigned long flags;
+>-	int           rv = -EBUSY;
+>-
+>-	write_lock_irqsave(&(user->intf->users_lock), flags);
+>-	write_lock(&(user->intf->cmd_rcvr_lock));
+>-	if ((user->intf->all_cmd_rcvr == NULL)
+>-	    && (list_empty(&(user->intf->cmd_rcvrs))))
+>-	{
+>-		user->intf->all_cmd_rcvr = user;
+>-		rv = 0;
+>-	}
+>-	write_unlock(&(user->intf->cmd_rcvr_lock));
+>-	write_unlock_irqrestore(&(user->intf->users_lock), flags);
+>-	return rv;
+>-}
+>-
+>-int
+>-ipmi_unregister_all_cmd_rcvr(ipmi_user_t user)
+>-{
+>-	unsigned long flags;
+>-	int           rv = -EINVAL;
+>-
+>-	write_lock_irqsave(&(user->intf->users_lock), flags);
+>-	write_lock(&(user->intf->cmd_rcvr_lock));
+>-	if (user->intf->all_cmd_rcvr == user)
+>-	{
+>-		user->intf->all_cmd_rcvr = NULL;
+>-		rv = 0;
+>-	}
+>-	write_unlock(&(user->intf->cmd_rcvr_lock));
+>-	write_unlock_irqrestore(&(user->intf->users_lock), flags);
+>-	return rv;
+>-}
+>-
+>-
+> #define MAX_IPMI_INTERFACES 4
+> static ipmi_smi_t ipmi_interfaces[MAX_IPMI_INTERFACES];
+> 
+>@@ -389,7 +351,7 @@
+> 	up_read(&smi_watchers_sem);
+> }
+> 
+>-int
+>+static int
+> ipmi_addr_equal(struct ipmi_addr *addr1, struct ipmi_addr *addr2)
+> {
+> 	if (addr1->addr_type != addr2->addr_type)
+>@@ -1360,26 +1322,6 @@
+> 	return rv;
+> }
+> 
+>-int ipmi_request(ipmi_user_t      user,
+>-		 struct ipmi_addr *addr,
+>-		 long             msgid,
+>-		 struct kernel_ipmi_msg  *msg,
+>-		 void             *user_msg_data,
+>-		 int              priority)
+>-{
+>-	return i_ipmi_request(user,
+>-			      user->intf,
+>-			      addr,
+>-			      msgid,
+>-			      msg,
+>-			      user_msg_data,
+>-			      NULL, NULL,
+>-			      priority,
+>-			      user->intf->my_address,
+>-			      user->intf->my_lun,
+>-			      -1, 0);
+>-}
+>-
+> int ipmi_request_settime(ipmi_user_t      user,
+> 			 struct ipmi_addr *addr,
+> 			 long             msgid,
+>@@ -1426,28 +1368,6 @@
+> 			      -1, 0);
+> }
+> 
+>-int ipmi_request_with_source(ipmi_user_t      user,
+>-			     struct ipmi_addr *addr,
+>-			     long             msgid,
+>-			     struct kernel_ipmi_msg  *msg,
+>-			     void             *user_msg_data,
+>-			     int              priority,
+>-			     unsigned char    source_address,
+>-			     unsigned char    source_lun)
+>-{
+>-	return i_ipmi_request(user,
+>-			      user->intf,
+>-			      addr,
+>-			      msgid,
+>-			      msg,
+>-			      user_msg_data,
+>-			      NULL, NULL,
+>-			      priority,
+>-			      source_address,
+>-			      source_lun,
+>-			      -1, 0);
+>-}
+>-
+> static int ipmb_file_read_proc(char *page, char **start, off_t off,
+> 			       int count, int *eof, void *data)
+> {
+>@@ -1702,14 +1622,6 @@
+> 	return;
+> }
+> 
+>-void ipmi_poll_interface(ipmi_user_t user)
+>-{
+>-	ipmi_smi_t intf = user->intf;
+>-
+>-	if (intf->handlers->poll)
+>-		intf->handlers->poll(intf->send_info);
+>-}
+>-
+> int ipmi_register_smi(struct ipmi_smi_handlers *handlers,
+> 		      void		       *send_info,
+> 		      unsigned char            version_major,
+>@@ -3211,15 +3123,11 @@
+> module_init(ipmi_init_msghandler_mod);
+> MODULE_LICENSE("GPL");
+> 
+>-EXPORT_SYMBOL(ipmi_alloc_recv_msg);
+> EXPORT_SYMBOL(ipmi_create_user);
+> EXPORT_SYMBOL(ipmi_destroy_user);
+> EXPORT_SYMBOL(ipmi_get_version);
+>-EXPORT_SYMBOL(ipmi_request);
+> EXPORT_SYMBOL(ipmi_request_settime);
+> EXPORT_SYMBOL(ipmi_request_supply_msgs);
+>-EXPORT_SYMBOL(ipmi_request_with_source);
+>-EXPORT_SYMBOL(ipmi_poll_interface);
+> EXPORT_SYMBOL(ipmi_register_smi);
+> EXPORT_SYMBOL(ipmi_unregister_smi);
+> EXPORT_SYMBOL(ipmi_register_for_cmd);
+>@@ -3227,12 +3135,9 @@
+> EXPORT_SYMBOL(ipmi_smi_msg_received);
+> EXPORT_SYMBOL(ipmi_smi_watchdog_pretimeout);
+> EXPORT_SYMBOL(ipmi_alloc_smi_msg);
+>-EXPORT_SYMBOL(ipmi_register_all_cmd_rcvr);
+>-EXPORT_SYMBOL(ipmi_unregister_all_cmd_rcvr);
+> EXPORT_SYMBOL(ipmi_addr_length);
+> EXPORT_SYMBOL(ipmi_validate_addr);
+> EXPORT_SYMBOL(ipmi_set_gets_events);
+>-EXPORT_SYMBOL(ipmi_addr_equal);
+> EXPORT_SYMBOL(ipmi_smi_watcher_register);
+> EXPORT_SYMBOL(ipmi_smi_watcher_unregister);
+> EXPORT_SYMBOL(ipmi_set_my_address);
+>--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_poweroff.c.old	2004-11-06 22:14:05.000000000 +0100
+>+++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_poweroff.c	2004-11-06 22:14:32.000000000 +0100
+>@@ -45,9 +45,9 @@
+> extern void (*pm_power_off)(void);
+> 
+> /* Stuff from the get device id command. */
+>-unsigned int mfg_id;
+>-unsigned int prod_id;
+>-unsigned char capabilities;
+>+static unsigned int mfg_id;
+>+static unsigned int prod_id;
+>+static unsigned char capabilities;
+> 
+> /* We use our own messages for this operation, we don't let the system
+>    allocate them, since we may be in a panic situation.  The whole
+>--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_si_intf.c.old	2004-11-06 22:15:03.000000000 +0100
+>+++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_si_intf.c	2004-11-06 22:15:27.000000000 +0100
+>@@ -1331,7 +1331,7 @@
+> static int acpi_failure = 0;
+> 
+> /* For GPE-type interrupts. */
+>-void ipmi_acpi_gpe(void *context)
+>+static void ipmi_acpi_gpe(void *context)
+> {
+> 	struct smi_info *smi_info = context;
+> 	unsigned long   flags;
+>@@ -2251,7 +2251,7 @@
+> }
+> module_init(init_ipmi_si);
+> 
+>-void __exit cleanup_one_si(struct smi_info *to_clean)
+>+static void __exit cleanup_one_si(struct smi_info *to_clean)
+> {
+> 	int           rv;
+> 	unsigned long flags;
+>--- linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_watchdog.c.old	2004-11-06 22:15:42.000000000 +0100
+>+++ linux-2.6.10-rc1-mm3-full/drivers/char/ipmi/ipmi_watchdog.c	2004-11-06 22:16:04.000000000 +0100
+>@@ -366,20 +366,6 @@
+> 	}
+> }
+> 
+>-/* Do a delayed shutdown, with the delay in milliseconds.  If power_off is
+>-   false, do a reset.  If power_off is true, do a power down.  This is
+>-   primarily for the IMB code's shutdown. */
+>-void ipmi_delayed_shutdown(long delay, int power_off)
+>-{
+>-	ipmi_ignore_heartbeat = 1;
+>-	if (power_off) 
+>-		ipmi_watchdog_state = WDOG_TIMEOUT_POWER_DOWN;
+>-	else
+>-		ipmi_watchdog_state = WDOG_TIMEOUT_RESET;
+>-	timeout = delay;
+>-	ipmi_set_timeout(IPMI_SET_TIMEOUT_HB_IF_NECESSARY);
+>-}
+>-
+> /* We use a semaphore to make sure that only one thing can send a
+>    heartbeat at one time, because we only have one copy of the data.
+>    The semaphore is claimed when the set_timeout is sent and freed
+>@@ -1084,8 +1070,5 @@
+> 	ipmi_unregister_watchdog();
+> }
+> module_exit(ipmi_wdog_exit);
+>-
+>-EXPORT_SYMBOL(ipmi_delayed_shutdown);
+>-
+> module_init(ipmi_wdog_init);
+> MODULE_LICENSE("GPL");
+>
+>  
+>
 
-Hello for all!!!
-
-I have a kernel messages like this every time: 
-
-printk: 9 messages suppressed.
-perl5.6.1: page allocation failure. order:3, mode:0x20
-Call Trace:
- [<c01351c5>] __alloc_pages+0x2dd/0x2ec
- [<c01351f1>] __get_free_pages+0x1d/0x38
- [<c0137d5d>] cache_grow+0xc5/0x2f8
- [<c013815b>] cache_alloc_refill+0x1cb/0x214
- [<c0138468>] __kmalloc+0x60/0x7c
- [<c02eb2cc>] alloc_skb+0x3c/0xd8
- [<c0312ec5>] tcp_fragment+0x6d/0x2ac
- [<c0315291>] tcp_write_wakeup+0xd9/0x20c
- [<c03153d7>] tcp_send_probe0+0x13/0xfc
- [<c0315f16>] tcp_probe_timer+0xa2/0xac
- [<c03163be>] tcp_write_timer+0xae/0xe4
- [<c0316310>] tcp_write_timer+0x0/0xe4
- [<c0123075>] run_timer_softirq+0x129/0x15c
- [<c011f2bc>] do_softirq+0x6c/0xcc
- [<c01131d3>] smp_apic_timer_interrupt+0x13f/0x144
- [<c010afa2>] apic_timer_interrupt+0x1a/0x20
-
-
-( Im using a kernel 2.6.4 )
-
-somebody can help me! i have this messages every time!!
-
-what is this?
-
-Thanks!!
-
-Mike Tesliuk (from Brasil)
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,53 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUFTXPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUFTXbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUFTXPm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 19:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUFTXPm
+	id S262391AbUFTXbL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 19:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUFTXbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 19:15:42 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:29710 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262768AbUFTXPZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 19:15:25 -0400
-Date: Mon, 21 Jun 2004 01:15:16 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dominik Karall <dominik.karall@gmx.net>, florin@iucha.net,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mgregan@jadeworld.com
-Subject: Re: linux-2.6.7-bk2 runs faster than linux-2.6.7 ;)
-Message-ID: <20040620231516.GA16617@pclin040.win.tue.nl>
-References: <20040619210714.GD3243@iucha.net> <200406200117.38691.dominik.karall@gmx.net> <20040619160532.49934355.akpm@osdl.org> <200406200207.16399.dominik.karall@gmx.net> <20040619162322.1d15c2dd.akpm@osdl.org>
+	Sun, 20 Jun 2004 19:31:11 -0400
+Received: from [213.4.129.150] ([213.4.129.150]:39067 "EHLO telesmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S262391AbUFTXbA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 19:31:00 -0400
+Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
+From: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
+	<agblazquez_mailing@telefonica.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200406200247.32303.bzolnier@elka.pw.edu.pl>
+References: <1087253451.4817.4.camel@localhost>
+	 <200406191846.32983.bzolnier@elka.pw.edu.pl>
+	 <1087686048.647.9.camel@localhost>
+	 <200406200247.32303.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1087774247.627.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040619162322.1d15c2dd.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: COLLEGEOFNEWCALEDONIA: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 01:30:48 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 04:23:22PM -0700, Andrew Morton wrote:
+Hi again,
 
-> The dmesg output is incomplete.  You'll need to use `dmesg -s 1000000' to
-> get all of it.
+The bus was introduced on 2.6.0-test5.
+I tried test1, test2, test3, test4. All OK.
+Then test5, test6 BUGGY.
+
+Hope this boooring task will help... more than spanish players on
+eurocup... bad day :(
+
+
+
+El dom, 20-06-2004 a las 02:47, Bartlomiej Zolnierkiewicz escribió:
+> On Sunday 20 of June 2004 01:00, Adolfo González Blázquez wrote:
+> > Hi,
+> >
+> > Sorry for the delay... I tried 2.5.50 and 2.5.75, and, at least for my
+> > machine, everything seems to be perfect. Then i tried every 2.6 kernel.
+> > All of them have the same buggy behaviour.
 > 
-> I wish that would get fixed actually.  Seems a bit silly, and current
-> kernels permit querying of the ringbuffer size.
-
-Hi Andrew - not so impatient.
-Of course I fixed dmesg before I fixed the kernel.
-
-From: Matthew Gregan <mgregan@jadeworld.com>
-
-: Hi Andries,
-:  
-: Attached is a small patch to dmesg that adds support for the new
-: functionality in kernel 2.6.6 and upwards to read the size of the kernel
-: message ring buffer.
-
-Thanks!
-However, dmesg already has this code.
-
-Andries
-
+> First of all thanks for doing this.
+> 
+> > These are the differences between 2.5.75 and 2.6.0 pdc202xx_old.c (sorry
+> > if this is not the correct format, im new here :)
+> >
+> > Hope this will help.
+> >
+> > Adolfo González
+> >
+> > ###################################################################
+> >
+> > --- linux-2.5.75/drivers/ide/pci/pdc202xx_old.c	2003-07-10
+> > 22:15:03.000000000 +0200
+> > +++ linux-2.6.0/drivers/ide/pci/pdc202xx_old.c	2003-12-18
+> > 03:59:53.000000000 +0100
+> > @@ -46,7 +46,6 @@
+> >  #include <asm/io.h>
+> >  #include <asm/irq.h>
+> >
+> > -#include "ide_modes.h"
+> >  #include "pdc202xx_old.h"
+> >
+> >  #define PDC202_DEBUG_CABLE	0
+> > @@ -519,13 +518,15 @@
+> >  		} else {
+> >  			goto fast_ata_pio;
+> >  		}
+> > +		return hwif->ide_dma_on(drive);
+> >  	} else if ((id->capability & 8) || (id->field_valid & 2)) {
+> >  fast_ata_pio:
+> >  no_dma_set:
+> >  		hwif->tuneproc(drive, 5);
+> >  		return hwif->ide_dma_off_quietly(drive);
+> >  	}
+> > -	return hwif->ide_dma_on(drive);
+> > +	/* IORDY not supported */
+> > +	return 0;
+> >  }
+> >
+> >  static int pdc202xx_quirkproc (ide_drive_t *drive)
+> > @@ -749,9 +750,6 @@
+> >  	hwif->tuneproc  = &config_chipset_for_pio;
+> >  	hwif->quirkproc = &pdc202xx_quirkproc;
+> >
+> > -	if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+> > -		hwif->addressing = (hwif->channel) ? 0 : 1;
+> > -
+> >  	if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+> >  		hwif->busproc   = &pdc202xx_tristate;
+> >  		hwif->resetproc = &pdc202xx_reset;
+> 
+> In 2.6.0-test5 kernel we allowed LBA48 for PDC20265
+> (after few people reported that it works okay now)
+> but the same patch is also in 2.4 kernels.
+> 
+> There is one important 2.4 vs 2.6 difference here
+> - in 2.6 if the drive is using LBA48 we allow up
+> to 1024KiB large requests (you can check if this is
+> a problem by replacing "65536" by "256" in ide-probe.c).
+> 
+> The other likely candidate for breakage is kernel
+> 2.6.0-test2 which contains DMA timeout fixes.
+> 
+> I can make some patches later in the meantime
+> somebody may test 2.6.0-test[1,2,4,5].
+> 
+> Cheers.
+> 
+> > @@ -928,7 +926,7 @@
+> >  	return 0;
+> >  }
+> >
+> > -static struct pci_device_id pdc202xx_pci_tbl[] __devinitdata = {
+> > +static struct pci_device_id pdc202xx_pci_tbl[] = {
+> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20246, PCI_ANY_ID,
+> > PCI_ANY_ID, 0, 0, 0},
+> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20262, PCI_ANY_ID,
+> > PCI_ANY_ID, 0, 0, 1},
+> >  	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20263, PCI_ANY_ID,
+> > PCI_ANY_ID, 0, 0, 2},
+> >
+> > ###################################################################
+> >
+> > El sáb, 19-06-2004 a las 18:46, Bartlomiej Zolnierkiewicz escribió:
+> > > Hi,
+> > >
+> > > Any news about this issue?
+> > >
+> > > On Tuesday 15 of June 2004 13:33, you wrote:
+> > > > El mar, 15-06-2004 a las 13:15, Marcelo Tosatti escribió:
+> > > > > On Tue, Jun 15, 2004 at 01:20:03AM +0200, Adolfo González Blázquez wrote:
+> > > > > > El mar, 15-06-2004 a las 01:18, Bartlomiej Zolnierkiewicz escribió:
+> > > > > > > On Tuesday 15 of June 2004 00:50, Adolfo González Blázquez wrote:
+> > > > > > > > Hi!
+> > > > > > >
+> > > > > > > Hi,
+> > > > > > >
+> > > > > > > > Lot of users are reporting seriour problems with pdc202xx_old
+> > > > > > > > ide pci driver. Enabling DMA on any device related with this
+> > > > > > > > driver makes the system unusable.
+> > > > > > > >
+> > > > > > > > This seems to happen in all the 2.6.x kernel series.
+> > > > > > >
+> > > > > > > Doing binary search on 2.4->2.6 kernels would help greatly
+> > > > > > > (narrowing problem to a specific kernel versions).
+> > > > > >
+> > > > > > If it helps, I tried 2.6.2, 2.6.4, 2.6.5, and 2.6.7-rc3, and all
+> > > > > > have the bug.
+> > > > >
+> > > > > And which kernels does not exhibit the problem?
+> > > >
+> > > > The 2.4 series it's ok, I'm gonna try with different 2.5.x kernels to
+> > > > see if i can discover when the bug was introduced
+> 
 

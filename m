@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbSJLLm2>; Sat, 12 Oct 2002 07:42:28 -0400
+	id <S262906AbSJLLuw>; Sat, 12 Oct 2002 07:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262906AbSJLLm2>; Sat, 12 Oct 2002 07:42:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62084 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262905AbSJLLm2>;
-	Sat, 12 Oct 2002 07:42:28 -0400
-Date: Sat, 12 Oct 2002 04:41:37 -0700 (PDT)
-Message-Id: <20021012.044137.42774593.davem@redhat.com>
-To: ahu@ds9a.nl
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] USAGI IPsec
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021012111759.GA10104@outpost.ds9a.nl>
-References: <20021012.114330.78212112.yoshfuji@linux-ipv6.org>
-	<20021011.194108.102576152.davem@redhat.com>
-	<20021012111759.GA10104@outpost.ds9a.nl>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262907AbSJLLuw>; Sat, 12 Oct 2002 07:50:52 -0400
+Received: from dp.samba.org ([66.70.73.150]:7620 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262906AbSJLLuw>;
+	Sat, 12 Oct 2002 07:50:52 -0400
+Date: Sat, 12 Oct 2002 21:52:57 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Steven French <sfrench@us.ibm.com>
+Cc: Reuben Farrelly <reuben-linux@reub.net>, linux-kernel@vger.kernel.org
+Subject: Re: "duplicate const" compile warning in 2.5.42
+Message-ID: <20021012115257.GA15387@krispykreme>
+References: <OF38E5DBB6.1DFD70C1-ON87256C50.002E73F2@boulder.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF38E5DBB6.1DFD70C1-ON87256C50.002E73F2@boulder.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: bert hubert <ahu@ds9a.nl>
-   Date: Sat, 12 Oct 2002 13:17:59 +0200
 
-   On Fri, Oct 11, 2002 at 07:41:08PM -0700, David S. Miller wrote:
-   > We believe that the whole SPD/SAD mechanism should move
-   > eventually to a top-level flow cache shared by ipv4 and
-   > ipv6.
-   
-   Is this the proposed stacked route system?
+> Reuben,
+> The "duplicate const" compile warning you mention seems to be a minor
+> problem with the min/max macros.
+> 
+> The fix for the 64 bit warnings for the cifs vfs are not going to affect
+> the duplicate const minor warning caused by the min/max macro.  This
+> warning does not show up on my i386 2.5.41 builds.
 
-Yes, for output mostly.
+Im using gcc 3.2 for ppc64 compiles, I guess earlier compilers dont
+emit this warning.
 
-Also the idea Alexey and I have to move towards a small
-efficient flow cache shared by IPv4/IPv6 plays into this
-as well.  There are changesets on their way to Linus tonight
-which moves ipv4 over to using ipv6's "struct flowi" from
-include/net/flow.h as the routing lookup key.
+Its not Steve's fault, for example mm/vmscan.c:shrink_caches gets
+a warning because of
 
-The initial ipsec is intended to be simple, singly linked
-lists for the spd/sad databases etc.  Making the feature
-freeze is pretty important right now, full blown flow cache
-is just performance improvement :)
+const int nr_pages:
+...
+to_reclaim = max(to_reclaim, nr_pages);
+
+ie:
+
+to_reclaim = ({
+	const typeof(to_reclaim) _x = (to_reclaim);
+	const typeof(nr_pages) _y = (nr_pages);
+	(void) (&_x == &_y);
+	_x > _y ? _x : _y;
+});
+
+Which ends up as const const int _y = (nr_pages);
+
+Anton

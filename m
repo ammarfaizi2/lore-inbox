@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbTHaC6h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 22:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbTHaC6g
+	id S264537AbTHaDGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 23:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTHaDGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 22:58:36 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:3852 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S262468AbTHaC6f
+	Sat, 30 Aug 2003 23:06:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61606 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264537AbTHaDGo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 22:58:35 -0400
-Date: Sat, 30 Aug 2003 22:58:34 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Duncan Sands <baldrick@wanadoo.fr>
-cc: Fredrik Noring <noring@nocrew.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Johannes Erdfelt <johannes@erdfelt.com>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: 2.6.0-test4: uhci-hcd.c: "host controller process error", slab
- call trace
-In-Reply-To: <200308310136.02093.baldrick@wanadoo.fr>
-Message-ID: <Pine.LNX.4.44L0.0308302248230.20207-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Aug 2003 23:06:44 -0400
+Date: Sun, 31 Aug 2003 04:06:43 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] vmalloc might sleep
+Message-ID: <20030831030643.GQ13467@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Aug 2003, Duncan Sands wrote:
 
-> Does the attached patch help?
-> 
-> Alan, Johannes, did you have any further thoughts on this problem?
-> I'm still not sure what the best approach is.
+So let's whack people upside the head when they misuse it.
 
-This was the same patch you proposed a month or two back, right?  I got a 
-copy of this error report, but it wasn't at all clear what the cause of 
-the problem was, so I haven't suggested anything.  Maybe the patch for 
-your problem will help...
+vmalloc-might-sleep.diff:
 
-I also haven't done anything for your particular problem.  In fact, there
-was a whole list of about 10 items that ought to be fixed I went over with
-Johannes, and I haven't started on any of them.  There were 4 or so small
-patches I sent in, but they haven't been applied yet -- Greg is still
-waiting for Johannes to give the okay.  (They were pretty minor, except
-one that fixed a nasty bug in the queueing code for control messages.)
+Index: mm/vmalloc.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/mm/vmalloc.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 vmalloc.c
+--- a/mm/vmalloc.c	23 Aug 2003 02:47:26 -0000	1.2
++++ b/mm/vmalloc.c	31 Aug 2003 03:04:25 -0000
+@@ -438,7 +438,8 @@ fail:
+  */
+ void *vmalloc(unsigned long size)
+ {
+-       return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
++	might_sleep();
++	return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
+ }
+ 
+ /**
+@@ -451,6 +452,7 @@ void *vmalloc(unsigned long size)
+  */
+ void *vmalloc_32(unsigned long size)
+ {
++	might_sleep();
+ 	return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL);
+ }
+ 
 
-My feeling is that a reasonably large change may end up being the best 
-thing to do.  In particular, we probably only need to have one QH per 
-queue, instead of one for each URB.  But it'll be a while before that 
-stuff gets done.
-
-Alan Stern
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

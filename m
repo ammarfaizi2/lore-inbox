@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293513AbSCSCKz>; Mon, 18 Mar 2002 21:10:55 -0500
+	id <S293521AbSCSCSf>; Mon, 18 Mar 2002 21:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293514AbSCSCKp>; Mon, 18 Mar 2002 21:10:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61451 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293513AbSCSCKg>; Mon, 18 Mar 2002 21:10:36 -0500
-Date: Mon, 18 Mar 2002 18:08:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <Dieter.Nuetzel@hamburg.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <20020318.162031.98995076.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0203181805460.10711-100000@penguin.transmeta.com>
+	id <S293527AbSCSCSZ>; Mon, 18 Mar 2002 21:18:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10245 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293521AbSCSCSU>;
+	Mon, 18 Mar 2002 21:18:20 -0500
+Message-ID: <3C969FC5.10504@mandrakesoft.com>
+Date: Mon, 18 Mar 2002 21:17:41 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Ed Vance <EdV@macrolink.com>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: PCI drivers - memory mapped vs. I/O ports
+In-Reply-To: <Pine.LNX.3.95.1020318152604.29558A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
 
-On Mon, 18 Mar 2002, David S. Miller wrote:
->    
->    Or maybe the program is just flawed, and the interesting 1/8 pattern comes 
->    from something else altogether.
-> 
-> I think the weird Athlon behavior has to do with the fact that
-> you've made your little test program as much of a cache tester
-> as a TLB tester :-)
+>On Mon, 18 Mar 2002, Ed Vance wrote:
+>
+>>If a PCI device can be programmed equally well via I/O port space or memory
+>>space, what are the reasons to chose one space over the other when writing
+>>the driver?
+>>
 
-Oh, I was assuming that malloc(BIG) would do a mmap() of MAP_ANONYMOUS, 
-which should make all the pages 100% shared, and thus basically zero cache 
-overhead on a physically indexed machine like an x86. 
+>Basically, if you have a choice, it's hands-down to use memory-mapped
+>I/O space.
+>
 
-So it was designed to reall yonly stress the TLB, not the regular caches.
+Yep, I couldn't agree more.
 
-Although I have to admit that I didn't actually _test_ that hypothesis.
+    Jeff
 
-		Linus
+
+
 

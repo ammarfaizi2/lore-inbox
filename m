@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSE2TXC>; Wed, 29 May 2002 15:23:02 -0400
+	id <S315440AbSE2Tmd>; Wed, 29 May 2002 15:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSE2TXB>; Wed, 29 May 2002 15:23:01 -0400
-Received: from lafontaine.noos.net ([212.198.2.72]:32006 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S315439AbSE2TXA>;
-	Wed, 29 May 2002 15:23:00 -0400
-Message-ID: <3CF52841.8040507@noos.fr>
-Date: Wed, 29 May 2002 21:13:05 +0200
-From: "Christian.Gennerat" <xgen@noos.fr>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; fr-FR; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: fr-fr
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Kernel zombie threads after module removal.
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315441AbSE2Tmc>; Wed, 29 May 2002 15:42:32 -0400
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:58602 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id <S315440AbSE2Tmc>; Wed, 29 May 2002 15:42:32 -0400
+Date: Wed, 29 May 2002 15:42:32 -0400
+From: Jason Lunz <lunz@reflexsecurity.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.19
+Message-ID: <20020529194232.GA1366@reflexsecurity.com>
+In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is very close to the problem related in 
-http://lkml.org/archive/2002/2/4/368/index.html
-but I have no USB. I have SCSI with aha152x_cs.o,
-and after doing "cardctl eject" that removes the module,
-the process scsi_eh_0  stays as zombie.
-If I repeat the operation of card insert and eject,
-I get  several  scsi_eh_0  zombies.
+In mlist.linux-kernel, you wrote:
+> <kai@tp1.ruhr-uni-bochum.de>
+> 	o kbuild: Figure out flags independently from pass
+> 	o ISDN/CAPI: Move methods from capi_driver to capi_ctr
+> 	o kbuild: Simplify rule for just building one subdir
+> 	o kbuild: Use consistently FORCE instead of dummy
+> 	o drivers/video/matrox/matroxfb_accel.c: Explicitly export symbols.
+> 	o ISDN/CAPI: Cleanup /proc/capi
+> 	o ISDN: CAPI: Remove unused capi_driver::driver_read_proc
+> 	o ISDN/CAPI: Have hardware driver alloc struct capi_drv
+> 	o ISDN/CAPI: Export callbacks for CAPI drivers directly
+> 	o ISDN/CAPI: Remove struct capi_driver
+> 	o kbuild: built-in and modules in one pass
+> 	o kbuild: Normal sources should not include <linux/compile.h>
+> 	o kbuild: Add EXTRA_TARGETS variable
+> 	o kbuild: Remove remaining O_TARGET in drivers/*/Makefile
+> 	o kbuild: Don't overwrite Rules.make's first_rule
+> 	o kbuild: beautify Makefile / Rules.make...
+> 	o kbuild: Group together descending/linking in drivers/*
+> 	o kbuild: Build targets locally
+> 	o kbuild: Provide correct 'make some/dir/file.[iso]'
+> 	o kbuild: Hand merge link order change form driverfs update.
 
-Now  with 2.4.18, but  I have got this problem with others 2.4 kernels.
+Are these purely patches to kbuild 1 or are they the beginning of a
+gradual migration to kbuild 2?
 
-
+-- 
+Jason Lunz			Reflex Security
+lunz@reflexsecurity.com		http://www.reflexsecurity.com/

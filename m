@@ -1,71 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283390AbRK2VIY>; Thu, 29 Nov 2001 16:08:24 -0500
+	id <S283391AbRK2VNo>; Thu, 29 Nov 2001 16:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283391AbRK2VIO>; Thu, 29 Nov 2001 16:08:14 -0500
-Received: from dialin-145-254-146-210.arcor-ip.net ([145.254.146.210]:12338
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S283392AbRK2VH4>; Thu, 29 Nov 2001 16:07:56 -0500
-Message-ID: <3C06A3DC.F959F464@loewe-komp.de>
-Date: Thu, 29 Nov 2001 22:08:44 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.13-xfs i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Christopher Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: logging to NFS-mounted files seems to cause hangs when NFS dies
-In-Reply-To: <3C065D2F.B45332C6@nortelnetworks.com> <20011129094348.E29249@lynx.no>
+	id <S283393AbRK2VNf>; Thu, 29 Nov 2001 16:13:35 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:23802 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283391AbRK2VNQ>;
+	Thu, 29 Nov 2001 16:13:16 -0500
+Date: Thu, 29 Nov 2001 14:12:26 -0700
+From: Andreas Dilger <adilger@turbolinux.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Mike Castle <dalgoda@ix.netcom.com>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.14 still not making fs dirty when it should
+Message-ID: <20011129141226.N29249@lynx.no>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Mike Castle <dalgoda@ix.netcom.com>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20011128231504.A26510@elf.ucw.cz> <3C069291.82E205F1@zip.com.au>, <3C069291.82E205F1@zip.com.au> <20011129120826.F7992@thune.mrc-home.com> <3C069919.E679F1F8@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C069919.E679F1F8@zip.com.au>; from akpm@zip.com.au on Thu, Nov 29, 2001 at 12:22:49PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger schrieb:
+On Nov 29, 2001  12:22 -0800, Andrew Morton wrote:
+> This actually happens.  On a stock RH7.1 setup, you can
+> hit reset as soon as you get the first login prompt.  fsck
+> will not be run on reboot.  If you run it by hand, fsck
+> finds errors.
 > 
-> On Nov 29, 2001  11:07 -0500, Christopher Friesen wrote:
-> > I'm working on an embedded platform and we seem to be having a problem with
-> > syslog and logging to NFS-mounted files.
-> >
-> > We have syslog logging to NFS and also logging to a server on another machine.
-> 
-> Why not just log to the syslog daemon on another machine.  Logging to NFS
-> does not help you in this case.
-> 
-> > The desired behaviour is that if the NFS server or the net connection conks
-> > out, the logs are silently dropped.  (Critical logs are also logged in memory
-> > that isn't wiped out on reboot.)
-> 
-> > The problem we are seeing is that if we lose the network connection or the
-> > NFS mount (which immediately causes an attempt to log the problem), it seems
-> > that syslog gets stuck in NFS code in the kernel and other stuff can be
-> > delayed for a substantial amount of time (many tens of seconds).  Just for
-> > kicks we tried logging to ramdisk, and everything works beautifully.
-> 
-> Well, it seems obvious, doesn't it?  If the network connection is lost, then
-> you can't very well write to the Network File System, can you?  One of the
-> features of NFS is that if the network dies, or the server is lost, then
-> the client does not lose any data that was being written to the NFS mount.
-> 
-> > Now I'm a bit unclear as to why other processes are being delayed--does anyone
-> > have any ideas?  My current theories are that either the nfs client code has a
-> > bug, or syslog() calls are somehow blocking if syslogd can't write the file
-> > out.  I've just started looking at the syslog code, but its pretty rough going
-> > as there are very few comments.
-> 
-> This is entirely a syslog problem, if you want to do it that way.  The NFS
-> code is working as expected, and will not be changed.  You might have to
-> multi-thread syslog to get it to do what you want, but in the end you are
-> better off just using the network logging feature and write the logs at
-> the server directly.
-> 
+> Andreas, my one-liner was, umm, hasty.  I think you had
+> a decent fix for this?
 
-Well, it could use nonblocking IO like it does with named pipes.
+Yes, I thought I did as well.  It may have gotten lost during the
+-ac -> Linus merge, as I thought it was in there (some other ext2
+fixes that were definitely in -ac are not in 2.4.16).  Luckily,
+I was just generating patches of all my local changes last night,
+so I have a brand-new patch to fix this.
 
-When syslogd logs to a named pipe and the reader does not consume the data,
-syslogd will not block but discards the messages.
+It _should_ do the right thing, but please give it a once-over, as
+I wrote it a long time ago.  The theory is - changing the dirty
+flag is synchronously written to disk, but other superblock changes
+are async as they always have been (sync_super vs. commit_super).
 
-The best way, like you suggested, is logging to a remote syslogd, running
-with syslogd -r
+This should definitely go into 2.4.17-pre and 2.5.0, even though I
+am personally only using ext3 at this point (I used this patch for
+a long time while ext3 was not done on 2.4 though).
+
+Cheers, Andreas
+====================== ext2-2.4.16-super.diff ===========================
+diff -ru linux-2.4.15.orig/fs/ext2/super.c linux-2.4.15-aed/fs/ext2/super.c
+--- linux-2.4.15.orig/fs/ext2/super.c	Wed Nov 28 23:25:02 2001
++++ linux-2.4.15-aed/fs/ext2/super.c	Thu Nov 29 00:38:31 2001
+@@ -28,20 +28,22 @@
+ #include <asm/uaccess.h>
+ 
+ 
++static void ext2_sync_super(struct super_block *sb,
++			    struct ext2_super_block *es);
+ 
+ static char error_buf[1024];
+ 
+ void ext2_error (struct super_block * sb, const char * function,
+ 		 const char * fmt, ...)
+ {
+ 	va_list args;
++	struct ext2_super_block *es = EXT2_SB(sb)->s_es;
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+ 		sb->u.ext2_sb.s_mount_state |= EXT2_ERROR_FS;
+-		sb->u.ext2_sb.s_es->s_state =
+-			cpu_to_le16(le16_to_cpu(sb->u.ext2_sb.s_es->s_state) | EXT2_ERROR_FS);
+-		mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
+-		sb->s_dirt = 1;
++		es->s_state =
++			cpu_to_le16(le16_to_cpu(es->s_state) | EXT2_ERROR_FS);
++		ext2_sync_super(sb, es);
+ 	}
+ 	va_start (args, fmt);
+ 	vsprintf (error_buf, fmt, args);
+@@ -124,8 +139,10 @@
+ 	int i;
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+-		sb->u.ext2_sb.s_es->s_state = le16_to_cpu(sb->u.ext2_sb.s_mount_state);
+-		mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
++		struct ext2_super_block *es = EXT2_SB(sb)->s_es;
++
++		es->s_state = le16_to_cpu(EXT2_SB(sb)->s_mount_state);
++		ext2_sync_super(sb, es);
+ 	}
+ 	db_count = EXT2_SB(sb)->s_gdb_count;
+ 	for (i = 0; i < db_count; i++)
+@@ -305,13 +321,10 @@
+ 		(le32_to_cpu(es->s_lastcheck) + le32_to_cpu(es->s_checkinterval) <= CURRENT_TIME))
+ 		printk ("EXT2-fs warning: checktime reached, "
+ 			"running e2fsck is recommended\n");
+-	es->s_state = cpu_to_le16(le16_to_cpu(es->s_state) & ~EXT2_VALID_FS);
+ 	if (!(__s16) le16_to_cpu(es->s_max_mnt_count))
+ 		es->s_max_mnt_count = (__s16) cpu_to_le16(EXT2_DFL_MAX_MNT_COUNT);
+ 	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + 1);
+-	es->s_mtime = cpu_to_le32(CURRENT_TIME);
+-	mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
+-	sb->s_dirt = 1;
++	ext2_write_super(sb);
+ 	if (test_opt (sb, DEBUG))
+ 		printk ("[EXT II FS %s, %s, bs=%lu, fs=%lu, gc=%lu, "
+ 			"bpg=%lu, ipg=%lu, mo=%04lx]\n",
+@@ -664,6 +681,15 @@
+ 	sb->s_dirt = 0;
+ }
+ 
++static void ext2_sync_super(struct super_block *sb, struct ext2_super_block *es)
++{
++	es->s_wtime = cpu_to_le32(CURRENT_TIME);
++	mark_buffer_dirty(EXT2_SB(sb)->s_sbh);
++	ll_rw_block(WRITE, 1, &EXT2_SB(sb)->s_sbh);
++	wait_on_buffer(EXT2_SB(sb)->s_sbh);
++	sb->s_dirt = 0;
++}
++
+ /*
+  * In the second extended file system, it is not necessary to
+  * write the super block since we use a mapping of the
+@@ -682,13 +708,14 @@
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+ 		es = sb->u.ext2_sb.s_es;
+ 
+-		ext2_debug ("setting valid to 0\n");
+-
+ 		if (le16_to_cpu(es->s_state) & EXT2_VALID_FS) {
+-			es->s_state = cpu_to_le16(le16_to_cpu(es->s_state) & ~EXT2_VALID_FS);
++			ext2_debug ("setting valid to 0\n");
++			es->s_state = cpu_to_le16(le16_to_cpu(es->s_state) &
++						  ~EXT2_VALID_FS);
+ 			es->s_mtime = cpu_to_le32(CURRENT_TIME);
+-		}
+-		ext2_commit_super (sb, es);
++			ext2_sync_super(sb, es);
++		} else
++			ext2_commit_super (sb, es);
+ 	}
+ 	sb->s_dirt = 0;
+ }
+@@ -725,9 +751,7 @@
+ 		 */
+ 		es->s_state = cpu_to_le16(sb->u.ext2_sb.s_mount_state);
+ 		es->s_mtime = cpu_to_le32(CURRENT_TIME);
+-		mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
+-		sb->s_dirt = 1;
+-		ext2_commit_super (sb, es);
++		ext2_sync_super(sb, es);
+ 	}
+ 	else {
+ 		int ret;
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280114AbRLLOH6>; Wed, 12 Dec 2001 09:07:58 -0500
+	id <S280190AbRLLOaD>; Wed, 12 Dec 2001 09:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280190AbRLLOHs>; Wed, 12 Dec 2001 09:07:48 -0500
-Received: from trappist.elis.rug.ac.be ([157.193.67.1]:40850 "EHLO
-	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
-	id <S280114AbRLLOHe>; Wed, 12 Dec 2001 09:07:34 -0500
-Date: Wed, 12 Dec 2001 15:07:27 +0100 (CET)
-From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+	id <S280410AbRLLO3y>; Wed, 12 Dec 2001 09:29:54 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:6669 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S280190AbRLLO3k>;
+	Wed, 12 Dec 2001 09:29:40 -0500
+Date: Wed, 12 Dec 2001 06:29:44 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: extended ptrace patch
-Message-ID: <Pine.LNX.4.33.0112121459370.7820-100000@trappist.elis.rug.ac.be>
+Subject: Re: Repost: ASUS APM Problem (ASUS L8400L & ASUS P2B-F)
+In-Reply-To: <20011209175547.GD7707@charite.de>
+Message-ID: <Pine.LNX.4.33.0112120626000.18470-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 12 Dec 2001 fridtjof@fbunet.de wrote:
 
-As part of my thesis I've written an extended ptrace i386 syscall patch.
-This patch makes it possible to trace the memory writes made by 
-system calls in a very easy way. If anyone else is looking for such a 
-thing, I've put it online.
-Since it's my first 'big' kernel patch feedback would be very appriciated.
-The address,
-	http://www.elis.rug.ac.be/~fcorneli/
+> Type of Computers:
+> Anybody know why APM doesn't work with products from ASUS?
+> Is this a known bug?
 
-Frank.
+I have an ASUS motherboard with an Athlon TBird (don't remember all the
+model numbers, etc.) and I had problems with the *display* power management
+using Red Hat 7.1. I just got 7.2 and haven't had a chance to check whether
+it works there or not. Never tried to do power management on the box itself
+though.
+--
+M. Edward Borasky -- znmeb@aracnet.com -- http://www.borasky-research.net
+
+If God had meant carrots to be eaten cooked, He would have given rabbits
+fire.
 

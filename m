@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266921AbUHIUMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266221AbUHIUM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266921AbUHIUMb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUHIULi
+	id S266221AbUHIUM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUHIULz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:11:38 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:13707 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266921AbUHIUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:07:40 -0400
-Message-ID: <4117D98C.2030203@comcast.net>
-Date: Mon, 09 Aug 2004 16:07:40 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+	Mon, 9 Aug 2004 16:11:55 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:41912 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S267190AbUHIUIZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:08:25 -0400
+Message-ID: <4117DA2C.8070103@blue-labs.org>
+Date: Mon, 09 Aug 2004 16:10:20 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040809
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Bug zapper?  :)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: hda: dma_timer_expiry: dma status == 0x24
+References: <41152B61.90702@blue-labs.org> <1091915230.19077.11.camel@localhost.localdomain>
+In-Reply-To: <1091915230.19077.11.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------030101040706080705090907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Assuming this accurately falls under [RFC]; I *am* requesting comments 
-on this method)
+This is a multi-part message in MIME format.
+--------------030101040706080705090907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-A pondering of all the bugs in the linux kernel-- and yes, we all know 
-there are bugs, stable or not-- always leads me to attempt to figure a 
-way to get rid of them.  In the past I'd thought of taking just an 
-unstructured "Tell the list to take a month to try and kill all bugs" 
-approach; but decided that that would be a rediculous idea.  Since then 
-I've been pondering, trying to figure a good and reliable way to do it 
-other than rewriting from scratch (a very effective method of delousing 
-a huge codebase).
+Yes, it still occurs with acpi=off, albeit with far less frequency.  
+I've had my machine up for 1.5 hours now, ripping two CDs at a time, 
+playing an AVI movie in loop, playing a bunch of MP3s, cat /allfiles 
+ >/dev/null, ls -laR, running KDE with numerous KDE apps also running; 
+all simultaneously.  The load is about 8, I'm 130M into swap (512M machine)
 
-I recently read a few pages in a book on exploiting software, skimming 
-it in the bookstore to see if it was worth the buy.  For those 
-interested, it's ISBN 0201786958, "Exploiting Software:  How to Break 
-Code."  This gave me some insight into possible solutions.
+1> This would have been impossible without acpi=off.
+2> Only one timeout has occured, by now several hundred would have 
+normally happened
 
-The book covered several exploit types, although it didn't seem from the 
-glance I took to indicate strong separation between those that exist by 
-design (the ILoveYou bug used this type) and those that exist by 
-screw-up (MSBlast and Sasser used these).  It discussed typical buffer 
-overflows and software bugs, though.
+David
 
-What I found interesting was that it described bugs as 
-pseudo-quantitative based on the KLOC (thousands of lines of code) for a 
-code body.  The basic theory boils down to 5-50 bugs per 1000 LOC, 
-approaching 5 for QA audited code.  Thus, 10000 LOC executable, 50 bugs.
+Alan Cox wrote:
 
-Decrease the size of the code body, and you evade the above issue:  A 
-small, independent code body will have the number of bugs approach 0; 
-fractional (less than one) bug counts are lost.  This can be realisticly 
-done.
+>On Sad, 2004-08-07 at 20:20, David Ford wrote:
+>  
+>
+>>My desktop is experiencing issues with DMA lately.  This has been going 
+>>on with the 2.6.8-rcX releases IIRC.  I'm currently on rc3.  The 
+>>hardware is all brand new.
+>>    
+>>
+>
+>1. Does it recover after the timeout/lost irq
+>2. Does it occur with acpi=off
+>3. Have you tested say 2.4 or "otherOS" on it ?
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-First, above every function's implementation, explain the function in 
-terms of **input**, **output**, and **state change**.  Detail its 
-**process** as well if possible.  This allows you to make a definite 
-review of a function from wherever you call it, simply by reading the 
-comments.
+--------------030101040706080705090907
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
 
-Second, in all of your code, assume that the functions you call do 
-**exactly** what these comments say they do, no more, no less.  This 
-takes your view off the worry of "will this do something unexpected" and 
-moves it to "am I screwing up HERE?"  This narrows your code body to the 
-current function for the brief period that you're writing it.
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
-In passing, you can check a function for bugs while considering it only 
-the process that it performs, and puting absolute trust in the functions 
-that it calls.  By explaining the process it performs, everyone else who 
-looks at the code has deep enough knowledge that they can see bugs if 
-they have technical knowledge about coding and the other functions. 
-Furthermore, large code bodies are reduced to small sets of logical 
-processes-- each function effectively becomes ONE line of code.
 
-The result is that you micro-manage your functions, causing related bug 
-searches to be narrowed down to them with confidence that your 
-understanding of the function is correct due to the explaination above 
-the function body.  This reduces all code bodies (asside from assembly) 
-to a handfull of LOC, which statistically should have 0 bugs.
-
-In practice, I believe this high volume of documentation will not reduce 
-the kernel's bug count to 0; however, it would become closer, I believe. 
-  It would become especially easier to devout bug-hunters, who no longer 
-have to take several days to understand the code.
-
-What do you all think?  Do you see flaws in my logic?
-
---John
-
--- 
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-Sorry, 64 bit cpu, Thunderbird is broke so no enigmail.  I'd sign it if 
-I could.
+--------------030101040706080705090907--

@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268197AbUJPRd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUJPRoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268197AbUJPRd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 13:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268213AbUJPRd1
+	id S266183AbUJPRoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 13:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUJPRoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 13:33:27 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:30367 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S268197AbUJPRdZ (ORCPT
+	Sat, 16 Oct 2004 13:44:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:39825 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266183AbUJPRoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 13:33:25 -0400
-Date: Sat, 16 Oct 2004 13:33:21 -0400 (EDT)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Reconsider dropping "-final" EXTRAVERSION from 2.6.9 release
-Message-ID: <Pine.LNX.4.61.0410161316500.5062@dark.webcon.ca>
-Organization: "Webcon, Inc"
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="723005273-642536958-1097948001=:5062"
+	Sat, 16 Oct 2004 13:44:24 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YFol12CPnJnvSIZkpZSrzlzW6s/6WPU4bOWLdRPFz8y1BLYe5/3cX5NohMjJIGwB3oF1Uol5Rt1ewyw7gg3RXOeOmQdLEXwiLKSeZ2/lDyOGdS3uY+S889A3kOU2g46jezTdetaCyYW9cgD0x7AtM1LvLj3D/C46YJDdMopcWgg
+Message-ID: <9e47339104101610447a393abc@mail.gmail.com>
+Date: Sat, 16 Oct 2004 13:44:23 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Kendall Bennett <kendallb@scitechsoft.com>
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       penguinppc-team@lists.penguinppc.org
+In-Reply-To: <416E6ADC.3007.294DF20D@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <416E6ADC.3007.294DF20D@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+> What this means is that it should be possible to build a new version of
+> the VESA framebuffer console driver for the Linux kernel that will have
+> these important features:
+> 
+> 1. Be able to switch display modes on the fly, supporting all modes
+> enumerated by the Video BIOS.
+> 
+> 2. Be able to support refresh rate control on graphics cards that support
+> the VBE 3.0 services.
 
---723005273-642536958-1097948001=:5062
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+How is this going to work if there are multiple graphics cards
+installed? Each card will want to install it's own VBE extension
+interrupt.
 
-I hope other people with influence will speak up on this matter.
-
-I seems like each new kernel in recent times is introducing new release
-methodology (the whole "2.6.8.1" fiasco is still fresh in all our minds). Is
-the "-final" EXTRAVERSION really necessary?
-
-Thankfully, 2.6.9-final is still in the testing tree. It is my hopes that it
-will actually be released as "2.6.9". That's always been good enough.
-
-Linus says "Let's try the 2.4.x release methodology."  The "2.4.x release
-methodology" was to change a "Foo-rcX" to a final "Foo" release with no
-changes. I see no evidence that any 2.4 kernel (or _any_ Linux kernel) was
-ever released as "Foo-final". It may be OK to _call_ it a "final" version
-when referring to it, but adding "-final" to the EXTRAVERSION field is just
-aggravating and redundant.
-
-My 2¢.
-
-Regards,
-Ian Morgan
---723005273-642536958-1097948001=:5062--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

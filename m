@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSE2PVq>; Wed, 29 May 2002 11:21:46 -0400
+	id <S313307AbSE2Paw>; Wed, 29 May 2002 11:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSE2PVp>; Wed, 29 May 2002 11:21:45 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:6158 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S311885AbSE2PVo>;
-	Wed, 29 May 2002 11:21:44 -0400
-Date: Wed, 29 May 2002 11:15:53 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-Message-ID: <20020529111553.A15457@mark.mielke.cc>
-In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org> <20020528213457.A22540@mark.mielke.cc> <1022680446.9043.5.camel@dlacoste.ottawa.loran.com> <1022685475.4124.229.camel@irongate.swansea.linux.org.uk> <1022682030.9044.8.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313314AbSE2Pav>; Wed, 29 May 2002 11:30:51 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:12479 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S313307AbSE2Pau>;
+	Wed, 29 May 2002 11:30:50 -0400
+Message-ID: <3CF4F421.1040908@candelatech.com>
+Date: Wed, 29 May 2002 08:30:41 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nivedita Singhvi <niv@us.ibm.com>
+CC: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org
+Subject: Re: how to get per-socket stats on udp rx buffer overflow?
+In-Reply-To: <Pine.LNX.4.33.0205290640580.4572-100000@w-nivedita2.des.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 10:20:29AM -0400, Dana Lacoste wrote:
-> On Wed, 2002-05-29 at 11:17, Alan Cox wrote:
-> > On Wed, 2002-05-29 at 14:54, Dana Lacoste wrote:
-> > > This would be retarded.  I mean, seriously, making the linux kernel
-> > > require anybody who's doing any commercial real-time stuff pay Victor
-> > proprietary, not commercial. 
-> Which brings us back to Larry's comments on business models.
-> It's becoming increasingly difficult to operate a non-proprietary
-> commercial software business these days.
-> I wish it weren't so, but it IS.  If RedHat is filing patents, then
-> it's fairly apparent that RedHat thinks so too, isn't it?
 
-I don't see the patent stopping people from creating non-proprietary
-commercial software. I *do* see the patent perhaps forcing people who
-make money off non-Open Source extensions to have some sort of deal
-with Victor.
 
-I don't see what is unfair about this.
+Nivedita Singhvi wrote:
 
-mark
+> On Tue, 28 May 2002, Ben Greear wrote:
+
+>>It would not be that expensive..it's just an extra counter that
+>>is bumped whenever a pkt is dropped.
+>>
+> 
+> True for one counter, but generally when considering per
+> socket stats as a feature, you include all the TCP/UDP/I
+
+> stats, and if youre not holding locks, thats probably an
+> atomic increment.  Pretty soon we're talking actual
+> performance and scalability money. (Even if we're not
+> in the mindset of saving every cycle wherever possible).
+
+
+Integer increments are usually pretty cheap.  Considering
+accuracy is not absolutely needed (imho), then there is no
+need to lock or use special atomic increments.
+
+So, I view the performance issue as not that big of a deal.  Space
+may be a bigger deal, and the /proc interface and/or IOCTLs to read
+the counters...
+
+If/when I do implement, I'll be sure to make it a selectable option
+in the kernel config process...
+
+Ben
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

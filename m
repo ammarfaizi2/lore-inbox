@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270256AbTGMQIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270255AbTGMQIQ
+	id S270272AbTGMQbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270273AbTGMQbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:08:16 -0400
-Received: from webmail.hamiltonfunding.la ([12.162.17.40]:33127 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S270252AbTGMQH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:07:56 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Alan Shih" <alan@storlinksemi.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	<20030713004818.4f1895be.davem@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 13 Jul 2003 09:22:32 -0700
-In-Reply-To: <20030713004818.4f1895be.davem@redhat.com>
-Message-ID: <52u19qwg53.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Sun, 13 Jul 2003 12:31:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13746 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270272AbTGMQb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 12:31:29 -0400
+Message-ID: <3F118CC6.9080906@pobox.com>
+Date: Sun, 13 Jul 2003 12:45:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 13 Jul 2003 16:22:34.0890 (UTC) FILETIME=[F7BF4EA0:01C3495A]
+To: Chris Mason <mason@suse.com>
+CC: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>	 <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>	 <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>	 <20030713090116.GU843@suse.de> <1058113238.13313.127.camel@tiny.suse.com>
+In-Reply-To: <1058113238.13313.127.camel@tiny.suse.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> TOE is evil, read this:
+Chris Mason wrote:
+> Well, I'd say it's a more common problem to have lots of writes, but it
+> is pretty easy to fill the queue with reads.
 
-    David> http://www.usenix.org/events/hotos03/tech/full_papers/mogul/mogul.pdf
+Well....
 
-    David> TOE is exactly suboptimal for the very things performance
-    David> matters, high connection rates.
+* you will usually have more reads than writes
+* reads are more dependent than writes, on the whole
+* writes are larger due to delays and merging
 
-    David> Your return is also absolutely questionable.  Servers
-    David> "serve" data and we offload all of the send side TCP
-    David> processing that can reasonably be done (segmentation,
-    David> checksumming).
+All this is obviously workload dependent, but it seems like the 60% 
+common case, at least...
 
-    David> I've never seen an impartial benchmark showing that TCP
-    David> send side performance goes up as a result of using TOE
-    David> vs. the usual segmentation + checksum offloading offered
-    David> today.
+Basically when I hear people talking about lots of writes, that seems to 
+be downplaying the fact that seeing 20 writes and 2 reads on a queue 
+does not take into account the userspace applications currently 
+blocking, waiting to do another read.
 
-    David> On receive side, clever RX buffer flipping tricks are the
-    David> way to go and require no protocol changes and nothing gross
-    David> like TOE or weird buffer ownership protocols like RDMA
-    David> requires.
+	Jeff
 
-    David> I've made postings showing how such a scheme can work using
-    David> a limited flow cache on the networking card.  I don't have
-    David> a reference handy, but I suppose someone else does.
 
-Your ideas are certainly very interesting, and I would be happy to see
-hardware that supports flow identification.  But the Usenix paper
-you're citing completely disagrees with you!  For example, Mogul writes:
 
- "Nevertheless, copy-avoidance designs have not been widely adopted,
-  due to significant limitations. For example, when network maximum
-  segment size (MSS) values are smaller than VM page sizes, which is
-  often the case, page-remapping techniques are insufficient (and
-  page-remapping often imposes overheads of its own.)"
-
-In fact, his conclusion is:
-
- "However, as hardware trends change the feasibility and economics of
-  network-based storage connections, RDMA will become a significant
-  and appropriate justification for TOEs."
-
- - Roland

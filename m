@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbTHaVPB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 17:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbTHaVPB
+	id S262688AbTHaVVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 17:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbTHaVVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 17:15:01 -0400
-Received: from [212.18.235.100] ([212.18.235.100]:25737 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S262680AbTHaVO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 17:14:59 -0400
-Subject: Re: [PATCH] 2.6.0-test4 - Watchdog patches
-From: Justin Cormack <justin@street-vision.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: torvalds@osdl.org, Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030831225236.A6938@infomag.infomag.iguana.be>
-References: <20030831225236.A6938@infomag.infomag.iguana.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 31 Aug 2003 22:15:09 +0100
-Message-Id: <1062364509.30543.155.camel@lotte.street-vision.com>
+	Sun, 31 Aug 2003 17:21:16 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:42701 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262688AbTHaVVO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 17:21:14 -0400
+Date: Sun, 31 Aug 2003 14:21:07 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030831212107.GC12752@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Pascal Schmidt <der.eremit@email.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154301.GD30196@wohnheim.fh-wedel.de> <20030831155012.GW24409@dualathlon.random> <87llt9bvtc.fsf@deneb.enyo.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87llt9bvtc.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-31 at 21:52, Wim Van Sebroeck wrote: 
- = 0;
->  
->  /*
->   *	You must set these - there is no sane way to probe for this board.
-> @@ -56,10 +56,17 @@
->   *      to restart it again.
->   */
->  
-> -#define WDT_START 0x443
-> -#define WDT_STOP 0x843
-> -
-> -static int wd_margin = WD_TIMO;
-> +static int wdt_stop = 0x843;
-> +module_param(wdt_stop, int, 0);
-> +MODULE_PARM_DESC(wdt_stop, "Wafer 5823 WDT 'stop' io port (default 0x843)");
-> +
-> +static int wdt_start = 0x443;
-> +module_param(wdt_start, int, 0);
-> +MODULE_PARM_DESC(wdt_start, "Wafer 5823 WDT 'start' io port (default 0x443)");
+On Sun, Aug 31, 2003 at 07:06:55PM +0200, Florian Weimer wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
+> However, why can't bkbits.net distributed around the world, at least
+> for read access?  
 
-There is *no point* making these module parameters. There is no other
-watchdog that works in exactly the same way but using different io
-ports. If there was this still wouldnt be the sensible way to do it. 
-
-> +	if (timeout < 1 || timeout > 63) {
-> +		timeout = WD_TIMO;
-> +		printk (KERN_INFO PFX "timeout value must be 1<=x<=255, using %d\n",
-> +			timeout);
-
-where did that 63 come from? should be 255.
-
-Also, generally, please cc authors when you send patches. And making the comments the
-same in the watchdog drivers is a complete  waste of time. If you want to reduce
-the amount of duplicated code in the drivers you could make a watchdog_ops interface
-for almost all of them.
-
-Justin
-
-
+It's not just the read access that is the problem but there is absolutely
+nothing stopping you or anyone else from setting up bkbackup.net as a 
+cache.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

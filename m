@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267462AbRGLKGo>; Thu, 12 Jul 2001 06:06:44 -0400
+	id <S267464AbRGLKOy>; Thu, 12 Jul 2001 06:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267464AbRGLKGe>; Thu, 12 Jul 2001 06:06:34 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:10506 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S267462AbRGLKGZ>; Thu, 12 Jul 2001 06:06:25 -0400
-Message-ID: <3B4D7685.9AC1DED@idb.hist.no>
-Date: Thu, 12 Jul 2001 12:05:57 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
-X-Accept-Language: no, en
+	id <S267465AbRGLKOo>; Thu, 12 Jul 2001 06:14:44 -0400
+Received: from ns.suse.de ([213.95.15.193]:6419 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267464AbRGLKOb>;
+	Thu, 12 Jul 2001 06:14:31 -0400
+To: llarsh@oracle.com
+Cc: linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com.suse.lists.linux.kernel>
+From: Andi Kleen <freitag@alancoxonachip.com>
+Date: 12 Jul 2001 12:14:16 +0200
+In-Reply-To: Lance Larsh's message of "12 Jul 2001 00:58:14 +0200"
+Message-ID: <oup8zhue9on.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-To: Kai Henningsen <kaih@khms.westfalen.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org> <Pine.LNX.4.33L.0107111913010.9899-100000@imladris.rielhome.conectiva> <84jaVrwXw-B@khms.westfalen.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Henningsen wrote:
+Lance Larsh <llarsh@oracle.com> writes:
+> 
+> I ran lots of iozone tests which illustrated a huge difference in write
+> throughput between reiser and ext2.  Chris Mason sent me a patch which
+> improved the reiser case (removing an unnecessary commit), but it was
+> still noticeably slower than ext2.  Therefore I would recommend that
+> at this time reiser should not be used for Oracle database files.
 
-> What I'd *really* like (but don't see how to get there) would be a "save
-> system state, shutdown, change kernel and/or hardware, reboot, restore
-> state" system (where state is like "I'm logged in on this console, in this
-> current directory, and under X I have Netscape running and this page
-> displayed" but I don't care about the exact state of Squid or even if my
-> ISDN line is dialled in, because those "fix themselves").
+When I read the 2.4.6 reiserfs code correctly reiserfs does not cause
+any transactions for reads/writes to allocated blocks; i.e. you're not extending
+the file, you're not filling holes and you're not updating atimes.
+My understanding is that this is normally true for Oracle, but probably
+not for iozone so it would be better if you benchmarked random writes
+to an already allocated file. 
+The 2.4 page cache is more or less direct write through in this case.
 
-Consider os/2 then.  All workplace-shell aware programs is supposed to
-save
-state in this way.  And yes - they do start up in the same state after
-reboot if you want to.  Editors come up on the page you left, filesystem
-folders comes up, and so on.  
-
-> and then every user-visible non-transient program
-> needs to implement it - and I don't see *that* happen in the next ten
-> years.
-
-Consider a patch for konqueror or a few other webpage/fs-view programs
-and you'll go a long way - all in userspace.
-
-Helge Hafting
+-Andi

@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAIVrg>; Tue, 9 Jan 2001 16:47:36 -0500
+	id <S129431AbRAIV60>; Tue, 9 Jan 2001 16:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRAIVr0>; Tue, 9 Jan 2001 16:47:26 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:16402 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S129383AbRAIVrO>; Tue, 9 Jan 2001 16:47:14 -0500
-Message-ID: <3A5B86C1.41DDB11B@didntduck.org>
-Date: Tue, 09 Jan 2001 16:46:41 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S129436AbRAIV6P>; Tue, 9 Jan 2001 16:58:15 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54223 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129431AbRAIV56>;
+	Tue, 9 Jan 2001 16:57:58 -0500
+Date: Tue, 9 Jan 2001 16:57:55 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mathieu Chouquet-Stringer <mchouque@e-steel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Floppy disk strange behavior
+In-Reply-To: <E14G6S5-0007UK-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0101091642260.9953-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: rob@sysgo.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <01010922090000.02630@rob> <3A5B7F76.ABDFED7A@didntduck.org> <01010922264400.02737@rob>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kaiser wrote:
-> 
-> On Die, 09 Jan 2001 you wrote:
-> > Robert Kaiser wrote:
-> > > I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> > > The kernel was built for a 386 Processor, Math emulation has been enabled.
-> > > I tried three different 386 boards. Execution seems to get as far as
-> > > pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> > > if someone had pressed the reset button. The same kernel boots fine on
-> > > 486 and Pentium Systems.
-> > >
-> > > Any ideas/suggestions ?
-> >
-> >
-> > is "Checking if this processor honours the WP bit even in supervisor
-> > mode... " the last thing you see before the reset?
-> >
-> 
-> No, I don't see _any_ messages from the kernel. The last thing I see is
-> "Uncompressing Linux... Ok, booting the kernel." I have added some
-> quick and dirty debug code that writes messages directly to the VGA
-> screen buffer. According to that, execution seems to get as far as the
-> statement
-> 
->         *pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
-> 
 
-Could it be possible that memory size is being misdetected?  Try mem=8M
-(or less) on the command line.  Try to catch the value of pte when it
-crashes.
 
---
+On Tue, 9 Jan 2001, Alan Cox wrote:
 
-				Brian Gerst
+> > dd bug. It tries to ftruncate() the output file and gets all upset when
+> > kernel refuses to truncate a block device (surprise, surprise).
+> 
+> Standards compliant but unexpected. 
+
+dd is supposed to be portable. On Solaris:
+% man ftruncate
+[snip]
+      EINVAL    The fildes argument  does  not  correspond  to  an
+               ordinary file.
+ 
+> Actually its explicitly mentioned by the spec that truncate _may_ extend
+> a file but need not do so. 
+
+However, it also explicitly mentions that truncate can fail for non-regular
+file.
+
+> > Try to build GNU dd on other Unices and you will be able to trigger that
+> > bug on quite a few of them.
+> 
+> I think not
+
+Solaris, for one thing. OK, let's ask folks to test it on different systems
+and see what it gives.
+
+> > ftruncate(2) is _not_ supposed to succeed on anything other than regular
+> > files. I.e. dd(1) should not call it and expect success if file is not
+> > regular. Plain and simple...
+> 
+> 2.2 is least suprise 2.4 is most information, but misleading errno IMHO
+
+Agreed. It should be -EINVAL, not -EPERM.
+
+IMO there are two issues:
+	* dd(1) portability bug. Obviously there - ftruncate(2) is allowed
+to fail on non-regular ones. Fix is trivial and it (or something equivalent)
+should go into the fileutils.
+	* What should 2.4 do here? I would prefer -EINVAL - it is true
+(requested action is invalid for the arguments we got), it is consistent
+with other systems and it doesn't hide the failure. Data that used to
+be in the file we were trying to truncate is still there. -EPERM is
+arguably wrong here - it's not like the problem was in the lack of
+permissions.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

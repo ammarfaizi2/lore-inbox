@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbQKHRhj>; Wed, 8 Nov 2000 12:37:39 -0500
+	id <S129210AbQKHRjA>; Wed, 8 Nov 2000 12:39:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQKHRha>; Wed, 8 Nov 2000 12:37:30 -0500
-Received: from [207.1.200.39] ([207.1.200.39]:59150 "EHLO
-	ded-tscs.innovsoftd.com") by vger.kernel.org with ESMTP
-	id <S129113AbQKHRhM>; Wed, 8 Nov 2000 12:37:12 -0500
-Date: Wed, 8 Nov 2000 11:38:00 -0600 (CST)
-From: "Gregory S. Youngblood" <greg@tcscs.com>
-Reply-To: greg@tcscs.com
-To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with grow_inodes: inode-max limit reached
-In-Reply-To: <m3em0nx7sk.fsf@matrix.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0011081137060.17255-100000@ded-tscs.innovsoftd.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129280AbQKHRiu>; Wed, 8 Nov 2000 12:38:50 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:18439 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129210AbQKHRin>; Wed, 8 Nov 2000 12:38:43 -0500
+Date: Wed, 8 Nov 2000 09:37:44 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: axp-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+Message-ID: <20001108093744.D27324@twiddle.net>
+In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <20001108142513.A5244@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20001108142513.A5244@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Nov 2000, Chmouel Boudjnah wrote:
+On Wed, Nov 08, 2000 at 02:25:13PM +0300, Ivan Kokshaysky wrote:
+> I relied on DEC^WIntel 21153 datasheet which says that to turn off
+> io/mem window this bridge must be programmed with base > limit
+> values (and the code actually did that).
 
-> "Gregory S. Youngblood" <greg@tcscs.com> writes:
-> 
-> > The problem occurs with Mandrake 7.0 and 7.1 with kernels 2.2.14, 2.2.16,
-> > and 2.2.17. These are the secure kernels that Mandrake provides.
-> 
-> can you try with a 2.2.17 kernel rpm standard (no smp no secure) ?
+Interesting.  I hadn't known that.  It didn't actually fail with
+the ALI bridge, I just assumed it was a mistake.  Can anyone with
+docs on non-DEC bridges confirm that this is a common thing?
 
-I rebooted with the 'failsafe' kernel, which is 2.2.17 no smp no secure
-per your request. If the pattern holds, I will have an update with a
-failure (if it fails) within the next 24 to 72 hours.
+Certainly the fact should be commented if the old code goes back
+in to avoid disruption by helpful folks like myself.  :-)
 
-Thanks,
-greg
 
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

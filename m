@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263599AbUDFCfx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 22:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263601AbUDFCfx
+	id S261939AbUDFCpV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 22:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263601AbUDFCpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 22:35:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48587 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263599AbUDFCfN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 22:35:13 -0400
-Date: Mon, 5 Apr 2004 19:28:44 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BTTV] is anyone taking care of this drivers?
-Message-Id: <20040405192844.32a574e8.rddunlap@osdl.org>
-In-Reply-To: <4072040F.6000507@wanadoo.es>
-References: <4072040F.6000507@wanadoo.es>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 5 Apr 2004 22:45:21 -0400
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:62830 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261939AbUDFCpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 22:45:14 -0400
+Message-ID: <40721A1A.6030705@blueyonder.co.uk>
+Date: Tue, 06 Apr 2004 03:46:50 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mm1
+References: <40715203.8070004@blueyonder.co.uk> <20040405153423.GK31152@smtp.west.cox.net>
+In-Reply-To: <20040405153423.GK31152@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Apr 2004 02:45:15.0147 (UTC) FILETIME=[307D5DB0:01C41B81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Apr 2004 03:12:47 +0200 Luis Miguel García <ktech@wanadoo.es> wrote:
+This is the first kernel since 2.6.5-rc2 to have booted without locking 
+up on the laptop.
+Regards
+Sid.
 
-| hello,
-| 
-| I have written several times to kraxel at bytesex dot com but I got no 
-| reply.
-| 
-| I have data for a new bttv 878 based card that I think must be 
-| introduced in the cards database info in order to make it work.
-| 
-| Who is the maintainer of that driver right now?
-| 
-| Thanks a lot!
-| 
-| P.S.: CC me if you can... I'm not subscribed.
+Tom Rini wrote:
 
-The maintainer (Gerd == kraxel) posted a patch for bttv today (for 2.6.5).
-See http://lkml.org/lkml/2004/4/5/83
+>On Mon, Apr 05, 2004 at 01:33:07PM +0100, Sid Boyce wrote:
+>
+>  
+>
+>>CC      arch/x86_64/kernel/setup.o
+>>arch/x86_64/kernel/setup.c:258: warning: initialization from 
+>>incompatible pointer type
+>>arch/x86_64/kernel/setup.c: In function `setup_arch':
+>>arch/x86_64/kernel/setup.c:411: error: `saved_command_line' undeclared 
+>>(first use in this function)
+>>arch/x86_64/kernel/setup.c:411: error: (Each undeclared identifier is 
+>>reported only once
+>>arch/x86_64/kernel/setup.c:411: error: for each function it appears in.)
+>>make[1]: *** [arch/x86_64/kernel/setup.o] Error 1
+>>make: *** [arch/x86_64/kernel] Error 2
+>>-------------------------------------------------------------------
+>>strlcpy(saved_command_line, early_command_line, COMMAND_LINE_SIZE);
+>>    
+>>
+>
+>Yes, something like this is needed, on top of Rusty's early_param patch:
+>diff -puN include/linux/init.h~fix-rusty include/linux/init.h
+>--- linux-2.6.5-rc3/include/linux/init.h~fix-rusty	2004-04-02 08:30:50.600483739 -0700
+>+++ linux-2.6.5-rc3-trini/include/linux/init.h	2004-04-02 08:30:50.604482833 -0700
+>@@ -143,6 +143,7 @@ extern void setup_arch(void);
+> 
+> /* Relies on saved_command_line being set */
+> void __init parse_early_options(void);
+>+extern char saved_command_line[];
+> #endif /* __ASSEMBLY__ */
+> 
+> /**
+>
+>Assuming that is, that arch/x86_64/kernel/setup.c has #include
+><linux/init.h>, which I assume it does.
+>
+>  
+>
 
---
-~Randy
+
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
+

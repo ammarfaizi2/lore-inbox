@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261503AbREOU6t>; Tue, 15 May 2001 16:58:49 -0400
+	id <S261499AbREOU4i>; Tue, 15 May 2001 16:56:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261512AbREOU6i>; Tue, 15 May 2001 16:58:38 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43478 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261503AbREOU61>;
-	Tue, 15 May 2001 16:58:27 -0400
-Date: Tue, 15 May 2001 16:58:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Getting FS access events
-In-Reply-To: <80wQ-EUHw-B@khms.westfalen.de>
-Message-ID: <Pine.GSO.4.21.0105151657580.21081-100000@weyl.math.psu.edu>
+	id <S261503AbREOU42>; Tue, 15 May 2001 16:56:28 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:11477 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261499AbREOU4O>;
+	Tue, 15 May 2001 16:56:14 -0400
+Message-ID: <3B0197E9.E3A6DAEE@mandrakesoft.com>
+Date: Tue, 15 May 2001 16:56:09 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> It should be a case of "Just plug in a new kernel, and suddenly your
+> existing filesystem just allows you to do more! 20% more for the same
+> price! AND we'll throw in this useful ginzu knife for just 4.95 for
+> shipping and handling. Absolutely free!"
 
-
-On 15 May 2001, Kai Henningsen wrote:
-
-> viro@math.psu.edu (Alexander Viro)  wrote on 15.05.01 in <Pine.GSO.4.21.0105150550110.21081-100000@weyl.math.psu.edu>:
-> 
-> > ... and Multics had all access to files through equivalent of mmap()
-> > in 60s. "Segments" in ls(1) got that name for a good reason.
-> 
-> Where's something called "segments" connected with ls(1)? I can't seem to  
-> find the reference.
-
-ls == list segments. Name came from Multics.
-
+...Linus demonstrates why American culture is a bad influence on you.

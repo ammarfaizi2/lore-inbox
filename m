@@ -1,89 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVCCXC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVCCXC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbVCCXC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 18:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVCCXBE
+	id S262656AbVCCXC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVCCXBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 18:01:04 -0500
-Received: from mailfe10.swipnet.se ([212.247.155.33]:28323 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262535AbVCCV6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:58:47 -0500
-X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
-Subject: Keyboard doesn't work with CONFIG_PNP in 2.6.11-rc5-mm1
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 18:01:21 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:23233 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262663AbVCCWMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:12:24 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Steven Rostedt <rostedt@goodmis.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0503031349470.29190@qynat.qvtvafvgr.pbz>
+References: <42265A6F.8030609@pobox.com>
+	 <20050302165830.0a74b85c.davem@davemloft.net> <422674A4.9080209@pobox.com>
+	 <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	 <422751C1.7030607@pobox.com>
+	 <Pine.LNX.4.58.0503031022100.25732@ppc970.osdl.org>
+	 <1109883750.591.47.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0503031321140.29190@qynat.qvtvafvgr.pbz>
+	 <1109886108.591.58.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0503031349470.29190@qynat.qvtvafvgr.pbz>
 Content-Type: text/plain
-Date: Thu, 03 Mar 2005 22:58:19 +0100
-Message-Id: <1109887099.2286.15.camel@boxen>
+Organization: Kihon Technologies
+Date: Thu, 03 Mar 2005 17:12:02 -0500
+Message-Id: <1109887922.591.84.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2005-03-03 at 13:53 -0800, David Lang wrote:
 
-I had accidently chosen CONFIG_PNP and noticed that my keyboard didn't
-work with bk-dtor-input.patch in the tree (backing out makes keyboard
-work).
+> > Actually, the >5 was pretty pointless anyway.  What I got
+> > from talking to people is that they wanted a release that only got fixes
+> > that would crash the machine, or cause a root exploit. That's what I
+> > thought Linus was trying to say.
+> 
+> the trouble is that 'crash the machine' can include a HUGE number of the 
+> fixes that go into 2.6.x+1 and you just lost stability again
 
+Point taken.
 
-diff -up working_dmesg nokeyboard_dmesg
+Actually, I believe that you would satisfy a lot of people, just if they
+know that trivial, or smaller fixes are included in the release.  If a
+large change is needed, then those people waiting for a stable product
+would have to wait till the release that included the big change was at
+a point that was acceptable to them.
 
---- working_dmesg	2005-03-03 22:15:52.000000000 +0100
-+++ nokeyboard_dmesg	2005-03-03 22:08:48.000000000 +0100
-@@ -1,4 +1,4 @@
--Linux version 2.6.11-rc5 (alex@boxen) (gcc version 3.3.5 (Debian 1:3.3.5-1)) #10 Thu Mar 3 21:10:21 UTC 2005
-+Linux version 2.6.11-rc5 (alex@boxen) (gcc version 3.3.5 (Debian 1:3.3.5-1)) #9 Thu Mar 3 21:05:37 UTC 2005
- BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-@@ -30,14 +30,14 @@ Local APIC disabled by BIOS -- reenablin
- Found and enabled local APIC!
- mapped APIC to ffffd000 (fee00000)
- Initializing CPU#0
--CPU 0 irqstacks, hard=c04bf000 soft=c04be000
-+CPU 0 irqstacks, hard=c04be000 soft=c04bd000
- PID hash table entries: 512 (order: 9, 8192 bytes)
--Detected 1000.472 MHz processor.
-+Detected 1000.568 MHz processor.
- Using tsc for high-res timesource
- Console: colour VGA+ 80x25
- Dentry cache hash table entries: 16384 (order: 4, 65536 bytes)
- Inode-cache hash table entries: 8192 (order: 3, 32768 bytes)
--Memory: 116968k/122816k available (2616k kernel code, 5296k reserved, 772k data, 416k init, 0k highmem)
-+Memory: 116972k/122816k available (2614k kernel code, 5292k reserved, 770k data, 416k init, 0k highmem)
- Checking if this processor honours the WP bit even in supervisor mode... Ok.
- Calibrating delay loop... 1966.08 BogoMIPS (lpj=983040)
- Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-@@ -55,7 +55,7 @@ Checking 'hlt' instruction... OK.
-  tbxface-0118 [02] acpi_load_tables      : ACPI Tables successfully acquired
- Parsing all Control Methods:........................................................................
- Table [DSDT](id F004) - 348 Objects with 29 Devices 72 Methods 24 Regions
--ACPI Namespace successfully loaded at root c04e9340
-+ACPI Namespace successfully loaded at root c04e8340
- ACPI: setting ELCR to 0800 (from 0e00)
- evxfevnt-0094 [03] acpi_enable           : Transition to ACPI mode successful
- testing NMI watchdog ... OK.
-@@ -100,9 +100,6 @@ SGI XFS Quota Management subsystem
- Initializing Cryptographic API
- Applying VIA southbridge workaround.
- PCI: Disabling Via external APIC routing
--PNP: No PS/2 controller found. Probing ports directly.
--serio: i8042 AUX port at 0x60,0x64 irq 12
--serio: i8042 KBD port at 0x60,0x64 irq 1
- Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
- ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
- ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-@@ -180,7 +177,6 @@ md: autorun ...
- md: ... autorun DONE.
- EXT3-fs: INFO: recovery required on readonly filesystem.
- EXT3-fs: write access will be enabled during recovery.
--input: AT Translated Set 2 keyboard on isa0060/serio0
- kjournald starting.  Commit interval 5 seconds
- EXT3-fs: recovery complete.
- EXT3-fs: mounted filesystem with ordered data mode.
+What I've heard is that people are nervous about updating a kernel for a
+small fix, but must also get other features that they don't need and may
+introduce more bugs.
+
+Some IT folks I've talked to are more concerned about the security of
+the system than the stability.  They can feel more comfortable when they
+see a machine stay up a long time, but there can be security problems
+that they can't see. They don't want anything else but the fix when one
+is discovered.  Grant you that these are usually few and far between,
+but this is what I've been told. Of course these people stick to a
+distributor for the updates, but it would be nice to have this
+capability in the kernel, for those like myself (and why I state this)
+that like to tinker with the kernel, and don't use the distro's version.
+
+-- Steve
 
 

@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVARQdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVARQeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVARQdr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 11:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVARQdr
+	id S261348AbVARQeE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 11:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVARQeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 11:33:47 -0500
-Received: from opersys.com ([64.40.108.71]:16654 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261344AbVARQda (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 11:33:30 -0500
-Message-ID: <41ED3C12.8030607@opersys.com>
-Date: Tue, 18 Jan 2005 11:40:50 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Tue, 18 Jan 2005 11:34:03 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:21124 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261345AbVARQdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 11:33:40 -0500
+Date: Tue, 18 Jan 2005 08:33:32 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+cc: kenneth.w.chen@intel.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V2 [1/8]: hugetlb fault handler
+In-Reply-To: <20050118.212118.102612494.taka@valinux.co.jp>
+Message-ID: <Pine.LNX.4.58.0501180831260.26383@schroedinger.engr.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0410251826430.12962@schroedinger.engr.sgi.com>
+ <20050118.212118.102612494.taka@valinux.co.jp>
 MIME-Version: 1.0
-To: Tom Zanussi <zanussi@us.ibm.com>
-CC: Aaron Cohen <remleduff@gmail.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org>	<41E899AC.3070705@opersys.com>	<Pine.LNX.4.61.0501160245180.30794@scrub.home>	<41EA0307.6020807@opersys.com>	<Pine.LNX.4.61.0501161648310.30794@scrub.home>	<41EADA11.70403@opersys.com>	<Pine.LNX.4.61.0501171403490.30794@scrub.home>	<41EC2DCA.50904@opersys.com>	<Pine.LNX.4.61.0501172323310.30794@scrub.home>	<41EC8AA2.1030000@opersys.com>	<727e501505011720303ba4f2cd@mail.gmail.com>	<41EC94BF.2080105@opersys.com> <16876.50139.587691.939056@tut.ibm.com>
-In-Reply-To: <16876.50139.587691.939056@tut.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Jan 2005, Hirokazu Takahashi wrote:
 
-Tom Zanussi wrote:
-> I have to disagree.  Awhile back, if you remember, I posted a patch to
-> the LTT daemon that would monitor the trace stream in real time, and
-> process it using an embedded Perl interpreter, no less:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109405724500237&w=2
-> 
-> It didn't seem to have any problems keeping up with the trace stream
-> even though it was monitoring all LTT event types (and a couple of
-> others - custom events injected using kprobes) and not doing any
-> filtering in the kernel, through kernel compiles, normal X traffic,
-> etc.  I don't know what volume of event traffic would cause this model
-> to break down, but I think it shows that at least some level of
-> non-trivial live processing is possible...
+> > Index: linux-2.6.9/fs/hugetlbfs/inode.c
+> > ===================================================================
+> > --- linux-2.6.9.orig/fs/hugetlbfs/inode.c	2004-10-18 14:55:07.000000000 -0700
+> > +++ linux-2.6.9/fs/hugetlbfs/inode.c	2004-10-21 14:50:14.000000000 -0700
+> > @@ -79,10 +79,6 @@
+> >  	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
+> >  		goto out;
+> >
+> > -	ret = hugetlb_prefault(mapping, vma);
+> > -	if (ret)
+> > -		goto out;
+> > -
+> >  	if (inode->i_size < len)
+> >  		inode->i_size = len;
+> >  out:
+>
+> hugetlbfs_file_mmap() may fail with a weird error, as it returns
+> uninitialized variable "ret".
 
-Good Point.
+Hmm. The current diff is:
 
-My bad. Thanks for bringing this up. Obviously this didn't get as
-much attention as it should've had the last time it was posted,
-especially as it allows very easy scripting of filtering in userspace.
-That email you refer to is pretty loaded and I'm sure those who
-are interested will dig through it. But in the interest of helping
-everyone get a rapid understanding of what it does and how it does it,
-can you break it down in to a short description, possibly with a
-diagram? I'm sure many will find this very interesting.
+@@ -79,11 +278,10 @@ static int hugetlbfs_file_mmap(struct fi
+        if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
+                goto out;
 
-Thanks,
+-       ret = hugetlb_prefault(mapping, vma);
+-       if (ret)
+-               goto out;
++       ret = hugetlb_acct_commit(inode, VMACCTPG(vma->vm_pgoff),
++               VMACCTPG(vma->vm_pgoff + (vma_len >> PAGE_SHIFT)));
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+-       if (inode->i_size < len)
++       if (ret >= 0 && inode->i_size < len)
+                inode->i_size = len;
+ out:
+        up(&inode->i_sem);
+
+which does not leave ret uninitialized. Also this whole hugetlb
+stuff has not been finalized yet and is not that high on my list of things
+todo.
+

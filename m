@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTLLSIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 13:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTLLSIq
+	id S261659AbTLLSPh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 13:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLLSPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 13:08:46 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:52121
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261605AbTLLSIq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 13:08:46 -0500
-Date: Fri, 12 Dec 2003 13:17:04 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 and IDE "geometry"
-Message-ID: <20031212131704.A26577@animx.eu.org>
+	Fri, 12 Dec 2003 13:15:37 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:42444 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S261659AbTLLSPg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 13:15:36 -0500
+Date: Fri, 12 Dec 2003 10:15:17 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: James Morris <jmorris@redhat.com>
+Cc: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: sysctl vs /proc/sys
+Message-ID: <20031212181517.GM15401@matchmail.com>
+Mail-Followup-To: James Morris <jmorris@redhat.com>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+	linux-kernel@vger.kernel.org
+References: <20031212.224649.20046672.yoshfuji@linux-ipv6.org> <Xine.LNX.4.44.0312120928120.2843-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Xine.LNX.4.44.0312120928120.2843-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there anyway to get kernel 2.6 to use the geometry the bios has for an
-IDE drive?
+On Fri, Dec 12, 2003 at 09:28:32AM -0500, James Morris wrote:
+> On Fri, 12 Dec 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
+> 
+> > Can we get the exact previous value from /proc/sys atomicly?
+> 
+> I'm not sure what you mean by this.
 
-I have a installation setup that installs a non-linux os and I partition the
-drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
-as # cylinders/16 heads/63 sectors.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Read value and modify in one op?

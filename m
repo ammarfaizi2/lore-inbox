@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268217AbTALD5t>; Sat, 11 Jan 2003 22:57:49 -0500
+	id <S268222AbTALEA3>; Sat, 11 Jan 2003 23:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268218AbTALD5t>; Sat, 11 Jan 2003 22:57:49 -0500
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:18163 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S268217AbTALD5r>; Sat, 11 Jan 2003 22:57:47 -0500
-Date: Sat, 11 Jan 2003 23:04:36 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-reply-to: <200301120400.h0C40xLE030281@turing-police.cc.vt.edu>
-To: Valdis.Kletnieks@vt.edu
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042344276.1034.154.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
- <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
- <20030111020738.GC9373@work.bitmover.com>
- <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
- <20030111021741.GF9373@work.bitmover.com>
- <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
- <20030111214437.GD9153@nbkurt.casa-etp.nl>
- <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
- <20030111222619.GG9153@nbkurt.casa-etp.nl>
- <1042327403.1033.71.camel@RobsPC.RobertWilkens.com>
- <200301120400.h0C40xLE030281@turing-police.cc.vt.edu>
+	id <S268227AbTALEA1>; Sat, 11 Jan 2003 23:00:27 -0500
+Received: from ldap.somanetworks.com ([216.126.67.42]:11150 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S268222AbTALD7S>; Sat, 11 Jan 2003 22:59:18 -0500
+Date: Sat, 11 Jan 2003 23:08:01 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Rob Wilkens <robw@optonline.net>
+cc: J Sloan <joe@tmsusa.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Noise on lkml (was Re: Nvidia and its choice to read the
+ GPL "differently")
+In-Reply-To: <1042341484.1033.119.camel@RobsPC.RobertWilkens.com>
+Message-ID: <Pine.LNX.4.44.0301112302460.9854-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 23:00, Valdis.Kletnieks@vt.edu wrote:
-> On Sat, 11 Jan 2003 18:23:23 EST, Rob Wilkens said:
-> 
-> > As per buggy hardware, the software should _not_ have to support it. 
-> > The software should report that the hardware has a bug and stop. 
-> > Otherwise, you wind up writing really bad code for other hardware at the
-> > same time that you're trying to work with one particular piece of bad
-> > hardware.
-> 
-> Er? Rob? You got a prescription for them pharmaceuticals?
-> 
+On Sat, 11 Jan 2003, Rob Wilkens wrote:
 
-Sadly, I can't share my prescriptions... But they're on file at the
-pharmacy:
-	Zyprexa, for psychosis (calming effect, "major tranquilizer") 
-	Topamax (mood stabilizer, and weight control)
-	Neurontin (mood stabilizer)
-	Klonopin (anti-anxiety, "minor tranquilizer")
+> On Sat, 2003-01-11 at 20:44, J Sloan wrote:
+> > I won't even begin to put together a point by
+> > point correction, it's all too tedious, and it's
+> > possible that you are here just to annoy and
+> > wear down the developers anyway -
+> 
+> I've only written a total of maybe 5-6 messages to the list, and maybe 4
+> of them were off topic because of a previous off-topic message by
+> somebody else (such as yours).
+[snip]
 
-Klonopin can be addictive (controlled substance), and has even been
-reported in the news as a date rape drug because of how effective it
-is.  
+FYI, looking in my l-k folder, with the next message you sent, you have
+posted 22 messages in the last 3 days, only 3 of which had subject lines
+not related to the ongoing flamewar.
 
--Rob
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 
 

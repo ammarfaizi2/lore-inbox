@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbUJXQub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbUJXQt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbUJXQub (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 12:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUJXQuP
+	id S261559AbUJXQt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 12:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbUJXQqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 12:50:15 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:25540 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S261562AbUJXQrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 12:47:55 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF0A6472F6@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Linux 2.6 - Configuring swap onto NFS mounted root file
-	 system ?
-Date: Sun, 24 Oct 2004 12:47:46 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sun, 24 Oct 2004 12:46:48 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:18444 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261533AbUJXPyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 11:54:47 -0400
+Date: Sun, 24 Oct 2004 16:54:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: generic hardirq code in 2.6.10-rc1
+Message-ID: <20041024155443.GA25013@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-arch@vger.kernel.org
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi - is it going to be addressed in the future ?
+>   o generic irq subsystem: core
+>   o generic irq subsystem: x86 port
+>   o generic irq subsystem: x86_64 port
+>   o generic irq subsystem: ppc port
+>   o generic irq subsystem: ppc64 port
 
----------- Forwarded Message ----------
-su den 24.10.2004 Klokka 00:27 (+0000) skreiv Alexander Povolotsky:
-> Hi,
-> 
-> Linux 2.6 - Configuring swap onto NFS mounted root file system ...
-> Is it possible and working ?
+Btw, it would be nice if all architectures that have more or less
+a copy of the i386 irq.c could switch to the generic code.
 
-No.
+That would be:  alpha,ia64, m32r, mips, sh, sh64, um, v850
 
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+and possibly cris (it currently has a simplified version)

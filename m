@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318172AbSGQA11>; Tue, 16 Jul 2002 20:27:27 -0400
+	id <S317859AbSGQAuv>; Tue, 16 Jul 2002 20:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318174AbSGQA10>; Tue, 16 Jul 2002 20:27:26 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30196 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318172AbSGQA1Z>; Tue, 16 Jul 2002 20:27:25 -0400
-Subject: Re: [PATCH for 2.4] fix find to not stumble over BK
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020716170821.A8462@work.bitmover.com>
-References: <20020716170821.A8462@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Jul 2002 02:40:33 +0100
-Message-Id: <1026870033.1688.116.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317923AbSGQAuu>; Tue, 16 Jul 2002 20:50:50 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:14066 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317859AbSGQAuu>;
+	Tue, 16 Jul 2002 20:50:50 -0400
+Date: Wed, 17 Jul 2002 02:53:34 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200207170053.CAA01050@harpo.it.uu.se>
+To: balbir.singh@wipro.com, hahn@physics.mcmaster.ca
+Subject: Re: Pentium IV cache line size
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 01:08, Larry McVoy wrote:
+On Sun, 14 Jul 2002 16:58:11 -0400 (EDT), Mark Hahn wrote:
+>	- Place each synchronization variable alone, 
+>	separated by 128 byte or in a separate cache line.
+>
+>see also table 1.1.  I'm not sure it matters whether you consider lines 128B
+>or 64B; the fact that cacheline reads always happen at 128B is probably
+>the dominant concern.  table 1.1 page 7-18 ("placement of shared
+>synchonization variable") repeats this.
 
-> Note that common usage
-> 
-> 	find . -name '*.[chS]' | whatever
-> 
-> becomes
-> 
-> 	find . -name SCCS -prune -o -name BitKeeper -prune -o \
-> 		-name '*.[chS]' -print | whatever
-> 		                ^^^^^^
-> 
-> The -print is needed or find will produce nothing, it's now multiple clauses.
+For SW synchronisation variables this makes sense.
 
-The -print is not needed. See IEEE Std 1003.1-2001
+However, I've been in contact with some people doing high-speed routing
+with Linux boxes, and they had major performance problems on a dual P4/Xeon.
+Somehow, the 128 byte alignment affected how the gigabit NIC driver they
+used programmed the NIC, with the effect that buffering of PCI writes
+(or something like that, this is from memory) didn't work and performance
+dropped like a rock. They manually set the alignment back to 64 bytes in
+the NIC driver and performance increased to expected levels.
 
-If no expression is present, -print shall be used as the expression.
-Otherwise, if the given expression does not contain any of the primaries
--exec, -ok, or -print, the given expression shall be effectively
-replaced by:
-
-( given_expression ) -print
-
-Alan the pedantic
-
+/Mikael

@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261262AbRERRY6>; Fri, 18 May 2001 13:24:58 -0400
+	id <S261219AbRERRWs>; Fri, 18 May 2001 13:22:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261261AbRERRYs>; Fri, 18 May 2001 13:24:48 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:3333 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S261255AbRERRYi>; Fri, 18 May 2001 13:24:38 -0400
-Date: Fri, 18 May 2001 19:24:22 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Chris Evans <chris@scary.beasts.org>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: Kernel bug with UNIX sockets not detecting other end gone?
-Message-ID: <20010518192422.B18162@ping.be>
-In-Reply-To: <Pine.LNX.4.30.0105172353480.13175-100000@ferret.lmh.ox.ac.uk>
+	id <S261234AbRERRWi>; Fri, 18 May 2001 13:22:38 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:9808 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261219AbRERRW2>; Fri, 18 May 2001 13:22:28 -0400
+Date: Fri, 18 May 2001 13:22:27 -0400
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010518132227.A24701@devserv.devel.redhat.com>
+In-Reply-To: <20010518115839.E14309@thyrsus.com> <E150mhR-0007Ig-00@the-village.bc.nu> <20010518123413.I14309@thyrsus.com> <3B0551B4.CB251F64@redhat.com> <20010518131707.N14309@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <Pine.LNX.4.30.0105172353480.13175-100000@ferret.lmh.ox.ac.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010518131707.N14309@thyrsus.com>; from esr@thyrsus.com on Fri, May 18, 2001 at 01:17:07PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 11:57:45PM +0100, Chris Evans wrote:
-> 
-> Hi,
-> 
-> I wonder if the following is a bug? It certainly differs from FreeBSD 4.2
-> behaviour, which gives the behaviour I would expect.
-> 
-> The following program blocks indefinitely on Linux (2.2, 2.4 not tested).
-> Since the other end is clearly gone, I would expect some sort of error
-> condition. Indeed, FreeBSD gives ECONNRESET.
+On Fri, May 18, 2001 at 01:17:07PM -0400, Eric S. Raymond wrote:
+> It's been an ugly, nasty, horrible job -- *much* nastier, by an order
+> of magnitude, than designing and writing the CML2 engine.  Going the
+> other direction would be worse.  "Like chewing razor blades" is the
+> simile that leaps to mind.
 
-I'm having a simular problem, but somehow can't recreate it.
+And you hope this will not be razorblades if Linus decides he likes CML2 ?
 
-The difference is that I set the sockets to non-blocking, and
-expect it to return some error.
+ 
+> (And no, dropping back to CML1 format for the masters wouldn't be an
+> option; it doesn't have the semantic strength to enable CML2's new
+> capabilities.)
 
-read() returns 0, with errno set to 0, if the socket is still
-open it returns -1 with errno set 11 (EAGAIN).  I can understand
-those behaviours.
-
-What I'm seeing however in an other program is that select says I
-can read from the socket, and that read returns 0, with errno set
-to EGAIN.  I call select() again, with returns and says I can read
-from that socket ..., which keeps going on.  It stops from the
-moment there is any i/o on an other socket.
-
-Is there any way you can detect the other side is gone without
-using write()?  write() shoud return an EPIPE.  Should I be able
-to detect it with read(), or some oter system call?
-
-
-Kurt
-
+Right now, it's now a dropping back. You seem to take for granted that CML2
+and your python2 frontend to it are 2.5.0 material. I don't right now.

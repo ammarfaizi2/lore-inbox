@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275092AbRJNL3f>; Sun, 14 Oct 2001 07:29:35 -0400
+	id <S275082AbRJNLjq>; Sun, 14 Oct 2001 07:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275087AbRJNL3Z>; Sun, 14 Oct 2001 07:29:25 -0400
-Received: from colin.muc.de ([193.149.48.1]:38663 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id <S275082AbRJNL3M>;
-	Sun, 14 Oct 2001 07:29:12 -0400
-Message-ID: <20011014133004.34133@colin.muc.de>
-Date: Sun, 14 Oct 2001 13:30:04 +0200
-From: Andi Kleen <ak@muc.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: TCP acking too fast
-In-Reply-To: <3BC94F3A.7F842182@welho.com> <20011014.020326.18308527.davem@redhat.com> <k2zo6uiney.fsf@zero.aec.at> <20011014.023948.95894368.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
-In-Reply-To: <20011014.023948.95894368.davem@redhat.com>; from David S. Miller on Sun, Oct 14, 2001 at 11:39:48AM +0200
+	id <S275094AbRJNLjg>; Sun, 14 Oct 2001 07:39:36 -0400
+Received: from pop3.telenet-ops.be ([195.130.132.40]:40669 "EHLO
+	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S275082AbRJNLjX>; Sun, 14 Oct 2001 07:39:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: SainTiss <saintiss@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: IRQ conflict
+Date: Sun, 14 Oct 2001 13:39:21 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011014113949.6ED459C059@pop3.telenet-ops.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 14, 2001 at 11:39:48AM +0200, David S. Miller wrote:
->    From: Andi Kleen <ak@muc.de>
->    Date: 14 Oct 2001 11:25:09 +0200
->    
->    but at least here is an counter example
->    now that may be a good case for a reconsider.
-> 
-> A buggy 2.2.x kernel is not a good case counter example.
+hi,
 
-I just checked and the 2.4 kernel doesn't have the PSH quickack check
-anymore, so it cannot be the cause. The original poster didn't which 
-kernel version he used, but he said "recent"; so I'll assume 2.4
-The only special case for PSH in RX left I can is in rcv_mss estimation,
-where is assumes that a packet with PSH set is not full sized.  On further
-look the 2.4 tcp_measure_rcv_mss will never update rcv_mss for packets
-which do have PSH set and in this case cause random ack behaviour depending
-on the initial rcv_mss guess.
-Not very nice; definitely violates the "be conservative what you accept"
-rule. I'm not sure how to fix it, adding a fallback to every-two-packet-add
-would pollute the fast path a bit.
+I'm running RH 7.1.94 (roswell) and kernel 2.4.7-2
 
+Every time I boot I get this in my /var/log/messages:
 
--Andi
+Oct 14 12:18:16 saintpc kernel: IRQ routing conflict for 00:07.2, have irq 5, 
+want irq 9
 
+00:07.2 is my USB controller, which I don't use currently, and IRQ 9 is my 
+soundcard, which is working fine...
+
+Can something be done about this? Or is this not a 'bad' message?
+
+Thanks in advance
+
+Hans Schippers

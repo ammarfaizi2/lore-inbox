@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUBZXMb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUBZXIm
+	id S261256AbUBZXQL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUBZXMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:08:42 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:64762 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261253AbUBZXHx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:07:53 -0500
-Message-ID: <403E7C40.9060603@mvista.com>
-Date: Thu, 26 Feb 2004 15:07:44 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-CC: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: kgdb: rename i386-stub.c to kgdb.c
-References: <20040224130650.GA9012@elf.ucw.cz> <200402251303.50102.amitkale@emsyssoft.com> <20040225103703.GB6206@atrey.karlin.mff.cuni.cz> <403D10DB.8060506@mvista.com> <20040225212826.GE1052@smtp.west.cox.net> <403D2230.8070000@mvista.com> <20040226042454.GA31771@nevyn.them.org>
-In-Reply-To: <20040226042454.GA31771@nevyn.them.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Feb 2004 18:12:48 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:1671 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261292AbUBZXKp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:10:45 -0500
+Subject: Re: /proc or ps tools bug?  2.6.3, time is off
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       David Ford <david+powerix@blue-labs.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <403E7BEE.9040203@mvista.com>
+References: <403C014F.2040504@blue-labs.org>
+	 <1077674048.10393.369.camel@cube>  <403C2E56.2060503@blue-labs.org>
+	 <1077679677.10393.431.camel@cube>  <403CCD3A.7080200@mvista.com>
+	 <1077725042.8084.482.camel@cube>  <403D0F63.3050101@mvista.com>
+	 <1077760348.2857.129.camel@cog.beaverton.ibm.com>
+	 <403E7BEE.9040203@mvista.com>
+Content-Type: text/plain
+Message-Id: <1077837016.2857.171.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 26 Feb 2004 15:10:18 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
-> On Wed, Feb 25, 2004 at 02:31:12PM -0800, George Anzinger wrote:
+On Thu, 2004-02-26 at 15:06, George Anzinger wrote:
+> john stultz wrote:
+> > On Wed, 2004-02-25 at 13:10, George Anzinger wrote:
+> > 
+> >>Albert Cahalan wrote:
+> >>
+> >>>This is NOT sane. Remeber that procps doesn't get to see HZ.
+> >>>Only USER_HZ is available, as the AT_CLKTCK ELF note.
+> >>>
+> >>>I think the way to fix this is to skip or add a tick
+> >>>every now and then, so that the long-term HZ is exact.
+> >>>
+> >>>Another way is to simply choose between pure old-style
+> >>>tick-based timekeeping and pure new-style cycle-based
+> >>>(TSC or ACPI) timekeeping. Systems with uncooperative
+> >>>hardware have to use the old-style time keeping. This
+> >>>should simply the code greatly.
+> >>
+> >>On checking the code and thinking about this, I would suggest that we change 
+> >>start_time in the task struct to be the wall time (or monotonic time if that 
+> >>seems better).  I only find two places this is used, in proc and in the 
+> >>accounting code.  Both of these could easily be changed.  Of course, even 
+> >>leaving it as it is, they could be changed to report more correct values by 
+> >>using the correct conversions to translate the system HZ to USER_HZ.
+> > 
+> > 
+> > Is this close to what your thinking of? 
+> > I can't reproduce the issue on my systems, so I'll need someone else to
+> > test this. 
 > 
->>I would guess it is a problem in the emacs interface where one points at a 
->>location in the code window and enters a command to set a break point ( I 
->>think it is "^x " (control X space)).  It would appear that emacs then only 
->>sends the file name to gdb rather than the full path.
->>
->>This is not a show stopping problem, only confusing.  Once gdb figures out 
->>the right source, all is well.  I usually do it by setting a break point at 
->>the function by name, thus avoiding the point and grunt thing.
-> 
-> 
-> This is a known problem in the emacs interfaces; it will be fixed, but
-> I have no idea when the fixed version will be available :)
-> 
-I agree AND I have bigger fish to fry with emacs so....
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> More or less.  I wonder if:
+
+> static inline long jiffies_to_clock_t(long x)
+> {
+> 	u64 tmp = (u64)x * TICK_NSEC;
+> 	div64(tmp, (NSEC_PER_SEC / USER_HZ));
+> 	return (long)x;
+> }
+> might be better as it addresses the overflow issue.  Should be able to toss the 
+> #if (HZ % USER_HZ)==0 test too.  We could get carried away and do scaled math to 
+> eliminate the div64 but I don't think this path is used enough to justify the 
+> clarity ;) that would make.
+
+Sounds good to me. Would you mind sending the diff so Petri and David
+could test it?
+
+thanks
+-john
+
 

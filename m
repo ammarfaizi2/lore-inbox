@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264279AbUDTWKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUDTXb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264279AbUDTWKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUDTWJq
+	id S264265AbUDTXb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUDTXb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:09:46 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:3307 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264548AbUDTVWj (ORCPT
+	Tue, 20 Apr 2004 19:31:57 -0400
+Received: from mrout1.yahoo.com ([216.145.54.171]:18449 "EHLO mrout1.yahoo.com")
+	by vger.kernel.org with ESMTP id S264497AbUDTXbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 17:22:39 -0400
-Subject: Re: Failing back to INSANE timesource :) Time stopped today.
-From: john stultz <johnstul@us.ibm.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Niclas Gustafsson <niclas.gustafsson@codesense.com>,
-       lkml <linux-kernel@vger.kernel.org>, Patricia Gaughen <gone@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
-References: <1081416100.6425.45.camel@gmg.codesense.com>
-	 <1081465114.4705.4.camel@cog.beaverton.ibm.com>
-	 <1081932857.17234.37.camel@gmg.codesense.com>
-	 <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl>
-	 <1082048278.17234.144.camel@gmg.codesense.com>
-	 <1082452873.20179.34.camel@gmg.codesense.com>
-	 <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
-Content-Type: text/plain
-Message-Id: <1082495923.10026.36.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Apr 2004 14:18:44 -0700
+	Tue, 20 Apr 2004 19:31:37 -0400
+Message-ID: <4085B2B9.6010007@bigfoot.com>
+Date: Tue, 20 Apr 2004 16:31:05 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5) Gecko/20031111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+References: <40853060.2060508@bigfoot.com> <200404202326.24409.kim@holviala.com>
+In-Reply-To: <200404202326.24409.kim@holviala.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-20 at 05:40, Maciej W. Rozycki wrote:
-> On Tue, 20 Apr 2004, Niclas Gustafsson wrote:
+Kim Holviala wrote:
+> On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
 > 
-> > I've now been running the system since last week, about 6 days now with
-> > sometimes quite high load, both in regard to CPU usage and network
-> > traffic.
-> > And it seems to be running just fine with the patch from Maciej.
 > 
->  I'm glad to read this.
-
-It appears to be working here in our labs as well.
-
-
-> > I've got a couple of questions, 
-> > 
-> > When was this bug introduced? Was it 2.6.1 ( or rather somewhere in
-> > 2.5)? Or was it already present in 2.4?
+>>   it looks that after update to 2.6.5 kernel (debian source package but
+>>I guess it would be the same with stock 2.6.5) the mouse wheel and side
+>>button on Logitech Cordless MouseMan Wheel mouse do not work.
 > 
->  Well, the bug has been introduced by IBM in their firmware (SMM code).  
-> ;-)  The patch only works it around.  Functionally the changed code is the
-> same for your configuration.
 > 
->  If you are asking about the problematic code, then it's there since
-> 2.3.x, so it's in 2.4, too.  It's a part of the NMI watchdog support,
-> though it's used for ordinary timer interrupts for certain systems as
-> well.
+> Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
 
-Are you saying that 2.4 will exhibit this problem as well, or that 2.4
-already has an equivalent workaround?
+   which part is patch? click on view this diff only and copy&paste that 
+and use it as a patch?
 
+   thanks,
 
-> > When will this patch be merged into the 2.6-tree?  I don't have to
-> > stress the impact of this problem on IBM servers as they are rendered
-> > quite useless.
+	erik
+
+> Build psmouse into a module (for easier testing) and insert it with the proto 
+> parameter. I'd say "modprobe psmouse proto=exps" works for you, but you might 
+> want to try imps and ps2pp too. The reason I wrote the patch in the first 
+> place was that a lot of PS/2 Logitech mice refused to work (and yes, exps 
+> works for me and others)....
 > 
->  Apparently there are problems with the workaround on certain AMD
-> Athlon-based systems.  I suppose they need to be resolved somehow first.
-
-Can you point me to any threads on this issue. I'd like to do what I can
-to help get this workaround in.
-
-> > Which other IBM models are affected? Can I run 2.6.5 on my 345:s or
-> > 335:s?  Do they use the same buggy SMM firmware?
 > 
->  Ask IBM.  The reason is an incorrect handling of PIC (8259A) state
-> saving/restoration.
+> 
+> Kim
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I'm following up w/ our hardware group about this issue.
-
-Thanks so much for the help!
--john
 

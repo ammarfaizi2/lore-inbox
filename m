@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTLYHH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 02:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTLYHH6
+	id S263609AbTLYHEA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 02:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTLYHEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 02:07:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33805 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263891AbTLYHH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 02:07:57 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: md: RAID-6 patch available for testing
-Date: 24 Dec 2003 23:07:51 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bse2c7$viq$1@cesium.transmeta.com>
+	Thu, 25 Dec 2003 02:04:00 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:27856 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263609AbTLYHD6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 02:03:58 -0500
+Date: Thu, 25 Dec 2003 14:58:14 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix make kernel rpm bug
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840254C76E@PDSMSX403.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44.0312251254240.16528-100000@mazda.sh.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Already announced to linux-raid, but I thought it might get wider
-distribution in this list.]
+On Thu, 25 Dec 2003, Jeff Garzik wrote:
 
-For those that don't know, I've been working on adding RAID-6 (dual
-failure recovery) to the md system for a while.  It started out as a
-project because the math was interesting, and Penguin Computing for
-donated a very much needed test system (thanks!)
+> hmmm, I don't think $(ARCH) makes the rpm --target strings in all
+> cases..
 
-Well, at least I have a piece of code that passes my relatively simple
-functionality tests.  Still, that's news, and this is the first RAID-6
-snapshot that isn't *known* to be broken :)
+>From rpm man page --target PLATFORM will interpret PLATFORM as
+arch-vendor-os and set %_target, %_target_cpu, %_target_os accordingly.
+In this case only arch is set, so vendor and os will remain as default.
 
-I can at least mount filesystems, read and write data, reboot the
-system and have the data still there, with 1 or 2 disks lost, and do a
-reconstruction once the drives are added back in.
+If you still think it is too implicit, how about change as below? In case
+you want set RPM_VENDOR_OS to something like "-unknown-linux".
 
-New development snapshot at:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/raid6-20031224c-experimental.tar.gz
+@@ -258,6 +258,7 @@
+ AWK            = awk
+ RPM            := $(shell if [ -x "/usr/bin/rpmbuild" ]; then echo
+rpmbuild; \
+                        else echo rpm; fi)
++RPM_VENDOR_OS  :=
+ GENKSYMS       = scripts/genksyms/genksyms
+ DEPMOD         = /sbin/depmod
+ KALLSYMS       = scripts/kallsyms
+@@ -872,7 +873,7 @@
+        $(CONFIG_SHELL) $(srctree)/scripts/mkversion >
+$(objtree)/.tmp_version;\
+        mv -f $(objtree)/.tmp_version $(objtree)/.version;
 
-Please test it out and let me know how badly it sucks :)
+-       $(RPM) -ta ../$(KERNELPATH).tar.gz
++       $(RPM) --target $(ARCH)$(RPM_VENDOR_OS) -ta ../$(KERNELPATH).tar.gz
+        rm ../$(KERNELPATH).tar.gz
 
-At some point I'll try to run some benchmarks.  There is also a lot of
-optimization still to be done.
+ # Brief documentation of the typical targets used
 
-       -hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+
+>         Jeff
+
+-yi
+

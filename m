@@ -1,80 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264696AbSJUCb7>; Sun, 20 Oct 2002 22:31:59 -0400
+	id <S264694AbSJUC3N>; Sun, 20 Oct 2002 22:29:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSJUCb6>; Sun, 20 Oct 2002 22:31:58 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:32964 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S264696AbSJUCbz>; Sun, 20 Oct 2002 22:31:55 -0400
-Message-ID: <3DB36877.9EFF8AA4@attbi.com>
-Date: Sun, 20 Oct 2002 22:37:43 -0400
-From: Jim Houston <jim.houston@attbi.com>
-Reply-To: jim.houston@attbi.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S264697AbSJUC3N>; Sun, 20 Oct 2002 22:29:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57863 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264694AbSJUC3M>; Sun, 20 Oct 2002 22:29:12 -0400
+Date: Sun, 20 Oct 2002 22:34:52 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+cc: davidsen <root@tmr.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: NCR adaptor doesn't see devices (was: 2.5.43 aic7xxx segfault)
+In-Reply-To: <Pine.LNX.4.44.0210201436260.9763-100000@filesrv1.baby-dragons.com>
+Message-ID: <Pine.LNX.3.96.1021020222224.1655A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu, andrea@suse.de,
-       jim.houston@ccur.com
-Subject: Re: [PATCH] Re: Pathological case identified from contest
-References: <Pine.LNX.4.44L.0210201214010.22993-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Sat, 19 Oct 2002, Jim Houston wrote:
-> > +     if (HZ > 100)
-> > +             return(((p)->prio - MAX_RT_PRIO)*4 + 1);
-> > +     else
-> > +             return(((p)->prio - MAX_RT_PRIO)/2 + 1);
-> >  }
-> 
-> It'd be fun if this code also worked for values of HZ not
-> equal to 100 or 1000.  Better put HZ somewhere in this
-> calculation and make it HZ-independant.
+On Sun, 20 Oct 2002, Mr. James W. Laferriere wrote:
 
-Yes I will clean this up.  
+> On Sun, 20 Oct 2002, Bill Davidsen wrote:
+> > No, the sym-anything seems to be for the newer chopsets, and not the old
+> > ncr825. I believe I tried 2.5.38 or so with that driver and it couldn't
+> > find a device it liked. I'll try building that module again, but it didn't
+> > work and I thought it might be causing a problem trying.
+> 	Iirc ,  Gerard said that the Sym-2 is for all chipsets again .
+> 	see: linux/drivers/scsi/sym53c8xx_2/Documentation.txt
+> 	The ncr53c8xx was the original driver that he produced .  Then
+> 	came the sym53c8xx version which was NOT for the older chips
+> 	supported by the ncr53c8xx.c .
 
-> > + * The rq->prio_ind is used to raise/rotate the priority of all of the
-> > + * processes in the run queue.  I know this  sounds like a pyramid scheme.
-> > + * This increase in priority is balanced by two feedback mechanisms.
-> > + * First processes which consume there timeslice are moved to a lower
-> > + * priority queue.  To continue the pyramid analogy we make the time
-> > + * slice smaller for more favorable priorities.
-> 
-> Sounds like a good strategy, at least in theory.  I suspect
-> it'll balance itself well enough to also work in practice.
-> 
-> > + * The rotate_rate is the rate at which the priorities of processes
-> > + * in the run queue increase.  With the initial HZ/10 guess a process
-> > + * will go from the worst dynamic priority to the best in 4 seconds.
-> 
-> How long does it take for a best priority process to go
-> down ?
+First, you are right, using the new sym driver the card works. But:
+ 1. it doesn't build (2.5.43) as a module, up through -mm3
+ 2. the ncr module works in 2.4, and should work or be remnoved.
+    Typically we keep old modules, like the something7,8xx (yes, comma
+    in the module name).
+ 3. Building in makes it load before the ide-scsi module, and changes all
+    the device name and assignments. I have enough problems going between
+    2.4 and 2.5, I'm afraid of ising devfs on top of that. If it works.
+ 
+> > Also note that the driver inserts and fails twice (see dmesg) which is not
+> > intuitive to me.
+> 	Yes , I noted them below using a grep of your document .  It
+> 	appears that the SYM53c8xx driver gets loaded   THEN the
+> 	ncr53c8xx attempts to load & of course conflicts with the
+> 	SYM53c8xx .  These two drivers can not co-exist ,  Without very
+> 	special care as to how they get loaded or some such .
+> 	I still highly recommend the sym2 driver rather than either of
+> 	the two being loaded .  But if it won't recognise the drives ...
+> 		Hth ,  JimL
 
-I don't know yet.  My next step will be to instrument this.
-There are a many things that I can be tuned here, but I
-want the system to tune itself.  For example, I might measure the 
-interval at which the lowest priority process gets to run and use
-this to adjust the rotate_rate.   
+Most good catch, I saw the ncr52c8xx and missed the module name, don't
+know how that got turned on.
 
-> 
-> Or, for how much time can a newly started CPU hog starve
-> an older process ?   This is important to know since eg.
-> a newly started Mozilla could starve an already running
-> movie player.
+So I can run as long as I'm very ccareful what scripts do, and the ncr
+module could be fix (probably trivial) or the sym-2 could be made to work
+as a module. I can provide the config and anything else if that proves
+hard to replicate, I'm in the habbit of building almost everything as a
+module, so I hit rather more of these problems than I would like.
 
-The patch starts new processes with a neutral priority
-of 120.  If it is a cpu hog, it will get one time slice at 
-each priority until it reaches the priority where the existing
-group of cpu hogs are executing.  At this point it will 
-round robin with this group.
+Again thanks for the catch, I'm working, the system uses all devices, and
+the swap of /dev/sc0<=>/dev/scd1 assignment is acceptable for a
+development machine. I'll probably change the scripts to use cdrom1..N and
+just make the symlinks in rc.local.
 
-The scheduler has no way to know which processes are interactive.  In
-your example the user might be waiting for the Mozilla to start
-and not care if the movie player skips.
-
-Jim Houston - Concurrent Computer Corp.
+I couldn't get netfilter to build as modules the last time I tried, I have
+to look at that Wednesday, when I'm back in the office.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

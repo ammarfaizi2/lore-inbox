@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUANSLr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUANSLr
+	id S262425AbUANSQj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 13:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUANSQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:11:47 -0500
-Received: from relaycz.systinet.com ([62.168.12.68]:33983 "HELO
-	relaycz.systinet.com") by vger.kernel.org with SMTP id S262052AbUANSLp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:11:45 -0500
-Subject: [2.6,2.4] HPT366 (on Abit BP6) + Seagate 7000.7 + DMA = kernel
-	halted
-From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1074103900.22670.27.camel@narsil>
+	Wed, 14 Jan 2004 13:16:39 -0500
+Received: from sarvega.com ([161.58.151.164]:57105 "EHLO sarvega.com")
+	by vger.kernel.org with ESMTP id S262425AbUANSQh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 13:16:37 -0500
+Date: Wed, 14 Jan 2004 12:16:27 -0600
+From: John Lash <jkl@sarvega.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: s0095670@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: Catch 22
+Message-Id: <20040114121627.41cfd4b2.jkl@sarvega.com>
+In-Reply-To: <20040114091456.752ad02d.rddunlap@osdl.org>
+References: <400554C3.4060600@sms.ed.ac.uk>
+	<20040114090137.5586a08c.jkl@sarvega.com>
+	<20040114091456.752ad02d.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.6claws71 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 14 Jan 2004 19:11:40 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 14 Jan 2004 09:14:56 -0800
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-I have problem with HPT366 and Seagate and trying to switch on DMA.
+...
+ 
+> Does anyone know the reason for this (ATA ident/naming change)?
+> 
+> I do *not* see this and I'm also using Mandrake (v9.0, not later).
+> 
 
-My configuration
- - my hardware: Abit BP6 with HPT366 IDE controller, Seagate Barracuda
-7000.7 HDD (80 GB)
- - kernels tried: 2.4.22, 2.4.23, 2.6.0-test9, 2.6.0, 2.6.1-rc3
+I didn't see anything like that for ide disks. What I did notice is that my eth
+devices (on different busses) had new names sometime back in 2.5.x time. I wrote
+that off to differences in walking/probing of the PCI tree giving different
+enumeration of the devices. Possibly the same would hold true for the ide if
+there are multiple ide interfaces on the system.
 
-My problem is that HPT366 linux driver doesn't like DMA. When I try to
-set DMA by hdparm, after several seconds the HDD led gets on and remains
-on for another amount of seconds, then I got
+As I recall, there's also a kernel param for "Boot off-board chipsets first
+support". Maybe that bit got flipped inadvertently???
 
-hde: dma_timer_expiry (.. = 0x21)
+--john
 
-and after a while
-
-hde: DMA timeout error
-
-then kernel is halted and I need to reset my PC.
-
-This error is clearly reproducible (with or without SMP, various kernel
-versions, overclocking or not, ACPI on and off) but I don't get any oops
-(probably because of disk problem).
-
-DMA can't be set during kernel boot, HPT366 driver refuses to set DMA
-on. It must be done using hdparm.
-
-After some investigations I realized that the problem could be in the
-combination of HPT366 and Seagate disk. In the source code of
-HighPoint's driver
-(http://www.highpoint-tech.com/hpt3xx-opensource-v131.tgz - link is in
-kernel's drivers/ide/pci/hpt366.c) I can see some procedure used to fix
-some seagate disk initialization problem which is not present (after a
-quick look) in hpt366.c in kernel. I think that's the problem because I
-haven't found any reported problem and I think that BP6 is still widely
-used.
-
-Windows are working well and I haven't time to try HighPoint's own
-driver.
-
-I can provide you with my exact configuration and logs later, I'm not
-near affected computer now.
-
-Does anyone else has the same problem?
-Any other ideas?
-
-Regards,
-
-Jan "Pogo" Mynarik
-
--- 
-Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-
+> --
+> ~Randy
+> MOTD:  Always include version info.
+> -

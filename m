@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUJHSe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUJHTB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUJHSe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 14:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJHSdy
+	id S263769AbUJHTB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 15:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbUJHTBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:33:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46257 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264098AbUJHSdM
+	Fri, 8 Oct 2004 15:01:21 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:45489 "EHLO
+	mailfe04.swip.net") by vger.kernel.org with ESMTP id S263769AbUJHS7z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:33:12 -0400
-Message-ID: <4166DD57.8060501@pobox.com>
-Date: Fri, 08 Oct 2004 14:32:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
-       marcelo.tosatti@cyclades.com, klassert@mathematik.tu-chemnitz.de
-Subject: Re: [patch 2.4.28-pre3] 3c59x: resync with 2.6
-References: <20041008121307.C14378@tuxdriver.com> <20041008191324.J17999@flint.arm.linux.org.uk>
-In-Reply-To: <20041008191324.J17999@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 14:59:55 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Fri, 8 Oct 2004 20:59:50 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, sebastien.hinderer@libertysurf.fr
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041008185949.GA2275@bouh.is-a-geek.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	sebastien.hinderer@libertysurf.fr
+References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1097176130.31557.117.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Ah, if someone's looking at the 3c59x driver then please look into the
-> NWAY autonegotiation code - even maybe update it to use mii.c.
+Le jeu 07 oct 2004 à 20:08:56 +0100, Alan Cox wrote:
+> On Maw, 2004-10-05 at 18:25, Samuel Thibault wrote:
+> > No: data actually pass _after_ CTS and RTS are lowered back: the flow control
+> > only indicate the beginning of one frame.
+> 
+> Ok I've pondered this somewhat. I don't think the hack proposed is the
+> right answer for this. I believe you should implement a simple line
+> discipline for this device so that it stays out of the general code.
+> 
+> Right now that poses a challenge but if drivers were to implement
+> ldisc->modem_change() or a similar callback for such events an ldisc
+> could then handle many of the grungy suprises and handle them once and
+> in one place.
 
+Serial drivers should then at least (when seeing ldisc->modem_change
+!= NULL) do no RTS/CTS/DTR/etc handling at all (to avoid interfering),
+and activate "MSI" for calling modem_change in the interrupt handler.
 
-Steffen Klassert (cc'd) actually did a patch to do just that :)
+Being able to call port->ops->start/stop_tx by some way will also be
+necessary, by grouping 
+{
+  struct uart_state *state = tty->driver_data;
+  struct uart_port *port = state->port;
+  tty->hw_stopped = 0;
+  port->ops->start_tx(port, 0);
+  uart_write_wakeup(port);
+}
+and its dual in some function for instance.
 
-	Jeff
-
-
+Regards,
+Samuel Thibault

@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbULTMuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbULTMwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbULTMuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 07:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULTMuL
+	id S261506AbULTMwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 07:52:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbULTMwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 07:50:11 -0500
-Received: from em.njupt.edu.cn ([202.119.230.11]:7341 "HELO njupt.edu.cn")
-	by vger.kernel.org with SMTP id S261499AbULTMuE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 07:50:04 -0500
-Message-ID: <303550202.05721@njupt.edu.cn>
-X-WebMAIL-MUA: [10.10.136.115]
-From: "Zhenyu Wu" <y030729@njupt.edu.cn>
-To: nickpiggin@yahoo.com.au
+	Mon, 20 Dec 2004 07:52:34 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:59077 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261502AbULTMwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 07:52:24 -0500
+Date: Mon, 20 Dec 2004 13:52:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Joseph Seigh <jseigh_02@xemaps.com>
 Cc: linux-kernel@vger.kernel.org
-Date: Mon, 20 Dec 2004 21:43:22 +0800
-Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
-X-Priority: 3
-Subject: Re: About kernel panic!
-Content-Type: text/plain
+Subject: Re: What does atomic_read actually do?
+Message-ID: <20041220125223.GI4424@dualathlon.random>
+References: <opsi7o5nqfs29e3l@grunion> <1103394867.4127.18.camel@laptopd505.fenrus.org> <opsi7xcuizs29e3l@grunion> <1103399680.4127.20.camel@laptopd505.fenrus.org> <opsi707edhs29e3l@grunion> <1103494866.6052.354.camel@localhost> <opsi94i4z0s29e3l@grunion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opsi94i4z0s29e3l@grunion>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you mean that there is something wrong with my Kernel Code? So, i have to use a
-new kernel code, but i can't understand why.
+On Sun, Dec 19, 2004 at 06:50:54PM -0500, Joseph Seigh wrote:
+> What's the assurance that gcc supports this api correctly?   There was
+> the  possibility since the C standard leaves it implementation
+> dependent what constitutes volatile access, that gcc did something
+> special there.  But the gcc  documentation says this for volatile,
+> "There is no guarantee that these reads and writes  are atomic,
+> especially for objects larger than int."
 
-Thanks and Best,
+set_pte_atomic also requires atomicity in
+asm-generic/pgtable.h:ptep_establish, but it's not even using volatile
+and it's a 64bit pointer that we're writing to.  We're relaying on the
+compiler to do the right thing for us. I don't think it's a good idea
+for the long run, but Benjamin on ppc64 rejected my suggestion to
+rewrite set_pte_atomic in asm, so I doubt you'll be able to rewrite
+atomic_read with asm either (because at least atomic_read is an int and
+not a long pointer, and at least atomic_read is a volatile unlike
+set_pte).
 
-
->From: Nick Piggin <nickpiggin@yahoo.com.au>
->Reply-To: 
->To: Zhenyu Wu <y030729@njupt.edu.cn>
->Subject: Re: About kernel panic!
->Date:Mon, 20 Dec 2004 20:21:23 +1100
->
->Zhenyu Wu wrote:
-> > Hello, Everyone,
-> > 
-> > I think i have met lots of troubles when i am programming in the kernel, so,
-i
-> > want to get
-> > some help.
-> > 
-> > One of my troubles is that, sometimes, the program can work well, but
-sometimes,
-> > there are
-> > kernel panics. So, does someone else meet such questions, what is the major
-> > reasons? From the
-> > indication of the log messages, i can find the messages on allocting the
-memory, i
-> > remember, 
-> > i use the kmalloc to do it, but is there something wrong? 
-> > 
-> 
-> Yes, there is something wrong with your kernel code. The oops will
-> tell you what went wrong.
-> 
-> Reading Documentation/oops-tracing.txt is a good start.
-> 
-> Nick
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+My point is that even before worrying about the theoretical correctness
+of atomic_read, I would suggest to worry about set_pte_atomic first,
+which is a lot more likely to break if something. The compiler may truly
+execute two separate writes if power of 2 bitshifts are involved, as the
+optimal compilation of the C source.

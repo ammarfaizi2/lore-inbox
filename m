@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVAYSuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVAYSx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVAYSuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 13:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVAYSuQ
+	id S262059AbVAYSx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 13:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVAYSxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 13:50:16 -0500
-Received: from colo.lackof.org ([198.49.126.79]:937 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262057AbVAYSuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:50:06 -0500
-Date: Tue, 25 Jan 2005 11:50:14 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'Andi Kleen'" <ak@muc.de>, "'Steve Lord'" <lord@xfs.org>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       "'Mel Gorman'" <mel@csn.ul.ie>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Linux Memory Management List'" <linux-mm@kvack.org>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Grant Grundler'" <grundler@parisc-linux.org>
-Subject: Re: [PATCH] Avoiding fragmentation through different allocator
-Message-ID: <20050125185014.GA3582@colo.lackof.org>
-References: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
+	Tue, 25 Jan 2005 13:53:55 -0500
+Received: from apachihuilliztli.mtu.ru ([195.34.32.124]:59405 "EHLO
+	Apachihuilliztli.mtu.ru") by vger.kernel.org with ESMTP
+	id S262059AbVAYSxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 13:53:44 -0500
+Subject: reiser4 core patches: [Was: [RFC] per thread page reservation
+	patch]
+From: Vladimir Saveliev <vs@namesys.com>
+To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Cc: Nikita Danilov <nikita@clusterfs.com>, linux-mm <linux-mm@kvack.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050107132459.033adc9f.akpm@osdl.org>
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	 <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
+	 <1105019521.7074.79.camel@tribesman.namesys.com>
+	 <20050107144644.GA9606@infradead.org>
+	 <1105118217.3616.171.camel@tribesman.namesys.com>
+	 <41DEDF87.8080809@grupopie.com> <m1llb5q7qs.fsf@clusterfs.com>
+	 <20050107132459.033adc9f.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1106671038.4466.81.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 25 Jan 2005 19:39:49 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 09:02:34AM -0500, Mukker, Atul wrote:
-> The megaraid driver is open source, do you see anything that driver can do
-> to improve performance. We would greatly appreciate any feedback in this
-> regard and definitely incorporate in the driver. The FW under Linux and
-> windows is same, so I do not see how the megaraid stack should perform
-> differently under Linux and windows?
+Hello
 
-Just to second what Andy already stated: it's more likely the
-Megaraid firmware could be better at fetching the SG lists.
-This is a difficult problem since the firmware needs to work
-well on so many different platforms/chipsets.
+[per thread page reservation discussion is snipped]
 
-If LSI has time to turn more stones, get a PCI bus analyzer and filter
-it to only capture CPU MMIO traffic and DMA traffic to/from some
-"well known" SG lists (ie instrument the driver to print those to
-the console). Then run AIM7 or similar multithreaded workload.
-A perfect PCI trace will show the device pulling the SG list in
-cacheline at time after the CPU MMIO reads/writes from the card
-to indicate a new transaction is ready to go.
+> And the whole idea is pretty flaky really - how can one precalculate how
+> much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
+> use?  It really would be better if we could drop the whole patch and make
+> reiser4 behave more sanely when its writepage is called with for_reclaim=1.
 
-Another stone LSI could turn is to verify the megaraid controller is
-NOT contending with the CPU for cachelines used to build SG lists.
-This something the driver controls but I only know how to measure
-this on ia64 machines (with pfmon or caliper or similar tool).
-If you want examples, see
-	http://iou.parisc-linux.org/ols2004/pfmon_for_iodorks.pdf
+ok, we will change reiser4 to keep its pool of preallocated pages
+privately as Andi suggested. This will require to have
+reiser4_find_or_create_page which will do what find_or_create_page does
+plus get a page from the list of preallocated pages if alloc_page
+returns NULL.
 
-In case it's not clear from above, optimal IO flow means the device
-is moving control data and streaming data in cacheline or bigger units.
-If Megaraid is already doing that, then the PCI trace timing info
-should point at where the latencies are.
+So, currently, reiser4 depends on the core patches listed below. Would
+you please look over them and let us know which look reasonable and
+which are to be eliminated.
 
-hth,
-grant
+reiser4-sb_sync_inodes.patch
+This patch adds new operation (sync_inodes) to struct super_operations.
+This operation allows a filesystem to writeout dirty pages not
+necessarily on per-inode basis. Default implementation of this operation
+is sync_sb_inodes.
+
+reiser4-allow-drop_inode-implementation.patch
+This EXPORT_SYMBOL-s inodes_stat, generic_forget_inode, destroy_inode
+and wake_up_inode which are needed to implement drop_inode.
+reiser4 implements function similar to generic_delete_inode to be able
+to truncate inode pages together with metadata destroying in
+reiser4_delete_inode whereas generic_delete_inode first truncates pages
+and then calls foofs_delete_inode.
+
+reiser4-truncate_inode_pages_range.patch
+This patch makes truncate_inode_pages_range from truncate_inode_pages.
+truncate_inode_pages_range can truncate only pages which fall into
+specified range. truncate_inode_pages which trucates all pages starting
+from specified offset is made a one liner which calls
+truncate_inode_pages_range.
+
+reiser4-rcu-barrier.patch
+This patch introduces a new interface - rcu_barrier() which waits until
+all the RCUs queued until this call have been completed.
+This patch is by Dipankar Sarma <dipankar@in.ibm.com>
+
+reiser4-reget-page-mapping.patch
+This patch allows to remove page from page cache in foofs_releasepage.
+
+reiser4-radix_tree_lookup_slot.patch
+This patch extents radxi tree API with a function which returns pointer
+to found item within the tree.
+
+reiser4-export-remove_from_page_cache.patch
+reiser4-export-page_cache_readahead.patch
+reiser4-export-pagevec-funcs.patch
+reiser4-export-radix_tree_preload.patch
+reiser4-export-find_get_pages.patch
+reiser4-export-generic_sync_sb_inodes.patch
+The above patches EXPORT_SYMBOL several functions. Others may find it
+useful if they were exported. 
+
+reiser4-export-inode_lock.patch
+Reiser4 used to manipulate with super block inode lists so it needs
+inode_lock exported.
+We are working now to not need this. But quite many things are based on
+it. Is there any chance to have it included?
+
+
+Thanks
+

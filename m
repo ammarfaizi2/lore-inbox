@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUCPUcy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 15:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUCPUcy
+	id S261648AbUCPUgU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 15:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUCPUgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 15:32:54 -0500
-Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:57356 "HELO
-	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S261631AbUCPUcv convert rfc822-to-8bit (ORCPT
+	Tue, 16 Mar 2004 15:36:20 -0500
+Received: from mail.gmx.de ([213.165.64.20]:59340 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261648AbUCPUgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 15:32:51 -0500
-X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
+	Tue, 16 Mar 2004 15:36:17 -0500
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Steve Youngs <sryoungs@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4?
+Date: Tue, 16 Mar 2004 21:49:40 +0100
+User-Agent: KMail/1.6.1
+References: <405082A2.5040304@blueyonder.co.uk> <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu> <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
+In-Reply-To: <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
 MIME-Version: 1.0
-Subject: RE: spurious 8259A interrupt
-Date: Tue, 16 Mar 2004 14:32:48 -0600
-Message-ID: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: spurious 8259A interrupt
-Thread-Index: AcQLjEFmUsX57s12RxCwRj6gBiKbjQAAEJTw
-From: Robert_Hentosh@Dell.com
-To: fleury@cs.auc.dk, linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 16 Mar 2004 20:32:48.0684 (UTC)
- FILETIME=[D8B2B6C0:01C40B95]
-X-WSS-ID: 6C49BBFB4092525-05-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403162149.41018.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Emmanuel Fleury
-> Sent: Tuesday, March 16, 2004 12:36 PM
-> 
-> 
-> Hi,
-> 
-> I noticed today that I had several "spurious 8259A interrupt":
-> 
-> Dec 20 15:02:45 hermes vmunix: spurious 8259<3>[drm:radeon_cp_init]
-
-  :: SNIP ::
-
-So a co-worker of mine (Stuart Hayes) did some digging into this issue.
-What he found after putting a scope on the system was, in our situation
-it was harmless:
-
-The problem was actually caused by another IRQ (in our instance it was
-IRQ10 associated with a gigabit NIC). The following steps took place:
-
->  IRQ10 asserted
->  INTACK cycle lets PIC deliver vector to processor
->  processor masks IRQ10 in PIC
->  processor sends EOI command to PIC
->  processor reads a status register in the NIC, which causes IRQ10 to
-be deasserted
->  processor unmasks IRQ10 in PIC
+On Monday 15 March 2004 04:36, Steve Youngs wrote:
+> * Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
+>   > On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  
+said:
+>   >> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
+>   >> config?  If so, disable it and try again.  (It's almost certain to
+>   >> cause crashes with binary modules.)
 >
-> Sometimes the processor would unmask IRQ10 almost immediately after
-reading the status
-> register in the NIC, which results in IRQ10 being unmasked before the
-IRQ10 signal has
-> finished going high.  This causes the PIC to think that there is
-another IRQ10, but, 
-> by the time the processor asks for the vector, IRQ10 is no longer
-asserted.
+>   $ zgrep REGPARM /proc/config.gz
+> CONFIG_REGPARM=y
+>
+>   $ grep nvidia /proc/modules
+> nvidia 2066568 22 - Live 0xe0b2d000
+>
+>   $ uname -r
+> 2.6.4-sy1
+>
+> No problems here. :-)
+>
+>   > Also, the NVidia driver uses a bit of kernel stack, so it's
+>   > incompatible with the CONFIG_4KSTACKS option in recent -mm
+>   > kernels...
+>
+> Will have to remember that for 2.6.5, I'll let you know how it goes.
+> Thanks, Valdis.
 
-The PIC defaults to IRQ7 because of its design, when IRQ10 was already
-cleared. Sticking delays in is not viable in a generic ISR routing.  A
-possible fix to this issue would be to issue the EOI after the read to
-the status register on the NIC, and I see some documentation on the PIC
-that actually suggests that this is the way to service an interrupt.
-This seemed like a risky change, since sending the EOI and using the
-mask has been in use for some time and the change would effect all
-devices using interrupts.
+can you let me know how to compile the nvidia drivers for 4KSTACK? cause in 
+the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
+thx!
 
-The spurious IRQ performance impact is negligible since it is logged
-only once per IRQ at most.
-
+greets

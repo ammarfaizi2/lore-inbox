@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131439AbQKZXsW>; Sun, 26 Nov 2000 18:48:22 -0500
+        id <S133051AbQKZXsw>; Sun, 26 Nov 2000 18:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131930AbQKZXsN>; Sun, 26 Nov 2000 18:48:13 -0500
-Received: from [212.6.212.55] ([212.6.212.55]:10509 "EHLO
-        wunderserver6.tmag.de") by vger.kernel.org with ESMTP
-        id <S131439AbQKZXsC> convert rfc822-to-8bit; Sun, 26 Nov 2000 18:48:02 -0500
-From: Stefan Frings <stefan@edv-frings.de>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: cannot ls cdroms (_isofs_bmap block >= EOF)
-Date: Mon, 27 Nov 2000 00:16:41 +0100
-X-Mailer: KMail [version 1.0.29.2]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <00112700180300.08780@notebook>
-Content-Transfer-Encoding: 7BIT
+        id <S133049AbQKZXso>; Sun, 26 Nov 2000 18:48:44 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:23036
+        "EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+        id <S131930AbQKZXsa>; Sun, 26 Nov 2000 18:48:30 -0500
+Date: Sun, 26 Nov 2000 16:15:02 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+Message-ID: <20001126161502.E872@opus.bloom.county>
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net> <20001126170334.B1787@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001126170334.B1787@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Nov 26, 2000 at 05:03:34PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:  
+On Sun, Nov 26, 2000 at 05:03:34PM -0700, Jeff V. Merkey wrote:
 
-cannot ls cdroms (_isofs_bmap block >= EOF)
+> Great.  Then tell RedHat to rewrite it without the need for these switches.
+> They will say NO.  It's a trivial change, and would save me a lot of hours
+> rewriting scripts.  I did it once, but if RedHat has standardized on this
+> set of switches, why not add them as alias commands?  It's a trivial 
+> patch.
 
-[2.] Full description of the problem/report:
+I hate to jump in here in the middle of a perfectly good argument but I'd like
+to point out a few things:
+a) If RedHat/RedHat-like distros needs these changes they can include this
+patch.  The plus side is it won't piss off the people that seem to care and
+don't use said distros the down side is that if/when another security update
+comes out people will have to hope this patch applies easily still, if they
+update themselves.
+b) Are these switches which used to be valid in modutils 2.3.x?  If so, why?
+It makes perfect sense to keep this patch around until modutils 2.4 (or 2.5
+if modutils version is still supposed to match kernel version).  If these
+are old modutils 2.2.x switches, see part a).
+And c) Why does it matter if RedHat/etc would have to adapt their scripts.
+There's always part a, or what debian does for stable sometimes, backporting
+fixes.  Or even lots of sed & awk magic.
 
-I cannot run ls on cdroms with kernel 2.4.0-test11. I get the 
-message "_isofs_bmap block >= EOF". Kernel 2.0.4-test8 and test10 
-work fine for me. I did not test other 2.4.0 versions. It makes no
-difference if I compile isofs as "M" or "Y".
-
-[3.] Keywords (i.e., modules, networking, kernel):
-
-kernel, isofs, cdrom, bmap, mount, ls
-
-[4.] Kernel version (from /proc/version):
-
-2.4.0-test11
-
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-     
-mount /dev/hdc1 /mnt
-dir /mnt
-     
-[7.1.] Software (add the output of the ver_linux script here)
-
-Kernel modules		2.3.21
-Gnu C			2.95.2
-Gnu Make		3.79.1
-Binutils		2.9.5.0.24
-Dynamic Linker		ldd (GNU libc) 2.1.13
-Procps			2.0.6
-Mount			2.10q
-Net-tools		1.56
-Kbd			0.99
-Sh-utils		2.0
-Modules loaded		no modules loaded
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
-AMD K6-2 366
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-
-Intel 82371AB PIIX 4 ACPI
-
-[X.] Other notes, patches, fixes, workarounds:
-
-I tried to use the isofs sources from version 2.4.0-test10 in 2.4.0-test11
-they are not compatible. 
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

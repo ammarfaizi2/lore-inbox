@@ -1,83 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263716AbTDDM0d (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 07:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263712AbTDDMUp (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 07:20:45 -0500
-Received: from 213-84-116-84.adsl.xs4all.nl ([213.84.116.84]:37722 "HELO
-	213-84-116-84.adsl.xs4all.nl") by vger.kernel.org with SMTP
-	id S263696AbTDDMOz (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 07:14:55 -0500
-From: David Jander <david.jander@protonic.nl>
-Organization: Protonic Holland
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: [PATCH] ncpfs, kernel 2.4.18
-Date: Fri, 4 Apr 2003 14:33:42 +0200
-User-Agent: KMail/1.5.1
+	id S263718AbTDDMfW (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 07:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTDDMfW (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 07:35:22 -0500
+Received: from [213.187.222.25] ([213.187.222.25]:31666 "EHLO
+	palpatine.ludvika.nu") by vger.kernel.org with ESMTP
+	id S263729AbTDDM2c (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 07:28:32 -0500
+Subject: RE: Promise TX4 100: neither IDE port enabled
+From: Adam Johansson <adam.johansson@madsci.se>
+To: Jonathan Vardy <jonathan@explainerdc.com>
 Cc: linux-kernel@vger.kernel.org
-References: <64319A7E14@vcnet.vc.cvut.cz>
-In-Reply-To: <64319A7E14@vcnet.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <73300040777B0F44B8CE29C87A0782E101FA9875@exchange.explainerdc.com>
+References: <73300040777B0F44B8CE29C87A0782E101FA9875@exchange.explainerdc.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049459997.1851.4.camel@dgc.madsci.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1Rubber Turnip 
+Date: 04 Apr 2003 14:39:57 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304041433.42481.david.jander@protonic.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 April 2003 13:45, Petr Vandrovec wrote:
-> What they say? It is completely legal to use NULL path in ncp_obtain_info,
-> and in reality ncp_obtain_mtime() in fs/ncpfs/dir.c uses NULL path
-> explicitly (and it also checks for 'ncp_is_server_root(inode)', at least
-> in 2.5.66 and 2.4.19). See ncp_add_handle_path, it contains code which
-> converts NULL path to no path at all.
->
-> Do not you just have loaded some misguided antivirus software on your
-> server? ncpfs uses inode based addressing scheme, where files are accessed
-> by their numbers instead of name. Only thing which accesses files by name
-> are validating functions, for converting name to number, and unlink
-> (because of 4.x servers crash when unlink by inode is invoked on NFS
-> namespace). Petr Vandrovec
+Hi, I can confirm with my experiences with both Ultra and Fasttrak under
+recent 2.4.20+ kernels fail detecting more than UDMA33 on these cards.
 
-I don't use any anti-virus software, but from what you say, I may conclude the 
-following:
-When listing a directory with "ls", the function ncp_obtain_info() is called 
-once for each entry in that directory, plus one time for the directory itself 
-and (presumably) one time for the directory therunder (".." ?).
-If you do this for a volume-root, you are trying to get the Original 
-Name-Space of a directory under the volume, which makes the Netware-3.12 
-server bark.
-The error I am getting on the server goes like this: 
-"GetOriginalNameSpace could not find the originating name space. DOS name was 
-assumed. Use vrepair to fix this!"
-If NULL paths are legal, then the problem lies elsewere (of course it does !).
-If you could give me some pointers on where to look, I'll try to find out how 
-to make ncpfs not call ncp_obtain_info() for the directory under a volume. 
-Putting the check directly into ncp_obtain_info() doesn't seem a good place 
-to me....
+Without knowing the cause or fix for it I instead run ac-patches.
+The card(s) are than configured correctly.
+I now run 2.4.21pre5ac3 and I remember 2.4.21pre4ac4 also worked fine.
 
-BTW, I am also having another problem with listing the directory contents of 
-the directory where the Novell Server was mounted. I don't know if I will 
-have time to get to the ground of this though, since it looks like a problem 
-with the driver not handling i-nodes correctly with newer kernels. I get this 
-behaviour:
--------------- CUT HERE ---------------------
-linux:/mnt/Novell # ls -l
-ls: .: Stale NFS file handle
-linux:/mnt/Novell # cd ..
-linux:/mnt # ls -l Novell/
-ls: Novell/.: Stale NFS file handle
-total 3
-drwxr-xr-x    7 root     root          143 Feb 19 20:43 ..
-drwxrwxr-x    1 david    users         512 Dec 31  1985 cdroms
-drwxrwxr-x    1 david    users         512 Dec 31  1985 dataflex
-drwxrwxr-x    1 david    users         512 Dec 31  1985 engineer
-drwxrwxr-x    1 david    users         512 Dec 31  1985 programs
-drwxrwxr-x    1 david    users         512 Dec 31  1985 sys
-drwxrwxr-x    1 david    users         512 Dec 31  1985 sys1
-linux:/mnt #
--------------- CUT HERE -----------------------
+Cheers!
+Adam Johansson
 
-Thanks for the reaction...
-
--- 
-David Jander
+On Fri, 2003-04-04 at 12:56, Jonathan Vardy wrote:
+>  I've rebooted using the orignal Red Hat kernel (2.4.20) and it
+> recongnizes the Promise card. Here are the details:
+> 
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> PIIX4: IDE controller at PCI slot 00:04.1
+> PIIX4: chipset revision 1
+> PIIX4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+> PDC20270: IDE controller at PCI slot 02:01.0
+> PDC20270: chipset revision 2
+> PDC20270: not 100% native mode: will probe irqs later
+>     ide2: BM-DMA at 0x9040-0x9047, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0x9048-0x904f, BIOS settings: hdg:pio, hdh:pio
+>     ide4: BM-DMA at 0x90c0-0x90c7, BIOS settings: hdi:pio, hdj:pio
+>     ide5: BM-DMA at 0x90c8-0x90cf, BIOS settings: hdk:pio, hdl:pio
+> hda: Maxtor 2B020H1, ATA DISK drive
+> blk: queue c0453420, I/O limit 4095Mb (mask 0xffffffff)
+> hdc: WDC WD1200BB-00CAA1, ATA DISK drive
+> blk: queue c04538a0, I/O limit 4095Mb (mask 0xffffffff)
+> hde: WDC WD1200BB-60CJA1, ATA DISK drive
+> blk: queue c0453d20, I/O limit 4095Mb (mask 0xffffffff)
+> hdg: WDC WD1200BB-60CJA1, ATA DISK drive
+> blk: queue c04541a0, I/O limit 4095Mb (mask 0xffffffff)
+> hdi: WDC WD1200BB-60CJA1, ATA DISK drive
+> blk: queue c0454620, I/O limit 4095Mb (mask 0xffffffff)
+> hdk: WDC WD1200BB-60CJA1, ATA DISK drive
+> blk: queue c0454aa0, I/O limit 4095Mb (mask 0xffffffff)
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0x9000-0x9007,0x9012 on irq 19
+> ide3 at 0x9020-0x9027,0x9032 on irq 19
+> ide4 at 0x9080-0x9087,0x9092 on irq 19
+> ide5 at 0x90a0-0x90a7,0x90b2 on irq 19
+> hda: host protected area => 1
+> hda: 39062500 sectors (20000 MB) w/2048KiB Cache, CHS=2431/255/63,
+> UDMA(33)
+> hdc: host protected area => 1
+> hdc: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(33)
+> hde: host protected area => 1
+> hde: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(100)
+> hdg: host protected area => 1
+> hdg: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(100)
+> hdi: host protected area => 1
+> hdi: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(100)
+> hdk: host protected area => 1
+> hdk: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(100)
+> 
+> 
+> Better results but doen anybody know why 2.4.21pre6 can't detect it
+> right?
+> 
+> > 
+> > ide: Assuming 33MHz system bus speed for PIO modes; override 
+> > with idebus=xx
+> > PIIX4: IDE controller at PCI slot 00:04.1
+> > PIIX4: chipset revision 1
+> > PIIX4: not 100% native mode: will probe irqs later
+> >     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+> >     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+> > PDC20270: IDE controller at PCI slot 02:01.0
+> > PDC20270: chipset revision 2
+> > PDC20270: not 100% native mode: will probe irqs later
+> > PDC20270: neither IDE port enabled (BIOS)
+> > PDC20270: neither IDE port enabled (BIOS)
+> > hda: Maxtor 2B020H1, ATA DISK drive
+> > blk: queue c0395860, I/O limit 4095Mb (mask 0xffffffff)
+> > hdc: WDC WD1200BB-00CAA1, ATA DISK drive
+> > blk: queue c0395cd0, I/O limit 4095Mb (mask 0xffffffff)
+> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > ide1 at 0x170-0x177,0x376 on irq 15
+> > hda: host protected area => 1
+> > hda: 39062500 sectors (20000 MB) w/2048KiB Cache, 
+> > CHS=2431/255/63, UDMA(33)
+> > hdc: host protected area => 1
+> > hdc: 234441648 sectors (120034 MB) w/2048KiB Cache, 
+> > CHS=232581/16/63, UDMA(33)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUFUPG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUFUPHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUFUPG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 11:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264258AbUFUPG6
+	id S264258AbUFUPHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 11:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUFUPHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 11:06:58 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:821 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264225AbUFUPG4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 11:06:56 -0400
-Message-ID: <40D6F986.3010904@microgate.com>
-Date: Mon, 21 Jun 2004 10:06:46 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Aloni <da-x@colinux.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
-References: <20040621063845.GA6379@callisto.yi.org> <20040620235824.5407bc4c.akpm@osdl.org> <20040621073644.GA10781@callisto.yi.org> <20040621003944.48f4b4be.akpm@osdl.org> <20040621082430.GA11566@callisto.yi.org>
-In-Reply-To: <20040621082430.GA11566@callisto.yi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Jun 2004 11:07:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18872 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264258AbUFUPHV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 11:07:21 -0400
+Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Stephen Tweedie <sct@redhat.com>, Steven Dake <sdake@mvista.com>,
+       Stian Jordet <liste@jordet.nu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sct@redhat.logos.cnet, Andrew Morton <akpm@osdl.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20040617131600.GB3029@logos.cnet>
+References: <1075832813.5421.53.camel@chevrolet.hybel>
+	 <Pine.LNX.4.58L.0402052139420.16422@logos.cnet>
+	 <1078225389.931.3.camel@buick.jordet>
+	 <1087232825.28043.4.camel@persist.az.mvista.com>
+	 <20040615131650.GA13697@logos.cnet>
+	 <1087322198.8117.10.camel@persist.az.mvista.com>
+	 <20040617131600.GB3029@logos.cnet>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1087830410.2719.53.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jun 2004 16:06:50 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Aloni wrote:
-> Andrew Morton wrote:
-> I did a quick grep and it appears that all drivers have set ->chars_in_buffer().
->
-> I suspect there are no drivers which fail to set chars_in_buffer. 
-> Otherwise normal_poll() would have been oopsing in 2.4, 2.5 and 2.6?
+Hi,
 
-An addition should be made to include/linux/tty_driver.h
-to document the chars_in_buffer member of struct tty_driver
-and struct tty_operations as a required function.
-Currently, the documentation section of this header
-does not mention chars_in_buffer.
+On Thu, 2004-06-17 at 14:16, Marcelo Tosatti wrote:
 
-Related issue:
+> Stephen, Andrew, do you have any idea how the buffers could have vanished
+> under us with the page locked? That should not be possible. 
 
-In looking at this, I noticed struct tty_ldisc
-(include/linux/tty_ldisc.h) defines and documents
-an optional (optional == NULL) member chars_in_buffer.
-N_TTY (drivers/char/n_tty.c) is the only line discipline
-that implements this member.
+No, especially not on UP as Frank reported.  
 
-drivers/char/pty.c is the only driver that
-uses ldisc.chars_in_buffer, and it checks for
-ldisc.chars_in_buffer == NULL before calling.
+> I dont see how this "page->buffers = NULL" could be caused by hardware problem, 
+> which is usually one or two bit flip.
 
-13 other drivers call ldisc.chars_in_buffer without checking
-for ldisc.chars_in_buffer == NULL, but only inside conditional
-compilation for debug output. The value is not used, only logged.
-These conditional debug items look like cut and paste from
-one serial driver to another, and I doubt
-they have been recently used (or used at all).
+We don't know for sure that it's page->buffers.  If we have gone round
+the bh->b_this_page loop already, we could have ended up following the
+pointers either to an invalid bh, or to one that's not on the current
+page.  So it could also be the previous buffer's b_this_page that got
+clobbered, rather than page->buffers.
 
-Which would be better?
-1. Ignore this
-2. Fix conditional debug output to check
-    for ldisc.chars_in_buffer==NULL
-3. Remove conditional debug output
+That's possible in this case, but it's still a bit surprising that we'd
+*always* get a NULL pointer rather than some other random pointer as a
+result. 
 
---
-Paul Fulghum
-paulkf@microgate.com
+The buffer-ring debug patch that you posted looks like the obvious way
+to dig further into this.  If that doesn't get anyway, we can also trap
+the case where following bh->b_this_page gives us a buffer whose b_page
+is on a different page.
+
+--Stephen
+
+

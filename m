@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUEYUhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUEYUnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUEYUhI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUEYUhI
+	id S265203AbUEYUnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUEYUnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:37:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8388 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265206AbUEYUgv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:36:51 -0400
-Date: Tue, 25 May 2004 13:35:43 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, wesolows@foobazco.org
-Cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
-       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-Message-Id: <20040525133543.753fc5a5.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>
-	<Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	<1085371988.15281.38.camel@gaston>
-	<Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	<1085373839.14969.42.camel@gaston>
-	<Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	<20040525034326.GT29378@dualathlon.random>
-	<Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	<20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	<20040525153501.GA19465@foobazco.org>
-	<Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	<20040525102547.35207879.davem@redhat.com>
-	<Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-	<20040525105442.2ebdc355.davem@redhat.com>
-	<Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 25 May 2004 16:43:17 -0400
+Received: from canuck.infradead.org ([205.233.217.7]:64004 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S265203AbUEYUnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 16:43:16 -0400
+Date: Tue, 25 May 2004 16:43:05 -0400
+From: hch@infradead.org
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "Peter J. Braam" <braam@clusterfs.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, "'Phil Schwan'" <phil@clusterfs.com>
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Message-ID: <20040525204305.GA17448@infradead.org>
+Mail-Followup-To: hch@infradead.org,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	"Peter J. Braam" <braam@clusterfs.com>, torvalds@osdl.org,
+	akpm@osdl.org, linux-kernel@vger.kernel.org,
+	'Phil Schwan' <phil@clusterfs.com>
+References: <20040524120315.GC26863@infradead.org> <200405241533.i4OFXnI01224@pincoya.inf.utfsm.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405241533.i4OFXnI01224@pincoya.inf.utfsm.cl>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004 11:05:09 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
-
-> On Tue, 25 May 2004, David S. Miller wrote:
-> > So on sparc32 sun4m we'd implement ptep_update_dirty_accessed() with
-> > some kind of loop using the swap instruction?
+On Mon, May 24, 2004 at 11:33:49AM -0400, Horst von Brand wrote:
+> Won't you also need a non-__ version, perhaps like so:
 > 
-> Yes. Except that if everybody else uses atomic updates (including the hw 
-> walkers), _and_ "dirty" is true, then you can optimize that case to just 
-> to an atomic write (since we don't care what the previous contents were, 
-> and everybody else is guaranteed to honor the fact that we set all the 
-> bits.
+>    void d_rehash(struct dentry *entry)
+>    {
+>        spin_lock(&dcache_lock);
+>        __d_rehash(entry);
+>        spin_unlock(&dcache_lock);
+>    }
+>    EXPORT_SYMBOL(d_rehash);
 > 
-> (And an independent optimization is obviously to not do the store at all
-> if it is already has the new value, although that _should_ be the rare 
-> case, since if that was true I don't see why you got a page fault in the 
-> first place).
-> 
-> So _if_ such an atomic loop is fundamentally expensive for some reason, it 
-> should be perfectly ok to do
-> 
-> 	if (dirty) {
-> 		one atomic write with all the bits set;
-> 	} else {
-> 		cmpxchg until successful;
-> 	}
+> ?
 
-Hmmm, do you understand how broken the sparc hardware is? :-)
+Yes, and that is in fact included in their patch, I just didn't
+quote it because it didn't seem relevant for the review.
 
-Seriously, the issue is that the MMU writes back access/dirty bits
-asynchronously, does not do a relookup when it writes these bits back
-into the PTE (like x86 and others do) it actually stores away the PTE
-physical address and writes into the PTE using that, and finally as
-previously mentioned we lack a cmpxchg we only have raw SWAP.
-
-Keith W. can verify this, he has my old SuperSPARC manual which explains
-all of this stuff.  Keith you might want to quote that little "atomic PTE
-update sequence" piece of code that's in the manual for Linus.
+One more reason why review requests for an url to a tarball of patches
+are evil..
 

@@ -1,83 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTIOK6j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 06:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTIOK6j
+	id S261314AbTIOKxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 06:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbTIOKxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 06:58:39 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:27520 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261240AbTIOK6d convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 06:58:33 -0400
-Date: Mon, 15 Sep 2003 12:58:26 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: "David S. Miller" <davem@redhat.com>
-cc: mroos@linux.ee, <linux-kernel@vger.kernel.org>
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-In-Reply-To: <20030915011159.250f3346.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0309151225300.24675-100000@deadlock.et.tudelft.nl>
+	Mon, 15 Sep 2003 06:53:05 -0400
+Received: from dyn-ctb-210-9-244-189.webone.com.au ([210.9.244.189]:39173 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261314AbTIOKxB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 06:53:01 -0400
+Message-ID: <3F6599F1.50402@cyberone.com.au>
+Date: Mon, 15 Sep 2003 20:52:33 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: John Bradford <john@grabjohn.com>
+CC: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+References: <200309151054.h8FAsepr001086@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200309151054.h8FAsepr001086@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 15 Sep 2003, David S. Miller wrote:
+John Bradford wrote:
 
-> > Ok. The sparc code has not been modified; something weird is going on. (By
-> > the way, the Sparc code could use some design improvement, as a special
-> > exception, the Sparc does backcalculation and it is hacky implemented).
+>>>>>>>That's a non-issue.  300 bytes matters a lot on some systems.  The
+>>>>>>>fact that there are drivers that are bloated is nothing to do with
+>>>>>>>it.
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+>>>>>>alignment to all the cache friendly structure padding.
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>My intention is that we won't have done 128 byte alignments just by
+>>>>>'supporting' Athlons, only if we want to run fast on Athlons.  A
+>>>>>distribution kernel that is intended to boot on all CPUs needs
+>>>>>workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
+>>>>>
+>>>>>Obviously using such a kernel for anything other than getting a system
+>>>>>up and running to compile a better kernel is a Bad Thing, but the
+>>>>>distributions could supply separate Athlon, PIV, and 386 _optimised_
+>>>>>kernels.
+>>>>>
+>>>>>
+>>>>>
+>>>>Why bother with that complexity? Just use 128 byte lines. This allows
+>>>>a decent generic kernel. The people who have space requirements would
+>>>>only compile what they need anyway.
+>>>>
+>>>>
+>>>So, basically, if you compile a kernel for a 386, but think that maybe
+>>>one day you might need to run it on an Athlon for debugging purposes,
+>>>you use 128 byte padding, because it's not too bad on the 386?  Seems
+>>>pretty wasteful to me when the obvious, simple, elegant solution is to
+>>>allow independent selection of workaround inclusion and optimisation.
+>>>Especially since half of the work has already been done.
+>>>
+>>>
+>>I missed the "simple, elegant" part. Conceptually elegant maybe.
+>>
+>>If you mean to use the optimise option only to set cache line size, then
+>>that might be a bit saner.
+>>
+>>As far as the case study goes though: if you were worried about being
+>>wasteful, why wouldn't you compile just for the 386 and debug from that?
+>>
+>
+>In the model I'm proposing, the 386 kernel would be missing the Athlon
+>workarounds.
+>
 
-> Any time someone messes with the clock timing code, they always
-> break Sparc.
+No, debug the kernel while its running on the 386. And what of my other
+concerns?
 
-Ok, sorry. It is necessary. The modern kinds of Mach64 (all Rage chips)
-need asynchrone clocks. For example the Rage Mobility needs 83 MHz memory
-and 125 MHz core. With the old code the memory was overclocked 50%. The
-chip can never function correctly at those speeds and it can even be
-considered dangerous.
+1. It doesn't appear to be simple and elegant.
+2. It would drive developers nuts if it was used for anything other than
+   a couple of critical functions (cache size would be one).
+3. Are there valid situations where you would need it? This isn't a
+   rhetorical question. Your example would be fine if somebody really
+   needed to do that.
 
-> We have to make assumptions about several things, one of which
-> is the clock crystal used because the Sun firmware provides
-> no way to just guess this so we just have to know what it is.
-
-> Second, as you mention we reverse calculate the clocks to turn the
-> video mode the firmware brought the card up in into the parameters the
-> driver wants.
-
-I see.
-
-The proper way do this would be to have a few methods of determining
-parameters. I.e. the x86 and Alpha can read them from the Bios, the
-PowerPC from the open firmware. Some platforms can use tables and others
-might need backcalculation. If this is programmed a bit modular other
-platforms can use the backcalculation too, i.e. Atyfb does not run on some
-68000 Macintosh laptops because they need backcalculation too.
-
-> Please, can we revert your changes if we can't fix Sparc quickly?
-
-Well, the problem is, there are really a *lot* of chips sold which I
-fixed. Without doubt a number of Sparcs have been soldd, but there have
-been millions of laptops sold with the Rage LT PRO and Rage Mobility.
-The Rage XL is, after 5 years still in production, used in a lot of
-servers and still available in shops. They all need this code.
-
-So, preferably, let's fix this as soon as possible, so we don't need to
-make a trade off between the laptops and the Sparcs.
-
-> This
-> is a pretty serious regression you've added and I have this feeling it's
-> going to stay broke for some time as you go back and forth with us
-> trying to resolve this.
-
-Well, the only way to fix this is to work with you of course. Without LCD
-support compiled in the behaviour should be much the same as before, there cannot
-be a lot of problems. Should it stay broken for a long time, then we can
-of course discuss what to do.
-
-Daniël
 
 

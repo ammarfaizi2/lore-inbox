@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279980AbRKIQZs>; Fri, 9 Nov 2001 11:25:48 -0500
+	id <S279986AbRKIQ36>; Fri, 9 Nov 2001 11:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279983AbRKIQZi>; Fri, 9 Nov 2001 11:25:38 -0500
-Received: from [139.84.194.100] ([139.84.194.100]:59275 "EHLO
-	eclipse.pheared.net") by vger.kernel.org with ESMTP
-	id <S279980AbRKIQZ3>; Fri, 9 Nov 2001 11:25:29 -0500
-Date: Fri, 9 Nov 2001 11:25:08 -0500 (EST)
-From: Kevin <kevin@pheared.net>
-To: Thomas Braun <nospam@link-up.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops/Aiee in 2.4.14 when unloading PCMCIA modules
-In-Reply-To: <200111091611.QAA26283@dix.eb.de>
-Message-ID: <Pine.GSO.4.40.0111091122550.10770-100000@eclipse.pheared.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279987AbRKIQ3t>; Fri, 9 Nov 2001 11:29:49 -0500
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:41610 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S279986AbRKIQ3o>; Fri, 9 Nov 2001 11:29:44 -0500
+Date: Fri, 9 Nov 2001 16:29:34 +0000
+From: Anthony Campbell <a.campbell@doctors.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Total lockup with 2.4.14
+Message-ID: <20011109162934.A515@debian.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001, Thomas Braun wrote:
+I've had 3 total lockups with kernel 2.4.12 and now one with 2.4.14.
 
-[nospam] Hi,
-[nospam]
-[nospam] I get an oops every time when I stop PCMCIA with
-[nospam]     cardctl eject; killproc /sbin/cardmgr; lsmod
-[nospam] With a "sleep 2" before lsmod it does not happen. I tried kernel
-[nospam] 2.4.1[34] with modutils 2.4.{2,10}, pcmcia-cs-3.1.29.
+I was online at the time, using Acroread on this occasion. No key would
+work, nor would the mouse.
 
-Thomas, I can verify a similar problem.  I'm running 2.4.15-pre1 with
-pcmcia-3.1.29, not built into the kernel.  The only difference with my
-setup is that it only seems to happen if I eject both cards at the same
-time or do other pcmcia card acrobatics.  If I do one at a time, there
-doesn't appear to be a problem.
+This doesn't seem to happen with the Alan Cox patches, so perhaps it is
+something to do with VM.
 
--[ kevin@pheared.net                 devel.pheared.net ]-
--[ Rather be forgotten, than remembered for giving in. ]-
--[ ZZ = g ^ (xb * xa) mod p      g = h^{(p-1)/q} mod p ]-
+
+-- 
+Anthony Campbell - running Linux GNU/Debian (Windows-free zone)
+For an electronic book (The Assassins of Alamut), skeptical 
+essays, and over 140 book reviews, go to: http://www.acampbell.org.uk/
+
+Our planet is a lonely speck in the great enveloping cosmic dark. In our
+obscurity, in all this vastness, there is no hint that help will come
+from elsewhere to save us from ourselves. [Carl Sagan]
+
+
 

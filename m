@@ -1,49 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRJOLu7>; Mon, 15 Oct 2001 07:50:59 -0400
+	id <S274813AbRJOLvt>; Mon, 15 Oct 2001 07:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274813AbRJOLut>; Mon, 15 Oct 2001 07:50:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37297 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272280AbRJOLuj>;
-	Mon, 15 Oct 2001 07:50:39 -0400
-Date: Mon, 15 Oct 2001 07:51:11 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <20011015133506.B4269@kushida.jlokier.co.uk>
-Message-ID: <Pine.GSO.4.21.0110150742230.8707-100000@weyl.math.psu.edu>
+	id <S277424AbRJOLvk>; Mon, 15 Oct 2001 07:51:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:786 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274813AbRJOLvb>; Mon, 15 Oct 2001 07:51:31 -0400
+Subject: Re: 2.4.13-pre1: sonypi.c compile error
+To: svgeloven@zonnet.nl (Sander van Geloven)
+Date: Mon, 15 Oct 2001 12:58:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, vgeloven@zonnet.nl
+In-Reply-To: <3BCB0A02.9DF231A@zonnet.nl> from "Sander van Geloven" at Oct 15, 2001 12:08:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15t6Ne-0001uI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Now I also have the same problem as Eyal Lebedinskynew:
 
-
-On Mon, 15 Oct 2001, Jamie Lokier wrote:
-
-> This does not work.  Example:
-> 
->   1. JamieEmacs loads file using MAP_PRIVATE.
->   2. Something else writes to the file.
->   3. Scroll to the bottom of the file in JamieEmacs.  It displays some
->      of the newly written data, though not all of it.
-> 
-> --> Wrong editor semantics.
-
---> Wrong permissions or hopelessly crappy source control system.
-
-At point 2 you are _already_ screwed.  Depending on who hits (hell,
-what's the equivalent of :x in Emacsese?) first, one of you is
-going to lose results of editing.  Doctor, it hurts when I do it...
-
-If you want versioning - use source control system.  Or go play
-with DEC cra^WOSes.  In RSX that "feature" sucked (and so did
-editor semantics, but that's a separate story).
-
-Without versioning - see above.
-
+i2o is broken in Linus tree right now. I've not had time to isolate and
+test the right patches yet but I'll send the bits on to Linus fairly soon

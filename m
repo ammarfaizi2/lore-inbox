@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUFRV5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUFRV5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbUFRV5j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUFRV4Y
+	id S263772AbUFRV5i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbUFRV4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:56:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44168 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264641AbUFRVxG
+	Fri, 18 Jun 2004 17:56:11 -0400
+Received: from cnh51.neoplus.adsl.tpnet.pl ([83.31.161.51]:2052 "EHLO
+	satan.blackhosts") by vger.kernel.org with ESMTP id S264527AbUFRVuK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:53:06 -0400
-Message-ID: <40D3642E.4050509@pobox.com>
-Date: Fri, 18 Jun 2004 17:52:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hannu Savolainen <hannu@opensound.com>
-CC: Roman Zippel <zippel@linux-m68k.org>,
-       4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local> <40D2464D.2060202@opensound.com> <Pine.LNX.4.58.0406181205500.13079@scrub.local> <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi>
-In-Reply-To: <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 17:50:10 -0400
+Date: Fri, 18 Jun 2004 23:50:47 +0200
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Cc: pld-kernel@pld-linux.org
+Subject: 2.6.7 fbcon: set_con2fb on current console = crash
+Message-ID: <20040618215047.GA4723@satan.blackhosts>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Disclaimer: speaking only for myself
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hannu Savolainen wrote:
-> On Fri, 18 Jun 2004, Roman Zippel wrote:
-> 
-> 
->>To quote from your previous mail:
->>
->>
->>>make -C /lib/modules/`uname -r`/build scripts scripts_basic include/linux/version.h
->>
->>That doesn't really like documented interfaces to me.
-> 
-> Right. The documented command is "make install". However an undocumented
 
-Really?
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I always do
+After upgrade from 2.6.4 to 2.6.7 I noticed that calling set_con2fb
+(through FBIOPUT_CON2FBMAP ioctl) on current console (already attached
+to fb using this ioctl) causes crash (oops and then recursive oops when
+trying to printk on console) and makes console unusable.
 
-	make modules_install
-	installkernel <kversion> arch/i386/boot/bzImage System.map
+That's because take_over_console() calls fbcon_deinit(vc_num)
+(which calls fbcon_free_font() on that console display) and then
+fbcon_init(vc_num, ...), which copies font data from current fb console.
+If current console was just deinit()ed, its fontdata is NULL - and this
+pointer is "copied" to the same place, leaving current console with
+fontdata==NULL (which leads to oops on nearest putc/putcs).
 
-The arch-independent installkernel script should perform the necessary 
-actions to install the kernel image in a bootable area.
-
-
-> The actual problem is that there is no standardized way to compile modules
-> outside the kernel source tree. There will be serious problems if
-> different distributions need slightly different installation procedure.
-> Who is going to be able to tell the customer what exactly he should do?
-
-In 2.6.x there is a way to do this :)
-
-Sam Ravnborg recently posted documentation for this, as well.
-
-	Jeff
+Attached patch restores 2.6.4 behaviour on set_con2fb (to set font if
+it's not set already) - but it's not perfect solution as user font is
+still lost (unline on 2.4.x kernels).
+Any idea how to preserve user font on set_con2fb() called on current
+console?
 
 
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
 
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-fbcon-con2fb-crash-workaround.patch"
+
+--- linux-2.6.7/drivers/video/console/fbcon.c.orig	2004-06-16 18:24:04.000000000 +0200
++++ linux-2.6.7/drivers/video/console/fbcon.c	2004-06-18 23:12:35.000000000 +0200
+@@ -617,6 +617,15 @@
+ 	if (p->userfont) {
+ 		REFCOUNT(p->fontdata)++;
+ 		charcnt = FNTCHARCNT(p->fontdata);
++	} else if(!p->fontdata) {
++		struct font_desc *font = NULL;
++		if (!fontname[0] || !(font = find_font(fontname)))
++			font = get_default_font(info->var.xres,
++						   info->var.yres);
++		vc->vc_font.width = font->width;
++		vc->vc_font.height = font->height;
++		vc->vc_font.data = p->fontdata = font->data;
++		vc->vc_font.charcount = 256; /* FIXME  Need to support more fonts */
+ 	}
+ 	con_copy_unimap(vc->vc_num, display_fg);
+ 
+
+--PNTmBPCT7hxwcZjr--

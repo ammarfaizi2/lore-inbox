@@ -1,26 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314290AbSDVRTr>; Mon, 22 Apr 2002 13:19:47 -0400
+	id <S314292AbSDVRVr>; Mon, 22 Apr 2002 13:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314291AbSDVRTq>; Mon, 22 Apr 2002 13:19:46 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:6598 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S314290AbSDVRTo>;
-	Mon, 22 Apr 2002 13:19:44 -0400
-Date: Mon, 22 Apr 2002 13:19:42 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
+	id <S314293AbSDVRVq>; Mon, 22 Apr 2002 13:21:46 -0400
+Received: from bitmover.com ([192.132.92.2]:5799 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314292AbSDVRVo>;
+	Mon, 22 Apr 2002 13:21:44 -0400
+Date: Mon, 22 Apr 2002 10:21:43 -0700
+From: Larry McVoy <lm@bitmover.com>
 To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, Larry McVoy <lm@bitmover.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422131942.A10714@havoc.gtf.org>
+Message-ID: <20020422102143.E17613@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Jeff Garzik <garzik@havoc.gtf.org>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422131011.D6638@havoc.gtf.org> <E16zKy9-0001Hw-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-(Linus removed from CC)
 
 On Sun, Apr 21, 2002 at 07:17:45PM +0200, Daniel Phillips wrote:
 > On Monday 22 April 2002 19:10, Jeff Garzik wrote:
@@ -28,20 +33,19 @@ On Sun, Apr 21, 2002 at 07:17:45PM +0200, Daniel Phillips wrote:
 > > describing closed-spec hardware?  Such hardware (and their vendors) are
 > > actively anti-open source, yet we have documents describing those, too.
 > 
-> The other example specifically mentioned was the CVS documentation for jfs,
-> and yes, I think that moving those instructions to the web site in question
-> would make a lot of sense, leaving a URL wherever the docs once were.  By
-> definition, the CVS instructions will be available on that site as long as
-> they are useful, and not a moment longer.
-> 
-> This is all irrespective of the fact that CVS does not have the problem of
-> having a restrictive license, but since you asked...
+[response not answering the question deleted]
 
-Well, in order to prove you're being fair, your patch should have
-included removal of those CVS instructions, too :)  That's the point
-Linus made in his first message, and one I agree with.
+Daniel, this is yet another example of you not answering the question asked.
+Let's try it again.  Please answer the following question, since you seem
+to have elected yourself to position of license policeman:
 
-	Jeff
+There are number of different places in the linux kernel source tree
+where there are docs/code/whatever related to non-open source features
+included in the tree.  Are you advocating a "cleansing" of all of these
+or are you specifically targetting BitKeeper.  If you are only focussed
+on BitKeeper, why?
 
-
-
+That's two questions, just answer those, nothing but those.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

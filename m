@@ -1,106 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUEFIIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUEFIKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUEFIIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 04:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUEFIIj
+	id S261582AbUEFIKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 04:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUEFIKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 04:08:39 -0400
-Received: from skynet06.in-ulm.de ([217.10.0.16]:61861 "EHLO
-	skynet06.in-ulm.de") by vger.kernel.org with ESMTP id S261500AbUEFIIe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 04:08:34 -0400
-Message-ID: <1083830912.4099f280db57d@skynet06.in-ulm.de>
-Date: Thu,  6 May 2004 10:08:32 +0200
-From: Simon Natterer <simon@natterer-legau.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ISDN/Capi Driver or PPP problem
-References: <409964EE.4090805@natterer-legau.de>
-In-Reply-To: <409964EE.4090805@natterer-legau.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 53.122.197.194
+	Thu, 6 May 2004 04:10:32 -0400
+Received: from cpmx.mail.saic.com ([139.121.17.160]:12489 "EHLO cpmx.saic.com")
+	by vger.kernel.org with ESMTP id S261582AbUEFIKN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 04:10:13 -0400
+Subject: Re: SATA device timeout using libata
+From: Eamonn Hamilton <EAMONN.HAMILTON@saic.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0405051153570.21114-100000@coffee.psychology.mcmaster.ca>
+References: <Pine.LNX.4.44.0405051153570.21114-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
+Message-Id: <1083830995.5386.88.camel@ukabzc383.uk.saic.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 06 May 2004 09:09:55 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Natterer wrote:
-> I've got a problem with Kernel 2.6.6-rc2 and my AVM-B1 PCI card
-> together with a PPP connection.
-> When using Asterisk PBX I've got strange problems like dropped
-> connections (ppp) or hangups.
-> I captured this oops:
-
-Sorry for the disrupted OOps file, here it is again:
-
- Unable to handle kernel NULL pointer dereference at virtual address 00000004
-  printing eip:
- d0a6dff3
- *pde = 00000000
- Oops: 0002 [#1]
- PREEMPT
- CPU:    0
- Stack: 00000004 00000000 00000001 41210a28 00000000 c4465180 c44651a0 00
- EFLAGS: 00010046   (2.6.6-rc2)
- EIP is at capi_read+0x53/0x220 [capi]
- eax: 00000000   ebx: cb3e9c80   ecx: 00000004   edx: 00000206
- esi: ca70c000   edi: c6315530   ebp: c63154a0   esp: ca70df54
- ds: 007b   es: 007b   ss: 0068
- Process asterisk (pid: 8087, threadinfo=ca70c000 task=cd3e2e90)
- Stack: 00000004 00000000 00000001 41210a28 00000000 c4465180 c44651a0 00000880
-        c015201d c4465180 080f2168 00000880 c44651a0 c31758e0 00000009 c4465180
-        fffffff7 00000003 ca70c000 c01522f2 c4465180 080f2168 00000880 c44651a0
- Call Trace:
-  [vfs_read+237/352] vfs_read+0xed/0x160
-  [sys_read+66/112] sys_read+0x42/0x70
-  [syscall_call+7/11] syscall_call+0x7/0xb
-
- Code: 89 78 04 89 85 90 00 00 00 c7 43 04 00 00 00 00 c7 03 00 00
-  <6>note: asterisk[8087] exited with preempt_count 1
- capilib_new_ncci: kcapi: appl 4 ncci 0x20201 up
- Unable to handle kernel paging request at virtual address 7b230b2a
-  printing eip:
- c029a2f4
- *pde = 00000000
- Oops: 0000 [#2]
- PREEMPT
- CPU:    0
- EIP:    0060:[skb_release_data+68/176]    Not tainted
- EFLAGS: 00010297   (2.6.6-rc2)
- EIP is at skb_release_data+0x44/0xb0
- eax: c88b7480   ebx: 00000000   ecx: c88b7480   edx: 7b230b2a
- esi: cda066a0   edi: cc183ec8   ebp: 00000057   esp: cc183d6c
- ds: 007b   es: 007b   ss: 0068
- Process pppoe (pid: 20338, threadinfo=cc182000 task=c5150d10)
- Stack: c029c3d4 cda066a0 cda066e8 c029a373 cda066a0 00000000 00000000 c029a433
-        cda066a0 000005f0 cc183f34 cda066a0 d0a3183b cda066a0 cda066a0 cc183ea8
-        00000057 c02b8bd0 cffcd6a0 00000057 00000000 000005f0 cc183f34 cc183de4
- Call Trace:
-  [skb_copy_datagram_iovec+84/576] skb_copy_datagram_iovec+0x54/0x240
-  [kfree_skbmem+19/48] kfree_skbmem+0x13/0x30
-  [__kfree_skb+163/320] __kfree_skb+0xa3/0x140
-  [__crc_copy_strings_kernel+1461661/3318524] packet_recvmsg+0x12b/0x160
-[af_packet]
-  [ip_rcv_finish+0/640] ip_rcv_finish+0x0/0x280
-  [sock_recvmsg+150/192] sock_recvmsg+0x96/0xc0
-  [ip_rcv_finish+0/640] ip_rcv_finish+0x0/0x280
-  [__crc_copy_strings_kernel+1427723/3318524]
-ppp_receive_nonmp_frame+0x1a9/0x620 [ppp_generic]
-  [netif_receive_skb+443/544] netif_receive_skb+0x1bb/0x220
-  [recalc_task_prio+168/464] recalc_task_prio+0xa8/0x1d0
-  [schedule+813/1472] schedule+0x32d/0x5c0
-  [sockfd_lookup+28/128] sockfd_lookup+0x1c/0x80
-  [sys_recvfrom+178/288] sys_recvfrom+0xb2/0x120
-  [poll_freewait+68/80] poll_freewait+0x44/0x50
-  [do_select+431/720] do_select+0x1af/0x2d0
-  [sys_recv+51/64] sys_recv+0x33/0x40
-  [sys_socketcall+356/608] sys_socketcall+0x164/0x260
-  [syscall_call+7/11] syscall_call+0x7/0xb
-
- Code: 8b 02 f6 c4 08 75 17 8b 42 04 85 c0 74 4a ff 4a 04 0f 94 c0
-  <6>kcapi: appl 4 ncci 0x20201 down
-
-
-
-
+On Wed, 2004-05-05 at 17:49, Mark Hahn wrote:
+> > Generally I can't trigger it on one drive, but that could just be a
+> > timing issue. All of these controllers are hosted on an Asus A7V
+> > motherboard with the VIA chipset, and we've managed to make it fall over
+> 
+> ah.  most people consider VIA chipsets to be pretty suspect from the get-go.
+> I was hoping you were using a solid server-type chipset (Intel or
+> AMD/opteron)...
+I'd love to, but the components of the chipset are shared as all the
+controllers are PCI and only the controllers with those drives attached
+are delivering issues
+> 
+> > much more rapidly by simply mixing firmware revisions between drives on
+> > a single controller. 
+> 
+> that seems odd, since unlike PATA, there should be no interaction between
+> disks using SATA...
+Yep, "odd" is a pretty fair description :)
+> 
+> > As to the sectors that are failing, they don't seem to repeat and the
+> > disk itself again reports fine. It also works fine on it's own after a
+> > reboot. The chap who actually owns the hardware is going to run a test
+> > under W2K to try and eliminate plain hardware issues.
+> 
+> eww!  jgarzik might have something to say about this.  to me (hardly
+> an expert), this looks almost like some kind of protocol misunderstanding - 
+> perhaps that libata isn't handling status 0xD0 properly, or something 
+> weirder like (blue sky example) if the driver reads status too early,
+> it's reported wrong...
+Given that it works fine with other drives of the type, and with other
+manufacturers, I'm inclined to mostly absolve libata
+> 
+> > Does anybody know whether there is a firmware update available for these
+> > drives, as that seems to be the only difference here.
+> 
+> to me, this all sniffs of a timing issue...
+Agreed, I'm fairly certain it's something with the drives behaviour,
+rather than the physical surfaces themselves
+> 
+> 
+> > 
+> > Cheers,
+> > Eamonn
+> > 
+> > On Mon, 2004-05-03 at 17:45, Mark Hahn wrote:
+> > > > One controller has 2 X WDC WD2000JD-00G drives which seem to work
+> > > > perfectly, another has 2 X Maxtor 6Y200M0 which also seem to work fine,
+> > > > however the the third pair of drives are WDC WD2000JD-00F and these seem
+> > > > to deliver issues.
+> > > 
+> > > please do followup to the list (or linux-raid) if you resolve this!
+> > > many, many of us are doing similar things (or planning to).
+> > > 
+> > > > Basically, when attempting to stress a RAID-5 array while the array is
+> > > > synchronising, I get the following after an hour or so:   
+> > > 
+> > > can you trigger this sort of thing using a stresstest on a single disk,
+> > > or with raid0?
+> > > 
+> > > > ata3: DMA timeout, stat 0x1
+> > > > ATA: abnormal status 0xD0 on port 0xE087B087
+> > > > scsi2: ERROR on channel 0, id 0, lun 0, CDB: Read (10) 00 01 92 8d 47 00
+> > > > 00 08 00
+> > > > Current sdc: sense key Medium Error
+> > > > Additional sense: Unrecovered read error - auto reallocate failed
+> > > > end_request: I/O error, dev sdc, sector 26381639
+> > > 
+> > > does that sector repeat across multiple errors?  unfortunately,
+> > > one good response to this would be to use smartctl (but libata 
+> > > currently doens't do the passthrough required afaikt...)
+> > > 
+> > > > The interesting part here is that the hardware checks out fine using the
+> > > > manufacturers test disk in the same configuration, and having recabled
+> > > 
+> > > it would be interesting to know what the vendor's test actually does...
+> > 
 

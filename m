@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132541AbRAJMDl>; Wed, 10 Jan 2001 07:03:41 -0500
+	id <S132504AbRAJMFv>; Wed, 10 Jan 2001 07:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135270AbRAJMDb>; Wed, 10 Jan 2001 07:03:31 -0500
-Received: from colorfullife.com ([216.156.138.34]:8973 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132541AbRAJMDL>;
-	Wed, 10 Jan 2001 07:03:11 -0500
-Message-ID: <3A5C4FAC.CA6E46A9@colorfullife.com>
-Date: Wed, 10 Jan 2001 13:03:56 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S135270AbRAJMFl>; Wed, 10 Jan 2001 07:05:41 -0500
+Received: from picard.csihq.com ([204.17.222.1]:31500 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S132504AbRAJMFb>;
+	Wed, 10 Jan 2001 07:05:31 -0500
+Message-ID: <069d01c07afd$95143d20$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: 2.4.0,2.2.18 and epic100 broke
+Date: Wed, 10 Jan 2001 07:05:11 -0500
 MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.30.0101101222540.833-100000@e2>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> On Wed, 10 Jan 2001, Manfred Spraul wrote:
-> 
-> > That means sendmsg() changes the page tables? I measures
-> > smp_call_function on my Dual Pentium 350, and it took around 1950 cpu
-> > ticks.
-> 
-> well, this is a performance problem if you are using threads. For normal
-> processes there is no need for a SMP cross-call, there TLB flushes are
-> local only.
-> 
-But that would be ugly as hell:
-so apache 2.0 would become slower with MSG_NOCOPY, whereas samba 2.2
-would become faster.
+FYI -- the epic100 SMC EtherPower II card does NOT work in SMP mode on 2.4.0
+(or 2.2.18 either).
 
-Is is possible to move the responsibility for maitaining the copy to the
-caller?
+Donald Becker's most recent version hasn't been forward-ported to 2.4 and
+the 2.2.17 drivers won't compile either.
+The SMC card DOES work in non-SMP machines.  So...I'm putting in a 3com905
+until this gets fixed.
+Don said that locking was broken in the 1.1.5 release.
 
-e.g. use msg_control, and then the caller can request either that a
-signal is sent when that data is transfered, or that a variable is set
-to 0.
+The last SMP kernel that ran with the SMC was 2.2.17 -- it's been broke
+since (i.e. 2.2.18 does'nt work either -- that's where 1.1.5 was
+introduced).
 
---
-	Manfred
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,113 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSGLTSx>; Fri, 12 Jul 2002 15:18:53 -0400
+	id <S314938AbSGLTYO>; Fri, 12 Jul 2002 15:24:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316795AbSGLTSw>; Fri, 12 Jul 2002 15:18:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:14464 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316789AbSGLTSv>; Fri, 12 Jul 2002 15:18:51 -0400
-Date: Fri, 12 Jul 2002 15:21:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 'remount' problem
-In-Reply-To: <20020712184912.GR8738@clusterfs.com>
-Message-ID: <Pine.LNX.3.95.1020712151607.11987A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316794AbSGLTYO>; Fri, 12 Jul 2002 15:24:14 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:38109 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S314938AbSGLTYN>; Fri, 12 Jul 2002 15:24:13 -0400
+Date: Fri, 12 Jul 2002 21:25:30 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207121925.g6CJPUjW018407@burner.fokus.gmd.de>
+To: linux-kernel@vger.kernel.org
+Subject: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jul 2002, Andreas Dilger wrote:
-[SNIPPED...]
+H.P. Anvin wrote:
 
-> output).
-> 
-> On reboot the filesystem is not clean.  Either the kernel is not
-> doing what it should to flush the dirty superblock to disk, or the disk
-> is lying about having written the superblock to disk.  I would suspect
-> the latter on IDE drives, but SCSI drives are usually sane.
-> 
-> Try adding a sync or two before rebooting, and also checking via
-> debugfs after reboot to ensure it is marked dirty when it shouldn't
-> be.  You could even add some printk's to ext2_put_super() inside the
-> conditional where it marks the filesystem clean and syncs the super
-> to ensure that is being called.
-> 
-> > # umount -a
-> > umount: /mnt: device is busy
-> 
-> What about the above message?
+>Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
+>and treat all ATAPI devices as what they really are -- SCSI over IDE.
+>It is a source of no ending confusion that a Linux system will not
+>write CDs to an IDE CD-writer out of the box, for the simple reason
+>that cdrecord needs access to the generic packet interface, which is
+>only available in the nonstandard ide-scsi configuration.
 
-That's because I have a floppy (with typescript) mounted rw on
-/mnt and the file is still open (that's how these messages are
-recorded).
+Thank you for this thread!
 
-> 
-> The fact that /dev/sda1 is your root fs could cause some strangeness also.
-> 
-> It would appear to be that ext2_remount() is missing "sb->s_flags |=
-> MS_RDONLY" after the comment "set the rdonly flag and then mark the
-> partition as valid again".  The other check for valid flags also appears
-> to be a bit suspect.
-> 
+libscg now has 5 different SCSI transport interface implementations
+only for Linux.
 
-I will look around a bit. This only happens when one remounts an
-already-mounted file-system, then dismounts it. Normally everything
-is clean. This is not something that would normally happen.  Oh... I
-forgot... This is a SMP machine
+There are still problems like e.g. USB which not really usable.
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 1
-cpu MHz		: 399.574
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 797.90
+>There really seems to be no decent reason to treat ATAPI devices as
+>anything else.  I understand the ide-* drivers contain some
+>workarounds for specific devices, but those really should be moved to
+>their respective SCSI drivers anyway -- after all, manufacturers
+>readily slap IDE or SCSI interfaces on the same devices anyway.
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 1
-cpu MHz		: 399.574
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 797.90
+>Note that this is specific to ATAPI devices.  ATA hard drives are
+>another matter entirely.
+
+A reasonable idea would be to make the ATA driver a SCSI HBAdriver and
+in case that there is a need for pure ATA (e.g. Hard disks) there should
+be a second interface for a ATA driver stack.
+
+Please keep me on the CC: I am not on the list.
 
 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> http://sourceforge.net/projects/ext2resize/
-> 
 
-Cheers,
-Dick Johnson
+Jörg
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUHKRYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268137AbUHKRZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUHKRYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHKRVl
+	id S268137AbUHKRZi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHKRY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:21:41 -0400
-Received: from main.gmane.org ([80.91.224.249]:65235 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268131AbUHKRUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:20:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: OT: Distribution for Power4 Machines
-Date: Wed, 11 Aug 2004 10:20:38 -0700
-Message-ID: <pan.2004.08.11.17.20.38.570218@triplehelix.org>
-References: <20040811055622.52917.qmail@web13911.mail.yahoo.com> <15070000.1092237689@[10.10.2.4]> <1092238482.6033.4.camel@nighthawk>
+	Wed, 11 Aug 2004 13:24:28 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:44518 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S268136AbUHKRXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:23:00 -0400
+Date: Wed, 11 Aug 2004 19:22:22 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811172222.GI10100@louise.pinerecords.com>
+References: <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 64-60-248-66.cust.telepacific.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811181142.A30309@infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004 08:34:42 -0700, Dave Hansen wrote:
+On Aug-11 2004, Wed, 18:11 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-> On Wed, 2004-08-11 at 08:21, Martin J. Bligh wrote:
->> >  sorry for the most likely off-topic post. Are there any distributions
->> > out there that support IBM Power4 systems (pSeries machines)?
->> 
->> RH, SuSE and Debian all do, though maybe only the expensive enterprise
->> versions of the former 2.
+> On Wed, Aug 11, 2004 at 07:02:08PM +0200, Tomas Szepe wrote:
+> > Agreed.  But the point is, in the actual case of ipw2100, will the removal
+> > of 40 or so lines of code justify killing the functionality for those (lots)
+> > that use it?
 > 
-> You can install Debian, it's just a bit of a pain.  You basically have
-> to replace the installer kernel with your own, and use the debian
-> root.bin floppy as your kernel initrd.  
+> Yes.
 
-Um. Dude. That's old.
+Well, "I'm not young enough to know everything."  Too bad.
 
-Thanks to Sven Luther our new installer fully supports power4 (as far as
-I know, I don't personally own one.)
-
-http://gluck.debian.org/cdimage/testing/daily/powerpc/current/
-
-should contain a CD image that can boot your machine.
+And btw, mails to hch@infradead.org bounce.
 
 -- 
-Joshua Kwan
-
-
+Tomas Szepe <szepe@pinerecords.com>

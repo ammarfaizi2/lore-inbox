@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbUDFIga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 04:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUDFIga
+	id S263662AbUDFInH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 04:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUDFInH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 04:36:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:15854 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263661AbUDFIg2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 04:36:28 -0400
-Date: Tue, 6 Apr 2004 14:07:13 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: rusty@au1.ibm.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
-Message-ID: <20040406083713.GB7362@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040405121824.GA8497@in.ibm.com> <4071F9C5.2030002@yahoo.com.au>
+	Tue, 6 Apr 2004 04:43:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53774 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263662AbUDFInD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 04:43:03 -0400
+Date: Tue, 6 Apr 2004 09:42:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4: disabling SCSI support not possible
+Message-ID: <20040406094258.A15945@flint.arm.linux.org.uk>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	linux-kernel@vger.kernel.org
+References: <406D65FE.9090001@broadnet-mediascape.de> <6uad1uv7kr.fsf@zork.zork.net> <20040402144216.A12306@flint.arm.linux.org.uk> <20040402165941.GA29046@kroah.com> <20040402181630.B12306@flint.arm.linux.org.uk> <c4slos$6tq$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4071F9C5.2030002@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <c4slos$6tq$1@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Apr 05, 2004 at 06:17:14PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 10:28:53AM +1000, Nick Piggin wrote:
-> I think my stuff is a bit orthogonal to what you're attempting.
-> And they should probably work well together. My "lazy migrate"
-> patch means the tasklist lock does not need to be held at all,
-> only the dying runqueue's lock.
+On Mon, Apr 05, 2004 at 06:17:14PM -0400, Bill Davidsen wrote:
+> Intuitive isn't the issue, if you can't figure out why you can't turn 
+> off SCSI, you leave it on, which you need to make USB storage work. If 
+> you're trying to make a small kernel you presumably would have turned 
+> off USB if you didn't want it. The other way, if you can turn on USB w/o 
+> SCSI, it won't work, and people thing Linux is broken.
 
-Hi Nick,
-	I went thr' your patch and have some comments:
+When I hit it, I was trying to build a kernel for test purposes, so I
+didn't want all the drivers turned on.  I found I couldn't turn off
+SCSI and continued anyway turning other things off.  However, USB appears
+_after_ SCSI, you can not go through the configuration logically to turn
+off features.  Moreover, you do not get any suggestion when attempting
+to turn SCSI off that you need to turn off USB.
 
-1. The benefit I see in your patch (over the solution present today)
-   is you migrate immediately only tasks in the runqueue and don't bother abt 
-   sleeping tasks. You catch up with them as and when they wake up. 
+> Chances are that most people wouldn't have USB on if they didn't want 
+> it, but there's no downside to doing this.
 
-   However by doing so, are we not adding an overhead in the wake-up
-   path? CPU offline should be a (very) rare event and to support that we 
-   have to check a cpu's offline status _every_ wakeup call. 
+The x86 default configuration has USB + USB Storage turned on.  It makes
+it _non-trivial_ to turn SCSI off unless you have prior knowledge that
+you need to turn USB off before hand.
 
-   IMHO it is best if we migrate _all_ tasks in one shot during the
-   rare offline event and thus avoid the necessity of cpu_is_offline check 
-   during the (more) hotter wake_up path.
+> > (b) have kconfig tell you why you can't turn off the option.
+> 
+> I thought that was what (a) did.
 
-2. Also note that, migrate_all_tasks is being currently run with
-   rest of the machine frozen. So holding/not-holding tasklist
-   lock during that period does not make a difference!
+No - the configuration system just doesn't let you turn SCSI off.  No
+complaint, no warning, no nothing.  It just won't change the symbol.
 
-My patch avoids having to migrate _immediately_ even the tasks present
-in the runqueue. So the amout of time machine is frozen is greatly
-reduced.
+> > Silently preventing options being turned off with no obvious reason
+> > is a pretty major misfeature.
+> 
+> Compared to enabling USB storage with no hope of having it work? Adding 
+> user info is desirable, but making it easy, or even possible, to build a 
+>   non-working config is a lot more of a problem. You haven't compiled on 
+> a slow machine lately, forcing config combinations which work is a 
+> benefit of kconfig.
 
+Umm, you're talking to an ARM developer who builds some kernels natively.
+I suspect that your definition of "slow" is actually faster than my
+definition of the same.
+
+> If you want it broken you have to edit the config code. That's a good thing.
+
+Read what I'm saying.  *Silently* preventing options being turned off
+with *no* *obvious* *reason* is a pretty major misfeature.
+
+I hope the emphasis will highlight the problem more clearly.
 
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

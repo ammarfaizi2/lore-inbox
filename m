@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314435AbSDRUex>; Thu, 18 Apr 2002 16:34:53 -0400
+	id <S314451AbSDRUgU>; Thu, 18 Apr 2002 16:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSDRUew>; Thu, 18 Apr 2002 16:34:52 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:17037 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314435AbSDRUew>;
-	Thu, 18 Apr 2002 16:34:52 -0400
-Date: Thu, 18 Apr 2002 22:33:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Lang <david.lang@digitalinsight.com>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Vojtech Pavlik <vojtech@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: eNBD on loopback [was Re: [PATCH] 2.5.8 IDE 36]
-Message-ID: <20020418203304.GB1327@elf.ucw.cz>
-In-Reply-To: <E16xVSi-0000FN-00@the-village.bc.nu> <Pine.LNX.4.33.0204160849540.1244-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S314452AbSDRUgT>; Thu, 18 Apr 2002 16:36:19 -0400
+Received: from 116.140.hh1.ip.foni.net ([212.7.140.116]:3844 "HELO
+	debian.heim.lan") by vger.kernel.org with SMTP id <S314451AbSDRUgS>;
+	Thu, 18 Apr 2002 16:36:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Schoenebeck <christian.schoenebeck@epost.de>
+To: linux-kernel@vger.kernel.org
+Subject: power off (again)
+Date: Thu, 18 Apr 2002 22:40:06 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020418201220.C6D6247B1@debian.heim.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> please cc me, I'm offlist <<<
+
 Hi!
 
-> Btw, while I'm at it - who out there actually uses the new "enbd"
-> (Enhanced NBD)? I have this feeling that that would be the better choice,
-> since unlike plain nbd it should be deadlock-free on localhost (ie you
-> don't need a remote machine).
+I'm still fighting the problem that power off doesn't work with one of our 
+machines since moving from 2.2.19 to 2.4.7 kernel.
 
-How does eNBD manage to do that? It was pretty hard last time I
-checked...
+I compared both apm.c versions (1.13ac and 1.14) but there are no 'real'
+changes to the functions involved in the shutdown process, except some
+minor changes to macro definitions.
 
-What if their enbd server is swapped out, and all memory is in dirty
-pages waiting for writeback to eNBD?
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+'cat /proc/apm' says '1.14 1.2 0x03 0x01 0xff 0x80 -1% -1 ?' which are all 
+normal values for non-notebooks.
+
+I'm a little bit stuck with this and I have no idea what to look for so hints 
+would be highly appreciated!
+
+Christian Schoenebeck
+
+P.S. Yes, apm is supported by the bios, I have enabled apm, I tried real mode 
+power off, I tried using apm as module and also tried acpi instead

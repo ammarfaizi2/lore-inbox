@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271205AbTHRDYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 23:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTHRDYk
+	id S271206AbTHREZm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 00:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271210AbTHREZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 23:24:40 -0400
-Received: from thunk.org ([140.239.227.29]:29610 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S271205AbTHRDYi (ORCPT
+	Mon, 18 Aug 2003 00:25:42 -0400
+Received: from mailhost.NMT.EDU ([129.138.4.52]:30637 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id S271206AbTHREZk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 23:24:38 -0400
-Date: Sun, 17 Aug 2003 23:23:48 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: James Morris <jmorris@intercode.com.au>,
-       Jamie Lokier <jamie@shareable.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com
+	Mon, 18 Aug 2003 00:25:40 -0400
+Date: Sun, 17 Aug 2003 22:25:38 -0600
+From: Val Henson <val@nmt.edu>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030818032348.GA9456@think>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Matt Mackall <mpm@selenic.com>,
-	James Morris <jmorris@intercode.com.au>,
-	Jamie Lokier <jamie@shareable.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, davem@redhat.com
-References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030815221211.GA4306@think> <20030815235501.GB325@waste.org>
+Message-ID: <20030818042538.GA525@speare5-1-14>
+References: <20030809173329.GU31810@waste.org> <20030815004004.52f94f9a.davem@redhat.com> <20030815095503.C2784@pclin040.win.tue.nl> <20030815202235.GB13384@speare5-1-14> <bhkit0$nu1$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815235501.GB325@waste.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <bhkit0$nu1$1@abraham.cs.berkeley.edu>
+User-Agent: Mutt/1.4.1i
+X-Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 06:55:01PM -0500, Matt Mackall wrote:
-> I posted a proof of concept patch for discussion on $SUBJECT. In that
-> patch, I removed the folding for the purposes of having a reasonable
-> comparison between cryptoapi and native. Cryptoapi does FIPS-180-1 and
-> thus does twice as much hashing on 512 bits. 
+On Sat, Aug 16, 2003 at 06:27:44AM +0000, David Wagner wrote:
+> Val Henson  wrote:
+> >If entropy(x) == entropy(y), then:
+> >
+> >entropy(x) >= entropy(x xor y)
+> >entropy(y) >= entropy(x xor y)
+> 
+> No, that's still wrong.  Please see my earlier email with a counterexample.
+> That counterexample disproves not only the earlier claim, but also this more
+> recent revised claim.
 
-It would be nice if there was a Crypto API algorithm variant which
-didn't do the FIPS-180-1 padding, for those applications (like
-/dev/random) that don't need it.
+Sigh.  Yes, I was thinking of the case where x and y already have
+maximum entropy, in which case
 
-> Removing the folding was a convenient and obvious way of addressing
-> it for the purposes of discussing $SUBECT until a good way to work
-> around the extra padding was found. I've already indicated my
-> willingness to accept your
-> SHA-may-be-backdoored-and-somehow-leverageable argument, so can we
-> kindly discuss $SUBJECT instead of this trivia?
+entropy(x) >= entropy(x xor y)
 
-Multiple arguments were made for dropping the folding, not just as a
-"temporary measure".  You were the one that made the excuse of "cat
-/dev/urandom > /dev/hda1", not me...
+For any y.  The point I was really trying to make (badly) is that
+xoring won't increase entropy on average in this particular case
+(folding the output of SHA-1).  In other words, xoring won't make
+anything better, and has the possibility of making things worse.  In
+any way I evaluate it, folding and truncating are just as good for
+this particular case, except that folding costs more
+computationally. (The computational cost was significant enough to
+have a measurable effect on throughput, so I'm not arm-chair
+optimizing here.)
 
-> As for "screwing with /dev/random", it's got rather more serious and
-> longstanding problems than speed that I've been addressing. For
-> instance, I'm pretty sure there was never a time when entropy
-> accounting wasn't racy let alone wrong, SMP or no (fixed in -mm, thank
-> you). Nor has there ever been a time when change_poolsize() wasn't an
-> oops waiting to happen (patch queued for resend).
+I sacrifice any earlier points I attempted to make on the altar of
+hasty mathematics.
 
-Agreed, fixing the locking is much more important than CryptoAPI
-changes.  Can you send me a pointer to your latest locking patches?
-I'd like to look them over.  Thanks!!
-
-							- Ted
+-VAL

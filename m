@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271383AbRHOT0G>; Wed, 15 Aug 2001 15:26:06 -0400
+	id <S271372AbRHOTZq>; Wed, 15 Aug 2001 15:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271381AbRHOTZ5>; Wed, 15 Aug 2001 15:25:57 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:57558 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271379AbRHOTZq>;
-	Wed, 15 Aug 2001 15:25:46 -0400
-Date: Wed, 15 Aug 2001 20:25:56 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Steve Hill <steve@navaho.co.uk>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: /dev/random in 2.4.6
-Message-ID: <125898493.997907155@[169.254.45.213]>
-In-Reply-To: <Pine.LNX.4.21.0108151605180.2107-100000@sorbus.navaho>
-In-Reply-To: <Pine.LNX.4.21.0108151605180.2107-100000@sorbus.navaho>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S271380AbRHOTZg>; Wed, 15 Aug 2001 15:25:36 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:59407 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271379AbRHOTZ1>; Wed, 15 Aug 2001 15:25:27 -0400
+Date: Wed, 15 Aug 2001 22:28:01 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1021327779.20010815222801@port.imtp.ilyichevsk.odessa.ua>
+To: Joshua Schmidlkofer <menion@srci.iwpsd.org>
+CC: linux-kernel@vger.kernel.org, samba@lists.samba.org
+Subject: Re: smbfs mount failures
+In-Reply-To: <01081512490000.01309@widmers.oce.srci.oce.int>
+In-Reply-To: <563618943.20010815205612@port.imtp.ilyichevsk.odessa.ua>
+ <01081512490000.01309@widmers.oce.srci.oce.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve,
+JS> What is the actual string you are using to mount?
 
-> Until recently I've been using the 2.2.16 kernel on Cobalt Qube 3's, but
-> I've just upgraded to 2.4.6.  Since there's no mouse, keyboard, etc, there
-> isn't much entropy data.  I had no problem getting plenty of data from
-> /dev/random under 2.2, but under 2.4.6 there seems to be a distinct lack
-> of data - it takes absolutely ages to extract about 256 bytes from it
-> (whereas under 2.2 it was relatively quick).  Has there been a major
-> change in the way the random number generator works under 2.4?
+smbmount //nt/e /mnt -o username=admin,password=secret
+smbmount //nt/e /mnt -o username=admin,password=secret,ip=N.N.N.N
 
-Some network drivers generate entropy on network interrupts, some
-don't. Apparently this inconsistent state is the way people want
-to keep it.
+fails as described below.
+Note! smbclient WORKS with these machine/username/pass!
+I conclude it is a smbfs or smbmount problem, not a badly/unusually configured
+NT or network problem. Also note that log messages are spewed by smbfs kernel
+code.
 
-If you want to add entropy on network interrupts, look for the line
-in your driver which does a request_irq, and | in SA_SAMPLE_RANDOM
-to the flags value.
+Tried to mount to locally running Samba:
 
-I'd prefer a single /proc/ entry to turn entropy on from ALL network
-devices for precisely the reason you state (SCSI means no IDE
-entity either), even if its off by default for ALL network
-devices for paranoia reasons, but there seems to be some religious
-issue at play which means the state currently depends on which
-brand of network card you have.
+smbmount //linuxbox/in /mnt -o username=guest,password=
 
-Example 'fix:' (and do this in reverse to remove entropy from
-network interrupts if you are paranoid) below.
+Works fine.
 
-(tabs probably broken in the text below but easier to do it manually
-anyway)
+How I can help to investigate this problem?
+Please CC me. I'm not on the list.
 
---- eepro100.c~ Tue Feb 13 21:15:05 2001
-+++ eepro100.c  Sun Apr  8 22:17:00 2001
-@@ -923,7 +923,7 @@
-        sp->in_interrupt = 0;
-
-        /* .. we can safely take handler calls during init. */
--       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ, 
-dev->name, dev);
-+       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ | 
-SA_SAMPLE_RANDOM, dev->name, dev);
-        if (retval) {
-                MOD_DEC_USE_COUNT;
-                return retval;
+JS> On Wednesday 15 August 2001 11:56 am, VDA wrote:
+>> I'm having trouble mounting SMB shares residing on a WinNT machine.
+>> smbclient works fine, but after mounting the same share with the
+>> same username,passwd etc with smbmount and trying to enter
+>> newly mounted dir I see repeating msgs in the logs:
+>>
+>> ...
+>> smb_catch_keepalive: already done                 [<- this is KERN_ERR!]
+>> smb_retry: successful, new pid=PID, generation=N  [PID is the same, N grows
+>> (N++)] smb_dont_catch_keepalive: server->data_ready == NULL
+>> smb_trans2_request: result=-22, setting invalid
+>> smb_close_socket: still catching keepalives!
+>> smb_catch_keepalive: already done
+>> smb_retry: successful, new pid=PID, generation=N+1
+>> ...
+>>
+>> Since smbclient is working I presume it is a kernel smbfs bug or some
+>> version mismatch between kernel and smbmount.
+>>
+>> smbmount: 2.2.0a
+>> kernel: 2.4.5
 
 
-
---
-Alex Bligh

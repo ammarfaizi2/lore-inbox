@@ -1,78 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131031AbRCGPmJ>; Wed, 7 Mar 2001 10:42:09 -0500
+	id <S131084AbRCGPtt>; Wed, 7 Mar 2001 10:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131076AbRCGPl7>; Wed, 7 Mar 2001 10:41:59 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:516 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131031AbRCGPlu>; Wed, 7 Mar 2001 10:41:50 -0500
-Message-ID: <3AA6576D.81501D0@folkwang-hochschule.de>
-Date: Wed, 07 Mar 2001 16:44:45 +0100
-From: Jörn Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S131086AbRCGPtj>; Wed, 7 Mar 2001 10:49:39 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:48769 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131084AbRCGPt3>; Wed, 7 Mar 2001 10:49:29 -0500
+Date: Wed, 7 Mar 2001 10:48:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Ramdisk (and other) problems with 2.4.2
+Message-ID: <Pine.LNX.3.95.1010307103537.18034B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: yacc dependency of aic7xxx driver
-In-Reply-To: <200103071406.f27E6pO25638@aslan.scsiguy.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" wrote:
-> 
-> >hello justin !
-> >
-> >i have just tried to install the latest 2.4.3pre3 kernel with your
-> >driver.
-> >it failed with yacc: file not found.
-> >while i could install yacc, i have never had to use it before. i was
-> >assuming that the newer bison could do the same thing (which is what
-> >i have installed).
-> >so far, the kernel has not relied on yacc, which is why i'd like to
-> >ask you if it's possible to make it work with bison.
-> 
-> The assembler makefile doesn't reference yacc, but instead relies
-> on gmake's built in rules to figure out how to generate a .c from
-> a .y.  I'm somewhat surprised that bison doesn't create a link to
-> yacc or that gmake doesn't try to look for bison.
-> 
-> Oh well.  We'll just have to be more careful in how future patches
-> are generated so that the dependency between the generated firmware
-> files and the firmware source only triggers if you are actually
-> performing firmware development.  Trying to build this simple
-> assmebler on everyone's systems is turning out to be just too
-> hard.
 
-i might also be SuSE 7.1 related, since this was the first kernel i
-compiled on the new distro.
-but since the problem arose only with the new aic driver, i thought
-it might be that you had a slightly different development
-environment...?
-
-anyway, robbert muller sent me the following simple workaround:
+After attempting to run 2.4.2, and killing all my hard disks, I
+have finally gotten 2.4.1 back up. There is a continual problem
+that even exists on 2.4.1, that will show if you execute this.
+However, unmount your hard disks before you execute this simple
+harmless script. 
 
 
-<quote>
-Just create a shell script called yacc with the following content
--------------------
-#!/bin/sh
-bison --yacc $*
--------------------
-i ran into the same problem with a school proiject here yesterday
-</quote>
+dd if=/dev/zero of=/dev/ram0 bs=1k count=1440
+/sbin/mke2fs -Fq /dev/ram0 1440 
+mount -t ext2 /dev/ram0 /mnt
+dd if=/dev/zero of=/mnt/foo bs=1k count=1000
+ls -la /mnt
+umount /mnt
+
+The first time you execute it, fine. It runs. The second time, you
+get:
+
+Mar  7 10:29:00 chaos last message repeated 11 times
+Mar  7 10:29:00 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 631 
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41 
+Mar  7 10:30:32 chaos last message repeated 11 times
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 53 
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 310 
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 614 
+Mar  7 10:30:32 chaos last message repeated 4 times
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 619 
+Mar  7 10:30:32 chaos last message repeated 11 times
+Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 631 
+Mar  7 10:34:25 chaos sendmail[17986]: f27FYJh17986: from=<linux-kernel-owner@vger.kernel.org>, size=1830, class=-60, nrcpts=1, msgid=<200103071529.f27FTjO26978@aslan.scsiguy.com>, bodytype=8BITMIME, proto=ESMTP, daemon=MTA, relay=vger.kernel.org [199.183
+.24.194]
+Mar  7 10:34:26 chaos sendmail[17994]: f27FYJh17986: to=<root@chaos.analogic.com>, delay=00:00:07, xdelay=00:00:01, mailer=local, pri=138660, dsn=2.0.0, stat=Sent
+Mar  7 10:34:46 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41 
+Mar  7 10:34:46 chaos last message repeated 11 times
+Mar  7 10:34:46 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 53 
+Mar  7 10:34:46 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 310 
+Mar  7 10:34:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41 
+Mar  7 10:34:58 chaos last message repeated 11 times
+Mar  7 10:34:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 53 
+Mar  7 10:34:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 310 
+Mar  7 10:35:06 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41 
+Mar  7 10:35:06 chaos last message repeated 11 times
+Mar  7 10:35:06 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 53 
+Mar  7 10:35:06 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 310 
+Mar  7 10:38:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41 
+Mar  7 10:38:58 chaos last message repeated 11 times
+Mar  7 10:38:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 53 
+Mar  7 10:38:58 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 310 
 
 
-regards,
+...and no files are generated in the ramdisk ... and, If you don't
+reboot soon, you will have file-system corruption all throughout your
+hard disks(s) including those which are not mounted (really). Some
+offset gets screwed so umounted disks are written. Reboot with the
+reset switch.
 
-jörn
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
--- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://www.folkwang-hochschule.de/~nettings/

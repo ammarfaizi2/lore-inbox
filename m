@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283468AbRLIOpO>; Sun, 9 Dec 2001 09:45:14 -0500
+	id <S283500AbRLIPPO>; Sun, 9 Dec 2001 10:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283473AbRLIOpD>; Sun, 9 Dec 2001 09:45:03 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:17933 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S283468AbRLIOo5>; Sun, 9 Dec 2001 09:44:57 -0500
-Message-ID: <3C1378D6.A5BAB1FA@linux-m68k.org>
-Date: Sun, 09 Dec 2001 15:44:38 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S283506AbRLIPPE>; Sun, 9 Dec 2001 10:15:04 -0500
+Received: from tsv.sws.net.au ([203.36.46.2]:53264 "HELO tsv.sws.net.au")
+	by vger.kernel.org with SMTP id <S283503AbRLIPOs>;
+	Sun, 9 Dec 2001 10:14:48 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: reiserfs-list@namesys.com
+Subject: per-char IO tests
+Date: Sun, 9 Dec 2001 16:14:30 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Rene Rebe <rene.rebe@gmx.net>, linux-kernel@vger.kernel.org,
-        alsa-devel@lists.sourceforge.net,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
- /ALSA-0.9.0beta[9,10]
-In-Reply-To: <200112090308.fB938N504764@vindaloo.ras.ucalgary.ca>
-		<Pine.LNX.4.33.0112090447290.13049-100000@serv> <200112090448.fB94mbP05763@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011209151431.2172397E@lyta.coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+I have released a new experimental version of Bonnie++ that includes a 
+program to test per-char IO using putc()/getc(), putc()/getc() when linked in 
+a non-threaded way (significantly improves performance) 
+putc_unlocked()/getc_unlocked(), and write()/read().
 
-> Oh, the "tar kludge". That script has been obsolete for over a year
-> and a half. I should have removed it ages ago. I really should get
-> around to doing that one day.
+Here's the results of testing my Thinkpad T20 with P3-650:
 
-You should have done this a year ago. Permission management with the
-"tar kludge" was a valid option so far and is currently in use. There
-was no warning period that this future would be obsolete.
-BTW from your devfsd-v1.3.20 release notes:
+Version  1.93          write   read putcNT getcNT   putc   getc  putcU  getcU
+lyta                     142    651   8189   9348   1763   1813  22174  44887
+lyta,142,651,8189,9348,1763,1813,22174,44887
 
-"NOTE: this release finally provides complete permissions management.
-Manually (i.e. non driver or devfsd) created inodes can now be
-restored when devfsd starts up. This requires v1.2 of the devfs core
-(available in 2.4.17-pre1) for best operation."
+Here's the results of testing my Athlon 800 play machine:
 
-The tar solution only works until 2.4.16, the new devfsd provides this
-only with 2.4.17. I'll leave the final decision to Marcelo, whether he
-accepts this or not. I shut up now, may someone else explain the meaning
-of compatibility to you.
+Version  1.93          write   read putcNT getcNT   putc   getc  putcU  getcU
+test                     146    607   7356   7280   1834   1971  41995  59100
+test,146,607,7356,7280,1834,1971,41995,59100
 
-bye, Roman
+Both machines run ReiserFS.  A quick test indicates that using Ext2 instead 
+of ReiserFS triples the  performance of write(fd, buf, 1), but this is 
+something I already knew (and had mentioned before on the ReiserFS list).
+
+Also based on previous tests I expect Solaris to outperform Linux with glibc 
+on putcNT, getcNT, putc, and getc.  The regular performance of putc() on 
+Solaris comes close to putc_unlocked() on Linux with glibc.
+
+
+
+
+I'd like to thank Andrew Morton for forwarding messages from L-K that 
+provoked me to write this new test program.
+
+I was tempted to subscribe to L-K to join this discussion, but it seems that 
+Linus is saying everything that needs to be said anyway so there's no point. 
+;)
+
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136702AbRAIAY4>; Mon, 8 Jan 2001 19:24:56 -0500
+	id <S131179AbRAIAhv>; Mon, 8 Jan 2001 19:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136751AbRAIAYq>; Mon, 8 Jan 2001 19:24:46 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:47366 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S136702AbRAIAYa>; Mon, 8 Jan 2001 19:24:30 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
-Subject: Re: Extraneous whitespace removal? 
-In-Reply-To: Your message of "Mon, 08 Jan 2001 04:42:18 MDT."
-             <20010108044218.A9610@foozle.turbogeek.org> 
-Date: Tue, 09 Jan 2001 11:24:20 +1100
-Message-Id: <E14FmaK-0000NJ-00@halfway>
+	id <S130676AbRAIAhk>; Mon, 8 Jan 2001 19:37:40 -0500
+Received: from mnh-1-29.mv.com ([207.22.10.61]:7946 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S130070AbRAIAh2>;
+	Mon, 8 Jan 2001 19:37:28 -0500
+Message-Id: <200101090147.UAA05211@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Geoff Hoff <ghoff@math.utk.edu>
+cc: Chris Mason <mason@suse.com>, user-mode-linux-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [reiserfs-list] BUG at inode.c:371 
+In-Reply-To: Your message of "Mon, 08 Jan 2001 18:12:38 EST."
+             <20010108231238.3795.qmail@utkmath3.math.utk.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 08 Jan 2001 20:47:11 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010108044218.A9610@foozle.turbogeek.org> you write:
-> Pluses:
->  - clean up messy whitespace
->  - cut precious picoseconds off compile time
->  - cut kernel tree by 200k (+/- alot)
+You've got two problems here, and one of them is mine:
 
-I've done this before, but never posted it, lest they think I'm
-insane.  I vote this for 2.5.1.
+> In uml I continue the debian installation off of cdrom and as I say ok
+> to the final screen I get a "Kernel panic: Kernel mode fault at addr
+> 0xbefffe90, ip 0x1009f315" from user-mode linux which is running as
+> me, not as root.
 
-You, sir, have balls,
-Rusty.
---
-http://linux.conf.au The Linux conference Australia needed.
---- working-2.4.0/MAINTAINERS.~1~	Mon Jan  1 04:31:15 2001
-+++ working-2.4.0/MAINTAINERS	Tue Jan  9 11:23:48 2001
-@@ -1434,6 +1434,11 @@
- L:	linux-scsi@vger.kernel.org
- S:	Maintained
- 
-+WHITESPACE
-+P:	Jeremy M. Dolan
-+M:	jmd@foozle.turbogeek.org
-+S:	Maintained
-+
- X.25 NETWORK LAYER
- P:	Henner Eisen
- M:	eis@baty.hanse.de
+Can you get me a stack trace from the panic?  See http://user-mode-linux.source
+forge.net/trouble.html if you need information on doing that.
+
+				Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

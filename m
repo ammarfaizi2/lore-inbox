@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264810AbSJVSDd>; Tue, 22 Oct 2002 14:03:33 -0400
+	id <S264874AbSJVSJt>; Tue, 22 Oct 2002 14:09:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264816AbSJVSC5>; Tue, 22 Oct 2002 14:02:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24072 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264800AbSJVSCH>; Tue, 22 Oct 2002 14:02:07 -0400
-Date: Tue, 22 Oct 2002 14:06:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-In-Reply-To: <2666588581.1035278080@[10.10.2.3]>
-Message-ID: <Pine.LNX.3.96.1021022135649.7820C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264864AbSJVSIV>; Tue, 22 Oct 2002 14:08:21 -0400
+Received: from [202.88.156.6] ([202.88.156.6]:26783 "EHLO
+	saraswati.hathway.com") by vger.kernel.org with ESMTP
+	id <S264867AbSJVSIL>; Tue, 22 Oct 2002 14:08:11 -0400
+Date: Tue, 22 Oct 2002 23:38:53 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org, levon@movementarian.org
+Subject: Re: [PATCH] NMI request/release
+Message-ID: <20021022233853.B25716@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB59385.6050003@mvista.com>; from cminyard@mvista.com on Tue, Oct 22, 2002 at 01:05:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Martin J. Bligh wrote:
+On Tue, Oct 22, 2002 at 01:05:57PM -0500, Corey Minyard wrote:
+> >You need to walk the list in call_nmi_handlers from nmi interrupt handler where
+> >preemption is not an issue anyway. Using RCU you can possibly do a safe
+> >walking of the nmi handlers. To do this, your update side code
+> >(request/release nmi) will still have to be serialized (spinlock), but
+> >you should not need to wait for completion of any other CPU executing
+> >the nmi handler, instead provide wrappers for nmi_handler
+> >allocation/free and there free the nmi_handler using an RCU callback
+> >(call_rcu()). The nmi_handler will not be freed until all the CPUs
+> >have done a contex switch or executed user-level or been idle.
+> >This will gurantee that *this* nmi_handler is not in execution
+> >and can safely be freed.
+> >
+> >This of course is a very simplistic view of the things, there could
+> >be complications that I may have overlooked. But I would be happy
+> >to help out on this if you want.
+> >
+> This doesn't sound any simpler than what I am doing right now.  In fact, 
+> it sounds more complex.  Am I correct?  What I am doing is pretty simple 
+> and correct.  Maybe more complexity would be required if you couldn't 
+> atomically update a pointer, but I think simplicity should win here.
 
-> > Actually, per-object reverse mappings are nowhere near as good
-> > a solution as shared page tables.  At least, not from the points
-> > of view of space consumption and the overhead of tearing down
-> > the mappings at pageout time.
-> > 
-> > Per-object reverse mappings are better for fork+exec+exit speed,
-> > though.
-> > 
-> > It's a tradeoff: do we care more for a linear speedup of fork(),
-> > exec() and exit() than we care about a possibly exponential
-> > slowdown of the pageout code ?
+I would vote for simplicity and would normally agree with you here. But
+it seems to me that using RCU, you can avoid atmic operations
+and cache line bouncing of calling_nmi_handlers in the fast path
+(nmi interrupt handler). One could argue whether it is really
+a fast path or not, but if you are using it for profiling, I would
+say it is. No ?
 
-That tradeoff makes the case for spt being a kbuild or /proc/sys option. A
-linear speedup of fork/exec/exit is likely to be more generally useful,
-most people just don't have huge shared areas. On the other hand, those
-who do would get a vast improvement, and that would put Linux a major step
-forward in the server competition.
- 
-> As long as the box doesn't fall flat on it's face in a jibbering
-> heap, that's the first order of priority ... ie I don't care much
-> for now ;-)
-
-I'm just trying to decide what this might do for a news server with
-hundreds of readers mmap()ing a GB history file. Benchmarks show the 2.5
-has more latency the 2.4, and this is likely to make that more obvious.
-
-Is there any way to to have this only on processes which really need it?
-define that any way you wish, including hanging a capability on the
-executable to get spt.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Thanks
+Dipankar

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129896AbRAKTpS>; Thu, 11 Jan 2001 14:45:18 -0500
+	id <S130344AbRAKTuT>; Thu, 11 Jan 2001 14:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbRAKTpJ>; Thu, 11 Jan 2001 14:45:09 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:31758 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129896AbRAKTpC>;
-	Thu, 11 Jan 2001 14:45:02 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101111938.f0BJcOt490764@saturn.cs.uml.edu>
-Subject: Re: Subtle MM bug
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Thu, 11 Jan 2001 14:38:24 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        sct@redhat.com (Stephen C. Tweedie),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        trond.myklebust@fys.uio.no (Trond Myklebust),
-        phillips@innominate.de (Daniel Phillips), linux-kernel@vger.kernel.org
-In-Reply-To: <20010111173512.M25375@redhat.com> from "Stephen C. Tweedie" at Jan 11, 2001 05:35:12 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S131067AbRAKTuI>; Thu, 11 Jan 2001 14:50:08 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:48389 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S130392AbRAKTtx>;
+	Thu, 11 Jan 2001 14:49:53 -0500
+Date: Thu, 11 Jan 2001 20:49:22 +0100
+From: Frank de Lange <frank@unternet.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
+Message-ID: <20010111204922.E3269@unternet.org>
+In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5D9D87.8A868F6A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 11, 2001 at 10:48:23PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie writes:
-> On Thu, Jan 11, 2001 at 11:50:21AM -0500, Albert D. Cahalan wrote:
->> Stephen C. Tweedie writes:
+Another observation wrt. behaviour with 'noapic'...
 
->>> But is it really worth the pain?  I'd hate to have to audit the
->>> entire VFS to make sure that it works if another thread changes our
->>> credentials in the middle of a syscall, so we either end up having to
->>> lock the credentials over every VFS syscall, or take a copy of the
->>> credentials and pass it through every VFS internal call that we make.
->>
->> 1. each thread has a copy, and doesn't need to lock it
->
-> We already have that...
->
->> 2. threads are commanded to change their own copy
->
-> We already do that: that's how the current pthreads works.
+When streaming time-critical data over the network (running esound to another
+server, etc), sometimes there are hiccups in the stream. These hiccups seem to
+be much less frequent, if at all present, when running with 'noapic'. I'm
+currently running sound over a heavily loaded ethernet, no hiccups at all...
+Weird, since the apic ought to spread the load of handling the interrupts over
+all available CPU's.
 
-I thought it was unimplemented. Even so, it is at least one
-extra round trip to/from the kernel. (I'd guess trips>1)
+Whatever is causing this, there seems to be something fishy in the way
+interrupts are handled when the apic(s) is/are enabled...
 
->> Credentials could be changed on syscall exit. It is a bit like
->> doing signals I think, with less overhead than making userspace
->> muck around with signal handlers and synchronization crud.
->
-> Yuck.  Far better to send a signal than to pollute the syscall exit
-> path.  And what about syscalls which block indefinitely?  We _want_
-> the signal so that they get woken up to do the credentials change.
-
-The syscall exit path itself need not be polluted. Changes to
-recalc_sigpending and do_signal would get the job done.
-For the former, either add an extra word of kernel-internal
-signal data or just check a simple flag. For do_signal, maybe
-add an extra "if(foo)" at the top of the main loop. (that would
-depend on what was done to recalc_sigpending)
-
-I suppose the goodness or badness of this depends partly on how
-much you are willing to pay for pthreads that are fast and correct.
-People around here seem to like burying their heads in hope that
-pthreads will just go away, while app developers stubbornly try to
-use the API.
-
-
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,110 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUJAUSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUJAUPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266386AbUJAUSx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUJAUQl
+	id S266245AbUJAUPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJAUPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:16:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6160 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266308AbUJAULS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:11:18 -0400
-Date: Fri, 1 Oct 2004 21:11:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
-Message-ID: <20041001211106.F30122@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <20040927210305.A26680@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040927210305.A26680@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Mon, Sep 27, 2004 at 09:03:05PM +0100
+	Fri, 1 Oct 2004 16:15:50 -0400
+Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:64666 "EHLO
+	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S266324AbUJAUL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:11:28 -0400
+From: Ryan Cumming <ryan@spitfire.gotdns.org>
+To: cranium2003 <cranium2003@yahoo.com>
+Subject: Re: Plzzz help me
+Date: Fri, 1 Oct 2004 13:11:18 -0700
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.linux.org
+References: <20041001024136.96889.qmail@web41402.mail.yahoo.com>
+In-Reply-To: <20041001024136.96889.qmail@web41402.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2996513.s7s0hMl3e4";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410011311.22645.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 09:03:05PM +0100, Russell King wrote:
-> [<address>] ($a+0xfoo/0xbar) from [<address>] ($a+0xfoo/0xbar)
+--nextPart2996513.s7s0hMl3e4
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Ok, here's a _partly_ tested patch which fixes kallsyms itself.  I'm
-not certain whether this fixes the module side of it since I haven't
-had an oops from a module to confirm yet.
+On Thursday 30 September 2004 19:41, cranium2003 wrote:
+> Hello,
+>  I want to know is there any way in linux kernel by
+> which i can come to know that the outgoing packet is
+> having destination address is of host not of router?
+> I want to send different data to host/router depending
+> on dest. address.
 
-Comments at this stage only please?
+By definition, only hosts have IP addresses. Any router that has an IP addr=
+ess=20
+is also a host.
 
-===== kernel/module.c 1.120 vs edited =====
---- 1.120/kernel/module.c	2004-09-08 07:33:04 +01:00
-+++ edited/kernel/module.c	2004-10-01 20:39:43 +01:00
-@@ -1903,6 +1903,15 @@
- }
- 
- #ifdef CONFIG_KALLSYMS
-+/*
-+ * This ignores the intensely annoying "mapping symbols" found
-+ * in ARM ELF files: $a, $t and $d.
-+ */
-+static inline int is_arm_mapping_symbol(const char *str)
-+{
-+	return str[0] == '$' && strchr("atd", str[1]) && str[2] == '\0';
-+}
-+
- static const char *get_ksymbol(struct module *mod,
- 			       unsigned long addr,
- 			       unsigned long *size,
-@@ -1927,11 +1936,13 @@
- 		 * and inserted at a whim. */
- 		if (mod->symtab[i].st_value <= addr
- 		    && mod->symtab[i].st_value > mod->symtab[best].st_value
--		    && *(mod->strtab + mod->symtab[i].st_name) != '\0' )
-+		    && *(mod->strtab + mod->symtab[i].st_name) != '\0'
-+		    && !is_arm_mapping_symbol(mod->strtab + mod->symtab[i].st_name))
- 			best = i;
- 		if (mod->symtab[i].st_value > addr
- 		    && mod->symtab[i].st_value < nextval
--		    && *(mod->strtab + mod->symtab[i].st_name) != '\0')
-+		    && *(mod->strtab + mod->symtab[i].st_name) != '\0'
-+		    && !is_arm_mapping_symbol(mod->strtab + mod->symtab[i].st_name))
- 			nextval = mod->symtab[i].st_value;
- 	}
- 
-===== scripts/kallsyms.c 1.12 vs edited =====
---- 1.12/scripts/kallsyms.c	2004-07-11 10:23:27 +01:00
-+++ edited/scripts/kallsyms.c	2004-10-01 20:41:43 +01:00
-@@ -32,6 +32,16 @@
- 	exit(1);
- }
- 
-+/*
-+ * This ignores the intensely annoying "mapping symbols" found
-+ * in ARM ELF files: $a, $t and $d.
-+ */
-+static inline int
-+is_arm_mapping_symbol(const char *str)
-+{
-+	return str[0] == '$' && strchr("atd", str[1]) && str[2] == '\0';
-+}
-+
- static int
- read_symbol(FILE *in, struct sym_entry *s)
- {
-@@ -56,7 +66,8 @@
- 		_sinittext = s->addr;
- 	else if (strcmp(str, "_einittext") == 0)
- 		_einittext = s->addr;
--	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U')
-+	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U' ||
-+		 is_arm_mapping_symbol(str))
- 		return -1;
- 
- 	s->sym = strdup(str);
+=2DRyan
 
+--nextPart2996513.s7s0hMl3e4
+Content-Type: application/pgp-signature
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBXbnqW4yVCW5p+qYRAiNBAJ0RF+DfZKWAAEEIpV/DbSXDgqsczgCgot1F
+VosmonlA7Tsdtxeac42s7rs=
+=ZEw3
+-----END PGP SIGNATURE-----
+
+--nextPart2996513.s7s0hMl3e4--

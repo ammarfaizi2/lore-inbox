@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271789AbRHRGjQ>; Sat, 18 Aug 2001 02:39:16 -0400
+	id <S271790AbRHRGus>; Sat, 18 Aug 2001 02:50:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271790AbRHRGiz>; Sat, 18 Aug 2001 02:38:55 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:22278 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S271789AbRHRGiy>;
-	Sat, 18 Aug 2001 02:38:54 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108180639.f7I6d73116969@saturn.cs.uml.edu>
-Subject: Re: more kernel .01
-To: fattymikefx@yahoo.com
-Date: Sat, 18 Aug 2001 02:39:07 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain> from "tristan" at Aug 17, 2001 04:43:57 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271791AbRHRGui>; Sat, 18 Aug 2001 02:50:38 -0400
+Received: from odyssey.netrox.net ([204.253.4.3]:24223 "EHLO t-rex.netrox.net")
+	by vger.kernel.org with ESMTP id <S271790AbRHRGuT>;
+	Sat, 18 Aug 2001 02:50:19 -0400
+Subject: [PATCH] Configure.help: Bad URL for CONFIG_SYN_COOKIES
+From: Robert Love <rml@tech9.net>
+To: elenstev@mesatop.com, esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 18 Aug 2001 02:50:05 -0400
+Message-Id: <998117417.2184.44.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tristan writes:
+The provided URL for more information re SYN Cookies is bad.  I
+originally posted a patch to fix this in the 2.4-pre series but it was
+not merged.  I am reposting because I was in need of the URL and again
+got stuck on the stale URL in Configure.help.
 
-> The reason i was hoping to run an old version of the kernel,
-> .01 or .02(as someone proposed), is so i can use it as a basis
-> for learning to add on to, compile, and change an os's kernel.
-> I know i can do this with all kernels, but the .01 kernel is very small
+This is against Configure.help 2.41, as in 2.4.8-ac7.
 
-The 0.01 kernel is very crude. The keyboard and IDE drivers are
-written in assembly. The memory management uses 1 page table for
-everything, with segmentation used to split it up into 63 processes
-of 64 MB each plus a 64 MB kernel space. Swap isn't supported, so
-you'll need at least 4 MB of RAM to run gcc.
 
-> and the very beginning of the kernel so i can build on it. i am 
-> open to installing say red hat 5.2 and then running .01 on a 
 
-Red Hat is kind of new. :-) Use an old Linux distribution like MCC
-or Tamu. Those came first, then SLS, then Slackware and Yggdrasil.
-I gave you a URL for a slightly-hacked MCC that might do the job.
+--- linux/Documentation/Configure.help~	Sat Aug 18 02:32:33 2001
++++ linux/Documentation/Configure.help	Sat Aug 18 02:35:32 2001
+@@ -2655,8 +2655,7 @@
+   continue to connect, even when your machine is under attack. There
+   is no need for the legitimate users to change their TCP/IP software;
+   SYN cookies work transparently to them. For technical information
+-  about SYN cookies, check out
+-  <ftp://koobera.math.uic.edu/syncookies.html>.
++  about SYN cookies, check out <http://cr.yp.to/syncookies.html>.
+ 
+   If you are SYN flooded, the source address reported by the kernel is
+   likely to have been forged by the attacker; it is only reported as
+@@ -2675,7 +2674,7 @@
+ 
+   at boot time after the /proc file system has been mounted.
+ 
+-  If unsure, say Y.
++  If unsure, say N.
+ 
+ HCI EMU (virtual device) driver
+ CONFIG_BLUEZ_HCIEMU
 
-Remember to use the minix filesystem instead of ext2.
+
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

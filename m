@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316991AbSFFPUn>; Thu, 6 Jun 2002 11:20:43 -0400
+	id <S316986AbSFFPSV>; Thu, 6 Jun 2002 11:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316992AbSFFPUm>; Thu, 6 Jun 2002 11:20:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10767 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S316991AbSFFPUl>; Thu, 6 Jun 2002 11:20:41 -0400
-Date: Thu, 6 Jun 2002 12:00:23 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: matt@theBachChoir.org.uk, dean-list-linux-kernel@arctic.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre10-ac2
-Message-ID: <20020606150022.GN1068@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, matt@theBachChoir.org.uk,
-	dean-list-linux-kernel@arctic.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206051204070.11987-100000@twinlark.arctic.org> <Pine.LNX.4.44.0206061110410.16548-100000@jester.mews> <20020606.031417.60563717.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S316989AbSFFPSU>; Thu, 6 Jun 2002 11:18:20 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:41867 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316986AbSFFPSU>;
+	Thu, 6 Jun 2002 11:18:20 -0400
+Date: Thu, 6 Jun 2002 08:14:09 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Amici Alessandro <alessandro_amici@telespazio.it>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: device model update 2/2
+In-Reply-To: <A183DF60AC72D5119B990002A5749CB301E9C106@ROMADG-MAIL01>
+Message-ID: <Pine.LNX.4.33.0206060808050.654-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Jun 06, 2002 at 03:14:17AM -0700, David S. Miller escreveu:
->    From: Matt Bernstein <matt@theBachChoir.org.uk>
->    Date: Thu, 6 Jun 2002 11:11:09 +0100 (BST)
+
+On Thu, 6 Jun 2002, Amici Alessandro wrote:
+
 > 
->    Since when was it OK to do a parallel make dep?
->    
-> I've been doing that successfully for a long time now.
-> It has always worked as far as I can remember..
+> hi,
+> 
+> +		lock_device(dev);
+> +		dev->driver = NULL;
+> +		unlock_device(dev);
+> +
+> +		/* detach from driver */
+> +		if (dev->driver->remove)
+> +			dev->driver->remove(dev);
+> +		put_driver(dev->driver);
+> 
+> you might want to exchange these two blocks :)
 
-/me too, doing that for ages without a single problem.
+D'oh. bk://ldm.bkbits.net/linux-2.5 is being updated now. Incremental 
+patch below. 
 
-- Arnaldo
+	-pat
+
+ChangeSet@1.456, 2002-06-06 08:10:56-07:00, mochel@osdl.org
+  Don't reference driver after you set pointer to NULL in device_detach
+
+ drivers/base/core.c |    8 ++++----
+ 1 files changed, 4 insertions, 4 deletions
+
+
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	Thu Jun  6 08:13:54 2002
++++ b/drivers/base/core.c	Thu Jun  6 08:13:54 2002
+@@ -103,14 +103,14 @@
+ 		list_del_init(&dev->driver_list);
+ 		write_unlock(&dev->driver->lock);
+ 
+-		lock_device(dev);
+-		dev->driver = NULL;
+-		unlock_device(dev);
+-
+ 		/* detach from driver */
+ 		if (dev->driver->remove)
+ 			dev->driver->remove(dev);
+ 		put_driver(dev->driver);
++
++		lock_device(dev);
++		dev->driver = NULL;
++		unlock_device(dev);
+ 	}
+ }
+ 
+

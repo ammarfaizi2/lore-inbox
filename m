@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264181AbTE0VQN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbTE0VQJ
+	id S264177AbTE0VTx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTE0VTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:16:09 -0400
-Received: from smtp.vzavenue.net ([66.171.59.140]:50202 "EHLO
-	smtp.vzavenue.net") by vger.kernel.org with ESMTP id S264181AbTE0VOR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:14:17 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 27 May 2003 17:27:16 -0400
+	Tue, 27 May 2003 17:19:53 -0400
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:12789 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S264193AbTE0VTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:19:52 -0400
+Message-ID: <3ED3D98F.9070501@yahoo.com>
+Date: Tue, 27 May 2003 22:33:03 +0100
+From: Chris Rankin <rankincj@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en-gb, en-us
 MIME-Version: 1.0
-Subject: [STATUS 2.5]  May 27, 2003
-Message-ID: <3ED39FF4.21361.3A1D5537@localhost>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: marcelo@conectiva.com.br
+CC: alan@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest status update is available at: http://www.kernelnewbies.org/status
-Below the most relevant items.  As usual, corrections are welcome.  Enjoy!
+ > Mainly due to a IDE DMA problem which would happen on boxes with lots of
+ > RAM, here is -rc5.
 
--- Guillaume
+Hmm, should I say "Thanks, Santa!", or is this a completely different problem 
+from the one I reported on Saturday 24th May:
+
+"[BUG] IDE DMA timeout, then crash on reenable (2.4.20-SMP)"?
+
+If this fix *is* related to my bug report then is there any way that I can test 
+this, now that we know what might be causing it? My usual way of reproducing it 
+is "boot, then wait for 28+ days of uptime", which doesn't sound like a part of 
+a plan to get 2.4.21 out the door...
+
+Cheers,
+Chris
 
 
-...
-o in 2.5.63  POSIX timers  (George Anzinger)  
-o in 2.5.65  Desktop Interactivity Improvements  (Linus Torvalds, Ingo Molnar)  
-o in 2.5.69  New interrupt handling API  (Linus Torvalds, Andrew Morton, etc.)  
-o in 2.5.70  USB gadget support  (David Brownell, Stuart Lynne, Greg Kroah-Hartman)  
- 
-o in -mm  Anticipatory Scheduler  (Nick Piggin, Andrew Morton)  
-o in -mm  64-bit dev_t  (Andries Brouwer, Al Viro)  
-o in -mm  Complete Fair Queueing (CFQ) disk scheduler  (Jens Axboe, Andrea Arcangeli)  
-o in -ac  Switch the IDE I/O layers to taskfile  (Bartlomiej Zolnierkiewicz, Alan Cox)  
-o in -osdl  Build option for Linux Trace Toolkit (LTT)  (Karim Yaghmour)  
- 
-o before 2.6.0  Support insane number of groups  (Tim Hockin)  
-o before 2.6.0  Worldclass support for IPv6  (Alexey Kuznetsov, Dave Miller, Jun Murai, Yoshifuji Hideaki, USAGI team)  
-o before 2.6.0  Reiserfs v4  (Reiserfs team)  
-o before 2.6.0  Fix device naming issues  (Patrick Mochel, Greg Kroah-Hartman)  
-o before 2.6.0  Change all drivers to new driver model  (All maintainers)  
-o before 2.6.0  Improved AppleTalk stack  (Arnaldo Carvalho de Melo)  
-o before 2.6.0  ext2/ext3 online resize support  (Andreas Dilger)  
-o before 2.6.0  UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)  
-o before 2.6.0  Kexec, syscall to load kernel from kernel  (Eric Biederman)  
-
-...

@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318781AbSH1IYf>; Wed, 28 Aug 2002 04:24:35 -0400
+	id <S318787AbSH1Idn>; Wed, 28 Aug 2002 04:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318785AbSH1IYf>; Wed, 28 Aug 2002 04:24:35 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:3002 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S318781AbSH1IYe>; Wed, 28 Aug 2002 04:24:34 -0400
-Date: Wed, 28 Aug 2002 10:28:45 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Mark Atwood <mra@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How can a process easily get a list of all it's open fd?
-Message-ID: <20020828082845.GB16092@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Mark Atwood <mra@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <200208270138.g7R1ckGx001985@eeyore.valparaiso.cl> <m38z2s1fkj.fsf@khem.blackfedora.com> <20020827160842.GA16092@riesen-pc.gr05.synopsys.com> <20020827212638.GB7541@bluemug.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020827212638.GB7541@bluemug.com>
-User-Agent: Mutt/1.4i
+	id <S318790AbSH1Idn>; Wed, 28 Aug 2002 04:33:43 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:58896 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S318787AbSH1Idm>; Wed, 28 Aug 2002 04:33:42 -0400
+Date: Wed, 28 Aug 2002 10:36:29 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: jaharkes@cs.cmu.edu, <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Loop devices under NTFS
+In-Reply-To: <200208280149.SAA07234@baldur.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0208280956070.26490-100000@cola.enlightnet.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 02:26:38PM -0700, Mike Touloumtzis wrote:
-> On Tue, Aug 27, 2002 at 06:08:42PM +0200, Alex Riesen wrote:
-> > tricky. You can use /proc/<getpid>/fd, and close all
-> > handles listed here, but this has some caveats:
-> > it's _very_ slow if you have many open files.
-> > it's not portable.
-> > it's not safe if you have a thread/signal handler running.
-> > 
-> > i never heard of a right way to do this.
-> > 
-> > -alex
-> > 
-> > int close_all_fd()
-> > {
-> >     char fdpath[PATH_MAX];
-> >     DIR * dp;
-> >     struct dirent * de;
-> >     int fd;
-> > 
-> >     sprintf(fdpath, "/proc/%d/fd", getpid());
-> >     dp = opendir(fdpath);
+On Tue, 27 Aug 2002, Adam J. Richter wrote:
+
+> On Tue, 27 Aug 2002 at 13:26:44 -0400, Jan Harkes wrote:
+> >Not all filesystems use generic_read/generic_write. If they did we
+> >wouldn't need those calls in the fops structure.
 > 
-> This can just be:
+> 	My loop.c patch supports files that do not provide
+> aops->{prepare,commit}_write (derived from changes by Jari Ruusu
+> and Andrew Morton).
 > 
-> 	dp = opendir("/proc/self/fd/");
-> 
-> then you don't need fdpath.
+> 	Christoph was arguing that even if the file provides
+> aops->{prepare,commit}_write, that there could be a problem using it.
+> I am looking for a clear example of that.  I don't see the problem
+> with using this facility if you first check that it is provided.
 
-Oh, indeed.
+smbfs has aops but when used with the current loop.c it corrupts the file
+it is using. I can't say that the error is in loop.c but it is the only
+way I can trigger the corruption and the smbfs aops (locking) aren't all
+that different from the nfs ones.
 
-> You can use sigprocmask() if you're worried about signals coming
-> in during this operation.
+Here is an example:
 
-I, personally, strongly dislike this option.
-You never know which signals are to be blocked.
+# dd if=/dev/zero of=/opt/src/smbfs/share/iozone.tmp bs=1024 count=200000
+(/opt/src/smbfs/share is exported by a localhost samba as tmp)
+# mount -t -o guest //localhost/tmp /mnt/smb
+# losetup /dev/loop0 /mnt/smb/iozone.tmp
+# mke2fs /dev/loop0
+# mount /dev/loop0 /mnt/tmp
+# cp -a ~puw/src/linux/linux-2.4.18/* /mnt/tmp
+<something>: Input/Output error
+# dmesg
+EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block 
+bitmap - block_group = 0, block_bitmap = 3
+EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block 
+bitmap - block_group = 21, block_bitmap = 172033
 
-Besides, it's still not portable and not safe agains threads.
+I can't say that I understand the problem, and maybe it can be explained
+by a need for revalidate as Christoph said earlier in this thread. But
+there should be no size changes and any revalidate shouldn't change
+anything.
+
+When I asked what a filesystem must do to support loop on linux-fsdevel
+(May) AM suggested changing loop to use file->read/write (yes, he cleverly
+avoided answering my question :).
+
+I made an ugly patch and it fixed the corruption (but broke encryption) to
+see if anyone cared about loop. Jari does so he took the idea and included
+it with the other things he wants from loop.
 
 
--alex
+Maybe this problem is caused by loop.c not using the aops correctly and
+maybe it is an example of what layering violation can do. I wish I
+understood this well enough to make it a clear example.
+
+/Urban
+

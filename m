@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310912AbSCSLrO>; Tue, 19 Mar 2002 06:47:14 -0500
+	id <S310789AbSCSLqy>; Tue, 19 Mar 2002 06:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310864AbSCSLrG>; Tue, 19 Mar 2002 06:47:06 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:34728 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S310829AbSCSLrD>; Tue, 19 Mar 2002 06:47:03 -0500
-Message-ID: <3C972505.4080001@antefacto.com>
-Date: Tue, 19 Mar 2002 11:46:13 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S310829AbSCSLqo>; Tue, 19 Mar 2002 06:46:44 -0500
+Received: from pD9E53E9A.dip.t-dialin.net ([217.229.62.154]:48356 "EHLO
+	sol.fo.et.local") by vger.kernel.org with ESMTP id <S310789AbSCSLqa>;
+	Tue, 19 Mar 2002 06:46:30 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: SysRq question
+In-Reply-To: <Pine.LNX.4.33L2.0203180922230.2434-100000@dragon.pdx.osdl.net>
+From: Joachim Breuer <jmbreuer@gmx.net>
+Date: Tue, 19 Mar 2002 12:45:56 +0100
+Message-ID: <m3pu20hjbf.fsf@venus.fo.et.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
+ i386-redhat-linux)
 MIME-Version: 1.0
-To: S W <egberts@yahoo.com>
-CC: linux-kernel@vger.kernel.org, davej@suse.de, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
-In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're noticing weirdness here also.
-Certain apps are SEGFAULTing. Some apps much
-more than others. An important point is that
-the apps SEGFAULTed in the exact same place
-each time. Doing a trace of the core didn't
-show anything weird being executed, it just
-SEGFAULTed. Does this suggest a cache issue?
-A power cycle changed things (made the faults
-more/less frequent). The particular app we were
-having trouble with was snmpd (net-snmp). Also
-much less frequent was vim and bash. When these
-crashed, it was also in the same place. An
-important note is that snmpd would crash in
-exactly the same place across power cycles.
-Recompiling a later version of snmpd "fixed"
-the problem. I.E. SEGFAULTs are now very infrequent.
-We saved the particular snmpd binary that was
-causing trouble, for testing.
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
+> On Mon, 18 Mar 2002, David Woodhouse wrote:
+>
+> | rddunlap@osdl.org said:
+> | >  I've seen a couple of cheapo keyboards where some Alt-SysRq-key
+> | > combinations don't generate anything from the keyboard.  (I'm typing
+> | > on one of them right now.) For example, Alt-SysRq-5|6 works, but
+> | > 1,2,3,4,7,8,9 don't.
+> |
+> | Try using the other Alt key.
+>
+> Same result with either Alt key.
 
-We tested with Samuel II & Ezra & Celeron CPUs on
-both Advantech PCM9576 & Ibase M700 motherboards.
-Celeron was OK, Samuel II was OK, ezra caused segfaults.
+BTW that's not the problem I'm seeing, Alt-SysRq-*ANYTHING* is not
+caught from any of the offending keyboards because (IIRC) they send
+Alt-SysRq as a two-code sequence, with the (apparently) Alt-Down code
+repeated before the command keycode - thus, all the command keycode
+parser sees (it seems it looks only at the first byte after Alt-SysRq)
+is the Alt-Down keycode, which is not a command.
 
-We also passed memtest86 (RAM is also ECC) and
-multiple kernel compiles worked OK also.
-
-Kernel 2.4.16
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-glibc 2.2.4
-
-Padraig.
-
-S W wrote:
-> In compiling the kernel, I've been experiencing the
-> same gcc-2.96 (and gcc-3.0+) SEGFAULT again on Cyrix
-> III GigaPro (733Mhz, Samuel II core chipset).
-> 
-> But I recalled Linux 2.2 having a bug fix for broken
-> L2 cache in Cyrix II.  So, it got me thinking again...
-> (did Cyrix fix this L2 cache in certain subsequential
-> core?)
-> 
-> Does anyone recall where exactly are the Cyrix II L2
-> cache bug fix in the kernelso that I can experiement
-> them toward the Cyrix III?
-> 
-> Assuming no else sees VM bugs, I'll assume that this
-> is Cyrix-specific.  I've seen various VM BUGs for each
-> patch releases since 2.4.17 particularly when
-> compiling.
-> 
-> MOBO DETAILS:
-> Soyo 7VEM motherboard (686A PL133, despite having an
-> ALL VIA-chipsets (Cyrix III-733Mhz, VIA-VT82C596A
-> multifunctional audio/AGPvideo/modem, Rhine Ethernet,
-> Trident APG), no drivers are loaded into the kernel
-> except for EXT2, Trident Video (no framebuffer
-> support) and IDE (via82cxxx.c).  BARE KERNEL.  (BTW,
-> it was a $250 Fry's special running a barebone
-> multimedia Linux, so no snickering please.).
-> Passed memtest86.
-
+-- 
+"I use emacs, which might be thought of as a thermonuclear
+ word processor."
+-- Neal Stephenson, "In the beginning... was the command line"

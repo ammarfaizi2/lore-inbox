@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287631AbSCPSce>; Sat, 16 Mar 2002 13:32:34 -0500
+	id <S291625AbSCPSeF>; Sat, 16 Mar 2002 13:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291625AbSCPScO>; Sat, 16 Mar 2002 13:32:14 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:20741 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S287631AbSCPSby>;
-	Sat, 16 Mar 2002 13:31:54 -0500
-From: Christer Weinigel <wingel@acolyte.hack.org>
-To: jgarzik@mandrakesoft.com
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3C938611.3090008@mandrakesoft.com> (message from Jeff Garzik on
-	Sat, 16 Mar 2002 12:51:13 -0500)
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com> <3C938611.3090008@mandrakesoft.com>
-Message-Id: <20020316183150.13FDEF5B@acolyte.hack.org>
-Date: Sat, 16 Mar 2002 19:31:50 +0100 (CET)
+	id <S291745AbSCPSdz>; Sat, 16 Mar 2002 13:33:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40966 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291625AbSCPSdu>; Sat, 16 Mar 2002 13:33:50 -0500
+Date: Sat, 16 Mar 2002 10:32:02 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <15507.9919.92453.811733@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.33.0203161020230.31850-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> Hence my suggestion for a short term solution that's immediately useful 
-> -- allowing some way to answer "local changes take precedence 100% of 
-> the time" or "remote changes ..." with a single command.  That was my 
-> hack solution that I thought would people might find useful when stuck 
-> with the duplicate-patch situation.
+
+On Sat, 16 Mar 2002, Paul Mackerras wrote:
 > 
-> In the command line merge tool, when merging a file-create, "rla" would 
-> cause the current file conflict, and all future file-create conflicts, 
-> to be "won" by the remote side -- essentially creating the effect of 
-> typing "rl" 300 times.
-> Apply similar logic to the file-rename merge case.  I think the merge 
-> command I used in 100% of the cases, during that merge, was 'r'.
+> Your suggestion has the problem that when you get to needing to reuse
+> one of the VSIDs that you have thrown away, it becomes very difficult
+> and expensive to ensure that there aren't any stale hash table entries
+> left around for that VSID - particularly on a system with logical
+> partitioning where we don't control the size of the hash table.
 
-One variant of this would be to automatically use the remote file as
-long as the file contents are the same.  That way, if I apply a patch
-locally and Marcello/Linus later apply the same patch and put it into
-the official tree, I can use the official version.  This would
-probably handle most of the conflicts I have seen so far.  If there
-are any "real" conflicts, I can handle them manually.  
+But the VSID is something like 20 bits, no? So the re-use is a fairly 
+uncommon thing, in the end.
 
-  /Christer
+Remember: think about the hashes as just TLB's, and the VSID's are just 
+address space identifiers (yeah, yeah, you can have several VSID's per 
+process at least in 32-bit mode, I don't remember the 64-bit thing). So 
+what you do is the same thing alpha does with it's 6-bit ASN thing: when 
+you wrap around, you blast the whole TLB to kingdom come.
 
--- 
-"Just how much can I get away with and still go to heaven?"
+The alpha wraps around a lot more often with just 6 bits, but on the other 
+hand it's a lot cheaper to get rid of the TLB too, so it evens out.
+
+Yeah, there are latency issues, but that can be handled by just switching
+the hash table base: you have two hash tables, and whenever you increment
+the VSID you clear a small part of the other table, designed so that when
+the VSID wraps around the other table is 100% clear, and you just switch
+the two.
+
+You _can_ switch the hash table base around on ppc64, can't you?
+
+So now the VM invalidate becomes
+
+	++vsid;
+	partial_clear_secondary_hash();
+	if (++vsid > MAXVSID)
+		vsid = 0;
+		switch_hashes();
+	}
+
+> > just bypass it altogether (at least the 604e used to be able to just
+> > disable the stupid hashing altogether and make the whole thing much
+> > saner). 
+> 
+> That was the 603, actually.
+
+Ahh, my mind is going.
+
+>			  In fact the newest G4 processors also let
+> you do this.  When I get hold of a machine with one of these new G4
+> chips I'm going to try it again and see how much faster it goes
+> without the hash table.
+
+Maybe somebody is seeing the light.
+
+> One other thing - I would *love* it if we could get rid of
+> flush_tlb_all and replace it with a flush_tlb_kernel_range, so that
+> _all_ of the flush_tlb_* functions tell us what address(es) we need to
+> invalidate, and let the architecture code decide whether a complete
+> TLB flush is justified.
+
+Sure, sounds reasonable.
+
+		Linus
+

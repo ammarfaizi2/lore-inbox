@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289995AbSBLQ5F>; Tue, 12 Feb 2002 11:57:05 -0500
+	id <S289663AbSBLQ4Z>; Tue, 12 Feb 2002 11:56:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289839AbSBLQ45>; Tue, 12 Feb 2002 11:56:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24836 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289813AbSBLQ4p>;
-	Tue, 12 Feb 2002 11:56:45 -0500
-Date: Tue, 12 Feb 2002 17:56:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-Message-ID: <20020212175630.O1907@suse.de>
-In-Reply-To: <20020212132846.A7966@suse.cz> <3C690E56.3070606@evision-ventures.com> <20020212135701.A16420@suse.cz> <3C6915FC.2020707@evision-ventures.com> <20020212144300.A18431@suse.cz> <3C691F9C.10303@evision-ventures.com> <20020212154251.A25201@suse.cz> <3C693357.8000204@evision-ventures.com> <20020212162834.A25617@suse.cz> <3C69365C.9060603@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C69365C.9060603@evision-ventures.com>
+	id <S289813AbSBLQ4Q>; Tue, 12 Feb 2002 11:56:16 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:6162 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S289663AbSBLQ4G>;
+	Tue, 12 Feb 2002 11:56:06 -0500
+Date: Tue, 12 Feb 2002 17:55:54 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Oleg Drokin <green@namesys.com>
+cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+In-Reply-To: <20020211172747.A1815@namesys.com>
+Message-ID: <Pine.LNX.4.44.0202121753360.15594-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12 2002, Martin Dalecki wrote:
-> ide-cdrom stuff, becouse it was always annoying to me that the default
-> distribution setup is using the ide interface to my CD-recorder and
-> every single recorder aplication out there is using the scsi interface
-> instead.
+Sorry but I got a corrupted file also with 2.5.4. I could see it after the
+reboot to 2.4.17. It was /etc/exports and it was OK since i edited it
+running 2.5.4, and It was readable by exportfs, so it corrupted at reboot.
 
-This will soon be a thing of the past, note that the block interface is
-capable of passing cdb's around now. So ide-scsi will die, and ATAPI
-will no longer be a special case for burning etc.
+The reboot was clean, of course. Maybe wrong umount?
 
--- 
-Jens Axboe
+Luigi
+
+
+On Mon, 11 Feb 2002, Oleg Drokin wrote:
+
+> Hello!
+>
+> On Mon, Feb 11, 2002 at 03:23:51PM +0100, Luigi Genoni wrote:
+>
+> > > .history may be corrupted if your partition was not unmounted properly
+> > > before reboot.
+> > other files corrupted were
+> > /etc/rc.d/rc.local /etc/rc.d/rc.inet2
+> > /etc/lilo.conf on the PIII
+> > /scratch/root/<some .c source file> on the Athlon
+> > / partition is not the same of /home.
+> All of this on 2.5.4-pre1 only?
+> Or were you able to reproduce it on later kernels too?
+>
+> Bye,
+>     Oleg
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,89 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267370AbTAGLHT>; Tue, 7 Jan 2003 06:07:19 -0500
+	id <S265187AbTAGLSJ>; Tue, 7 Jan 2003 06:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267372AbTAGLHT>; Tue, 7 Jan 2003 06:07:19 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:48028 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267370AbTAGLHS>;
-	Tue, 7 Jan 2003 06:07:18 -0500
-Date: Tue, 7 Jan 2003 11:19:05 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Zack Weinberg <zack@codesourcery.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Set TIF_IRET in more places
-Message-ID: <20030107111905.GA949@bjl1.asuk.net>
-References: <87isx2dktj.fsf@egil.codesourcery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87isx2dktj.fsf@egil.codesourcery.com>
-User-Agent: Mutt/1.4i
+	id <S266868AbTAGLSJ>; Tue, 7 Jan 2003 06:18:09 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:52390 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265187AbTAGLSI> convert rfc822-to-8bit; Tue, 7 Jan 2003 06:18:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH 2.5.53] NUMA scheduler (1/3)
+Date: Tue, 7 Jan 2003 12:27:09 +0100
+User-Agent: KMail/1.4.3
+Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200211061734.42713.efocht@ess.nec.de> <234590000.1041833252@titus> <1041906222.21653.50.camel@kenai>
+In-Reply-To: <1041906222.21653.50.camel@kenai>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301071227.09985.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Weinberg wrote:
-> Consider SA_RESTORER - there isn't a guarantee that user space will
-> use the same code as the kernel's trampoline.  glibc happens to, but
-> only because GDB has a hardwired idea of what a signal trampoline
-> looks like.  Of course, you could simply document that sigreturn() is
-> another of the system calls that must be made through int 0x80.
+Hi Michael and Martin,
 
-Glibc must use the same code as the kernel's trampoline because of
-MD_FALLBACK_FRAME_STATE_FOR() in GCC's exception handling...  (or
-libgcc.so must change).
+thanks a lot for the testing!
 
-It explicitly checks for the opcode sequences 0x58b877000000cd80 and
-0xb8ad000000cd80 in order to unwind exception frames around a
-handled signal.  Ugly, isn't it?
+I rechecked the changes and really don't see any reason for a
+slowdown. Michael's measurements seem to confirm that this is just a
+statistical effect. I suggest: when in doubt, do 10 kernel compiles
+instead of 5. A simple statistical error estimation as I did for
+schedbench might help, too. Guess I've sent you the script a while
+ago.
 
-> It occurs to me that the kernel-provided signal trampoline could go in
-> the page at 0xffff0000, instead of on the user stack, which would
-> eliminate the need for glibc to set SA_RESTORER (it's a pure
-> optimization).
+I understand from your emails that the 2.5.53 patches apply and work
+for 2.5.54, therefore I'll wait for 2.5.55 with a rediff.
 
-Yup.
+Regards,
+Erich
 
-> Tangentially, I've seen people claim that the trampoline ought to be
-> able to avoid entering the kernel, although I'm not convinced (how
-> does the signal mask get reset, otherwise?)
 
-Welcome to a wonderful if rather unsightly optimisation:
+On Tuesday 07 January 2003 03:23, Michael Hohnbaum wrote:
+> On Sun, 2003-01-05 at 22:07, Martin J. Bligh wrote:
+> > >> > Kernbench:
+> > >> >                         Elapsed       User     System        CPU
+> > >> >              sched50     29.96s   288.308s    83.606s    1240.8%
+> > >> >              sched52    29.836s   285.832s    84.464s    1240.4%
+> > >> >              sched53    29.364s   284.808s    83.174s    1252.6%
+> > >> >              stock50    31.074s   303.664s    89.194s    1264.2%
+> > >> >              stock53    31.204s   306.224s    87.776s    1263.2%
+> > >
+> > > sched50 = linux 2.5.50 with the NUMA scheduler
+> > > sched52 = linux 2.5.52 with the NUMA scheduler
+> > > sched53 = linux 2.5.53 with the NUMA scheduler
+> > > stock50 = linux 2.5.50 without the NUMA scheduler
+> > > stock53 = linux 2.5.53 without the NUMA scheduler
+> >
+> > I was doing a slightly different test - Erich's old sched code vs the new
+> > both on 2.5.54, and seem to have a degredation.
+> >
+> > M.
+>
+> Martin,
+>
+> I ran 2.5.54 with an older version of Erich's NUMA scheduler and
+> with the version sent out for 2.5.53.  Results were similar:
+>
+> Kernbench:
+>                         Elapsed       User     System        CPU
+>              sched54    29.112s   283.888s     82.84s    1259.4%
+>           oldsched54    29.436s   286.942s    82.722s    1256.2%
+>
+> sched54 = linux 2.5.54 with the 2.5.53 version of the NUMA scheduler
+> oldsched54 = linux 2.5.54 with an earlier version of the NUMA scheduler
+>
+> The numbers for the new version are actually a touch better, but
+> close enough to be within a reasonable margin of error.
+>
+> I'll post numbers against stock 2.5.54 and include schedbench, tomorrow.
+>
+>                Michael
 
-   1. libc installs its own handler function for all non-SIG_DFL signals,
-      and sigaction() mostly updates a table in userspace.
-
-   2. The libc signal handler redirects all signals to the application
-      through a funky trampoline in libc.
-
-   3. A signal mask is maintained in userspace.  Also, a pending mask
-      is maintained in userspace.
-
-   4. When a signal is delivered, libc's handler function checks the
-      userspace signal mask.  If the signal should be blocked, and it
-      is possible to block it, it is marked as pending in _userspace_
-      pending mask, and the userspace signal mask is propagated to the
-      kernel to prevent further signals queuing up.  Any siginfo_t is
-      also saved for tha signa.  Then libc's handler returns, without
-      calling the application handler (because that is deferred).
-
-   5. When a signal is unblocked from the userspace signal mask, if it
-      is in the userspace pending mask, it is synthetically delivered
-      by userspace, which creates a context _as if_ the kernel had
-      delivered the signal.
-
-By this mechanism, calls to unblock signals from the signal mask can
-be done without entering the kernel, because the unblocking can be
-done lazily.
-
-Voila!  sigreturn() can be written to avoid entering the kernel.  Note
-that this is possible _now_, with no changes to the kernel.  It only
-requires changes to libc.  I think it would work on all architectures,
-not just i386.  (It may also be possible to do it without libc help,
-in the vsyscall page).
-
--- Jamie
-
-ps. A similar optimisation allows "spin_lock_irqsave" and
-"spin_unlock_irqrestore" to avoid using the cli & sti instructions.
-Spin locks already modify the preempt_count, so use a bit of that to
-hold the synthetic interrupt-disabled flag, at zero cost... :)

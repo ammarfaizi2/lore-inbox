@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbUKFRz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUKFS1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbUKFRz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 12:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUKFRz6
+	id S261375AbUKFS1p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 13:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbUKFS1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 12:55:58 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:39021 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261435AbUKFRzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 12:55:52 -0500
-Message-ID: <32891.192.168.1.5.1099763737.squirrel@192.168.1.5>
-Date: Sat, 6 Nov 2004 17:55:37 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.18
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Sat, 6 Nov 2004 13:27:45 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:9107 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S261375AbUKFS1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 13:27:43 -0500
+Message-ID: <418D179D.50301@verizon.net>
+Date: Sat, 06 Nov 2004 13:27:41 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-       <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>   
-    <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>   
-    <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu>   
-    <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>   
-    <20041106155720.GA14950@elte.hu>
-In-Reply-To: <20041106155720.GA14950@elte.hu>
-X-OriginalArrivalTime: 06 Nov 2004 17:55:50.0874 (UTC) FILETIME=[DA5233A0:01C4C429]
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hw_random: Update printk()'s in hw_random.c
+References: <20041105211912.17210.55119.84600@localhost.localdomain> <418D0623.8000302@pobox.com>
+In-Reply-To: <418D0623.8000302@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [68.238.31.6] at Sat, 6 Nov 2004 12:27:42 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> i have released the -V0.7.18 Real-Time Preemption patch, which can be
-> downloaded from:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
-> this release includes fixes and cleanups.
->
+>>  /*
+>>   * debugging macros
+>>   */
+>> -#undef RNG_DEBUG /* define to enable copious debugging info */
+>> +#undef DEBUG /* define to enable copious debugging info */
+> 
+> 
+> I think the '#undef DEBUG' line is supposed to precede all the 
+> #includes, yes?
+> 
+> 
 
-Sorry. Build error for a non-debug configuration:
+>>  static int rng_dev_open (struct inode *inode, struct file *filp);
+>>  static ssize_t rng_dev_read (struct file *filp, char __user *buf, 
+>> size_t size,
+>> -                 loff_t * offp);
+>> +        loff_t * offp);
+> 
+> 
+> seemingly bogus whitespace change
+> 
+> 
 
-drivers/char/drm/drm_stub.c: In function `drm_fill_in_dev':
-drivers/char/drm/drm_stub.c:60: error: parse error before '{' token
-make[3]: *** [drivers/char/drm/drm_stub.o] Error 1
-make[2]: *** [drivers/char/drm] Error 2
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
+>> -    bytes_out = xstore(&via_rng_datum, VIA_RNG_CHUNK_1) & 
+>> VIA_XSTORE_CNT_MASK;
+>> +    bytes_out = xstore(&via_rng_datum, VIA_RNG_CHUNK_1) &
+>> +            VIA_XSTORE_CNT_MASK;
+> 
+> 
+> bogus whitespace change
+> -
 
-If CONFIG_DEBUG_PREEMPT and/or CONFIG_RT_DEADLOCK_DETECT are set, the
-RT-V0.7.18 build succeeds.
 
-Not big deal. However, my personal benchmarks (jackd-R + 8*fluidsynth) are
-being based on production-like kernel configurations (no kernel debug
-options set), so I guess it will have to wait :)
-
-Cheers.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+All right.  I'll back out the whitespace changes and move the #undef to the top of 
+the #includes, and re-submit.

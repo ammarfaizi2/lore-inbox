@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314829AbSFDQZA>; Tue, 4 Jun 2002 12:25:00 -0400
+	id <S315042AbSFDQ0X>; Tue, 4 Jun 2002 12:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314929AbSFDQY7>; Tue, 4 Jun 2002 12:24:59 -0400
-Received: from pD9E23D09.dip.t-dialin.net ([217.226.61.9]:59046 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314829AbSFDQYy>; Tue, 4 Jun 2002 12:24:54 -0400
-Date: Tue, 4 Jun 2002 10:24:44 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-cc: axp-kernel-list@redhat.com, "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-In-Reply-To: <000001c20bd1$0cad7580$010b10ac@sbp.uptime.at>
-Message-ID: <Pine.LNX.4.44.0206041020070.3833-100000@hawkeye.luckynet.adm>
+	id <S315091AbSFDQ0W>; Tue, 4 Jun 2002 12:26:22 -0400
+Received: from mail1.zeelandnet.nl ([212.115.192.151]:32459 "EHLO
+	mail.zeelandnet.nl") by vger.kernel.org with ESMTP
+	id <S315042AbSFDQ0B>; Tue, 4 Jun 2002 12:26:01 -0400
+Message-ID: <3CFC5E5D.9030406@zeelandnet.nl>
+Date: Tue, 04 Jun 2002 05:29:49 -0100
+From: ms <ms@zeelandnet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.19-pre8 i686; en-US; rv:0.9.1) Gecko/20010610
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] sisfb fix
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch contains a fix for recently submitted sisfb code from alan (ac).
+Missing var in struct.
 
-On Tue, 4 Jun 2002, Oliver Pitzeier wrote:
-> Kernel bug at /usr/src/linux-2.5.20/include/linux/device.h:75
-> I check what is on line 75 in device.h!
+diff -Naur linux/include/linux/sisfb.h linux-sisfb/include/linux/sisfb.h
+--- linux/include/linux/sisfb.h Tue Jun  4 18:22:32 2002
++++ linux-sisfb/include/linux/sisfb.h   Tue Jun  4 18:21:32 2002
+@@ -108,6 +108,7 @@
+        unsigned char revision_id;
+ 
+        char reserved[256];
++       unsigned int mtrr;
+ };
+ 
+ #ifdef __KERNEL__
 
-You find BUG_ON(atomic_read(&bus_refcount));
 
-It might already be fixed by some of Irwing's patches.
-
-> PS: Anybody want's the patches???
-
-Sure as hell, if there are any new.
-
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbTANTLq>; Tue, 14 Jan 2003 14:11:46 -0500
+	id <S265092AbTANTCZ>; Tue, 14 Jan 2003 14:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbTANTLq>; Tue, 14 Jan 2003 14:11:46 -0500
-Received: from pelian.kabelfoon.nl ([62.45.46.43]:21255 "EHLO
-	pelian.kabelfoon.nl") by vger.kernel.org with ESMTP
-	id <S265081AbTANTLp>; Tue, 14 Jan 2003 14:11:45 -0500
-Subject: I/O error
-From: Christian Boon <cboon@kabelfoon.nl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Jan 2003 20:25:11 +0100
-Message-Id: <1042572315.987.10.camel@client1>
+	id <S265094AbTANTCY>; Tue, 14 Jan 2003 14:02:24 -0500
+Received: from dialin-145-254-150-022.arcor-ip.net ([145.254.150.22]:1152 "HELO
+	schottelius.net") by vger.kernel.org with SMTP id <S265092AbTANTCV>;
+	Tue, 14 Jan 2003 14:02:21 -0500
+Date: Tue, 14 Jan 2003 09:33:57 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.56] (partial known) bugs/compile errors
+Message-ID: <20030114083357.GA5884@schottelius.org>
+References: <20030113090200.GA1096@schottelius.org> <200301131836.h0DIalRX005606@turing-police.cc.vt.edu>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Disposition: inline
+In-Reply-To: <200301131836.h0DIalRX005606@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.5.56
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i continuously get the following messages in my dmesg, kernel 2.5.58 :
 
-end_request: I/O error, dev hda, sector 0
-end_request: I/O error, dev hda, sector 0
-end_request: I/O error, dev hda, sector 0
-end_request: I/O error, dev hda, sector 0
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-#cat /proc/ide/piix
-Controller: 0
+Valdis.Kletnieks@vt.edu [Mon, Jan 13, 2003 at 01:36:45PM -0500]:
+> [...]=20
+> I had a few others that went away when I upgraded to Rusty's 0.9.8 version
+> of module-init-tools that correctly dealt with EXPORT_GPL_SYMBOL....
 
-                                Intel PIIX4 Ultra 33 Chipset.
---------------- Primary Channel ---------------- Secondary Channel
--------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ----------
-drive1 ------
-DMA enabled:    yes              no              yes               no
-UDMA enabled:   yes              no              no                no
-UDMA enabled:   2                X               X                 X
-UDMA
-DMA
-PIO
+sorry, this didn't change anything at all...
 
+Nico
 
-# cat /proc/ide/hda/model
-E-IDE 10X DVD-ROM DRIVE 0125
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
 
-I got the messages too with 2.5.55, 2.5.56 and 2.5.57
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Chris
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQE+I8t1tnlUggLJsX0RAs3JAKCemJU2sZt30l/29jNBlZH+tyujFACfZy9+
+H4XDasCfTmPtSxcRiLDEAN0=
+=W/Qe
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--

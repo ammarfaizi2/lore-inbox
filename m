@@ -1,32 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312831AbSCZCMD>; Mon, 25 Mar 2002 21:12:03 -0500
+	id <S293132AbSCZCo7>; Mon, 25 Mar 2002 21:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312917AbSCZCLx>; Mon, 25 Mar 2002 21:11:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29711 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312831AbSCZCLp>; Mon, 25 Mar 2002 21:11:45 -0500
-Subject: Re: Problems with booting from SX6000
-To: kjetiln@kvarteret.org (=?iso-8859-1?Q?Kjetil_Nyg=E5rd?=)
-Date: Tue, 26 Mar 2002 02:27:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020326023338.A6882@kvarteret.org> from "=?iso-8859-1?Q?Kjetil_Nyg=E5rd?=" at Mar 26, 2002 02:33:38 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293161AbSCZCou>; Mon, 25 Mar 2002 21:44:50 -0500
+Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:45698 "EHLO
+	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293132AbSCZCor>;
+	Mon, 25 Mar 2002 21:44:47 -0500
+Message-ID: <3C9FE091.5000702@bcgreen.com>
+Date: Mon, 25 Mar 2002 18:44:33 -0800
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SSSCA Hits the Senate
+In-Reply-To: <200203251522.JAA62284@tomcat.admin.navo.hpc.mil>	<001b01c1d417$7ec599a0$0100007f@localdomain.wni.com.wirelessnetworksinc.com> <87zo0wnup5.fsf@CERT.Uni-Stuttgart.DE> <3C9FBE96.1010502@ngforever.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16pggf-0002GJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where does I find the hexvalues for /dev/i2o/hda?
+But how are you going to compile your FIRST kernel?? At some point
+you'll need a compiler, and they'll insist that the limitations go into
+that first compiler that someone gets.
+
+Thunder from the hill wrote:
+> Florian Weimer wrote:
 > 
-> Are the hexvalues static if I insert a new ide harddisk or a scsi harddisk?
+>> "Herman Oosthuysen" <Herman@WirelessNetworksInc.com> writes:
+>>
+>>
+>>> The obvious solution is to continue the way Richard Stallman envisaged:
+>>> ***Distribute all code in source form only - no binary distributions.***
+>>>
+>>> This way, the source files are protected under freedom of speech 
+>>> rules and
+>>> the originator of the work is safe.
+>>
+>>
+>>
+>> Unfortunately, this works only in the U.S.  Other countries which will
+>> follow the US leadership in consumer suppression regulate free speech
+>> to make it conforming to law.
+>>
+>> I agree, though, that source-only distribution avoids many problems
+>> and is preferable.
+>>
+> But not all the people out there are skilled enough to install a source
+> distribution. Also, binary installations may go faster, and the youth of
+> today tends to not having time...
+> So there are still problems with it. If one day computers are all so 
+> fast like the one who compiled a kernel in 7.56 seconds, and we have a 
+> nice API for compiling, it might be great idea, but it might happen that 
+> someone else will claim to have had the idea. This certainly won't be me.
+> 
+> Thunder
 
-The values are always static - Its 256*major+minor number. Its the one thing
-that always works. Not knowing i2o/hd* is a PITA.
 
-You want 0x5000 for i2o/hda  0x5006 for i2o/hda6   
+-- 
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+Powerful committed communication, reaching through fear, uncertainty and
+doubt to touch the jewel within each person and bring it to life.
 
-(See Documentation/devices.txt for the values)

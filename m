@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267851AbTBEIHx>; Wed, 5 Feb 2003 03:07:53 -0500
+	id <S267853AbTBEIRf>; Wed, 5 Feb 2003 03:17:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbTBEIHx>; Wed, 5 Feb 2003 03:07:53 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:61961 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S267851AbTBEIHw>; Wed, 5 Feb 2003 03:07:52 -0500
-Date: Wed, 05 Feb 2003 01:15:21 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20 still can't detect my SCSI disk
-Message-ID: <1470960000.1044432921@aslan.scsiguy.com>
-In-Reply-To: <200302050738.h157c5s16708@Port.imtp.ilyichevsk.odessa.ua>
-References: <200302050738.h157c5s16708@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mulberry/3.0.1 (Linux/x86)
+	id <S267854AbTBEIRf>; Wed, 5 Feb 2003 03:17:35 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:11227 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267853AbTBEIRe>; Wed, 5 Feb 2003 03:17:34 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302050827.h158R6e16659@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.21pre4-ac2
+To: bryan@bogonomicon.net (Bryan Andersen)
+Date: Wed, 5 Feb 2003 03:27:06 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3E4041B9.1090809@bogonomicon.net> from "Bryan Andersen" at Feb 04, 2003 04:42:01 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Marcelo,
+> I did a test to see if the drive was the issue and removed it.  The 
+> system still hung.
 > 
-> I had to find out why 2.4.19 did not work with one old EISA SCSI disk.
-> As it turned out, it's an identification problem only. I made a patch
-> which works for me, machine is a mail server and now
-> I have no problems with disks.
-> 
-> I sent the patch to Justin T. Gibbs, he said he will test it
-> and push to you.
+> flushing ide devices: hda hdc hde _
 
-I've tried to get Marcello to update the aic7xxx driver in the 2.4.X
-tree to no avail.  The Olvetti support was added to my version of
-the aic7xxx driver some time ago.  You can get my latest driver
-versions from here:
-
-http://people.FreeBSD.org/~gibbs/linux/SRC/
-
---
-Justin
-
+I've had several reports of this now. It looks like I have a deadlock
+when actually deciding to flush IDE caches.

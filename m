@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263335AbUKZW76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263329AbUKZXDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbUKZW76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUKZTtR
+	id S263329AbUKZXDH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbUKZTtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:49:17 -0500
+	Fri, 26 Nov 2004 14:49:13 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262374AbUKZT3E (ORCPT
+	by vger.kernel.org with ESMTP id S262387AbUKZT3F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:29:04 -0500
-Message-ID: <41A65D88.1020300@stud.feec.vutbr.cz>
-Date: Thu, 25 Nov 2004 23:32:40 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Ford <david+challenge-response@blue-labs.org>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc2 and x86_64; spontaneous reboots
-References: <41A4D5A4.3010605@blue-labs.org> <41A4EDE2.3030309@stud.feec.vutbr.cz> <41A4F198.70607@blue-labs.org> <41A4F4CA.4030803@stud.feec.vutbr.cz> <41A5F552.2040601@blue-labs.org>
-In-Reply-To: <41A5F552.2040601@blue-labs.org>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+	Fri, 26 Nov 2004 14:29:05 -0500
+Date: Thu, 25 Nov 2004 21:01:37 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       matthew@wil.cx, dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
+References: <19865.1101395592@redhat.com> <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[David Ford sent me some file slightly resembling .config]
+On Thu, Nov 25, 2004 at 04:20:06PM -0200, Alexandre Oliva wrote:
+> This means these headers shouldn't reference each other as
+> linux/user/something.h, but rather as linux/something.h, such that
+> they still work when installed in /usr/include/linux.  This may
+> require headers include/linux/something.h to include
+> linux/user/something.h, but that's already part of the proposal.
 
-Hello David,
+That's going to take severe brain-ache to get right ... and worse,
+keep right.  These headers aren't going to get tested outside the kernel
+tree often.  So we'll have missing includes and files that only work if
+the <linux/> they're including is a kernel one rather than a user one.
 
-Could you first try to completely disable CONFIG_I2C and see if the 
-kernel then survives the 5 minutes?
+I'm not particularly stuck on the <user/> namespace.  We could invent
+a better name.  How about <kern/> and <arch/> to replace <linux/>
+and <asm/>?  Obviously keeping linux/ and asm/ symlinks for backwards
+compatibility.
 
-Michal
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

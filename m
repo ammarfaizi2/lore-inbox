@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136805AbRECMyp>; Thu, 3 May 2001 08:54:45 -0400
+	id <S136802AbRECNRD>; Thu, 3 May 2001 09:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136803AbRECMy0>; Thu, 3 May 2001 08:54:26 -0400
-Received: from stat8.steeleye.com ([63.113.59.41]:43795 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S136801AbRECMyK>; Thu, 3 May 2001 08:54:10 -0400
-Message-Id: <200105031253.IAA00988@localhost.localdomain>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: Doug Ledford <dledford@redhat.com>
-cc: Mike Anderson <mike.anderson@us.ibm.com>,
-        Eric.Ayers@intec-telecom-systems.com,
-        James Bottomley <James.Bottomley@steeleye.com>,
-        "Roets, Chris" <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: Linux Cluster using shared scsi 
-In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
-   of "Wed, 02 May 2001 16:31:16 EDT." <3AF06E94.15399CDF@redhat.com> 
+	id <S136803AbRECNQx>; Thu, 3 May 2001 09:16:53 -0400
+Received: from c000-h009.c000.zsm.cp.net ([209.228.56.68]:60367 "HELO
+	c000.zsm.cp.net") by vger.kernel.org with SMTP id <S136802AbRECNQl>;
+	Thu, 3 May 2001 09:16:41 -0400
+Date: 3 May 2001 06:16:36 -0700
+Message-ID: <20010503131636.6397.cpmta@c000.zsm.cp.net>
+X-Sent: 3 May 2001 13:16:36 GMT
+Content-Type: text/plain; charset=unicode-1-1-utf-8
+Content-Disposition: inline
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 May 2001 08:53:42 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
+To: linux-kernel@vger.kernel.org
+From: rexyan@us.sina.com
+X-Mailer: Web Mail 3.0
+Subject: skbuff about skbuff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dledford@redhat.com said:
-> Correct, if you hold a reservation on a device for which you have
-> multiple paths, you have to use the correct path. 
+Hi,
+Does anyone know how to adjust the skb->h.raw, skb->nh.raw?
+I'm going to add a shim header between layer2 header and layer3 header
+	+--------+============+----------+--------
+	|   L2   |   Shim     | L3       |   L4
+	+--------+============+----------+--------
+The code to insert the shim:
 
-As far as multi-path scsi reservations go, the SCSI-2 standards (and this 
-includes the completion in the SCSI-3 SPC) is very malleable.  The standard is 
-very explicit about multi-port targets but vague about whether initiator means 
-one port of the initiator or all ports.
+skb_push(skb, 4); /*say the size of shim is 4 bytes. */
+memmove(skb->data, &shim, 4);
 
-If you interpret the standard most stricly, you can read that acquiring a 
-reservation on one port locks everyone (including you) out of all the other 
-ports.  However, vendors of symmetric active multi-port arrays tend rather to 
-frown on this interpretation.  They take the view that a reservation acquired 
-by an initiator on one port ought to allow that initiator access on all the 
-other ports (otherwise what's the point of being symmetric active).  This can 
-only be done if you make assumptions about how you identify the same initiator 
-on a different port.  EMC, I believe, assumes that the initiator always has 
-the same SCSI ID.  Note, however, that the same SCSI ID assumption will fail 
-in a multi-path point-to-point configuration where all initiators could have 
-the same ID.
+Do I need to adjust the skb->h.raw and skb->nh.raw? How to?
 
-This rather unmanageable state of affairs is the reason for SCSI-3 
-reservations.  Since each initiator is now known by a key, you can always be 
-sure to grant access correctly in a multi-ported environment.
+Thanks in advance,
 
-The bottom line is that if you use SCSI-2 reservations in multi-port 
-environments, the results are extremely vendor specific.
-
-James
+Rex
 
 
-
+_______________________________________________________________
+http://www.SINA.com - #1 Destination Site for Chinese Worldwide

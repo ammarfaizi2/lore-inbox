@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVBOT0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVBOT2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVBOT0b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOT0a
+	id S261834AbVBOT2s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOT2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:26:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56778 "EHLO
+	Tue, 15 Feb 2005 14:28:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64458 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261830AbVBOT0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:26:20 -0500
-Date: Tue, 15 Feb 2005 19:26:18 +0000
+	id S261832AbVBOT1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:27:41 -0500
+Date: Tue, 15 Feb 2005 19:27:39 +0000
 From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] procfs: Fix sparse warnings
-Message-ID: <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
-References: <200502151455.55711.adobriyan@mail.ru> <20050215115934.GK8859@parcelfarce.linux.theplanet.co.uk> <200502151512.37774.adobriyan@mail.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Wilcox <matthew@wil.cx>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, paulus@samba.org, anton@samba.org,
+       davem@davemloft.net, ralf@linux-mips.org, tony.luck@intel.com,
+       willy@debian.org, schwidefsky@de.ibm.com
+Subject: Re: [PATCH] Consolidate compat_sys_waitid
+Message-ID: <20050215192739.GM8859@parcelfarce.linux.theplanet.co.uk>
+References: <20050215140149.0b06c96b.sfr@canb.auug.org.au> <20050215184307.GQ29917@parcelfarce.linux.theplanet.co.uk> <20050215192341.GA12050@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502151512.37774.adobriyan@mail.ru>
+In-Reply-To: <20050215192341.GA12050@wotan.suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 03:12:37PM +0200, Alexey Dobriyan wrote:
-> On Tuesday 15 February 2005 13:59, Al Viro wrote:
-> > On Tue, Feb 15, 2005 at 02:55:55PM +0200, Alexey Dobriyan wrote:
-> > 
-> > Let's hold this kind of stuff until 2.6.11, OK?
-> > 
-> > 	Al, sitting on more than a megabyte of such patches...
+On Tue, Feb 15, 2005 at 08:23:41PM +0100, Andi Kleen wrote:
+> > The reason it isn't in Linus' tree yet is that it depends on the
+> > is_compat_task() predicate which Andi vetoed out of Andrew's tree.
+> > As a result, I haven't been able to merge any of the compat stuff
+> > sitting in the PA tree.  A few more voices in favour of reintroducing
+> > is_compat_task() would help.
 > 
-> Could you send diffstat or something? I did "make allyesconfig" with
-> -Wbitwise and digging slowly from the beginning. Now at fs/qnx4.
+> Just change PA-RISC to not need is_compat_task?   It's not that
+> difficult really, you just have to split the parts that need
+> to know about this into separate functions and files.
 
-Umm...  Let's do it that way: I'll get carving the sucker up to relatively
-sane point and post it again (-bird, that is).  Give me until tomorrow
-morning and then feel free to send stuff my way - I'll merge it and feed
-upstream when 2.6.11 opens (credited, obviously).
-
-Keep in mind that for endianness patches you *really* need to check on
-at least some big-endian targets and both on 32 and 64bit ones.  I've
-got a decent cross-build environment (tracking 14 targets now); if you need 
-help with setting up something similar, I can help.
+Seconded.  Come on, folks, you *know* that is_compat_task() is an invitation
+for massive fuckups by driver-writers...

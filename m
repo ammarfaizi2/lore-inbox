@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289885AbSAPGbo>; Wed, 16 Jan 2002 01:31:44 -0500
+	id <S290370AbSAPGge>; Wed, 16 Jan 2002 01:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290364AbSAPGbe>; Wed, 16 Jan 2002 01:31:34 -0500
-Received: from nat.transgeek.com ([66.92.79.28]:30964 "EHLO smtp.transgeek.com")
-	by vger.kernel.org with ESMTP id <S289885AbSAPGbR>;
-	Wed, 16 Jan 2002 01:31:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Craig Christophel <merlin@transgeek.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: likely/unlikely
-Date: Wed, 16 Jan 2002 01:32:30 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020116032300.AAA27749@shell.webmaster.com@whenever> <3C450C4A.8A8382A6@mandrakesoft.com>
-In-Reply-To: <3C450C4A.8A8382A6@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S290373AbSAPGgY>; Wed, 16 Jan 2002 01:36:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63974 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290370AbSAPGgS>;
+	Wed, 16 Jan 2002 01:36:18 -0500
+Date: Wed, 16 Jan 2002 01:36:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
+        Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+In-Reply-To: <20020116062942.GC2067@cadcamlab.org>
+Message-ID: <Pine.GSO.4.21.0201160135390.6091-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020116113143.C99F8B581@smtp.transgeek.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> likely/unlikely set the branch prediction values to 99% or 1%
 
+On Wed, 16 Jan 2002, Peter Samuelson wrote:
 
-	So all of the BUG() routines in the kernel would benifit greatly from this.
+> But the horse's mouth, in this case, is /proc/sys/kernel/real-root-dev,
+> a 16-bit decimal int which represents a device number in
 
+... and is there only if initrd is compiled in.
 
-
-Craig.

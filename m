@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTKTDHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 22:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTKTDHV
+	id S264269AbTKTCy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 21:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbTKTCyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 22:07:21 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:43922 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264277AbTKTDHS
+	Wed, 19 Nov 2003 21:54:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41644 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264269AbTKTCyY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 22:07:18 -0500
-Subject: Re: high res timestamps and SMP
-From: john stultz <johnstul@us.ibm.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FBBF148.20203@nortelnetworks.com>
-References: <3FBBF148.20203@nortelnetworks.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1069297341.23568.130.camel@cog.beaverton.ibm.com>
+	Wed, 19 Nov 2003 21:54:24 -0500
+Date: Thu, 20 Nov 2003 02:54:23 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@oss.sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] 2.6.x experimental net driver updates
+Message-ID: <20031120025423.GB24159@parcelfarce.linux.theplanet.co.uk>
+References: <3FBBA954.6000601@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 Nov 2003 19:02:22 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FBBA954.6000601@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-11-19 at 14:40, Chris Friesen wrote:
-> We have a requirement to have high-res timestamps available on SMP systems.
-> 
-> Assuming that we are running identical cpus, is a sync-up at boot time 
-> enough to give usable time values, or do I need to do force periodic 
-> re-syncs?
+On Wed, Nov 19, 2003 at 12:33:08PM -0500, Jeff Garzik wrote:
+> Ok, Al Viro's net driver refcounting work is pretty much complete, and 
 
-If the cpus (or their time stamp counter) are all driven by the same
-signal and you do not suffer from NUMA effects, then syncing them should
-be enough. 
+The hell it is.  We are through with legacy probes, we are through with
+init_etherdev(), we are practically through with static struct net_device.
 
-However, if you suffer from NUMA effects, or if the counters are not
-driven off the same signal, its likely you could run into problems. 
+However, we still have weird allocators (I've got almost all of them
+done by now, will submit in the next batch) and we still have struct
+net_device embedded as a field of other structures in several drivers.
 
-> We're currently looking at MIPS, x86 (Xeons), and PPC.
-
-o No clue on MIPS.
-
-o The x86 TSC is a horrible time source, but may work well enough on
-simple SMP systems. 
-
-o PPC has a nice in-cpu time-base register (ppc folks, feel free to
-smack or correct me on this) which is driven off the bus-clock and is
-synced in hardware. 
-
-
-good luck!
--john
-
+It's nowhere near as massive as legacy probes series, but it's going to
+be 10--20 patches.  At least.

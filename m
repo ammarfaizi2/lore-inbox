@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbUBXW7i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbUBXW7i
+	id S262524AbUBXXBX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 18:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbUBXXBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:59:38 -0500
-Received: from f4.mail.ru ([194.67.57.34]:61957 "EHLO f4.mail.ru")
-	by vger.kernel.org with ESMTP id S262517AbUBXW7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:59:37 -0500
-Message-ID: <403D2953.7080909@mail.ru>
-Date: Thu, 26 Feb 2004 02:01:39 +0300
-From: Dmitry M Shatrov <erdizz@mail.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: OpenGL in the kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 Feb 2004 18:01:23 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:56989 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S262524AbUBXXBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 18:01:19 -0500
+Subject: Re: cryptoapi highmem bug
+From: Christophe Saout <christophe@saout.de>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: James Morris <jmorris@intercode.com.au>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040224223425.GA32286@certainkey.com>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net>
+	 <20040224223425.GA32286@certainkey.com>
+Content-Type: text/plain
+Message-Id: <1077663682.6493.1.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 25 Feb 2004 00:01:24 +0100
 Content-Transfer-Encoding: 7bit
-X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this is the right place to ask it for, sorry if not.
-I heard a few about future OpenGL implementation in the Linux kernel, 
-but failed to find any resource on this question. I also remember a 
-message from this list about its author's experiments with Mesa in this 
-key..
-Does anybody work on the subject now? Could you help me with (if there 
-are any) some links or just explain what's this really about?
+Am Di, den 24.02.2004 schrieb Jean-Luc Cooke um 23:34:
 
-With best regards, Dmitry M. Shatrov
+> What is calling cbc_process directly?  I don't see how any other function
+> could possibly call this function directly.
+
+Nobody is calling it directly.
+
+> cipher.c's cipher() function called cbc_process() with two different src and
+> dst buffers, *always*.
+
+It you pass the same to ->encrypt_iv (like kblockd for reads) it will
+kmap the same page twice and call cbc_process with two different virtual
+addresses pointing to the same page.
+
 

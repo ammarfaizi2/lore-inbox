@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUGUTuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266609AbUGUTzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266605AbUGUTuB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 15:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUGUTuB
+	id S266609AbUGUTzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 15:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUGUTzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 15:50:01 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:61314 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266605AbUGUTty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 15:49:54 -0400
-Date: Wed, 21 Jul 2004 12:49:49 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Update Marvell Yukon Gigabit NIC driver?
-Message-ID: <20040721194949.GA25030@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Jul 2004 15:55:35 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:36518 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S266609AbUGUTze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 15:55:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] delete devfs
+In-Reply-To: <20040721182535.GC16838@kroah.com>
+References: <20040721141524.GA12564@kroah.com> <E1BnIHx-0003Py-00@chiark.greenend.org.uk> <E1BnIHx-0003Py-00@chiark.greenend.org.uk> <20040721182535.GC16838@kroah.com>
+Message-Id: <E1BnNBd-0008Ad-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Date: Wed, 21 Jul 2004 20:55:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current Marvell Yukon Gigabit NIC driver version 7.04 is at:
+Greg KH <greg@kroah.com> wrote:
+>On Wed, Jul 21, 2004 at 03:41:45PM +0100, Matthew Garrett wrote:
+>> The new Debian installer requires devfs on several architectures, even
+>> for 2.6 installs. That's unlikely to get changed before release.
+>
+>Great, if you want to rely on this, and you get around to using a kernel
+>that doesn't have it in it, just add it to the other patches you apply
+>to your kernel.
 
-http://www.syskonnect.com/syskonnect/support/driver/d0102_driver.html
+Oh, sure, I've no objection to the damn thing dying - it was just to
+point out that (rightly or wrongly) there /is/ someone using it.
 
-and
-
-http://www.marvell.com/drivers/search.do
-
-Are there any plans to integrate it into 2.4 and 2.6 kernel? I can
-generate patches against 2.4 and 2.6 if needed.
-
-
-
-H.J.
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

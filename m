@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277743AbRJLQYr>; Fri, 12 Oct 2001 12:24:47 -0400
+	id <S277766AbRJLQ31>; Fri, 12 Oct 2001 12:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277746AbRJLQYj>; Fri, 12 Oct 2001 12:24:39 -0400
-Received: from mail.spylog.com ([194.67.35.220]:12684 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S277743AbRJLQY1>;
-	Fri, 12 Oct 2001 12:24:27 -0400
-Date: Fri, 12 Oct 2001 20:20:48 +0400
-From: "Oleg A. Yurlov" <kris@spylog.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
-Organization: SpyLOG Ltd.
-X-Priority: 3 (Normal)
-Message-ID: <38618742584.20011012202048@spylog.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, mantel@suse.de
-Subject: Re[2]: 2.4.7 from updates for SuSE 7.2 - crash.
-In-Reply-To: <20011012054558.W714@athlon.random>
-In-Reply-To: <159543829765.20011011233216@spylog.com>
- <20011012054558.W714@athlon.random>
+	id <S277758AbRJLQ3R>; Fri, 12 Oct 2001 12:29:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64518 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277750AbRJLQ3B>; Fri, 12 Oct 2001 12:29:01 -0400
+Date: Fri, 12 Oct 2001 09:28:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <20011012150606.5d522fda.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0110120919130.31677-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-        Hi, Andrea and all,
+On Fri, 12 Oct 2001, Rusty Russell wrote:
+>
+> The PPC manual (thanks Paul M) clearly indicates rmbdd() is not neccessary.
+> That they mention it explicitly suggests it's going to happen on more
+> architectures: you are correct, we should sprinkle rmbdd() everywhere
+> (rmb() is heavy on current PPC) and I'll update the Kernel Locking Guide now
+> the rules have changed.[1]
 
-Friday, October 12, 2001, 7:45:58 AM, you wrote:
+I would suggest re-naming "rmbdd()". I _assume_ that "dd" stands for "data
+dependent", but quite frankly, "rmbdd" looks like the standard IBM "we
+lost every vowel ever invented" kind of assembly lanaguage to me.
 
->>         Hi, Hubert, Andrea and all,
->> 
->>         My server crashed again...
->> 
->>         Symptom: procfs die, processes unaccessible...
-AA> could be the down_read recursion. Many bugs are been fixed after 2.4.7.
+I'm sure that having programmed PPC assembly language, you find it very
+natural (IBM motto: "We found five vowels hiding in a corner, and we used
+them _all_ for the 'eieio' instruction so that we wouldn't have to use
+them anywhere else").
 
-        I  know... but 2.4.7.SuSE declared as kernel for production use :-) Some
-people in our organization have wanted to install this kernel... |-)
+But for us normal people, contractions that have more than 3 letters are
+hard to remember. I wouldn't mind making the other memory barriers more
+descriptive either, but with something like "mb()" at least you don't have
+to look five times to make sure you got all the letters in the right
+order..
 
-AA> Can you try if you can reproduce with Hubert's latest kernel based on
-AA> 2.4.12aa1? thanks!
+(IBM motto: "If you can't read our assembly language, you must be
+borderline dyslexic, and we don't want you to mess with it anyway").
 
-        Now  I  install  this  kernel  on  one SMP server and will install on UP
-server in the near future. Uptime about 1 day under heavy load, all Ok :-)
+So how about just going all the way and calling it what it is:
+"data_dependent_read_barrier()", with a notice in the PPC docs about how
+the PPC cannot speculate reads anyway, so it's a no-op.
 
-AA> Andrea
+(IBM motto: "TEN vowels? Don't you know vowels are scrd?")
 
---
-Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
-mailto:kris@spylog.com                          +7 095 332-03-88
+And hey, if you want to, feel free to create the regular
+
+	#define read_barrier()		rmb()
+	#define write_barrier()		wmb()
+	#define memory_barrier()	mb()
+
+too. It's not as if we should ever have that many of them, and when we
+_do_ have them, they might as well stand out to make it clear that we're
+doing subtle things.. Although that "data-dependent read barrier" is a lot
+more subtle than most.
+
+		Linus
 

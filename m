@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264983AbTIDNof (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 09:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbTIDNof
+	id S265012AbTIDNxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 09:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbTIDNxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 09:44:35 -0400
-Received: from gharelay-av-smtp1.gmessaging.net ([194.51.201.2]:31175 "EHLO
-	eads-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
-	id S264983AbTIDNod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 09:44:33 -0400
-Date: Thu, 04 Sep 2003 15:44:29 +0200
-From: Yann Droneaud <yann.droneaud@mbda.fr>
-Subject: Re: nasm over gas?
-In-reply-to: <20030904104245.GA1823@leto2.endorphin.org>
-To: fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3F5741BD.5000401@mbda.fr>
-Organization: MBDA
-MIME-version: 1.0
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr-fr, fr
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4)
- Gecko/20030612
-References: <20030904104245.GA1823@leto2.endorphin.org>
-X-OriginalArrivalTime: 04 Sep 2003 13:42:30.0966 (UTC)
- FILETIME=[63418D60:01C372EA]
+	Thu, 4 Sep 2003 09:53:20 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:5902 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S265012AbTIDNxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 09:53:15 -0400
+Date: Thu, 4 Sep 2003 10:53:15 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@osdl.org>, Matthew Wilcox <willy@debian.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, parisc-linux@lists.parisc-linux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] add MODULE_ALIAS_LDISC to asm-parisc/termios.h
+Message-ID: <20030904135315.GB2411@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	parisc-linux@lists.parisc-linux.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fruhwirth clemens wrote:
+Hi,
 
-> Hi!
-> 
-> I recently posted a module for twofish which implements the algorithm in
-> assembler (http://marc.theaimsgroup.com/?l=linux-kernel&m=106210815132365&w=2)
-> 
-> Unfortunately the assembler used is masm. I'd like to change that. Netwide
-> Assembler (nasm) is the assembler of my choice since it focuses on
-> portablity and has a more powerful macro facility (macros are heavily used
-> by 2fish_86.asm). But as I'd like to make my work useful (aim for an
-> inclusion in the kernel) I noticed that this would be the first module to
-> depend on nasm. Everything else uses gas.
-> 
-> So the question is: Is a patch which depends on nasm likely to be merged?
-> 
+	I noticed this one on parisc64 with the latest bk tree:
 
-I hope no ...
+  CC [M]  drivers/char/n_hdlc.o
+drivers/char/n_hdlc.c:985: parse error before numeric constant
+drivers/char/n_hdlc.c:985: warning: type defaults to `int' in declaration of `MODULE_ALIAS_LDISC'
+drivers/char/n_hdlc.c:985: warning: function declaration isn't a prototype
+drivers/char/n_hdlc.c:985: warning: data definition has no type or storage classmake[2]: *** [drivers/char/n_hdlc.o] Error 1
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-Some years ago, we converted the only part of the kernel that used as86
-to GNU as: see arch/i386/boot. I think this was an improvement.
-Using nasm for only one small piece of code would be a regression, imho.
+	This patch makes it compile, doing the same thing that was done to
+include/asm-i386/termios.h, please see if this is acceptable, if it is I can
+provide the same patch for all the other arches.
 
-Regards.
+- Arnaldo
 
-PS: GCC pass .S assembler source files through cpp, so you get macros
-expanding.
-
--- 
-Yann Droneaud <yann.droneaud@mbda.fr>
-<ydroneaud@meuh.eu.org> <meuh@tuxfamily.org>
-
+===== include/asm-parisc/termios.h 1.4 vs edited =====
+--- 1.4/include/asm-parisc/termios.h	Sat Jul 20 06:52:25 2002
++++ edited/include/asm-parisc/termios.h	Thu Sep  4 13:43:57 2003
+@@ -101,6 +101,8 @@
+ #define user_termios_to_kernel_termios(k, u) copy_from_user(k, u, sizeof(struct termios))
+ #define kernel_termios_to_user_termios(u, k) copy_to_user(u, k, sizeof(struct termios))
+ 
++#define MODULE_ALIAS_LDISC(ldisc) \
++        MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _PARISC_TERMIOS_H */

@@ -1,53 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbTEBAZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 20:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTEBAZJ
+	id S262827AbTEBAbr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 20:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbTEBAbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 20:25:09 -0400
-Received: from mx12.arcor-online.net ([151.189.8.88]:21712 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262824AbTEBAZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 20:25:08 -0400
-From: Daniel Phillips <dphillips@sistina.com>
-Reply-To: dphillips@sistina.com
-Organization: Sistina
-To: Willy Tarreau <willy@w.ods.org>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Date: Fri, 2 May 2003 02:43:15 +0200
-User-Agent: KMail/1.5.1
-Cc: Willy TARREAU <willy@w.ods.org>, hugang <hugang@soulinfo.com>,
-       linux-kernel@vger.kernel.org, akpm@digeo.com
-References: <200304300446.24330.dphillips@sistina.com> <200305020127.26279.schlicht@uni-mannheim.de> <20030502001050.GA25789@alpha.home.local>
-In-Reply-To: <20030502001050.GA25789@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305020243.15248.dphillips@sistina.com>
+	Thu, 1 May 2003 20:31:47 -0400
+Received: from smtp-out.comcast.net ([24.153.64.115]:1927 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S262827AbTEBAbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 20:31:46 -0400
+Date: Thu, 01 May 2003 20:41:18 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Kernel source tree splitting
+In-reply-to: <20030501170958.3f130646.rddunlap@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200305012041180300.00F3E2EE@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200304301946130000.01139CC8@smtp.comcast.net>
+ <20030430172102.69e13ce9.rddunlap@osdl.org>
+ <20030501170958.3f130646.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 May 2003 02:10, Willy Tarreau wrote:
-> At first, I thought you had coded an FFS instead of an FLS. But I realized
-> it's valid, and is fast because one half of the numbers tested will not even
-> take one iteration.
 
-Aha, and duh.  At 1 million iterations, my binary search clobbers the shift 
-version by a factor of four.  At 2**31 iterations, my version also wins, by 
-20%.
 
-I should note that the iterations parameter to my benchmark program is deeply 
-flawed, since it changes the nature of the input set, not just the number of 
-iterations.  Fortunately, all tests I've done have been with 2**32 
-iterations, giving a perfectly uniform distribution of input values.
+*********** REPLY SEPARATOR  ***********
 
-For uniformly distributed inputs the simple shift loop does well, but for 
-calculating floor(log2(x)) it's much worse than the fancier alternatives.  I 
-suspect typical usage leans more to the latter than the former.
+On 5/1/2003 at 5:09 PM Randy.Dunlap wrote:
 
-Regards,
+>On Wed, 30 Apr 2003 17:21:02 -0700 "Randy.Dunlap" <rddunlap@osdl.org>
+>wrote:
+>
+>| Hi,
+>|
+>| I'm probably misreading this...but,
+>|
+>| Have you tried this yet?  Does it modify/customize all Kconfig
+>| and Makefiles for the selected tree splits?
+>|
+>| A few days ago, in one tree, I rm-ed arch/{all that I don't need}
+>| and drivers/{all that I don't need}.
+>| After that I couldn't run "make *config" because it wants all of
+>| those files, even if I don't want them.
+>|
+>| So there are many edits that needed to be done in lots of
+>| Kconfig and Makefiles if one selectively pulls or omits certain
+>| sub-directories.
+>
+>and on 2003-04-30 rddunlap wrote:
+>| I seem to try for simple solutions when possible and feasible.
+>|
+>| In this case, if I were doing it, I would try changing (e.g.) in
+>| arch/i386/kernel/Kconfig, this line:
+>| source "drivers/eisa/Kconfig"
+>| to
+>| optsource "drivers/eisa/Kconfig"
+>| where optsource means that the file is optional -- if not found,
+>| ignore it.  And then see what happens, how far it can go,
+>| what the next problem is....
+>|
+>| If this could be made to work, then entire subdirectories/subsystems
+>| could be optional.
+>
+>So I did a proof-of-concept version of this, without modifying any
+>source code.  I rm-ed arch/<many>, drivers/<many>, and fs/<many>
+>and then wrote a shell script that looks for missing dirs, Kconfigs,
+>and Makefile.lib files and puts empty ones back in their places.
+>The shell script only works for what I rm-ed, but it could be made
+>smarter if anyone wants to pursue this.  (attached)
+>
 
-Daniel
+Yes.  Well the build system (kernel configuration) would be modified
+to instead of having a list of Kconfigs and dir's and Makefile.libs and
+such, be able to scan a directory of files which tell it about those
+things.  At least, in my design it would.
+
+>After doing that I was able to build and boot that kernel, so it
+>(concept) did work.
+>
+
+Well that's good.
+
+>For a kernel source tree that hadn't been built/compiled in, the size
+>was reduced from roughly 200 MB down to roughly 133 MB.
+>
+
+...............   You know.  Maybe it's not enough to split into categories.
+Maybe it should be categories and categorical breakdowns.  I can see
+3.0 or something (maybe even 2.8) reaching 1 gig.
+
+--Bluefox Icy
+>~Randy
+>
+>
+

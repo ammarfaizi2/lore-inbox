@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVAITWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVAITZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVAITWo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVAITWo
+	id S261711AbVAITZK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 14:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVAITZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:22:44 -0500
-Received: from lakermmtao05.cox.net ([68.230.240.34]:54263 "EHLO
-	lakermmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S261707AbVAITWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:22:43 -0500
-Mime-Version: 1.0 (Apple Message framework v619)
-In-Reply-To: <ADDF3B61-6272-11D9-A217-000393ACC76E@mac.com>
-References: <ADDF3B61-6272-11D9-A217-000393ACC76E@mac.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <D5370982-6273-11D9-A217-000393ACC76E@mac.com>
+	Sun, 9 Jan 2005 14:25:10 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:62674 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261711AbVAITXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 14:23:41 -0500
+Subject: Re: [PATCH] scheduling priorities with rlimit
+From: utz lehmann <lkml@s2y4n2c.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
+In-Reply-To: <1105297598.4173.52.camel@laptopd505.fenrus.org>
+References: <1105290936.24812.29.camel@segv.aura.of.mankind>
+	 <1105297598.4173.52.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Sun, 09 Jan 2005 20:23:32 +0100
+Message-Id: <1105298613.24812.42.camel@segv.aura.of.mankind>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] [RFC] [2.6] Replace linux/vfs.h inclusions with linux/statfs.h
-Date: Sun, 9 Jan 2005 14:22:42 -0500
-X-Mailer: Apple Mail (2.619)
-To: unlisted-recipients:; (no To-header on input)
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a3828f1c4d839cf12e8a3b808f7ed34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops! I confused my queue, this patch was already sent and applied. 
-Apologies
-for the noise.
+On Sun, 2005-01-09 at 20:06 +0100, Arjan van de Ven wrote:
+> On Sun, 2005-01-09 at 18:15 +0100, utz lehmann wrote:
+> > Hi
+> > 
+> > I really like the idea of controlling the maximum settable scheduling
+> > priorities via rlimit. See the Realtime LSM thread. I want to give users
+> > the right to raise the priority of previously niced jobs.
+> > 
+> > I have modified Chris Wright's patch (against 2.6.10):
+> > (http://marc.theaimsgroup.com/?l=linux-kernel&m=110513793228776&w=2)
+> > 
+> > - allow always to increase nice levels (lower priority).
+> > - set the default for RLIMIT_PRIO to 0.
+> > - add the other architectures.
+> > 
+> > With this the default is compatible with the old behavior.
+> > 
+> > With RLIMIT_PRIO > 0 a user is able to raise the priority up to the
+> > value. 0-39 for nice levels 19 .. -20, 40-139 for realtime priorities
+> > (0 .. 99).
+> 
+> this is a bit of an awkward interface don't you think?
+> I much rather have the rlimit match the exact nice values we communicate
+> to userspace elsewhere, both to be consistent and to not expose
+> scheduler internals to userpsace.
 
-Cheers,
-Kyle Moffett
+Yes it is. But rlimits are unsigned .-( (asm/resource.h says this).
+I prefer rlimit match nice value too, but how to do this with unsigned.
+And what do with the RT prio, different rlimit?
+Btw: I saw this on a solaris command too, 0-39 for nice, 40-139 for RT
+(dont rememer which).
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+>
+> Also I like the idea of allowing sysadmins to make certain users/groups
+> nice levels 5 and higher (think a university machine that makes all
+> students nice 5 and higher only, while giving staff 0 and higher, and
+> the sysadmin -5 and higher ;)
+
+You can do this already. "priority" item in /etc/security/limits.conf.
+But they can only lower the priority.
+This patch is for allowing to raise it.
 
 

@@ -1,122 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263924AbUDFRoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 13:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbUDFRoU
+	id S263925AbUDFRyT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 13:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbUDFRyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 13:44:20 -0400
-Received: from web40511.mail.yahoo.com ([66.218.78.128]:55850 "HELO
-	web40511.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263924AbUDFRoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 13:44:16 -0400
-Message-ID: <20040406174412.7850.qmail@web40511.mail.yahoo.com>
-Date: Tue, 6 Apr 2004 10:44:12 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040406133246.GA19091@hh.idb.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 13:54:19 -0400
+Received: from tench.street-vision.com ([212.18.235.100]:9898 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S263925AbUDFRyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 13:54:17 -0400
+Subject: [PATCH] [libata] quick fix for vendor and model names
+From: Justin Cormack <justin@street-vision.com>
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-lwr4OZLgl3fKrwDGPXPO"
+Message-Id: <1081274055.18070.29.camel@lotte.street-vision.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 06 Apr 2004 18:54:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If stack will shrink - i'll come up with something.
-Rearchitecture of LISP interpreter - is too much work.
-(and I'm lazy - I prefer computer to do a work, not me
-:-)
 
-I checked what is going on with the stack - it is used
-to pass parameters, some functions have one or two
-local variables (4 bytes each) and that's it.
+--=-lwr4OZLgl3fKrwDGPXPO
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I like to develop tools and general solutions :-) To
-solve the stack problem in a way which will not cause
-big changes in any existing code - I can make stack
-virtualization. API can be different, but idea is the
-same. Task has some memory allocated by malloc
-(vstack) which is used for saving data from real
-stack. One of the APIs - scall function:
+ok, so transport attributes arent happening for libata. Howabout this
+little patch to fix up the vendor and model names in the common case
+when they are 3 chars + 16 chars (like almost all hard drives) so the
+model names arent truncated in this case. Otherwise leaves things as
+they are.
 
-scall(pointer_to_vstack, number_of_arguments,
-pointer_to_function_to_call, arg1, arg2,...)
-
-scall checks if real stack is full enough - it stores
-it's content in the vstack and moves %esp to the
-bottom of the real stack. When user function returns -
-information from vstack moves to the real one (one
-movl instruction at Intel x86).
-
-In case of LISP there is only one place where it will
-be enough to use scall - eval function.
-
-In other subsystems - it can be needed to call in a
-few places. But in such way a new 4K stack could be
-used without serious rewriting of existing code.
-
-vstack can grow dynamically if needed (within defined
-limit).
-
-Serge.
-
---- Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> On Mon, Apr 05, 2004 at 10:05:37AM -0700, Sergiy
-> Lozovsky wrote:
-> > > Consider rewriting your function to use
-> allocated
-> > > memory instead of stack, this isn't all that
-> hard.
-> > 
-> > I put LISP interpreter inside the Kernel -
-> > http://vxe.quercitron.com
-> > 
-> > It works, but it use a lot of stack memory. It's
-> > impossible to rewrite it easily, though I'll
-> > investigate why exactly it uses so much of stack
-> > memory (though it's nature of LISP). There are no
-> > serious kernel memory allocation (as of my
-> interpreter
-> > code review, only function calls; recursions in
-> LISP
-> > application itself are eliminated for sure), but
-> I'll
-> > trace stack usage more thouroughly.
-> > 
-> Consider this.  We're currently experimenting with a
-> transition from 8k to 4k stacks on x86, and that is
-> considered a very good thing.  Allocating a single-
-> page stack is easy, two (contigous) pages might
-> fail.
-> 
-> So a bigger kernel stack is out.
-> 
-> As for rewriting code so it doesn't use stack - it
-> _is_ easy, but it might be a lot of _work_.
-> 
-> The simple approach is to replace all (big) stack
-> allocations with an explicit stack structure that
-> you manages
-> on the heap. There'll be more code, but it won't be
-> slower
-> because all the extra code is stuff that happen
-> automatically
-> with the hw stack. (I.e. stuff the compiler normally
-> take
-> care of.)
-> 
-> There is some more work if your interpreter also
-> does deep recursion.
-> It involves making one big function of those that do
-> the recursion
-> and manage the "calls" yourself with an array and a
-> switch statement.
-> Again, not particularly hard, but it could take some
-> time to implement.
-> 
-> Helge Hafting  
+Justin
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+
+--=-lwr4OZLgl3fKrwDGPXPO
+Content-Disposition: attachment; filename=libata-hackpatch
+Content-Type: text/x-patch; name=libata-hackpatch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -urN linux-2.6.5-orig/drivers/scsi/libata-scsi.c linux-2.6.5/drivers/scsi/libata-scsi.c
+--- linux-2.6.5-orig/drivers/scsi/libata-scsi.c	2004-04-04 03:36:57.000000000 +0000
++++ linux-2.6.5/drivers/scsi/libata-scsi.c	2004-04-06 17:10:57.000000000 +0000
+@@ -464,11 +464,17 @@
+ 	memcpy(rbuf, hdr, sizeof(hdr));
+ 
+ 	if (buflen > 36) {
+-		memcpy(&rbuf[8], args->dev->vendor, 8);
+-		memcpy(&rbuf[16], args->dev->product, 16);
++	        /* hack for common ata vendor/product strings */
++	        if (args->dev->product[3] == ' ') {
++		        memcpy(&rbuf[8], args->dev->product, 4);
++			memset(&rbuf[12], ' ', 4);
++		        memcpy(&rbuf[16], &args->dev->product[4], 16);
++	        } else {
++		        memcpy(&rbuf[8], args->dev->vendor, 8);
++		        memcpy(&rbuf[16], args->dev->product, 16);
++		}
+ 		memcpy(&rbuf[32], DRV_VERSION, 4);
+ 	}
+-
+ 	if (buflen > 63) {
+ 		const u8 versions[] = {
+ 			0x60,	/* SAM-3 (no version claimed) */
+
+--=-lwr4OZLgl3fKrwDGPXPO--
+

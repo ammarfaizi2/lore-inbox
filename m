@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129441AbRAYA36>; Wed, 24 Jan 2001 19:29:58 -0500
+	id <S135200AbRAYAbI>; Wed, 24 Jan 2001 19:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135200AbRAYA3i>; Wed, 24 Jan 2001 19:29:38 -0500
-Received: from p3EE3C781.dip.t-dialin.net ([62.227.199.129]:50188 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129441AbRAYA30>; Wed, 24 Jan 2001 19:29:26 -0500
-Date: Thu, 25 Jan 2001 01:29:18 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
-Message-ID: <20010125012918.A15282@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com> <20010123162930.B5443@emma1.emma.line.org> <wuofwynsj5.fsf_-_@bg.sics.se> <20010123105350.B344@quadrajet.flashcom.com> <20010124041437.A28212@emma1.emma.line.org> <14958.28927.756597.940445@notabene.cse.unsw.edu.au> <20010124142002.A1405@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010124142002.A1405@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Wed, Jan 24, 2001 at 14:20:02 +0100
+	id <S135272AbRAYAa6>; Wed, 24 Jan 2001 19:30:58 -0500
+Received: from tech1.nameservers.com ([216.46.160.19]:17416 "EHLO
+	tech1.nameservers.com") by vger.kernel.org with ESMTP
+	id <S135200AbRAYAat>; Wed, 24 Jan 2001 19:30:49 -0500
+Message-Id: <200101250030.QAA24585@tech1.nameservers.com>
+To: linux-kernel@vger.kernel.org
+Cc: Julian Anastasov <ja@ssi.bg>
+Subject: Re: Turning off ARP in linux-2.4.0 
+In-Reply-To: Your message of "Wed, 24 Jan 2001 09:21:02 GMT."
+             <Pine.LNX.4.30.0101240857420.1024-100000@u.domain.uli> 
+Date: Wed, 24 Jan 2001 16:30:49 -0800
+From: Pete Elton <elton@iqs.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Matthias Andree wrote:
-
-> This looks better and it makes FreeBSD able to ls the directory, and on
-> touch /mnt/try, I get EROFS on the client, so this is okay; however, the
-> access reply does not include EXECUTE permissions which I find strange,
-> since the client lists this:
+> > In the 2.2 kernel, I could do the following:
+> > echo 1 > /proc/sys/net/ipv4/conf/all/hidden
+> > echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
+> >
+> > The 2.4 kernel does not have these sysctl files any more.  Why was
+> > this functionality taken out?  or was it simply moved to another place
+> > in the proc filesystem?  How can I accomplish the same thing I was
+> > doing in the 2.2 kernel in the 2.4 kernel?
 > 
+> 	You can use this temporary solution (the same patch ported to
+> 2.3.41+):
+> 
+> http://www.linuxvirtualserver.org/arp.html
+> http://www.linuxvirtualserver.org/hidden-2.3.41-1.diff
 
-My fault. NFSv3 has a different permission partitioning than local file
-systems have, I did not see that. So Linux does the right
-thing for ACCESS with Neil's patch. Neil, could you submit that patch to
-Alan or bless it for inclusion into 2.2.19(pre)? The FreeBSD people
-could then sleep well again. :-)
+Thanks for the link to the patch.  I was able to get it patched
+into the 2.4.0 kernel and it worked great.
+
+Thanks.
+
+Pete
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

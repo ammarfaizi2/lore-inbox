@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVAPWfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVAPWgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262631AbVAPWfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 17:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVAPWfR
+	id S262628AbVAPWgv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVAPWgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 17:35:17 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:56220 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262638AbVAPWda
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 17:33:30 -0500
-Message-ID: <41EAEBB8.6040900@cwazy.co.uk>
-Date: Sun, 16 Jan 2005 17:33:28 -0500
-From: Jim Nelson <james4765@cwazy.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sun, 16 Jan 2005 17:36:51 -0500
+Received: from ns.suse.de ([195.135.220.2]:18834 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262628AbVAPWgi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 17:36:38 -0500
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: [RFC] Ext3 nanosecond timestamps in big inodes
+Date: Sat, 15 Jan 2005 15:41:14 +0100
+User-Agent: KMail/1.7.1
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Tridgell <tridge@samba.org>,
+       linux-kernel@vger.kernel.org
+References: <200501142216.12726.agruen@suse.de> <m1acravvjl.fsf@muc.de>
+In-Reply-To: <m1acravvjl.fsf@muc.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kernel-janitors@lists.osdl.org
-Subject: Re: [PATCH 0/13] remove cli()/sti() in drivers/char/*
-References: <20050116135223.30109.26479.55757@localhost.localdomain>	 <20050116130452.10fabe52.akpm@osdl.org> <1105908079.12201.6.camel@localhost.localdomain>
-In-Reply-To: <1105908079.12201.6.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [70.16.225.90] at Sun, 16 Jan 2005 16:33:29 -0600
+Content-Disposition: inline
+Message-Id: <200501151541.14337.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2005-01-16 at 21:04, Andrew Morton wrote:
-> 
->>James Nelson <james4765@cwazy.co.uk> wrote:
->>
->>>This series of patches removes the last cli()/sti()/save_flags()/restore_flags()
->>> function calls in drivers/char.
->>
->>I don't see much point in this, really.  Those cli() calls are a big fat
->>sign saying "broken on smp" and they now generate compile-time warnings
->>emphasising that.  These drivers still need to be fixed up - we may las
->>well leave them as-is until someone gets onto doing that.
-> 
-> 
-> Please drop all the serial ones. I'm slowly working through the serial
-> drivers that are relevant to any kind of users and fixing them up or
-> importing fixes from vendor branches as appropriate.
-> 
-> Simple substitions don't work here, and in some cases even simple tty
-> device locks because many cards are chip level interfaces not port
-> level.
-> 
-> Alan
-> 
+On Sunday 16 January 2005 05:37, Andi Kleen wrote:
+> Andreas Gruenbacher <agruen@suse.de> writes:
+> > this is a spin-off of an old patch by Alex Tomas <alex@clusterfs.com>:
+> > Alex originally had nanosecond timestamps in his original patch; here is
+> > a rejuvenated version. Please tell me what you think. Alex also added a
+> > create timestamp in his original patch. Do we actually need that?
+> >
+> > Nanoseconds consume 30 bits in the 32-bit fields. The remaining two bits
+> > currently are zeroed out implicitly. We could later use them remaining
+> > two bits for years beyond 2038.
 >
+> Looks good. Just two suggestions:
+>
+> - Provide an mount option to turn it off because there may be
+> performance regressions in some workload because inodes will be
+> flushed more often.
+> [I actually considered doing this generally at the VFS level
+> when doing the s_time_gran patch, but it needed some more changes
+> that I didn't want to do at that time. Doing it in the FS as
+> interim solution would be fine too]
 
-Right.  Please disregard this set of patches - I think I'm done flogging this 
-directory for awhile :)
+I think I agree, also with doing it at the VFS layer. We must make sure that 
+eventually the most recent timestamp makes it to disk (unless the machine 
+crashes, in which case slightly out-of-date timestamps probably can be 
+tolerated).
+
+> - Use the 2 bits for additionals years right now on 64bit
+> hosts. No need to keep the y2038 issue around longer than necessary.
+
+Yes. Actually zeroing out the upper two bits is wrong for timestamps before 
+the epoch if we use plain two's complement representation. The two bits give 
+us an extended range of about [1697 .. 2242] instead of [1901 .. 2038].
+
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH

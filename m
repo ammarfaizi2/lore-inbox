@@ -1,211 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317984AbSHPCEh>; Thu, 15 Aug 2002 22:04:37 -0400
+	id <S317945AbSHPCD0>; Thu, 15 Aug 2002 22:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318008AbSHPCEg>; Thu, 15 Aug 2002 22:04:36 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20235 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317984AbSHPCEd>; Thu, 15 Aug 2002 22:04:33 -0400
-Date: Thu, 15 Aug 2002 23:07:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH] rmap 14
-Message-ID: <Pine.LNX.4.44L.0208152304420.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317947AbSHPCDZ>; Thu, 15 Aug 2002 22:03:25 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:21890 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S317945AbSHPCDY>;
+	Thu, 15 Aug 2002 22:03:24 -0400
+Message-ID: <3D5C5E91.D824123C@alphalink.com.au>
+Date: Fri, 16 Aug 2002 12:08:17 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roman Zippel <zippel@linux-m68k.org.com>
+CC: Peter Samuelson <peter@cadcamlab.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+References: <Pine.LNX.4.44.0208151111130.8911-100000@serv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a fairly minimal change for rmap14 since I've been
-working on 2.5 most of the time. The experimental code in
-this version is a hopefully smarter page_launder() that
-shouldn't do much more IO than needed and hopefully gets
-rid of the stalls that people have seen during heavy swap
-activity.  Please test this version. ;)
+Roman Zippel wrote:
+> 
+> Hi,
+> 
+> (Could you please fix your mailer? linux-m68k.org.com does not really
+> exist.)
 
+I believe the problem is upstream of the machine I control.  I'll see what I can do.
 
-The first release of the 14th version of the reverse
-mapping based VM is now available.
-This is an attempt at making a more robust and flexible VM
-subsystem, while cleaning up a lot of code at the same time.
-The patch is available from:
+> That's fine with me, but nonetheless I'd really like to know where it will
+> go to. Just fixing the easy problems is simple, but so far I haven't seen
+> any plan on how to fix the hard problems. Anyone starting to fix all the
+> problems should have at least some ideas how to do it and I'd really like
+> to hear them. I don't want to discourage anyone, but he should understand
+> the complete problem first before going for the easy targets.
 
-           http://surriel.com/patches/2.4/2.4.19-rmap14
-and        http://surriel.com/patches/2.4/incr/rmap13c-rmap14
-and        http://linuxvm.bkbits.net/
+The easy targets being done now are mostly things that I believe would need
+to be done regardless of the eventual strategy, be it a) do nothing b) make
+the existing system suck less c) replace the parsers and keep the rules
+d) replace everything.  For any of these strategies to be successful you would
+need to start with a clean clear and consistent rules corpus.
 
+Remember how people were complaining that ESR couldn't prove that the CML2
+rules corpus did the same things as the CML1 rules corpus?  One of the
+reasons was that the CML1 rules corpus is so screwed that's its impossible
+for either a human or a machine to figure out what was supposed to happen
+and whether what was actually happening was deliberate.  
 
-My big TODO items for a next release are:
-  - O(1) page launder - currently functional but slow, needs to be tuned
-  - pte-highmem
+Roman, I believe the exactly same issue will apply to your config system
+too, because it uses a machine translation step from CML1.  GCML2's syntax
+checker started life as a CML1-to-CML2 converter (inspired by your work), but
+I gave up on machine translating because it would be GIGO.
 
-rmap 14:
-  - get rid of stalls during swapping, hopefully          (me)
-  - low latency zap_page_range                            (Robert Love)
-rmap 13c:
-  - add wmb() to wakeup_memwaiters                        (Arjan van de Ven)
-  - remap_pmd_range now calls pte_alloc with full address (Paul Mackerras)
-  - #ifdef out pte_chain_lock/unlock on UP machines       (Andrew Morton)
-  - un-BUG() truncate_complete_page, the race is expected (Andrew Morton, me)
-  - remove NUMA changes from rmap13a                      (Christoph Hellwig)
-rmap 13b:
-  - prevent PF_MEMALLOC recursion for higher order allocs (Arjan van de Ven, me)
-  - fix small SMP race, PG_lru                            (Hugh Dickins)
-rmap 13a:
-  - NUMA changes for page_address                         (Samuel Ortiz)
-  - replace vm.freepages with simpler kswapd_minfree      (Christoph Hellwig)
-rmap 13:
-  - rename touch_page to mark_page_accessed and uninline  (Christoph Hellwig)
-  - NUMA bugfix for __alloc_pages                         (William Irwin)
-  - kill __find_page                                      (Christoph Hellwig)
-  - make pte_chain_freelist per zone                      (William Irwin)
-  - protect pte_chains by per-page lock bit               (William Irwin)
-  - minor code cleanups                                   (me)
-rmap 12i:
-  - slab cleanup                                          (Christoph Hellwig)
-  - remove references to compiler.h from mm/*             (me)
-  - move rmap to marcelo's bk tree                        (me)
-  - minor cleanups                                        (me)
-rmap 12h:
-  - hopefully fix OOM detection algorithm                 (me)
-  - drop pte quicklist in anticipation of pte-highmem     (me)
-  - replace andrea's highmem emulation by ingo's one      (me)
-  - improve rss limit checking                            (Nick Piggin)
-rmap 12g:
-  - port to armv architecture                             (David Woodhouse)
-  - NUMA fix to zone_table initialisation                 (Samuel Ortiz)
-  - remove init_page_count                                (David Miller)
-rmap 12f:
-  - for_each_pgdat macro                                  (William Lee Irwin)
-  - put back EXPORT(__find_get_page) for modular rd       (me)
-  - make bdflush and kswapd actually start queued disk IO (me)
-rmap 12e
-  - RSS limit fix, the limit can be 0 for some reason     (me)
-  - clean up for_each_zone define to not need pgdata_t    (William Lee Irwin)
-  - fix i810_dma bug introduced with page->wait removal   (William Lee Irwin)
-rmap 12d:
-  - fix compiler warning in rmap.c                        (Roger Larsson)
-  - read latency improvement   (read-latency2)            (Andrew Morton)
-rmap 12c:
-  - fix small balancing bug in page_launder_zone          (Nick Piggin)
-  - wakeup_kswapd / wakeup_memwaiters code fix            (Arjan van de Ven)
-  - improve RSS limit enforcement                         (me)
-rmap 12b:
-  - highmem emulation (for debugging purposes)            (Andrea Arcangeli)
-  - ulimit RSS enforcement when memory gets tight         (me)
-  - sparc64 page->virtual quickfix                        (Greg Procunier)
-rmap 12a:
-  - fix the compile warning in buffer.c                   (me)
-  - fix divide-by-zero on highmem initialisation  DOH!    (me)
-  - remove the pgd quicklist (suspicious ...)             (DaveM, me)
-rmap 12:
-  - keep some extra free memory on large machines         (Arjan van de Ven, me)
-  - higher-order allocation bugfix                        (Adrian Drzewiecki)
-  - nr_free_buffer_pages() returns inactive + free mem    (me)
-  - pages from unused objects directly to inactive_clean  (me)
-  - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
-  - remove sleep_on from wakeup_kswapd                    (Arjan van de Ven)
-  - page waitqueue cleanup                                (Christoph Hellwig)
-rmap 11c:
-  - oom_kill race locking fix                             (Andres Salomon)
-  - elevator improvement                                  (Andrew Morton)
-  - dirty buffer writeout speedup (hopefully ;))          (me)
-  - small documentation updates                           (me)
-  - page_launder() never does synchronous IO, kswapd
-    and the processes calling it sleep on higher level    (me)
-  - deadlock fix in touch_page()                          (me)
-rmap 11b:
-  - added low latency reschedule points in vmscan.c       (me)
-  - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
-  - wake up kswapd sleeper tasks on OOM kill so the
-    killed task can continue on its way out               (me)
-  - tune page allocation sleep point a little             (me)
-rmap 11a:
-  - don't let refill_inactive() progress count for OOM    (me)
-  - after an OOM kill, wait 5 seconds for the next kill   (me)
-  - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
-rmap 11:
-  - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
-  - fix it again in the morning                           (me)
-  - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
-    seems PPC calls pte_alloc() before mem_map[] init     (me)
-  - disable the debugging code in rmap.c ... the code
-    is working and people are running benchmarks          (me)
-  - let the slab cache shrink functions return a value
-    to help prevent early OOM killing                     (Ed Tomlinson)
-  - also, don't call the OOM code if we have enough
-    free pages                                            (me)
-  - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
-  - replace the per-page waitqueue with a hashed
-    waitqueue, reduces size of struct page from 64
-    bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
-rmap 10:
-  - fix the livelock for real (yeah right), turned out
-    to be a stupid bug in page_launder_zone()             (me)
-  - to make sure the VM subsystem doesn't monopolise
-    the CPU, let kswapd and some apps sleep a bit under
-    heavy stress situations                               (me)
-  - let __GFP_HIGH allocations dig a little bit deeper
-    into the free page pool, the SCSI layer seems fragile (me)
-rmap 9:
-  - improve comments all over the place                   (Michael Cohen)
-  - don't panic if page_remove_rmap() cannot find the
-    rmap in question, it's possible that the memory was
-    PG_reserved and belonging to a driver, but the driver
-    exited and cleared the PG_reserved bit                (me)
-  - fix the VM livelock by replacing > by >= in a few
-    critical places in the pageout code                   (me)
-  - treat the reclaiming of an inactive_clean page like
-    allocating a new page, calling try_to_free_pages()
-    and/or fixup_freespace() if required                  (me)
-  - when low on memory, don't make things worse by
-    doing swapin_readahead                                (me)
-rmap 8:
-  - add ANY_ZONE to the balancing functions to improve
-    kswapd's balancing a bit                              (me)
-  - regularize some of the maximum loop bounds in
-    vmscan.c for cosmetic purposes                        (William Lee Irwin)
-  - move page_address() to architecture-independent
-    code, now the removal of page->virtual is portable    (William Lee Irwin)
-  - speed up free_area_init_core() by doing a single
-    pass over the pages and not using atomic ops          (William Lee Irwin)
-  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
-rmap 7:
-  - clean up and document vmscan.c                        (me)
-  - reduce size of page struct, part one                  (William Lee Irwin)
-  - add rmap.h for other archs (untested, not for ARM)    (me)
-rmap 6:
-  - make the active and inactive_dirty list per zone,
-    this is finally possible because we can free pages
-    based on their physical address                       (William Lee Irwin)
-  - cleaned up William's code a bit                       (me)
-  - turn some defines into inlines and move those to
-    mm_inline.h (the includes are a mess ...)             (me)
-  - improve the VM balancing a bit                        (me)
-  - add back inactive_target to /proc/meminfo             (me)
-rmap 5:
-  - fixed recursive buglet, introduced by directly
-    editing the patch for making rmap 4 ;)))              (me)
-rmap 4:
-  - look at the referenced bits in page tables            (me)
-rmap 3:
-  - forgot one FASTCALL definition                        (me)
-rmap 2:
-  - teach try_to_unmap_one() about mremap()               (me)
-  - don't assign swap space to pages with buffers         (me)
-  - make the rmap.c functions FASTCALL / inline           (me)
-rmap 1:
-  - fix the swap leak in rmap 0                           (Dave McCracken)
-rmap 0:
-  - port of reverse mapping VM to 2.4.16                  (me)
+This is why I'm not talking about replacing shell based parsers yet.  First
+we need to get a rules corpus for which it is possible to create a parser
+which can parse cleanly, consistently, and correctly.
 
-Rik
+Greg.
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

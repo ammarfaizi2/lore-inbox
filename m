@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbTIHTcY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTIHTcY
+	id S263565AbTIHTqI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 15:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTIHTqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:32:24 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:54175 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263504AbTIHTcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:32:19 -0400
-Date: Mon, 8 Sep 2003 12:32:07 -0700
-From: Keith Lofstrom <keithl@kl-ic.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hot Swapping IDE using USB2 cage
-Message-ID: <20030908193207.GA29053@gate.kl-ic.com>
-Reply-To: keithl@ieee.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Sep 2003 15:46:08 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:38117 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263565AbTIHTqF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 15:46:05 -0400
+Message-ID: <3F5CDC65.6060409@colorfullife.com>
+Date: Mon, 08 Sep 2003 21:45:41 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Jamie Lokier <jamie@shareable.org>, Adrian Bunk <bunk@fs.tum.de>,
+       linux-kernel@vger.kernel.org, peter_daum@t-online.de
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+References: <3F5B96C3.1060706@colorfullife.com> <20030908142046.GA28062@fs.tum.de> <20030908170751.GB27097@mail.jlokier.co.uk> <20030908172416.GA21226@gtf.org>
+In-Reply-To: <20030908172416.GA21226@gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
-A month back, there was discussion about hotswapping IDE disks.
-I have a solution that seems to work, indirectly, using the SanMax
-InClose PMD96-USB2 Mobile Dock.  This cage is physically compatable
-with the PMD96i direct IDE cages, but has a translator from IDE
-(LBA48!) to USB2, which I connect to a USB2 PCI card in my system.
-With USB hotswap enabled,  the system seems to recognize when
-disks are added and removed.  This allows me to do backups to
-cheap big IDE hard drives, and swap them out for safekeeping. 
-For more information, look at my web page in progress:  
+>Yes; I've lost the specific context of the thread, but I have been
+>working on MWI/cacheline size issues along with IvanK for a while.
+>  
+>
+Context: Peter experiences very bad network performance with 2.4.22 - it 
+looks like 99% packet drop or something like that. The packet drop 
+disappears if CONFIG_L1_CACHE_SHIFT is set to 7 (i.e. 128 byte cache 
+line size). 2.4.21 works.
+The network cards are some kind of atm cards. Several systems are 
+affected - at least Pentium II and PPro systems.
 
-   http://www.keithl.com/linuxbackup.html
+Peter: what's the exact brand and nic driver that you use? Could you try 
+to figure out what exactly breaks? I'd use "ping -f -s 1500", perhaps 
+together with "tcpdump -s 1500 -x" on both ends.
 
-I am still working on this, so your mileage may vary.  I am
-incompetent at software, so a more clueful person is welcome
-to take over and do this right.  In any case, this provides a
-functional solution for IDE hotswap without kernel patches, and
-that might free up some wizard time for other needed tasks.
+--
+    Manfred
 
-Keith
-
--- 
-Keith Lofstrom           keithl@ieee.org         Voice (503)-520-1993
-KLIC --- Keith Lofstrom Integrated Circuits --- "Your Ideas in Silicon"
-Design Contracting in Bipolar and CMOS - Analog, Digital, and Scan ICs

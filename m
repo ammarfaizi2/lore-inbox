@@ -1,533 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264839AbSJPDkE>; Tue, 15 Oct 2002 23:40:04 -0400
+	id <S264850AbSJPDvz>; Tue, 15 Oct 2002 23:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264846AbSJPDkE>; Tue, 15 Oct 2002 23:40:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53252 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264839AbSJPDjz>; Tue, 15 Oct 2002 23:39:55 -0400
-Date: Tue, 15 Oct 2002 20:44:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux v2.5.43
-Message-ID: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+	id <S264853AbSJPDvz>; Tue, 15 Oct 2002 23:51:55 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:38020 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S264850AbSJPDvs>; Tue, 15 Oct 2002 23:51:48 -0400
+From: "Tervel Atanassov" <noxidog@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: aio bug report
+Date: Tue, 15 Oct 2002 20:58:01 -0700
+Message-ID: <004101c274c8$3d2e2230$0e00000a@turchodog>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-A huge merging frenzy for the feature freeze, although I also spent a few
-days getting rid of the need for ide-scsi.c and the SCSI layer to burn
-CD-ROM's with the IDE driver (it still needs an update to cdrecord, I sent 
-those off to the maintainer).
-
-The most fundamental stuff is probably RCU and oprofile, but there's stuff 
-all over the map here..
-
-		Linus
-
-------
-
-Summary of changes from v2.5.42 to v2.5.43
-============================================
-
-<barryn@pobox.com>:
-  o USB: 2.5.42 partial fix for older pl2303
-
-Benjamin LaHaise <bcrl@bob.home.kvack.org>:
-  o net-kiocb.diff
-  o clean up whitespace and patch import errors from net-kiocb patch
-  o remove an inaccurate comment from sock.h
-
-<ddstreet@ieee.org>:
-  o fix usbfs mount count
-
-Dave Hinds <dhinds@sonic.net>:
-  o Small PCMCIA patch
-
-<dilinger@mp3revolution.net>:
-  o drivers/scsi/esp.c: Fix the build
-
-Dipankar Sarma <dipankar@in.ibm.com>:
-  o Read-Copy Update infrastructure
-
-<ebiederm@xmission.com>:
-  o Update changes to point to make 3.78
-
-Jeff Dike <jdike@uml.karaya.com>:
-  o Cleaned up a bunch of things noticed while merging the SMP support
-  o This is the merge of the initial 2.4 SMP support
-  o config.in now defines CONFIG_NR_CPUS
-  o Added some code to arch/um/kernel/tempfile.c
-  o Made a small fix to arch/um/kernel/Makefile
-  o Fixed the non-SMP build
-  o Fixed a bug caused by moving the location of the include of the
-    arch and os Makefiles.
-  o Fixed some locking bugs spotted by Oleg Drokin
-
-<joe@wavicle.org>:
-  o USB: Vicam driver update/rewrite
-
-Randy Dunlap <randy.dunlap@verizon.net>:
-  o "nousb" for in-kernel USB
-  o 2.5.42 Doc/kernel-parameters
-
-<rread@clusterfs.com>:
-  o InterMezzo for 2.5
-
-Richard Henderson <rth@are.twiddle.net>:
-  o From Art Haas: C99 initializers for arch/alpha
-  o Fix warnings of the form warning: long int format, different type
-    arg (arg 5) by casting ino_t arguments to unsigned long for printf
-    formats.
-  o Fix warnings of the form warning: right shift count >= width of
-    type by casting to long before shifting by HIGH_BITS_OFFSET.
-  o Fix illegal use of short keyword
-  o Fix three alpha gcc 3.3 warnings
-  o Fix two defined but not used warnings by wrapping the variables in
-    #if RTC_IRQ.
-  o Fix hordes of printf format warnings by changing loff_t to long
-    long
-  o Fix defined but not used warnings by marking variables with
-    attribute unused.
-
-<sarolaht@cs.helsinki.fi>:
-  o [TCP]: Add F-RTO support
-  o [TCP]: Turn F-RTO off by default
-
-<stevef@smfhome1.austin.rr.com>:
-  o Correct compiler warnings for 64 bit platforms and minor formatting
-    cleanup and remove debug function that was causing a conflict with
-    a function of the same name in SCSI
-  o change name of debug function to not conflict with optional jfs
-    debug function
-
-<timw@splhi.com>:
-  o Forward port of 2.4 fsync_buffers_list() fix
-
-Adam J. Richter <adam@yggdrasil.com>:
-  o linux-2.5.41/drivers/usb/core/hub.c called down() from interrupt
-    context
-
-Adrian Bunk <bunk@fs.tum.de>:
-  o Fix cpufreq compile
-  o ATM build fix
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o update dmi support
-  o two trivial doc fixeds
-  o synclink updates
-  o remove unused crap from ide
-  o make eicon build
-  o update cpia to match 2.4
-  o some mtdblock_ro fixes
-  o i2o-scsi next installment
-  o mpt fusion update from vendor
-  o fix up syncppp locking
-  o ricoh performance fix
-  o aacraid makefile fix
-  o cpqfc vendor update
-  o correct NCR5380 locking bug
-  o sym53c416 updates
-  o fix zs sysrq
-  o last jffs/jffs2 signal fix was wrong
-  o make devfs cdrom appear in the right place
-  o fix qnx4 inits to C99
-  o __ret is deprecated
-  o remove unused work queue
-  o hack fix for an obvious dmabuf bogon
-  o configurable corename
-  o forward port of the various scsi fixes from 2.4
-
-Alexander Viro <viro@math.psu.edu>:
-  o early allocation of ->part
-  o disk->minor_shift cleanup
-  o device_register() splitup
-  o block ioctl cleanup
-  o preparation to use of driverfs refcounts, part 1 - partitions
-  o preparation to use of driverfs refcounts, part 2 - disk
-  o refcounts for gendisks
-  o bdev->bd_disk introduced
-  o bunch of ->open() killed
-
-Andi Kleen <ak@muc.de>:
-  o x86-64 ACPI
-  o x86-64 Bootloader updates
-  o x86-64 - new memory map handling
-  o x86-64 IA32 emulation updates
-  o x86-64 IOMMU & PCI updates
-  o Remove global cli stuff for x86-64
-  o reboot.c for x86-64
-  o library functions updates for x86-64
-  o hotplug cpu changes for x86-64
-  o Time changes for x86-64
-  o Misc core changes for x86-64/2.5.42
-
-Andrew Morton <akpm@digeo.com>:
-  o scsi compile fix
-  o n_r3964.c fix
-  o /proc/meminfo alterations for hugetlbpages
-  o direct-io bio_add_page fix
-  o page freeing function for swsusp
-  o small-machine writer throttling fix
-  o propagate pte reference into page reference during
-  o reduced and tunable swappiness
-  o start anon pages on the active list
-  o rename /proc/sys/vm/dirty_async_ratio to dirty_ratio
-  o reduce the dirty threshold when there's a lot of mapped
-  o batched slab shrink and registration API
-  o fix disk IO stats for 512-byte IOs
-  o discontigmem: zero out the per-node zone structures at boot
-  o enable 64-bit sector_t config option
-  o msync correctness fixes
-  o remove kiobufs
-
-Arjan van de Ven <arjanv@redhat.com>:
-  o net/llc/llc_proc.c: Do not mark llc_proc_exist with __exit
-
-Arnaldo Carvalho de Melo <acme@conectiva.com.br>:
-  o o pppoe: use seq_file for proc stuff
-  o [ipv4] move proc init to newly created net/ipv4/ip_proc.c
-  o o ipv4: convert /proc/net/arp to seq_file
-  o o ipv4: convert /proc/net/route to seq_file
-  o o ipv4: convert /proc/net/udp to seq_file
-
-Art Haas <ahaas@neosoft.com>:
-  o C99 designated initializers for drivers/usb
-  o C99 designated initializers for arch/sh
-
-Ben Collins <bcollins@debian.org>:
-  o Linux IEEE-1394 Updates
-  o Dv1394 fix
-
-Benjamin LaHaise <bcrl@redhat.com>:
-  o eliminate a compiler warning for aio_write in net/socket.c
-  o correct sock_aio_write prototype
-
-Brian Gerst <bgerst@didntduck.org>:
-  o convert tty_drivers to list_heads
-
-Christoph Hellwig <hch@sgi.com>:
-  o XFS: More mount cleanups
-  o XFS: I/O path cleanups
-  o XFS: Don't reset blocksize on umount
-  o XFS: Set inode operations later in xfs_iget_core
-  o XFS: Handle NULL pagebufs gracefully in pagebuf_geterror
-  o XFS: Remove a dead variable
-  o XFS: Remove leftovers of long-dead iocore methods
-  o XFS: Remove struct pm entirely - it was never defined in the Linux
-    port
-  o XFS: Don't update i_rdev and i_generation in vn_revalidate
-  o XFS: Revert VMAP() to the old IRIX prototype
-  o XFS: Switch from iget_locked to ilookup in vn_get
-
-Dave Kleikamp <shaggy@kleikamp.austin.ibm.com>:
-  o JFS: return code from sb_bread was incorrectly checked
-  o JFS: change name of get_index() to read_index()
-
-David Brownell <david-b@pacbell.net>:
-  o usbcore doc + minor fixes
-
-David Howells <dhowells@redhat.com>:
-  o AFS filesystem (1/2)
-  o AFS filesystem 2/2
-
-David S. Miller <davem@nuts.ninka.net>:
-  o arch/sparc64/defconfig: Update
-  o [TCP]: Only non-zero inits are necessary in tcp_vX_init_sock
-  o arch/sparc64/kernel/ebus.c: Cure __FUNCTION__ usage
-  o [IPV4]: Use generic struct flowi as routing key
-  o net/ipv6/netfilter/ip6table_mangle.c: Fix wrong cast
-  o net/ipv4/af_inet.c: Include linux/igmp.h
-  o [ia64/ppc64/s390x/sparc64/x86_64]: Update for sock->ops->recvmsg
-    AIO changes
-  o drivers/net/pppoe.c: Update for new sendmsg/recvmsg AIO args
-  o include/linux/net.h: Update SOCKOPS_WRAPPED to new AIO
-    recvmsg/sendmsg args
-  o net/appletalk/ddp.c: Update SOCKOPS_WRAPPED to new AIO
-    recvmsg/sendmsg args
-  o net/socket.c: Do not reference dev_ioctl unless CONFIG_NET
-  o include/net/bluetooth/bluetooth.h: Fixup recmsg args
-  o net/bluetooth/hci_sock.c: Fix recvmsg/sendmsg args
-  o net/bluetooth/bnep/core.c: Update for new sendmsg args
-  o net/bluetooth/rfcomm/core.c: Update for new sendmsg args
-  o net/ipv6/udp.c: Update for new sendmsg/recvmsg args
-  o net/ipv6/raw.c: Update for new recvmsg/sendmsg args
-  o net/sctp/socket.c: Update for new sendmsg/recvmsg args
-  o net/bluetooth/l2cap.c: Update for new sendmsg args
-  o net/bluetooth/sco.c: Update for new sendmsg args
-  o net/bluetooth/rfcomm/sock.c: Update for new sendmsg/recvmsg args
-  o include/net/tcp.h: Declare tcp_enter_frto
-  o net/irda/af_irda.c: Update for new sendmsg/recvmsg args
-  o fs/smbfs/sock.c: Update for new sendmsg/recvmsg args
-  o net/irda/af_irda.c: Fix sendmsg/recvmsg args in comments too
-  o fs/aio.c: Export wait_on_sync_kiocb
-  o fs/smbfs/sock.c: Fix the build
-  o [SPARC64]: Kill some port-specific bloat
-  o net/llc/llc_proc.c: Kill other __exit tag too
-
-Doug Ledford <dledford@redhat.com>:
-  o another TCQ update
-  o ips TCQ update
-  o SCSI update
-  o Advansys TCQ update
-  o qla1280 TCQ update
-  o eata TCQ update
-  o more driver updates (aacraid)
-  o more driver updates (aic7xxx)
-  o dpt_i2o TCQ update
-  o two driver updates, one core update
-
-Eric Sandeen <sandeen@sgi.com>:
-  o XFS: Allow quota inode creation on a read-only filesystem
-  o XFS: Get xfs debug module back in sync with current pagebuf flags
-  o XFS: Add missing newlines to cmn_err messages
-  o XFS: Rearrange how xfs deals with read-only mounts vs. read-only
-    devices
-  o XFS: Fix sysctl values, add PB_CLEAR_OWNER debugging line
-  o XFS: Check rtdev as well when testing for read-only devices
-  o XFS: Export xfs_bmbt_get_all for the last fix in xfsidbg.c
-  o XFS: Remove unused pagebuf flags
-  o XFS: Re-sync pagebuf flags in xfsidbg (missed last time...)
-  o XFS: Clean up xfs' log message printing
-  o XFS: More XFS debug-related fixes
-
-Gerd Knorr <kraxel@bytesex.org>:
-  o bttv driver compile fix
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o deleted drivers/usb/media/vicamurbs.h as it's no longer needed
-  o USB: fix up previous pl2303 fix
-  o USB: visor.c: changed USB_DT_DEVICE to USB_RECIP_INTERFACE, as
-    that's the proper #define to use
-
-Harald Welte <laforge@gnumonks.org>:
-  o net/ipv6/netfilter/ip6t_LOG.c: Display ipv4 encapsulation properly
-  o net/ipv4/netfilter/ip_conntrack_core.c: Fix
-    ip_conntrack_change_expect locking
-  o [NETFILTER]: Avoid nesting readlocks in conntrack code
-  o net/ipv4/netfilter/ipt_unclean.c: Source port is allowed to be zero
-
-Hirofumi Ogawa <hirofumi@mail.parknet.co.jp>:
-  o fix error code which fat_fill_super() returns (1/5)
-  o merges parse_options() of fat and parse_options() of vfat (2/5)
-  o removes posix option of fat (3/5)
-  o add show_options to fat (4/5)
-  o adds dmask option to fat (5/5)
-
-Ingo Molnar <mingo@elte.hu>:
-  o futex-2.5.42-A2
-
-Ivan Kokshaysky <ink@jurassic.park.msu.ru>:
-  o alpha fixes
-
-Jaroslav Kysela <perex@suse.cz>:
-  o ALSA updates
-
-John Levon <levon@movementarian.org>:
-  o net/ipv4/af_inet.c: Kill inaccurate comment
-  o oprofile - hooks
-  o oprofile - dcookies
-  o oprofile - timer hook
-  o oprofile - NMI hook
-  o oprofile - MSR defines
-  o oprofile - core
-  o oprofile - i386 driver
-  o oprofile - dcookies need to use u32
-
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
-  o kbuild: Fix UML build
-
-Kai Makisara <Kai.Makisara@kolumbus.fi>:
-  o SCSI tape door lock and reset fixes
-
-Linus Torvalds <torvalds@home.transmeta.com>:
-  o Merge with DRI CVS tree
-  o When opening a CD-ROM device with O_NONBLOCK (for setup and ioctl),
-    we should allow read-write accesses - it's used for control, not
-    data.
-  o Fix type - it used to be "__u8 short", which previous versions
-  o "tv_sec" is unsigned long
-  o Make ide-cd handle a REQ_BLOCK_PC packet command completion
-    properly (which is to say the same as REQ_PC).
-  o Block layer ioctl cleanups
-  o Remove unused variable warning
-  o Remove ide-cd reliance on "struct packet_struct", make it use the
-    native "struct request" fields instead.
-  o Oops, fix over-eager search-and-replace
-
-Maksim Krasnyanskiy <maxk@qualcomm.com>:
-  o Fix typo in HCI_FILTER get/setsockopt
-  o Increase BNEP thread priority
-  o Now that the module name bluetooth.o is not used by USB subsystem
-    anymore we can rename bluez.o to what it should have been from the
-    begging  bluetoth.o
-  o Consistent naming for Bluetooth function and constants
-  o Get rid of the MIN() thing in Bluetooth code and use min_t()
-    instead
-  o Support for suspend/resume interface for the HCI devices
-
-Manfred Spraul <manfred@colorfullife.com>:
-  o oneliner race fix for ldt updates
-
-Martin J. Bligh <Martin.Bligh@us.ibm.com>:
-  o Summit: config options and hooks
-  o Summit: infrastructure
-  o Summit: APIC limits
-  o Summit: MPS table detection
-  o Summit: APIC ID mapping
-
-Matthew Dharm <mdharm-usb@one-eyed-alien.net>:
-  o Fix SCSI mode sense size
-  o usb-storage: cache pipe values
-  o usb-storage: generalize transfer functions
-  o usb-storage: convert to common transfer functions
-  o usb-storage: convert to common transfer functions
-
-Nathan Scott <nathans@sgi.com>:
-  o XFS: Sysctl updates
-  o XFS: Global search and replace of the b* memory routines to their
-    mem* equivalents
-  o XFS: remove a no-longer-used conditional macro
-
-Pete Zaitcev <zaitcev@redhat.com>:
-  o [SPARC]: Fix build of timer routines
-
-Peter Chubb <peter@chubb.wattle.id.au>:
-  o Compile failure (gcc 2.96 bug?). 2.5.42 raid0.c
-
-Romain Lievin <rlievin@free.fr>:
-  o char driver: added tipar driver
-
-Russell King <rmk@flint.arm.linux.org.uk>:
-  o [SERIAL] Fix Sparc32/64 handling of CONFIG_SERIAL_CORE{,_CONSOLE}
-    SPARC was unconditionally setting CONFIG_SERIAL_CORE_CONSOLE to y
-    and conditionally setting CONFIG_SERIAL_CORE depending on the Sparc
-    sub-drivers.  In addition, the core serial driver for SPARC is
-    always built, so we end up with link errors.
-  o [ARM] Move TEXTADDR and DATAADDR out of vmlinux.lds.S These two
-    variables are used by more than just the linker; they're also used
-    by head.S to know where it can safely place the page tables.  We
-    therefore need to export it from the Makefile.
-  o [ARM] Allow CONFIG_ZBOOT_ROM=y image to be relocated to RAM Since
-    the decompressor supports PIC, even for CONFIG_ZBOOT_ROM, we can
-    easily allow an image which has been linked to run at a particular
-    address in ROM to be moved to RAM.  We just need to make sure that
-    we don't relocate the GOT entries for the BSS segment.
-  o [ARM] Ensure deselected config variables are defined to 'n' To keep
-    the Config.in files relatively clean, we use the following
-    construct:
-  o [ARM] Update timekeeping functions to use tick_nsec/1000 This
-    updates the ARM time keeping functions to use tick_nsec/1000
-    instead of tick.
-  o [ARM] Update pcibios_enable_device, supply pci_mmap_page_range()
-    Update pcibios_enable_device to only enable requested resources,
-    mainly for IDE.  Supply a pci_mmap_page_range() function to allow
-    user space to mmap PCI regions.
-  o [ARM] Update for signal handling changes
-  o [ARM] Update RiscPC decompressor for PIC changes This cset fixes
-    the RiscPC decompressor code for the PIC changes.
-  o [ARM] Optimise ARM TLB handling Sanitise includes of
-    asm/tlbflush.h, asm/cacheflush.h, asm/proc-fns.h Implement
-    ARM-specific TLB "shootdown" code.  It turns out that it is overall
-    more efficient to unconditionally invalidate the whole TLB rather
-    than entry by entry when removing areas.
-  o [ARM] Update neponset/sa1111 for Linux device model updates
-  o [ARM] Other updates for changes in 2.5.42 This adds ARM support for
-    in_atomic() and asm/numnodes.h
-  o [ARM] IDE updates
-  o [ARM] Fix iop310-pci compilation errors
-  o [ARM] Remove second serial port address
-  o [ARM] cpufreq updates for ARM This updates the Integrator cpufreq
-    code to use the new interfaces, and makes the sa1100 cpufreq round
-    up the requested frequency.
-  o Convert acorn expansion card probing code to the Linux device model
-  o [ARM] Update Acorn ethernet expansion cards This cset implements
-    validity checks on the ethernet MAC address when the device is
-    opened, and refuses to open the device if this check fails.  We
-    also provide the set_mac_address method to allow ifconfig to change
-    the mac address to something valid.
-  o [ARM] Acorn serial port driver update This cset combines the
-    Atomwide and The Serial Port 16550 driver modules into one
-    "8250_acorn.c" driver.  This new module takes full advantage of the
-    LDM-based expansion card facilities.
-  o [ARM] Remove old Acorn iomd-based keyboard and mouse drivers
-  o [ARM] Fix up NCR5380-based Acorn SCSI drivers This cset updates (as
-    much as is possible) the NCR5380-based Acorn SCSI drivers, mainly
-    converting them to the new error handling code.
-  o [ARM] Rudimentary support for Thumb ptracing
-  o [ARM] dump_stack and show_trace_task dump_stack() got used by the
-    generic code.  Call our version __dump_stack since we're running
-    out of other descriptive names.
-  o [ARM] Remove non-existent USB gadget code from mach-sa1100/Makefile
-    The USB gadget code now lives in arch/arm/mach-sa1100/usb, and
-    isn't in a mergable state.  We remove the old makefile entries
-    which are never going to be satisfied, and leave a placeholder for
-    the usb directory.
-  o [ARM] Convert boot-time memory permission selection to table
-  o [ARM] Update fd1772.c Remove unnecessary use of __inline__, and
-    remove a few unnecessary prototypes.  copy_buffer is moved before
-    use.
-  o [ARM] Fix fas216 use of __FUNCTION__ macro
-  o [ARM] Update acorn scsi code wrt global irq and bitops This cset
-    removes the global irq handling in the AcornSCSI driver, and makes
-    the target type for bitops an unsigned long array rather than an
-    unsigned char array.
-  o [ARM] Fix entry-armv.S Prevent the assembler putting constant pools
-    in the middle of code.
-  o [ARM] Update ARM cache type decoding
-  o [ARM ADFS] C99 designated initialisers (Patch from Art Haas) Here's
-    a small set of patches that switch the code to use C99 desiginated
-    initializers. Patches are against 2.5.42.
-  o [ARM] Convert sa1100 PCMCIA drivers to C99 initializers (Art Haas)
-    The patches convert drivers/pcmcia to use C99 named initializers,
-    and all the patches are against 2.5.42. There are 25 patches in
-    total, and the "cat"ing them together they're more that 20K, so I'm
-    sending the patches as a compressed attachment. The patches were
-    CC'd to Linus in the first mail that bounced.
-  o [ARM] Make the assabet machine always use the same uart mapping
-  o [ARM] Add Xscale ADIFCC and IOP310 documentation
-  o [ARM] Update sa1100 PCMCIA support We removed asm/mach-types.h from
-    asm/hardware.h.  This means we must now include asm/mach-types.h
-    where its used.
-  o [ARM] Update acornfb driver to 2.5.42 fbcon
-  o [ARM] Update clps711x fbcon driver
-  o [ARM] Update cyber2000fb for 2.5 fbcon
-  o [ARM] Update AFS mtd partition parsing
-  o [ARM] Update integrator-flash.c from MTD CVS Keep the partition
-    information around for the lifetime of the module.
-  o [MTD] Update 2.5 MTD code from MTD CVS and ARM tree This cset
-    updates the 2.5 MTD code from the MTD CVS.  David Woodhouse is
-    happy with me sending this.
-
-Stephen Lord <lord@sgi.com>:
-  o XFS: Rework dev_t and linux inode handling
-  o XFS: fix xmount command in xfsidbg
-  o XFS: fix parsing of extents by debug code
-  o XFS: fix 2.5 specific code for small block size filesystems, there
-    was a
-  o XFS: add some tracing calls in the read/write path
-  o XFS: simplify the xfs flush and flushinvalidate calls down the what
-  o XFS: ensure inode size is correct after making a symlink
-  o XFS: bring the 32 bit inode flag back into line with the Irix
-    version
-  o XFS: remove some bit shifting constants we do not use
-  o XFS: remove some 'temporary debugging code'
-  o XFS: Switch to native endian internal representation for extents
-  o XFS: remove debug print statements
-  o XFS: merge strategy and bmap calls, they are two aspects of the
-    same operation
-  o XFS: fix some off by one errors in the busy list search code
-  o XFS: Fix a couple of nasty log problems
-
-Stuart MacDonald <stuartm@connecttech.com>:
-  o USB Whiteheat driver patches
-
-Trond Myklebust <trond.myklebust@fys.uio.no>:
-  o A basic NFSv4 client for 2.5.x
-
-William Lee Irwin III <wli@holomorphy.com>:
-  o remove unused variable in wacom driver
-
+[1.] One line summary of the problem:    
+Completed asynchronous I/O WRITES are blocked by uncompleted
+asynchronous I/O WRITES for sockets.
+ 
+[2.] Full description of the problem/report:
+Under Windows, one can issue both asynchronous writes and reads
+concurrently on the same handle and which ever one completes first is
+the one that gets passed to the signal handler thread.  Under Linux, I
+do a similar strategy where the completions are handled in a signal
+handler function which routes the signal to the waiting worker threads -
+I am trying to keep the same exact interfaces for both the windows and
+the Linux version.  However, I have debugged my problem and it comes
+down to the fact that under Linux the read which is posted before the
+write keeps the completed write signal from being handled until a read
+actually completes.  So what happens is:
+ 
+1.                   a read request gets posted
+2.                   a write request gets posted
+3.                   nothing happens until the client on the other side
+of the socket actually writes something, which causes the read from (1)
+to complete.
+4.                   right after that the write signal comes to the
+signal handler code.  I am certain however that the write has competed a
+long time ago because the client has received the message.
+ 
+So, is this how aio* is supposed to work, or is there still a bug in the
+aio code?  I wrote my code on the Linux side based upon the POSIX.4 book
+by O'Reilly.  Unfortunately the example illustrates a thread doing only
+writes and only reads, not the two interlaced.
+ 
+Thanks for your help,
+ 
+Tervel Atanassov
+ 
+[3.] Keywords (i.e., modules, networking, kernel):
+networking, asynchronous I/O, aio_read, aio_write, signal, sockets
+ 
+[4.] Kernel version (from /proc/version):
+Linux version 2.5.42 (root@chichibird) (gcc version 3.2) #1 SMP Sun Oct
+13 22:26:19 PDT 2002
+ 
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+ 
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+ 
+[7.] Environment
+ 
+[7.1.] Software (add the output of the ver_linux script here) my own
+asynchronous i/o socket server. Linux chichibird 2.5.42 #1 SMP Sun Oct
+13 22:26:19 PDT 2002 i686 unknown
+ 
+Gnu C                  gcc (GCC) 3.2 Copyright (C) 2002 Free Software
+Foundation, Inc. This is free software; see the source for copying
+conditions. There is NO warranty; not even for MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+Gnu make               3.79.1
+util-linux             2.11u
+mount                  2.11u
+modutils               2.4.19
+e2fsprogs              1.28
+PPP                    2.4.1
+isdn4k-utils           3.2p1
+Linux C Library        10 09:51 /lib/libc.so.6
+Dynamic linker (ldd)   2.2.5
+Linux C++ Library      5.0.0
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0
+Modules Loaded         
+ 
+[7.2.] Processor information (from /proc/cpuinfo):
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 669.583
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1323.00
+ 
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 669.583
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1335.29
+ 
+[7.3.] Module information (from /proc/modules):
+<nothing>
+ 
+[7.4.] Loaded driver and hardware information (/proc/ioports,
+/proc/iomem)
+/proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+9400-941f : Intel Corp. 82801AA USB
+  9400-941f : uhci-hcd
+9800-980f : Intel Corp. 82801AA IDE
+  9800-9807 : ide0
+  9808-980f : ide1
+a800-a8ff : Adaptec AHA-2940U/UW/D / AIC-7881U
+  a800-a8ff : aic7xxx
+b000-b007 : Creative Labs SB Live! MIDI/Game Port
+b400-b41f : Creative Labs SB Live! EMU10k1
+b800-b8ff : D-Link System Inc RTL8139 Ethernet
+  b800-b8ff : 8139too
+d000-dfff : PCI Bus #01
+  d800-d8ff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X e800-e80f :
+Intel Corp. 82801AA SMBus
+ 
+/proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000cefff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-0fffbfff : System RAM
+  00100000-0040b990 : Kernel code
+  0040b991-004fc7cf : Kernel data
+0fffc000-0fffefff : ACPI Tables
+0ffff000-0fffffff : ACPI Non-volatile Storage
+cc800000-cc800fff : Adaptec AHA-2940U/UW/D / AIC-7881U
+  cc800000-cc800fff : aic7xxx
+cd000000-cd0000ff : D-Link System Inc RTL8139 Ethernet
+  cd000000-cd0000ff : 8139too
+cd800000-cfdfffff : PCI Bus #01
+  cd800000-cd800fff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
+  ce000000-ceffffff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
+cff00000-cfffffff : PCI Bus #01 d0000000-dfffffff : Intel Corp. 82820
+820 (Camino) Chipset Host Bridge
+(MCH)
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+ffff0000-ffffffff : reserved
+ 
+[7.5.] PCI information ('lspci -vvv' as root)
+ 
+[7.6.] SCSI information (from /proc/scsi/scsi)
+ 
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+ 
+[X.] Other notes, patches, fixes, workarounds:
 

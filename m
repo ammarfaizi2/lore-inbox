@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262885AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
+	id <S262886AbSJLLWb>; Sat, 12 Oct 2002 07:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262886AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1458 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262885AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
-Subject: Re: 2.5.42: stallion.c doesn't compile
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.NEB.4.44.0210121215370.8340-100000@mimas.fachschaften.tu-muenchen.de>
-References: <Pine.NEB.4.44.0210121215370.8340-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Oct 2002 12:35:29 +0100
-Message-Id: <1034422529.14297.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262887AbSJLLWb>; Sat, 12 Oct 2002 07:22:31 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:17853 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262886AbSJLLWa> convert rfc822-to-8bit; Sat, 12 Oct 2002 07:22:30 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kswapd Oops in 2.4.20-pre10
+Date: Sat, 12 Oct 2002 13:28:03 +0200
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Adrian Bunk <bunk@fs.tum.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210121327.51832.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-12 at 11:21, Adrian Bunk wrote:
-> drivers/char/stallion.c: In function `stl_initports':
-> drivers/char/stallion.c:2294: structure has no member named `routine'
-> ...
-> make[2]: *** [drivers/char/stallion.o] Error 1
+Hi Adrian,
 
-You probably need to swap it for "func". Check workqueue.h
+> My computer wasn't under high load when this happened.
+> It has 128 MB RAM and 1 GB of swap and the amount of used RAM+swap is
+> usually far below 128 MB.
+I had almost the same oops only once in my life till now and this was with 
+2.4.18.
 
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbUCOWuq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbUCOWu2
+	id S262845AbUCOWrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbUCOWoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:50:28 -0500
-Received: from law9-f89.law9.hotmail.com ([64.4.9.89]:50191 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262758AbUCOWtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 17:49:52 -0500
-X-Originating-IP: [67.172.165.225]
-X-Originating-Email: [sac98993@hotmail.com]
-From: "Kevin Leung" <sac98993@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 15 Mar 2004 14:49:51 -0800
+	Mon, 15 Mar 2004 17:44:44 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62983
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262839AbUCOWoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 17:44:09 -0500
+Date: Mon, 15 Mar 2004 23:44:50 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, j-nomura@ce.jp.nec.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [2.4] heavy-load under swap space shortage
+Message-ID: <20040315224450.GN30940@dualathlon.random>
+References: <Pine.LNX.4.44.0403150822040.12895-100000@chimarrao.boston.redhat.com> <4055BF90.5030806@cyberone.com.au> <20040315145020.GC30940@dualathlon.random> <405628AC.4030609@cyberone.com.au> <20040315222419.GM30940@dualathlon.random> <40563114.5040204@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law9-F89Xsn2Yf0scL90004e4c8@hotmail.com>
-X-OriginalArrivalTime: 15 Mar 2004 22:49:51.0845 (UTC) FILETIME=[D3ABC150:01C40ADF]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40563114.5040204@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On Tue, Mar 16, 2004 at 09:41:24AM +1100, Nick Piggin wrote:
+> 
+> 
+> Andrea Arcangeli wrote:
+> 
+> >
+> >Either that or you can choose to do some overwork and to shrink from all
+> >the zones removing this break:
+> >
+> >		if (ret >= nr_pages)
+> >			break;
+> >
+> >but as far as I can tell, the 50% waste of cache in a 2G box can happen
+> >in 2.6.4 and it won't happen in 2.4.x.
+> >
+> >
+> 
+> Yeah you are right. Some patches have since gone into 2.6-bk and
+> this is one of the things fixed up.
 
-I am very new to Linux and am working on a project. The nature of the 
-project is to essentially record all process/thread scheduling activity for 
-use in a later application. I wanted to know if any experts out there knew 
-of any libraries that could essentially "monitor" or "listen" for any 
-scheduling changes made. For instance if the kernel decides to set process A 
-from "sleeping" to "running" and process B from "running" to "sleeping", I 
-wanted to know if there was a function that could generate an immediate 
-notification of this event. Priority change information is also desireable. 
-The more aspects which trigger notificaiton, the better. As a first attempt, 
-I tried understanding the source code of the system monitor application. I 
-gained some insight, but still have questions. Mainly questions pertaining 
-to how the system monitor application receives the most "up-to-the-minute" 
-information on what process are running, what processes are sleeping etc. I 
-got stuck in the code and decided to explore another means.  Any advice or 
-insight into the matter would be greatly appreciated. If a library isn't 
-available, does anyone know the difficulty involved if I tried to modify the 
-kernel to provide this information?
-
-Please CC me the comments and responses posted to the list in response to my 
-posting
-
-Thank You in advance
-
-_________________________________________________________________
-Frustrated with dial-up? Lightning-fast Internet access for as low as 
-$29.95/month. http://click.atdmt.com/AVE/go/onm00200360ave/direct/01/
-
+sounds great, thanks!

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267094AbSKSGBs>; Tue, 19 Nov 2002 01:01:48 -0500
+	id <S267103AbSKSGK6>; Tue, 19 Nov 2002 01:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267102AbSKSGBr>; Tue, 19 Nov 2002 01:01:47 -0500
-Received: from webmail25.rediffmail.com ([203.199.83.147]:46005 "HELO
-	webmail25.rediffmail.com") by vger.kernel.org with SMTP
-	id <S267094AbSKSGBr>; Tue, 19 Nov 2002 01:01:47 -0500
-Date: 19 Nov 2002 06:07:47 -0000
-Message-ID: <20021119060747.18274.qmail@webmail25.rediffmail.com>
-MIME-Version: 1.0
-From: "Sachin  Sant" <sachinsant@rediffmail.com>
-Reply-To: "Sachin  Sant" <sachinsant@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Keyboard Controller / KDB problem on 2.4.18
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+	id <S267104AbSKSGK6>; Tue, 19 Nov 2002 01:10:58 -0500
+Received: from f131.sea2.hotmail.com ([207.68.165.131]:23050 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267103AbSKSGK6>;
+	Tue, 19 Nov 2002 01:10:58 -0500
+X-Originating-IP: [203.199.131.203]
+From: "MAASK Group" <maask12345@hotmail.com>
+To: linux-kernel@vger.kernel.org, lkml@vger.kernel.org
+Subject: shared memory applications
+Date: Tue, 19 Nov 2002 11:47:55 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F1314IlzJVF2cXkpPDw0001f07d@hotmail.com>
+X-OriginalArrivalTime: 19 Nov 2002 06:17:55.0918 (UTC) FILETIME=[664E7EE0:01C28F93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
-I am having problem with KDB + 2.4.18-3 SMP kernel . When i come 
-out of KDB ,i loose control over keyboard and mouse. I can't 
-switch between consoles using keyboard , neither can i use the 
-mouse. The machine appears to be in a semi-hung state , as i am 
-able to telnet to this machine. Via telnet session if i restart 
-the gpm service , i get back the control of keyboard and mouse.
-      I tested KDB with 2.5 kernel and found that this problem 
-does not occur with 2.5 kernel. The KDB code seems pretty much the 
-same for 2.4 and 2.5 kernel. As for the keyboard controller code , 
-2.5 is a complete re-write over 2.4 code.
-      So as far as 2.5 kernel is concerned the above problem with 
-KDB seems to be fixed by the rewrite of keyboard controller 
-code.
-      Is anyone aware of any fix for the KDB hang problem on 
-2.4.18 kernel ? Is there a patch for keyboard controller which i 
-can apply over 2.4.18 code to get rid of this KDB hang problem.
+Are there any applications which demand  extension of already allocated 
+shared memory(increasing the size of the shared memory)using shmget.
 
-Thanks
--Sachin
+MAASK
+(Maya, Anu, Asmita. snehal, Krushna doing a BE project together)
+
+
+_________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

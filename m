@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269709AbTGaQgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272529AbTGaQgb
+	id S274815AbTGaQoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274817AbTGaQod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:36:31 -0400
-Received: from mail.kroah.org ([65.200.24.183]:42961 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269709AbTGaQg3 (ORCPT
+	Thu, 31 Jul 2003 12:44:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47802 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274815AbTGaQo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:36:29 -0400
-Date: Thu, 31 Jul 2003 09:36:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Bakos <bakhos@msi.umn.edu>
+	Thu, 31 Jul 2003 12:44:29 -0400
+Date: Thu, 31 Jul 2003 09:45:21 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Bernd Eckenfels <ecki-lmk@lina.inka.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Badness in pci_find_subsys"
-Message-ID: <20030731163639.GA3555@kroah.com>
-References: <Pine.SGI.4.33.0307311059540.17528-300000@ir12.msi.umn.edu>
+Subject: Re: [PATCH] sparse function pointer arguments now accept void pointers
+Message-ID: <20030731164521.GA3796@osdl.org>
+References: <20030731052810.GA2853@osdl.org> <E19i6wG-0000Um-00@calista.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.33.0307311059540.17528-300000@ir12.msi.umn.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E19i6wG-0000Um-00@calista.inka.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 11:05:13AM -0500, Michael Bakos wrote:
-> Kernel version: 2.6.0-test1
-> CPU type: x86-64 (Opteron)
-> PCI information attached.
+
+Bernd,
+
+I might have messed up here.  But could you give a little more explanation,
+to help me understand what you think is wrong with this and why?
+
+Dave
+
+On Thu, Jul 31, 2003 at 08:29:24AM +0200, Bernd Eckenfels wrote:
+> In article <20030731052810.GA2853@osdl.org> you wrote:
+> > This patch eliminates warnings of the form:
+> ...
+> > -       if (t->type == SYM_PTR) {
+> > +       if (t->type == SYM_PTR || t->type == SYM_FN) {
 > 
-> I get: Badness in pci_find_subsys at drivers/pci/search.c:132 comming from
-> 2 different things(one seems to be from the tg3 ethernet driver and the
-> other from the ide driver), I also attached the exact call trace (before
-> the pci information).
-
-Known issue, it's fixed in the x86_64 tree and hopefully will make it to
-Linus's tree sometime soon.
-
-thanks,
-
-greg k-h
+> unlikely
+> 
+> Greetings
+> Bernd
+> -- 
+> eckes privat - http://www.eckes.org/
+> Project Freefire - http://www.freefire.org/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

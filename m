@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTEGThM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbTEGTg0
+	id S264253AbTEGT3j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTEGT3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:36:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:133 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264264AbTEGTeT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:34:19 -0400
-Date: Wed, 07 May 2003 11:39:12 -0700 (PDT)
-Message-Id: <20030507.113912.51682651.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted atm patches 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305071941.h47JfNGi031789@locutus.cmf.nrl.navy.mil>
-References: <20030507.112841.63035160.davem@redhat.com>
-	<200305071941.h47JfNGi031789@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 7 May 2003 15:29:31 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:54080 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264253AbTEGT2k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:28:40 -0400
+Subject: Re: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1052323940.2360.7.camel@diemos>
+References: <1052323940.2360.7.camel@diemos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052336482.2020.8.camel@diemos>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 07 May 2003 14:41:23 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Wed, 07 May 2003 15:41:23 -0400
-   
-   thanks for catching that.
-   
-No problem.  Just FYI I'm not applying your ATM stuff by default
-to 2.4.x anymore, just send me a seperate set for 2.4.x for the
-stuff you really want to go there.
+On Wed, 2003-05-07 at 11:12, Paul Fulghum wrote:
+> Starting with kernel version 2.5.69, I am
+> encountering what appears to be increased
+> interrupt latency or spikes in interrupt latency.
+> ...
+> I see this on 2 different machines
+> (one SMP server and one laptop).
+> ...
+> If I can get time, I'll try and hook up a scope
+> to measure the latencies precisely. I want to
+> check to see if this is a known problems before doing so.
 
-Thanks.
+Here are some results with a scope hooked to
+the hardware while running tests with a regular
+interrupt pattern:
+
+2.4.20-8 (redhat)
+Latency 20-30usec
+Spikes to 80usec
+
+2.5.68
+Latency 20-30usec
+Spikes to 100usec
+
+2.5.69
+Latency 100-110usec (5x increase)
+Spikes from 5-10 milliseconds
+
+This is all on a PCI adapter not sharing interrupts
+on a dual Pentium II-400 Netserver LC3.
+
+Any ideas what happened?
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+

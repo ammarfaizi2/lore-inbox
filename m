@@ -1,36 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUL2BOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUL2BQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbUL2BOU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 20:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUL2BOU
+	id S261273AbUL2BQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 20:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUL2BQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 20:14:20 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34482
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261272AbUL2BOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 20:14:17 -0500
-Date: Tue, 28 Dec 2004 17:12:46 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [sunrpc] remove xdr_kmap()
-Message-Id: <20041228171246.496f3eab.davem@davemloft.net>
-In-Reply-To: <20041228230416.GM771@holomorphy.com>
-References: <20041228230416.GM771@holomorphy.com>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 28 Dec 2004 20:16:47 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:63144 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261273AbUL2BQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 20:16:23 -0500
+Subject: Re: Screwy clock after apm suspend
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Brannon Klopfer <plazmcman@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <41D1FA78.50203@softhome.net>
+References: <41D1FA78.50203@softhome.net>
+Content-Type: text/plain
+Message-Id: <1104283084.16753.16.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 29 Dec 2004 12:18:05 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Dec 2004 15:04:16 -0800
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Hi.
 
-> In this process, I stumbled over a blatant kmap() deadlock in
-> xdr_kmap(), which fortunately is never called.
+We've seen this problem with Suspend2 as well. One of my Suspend2 users
+has looked into the problem and suggested a couple of solutions; I'll
+take a look at them shortly and send a patch here as well.
 
-This got zapped by a cleanup patch by Adrian Bunk which
-I applied yesterdat.  Linus just hasn't pulled from my
-tree yet.
+Regards,
+
+Nigel
+
+On Wed, 2004-12-29 at 11:29, Brannon Klopfer wrote:
+> 2.6.10
+> Slackware 10/-current
+> IBM ThinkPad 600E
+> ----------------
+> 
+> 2.6.10 screws up my system clock.
+> Two kernel/hardware clock readings, before and after suspend.
+> -------------
+> plaz@gonzo:~$ date ;hwclock
+> Tue Dec 28 15:52:39 PST 2004
+> Tue Dec 28 14:54:07 2004 -0.503621 seconds
+> #suspend, resume
+> plaz@gonzo:~$ date ;hwclock
+> Tue Dec 28 16:11:58 PST 2004
+> Tue Dec 28 15:04:06 2004 -0.168262 seconds
+> ---------------------
+> These are all when the comp is on without suspend (difference about the 
+> same throughout).
+> ----------------
+> plaz@gonzo:~$ date ;hwclock
+> Tue Dec 28 16:14:52 PST 2004
+> Tue Dec 28 15:07:00 2004 -0.251812 seconds
+> plaz@gonzo:~$ date ;hwclock
+> Tue Dec 28 16:15:26 PST 2004
+> Tue Dec 28 15:07:34 2004 -0.236138 seconds
+> plaz@gonzo:~$ date ;hwclock
+> Tue Dec 28 16:19:48 PST 2004
+> Tue Dec 28 15:11:57 2004 -0.908540 seconds
+> plaz@gonzo:~$
+> ------------
+> I did not have this problem with 2.6.9. My machine uses APM, clock 
+> stores local time (specified in kernel config). I use PIT for 
+> timesource, as others were losing ticks when on battery power (changes 
+> CPU clock speed). Again, did _not_ have this problem with 2.6.9.
+> 
+> Be glad to try out patches,
+> Brannon Klopfer
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+Cyclades Software Engineer
+Canberra, Australia
+
+http://www.cyclades.com
+
++61 (2) 6292 8028
++61 (417) 100 574
+

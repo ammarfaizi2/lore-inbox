@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130307AbRCBEVo>; Thu, 1 Mar 2001 23:21:44 -0500
+	id <S130306AbRCBEUd>; Thu, 1 Mar 2001 23:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130308AbRCBEVf>; Thu, 1 Mar 2001 23:21:35 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:10416 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130307AbRCBEVX>; Thu, 1 Mar 2001 23:21:23 -0500
-Message-ID: <3A9F1EAB.7530DF5C@coplanar.net>
-Date: Thu, 01 Mar 2001 23:16:43 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+	id <S130307AbRCBEUY>; Thu, 1 Mar 2001 23:20:24 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:2247 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S130306AbRCBEUE>;
+	Thu, 1 Mar 2001 23:20:04 -0500
+Message-ID: <3A9F1F71.382A8339@mirai.cx>
+Date: Thu, 01 Mar 2001 20:20:01 -0800
+From: J Sloan <jjs@mirai.cx>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Rogerio Brito <rbrito@iname.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Newbie] Re: Problem creating filesystem
-In-Reply-To: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ> <3A9B24BE.69777690@coplanar.net> <20010301225739.A674@iname.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Subject: Re: 2.4.2ac8 lost char devices
+In-Reply-To: <Pine.LNX.4.10.10103012127050.4143-100000@coffee.psychology.mcmaster.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogerio Brito wrote:
+Mark Hahn wrote:
 
-> On Feb 26 2001, Jeremy Jackson wrote:
-> > Carlos Fernandez Sanz wrote:
-> > > The IDE controller is
-> > >   Bus  0, device  17, function  0:
-> > >     Unknown mass storage controller: Promise Technology Unknown device (rev
-> > > 2).
-> > >       Vendor id=105a. Device id=d30.
-> > >       Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
-> >
-> > Unrelated to disk "problem", you might want to set your PCI latency timer in
-> > BIOS to 64 or more.
+> > > > > > Well, somethig has broken in ac8, because I lost my PS/2 mouse and
+> > > > > me too </aol>.
+> > No luck.
 
-This should be accessible in your BIOS setup.  I'm basing my comments on
-one NIC driver complaining in my logs and overriding settings lower that 64;
-however the general idea is to trade off latency for throughput.  If I go crazy,
-like 192 or so, on *my* system, sound card starts to pop a bit, indicating that
-it's fifo buffer is smaller that that and is emptying when other devices
-are using the bus at the same time (it's like a timeslice)
+same here -
 
->
->
->         Ok, I understand that this is probably off-topic and way too
->         basic, but what exactly would this do, in layman terms? Would
->         the latency being set to 32 result in any potential data
->         corruption?  BTW, to set this quantity, one should use setpci,
->         right?
+> it seems to be the mdelay(2) added to pc_keyb.c in -ac6.
+
+-ac7 is fine here, but when I boot -ac8, there's no ps/2 mouse.
+
+jjs
+
+
 

@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271552AbTGQSjc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271539AbTGQShq
+	id S271555AbTGQSb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271563AbTGQS2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:37:46 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:29340 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271041AbTGQSfQ
+	Thu, 17 Jul 2003 14:28:23 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:2554 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S271555AbTGQS1t convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:35:16 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 17 Jul 2003 20:43:26 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] bttv documentation update
-Message-ID: <20030717184326.GA22025@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	Thu, 17 Jul 2003 14:27:49 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] remove pa->va->pa conversion for efi.acpi
+Date: Thu, 17 Jul 2003 11:42:38 -0700
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE54C@fmsmsx406.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] remove pa->va->pa conversion for efi.acpi
+Thread-Index: AcNMjqSmjtdlwGenSgygxVnCAlyraQAA95Gg
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: <davidm@hpl.hp.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Jul 2003 18:42:39.0168 (UTC) FILETIME=[32BD5C00:01C34C93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+> Note that I'm only pointing this out because I thought there were some
+> NULL-pointer checks.  If it's a physical address, 0 is a valid
+> address.  If it's an (identity-mapped) kernel address, NULL-pointer
+> checks are OK.
+> 
 
-This patch updates the bttv documentation with the latest 
-card list changes and new entries.
+Doh!  Yes, indeed.  Thanks...
 
-Please apply,
-
-  Gerd
-
-diff -u linux-2.6.0-test1/Documentation/video4linux/bttv/CARDLIST linux/Documentation/video4linux/bttv/CARDLIST
---- linux-2.6.0-test1/Documentation/video4linux/bttv/CARDLIST	2003-07-17 18:55:00.977444723 +0200
-+++ linux/Documentation/video4linux/bttv/CARDLIST	2003-07-17 19:13:34.169364573 +0200
-@@ -30,7 +30,7 @@
-   card=28 - Terratec TerraTV+ Version 1.1 (bt878)
-   card=29 - Imagenation PXC200
-   card=30 - Lifeview FlyVideo 98 LR50
--  card=31 - Formac iProTV
-+  card=31 - Formac iProTV, Formac ProTV I (bt848)
-   card=32 - Intel Create and Share PCI/ Smart Video Recorder III
-   card=33 - Terratec TerraTValue Version Bt878
-   card=34 - Leadtek WinFast 2000/ WinFast 2000 XP
-@@ -94,9 +94,16 @@
-   card=92 - Osprey 2000
-   card=93 - IDS Eagle
-   card=94 - Pinnacle PCTV Sat
--  card=95 - Formac ProTV II
-+  card=95 - Formac ProTV II (bt878)
-   card=96 - MachTV
-   card=97 - Euresys Picolo
-+  card=98 - ProVideo PV150
-+  card=99 - AD-TVK503
-+  card=100 - Hercules Smart TV Stereo
-+  card=101 - Pace TV & Radio Card
-+  card=102 - IVC-200
-+  card=103 - Grand X-Guard / Trust 814PCI
-+  card=104 - Nebula Electronics DigiTV
- 
- tuner.o
-   type=0 - Temic PAL (4002 FH5)
-@@ -139,3 +146,4 @@
-   type=37 - LG PAL (newer TAPC series)
-   type=38 - Philips PAL/SECAM multi (FM1216ME MK3)
-   type=39 - LG NTSC (newer TAPC series)
-+  type=40 - HITACHI V7-J180AT
-
--- 
-sigfault
+matt 

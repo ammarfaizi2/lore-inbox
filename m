@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbREBLKG>; Wed, 2 May 2001 07:10:06 -0400
+	id <S131899AbREBLLf>; Wed, 2 May 2001 07:11:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131899AbREBLJ5>; Wed, 2 May 2001 07:09:57 -0400
-Received: from e215012.upc-e.chello.nl ([213.93.215.12]:1545 "EHLO
-	procyon.wilson.nl") by vger.kernel.org with ESMTP
-	id <S131643AbREBLJi>; Wed, 2 May 2001 07:09:38 -0400
-From: "Michel Wilson" <michel@procyon14.yi.org>
-To: "Sim, CT \(Chee Tong\)" <CheeTong.Sim@sin.rabobank.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux NAT questions- (kernel upgrade??)
-Date: Wed, 2 May 2001 13:09:33 +0200
-Message-ID: <NEBBLEJBILPLHPBNEEHIIEGHCEAA.michel@procyon14.yi.org>
+	id <S132606AbREBLLZ>; Wed, 2 May 2001 07:11:25 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:10761 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S131899AbREBLLM>;
+	Wed, 2 May 2001 07:11:12 -0400
+Message-ID: <3AEFEB0E.1C464EA9@mountain.net>
+Date: Wed, 02 May 2001 07:10:06 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Seth Goldberg <bergsoft@home.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Followup to previous post: Atlon/VIA Instabilities
+In-Reply-To: <3AEE9EA0.3752F0C0@home.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A4@sinxsn02.ap.rabobank.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi.. I follow your instruction, but I encounter this issue, my kernel need
-> to be upgrade? MAy I know how to determine the current kernel version and
-> how to upgrade it??
+Seth Goldberg wrote:
+> 
+> Hi,
+> 
+>   So it seems that CONFIG_X86_USE_3DNOW is simply used to
+> enable access to the routines in mmx.c (the athlon-optimized
+> routines on CONFIG_K7 kernels), so then it appears that somehow
+> this is corrupting memory / not behaving as it should (very
+> technical, right?) :)...
+> 
+>  --Seth
 
-You can see the current kernel version by doing uname -a. It is also shown
-at boot time.
+This is a shot in the dark. Do you have floating-point emulation on
+(CONFIG_MATH_EMULATION=y)?
 
->
->
-> [root@guava /root]# iptables -t nat -A PREROUTING -p tcp --dst
-> 1.1.1.160 -i
-> eth1 -j D
-> NAT --to-destination 192.168.200.2
-> iptables v1.1.1: can't initialize iptables table `nat': iptables who? (do
-> you need to insm
-> od?)
-> Perhaps iptables or your kernel needs to be upgraded.
->
->
-> [root@guava simc]# rpm -ivh iptables-1_2_0-6_i386.rpm
-> error: failed dependencies:
->         kernel >= 2.4.0 is needed by iptables-1.2.0-6
-For iptables you'll need kernel >= 2.4.0, as stated. I don't know if RedHat
-has a precompiled rpm somewhere (i don't use RedHat) but i would think so.
-You might ask your local RedHat guru ;-).
-Other options are:
-- build your own 2.4.x (see Kernel-HOWTO, if it's not too outdated)
-- use ipchains.
+Tom
 
-I don't know ipchains enough to tell you how to do it, i don't even know if
-it's possible.... But
-http://www.linuxdoc.org/HOWTO/IP-Masquerade-HOWTO-6.html#ss6.8 may be of
-interest to you.
-
-Greetings,
-
-Michel Wilson.
-
+-- 
+The Daemons lurk and are dumb. -- Emerson

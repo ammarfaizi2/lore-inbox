@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290598AbSBFPNR>; Wed, 6 Feb 2002 10:13:17 -0500
+	id <S290609AbSBFPUH>; Wed, 6 Feb 2002 10:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290605AbSBFPNH>; Wed, 6 Feb 2002 10:13:07 -0500
-Received: from [194.234.65.222] ([194.234.65.222]:65412 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S290598AbSBFPNA>; Wed, 6 Feb 2002 10:13:00 -0500
-Date: Wed, 6 Feb 2002 16:12:40 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Thibaut Laurent <thibaut@celestix.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Cyrix CX5530 audio support?
-In-Reply-To: <E16YTsC-0005R1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0202061612210.6844-100000@mustard.heime.net>
+	id <S290607AbSBFPT5>; Wed, 6 Feb 2002 10:19:57 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:20669 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S290605AbSBFPTv>; Wed, 6 Feb 2002 10:19:51 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Wed, 06 Feb 2002 16:15:38 +0100
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> ("Jeramy
+ B. Smith"'s message of "Tue, 5 Feb 2002 23:33:34 -0800 (PST)")
+Message-ID: <87k7tqljz9.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The sb module from the kernel works.
-> > IIRC, sb16 had a hard time detecting the chip (though I haven't tested it again recently), but ALSA snd-card-sb16 is all right so you'll probably want to use the later.
->
-> Its been fine on my CS5530 since 2.2. We have the DMA emulation bug and the
-> disable_dma emulation bug fixed up nowdays
+"Jeramy B. Smith" <jeramy@penguinppc.org> writes:
 
-This is with the sb16 driver?
+> Firstly, IANAFSN (I am not a Free Software Nazi) but there is this
+> new GPL decentralized version control program called arch that is small
+> and fits in well with the Unix way of using other small utils.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+Aegis has been in existence for years (about a decade) and it closely
+mirrors the Linux development process. ;-)
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

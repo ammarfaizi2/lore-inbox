@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263048AbSJBL0L>; Wed, 2 Oct 2002 07:26:11 -0400
+	id <S263051AbSJBLWg>; Wed, 2 Oct 2002 07:22:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263050AbSJBL0L>; Wed, 2 Oct 2002 07:26:11 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:38817 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S263048AbSJBL0K>;
-	Wed, 2 Oct 2002 07:26:10 -0400
-Date: Wed, 2 Oct 2002 13:31:38 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi ooops with 2.5.40 (PIIX4 and DVD)
-Message-ID: <20021002113138.GC3247@ulima.unil.ch>
-References: <E17wfyp-00063r-00@rammstein.mweb.co.za>
+	id <S263052AbSJBLWg>; Wed, 2 Oct 2002 07:22:36 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:49908 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263051AbSJBLWf>; Wed, 2 Oct 2002 07:22:35 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021002103932.C35A21EA74@alan.localdomain> 
+References: <20021002103932.C35A21EA74@alan.localdomain> 
+To: Alessandro Amici <alexamici@tiscali.it>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
+Subject: Re: 2.5.37+ i386 arch split broke external module builds 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E17wfyp-00063r-00@rammstein.mweb.co.za>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Oct 2002 12:28:03 +0100
+Message-ID: <4631.1033558083@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 09:49:23AM +0000, bonganilinux@mweb.co.za wrote:
 
-> It's actually not an Ooops it is some debug code to capture code
-> which is doing the wrong thing. Dont worry about it.
+alexamici@tiscali.it said:
+>  in order to access the kernel interfaces, modules that live outside
+> the kernel sources were used to only need: CFLAG += -I$(TOPDIR)/
+> include 
 
-OK, unfortunately, the result is that my DVD-rom is not accesible...
+That was broken anyway -- you always got the CFLAGS wrong if you just did 
+that. The only way that I only of to get the CFLAGS to match the kernel 
+build reliably is to do something like:
 
-> This is what I am worried about, I also saw this at my home PC, but
-> doing cdrecord -scanbus does pick up my cdwiter.
+ make -C /lib/modules/`uname -r`/build SUBDIRS=`pwd` modules
 
-cdrecord -scanbus:
-Cdrecord 1.11a26 (i586-mandrake-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-cdrecord: No such file or directory. Cannot open '/dev/pg*'. Cannot open SCSI driver.
-cdrecord: For possible targets try 'cdrecord -scanbus'. Make sure you are root.
+--
+dwmw2
 
-> BTW: Thanx to whoever fixed ide-scsi I can now boot without getting an
-> Oops (that I reported in 2.5.39). Now I seem to have lost the mouse
-> but I will look ate that when I get back home.
 
-I don't know if it really an ide-scsi related problem, but I like to be
-able to hear music while working...
-
-Thank for your answer,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

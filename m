@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293343AbSCEPb3>; Tue, 5 Mar 2002 10:31:29 -0500
+	id <S293342AbSCEPcW>; Tue, 5 Mar 2002 10:32:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293349AbSCEPbT>; Tue, 5 Mar 2002 10:31:19 -0500
-Received: from [199.203.178.211] ([199.203.178.211]:21908 "EHLO
-	exchange.store-age.com") by vger.kernel.org with ESMTP
-	id <S293343AbSCEPbI> convert rfc822-to-8bit; Tue, 5 Mar 2002 10:31:08 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S293351AbSCEPcK>; Tue, 5 Mar 2002 10:32:10 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:1951 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S293349AbSCEPbw>;
+	Tue, 5 Mar 2002 10:31:52 -0500
+Date: Tue, 05 Mar 2002 07:29:11 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <830115452.1015313350@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44L.0203050921510.1413-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0203050921510.1413-100000@duckman.distro.conecti
+ va>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="x-user-defined"
-Content-Transfer-Encoding: 8BIT
-Subject: printk() goes to console.
-Date: Tue, 5 Mar 2002 17:30:35 +0200
-Message-ID: <DCC3761A6EC31643A3BAF8BB584B26CC0DB95C@exchange.store-age.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: printk() goes to console.
-Thread-Index: AcHEWrGfO75qdDA1EdaipgADR78XpQ==
-From: "Alexander Sandler" <ASandler@store-age.com>
-To: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+--On Tuesday, March 05, 2002 9:22 AM -0300 Rik van Riel 
+<riel@conectiva.com.br> wrote:
 
-I am working on block device driver. There is a little problem I am experiencing with it that I'de like to share and also, may be someone may tell me what it can be caused by. I am using printk( KERN_DEBUG ... ) to print different messages about the driver status and then collecting those messages from /proc/kmsg. The problem is that when it prints many messages (like it is printing something for every request it receives), from time to time, those messages getting into system console. Sometimes, I am receiving part of my debug messages printed to console mixed with some junk. 
-It's not like it bother me too much. However it still seems to be wrong.
-So, does any one has an idea what it can be caused by?
+> On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+>> On Mon, Mar 04, 2002 at 10:26:30PM -0300, Rik van Riel wrote:
+>> > On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+>> > > On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
+>> > > > This could be expressed as:
+>> > > >
+>> > > > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+>> > > > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+>
+>> the example you made doesn't have highmem at all.
+>>
+>> > has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
+>> > HIGHMEM zones...
+>>
+>> it has multiple zone normal and only one zone dma. I'm not forgetting
+>> that.
+>
+> Your reality doesn't seem to correspond well with NUMA-Q
+> reality.
 
-Alexandr Sandler.
+I think the difference is that he has a 64 bit vaddr space,
+and I don't ;-) Thus all mem to him is ZONE_NORMAL (not sure
+why he still has a ZONE_DMA, unless he reused it for the 4Gb
+boundary). Andrea, is my assumtpion correct?
+
+On a 32 bit arch (eg ia32) everything above 896Mb (by default)
+is ZONE_HIGHMEM. Thus if I have > 896Mb in the first node,
+I will have one ZONE_NORMAL in node 0, and a ZONE_HIGHMEM
+in every node. If I have < 896Mb in the first node, then
+I have a ZONE_NORMAL in every node up to and including the
+896 breakpoint, and a ZONE_HIGHMEM in every node from the
+breakpoint up (including the breakpoint node). Thus the number
+of zones = number of nodes + 1.
+
+M.
+

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268679AbUIGVVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUIGVmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268679AbUIGVVp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUIGVH7
+	id S268270AbUIGVmo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268689AbUIGVlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:07:59 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:15942 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S268641AbUIGVEZ
+	Tue, 7 Sep 2004 17:41:40 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:31195 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268634AbUIGVjY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:04:25 -0400
-Subject: Re: [PATCH] ACPI-based i8042 keyboard/aux controller enumeration
-From: Paul Fulghum <paulkf@microgate.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1094591061.2531.8.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Sep 2004 16:04:21 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 17:39:24 -0400
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Cc: Spam <spam@tnonline.net>, Christer Weinigel <christer@weinigel.se>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
+       David Masover <ninja@slaphack.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
+       Christoph Hellwig <hch@lst.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Chris Wedgwood <cw@f00f.org>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+	<413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+	<1183150024.20040907143346@tnonline.net>
+	<413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 07 Sep 2004 23:39:22 +0200
+In-Reply-To: <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
+Message-ID: <m34qm9kbcl.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 15:03, Bjorn Helgaas wrote:
-> Thanks for the report.  Figures that it would be an HP machine ;-)
-> Can you apply the following patch on top of 2.6.9-rc1-mm4, boot
-> with "i8042.lsacpi", and post the resulting dmesg?
+Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de> writes:
 
-Nothing is output with i8042.lsacpi=1.
-I tried it with both i8042.noacpi=1 and 0.
+> No, it would not. If you read the POSIX.1 specification for cp
+> carefully <http://www.unix.org/version3/online.html>, you will
+> notice that the process for copying a regular file is carefully
+> standardized. A POSIX.1-conforming cp implementation would not
+> be allowed to copy additional streams, unless either additional
+> options are given or the type of the file being copied is other
+> than S_IFREG. And cp is just one example of a standardized file
+> handling program.
 
-I did notice the following:
+We can safely ignore POSIX when it is too broken.  cp could very well
+be modified to copy named streams except when the option --posix is
+specified or the environment variale POSIXLY_CORRECT is set.
 
-Sep  7 15:53:57 deimos kernel: ACPI: Unable to locate RSDP
-<snip>...
-Sep  7 15:53:58 deimos kernel: ACPI: Subsystem revision 20040816
-Sep  7 15:53:58 deimos kernel: ACPI: Interpreter disabled.
-
- 
---
-Paul Fulghum
-paulkf@microgate.com
+  /Christer
 
 
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283179AbRK2OXw>; Thu, 29 Nov 2001 09:23:52 -0500
+	id <S283182AbRK2OYW>; Thu, 29 Nov 2001 09:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283246AbRK2OXm>; Thu, 29 Nov 2001 09:23:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18695 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283179AbRK2OXd>;
-	Thu, 29 Nov 2001 09:23:33 -0500
-Date: Thu, 29 Nov 2001 15:23:10 +0100
+	id <S283246AbRK2OYN>; Thu, 29 Nov 2001 09:24:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20743 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283182AbRK2OYC>;
+	Thu, 29 Nov 2001 09:24:02 -0500
+Date: Thu, 29 Nov 2001 15:23:39 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Slo Mo Snail <slomosnail@gmx.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-Message-ID: <20011129152310.L10601@suse.de>
-In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128153718.D23858@suse.de> <20011129140517.8650E1E122@Cantor.suse.de>
+Subject: Re: new bio: compile fix for alpha
+Message-ID: <20011129152339.M10601@suse.de>
+In-Reply-To: <20011129165456.A13610@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011129140517.8650E1E122@Cantor.suse.de>
+In-Reply-To: <20011129165456.A13610@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29 2001, Slo Mo Snail wrote:
-> > But wait :)
-> > I'll first test 2.5.1-pre3 + Alan's Patch + your sg-sr patch + your bio
-> > patch Bye
-> Hmm it works :)
+On Thu, Nov 29 2001, Ivan Kokshaysky wrote:
+> Added BUG_ON macro, similar to x86 one;
+> arg 2 for blk_queue_bounce_limit() declared `long long' in blkdev.h
+> and `u64' in ll_rw_blk.c, which is not the same thing on alpha.
 
-Just to confirm -- 2.5.1-pre3 + Alan's patch + my bio-pre3-1 patch,
-right? pre3 already contains the sg-sr part.
+Ah indeed, thanks.
 
-> I'll test some more things with my CD drives ;)
-> Maybe I'll find some bugs
+> There are several compiler warnings "long long format, long arg",
+> caused by the same reason, but I think they could be ignored at this point.
 
-Please do :)
+Please send whatever you find, thanks.
 
 -- 
 Jens Axboe

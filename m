@@ -1,149 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154228AbQBJKBD>; Thu, 10 Feb 2000 05:01:03 -0500
-Received: by vger.rutgers.edu id <S154060AbQBJJ67>; Thu, 10 Feb 2000 04:58:59 -0500
-Received: from mail.cyberus.ca ([209.195.95.1]:62110 "EHLO cyberus.ca") by vger.rutgers.edu with ESMTP id <S154260AbQBJJ46>; Thu, 10 Feb 2000 04:56:58 -0500
-Date: Thu, 10 Feb 2000 09:16:33 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: davem@redhat.com
-Cc: kuznet@ms2.inr.ac.ru, torvalds@transmeta.com, linux-kernel@vger.rutgers.edu
-Subject: Re: New network driver interface changes, README
-Message-ID: <Pine.GSO.4.20.0002100910570.13589-101000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-950192193=:13589"
+Received: by vger.rutgers.edu via listexpand id <S154378AbQBJTNY>; Thu, 10 Feb 2000 14:13:24 -0500
+Received: by vger.rutgers.edu id <S154808AbQBJSdq>; Thu, 10 Feb 2000 13:33:46 -0500
+Received: from interlock2.lexmark.com ([192.146.101.10]:63070 "HELO interlock2.lexmark.com") by vger.rutgers.edu with SMTP id <S155014AbQBJSbq>; Thu, 10 Feb 2000 13:31:46 -0500
+Message-Id: <200002102251.RAA14486@interlock2.lexmark.com>
+From: Lee Wells <leewells@lexmark.com>
+Date: Thu, 10 Feb 2000 17:51:03 -0500 (EST)
+To: linux-kernel@vger.rutgers.edu
+Subject: [PATCH] arch/mips/config.in
+Cc: leewells@lexmark.com
+X-Sun-Charset: US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+A small patch to get the mips builds through a "make config".
+Looks like a bunch of include/asm-mips changes coming too.  I'll
+post those once I get the kernel to build.
 
----559023410-1804928587-950192193=:13589
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-
-Dave,
-Back in december i wrote a HOWTO on this (attached) 
-Only a few people paid attention to it then. Its great to see this finally
-making it in! 
-So consider this to be another description of the changes.
-
-cheers,
-jamal
+--Lee Wells
+leewells@lexmark.com
 
 
----559023410-1804928587-950192193=:13589
-Content-Type: APPLICATION/octet-stream; name="softnet.drivers.HOWTO.0012.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.20.0002100916330.13589@shell.cyberus.ca>
-Content-Description: 
-Content-Disposition: attachment; filename="softnet.drivers.HOWTO.0012.gz"
 
-H4sICDsffzgAA3NvZnRuZXQuZHJpdmVycy5IT1dUTy4wMDEyAM1aW3MbN9J9
-XvwKrB42YkoaSXaSXUuxK44t20p0cUnyJltbWyxwBiQRDWeYwQwp5vLf93Q3
-5sIhlXit7+FjlS2JAzQaje7TpxujbqfO6ySPq5nNSq3xh8tKmyU20WWupzad
-63Jq9TwvSpdNdD7WO6mdmHi1ozNbLvPiTqukcAtbeJpAYzO7ZCHF2MSYWeQL
-R+JGq+apz8clZmtTxFNX2risChupsxKKWK+zHL/YdGFJiohMbGlc6mn5eu5u
-OTWlXuZVCtFWG8ya2kIZ6BmndhApdSMjP/N6Zlyml3bksRht0ZTHalzOjw8O
-mv8jlxWRiaOiOlDq26rUVZZa7/Uqr6Cm1ZOctk/qFCssluixw3+kW2pK60v+
-blJY+YPM4fJMzVNrPNTPYdscX6a5oUlQ3M3IpAbfs1JLV06xZGZjLGqwRFmY
-8djFkf7graJlZq4o8kJ0V/vdj/qL7CJ1WXUfLU1VTaK8mBzMq9EB9q90+LR7
-zbBP42mvNCZI7lnBzfeLvKJDP9giYVL6KP7l4OLs+vrq+qZvwM3x4wqaRGP3
-cQvqngRfZWSlyMWzyCZVNE9ZzjltGPNomt22qudVvV0b/UfbyhaTKCuzKspy
-npN+xJy4iKPY8HC/8qWd+Y+aBq3vTRJBwf/5AOBOKc44yaLKrBn04Sn5LHNR
-cReVla8Kkv4ph+6x0woRG5tJTufwJyaaljxzuVxGBscXFfmfyHfZOPexs1ls
-oziPfppvX0DvfmfmJhtsPfDYR35pMtpPddc1Tj9obqeQN5lCpiBMDYE7tzmi
-dmHTHQ7pnTgv7A5DAGNaPDXZxO6bUbpSlReULOzYFi36CSrGeQJUGiHqRT5j
-JFBJvTl/+VZffXtzdX56e3Z1ua4WFLvB4oVJgXkLB/wcp2bief185PPUljY5
-IYmu0AiquATMmNSVK8I1OxvZhLDWZcroxI2hF+2psPsui02RGRqujQfepCnB
-pr2fpwBHm0Czzz/Xt9POMhsaAHjw1f6LclT5lZbffQnElV/ZPkU1L5UiOXFV
-hMWxRGzJuP6A0L/dkS9hXNKWNqRGrpyZua7FllapVyIjXeHbMamp+YHGULhu
-Ry98oQ+P9V/EIc7PLr8f3ty+vD0d/nj15g0/PTqu3aXz9PXVD5f89Om2p/j/
-+pYff7Ht8fWPN6cX/PjLbY9vm8dfbRX+6t3pa6V6qtIpkrt0jKbHeaFbu69N
-If0fmkLf/fXszZvh9YfLy7PLtzqe2vhubTpv8A+XlONV/V3/4ZyOH/TNwcmX
-HUBz8ADIVkQMxsaXIbxDpHi1zkzYYYkZTPKttKArQZgA0mxGQekNYqOUlWeW
-4tf5mWjrCnAPfXn2ar/M9/FDBwmRVmdjSv1F0EYvETP1EoiaDPEvjvskeqJ3
-CSicbOYuy5ekD0BAK8DRtN6PPtl/MSCtydmJZiFcf67cwqS0PegpR3w/9BZR
-MM2JEZ16j4fOpOlqT7taI4nKhirxigAaABlpWO9B8VJEXzILVWkkFgE0EX8Z
-Cew5H637A/kkWyoTtAO0yGkFgwMb9TmBo95NzYroVg/gwLtumz/0skDWLloF
-ADhxDnQvKJJFiY3V1Qjf0gzmkxWYaAEnDFwLrClF+iEU8w2MTfO5HVewkRL5
-C7uq6WbHg7DTV6Zi/GukMwAC0x35otl0aScWNsA6cZU8szSPfuCQ5jDznp5g
-q1lDbVsPG1nyRQU7FnlSxaJSzV7JnuYOCSJZgAOaiSWfubl4v0eCgIxANZ6J
-zSIhEilf5GDESaTf1bvVZkzGBeVMmJrSZsnrSjezfk/B5f00sOM4n8Ey4KIF
-nFDvXn2/p+kYGphAFrAF592EiPPllb64uj7V76/Ozwk4OuCz/+CH88dbskzA
-hp15niJ3T3Y6NhHqG/YigESuGkoDSrWa/Qoh1XesRtlOCvK2JFc/UZe5ntHk
-kRmt9sE1+NvObDlJKkuwqCnE3MghOl9miBqENBlG7Vo6SgQabSNGEPiSHExy
-j16S8lMcuxXnC/uTUmNGi8d3E0QffJXTasi2tHRL6zdcWggF+Uljg2P1BnvF
-eSI9wgFSOmNPHi8whhhGsQDHlGNniwKHDjkjD3+ubGWH9zNX7g60m2ScYTs2
-o3VNjzp4N3OpCRTGlArGMYC8Mp4m+YSxb07Hwh48hJcP9Rx7tbDfvPLTujBq
-rY2jUihgMj9znuqgSDOYL82qOypm70Rc5TynyGe6O0mneXxXzb2yJcqglziH
-cPpAPw84zOK0Ys+nJMi5BHGytA2tIIsaXVQZW4T37XGmBD3lkhAUS1gDgEY8
-DkdTTWdPKHEmoM5o3lkRx+8weGrglp6OuzZBODheReUUkLFQlilqPRpZsoWI
-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
-ty+Odbma5yh77qFx+/kvKzc5oMUyAAA=
----559023410-1804928587-950192193=:13589--
+
+--- arch/mips/config.in	Wed Feb  9 21:20:23 2000
++++ ../l2342/arch/mips/config.in	Tue Dec  7 18:38:22 1999
+@@ -180,8 +180,7 @@
+ 	    comment '    CCP compressors for PPP are only built as modules.'
+ 	 fi
+          if [ "$CONFIG_SGI" = "y" ]; then
+-	    bool '  SGI Seeq ethernet controller support' CONFIG_SGISEEQ
+-	 fi
++	 bool '  SGI Seeq ethernet controller support' CONFIG_SGISEEQ
+       fi
+       if [ "$CONFIG_DECSTATION" = "y" ]; then
+          bool '  DEC LANCE ethernet controller support' CONFIG_DECLANCE
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

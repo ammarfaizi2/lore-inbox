@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131307AbRDPQ0J>; Mon, 16 Apr 2001 12:26:09 -0400
+	id <S131317AbRDPQ3J>; Mon, 16 Apr 2001 12:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRDPQZ7>; Mon, 16 Apr 2001 12:25:59 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:20787 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S131307AbRDPQZq>; Mon, 16 Apr 2001 12:25:46 -0400
-Date: Mon, 16 Apr 2001 18:25:38 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-cc: Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <20010416174945.D29398@kallisto.sind-doof.de>
-Message-Id: <Pine.LNX.4.31.0104161816470.19209-100000@phobos.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131479AbRDPQ27>; Mon, 16 Apr 2001 12:28:59 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:25102 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131317AbRDPQ2t>;
+	Mon, 16 Apr 2001 12:28:49 -0400
+Date: Mon, 16 Apr 2001 18:28:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: cacook@freedom.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem: Writing to Pana DVD-RAM
+Message-ID: <20010416182837.F9539@suse.de>
+In-Reply-To: <20010414213259Z132548-682+222@vger.kernel.org> <3AD8CC04.EA5022C1@coplanar.net> <20010415135500Z132658-682+339@vger.kernel.org> <20010415162001.E1982@suse.de> <20010416153103.5D6F11E0FC@Cantor.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010416153103.5D6F11E0FC@Cantor.suse.de>; from cacook@freedom.net on Mon, Apr 16, 2001 at 09:29:27AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Apr 2001, Andreas Ferber wrote:
+On Mon, Apr 16 2001, cacook@freedom.net wrote:
 
-> > A power failure is a different thing from a power button press.
+please, no html mails -- unreadable and impossible to reply to. it looks
+like a udf bug most likely, you may want to try the latest and greatest
+from
 
-> And why not do exactly this with init? Have a look in /etc/inittab:
+http://sourceforge.net/projects/linux-udf/
 
-> You can shut down your machine there, but you can also have it play a
-> cancan on power failure. It is up to your gusto. And now tell me, why
-> not choose a similar approach, but instead reinvent the wheel and
-> create a completely new mechanism?
-
-Because we'd be running out of signals soon, when all the other ACPI
-events get available.
-
-   Simon
+instead of using the kernel supplied version.
 
 -- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+Jens Axboe
 

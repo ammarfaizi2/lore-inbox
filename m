@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129660AbRB0RaA>; Tue, 27 Feb 2001 12:30:00 -0500
+	id <S129661AbRB0Rcl>; Tue, 27 Feb 2001 12:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbRB0R3v>; Tue, 27 Feb 2001 12:29:51 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33551 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129660AbRB0R3m>; Tue, 27 Feb 2001 12:29:42 -0500
-Subject: Re: i2o & Promise SuperTrak100
-To: david2@maincube.net (David Priban)
-Date: Tue, 27 Feb 2001 17:32:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <MPBBILLJAONHMANIJOPDIEBIFMAA.david2@maincube.net> from "David Priban" at Feb 27, 2001 12:14:14 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129680AbRB0Rcb>; Tue, 27 Feb 2001 12:32:31 -0500
+Received: from alpha-gw.alpha-processor.com ([192.233.59.9]:52760 "HELO
+	alpha-gw.alpha-processor.com") by vger.kernel.org with SMTP
+	id <S129661AbRB0Rc1>; Tue, 27 Feb 2001 12:32:27 -0500
+Message-ID: <051DFF3BBA73D3119A5800A0C95BD021C8F3A0@barracuda.alpha-processor.com>
+From: Christopher Chimelis <Christopher.Chimelis@api-networks.com>
+To: "'Zack Brown'" <zbrown@tumblerings.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Will Mosix go into the standard kernel?
+Date: Tue, 27 Feb 2001 12:31:05 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Xnz8-0003rQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> c029072a
-> Call Trace:
-> [<c01b33fe>] [<c01b349c>] [<c01b308f>] [<c01b4774>]
-> [<c01b47a6>] [<c011b0fe>] [<c011b4bf>] [<c018969d>]
-> [<c0189731>] [<c018918e>] [<c018a12d>] [<c018a19f>]
-> [<c0109f6d>] [<c010a0ce>] [<c0107120>] [<c0107120>]
-> [<c0108e00>] [<c0107120>] [<c0107120>] [<c0100018>]
-> [<c0107143>] [<c01071a9>] [<c0105000>] [<c0100191>]
-> Code:
-> 0f 0b 8d 65 dc 5b 5e 5f 89 ec 5d c3 55 89 e5 83 ec 10 57 56
-> Kernel panic: Aiee, killing interrupt handler !
-> In interrupt handler - not syncing
 
-Run it through ksymoops and I might be able to guess what went wrong.
+> Just curious, are there any plans to put Mosix into the 
+> standard kernel,
+> maybe in 2.5, so folks could just configure it and go? it 
+> seems that the
+> number of people with more than one computer might make this 
+> a feature many
+> would at least want to try, especially if it was available as 
+> an option by
+> default. Is there anything in the Mosix folks' implementation 
+> that would
+> prevent this?
 
-In theory however i2o is a standard and all i2o works alike. In practice i2o
-is a pseudo standard and nobody seems to interpret the spec the same way, the
-implementations all tend to have bugs and the hardware sometimes does too.
+I can't speak for the kernel folks, but has it been ported to
+architectures other than i386 yet?  Last I heard, it hadn't been,
+but that was a very long time ago.
 
+C

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288191AbSAHRhB>; Tue, 8 Jan 2002 12:37:01 -0500
+	id <S288194AbSAHRhb>; Tue, 8 Jan 2002 12:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288192AbSAHRgv>; Tue, 8 Jan 2002 12:36:51 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:15374 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S288191AbSAHRgd>;
-	Tue, 8 Jan 2002 12:36:33 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Chris Wedgwood <cw@f00f.org>
-Date: Tue, 8 Jan 2002 18:35:35 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: "APIC error on CPUx" - what does this mean?
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        macro@ds2.pg.gda.pl
-X-mailer: Pegasus Mail v3.40
-Message-ID: <E542D8F46A1@vcnet.vc.cvut.cz>
+	id <S288192AbSAHRhW>; Tue, 8 Jan 2002 12:37:22 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:50570
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288194AbSAHRhL>; Tue, 8 Jan 2002 12:37:11 -0500
+Date: Tue, 8 Jan 2002 12:22:06 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Missing entries in Configuure.help)
+Message-ID: <20020108122206.B24186@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Greg KH <greg@kroah.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020106210233.A30319@thyrsus.com> <20020107155654.GA6810@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020107155654.GA6810@kroah.com>; from greg@kroah.com on Mon, Jan 07, 2002 at 07:56:54AM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  9 Jan 02 at 1:30, Chris Wedgwood wrote:
-> On Tue, Jan 08, 2002 at 01:12:04PM +0100, Maciej W. Rozycki wrote:
+Greg KH <greg@kroah.com>:
+> On Sun, Jan 06, 2002 at 09:02:33PM -0500, Eric S. Raymond wrote:
+> > The following symbols (mostly ARM port stuff) are missing enntries in
+> > Configure.help.  Please contribute help entries if you can.
 > 
->     A possible reason is the 8259A in the chipset deasserts its INT
->     output late enough for the Athlon CPU's local APIC to register
->     another ExtINTA interrupt sometimes, possibly under specific
->     circumstances.
+> You might want to state which kernel version you are referring to.
 > 
-> Actully... we could potentially measure this... after an interrupt it
-> serviced (or before, or both) we could store the interrupt source
-> globally and the cycle counter... when a suprrious interrupt is
-> received check the last interrupt and how long ago it was and then
-> start looking for a pattern...
+> > USB_EHCI_HCD
+> > USB_SERIAL_IPAQ
+> > USB_SERIAL_KLSI
+> > USB_STV680
+> > USB_VICAM
+> 
+> All of these are present in 2.5.2-pre7, 2 kernel versions ago :)
 
-I instrumented kernel at home, and when spurious interrupt happens,
-stack trace almost always says that spurious interrupt happened
-during HLT in default_idle (if I disable ACPI...), ISR is always zero,
-and IRR contains 0x00 (before parport driver is loaded) or 0x80
-(after parport driver is loaded (without IRQ support)). Few times
-stack trace was different, and pointed to ide__sti() in ide_do_request,
-but it was < 5% of occurences. 
+I've got entries for three of these now.  I'll post a revised list shortly.
 
-As spurious IRQ happens during HLT, and IRR is clear at the time
-we are going to ack IRQ, it looks like real spurious IRQ (caused by
-noise?). Or delay between spurious one and real IRQ is really long. 
-I'll try some of your suggestions today night.
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+I'm keeping Configure.help up to date with respect to both the 2.5
+and 2.4 branches.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+What is a magician but a practicing theorist?
+	-- Obi-Wan Kenobi, 'Return of the Jedi'

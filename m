@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266596AbUGUTJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266588AbUGUTQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266596AbUGUTJp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 15:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266588AbUGUTJp
+	id S266588AbUGUTQv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 15:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUGUTQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 15:09:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51615 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266596AbUGUTJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 15:09:43 -0400
-To: Mike Snitzer <snitzer@gmail.com>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [BUG] e1000 on reboot/boot path.
-References: <20040719181115.86378.qmail@web52302.mail.yahoo.com>
-	<m1y8le3cto.fsf@ebiederm.dsl.xmission.com>
-	<170fa0d2040720180741cfa783@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Jul 2004 13:09:11 -0600
-In-Reply-To: <170fa0d2040720180741cfa783@mail.gmail.com>
-Message-ID: <m1hds12n54.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 21 Jul 2004 15:16:51 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:24715 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266588AbUGUTQu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 15:16:50 -0400
+Date: Wed, 21 Jul 2004 20:46:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Scott Wood <scott@timesys.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040721184650.GA27375@elte.hu>
+References: <20040712174639.38c7cf48.akpm@osdl.org> <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721183415.GC2206@yoda.timesys>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040721183415.GC2206@yoda.timesys>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Snitzer <snitzer@gmail.com> writes:
 
-So you have a problem that the e1000 driver does not properly
-shutdown the e1000 in the reboot path (no code).  But it does properly
-cleanup when you remove the module.
+* Scott Wood <scott@timesys.com> wrote:
 
->  I've been bitten by this issue
-> with the e1000 (<= 5.2.52-k4) driver.  With an "Ethernet controller:
-> Intel Corp. 82546EB Gigabit Ethernet Controller", device id# 1010, I
-> get:
-> 
-> Intel(R) PRO/1000 Network Driver - version 5.2.30.1-k1
-> Copyright (c) 1999-2004 Intel Corporation.
-> PCI: Enabling device 04:05.0 (0000 -> 0003)
-> Uhhuh. NMI received for unknown reason 31.
-> Dazed and confused, but trying to continue
-> Do you have a strange power saving mode enabled?
-> The EEPROM Checksum Is Not Valid
-> PCI: Enabling device 04:05.1 (0000 -> 0003)
-> The EEPROM Checksum Is Not Valid
-> 
-> The 5.2.52-k4 has toned down, yet basically the same, errors.  This
-> message results when kexec'ing from a 2.6.7 kernel with the e1000
-> builtin; once I made the e1000 a module and unloaded it prior to
-> kexec'ing all was fine.
-> 
-> Looking at the e1000 source it is clear that removing the e1000 module
-> triggers e1000_remove() via module_exit()'s pci_unregister_driver(). 
-> Once the e1000 let go of the PCI resources the kexec'd kernel's e1000
-> driver was happy.  Kexec looks to call all loaded modules' shutdown()
-> routine.  The e1000 doesn't have shutdown(); but it does have a
-> remove().
-> 
+> You're still running do_softirq() with preemption disabled, which is
+> almost as bad as doing it under a lock.
 
-Eric
+well softirqs are designed like that. I've added extra preemption code
+to the latest patch to avoid repeat processing.
+
+	Ingo

@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVAXSYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVAXS0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVAXSYL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAXSYL
+	id S261558AbVAXS0w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 13:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAXS0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:24:11 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:54214 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261551AbVAXSYH (ORCPT
+	Mon, 24 Jan 2005 13:26:51 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:48013 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S261558AbVAXSZ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:24:07 -0500
-Date: Mon, 24 Jan 2005 21:43:36 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050124175449.GK3515@stusta.de>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124175449.GK3515@stusta.de>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 13:25:26 -0500
+Date: Mon, 24 Jan 2005 19:25:19 +0100 (CET)
+From: Jirka Kosina <jikos@jikos.cz>
+To: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix bad locking in drivers/base/driver.c
+Message-ID: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 18:54:49 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+Hi,
 
-> It seems noone who reviewed the SuperIO patches noticed that there are 
-> now two modules "scx200" in the kernel...
+there has been (for quite some time) a bug in function driver_unregister() 
+- the lock/unlock sequence is protecting nothing and the actual 
+bus_remove_driver() is called outside critical section.
 
-They are almost mutually exlusive(SuperIO contains more advanced), 
-so I do not see any problem here.
-Only one of them can be loaded in a time.
+Please apply.
 
-So what does exactly bother you?
-
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+--- linux-2.6.11-rc2/drivers/base/driver.c.old	2005-01-22 02:48:48.000000000 +0100
++++ linux-2.6.11-rc2/drivers/base/driver.c	2005-01-24 19:19:33.243501684 +0100
+@@ -106,8 +106,8 @@
+ 
+ void driver_unregister(struct device_driver * drv)
+ {
+-	bus_remove_driver(drv);
+ 	down(&drv->unload_sem);
++	bus_remove_driver(drv);
+ 	up(&drv->unload_sem);
+ }
+ 
+-- 
+JiKos.

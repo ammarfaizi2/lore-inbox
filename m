@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUC1JqT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 04:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbUC1JqT
+	id S262129AbUC1JwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 04:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbUC1JwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 04:46:19 -0500
-Received: from port-212-202-52-228.reverse.qsc.de ([212.202.52.228]:52182 "EHLO
-	gw.localnet") by vger.kernel.org with ESMTP id S262226AbUC1JqR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 04:46:17 -0500
-Message-ID: <40669F41.3060100@trash.net>
-Date: Sun, 28 Mar 2004 11:47:45 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ken Ashcraft <kash@stanford.edu>
-CC: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [CHECKER] 33 missing null checks
-References: <5.2.1.1.2.20040327225419.01930cc8@kash.pobox.stanford.edu>
-In-Reply-To: <5.2.1.1.2.20040327225419.01930cc8@kash.pobox.stanford.edu>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 28 Mar 2004 04:52:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35991 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262129AbUC1JwP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 04:52:15 -0500
+Date: Sun, 28 Mar 2004 01:51:56 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: uaca@alumni.uv.es
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] PACKET_MMAP limit removal
+Message-Id: <20040328015156.7c4a9bd7.davem@redhat.com>
+In-Reply-To: <20040327184200.GA29991@pusa.informat.uv.es>
+References: <20040322170520.GA3685@pusa.informat.uv.es>
+	<20040327184200.GA29991@pusa.informat.uv.es>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Ashcraft wrote:
-> I'm from the Stanford Metacompilation research group where we use static 
-> analysis to find bugs.  I'm trying a new technique, so I would 
-> appreciate feedback on these error reports.
-> 
-> I found these errors by comparing implementations of the same 
-> interface.  If functions are assigned to the same function pointer (same 
-> field of some struct), I assume that the functions are called from the 
-> same context.  Therefore, they should treat their incoming parameters 
-> similarly.  In this case, before dereferencing pointers, the functions 
-> should either check the pointers for null or not check the pointers for 
-> null.  Any contradiction is an error.
+On Sat, 27 Mar 2004 19:42:00 +0100
+uaca@alumni.uv.es wrote:
 
-This one is invalid. The iptables targets and matches check if they are
-called from a valid hook. MASQUERADE for example can only be used in
-the POST_ROUTING hook, and out should always be != NULL there.
+> This patch also it removes the current limit on the number of frames
+> PACKET_MMAP can hold. Currently the buffer can hold only
+> 0.15 seconds at a 1 Gb/s in a 32 bit architecture, half
+> this amount in a 64 bit machine.
+>
+> With this patch, PACKET_MMAP requires __less memory__
+> to hold the buffer.
+> 
+> I have rearranged the most used members of struct packet_opt so they
+> fit in a single cache line.
+> 
+> Any comment would be greatly appreciated
 
-Regards
-Patrick
+You're basically trading memory overhead for computational overhead.
+And in this case I think that's fine.
 
-> There are 33 reports below.  Each report contains first a reference to 
-> an EXAMPLE or a place where the parameter is checked.  That reference is 
-> followed by a COUNTER(example) or a place where the parameter is not 
-> checked.  After that is a code snippet from the counter example.  The 
-> type of the function pointer (struct foo.bar) can be found in the 
-> COUNTER field: [COUNTER=struct foo.bar-param_num].
-> 
-> Unfortunately, many of these errors had only one EXAMPLE and one 
-> COUNTER.  It may be that some of the null checks are spurious.  You can 
-> see the number of EXAMPLEs for a report in the [ex=i] field of the 
-> COUNTER line.
-> 
-> Thanks for any feedback,
-> Ken Ashcraft
-> 
-> ---------------------------------------------------------
-> [BUG]
-> /home/kash/interface/linux-2.6.3/net/ipv4/netfilter/ipt_MASQUERADE.c:128:masquerade_target: 
-> ERROR:DEREF: Not checking arg out [COUNTER=struct ipt_target.target-2] 
-> [fit=3] [fit_fn=1] [fn_ex=0] [fn_counter=1] [ex=2] [counter=1] [z = 
-> -2.25170500701057] [fn-z = -4.35889894354067]
->     newsrc = rt->rt_src;
->     DEBUGP("newsrc = %u.%u.%u.%u\n", NIPQUAD(newsrc));
->     ip_rt_put(rt);
-> 
->     WRITE_LOCK(&masq_lock);
-> 
-> Error --->
->     ct->nat.masq_index = out->ifindex;
->     WRITE_UNLOCK(&masq_lock);
-> 
->     /* Transfer from original range. */
-> ---------------------------------------------------------
+I think your patch is fine and I'm going to apply it.
+Can you cook up a 2.4.x version of this for me?
+
+Thanks.

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbTDOLx2 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbTDOLx2 
+	id S261290AbTDOLx7 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTDOLx7 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 07:53:28 -0400
-Received: from dsl-212-23-25-139.zen.co.uk ([212.23.25.139]:48086 "EHLO
-	butternut.transitive.com") by vger.kernel.org with ESMTP
-	id S261258AbTDOLx1 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 07:53:27 -0400
-Message-ID: <3E9BF500.6050709@treblig.org>
-Date: Tue, 15 Apr 2003 13:03:12 +0100
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Cisar <petr.cisar@gtsgroup.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
-References: <20030415133608.A1447@cuculus.switch.gts.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	Tue, 15 Apr 2003 07:53:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:33555 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261290AbTDOLx5 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 07:53:57 -0400
+Date: Tue, 15 Apr 2003 14:05:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Writing modules for 2.5
+Message-ID: <20030415120524.GA13567@wotan.suse.de>
+References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel> <p73adesxane.fsf@oldwotan.suse.de> <yw1xptno7yxe.fsf@zaphod.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xptno7yxe.fsf@zaphod.guide>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Cisar wrote:
-> Hello
+On Tue, Apr 15, 2003 at 02:00:45PM +0200, M?ns Rullg?rd wrote:
+> Andi Kleen <ak@suse.de> writes:
 > 
-> Since 2.5.60, I have been experiencing problems with a complete system freeze or random oopses when the
- > X-server terminates. It is happening on both machines I am using 
-whose hardware configuration differs
-> slightly, however both of them are equipped with ATI video cards (ATI Rage 128 and ATI Radeon 8500),
-> and both of them run the same version of X-server. That's about all they have in common.
+> > > What magic needs to be done when writing modules for linux 2.5.x?
+> > > Insmod tells me "Invalid module format" and the kernel log says "No
+> > > module found in object".  I've tried to mimic the foo.mod.c stuff in
+> > > the kernel tree, but I can't figure out the right way to do it.
+> > 
+> > Welcome to the wonderful new world of in kernel module loading, finally
+> > with understandable error messages. Now bad error reporting is not limited
+> > to netlink anymore.
+> > 
+> > You need -DKBUILD_BASENAME=name
+> 
+> Should I also add -DKBUILD_MODNAME=name?
 
-Me too! But only about 50% of the time.
-(On an Athlon MP with ATI Radeon, Debian/sid, 2.5.66 at the moment).
+Yes.
 
-Dave
-
+-Andi

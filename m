@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbUJWUW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUJWXW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbUJWUW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 16:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUJWUWa
+	id S261333AbUJWXW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUJWXW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 16:22:30 -0400
-Received: from melos.informatik.uni-rostock.de ([139.30.241.22]:38917 "EHLO
-	melos.informatik.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S261301AbUJWUSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 16:18:35 -0400
-From: Denny Priebe <dpr@siglost.org>
-Date: Sat, 23 Oct 2004 22:10:50 +0200
+	Sat, 23 Oct 2004 19:22:26 -0400
+Received: from vs152245.vserver.de ([62.75.152.245]:63382 "EHLO
+	vs152245.vserver.de") by vger.kernel.org with ESMTP id S261333AbUJWXWW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:22:22 -0400
+From: Boris Bukowski <b.bukowski@gmx.de>
+Reply-To: b.bukowski@gmx.de
 To: linux-kernel@vger.kernel.org
-Subject: CDROMEJECT using ide-scsi not working since 2.6.9-rc2
-Message-ID: <20041023201050.GA4673@nostromo.nofw.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: My thoughts on the
+Date: Sun, 24 Oct 2004 01:22:04 +0200
+User-Agent: KMail/1.7
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <200410231001.32080.b.bukowski@gmx.de> <loom.20041023T152357-234@post.gmane.org>
+In-Reply-To: <loom.20041023T152357-234@post.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200410240122.04211.b.bukowski@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
+Am Saturday, 23. October 2004 15:27 schrieb Alban Browaeys:
+> > It looks like we need a Community driven Enterprise Kernel.
+> > We decided to start testing with 2.6.10 and use it if there are no
+> > Problems.
+> > Maybe there are other Admins doing the same and we can start our own
+> > Enterprise Kernel.
+> Hum Debian or is it driven by money ?
+We (Lycos-Europe) are running Debian on several hundred Servers and as far
+as I know the Woody Kernel's are not usable on most of this Servers.
+So we are using a 2.4 vanilla kernel with some patches on these Systems.
+> I bet Community Driven Entreprise Kernel is way better in marketing than
+> debian kernel though are we not driven by stability ...
+I used the buzz word cause it was the standard answer if somebody asked.
+I think there are many Admins who have to find a good 2.6 Release
+and have than the work to maintain it. 
+Doing it together will save a lot of time.
+Only a idea, at least my english is not good enough to realize this.
 
-since 2.6.9-rc2 CDROMEJECT is no longer working when using ide-scsi.
-(At least for my Sony DVD RW DW-U55A. I've tried 2.6.8.1, 2.6.9-rc[1234], 
-and 2.6.9.)
+Boris 
+ 
 
-strace eject /dev/scd0 reports
-[...]
-open("/dev/scd0", O_RDONLY|O_NONBLOCK)  = 3
-ioctl(3, CDROMEJECT, 0xbffffbd8)        = 0
-close(3)                                = 0
-[...]
-but nothing happens.
-
-I know that using ide-scsi is deprecated for cd burning but: is this a 
-feature or a bug?
-
-Greetings,
-Denny

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310201AbSCVFs0>; Fri, 22 Mar 2002 00:48:26 -0500
+	id <S312677AbSCVFtg>; Fri, 22 Mar 2002 00:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311294AbSCVFsQ>; Fri, 22 Mar 2002 00:48:16 -0500
-Received: from angband.namesys.com ([212.16.7.85]:35716 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S310201AbSCVFsE>; Fri, 22 Mar 2002 00:48:04 -0500
-Date: Fri, 22 Mar 2002 08:48:00 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: sneakums@zork.net, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020322084800.A6792@namesys.com>
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020321180750.A2706@namesys.com> <20020321181516.24ea3fbd.skraw@ithnet.com>
+	id <S312672AbSCVFt0>; Fri, 22 Mar 2002 00:49:26 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:52157 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S311294AbSCVFtS> convert rfc822-to-8bit; Fri, 22 Mar 2002 00:49:18 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <joeja@mindspring.com>,
+        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (1003) - Registered Version
+Date: Thu, 21 Mar 2002 21:49:15 -0800
+In-Reply-To: <RELAY2HXrsOZoybKw2N00004110@relay2.softcomca.com>
+Subject: Re: max number of threads on a system
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020322054916.AAA14361@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Thu, Mar 21, 2002 at 06:15:16PM +0100, Stephan von Krawczynski wrote:
 
-> It now works, depending on which fs I mount first. Remeber both are completely
-> new 3.6 fs. I can really reproduce mounting "a", then "b" works, but first
-> mounting "b", then "a" has the problem. Did you try something like this (play
-> with the mounting sequence)?
+On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
+>What limits the number of threads one can have on a Linux system?
 
-Yes, I tried to change order of mounts with no apparent success (or perhaps
-failure).
+	Common sense, one would hope.
 
-Bye,
-    Oleg 
+>I have a simple program that creates an array of threads and it locks up at
+>the creation of somewhere between 250 and 275 threads.
+
+	If it locks up, that's a bug. I remember older versions of glibc actually 
+had this bug. But it should simply fail to create them.
+
+>The program just hangs indefinately unless a Control-C is hit.
+>
+>How can I increase this number or can I?
+
+	Why increase the number of threads you can create before you trigger a bug? 
+Wouldn't it make more sense to *fix* the bug so that pthread_create returns 
+an error like it's supposed to?
+
+	In any event, don't create so many threads. Create threads only to keep CPUs 
+busy or to pend I/Os that can't be done asynchronously.
+
+	DS
+
+

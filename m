@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282395AbRK0R5A>; Tue, 27 Nov 2001 12:57:00 -0500
+	id <S282062AbRK0RzA>; Tue, 27 Nov 2001 12:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282218AbRK0R4t>; Tue, 27 Nov 2001 12:56:49 -0500
-Received: from c38889-c.grlnd1.tx.home.com ([24.4.38.23]:6272 "HELO
-	webby.quo.to") by vger.kernel.org with SMTP id <S282189AbRK0Rzm>;
-	Tue, 27 Nov 2001 12:55:42 -0500
-Message-ID: <002301c1776c$b9776ef0$024d460a@neptune>
-From: "Jordan Russell" <jr-list-kernel@quo.to>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4(.16) kernel logs messages in the wrong order
-Date: Tue, 27 Nov 2001 11:55:39 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282178AbRK0Ryr>; Tue, 27 Nov 2001 12:54:47 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:15876 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S282062AbRK0Rye>;
+	Tue, 27 Nov 2001 12:54:34 -0500
+Date: Tue, 27 Nov 2001 10:50:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Samuel Maftoul <maftoul@esrf.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ieee1394
+Message-ID: <20011127105056.A9937@kroah.com>
+In-Reply-To: <20011127144900.A21231@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011127144900.A21231@pcmaftoul.esrf.fr>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 30 Oct 2001 16:46:50 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Here's an excerpt from my /var/log/messages. Notice how messages from two
-different times are strangely mixed together. What's going on? Is there some
-way to fix it? This does not happen when a 2.2.x kernel is used.
+On Tue, Nov 27, 2001 at 02:49:00PM +0100, Samuel Maftoul wrote:
+> The second problem I have is:
+> I don't really understand what for is the hotplug ? can It automatically
+> mount any new firewire disk I plugged ? How should I do it?
+> Does someone have a sample script which does  something like:
+> fdisk -l /dev/$justplugged | awk ... | grep ... ; for i in
+> $mountabledevices ; do mkdir /mnt/$cnt ; mount ... ; done 
+> ( I hope you got what I'm searching for.)
 
-Nov 27 11:38:54 webby sysctl: net.ipv4.conf.default.rp_filter = 1
-Nov 27 11:39:15 webby kernel: NET4: Linux TCP/IP 1.0 for NET4.0
-Nov 27 11:38:54 webby sysctl: kernel.sysrq = 1
-Nov 27 11:39:15 webby kernel: IP Protocols: ICMP, UDP, TCP
-Nov 27 11:38:54 webby sysctl: net.ipv4.ip_forward = 1
-Nov 27 11:39:15 webby kernel: IP: routing cache hash table of 4096 buckets,
-32Kbytes
-Nov 27 11:38:54 webby rc.sysinit: Configuring kernel parameters:  succeeded
+The linux-hotplug package doesn't directly allow you to do automatic
+mounts of filesystems that are plugged in, but it could :)
 
-I'm using Red Hat 7.2 if it matters.
+Right now it's focusing on automatically loading the proper kernel
+driver for any device that has been plugged in.  See the
+http://linux-hotplug.sf.net/ site for more docs on it.
 
-Thanks,
+thanks,
 
-Jordan Russell
-
+greg k-h

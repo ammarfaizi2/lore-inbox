@@ -1,25 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292965AbSCIVmf>; Sat, 9 Mar 2002 16:42:35 -0500
+	id <S292952AbSCIVkY>; Sat, 9 Mar 2002 16:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292956AbSCIVmZ>; Sat, 9 Mar 2002 16:42:25 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:9998 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S292954AbSCIVmO>;
-	Sat, 9 Mar 2002 16:42:14 -0500
-Date: Sat, 9 Mar 2002 22:23:17 +0100
+	id <S292954AbSCIVkP>; Sat, 9 Mar 2002 16:40:15 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:49421 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S292952AbSCIVj5>;
+	Sat, 9 Mar 2002 16:39:57 -0500
+Date: Sat, 9 Mar 2002 22:03:19 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Hank Yang <hanky@promise.com.tw>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        Crimson Hung <crimsonh@promise.com.tw>,
-        Jenny Liang <jennyl@promise.com.tw>,
-        Linus Chen <linusc@promise.com.tw>
-Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
-Message-ID: <20020309212316.GA747@elf.ucw.cz>
-In-Reply-To: <00f201c1c5a3$d27a8330$59cca8c0@hank>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dalecki@evision-ventures.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend support for IDE
+Message-ID: <20020309210319.GA691@elf.ucw.cz>
+In-Reply-To: <20020308180204.GA7035@elf.ucw.cz> <E16jPEs-00073F-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00f201c1c5a3$d27a8330$59cca8c0@hank>
+In-Reply-To: <E16jPEs-00073F-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.27i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,45 +24,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
+> > +	while (HWGROUP(drive)->handler)
+> > +		schedule();
+> 
+> You need to yield. Remember the process might be hard real time and blocking
+> your real work from occuring. while(foo) schedule() is always a bug
 
->     We make some changes for support our product. The ATA-100/133
-> Controllers.
-> Hope you can reference following describe and patch code. If there has
-> anything
-> wrong, please feel free to tell us. Thank you.
+The process calling this is kernel thread doing powermangment; we have
+it under full control. yield() is probably more intuitive, through.
 
-Seems like mailer damaged it badly... Or you have very poor indenting
-style ;-).
-								Pavel
+> > +static int idedisk_resume(struct device *dev, u32 level)
+> > +{
+> > +	ide_drive_t *drive = dev->driver_data;
+> > +	if (!drive->blocked)
+> > +		panic("ide: Resume but not suspended?\n");
+> > +	drive->blocked = 0;
+> > +}
+> 
+> Also remember you must perform the sequences to wake up the drive and
+> restore the controller logic (and of course in the right order). Newer
+> disks won't just wake up when fed a random command (eg ibm
+> microdrives)
 
-> @@ -371,10 +376,22 @@
->    OUT_BYTE(drive->ctl,IDE_CONTROL_REG);
->   OUT_BYTE(0x00, IDE_FEATURE_REG);
->   OUT_BYTE(rq->nr_sectors,IDE_NSECTOR_REG);
-> + if ((drive->id->command_set_2 & 0x0400) &&
-> HWIF(drive)->pci_devid.vid==PCI_VENDOR_ID_PROMISE) {
-> +  /* 48 bits data previous */
-> +  OUT_BYTE(rq->nr_sectors>>8, IDE_NSECTOR_REG);
-> +  OUT_BYTE(block>>24, IDE_SECTOR_REG);
-> +  OUT_BYTE(0x00, IDE_LCYL_REG); //block only 32 bits
-> +  OUT_BYTE(0x00, IDE_HCYL_REG);
-> +  /* 48 bits data current */
-> +  OUT_BYTE(rq->nr_sectors, IDE_NSECTOR_REG);
-> +  OUT_BYTE(block, IDE_SECTOR_REG);
-> +  OUT_BYTE(block>>8, IDE_LCYL_REG);
-> +  OUT_BYTE(block>>16, IDE_HCYL_REG);
-> +  OUT_BYTE(drive->select.all,IDE_SELECT_REG);
->  #ifdef CONFIG_BLK_DEV_PDC4030
-> - if (drive->select.b.lba || IS_PDC4030_DRIVE) {
-> -#else /* !CONFIG_BLK_DEV_PDC4030 */
-> - if (drive->select.b.lba) {
-> + } else if (drive->select.b.lba || IS_PDC4030_DRIVE) {
-> +#else /* !CONFIG_BLK_DEV_PDC4030 */
-> + } else if (drive->select.b.lba) {
->  #endif /* CONFIG_BLK_DEV_PDC4030 */
->  #ifdef DEBUG
->    printk("%s: %sing: LBAsect=%ld, sectors=%ld, buffer=0x%08lx\n",
-> @@ -413,7 +430,10 @@
+Wake from S3 or S4 should look like power-up from disks perspective. I
+should need no commands to do that.
+
+Restoring right UDMA mode... Well, I'll need to do that,
+probably. (What I have there is just enough to prevent disk
+corruption. I'm still likely to see some bus resets, but no longer
+data loose, I believe.)
+
+> The suspend order similarly is important - finish the current
+> command,
+
+The while loop above should make sure no command is happening just
+now, right?
+
+> then flush the disk cache, then when it completes you can tell the
+> drive
+
+Disks that need cache flush are broken, anyway -- they lied us on
+command completion -- right?
+
+> to power down. 
+
+Why should I tell the drive to power down? It is going to loose its
+power, anyway (I believe in both S3 and S4).
+
+> On some systems you want to drop it back to PIO0 non DMA
+> before the powerdown or S4BIOS restore from disk will fail.
+
+
+S4BIOS is not on my list just now; agreed it would be better.
 
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

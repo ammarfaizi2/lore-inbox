@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbUCKTVg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 14:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUCKTVg
+	id S261418AbUCKTYo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 14:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUCKTYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 14:21:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21675 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261665AbUCKTVd (ORCPT
+	Thu, 11 Mar 2004 14:24:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39851 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261418AbUCKTYm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 14:21:33 -0500
-Date: Thu, 11 Mar 2004 11:21:32 -0800
+	Thu, 11 Mar 2004 14:24:42 -0500
+Date: Thu, 11 Mar 2004 11:24:40 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Rik Faith <faith@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Light-weight Auditing Framework
-Message-Id: <20040311112132.6970a70c.akpm@osdl.org>
-In-Reply-To: <16464.30442.852919.24605@neuro.alephnull.com>
-References: <16464.30442.852919.24605@neuro.alephnull.com>
+Subject: Re: [PATCH] s390 bits for remap-file-pages-prot.
+Message-Id: <20040311112440.0f72780a.akpm@osdl.org>
+In-Reply-To: <20040311190852.GA6887@mschwid3.boeblingen.de.ibm.com>
+References: <20040311190852.GA6887@mschwid3.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,25 +24,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik Faith <faith@redhat.com> wrote:
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
 >
-> Below is a patch against 2.6.4 that provides a low-overhead system-call
->  auditing framework for Linux that is usable by LSM components (e.g.,
->  SELinux).
+> I tried 2.6.4-mm1 and found that it wouldn't even compile because
+>  of the remap-file-pages-prot changes.
 
-Thanks Rik.
+Yup, sorry.   Actually, if you look inside
 
-This is not my area, but based on the earlier discussions, and on RH's
-intent to distribute and support the code and on its overall footprint and
-upon Stephen's words I shall proceed with this.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4/2.6.4-mm1/broken-out/remap-file-pages-prot-ia64-2.6.4-rc2-mm1-A0.patch
 
-This patch gets non-trivial rejects against x86_64-update.patch, mainly in
-thread_info.h.  Also note that arch/x86_64/ia32/ia32entry.S has gained
-another usage of TIF_SYSCALL_TRACE.  Could you please rework and retest it
-on top of
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4/2.6.4-mm1/broken-out/x86_64-update.patch
-
-Or you can wait a day or so - we should merge the x86_64 patch into Linus's
-tree later this week.
+There's a little test app to check the functionality of the new syscall. 
+You'll need to tweak the syscall slot number.
 

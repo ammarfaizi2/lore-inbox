@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274828AbRIUUsj>; Fri, 21 Sep 2001 16:48:39 -0400
+	id <S274853AbRIUWE2>; Fri, 21 Sep 2001 18:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274827AbRIUUsa>; Fri, 21 Sep 2001 16:48:30 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:52488 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S274826AbRIUUsS>; Fri, 21 Sep 2001 16:48:18 -0400
-X-Apparently-From: <kratkin@yahoo.com>
-Date: Thu, 20 Sep 2001 16:15:55 +0400 (MSD)
-From: <kratkin@yahoo.com>
-X-X-Sender: <kratkin@niktar.egar.egartech.com>
-To: David Chow <davidtl@rcn.com.hk>
-cc: Alexander Viro <viro@math.psu.edu>, Oystein Viggen <oysteivi@tihlde.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Wrapfs a stackable file system
-In-Reply-To: <Pine.LNX.4.33.0109220014130.11730-100000@uranus.planet.rcn.com.hk>
-Message-ID: <Pine.LNX.4.31.0109201611210.220-100000@niktar.egar.egartech.com>
+	id <S274855AbRIUWEK>; Fri, 21 Sep 2001 18:04:10 -0400
+Received: from jive.SoftHome.net ([204.144.231.93]:50585 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S274853AbRIUWDv>;
+	Fri, 21 Sep 2001 18:03:51 -0400
+From: "John L. Males" <jlmales@softhome.net>
+Organization: Toronto, Ontario, Canada
+To: linux-kernel@vger.kernel.org
+Date: Tue, 18 Sep 2001 23:26:37 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Linux Kernel 2.2.20-pre10 Initial Impressions
+Reply-to: jlmales@softhome.net
+Message-ID: <3BA7D82D.21744.63CF95@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hello,
+
+I am not on the kernel mailing list.  I would appreciate being copied
+in on any replies.
+
+Ok, I finially had a chance to compile the 2.2.20-pre10 Kernel and
+run it though some basic paces.  I need to do more specific A vs b
+(against the 2.2.19 Kernel), but it seems there are some performance
+issues.  It is seems especially obvious with Netscape 4.78.  I also
+had a odd Xfree error, that may have had some relationship to the
+performance issue.  I have to say at this point the issue seems
+selective and not a general one, but I need to do a bit more
+checking.  I cannot forsee this checking happening until this
+weekend.
+
+I seem to also observe some iteresting memory management differences
+with the 2.2.20-pre10 kernel vs the 2.2.19 kernel with the Open Wall
+patch.  Agian not enough day to day use logged in to give a sense. 
+Then if I do sense, the challence to how to quanitify this will
+follow.
+
+Just thought you like to know.  Oh, I keep forgetting to ask, is
+there any issue related to the superblock work that has been going on
+in tha last few version of the 2.4 kernel and a 2.2.19 or other 2.2.x
+kernel?  Only asking as seemd to have some very interesting problems
+show up back after switching back from  2.4.8 kernel to the 2.2.19
+kernel.
 
 
-Some docs about stackable fs (aka wrapfs):
-http://www.isi.edu/~johnh/WORK/ucla.html
-and:
-http://www.isi.edu/~johnh/PAPERS/index.html
+Regards,
 
-On Sat, 22 Sep 2001, David Chow wrote:
+John L. Males
+Willowdale, Ontario
+Canada
+18 September 2001 23:26
+mailto:jlmales@softhome.net
 
-> On Fri, 21 Sep 2001, Alexander Viro wrote:
->
-> >
-> >
-> > On 21 Sep 2001, Oystein Viggen wrote:
-> >
-> > > * [	David Chow]
-> > >
-> > > > The idea is orinigally from FiST, a stackable file system. But the FiST
-> > > > owner Erez seems given up to maintain the project. At the time I receive
-> > > > the code, it is so buggy, even unusable, lots of segmentation fault
-> > > > problems. I have debugging the fs for quite a while. Now it is useful in
-> > > > just use as a file system wrapper. It is useful in chroot environments
-> > > > and hardlinks aren't available. It wraps a directory and mount to
-> > > > another directory on tops of any filesystems.
-> > >
-> > > Is this not essentially what we already have with mount --bind in 2.4?
-> >
-> > Bindings can be used to get the same result, but underlying mechanics is
-> > different.  Wrapfs is not the most interesting application of FiST, so it's
-> > hardly a surprise...
-> >
->
-> I think you people didn't understand what is wrapfs, if is only a template
-> for FiST. The aim is to provide a properly maintained stackable template
-> under linux, and so that people can use FiST to develop their own
-> filesystem. Currently the wrapfs template is so buggy, I spend weeks to
-> fix all the bugs and even rewriting some of the code to make it more
-> efficient. This dosn't means --bind, it means it also fix up tons of FS'es
-> that is previously produced by using the old buggy FiST template, FiST is
-> good for developing new stackable file system, the current problem is that
-> the templates are buggy.... you got it??? If you know something is good
-> but it is not properly maintained, why not give it a hand and do all the
-> people a flavour?
->
-> regards,
->
-> David
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
+
+iQA/AwUBO6geeOAqzTDdanI2EQJZywCg0yllJ8HWqhQuXdDWq6aSVu5B4EgAn0la
+G1uAjzOiUjSd4goAUXRk1oLI
+=4K5d
+-----END PGP SIGNATURE-----
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315178AbSGVNVQ>; Mon, 22 Jul 2002 09:21:16 -0400
+	id <S316728AbSGVK7d>; Mon, 22 Jul 2002 06:59:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315276AbSGVNVQ>; Mon, 22 Jul 2002 09:21:16 -0400
-Received: from verein.lst.de ([212.34.181.86]:60939 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S315178AbSGVNVQ>;
-	Mon, 22 Jul 2002 09:21:16 -0400
-Date: Mon, 22 Jul 2002 15:24:16 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-Message-ID: <20020722152416.A18677@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-References: <20020722014018.A31813@flint.arm.linux.org.uk> <Pine.LNX.4.44.0207221248250.4519-100000@localhost.localdomain> <20020722152056.A18619@lst.de>
+	id <S316739AbSGVK7c>; Mon, 22 Jul 2002 06:59:32 -0400
+Received: from mikrolahti.fi ([195.237.35.128]:21253 "EHLO pleco.mikrolahti.fi")
+	by vger.kernel.org with ESMTP id <S316728AbSGVK7a>;
+	Mon, 22 Jul 2002 06:59:30 -0400
+Date: Mon, 22 Jul 2002 14:02:37 +0300
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: still troubles with an Alpha-kernel
+Message-ID: <20020722110237.GA12719@pleco.mikrolahti.fi>
+References: <20020722073941.GA10979@pleco.mikrolahti.fi> <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020722152056.A18619@lst.de>; from hch@lst.de on Mon, Jul 22, 2002 at 03:20:56PM +0200
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.28i
+From: samppa@pleco.mikrolahti.fi (Sami Louko)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 03:20:56PM +0200, Christoph Hellwig wrote:
-> I'd prefer the following:
+On Mon, Jul 22, 2002 at 04:40:23AM -0600, Thunder from the hill wrote:
+> Hi,
 > 
-> void irq_off(void);
-> void irq_on(void);
+> On Mon, 22 Jul 2002, Sami Louko wrote:
+> > -r--------    1 root     root         4.0T heinä  22 10:38 /proc/kcore
+> > 
+> > The core shows a bit huge :-/ Four terabytes... huh.
 > 
-> flags_t irq_save();		/* the old irq_save_off() */
-> void irq_restore(flags_t);
-> 
-> void __irq_save(void);		/* without saveing */
+> Mine (2.4.19-rc2-aa1) is 2 Giga, exactly the RAM size, here...
 
-					^^^^^ stupid ^^^^^
+I wasn't able to compile 2.4.19-rc1-aa2, i should to try compile the
+same kernel you have.
+I would like to know is it possible to manually fix the size of kcore,
+because i do have 512MB mem, not 4080GB, anybody doesn't have that much. =)
 
-rmk's sanity checker caught this, should be without disabling.
+I just notified, an errormessage that shows at boot-time, got it from log,
 
+	Jul 22 09:07:55 mikrolahti kernel: Error seeking in /dev/kmem
+
+What may be wrong??!
+
+--sl

@@ -1,94 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSETNzb>; Mon, 20 May 2002 09:55:31 -0400
+	id <S316027AbSETODb>; Mon, 20 May 2002 10:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316025AbSETNza>; Mon, 20 May 2002 09:55:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30981 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316023AbSETNz3>; Mon, 20 May 2002 09:55:29 -0400
-Date: Mon, 20 May 2002 15:55:31 +0200
-From: Jan Kara <jack@suse.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org,
-        Nathan Scott <nathans@wobbly.melbourne.sgi.com>
-Subject: Quota patches
-Message-ID: <20020520135530.GB9209@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S316033AbSETODa>; Mon, 20 May 2002 10:03:30 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:9734 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S316027AbSETOD3>; Mon, 20 May 2002 10:03:29 -0400
+Date: Mon, 20 May 2002 09:03:28 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200205201403.JAA08246@tomcat.admin.navo.hpc.mil>
+To: michael@hostsharing.net, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: suid bit on directories
+In-Reply-To: <20020520152403.3dcc6cc2.michael@hostsharing.net>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Michael Hoennig <michael@hostsharing.net>:
+> 
+> Hi Jesse,
+> 
+> > The setgid bit on a directory is to support BSD activities. It used to
+> > be used for mail delivery.
+> 
+> this is actually similar usage to my example:
+> 
+> > > It would be a good solution to make files created by Apaches mod_php
+> > > in safe-mode, not owned by web:web (or httpd:httpd or somethign)
+> > > anymore, but the Owner of the directory. 
+> > 
+> > No. You loose the fact that the file was NOT created by the user.
+> 
+> the user in my example above would be wwwrun or httpd - and that does not
+> make any sense at all! It would make much more sense if the new files
+> belonged to the owner of the directory, who is the one who owns the
+> virtual host.
 
-  In following mails I'll send (because patches are big, I'll post them just
-diretly to Linus - others see ftp below) quota patches for 2.5.15 (patches
-apply well on 2.5.16 too). Currently they implement:
-  * new quota format (allows 32 uids, accounting in bytes -> mainly for
-    Reiserfs)
-  * needed infrastructure for XFS quota
-  * quota statistics in /proc (we can drop Q_GETSTATS call; it's a lot
-    easier to change in future)
-  * implements correct syncing of quota
-  * introduces interface which allows usage of both quota formats in kernel
-  * implemented filesystem callback function on certain quota operations
-    (needed for journaled quota, Ext3)
-  * implements ioctl() for reporting occupied space in bytes (not just blocks)
+You can't tell who the user is. ANY user would be able to do that.
 
-  The patches can be downloaded at:
-ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.5/2.5.15/
+> > > I do not even see a security hole if nobody other than the user itself
+> > > and httpd/web can reach this area in the file system, anyway. And it
+> > > is still the users decision that files in this (his) directory should
+> > > belong to him.
+> > 
+> > 1. users will steal/bypass quota controls
+> 
+> Not in my example - acutally even the other way around.
 
-  Old quota tools should work with patches if you configure old quota interface
-in '.config'. There are also quota utilities capable of communicating with new
-generic interface. You can download them at:
+And just how is it prevented? quotas are applied based on either group
+or user. Normally it is based on user. Once the uid is set, then the
+quotas start being deducted. If the the user procedes to store 10 G of
+music files, who is charged? And how do you know who put them there.
 
-http://www.sf.net/projects/linuxquota/
+> > 2. Consider what happens if a user creates a file in such a directory
+> > and   it is executable. - since the file is fully owned by a different
+> > user, it   appears to have been created by that user. What protection
+> > mask is on   the file? Can the creator (not owner) make it setuid?
+> > (nasty worm   propagation method)
+> 
+> Again: it depends on the usage. In my case it is the other way around. A
+> use should know what he is doing if he is setting this flag on a
+> directory.  And making such files suid again, has to be prevented by the
+> code - that I even mentioned in my first mail on this issue.
 
-or you can checkout version from SourceForge CVS.
+How are you going to control it?
 
-  Any comments & bugreports welcome.
+> > > Actually, the suid bit on directories works at least under FreeBSD. Is
+> > > there any reason, why it does not work under Linux?
+> > 
+> > I don't believe it is in the POSIX definition.
+> 
+> I only said, it works under FreeBSD, it is an option there.
 
-								Honza
+Then use FreeBSD.
 
-Below is a bit more detailed list of changes:
-  The changes are split into 13 parts (should I create one empty patch? ;-)):
-quota-2.5.15-1-newlocks - this patch changes counting of references on dquot structures
-  so filesystem can be sure we never call it during DQUOT_ALLOC/DQUOT_FREE/..
-  calls.
-quota-2.5.15-2-formats - this patch removes most format dependent code from dquot.c
-  and quota.h and puts calls of callback functions instead
-quota-2.5.15-3-register - this patch implements registering/unregistering of quota
-  formats
-quota-2.5.15-4-getstats - this patch removes Q_GETSTATS call and creates /proc/fs/quota
-  entry instead
-quota-2.5.15-5-bytes - implements accounting of used space in bytes on quota side
-quota-2.5.15-6-bytes - implements accounting of used space in bytes on VFS side -
-  - neccessary functions are added to fs.h
-quota-2.5.15-7-quotactl - implementation of generic quotactl interface (probably the
-  biggest patch). Interface is moved from dquot.c to quota.c file. Pointers
-  to quota operations in superblock are now not filled on quota_on() but
-  on mount so filesystem can override them (for example ext3 would like to
-  check on quota_on() that quotafile lies on proper device and turn on
-  data-journaling on it - at least when we'll have journaled quota :)).
-quota-2.5.15-8-format1 - implementation of old quota format (mainly moved stuff from
-  dquot.c + some interface functions)
-quota-2.5.15-9-format2 - implementation of new quota format (mainly just copied from
-  patches used in -ac kernels)
-quota-2.5.15-10-inttype - replace silly usage of 'short' by 'int'
-quota-2.5.15-11-sync - implements correct syncing of quota - also quota info stored
-  in superblock is stored (here 2.4.18 and 2.5.6 patches significantly differ
-  - in 2.5.6 it's a bit simplier to do it)
-quota-2.5.15-12-compat - implements backward compatible quotactl() interface. It's
-  configurable whether it should be used at all and whether is should behave
-  as interface in Linus's (the oldest interface) or Alan's (old interface for
-  new quota format) kernel.
-quota-2.5.15-13-ioctl - implements ioctl for getting file size in bytes. I placed
-  this patch as the last one because I consider it ugly to create ioctl() for
-  such thing (changing stat() would be cleaner but this change isn't probably
-  important enough for it to be worth yet another stat() change). So if it
-  is decided the patch won't be included there won't be problems...
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Any opinions expressed are solely my own.

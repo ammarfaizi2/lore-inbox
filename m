@@ -1,89 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277834AbRJIQ6E>; Tue, 9 Oct 2001 12:58:04 -0400
+	id <S277832AbRJIQ5y>; Tue, 9 Oct 2001 12:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277841AbRJIQ5z>; Tue, 9 Oct 2001 12:57:55 -0400
-Received: from web14204.mail.yahoo.com ([216.136.172.146]:26119 "HELO
-	web14204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277834AbRJIQ5i>; Tue, 9 Oct 2001 12:57:38 -0400
-Message-ID: <20011009165806.80213.qmail@web14204.mail.yahoo.com>
-Date: Tue, 9 Oct 2001 09:58:06 -0700 (PDT)
-From: java programmer <javadesigner@yahoo.com>
-Subject: Re: 2.4.x, smp, eepro100
-To: Tyler Longren <tyler@captainjack.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <001e01c14dd0$326264d0$2a23b1cf@win2k>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277840AbRJIQ5w>; Tue, 9 Oct 2001 12:57:52 -0400
+Received: from smtp010.mail.yahoo.com ([216.136.173.30]:23824 "HELO
+	smtp010.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277832AbRJIQ5e>; Tue, 9 Oct 2001 12:57:34 -0400
+X-Apparently-From: <trever?adams@yahoo.com>
+Subject: iptables in 2.4.10, 2.4.11pre6 problems
+From: "Trever L. Adams" <trever_adams@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 12:58:24 -0400
+Message-Id: <1002646705.2177.9.camel@aurora>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OS: Slackware 8.0
-> Kernel: 2.4.5_nosmp, 2.4.5, and 2.4.10
-> NIC: eepro100
-> 
-> Anyway, installed Slackware with the default scsi
-> kernel.  Everything worked
-> fine.  I re-compiled 2.4.5 to enable smp support. 
-> After re-compiling
-> everything is stable until a few hundred megs gets
-> uploaded to the box.
-> After a few hundred megs get upped to the box
-> (through ftp), eth0 just dies.
+I am seeing messages such as:
+
+Oct  9 12:52:51 smeagol kernel: Firewall:IN=ppp0 OUT= MAC=
+SRC=64.152.2.36 DST=MY_IP_ADDRESS LEN=52 TOS=0x00 PREC=0x00 TTL=246
+ID=1093 DF PROTO=TCP SPT=80 DPT=33157 WINDOW=34752 RES=0x00 ACK FIN
+URGP=0
+
+In my firewall logs.  I see them for ACK RST as well.  These are valid
+connections.  My rules follow for the most part (a few allowed
+connections to the machine in question have been removed from the
+list).  This often leaves open connections in a half closed state on
+machines behind this firewall.  It also some times kills totally open
+connections and I see packets rejected that should be allowed through.
+
+Please, help me help.  Also, please CC me.  The account I am subscribed
+to the list with is acting up and I may be killing it.
+
+Chain INPUT (policy DROP 3 packets, 999 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination         
+   30  2880 DROP       udp  --  any    any     anywhere            
+anywhere           udp spt:netbios-ns 
+   33  7607 DROP       udp  --  any    any     anywhere            
+anywhere           udp spt:netbios-dgm 
+   37  3680 ICMP_INPUT  icmp --  any    any     anywhere            
+anywhere           
+16543 5783K tcprules   all  --  any    any     anywhere            
+anywhere           
+    0     0 firewall   all  --  any    any     anywhere            
+anywhere           
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination         
+ 1485  280K tcprules   all  --  any    any     anywhere            
+anywhere           
+    0     0 firewall   all  --  any    any     anywhere            
+anywhere           
+
+Chain OUTPUT (policy ACCEPT 17692 packets, 6181610 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination         
+
+Chain ICMP_INPUT (1 references)
+ pkts bytes target     prot opt in     out     source              
+destination         
+   26  2184 ACCEPT     icmp --  !ppp+  any     anywhere            
+anywhere           icmp echo-request 
+    0     0 ACCEPT     icmp --  any    any     anywhere            
+anywhere           icmp echo-reply 
+   11  1496 ACCEPT     icmp --  any    any     anywhere            
+anywhere           icmp destination-unreachable 
+    0     0 LOGACCEPT  icmp --  any    any     anywhere            
+anywhere           icmp source-quench 
+    0     0 LOGACCEPT  icmp --  any    any     anywhere            
+anywhere           icmp time-exceeded 
+    0     0 LOGACCEPT  icmp --  any    any     anywhere            
+anywhere           icmp parameter-problem 
+    0     0 LOGACCEPT  icmp --  any    any     anywhere            
+anywhere           icmp timestamp-request 
+    0     0 LOGACCEPT  icmp --  any    any     anywhere            
+anywhere           icmp timestamp-reply 
+    0     0 firewall   icmp --  any    any     anywhere            
+anywhere           
+
+Chain LOGACCEPT (5 references)
+ pkts bytes target     prot opt in     out     source              
+destination         
+    0     0 LOG        all  --  any    any     anywhere            
+anywhere           LOG level info prefix `PACKET ACCEPTED:' 
+    0     0 ACCEPT     all  --  any    any     anywhere            
+anywhere           
+
+Chain M_DEBUG (0 references)
+ pkts bytes target     prot opt in     out     source              
+destination         
+
+Chain firewall (4 references)
+ pkts bytes target     prot opt in     out     source              
+destination         
+  116 18258 LOG        all  --  any    any     anywhere            
+anywhere           LOG level info prefix `Firewall:' 
+  116 18258 DROP       all  --  any    any     anywhere            
+anywhere           
+
+Chain tcprules (2 references)
+ pkts bytes target     prot opt in     out     source              
+destination         
+17325 6007K ACCEPT     all  --  any    any     anywhere            
+anywhere           state RELATED,ESTABLISHED 
+  587 37774 ACCEPT     all  --  !ppp+  any     anywhere            
+anywhere           state NEW 
+  116 18258 firewall   all  --  ppp+   any     anywhere            
+anywhere           state INVALID,NEW 
 
 
-I too have the *exact* same problem. I am running
-slackware 8.0, SMP 2.4.5 kernel on dual PII-Xeon,
-2 intel cards with the default eepro100 drivers. 
-
-I even downloaded and tried the intel linux 
-drivers (different from the default kernel ones) 
-and still had the same problem. The default driver 
-*does* give me a "lockup workaround enabled" message
-during startup, but after transferring a couple of 
-gigs of data, both ethernet cards seem to randomly 
-hang up after a couple of days. I even wrote a test
-script that constantly ftp'ed files (get/put) and
-that worked fine to about 10 Gigs before I got bored
-and gave up. A day or two later, the cards hung again.
-As far as I can tell, doing google searches on related
-keywords, this problem might have something to do
-with speed autonegotiation between the cards and
-the switch. I am using a Nortel baystack but this
-problem seems to also occur with 3com switches. Both
-are autonegotiating-only switches with no way 
-to manually set the speed of any port. If the problem
-continues, I am thinking of getting a pricier intel
-switch that does allow for manual port speed setting
-to 10 or 100 Mbit/sec. My cards do connect at
-100Mbit/s
-initially with the current Nortel, so the initial
-autonegotiation is OK, but maybe there are subsequent
-autonegotiations on a regular basis that fail ?
-
-This problem is quite strange, because a Windows 2000
-box, sitting on the same network, showed the same
-symptom once. That box was also connected to the
-same baystack switch. It may or may not have been
-a related problem, it only happened once, while the 
-linux problem seems to happen more frequently. And
-it really is quite random.
-
-*Once* it happens though, there is no way to 
-regain network control of the box - except by
-logging in via the console and rebooting the linux 
-box. That's kind of a drag, because I am sitting
-on the U.S East coast while the box is colocated in
-Denver.
-
-Best regards,
-
-javadesigner@yahoo.com
 
 
-
-
-__________________________________________________
+_________________________________________________________
 Do You Yahoo!?
-NEW from Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+Get your free @yahoo.com address at http://mail.yahoo.com
+

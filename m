@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbULGBkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbULGB4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbULGBkV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 20:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbULGBkV
+	id S261731AbULGB4i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 20:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbULGB4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 20:40:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57288 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261729AbULGBkM
+	Mon, 6 Dec 2004 20:56:38 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:16072 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S261731AbULGB4d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 20:40:12 -0500
-Date: Mon, 6 Dec 2004 17:43:31 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Alain Tesio <alain@onesite.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HIGHMEM=4G slows down ps2pdf with 2.4.28
-Message-ID: <20041206194331.GC2282@dmt.cyclades>
-References: <20041201232522.6e39c954@alain> <20041202190815.GA2843@dmt.cyclades> <20041203215819.15bab008@alain> <20041206184118.GA2282@dmt.cyclades>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Dec 2004 20:56:33 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: nVidea Graphics card not recognised by lspci
+Date: Mon, 6 Dec 2004 20:56:31 -0500
+User-Agent: KMail/1.7
+References: <kiiZIHd0T0000153f@hotmail.com> <200412061040.50015.gene.heskett@verizon.net> <20041206155434.GA20693@linuxace.com>
+In-Reply-To: <20041206155434.GA20693@linuxace.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041206184118.GA2282@dmt.cyclades>
-User-Agent: Mutt/1.4i
+Message-Id: <200412062056.32069.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.11.214] at Mon, 6 Dec 2004 19:56:33 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06, 2004 at 04:41:18PM -0200, Marcelo Tosatti wrote:
-> On Fri, Dec 03, 2004 at 09:58:19PM +0100, Alain Tesio wrote:
-> > On Thu, 2 Dec 2004 17:08:15 -0200
-> > Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> > 
-> > > On Wed, Dec 01, 2004 at 11:25:22PM +0100, Alain Tesio wrote:
-> > > > Hi,
-> > > > 
-> > > > With a 2.4.28 kernel, 1.5 Go RAM and nothing exotic, everything works fine
-> > > > with CONFIG_HIGHMEM4G and CONFIG_HIGHMEM=y except that
-> > > > ps2pdf is about 30 times slower 
-> > 
-> > > How does /proc/mtrr look like? 
-> > > 
-> > > Maybe some of your memory is configured as uncacheable.
-> > 
-> > reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
-> > reg01: base=0x40000000 (1024MB), size= 256MB: write-back, count=1
-> > reg02: base=0x50000000 (1280MB), size= 128MB: write-back, count=1
-> > reg03: base=0x58000000 (1408MB), size=  64MB: write-back, count=1
-> > reg04: base=0x5c000000 (1472MB), size=  32MB: write-back, count=1
-> > reg05: base=0x5e000000 (1504MB), size=  16MB: write-back, count=1
-> > 
-> > I don't think that the hosting company played with the bios settings,
-> > and I don't do anything special with memory.
-> 
-> Alain,
-> 
-> All memory is correctly configured in MTRR it seems (all of it is write-back cacheable).
-> 
-> Do you have CONFIG_HIGHIO=y ? That might help a lot. The kernel has to use 
-> bounce buffers for IO otherwise.
+On Monday 06 December 2004 10:54, Phil Oester wrote:
+>On Mon, Dec 06, 2004 at 10:40:49AM -0500, Gene Heskett wrote:
+>> On Monday 06 December 2004 09:29, Andrew Walrond wrote:
+>> >update-pciids
+>>
+>> bash: update-pciids: command not found
+>>
+>> System is FC2, kernel 2.6.10-rc3
+>> lspci version 2.1.99-test3
+>>
+>> Do I need to grab a newer util package that contains lspci?
+>
+>Simply replace /usr/share/hwdata/pci.ids with a newer version
+>from http://pciids.sourceforge.net/.
 
-However you report 30x slower without HIGHMEM - thats a bit too much for 
-the added overhead of bounce buffers. Anyway, try CONFIG_HIGHIO=y if you 
-dont have it configured this way.
+Humm, couldn't get the text file to dl with mozilla, the dl window
+just sat there, but the .gz worked fine.  Thanks.
+
+>Phil
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

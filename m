@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269288AbRHGSyZ>; Tue, 7 Aug 2001 14:54:25 -0400
+	id <S269290AbRHGS4E>; Tue, 7 Aug 2001 14:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269290AbRHGSyO>; Tue, 7 Aug 2001 14:54:14 -0400
-Received: from mail.myrio.com ([63.109.146.2]:57589 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S269288AbRHGSyB>;
-	Tue, 7 Aug 2001 14:54:01 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C9A8@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'David Maynor'" <david.maynor@oit.gatech.edu>,
-        linux-kernel@vger.kernel.org
-Subject: RE: encrypted swap
-Date: Tue, 7 Aug 2001 11:53:50 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S269292AbRHGSzy>; Tue, 7 Aug 2001 14:55:54 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59526 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269290AbRHGSzf>; Tue, 7 Aug 2001 14:55:35 -0400
+Date: Tue, 7 Aug 2001 12:55:47 -0600
+Message-Id: <200108071855.f77Itl207144@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <Pine.GSO.4.21.0108071419470.18565-100000@weyl.math.psu.edu>
+In-Reply-To: <200108071811.f77IBqq06242@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0108071419470.18565-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Maynor wrote:
+[Removed Linus and Alan from the Cc: list: I'm sure they're getting
+bored by now]
 
-[...]
-> I am saying if you are worried about such things, 
-> then start with projects that would not require a 
-> hardware crypto card to make i useable.
+Alexander Viro writes:
+> 
+> 
+> On Tue, 7 Aug 2001, Richard Gooch wrote:
+> 
+> > OK, I've implemented variant 2. Everything looked OK, but then I
+> > noticed that pwd no longer works in subdirectories in devfs. Sigh.
+> 
+> Very interesting. pwd should be using getcwd(2), which doesn't
+> give a damn for inode numbers. If you have seriously old pwd binary
+> that tries to track the thing down to root by hands - yes, it doesn't
+> work.
 
-And earlier wrote:
+Hm. strace suggests my pwd is walking up the path. But WTF would it
+break? 2.4.7 was fine. What did I break?
 
-[...]
-> I can't really see the advantage of encrypted swap. 
-> At the point it would become effective, the attacker 
-> is already on the machine (from remote access or the 
-> have physical access) and then its not if you can keep 
-> them from getting the info, its only a matter of when.
+				Regards,
 
-Wait a second.  Encrypted swap is useful and effective in 
-some situations that do not require a hardware crypto card.
-
-Imagine you have:
-- a Linux laptop with a small amount of RAM
-- Email and important documents encrypted on disk, either
-  with GPG / PGP or with an encrypted /home partition.
-- Documents and email are decrypted, viewed, and edited by 
-  applications, not all of which are SUID root, so 
-  unencrypted data might be swapped out.
-
-This is hardly a far-fetched example.
-
-Now that laptop is stolen at an airport. The thief decides
-to try to improve his take by grabbing useful information
-from documents.  The encrypted documents are untouchable,
-of course.  It _doesn't matter_ that the thief has the
-hardware, the decryption key is protected by a passphrase
-which is _nowhere_ on the hard drive.
-
-The only place that sensitive, unencrypted data could be
-on such a machine is in swap.  In fact, it is _likely_ to
-be in swap.
-
-Encrypted swap solves this _particular_ problem nicely, 
-does it not?  
-
-Torrey
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

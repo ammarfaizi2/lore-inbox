@@ -1,57 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279917AbRKBBjp>; Thu, 1 Nov 2001 20:39:45 -0500
+	id <S279920AbRKBBkf>; Thu, 1 Nov 2001 20:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279918AbRKBBjf>; Thu, 1 Nov 2001 20:39:35 -0500
-Received: from [202.135.142.195] ([202.135.142.195]:18451 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S279917AbRKBBjZ>; Thu, 1 Nov 2001 20:39:25 -0500
-Date: Fri, 2 Nov 2001 12:42:52 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Message-Id: <20011102124252.1032e9b2.rusty@rustcorp.com.au>
-In-Reply-To: <3BE1271C.6CDF2738@mandrakesoft.com>
-In-Reply-To: <E15zF9H-0000NL-00@wagner>
-	<3BE1271C.6CDF2738@mandrakesoft.com>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	id <S279919AbRKBBkQ>; Thu, 1 Nov 2001 20:40:16 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:62600 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S279918AbRKBBkE>;
+	Thu, 1 Nov 2001 20:40:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: David Chow <davidchow@rcn.com.hk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.4.13 
+In-Reply-To: Your message of "Fri, 02 Nov 2001 21:00:19 +0800."
+             <3BE298E3.4090905@rcn.com.hk> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 02 Nov 2001 12:39:46 +1100
+Message-ID: <3291.1004665186@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Nov 2001 05:42:36 -0500
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+On Fri, 02 Nov 2001 21:00:19 +0800, 
+David Chow <davidchow@rcn.com.hk> wrote:
+>I have no output for modinfo even running kernel 2.4.2 .. what's the 
+>problem here?
 
-> Is this designed to replace sysctl?
+Old modutils.  modinfo was changed in modutils 2.4.5 to produce
+parsable output.  Current modutils is 2.4.10.
 
-Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
- 
-> In general we want to support using sysctl and similar features WITHOUT
-> procfs support at all (of any type).  Nice for embedded systems
-> especially.
-
-1) My example was implemented as a filesystem.  You could just as easily have
-   a CONFIG_PROC_SYSCALL which implemented access as a syscall, ie. sysctl2().
-
-2) It's not worth the hassle to save 7k of code (well, the final implementation
-   will be larger than this, but OTOH, your replacement will be non-zero size).
-
-> AFAICS your proposal, while nice and clean :), doesn't offer all the
-> features that sysctl presently does.
-
-You're right!  My code:
-
-1) Doesn't have the feature of requiring #ifdef CONFIG_SYSCTL in every file
-   that uses it properly (ie. checks error returns).
-2) Doesn't have the feature that compiling without CONFIG_PROC/CONFIG_SYSCTL 
-   wastes kernel memory unless surrounded by above #ifdefs.
-3) Doesn't have the feature that it takes over 90 lines to implement a working
-   read & write.
-4) Doesn't have the feature that it's hard to create dynamic directories.
-5) Doesn't have the feature that it's inherently racy against module unload.
-
-What was I thinking????
-Rusty.

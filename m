@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVATJHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVATJTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVATJHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 04:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVATJHE
+	id S262084AbVATJTb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 04:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVATJTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 04:07:04 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:13201 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262082AbVATJGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 04:06:55 -0500
-Message-ID: <10752.195.245.190.93.1106211979.squirrel@195.245.190.93>
-In-Reply-To: <87oefkd7ew.fsf@sulphur.joq.us>
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
-    <873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>
-    <87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>
-    <87oefkd7ew.fsf@sulphur.joq.us>
-Date: Thu, 20 Jan 2005 09:06:19 -0000 (WET)
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
-     scheduling
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Jack O'Quin" <joq@io.com>
-Cc: "Con Kolivas" <kernel@kolivas.org>, "linux" <linux-kernel@vger.kernel.org>,
-       "Ingo Molnar" <mingo@elte.hu>, rlrevell@joe-job.com,
-       paul@linuxaudiosystems.com, "CK Kernel" <ck@vds.kolivas.org>,
-       "utz" <utz@s2y4n2c.de>, "Andrew Morton" <akpm@osdl.org>,
-       alexn@dsv.su.se
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Thu, 20 Jan 2005 04:19:31 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:4523 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262084AbVATJT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 04:19:28 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Jenkins <aj504@student.cs.york.ac.uk>
+Subject: Re: 2.6.9 suspend-to-disk bug (during resume)
+Date: Thu, 20 Jan 2005 10:19:24 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <1106210882.7975.9.camel@linux.site> <1106210985l.8224l.0l@linux>
+In-Reply-To: <1106210985l.8224l.0l@linux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 20 Jan 2005 09:06:54.0556 (UTC) FILETIME=[62FBA1C0:01C4FECF]
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501201019.24378.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Jack O'Quin wrote:
->>> Outstanding.  How do you get rid of that checkerboard grey
->>> background in the graphs?
->>
->>> Con Kolivas <kernel@kolivas.org> writes:
->> Funny; that's the script you sent me so... beats me?
->
-> It's just one of the many things I don't understand about graphics.
->
-> If I look at those png's locally (with gimp or gqview) they have a
-> dark grey checkerboard background.  If I look at them on the web (with
-> galeon), the background is white.  Go figure.  Maybe the file has no
-> background?  I dunno.
->
+On Thursday, 20 of January 2005 09:49, Alan Jenkins wrote:
+> On 20/01/05 08:48:02, Alan Jenkins wrote:
+> I have noticed a similar message, and so has someone else on the list:
+> 
+> http://groups-beta.google.com/group/fa.linux.kernel/browse_thread/thread/1bfcbbca2d508bb3/cb69d674510d215a?q=%22bad:+scheduling+while+atomic!%22+suspend&_done=%2Fgroup%2Ffa.linux.kernel%2Fsearch%3Fgroup%3Dfa.linux.kernel%26q%3D%22bad:+scheduling+while+atomic!%22+suspend%26qt_g%3D1%26searchnow%3DSearch+this+group%26&_doneTitle=Back+to+Search&&d#cb69d674510d215a
+> 
+> I have an asrock motherboard with an sis chipset.
+> SiS seems to be the common factor.  I think its something general about
+> the chipset.  My messages seem to involve the network card, the sound
+> card and the i8042 (ps/2 port) controller:
 
-The PNGs are being generated with transparent background. The checkered
-background is just being added as a visual helper artifact (or sort of) on
-some graphics viewers (notably the ones which names start with "g" :).
+Have you tried to boot with "pci=routeirq" or/and "noapic"?
 
-It's in jack_test3_plot.sh where the explicit option to render it
-transparent is. Just look for "transparent" and get rid of it, if you like
-:)
+Greets,
+RJW
 
-BTW, as joq has already hinted, I have almost ready here a new test suite
-(jack_test4), which features an actual (i.e.audible) audio chain instead
-of just CPU eaters, as on the jack_test3 set.
 
-Right now I'm merging the corrections joq handed to me yesterday, and will
-post it here later toiday.
-
-Cheers.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

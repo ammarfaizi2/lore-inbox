@@ -1,43 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313122AbSDDOC2>; Thu, 4 Apr 2002 09:02:28 -0500
+	id <S313170AbSDDOD2>; Thu, 4 Apr 2002 09:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313170AbSDDOCS>; Thu, 4 Apr 2002 09:02:18 -0500
-Received: from ns.suse.de ([213.95.15.193]:34829 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313122AbSDDOCH>;
-	Thu, 4 Apr 2002 09:02:07 -0500
-Date: Thu, 4 Apr 2002 16:02:06 +0200
-From: Dave Jones <davej@suse.de>
-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        pavel@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.5.8-pre1] nbd compile fixes...
-Message-ID: <20020404160206.Y20040@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Stelian Pop <stelian.pop@fr.alcove.com>,
+	id <S313172AbSDDODW>; Thu, 4 Apr 2002 09:03:22 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:44201 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S313170AbSDDODI>; Thu, 4 Apr 2002 09:03:08 -0500
+Date: Thu, 4 Apr 2002 16:03:05 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: kraxel@bytesex.org
+Subject: [PATCH 2.5.8-pre1] motioneye video driver
+Message-ID: <20020404140305.GH9820@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	pavel@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20020404135826.GG9820@come.alcove-fr>
+	kraxel@bytesex.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 03:58:26PM +0200, Stelian Pop wrote:
- > In fact, since nbd.c still reference 'queue_lock' I suspect that
- > the actual modifications to nbd.c were lost somewhere in etherspace
- > between Dave and Linus.
+In 2.5.8-pre1 'video_generic_ioctl' has gone, replaced by 
+'video_generic_ioctl'. However, no video driver has been
+updated to use the new API.
 
-Correct, there's a missing part, that came from 2.4
+The Gerd's patches from http://bytesex.org/patches/2.5/
+must be applied.
 
- > Either provide the right fix for nbd.c or apply the attached patch,
- > which reverts the patch to nbd.h.
+Attached is the motioneye driver patch only, which I can
+confirm it works properly.
 
-2.4 simply does a s/queue_lock/tx_lock/ on drivers/block/nbd.c
-I'll push that to Linus later today
+Stelian.
 
+===== drivers/media/video/meye.c 1.9 vs edited =====
+--- 1.9/drivers/media/video/meye.c	Thu Mar 14 17:16:34 2002
++++ edited/drivers/media/video/meye.c	Thu Apr  4 11:08:17 2002
+@@ -893,8 +893,8 @@
+ 	return 0;
+ }
+ 
+-static int meye_ioctl(struct inode *inode, struct file *file,
+-		      unsigned int cmd, void *arg) {
++static int meye_do_ioctl(struct inode *inode, struct file *file,
++			 unsigned int cmd, void *arg) {
+ 
+ 	switch (cmd) {
+ 
+@@ -1169,6 +1169,12 @@
+ 	return 0;
+ }
+ 
++static int meye_ioctl(struct inode *inode, struct file *file,
++		     unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, meye_do_ioctl);
++}
++
+ static int meye_mmap(struct file *file, struct vm_area_struct *vma) {
+ 	unsigned long start = vma->vm_start;
+ 	unsigned long size  = vma->vm_end - vma->vm_start;
+@@ -1209,7 +1215,7 @@
+ 	open:		meye_open,
+ 	release:	meye_release,
+ 	mmap:		meye_mmap,
+-	ioctl:		video_generic_ioctl,
++	ioctl:		meye_ioctl,
+ 	llseek:		no_llseek,
+ };
+ 
+@@ -1219,7 +1225,6 @@
+ 	type:		VID_TYPE_CAPTURE,
+ 	hardware:	VID_HARDWARE_MEYE,
+ 	fops:		&meye_fops,
+-	kernel_ioctl:	meye_ioctl,
+ };
+ 
+ static int __devinit meye_probe(struct pci_dev *pcidev, 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

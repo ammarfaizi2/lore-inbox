@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTJAUkV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 16:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTJAUkV
+	id S262474AbTJAUa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 16:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTJAUa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 16:40:21 -0400
-Received: from hockin.org ([66.35.79.110]:19721 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S262190AbTJAUkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 16:40:17 -0400
-Date: Wed, 1 Oct 2003 13:29:10 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Many groups patch.
-Message-ID: <20031001202910.GA30014@hockin.org>
-References: <20031001184610.GA25716@hockin.org> <Pine.LNX.4.44.0310011216530.24564-100000@home.osdl.org>
+	Wed, 1 Oct 2003 16:30:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34475 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262474AbTJAUa1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 16:30:27 -0400
+Date: Wed, 1 Oct 2003 21:30:20 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: DervishD <raul@pleyades.net>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       "Lisa R. Nelson" <lisanels@cableone.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: File Permissions are incorrect. Security flaw in Linux
+Message-ID: <20031001203019.GX7665@parcelfarce.linux.theplanet.co.uk>
+References: <1065012013.4078.2.camel@lisaserver> <1065044031.2158.23.camel@wynken.reefedge.com> <1065019077.2995.22.camel@localhost.localdomain> <Pine.LNX.4.53.0310011204410.4059@chaos> <20031001192126.GB22367@DervishD>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310011216530.24564-100000@home.osdl.org>
+In-Reply-To: <20031001192126.GB22367@DervishD>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 12:22:03PM -0700, Linus Torvalds wrote:
-> Augh. It also makes code even uglier than it used to be:
-> 
-> 	...
-> 
-> 	+               u16 group;
-> 	+               if (copy_from_user(&group, grouplist+i, sizeof(group)))
-> 	+                       return  -EFAULT;
+On Wed, Oct 01, 2003 at 09:21:26PM +0200, DervishD wrote:
+ 
+>     If someone answers me something like "you are much of a dumb for
+> understanding the answer, so I'll just tell you that you're wrong"
+> (and believe me, that 'joke' about a well earned F in Unix 101 falls
+> in this category IMHO), I wouldn't bother to thank...
 
-I can change it to do a copy_from_user one block at a time, if you prefer...
+You know, it's really not a joke.  Permissions model and meanings of
+individual permission bits *is* Unix 101 material and not knowing it
+(let alone claiming behaviour contrary to reality) will, indeed, earn
+you F.
 
-> 	if (nr > TASK_SIZE / sizeof(group))
-> 		return -EFAULT;
-> 	if (!access_ok(grouplist, nr*sizeof(group))
-> 		return -EFAULT;
-> 	...
-> 
-> 		if (__get_user(group, grouplist + i))
-> 			return -EFAULT;
-> 	...
+To be completely blunt, original posting contained a lie.  Given sequence
+of operations had not been tried on "Sun Unix".  At all.  Everything else
+would not get a reaction harsher than "you are thinking about behaviour
+of directories with sticky bit set; without it write permissions on directory
+are sufficient to remove files in it".  Probably with reference to Unix FAQ
+(and maybe a nitpick to the above - append-only and immutable files are
+not removable).
 
-Or change it to this, which is the same 1-gid-at-a-time copy.  This code is
-definitely SIMPLER than the 1-block-at-a-time copy.  I'll go with that.
+9:1 says that all original poster had actually tried was rm /tmp/<something>
+on Solaris, which, of course, resulted in "permission denied".  The rest was
+extrapolation.  Which is not particulary endearing, to put it mildly.
 
-> which really is so common that it _really_ should be in kernel/uid16.c
-> (or, actually create a new kernel/gid16.c file) rather than copied 
-> (incorrectly) to a lot of architectures. Then things like the above can be 
-> done right once, rather than merging this that does the nasty thing over 
-> and over.
+The way original poster had reacted to replies ("You are all wrong,
+I Know(tm)") + reference to Great Experience(tm)(r) had warranted the
+rest, IMO.
 
-I'd love to put it in uid16.c, but uid16.c is not used by the 64-bit
-architectures.  I remember proposing a simple fix at one point and being
-shot down.  I'd love to fix that up, but it's a separate patch.  If I
-fix it up as suggested above, will you take it with the promise that I'll
-find some way to do uid16 properly for the 64-bit arches and clean it up in
-a followup patch?
-
-> Sorry to just complain all the time,
-
-I'm just glad it's getting attention - I'm dying to take this off my todo
-list.
-
-Tim
+And yes, we all screw up from time to time.  Which is OK, provided that
+when said screwup is noticed you admit it instead of throwing a temper
+tantrum.

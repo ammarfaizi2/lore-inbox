@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286625AbSABCZG>; Tue, 1 Jan 2002 21:25:06 -0500
+	id <S286631AbSABCSg>; Tue, 1 Jan 2002 21:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286609AbSABCY4>; Tue, 1 Jan 2002 21:24:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50695 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286606AbSABCYl>; Tue, 1 Jan 2002 21:24:41 -0500
-Message-ID: <3C326F53.9070304@zytor.com>
-Date: Tue, 01 Jan 2002 18:24:19 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Michael Cohen <lkml@ohdarn.net>
-CC: linux-kernel@vger.kernel.org
+	id <S286609AbSABCS1>; Tue, 1 Jan 2002 21:18:27 -0500
+Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:23173 "HELO
+	ohdarn.net") by vger.kernel.org with SMTP id <S286672AbSABCSP>;
+	Tue, 1 Jan 2002 21:18:15 -0500
 Subject: Re: New tree started ;)
-In-Reply-To: <200201012342.PAA14236@cesium.transmeta.com> <1009937894.13689.8.camel@ohdarn.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Michael Cohen <lkml@ohdarn.net>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200201012342.PAA14236@cesium.transmeta.com>
+In-Reply-To: <200201012342.PAA14236@cesium.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Jan 2002 21:18:14 -0500
+Message-Id: <1009937894.13689.8.camel@ohdarn.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Cohen wrote:
 
->>Would it be better to have it on kernel.org?
->>
->>	-hpa
->>
+> Would it be better to have it on kernel.org?
 > 
-> I have no problem with that.
-> I have about 5mbit worth of SDSL (quad 1.25), but my provider would
-> probably get mad if my bandwidth gets eaten up.  I'd appreciate it
-> actually. :)
-> 
+> 	-hpa
 
+I have no problem with that.
+I have about 5mbit worth of SDSL (quad 1.25), but my provider would
+probably get mad if my bandwidth gets eaten up.  I'd appreciate it
+actually. :)
 
-Please send a GPG key, desired user name and a brief description of what 
-you plan to do to ftpadmin@kernel.org.  It might take a week or so to 
-get done.
-
-	-hpa
-
+------
+Michael Cohen
+OhDarn.net
 

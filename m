@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbTL2E52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 23:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTL2E52
+	id S262686AbTL2EzI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 23:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTL2EzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 23:57:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17888 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262705AbTL2E51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 23:57:27 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200312290457.hBT4vJFj006089@devserv.devel.redhat.com>
-To: wrlk@riede.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The survival of ide-scsi in 2.6.x
-In-Reply-To: <mailman.1072462764.22951.linux-kernel2news@redhat.com>
-References: <mailman.1072462764.22951.linux-kernel2news@redhat.com>
-Date: Sun, 28 Dec 2003 23:57:19 -0500
+	Sun, 28 Dec 2003 23:55:08 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:5513 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262686AbTL2EzE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 23:55:04 -0500
+Date: Mon, 29 Dec 2003 04:55:01 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: chmod of active swap file blocks
+Message-ID: <Pine.LNX.4.56.0312290434360.2270@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I need ide-scsi to survive. Why? I maintain osst, a driver for
-> OnStream tape drives, which need special handling. These drives
-> exist in SCSI, ATAPI, USB and IEEE1394 versions.
+Hi,
 
-> One high-level driver, osst, handles all of them, and that's how
-> it should be, right? For ATAPI, it relies on ide-scsi.
-> 
-> (By the way, ide-tape contains code for the ATAPI version, the 
-> DI-30, but that code is old and has serveral known problems - 
-> I'd like to see it removed - or at least deprecated - I will do 
-> that myself later if people want me to.)
+Trying to chmod a file being used for swap causes chmod() to block,
+with permissions change /not/ having taken effect, until the swap
+file is swapoff'd, at which point chmod() carries on and chmod (the
+command) finishes.
 
-Based on my expirience with ide-tape, I would rather have it
-killed instead. One neat trick to appease enemies of ide-scsi
-might be to rename it into ide-scsi into ide-tape-bis.
-Might even add DSC bit handling... But the ide-tape is too
-ugly to live for sure.
+# swapon /.swapfile 
+# cat /proc/swaps 
+Filename				Type		Size	Used	Priority
+/dev/ide/host0/bus0/target0/lun0/part1   partition	200772	51748	-1
+/.swapfile                               file		131064	0	-5
+# strace chmod g-w /.swapfile 2> /tmp/strace-chmod &
+[3] 29208
+# tail /tmp/strace-chmod 
+[ snip ]
+stat64("/.swapfile", {st_mode=S_IFREG|0600, st_size=134217728, ...}) = 0
+chmod("/.swapfile", 0600
+# swapoff /.swapfile 
+# 
+[3]   Done                    strace chmod g-w /.swapfile 2>/tmp/strace-chmod
 
--- Pete
+NB: no, i dont use devfs :) (just same namespace.)
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Save energy:  Drive a smaller shell.

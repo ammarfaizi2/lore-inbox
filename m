@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbTAJV6k>; Fri, 10 Jan 2003 16:58:40 -0500
+	id <S266425AbTAJWES>; Fri, 10 Jan 2003 17:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266425AbTAJV6k>; Fri, 10 Jan 2003 16:58:40 -0500
-Received: from almesberger.net ([63.105.73.239]:33808 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S266417AbTAJV6j>; Fri, 10 Jan 2003 16:58:39 -0500
-Date: Fri, 10 Jan 2003 19:07:06 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: uaca@alumni.uv.es,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dveitch@unimelb.edu.au
-Subject: Re: How much we can trust packet timestamping
-Message-ID: <20030110190706.A6866@almesberger.net>
-References: <20021230112838.GA928@pusa.informat.uv.es> <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Dec 30, 2002 at 01:09:03PM +0000
+	id <S266443AbTAJWES>; Fri, 10 Jan 2003 17:04:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40967 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266425AbTAJWER>; Fri, 10 Jan 2003 17:04:17 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Linus BK tree crashes with PANIC: INIT: segmentation violation
+Date: Fri, 10 Jan 2003 22:11:59 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <avngff$1l4$1@penguin.transmeta.com>
+References: <sjmlm1t5489.fsf@kikki.mit.edu>
+X-Trace: palladium.transmeta.com 1042236771 17990 127.0.0.1 (10 Jan 2003 22:12:51 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 10 Jan 2003 22:12:51 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> The packet can be timestamped by the hardware receiving as well as by
-> the kernel netif_rx code. This is actually intentional and there is
-> hardware that supports doing IRQ raise time sampling which the driver
-> can then use to get very accurate data.
+In article <sjmlm1t5489.fsf@kikki.mit.edu>,
+>
+>I've been trying to get a current 2.5 kernel up and running but I've
+>hit a wall.  When I run my machine with a current kernel I get the
+>following message to my terminal, repeated ad nausium:
+>
+>  PANIC: INIT: segmentation violation at 0x804a08c (code)! sleeping for 30 seconds!
 
-By the way, the group of Darryl Veitch have done some extremely
-interesting work with high-resolution timestamps, in particular
-using the TSC on recent ia32:
+Hmm.. Can you try to pinpoint more exactly the change that caused it? 
 
-http://www.cubinlab.ee.mu.oz.au/probing/
-http://www.cubinlab.ee.mu.oz.au/~darryl/tscclock_final.pdf.gz
+>In case anyone cares, the most recent ChangeSet from my
+>confirmed-working (2.5.53+) tree is labeled:
+>
+>  1.1004 02/12/30 13:47:09 torvalds@home.transmeta.com +2 -0
+>  Make x86 platform choice strings more easily selectable
+>
+>However I have not guaranteed that this is the Changeset just before
+>it failed (I'm not enough of a bk guru to figure out how to pull down
+>one changeset at a time).
 
-One general issue in this area is what we can do with time
-sources that aren't system-wide, e.g. NIC-local timers. The
-problem is to calibrate them and to synchronize them to
-wall-clock time. I think there are basically two possible
-approaches:
+Don't pull one at a time - instead just get my latest BK tree, and then
+you can do
 
- 1) driver gives time synchronization system (in user-space)
-    access to "raw" running timer value. Timestamps are also
-    "raw" timer values, plus a time source ID, which can then
-    be used to convert the values to wall-clock time.
+	bk clone -ql -rXXXX linus-BK test-tree
 
- 2) user space pushes exact time to kernel space, which then
-    does all the math. Timestamps are already converted to
-    wall-clock time.
+to get a tree with the top-of-tree being XXXX.
 
-2) is essentially what we can do with today's interfaces (an
-event notifier would be useful, though). The big drawback is
-that non-trivial math would have to be done in kernel space.
-1) is much easier on the kernel, but has the issue of
-requiring some API to get time values and time source
-characteristics (time representation, range, etc.).
+Together with "bk revtool" you can traverse the merge tree to decide on
+interesting points you want to back up further with. If, for example,
+the kernel still doesn't work at XXXX, you can then do a 
 
-I'm leaning towards solution 1), because it keeps things simple
-for the kernel. But perhaps the best approach is to simply
-implement both, and then compare ...
+	cd test-tree
+	bk revtool 
+	.. find an interesting spot YYYY ...
+	bk undo -aYYYY
 
-- Werner
+to clip some changes from the test-tree to see if that helps.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+		Linus

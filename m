@@ -1,171 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUGHSHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUGHSKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUGHSHR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 14:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUGHSHR
+	id S261602AbUGHSKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 14:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbUGHSKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 14:07:17 -0400
-Received: from pop.gmx.net ([213.165.64.20]:41383 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262418AbUGHSHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 14:07:11 -0400
-X-Authenticated: #5374206
-Date: Thu, 8 Jul 2004 20:07:09 +0200
-From: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
-To: linux-kernel@vger.kernel.org
-Subject: umount() and NFS races in 2.4.26
-Message-ID: <20040708180709.GA7704@timesink.dyndns.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+	Thu, 8 Jul 2004 14:10:35 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:18791 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261602AbUGHSKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 14:10:32 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: David Balazic <david.balazic@hermes.si>
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Date: Thu, 8 Jul 2004 13:10:29 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, fedora-list@redhat.com
+References: <600B91D5E4B8D211A58C00902724252C035F1F18@piramida.hermes.si>
+In-Reply-To: <600B91D5E4B8D211A58C00902724252C035F1F18@piramida.hermes.si>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407081310.29997.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 08 July 2004 08:25 am, David Balazic wrote:
+> 	Hi,
+> 
+> 	Currently mousedev combines all hardware motion data that arrivers
+> since
+> 	last time userspace read data into one cooked PS/2 packet. The
+> problem is
+> 	that under heavy or even moderate load, when userspace can't read
+> data
+> 	quickly enough, we start loosing valuable data which manifests in:
+> 
+> 	- ignoring buton presses as by the time userspace gets to read the
+> data
+> 	  button has already been released;
+> 	- click starts in wrong place - by the time userspace got aroungd
+> and read
+> 	  the packet mouse moved half way across the screen.
+> 
+> 
+> I am seeing the second simptom on Fedora Core 2 in X.
+> ( I click on a windows title, move the mouse and what happens is than a 
+> selection rectangle is drawn on the desktop, starting a few inches away from
+> the real click position )
+> Is this the cause ?
+>
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi,
-
-after deploying an SMP machine at work, we started to experience Oopses
-in file-system related code relatively frequently. Investigation
-revealed that they were caused by references using junk pointers from
-freed super blocks via dangling inodes from unmounted file systems;
-Oopses would always be preceded by the warning
-  VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-on an unmount (unmount activity is high on this machine due to heavy use
-of the automounter). The predecessor to this machine, a UP system with
-otherwise almost identical configuration, did never encounter such
-problems, so I went looking for possible SMP races.
-
-I believe that I have found two problems:
-
-- The NFS async unlink code (fs/nfs/unlink.c) does keep a dentry for
-  later asynchronous processing, but the mount point is unbusied via
-  path_release() once sys_unlink() returns (fs/namei.c). While it
-  does a dget() on the dentry, this is insufficient to prevent an
-  umount(); when one would happen in the right time window, it seems
-  that it would initially get past the busy check:
-	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-  (fs/namespace.c, do_umount()), but invalidate_inodes() in kill_super()
-  (fs/super.c) would then fail because of the inode referenced from
-  the dentry needed for the async unlink (which cannot be removed
-  by shrink_dcache_parent() because the NFS code did dget() it).
-
-  Please note that this problem is only conjectured, as it turned out
-  to not be our culprit. It looks not completely trivial to fix to me,
-  I believe it might require some changes that would affect other FS
-  implementations. It is not a true SMP race, if it exists it would
-  affect UP systems as well.
-
-- There is a SMP race between the shrink_dcache_parent() (fs/dcache.c)
-  called from kill_super() and prune_dache() called via
-  shrink_dache_memory() (called by kswapd), as follows:
-  shrink_dache_parent() calls select_parent() to both prepare the LRU
-  list for purge_cache() and return the number of unused dcache
-  entries that can likely be removed in the next prune_dache() run.
-  If select_parent() returns 0, shrink_dcache_parent() assumes that
-  its work is done and returns. Now, assume for simplicity that there
-  are only two remaining dcache entries: one for "foo/bar" and for
-  the directory "foo/", which is referenced by the "foo/bar" entry.
-  Furthermore, prune_dcache() is currently running, called from kswapd,
-  and has decided to remove the "foo/bar" entry. To that end, it
-  calls prune_one_dentry(), which dentry_iput()s then "foo/bar" dentry.
-  This causes the dache_lock() to be dropped. Just now select_parent()
-  comes along, and can obtain the dcache_lock(). It now looks for unused
-  dentries; but there is only the "foo/" one left, which has a non-zero
-  d_count because "foo/bar" referenced it as parent, and
-  prune_one_dentry() did not yet have a chance to dput() it because it
-  has to wait for the dcache_lock(). Thus, select_parent() finds no
-  unused dentries, assumes that all is fine and does not purge any
-  more; the "foo/" entry can remain in the cache for much longer
-  because it may have DCACHE_REFERENCED set, so that the kswapd
-  purge_dcache() will leave it alone. The inode corresponding to the
-  dangling dcache entry will still be referenced, and end up dangling,
-  too. kill_super() will print the warning mentioned above.
-  When dentry or inode are touched again later (for example in another
-  purge_dcache() later on) we can end up accessing the super block
-  freed during the unmount, leading to an Oops.
-  This was partially verified by inspecting the dcache state via
-  /dev/kmem after the busy inodes warning had occured (the directory
-  dentry was not busy any more, but still remained in the unused list).
-
-  In the attached patch, I have used a semaphore to serialize purging
-  accesses to the dentry_unused list. With a kernel so patched, the
-  problem seems to have disappeared. The patch is just a quick hack,
-  the semantics of the semaphore is not really well-defined; but maybe
-  it can serve as a starting point.
-  
-I have not checked whether any of these issues pertain to the 2.6 series
-as well.
-
-	- Thomas
-
-P.S: please CC me in replies, as I am not subscribed to this list.
-
-
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dcachesem.diff"
-
---- dcache.c.orig	Wed Jun 16 00:22:03 2004
-+++ dcache.c	Wed Jun 16 01:00:47 2004
-@@ -51,6 +51,7 @@
- static unsigned int d_hash_shift;
- static struct list_head *dentry_hashtable;
- static LIST_HEAD(dentry_unused);
-+struct semaphore dcache_lru_sem;
+Yes, I think it is. If userspace is behind then mousedev will continue
+accumulating displacements after noticing click and when userspace finally
+gets around to read the packet it looks like click was at the current
+displacement point.
  
- /* Statistics gathering. */
- struct dentry_stat_t dentry_stat = {0, 0, 45, 0,};
-@@ -381,6 +382,7 @@
- 	struct list_head *tmp, *next;
- 	struct dentry *dentry;
- 
-+	down(&dcache_lru_sem);
- 	/*
- 	 * Pass one ... move the dentries for the specified
- 	 * superblock to the most recent end of the unused list.
-@@ -416,6 +418,7 @@
- 		goto repeat;
- 	}
- 	spin_unlock(&dcache_lock);
-+	up(&dcache_lru_sem);
- }
- 
- /*
-@@ -548,8 +551,10 @@
- {
- 	int found;
- 
-+	down(&dcache_lru_sem);
- 	while ((found = select_parent(parent)) != 0)
- 		prune_dcache(found);
-+	up(&dcache_lru_sem);
- }
- 
- /*
-@@ -581,9 +586,11 @@
- 	if (!(gfp_mask & __GFP_FS))
- 		return 0;
- 
-+	down(&dcache_lru_sem);
- 	count = dentry_stat.nr_unused / priority;
- 
- 	prune_dcache(count);
-+	up(&dcache_lru_sem);
- 	return kmem_cache_shrink(dentry_cache);
- }
- 
-@@ -1247,6 +1254,7 @@
- 		d++;
- 		i--;
- 	} while (i);
-+	sema_init(&dcache_lru_sem, 1);
- }
- 
- static void init_buffer_head(void * foo, kmem_cache_t * cachep, unsigned long flags)
+> Regards,
+> David
+> 
+> P.S.: Is there a bug about this in bugzilla.redhat.com ? ( or elsewhere ? )
 
---uAKRQypu60I7Lcqm--
+Not that I know of...
+
+-- 
+Dmitry

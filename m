@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263092AbVCJULm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbVCJULn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263092AbVCJULm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbVCJUHA
+	id S263095AbVCJULn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbVCJUF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:07:00 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:51480 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S263101AbVCJUEV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 15:04:21 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Kylene Hall <kjhall@us.ibm.com>
-Subject: Re: [PATCH] Add TPM hardware enablement driver
-Date: Thu, 10 Mar 2005 23:04:54 +0200
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <1110415321526@kroah.com>
-In-Reply-To: <1110415321526@kroah.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503102304.54927.adobriyan@mail.ru>
-X-Spam: Not detected
+	Thu, 10 Mar 2005 15:05:58 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:63584 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263097AbVCJUDA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 15:03:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=O4k7AJdSRXCpZZ2YkugYfKwC63dWr6+YTGOxvO8frcdOBnpoH28z9FwJZqMh6lslnwk7ZR1g2yGBI2eeqRYtPz9HmeIbIuHGkKdPMfsb1u8heAvWkAL5l5dUKUCYy2deT0zHoQgp9uyMzAaVuTHGDzC58vLzYNvIF5cRU1zcLZU=
+Date: Thu, 10 Mar 2005 21:03:02 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+Message-Id: <20050310210302.12938479.diegocg@gmail.com>
+In-Reply-To: <423082BF.6060007@comcast.net>
+References: <423075B7.5080004@comcast.net>
+	<423082BF.6060007@comcast.net>
+X-Mailer: Sylpheed version 1.9.5+svn (GTK+ 2.6.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 March 2005 02:42, Greg KH wrote:
+El Thu, 10 Mar 2005 12:24:15 -0500,
+John Richard Moser <nigelenki@comcast.net> escribió:
 
-> [PATCH] Add TPM hardware enablement driver
+[...]
+>  - Smaller kernel tree
+[...]
+>  - Better focused development
+[...]
+>  - Faster rebuilding for developers
 
-> +static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
-> +			    size_t bufsiz)
-> +{
+It can be done without UDI.
 
-> +	u32 count;
-> +	__be32 *native_size;
-> +
-> +	native_size = (__force __be32 *) (buf + 2);
-> +	count = be32_to_cpu(*native_size);
 
-__force in a driver?
+> - UDI supplies SMP safety
 
-	count = be32_to_cpup((__be32 *) (buf + 2));
+Well designed drivers don't have SMP issues either...
 
-should be enough. Once done you can remove "native_size".
-
-> +static int tpm_atml_recv(struct tpm_chip *chip, u8 * buf, size_t count)
-> +{
-
-> +	u32 size;
-
-> +	__be32 *native_size;
-
-> +	/* size of the data received */
-> +	native_size = (__force __be32 *) (hdr + 2);
-> +	size = be32_to_cpu(*native_size);
-
-> +static int tpm_nsc_recv(struct tpm_chip *chip, u8 * buf, size_t count)
-> +{
-
-> +	u32 size;
-> +	__be32 *native_size;
-
-> +	native_size = (__force __be32 *) (buf + 2);
-> +	size = be32_to_cpu(*native_size);
-
-Same story.
-
-	Alexey

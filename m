@@ -1,129 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317606AbSG2TzN>; Mon, 29 Jul 2002 15:55:13 -0400
+	id <S317633AbSG2T7G>; Mon, 29 Jul 2002 15:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317610AbSG2TzN>; Mon, 29 Jul 2002 15:55:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33006 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317606AbSG2TzM>;
-	Mon, 29 Jul 2002 15:55:12 -0400
-Message-ID: <3D458BE4.60C7FB77@mvista.com>
-Date: Mon, 29 Jul 2002 11:39:32 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S317636AbSG2T7F>; Mon, 29 Jul 2002 15:59:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8977 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317633AbSG2T7C>;
+	Mon, 29 Jul 2002 15:59:02 -0400
+Message-ID: <3D459ECE.C5BD53DE@zip.com.au>
+Date: Mon, 29 Jul 2002 13:00:14 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Per Gregers Bilse <bilse@qbfox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 clock warps 4294 seconds
-References: <200207261022.LAA08395@spirit.qbfox.com>
+To: Daniel Phillips <phillips@arcor.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/13] misc fixes
+References: <3D439E09.3348E8D6@zip.com.au> <E17Z4v0-0002io-00@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Gregers Bilse wrote:
+Daniel Phillips wrote:
 > 
-> On Jul 25, 10:34am, george anzinger <george@mvista.com> wrote:
-> > You have the number a bit low.  If I recall, this is an 800
+>...
+> >
+> > It is apparent that these problems will not be solved by tweaking -
+> > some redesign is needed.  In the 2.5 timeframe the only practical
+> > solution appears to be page table sharing, based on Daniel's February
+> > work.  Daniel and Dave McCracken are working that.
 > 
-> Yes, I figured that, and bumped it up a lot (to 1e9).  Of course, since
-> setting the trap, things have been fine, including no loss of NTP synch.-/
-> Let's see over the weekend.
-> 
-> > The first thing I would check is that you are using DMA for
-> > you disc transfers.  To the best of my knowledge, the
-> 
-> Yes, both machines and both disks use DMA, and also allow interrupts
-> ("unmaskirq" option) during disk transfers, here's from hdparm(8):
-> 
-> /dev/hda:
->  multcount    = 16 (on)
->  I/O support  =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  readahead    =  8 (on)
->  geometry     = 2434/255/63, sectors = 39102336, start = 0
-> 
-> The only slightly unusual thing is that both machines use soft RAID,
-> I don't know if that code might be doing something.  But the problem
-> occurred at the same time as I made an application change (debug/logging)
-> that vastly -reduced- disk I/O.
-> 
-> Anyway, I've been looking through archived log files, and found a few
-> entries from the 2.4.7-10 kernel that looked interesting, here's a pair:
-> 
-> Feb 23 04:07:52 vulpes kernel: probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.
-> Feb 23 04:07:52 vulpes kernel: probable hardware bug: restoring chip configuration.
-> 
-> Both machines indeed have identical VIA686a motherboards.  The messages
-> come from code in timer_interrupt() in time.c:
-> 
->                 /* read Pentium cycle counter */
-> 
->                 rdtscl(last_tsc_low);
-> 
->                 spin_lock(&i8253_lock);
->                 outb_p(0x00, 0x43);     /* latch the count ASAP */
-> 
->                 count = inb_p(0x40);    /* read the latched count */
->                 count |= inb(0x40) << 8;
-> 
->                 /* VIA686a test code... reset the latch if count > max */
->                 if (count > LATCH) {
->                         static int last_whine;
->                         outb_p(0x34, 0x43);
->                         outb_p(LATCH & 0xff, 0x40);
->                         outb(LATCH >> 8, 0x40);
->                         count = LATCH - 1;
->                         if(time_after(jiffies, last_whine))
->                         {
->                                 printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.\n");
->                                 printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
->                                 last_whine = jiffies + HZ;
->                         }
->                 }
-> 
->                 spin_unlock(&i8253_lock);
-> 
-> The "if (count > LATCH)" block has been taken out of the 2.4.18
+> Sadly, it turns out that there are no possibilities for page table sharing
+> when forking from bash.  It turns out there are only about 200 pages being
+> shared amonst three page tables (stack, text and .interp) and at least one
+> page in each of these gets written during the exec, so all are unshared and
+> hence there is no reduction in the number of pte chains that have to be
+> created.  For forking from a larger parent, page table sharing has a
+> measurable benefit, but not from these little guys.
 
-I am not sure it was ever in the kernel in that form.  Are
-you sure you did not put some patch in here?
+Thanks for looking into this.
+ 
+> But there is something massively wrong with this whole picture.  Your kickass
+> 4 way is managing to set up and tear down only one pte chain node per
+> microsecond, if I'm reading your benchmark results correctly.
 
-> kernel, while similar code is in do_slow_gettimeoffset() in both
-> the 2.4.7-10 and 2.4.18 kernels.  I'm not sufficiently familiar
-> with the hardware and the code to know if this is significant,
-> but it does seem that there are some known hardware bugs which
-> the earlier kernel tried to address (but with limited or no success).
+s/kickass/slow as a wet sock/.
 
-I wish I knew more about this hardware bug.  The test
-suggests that the chip is not resetting the latch on
-interrupt, but rather that it just rolls over (or under). 
-This would cause the count to, again, reach zero (and,
-hopefully interrupt) in about 50 ms.  On the other hand, the
-chip could be switching modes and only the "0X34" mode will
-continue to interrupt with out the chip being reprogrammed. 
-In this case, it is hard to understand how the system keeps
-ANY time at all.  
+That little script which did 12,000 fork/exec/exits ran page_add_rmap
+and page_remove_rmap about 4,000,000 times each, and total runtime
+went from 30 seconds to 34.  So the combined overhead of both adding and
+removing the reverse mapping is around a microsecond per page, yes.
+That's four locked operations.
 
-The above "fix" detects the count not being reset and
-reprograms the chip, it does not attempt to correct for any
-lost time.
+>  That's really
+> horrible.  I think we need to revisit the locking.
+
+Anton did some testing on a 4-way PPC.  Similar results, I think.
+As an experiment he added a spinlock to the page structure and used
+that instead of the PG_chainlock flag.  It helped a lot.  He thinks
+that is because their spin_unlock() is not buslocked (like ia32).
+
+Which tends to imply that a __clear_bit() in pte_chain_unlock()
+will be beneficial.  I don't know how portable that would be though.
+
+ 
+> The idea I'm playing with now is to address an array of locks based on
+> something like:
 > 
-> Anyway, let's see what happens over the weekend.
+>         spin_lock(pte_chain_locks + ((page->index >> 4) & 0xff));
 > 
-> Thanks.
-> 
->   -- Per
+> so that 16 consecutive filemap pages use the same lock and there is a limited
+> total number of locks to keep cache pressure down.  Since we are creating the
+> vast majority of the pte chain nodes while walking across page tables, this
+> should give nice locality.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Something like that could help.
+
+At some point, when the reverse map is as CPU efficient as we can make it,
+we need to decide whether the remaining cost is worth the benefit.  I
+wonder how to do that.
+ 
+> For this to work, anon pages will need to have something in page->index.
+> This isn't too much of a challenge.  A reasonable value to put in there is
+> the creator's virtual address, shifted right, and perhaps mangled a little to
+> reduce contention.
+
+Well you want the likely-to-be-temporally-adjacent anon pages to
+use the same lock.  So maybe
+
+	page->index = some_global_int++;
+
+Except ->index gets stomped on when the page gets added to swapcache.
+Which means that the address of its lock will change.  I can't immediately
+think of a fix for that.

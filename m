@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317490AbSFMHV6>; Thu, 13 Jun 2002 03:21:58 -0400
+	id <S317408AbSFMHmn>; Thu, 13 Jun 2002 03:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317487AbSFMHV5>; Thu, 13 Jun 2002 03:21:57 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:65194 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317486AbSFMHV4> convert rfc822-to-8bit; Thu, 13 Jun 2002 03:21:56 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <ltd@cisco.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "David S. Miller" <davem@redhat.com>
-CC: Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Thu, 13 Jun 2002 00:21:54 -0700
-In-Reply-To: <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets
+	id <S317491AbSFMHmm>; Thu, 13 Jun 2002 03:42:42 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:24589 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S317408AbSFMHmm>;
+	Thu, 13 Jun 2002 03:42:42 -0400
+Date: Thu, 13 Jun 2002 11:40:53 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21: i2c conversion for drivers/media/video/saa7110.c
+Message-ID: <20020613074053.GA305@pazke.ipt>
+Mail-Followup-To: Frank Davis <fdavis@si.rr.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3D077C26.1090800@si.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020613072155.AAA14363@shell.webmaster.com@whenever>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.5.21 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->i know of many many folk who use transaction logs from HTTP caches for
->volume-based billing.
->right now, those bills are anywhere between 10% to 25% incorrect.
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	You are being paid to deliver packets to their destination, not to drop 
-them.
+On =D0=A1=D1=80=D0=B4, =D0=98=D1=8E=D0=BD 12, 2002 at 12:51:50 -0400, Frank=
+ Davis wrote:
+> Hello all,
+>   Here's what I propose as a complete conversion from the old i2c-old=20
+> interface to the current one (against 2.5.21). I used=20
+> drivers/media/video/saa5249.c as a basis for the conversion, as well as=
+=20
+> reviewing the i2c documentation. Let me know what you think.
+> Regards,
+> Frank
 
-	DS
+<snipped, patch eaten by the mailer>
 
+Please resend as attachment.
+=20
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9CEyFBm4rlNOo3YgRAjafAJ9CIYqK9++SEZehbvKyMWg5j2jUcwCeKOmo
+iqIpqdSsRQ5j3lKOG5GO0FQ=
+=t4OA
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--

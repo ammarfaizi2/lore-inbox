@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbSKLAvS>; Mon, 11 Nov 2002 19:51:18 -0500
+	id <S265736AbSKLBCE>; Mon, 11 Nov 2002 20:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSKLAvS>; Mon, 11 Nov 2002 19:51:18 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:19726 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265513AbSKLAvR>;
-	Mon, 11 Nov 2002 19:51:17 -0500
-Date: Mon, 11 Nov 2002 16:53:02 -0800
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: pcihpd-discuss@lists.sourceforge.net,
-       linux ia64 kernel list <linux-ia64@linuxia64.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45 cpqphp driver patch w/ intcphp driver enhancements
-Message-ID: <20021112005302.GD26926@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF89@orsmsx102.jf.intel.com>
-Mime-Version: 1.0
+	id <S265755AbSKLBCD>; Mon, 11 Nov 2002 20:02:03 -0500
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:50631 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S265736AbSKLBCD>; Mon, 11 Nov 2002 20:02:03 -0500
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200211120108.CAA05101@faui11.informatik.uni-erlangen.de>
+Subject: Re: [PATCH] flush_cache_page while pte valid
+To: manfred@colorfullife.com
+Date: Tue, 12 Nov 2002 02:08:46 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org, uweigand@de.ibm.com, schwidefsky@de.ibm.com
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF89@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 04:20:16PM -0800, Lee, Jung-Ik wrote:
-> Hi Greg,
-> 
-> Here's PCI hotplug driver patch to cpqphp driver in 2.5.45.
+Manfred Spraul wrote:
 
-Thanks for the patch.  I'm a bit busy today, but should be able to test
-this out later tomorrow if all goes well, sorry in advance for the
-delay.
+>Is it correct that this are 3 arch hooks that must appear back to back?
+>What about one hook with all parameters?
+>
+>        pte = ptep_get_and_clear_and_flush(ptep, vma, address);
 
-That being said, I have a minor nit:
+This interface would help us on s390 very much.  We have a hardware
+instruction (INVALIDATE PAGE TABLE ENTRY) that implements the combination 
+of 
+        pte = ptep_get_and_clear(ptep);
+        flush_tlb_page(vma, address);
 
--config HOTPLUG_PCI_COMPAQ
--       tristate "Compaq PCI Hotplug driver"
--       depends on HOTPLUG_PCI && X86
-+config HOTPLUG_PCI_COMPAQ_INTEL
-+       tristate "Compaq/Intel PCI Hotplug driver"
-+       depends on HOTPLUG_PCI
+very efficiently, but we cannot use it to implement flush_tlb_page
+alone, because it requires the pte to be valid.
 
-The device is _still_ a Compaq device, Intel just licensed it from them.
-Changing the name to an Intel device does Compaq a disservice, and in
-the past, when I accidentally did this, they complained loudly.
+This is why our current in-tree flush_tlb_page is quite inefficient
+(it always flushes the complete TLB) ...
 
-So I'd stick to the Compaq name only :)
+If we had a combined hook, we could use our IPTE instruction.
 
-I'll get back to you with actual technical comments on the patch
-hopefully by tomorrow evening.
+Bye,
+Ulrich
 
-thanks,
-
-greg k-h
+-- 
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

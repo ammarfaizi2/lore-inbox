@@ -1,1319 +1,243 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263543AbTJaUaX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 15:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTJaUaX
+	id S263544AbTJaUre (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 15:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbTJaUre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 15:30:23 -0500
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:23743 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S263543AbTJaU3f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 15:29:35 -0500
-Message-ID: <3FA2C44C.5040205@rackable.com>
-Date: Fri, 31 Oct 2003 12:21:32 -0800
-From: Samuel Flory <sflory@rackable.com>
+	Fri, 31 Oct 2003 15:47:34 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:3554 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S263544AbTJaUr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 15:47:29 -0500
+Message-ID: <3FA2CA5E.3050308@namesys.com>
+Date: Fri, 31 Oct 2003 23:47:26 +0300
+From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre8 x86-64 compile failure APCI related 
-Content-Type: multipart/mixed;
- boundary="------------040509090204050907030606"
-X-OriginalArrivalTime: 31 Oct 2003 20:29:33.0857 (UTC) FILETIME=[B1FAB910:01C39FED]
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <20031030015212.GD8689@thunk.org> <3FA0C631.6030905@namesys.com> <20031030174809.GA10209@thunk.org> <3FA16545.6070704@namesys.com> <20031030203146.GA10653@thunk.org> <3FA211D3.2020008@namesys.com> <20031031193016.GA1546@thunk.org>
+In-Reply-To: <20031031193016.GA1546@thunk.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040509090204050907030606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Theodore Ts'o wrote:
 
-make[1]: Leaving directory `/usr/src/linux/arch/x86_64/ia32'
-ld -m elf_x86_64 -T /usr/src/linux/arch/x86_64/vmlinux.lds -e stext 
-arch/x8                 o arch/x86_64/kernel/head64.o 
-arch/x86_64/kernel/init_task.o init/main.o in                 /do_mounts.o \
-         --start-group \
-         arch/x86_64/kernel/kernel.o kernel/kernel.o mm/mm.o fs/fs.o 
-ipc/ipc                 /mm.o arch/x86_64/ia32/ia32.o  \
-          drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o 
-driv                 rivers/net/net.o drivers/net/fc/fc.o 
-drivers/net/appletalk/appletalk.o driv 
-vers/ide/idedriver.o drivers/scsi/scsidrv.o 
-drivers/message/fusion/fusion.o                 iver.o 
-drivers/pci/driver.o drivers/net/pcmcia/pcmcia_net.o drivers/video/v 
-              b/usbdrv.o drivers/usb/gadget/built-in.o 
-drivers/media/media.o drivers/md/m
-         net/network.o \
-         /usr/src/linux/arch/x86_64/lib/lib.a /usr/src/linux/lib/lib.a \
-         --end-group \
-         -o vmlinux
-drivers/acpi/acpi.o(.text.init+0x970): In function `acpi_bus_init':
-: undefined reference to `acpi_pic_set_level_irq'
-make: *** [vmlinux] Error 1
+>On Fri, Oct 31, 2003 at 10:40:03AM +0300, Hans Reiser wrote:
+>  
+>
+>>Special cases of general theorems are not more powerful than the general 
+>>theorems, they are simply special cases.   You can design a language 
+>>that has the power of both relational algebra and boolean algebra.
+>>    
+>>
+>
+>Just because you can reduce everything to a turing machine doesn't
+>mean that the best way to implement a filesystem is with an infinitely
+>long tape which can only contain zero's and one's.
+>
+Beautifully poetic.:)
 
+>  There are plenty
+>of optimizations which means that you can quickly and with minimal
+>overhead do searches based on structured data, which is far, far more
+>difficult to do if you are doing unstructured searches. 
+>
+Which is why you should feel free to perform relational algebra on data 
+that happens to have a table structure.
 
+A general purpose filesystem should match rather than mold the structure 
+of the data.  If the data happens to be tabular, go for it, use tuple 
+structures in your queries, but if you can devise semantics that allow 
+you to use what structure is there and known to you, and does not 
+require you to use structure when it is not appropriate, that is much 
+more powerful.
 
-PS- Is there an amd64 tree somewhere like the PPC tree?
+I can't get US bank accounts for my programmers working for me.  Why?  
+Because every US bank without exception uses social security numbers as 
+a primary key.  A person without a social security number cannot be 
+coped with.  This is a weakness directly due to molding rather than 
+matching structure in data.
+
+> (In fact, in
+>some cases, if you don't have structured data to distinguish between
+>the author and the subject, you have to do the equivalent of natural
+>language processing if you are trying to do via an unstructured search
+>to find all papers written *about* a famous author, while not getting
+>false hits that were *written* by that same famous author.  Doing this
+>requires structured, not unstructured data.)
+>  
+>
+So use structure when it is there and you know it, and use a model that 
+allows you to use structure when it is there and you know it, but don't 
+use a model that requires that you mold the data into a table structure.
+
+With library systems that use structured card catalogs, sometimes it is 
+annoying that you cannot find all papers associated with an author, both 
+the ones by him and about him, without having to say author/authorname 
+OR subject/authorname.  It cuts both ways.....
+
+>  
+>
+>>>No, but it means that doing searches on formatted text is very
+>>>difficult,
+>>>
+>>>      
+>>>
+>>When you say formatted text, do you mean fonts and stuff, or do you mean 
+>>object storage models.  Object storage models should generally be 
+>>replaced with files and directories. 
+>>    
+>>
+>
+>I mean fonts and stuff.  Stripping out fonts, tables, etc. for doing
+>generalized, unstructured text search, clearly needs to be done in
+>userspace.  Actually, I think we both agree on this point.  The poing
+>of disagreement is whether the searches utilizing such indexes should
+>be done in the kernel as part of the intrinsic part of the filesystem,
+>or in userspace.  I believe that we need to draw a very firm line
+>between what you call "primary keys", which uniquely identify a file,
+>and generalized searches.  You believe the two should be unified.
+>  
+>
+In reiser4, objectids uniquely identify a file, and all pathnames can be 
+renamed.  Long ago I used to think that one should be able to find a 
+file by its objectid, but I lost that argument, and deserved to lose it.
+
+>  
+>
+>>Are you saying that auto-indexers should not parse the formatted text, 
+>>index the document, and allow users to find the document, with the 
+>>auto-indexer running in user space, but the indexes being traversed by 
+>>the filesystem namespace resolver?  The kernel does not need to 
+>>understand how to parse a document, it just needs to support queries 
+>>that use the indexes created by an auto-indexer that does understand it.
+>>    
+>>
+>
+>I believe that there is a big difference between, "I want the file
+>named /home/tytso/src/e2fsprogs/e2fsck/e2fsck.c", and "I remember
+>vaguely that 5 years ago, I read a paper about the effects of high-fat
+>diets on akida's, where the first name of the author was Tom".  The
+>first is a filename lookup.  The second is a search.  I would like
+>better search tools for files in a filesystem, no doubt.  But I would
+>never, ever put a search that might return an ambiguous number of
+>responses (that might change over time as more files are added to the
+>filesystem) in a Makefile as a source file.  
+>  
+>
+Suppose you want to only recompile files that have been changed since 
+the last recompile.....  that will return an ambiguous number of 
+responses.....
+
+Suppose you want to only recompile files that are in a particular 
+directory, and you don't know how many that is before performing the query?
+
+Suppose you want to recompile all files that have been used in the last 
+year and were compiled by the distro for a 386 rather than by you for 
+your AMD 64?
+
+>You are conflating these two concepts, pointing out that filename path
+>resolution happens a lot, and so therefore generalized searches should
+>also be done in the kernel.  What I am saying is that generalized
+>searches where the user needs to look at the returned set of files,
+>and then apply human intelligence to see which of the returned set of
+>files was the one they were looking 
+>
+why do you assume they are looking for one of the set instead of the 
+whole set?
+
+>for is a FUNDAMENTALLY DIFFERENT
+>OPERATION from a filename lookup via a primary key.  The latter should
+>be done in the kernel, as is the case to day.  The former should by no
+>means be in the kernel, and should be done in userspace, preferably
+>with a graphical interface lookup so the user can look at the returned
+>files, look at the context in which the search parameters appear, and
+>select the ones which actually is the document they were looking for.
+>  
+>
+Prompting the user for search refinement does indeed deserve a context 
+switch to user space.
+
+>Sure, Google has the concept of the "I'm feeling lucky" button.  But
+>there is a fundamental difference between a URL, and saying, "Type
+>'Akida fat diet' into Google and hit "I'm feeling lucky".  The latter
+>is something that you would never put into hypertext document as a
+>link, because it changes over time, and what works today might not
+>work tomorrow.
+>
+Getting different results each day is sometimes desirable in a query.
+
+>  That is the difference between a name (a URL), and a
+>search string (what you type into Google).
+>
+>  
+>
+>>>In contrast, consider searching for someone who is male, between 30
+>>>and 40, is named Tom, and lived in Libertyville, Illinois sometime
+>>>between 1960 and 1970, and is married to someone named Mary who was
+>>>born in California.  This might return several people, and most people
+>>>would **NOT** consider the space of all queries about people to be a
+>>>"name space". 
+>>>
+>>>      
+>>>
+>>Oh god, did you read the literature?
+>>    
+>>
+>
+>Is this the same literature as the ones which said that Microkernels
+>were the way, the truth and the light?  Is this the same literature as
+>the stuff written by the Professor Tennenbaum, who said he would have
+>given Linus a failing grade if he submitted Linux as a project?  There
+>are plenty of things in the Literature that I consider to be pure
+>stuff and nonsense, and people who claim that searches and "name
+>spaces" to be identical fall into that category as far as I'm
+>concerned....
+>  
+>
+If you make a statement about what most people consider a name space to 
+be, you should be consistent with the literature that created the term.
+
+If you want to make a statement about what name spaces SHOULD be, that 
+is different, yes?
+
+>
+>
+>  
+>
+>>Naming is used by programs a lot.  Enhace naming, and the programs will 
+>>used enhanced naming a lot.
+>>    
+>>
+>
+>Searching and Naming are not the same thing.  Period.
+>
+>						- Ted
+>  
+>
+Makefiles will use enhanced naming a lot when it is there for them to 
+conveniently employ.  Many other programs will as well.
+
+I am going to avoid directly responding to "Searching and Naming are not 
+the same thing. Period." because there are articles in the literature on 
+the different objectives of naming, and on why X different categories of 
+name space usage (The first article had 5 different ones, one was 
+navigating, and I forget the others.  A later article had more.  The 
+articles are worth reading.) are deeply different, and these articles 
+have truth to them.
+
+If you say that user refinement of searches belongs in user space, we 
+agree.  If you say that names resolve to single objects and never should 
+resolve to sets of objects, we disagree.
 
 -- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+Hans
 
---------------040509090204050907030606
-Content-Type: text/plain;
- name="amd.config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="amd.config"
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86_64=y
-CONFIG_X86=y
-# CONFIG_ISA is not set
-# CONFIG_SBUS is not set
-# CONFIG_UID16 is not set
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-# CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_EARLY_PRINTK=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-CONFIG_MK8=y
-# CONFIG_GENERIC_CPU is not set
-CONFIG_X86_L1_CACHE_BYTES=64
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-# CONFIG_MATH_EMULATION is not set
-# CONFIG_MCA is not set
-# CONFIG_EISA is not set
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_HPET_TIMER=y
-CONFIG_GART_IOMMU=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NR_CPUS=32
-CONFIG_MCE=y
-# CONFIG_K8_NUMA is not set
-
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=m
-CONFIG_CARDBUS=y
-CONFIG_TCIC=y
-CONFIG_I82092=y
-CONFIG_I82365=y
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-# CONFIG_HOTPLUG_PCI_COMPAQ is not set
-# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
-# CONFIG_HOTPLUG_PCI_IBM is not set
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_MISC is not set
-CONFIG_PM=y
-CONFIG_IA32_EMULATION=y
-
-#
-# ACPI Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_TOSHIBA is not set
-CONFIG_ACPI_DEBUG=y
-# CONFIG_ACPI_RELAXED_AML is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_CISS_SCSI_TAPE is not set
-# CONFIG_CISS_MONITOR_THREAD is not set
-CONFIG_BLK_DEV_DAC960=y
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_BLK_STATS=y
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_MD_MULTIPATH=m
-CONFIG_BLK_DEV_LVM=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-# CONFIG_IP_PNP_BOOTP is not set
-# CONFIG_IP_PNP_RARP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_NET_IPGRE_BROADCAST=y
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-CONFIG_SYN_COOKIES=y
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-# CONFIG_IP_NF_AMANDA is not set
-# CONFIG_IP_NF_TFTP is not set
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-# CONFIG_IP_NF_MATCH_PKTTYPE is not set
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-# CONFIG_IP_NF_MATCH_RECENT is not set
-# CONFIG_IP_NF_MATCH_ECN is not set
-# CONFIG_IP_NF_MATCH_DSCP is not set
-# CONFIG_IP_NF_MATCH_AH_ESP is not set
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-# CONFIG_IP_NF_MATCH_HELPER is not set
-CONFIG_IP_NF_MATCH_STATE=m
-# CONFIG_IP_NF_MATCH_CONNTRACK is not set
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-# CONFIG_IP_NF_NAT_LOCAL is not set
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-# CONFIG_IP_NF_TARGET_ECN is not set
-# CONFIG_IP_NF_TARGET_DSCP is not set
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-# CONFIG_IP_NF_TARGET_ULOG is not set
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-# CONFIG_IP_NF_ARP_MANGLE is not set
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_IP_NF_NAT_NEEDED=y
-
-#
-#   IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-CONFIG_IPV6=m
-
-#
-#   IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_QUEUE is not set
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-# CONFIG_IP6_NF_MATCH_RT is not set
-# CONFIG_IP6_NF_MATCH_OPTS is not set
-# CONFIG_IP6_NF_MATCH_FRAG is not set
-# CONFIG_IP6_NF_MATCH_HL is not set
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-# CONFIG_IP6_NF_MATCH_IPV6HEADER is not set
-# CONFIG_IP6_NF_MATCH_AHESP is not set
-# CONFIG_IP6_NF_MATCH_LENGTH is not set
-# CONFIG_IP6_NF_MATCH_EUI64 is not set
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-# CONFIG_KHTTPD is not set
-
-#
-#    SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=m
-# CONFIG_IP_SCTP is not set
-CONFIG_ATM=y
-CONFIG_ATM_CLIP=y
-# CONFIG_ATM_CLIP_NO_ICMP is not set
-CONFIG_ATM_LANE=m
-CONFIG_ATM_MPOA=m
-CONFIG_ATM_BR2684=m
-CONFIG_ATM_BR2684_IPFILTER=y
-CONFIG_VLAN_8021Q=m
-
-#
-#  
-#
-CONFIG_IPX=m
-# CONFIG_IPX_INTERN is not set
-CONFIG_ATALK=m
-
-#
-# Appletalk devices
-#
-CONFIG_DEV_APPLETALK=y
-CONFIG_COPS_DAYNA=y
-CONFIG_COPS_TANGENT=y
-CONFIG_IPDDP=m
-CONFIG_IPDDP_ENCAP=y
-CONFIG_IPDDP_DECAP=y
-CONFIG_DECNET=m
-CONFIG_DECNET_SIOCGIFCONF=y
-CONFIG_DECNET_ROUTER=y
-CONFIG_DECNET_ROUTE_FWMARK=y
-CONFIG_BRIDGE=m
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-CONFIG_WAN_ROUTER=m
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-# CONFIG_NET_SCH_HTB is not set
-CONFIG_NET_SCH_CSZ=m
-# CONFIG_NET_SCH_ATM is not set
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-# CONFIG_PHONE_IXJ_PCMCIA is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDETAPE=m
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASK_IOCTL=y
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_CMD640_ENHANCED=y
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_BLK_DEV_ADMA100=y
-CONFIG_BLK_DEV_AEC62XX=y
-CONFIG_BLK_DEV_ALI15X3=y
-# CONFIG_WDC_ALI15X3 is not set
-CONFIG_BLK_DEV_AMD74XX=y
-# CONFIG_AMD74XX_OVERRIDE is not set
-CONFIG_BLK_DEV_CMD64X=y
-CONFIG_BLK_DEV_TRIFLEX=y
-CONFIG_BLK_DEV_CY82C693=y
-CONFIG_BLK_DEV_CS5530=y
-CONFIG_BLK_DEV_HPT34X=y
-# CONFIG_HPT34X_AUTODMA is not set
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_NS87415=y
-CONFIG_BLK_DEV_OPTI621=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-# CONFIG_PDC202XX_BURST is not set
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_PDC202XX_FORCE=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_SC1200=y
-CONFIG_BLK_DEV_SVWKS=y
-CONFIG_BLK_DEV_SIIMAGE=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_SLC90E66=y
-CONFIG_BLK_DEV_TRM290=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_BLK_DEV_ATARAID=m
-CONFIG_BLK_DEV_ATARAID_PDC=m
-CONFIG_BLK_DEV_ATARAID_HPT=m
-CONFIG_BLK_DEV_ATARAID_SII=m
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=m
-CONFIG_CHR_DEV_OSST=m
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=4
-CONFIG_CHR_DEV_SG=m
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_DEBUG_QUEUES is not set
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-
-#
-# SCSI low-level drivers
-#
-CONFIG_BLK_DEV_3W_XXXX_RAID=y
-CONFIG_SCSI_7000FASST=m
-CONFIG_SCSI_ACARD=m
-CONFIG_SCSI_AHA152X=m
-CONFIG_SCSI_AHA1542=m
-CONFIG_SCSI_AHA1740=m
-CONFIG_SCSI_AACRAID=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-# CONFIG_AIC7XXX_PROBE_EISA_VL is not set
-# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
-CONFIG_AIC7XXX_DEBUG_ENABLE=y
-CONFIG_AIC7XXX_DEBUG_MASK=0
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_AIC79XX=y
-CONFIG_AIC79XX_CMDS_PER_DEVICE=32
-CONFIG_AIC79XX_RESET_DELAY_MS=15000
-# CONFIG_AIC79XX_BUILD_FIRMWARE is not set
-CONFIG_AIC79XX_ENABLE_RD_STRM=y
-CONFIG_AIC79XX_DEBUG_ENABLE=y
-CONFIG_AIC79XX_DEBUG_MASK=0
-CONFIG_AIC79XX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_ADVANSYS=m
-CONFIG_SCSI_IN2000=m
-CONFIG_SCSI_AM53C974=m
-CONFIG_SCSI_MEGARAID=m
-CONFIG_SCSI_MEGARAID2=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_SATA_SVW=y
-CONFIG_SCSI_ATA_PIIX=y
-CONFIG_SCSI_SATA_PROMISE=y
-CONFIG_SCSI_SATA_SIL=y
-CONFIG_SCSI_SATA_VIA=y
-CONFIG_SCSI_BUSLOGIC=m
-# CONFIG_SCSI_OMIT_FLASHPOINT is not set
-CONFIG_SCSI_CPQFCTS=m
-CONFIG_SCSI_DMX3191D=m
-CONFIG_SCSI_DTC3280=m
-CONFIG_SCSI_EATA=m
-CONFIG_SCSI_EATA_TAGGED_QUEUE=y
-# CONFIG_SCSI_EATA_LINKED_COMMANDS is not set
-CONFIG_SCSI_EATA_MAX_TAGS=16
-CONFIG_SCSI_EATA_DMA=m
-CONFIG_SCSI_EATA_PIO=m
-CONFIG_SCSI_FUTURE_DOMAIN=m
-CONFIG_SCSI_GDTH=m
-CONFIG_SCSI_GENERIC_NCR5380=m
-# CONFIG_SCSI_GENERIC_NCR53C400 is not set
-CONFIG_SCSI_G_NCR5380_PORT=y
-# CONFIG_SCSI_G_NCR5380_MEM is not set
-# CONFIG_SCSI_IPS is not set
-CONFIG_SCSI_INITIO=m
-CONFIG_SCSI_INIA100=m
-CONFIG_SCSI_NCR53C406A=m
-CONFIG_SCSI_NCR53C7xx=m
-# CONFIG_SCSI_NCR53C7xx_sync is not set
-CONFIG_SCSI_NCR53C7xx_FAST=y
-CONFIG_SCSI_NCR53C7xx_DISCONNECT=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
-# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
-CONFIG_SCSI_PAS16=m
-CONFIG_SCSI_PCI2000=m
-CONFIG_SCSI_PCI2220I=m
-CONFIG_SCSI_PSI240I=m
-CONFIG_SCSI_QLOGIC_FAS=m
-CONFIG_SCSI_QLOGIC_ISP=m
-CONFIG_SCSI_QLOGIC_FC=m
-# CONFIG_SCSI_QLOGIC_FC_FIRMWARE is not set
-CONFIG_SCSI_QLOGIC_1280=m
-CONFIG_SCSI_SEAGATE=m
-CONFIG_SCSI_SIM710=m
-CONFIG_SCSI_SYM53C416=m
-CONFIG_SCSI_DC390T=m
-# CONFIG_SCSI_DC390T_NOGENSUPP is not set
-CONFIG_SCSI_T128=m
-CONFIG_SCSI_U14_34F=m
-# CONFIG_SCSI_U14_34F_LINKED_COMMANDS is not set
-CONFIG_SCSI_U14_34F_MAX_TAGS=8
-CONFIG_SCSI_ULTRASTOR=m
-CONFIG_SCSI_NSP32=y
-CONFIG_SCSI_DEBUG=m
-
-#
-# PCMCIA SCSI adapter support
-#
-# CONFIG_SCSI_PCMCIA is not set
-
-#
-# Fusion MPT device support
-#
-CONFIG_FUSION=y
-CONFIG_FUSION_BOOT=y
-CONFIG_FUSION_MAX_SGE=40
-CONFIG_FUSION_ISENSE=m
-CONFIG_FUSION_CTL=m
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_SUNLANCE is not set
-CONFIG_HAPPYMEAL=m
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-CONFIG_SUNGEM=m
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_ELMC is not set
-# CONFIG_ELMC_II is not set
-CONFIG_VORTEX=y
-CONFIG_TYPHOON=y
-# CONFIG_LANCE is not set
-CONFIG_NET_VENDOR_SMC=y
-# CONFIG_WD80x3 is not set
-# CONFIG_ULTRAMCA is not set
-# CONFIG_ULTRA is not set
-# CONFIG_ULTRA32 is not set
-# CONFIG_SMC9194 is not set
-CONFIG_NET_VENDOR_RACAL=y
-# CONFIG_NI5010 is not set
-# CONFIG_NI52 is not set
-# CONFIG_NI65 is not set
-CONFIG_HP100=m
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_AMD8111_ETH=m
-CONFIG_ADAPTEC_STARFIRE=m
-# CONFIG_APRICOT is not set
-CONFIG_B44=y
-# CONFIG_CS89x0 is not set
-CONFIG_TULIP=m
-# CONFIG_TULIP_MWI is not set
-CONFIG_TULIP_MMIO=y
-CONFIG_DE4X5=m
-CONFIG_DGRS=m
-CONFIG_DM9102=m
-CONFIG_EEPRO100=y
-# CONFIG_EEPRO100_PIO is not set
-CONFIG_E100=m
-# CONFIG_LNE390 is not set
-# CONFIG_FEALNX is not set
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-# CONFIG_NE3210 is not set
-# CONFIG_ES3210 is not set
-CONFIG_8139CP=m
-CONFIG_8139TOO=m
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-CONFIG_8139TOO_8129=y
-# CONFIG_8139_OLD_RX_RESET is not set
-CONFIG_SIS900=m
-CONFIG_EPIC100=m
-CONFIG_SUNDANCE=m
-# CONFIG_SUNDANCE_MMIO is not set
-CONFIG_TLAN=m
-CONFIG_VIA_RHINE=m
-# CONFIG_VIA_RHINE_MMIO is not set
-CONFIG_WINBOND_840=m
-CONFIG_NET_POCKET=y
-# CONFIG_DE600 is not set
-# CONFIG_DE620 is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-CONFIG_ACENIC=y
-# CONFIG_ACENIC_OMIT_TIGON_I is not set
-CONFIG_DL2K=m
-CONFIG_E1000=y
-# CONFIG_E1000_NAPI is not set
-# CONFIG_MYRI_SBUS is not set
-CONFIG_NS83820=m
-CONFIG_HAMACHI=m
-CONFIG_YELLOWFIN=m
-# CONFIG_R8169 is not set
-CONFIG_SK98LIN=m
-CONFIG_TIGON3=y
-CONFIG_FDDI=y
-CONFIG_DEFXX=m
-CONFIG_SKFP=m
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-CONFIG_NET_FC=y
-CONFIG_IPHASE5526=m
-CONFIG_RCPCI=m
-CONFIG_SHAPER=m
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-CONFIG_PCMCIA_FMVJ18X=m
-CONFIG_PCMCIA_PCNET=m
-CONFIG_PCMCIA_AXNET=m
-CONFIG_PCMCIA_NMCLAN=m
-CONFIG_PCMCIA_SMC91C92=m
-CONFIG_PCMCIA_XIRC2PS=m
-# CONFIG_ARCNET_COM20020_CS is not set
-# CONFIG_PCMCIA_IBMTR is not set
-CONFIG_PCMCIA_XIRCOM=m
-CONFIG_PCMCIA_XIRTULIP=m
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=m
-CONFIG_PCMCIA_NETWAVE=m
-CONFIG_PCMCIA_WAVELAN=m
-CONFIG_AIRONET4500_CS=m
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Input core support
-#
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-CONFIG_INPUT_EVDEV=m
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_SERIAL_EXTENDED=y
-CONFIG_SERIAL_MANY_PORTS=y
-CONFIG_SERIAL_SHARE_IRQ=y
-# CONFIG_SERIAL_DETECT_IRQ is not set
-CONFIG_SERIAL_MULTIPORT=y
-# CONFIG_HUB6 is not set
-CONFIG_SERIAL_NONSTANDARD=y
-# CONFIG_COMPUTONE is not set
-# CONFIG_ROCKETPORT is not set
-# CONFIG_CYCLADES is not set
-# CONFIG_ESPSERIAL is not set
-# CONFIG_MOXA_INTELLIO is not set
-# CONFIG_MOXA_SMARTIO is not set
-# CONFIG_ISI is not set
-# CONFIG_SYNCLINK is not set
-# CONFIG_SYNCLINKMP is not set
-# CONFIG_N_HDLC is not set
-# CONFIG_RISCOM8 is not set
-# CONFIG_STALDRV is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=2048
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-# CONFIG_I2C_PHILIPSPAR is not set
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-# CONFIG_SCx200_I2C is not set
-# CONFIG_SCx200_ACB is not set
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ELEKTOR=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_PROC=m
-
-#
-# Mice
-#
-CONFIG_BUSMOUSE=m
-CONFIG_ATIXL_BUSMOUSE=m
-CONFIG_LOGIBUSMOUSE=m
-CONFIG_MS_BUSMOUSE=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_82C710_MOUSE=m
-CONFIG_PC110_PAD=m
-CONFIG_MK712_MOUSE=m
-
-#
-# Joysticks
-#
-CONFIG_INPUT_GAMEPORT=m
-CONFIG_INPUT_NS558=m
-CONFIG_INPUT_LIGHTNING=m
-CONFIG_INPUT_PCIGAME=m
-CONFIG_INPUT_CS461X=m
-CONFIG_INPUT_EMU10K1=m
-CONFIG_INPUT_SERIO=m
-CONFIG_INPUT_SERPORT=m
-
-#
-# Joysticks
-#
-CONFIG_INPUT_ANALOG=m
-CONFIG_INPUT_A3D=m
-CONFIG_INPUT_ADI=m
-CONFIG_INPUT_COBRA=m
-CONFIG_INPUT_GF2K=m
-CONFIG_INPUT_GRIP=m
-CONFIG_INPUT_INTERACT=m
-CONFIG_INPUT_TMDC=m
-CONFIG_INPUT_SIDEWINDER=m
-CONFIG_INPUT_IFORCE_USB=m
-CONFIG_INPUT_IFORCE_232=m
-CONFIG_INPUT_WARRIOR=m
-CONFIG_INPUT_MAGELLAN=m
-CONFIG_INPUT_SPACEORB=m
-CONFIG_INPUT_SPACEBALL=m
-CONFIG_INPUT_STINGER=m
-# CONFIG_INPUT_DB9 is not set
-# CONFIG_INPUT_GAMECON is not set
-# CONFIG_INPUT_TURBOGRAFX is not set
-# CONFIG_QIC02_TAPE is not set
-# CONFIG_IPMI_HANDLER is not set
-# CONFIG_IPMI_PANIC_EVENT is not set
-# CONFIG_IPMI_DEVICE_INTERFACE is not set
-# CONFIG_IPMI_KCS is not set
-# CONFIG_IPMI_WATCHDOG is not set
-
-#
-# Watchdog Cards
-#
-CONFIG_WATCHDOG=y
-# CONFIG_WATCHDOG_NOWAYOUT is not set
-CONFIG_ACQUIRE_WDT=m
-CONFIG_ADVANTECH_WDT=m
-CONFIG_ALIM1535_WDT=m
-CONFIG_ALIM7101_WDT=m
-CONFIG_SC520_WDT=m
-CONFIG_PCWATCHDOG=m
-CONFIG_EUROTECH_WDT=m
-CONFIG_IB700_WDT=m
-CONFIG_WAFER_WDT=m
-CONFIG_I810_TCO=m
-# CONFIG_MIXCOMWD is not set
-# CONFIG_60XX_WDT is not set
-CONFIG_SC1200_WDT=m
-# CONFIG_SCx200_WDT is not set
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_W83877F_WDT=m
-CONFIG_WDT=m
-CONFIG_WDTPCI=m
-# CONFIG_WDT_501 is not set
-CONFIG_MACHZ_WDT=m
-CONFIG_AMD7XX_TCO=m
-# CONFIG_SCx200_GPIO is not set
-CONFIG_AMD_RNG=m
-CONFIG_INTEL_RNG=m
-# CONFIG_HW_RANDOM is not set
-CONFIG_AMD_PM768=m
-CONFIG_NVRAM=m
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-# CONFIG_AGP is not set
-CONFIG_AGP_AMD_K8=y
-
-#
-# Direct Rendering Manager (XFree86 DRI support)
-#
-# CONFIG_DRM is not set
-
-#
-# PCMCIA character devices
-#
-# CONFIG_PCMCIA_SERIAL_CS is not set
-# CONFIG_SYNCLINK_CS is not set
-# CONFIG_MWAVE is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V2 is not set
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-CONFIG_REISERFS_PROC_INFO=y
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-CONFIG_HFSPLUS_FS=m
-# CONFIG_BEFS_FS is not set
-# CONFIG_BEFS_DEBUG is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=m
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_JFFS2_FS is not set
-CONFIG_CRAMFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_JFS_FS=y
-# CONFIG_JFS_DEBUG is not set
-# CONFIG_JFS_STATISTICS is not set
-# CONFIG_MINIX_FS is not set
-CONFIG_VXFS_FS=m
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-CONFIG_ROMFS_FS=m
-CONFIG_EXT2_FS=y
-CONFIG_SYSV_FS=m
-CONFIG_UDF_FS=m
-CONFIG_UDF_RW=y
-CONFIG_UFS_FS=m
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_ROOT_NFS=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SMB_FS=y
-# CONFIG_SMB_NLS_DEFAULT is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-CONFIG_ZISOFS_FS=y
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-CONFIG_OSF_PARTITION=y
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_MINIX_SUBPARTITION=y
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-# CONFIG_LDM_PARTITION is not set
-CONFIG_SGI_PARTITION=y
-# CONFIG_ULTRIX_PARTITION is not set
-CONFIG_SUN_PARTITION=y
-# CONFIG_EFI_PARTITION is not set
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-# CONFIG_SOUND is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI=y
-# CONFIG_USB_UHCI_ALT is not set
-CONFIG_USB_OHCI=y
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_MIDI is not set
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_HP8200e=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_SDDR55=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_KBD=m
-CONFIG_USB_MOUSE=m
-CONFIG_USB_AIPTEK=m
-CONFIG_USB_WACOM=m
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-
-#
-# USB Imaging devices
-#
-CONFIG_USB_DC2XX=m
-# CONFIG_USB_MDC800 is not set
-CONFIG_USB_SCANNER=m
-CONFIG_USB_MICROTEK=m
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-
-#
-#   Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_CATC is not set
-CONFIG_USB_AX8817X=m
-# CONFIG_USB_CDCETHER is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-CONFIG_USB_SERIAL=y
-# CONFIG_USB_SERIAL_DEBUG is not set
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_BELKIN=m
-CONFIG_USB_SERIAL_WHITEHEAT=m
-CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
-CONFIG_USB_SERIAL_EMPEG=m
-CONFIG_USB_SERIAL_FTDI_SIO=m
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_USB_SERIAL_IPAQ=m
-CONFIG_USB_SERIAL_IR=m
-CONFIG_USB_SERIAL_EDGEPORT=m
-CONFIG_USB_SERIAL_EDGEPORT_TI=m
-CONFIG_USB_SERIAL_KEYSPAN_PDA=m
-CONFIG_USB_SERIAL_KEYSPAN=m
-# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
-CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
-# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
-CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
-# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
-CONFIG_USB_SERIAL_MCT_U232=m
-CONFIG_USB_SERIAL_KLSI=m
-# CONFIG_USB_SERIAL_KOBIL_SCT is not set
-CONFIG_USB_SERIAL_PL2303=m
-CONFIG_USB_SERIAL_CYBERJACK=m
-CONFIG_USB_SERIAL_XIRCOM=m
-CONFIG_USB_SERIAL_OMNINET=m
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_AUERSWALD is not set
-CONFIG_USB_TIGL=m
-# CONFIG_USB_BRLVGER is not set
-CONFIG_USB_LCD=m
-# CONFIG_USB_SPEEDTOUCH is not set
-
-#
-# Support for USB gadgets
-#
-CONFIG_USB_GADGET=y
-
-#
-# USB Peripheral Controller Drivers
-#
-CONFIG_USB_NET2280=m
-CONFIG_USB_GADGET_CONTROLLER=m
-
-#
-# USB Gadget Drivers
-#
-CONFIG_USB_ZERO=m
-CONFIG_USB_ZERO_NET2280=y
-CONFIG_USB_ETH=m
-CONFIG_USB_ETH_NET2280=y
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-
-#
-# Cryptographic options
-#
-# CONFIG_CRYPTO is not set
-
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_SLAB is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_CHECKING is not set
-# CONFIG_INIT_DEBUG is not set
-# CONFIG_IOMMU_DEBUG is not set
-# CONFIG_IOMMU_LEAK is not set
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-CONFIG_LOG_BUF_SHIFT=0
-
-#
-# Library routines
-#
-# CONFIG_CRC32 is not set
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_FW_LOADER=m
-
---------------040509090204050907030606--
 

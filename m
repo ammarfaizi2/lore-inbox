@@ -1,95 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132041AbRAFCdN>; Fri, 5 Jan 2001 21:33:13 -0500
+	id <S129267AbRAFClR>; Fri, 5 Jan 2001 21:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132676AbRAFCdD>; Fri, 5 Jan 2001 21:33:03 -0500
-Received: from spitfire.velocet.net ([209.167.225.66]:59142 "HELO
-	spitfire.velocet.net") by vger.kernel.org with SMTP
-	id <S132041AbRAFCcz>; Fri, 5 Jan 2001 21:32:55 -0500
-Message-ID: <3A5683D8.962C02CD@email.com>
-Date: Fri, 05 Jan 2001 21:32:56 -0500
-From: Aaron Bentley <aaron_bentley@email.com>
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ksyms.ver redefines various CPU-related macros
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129324AbRAFClG>; Fri, 5 Jan 2001 21:41:06 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:43527 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129267AbRAFCky>; Fri, 5 Jan 2001 21:40:54 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: schu@schu.net
+CC: linux-kernel@vger.kernel.org, rusty@linuxcare.com.au
+Subject: Re: PROBLEM: 2.4.0 Kernel Fails to compile when CONFIG_IP_NF_FTP is selected 
+In-Reply-To: Your message of "Fri, 05 Jan 2001 16:59:50 -0800."
+             <200101060059.QAA09816@pizda.ninka.net> 
+Date: Sat, 06 Jan 2001 13:40:35 +1100
+Message-Id: <E14EjHY-0005jK-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for 2.4.0.  Here's a bug. . .
+In message <200101060059.QAA09816@pizda.ninka.net> you write:
+> 
+> You need to enable both CONNTRACK and full NAT in your configuration.
+> 
+> Rusty, why doesn't the Config stuff just enforece this if it
+> is necessary when enabling FTP support etc.?
 
-Compiling for Celeron with SMP disabled causes large quantities of
-warnings about macros being redefined in i386_ksyms.ver
+Deja Vu: we've been through this before.  But someone else
+fuck^H^H^H^Hfixed the makefiles recently.
 
-With SMP on, it does not happen.
+CONFIG_IP_NF_FTP controls BOTH the ftp connection tracking and NAT
+code.  The correct fix is below (untested, but you get the idea).
 
-Aaron Bentley
+Matthew, does this fix it for you?
+Rusty.
+--
+Hacking time.
 
-
-/usr/src/linux-2.4.0/include/linux/modules/i386_ksyms.ver:78: warning:
-`cpu_data
-' redefined
-/usr/src/linux-2.4.0/include/asm/processor.h:78: warning: this is the
-location o
-f the previous definition
-/usr/src/linux-2.4.0/include/linux/modules/i386_ksyms.ver:82: warning:
-`smp_num_
-cpus' redefined
-/usr/src/linux-2.4.0/include/linux/smp.h:80: warning: this is the
-location of th
-e previous definition
-/usr/src/linux-2.4.0/include/linux/modules/i386_ksyms.ver:84: warning:
-`cpu_onli
-ne_map' redefined
-/usr/src/linux-2.4.0/include/linux/smp.h:88: warning: this is the
-location of th
-e previous definition
-/usr/src/linux-2.4.0/include/linux/modules/i386_ksyms.ver:98: warning:
-`smp_call
-_function' redefined
-/usr/src/linux-2.4.0/include/linux/smp.h:87: warning: this is the
-location of th
-e previous definition
-In file included from
-/usr/src/linux-2.4.0/include/linux/modversions.h:117,
-                 from /usr/src/linux-2.4.0/include/linux/module.h:21,
-                 from netfilter.c:18:
-/usr/src/linux-2.4.0/include/linux/modules/ksyms.ver:504: warning:
-`del_timer_sy
-nc' redefined
-/usr/src/linux-2.4.0/include/linux/timer.h:34: warning: this is the
-location of
-the previous definition
-In file included from /usr/src/linux-2.4.0/include/linux/interrupt.h:45,
-                 from netfilter.c:19:
-/usr/src/linux-2.4.0/include/asm/hardirq.h:37: warning:
-`synchronize_irq' redefi
-ned
-/usr/src/linux-2.4.0/include/linux/modules/i386_ksyms.ver:86: warning:
-this is t
-he location of the previous definition
-rm -f core.o
-ld -m elf_i386  -r -o core.o sock.o skbuff.o iovec.o datagram.o scm.o
-sysctl_net
-_core.o dev.o dev_mcast.o dst.o neighbour.o rtnetlink.o utils.o
-netfilter.o
-make[3]: Leaving directory `/usr/src/linux-2.4.0/net/core'
-make[2]: Leaving directory `/usr/src/linux-2.4.0/net/core'
-make -C ethernet
-make[2]: Entering directory `/usr/src/linux-2.4.0/net/ethernet'
-make all_targets
-make[3]: Entering directory `/usr/src/linux-2.4.0/net/ethernet'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.0/include -Wall
--Wstrict-prototypes -O2 -f
-omit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o
-eth.o eth.c
--- 
-Aaron Bentley
-Keep posted on my news and performances:
-abmusic-subscribe@topica.com
+diff -urN -I \$.*\$ -X /tmp/kerndiff.SnTZ7N --minimal linux-2.4.0-official/net/ipv4/netfilter/Config.in working-2.4.0/net/ipv4/netfilter/Config.in
+--- linux-2.4.0-official/net/ipv4/netfilter/Config.in	Tue Mar 28 04:35:56 2000
++++ working-2.4.0/net/ipv4/netfilter/Config.in	Sat Jan  6 13:36:34 2001
+@@ -42,6 +42,10 @@
+       define_bool CONFIG_IP_NF_NAT_NEEDED y
+       dep_tristate '    MASQUERADE target support' CONFIG_IP_NF_TARGET_MASQUERADE $CONFIG_IP_NF_NAT
+       dep_tristate '    REDIRECT target support' CONFIG_IP_NF_TARGET_REDIRECT $CONFIG_IP_NF_NAT
++      # If they want FTP, set same as $CONFIG_IP_NF_NAT (m or y).
++      if [ "$CONFIG_IP_NF_FTP" != "n" ]; then
++	define_tristate CONFIG_IP_NF_NAT_FTP $CONFIG_IP_NF_NAT
++      fi
+     fi
+   fi
+ 
+diff -urN -I \$.*\$ -X /tmp/kerndiff.SnTZ7N --minimal linux-2.4.0-official/net/ipv4/netfilter/Makefile working-2.4.0/net/ipv4/netfilter/Makefile
+--- linux-2.4.0-official/net/ipv4/netfilter/Makefile	Sat Dec 30 09:07:24 2000
++++ working-2.4.0/net/ipv4/netfilter/Makefile	Sat Jan  6 13:36:25 2001
+@@ -35,7 +35,7 @@
+ obj-$(CONFIG_IP_NF_FTP) += ip_conntrack_ftp.o
+ 
+ # NAT helpers 
+-obj-$(CONFIG_IP_NF_FTP) += ip_nat_ftp.o
++obj-$(CONFIG_IP_NF_NAT_FTP) += ip_nat_ftp.o
+ 
+ # generic IP tables 
+ obj-$(CONFIG_IP_NF_IPTABLES) += ip_tables.o
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

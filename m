@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAPC6e>; Mon, 15 Jan 2001 21:58:34 -0500
+	id <S129601AbRAPDDY>; Mon, 15 Jan 2001 22:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRAPC6Z>; Mon, 15 Jan 2001 21:58:25 -0500
-Received: from d247.as5200.mesatop.com ([208.164.122.247]:10888 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S129406AbRAPC6T>; Mon, 15 Jan 2001 21:58:19 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Mon, 15 Jan 2001 20:00:09 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: 2.4.1-pre7 build error.
+	id <S129847AbRAPDDO>; Mon, 15 Jan 2001 22:03:14 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:6 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S129601AbRAPDDG>;
+	Mon, 15 Jan 2001 22:03:06 -0500
+Message-ID: <3A63B9E8.F7E850F@mandrakesoft.com>
+Date: Mon, 15 Jan 2001 22:03:04 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01011520000900.01250@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+CC: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: pre5 VM feedback..
+In-Reply-To: <3A63A9AE.345CBAF3@mandrakesoft.com> <940cq0$6fe$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this for 2.4.1-pre7
+Linus Torvalds wrote:
+> In article <3A63A9AE.345CBAF3@mandrakesoft.com>,
+> Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
+> >$!@#@! pre6 is already out :)
 
-make[2]: *** No rule to make target `/usr/src/linux/incl', needed by 
-`softirq.o'.  Stop.
-make[2]: *** Waiting for unfinished jobs....
-make[2]: Leaving directory `/usr/src/linux-2.4.1-pre7/kernel'
-make[1]: *** [first_rule] Error 2
+> Yes, and for heavens sake don't use it, [...]
 
-Waiting for 2.4.1-pre8.  
+Too late...  First and foremost, a correction:  The VM data I posted was
+for pre1, not pre5.  Here is the VM data from a freshly rebooted pre6,
+if that's worth anything:  http://gtf.org/garzik/vm2/
 
-Steven
+Hopefully pre6 will survive long enough to complete tulip testing :)
+
+	Jeff
+
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

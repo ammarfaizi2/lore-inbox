@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262216AbSJAR7f>; Tue, 1 Oct 2002 13:59:35 -0400
+	id <S262896AbSJATIn>; Tue, 1 Oct 2002 15:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262217AbSJAR7f>; Tue, 1 Oct 2002 13:59:35 -0400
-Received: from packet.digeo.com ([12.110.80.53]:3298 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262216AbSJAR7e>;
-	Tue, 1 Oct 2002 13:59:34 -0400
-Message-ID: <3D99E3C5.E0F99E9E@digeo.com>
-Date: Tue, 01 Oct 2002 11:04:53 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
+	id <S262895AbSJATIm>; Tue, 1 Oct 2002 15:08:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64774 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262896AbSJATIk>; Tue, 1 Oct 2002 15:08:40 -0400
+Date: Tue, 1 Oct 2002 12:16:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+In-Reply-To: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0210011210030.1878-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: qsbench, interesting results
-References: <200209291615.24158.l.allegrucci@tiscalinet.it> <3D97E7D7.442733ED@digeo.com> <E17wNeG-0005th-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Oct 2002 18:04:55.0270 (UTC) FILETIME=[0BF83060:01C26975]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+
+On Tue, 1 Oct 2002, Ingo Molnar wrote:
 > 
-> On Monday 30 September 2002 07:57, Andrew Morton wrote:
-> > I'll take a look at some preferential throttling later on.  But
-> > I must say that I'm not hugely worried about performance regression
-> > under wild swapstorms.  The correct fix is to go buy some more
-> > RAM, and the kernel should not be trying to cater for underprovisioned
-> > machines if that affects the usual case.
-> 
-> The operative phrase here is "if that affects the usual case".  Actually,
-> the quicksort bench is not that bad a model of a usual case, i.e., a
-> working set 50% bigger than RAM.  The page replacement algorithm ought to
-> do something sane with it, and swap performance ought to be decent in
-> general, since desktop users typically have less than 1/2 GB.  With media
-> apps, bloated desktops and all, it doesn't go as far as it used to.
-> 
-> My impression is that page replacement just hasn't gotten a lot of
-> attention recently, and there is nothing wrong with that.  It's tuning,
-> not a feature.
+> the attached (compressed) patch is the next iteration of the workqueue
+> abstraction. There are two major categories of changes:
 
-I don't think this is related to page replacement.  It's to do with
-IO scheduling.  Decreasing the page reclaim latency and decreasing
-disk read latency both damaged this particular case.
+Pease don't introduce more typedefs. They only hide what the hell the 
+thing is, which is actively _bad_ for structures, since passing a 
+structure by value etc is something that should never be done, for 
+example. 
 
-I'm fairly happy with 2.5 page replacement.  It's simple, clean
-and very, very quick to build up a large pool of available memory
-for what ever's going on at the time.
+The few saved characters of typing do not actually _buy_ you anything 
+else, and only obscures what the thing is.
 
-Problem is, it's cruel.  People don't notice that we shaved 15 seconds
-off that three minute session of file bashing which they just did.
-But they do notice that when they later wiggle their mouse, it takes
-five seconds to pull the old stuff back in. 
+Also, it's against the Linux coding standard, which does not like adding
+magic single-letter suffixes to things - that also is the case for your
+strange "_s" suffix for a structure (the real suffix is "_struct").
 
-The way I'd like to address that is with a "I know that's cool but I
-don't like it" policy override knob.  But finding a sensible way of
-doing that is taking some head-scratching.  Anything which says
-"unmap pages much later" is doomed to failure I suspect.  It will
-just increase latency when we really _do_ need to unmap, and will
-cause weird OOM failures.
+Remember: typing out something is not bad. It's _especially_ not bad if 
+the typing makes it more clear what the thing is.
 
-So hm.  Still thinking.
+I've done a global search-and-replace on the patch. The resulting patch is
+actually _cleaner_, because it also matches more closely the old code
+(which used "struct tq_struct"), so things like tabbed comment alignment
+etc tend to be more correct (not always, but closer).
 
-> The sort failure is something to worry about though - that's clearly a
-> bug.
+		Linus
 
-Yup. Dropped a dirty bit, or a hardware failure.  I ran it for six
-hours or so on SMP, no probs.

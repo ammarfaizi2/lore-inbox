@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263447AbTKWUQR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 15:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTKWUQR
+	id S263452AbTKWUUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 15:20:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTKWUUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 15:16:17 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:53909 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S263447AbTKWUQQ convert rfc822-to-8bit
+	Sun, 23 Nov 2003 15:20:46 -0500
+Received: from mta10.adelphia.net ([68.168.78.202]:43731 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S263452AbTKWUUp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 15:16:16 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: not fixed in 2.4.23-rc3 (was: Re: 2.4.22 SMP kernel build for hyper threading P4)
-Date: Sun, 23 Nov 2003 15:16:11 -0500
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC886F@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: not fixed in 2.4.23-rc3 (was: Re: 2.4.22 SMP kernel build for hyper threading P4)
-Thread-Index: AcOx09mjcaAPM9UjQ1GqA7Fh44inYQAJNO4A
-From: "Brown, Len" <len.brown@intel.com>
-To: "Eduard Bloch" <edi@gmx.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Nov 2003 20:16:12.0530 (UTC) FILETIME=[A3DA2D20:01C3B1FE]
+	Sun, 23 Nov 2003 15:20:45 -0500
+Subject: Re: DRI and AGP on 2.6.0-test9
+From: Aubin LaBrosse <arl8778@rit.edu>
+To: Dave Jones <davej@redhat.com>
+Cc: Aubin LaBrosse <arl8778@ritvax.isc.rit.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031123193724.GA24957@redhat.com>
+References: <1069571959.9574.46.camel@rain.rh.rit.edu>
+	 <20031123193724.GA24957@redhat.com>
+Content-Type: text/plain
+Message-Id: <1069618843.4522.4.camel@rain.rh.rit.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 23 Nov 2003 15:20:43 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> weird 1+2xHT mode.
+On Sun, 2003-11-23 at 14:37, Dave Jones wrote:
+>  > of particular worry to me, though i'm not a kernel hacker, is the line
+>  > [agp] AGP not available.
+> 
+> Did you modprobe the amd-k7-agp module as well as agpgart ?
+> 
+> 		Dave
+> 
+sigh.  sorry Dave - got it with that module.  though i swear it didn't
+work either when compiled into the kernel (as that was my first test,
+though that was with 2.6.0-test9 and not -mm5 that i am running now. 
 
-Re: BIOS disables CPUSs.
-It would be good to verify that 2.4.21 still works properly on this box
-to verify the hardware isn't hosed.  Also, if your BIOS CMOS has error
-logs, it might be good to read them to see what it is thinking.
+anyway, problem solved, sorry for the noise and thanks for your help
+guys
 
-Also, does the same 3-cpu configuration result when you boot 2.6?
+-Aubin
 
-Thanks,
--Len

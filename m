@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265633AbUFOO47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265541AbUFOO5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265633AbUFOO47 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 10:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbUFOO47
+	id S265541AbUFOO5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 10:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUFOO5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 10:56:59 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:21701 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265676AbUFOO4s (ORCPT
+	Tue, 15 Jun 2004 10:57:24 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:13754 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S265541AbUFOO5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 10:56:48 -0400
-Date: Tue, 15 Jun 2004 16:56:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] stat nlink resolution fix
-Message-ID: <20040615145624.GC20432@wohnheim.fh-wedel.de>
-References: <20040615055507.GA9847@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Tue, 15 Jun 2004 10:57:21 -0400
+Message-ID: <40CF0E65.30705@vision.ee>
+Date: Tue, 15 Jun 2004 17:57:41 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Karel_Kulhav=FD?= <clock@twibright.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: hp omnibook xe4500 and keyboard
+References: <20040615142626.A6275@beton.cybernet.src>
+In-Reply-To: <20040615142626.A6275@beton.cybernet.src>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040615055507.GA9847@taniwha.stupidest.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 June 2004 22:55:07 -0700, Chris Wedgwood wrote:
-> 
-> Some filesystems can get overflows when their link-count exceeds
-> 65534.  This patch increases the kernels internal resolution for this
-> and also has a check for the old-system call paths to return and error
-> (-EOVERFLOW) as required (as suggested by Al Viro).
-> 
-> Signed-off-by: Chris Wedgwood <cw@f00f.org>
-> 
-> diff -Nru a/include/linux/stat.h b/include/linux/stat.h
-> --- a/include/linux/stat.h	2004-06-14 17:40:21 -07:00
-> +++ b/include/linux/stat.h	2004-06-14 17:40:21 -07:00
-> @@ -60,7 +60,7 @@
->  	unsigned long	ino;
->  	dev_t		dev;
->  	umode_t		mode;
-> -	nlink_t		nlink;
-> +	unsigned int	nlink;
->  	uid_t		uid;
->  	gid_t		gid;
->  	dev_t		rdev;
+I seem to remember that xe4500 has BIOS option 'USB legacy mode' or 
+something
+similar which you should disable. Then it should work fine.
 
-Just for me to get a clue, what would break if the definition of
-nlink_t changed?
+Lenar
 
-Jörn
+Karel Kulhavý wrote:
 
--- 
-Fancy algorithms are buggier than simple ones, and they're much harder
-to implement. Use simple algorithms as well as simple data structures.
--- Rob Pike
+>Hello
+>
+>I am having hp omnibook xe4500 which has an integrated keyboard and I am
+>having also external USB mouse. There is an internal mouse inside.
+>
+>What should I tick up in 2.4.25 in "Input core" and "USB HID" so that
+>1) keyboard works upon bootup
+>2) USB mouse works
+>
+>I have determined these things are dependent on almost everything in the
+>kernel configuration, for example CONFIG_AGP and CONFIG_DRM.
+>
+>Cl<
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+

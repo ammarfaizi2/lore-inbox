@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265345AbUBAP20 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 10:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265340AbUBAP2Z
+	id S265337AbUBAPq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 10:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUBAPq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 10:28:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61393 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265350AbUBAP1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 10:27:53 -0500
-Date: Sun, 1 Feb 2004 16:27:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan <alan@clueserver.org>
-Cc: linux-kernel@vger.kernel.org, Mans Matulewicz <cybermans@xs4all.nl>
-Subject: Re: ide-cdrom / atapi burning bug - 2.6.1
-Message-ID: <20040201152742.GH11683@suse.de>
-References: <1075511134.5412.59.camel@localhost> <20040131093438.GS11683@suse.de> <401BF122.2090709@blue-labs.org> <20040131184923.GD11683@suse.de> <1075623865.26031.9.camel@zontar.clueserver.org>
+	Sun, 1 Feb 2004 10:46:56 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10949 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265337AbUBAPqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 10:46:55 -0500
+Date: Sat, 31 Jan 2004 19:41:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Timothy Miller <miller@techsource.com>
+Cc: chakkerz@optusnet.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+Message-ID: <20040131184105.GC550@openzaurus.ucw.cz>
+References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1075623865.26031.9.camel@zontar.clueserver.org>
+In-Reply-To: <40193136.4070607@techsource.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01 2004, Alan wrote:
-> On Sat, 2004-01-31 at 10:49, Jens Axboe wrote:
-> > On Sat, Jan 31 2004, David Ford wrote:
-> > > I don't have an RW, but when my cdrom fixates, it stalls everything 
-> > > while it's fixating.  I have an nForce chipset.  (2.6.x)
-> > 
-> > Does "everything" mean everything on that ide channel? If so, then
-> > that's a hardware limitation.
+Hi!
+
+> The real question we have to ask ourselves is, what would be the 
+> market demand for a graphics card that is 3 generations behind the 
+> state of the art and over-priced, the only advantage being that it's 
+> a 100% open architecture?
 > 
-> I have seen the problem as well.
+> I don't have _100k to have it fabricated, so we have to goad some 
+> company into doing it for us, and given the volumes, they'll have to 
+> charge way more than it's worth if you compare its capabilities 
+> against ATI et al.
 > 
-> It is not just processes using the IDE.  Everything will pause for a
-> second or two. (Which causes grief with streaming audio running at the
-> same time.)
+> I've got some great ideas for how to do this chip, but they're 
+> frankly nothing revolutionary.  The obvious test bed is an FPGA.  
+> That imposes serious limitations on what kind of logic utilization 
+> and performance we can get.  The ASIC version can be clocked faster, 
+> but we dare not put in untested logic.  (And we can't afford the 
+> tools necessary to do the proper simulation.)
+> 
+> 
+> So, the big question:  How many units a year would be sold for an 
+> underpowered, over-priced graphics card that just happens to be 100% 
+> open and 100% supported?
 
-One process can easily stall the other, if they end up waiting on some
-resource. Might not always happen, but easily can.
-
-> Even more annoying is that it does not always occur. I have not tried
-> tracking down where the kernel is getting hung up at that moment since
-> it has been fairly intermittent for me.
-
-There's not much you can do about it - you may want to try -immed as
-mentioned earlier in this thread.
-
+It might be very usefull for embeded folks from opencores...
+				Pavel
 -- 
-Jens Axboe
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

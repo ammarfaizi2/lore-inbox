@@ -1,47 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264713AbSJ3Phk>; Wed, 30 Oct 2002 10:37:40 -0500
+	id <S264712AbSJ3Pjx>; Wed, 30 Oct 2002 10:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264714AbSJ3Phk>; Wed, 30 Oct 2002 10:37:40 -0500
-Received: from secondary.dns.nitric.com ([64.81.197.162]:9600 "EHLO
-	primary.mx.nitric.com") by vger.kernel.org with ESMTP
-	id <S264713AbSJ3Phj>; Wed, 30 Oct 2002 10:37:39 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-From: merlin <merlin@merlin.org>
-Subject: Re: kernel BUG at drivers/scsi/scsi_lib.c:819 with 2.5.44-ac5 
-In-reply-to: <20021030143502.GK3416@suse.de> 
-Date: Wed, 30 Oct 2002 10:43:59 -0500
-Message-Id: <20021030154359.1C107868F0@primary.mx.nitric.com>
+	id <S264711AbSJ3Pjx>; Wed, 30 Oct 2002 10:39:53 -0500
+Received: from gc-na5.alcatel.fr ([64.208.49.5]:17230 "EHLO smail2.alcatel.fr")
+	by vger.kernel.org with ESMTP id <S264712AbSJ3Pjw>;
+	Wed, 30 Oct 2002 10:39:52 -0500
+Message-ID: <3DBFFDEF.4040004@sxb.bsf.alcatel.fr>
+Date: Wed, 30 Oct 2002 16:42:39 +0100
+From: Denis RICHARD <Denis.Richard@sxb.bsf.alcatel.fr>
+Organization: ALCATEL Business systems
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.0) Gecko/20020611
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Padraig Brady <padraig.brady@corvil.com>
+CC: Jesse Pollard <pollard@admin.navo.hpc.mil>, Larry McVoy <lm@bitmover.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org,
+       Denis Richard <dri@sxb.bsf.alcatel.fr>
+Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
+References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF5A08.9090407@pobox.com> <20021029201110.A29661@work.bitmover.com> <200210300853.09342.pollard@admin.navo.hpc.mil> <3DBFF649.9030906@corvil.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r/axboe@suse.de/2002.10.30/15:35:02
->On Wed, Oct 30 2002, merlin hughes wrote:
->> Hi,
->> 
->> Tyan Tiger S2466-4M, 2xAthlon MP, Adaptec 29160, Adaptec 2940u2w,
->> software RAID 5, gcc 2.95.4. The core drives are on the 29160. Works
->> fine under 2.4.19.
->> 
->> 2.5.44 panics during boot with SCSI problems; I didn't catch what the
->> error was.
->> 
->> 2.5.44-ac5 boots but bugs after a few seconds.
->> 
->> Attached: config, syslog, lspci (under 2.4.19)
->> 
->> Oct 28 12:36:09 badb kernel: Incorrect number of segments after building lis
->t
->> Oct 28 12:36:09 badb kernel: counted 2, received 1
->> Oct 28 12:36:09 badb kernel: req nr_sec 8, cur_nr_sec 8
+Padraig Brady wrote:
+
+> Jesse Pollard wrote:
 >
->Please try 2.5.44-BK and see if that works, James fixed this one.
+>> On Tuesday 29 October 2002 10:11 pm, Larry McVoy wrote:
+>>
+>>>> A r/w compressed filesystem would be darned useful too :)
+>>>
+>>>
+>>> mmap(2) is, err, hard.  Not impossible, it means the file system has to
+>>> support both compressed and uncompressed files, but it's interesting.
+>>
+>>
+>> You can also think of it as a step toward a hierarchical filesystem 
+>> with the
+>> files:
+>>     1. uncompressed (with uncompressed inode)
+>>     2. compressed on line (real disk space allocated)
+>>     3. compressed nearline (only compressed inode on disk, with a
+>>     reference to offline storage)
+>>
+>> Obviously this is only for very large filesystems (we have one FS that
+>> is currently between 100-200 TB in size when you include the migrated
+>> storage).
+>
+>
+> I think it's worth referencing e2compr here also,
+> which is a patch that provides transparent compression
+> for ext2 (& ext3?). Denis RICHARD (CC'd) is maintaining
+> the 2.4 implementation. I've version 0.4.42 (against
+> 2.4.16) mirrored here:
+> http://www.iol.ie/~padraiga/patches/e2compr-0.4.42-patch-2.4.16.gz 
 
-If that's equivalent to 2.5.44 +
-http://www.kernel.org/pub/linux/kernel/people/dwmw2/bk-2.5/cset-1.808-to-1.869.txt.gz
-then I get the same error (incorrect number of segments...). It happened
-earlier in the boot process so I couldn't catch the details; it looked
-like it oopsed along with everything else.
+A new version of the patch (0.4.43) is available here :
+http://www.alizt.com
+But I have not tested the patch on ext3.
 
-Thanks, Merlin
+>
+>
+> Note I've used it without problems (to access filesystems
+> created with the kernel 2.2 version) here:
+> http://cvs.bofh.asn.au/e2compr/
+>
+> Pádraig.
+>
+>
+-- 
+-----------------------------\--------------------------\
+Denis RICHARD                 \ ALCATEL Business Systems \
+mailto:dri@sxb.bsf.alcatel.fr / Tel: +33(0)3 90 67 69 36 /
+-----------------------------/--------------------------/
+
+
+

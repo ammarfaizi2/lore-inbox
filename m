@@ -1,99 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbSLCUBR>; Tue, 3 Dec 2002 15:01:17 -0500
+	id <S265603AbSLCUOX>; Tue, 3 Dec 2002 15:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265581AbSLCUBQ>; Tue, 3 Dec 2002 15:01:16 -0500
-Received: from smtp0.libero.it ([193.70.192.33]:26832 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id <S265578AbSLCUBP>;
-	Tue, 3 Dec 2002 15:01:15 -0500
-From: Roby <robylit@inwind.it>
-Reply-To: robylit@inwind.it
-To: linux-kernel@vger.kernel.org
-Subject: little bug in ac97_codec.c
-Date: Tue, 3 Dec 2002 20:53:53 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_T97KH0660IM31577OYAG"
-Message-Id: <200212032053.53526.robylit@inwind.it>
+	id <S265612AbSLCUOX>; Tue, 3 Dec 2002 15:14:23 -0500
+Received: from ns.aspic.com ([213.193.2.5]:51216 "EHLO off.aspic.com")
+	by vger.kernel.org with ESMTP id <S265603AbSLCUOW>;
+	Tue, 3 Dec 2002 15:14:22 -0500
+Date: Tue, 3 Dec 2002 21:21:41 +0100
+From: Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
+	<philippe.gramoulle@mmania.com>
+To: Gary White <gary@netpathway.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-ac1
+Message-Id: <20021203212141.60178c38.philippe.gramoulle@mmania.com>
+In-Reply-To: <3DED0EAE.7090705@netpathway.com>
+References: <200211292324.gATNOQO26672@devserv.devel.redhat.com>
+	<3DED0EAE.7090705@netpathway.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.6claws52 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---------------Boundary-00=_T97KH0660IM31577OYAG
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Reiserfs quota patches for 2.4.20 can be found here.
 
-I discovered a little bug into the file drivers/sound/ac97_codec.c
+Quote from Oleg Drokin <green@namesys.com>
 
-It only affects the display of the PnP hexadecimal string of the codec, d=
-uring=20
-the boot.
+"
+I have a testing version available at
+ ftp://namesys.com/pub/reiserfs-for-2.4/testing/quota-2.4.20
 
-The function codec_id(...) has simply a nonsense code. I think someone=20
-forgotten to complete it.
-Anyhow, here is my patch.
-If it is ok for the developers, good, otherwise I will use it onluy on my=
-=20
-system.
+ You can try it and report to me if it breaks (but I hope it won't)
+"
 
---=20
-Roby
+Bye,
 
-email
-robylit@inwind.it
-robylit@tiscali.it
-
-WEB Page
-http://robylit.risorse.com
-http://web.tiscalinet.it/robylit
-
---------------Boundary-00=_T97KH0660IM31577OYAG
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ac97_codec.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="ac97_codec.diff"
-
---- drivers/sound/ac97_codec.orig	2002-11-29 00:53:14.000000000 +0100
-+++ drivers/sound/ac97_codec.c	2002-12-03 20:33:13.000000000 +0100
-@@ -657,7 +657,7 @@
-  *	codec_id	-  Turn id1/id2 into a PnP string
-  *	@id1: Vendor ID1
-  *	@id2: Vendor ID2
-- *	@buf: 10 byte buffer
-+ *	@buf: 14 byte buffer
-  *
-  *	Fills buf with a zero terminated PnP ident string for the id1/id2
-  *	pair. For convenience the return is the passed in buffer pointer.
-@@ -665,13 +665,9 @@
-  
- static char *codec_id(u16 id1, u16 id2, char *buf)
- {
--	if(id1&0x8080)
--		snprintf(buf, 10, "%0x4X:%0x4X", id1, id2);
--	buf[0] = (id1 >> 8);
--	buf[1] = (id1 & 0xFF);
--	buf[2] = (id2 >> 8);
--	snprintf(buf+3, 7, "%d", id2&0xFF);
--	return buf;
-+    snprintf(buf, 14, "0x%04X:0x%04X", id1, id2);
-+     
-+    return buf;
- }
-  
- /**
-@@ -702,7 +698,7 @@
- 	u16 id1, id2;
- 	u16 audio, modem;
- 	int i;
--	char cidbuf[10];
-+	char cidbuf[14];
- 
- 	/* probing AC97 codec, AC97 2.0 says that bit 15 of register 0x00 (reset) should 
- 	 * be read zero.
-
---------------Boundary-00=_T97KH0660IM31577OYAG--
+Philippe
 
 
+
+On Tue, 03 Dec 2002 14:06:06 -0600
+Gary White <gary@netpathway.com> wrote:
+
+  |  Are the below lines in the 2.4.20-rc1 patch a little premature?
+  |  I don't see any patch code for quotas in the reiserfs and I can't
+  |  get quotas to work for reiserfs. Am I missing something?
+  |  
+  |  
+  |  -  usage (also called disk quotas). Currently, it works only for the
+  |  -  ext2 file system. You need additional software in order to use quota
+  |  +  usage (also called disk quotas). Currently, it works for the
+  |  +  ext2, ext3, and reiserfs file system. You need additional software
+  |  

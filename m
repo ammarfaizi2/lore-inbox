@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUKXAJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbUKXAJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbUKXAJl (ORCPT <rfc822;willy@w.ods.org>);
+	id S261618AbUKXAJl (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 23 Nov 2004 19:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUKWRel
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUKXAHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:34:41 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:43146 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261361AbUKWQSA (ORCPT
+	Tue, 23 Nov 2004 19:07:37 -0500
+Received: from mail.dif.dk ([193.138.115.101]:60642 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261667AbUKXAGd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:18:00 -0500
-Date: Tue, 23 Nov 2004 17:17:45 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andreas Schwab <schwab@suse.de>
-cc: Bill Davidsen <davidsen@tmr.com>, Jakub Jelinek <jakub@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: var args in kernel?
-In-Reply-To: <jehdngwqlt.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.53.0411231716480.5749@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
- <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
- <20041122113328.GQ10340@devserv.devel.redhat.com> <41A25D53.9050909@tmr.com>
- <je8y8t8n5t.fsf@sykes.suse.de> <Pine.LNX.4.53.0411231504560.28979@yvahk01.tjqt.qr>
- <jehdngwqlt.fsf@sykes.suse.de>
+	Tue, 23 Nov 2004 19:06:33 -0500
+Date: Wed, 24 Nov 2004 01:16:05 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: netdev@oss.sgi.com, linux-net@vger.kernel.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] move inline keywords nearer beginning of declaration in
+ skbuff.c to elliminate warning with gcc -W 
+Message-ID: <Pine.LNX.4.61.0411240106580.3389@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>It's not a struct, it's an array (of one element of struct type).  You
->>>can't assign arrays.
->>
->> int callme(const char *fmt, struct { ... } argp[1]) {
->        struct { ... } dest[1];
->> 	dest = *argp;
->> }
->>
->> Maybe that way?
->
->Maybe you should just try.
 
-I did not say that 'dest' was an array too, and in fact, was not thinking of
-such, but more like:
+In order to get rid of 
+net/core/skbuff.c:1353: warning: `inline' is not at beginning of declaration
+net/core/skbuff.c:1374: warning: `inline' is not at beginning of declaration
+when building with gcc -W, I submit the patch below.
+There's no impact on the way the code works, so it is perfectly safe. It 
+just brings the count of warnings that I have to sift through down by two 
+(yes, I know the kernel is not normally build with -W, but I do it to 
+look for stuff that potentially needs review, and the less warnings I 
+have to sift through the better). I see no good reason not to apply this.
+Please apply.
 
-int foo(struct bar argp[1]) {
- struct bar dest;
- dest = *argp;
-}
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.10-rc2-bk6-orig/net/core/skbuff.c linux-2.6.10-rc2-bk6/net/core/skbuff.c
+--- linux-2.6.10-rc2-bk6-orig/net/core/skbuff.c	2004-11-17 01:20:32.000000000 +0100
++++ linux-2.6.10-rc2-bk6/net/core/skbuff.c	2004-11-24 01:05:32.000000000 +0100
+@@ -1350,7 +1350,7 @@ void skb_add_mtu(int mtu)
+ }
+ #endif
+ 
+-static void inline skb_split_inside_header(struct sk_buff *skb,
++static inline void skb_split_inside_header(struct sk_buff *skb,
+ 					   struct sk_buff* skb1,
+ 					   const u32 len, const int pos)
+ {
+@@ -1371,7 +1371,7 @@ static void inline skb_split_inside_head
+ 	skb->tail		   = skb->data + len;
+ }
+ 
+-static void inline skb_split_no_header(struct sk_buff *skb,
++static inline void skb_split_no_header(struct sk_buff *skb,
+ 				       struct sk_buff* skb1,
+ 				       const u32 len, int pos)
+ {
+
+
 

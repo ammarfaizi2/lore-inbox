@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVALC6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVALDUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVALC6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVALC6A
+	id S261276AbVALDUg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 22:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVALDUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:58:00 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:27312 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261264AbVALC54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:57:56 -0500
-Subject: [PATCH]change 'struct device' -> platform_data to firmware_data
-From: Li Shaohua <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Greg <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1105498626.26324.14.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 12 Jan 2005 10:57:06 +0800
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 22:20:33 -0500
+Received: from mail.joq.us ([67.65.12.105]:38311 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261276AbVALDUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 22:20:25 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050110212019.GG2995@waste.org>
+	<200501111305.j0BD58U2000483@localhost.localdomain>
+	<20050111191701.GT2940@waste.org>
+	<20050111125008.K10567@build.pdx.osdl.net>
+	<20050111205809.GB21308@elte.hu>
+	<20050111131400.L10567@build.pdx.osdl.net>
+	<20050111212719.GA23477@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Tue, 11 Jan 2005 21:21:48 -0600
+In-Reply-To: <20050111212719.GA23477@elte.hu> (Ingo Molnar's message of
+ "Tue, 11 Jan 2005 22:27:19 +0100")
+Message-ID: <87sm57qqlv.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-struct device->platform_data is designed for ACPI, BIOS or other
-platform specific data, but some drivers misused the field which makes
-adding ACPI handle in device core impossible. Greg suggested me changing
-the name of the filed and so it breaks all such drivers, and then fix
-them. I'll try to fix some, but it would be great if the driver authors
-could do it.
+Ingo Molnar <mingo@elte.hu> writes:
 
-Thanks,
-Shaohua
+> * Chris Wright <chrisw@osdl.org> wrote:
+>
+>> Hmm, I wonder if this could have anything to do with it.  These are
+>> within striking range:
+>> 
+>>   PID COMMAND          NI PRI
+>>     9 events/1        -10  34
+>>   931 kcryptd/1       -10  33
+>>   930 kcryptd/0       -10  34
+>>     8 events/0        -10  34
+>>   892 ata/1           -10  34
+>>   891 ata/0           -10  34
+>>  3747 udevd           -10  33
+>>    26 kacpid          -10  31
+>>   238 aio/1           -10  34
+>>   237 aio/0           -10  31
+>>   117 kblockd/1       -10  34
+>>   116 kblockd/0       -10  34
+>>    10 khelper         -10  34
+>
+> you are right, i forgot about kernel threads. If they are nice -10 on
+> Jack's system too then they are within striking range indeed, especially
+> since they are typically idle and if then they are active for short
+> bursts of time and get the maximum boost. Jack, could you renice these
+> to -5, to make sure they dont interfere?
 
----
+Sure.  My system does have some of these running at nice -10.  Where
+(how) do I change them?
 
- 2.5-root/include/linux/device.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+BTW, let's not lose sight of the fact that `nice --20 foo' requires
+CAP_SYS_NICE just like SCHED_FIFO does.  From a privilege perspective,
+this recurses to the same (still unsolved) problem.  
 
-diff -puN include/linux/device.h~platform_data include/linux/device.h
---- 2.5/include/linux/device.h~platform_data	2005-01-12 10:41:35.446722944 +0800
-+++ 2.5-root/include/linux/device.h	2005-01-12 10:42:37.762249544 +0800
-@@ -265,7 +265,7 @@ struct device {
- 	struct device_driver *driver;	/* which driver has allocated this
- 					   device */
- 	void		*driver_data;	/* data private to the driver */
--	void		*platform_data;	/* Platform specific data (e.g. ACPI,
-+	void		*firmware_data;	/* Platform specific data (e.g. ACPI,
- 					   BIOS data relevant to device) */
- 	struct dev_pm_info	power;
- 
-_
+Chris's rlimits proposal was the only workable suggestion I've seen
+for that.  Is there any hope of doing something like that in the 2.6.x
+timeframe?  
 
-
+At this point, I no longer even care that PAM will probably start
+randomly assigning users unlimited scheduling rights like it recently
+did for mlock.  Eventually, that will get fixed.  :-(
+-- 
+  joq

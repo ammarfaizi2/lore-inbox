@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131540AbQK2PGS>; Wed, 29 Nov 2000 10:06:18 -0500
+        id <S131599AbQK2PJi>; Wed, 29 Nov 2000 10:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131599AbQK2PGJ>; Wed, 29 Nov 2000 10:06:09 -0500
-Received: from sense-paulf-129.oz.net ([216.39.167.129]:13316 "EHLO
-        fluffy.aphrodite.com") by vger.kernel.org with ESMTP
-        id <S131540AbQK2PF7>; Wed, 29 Nov 2000 10:05:59 -0500
-Date: Wed, 29 Nov 2000 06:33:36 -0800 (PST)
-From: "Joseph K. Malek" <malekjo@aphrodite.com>
-To: linux-kernel@vger.kernel.org
-Subject: Broken NTFS
-In-Reply-To: <Pine.LNX.3.95.1001129091726.14820A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131610AbQK2PJ2>; Wed, 29 Nov 2000 10:09:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24850 "EHLO virtualhost.dk")
+        by vger.kernel.org with ESMTP id <S131599AbQK2PJS>;
+        Wed, 29 Nov 2000 10:09:18 -0500
+Date: Wed, 29 Nov 2000 15:38:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 errors in test12-pre2 (freeing blocks not in datazone)
+Message-ID: <20001129153851.D28399@suse.de>
+In-Reply-To: <3A24EB83.5E842526@idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A24EB83.5E842526@idb.hist.no>; from helgehaf@idb.hist.no on Wed, Nov 29, 2000 at 12:41:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, Nov 29 2000, Helge Hafting wrote:
+> I noticed something strange in my syslog today:
+> 
+> Nov 29 10:59:18 hh kernel: Trying to open MFT
+> Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+> ext2_free_blocks: Freeing blocks not in datazone - block = 3301007960,
+> count = 1
 
-I have a broken NTFS, due to my own mistake of mounting the
-partition RW and moving a file instead of copying it....I've been poking
-around for an NTFS editing tool; only to find that this is easier said
-than done.  Does anyone have an NTFS repair tool for winnt 4 (I already
-have the ddk), or any idea where I can find one?
-
-thanks in advance!
+For corruption issues on IDE, you should switch to test12-pre3
+immediately. If you can reproduce there, be sure to send a new
+report.
 
 -- 
-
-.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.
-This message was made from 100% post-consumer
-recycled magnetic domains. No binary trees were
-destroyed to make it.
-
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

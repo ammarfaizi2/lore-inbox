@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265177AbUBAABI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 19:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUBAABI
+	id S263596AbUBAAQd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 19:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbUBAAQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 19:01:08 -0500
-Received: from m029-035.nv.iinet.net.au ([203.217.29.35]:34440 "EHLO
-	anu.rimspace.net") by vger.kernel.org with ESMTP id S265177AbUBAABG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 19:01:06 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: David Ford <david+challenge-response@blue-labs.org>,
-       linux-kernel@vger.kernel.org, Mans Matulewicz <cybermans@xs4all.nl>
-Subject: Re: ide-cdrom / atapi burning bug - 2.6.1
-In-Reply-To: <20040131184923.GD11683@suse.de> (Jens Axboe's message of "Sat,
- 31 Jan 2004 19:49:23 +0100")
-References: <1075511134.5412.59.camel@localhost>
-	<20040131093438.GS11683@suse.de> <401BF122.2090709@blue-labs.org>
-	<20040131184923.GD11683@suse.de>
-From: Daniel Pittman <daniel@rimspace.net>
-Date: Sun, 01 Feb 2004 11:00:52 +1100
-Message-ID: <87r7xfy8gb.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.5 (celeriac, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 31 Jan 2004 19:16:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263596AbUBAAQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 19:16:32 -0500
+Date: Sat, 31 Jan 2004 16:17:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: linux-kernel@vger.kernel.org, anton@megashop.ru
+Subject: Re: 2.6.1 IO lockup on SMP systems
+Message-Id: <20040131161729.04000e92.akpm@osdl.org>
+In-Reply-To: <200401311940.28078.rathamahata@php4.ru>
+References: <200401311940.28078.rathamahata@php4.ru>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Jan 2004, Jens Axboe wrote:
-> On Sat, Jan 31 2004, David Ford wrote:
->> I don't have an RW, but when my cdrom fixates, it stalls everything 
->> while it's fixating.  I have an nForce chipset.  (2.6.x)
-> 
-> Does "everything" mean everything on that ide channel? If so, then
-> that's a hardware limitation.
+"Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
+>
+> I had experienced a lockups on three of my servers with 2.6.1. It doesn't
+>  look like a deadlock, the box is still pingable and all tcp ports which were
+>   in listen state before a lockup are remains in listen state, but I can't get
+>  any data from this ports. According to sar(1) systems had not been overloaded
+>  right before a lockup. And there is no log entries in all user services logs
+>  for almost 10 hours after lockup.
 
-My IBM A31p (Intel 845 chipset) had a similar problem with the CD
-burner. Using the '-immed' flag resolved the issue for me.
+Please ensure that CONFIG_KALLSYMS is enabled, then generate an all-tasks
+backtrace or a locked machine with sysrq-T or `echo t >
+/proc/sysrq-trigger'.  Then send us the resulting trace.
 
-        Daniel
+You may need a serial console to be able to capture all the output.
 
--- 
-To-morrow, and to-morrow, and to-morrow,
-Creeps in this petty pace from day to day,
-To the last syllable of recorded time;
-        -- Macbeth; Act V, Scene VI
+Also, it would be useful to know what sort of load the machines are under,
+and what filesystems are in use.
+
+Thanks.
+

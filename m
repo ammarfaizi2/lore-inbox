@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317518AbSGERqg>; Fri, 5 Jul 2002 13:46:36 -0400
+	id <S317519AbSGERuQ>; Fri, 5 Jul 2002 13:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317519AbSGERqf>; Fri, 5 Jul 2002 13:46:35 -0400
-Received: from mail.clsp.jhu.edu ([128.220.34.27]:52963 "EHLO
-	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
-	id <S317518AbSGERqe>; Fri, 5 Jul 2002 13:46:34 -0400
-Date: Fri, 5 Jul 2002 15:48:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-Message-ID: <20020705134816.GA112@elf.ucw.cz>
-References: <20020703034809.GI474@elf.ucw.cz> <10962.1025745528@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10962.1025745528@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S317520AbSGERuP>; Fri, 5 Jul 2002 13:50:15 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:45218 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317519AbSGERuO>;
+	Fri, 5 Jul 2002 13:50:14 -0400
+Date: Fri, 5 Jul 2002 10:47:09 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Greg KH <gregkh@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove BKL from driverfs
+In-Reply-To: <Pine.LNX.4.33.0207051001560.8496-100000@geena.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33.0207051043120.8496-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >Okay. So we want modules and want them unload. And we want it bugfree.
-> >
-> >So... then its okay if module unload is *slow*, right?
-> >
-> >I believe you can just freeze_processes(), unload module [now its
-> >safe, you *know* noone is using that module, because all processes are
-> >in your refrigerator], thaw_processes().
+> > I see no reason to hold the BKL in your situation.  I replaced it with 
+> > i_sem in some places and just plain removed it in others.  I believe 
+> > that you get all of the protection that you need from dcache_lock in 
+> > the dentry insert and activate.  Can you prove me wrong?
 > 
-> The devil is in the details.
+> No, and I'm not about to try very hard. It appears that the place you 
+> removed it should be fine. In driverfs_unlink, you replace it with i_sem. 
+> ramfs, which driverfs mimmicks, doesn't hold any lock during unlink. It 
+> seems it could be removed altogether. 
 
-I don't think so.
+Actually, taking i_sem is completely wrong. Look at vfs_unlink() in 
+fs/namei.c:
 
-> You must not freeze the process doing rmmod, that way lies deadlock.
+        down(&dentry->d_inode->i_sem);
+        if (d_mountpoint(dentry))
+                error = -EBUSY;
+        else {
+                error = dir->i_op->unlink(dir, dentry);
+                if (!error)
+                        d_delete(dentry);
+        }
+        up(&dentry->d_inode->i_sem);
 
-That's automagic. Process doing freeze will not freeze itself.
+Then, in driverfs_unlink:
 
-> Modules can run their own kernel threads.  When the module shuts
-> down
-> it terminates the threads but we must wait until the process entries
-> for the threads have been reaped.  If you are not careful, the zombie
-> clean up code can refer to the module that no longer exists.  You must
-> not freeze any threads that belong to the module.
+	struct inode *inode = dentry->d_inode;
 
-Look at the code. freezer will try for 5 seconds, then give up. So, in
-rare case module has some threads, rmmod will simply fail. I believe
-we can fix rare remaining modules one by one.
+	down(&inode->i_sem);    
 
-> You must not freeze any process that has entered the module but not yet
-> incremented the use count, nor any process that has decremented the use
-> count but not yet left the module.  Simply looking at the EIP after
 
-Look how freezer works. refrigerator() is blocking, by definition. So
-if all processes reach refrigerator(), and the use count == 0, it is
-indeed safe to unload.
+You didn't test this on file removal did you? A good way to verify that 
+you have most of your bases covered is to plug/unplug a USB device a few 
+times. I learned that one from Greg, and it's caught several bugs.
 
-> freeze is not enough.  Module code with a use count of 0 is allowed to
-> call any function as long as that function does not sleep.  That
-> rule
+Anyway, I say that the lock can be removed altogether. Ditto for mknod as 
+well.
 
-And that's okay. If it only calls non-sleeping functions, it is not
-going to call refrigerator(), and it will exit module code before
-calling refrigerator().
+	-pat
 
-> Using freeze or any other quiesce style operation requires that the
-> module clean up be split into two parts.  The logic must be :-
-
-I still think it does not.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?

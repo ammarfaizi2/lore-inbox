@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284180AbSBITIF>; Sat, 9 Feb 2002 14:08:05 -0500
+	id <S285073AbSBITOG>; Sat, 9 Feb 2002 14:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbSBITHz>; Sat, 9 Feb 2002 14:07:55 -0500
-Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:57806 "EHLO
-	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S284180AbSBITHn>; Sat, 9 Feb 2002 14:07:43 -0500
-Date: Sat, 9 Feb 2002 11:06:20 -0800
-From: "Luis A. Montes" <lmontes@worldnet.att.net>
-To: linux-kernel@vger.kernel.org
-Cc: andre@linuxdiskcert.org, axboe@suse.de
-Subject: Re: 2.4.17 filesystem corruption
-Message-ID: <20020209110620.A247@penguin.montes2.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.4
+	id <S285023AbSBITN5>; Sat, 9 Feb 2002 14:13:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24584 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284933AbSBITNo>; Sat, 9 Feb 2002 14:13:44 -0500
+Date: Sat, 9 Feb 2002 12:59:16 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+cc: <linux-kernel@vger.kernel.org>, Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+In-Reply-To: <20020209181213.GA32401@come.alcove-fr>
+Message-ID: <Pine.LNX.4.33.0202091241080.1196-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I have been testing different kernels and filesystems in my
-system lately. To recap, my system is a ECS mobo with the SiS 735
-chipset, Athlon CPU, pc133 memory and IDE caviar hd. The problem is
-that the kernel 2.4.17 produces massive filesystem corruption. Things
-I have been able to eliminate as sources of the problem:
 
-- Memory/CPU: ran memtest86, several full passes, without a problem. I'm
-   not overclocking. It's also been stable with other kernels.
 
-- CPU optimization in the kernel: Corruption has happened with i386, K6
-   and K7 optimization, and stable kernels have had K7 enabled without
-   problem.
+On Sat, 9 Feb 2002, Stelian Pop wrote:
+>
+> So, what is supposed to be the definitive, public bk repository,
+> to pull from in order to have the latest changes ? (the one which will
+> go on bk.kernel.org eventually)
 
-- filesystem: I've tried XFS-only systems, mixtures of XFS and ext2 and
-   ext2-only systems with identical results.
+Right now the "definitive" bk repository is on master.kernel.org, which
+can only be accessed by people who have accounts there.
 
-- I've got a second hd plugged in the system, and I did wonder whether
-   it could be the problem as it happens to be on the black list, but
-   again whether I have or not connected doesn't seem to change things.
+I also push it to my private version on bkbits.net, and it is supposed to
+be automatically then pushed onwards to the public one that is at
+http://linux.bkbits.net:8080/linux-2.5, but the infrastructure for that
+isn't yet working.
 
-- My harddrive itself. Passes Western Digital test, so there doesn't seem
-   to be anything physically wrong with it. And it's worked fine with
-   other kernels.
+NOTE! If you're working on something that doesn't absolutely need the
+stuff in -pre5, you can (and should) just take the pre3 tree, and work
+there. When I pull stuff from people I don't require that they be
+up-to-date with me - one of the advantages of bk is that it's really easy
+to merge stuff.
 
-After more test during this week, I think I have something close to a
-smoking gun: Compiled a 2.4.5 and a 2.4.17 kernel with identical config
-files. Ran 2.4.5 during about 24 hours with continous i/o (compiling
-kernels and XFree86), and the filesystem survived. Ran 2.4.17 and it
-crashed within the first hour. In either case I didn't use hdparm to
-change anything, the hdparms where as they are set by default, everything
-off. Again, keeping identical config file I compiled 2.4.17 changing only
-the drivers/ide/sis5513.c file as per Lionel Bouton's patch. The system
-has been running for a week now with my normal load, compiling lots of
-stuff. I still didn't want to turn on dma (this is my workstation, I need
-to have it mostly up!). Then I did try the exact same kernel but I did 
-enable dma with hdparm -c 1 -d 1 -m 8 and ran the same test I did for the 
-other kernels, and it didn't crash (ran for about 12 hours fine). I'll 
-probably test it longer before using it in my good partitions, but I'm
-confindent it will survive, crashes usually occurred within the first
-hour.
+We'll get the official tree out in a more timely manner, one of the issues
+is actually just the scalability of pushing to lots of developers for the
+first time.
 
-Conclusion: It seems to me that something within sis5513.c got broken
-between 2.4.5 and 2.4.17 and was repaired by Bouton's patch.
+So if you're interested in BK: get one of the "older" trees now (eg the
+2.5.4-pre3 one that is public). Because that will make it a lot easier and
+a lot faster to just "bk pull" once the more modern trees come on-line if
+you have at least a base for it.
 
-Please let me know if I should do some more tests. I still have the
-"sacrificial" partition around and I'm willing to test patches/whatever. 
-But
-it seems to me that Bouton's patch just fixed it.
+Oh - final comment: try to pull over a fast line, and don't bog down
+bkbits.net more than necessary. For example, if you are behind a modem or
+a slow DSL line and you want to clone the repository and you have an
+account with faster speeds, I'd suggest you _first_ clone it to that other
+account, and then later clone it from there over the slow line.
 
-Thanks to everybody who answer
+(After that you can re-parent your slow one and make all further "bk
+pull"s directly - getting a few days or weeks of work with a "pull" is not
+too costly, but when doing the whole clone it is better to get in and get
+out faster to avoid clogging up the server with lots of bkd's that are
+just waiting..)
+
+			Linus
+

@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317279AbSFCFly>; Mon, 3 Jun 2002 01:41:54 -0400
+	id <S317280AbSFCFoi>; Mon, 3 Jun 2002 01:44:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317280AbSFCFlx>; Mon, 3 Jun 2002 01:41:53 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:20669 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317279AbSFCFlw>; Mon, 3 Jun 2002 01:41:52 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] TRIVIAL: TAGS creation should go into arch dirs
-Date: Mon, 03 Jun 2002 15:45:40 +1000
-Message-Id: <E17Ekey-0005lj-00@wagner.rustcorp.com.au>
+	id <S317281AbSFCFoh>; Mon, 3 Jun 2002 01:44:37 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:64731 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S317280AbSFCFoh>;
+	Mon, 3 Jun 2002 01:44:37 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Decoding of addreses in kernel logs 
+In-Reply-To: Your message of "Mon, 03 Jun 2002 09:39:41 +0400."
+             <6134254DE87BD411908B00A0C99B044F02E89B5A@mowd019a.mow.siemens.ru> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Jun 2002 15:44:30 +1000
+Message-ID: <31248.1023083070@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Playing with arch stuff does this to you.
+On Mon, 3 Jun 2002 09:39:41 +0400, 
+Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru> wrote:
+>Thank you. My only concern is that klogd decodes addresses in real time
+>(if it is able to do it at all) while ksymoops is usually postmortem. It
+>means that ksymoops may not have access to real module addresses? 
 
-Rusty.
+klogd rarely has access to module addresses either.  klogd loads its
+module list at startup, not when modules are loaded or unloaded.  There
+is support in both insmod and ksymoops for module decoding, man insmod
+and look for ksymoops assistance.
 
---- trivial-2.5.20/Makefile.orig	Mon Jun  3 15:25:05 2002
-+++ trivial-2.5.20/Makefile	Mon Jun  3 15:25:05 2002
-@@ -369,7 +369,7 @@
- TAGS: FORCE
- 	{ find include/asm-${ARCH} -name '*.h' -print ; \
- 	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name '*.h' -print ; \
--	find $(SUBDIRS) init -name '*.[ch]' ; } | grep -v SCCS | etags -
-+	find $(SUBDIRS) init arch/${ARCH} -name '*.[chS]' ; } | grep -v SCCS | etags -
- 
- # 	Exuberant ctags works better with -I
- tags: FORCE
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

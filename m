@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSLARXI>; Sun, 1 Dec 2002 12:23:08 -0500
+	id <S262266AbSLARjf>; Sun, 1 Dec 2002 12:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbSLARXI>; Sun, 1 Dec 2002 12:23:08 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17052 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262214AbSLARXH>; Sun, 1 Dec 2002 12:23:07 -0500
-Subject: Re: [patch]back ports ICH3M support into 2.4.20
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hugang <hugang@soulinfo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>, "J.A. Magallon" <jamagallon@able.es>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>
-In-Reply-To: <20021201130427.37a915bf.hugang@soulinfo.com>
-References: <20021201130427.37a915bf.hugang@soulinfo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Dec 2002 18:03:25 +0000
-Message-Id: <1038765805.30381.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262303AbSLARjf>; Sun, 1 Dec 2002 12:39:35 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:28945 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S262266AbSLARje>; Sun, 1 Dec 2002 12:39:34 -0500
+Date: Mon, 2 Dec 2002 04:46:43 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Greg KH <greg@kroah.com>
+cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       <linux-security-module@wirex.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] LSM fix for stupid "empty" functions
+In-Reply-To: <20021201181227.GC8829@kroah.com>
+Message-ID: <Mutt.LNX.4.44.0212020441560.19785-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-01 at 05:04, hugang wrote:
-> hello 
->   Here is a back port patch for Intel ICH3M IDE 
+On Sun, 1 Dec 2002, Greg KH wrote:
 
-2.4.20 already has the correct version of the fixes for partially
-configured IDE devices. The code you are posting is old and in several
-places wrong, hence it was removed.
+> On Sun, Dec 01, 2002 at 05:59:10PM +0100, Olaf Dietsche wrote:
+> > >  	VERIFY_STRUCT(struct security_operations, ops, err);
+> > 
+> > This shouldn't be necessary anymore.
+> 
+> Good point, I'll remove it.  It was a hack anyway :)
+> 
 
-2.4.20 will try and do a full pci device setup, then fall back to just
-configuring BAR4.
+I think we still want to make sure that the module author has explicitly
+accounted for all of the hooks, in case new hooks are added.
 
-Alan
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+
 

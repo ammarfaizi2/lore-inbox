@@ -1,47 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293234AbSBWWfX>; Sat, 23 Feb 2002 17:35:23 -0500
+	id <S293237AbSBWWhN>; Sat, 23 Feb 2002 17:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293236AbSBWWfN>; Sat, 23 Feb 2002 17:35:13 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:61098 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S293234AbSBWWe5>; Sat, 23 Feb 2002 17:34:57 -0500
-Date: Sat, 23 Feb 2002 23:23:08 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: ertzog <ertzog@bk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet bridging and firewalling
-Message-ID: <20020223232308.X23307@sunbeam.de.gnumonks.org>
-In-Reply-To: <Pine.LNX.4.21.0202192008310.1623-100000@dial-up-2.energonet.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.21.0202192008310.1623-100000@dial-up-2.energonet.ru>; from ertzog@bk.ru on Tue, Feb 19, 2002 at 08:09:25PM +0000
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Setting Orange, the 50th day of Chaos in the YOLD 3168
+	id <S293240AbSBWWhD>; Sat, 23 Feb 2002 17:37:03 -0500
+Received: from web21305.mail.yahoo.com ([216.136.129.141]:6165 "HELO
+	web21305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S293238AbSBWWgd>; Sat, 23 Feb 2002 17:36:33 -0500
+Message-ID: <20020223223632.17818.qmail@web21305.mail.yahoo.com>
+Date: Sun, 24 Feb 2002 09:36:32 +1100 (EST)
+From: =?iso-8859-1?q?Mark=20ZZZ=20Smith?= <markzzzsmith@yahoo.com.au>
+Subject: [PATCH] Accept large ethernet frames to support VLANs (natsemi.c, against 2.4.17)
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 08:09:25PM +0000, ertzog wrote:
-> Will the patch
-> http://bridge.sourceforge.net/devel/bridge-nf/bridge-nf-0.0.6-against-2.4.17.diff
-> 
-> be included in mainstream?
-> It enables firewalling with bridging.
+Hi All,
 
-No.  The issues of this have been discussed on the netfilter developer meeting
-(where Lennert was also present) - there's a summary available at 
-http://www.netfilter.org/documentation/events/netfilter-ws-2001-summary.txt
+Here is my first shot at a kernel patch. It enables
+accepting ethernet frames larger than 1518 bytes on
+the natsemi DP83815 based ethernet cards (eg Netgear
+FA311/Fa312), to support 802.1Q VLANs.
 
-The basic issue is that it adds multiple new struct sk_buff members, which
-is generally not considered as a good idea by the networking gods ;)
+It seems to work for me, although I've only tested it
+between two linux boxes running VLANs (both with
+Netgear FA312 cards), rather than into a VLAN capable
+ethernet switch, as I don't have one at home.
 
-> Best regards.
+For any comments, suggestions or criticisms, please CC
+me, as I'm not subscribed to the mailing list.
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+Thanks,
+Mark.
+
+--- linux.2.4.17/drivers/net/natsemi.c  Sat Dec 22
+15:38:15 2001
++++ linux.2.4.17.mrs/drivers/net/natsemi.c      Sat
+Feb 23 19:04:46 2002
+@@ -102,6 +102,11 @@
+        version 1.0.13:
+                * ETHTOOL_[GS]EEPROM support (Tim
+Hockin)
+ 
++       version 1.0.13+MRS-VLAN 
++               * Switch on RxAcceptLong to support
+big ethernet frames for
++               802.1Q VLANs
++               Mark R. Smith,
+markzzzsmith@yahoo.com.au
++
+        TODO:
+        * big endian support with CFG:BEM instead of
+cpu_to_le32
+        * support for an external PHY
+@@ -109,8 +114,8 @@
+ */
+ 
+ #define DRV_NAME       "natsemi"
+-#define DRV_VERSION    "1.07+LK1.0.13"
+-#define DRV_RELDATE    "Oct 19, 2001"
++#define DRV_VERSION    "1.07+LK1.0.13+MRS-VLAN"
++#define DRV_RELDATE    "Feb 23, 2002"
+ 
+ /* Updated to recommendations in pci-skeleton v2.03.
+*/
+ 
+@@ -1162,8 +1167,9 @@
+ 
+        /* DRTH 0x10: start copying to memory if 128
+bytes are in the fifo
+         * MXDMA 0: up to 256 byte bursts
++        * RxAcceptLong: accept long frames for 802.1Q
+VLANs
+         */
+-       np->rx_config = RxMxdma_256 | 0x20;
++       np->rx_config = RxMxdma_256 | 0x20 |
+RxAcceptLong; 
+        writel(np->rx_config, ioaddr + RxConfig);
+ 
+        /* Disable PME:
+
+
+http://movies.yahoo.com.au - Yahoo! Movies
+- Vote for your nominees in our online Oscars pool.

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbTHUK7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 06:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbTHUK7Q
+	id S262612AbTHULFO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 07:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbTHULFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 06:59:16 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:18370 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262599AbTHUK7P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 06:59:15 -0400
-Date: Thu, 21 Aug 2003 12:59:12 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6][TRIVIAL] Update ide.txt documentation to current
- ide.c
-In-Reply-To: <20030821124807.700db5d3.martin.zwickel@technotrend.de>
-Message-ID: <Pine.LNX.4.51.0308211255040.24538@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv>
- <20030821124807.700db5d3.martin.zwickel@technotrend.de>
+	Thu, 21 Aug 2003 07:05:14 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:7130 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262612AbTHULFJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 07:05:09 -0400
+From: Patrick Dreker <patrick@dreker.de>
+To: kenton.groombridge@us.army.mil, linux-kernel@vger.kernel.org
+Subject: Re: nforce2 lockups
+Date: Thu, 21 Aug 2003 13:05:05 +0200
+User-Agent: KMail/1.5.9
+References: <2224f3e221f996.221f9962224f3e@us.army.mil>
+In-Reply-To: <2224f3e221f996.221f9962224f3e@us.army.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308211305.05848.patrick@dreker.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > + "hdx=scsi"		: the return of the ide-scsi flag, this is useful for
-> > + 			  allowwing ide-floppy, ide-tape, and ide-cdrom|writers
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-:) I kind of copy/pasted it from drivers/ide/ide.c so also apply to
-drivers/ide/ide.c this:
+Am Thursday 21 August 2003 03:39 schrieb kenton.groombridge@us.army.mil zum 
+Thema Re: nforce2 lockups:
+> and it did cure my spurious interrupt problem, but unfortunately, my
+> lockups have returned.
+I managed to stabilize my Board, but I don't think the trick was obvious: 
+Disable alle APIC related kernel Options (Local APIC and IO-APIC), disable 
+APIC Mode in the BIOS. Check on reboot if it still talks about the APIC in 
+the boot messages (How? IIRC mine did, which was why I did not think that 
+disabling the APIC helped... Actually somehow it still was activated. Could 
+ACPI be part of this?). If it does try noapic and/or nolapic boot options.
 
-diff -u linux-2.6.0-test2/drivers/ide/ide.c linux-2.6.0-test3/drivers/ide/ide.c
---- linux-2.6.0-test2/drivers/ide/ide.c	2003-08-19 17:30:07.000000000 +0200
-+++ linux-2.6.0-test3/drivers/ide/ide.c	2003-08-21 12:56:40.000000000 +0200
-@@ -1880,7 +1880,7 @@
-  *				registered. In most cases, only one device
-  *				will be present.
-  * "hdx=scsi"		: the return of the ide-scsi flag, this is useful for
-- *				allowwing ide-floppy, ide-tape, and ide-cdrom|writers
-+ *				allowing ide-floppy, ide-tape, and ide-cdrom|writers
-  *				to use ide-scsi emulation on a device specific option.
-  * "idebus=xx"		: inform IDE driver of VESA/PCI bus speed in MHz,
-  *				where "xx" is between 20 and 66 inclusive,
+If you completely shut off the APIC it runs stable, but 1 of the 3 USB 
+Controllers is not assigned an interrupt. All this with ACPI enabled (ACPI 
+patch 20030730 and kernel 2.6.0-test3).
+
+- -- 
+Patrick Dreker
+
+GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
+Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
+Key available from keyservers or http://www.dreker.de/pubkey.asc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/RKdhcERm2vzC96cRAtjAAJ4y5oOm7uhtPqWtaS/S+mnWTr9C5gCdF3hK
+2JQZ86psKDmWO74wxrINSRE=
+=YbYq
+-----END PGP SIGNATURE-----

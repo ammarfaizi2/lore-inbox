@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUKVVFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbUKVVFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUKVVFt (ORCPT <rfc822;willy@w.ods.org>);
+	id S262421AbUKVVFt (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 16:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUKVVET
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbUKVVEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 16:04:19 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:58631 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262404AbUKVVBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 16:01:09 -0500
-Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: greg@kroah.com, phil@netroedge.com, khali@linux-fr.org,
-       sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041122194327.GB4698@penguincomputing.com>
-References: <20041102221745.GB18020@penguincomputing.com>
-	 <NN38qQl1.1099468908.1237810.khali@gcu.info>
-	 <20041103164354.GB20465@penguincomputing.com>
-	 <20041118185612.GA20728@penguincomputing.com>
-	 <1100945635.2639.31.camel@laptop.fenrus.org>
-	 <20041122194327.GB4698@penguincomputing.com>
-Content-Type: text/plain
-Message-Id: <1101157242.2813.34.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 22 Nov 2004 22:00:42 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?ip=80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 22 Nov 2004 16:04:14 -0500
+Received: from web.dragon.cz ([213.168.176.4]:24481 "EHLO web.dragon.cz")
+	by vger.kernel.org with ESMTP id S262384AbUKVU47 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 15:56:59 -0500
+Message-ID: <41A25296.104@inv.cz>
+Date: Mon, 22 Nov 2004 21:56:54 +0100
+From: Martin Volf <mv@inv.cz>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=FCrgen_Otte?= <reviede@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libata - support for PATA devices on promise TX2 controllers
+References: <41a1ed19.6b8b4567.0883.0000@smtp.gmail.com>
+In-Reply-To: <41a1ed19.6b8b4567.0883.0000@smtp.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jürgen Otte wrote:
+> See topic, is there anyone working on this already?
 
-> > this locking construct is rahter awkward; is it possible to refactor the
-> > code such that you can down and up in the same function ?
-> 
-> Yes, at the cost of some minor code duplication or the introduction of
-> another variable.  Is that preferable?  Is holding the lock across function
-> calls a Bad Idea?
+Yes, I think so:
 
-holding lock across function calls isn't, unlocking in another function than you take the lock is.
-For one it makes auditing the code a lot harder.
+http://linux.yyz.us/sata/sata-status.html
+http://linux.yyz.us/sata/software-status.html
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata
+
+I'm currently using old/2.6.9-libata1-dev1.patch.bz2 with 2.6.9 and the PATA
+port on PDC20378 is working (but I don't know whether TX2 is the same thing).
+
+-- 
+Martin
 
 

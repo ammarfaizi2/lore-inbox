@@ -1,212 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314801AbSENAOw>; Mon, 13 May 2002 20:14:52 -0400
+	id <S293203AbSENASR>; Mon, 13 May 2002 20:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314811AbSENAOv>; Mon, 13 May 2002 20:14:51 -0400
-Received: from mx1.afara.com ([63.113.218.20]:23486 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S314801AbSENAOu>;
-	Mon, 13 May 2002 20:14:50 -0400
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 2.4
-	is available
-From: Thomas Duffy <tduffy@directvinternet.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <6624.1021109539@ocs3.intra.ocs.com.au>
-Content-Type: multipart/mixed; boundary="=-migXfpaX9tsj4itSFsmE"
-X-Mailer: Ximian Evolution 1.0.4.99 
-Date: 13 May 2002 17:12:08 -0700
-Message-Id: <1021335128.25750.23.camel@tduffy-lnx.afara.com>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 14 May 2002 00:14:41.0265 (UTC) FILETIME=[579B9E10:01C1FADC]
+	id <S293510AbSENASQ>; Mon, 13 May 2002 20:18:16 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:18840 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293203AbSENASQ>; Mon, 13 May 2002 20:18:16 -0400
+Subject: Compilation problems in sysinfo.c
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFB2C907A6.9EB8BB42-ON85256BB9.0000494B@raleigh.ibm.com>
+From: "Isabelle Poueriet" <ipouerie@us.ibm.com>
+Date: Mon, 13 May 2002 17:18:19 -0700
+X-MIMETrack: Serialize by Router on D04NM207/04/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 05/13/2002 08:18:16 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---=-migXfpaX9tsj4itSFsmE
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The Kernel level is: 2.4.9-31 for Red Hat Linux 7.2:
 
-On Sat, 2002-05-11 at 02:32, Keith Owens wrote:
-> On Sat, 04 May 2002 00:19:10 +1000, 
-> Keith Owens <kaos@ocs.com.au> wrote:
-> >Release 2.4 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-> >http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
-> >release 2.4.
+Has anyone had  trouble compiling the modules - especifically in sysinfo.c.
+I was trying to build the kernel modules and the compiler found errors when
+it got to sysinfo.c.
+I re-installed my kernel source code and headers and started from scratch.
+I still had the same problem (see output below).
 
-ok, kbuild-2.5-sparc64-2.5.15-1 is ready.
+I changed line 11 to "include <compiler.h>", replaced line 86 with
+"return_string=system_utsname.version".
+Everything worked after that.
 
-   Changes from 2.5.14-2
+I'm wondering if I should report this as a bug or whether I was the only
+one w/ the problem.
+The source pkg that installed was kernel-source-2.4.9-31.i386.rpm, and
+kernel-headers-2.4.9-31.i386.rpm.
 
-    Update to 2.5.15
+Output from 'make modules':
+=========================
 
-    Change all #include <asm-offsets.h> to #include "asm-offsets.h"
+make[2]: Entering directory `/usr/src/linux-2.4.9-31/abi/sco'
+ld -m elf_i386 -r -o abi-sco.o sysent.o misc.o ptrace.o secureware.o
+ioctl.o termios.o tapeio.o vtkbd.o
+make[2]: Leaving directory `/usr/src/linux-2.4.9-31/abi/sco'
+make -C svr4 modules
+make[2]: Entering directory `/usr/src/linux-2.4.9-31/abi/svr4'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.9-31/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -Wno-unused -pipe
+-mpreferred-stack-boundary=2 -march=i386 -DMODULE -DMODVERSIONS -include
+/usr/src/linux-2.4.9-31/include/linux/modversions.h   -c -o sysinfo.o
+sysinfo.c
+sysinfo.c:11:27: linux/compile.h: No such file or directory
+sysinfo.c: In function `svr4_sysinfo':
+sysinfo.c:86: `UTS_VERSION' undeclared (first use in this function)
+sysinfo.c:86: (Each undeclared identifier is reported only once
+sysinfo.c:86: for each function it appears in.)
+make[2]: *** [sysinfo.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.9-31/abi/svr4'
+make[1]: *** [_modsubdir_svr4] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.9-31/abi'
+make: *** [_mod_abi] Error 2
 
-    Fix up setup hack for recursive include in assembler offsets.
+Isabelle Poueriet
 
-> kbuild-2.5-core-13
->   Changes from core-12.
-
-<snip>
-
->     Tweak standardize_name code to cope with aic7xxx shipping files and
->     overwriting them with the same name.
-> 
-> kbuild-2.5-common-2.5.15-2
->   Changes from common-2.5.15-1.
-> 
->     Add -f to cp/mv.  Mainly to cope with aic7xxx shipping files and 
->     overwriting them with the same name.
-> 
->     Add missing select for aic7xxx.
-
-Keith, now I am getting this error with latest kbuild core-13,
-common-2.5.15-2 (that wasn't happening before):
-
-  CC drivers/scsi/aic7xxx/aic7xxx_core.o
-pp_makefile5: stat (drivers/scsi/aic7xxx/aic7xxx_seq.h) failed: No such file or directory
-pp_makefile5: dependencies (pid 15566) returned 1
-make[1]: *** [drivers/scsi/aic7xxx/aic7xxx_core.o] Error 1
-
-$ ls $KBUILD_SRCTREE_000/drivers/scsi/aic7xxx/aic7xxx_seq.h
-/darwin_build2/tduffy/linux-2.5.15+kbuild-v2.4+common-2+core-13+i386-2+sparc64-1/drivers/scsi/aic7xxx/aic7xxx_seq.h
-
--tduffy
-
---=-migXfpaX9tsj4itSFsmE
-Content-Disposition: attachment; filename=kbuild-2.5-sparc64-2.5.15-1.bz2
-Content-Type: application/x-bzip; name=kbuild-2.5-sparc64-2.5.15-1.bz2
-Content-Transfer-Encoding: base64
-
-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
-8XckU4UJAu6biQA=
-
---=-migXfpaX9tsj4itSFsmE--
+ Tivoli Storage Manager
+ Software Engineer
+ Office 9062/2123
+ T/L: 8-321-2889
 

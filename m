@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263228AbUD2Rq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264898AbUD2Ruk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbUD2Rq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 13:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUD2Rq6
+	id S264898AbUD2Ruk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 13:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUD2Ruk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 13:46:58 -0400
-Received: from ns.suse.de ([195.135.220.2]:1774 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263228AbUD2Rq4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 13:46:56 -0400
-Subject: Re: 2.6.6-rc[23] boot failure on x86_64
-From: Chris Mason <mason@suse.com>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040429171255.21762.qmail@lwn.net>
-References: <20040429171255.21762.qmail@lwn.net>
-Content-Type: text/plain
-Message-Id: <1083260713.30344.291.camel@watt.suse.com>
+	Thu, 29 Apr 2004 13:50:40 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:6388 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S264898AbUD2Rui
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 13:50:38 -0400
+Date: Thu, 29 Apr 2004 14:14:13 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040429141412.A12541@mail.kroptech.com>
+References: <20040428184008.226bd52d.akpm@osdl.org> <Pine.LNX.4.44.0404282147000.19633-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Apr 2004 13:45:14 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0404282147000.19633-100000@chimarrao.boston.redhat.com>; from riel@redhat.com on Wed, Apr 28, 2004 at 09:47:45PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-29 at 13:12, Jonathan Corbet wrote:
-> 2.6.5 runs happily on my Athlon64 system, but the last two 2.6.6-rc
-> releases (I never tried -rc1) fail.  It gets as far as starting init, then
-> goes into a long, unstoppable series of oopsen; I can't come up with a way
-> to make it halt so that I can actually read what's going on. 
+On Wed, Apr 28, 2004 at 09:47:45PM -0400, Rik van Riel wrote:
+> On Wed, 28 Apr 2004, Andrew Morton wrote:
 > 
-> One time it did stop with a series of three-line messages on screen:
+> > OK, so it takes four seconds to swap mozilla back in, and you noticed it.
+> > 
+> > Did you notice that those three kernel builds you just did ran in twenty
+> > seconds less time because they had more cache available?  Nope.
 > 
->   Unable to handle kernel paging request @ fffffffb82777c88 RIP:
->   [<ffffffff80462a88>] PML4 103027 PGD 0
->   Oops: 0000 [909589208]
+> That's exactly why desktops should be optimised to give
+> the best performance where the user notices it most...
 
-Could you try reversing this one:
+Agreed. Looking at it from the standpoint of relative change, the time
+to bring the mozilla window to the foreground is increased by orders of
+magnitude while the kernel builds improve by a (relatively) small
+percent. Humans easily notice change in orders of magnitude and such
+changes can feel painful. Benchmarks notice $SMALLNUM percent long
+before a human will, especially if s/he has left the room because the
+job was going to take 10 minutes anyway. The 30 seconds saved off the
+compile run just isn't worth it sometimes if its side-effect is to
+disrupt the user's workflow.
 
--chris
+The 'swappiness' tunable may well give enough control over the situation
+to suit all sorts of users. If nothing else, this thread has raised
+awareness that such a tunable exists and can be played with to influence
+the kernel's decision-making. Distros, too, should give consideration to
+appropriate default settings to serve their intended users.
 
-Name: Fix cpumask iterator over empty cpu set
-Status: Trivial
-
-Can't use _ffs() without first checking for zero, and if bits beyond
-NR_CPUS set it'll give bogus results.  Use find_first_bit
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26180-linux-2.6.6-rc2-bk5/include/asm-generic/cpumask_arith.h .26180-linux-2.6.6-rc2-bk5.updated/include/asm-generic/cpumask_arith.h
---- .26180-linux-2.6.6-rc2-bk5/include/asm-generic/cpumask_arith.h	2004-01-10 13:59:33.000000000 +1100
-+++ .26180-linux-2.6.6-rc2-bk5.updated/include/asm-generic/cpumask_arith.h	2004-04-28 09:50:23.000000000 +1000
-@@ -43,7 +43,7 @@
- #define cpus_promote(map)		({ map; })
- #define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
- 
--#define first_cpu(map)			__ffs(map)
-+#define first_cpu(map)			find_first_bit(&(map), NR_CPUS)
- #define next_cpu(cpu, map)		find_next_bit(&(map), NR_CPUS, cpu + 1)
- 
- #endif /* __ASM_GENERIC_CPUMASK_ARITH_H */
-
+--Adam
 

@@ -1,193 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVCUVoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVCUVom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVCUVoo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVCUVmd
+	id S262053AbVCUVom (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVCUVnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:42:33 -0500
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:13956 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261968AbVCUVKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 16:10:37 -0500
-To: jfs-discussion@lists.sourceforge.net,
-       Dave Kleikamp <shaggy@austin.ibm.com>
-CC: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: [CHECKER] writes not always synchronous on JFS with O_SYNC?
-Reply-To: blp@cs.stanford.edu
-From: Ben Pfaff <blp@cs.stanford.edu>
-Date: Mon, 21 Mar 2005 13:10:43 -0800
-Message-ID: <87vf7kr9gs.fsf@benpfaff.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Mar 2005 16:43:14 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:39566 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261959AbVCUVhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 16:37:08 -0500
+Subject: Re: Suspend-to-disk woes
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Stefan Seyfried <seife@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mgarrett@chiark.greenend.org.uk
+In-Reply-To: <423E94FF.9000603@suse.de>
+References: <423B01A3.8090501@gmail.com>
+	 <20050319132612.GA1504@openzaurus.ucw.cz>
+	 <200503191220.35207.rmiller@duskglow.com>
+	 <20050319212922.GA1835@elf.ucw.cz> <20050319212922.GA1835@elf.ucw.cz>
+	 <1111364066.9720.2.camel@desktop.cunningham.myip.net.au>
+	 <E1DDAcH-0002n5-00@chiark.greenend.org.uk>
+	 <1111384766.9720.144.camel@desktop.cunningham.myip.net.au>
+	 <423E94FF.9000603@suse.de>
+Content-Type: text/plain
+Message-Id: <1111441138.14853.26.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 22 Mar 2005 08:38:58 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  We've been running some tests on JFS and other file systems
-and believe we've found an issue whereby O_SYNC does not always
-cause data to be committed synchronously.  On Linux 2.6.11, we
-found that the program appended below causes
-/mnt/sbd0/0006/0010/0029/0033 to contain all zeros, despite the
-use of O_SYNC on the write calls and the fsyncs on the
-directories.  It seems to be pretty sensitive to the existence of
-the rmdir calls: if I omit one of them, the data does get
-written.
+Hi.
 
-Note that /dev/sbd0 is essentially a ramdisk that we've developed
-for testing this kind of thing: it allows a snapshot of a disk's
-momentary contents to be copied out, so that we don't have to do
-a reboot.
+On Mon, 2005-03-21 at 20:33, Stefan Seyfried wrote:
+> Hi,
+> 
+> Nigel Cunningham wrote:
+> 
+> > On Mon, 2005-03-21 at 11:17, Matthew Garrett wrote:
+> 
+> >> It's trivial to do this in userspace - just have an app in initramfs
+> 
+> > It's not that trivial.
+> 
+> > - Your image might not be stored in a swap partition. For Suspend2, it
+> > can potentially in a swap file or (soon) an ordinary file;
+> > - Finding which partition to look in for the signature might be non
+> > trivial (labels in fstab). You'd want to hard code it or (perferably)
+> > copy a config file from the root (or other) partition;
+> > - Having addressed the above issues, you still need to add code to read
+> > the swap header, parse it to find the header, read the header from the
+> > image, parse it and obtain the kernel version of the saved image.
+> 
+> Well, and you want to compile all this into the kernel? Just to hold the
+> hands of users who have not read the fine manual?
 
-Can you confirm this?
+Most of it is in there anyway - the kernel code needs to check the image
+exists and read the header irrespective of whether it does sanity
+checking. In Suspend2, this code is also used for other error conditions
+that can stop you being able to resume (failure to load the right
+modules in an initrd, failure at accessing the device where the image
+should be found etc).
 
-Thanks,
+> And you'd need to compile this into all kernels, especially those that
+> _don't_ support suspend to disk. Or you are back at the place where the
+> thread started.
 
-Ben.
+Yes. The real solution is for all kernels on a system to either support
+suspend to disk or not support it. Half measures are what cause the
+problem.
 
-----------------------------------------------------------------------
+> > If your image is not stored in a swap partition, you probably can't
+> > mount the fs the image is stored on, because doing so will replay the
+> > image and make resuming unsafe, so this approach is less trivial without
+> > knowing exactly which disk blocks and device IDs to use (and using dd to
+> > access them).
+> 
+> GRUB reads kernel and initramfs from a dirty reiserfs partition on
+> resume (although this is a bad idea if you want a fast resume, but
+> that's another problem). It is possible.
 
-#define _GNU_SOURCE
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <assert.h>
-#include <unistd.h>
+Mmm. I know it's all possible, but I'm pointing out the issues that make
+it not "trivial", which was the original claim.
 
-#define CHECK(ret) if(ret < 0) {perror(0); assert(0);}
-#define MAX_SIG_WRITE (20)
-typedef unsigned int signature_t;
+> > On top of these, we have two implementations, so you'll want to check
+> > for the signatures of both.
+> 
+> This is the final argument for doing it in userspace :-).
 
-typedef struct write_s {
-	off_t off;
-	size_t len;
-	char buf[MAX_SIG_WRITE * sizeof(signature_t)];
-	off_t size; // file size;
-	signature_t sig; // file sig;
-} write_t;
+How so? You then have to maintain two codebases for doing all this
+reading and parsing.
 
-write_t writes[] = {
-	{0, 4,{-23, -69, 101, -119, }, 4, 228307655},
-	{1023, 8,{63, -3, -104, -45, 4, -110, -59, 88, }, 1031, 4168021214},
-	{4093, 12,{98, 11, -106, 98, 79, -107, -88, 102, 1, 100, -6, 85, }, 4105, 2386671457},
-	{32755, 20,{-83, 49, -128, -96, 90, -7, 13, 69, 62, 127, -99, 125, 7, 53, -70, 62, -113, 63, 72, -104, }, 32775, 2170096179},
-	{1073741793, 40,{-69, -57, -42, 80, -70, 54, 127, 17, -113, 34, 72, 31, 27, 5, -28, -18, -73, -79, -1, -52, -106, 8, 86, 100, 72, 28, 98, -27, -52, -104, -65, 3, 56, 51, 68, -66, 65, -87, 62, 51, }, 1073741833, 255668987},
-};
+> > That said, I am considering making something like what you're saying:
+> > exposing methods of testing whether an image exists and an entry through
+> > which you can get Suspend to erase an image via a proc (eventually
+> > sysfs) entry. This will allow something like what you're saying to be
+> > controlled from userspace.
+> 
+> It does not help if the next kernel i boot is not suspend2 patched. This
+> work should rather go into a library that exports this functions to
+> userspace programs, for all known suspend implementations.
 
-int systemf(const char *fmt, ...)
-{
-	static char cmd[1024];
+So don't use kernels that aren't suspend2 patched :>
 
-	va_list ap;
-	va_start(ap, fmt);
-	vsprintf(cmd, fmt, ap);
-	va_end(ap);
-	
-	fprintf(stderr, "running cmd \"%s\"\n", cmd);
-	return system(cmd);
-}
+If someone said "I want to boot a kernel that doesn't have support for
+ext3 but my rootfs is ext3", would we say "Well then, write a userspace
+ext3 driver"? Not exactly the same, I know, but I think the point
+stands. We'd say "Don't be silly. Put in the support you need."
 
-int test_write(const char *pathname, unsigned i)
-{
-	int fd = open(pathname, O_WRONLY | O_SYNC);
-	CHECK(fd);
-	int ret = pwrite(fd, writes[i].buf, 
-			 writes[i].len, writes[i].off);
-	CHECK(ret);
-	ret = close(fd);
-	CHECK(ret);
-	return ret;
-}
+The real solution to this mess is to get distros compiling in support
+for suspend-to-disk by default. I realise that hasn't been attractive.
+Hopefully it will change real-soon-now.
 
-void test_fsync(const char* pathname)
-{
-	int fd, ret;
-	fd = open(pathname, 0);
-	CHECK(fd);
-	ret = fsync(fd);
-	CHECK(ret);
-	ret = close(fd);
-	CHECK(ret);
-}
+Regards,
 
-void test_creat(const char* pathname, mode_t m)
-{
-	int fd, ret;
-	fd = creat(pathname, m);
-	CHECK(fd);
-	ret = close(fd);
-	CHECK(ret);
-}
-
-int main(int argc, char *argv[])
-{
-	int ret, fd;
-	systemf("umount /dev/sbd0");
-	systemf("sbin/mkfs.jfs -q /dev/sbd0 4096");
-	systemf("sbin/fsck.jfs -a -p /dev/sbd0");
-	systemf("mount -t jfs /dev/sbd0 /mnt/sbd0 ");
-	systemf("umount /dev/sbd0");
-	systemf("mount -t jfs /dev/sbd0 /mnt/sbd0 ");
-	
-	ret = mkdir("/mnt/sbd0/0006", 511);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0006/0010", 511);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0014", 511);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0015", 511);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0015/0016", 511);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0006/0010/0017", 511);
-	CHECK(ret);
-	ret = rmdir("/mnt/sbd0/0015/0016");
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0006/0010/0017/0021", 511);
-	CHECK(ret);
-	ret = rmdir("/mnt/sbd0/0014");
-	CHECK(ret);
-	ret = rmdir("/mnt/sbd0/0015");
-	CHECK(ret);
-	ret = test_creat("/mnt/sbd0/0006/0028", 511);
-	CHECK(ret);
-	ret = test_write("/mnt/sbd0/0006/0028", 0);
-	CHECK(ret);
-	ret = mkdir("/mnt/sbd0/0006/0010/0029", 511);
-	CHECK(ret);
-	ret = test_creat("/mnt/sbd0/0006/0010/0029/0033", 511);
-	CHECK(ret);
-	ret = test_write("/mnt/sbd0/0006/0010/0029/0033", 0);
-	CHECK(ret);
-	ret = test_fsync("/mnt/sbd0/0006/0010/0029");
-	CHECK(ret);
-	ret = test_fsync("/mnt/sbd0/0006/0010");
-	CHECK(ret);
-	ret = test_fsync("/mnt/sbd0/0006");
-	CHECK(ret);
-	ret = test_fsync("/mnt/sbd0");
-	CHECK(ret);
-
-#if 0
-	{
-		#include "../sbd/sbd.h"
-		int sbd_fd = open("/dev/sbd0", O_RDONLY);
-		ret = ioctl(sbd_fd, SBD_COPY_DISK, 1);
-		CHECK(ret);
-		close(sbd_fd);
-	}
-#else
-	systemf("reboot -f -n");
-#endif
-	return 0;
-}
-
-
-
+Nigel
 -- 
-Ben Pfaff 
-email: blp@cs.stanford.edu
-web: http://benpfaff.org
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

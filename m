@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269547AbRHCShF>; Fri, 3 Aug 2001 14:37:05 -0400
+	id <S269551AbRHCSnP>; Fri, 3 Aug 2001 14:43:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268123AbRHCSg7>; Fri, 3 Aug 2001 14:36:59 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:20747 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269547AbRHCSgE>; Fri, 3 Aug 2001 14:36:04 -0400
-Date: Fri, 3 Aug 2001 20:36:12 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010803203612.I31468@emma1.emma.line.org>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <0108030507330F.00440@starship> <Pine.GSO.4.21.0108022312211.1494-100000@weyl.math.psu.edu>
+	id <S269558AbRHCSnF>; Fri, 3 Aug 2001 14:43:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7440 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269570AbRHCSm5>;
+	Fri, 3 Aug 2001 14:42:57 -0400
+Date: Fri, 3 Aug 2001 19:43:00 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Frank Torres <frank@ingecom.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
+Message-ID: <20010803194300.A1609@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.3.95.1010803085542.16919A-100000@chaos.analogic.com> <018201c11c24$cd2af730$66011ec0@frank>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0108022312211.1494-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.19i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <018201c11c24$cd2af730$66011ec0@frank>; from frank@ingecom.net on Fri, Aug 03, 2001 at 04:01:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Aug 2001, Alexander Viro wrote:
+On Fri, Aug 03, 2001 at 04:01:28PM +0200, Frank Torres wrote:
+> > This is not valid. You cannot reasonably have parity and 8 bits. One
+> > of them has to go. Either use 8 bits and no parity or 7 bits with
+> > parity.
 
-> On Fri, 3 Aug 2001, Daniel Phillips wrote:
-> 
-> > There is only one chain of directories from the fd's dentry up to the 
-> > root, that's the one to sync.
-> 
-> You forgot ".. at any given moment". IOW, operation you propose is inherently
-> racy. You want to do that - you do that in userland.
+All standard 16550 family ports support 8 bits _and_ parity.  Ancient
+serial ports did have a restriction, but that restriction is no more.
 
-Applications usually protect their playgrounds - separate uid for
-instance. If only the application has access to that area, and itself
-does not trigger races, "at any given moment" is not a restriction.
+> All showed wrong or no characters in the display. It only worked with 8,
+> parity on, parity odd, stop b. (also with no stop b.)
 
--- 
-Matthias Andree
+You actually mean 2 stop bits.  (There is _always_ one stop bit).
+
+I read your first mail, but couldn't really grasp the details of your
+problem.
+
+Are you trying to direct console _output_ to ttyS2 and the VGA card, yet
+still accept input from the PS/2 keyboard?  And then when you try to set
+this up, you get garbled characters via ttyS2?
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUIHAaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268816AbUIHAfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268812AbUIHAaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 20:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268816AbUIHAaq
+	id S268816AbUIHAfe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 20:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUIHAfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 20:30:46 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:64494 "EHLO
+	Tue, 7 Sep 2004 20:35:34 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:24303 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268812AbUIHAan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 20:30:43 -0400
-Date: Tue, 7 Sep 2004 20:35:12 -0400 (EDT)
+	id S268816AbUIHAfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 20:35:30 -0400
+Date: Tue, 7 Sep 2004 20:39:59 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: John Levon <levon@movementarian.org>
-Subject: Oprofile related oops? 2.6.9-rc1-mm4
-Message-ID: <Pine.LNX.4.53.0409072031170.15087@montezuma.fsmlabs.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Oops in __journal_clean_checkpoint_list
+Message-ID: <Pine.LNX.4.53.0409072036120.15087@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this with a high process count load (I'll try and get a hold of the 
-app).
+I got this in 2.6.9-rc1-mm3 and never managed to reproduce it again, i 
+decided to send it in anyway. Plus i swear i've run into it before 
+(lock breaking?) ...
 
-Sep  7 19:11:57 morocco kernel: Oops: 0000 [#1]
-Sep  7 19:11:57 morocco kernel: PREEMPT SMP DEBUG_PAGEALLOC
-Sep  7 19:11:57 morocco kernel: Modules linked in:
-Sep  7 19:11:57 morocco kernel: CPU:    1
-Sep  7 19:11:57 morocco kernel: EIP:    0060:[<c0155153>]    Not tainted VLI
-Sep  7 19:11:57 morocco kernel: EFLAGS: 00010202   (2.6.9-rc1-mm4) 
-Sep  7 19:11:57 morocco kernel: EIP is at find_vma+0x43/0x70
-Sep  7 19:11:57 morocco kernel: eax: 083fffec   ebx: 080634a0   ecx: c0120ebe   edx: 08400004
-Sep  7 19:11:57 morocco kernel: esi: cd141d9c   edi: 00000000   ebp: c1f5beac   esp: c1f5bea4
-Sep  7 19:11:58 morocco kernel: ds: 007b   es: 007b   ss: 0068
-Sep  7 19:11:58 morocco kernel: Process events/1 (pid: 7, threadinfo=c1f5a000 task=c1eeca90)
-Sep  7 19:11:58 morocco kernel: Stack: 00000000 080634a0 c1f5bed0 c057c20d cd141d9c 080634a0 00000000 0000007b 
-Sep  7 19:11:58 morocco kernel:        00000000 f8985c98 c0795080 c1f5bef0 c057c417 cd141d9c 080634a0 c1f5bee4 
-Sep  7 19:11:58 morocco kernel:        00000000 00000000 00000000 c1f5bf24 c057c886 cd141d9c f8985c98 00000000 
-Sep  7 19:11:58 morocco kernel: Call Trace:
-Sep  7 19:11:58 morocco kernel:  [<c010806f>] show_stack+0x7f/0xa0
-Sep  7 19:11:58 morocco kernel:  [<c010821f>] show_registers+0x15f/0x1d0
-Sep  7 19:11:58 morocco kernel:  [<c010845c>] die+0x10c/0x1a0
-Sep  7 19:11:58 morocco kernel:  [<c011c185>] do_page_fault+0x255/0x5f2
-Sep  7 19:11:58 morocco kernel:  [<c0107c59>] error_code+0x2d/0x38
-Sep  7 19:11:58 morocco kernel:  [<c057c20d>] lookup_dcookie+0x1d/0xa0
-Sep  7 19:11:58 morocco kernel:  [<c057c417>] add_us_sample+0x27/0x70
-Sep  7 19:11:58 morocco kernel:  [<c057c886>] sync_buffer+0x136/0x13b
-Sep  7 19:11:58 morocco kernel:  [<c057bead>] wq_sync_buffer+0x3d/0x70
-Sep  7 19:11:58 morocco kernel:  [<c013395c>] worker_thread+0x19c/0x240
-Sep  7 19:11:58 morocco kernel:  [<c0137f8a>] kthread+0xba/0xc0
-Sep  7 19:11:58 morocco kernel:  [<c01052e5>] kernel_thread_helper+0x5/0x10
-Sep  7 19:11:58 morocco kernel: Code: 39 59 08 76 13 39 59 04 76 3b 8d b4 26 00 00 00 00 8d bc 27 00 00 00 00 8b 56 04 31 c9 85 d2 74 24 8d b4 26 00 00 00 00 8d 42 e8 <39> 58 08 76 1b 39 58 04 89 c1 76 07 8b 52 0c 85 d2 75 ea 85 c9 
+Unable to handle kernel paging request at virtual address 6b6b6b93
+ printing eip:
+c0262d0b
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP DEBUG_PAGEALLOC
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0262d0b>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.9-rc1-mm3)
+EIP is at __journal_clean_checkpoint_list+0x14b/0x1b0
+eax: f7518888   ebx: 6b6b6b6b   ecx: 00000000   edx: f6d68000
+esi: f6d68000   edi: e3fc4cd0   ebp: f6d69da0   esp: f6d69d78
+ds: 007b   es: 007b   ss: 0068
+Process kjournald (pid: 798, threadinfo=f6d68000 task=f6d2ba90)
+Stack: e3fc4cd0 f6d68000 e3fc4cd0 000000ff f7518914 f6da5888 f7518888 00000000
+       f6d68000 00000001 f6d69f4c c025fb31 f6e51df8 f6da5888 00000003 00000d36
+       f6d69dc0 f6e51edc f6e51e8c f6d69dc0 00000000 f6da58e0 00000001 f6da794c
+Call Trace:
+ [<c010852f>] show_stack+0x7f/0xa0
+ [<c01086df>] show_registers+0x15f/0x1d0
+ [<c0108933>] die+0x123/0x220
+ [<c011ef05>] do_page_fault+0x255/0x5f2
+ [<c01080a9>] error_code+0x2d/0x38
+ [<c025fb31>] journal_commit_transaction+0x3a1/0x1d60
+ [<c0264240>] kjournald+0x120/0x3d0
+ [<c0105395>] kernel_thread_helper+0x5/0x10
+Code: b6 82 e4 00 00 00 84 c0 7f 4c 8b 45 08 c6 80 e4 00 00 00 01 8b 55 dc 8b 42 08 ff 4a 14 a8 08 75 2e 8b 45 f0 8b 58 28 85 db 74 09 <8b> 43 28 8b 55 f0 89 42 28 8b 45 08 8b 40 40 85 c0 89 45 f0 74
 
-(gdb) list *find_vma+0x43
-0xc0155153 is in find_vma (mm/mmap.c:1265).
-1260                                    struct vm_area_struct * vma_tmp;
-1261
-1262                                    vma_tmp = rb_entry(rb_node,
-1263                                                    struct vm_area_struct, vm_rb);
-1264
-1265                                    if (vma_tmp->vm_end > addr) {
-1266                                            vma = vma_tmp;
-1267                                            if (vma_tmp->vm_start <= addr)
-1268                                                    break;
+(gdb) list *__journal_clean_checkpoint_list+0x14b
+0xc0262d0b is in __journal_clean_checkpoint_list (fs/jbd/checkpoint.c:509).
+504                              * transaction's buffer list and the checkpoint list to
+505                              * try to avoid quadratic behaviour.
+506                              */
+507                             jh = transaction->t_checkpoint_list;
+508                             if (jh)
+509                                     transaction->t_checkpoint_list = jh->b_cpnext;
+510
+511                             transaction = journal->j_checkpoint_transactions;

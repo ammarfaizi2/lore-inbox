@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTDYRrl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 13:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYRrl
+	id S263483AbTDYRtc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 13:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYRtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 13:47:41 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:33668 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263487AbTDYRrj
+	Fri, 25 Apr 2003 13:49:32 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29961 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263483AbTDYRta
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 13:47:39 -0400
-Date: Fri, 25 Apr 2003 10:59:29 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Werner Almesberger <wa@almesberger.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pat Suwalski <pat@suwalski.net>, Jamie Lokier <jamie@shareable.org>,
-       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <427040000.1051293569@[10.10.2.4]>
-In-Reply-To: <20030425144449.X3557@almesberger.net>
-References: <20030423231149.I3557@almesberger.net>
- <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net>
- <20030424071439.GB28253@mail.jlokier.co.uk>
- <20030424103858.M3557@almesberger.net>
- <20030424213632.GK30082@mail.jlokier.co.uk>
- <20030424205515.T3557@almesberger.net> <3EA87BE1.1070107@suwalski.net>
- <20030425074116.V3557@almesberger.net>
- <1051265094.5573.8.camel@dhcp22.swansea.linux.org.uk>
- <20030425144449.X3557@almesberger.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 25 Apr 2003 13:49:30 -0400
+Date: Fri, 25 Apr 2003 13:56:31 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm2
+In-Reply-To: <20030424163334.A12180@redhat.com>
+Message-ID: <Pine.LNX.3.96.1030425135538.16623C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The OSS audio drivers ac97 code now starts up with record muted. 
-> 
-> Okay, so I guess this will then cover all cases ? (Changebar
-> marks OSS addition.)
-> 
->   ALSA (Advanced Linux Sound Architecture) is now the preferred
->   architecture for sound support, instead of the older OSS (Open
->   Sound System). Note that, in ALSA, all volume settings default
->| to zero, and all channels default to being "muted". Also some
->| OSS drivers in 2.5 initialize certain mixer settings to zero.
->   
->   User space therefore needs to explicitly increase the volume,
->   and "unmute" the respective audio channels before any sound
->   can be heard.
->   
->   Mixers not explicitly supporting the "mute" functionality will
->   usually "unmute" sources when setting the volume to a value
->   above zero.
->   
->   More information about ALSA, including configuration and OSS
->   compatibility, can be found in Documentation/sound/alsa/
-> 
-> (I guess a simpler rule would be "if there's no sound, check the
-> mixer - and you don't want to know why you have to do this" :-)
+On Thu, 24 Apr 2003, Benjamin LaHaise wrote:
 
-BTW, I realised there's a much simpler solution to the "but there's no
-sound coming out" problem .... xmms and friends should just give the user a
-warning on startup (or on play) if the main volume or pcm channel is at 0
-(or muted).
+> On Thu, Apr 24, 2003 at 04:24:56PM -0400, Bill Davidsen wrote:
+> > Of course reasonable way may mean that bash does some things a bit slower,
+> > but given that the whole thing works well in most cases anyway, I think
+> > the kernel handling the situation is preferable.
+> 
+> Eh?  It makes bash _faster_ for all cases of starting up a child process.  
+> And it even works on 2.4 kernels.
 
-M.
+The point is that even if bash is fixed it's desirable to address the
+issue in the kernel, other applications may well misbehave as well.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

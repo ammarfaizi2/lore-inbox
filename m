@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263630AbUJ2ViF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263629AbUJ2ViD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263630AbUJ2ViF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263524AbUJ2Vct
+	id S263629AbUJ2ViD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUJ2Vfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:32:49 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38153 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263615AbUJ2VbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:31:15 -0400
-Date: Fri, 29 Oct 2004 23:30:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Hacksaw <hacksaw@hacksaw.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041029213043.GU6677@stusta.de>
-References: <m1sm7znxul.fsf@mo.optusnet.com.au> <200410280728.i9S7SIYW017628@hacksaw.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Oct 2004 17:35:40 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:34285 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S263614AbUJ2V3s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:29:48 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: [OT] factory made but custom dual 8255 I/O card Q
+Date: Fri, 29 Oct 2004 17:29:41 -0400
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200410280728.i9S7SIYW017628@hacksaw.org>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200410291729.41266.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Fri, 29 Oct 2004 16:29:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 03:28:18AM -0400, Hacksaw wrote:
+Greetings;
 
-> > That's NOT the same as bug free software. For a start, there's no such
-> > thing.
-> 
-> Speaking of which, here's something I have wondered: is anyone out there 
-> trying to prove the correctness of core functions in the kernel? I was 
-> thinking this would be a fine activity for all those eager college students 
-> out there, or perhaps a graduate student project, a la the Stanford Checker 
-> project.
-> 
-> While I can't imagine the main developers doing such a thing, I think it'd be 
-> useful and might uncover some hard to find bugs.
-> 
-> I'd also suspect that they might be good candidates for proving, as there's 
-> not so much reason to have side effect riddled code, as one might for GUI 
-> programs.
+I'm about to embark on a linuxCNC project, and I have the motors, 
+controllers, and a futurlec PCI8255 card, with has dual 8255's on it 
+for a total of 72 I/O lines.
 
-Did you ever try to prove the correctness of some piece of code in an 
-imperative programming language? That's definitely not only "a graduate 
-student project".
+This card has a dipswitch settable addressing scheme that allows it to 
+be most anyplace from 0000:0000 to 00FF:FF00 in $100 steps for the 
+increment.
 
-cu
-Adrian
+When placed in the machine, the bios reports a resource clash, but 
+gives the option of continueing the boot.  Its got FC2 on it, clean 
+install with most updates.  I've tried moving the address but the 
+bios still squawks, but it does go ahead and boot to FC2.
 
+Once booted, an lspci -vv doesn't output anything that looks like a 
+resource clash to me, and while the bios bitches, its supposed to 
+tell you what is clashing by putting a * in front of the two or more 
+items at odds with each other, but those screens aren't actually 
+indicating anything wrong.  It also doesn't show this board in the 
+bios displays.
+
+Can anyone comment on this?
+
+So my next Q then is, do we have, someplace I haven't tripped over it, 
+a relatively simple, preferably timer IRQ driven assembly program 
+that could be configured to drive such a board?  The linuxCNC soft 
+seems to favor a par port interface, but is supposed to be friendly 
+to other methods also, how friendly may be discussed in the user 
+manual, but it will be another hour + to get to that as its even 
+pages are now just trickling out of the printer, and odd to go. 159 
+pages total.
+ 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267988AbRHFLYx>; Mon, 6 Aug 2001 07:24:53 -0400
+	id <S267992AbRHFLiT>; Mon, 6 Aug 2001 07:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267986AbRHFLYn>; Mon, 6 Aug 2001 07:24:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:10840 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267982AbRHFLY2>; Mon, 6 Aug 2001 07:24:28 -0400
-Date: Mon, 6 Aug 2001 13:25:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: /proc/<n>/maps growing...
-Message-ID: <20010806132503.A20837@athlon.random>
-In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <20010806063003.H3862@devserv.devel.redhat.com> <20010806124952.G15925@athlon.random> <20010806070124.J3862@devserv.devel.redhat.com>
+	id <S267997AbRHFLiK>; Mon, 6 Aug 2001 07:38:10 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:10735 "EHLO thefinal.cern.ch")
+	by vger.kernel.org with ESMTP id <S267986AbRHFLiB>;
+	Mon, 6 Aug 2001 07:38:01 -0400
+Date: Mon, 6 Aug 2001 12:39:11 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Jussi Laako <jlaako@pp.htv.fi>
+Cc: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
+        linux-kernel@vger.kernel.org, linux-laptop@vger.kernel.org
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+Message-ID: <20010806123910.A3771@thefinal.cern.ch>
+In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch> <20010801114105.A26615@flint.arm.linux.org.uk> <3B68557B.7816FE4B@pp.htv.fi> <20010801202409.A27667@flint.arm.linux.org.uk> <3B6B2B9F.1CFC220A@pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010806070124.J3862@devserv.devel.redhat.com>; from jakub@redhat.com on Mon, Aug 06, 2001 at 07:01:24AM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B6B2B9F.1CFC220A@pp.htv.fi>; from jlaako@pp.htv.fi on Sat, Aug 04, 2001 at 01:54:23AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 07:01:24AM -0400, Jakub Jelinek wrote:
-> On Mon, Aug 06, 2001 at 12:49:52PM +0200, Andrea Arcangeli wrote:
-> > On Mon, Aug 06, 2001 at 06:30:03AM -0400, Jakub Jelinek wrote:
-> > > On Mon, Aug 06, 2001 at 10:59:04AM +0200, Andrea Arcangeli wrote:
-> > > > On Mon, Aug 06, 2001 at 04:41:21PM +1000, David Luyer wrote:
-> > > > > crashes for no apparent reason every 6 hours or so.. unless that could
-> > > > > be when
-> > > > > it hits some 'limit' on the number of mappings allowed? 
-> > > > 
-> > > > there's no limit, this is _only_ a performance issue, functionality is
-> > > > not compromised in any way [except possibly wasting some memory
-> > > > resources that could lead to running out of memory earlier].
-> > > 
-> > > There is a limit, /proc/sys/vm/max_map_count.
-> > 
-> > in mainline it's not a sysctl, btw.
+Jussi Laako wrote:
+> > Hmm, I'm not an x86 expert, so I'll have to leave you here.  What I do 
+> > know is that yenta is for PCI-based PCMCIA controllers with CardBus 
+> > support. i82365 is for ISA PCMCIA controllers only.
 > 
-> Even worse, it means people not using -ac kernels cannot malloc a lot of
-> memory but by recompiling the kernel.
+> The machine has CardBus (at least CB-logo beside slots). It's Toshiba
+> Satellite 300CDS.
 
-Not that I consider the -ac situation optimal either (however certainly
-it's better): if you don't have root privilegies you are screwed. And
-this is again not related to merge_segments, the same problem can arise
-with the merge_segments in place (but with merge_segments in place it
-would probably trigger legally only on 64bit boxes with some dozen
-gigabytes of ram). (this is why I didn't liked that limit ;)
+Data point: I'm using the yenta_socket, pcnet_cs and 8390 modules on my
+Toshiba 4070CDT with no problems, except that DHCP discovery doesn't
+find an IP address for quite a while after I plug the card in.
 
-The downside of dropping the limit is that we allow the user to allocate
-an unlimited amount of unswappable ram per-process (and the current oom
-killer will do the very wrong thing since it has no idea of the ram
-allocated in the vmas of the process). Nothing compared to `cp /dev/zero
-/dev/shm` though...
-
-Andrea
+enjoy,
+-- Jamie

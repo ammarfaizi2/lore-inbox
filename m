@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTIQQmD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 12:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbTIQQmD
+	id S262181AbTIQQ5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 12:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTIQQ5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 12:42:03 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:43944 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262601AbTIQQmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 12:42:01 -0400
-Subject: Re: Changes in siimage driver?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arve Knudsen <aknuds-1@broadpark.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <oprvnjyf2oq1sf88@mail.broadpark.no>
-References: <oprvnjyf2oq1sf88@mail.broadpark.no>
-Content-Type: text/plain
+	Wed, 17 Sep 2003 12:57:38 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:16768 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262181AbTIQQ5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 12:57:37 -0400
+Message-ID: <3F689270.7050606@colorfullife.com>
+Date: Wed, 17 Sep 2003 18:57:20 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add likely around access_ok for uaccess
+References: <3F644E36.5010402@colorfullife.com> <20030916194929.GF602@elf.ucw.cz> <20030916205545.GA14153@gtf.org> <20030916205931.GF1205@elf.ucw.cz>
+In-Reply-To: <20030916205931.GF1205@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1063816835.12648.90.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Wed, 17 Sep 2003 17:40:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-17 at 17:26, Arve Knudsen wrote:
-> X66 etc.) with hdparm, I get ~50MB/S. It's not an ideal solution since now 
-> and then I get a bunch of "disabling irq #18" messages after running 
-> hdparm (I think, its part of the startup scripts), and I have to restart.
+Pavel Machek wrote:
 
-That is a bug in the 2.6.0 core still. Just hack out the code which does
-the IRQ disable on too many apparently unidentified interrupts.
+>Hi!
+>
+>  
+>
+>>>>while trying to figure out why sysv msg is around 30% slower than pipes 
+>>>>for data transfers I noticed that gcc's autodetection (3.2.2) guesses 
+>>>>the "if(access_ok())" tests in uaccess.h wrong and puts the error memset 
+>>>>into the direct path and the copy out of line.
+>>>>
+>>>>The attached patch adds likely to the tests - any objections? What about 
+>>>>the archs except i386?
+>>>>        
+>>>>
+>>>How much speedup did you gain?
+>>>      
+>>>
+>>How much can it hurt?
+>>    
+>>
+>
+>The change is obviously okay, I just wanted to know... If it gains 30%
+>on sysv messages.. that would be pretty big surprise.
+>
+No.
+I didn't benchmark it at all. I'd expect one or two cycles.
+The 30% difference are due to misaligned buffers: The sysvmsg ABI uses
+struct msgbuf {
+    unsigned long type;
+    char data[];
+};
+msgbuf was aligned, thus data on an not 8-byte aligned address. Thus the 
+"rep;movsl" microcode fastpath didn't kick in, and that caused the 
+30-50% slowdown.
+After manually misaligning the msgbuf structure, and properly aligning 
+the kernel buffers, the performance of sysvmsg is now identical to 
+pipes: Around 4 k cycles for a one-byte ping-pong, and around 10k cycles 
+for 4 kB ping-pong, with a Celeron mobile 1.13 GHz.
 
-> directories. Am I the only one who's run into any sort of issues with the 
-> updated driver? From what I can see it hasn't been modified in the last 
-> revision (test5-bk4), hopefully noone is losing important data because of 
-> this (fortunately I had some recent backups). Anyway, I'd like some 
-> feedback on this from those in the know (the performance drop should be 
-> fairly easy to verify, unless hdparm is playing tricks on me).
+I haven't decided yet if a patch to align the kernel buffers is a good 
+thing or not - it only helps my benchmark, I'm not aware of a real-world 
+app that uses sysvmsg for bulk data transfers.
 
-Don't keep important data only on 2.6-test boxes. Its 'test' - it
-shouldnt eat anything but...
+--
+    Manfred
 

@@ -1,72 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbUB2MDE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 07:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUB2MDE
+	id S262038AbUB2MQV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 07:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUB2MQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 07:03:04 -0500
-Received: from pat.uio.no ([129.240.130.16]:8878 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262039AbUB2MC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 07:02:59 -0500
-To: Peter Williams <peterw@aurema.com>
-Cc: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <fa.fi4j08o.17nchps@ifi.uio.no> <fa.ctat17m.8mqa3c@ifi.uio.no>
-From: Joachim B Haga <c.j.b.haga@fys.uio.no>
-Date: 29 Feb 2004 12:58:14 +0100
-In-Reply-To: <fa.ctat17m.8mqa3c@ifi.uio.no>
-Message-ID: <yydjishqw10p.fsf@galizur.uio.no>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 29 Feb 2004 07:16:21 -0500
+Received: from maximus.kcore.de ([213.133.102.235]:13581 "EHLO
+	maximus.kcore.de") by vger.kernel.org with ESMTP id S262038AbUB2MQS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 07:16:18 -0500
+From: Oliver Feiler <kiza@gmx.net>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OT] Copyright infringement by Walmart?
+Date: Sun, 29 Feb 2004 13:15:32 +0100
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
+In-Reply-To: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_rfdQA/88R61Ey5I";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402291315.39967.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <peterw@aurema.com> writes:
 
->>> They already do e.g. renice is such a program.
->> No one's talking about LOWERING priority here.  You can only DoS
->> someone else if you can set negative nice values, and non-root
->> can't do that.
-> 
-> Which is why root has to be in control of the mechanism.
+--Boundary-02=_rfdQA/88R61Ey5I
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-It seems to me that much of this could be solved if the user *were*
-allowed to lower nice values (down to 0).
+Hello Guennadi,
 
-Right now the only way I can prioritize between my own processes by
-starting important/timing sensitive programs normally and everything
-else reniced. The problem is that the first category consists of one
-or two programs while the second category is, well, "everything else".
+On Sunday 29 February 2004 12:13, Guennadi Liakhovetski wrote:
 
-I would *love* to be able to start the window manager and all children
-at +10 and be able to adjust priorities, from 0 (important user-level)
-to 10 (normal) to 20. Negative values could still be root-only.
+> Don't know, if I am the first, perhaps not. But I couldn't resist. Just
+> found in today's junk-mail pack an advertisement by Walmart-Germany of
+> "Linux Vollwaschmittel" - a washing powder:-)) The question in the subject
+> is because I am not, really, sure - maybe they did license it
+> appropriately?:-) Anyway, now you know it, I am holding this paper in my
+> hands, and I am going to keep it this time:-) As you know, Walmart is an
+> American supermarket, if it matters. And should I say - I was amazed and
+> amused!:-))
 
-So why shouldn't this be possible? Because a greedy user in a
-multi-user system would just run everything at max prio thus defeating
-the purpose? Sure, that would be annoying but it would have another
-solution ie. an entitlement based scheduler or something.
+Linux washing powder has been around for some time if I remember correctly,=
+=20
+never used it though. ;)
 
+Afaik, the name is ok, because the trademark Linux does not apply here. At=
+=20
+least in Germany it is registered in the category "computer'n'stuff"=20
+(someting like that afaik) so selling Linux washing powder should be=20
+perfectly fine, no roalties having to to be paid. But then IANAL and at lea=
+st=20
+I thought this was how it works. Feel free to correct me if I was wrong as=
+=20
+I'd be interested in it myself.
 
-(and isn't it this simple?)
+Bye,
+Oliver
 
---- linux-2.6.3-mm3/kernel/sys.c.orig   2004-02-29 12:58:45.000000000 +0100
-+++ linux-2.6.3-mm3/kernel/sys.c        2004-02-29 12:59:20.000000000 +0100
-@@ -276,7 +276,7 @@
-                error = -EPERM;
-                goto out;
-        }
--       if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
-+       if (niceval < 0 && !capable(CAP_SYS_NICE)) {
-                error = -EACCES;
-                goto out;
-        }
+=2D-=20
+Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
 
+--Boundary-02=_rfdQA/88R61Ey5I
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-Regards,
-Joachim B Haga
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBAQdfrOpifZVYdT9IRAkT3AJ4uvZD8ihQBEQN9tne3zJRT1/PqsQCdGA8E
+Yd7+UyE9YB4g/WPn1VwRnM0=
+=1NYa
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_rfdQA/88R61Ey5I--
+

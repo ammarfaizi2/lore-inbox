@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbUD2A2C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUD2A0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbUD2A2C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 20:28:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUD2A2C
+	id S262176AbUD2A0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 20:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbUD2A0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 20:28:02 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:1199 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S262205AbUD2A17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 20:27:59 -0400
-Date: Wed, 28 Apr 2004 16:24:58 -0700
-From: Tim Hockin <thockin@sun.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: BUG: might_sleep in /proc/swaps code
-Message-ID: <20040428232457.GB1483@sun.com>
-Reply-To: thockin@sun.com
+	Wed, 28 Apr 2004 20:26:19 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:35341 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262176AbUD2A0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 20:26:19 -0400
+Date: Thu, 29 Apr 2004 02:26:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Wichert Akkerman <wichert@wiggy.net>, Andries Brouwer <aebr@win.tue.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Questions : disk partition re-reading
+Message-ID: <20040429002616.GC4068@pclin040.win.tue.nl>
+References: <4082819E.10106@free.fr> <20040420074650.GA3040@pclin040.win.tue.nl> <20040420143634.GA12132@bitwizard.nl> <20040425221528.GB3040@pclin040.win.tue.nl> <20040426083142.GA26429@wiggy.net> <408D28F5.1020209@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <408D28F5.1020209@tmr.com>
 User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Testing some othe rwork, totally unrelated, we added a might_sleep() to
-mntput().  It turned up this:
+On Mon, Apr 26, 2004 at 11:21:25AM -0400, Bill Davidsen wrote,
 
-Debug: sleeping function called from invalid context at
-include/linux/mount.h:82
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<c012378f>] __might_sleep+0xab/0xcb
- [<c018787c>] d_path+0x171/0x272
- [<c018ff50>] seq_path+0x4b/0xf4
- [<c0165b12>] swap_show+0x3d/0x110
- [<c018f87d>] seq_read+0xa8/0x31b
- [<c015aa83>] do_brk+0x14f/0x21c
- [<c0168fae>] vfs_read+0xaf/0x119
- [<c0169224>] sys_read+0x3f/0x5d
- [<c010b4e1>] sysenter_past_esp+0x52/0x71
+> So partx is intended to provide a reason for not discussing putting the 
+> functionality into the kernel, rather than actually being robust enough 
+> to use?
 
+Both parts of that sentence are false.
 
-* /proc/swaps uses seq_file code, calling seq_path() with swaplock held
-* seq_path() calls d_path()
-* d_path() calls mntput() which might_sleep()
-
-Is this worth trying to solve?  
-
--- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's

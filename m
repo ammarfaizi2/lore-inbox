@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbTLJQef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 11:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLJQef
+	id S263636AbTLJQph (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 11:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTLJQph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 11:34:35 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:12723 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263745AbTLJQed
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 11:34:33 -0500
-Date: Wed, 10 Dec 2003 08:34:25 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210163425.GF6896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-	Kendall Bennett <KendallB@scitechsoft.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org>
+	Wed, 10 Dec 2003 11:45:37 -0500
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:3248 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id S263636AbTLJQph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 11:45:37 -0500
+Subject: Update for IBM Thinkpad X31 and T40 users wishing to use miniPCI
+	wifi cards
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: linux-kernel@vger.kernel.org
+Cc: durey@EmperorLinux.com
+Content-Type: text/plain
+Message-Id: <1071074736.16162.12.camel@camp4.serpentine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312100809150.29676@home.osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 10 Dec 2003 08:45:36 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 08:21:52AM -0800, Linus Torvalds wrote:
-> There's a fundamental difference between "plugins" and "kernel modules":
-> intent.
+IBM has a newish Atheros-based 802.11a/b/g card, model number 31P9701,
+which works with the Thinkpad X31.  I received mine last night and got
+the infamous error 1802 (card not authorized).
 
-Which is?  How is it that you can spend a page of text saying a judge doesn't
-care about technicalities and then base the rest of your argument on the
-distinction between a "plugin" and a "kernel module"?
+I unplugged the miniPCI card and updated the X31's BIOS to revision
+2.04, version 1QET66WW, dated 2003/12/02.  (I believe you must still
+have Windows available to do this.)  The system now boots happily, and
+the madwifi driver drives the card OK for me under both 2.4 and 2.6.
 
-    "Yes, your honor, I know you don't care about technicalities but let
-    me explain how a kernel model, which is a wad of code that may be
-    plugged into a program called the kernel and which provides some
-    additional functionality or feature, is legally different than a
-    plugin, which is a wad of code that may be plugged into some other
-    program not called the kernel and which provides some additional
-    functionality or feature.  These are not all the same things, your
-    honor, you see that, right?"
+I assume that the PCI whitelist of infamy is still in place in the
+latest BIOS, but at least it now supports a modern wifi card model.
 
-Gimme a break, Linus.  You can't have it both ways.
+	<b
 
-> But when you have the GPL, and you have documented for years and years
-> that it is NOT a stable API, and that it is NOT a boundary for the license
-> and that you do NOT get an automatic waiver when you compile against this
-> boundary, then things are different.
-
-You need to reread your own postings on the topic over the years.  There are
-documents all the web citing you as saying that binary drivers and modules 
-are fine.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

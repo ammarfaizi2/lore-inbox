@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbULMNBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbULMNB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbULMNBU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 08:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbULMNBU
+	id S262255AbULMNB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 08:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbULMNB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 08:01:20 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:11492 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S262254AbULMM7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 07:59:03 -0500
-Date: Mon, 13 Dec 2004 13:58:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Message-ID: <20041213125844.GY16322@dualathlon.random>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041213124313.GB29426@atrey.karlin.mff.cuni.cz>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Mon, 13 Dec 2004 08:01:28 -0500
+Received: from em.njupt.edu.cn ([202.119.230.11]:42883 "HELO njupt.edu.cn")
+	by vger.kernel.org with SMTP id S262255AbULMNAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 08:00:38 -0500
+Message-ID: <302945938.22534@njupt.edu.cn>
+X-WebMAIL-MUA: [10.10.136.115]
+From: "Zhenyu Wu" <y030729@njupt.edu.cn>
+To: quade@hsnr.de
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 13 Dec 2004 21:52:18 +0800
+Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
+X-Priority: 3
+Subject: Re: about kernel_thread!
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+Oh, my god. I find another problem, my linux kernel is 2.4.20, and i can't find
+the function allow_signal at all. BTW, whether there is such funcion in kernel
+2.4.20?
 
-On Mon, Dec 13, 2004 at 01:43:13PM +0100, Pavel Machek wrote:
-> But that does not matter, right? Yes, one-shot timer will not fire
-> exactly at right place, but as long as you are reading TSC and basing
-> next shot on current time, error should not accumulate.
+Thanks,
+Zhenyu Wu
 
-As said in the rest of the message, the error (or some other error)
-accumulates heavily today in the tick-loss compensation/adjustment
-algorithm in arch/i386/kernel/timers/timer_tsc.c, so I'm sceptical about
-using one-shots that have the very same problem of the tick-loss
-adjustment algorithm. Amittedly the apic is faster to reprogram than the
-pit to read the delay_at_last_interrupt, but it still doesn't sound too
-sure it will work fine. At least first I'd invest in trying to find if
-the tick adjustment is totally malfunctioning because of a tangible real
-bug, and not simply because it's unfixable (I tried to find the real bug
-so far, so I'm start thinking it's unfixable if really it's recalled so
-frequently as while using the broken usb irq like with my adsl modem).
 
-> [..] for their patent abuse against Java.
+>From: Juergen Quade <quade@hsnr.de>
+>Reply-To: 
+>To: Zhenyu Wu <y030729@njupt.edu.cn>
+>Subject: Re: about kernel_thread!
+>Date:Mon, 13 Dec 2004 13:44:26 +0100
+>
+>On Mon, Dec 13, 2004 at 09:12:39PM +0800, Zhenyu Wu wrote:
+> > Hello, 
+> > 
+> > I have some confusions on kernel_thread, so I want to get help.
+> > 
+> > I want to create a thread in a loadable module, then I used the function
+> > kernel_thread() in init_module(). Of course, the thread was created, but when
+I
+> > remove the module there are errors. I think it is because of the thread I
+have
+> > created that have not been killed. So, how can I kill this thread when I
+remove
+> > the module?
+> 
+> You can find sample-code here:
+> http://ezs.kr.hsnr.de/TreiberBuch/Download/TreiberEntwickeln2004261/6-9-kthread.c
+> 
+>        Juergen.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-java isn't open source regardless of patents, use python instead ;).
+

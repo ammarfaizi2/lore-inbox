@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVBYPBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVBYPDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVBYPBI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVBYPBI
+	id S262719AbVBYPDt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVBYPB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:01:08 -0500
-Received: from 242.69-93-110.reverse.theplanet.com ([69.93.110.242]:61393 "EHLO
-	ns1.avapajoohesh.com") by vger.kernel.org with ESMTP
-	id S262690AbVBYPBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:01:01 -0500
-Message-ID: <53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
-In-Reply-To: <16927.14697.76256.482062@segfault.boston.redhat.com>
-References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
-    <200502251517.56254.linux-kernel@borntraeger.net>
-    <16927.14697.76256.482062@segfault.boston.redhat.com>
-Date: Fri, 25 Feb 2005 18:37:37 +0330 (IRST)
-Subject: Re: how to capture kernel panics
-From: "shabanip" <shabanip@avapajoohesh.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-1
-X-Mailer: SquirrelMail/1.4.3a-1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 25 Feb 2005 10:01:56 -0500
+Received: from cantor.suse.de ([195.135.220.2]:18077 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262714AbVBYPBj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:01:39 -0500
+Date: Fri, 25 Feb 2005 16:01:38 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>, riel@redhat.com,
+       linux-kernel@vger.kernel.org, Ian.Pratt@cl.cam.ac.uk,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20050225150138.GA32519@wotan.suse.de>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as i see netconsole is a kernel module.
-so i just need to load netconsole module with server:port parameters.
-am i right?
+> Phase 1 is for us to submit a load of patches that squeeze out the low
+> hanging fruit in unifying xen/i386 and i386. Most of these will be
+> strict cleanups to i386, and the result will be to almost halve the
+> number of files that we need to modify.
 
-Payam Shabanian
-shabanip -at- avapajoohesh.com
+Sounds good. I would try to track that for x86-64 too then when
+possible to make the later x86-64 merge easier.
 
-> ==> Regarding Re: how to capture kernel panics; Christian Borntraeger
-> <linux-kernel@borntraeger.net> adds:
->
-> linux-kernel> shabanip wrote:
->>> is there any way to capture and log kernel panics on disk or ...?
->
-> linux-kernel> In former times, the Linux kernel tried to sync in the panic
-> linux-kernel> function. (If the panic did not happen in interrupt context)
-> linux-kernel> Unfortunately this had severe side effects in cases where
-> the
-> linux-kernel> panic was triggered by file system block device code or any
-> linux-kernel> other part which is necessary for syncing. In most cases the
-> linux-kernel> call trace never made it onto disk anyway. So currently the
-> linux-kernel> kernel does not support saving a panic.
->
-> linux-kernel> Apart from using a serial console, you might have a look at
-> linux-kernel> several kexec/kdump/lkcd tools where people are working on
-> linux-kernel> being able to dump the memory of a paniced kernel.
->
-> Or netconsole, which will dump printk's do the server:port of your
-> choosing.
->
-> -Jeff
->
+> 
+> The next phase is that we re-organise the current arch/xen as follows:
+> 
+> We move the remaining (reduced) contents of arch/xen/i386 to
+> arch/i386/xen (ditto for x86_64). We then move the xen-specific files
 
+What would these files be? 
+
+> that are shared between all the different xen architectures to
+> drivers/xen/core. I know this last step is a bit odd, but it's the best
+> location that Rusty Russel and I could come up with.
+> 
+> At this point, I'd hope that we could get xen into the main-line tree.
+> 
+> The final phase is to see if we can further unify more native and xen
+> files. This is going to require some significant i386 code refactoring,
+> and I think its going to be much easier to do if all the code is in the
+> main-line tree so that people can see the motivation for what's going
+> on.
+
+Hmm, I would prefer to do that during the merge. I'm not sure there
+will be that much push afterwards to unify stuff, and then we might
+be stuck with an inferior setup.
+
+I don't think it makes much difference for review if the previous
+code is in mainline or not.
+
+-Andi

@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbVAQTQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVAQTP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262836AbVAQTQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVAQTQn
+	id S262588AbVAQTP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVAQTP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:16:43 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:58639 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262836AbVAQTQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:16:29 -0500
-Date: Mon, 17 Jan 2005 20:19:01 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Simone Piunno <pioppo@ferrara.linux.it>
-Cc: djg@pdp8.net, LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Message-Id: <20050117201901.3e712cfa.khali@linux-fr.org>
-In-Reply-To: <200501162332.14324.pioppo@ferrara.linux.it>
-References: <g7Idbr9m.1105713630.9207120.khali@localhost>
-	<200501151654.46412.pioppo@ferrara.linux.it>
-	<20050115175545.743a39f9.khali@linux-fr.org>
-	<200501162332.14324.pioppo@ferrara.linux.it>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 17 Jan 2005 14:15:27 -0500
+Received: from use.the.admin.shell.to.set.your.reverse.dns.for.this.ip ([80.68.90.107]:33028
+	"EHLO irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S262588AbVAQTPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:15:17 -0500
+Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: linux-kernel@vger.kernel.org
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-crypto@nl.linux.org,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <41EBD4D4.882B94D@users.sourceforge.net>
+References: <41EAE36F.35354DDF@users.sourceforge.net>
+	 <41EB3E7E.7070100@tmr.com>  <41EBD4D4.882B94D@users.sourceforge.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4vDeYAWr9bs7TaUpMeie"
+Date: Mon, 17 Jan 2005 20:14:58 +0100
+Message-Id: <1105989298.14565.36.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Simone,
 
-> While we're at it, the fan speed sensor reports an absurd speed when
-> the fan  is driven with very low but non-zero pwm values.  For
-> example, driving it  with pwm=2 I get speeds over 50K rpms, while of
-> course the fan is stopped  (almost?).  This could be just an hardware
-> sensitivity problem in the sensor  chip, or a false measure triggered
-> by fan vibration, but maybe you know  better.
+--=-4vDeYAWr9bs7TaUpMeie
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is a frequent problem with PWM. In order to estimate the fan
-rotation speed, chips sample a signal that comes from the fan on its
-third wire (typically two pulses per revolution). Since the fan is not a
-power source by itself, the pulses are powered from the fan header's
-+12V pin. When you start using PWM, you affect the +12V pin duty cycle,
-and as a result you affect the speed signal duty cycle. The lower the
-duty cycle, the harder for the chip to correctly determine the speed.
+On Mon, 2005-01-17 at 17:08 +0200, Jari Ruusu wrote:
+> Bill Davidsen wrote:
+> > Is this eventually going in the mainline kernel? I'd like to use it, bu=
+t
+> > if I'm going to have to maintain my own crypto kernels indefinitely thi=
+s
+> > probably isn't the one for me.
+>=20
+> Unlikely to go to mainline kernel. Mainline folks are just too much in lo=
+ve
+> with their backdoored device crypto implementations [1].=20
 
-Newer chips have the capability to correct the effects of PWM at
-reasonable duty cycles. It however supposes that it knows which fan
-corresponds to which PWM output. Motherboard manufacturers will have to
-take this information into account when designing their boards. And at
-any rate, very low PWM duty cycles cannot possibly corrected.
+This is FUD. To get serious in-depth information about the problems
+associated with dm-crypt and loop-aes read,
 
-It is possible to affect the fan speed vs. PWM curve by changing the
-base frequency of the PWM signal. This can help achieve lower fan speeds
-with higher PWM duty cycles (and thus better speed readings). Most chips
-support frequency adjustment, but our drivers don't, because it wasn't
-realized until very recently that this could be of any benefit to the
-user.
+http://clemens.endorphin.org/LinuxHDEncSettings
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+This document has been reviewed by a couple of noteworthy people, also
+partially to counter the on-going FUD postings, Jari Ruusu has been
+posting to LKML repeatedly.
+
+James Morris: Can we please talk about the merge of my LRW patches soon?
+The insecurity of CBC based encryption such as dm-crypt and loop-aes is
+the reason why I have been pushing this patch so hard for the last two
+months now.
+
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-4vDeYAWr9bs7TaUpMeie
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB7A6yW7sr9DEJLk4RAoEAAJ4nC+XN+g1kjSGRof+heahTsLxLPgCfeBR7
+ieTNUbfTg2Hk2UwdiXSglRw=
+=k5Ov
+-----END PGP SIGNATURE-----
+
+--=-4vDeYAWr9bs7TaUpMeie--

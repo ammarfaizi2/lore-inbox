@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTGCQNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTGCQNn
+	id S264918AbTGCQN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:13:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbTGCQLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 12:13:43 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:63447 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S264809AbTGCQL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 12:11:57 -0400
-Subject: [2.4][2.5][Trivial Patch] Bug in i386/kernel/process.c?
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1057249575.2372.18.camel@slappy>
+	Thu, 3 Jul 2003 12:11:19 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:8720 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264976AbTGCQJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:09:34 -0400
+Date: Thu, 3 Jul 2003 17:23:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries.Brouwer@cwi.nl
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] cryptoloop
+Message-ID: <20030703172358.B10499@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries.Brouwer@cwi.nl, akpm@digeo.com,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <UTC200307022100.h62L06a22118.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 03 Jul 2003 12:26:15 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <UTC200307022100.h62L06a22118.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Jul 02, 2003 at 11:00:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was poking into how to force a warm boot (found it easily enough) and
-started reading process.c, where the details live.
+On Wed, Jul 02, 2003 at 11:00:06PM +0200, Andries.Brouwer@cwi.nl wrote:
+> No, the point of such a series is that each patch does something
+> clearly defined, is an improvement even when the author dies the
+> next day so that all further work is lost.
 
-We have:
-static int reboot_mode;
-int reboot_thru_bios;
-                                                                                
-static int __init reboot_setup(char *str)
-{
-...set reboot_mode/reboot_thru_bios according to reboot=...
-}
-__setup("reboot=", reboot_setup);
+*nod*
 
-Farther down:
-        /* Write 0x1234 to absolute memory location 0x472.  The BIOS
-reads
-           this on booting to tell it to "Bypass memory test (also warm
-           boot)".  This seems like a fairly standard thing that gets
-set by
-           REBOOT.COM programs, and the previous reset routine did this
-           too. */
-                                                                                
-        *((unsigned short *)0x472) = reboot_mode;
-                                                                                (similar code farther down in !reboot_thru_bios)
+> You should never accept a patch that makes things worse and is only
+> justified by a future one.
 
-....but reboot_mode doesn't seem to be initialized if you don't set it
-via reboot=...? (Same for reboot_thru_bios)
+well, I almost agree.  If the other patch is posted at the same time
+or the regression is for less important code (say a legacy driver)
+this can be ok.
 
-A simple patch to use the defaults (according to the code comments) is
-below; if this is right please push accordingly:
+>     So for everyone except the guy who's writing the code it is best to have
+>     all the work in place and reviewable at the same time.
+> 
+> No. Some changes are too large for that.
 
-Its against 2.4 but should apply to 2.5 as well.
---- build-dis5-final/arch/i386/kernel/process.c.orig    2003-07-03 12:15:36.000000000 -0400
-+++ build-dis5-final/arch/i386/kernel/process.c 2003-07-03 12:16:46.000000000 -0400
-@@ -152,8 +152,8 @@
- __setup("idle=", idle_setup);
-  
- static long no_idt[2];
--static int reboot_mode;
--int reboot_thru_bios;
-+static int reboot_mode = 0x1234;
-+int reboot_thru_bios = 1;
-  
- #ifdef CONFIG_SMP
- int reboot_smp = 0;
-
--- 
-Disconnect <lkml@sigkill.net>
+right, there's changes that are too large.  But it really helps a lot
+to send a series of patches to give a broader view.
 

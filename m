@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbTEFNBg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 09:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbTEFNBg
+	id S262926AbTEFNEL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 09:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTEFNEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 09:01:36 -0400
-Received: from mxout4.netvision.net.il ([194.90.9.27]:21742 "EHLO
-	mxout4.netvision.net.il") by vger.kernel.org with ESMTP
-	id S262720AbTEFNBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 09:01:35 -0400
-Date: Tue, 06 May 2003 16:26:10 +0200
-From: Nir Livni <nir_l3@netvision.net.il>
-Subject: shared objects, ELFs and memory usage
+	Tue, 6 May 2003 09:04:11 -0400
+Received: from colina.demon.co.uk ([80.177.30.27]:35238 "EHLO
+	colina.demon.co.uk") by vger.kernel.org with ESMTP id S262926AbTEFNEJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 09:04:09 -0400
 To: linux-kernel@vger.kernel.org
-Message-id: <001401c313db$767bdb60$ded1b3d4@pinguin>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+Subject: Re: The 2.6 kernel, expected to be released by late next month
+References: <freemail.20030406091947.50806@fm9.freemail.hu>
+	<1052220789.28792.37.camel@dhcp22.swansea.linux.org.uk>
+From: Colin Paul Adams <colin@colina.demon.co.uk>
+Date: 06 May 2003 14:16:33 +0100
+In-Reply-To: <1052220789.28792.37.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <ltllxk43m6.fsf@colina.demon.co.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-If this is not the mailing list to ask this question - please let me know
-where should I ask it.
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I have an executable whose size is almost 2MB, and it uses a shared object
-that is almost 2MB.
-when I run the process, I see (using "top") that the amount of "used memory"
-raises with 4MB. (make sence...). the process seem to share 2MB ("shared"
-column).
+    Alan> Wildly improbable. 2.6-test maybe, but there are way too
+    Alan> many bugs left including data corruption.
 
-When the process forks, it seems that the amount of "used memory" raises
-with 4MB again.
+What sort of data corruption?
 
-Does it mean the shared object is not really shared ? That doesn't make
-sence...
-
-Help is appreciated.
-Please CC me because I am not subscribed.
-
-Thanks,
-Nir
-
+I've just ordered a dual Xeon machine, so I was planning to run 2.5.x
+on it, to maximize throughput, but this sounds worrying. perhaps I'd
+better stick to 2.4.n?
+-- 
+Colin Paul Adams
+Preston Lancashire

@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVDEPXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVDEPZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVDEPXt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 11:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVDEPXt
+	id S261779AbVDEPZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 11:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVDEPZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 11:23:49 -0400
-Received: from web25610.mail.ukl.yahoo.com ([217.12.10.169]:11185 "HELO
-	web25610.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261777AbVDEPXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 11:23:46 -0400
-Message-ID: <20050405152345.18321.qmail@web25610.mail.ukl.yahoo.com>
-Date: Tue, 5 Apr 2005 17:23:44 +0200 (CEST)
-From: Uwe Zybell <u_zybell@yahoo.de>
-Subject: Re: fs/partitions/msdos.c, scripts/packages/Makefile
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
+	Tue, 5 Apr 2005 11:25:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36750 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261779AbVDEPZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 11:25:19 -0400
+Date: Tue, 5 Apr 2005 11:25:08 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] SELinux: fix bug in Netlink message type detection
+Message-ID: <Xine.LNX.4.44.0504051122310.11575-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes a bug in the SELinux Netlink message type detection code,
+where the wrong constant was being used in a case statement.  The incorrect
+value is not valid for this class of object so it would not have been reached,
+and fallen through to a default handler for all Netlink messages.
 
---- Andries Brouwer <aebr@win.tue.nl> wrote:
-> On Fri, Apr 01, 2005 at 07:18:52PM +0200, Uwe Zybell wrote:
-> 
-> > There is a line in fs/partitions/msdos.c that lets extended
-> partitions 
-> > be max 1k (..."==1 ? 1 : 2"...). The comment explains it to protect
-> 
-> > sysadmins from themselves. But now I have found a legitimate use
-> > for extended partitions in their full length. Emulation.
-> > Please remove this, or make it a config option.
-> 
-> Config options are evil. Adding them is a bad form of bloat.
-Then remove.
-> 
-> Whatever you want to do, there are many ways to do it without
-> changing this part of the kernel code. After all, any partition
-> is just part of the entire disk.
-> 
-But I don't want to rewrite the disk access code of the emulator
-either,
-because I would have to duplicate that kernelcode into the application.
-Besides it would have the same alias access to the *mounted* root
-partition. Not that it would *intend* to go there, but a stray fseek
-could
-do some damage. Something that would be easier than a stray open:-).
-Open _does_ check access rights.
-> Note that there are aliasing problems - it is bad to access data
-> both via a file system and via raw disk or partition.
-> 
-If that partition isn't mounted there is no problem. The emulator does
-the mount. If the emulator isn't running and I want to change some
-Files,
-then I *can* mount without problems.
-There is another way. Make "partitions" a full
-(pseudo)(read-only?)filesystem. So that "mount -t partitions /dev/hda
-/dev/hd/a" and
-"mount -t ext2 /dev/hd/a/1 /usr" works. Note that the blockdevice for
-the partition is in logically in the full device. If this "partitions"
-filesystem permits the writing of inodes, it could be a standard
-interface for fdisk et al.
+Please apply.
+
+
+Signed-off-by: James Morris <jmorris@redhat.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ security/selinux/nlmsgtab.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+  
+
+diff -urN -X dontdiff linux-2.6.12-rc1-mm4.o/security/selinux/nlmsgtab.c linux-2.6.12-rc1-mm4.w/security/selinux/nlmsgtab.c
+--- linux-2.6.12-rc1-mm4.o/security/selinux/nlmsgtab.c	2005-03-15 19:17:05.000000000 -0500
++++ linux-2.6.12-rc1-mm4.w/security/selinux/nlmsgtab.c	2005-04-04 18:57:55.000000000 -0400
+@@ -126,7 +126,7 @@
+ 		break;
  
+ 	case SECCLASS_NETLINK_FIREWALL_SOCKET:
+-	case NETLINK_IP6_FW:
++	case SECCLASS_NETLINK_IP6FW_SOCKET:
+ 		err = nlmsg_perm(nlmsg_type, perm, nlmsg_firewall_perms,
+ 				 sizeof(nlmsg_firewall_perms));
+ 		break;
 
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

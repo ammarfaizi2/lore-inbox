@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUJLOha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJLOuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUJLOha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUJLOgk
+	id S265805AbUJLOuD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUJLOrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:36:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23268 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265029AbUJLOdV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:33:21 -0400
-Date: Mon, 11 Oct 2004 08:19:43 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Martins Krikis <mkrikis@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
-Message-ID: <20041011111943.GA32430@logos.cnet>
-References: <20041009204425.49483.qmail@web13725.mail.yahoo.com> <200410092337.36488.bzolnier@elka.pw.edu.pl> <41686121.7060607@pobox.com> <58cb370e0410091622423bded0@mail.gmail.com> <416875ED.6090503@pobox.com> <58cb370e041009165041ecc96@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e041009165041ecc96@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 12 Oct 2004 10:47:52 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:64645 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S264980AbUJLOq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:46:57 -0400
+Date: Tue, 12 Oct 2004 17:47:06 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] i386 CPU hotplug updated for -mm
+In-Reply-To: <1097560787.6557.99.camel@biclops>
+Message-ID: <Pine.LNX.4.61.0410121743420.4190@musoma.fsmlabs.com>
+References: <20041001204533.GA18684@elte.hu>  <20041001204642.GA18750@elte.hu>
+ <20041001143332.7e3a5aba.akpm@osdl.org>  <Pine.LNX.4.61.0410091550300.2870@musoma.fsmlabs.com>
+  <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com> <1097560787.6557.99.camel@biclops>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 10, 2004 at 01:50:13AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Sat, 09 Oct 2004 19:36:13 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > 
-> > 
-> > Bartlomiej Zolnierkiewicz wrote:
-> > > On Sat, 09 Oct 2004 18:07:29 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > >
-> > >>Bartlomiej Zolnierkiewicz wrote:
-> > >>
-> > >>>I may sound like an ignorant but...
-> > >>>
-> > >>>Why can't device mapper be merged into 2.4 instead?
-> > >>>Is there something wrong with 2.4 device mapper patch?
-> > >>>
-> > >>>It would more convenient (same driver for 2.4 and 2.6)
-> > >>>and would benefit users of other software RAIDs
-> > >>>(easier transition to 2.6).
-> > >>
-> > >>OTOH, that would be introducing a brand new RAID/LVM subsystem in the
-> > >>middle of a stable series...
-> > >
-> > >
-> > > Quoting Marcelo:
-> > >
-> > >
-> > >>New drivers are OK, as long as they dont break existing setups,
-> > >>and if substantial amount of users will benefit from it.
-> > >
-> > >
-> > > IMHO both conditions are fulfilled.
-> > 
-> > 
-> > Note I said "subsystem", Marcelo said "driver".  I don't object to
-> > adding DM to 2.4.x, but I think it's a rather large addition with
-> > consequences WRT LVM1 versus LVM2, and perhaps other issues as well.
-> 
-> I agree but merging iswraid into 2.4 can be compared to adding
-> new IDE host driver for SATA controller while libata is available.
-> I hope you get the idea. ;)
+On Tue, 12 Oct 2004, Nathan Lynch wrote:
 
-Yeah but this is quite different.
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>  printing eip:
+> c0145703
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT SMP
+> Modules linked in:
+> CPU:    1
 
-We already have device mapper "like" functionality in v2.4 with RAID/LVM. 
+Ok, cpu1 took an interrupt and exploded, perhaps put a printk in 
+show_regs() to say whether it was offline, an interrupt must have snuck in 
+whilst it was offline.
 
-I dont think that mergin device mapper is an option really, not in my opinion.
+>  [<c029f6cd>] ide_intr+0xbd/0x160
+>  [<c0139d44>] handle_IRQ_event+0x34/0x70
+>  [<c0139e6c>] __do_IRQ+0xec/0x170
+>  [<c0108570>] do_IRQ+0x60/0xa0
 
-It seems the general consensus is to merge iswraid, so I'm fine with it.
-
-Martins, we are approaching -rc stage, I would prefer the merge to happen 
-at the beginning of 2.4.29-pre. Is that fine for you?
-
-
-
+Thanks,
+	Zwane

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131263AbRCHDBD>; Wed, 7 Mar 2001 22:01:03 -0500
+	id <S131261AbRCHDBf>; Wed, 7 Mar 2001 22:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131262AbRCHDAp>; Wed, 7 Mar 2001 22:00:45 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:27662 "EHLO
+	id <S131262AbRCHDBW>; Wed, 7 Mar 2001 22:01:22 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:32014 "EHLO
 	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S131261AbRCHDA1>; Wed, 7 Mar 2001 22:00:27 -0500
-Message-ID: <3AA8473E.1A385E4B@sgi.com>
-Date: Thu, 08 Mar 2001 21:00:14 -0600
+	id <S131261AbRCHDBB>; Wed, 7 Mar 2001 22:01:01 -0500
+Message-ID: <3AA8475F.D2AD02D4@sgi.com>
+Date: Thu, 08 Mar 2001 21:00:47 -0600
 From: Sam Watters <watters@sgi.com>
 Organization: SGI
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.2 -- Process Aggregates
+Subject: [PATCH] 2.4.2 - Linux Jobs
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Applies against the 2.4.2 kernel and supports i386 and ia64 systems.
+Applies against the 2.4.2 kernel, supports i386 and ia64, and depends
+upon the Linux Process Aggregates (PAGG) patch (linux-2.4.2-pagg.patch).
+The PAGG patch was delivered in a previous post with the subject: "[PATCH]
+2.4.2 - Process Aggregates".  At the bottom of this description will be
+a web page reference that allows these patches and a command package to
+be downloaded.
 
-This patch provides the ability to register support for generic
-process groups.  It does this by adding and entry in the task_struct
-to maintain a list of pagg (process aggregate) group attachments (or
-memberships).  In addition, there are interfaces for modules to register
-as providing support for types of process aggregates.  Changes were made
-to the fork and exit system calls so that child processes inherits group
-memberships from the parent process.
+This patch implements a process aggregate container -- a generic
+process group.  Specifically, this patch implements process groups
+called jobs.  
 
-PAGG features:
+A job is a group of related processes, all descended from a point of entry
+(POE) process and identified by a unique job ID.  A job can contain
+multiple process groups, session, and processes.  The job acts as a
+process containment mechanism and a process is not allowed to escape
+from the job container.  This allows resource limits to be extended
+from the process level to the job level.  Additionally, the job allows
+accounting information to be accumulated for all processes that executed
+within the job container.  This provides users and administrators with
+increased capabilities for system scheduling and planning for work loads.
 
-- Child inherits attachment to the same PAGG
-  containers as the parent. 
+The job, has the following characteristics:
 
-- PAGG Containers are updated when new processes are
-  attached (eg. during process forks). 
+-  A job is an inescapable container.  A process cannot leave the job 
+   container nor can a new process be created outside the job without 
+   explicit  action, that is, a system call with root privilege.
 
-- PAGG Containers are updated when a process is
-  detached (eg. when a process exits). 
+-  Each new process inherits the job ID and limits from its parent  
+   process.
 
-- System call for controlling linux kernel modules
-  that implement PAGG containers. 
+-  All point of entry processes (job initiators) create a new job and 
+   set the job limits appropriately.
 
+-  Users can raise and lower their own job limits within maximum 
+   values specified by the system administrator.
 
-Another patch will follow that implements a job container using this
-pagg interface. The title for that patch will be: "[PATCH] 2.4.2 --
-Linux Jobs".  Since the pagg patch provides a generic feature, and jobs
-is just one implementation using that feature, the code was split into
-two patches.  The pagg patch is useful by itself and does not require
-the job patch.
+-  The job initiator performs authentication and security checks.
+
+-  The process control initialization process (init(1M)) and start-up  
+   scripts called by init are not part of a job.  Likewise, system 
+   daemons are usually not part of a job.  
 
 This work was done so that we could provide a job accounting package
 (called CSA).
@@ -59,7 +69,7 @@ This work was done so that we could provide a job accounting package
 For additional information about process aggregates & jobs, please go
 to the home page at:
 
-	http://oss.sgi.com/projects/pagg
+        http://oss.sgi.com/projects/pagg
 
 At this site you can download these patches and the commands package
 (in RPM or tarball format).  Also, there are additional patches for
@@ -68,274 +78,587 @@ other 2.4.x kernels.
 For additional information about CSA job accounting, please consult the
 home page at:
 
-	http://oss.sgicom/projects/csa
+        http://oss.sgicom/projects/csa
 
-patch follows (linux-2.4.2-pagg.patch):
+patch follows (linux-2.4.2-pagg-job.patch):
 ---------------------------------------------------------------
-diff -Naur linux-2.4.2/Documentation/Configure.help
-linux-2.4.2-pagg/Documentation/Configure.help
---- linux-2.4.2/Documentation/Configure.help	Mon Feb 19 12:18:18 2001
-+++ linux-2.4.2-pagg/Documentation/Configure.help	Mon Mar  5 08:46:36 2001
-@@ -14648,6 +14648,14 @@
-   keys are documented in Documentation/sysrq.txt. Don't say Y unless
-   you really know what this hack does.
+diff -Naur linux-2.4.2-pagg/Documentation/Configure.help
+linux-2.4.2-pagg-job/Documentation/Configure.help
+--- linux-2.4.2-pagg/Documentation/Configure.help	Mon Mar  5 08:46:36 2001
++++ linux-2.4.2-pagg-job/Documentation/Configure.help	Mon Mar  5 08:58:43 2001
+@@ -14656,6 +14656,34 @@
+   include the Linux Jobs module and the Linux Array Sessions module.
+   If you will not be using such modules, say N.
  
-+Process Aggregates support
-+CONFIG_PAGG
-+  Say Y here if you will be loading modules which provide support
-+  for process aggregate containers.  Currently, this option is only
-+  applicable to Intel (i386) architectures. Examples of such modules
-+  include the Linux Jobs module and the Linux Array Sessions module.
-+  If you will not be using such modules, say N.
++Process Aggregates Job support
++CONFIG_PAGG_JOB
++  The Job feature implements a type of process aggregate,
++  or grouping.  A job is the collection of all processes that
++  are descended from a point-of-entry process.  Examples of such
++  points-of-entry include telnet, rlogin, and console logins.
++  A job differs from a session and process group since the job
++  container (or group) is inescapable.  Only root level processes,
++  or those with the CAP_SYS_RESOURCE capability, can create new jobs
++  or escape from a job.
++
++  A job is identified by a unique job identifier (jid).  Currently,
++  that jid can be used to obtain status information about the job
++  and the processes it contians.  The jid can also be used to send
++  signals to all processes contained in the job.  In addition,
++  other processes can wait for the completion of a job - the event
++  where the last process contained in the job has exited.
++
++  In the future, resource limit features will be added to jobs.
++  Such limits would be enforced against the aggregate usage of
++  resources by all processes within the job.
++
++  If you want to compile support for jobs into the kernel, select
++  this entry using Y.  If you want the support for jobs provided as
++  a module, select this entry using M.  If you do not want support
++  for jobs, select this entry using N (this is the default setting).
++
 +
  ISDN subsystem
  CONFIG_ISDN
    ISDN ("Integrated Services Digital Networks", called RNIS in France)
-diff -Naur linux-2.4.2/Documentation/pagg.txt
-linux-2.4.2-pagg/Documentation/pagg.txt
---- linux-2.4.2/Documentation/pagg.txt	Wed Dec 31 18:00:00 1969
-+++ linux-2.4.2-pagg/Documentation/pagg.txt	Mon Mar  5 08:46:36 2001
-@@ -0,0 +1,253 @@
-+Linux Process Aggregates (PAGG)
-+-------------------------------
+diff -Naur linux-2.4.2-pagg/Documentation/job.txt
+linux-2.4.2-pagg-job/Documentation/job.txt
+--- linux-2.4.2-pagg/Documentation/job.txt	Wed Dec 31 18:00:00 1969
++++ linux-2.4.2-pagg-job/Documentation/job.txt	Mon Mar  5 08:58:43 2001
+@@ -0,0 +1,610 @@
++Linux Jobs - A Process Aggregate (PAGG) Module
++----------------------------------------------
 +
-+Comments by:	Sam Watters <watters@sgi.com>
-+Last Update: 	2001.01.30
-+
-+
-+1. Description
-+
-+Borrowing the process aggregate concept found in IRIX 6.5 and implementing
-+that concept in the Linux kernel provides a generalized mechanism for
-+providing arbitrary process groups.  The process aggregate or PAGG
-+consists of a series of functions for registering and unregistering
-+support for PAGG's with the kernel.  This is similar to the support
-+currently provided within Linux that allows for dynamic support
-+of filesystems, block and character devices, symbol tables, network
-+devices, serial devices, and execution domains.  Implementation of the
-+PAGG provides developers the basic hooks necessary  to implement kernel
-+modules for specific process containers, such as the job container.
-+
-+The fork(2) system call was altered to support PAGGs.  If a process is
-+attached to any PAGG containers and that process forks, the child process
-+will also be attached to the same PAGG containers.  The PAGG containers
-+are be updated to indicate that a new process has been attached.
-+The update is accomplished via a callback function provided by the
-+PAGG module.
-+
-+The exit notification function in the kernel has also been altered.  If a
-+process is attached to any PAGG containers and that process is exiting,
-+the PAGG containers are updated to indicate that a process has detached
-+from the container.  The update is accomplished via a callback function
-+provided by the PAGG module.
++Comments by:  	Sam Watters <watters@sgi.com>
++Last Change:	2001.01.30
 +
 +
-+2.  Kernel Changes
++1. Overview
 +
-+This section will describe files and data structures that need to be 
-+modified to implement PAGGs.  In addition, new files and data 
-+structures will also be introduced.
++This document provides two additional sections.  Section 2 provides a
++listing of the manual page that describes the particulars of the Linux
++job implementation.  Section 3 provides a listing of the manual page
++describing the Linux job support for the paggctl(3) system call.
 +
-+3.1. Modified Files
-+
-+The following files require changes to implement PAGGs:
-+
-+-  Documentation/Configure.help
-+-  arch/i386/config.in
-+-  include/asm-i386/unistd.h  
-+-  include/linux/sched.h
-+-  arch/i386/kernel/entry.S
-+-  kernel/Makefile  
-+-  kernel/exit.c
-+-  kernel/fork.c
-+-  kernel/ksyms.c
-+
-+These changes only implement PAGGs for i386 architectures.  When testing
-+volunteers appear for other architectures, support will be added for
-+those additional architectures.
-+
-+2.2. New Files
-+
-+The following files will be added to implement PAGGs:
-+
-+-  include/linux/pagg.h
-+-  kernel/pagg.c
-+
-+2.3. Modified Data Structures
-+
-+The following existing data structures need to be altered to implement 
-+PAGGs:
-+
-+-  struct task_struct:          (include/linux/sched.h)
-+     struct pagg_task_s *pagg;     /* List of pagg containers */
-+
-+The new member in task_struct, pagg,  points to a linked list of 
-+pagg_task_s structures.
-+
-+2.4. New Data Structures
-+
-+The following new data structures will be introduced to implement 
-+PAGGs.  The pagg_task_s structure will be
-+
-+-  struct pagg_task_s:          (include/linux/pagg.h)
-+     char *name;                          /* PAGG module name */
-+     int  (*attach)(struct task_struct *, /* Function to attach */
-+               void *,
-+               struct pagg_task_s *);
-+     int  (*detach)(struct task_struct *, /* Function to detach */
-+               struct pagg_task_s *);
-+     void *data;                          /* Task specific data */
-+     struct pagg_task_s *prev;            /* Ptr to prev container */
-+     struct pagg_task_s *next;            /* Ptr to next container */
-+     
-+-  struct pagg_module_s:        (include/linux/pagg.h)
-+     char *name;                          /* PAGG module name */
-+     int  (*attach)(struct task_struct *, /* Function to attach */
-+               void *,
-+               struct pagg_task_s *);
-+     int  (*detach)(struct task_struct *, /* Function to detach */
-+               struct pagg_task_s *);
-+     int  (*init)(struct task_struct *,   /* Load task init func. */
-+     int  (*do_paggctl)(int, void *);     /* Funtion for paggctl */
-+     void *data;                          /* Module specific data */
-+     struct module *module;               /* Ptr to PAGG module */
-+     struct pagg_module_s *prev;          /* Ptr to prev container */
-+     struct pagg_module_s *next;          /* Ptr to next container */
-+
-+The pagg_task_s structure provides the process' reference to the PAGG 
-+containers provided by the modules.  The attach function pointer is 
-+the function used to update the referenced PAGG container that the 
-+process is being attached.  The detach function pointer is used to 
-+update the referenced PAGG container when the process is exiting or 
-+otherwise detaching from the container.
-+
-+The pagg_module_s structure provides the reference to the PAGG module 
-+that implements a type of PAGG container.  In addition to the function 
-+pointers described concerning pagg_task_s, this structure provides two 
-+addition function pointers.  The init function pointer is optional and 
-+is used to attach currently running processes to a default PAGG 
-+container.  If the init function is not defined, then it is assumed 
-+that NULL represents the default PAGG container for that module.  The 
-+do_paggctl function provides this modules interface for the paggctl 
-+system call.  If paggctl is called using this modules name, this 
-+function will  be used, passing it a request code and data pointer. 
-+The pagg_module_s structures will be stored in a simple hash table to 
-+provide quick table lookup capability for the paggctl system call.
-+     
-+
-+2.5. Modified Functions
-+
-+The following functions require changed to implement PAGGs:
-+
-+-  do_fork:     (kernel/fork.c)
-+     /* execute the following pseudocode before add to run-queue  */  
-+     If parent process pagg list is not empty
-+          Call attach_pagg function with child task_struct as argument
-+-  do_exit:     (kernel/exit.c)
-+     /* execute the following pseudocode prior to schedule call */
-+     If current process pagg list is not empty
-+               Call detach_pagg function with current task_struct 
-+
-+2.6 New Functions
-+
-+The following new functions will be added to implement PAGGs:
-+
-+-  int  register_pagg(struct pagg_module_s *);  (kernel/pagg.c)
-+     Add module entry into table of pagg modules
-+     If module provides init function
-+          Foreach task
-+               Add initial pagg container as defined by module
-+     Else
-+          The default container is NULL
-+-  int unregister_pagg(struct pagg_module_s *); (kernel/pagg.c)
-+     Find module entry in table of pagg modules
-+          Foreach task
-+               Detach each task from containers provided by module
-+-  int attach_pagg(struct task_struct *);       (kernel/pagg.c)
-+     /* Assumed task pagg list pts to paggs that it attaches to */
-+     While another pagg container reference
-+          Make copy of pagg container reference & insert into new list
-+          Attach task to pagg container using new container reference
-+          Get next pagg container reference
-+     Make task pagg list use the new pagg list
-+-  int detach_pagg(struct task_struct *);       (kernel/pagg.c)
-+     While another pagg container reference
-+          Detach task form pagg container using reference
-+
-+     
-+2.7 New System Calls
-+
-+The following new system call will be added to implement a control 
-+interface for PAGG modules:
-+
-+-  int sys_paggctl(const char *, int, void *);  (kernel/pagg.c)
-+     If requested name is invalid
-+          Return -EINVAL      
-+     If requested module name not found in pagg module table
-+          Return -ENOSYS
-+     If requested module does not provide do_paggctl function
-+          Return -ENOSYS
-+     Else
-+          Call pagg module do_paggctl function
-+          Return result
-+
-+The paggctl system call provides the necessary interface for 
-+controlling the function of the pagg container modules.
++2. Job Man Page
 +
 +
-+3.  Paggctl System Call Man Page
-+
-+
-+paggctl(3c)					      paggctl(3c)
++JOB(7)		       Linux User's Manual		   JOB(7)
 +
 +
 +NAME
-+       paggctl	- controls and provides status for Process Aggre-
-+       gation (PAGG) modules
++       job - Linux Jobs kernel module overiew
++
++DESCRIPTION
++       A job is a group of related processes all descended from a
++       point of entry process and  identified  by  a  unique  job
++       identifier  (jid).   A  job  can	 contain multiple process
++       groups or sessions, and all processes in one of these sub-
++       groups can only be contained within a single job.
++
++       The  primary  purpose  for  having  jobs is to provide job
++       based resource limits.  The  current  implementation  only
++       provides	 the  job  container  and resource limits will be
++       provided in a later implementation.  When  an  implementa-
++       tion  that provides job limits is available, this descrip-
++       tion will be expanded to provide	 further  explanation  of
++       job based limits.
++
++       Not  every  process  on the system is part of a job.  That
++       is, only processes which are started by a login	initiator
++       like  login, rlogin, rsh and so on, get assigned a job ID.
++       In the Linux environment, jobs are created via a PAM  mod-
++       ule.
++
++       Jobs on Linux are provided using a loadable kernel module.
++       Linux jobs have the following characteristics:
++
++       o   A job is an inescapable container.  A  process  cannot
++	   leave the job nor can a new process be created outside
++	   the job without explicit action,  that  is,	a  system
++	   call with root privilege.
++
++       o   Each	 new  process  inherits	 the jid and limits [when
++	   implemented] from its parent process.
++
++       o   All point of entry processes (job initiators) create a
++	   new	job  and  set  the  job limits [when implemented]
++	   appropriately.
++
++       o   Job initiation on Linux is performed via a PAM session
++	   module.
++
++       o   The job initiator performs authentication and security
++	   checks.
++
++       o   Users can raise and lower their own job limits  within
++	   maximum  values  specified by the system administrator
++	   [when implemented].
++
++       o   Not all pocesses on a system need be members of a job.
++
++       o   The	process control initialization process (init(1M))
++	   and startup scripts called by init are not part  of	a
++	   job.
++
++
++
++Linux Utilities		 12 December 2000			1
++
++
++
++
++
++JOB(7)		       Linux User's Manual		   JOB(7)
++
++
++       Job initiators can be categorized as either interactive or
++       batch processes.	 Limit domain names are	 defined  by  the
++       system  administrator when the user limits database (ULDB)
++       is created.  [The ULDB will be implemented in  conjunction
++       with future job limits work.]
++
++       Note: The existing command jobs(1) applies to shell "jobs"
++       and it is not related to the  Linux  Kernel  Module  jobs.
++       The  at(1),  atd(8),  atq(1), batch(1), atrun(8), atrm(1))
++       man pages refer to  shell  scripts  as  a  job.	 a  shell
++       script.
++
++SEE ALSO
++       job(1), jwait(1), jstat(1), jkill(1)
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++Linux Utilities		 12 December 2000			2
++
++
++
++3. Man Page for Job paggctl(3) System Call Support
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++NAME
++       job_paggctl,  paggctl  - control and obtain status for the
++       Job PAGG module
 +
 +SYNOPSIS
++       #include <job_paggctl.h>
++
 +       int paggctl (char *module_name, int request, void *data);
 +
 +DESCRIPTION
 +       The paggctl system call is used as the system call  inter-
-+       face  for  Process Aggregation (PAGG) modules.  For a PAGG
-+       module to support the paggctl interface, it must have pro-
-+       vided  a reference to a processing function that is imple-
-+       mented in the module to handle paggctl calls  the  request
-+       the module.  It is not required that a PAGG module support
-+       the paggctl system call.
++       face  for Process Aggregation (PAGG) modules.  The paggctl
++       system call allows processes to obtain status  information
++       about jobs and to create new jobs.  When the Job module is
++       to be used to service a request, the job_paggctl.h  header
++       file  should  be	 included  to  obtain  the proper request
++       macros and data structures.
 +
-+       The paggctl system call allows processes to obtain  infor-
-+       mation  from the PAGG modules, such as status information.
-+       In addition, this interface provides  processes	with  the
-+       ability to provide information to the PAGG module.
++       The use of the paggctl system call requires three  parame-
++       ters.   The  first, module_name, is a string that provides
++       the name module that should service the	request.  In  the
++       case  of	 a request for the Job module, the JOB_NAME macro
++       is provided to use for this argument.
 +
-+       The  use of the paggctl system call requires three parame-
-+       ters.  The first, module_name, is a string  that	 provides
-+       the name module that should service the request.	 The sec-
-+       ond argument, request, is a code	 that  indicates  to  the
-+       module  what  the operation the caller is requesting.  The
-+       final argument, data, is a pointer to a strucuture used to
-+       transfer	 data  between	the  process and the module.  The
-+       module servicing the request will  provide  the	structure
-+       definitions for the data argument.
++       The second argument, request, is a code that indicates  to
++       the  Job	 module	 what operation the caller is requesting.
++       Macros that specify  the	 requests  are	provided  in  the
++       job_paggctl.h include file.
 +
-+       Each  PAGG  module  that implements a service function for
-+       paggctl should provide a manual page that  provides  addi-
-+       itonal  details.	  The Linux Job module is an example of a
-+       PAGG module.  The Job module manual page, job_paggctl(3c),
-+       provides	 additional  details  about the requests that the
-+       service function provided by the Job module may handle and
-+       any required header files.
++       The  final  arugment,  data, is a void pointer that refer-
++       ences the structure used to pass data between the  calling
++       process	and  the  Job  module's paggctl service function.
++       The data structure types passed via the data  pointer  are
++       defined in the job_paggctl.h include file.
++
++       The  Job	 module	 handles the following request macros (as
++       defined in job_paggctl):
++
++       JOB_CREATE
++	      Create a new job.	 The calling process is	 attached
++	      to    the	  new	job.	This   request	 requires
++	      CAP_SYS_RESOURCE	capability.   (See  the	 capabil-
++	      ity(4)  and  capabilities(4)  man	 pages	for  more
++	      information on the capability  mechanism	for  con-
++	      trolling	process	 privileges.)  The data structure
++	      pointed to by data is defined as follows:
++
++		   typedef struct job_create_s {
++			uint64_t   r_jid;
++			uint64_t   jid;
++			uid_t	   user;
++			int	   options;
++		   } job_create_t;
++
++
++
++
++								1
++
++
++
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++	      The r_jid member is the job ID (jid) value used for
++	      the  new	job.   If  the	operation to create a job
++	      failed, then r_jid will be set to 0.  The jid  mem-
++	      ber allows the caller to specify a jid value to use
++	      when creating the job.  If the caller want the  Job
++	      module  to  generate the job ID, then set jid to 0.
++	      The user member is used to supply the user ID (uid)
++	      value  for  the  user  that  will own the job.  The
++	      options member is for future use.
++
++       JOB_GETJID
++	      Get the job ID (jid) for the specified process pid.
++	      The data structure pointed to by data is defined as
++	      follows:
++
++		   typedef struct job_getjid_s {
++			uint64_t  r_jid;
++			pid_t	       pid;
++		   } job_getjid_t;
++
++	      The  r_jid  member is  the job ID  (jid)  value for
++	      the job to  which  process is  attached.  The r_jid
++	      value will be equal to  0 if the attempt to get the
++	      job ID failed,  and errno will be set to  indi-cate
++	      the  error.  The pid member is used  to specify the
++	      process for which the caller is requesting the jid.
++
++       JOB_WAITJID
++	      Wait for the job, specified by the supplied jid, to
++	      complete.	 The data structure pointed to by data is
++	      defined as follows:
++
++		   typedef struct job_waitjid_s {
++			uint64_t  r_jid;
++			uint64_t  jid;
++			int	  stat;
++			int	  options;
++		   } job_waitjid_t;
++
++	      The r_jid data member is the jid value for the  job
++	      that  was	 waited	 upon.	 If  the  wait	operation
++	      failed, then r_jid will be set equal to 0 and errno
++	      will  be	set to indicate the error. The jid member
++	      is the jid value that identifies the  job	 to  wait
++	      upon.   The stat member is the completion status of
++	      the job.	The completion status  is  determined  by
++	      the  exit	 status	 for  the last process in the job
++	      that exits. The status can be evaluated  using  the
++	      same  macros  as	described  in  the wait(2) manual
++	      page.  The options data member is for future use.
++
++       JOB_KILLJID
++	      Send a signal to all  processes  in  the	specified
++	      job.  The data argument should point to a structure
++	      of type job_killjid_t defined as follows:
++
++
++
++								2
++
++
++
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++		   typedef struct job_killjid_s {
++			int	  r_val;
++			uint64_t  jid;
++			int	  sig;
++		   } job_killjid_t;
++
++	      The r_val member is the return value for the opera-
++	      tion.   On success, r_val=0 and on failure r_val<0.
++	      The jid member specifies the  job	 that  should  be
++	      sent  the	 signal.   the	sig member specifies what
++	      signal should be sent.
++
++       JOB_GETJIDCNT
++	      Get the number of jobs  currently	 running  on  the
++	      system.  The data argument should point to a struc-
++	      ture of type job_jidcnt_t defined as follows:
++
++		   typedef struct job_jidcnt_s {
++			int	  r_val;
++		   } job_jidcnt_t;
++
++	      The number of jobs on the system is returned in the
++	      r_val  member.   This value will be greater than or
++	      equal to 0.
++
++       JOB_GETJIDLST
++	      Get the list of job jids for job currently  running
++	      on  the system. The data argument should point to a
++	      structure of type job_jidlst_t defined as follows:
++
++		   typedef struct job_jidlst_s {
++			int	  r_val;
++			uint64_t  *jid;
++		   } job_jidlst_t;
++
++	      The list of job jid values is returned in the array
++	      pointed  to  by  the  jid	 member.   The	caller is
++	      responsible for allocating and freeing  the  memory
++	      for the array pointed to by jid.	The caller speci-
++	      fies the number of elements in the array using  the
++	      r_val  member.   Upon return, the r_val member will
++	      contain the number of  job  jid  values  that  were
++	      inserted	into  the  array by the Job module.   The
++	      number of jid values returned via the jid	 list  is
++	      limited  to the number of elements specified by the
++	      caller using r_val.
++
++       JOB_GETPIDCNT
++	      Get the number of processes (pids)  attached  to	a
++	      specified job.  The data argument should point to a
++	      structure of type job_pidcnt_t, defined as follows:
++
++		   typedef struct job_pidcnt_s {
++			int	  r_val;
++
++
++
++								3
++
++
++
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++			uint64_t  jid;
++		   } job_pidcnt_t;
++
++	      The  r_val member indicates the number of processes
++	      attached to the job upon return.	The jid member is
++	      set  by the caller to specify the job that is to be
++	      queried for the number of attached processes.
++
++       JOB_GETPIDLST
++	      Get the list of process pids attached to	a  speci-
++	      fied  job.   The	data  argument	should point to a
++	      structure of type job_pidlst_t, defined as follows:
++
++		   typedef struct job_pidlst_s {
++			int	  r_val;
++			pid_t	       *pid;
++			uint64_t  jid; } job_pidlst_t;
++
++	      The  list	 of process pid values is returned in the
++	      array pointed to by the pid member.  The caller  is
++	      responsible  for	allocating and freeing the memory
++	      for the array pointed to by pid.	The caller speci-
++	      fies  the number of elements in the array using the
++	      r_val member.  Upon return, the r_val  member  will
++	      contain the number of pid values that were inserted
++	      into the array by the Job module.	  The  number  of
++	      pid  values returned via the pid list is limited to
++	      the number of  elements  specified  by  the  caller
++	      using r_val.
++
++       JOB_GETUSER
++	      Get  the	owner of a job.	 The data argument should
++	      point to a structure of type job_user_t, defined as
++	      follows:
++
++		   typedef struct job_user_s {
++			uint16_t  r_user;
++			uint64_t  jid;
++		   } job_user_t;
++
++	      The jid member is used by the caller to specify the
++	      job to query to determine	 the  owning  user.   The
++	      r_user  member is set by the Job module to the user
++	      ID (uid) that owns the job.
++
++       JOB_GETPRIMEPID
++	      Get the prime (oldest) process pid for a job.   The
++	      data  argument  should point to a structure of type
++	      job_primepid_t, defined as follows:
++
++		   typedef struct job_primepid_s {
++			pid_t	       r_pid;
++			uint64_t  jid;
++		   } job_primepid_t;
++
++
++
++								4
++
++
++
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++	      The jid member is used by the caller to specify the
++	      job  to  query.  The process ID (pid) value will be
++	      returned in the r_pid data member.  If  the  opera-
++	      tion  failed, then r_pid will be set to 0 and errno
++	      will be set to indicate the error.
++
++
++EXAMPLES
++       The following example shows how to print a list of job IDs
++       for  the jobs currently running on the system: You need to
++       use the following include statements:
++
++	    #include <stdarg.h>
++	    #include <unistd.h>
++	    #include <linux/unistd.h>
++	    #include <job_paggctl.h>
++
++	    int
++	    main(void)
++	    {
++		    job_jidcnt_t jidcnt;
++		    job_jidlst_t jidlst;
++		    int i;
++
++		    /* Get current number of jobs on system */
++		    jidcnt.r_val = 0;
++
++		    if (paggctl(JOB_NAME, JOB_GETJIDCNT,
++				    (void *)&jidcnt)) {
++			    perror("paggctl: JOB_GETJIDCNT");
++			    exit(1);
++		    }
++
++		    /* No jobs found on system */
++		    if (jidcnt.r_val == 0) {
++			    printf("No JIDs on system\n");
++			    return 0;
++		    }
++
++		    /* Alloc memory to hold list of jobs */
++		    jidlst.r_val = jidcnt.r_val;
++		    jidlst.jid = (uint64_t *)malloc(
++				   sizeof(uint64_t)
++				   *jidlst.r_val);
++
++		    /* Get list of jobs */
++		    if (paggctl(JOB_NAME, JOB_GETJIDLST,
++				    (void *)&jidlst)) {
++			    perror("paggctl: JOB_GETJIDLST");
++			    exit(1);
++		    }
++
++		    /* No jobs on system */
++		    if (jidlst.r_val == 0) {
++
++
++
++								5
++
++
++
++
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++			    printf("No JIDs on system\n");
++			    free(jidlst.jid);
++			    return 0;
++		    }
++
++		    /* Print list of jobs on system */
++		    printf("List of JIDs on system0);
++		    for (i = 0; i < jidlst.r_val; i++) {
++			    printf("\t%0#18Lx\n", jidlst.jid[i]);
++		    }
++
++		    /* Free memory alloc'd for list */
++		    free(jidlst.jid);
++
++		    return 0;
++
++	    }
++
 +
 +ERRORS
-+       Under the following conditions, the acctctl function fails
++       Under the following conditions, the paggctl function fails
 +       and sets errno to:
 +
-+       [ENOSYS]	      The module could not be found,  or  it  did
-+		      not provide a service function.  Additional
-+		      errno codes are listed on the manual  pages
-+		      provided by the PAGG modules
++       [EBADR]	      An invalid request code was provided.
++
++       [EBUSY]	      Attempt to create a new  job  using  a  jid
++		      value that is already in use.
++
++       [EFAULT]	      The  data	 pointer  references  an  invalid
++		      address.
++
++       [EINPROGRESS]  The job is in process of	dying  and  being
++		      cleaned up.
++
++       [EINVAL]	      An invalid argument was specified.
++
++       [ENODATA]      The  process is not a member of any job.	A
++		      jid value could not be
++
++       [ENOMEM]	      A memory allocation failed.
++
++       [ENOSYS]	      The Job module could not be found.  Perhaps
++		      it is not loaded?
++
++       [EPERM]	      The process does not have appropriate capa-
++		      bility for the requested operation.   found
++		      for the process in question.
++
++       [ESRCH]	      The process could not be found.
 +
 +DIAGNOSTICS
 +       Upon  successful completion, paggctl returns a value of 0.
@@ -344,289 +667,123 @@ linux-2.4.2-pagg/Documentation/pagg.txt
 +
 +
 +
++								6
 +
 +
-+								1
 +
 +
-diff -Naur linux-2.4.2/arch/i386/config.in linux-2.4.2-pagg/arch/i386/config.in
---- linux-2.4.2/arch/i386/config.in	Mon Jan  8 15:27:56 2001
-+++ linux-2.4.2-pagg/arch/i386/config.in	Mon Mar  5 08:46:36 2001
-@@ -218,6 +218,7 @@
- bool 'System V IPC' CONFIG_SYSVIPC
++
++job_paggctl(3)					   job_paggctl(3)
++
++
++SEE ALSO
++       paggctl(3), job(7).
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++								7
++
++
+diff -Naur linux-2.4.2-pagg/arch/i386/config.in
+linux-2.4.2-pagg-job/arch/i386/config.in
+--- linux-2.4.2-pagg/arch/i386/config.in	Mon Mar  5 08:46:36 2001
++++ linux-2.4.2-pagg-job/arch/i386/config.in	Mon Mar  5 08:58:43 2001
+@@ -219,6 +219,9 @@
  bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
  bool 'Sysctl support' CONFIG_SYSCTL
-+bool 'Support for process aggregates (PAGGs)' CONFIG_PAGG
+ bool 'Support for process aggregates (PAGGs)' CONFIG_PAGG
++if [ "$CONFIG_PAGG" = "y" ] ; then
++   tristate '    Process aggregate based jobs' CONFIG_PAGG_JOB
++fi
  if [ "$CONFIG_PROC_FS" = "y" ]; then
     choice 'Kernel core (/proc/kcore) format' \
  	"ELF		CONFIG_KCORE_ELF	\
-diff -Naur linux-2.4.2/arch/i386/kernel/entry.S
-linux-2.4.2-pagg/arch/i386/kernel/entry.S
---- linux-2.4.2/arch/i386/kernel/entry.S	Wed Nov  8 19:09:50 2000
-+++ linux-2.4.2-pagg/arch/i386/kernel/entry.S	Mon Mar  5 08:46:36 2001
-@@ -646,6 +646,12 @@
- 	.long SYMBOL_NAME(sys_getdents64)	/* 220 */
- 	.long SYMBOL_NAME(sys_fcntl64)
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for TUX */
-+#if defined(CONFIG_PAGG)
-+	.long SYMBOL_NAME(sys_paggctl)
-+#else
-+	.long SYMBOL_NAME(sys_ni_syscall)
-+#endif
-+
- 
- 	/*
- 	 * NOTE!! This doesn't have to be exact - we just have
-diff -Naur linux-2.4.2/arch/ia64/config.in linux-2.4.2-pagg/arch/ia64/config.in
---- linux-2.4.2/arch/ia64/config.in	Fri Feb 16 17:53:08 2001
-+++ linux-2.4.2-pagg/arch/ia64/config.in	Mon Mar  5 08:46:36 2001
-@@ -93,6 +93,7 @@
- bool 'System V IPC' CONFIG_SYSVIPC
+diff -Naur linux-2.4.2-pagg/arch/ia64/config.in
+linux-2.4.2-pagg-job/arch/ia64/config.in
+--- linux-2.4.2-pagg/arch/ia64/config.in	Mon Mar  5 08:46:36 2001
++++ linux-2.4.2-pagg-job/arch/ia64/config.in	Mon Mar  5 08:58:43 2001
+@@ -94,6 +94,9 @@
  bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
  bool 'Sysctl support' CONFIG_SYSCTL
-+bool 'Support for process aggregates (PAGGs)' CONFIG_PAGG
+ bool 'Support for process aggregates (PAGGs)' CONFIG_PAGG
++if [ "$CONFIG_PAGG" = "y" ] ; then
++   tristate '    Process aggregate based jobs' CONFIG_PAGG_JOB
++fi
  tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
  tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
  
-diff -Naur linux-2.4.2/arch/ia64/kernel/entry.S
-linux-2.4.2-pagg/arch/ia64/kernel/entry.S
---- linux-2.4.2/arch/ia64/kernel/entry.S	Thu Jan  4 14:50:17 2001
-+++ linux-2.4.2-pagg/arch/ia64/kernel/entry.S	Mon Mar  5 08:46:36 2001
-@@ -1247,7 +1247,11 @@
- 	data8 sys_newfstat
- 	data8 sys_clone2
- 	data8 sys_getdents64
-+#if defined(CONFIG_PAGG)
-+	data8 sys_paggctl			// 1215
-+#else
- 	data8 ia64_ni_syscall			// 1215
-+#endif
- 	data8 ia64_ni_syscall
- 	data8 ia64_ni_syscall
- 	data8 ia64_ni_syscall
-diff -Naur linux-2.4.2/include/asm-i386/unistd.h
-linux-2.4.2-pagg/include/asm-i386/unistd.h
---- linux-2.4.2/include/asm-i386/unistd.h	Fri Aug 11 16:39:23 2000
-+++ linux-2.4.2-pagg/include/asm-i386/unistd.h	Mon Mar  5 08:46:36 2001
-@@ -227,6 +227,11 @@
- #define __NR_madvise1		219	/* delete when C lib stub is removed */
- #define __NR_getdents64		220
- #define __NR_fcntl64		221
-+#if defined(CONFIG_PAGG)
-+#define __NR_paggctl          	223 
-+#endif
-+
-+
+diff -Naur linux-2.4.2-pagg/drivers/misc/Makefile
+linux-2.4.2-pagg-job/drivers/misc/Makefile
+--- linux-2.4.2-pagg/drivers/misc/Makefile	Fri Dec 29 16:07:22 2000
++++ linux-2.4.2-pagg-job/drivers/misc/Makefile	Mon Mar  5 08:58:43 2001
+@@ -11,6 +11,10 @@
  
- /* user-visible error numbers are in the range -1 - -124: see
-<asm-i386/errno.h> */
+ O_TARGET := misc.o
  
-diff -Naur linux-2.4.2/include/asm-ia64/unistd.h
-linux-2.4.2-pagg/include/asm-ia64/unistd.h
---- linux-2.4.2/include/asm-ia64/unistd.h	Thu Jan  4 14:50:18 2001
-+++ linux-2.4.2-pagg/include/asm-ia64/unistd.h	Mon Mar  5 08:46:37 2001
-@@ -204,6 +204,11 @@
- #define __NR_fstat			1212
- #define __NR_clone2			1213
- #define __NR_getdents64			1214
-+#if defined(CONFIG_PAGG)
-+#define __NR_paggctl			1215
-+#endif
++export-objs	:= job.o
 +
++obj-$(CONFIG_PAGG_JOB) += job.o
 +
+ include $(TOPDIR)/Rules.make
  
- #if !defined(__ASSEMBLY__) && !defined(ASSEMBLER)
- 
-diff -Naur linux-2.4.2/include/linux/pagg.h
-linux-2.4.2-pagg/include/linux/pagg.h
---- linux-2.4.2/include/linux/pagg.h	Wed Dec 31 18:00:00 1969
-+++ linux-2.4.2-pagg/include/linux/pagg.h	Mon Mar  5 08:46:37 2001
-@@ -0,0 +1,180 @@
-+/* 
-+ * PAGG (Process Aggregates) interface
-+ *
-+ * 
-+ * Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ * 
-+ * This program is distributed in the hope that it would be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ * 
-+ * Further, this software is distributed without any warranty that it is
-+ * free of the rightful claim of any third person regarding infringement
-+ * or the like.  Any license provided herein, whether implied or
-+ * otherwise, applies only to this software file.  Patent licenses, if
-+ * any, provided herein do not apply to combinations of this program with
-+ * other software, or any other product whatsoever.
-+ * 
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write the Free Software Foundation, Inc., 59
-+ * Temple Place - Suite 330, Boston MA 02111-1307, USA.
-+ * 
-+ * Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
-+ * Mountain View, CA  94043, or:
-+ * 
-+ * http://www.sgi.com
-+ * 
-+ * For further information regarding this notice, see:
-+ * 
-+ * http://oss.sgi.com/projects/GenInfo/NoticeExplan
-+ *
-+ * Description:	This file, include/linux/pagg.h, contains the data
-+ *              structure definitions and function prototypes used to
-+ *              implement process aggrefates (paggs). Paggs provides a
-+ *              generalized was to implement process groupings or
-+ *              containers.  Modules use these functions to register
-+ *              with the kernel as providers of process aggregation
-+ *              containers. The pagg data structures define the
-+ *              callback functions and data access pointers back into
-+ *              the pagg modules.
-+ *
-+ * Created: 	2000.05.23	Sam Watters <watters@sgi.com>
-+ *
-+ * Changes:  	2000.07.15	Sam Watters <watters@sgi.com>
-+ * 		Changed definitions of structures.
-+ *
-+ */
-+#ifndef _PAGG_H
-+#define _PAGG_H
-+
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_PAGG
-+
-+#include <linux/linkage.h>
-+#include <linux/ptrace.h>
-+
-+
-+/*
-+ * Used by task_struct to manage list of pagg attachments for the process.  
-+ * Each pagg_task_s provides the link between the process and the 
-+ * correct pagg container.
-+ *
-+ * STRUCT MEMBERS:
-+ *     name:           The name of the pagg container type referenced.
-+ *                     This will be set by the pagg module.
-+ *     do_attach:      Function pointer to function used when attaching
-+ *                     a process to the pagg container referenced by 
-+ *                     this struct.
-+ *     do_detach:      Function pointer to function used when detaching
-+ *                     a process to the pagg container referenced by 
-+ *                     this struct.
-+ *     data:           Opaque data pointer - defined by pagg modules.
-+ *     prev:           Pointer to previous pagg_task_s in processes list.
-+ *     next:           Pointer to next pagg_task_s in processes list.
-+ */
-+struct pagg_task_s {
-+       char                    *name;  
-+       int                     (*do_attach)(struct task_struct *, 
-+                                           void *, 
-+                                           struct pagg_task_s *);
-+       int                     (*do_detach)(struct task_struct *, 
-+                                           struct pagg_task_s *);
-+       void                    *data;
-+       struct list_head	       entry;
-+}; /* pagg_task_s */
-+
-+/*
-+ * Used by pagg modules to define the callback functions into the 
-+ * module.
-+ *
-+ * STRUCT MEMBERS:
-+ *     name:           The name of the pagg container type provided by
-+ *                     the module. This will be set by the pagg module.
-+ *     do_attach:      Function pointer to function used when attaching
-+ *                     a process to the pagg container referenced by 
-+ *                     this struct.
-+ *     do_detach:      Function pointer to function used when detaching
-+ *                     a process to the pagg container referenced by 
-+ *                     this struct.
-+ *     do_init:        Function pointer to initialization function.  This
-+ *                     function is used when the module is loaded to attach
-+ *                     existing processes to a default container as defined by
-+ *                     the pagg module. This is optional and may be set to 
-+ *                     NULL if it is not needed by the pagg module.
-+ *     do_paggctl:     Function pointer to paggctl() system call handler
-+ *                     for the pagg module.  This is optional and may be set
-+ *                     to NULL if it is not needed by the pagg module.
-+ *     data:           Opaque data pointer - defined by pagg modules.
-+ *     module:         Pointer to kernel module struct.  Used to increment & 
-+ *                     decrement the use count for the module.
-+ *     prev:           Pointer to previous pagg_module_s entry in hashtable 
-+ *                     chain list.     
-+ *     next:           Pointer to next pagg_module_s entry in the hashtable
-+ *                     chain list.
-+ */
-+struct pagg_module_s {
-+       char                    *name;
-+       int                     (*do_attach)(struct task_struct *, 
-+                                           void *, 
-+                                           struct pagg_task_s *);
-+       int                     (*do_detach)(struct task_struct *, 
-+                                           struct pagg_task_s *);
-+       int                     (*do_init)(struct task_struct *,
-+                                                struct pagg_task_s *);
-+       int                     (*do_paggctl)(int, void *);
-+       void                    *data;
-+       struct module           *module;
-+       struct pagg_module_s    *next;
-+}; /* pagg_module_s */ 
-+
-+
-+/* Kernel service functions for providing PAGG support */
-+extern struct pagg_task_s *find_pagg(struct task_struct *, char *);
-+extern int register_pagg(struct pagg_module_s *);
-+extern int unregister_pagg(struct pagg_module_s *);
-+extern int attach_pagg(struct list_head *, struct task_struct *);
-+extern int detach_pagg(struct task_struct *);
-+
-+/* 
-+ *  Macro used when a child process must inherit attachment to pagg 
-+ * containers from the parent.
-+ */
-+#define attach_pagg_chk(parent, child)                                    \
-+do {                                                                      \
-+       /* Need this check until we go into INIT_TASK */			  \
-+       if (parent->pid == 0) INIT_LIST_HEAD(&parent->pagg_list);	  \
-+       INIT_LIST_HEAD(&child->pagg_list);				  \
-+       if (!list_empty(&parent->pagg_list)) {                             \
-+               if (attach_pagg(&parent->pagg_list, child) != 0)           \
-+                       goto bad_fork_cleanup;                             \
-+       }                                                                  \
-+} while(0);
-+
-+/* 
-+ * Macro used when a process must detach form pagg containers to which it
-+ * is currenlty a member.
-+ */
-+#define detach_pagg_chk(tsk)                                              \
-+do {                                                                      \
-+       if (!list_empty(&tsk->pagg_list)) {                                \
-+               detach_pagg(tsk);                                          \
-+       }                                                                  \
-+} while(0);
-+
-+#else  /* CONFIG_PAGG */
-+
-+/* 
-+ * Replacement macros used when PAGG (Process Aggregates) support is not
-+ * compiled into the kernel.
-+ */
-+#define detach_pagg_chk(tsk)  do {  } while(0);        
-+#define attach_pagg_chk(parent, child)  do { } while(0);
-+
-+#endif /* CONFIG_PAGG */
-+
-+#endif /* _PAGG_H */
-diff -Naur linux-2.4.2/include/linux/paggctl.h
-linux-2.4.2-pagg/include/linux/paggctl.h
---- linux-2.4.2/include/linux/paggctl.h	Wed Dec 31 18:00:00 1969
-+++ linux-2.4.2-pagg/include/linux/paggctl.h	Mon Mar  5 08:46:37 2001
-@@ -0,0 +1,51 @@
+ fastdep:
+diff -Naur linux-2.4.2-pagg/drivers/misc/job.c
+linux-2.4.2-pagg-job/drivers/misc/job.c
+--- linux-2.4.2-pagg/drivers/misc/job.c	Wed Dec 31 18:00:00 1969
++++ linux-2.4.2-pagg-job/drivers/misc/job.c	Mon Mar  5 08:58:43 2001
+@@ -0,0 +1,1853 @@
 +/*
 + * Copyright (c) 2000 Silicon Graphics, Inc All Rights Reserved.
 + *
@@ -653,583 +810,2098 @@ linux-2.4.2-pagg/include/linux/paggctl.h
 + *
 + * http://oss.sgi.com/projects/GenInfo/NoticeExplan
 + *
-+ * Description:	This file, include/linux/paggctl.h, contains the data
-+ * 		structure definitions used by user-mode programs to 
-+ * 		communicate with the PAGG modules via the paggctl 
-+ * 		function.
++ * Description:	This file, drivers/misc/job.c, implements a type
++ * 		of process grouping called jos.  For further information
++ * 		about jobs, consult the file Documentation/job.txt. Jobs
++ * 		are implemented as a type of PAGG (process aggregate).  
++ * 		For further information about PAGGs, consult the file
++ * 		Documentation/pagg.txt.
 + *
 + * Created:	2000.07.15	Sam Watters <watters@sgi.com>
 + *
 + * Changes:	2001.01.30	Sam Watters <watters@sgi.com>
-+ * 		Moved file to include/linux/paggctl.h & cleanup
++ * 		Change job module so that it can be compiled into
++ * 		The kernel & move file to drivers/misc/job.c
 + */
 +
-+#ifndef _LINUX_PAGGCTL_H
-+#define _LINUX_PAGGCTL_H
-+#ifndef __KERNEL__
-+#include <stdint.h>
-+#include <sys/types.h>
-+#endif
++/* 
++ * Confessions of a locking amateur...
++ * 
++ *
++ * I admit to being a locking amateur, so beware!
++ *
++ * There are currently two levels of locking in this module.  So, we
++ * have two classes of locks: 
++ *
++ *	(1) job table lock (always, job_table_lock)
++ *	(2) job entry lock (usually, job->lock)
++ *
++ * There is only one job_table_lock.  There is a job->lock for each job
++ * entry in the job_table.
++ *
++ * Purpose:
++ *
++ *	(1) The job_table_lock protects all entries in the table.
++ *	(2) The job->lock protects all attachments to the job.
++ *
++ * Truths we hold to be self-evident:
++ *
++ * Only the holder of a JOB_WLOCK for the job_table_lock may add or
++ * delete a job entry from the job_table. The job_table includes all job
++ * entries in the hash table and chains off the hash table locations.
++ *
++ * Only the holder of a JOB_WLOCK for a job->lock may attach or detach
++ * processes/tasks from the attached list for the job.
++ *
++ * If you hold a JOB_RLOCK of job_table_lock, you can assume that the
++ * job entries in the table will not change.  The link pointers for
++ * the chains of job entries will not change, the job ID (jid) value
++ * will not change, and data changes will be (mostly) atomic.
++ *
++ * If you hold a JOB_RLOCK of a job->lock, you can assume that the
++ * attachments to the job will not change.  The link pointers for the
++ * attachment list will not change and the attachments will not change.
++ *
++ * If you are going to grab nested locks, the nesting order is:
++ *
++ *	tasklist_lock
++ *	job_table_lock
++ *	job->lock
++ *
++ * However, it is not strictly necessary to grab the job_table_lock
++ * before locking job->lock.  For example, to detach a attach a new
++ * process to an existing job, you would not need to lock the
++ * job_table_lock.
++ *
++ * Also, the nesting order allows you to lock in this order:
++ *
++ *	tasklist_lock
++ *	job->lock
++ *
++ * without locking job_table_lock between the two.
++ *
++ */
++
++/* standard for kernel modules */
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/kmod.h>
++#include <linux/init.h>
++#include <linux/list.h>
++
++#include <asm/uaccess.h>	/* for get_user & put_user */
++
++#include <linux/sched.h>	/* for current */
++#include <linux/tty.h>		/* for the tty declarations */
++#include <linux/malloc.h>
++#include <linux/types.h>
++
++#include <linux/proc_fs.h>
++
++#include <linux/string.h>
++#include <linux/spinlock.h>
++#include <linux/smp_lock.h>
++
++#include <linux/pagg.h>		/* to use pagg hooks */
++#include <linux/job.h>
++#include <linux/paggctl.h>
++
++#define HASH_SIZE	1024
++
++/* The states for a job */ 
++#define FETAL	1	/* being born, not ready for attachments yet */
++#define RUNNING 2	/* Running job */
++#define STOPPED 3  	/* Stopped job */
++#define ZOMBIE  4	/* Dead job */
++
++
++#ifdef 	__BIG_ENDIAN
++#define		iptr_hid(ll) 	((uint32_t *)&(ll))
++#define		iptr_sid(ll) 	(((uint32_t *)(&(ll) + 1)) - 1)
++#else	/* __LITTLE_ENDIAN */
++#define		iptr_hid(ll) 	(((uint32_t *)(&(ll) + 1)) - 1)
++#define		iptr_sid(ll) 	((uint32_t *)&(ll))
++#endif	/* __BIG_ENDIAN */
++
++#define		jid_hash(ll) 	(*(iptr_sid(ll)) % HASH_SIZE)
++
++#define SUCCESS	"success"
++#define FAILURE	"failure"
++
++/* Need to declare ahead the types for the job data structures */
++typedef struct job_attach_s 	job_attach_t;
++typedef struct job_waitinfo_s   job_waitinfo_t;
++typedef struct job_csainfo_s	job_csainfo_t;
++typedef struct job_entry_s	job_entry_t;
++typedef struct job_task_s	job_task_t;
++
++/* Job info entry for member tasks */
++struct job_attach_s {
++	struct task_struct *task;
++	job_entry_t	   *job;
++	struct list_head   entry; 
++};
++
++struct job_waitinfo_s {
++	int	       	status;
++};
++
++struct job_csainfo_s {
++	uint64_t    corehimem;
++	uint64_t    virthimem;
++	struct file *acctfile;
++}; 
++
++/* Job table entry type */
++struct job_entry_s {
++	uint64_t	    jid;
++	int	    	    refcnt;
++	int		    state;
++	rwlock_t	    lock;
++	uid_t		    user;
++	time_t		    start;
++	job_csainfo_t       csa;
++	wait_queue_head_t   zombie;
++	wait_queue_head_t   wait;
++	int		    waitcnt;
++	job_waitinfo_t	    waitinfo;	    
++	struct list_head    attached;
++	struct list_head    entry;
++};
++
++struct job_task_s {
++	job_attach_t	*attached;
++};
++
++/* Job container tables */
++static struct list_head  job_table[HASH_SIZE];
++static int	    	 job_table_refcnt = 0;
++static rwlock_t    	 job_table_lock = RW_LOCK_UNLOCKED;
++
++
++/* Accounting subscriber list */
++static job_acctmod_t 	*acct_list[JOB_ACCT_COUNT];
++static rwlock_t		acct_list_lock = RW_LOCK_UNLOCKED;
++
++
++/* Host ID for the localhost */
++static uint32_t   jid_hid = 0;
++
++static char 	   *hid = NULL;	    
++
++MODULE_PARM(hid, "s");
++
++/* Function prototypes */
++int job_sys_create(job_create_t *);
++int job_sys_getjid(job_getjid_t *);
++int job_sys_waitjid(job_waitjid_t *);
++int job_sys_killjid(job_killjid_t *);
++int job_sys_getjidcnt(job_jidcnt_t *);
++int job_sys_getjidlst(job_jidlst_t *);
++int job_sys_getpidcnt(job_pidcnt_t *);
++int job_sys_getpidlst(job_pidlst_t *);
++int job_sys_getuser(job_user_t *);
++int job_sys_getprimepid(job_primepid_t *);
++int job_sys_sethid(job_sethid_t *);
++int job_sys_detachjid(job_detachjid_t *);
++int job_sys_detachpid(job_detachpid_t *);
++int job_attach(struct task_struct *, void *,struct pagg_task_s *);
++int job_detach(struct task_struct *, struct pagg_task_s *);
++int job_paggctl(int, void *);
++job_entry_t *job_findjid(uint64_t jid);
++uint64_t job_getjid(struct task_struct *);
++
++
++/* Job container kernel pagg entry */
++static struct pagg_module_s paggmod = {
++	PAGG_JOB,
++	job_attach,
++	job_detach,
++	NULL,
++	job_paggctl,
++	&job_table,
++	THIS_MODULE,
++	NULL
++};
++
++#ifdef DEBUG
++
++#define DBG_PRINTINIT(s)	\
++	char *dbg_fname = s		
++
++#define DBG_PRINTENTRY()					\
++do {								\
++	printk(KERN_DEBUG "job: %s: entry\n", dbg_fname);	\
++} while(0)
++
++#define DBG_PRINTEXIT(c)				 		\
++do {							 		\
++	printk(KERN_DEBUG "job: %s: exit, code = %d\n", dbg_fname, c);	\
++} while(0)
++
++#define JOB_WLOCK(l)					\
++do {							\
++	printk(KERN_DEBUG "job: wlock = %p\n", l);	\
++	write_lock(l);					\
++} while(0);
++
++#define JOB_WUNLOCK(l)					\
++do {							\
++	printk(KERN_DEBUG "job: wunlock = %p\n", l);	\
++	write_unlock(l);				\
++} while(0);
++
++#define JOB_RLOCK(l)					\
++do {							\
++	printk(KERN_DEBUG "job: rlock = %p\n", l);	\
++	read_lock(l);					\
++} while(0);
++
++#define JOB_RUNLOCK(l)					\
++do {							\
++	printk(KERN_DEBUG "job: runlock = %p\n", l);	\
++	read_unlock(l);					\
++} while(0);
++
++#else /* #ifdef DEBUG */
++
++#define DBG_PRINTINIT(s)	
++
++#define DBG_PRINTENTRY() 	\
++do {				\
++} while(0)
++
++#define DBG_PRINTEXIT(c)	\
++do {				\
++} while(0)
++
++#define JOB_WLOCK(l)	\
++do {			\
++	write_lock(l);	\
++} while(0);
++
++#define JOB_WUNLOCK(l)	\
++do {			\
++	write_unlock(l);\
++} while(0);
++
++#define JOB_RLOCK(l)	\
++do {			\
++	read_lock(l);	\
++} while(0);
++
++#define JOB_RUNLOCK(l)	\
++do {			\
++	read_unlock(l);\
++} while(0);
++
++#endif /* #ifdef DEBUG */
++
++
++
++/* 
++ * job_findjid
++ *
++ * Given a jid value, find the entry in the job_table and return a pointer
++ * to the entry or NULL if not found.
++ *
++ * You should normally JOB_RLOCK the job_table_lock before calling this 
++ * function. I thought about putting JOB_RLOCK in here, but found that I
++ * always seem to have one set before calling this function.
++ */
++job_entry_t *
++job_findjid(uint64_t jid)
++{
++	struct list_head *job_list = NULL;
++	struct list_head *job_entry = NULL;
++	job_entry_t 	 *job = NULL;
++
++	job_list  = &job_table[ jid_hash(jid) ];
++	list_for_each(job_entry, job_list) {
++		job = list_entry(job_entry, job_entry_t, entry);
++		if (job->jid == jid) {
++			break;
++		}
++	}
++
++	if (job_entry == job_list) {
++		return NULL;
++	} else {
++		return job;
++	}
++}
++
++	
++/*
++ * job_attach
++ *
++ * attach the task to the job specified in the reference data (refdata).
++ *
++ * the function returns 0 upon success, and -1 upon failure.
++ */
++int
++job_attach(struct task_struct *c_task, void *parent_data,
++		struct pagg_task_s *c_pagg)
++{
++	job_attach_t *p_attached = ((job_task_t *)parent_data)->attached; 
++	job_entry_t  *job        = p_attached->job;
++	job_task_t   *c_jtask    = NULL;
++	job_attach_t *c_attached = NULL;
++	int          errcode     = 0;
++	DBG_PRINTINIT("job_attach");
++
++	DBG_PRINTENTRY();
++
++	/* Allocate memory that we will need */
++	c_jtask = (job_task_t *)kmalloc(sizeof(job_task_t *), GFP_KERNEL);
++	if (!c_jtask) { 
++		/* error */
++		printk(KERN_ERR "Attach task(pid=%d) to job"
++				" failed on memory error in kernel\n", 
++				c_task->pid);
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	c_attached = (job_attach_t *)kmalloc(sizeof(job_attach_t *), 
++			GFP_KERNEL);
++	if (!c_attached) {
++		/* error */
++		printk(KERN_ERR "Attach task(pid=%d) to job"
++				" failed on memory error in kernel\n", 
++				c_task->pid);
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	JOB_WLOCK(&tasklist_lock);
++	JOB_WLOCK(&job->lock);
++
++	if (job->state == ZOMBIE) {
++		/* If the job is a zombie (dying), bail out of the attach */
++		printk(KERN_WARNING "Attach task(pid=%d) to job"
++				" failed - job is ZOMBIE\n", 
++				c_task->pid);
++		errcode = -EINPROGRESS;
++		goto error_return;
++	}
++
++
++	c_jtask->attached = c_attached;
++	c_attached->task  = c_task;
++	c_attached->job   = job;
++	list_add_tail(&c_attached->entry, &job->attached);
++	c_pagg->data      = (void *)c_jtask;
++	job->refcnt++;  
++
++	JOB_WUNLOCK(&job->lock);  
++	JOB_WUNLOCK(&tasklist_lock);
++
++	DBG_PRINTEXIT(0);
++	return 0;
++
++error_return:
++	DBG_PRINTEXIT(errcode);
++	if (c_jtask) kfree(c_jtask);
++	if (c_attached) kfree(c_attached);
++	return errcode;
++}
 +
 +
 +/*
-+ * =====================================================
-+ * NEW definitions for PAGG module support would go here
-+ * =====================================================
++ * job_detach 
++ *
++ * detach the task from the job specified by the provided pagg_task_s
++ * structure, curnt.
++ *
++ * the function returns 0 uopn success, and -1 uopn failure.
 + */
-+#endif /* _LINUX_PAGGCTL_H */
-diff -Naur linux-2.4.2/include/linux/sched.h
-linux-2.4.2-pagg/include/linux/sched.h
---- linux-2.4.2/include/linux/sched.h	Wed Feb 21 18:09:58 2001
-+++ linux-2.4.2-pagg/include/linux/sched.h	Mon Mar  5 08:46:37 2001
-@@ -26,6 +26,7 @@
- #include <linux/signal.h>
- #include <linux/securebits.h>
- #include <linux/fs_struct.h>
-+#include <linux/pagg.h>
- 
- /*
-  * cloning flags:
-@@ -395,6 +396,10 @@
-    	u32 self_exec_id;
- /* Protection of (de-)allocation: mm, files, fs, tty */
- 	spinlock_t alloc_lock;
-+#if defined(CONFIG_PAGG)
-+/* List of pagg (process aggregate) attachments */
-+	struct list_head pagg_list;
-+#endif
- };
- 
- /*
-diff -Naur linux-2.4.2/kernel/Makefile linux-2.4.2-pagg/kernel/Makefile
---- linux-2.4.2/kernel/Makefile	Fri Dec 29 16:07:24 2000
-+++ linux-2.4.2-pagg/kernel/Makefile	Mon Mar  5 08:46:37 2001
-@@ -12,6 +12,7 @@
- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o
- 
- obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
-+	    pagg.o \
- 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
- 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o context.o
-diff -Naur linux-2.4.2/kernel/exit.c linux-2.4.2-pagg/kernel/exit.c
---- linux-2.4.2/kernel/exit.c	Fri Feb  9 13:29:44 2001
-+++ linux-2.4.2-pagg/kernel/exit.c	Mon Mar  5 08:49:15 2001
-@@ -10,6 +10,7 @@
- #include <linux/smp_lock.h>
- #include <linux/module.h>
- #include <linux/tty.h>
-+#include <linux/pagg.h>
- #ifdef CONFIG_BSD_PROCESS_ACCT
- #include <linux/acct.h>
- #endif
-@@ -454,6 +455,17 @@
- 
- 	tsk->exit_code = code;
- 	exit_notify();
++int
++job_detach(struct task_struct *task, struct pagg_task_s *curnt)
++{
++	job_attach_t *attached   = ((job_task_t *)curnt->data)->attached;
++	job_entry_t  *job        = attached->job;
++	DBG_PRINTINIT("job_detach");
++
++	DBG_PRINTENTRY();
 +
 +	/*
-+	 * If config'd for PAGG support:
-+	 *      call pagg modules to detach 
-+	 *      from process aggregates to which the current process is 
-+	 *      attached.
-+	 * Else
-+	 *      This is a no-op.
++	 * Obtain the lock on the the job_table_lock and the job->lock for this
++	 * job.
 +	 */
-+	detach_pagg_chk(tsk);
-+ 
- 	schedule();
- 	BUG();
- /*
-diff -Naur linux-2.4.2/kernel/fork.c linux-2.4.2-pagg/kernel/fork.c
---- linux-2.4.2/kernel/fork.c	Fri Feb  9 13:29:44 2001
-+++ linux-2.4.2-pagg/kernel/fork.c	Mon Mar  5 08:46:37 2001
-@@ -18,6 +18,7 @@
- #include <linux/smp_lock.h>
- #include <linux/module.h>
- #include <linux/vmalloc.h>
-+#include <linux/pagg.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -660,6 +661,16 @@
- 	   
- 	p->parent_exec_id = p->self_exec_id;
- 
-+	/*
-+	 * If config'd for PAGG support:
-+	 *      call pagg modules to properly attach new process
-+	 *      to the same process aggregate containers as the 
-+	 *      parent process.
-+	 * Else
-+	 *      this is a no-op.
-+	 */
-+	attach_pagg_chk(current, p);
++	JOB_WLOCK(&tasklist_lock);
++	JOB_WLOCK(&job_table_lock);
++	JOB_WLOCK(&job->lock);  
 +
- 	/* ok, now we should be set up.. */
- 	p->swappable = 1;
- 	p->exit_signal = clone_flags & CSIGNAL;
-@@ -713,6 +724,7 @@
- bad_fork_cleanup_files:
- 	exit_files(p); /* blocking */
- bad_fork_cleanup:
-+	detach_pagg_chk(p);	/* no-op unless CONFIG_PAGG=y  */
- 	put_exec_domain(p->exec_domain);
- 	if (p->binfmt && p->binfmt->module)
- 		__MOD_DEC_USE_COUNT(p->binfmt->module);
-diff -Naur linux-2.4.2/kernel/ksyms.c linux-2.4.2-pagg/kernel/ksyms.c
---- linux-2.4.2/kernel/ksyms.c	Fri Feb  9 13:29:44 2001
-+++ linux-2.4.2-pagg/kernel/ksyms.c	Mon Mar  5 08:50:17 2001
-@@ -46,6 +46,7 @@
- #include <linux/brlock.h>
- #include <linux/fs.h>
- #include <linux/tty.h>
-+#include <linux/pagg.h>
- 
- #if defined(CONFIG_PROC_FS)
- #include <linux/proc_fs.h>
-@@ -474,6 +475,14 @@
- 
- /* Miscellaneous access points */
- EXPORT_SYMBOL(si_meminfo);
-+#if defined(CONFIG_PAGG)
-+EXPORT_SYMBOL(find_pagg);
-+EXPORT_SYMBOL(register_pagg);
-+EXPORT_SYMBOL(unregister_pagg);
-+EXPORT_SYMBOL(attach_pagg);
-+EXPORT_SYMBOL(detach_pagg);
-+#endif
++	list_del(&attached->entry);
++	attached->job->refcnt--;
++	kfree(curnt->data);
++	kfree(attached);
 +
- 
- /* Added to make file system as module */
- EXPORT_SYMBOL(sys_tz);
-diff -Naur linux-2.4.2/kernel/pagg.c linux-2.4.2-pagg/kernel/pagg.c
---- linux-2.4.2/kernel/pagg.c	Wed Dec 31 18:00:00 1969
-+++ linux-2.4.2-pagg/kernel/pagg.c	Mon Mar  5 08:46:37 2001
-@@ -0,0 +1,426 @@
++	if (job->refcnt == 0) {
++		int waitcnt;
++
++		list_del(&job->entry);
++		--job_table_refcnt;
++
++		/* 
++		 * The job is removed from the job_table.
++		 * We can remove the job_table_lock now since
++		 * nobody can access the job via the table.
++		 */
++		JOB_WUNLOCK(&job_table_lock);
++
++		job->state = ZOMBIE;
++		job->waitinfo.status = task->exit_code;
++
++		waitcnt = job->waitcnt;
++
++		/* 
++		 * Release the job lock.  You cannot hold
++		 * this lock if you want the wakeup to work
++		 * properly.
++		 */
++		JOB_WUNLOCK(&job->lock);
++		JOB_WUNLOCK(&tasklist_lock);
++
++		if (waitcnt > 0) {
++			wake_up_interruptible(&job->wait);
++			wait_event(job->zombie, job->waitcnt == 0);
++		} 
++
++		/* 
++		 * Job is exiting, all processes waiting for job to exit
++		 * have been notified.  Now we call the accounting
++		 * subscribers.
++		 */
++
++		/* - CSA accounting */
++		if (acct_list[JOB_ACCT_CSA]) {
++			__MOD_INC_USE_COUNT(acct_list[JOB_ACCT_CSA]->module);
++			if (acct_list[JOB_ACCT_CSA]->do_jobend) {
++				int res;
++				job_csa_t csa;
++
++				csa.job_id = job->jid;
++				csa.job_uid = job->user;
++				csa.job_start = job->start;
++				csa.job_corehimem = job->csa.corehimem;
++				csa.job_virthimem = job->csa.virthimem;
++				csa.job_acctfile = job->csa.acctfile;
++
++				res = acct_list[JOB_ACCT_CSA]->do_jobend(
++						JOB_EVENT_END,
++						&csa);
++				if (res) {
++					printk(KERN_WARNING "job_detach: CSA -"
++							" do_jobend failed.\n");
++				}
++			}
++			__MOD_DEC_USE_COUNT(acct_list[JOB_ACCT_CSA]->module);
++		}
++
++
++		/* 
++		 * Every process attached or waiting on this job should be
++	         * detached and finished waiting, so now we can free the
++		 * memory for the job.
++		 */
++		kfree(job);
++		MOD_DEC_USE_COUNT; 
++
++	} else {
++		/* This is case where job->refcnt was greater than 1, so
++		 * we were not going to delete the job after the detach.
++		 * Therefore, only the job->lock is being held - the 
++		 * job_table_lock was released earlier.
++		 */
++		JOB_WUNLOCK(&job->lock);
++		JOB_WUNLOCK(&job_table_lock);
++		JOB_WUNLOCK(&tasklist_lock);
++	}
++
++	DBG_PRINTEXIT(0);
++
++	return 0;
++}
++
++/*
++ * job_paggctl
++ *
++ * Function to handle paggctl system call requests.
++ *
++ * Returns 0 on success and -(ERRNO VALUE) upon failure.
++ */
++int
++job_paggctl(int request, void *data)
++{
++	DBG_PRINTINIT("job_paggctl");
++
++	DBG_PRINTENTRY();
++
++	switch (request) {
++		case JOB_CREATE:
++			return job_sys_create((job_create_t *)data);
++			break;
++		case JOB_ATTACH:
++		case JOB_DETACH:
++			/* RESERVED */
++			return -EBADR;
++			break;
++		case JOB_GETJID:
++			return job_sys_getjid((job_getjid_t *)data);
++			break;
++		case JOB_WAITJID:
++			return job_sys_waitjid((job_waitjid_t *)data);
++			break;
++		case JOB_KILLJID:
++			return job_sys_killjid((job_killjid_t *)data);
++			break;
++		case JOB_GETJIDCNT:
++			return job_sys_getjidcnt((job_jidcnt_t *)data);
++			break;
++		case JOB_GETJIDLST:
++			return job_sys_getjidlst((job_jidlst_t *)data);
++			break;
++		case JOB_GETPIDCNT:
++			return job_sys_getpidcnt((job_pidcnt_t *)data);
++			break;
++		case JOB_GETPIDLST:
++			return job_sys_getpidlst((job_pidlst_t *)data);
++			break;
++		case JOB_GETUSER:
++			return job_sys_getuser((job_user_t *)data);
++			break;
++		case JOB_GETPRIMEPID:
++			return job_sys_getprimepid((job_primepid_t *)data);
++			break;
++		case JOB_SETHID:
++			return job_sys_sethid((job_sethid_t *)data);
++			break;
++		case JOB_DETACHJID:
++			return job_sys_detachjid((job_detachjid_t *)data);
++			break;
++		case JOB_DETACHPID:
++			return job_sys_detachpid((job_detachpid_t *)data);
++			break;
++		case JOB_SETJLIMIT:
++		case JOB_GETJLIMIT:
++		case JOB_GETJUSAGE:
++		case JOB_FREE:
++		default:
++			/* For future enhancment */
++			DBG_PRINTEXIT(-EBADR);
++			return -EBADR;
++			break;
++	}
++
++	DBG_PRINTEXIT(0);
++	return 0;
++}
++
++
 +/* 
-+ * PAGG (Process Aggregates) interface
++ * job_sys_create
 + *
-+ * 
-+ * Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
++ * This function is used to create a new job and attache the calling process
++ * to that new job.
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ * 
++ * Returns 0 on success, and negative on failure (negative errno value).
++ */
++int
++job_sys_create(job_create_t *create_args)
++{
++	job_create_t		create;
++	job_entry_t		*job 	  = NULL;
++	job_attach_t		*attached = NULL;
++	job_task_t		*jtask    = NULL;
++	struct pagg_task_s	*pagg     = NULL;
++	struct pagg_task_s	*paggnew  = NULL;
++	int			errcode   = 0;
++	DBG_PRINTINIT("job_sys_create");
++
++	DBG_PRINTENTRY();
++
++#if 0	/* XXX - Use if capable is not present */
++	if (current->euid != 0)
++		return -EPERM;
++#else	
++	if (!capable(CAP_SYS_RESOURCE)) {
++		errcode = -EPERM;
++		goto error_return;
++	}
++#endif
++	if (!create_args) {
++		errcode = -EINVAL;
++		goto error_return;
++	}
++
++	if (copy_from_user(&create, create_args, sizeof(create)))  {
++		errcode = -EFAULT;
++		goto error_return;
++	}
++		
++	/* Allocate all of the memory we might need, before we spinlock */
++
++	attached = (job_attach_t *)kmalloc(sizeof(job_attach_t), GFP_KERNEL);
++	if (!attached) {
++		/* error */
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	job = (job_entry_t *)kmalloc(sizeof(job_entry_t), GFP_KERNEL);
++	if (!job) {
++		/* error */
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	jtask = (job_task_t *)kmalloc(sizeof(job_task_t), GFP_KERNEL);
++	if (!jtask) {
++		/* error */
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	paggnew = (struct pagg_task_s *)kmalloc(sizeof(struct pagg_task_s), 
++			GFP_KERNEL);
++	if (!paggnew) {
++		errcode = -ENOMEM;
++		goto error_return;
++	}
++
++	/* 
++	 * If this process is currently attached to another job,
++	 * we need to detach from that job before attaching to another 
++	 */
++	/* Try to find an existing job pagg attachment in process */
++	pagg = find_pagg(current, paggmod.name);
++	if (pagg) {
++		/* 
++		 * If existing job pagg found, detach from old job
++		 * and attach to new job.
++		 */
++		pagg->do_detach(current, pagg);
++		pagg->data = (void *)jtask;
++	} else {
++		/*
++		 * No existing job pagg was found, so we have to 
++		 * use a new one and fill in the values.
++		 */
++		pagg = paggnew;
++		pagg->name = paggmod.name;
++		pagg->do_attach = paggmod.do_attach;
++		pagg->do_detach = paggmod.do_detach;
++		pagg->data = (void *)jtask;
++		list_add(&pagg->entry, &current->pagg_list);
++	}
++
++	/* 
++	 * Lock the tasklist and add the pointers to the task struct.
++	 * Lock the jobtable and add the pointers for the new job.
++	 * Since the job is new, we won't need to lock the job_entry_t.
++	 */
++	JOB_WLOCK(&tasklist_lock);  
++	JOB_WLOCK(&job_table_lock);  
++
++	/*
++	 * Determine if create should use specified JID or one that is
++	 * generated.
++	 */
++	if (create.jid != 0) {
++		/* We use the specified JID value */
++
++		if (job_findjid(create.jid)) { 
++			/* JID already in use, bail */
++			JOB_WUNLOCK(&job_table_lock);
++			JOB_WUNLOCK(&tasklist_lock);
++			errcode = -EBUSY;
++			goto error_return;
++		} else {
++			/* Using specifiec JID */
++			job->jid = create.jid;
++		}
++	} else {	
++
++		/* We generate a new JID value */
++		*(iptr_hid(job->jid)) = jid_hid;
++		*(iptr_sid(job->jid)) = current->pid;
++	}
++
++	/* Initialize job entry values & lists */
++	job->refcnt = 1;
++	job->user = create.user;
++	job->start = jiffies;
++	job->csa.corehimem = 0;
++	job->csa.virthimem = 0;
++	job->csa.acctfile  = NULL;
++	job->state = FETAL;
++	job->lock = RW_LOCK_UNLOCKED;
++	INIT_LIST_HEAD(&job->attached);
++	list_add_tail(&attached->entry, &job->attached);
++	init_waitqueue_head(&job->wait);
++	init_waitqueue_head(&job->zombie);
++	job->waitcnt = 0;
++	job->waitinfo.status = 0;
++
++	/* set link for task to entry in attached list */
++	jtask->attached = attached;
++
++	/* set link from entry in attached list to task and job entry */
++	attached->task = current;
++	attached->job = job;
++
++	/* Insert new job into front of chain list */
++	list_add_tail(&job->entry, &job_table[ jid_hash(job->jid) ]);;
++	++job_table_refcnt;
++	job->state = RUNNING;
++
++	JOB_WUNLOCK(&job_table_lock); 
++	JOB_WUNLOCK(&tasklist_lock);  
++
++	/* Issue callbacks into accounting subscribers */
++
++	/* - CSA subscriber */
++	if (acct_list[JOB_ACCT_CSA]) {
++		__MOD_INC_USE_COUNT(acct_list[JOB_ACCT_CSA]->module);
++		if (acct_list[JOB_ACCT_CSA]->do_jobstart) {
++			int res;
++			job_csa_t csa;
++
++			csa.job_id = job->jid;
++			csa.job_uid = job->user;
++			csa.job_start = job->start;
++			csa.job_corehimem = job->csa.corehimem;
++			csa.job_virthimem = job->csa.virthimem;
++			csa.job_acctfile = job->csa.acctfile;
++
++			res = acct_list[JOB_ACCT_CSA]->do_jobstart(
++					JOB_EVENT_START,
++					&csa);
++			if (res < 0) {
++				printk(KERN_WARNING "job_sys_create: CSA -"
++						" do_jobstart failed.\n");
++			}
++		}
++		__MOD_DEC_USE_COUNT(acct_list[JOB_ACCT_CSA]->module);
++	}
++
++
++	/* If we didn't use memory allocated for pagg, release it */
++	if (pagg != paggnew)
++		kfree(paggnew);
++
++	MOD_INC_USE_COUNT; 
++
++	create.r_jid = job->jid;
++	copy_to_user(create_args, &create, sizeof(create));
++
++	DBG_PRINTEXIT(0);
++	return 0;
++
++error_return:
++	DBG_PRINTEXIT(errcode);
++	if (attached) kfree(attached);
++	if (job) kfree(job);
++	if (jtask) kfree(jtask);
++	if (paggnew) kfree(paggnew);
++
++	create.r_jid = 0;
++	copy_to_user(create_args, &create, sizeof(create));
++
++	return errcode;
++}
++
++
++/*
++ * job_sys_getjid
++ *
++ * Function retrieves the job ID (jid) for the specified process (pid).
++ *
++ * returns 0 on success, negative errno value on exit.
++ */
++int
++job_sys_getjid(job_getjid_t *getjid_args) 
++{
++	job_getjid_t	   getjid;
++	int		   errcode = 0;
++	struct task_struct *task;
++	DBG_PRINTINIT("job_sys_getjid");
++
++	DBG_PRINTENTRY();
++
++	if (copy_from_user(&getjid, getjid_args, sizeof(getjid))) {
++		DBG_PRINTEXIT(-EFAULT);
++		return -EFAULT;
++	}
++
++	/* 
++	 * Set job_table_lock, so no jobs can be deleted while doing
++	 * this operation.
++	 */
++	JOB_RLOCK(&job_table_lock); 
++
++	if (getjid.pid == current->pid) {
++		task = current;
++	} else {
++		task = find_task_by_pid(getjid.pid);
++	}
++	if (task) {
++		getjid.r_jid = job_getjid(task);
++		if (getjid.r_jid == 0) {
++			errcode = -ENODATA;
++		}
++	} else {
++		getjid.r_jid = 0;
++		errcode = -ESRCH;
++	}
++
++	JOB_RUNLOCK(&job_table_lock);
++
++	DBG_PRINTEXIT(errcode);
++	copy_to_user(getjid_args, &getjid, sizeof(getjid));
++	return errcode;
++}
++
++
++/* 
++ * job_sys_waitjid
++ *
++ * This job allows a process to wait until a job exits & it returns the 
++ * status information for the last process to exit the job.
++ *
++ * On success returns 0, failure it returns the negative errno value.
++ */
++int
++job_sys_waitjid(job_waitjid_t *waitjid_args)
++{
++	job_waitjid_t 	waitjid;
++	job_entry_t	*job;
++	int		retcode = 0;
++	DBG_PRINTINIT("job_sys_waitjid");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&waitjid, waitjid_args, sizeof(waitjid));
++
++	waitjid.r_jid = waitjid.stat = 0;
++
++	if (waitjid.options != 0) {
++		retcode = -EINVAL;
++		goto general_return;
++	}
++
++	/* Lock the job table so that the current jobs don't change */
++	JOB_RLOCK(&job_table_lock);
++
++	job = job_findjid(waitjid.jid);
++
++	if ((job = job_findjid(waitjid.jid)) == NULL ) {
++		JOB_RUNLOCK(&job_table_lock);
++		retcode = -EINVAL;
++		goto general_return;
++	} 
++
++	/* 
++	 * We got the job we need, we can release the job_table_lock
++	 */
++	JOB_WLOCK(&job->lock);
++	JOB_RUNLOCK(&job_table_lock);
++
++	++job->waitcnt; 
++
++	JOB_WUNLOCK(&job->lock);
++
++	/* We shouldn't hold any locks at this point! */
++	retcode = wait_event_interruptible(job->wait, 
++			job->refcnt == 0);
++
++	if (!retcode) {
++		/* 
++		 * This data is static at this point, we will 
++		 * not need a lock to read it.
++		 */
++		waitjid.stat = job->waitinfo.status;
++		waitjid.r_jid = job->jid;
++	}
++
++	JOB_WLOCK(&job->lock);
++	--job->waitcnt;
++	
++	if (job->waitcnt == 0)  {
++		JOB_WUNLOCK(&job->lock);
++
++		/* We shouldn't hold any locks at this point! */
++		wake_up(&job->zombie);
++	} else {
++		JOB_WUNLOCK(&job->lock);
++	}
++
++general_return:
++
++	DBG_PRINTEXIT(retcode);
++	copy_to_user(waitjid_args, &waitjid, sizeof(waitjid));
++	return retcode;
++}
++
++
++/*
++ * job_sys_killjid
++ *
++ * This functions allows a signal to be sent to all processes in a job.
++ *
++ * returns 0 on success, negative of errno on failure.
++ */
++int
++job_sys_killjid(job_killjid_t *killjid_args)
++{
++	job_killjid_t	 killjid;
++	job_entry_t	 *job;
++	struct list_head *attached_entry;
++	struct siginfo   info;
++	int retcode = 0;
++	DBG_PRINTINIT("job_sys_killjid");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&killjid, killjid_args, sizeof(killjid));
++
++	killjid.r_val = -1;
++
++	if (killjid.sig <= 0) {
++		retcode = -EINVAL;
++		goto cleanup_0locks_return;
++	} 
++
++	JOB_RLOCK(&tasklist_lock);
++	JOB_RLOCK(&job_table_lock);
++	job = job_findjid(killjid.jid);
++	if (!job) {
++		/* Job not found, copy back data & bail with error */
++		retcode = -EINVAL;
++		goto cleanup_2locks_return;
++	}
++
++	JOB_RLOCK(&job->lock);
++
++	/* 
++         * Check capability to signal job.  The signaling user must be
++	 * the owner of the job or have CAP_SYS_RESOURCE capability.
++	 */
++#if 0		/* Use this if not capability is available */
++	if (current->uid != 0) { 
++#else
++	if (!capable(CAP_SYS_RESOURCE)) {
++#endif
++		if (current->uid != job->user) {
++			retcode = -EPERM;
++			goto cleanup_3locks_return;
++		}
++	}
++
++	info.si_signo = killjid.sig;
++	info.si_errno = 0;
++	info.si_code = SI_USER;
++	info.si_pid = current->pid;
++	info.si_uid = current->uid;
++
++	list_for_each(attached_entry, &job->attached) {
++		int err;
++		job_attach_t *attached;
++
++		attached = list_entry(attached_entry, job_attach_t, entry);
++		err = send_sig_info(killjid.sig, &info, 
++				attached->task);
++		if (err != 0) {
++			/* 
++			 * XXX - the "prime" process, or initiating process
++			 * for the job may not be owned by the user.  So,
++			 * we would get an error in this case.  However, we
++			 * ignore the error for that specific process - it
++			 * should exit when all the child processes exit. It 
++			 * should ignore all signals from the user.
++			 *
++			 * XXX - we are breaking the "data abstraction" for
++			 * the kernel provided doubly linked lists.  Oops.
++			 */
++			if (attached->entry.prev != &job->attached) {
++				retcode = err;
++			}
++		}
++
++	}
++
++cleanup_3locks_return:
++	JOB_RUNLOCK(&job->lock);
++cleanup_2locks_return:
++	JOB_RUNLOCK(&job_table_lock);
++	JOB_RUNLOCK(&tasklist_lock);
++cleanup_0locks_return:
++	killjid.r_val = retcode;
++	
++	DBG_PRINTEXIT(retcode);
++	copy_to_user(killjid_args, &killjid, sizeof(killjid));
++	return retcode;
++}
++
++
++/*
++ * job_sys_getjidcnt
++ *
++ * Retun the number of jobs currently on the system.
++ *
++ * returns 0 on success & it always succeeds.
++ */ 
++int
++job_sys_getjidcnt(job_jidcnt_t *jidcnt_args)
++{
++	job_jidcnt_t 	jidcnt;
++	DBG_PRINTINIT("job_sys_getjidcnt");
++
++	DBG_PRINTENTRY();
++
++	/* read lock might be overdoing it in this case */
++	JOB_RLOCK(&job_table_lock);
++	jidcnt.r_val = job_table_refcnt;
++	JOB_RUNLOCK(&job_table_lock);
++
++	DBG_PRINTEXIT(0);
++
++	copy_to_user(jidcnt_args, &jidcnt, sizeof(jidcnt));
++
++	return 0;
++}
++		
++
++/*
++ * job_sys_getjidlst
++ *
++ * Get the list of all jids currently on the system (limited by the number of 
++ * jobs there are and the number you say you can accept.
++ */
++int
++job_sys_getjidlst(job_jidlst_t *jidlst_args)
++{
++	job_jidlst_t	 jidlst;
++	uint64_t	 *jid;
++	job_entry_t	 *job;
++	struct list_head *job_entry;
++	int		 i;
++	int 		 count;
++	DBG_PRINTINIT("job_sys_getjidlst");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&jidlst, jidlst_args, sizeof(jidlst));
++
++	if (jidlst.r_val == 0)  {
++		DBG_PRINTEXIT(0);
++		return 0;
++	}
++
++	jid = (uint64_t *)kmalloc(sizeof(uint64_t *)*jidlst.r_val, GFP_KERNEL);
++	if (!jid) {
++		jidlst.r_val = 0;
++		DBG_PRINTEXIT(-ENOMEM);
++		copy_to_user(jidlst_args, &jidlst, sizeof(jidlst));
++		return -ENOMEM;
++	}
++
++
++	count = 0;
++	JOB_RLOCK(&job_table_lock);
++	for (i = 0; i < HASH_SIZE && count < jidlst.r_val; i++) {
++		list_for_each(job_entry, &job_table[i]) {
++			job = list_entry(job_entry, job_entry_t, entry);
++			jid[count++] = job->jid;
++			if (count == jidlst.r_val) {
++				break;
++			}
++		}
++	}
++	JOB_RUNLOCK(&job_table_lock);
++
++	DBG_PRINTEXIT(0);
++	jidlst.r_val = count;
++
++	for (i = 0; i < count; i++) 
++		copy_to_user(jidlst.jid+i, &jid[i], sizeof(uint64_t));
++
++	kfree(jid);
++
++	copy_to_user(jidlst_args, &jidlst, sizeof(jidlst));
++	return 0;
++}
++
++
++/*
++ * job_sys_getpidcnt
++ *
++ * Get the number of processes currently attached to a specific job.
++ *
++ * returns 0 on success, or negative errno value on failure.
++ */
++int
++job_sys_getpidcnt(job_pidcnt_t *pidcnt_args)
++{
++	job_pidcnt_t pidcnt;
++	job_entry_t  *job;
++	int	     retcode = 0;
++	DBG_PRINTINIT("job_sys_getpidcnt");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&pidcnt, pidcnt_args, sizeof(pidcnt));
++	pidcnt.r_val = 0;
++
++	JOB_RLOCK(&job_table_lock);
++	job = job_findjid(pidcnt.jid);
++	if (!job) {
++		retcode = -EINVAL;
++	} else {
++		/* Read lock might be overdoing it for this case */
++		JOB_RLOCK(&job->lock);
++		pidcnt.r_val = job->refcnt;
++		JOB_RUNLOCK(&job->lock);
++	}
++	JOB_RUNLOCK(&job_table_lock);
++
++	DBG_PRINTEXIT(retcode);
++
++	copy_to_user(pidcnt_args, &pidcnt, sizeof(pidcnt));
++	return retcode;
++}
++
++/*
++ * job_getpidlst
++ *
++ * Get the list of processes (pids) currently attached to the specified
++ * job.  The number of processes provided is limited by the number the user
++ * specivies that they can accept (have memory for) and the number currently
++ * attached.
++ *
++ * returns 0 on success, negative errno value on failure.
++ */
++int
++job_sys_getpidlst(job_pidlst_t *pidlst_args)
++{
++	job_pidlst_t	 pidlst;
++	job_entry_t	 *job;
++	job_attach_t	 *attached;
++	struct list_head *attached_entry;
++	pid_t		 *pid;
++	int		 max;
++	int		 i;
++	DBG_PRINTINIT("job_sys_getpidlst");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&pidlst, pidlst_args, sizeof(pidlst));
++
++	if (pidlst.r_val == 0) {
++		DBG_PRINTEXIT(0);
++		return 0;
++	}
++
++	max = pidlst.r_val;
++	pidlst.r_val = 0;
++	pid = (pid_t *)kmalloc(sizeof(pid_t)*max, GFP_KERNEL);
++	if (!pid) {
++		DBG_PRINTEXIT(-ENOMEM);
++		copy_to_user(pidlst_args, &pidlst, sizeof(pidlst));
++		return -ENOMEM;
++	}
++
++	JOB_RLOCK(&job_table_lock);
++
++	job = job_findjid(pidlst.jid);
++	if (!job) {
++
++		JOB_RUNLOCK(&job_table_lock);
++
++		DBG_PRINTEXIT(-EINVAL);
++		copy_to_user(pidlst_args, &pidlst, sizeof(pidlst));
++		return -EINVAL;
++	} else {
++
++		JOB_RLOCK(&job->lock);
++		JOB_RUNLOCK(&job_table_lock);
++
++		i = 0;
++		list_for_each(attached_entry, &job->attached) {
++			if (i == max) {
++				break;
++			}
++			attached = list_entry(attached_entry, job_attach_t, 
++					entry);
++			pid[i++] = attached->task->pid;
++		}
++		pidlst.r_val = i;
++
++		JOB_RUNLOCK(&job->lock);
++	}
++
++	for (i = 0; i < pidlst.r_val; i++) {
++		copy_to_user(pidlst.pid+i, &pid[i], sizeof(pid_t));
++	}
++	kfree(pid);
++
++	DBG_PRINTEXIT(0);
++	copy_to_user(pidlst_args, &pidlst, sizeof(pidlst));
++	return 0;
++}
++
++
++/*
++ * job_sys_getuser
++ *
++ * Get the uid of the user that owns the job.
++ *
++ * returns 0 on success, returns negative errno on failure.
++ */
++int
++job_sys_getuser(job_user_t *user_args)
++{
++	job_entry_t *job;
++	job_user_t user;
++	int        retcode = 0;
++	DBG_PRINTINIT("job_sys_getuser");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&user, user_args, sizeof(user));
++	user.r_user = 0;
++
++	JOB_RLOCK(&job_table_lock);
++
++	job = job_findjid(user.jid);
++	if (!job) {
++		retcode = -EINVAL;
++	} else {
++		user.r_user = job->user;
++	}
++
++	JOB_RUNLOCK(&job_table_lock);
++
++	copy_to_user(user_args, &user, sizeof(user));
++	DBG_PRINTEXIT(retcode);
++	return retcode;
++}
++
++
++/* 
++ * job_sys_getprimepid
++ *
++ * Get the primary process - the oldest process in the job.
++ *
++ * returns 0 on success, negative errno on failure.
++ */
++int
++job_sys_getprimepid(job_primepid_t *primepid_args)
++{
++	job_primepid_t   primepid;
++	job_entry_t      *job;
++	job_attach_t     *attached;
++	struct list_head *attached_entry;
++	int              retcode = 0;
++	DBG_PRINTINIT("getprimepid");
++
++	DBG_PRINTENTRY();
++
++	copy_from_user(&primepid, primepid_args, sizeof(primepid));
++	primepid.r_pid = 0;
++
++	JOB_RLOCK(&job_table_lock);
++
++	job = job_findjid(primepid.jid);
++	if (!job) {
++		/* Job not found, return INVALID VALUE */
++		DBG_PRINTEXIT(-EINVAL);
++		retcode = -EINVAL;
++	} else {
++		/* 
++		 * Job found, now look at first pid entry in the 
++		 * attached list.
++		 */
++		JOB_RLOCK(&job->lock);
++		attached = NULL;
++		list_for_each(attached_entry, &job->attached) {
++			attached = list_entry(attached_entry, job_attach_t, 
++					entry);
++			break;
++		}
++
++		if (!attached) {
++			retcode = -EINVAL;
++		} else if (!attached->task) {
++			retcode = -EINVAL;
++		} else {
++			primepid.r_pid = attached->task->pid;
++		}
++		JOB_RUNLOCK(&job->lock);
++	}
++	JOB_RUNLOCK(&job_table_lock);
++
++	copy_to_user(primepid_args, &primepid, sizeof(primepid));
++	DBG_PRINTEXIT(retcode);
++	return retcode;
++	
++}
++
++
++/* 
++ * job_sys_sethid
++ *
++ * This function is used to set the host ID segment for the job IDs (jid).
++ * If this does not get set, then the jids upper 32 bits will be set to 
++ * 0 and the jid cannot be used reliably in a cluster environment.
++ *
++ * returns -errno value on fail, 0 on success
++ */
++int
++job_sys_sethid(job_sethid_t *sethid_args)
++{
++	job_sethid_t	   sethid;
++	int		   errcode = 0;
++	DBG_PRINTINIT("job_sys_sethid");
++
++	DBG_PRINTENTRY();
++
++	if (copy_from_user(&sethid, sethid_args, sizeof(sethid))) {
++		DBG_PRINTEXIT(-EFAULT);
++		return -EFAULT;
++	}
++
++	if (!capable(CAP_SYS_RESOURCE)) {
++		errcode = -EPERM;
++		sethid.r_hid = 0;
++		goto cleanup_return;
++	}
++
++	/* 
++	 * Set job_table_lock, so no jobs can be deleted while doing
++	 * this operation.
++	 */
++	JOB_WLOCK(&job_table_lock); 
++
++	sethid.r_hid = jid_hid = sethid.hid;
++
++	JOB_WUNLOCK(&job_table_lock);
++
++cleanup_return:
++	DBG_PRINTEXIT(errcode);
++	copy_to_user(sethid_args, &sethid, sizeof(sethid));
++	return errcode;
++}
++
++
++/* 
++ * job_sys_detachjid
++ *
++ * This function is detach all the processes from a job, but allows the 
++ * processes to continue running.  You need CAP_SYS_RESOURCE capability
++ * for this to succeed. Since all processes will be detached, the job will
++ * exit.
++ *
++ * returns -errno value on fail, 0 on success
++ */
++int
++job_sys_detachjid(job_detachjid_t *detachjid_args)
++{
++	job_detachjid_t	   detachjid;
++	job_entry_t	   *job;
++	struct list_head   *entry;
++	int		   count;
++	int		   errcode = 0;
++	DBG_PRINTINIT("job_sys_detachjid");
++
++	DBG_PRINTENTRY();
++
++	if (copy_from_user(&detachjid, detachjid_args, sizeof(detachjid))) {
++		DBG_PRINTEXIT(-EFAULT);
++		return -EFAULT;
++	}
++
++	detachjid.r_val = 0;
++
++	if (!capable(CAP_SYS_RESOURCE)) {
++		errcode = -EPERM;
++		goto cleanup_return;
++	}
++
++	/* 
++	 * Set job_table_lock, so no jobs can be deleted while doing
++	 * this operation.
++	 */
++	JOB_WLOCK(&job_table_lock); 
++
++	job = job_findjid(detachjid.jid);
++
++	if (job) {
++
++		JOB_WLOCK(&job->lock);
++
++		/* Mark job as ZOMBIE so no new processes can attach to it */	
++		job->state = ZOMBIE;
++
++		count = job->refcnt;
++
++		/* Okay, no new processes can attach to the job */
++		JOB_WUNLOCK(&job_table_lock);
++		JOB_WUNLOCK(&job->lock);
++
++		/* Walk through list of attached tasks and get paggs */
++		list_for_each(entry, &job->attached) {
++			struct pagg_task_s *pagg;
++			job_attach_t *attached = list_entry(entry, 
++					job_attach_t, entry);
++			pagg = find_pagg(attached->task, paggmod.name);
++			pagg->do_detach(attached->task, pagg);
++			list_del(&pagg->entry);
++			kfree(pagg);
++			++count;
++		}
++		detachjid.r_val = count;
++	} else {
++		errcode = -EINVAL;
++		JOB_WUNLOCK(&job_table_lock);
++	}
++
++cleanup_return:
++	DBG_PRINTEXIT(errcode);
++	copy_to_user(detachjid_args, &detachjid, sizeof(detachjid));
++	return errcode;
++}
++
++
++/* 
++ * job_sys_detachpid
++ *
++ * This function is detach a process from the job it is attached too, 
++ * but allows the processes to continue running.  You need 
++ * CAP_SYS_RESOURCE capability for this to succeed. 
++ *
++ * returns -errno value on fail, 0 on success
++ */
++int
++job_sys_detachpid(job_detachpid_t *detachpid_args)
++{
++	job_detachpid_t	   detachpid;
++	struct task_struct *task;
++	struct pagg_task_s *pagg;
++	int		   errcode = 0;
++	DBG_PRINTINIT("job_sys_detachpid");
++
++	DBG_PRINTENTRY();
++
++	if (copy_from_user(&detachpid, detachpid_args, sizeof(detachpid))) {
++		DBG_PRINTEXIT(-EFAULT);
++		return -EFAULT;
++	}
++
++	detachpid.r_jid = 0;
++
++	if (!capable(CAP_SYS_RESOURCE)) {
++		errcode = -EPERM;
++		goto cleanup_return;
++	}
++
++	task = find_task_by_pid(detachpid.pid);
++	if (!task) {
++		errcode = -EINVAL;
++		goto cleanup_return;
++	}
++
++	pagg = find_pagg(task, paggmod.name);
++	if (pagg) {
++		job_task_t *jtask = (job_task_t *)pagg->data;
++		
++		detachpid.r_jid = jtask->attached->job->jid;
++		pagg->do_detach(task, pagg);
++		list_del(&pagg->entry);
++		kfree(pagg);
++	} else {
++		errcode = -EINVAL;
++	}
++
++cleanup_return:
++	DBG_PRINTEXIT(errcode);
++	copy_to_user(detachpid_args, &detachpid, sizeof(detachpid));
++	return errcode;
++}
++
++
++/*
++ * job_register_acct
++ *
++ * This function is used by modules that are registering to provide job 
++ * accounting services.
++ *
++ * returns -errno value on fail, 0 on success.
++ */
++int 
++job_register_acct(job_acctmod_t *am)
++{
++	DBG_PRINTINIT("job_register_acct");
++
++	DBG_PRINTENTRY();
++
++	if (!am) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;	/* error, invalid value */
++	}
++	if (!am->module) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;	/* error, invalid value */
++	} 
++	if (am->type < 0 || am->type > (JOB_ACCT_COUNT-1)) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;	/* error, invalid value */
++	}
++
++	JOB_WLOCK(&acct_list_lock);
++	if (acct_list[am->type] != NULL) {
++		JOB_WUNLOCK(&acct_list_lock);
++		DBG_PRINTEXIT(-EBUSY);
++		return -EBUSY;	/* error, duplicate entry */
++	}
++
++	acct_list[am->type] = am;
++	JOB_WUNLOCK(&acct_list_lock);
++	DBG_PRINTEXIT(0);
++	return 0;
++}
++
++
++/*
++ * job_unregister_acct
++ *
++ * This is used by accounting modules to unregister with the job module as
++ * subscribers for job accounting information.
++ *
++ * Returns -errno on failure and 0 on success.
++ */
++int 
++job_unregister_acct(job_acctmod_t *am)
++{
++	DBG_PRINTINIT("job_unregister_acct");
++
++	DBG_PRINTENTRY();
++
++	if (!am) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;	/* error, invalid value */
++	}
++	if (!am->module) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;
++	}
++	if (am->type < 0 || am->type > (JOB_ACCT_COUNT-1))  {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;	/* error, invalid value */
++	}
++
++	JOB_WLOCK(&acct_list_lock);
++	if (acct_list[am->type] != am) {
++		JOB_WUNLOCK(&acct_list_lock);
++		DBG_PRINTEXIT(-EFAULT);
++		return -EFAULT;	/* error, not matching entry */
++	}
++
++	acct_list[am->type] = NULL;
++	JOB_WUNLOCK(&acct_list_lock);
++	DBG_PRINTEXIT(0);
++	return 0;
++}
++
++/*
++ * job_getjid
++ *
++ * This function will return the Job ID for the given task.  If
++ * the task is not attached to a job, then 0 is returned.
++ */
++uint64_t job_getjid(struct task_struct *task)
++{
++	struct pagg_task_s *pagg;
++	job_task_t	   *jtask = NULL;
++	uint64_t	   jid;
++	DBG_PRINTINIT("job_getjid");
++
++	DBG_PRINTENTRY();
++
++	JOB_RLOCK(&tasklist_lock);
++	JOB_RLOCK(&job_table_lock);
++	pagg = find_pagg(task, paggmod.name);
++	if (pagg) {
++		jtask = (job_task_t *)pagg->data;
++	}
++
++	if (jtask) {
++		jid = jtask->attached->job->jid;
++	} else {
++		jid = 0;
++	}
++	JOB_RUNLOCK(&job_table_lock);
++	JOB_RUNLOCK(&tasklist_lock);
++	DBG_PRINTEXIT((int)jid);
++	return jid;
++}
++
++/*
++ * job_getacct
++ *
++ * This function is used by accounting subscribers to get accounting 
++ * information about a job.
++ *
++ * The caller must supply the Job ID (jid) that specifies the job. The
++ * "type" argument indicates the type of accounting data to be returned.
++ * The data will be returned in the memory accessed via the data pointer
++ * argument.  The data pointer is void so that this function interface
++ * can handle different types of accounting data.
++ */
++int job_getacct(uint64_t jid, int type, void *data)
++{
++	job_entry_t	*job;
++	DBG_PRINTINIT("job_getacct");
++
++	DBG_PRINTENTRY();
++
++	if (!data) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;
++	}
++
++	if (!jid) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;
++	}
++
++	JOB_RLOCK(&job_table_lock);
++	job = job_findjid(jid);
++	if (!job) {
++		JOB_RUNLOCK(&job_table_lock);
++		DBG_PRINTEXIT(-ENOENT);
++		return -ENOENT;
++	}
++
++	JOB_RLOCK(&job->lock);
++	JOB_RUNLOCK(&job_table_lock);
++
++	switch (type) {
++		case JOB_ACCT_CSA: 
++		{
++			job_csa_t *csa = (job_csa_t *)data;
++
++			csa->job_id = job->jid;
++			csa->job_uid = job->user;
++			csa->job_start = job->start;
++			csa->job_corehimem = job->csa.corehimem;
++			csa->job_virthimem = job->csa.virthimem;
++			csa->job_acctfile = job->csa.acctfile;
++			break;
++		}
++		default:
++			JOB_RUNLOCK(&job->lock);
++			DBG_PRINTEXIT(-EINVAL);
++			return -EINVAL;
++			break;
++	}
++	JOB_RUNLOCK(&job->lock);
++	DBG_PRINTEXIT(0);
++	return 0;
++}
++
++/*
++ * job_setacct
++ *
++ * This function is used by accounting subscribers to set specific
++ * accounting information in the job (so that the job remembers it
++ * in relation to a specific job).
++ *
++ * The job is identified by the jid argument.  The type indicates the
++ * type of accounting the information is associated with.  The subfield
++ * is a bitmask that indicates exactly what subfields are to be changed.
++ * The data that is used to set the values is supplied by the data pointer.
++ * The data pointer is a void type so that the interface can be used for
++ * different types of accounting information.
++ */
++int job_setacct(uint64_t jid, int type, int subfield, void *data)
++{
++	job_entry_t	*job;
++	DBG_PRINTINIT("job_setacct");
++
++	DBG_PRINTENTRY();
++
++	if (!data) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;
++	}
++
++	if (!jid) {
++		DBG_PRINTEXIT(-EINVAL);
++		return -EINVAL;
++	}
++
++	JOB_RLOCK(&job_table_lock);
++	job = job_findjid(jid);
++	if (!job) {
++		JOB_RUNLOCK(&job_table_lock);
++		DBG_PRINTEXIT(-ENOENT);
++		return -ENOENT;
++	}
++
++	JOB_RLOCK(&job->lock);
++	JOB_RUNLOCK(&job_table_lock);
++
++	switch (type) {
++		case JOB_ACCT_CSA:
++		{
++			job_csa_t *csa = (job_csa_t *)data;
++			
++			if (subfield & JOB_CSA_ACCTFILE) {
++				job->csa.acctfile = csa->job_acctfile;
++			}
++			break;
++		}
++		default:
++			JOB_RUNLOCK(&job->lock);
++			DBG_PRINTEXIT(-EINVAL);
++			return -EINVAL;
++			break;
++	}
++	JOB_RUNLOCK(&job->lock);
++	DBG_PRINTEXIT(0);
++	return 0;
++}
++
++
++
++/* 
++ * init_module
++ *
++ * This function is called when a module is inserted into a kernel. This
++ * function allocates any necessary structures and sets initial values for
++ * module data.
++ *
++ * If the function succeeds, then 0 is returned.  On failure, -1 is returned.
++ */
++static int __init
++init_job(void) 
++{
++	int i;
++
++
++	/* Initialize the job table chains */
++	for (i = 0; i < HASH_SIZE; i++) {
++		INIT_LIST_HEAD(&job_table[i]);
++	}
++
++	/* Initialize the list for accounting subscribers */
++	for (i = 0; i < JOB_ACCT_COUNT; i++) {
++		acct_list[i] = NULL;
++	}
++
++	/* Get hostID string and fill in jid_template hostID segment */
++	if (hid) {
++		jid_hid = (int)simple_strtoul(hid, &hid, 16);
++	} else {
++		jid_hid = 0;
++	}
++
++	return register_pagg(&paggmod);
++}
++
++/*
++ * cleanup_module
++ *
++ * This function is called to cleanup after a module when it is removed.
++ * All memory allocated for this module will be freed.
++ *
++ * This function does not take any inputs or produce and output.
++ */
++static void __exit
++cleanup_job(void)
++{
++	unregister_pagg(&paggmod);
++	return;
++}
++
++module_init(init_job);
++module_exit(cleanup_job);
++
++EXPORT_SYMBOL(job_register_acct);
++EXPORT_SYMBOL(job_unregister_acct);
++EXPORT_SYMBOL(job_getjid);
++EXPORT_SYMBOL(job_getacct);
++EXPORT_SYMBOL(job_setacct);
++
+diff -Naur linux-2.4.2-pagg/include/linux/job.h
+linux-2.4.2-pagg-job/include/linux/job.h
+--- linux-2.4.2-pagg/include/linux/job.h	Wed Dec 31 18:00:00 1969
++++ linux-2.4.2-pagg-job/include/linux/job.h	Mon Mar  5 08:58:43 2001
+@@ -0,0 +1,125 @@
++/*
++ * PAGG Job kernel definitions & interfaces
++ *
++ *
++ * Copyright (c) 2000 Silicon Graphics, Inc All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
 + * This program is distributed in the hope that it would be useful, but
 + * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ * 
-+ * Further, this software is distributed without any warranty that it is
-+ * free of the rightful claim of any third person regarding infringement
-+ * or the like.  Any license provided herein, whether implied or
-+ * otherwise, applies only to this software file.  Patent licenses, if
-+ * any, provided herein do not apply to combinations of this program with
-+ * other software, or any other product whatsoever.
-+ * 
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
 + * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write the Free Software Foundation, Inc., 59
-+ * Temple Place - Suite 330, Boston MA 02111-1307, USA.
-+ * 
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
++ *
 + * Contact information:  Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
 + * Mountain View, CA  94043, or:
-+ * 
++ *
 + * http://www.sgi.com
-+ * 
++ *
 + * For further information regarding this notice, see:
 + * 
 + * http://oss.sgi.com/projects/GenInfo/NoticeExplan
 + *
-+ * Description:  This file, kernel/pagg.c, contains the routines used
-+ *               to implement process aggregates (paggs).  The pagg
-+ *               extends the task_struct to allow for various process
-+ *               aggregation continers.  Examples of such containers
-+ *               include "jobs" and cluster applications IDs.  Process
-+ *               sessions and groups could have been implemented using
-+ *               paggs (although there would be little purpose in
-+ *               making that change at this juncture).  The pagg
-+ *               structure maintains pointers to callback functions and
-+ *               data strucures maintained in modules that have
-+ *               registered with the kernel as pagg container
-+ *               providers.
++ * Description:  This file, include/linux/job.h, contains the data 
++ * 		 structure definitions and functions prototypes used
++ * 		 by other kernel bits that communicate with the job
++ * 		 module.  One such example is Comprehensive System 
++ * 		 Accounting  (CSA).
 + *
-+ * Created:	2000.05.23	Sam Watters <watters@sgi.com>
++ * Created:
 + *
-+ * Changes:	2001.01.30	Sam Watters <watters@sgi.com>
-+ * 		Changes so PAGG modules can be compiled into the kernel
++ * 	2000.07.15	Sam Watters <watters@sgi.com>
++ *
++ * Changes:
++ *
++ * 	2001.01.30	Sam Watters <watters@sgi.com>
++ * 	Moved file to include/linux/job.h 
 + *
 + */
-+
-+#include <linux/config.h>
-+
-+#if defined(CONFIG_PAGG)
-+
-+#include <linux/malloc.h>
-+#include <linux/sched.h>
-+#include <linux/smp_lock.h>
-+#include <linux/module.h>
-+#include <linux/pagg.h>
-+
-+
-+/* Hash table for pagg modules entries */
-+
-+static struct pagg_module_s *pagg_module_table[] = {
-+	NULL /* A */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* H */ ,
-+	NULL /* I */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* P */ ,
-+	NULL /* Q */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* X */ ,
-+	NULL /* Y */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* f */ ,
-+	NULL /* g */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* n */ ,
-+	NULL /* o */ , NULL, NULL, NULL, NULL, NULL, NULL, NULL /* u */ ,
-+	NULL /* w */ , NULL, NULL, NULL	/* z */
-+};
-+
-+rwlock_t pagg_module_table_lock = RW_LOCK_UNLOCKED;
 +
 +/* 
-+ * find_pagg
-+ *
-+ * Given a task and the pagg ID key (name), this function will 
-+ * return a pointer to the pagg_task_s struct.  If the key is not
-+ * found, the function will return NULL
++ * ================
++ * GENERAL USE INFO
++ * ================
 + */
-+struct pagg_task_s *
-+find_pagg(struct task_struct *task, char *key)
-+{
-+	struct list_head *entry;
 +
-+	list_for_each(entry, &task->pagg_list) {
-+		struct pagg_task_s *pagg = list_entry(entry, 
-+						      struct pagg_task_s, 
-+						     entry);
-+		if (pagg->name == key) {
-+			return pagg;
-+		}
-+	}
-+	return NULL;
-+}
-+
-+
-+
-+/*
-+ * register_pagg
-+ *
-+ * Used to register a new pagg module and enter it into the pagg_module_table.
-+ * If the pagg module defines an init function, then all existing tasks
-+ * (processes) are attached to the initial pagg container.  If no init 
-+ * function is defined, then the module default container is assumed to be
-+ * NULL (absent).
-+ *
-+ * If a memory error is encountered, the pagg module is unregistered and any
-+ * tasks that have been attached to the initial pagg container are detached
-+ * from that container.
++/* 
++ * The job start/stop events: These will identify the 
++ * the reason the do_jobstart and do_jobend callbacks are being 
++ * called.
 + */
-+int register_pagg(struct pagg_module_s *pm_new)
-+{
-+	struct pagg_module_s **pm;
++#define JOB_EVENT_IGNORE	0
++#define JOB_EVENT_START		1
++#define JOB_EVENT_RESTART	2
++#define JOB_EVENT_END		3
 +
-+	/* ADD NEW PAGG MODULE TO ACCESS LIST */
-+	if (!pm_new)
-+		return -EINVAL;			/* error */
-+	if (pm_new->next)
-+		return -EINVAL;			/* error */
-+	if (pm_new->name == NULL)
-+		return -EINVAL;			/* error */
-+	if (pm_new->name[0] < 'A' || pm_new->name[0] > 'z')
-+		return -EINVAL;			/* error */
-+
-+	/* insert new module entry into hash table */
-+	write_lock_irq(&pagg_module_table_lock);
-+	pm = &pagg_module_table[(pm_new->name[0] - 'A')];
-+	while (*pm) {
-+		if (strcmp((*pm)->name, pm_new->name) == 0) {
-+			printk(KERN_WARNING
-+					"Attempt to register duplicate"
-+					" PAGG support (name=%s)\n",
-+					pm_new->name);
-+			write_unlock_irq(&pagg_module_table_lock);
-+			return -EBUSY;
-+		}
-+		pm = &(*pm)->next;
-+	}
-+	*pm = pm_new;
-+	write_unlock_irq(&pagg_module_table_lock);
-+
-+	printk(KERN_INFO "Registering PAGG support for (name=%s)\n",
-+			pm_new->name);
-+
-+
-+	/* UPDATE ALL PROCESSES FOR NEW PAGG MODULE */
-+
-+	/* 
-+	 * If the module has a init function defined, we need 
-+	 * to touch each process so that it can be attached to a 
-+	 * container for the new pagg.  This container will
-+	 * be the default container defined for the new module. If no
-+	 * init is defined, then we assume that the default
-+	 * container for the new pagg module is defined as NULL.
-+	 * Perfectly valid.
-+	 */
-+	if (pm_new->module)
-+		__MOD_INC_USE_COUNT(pm_new->module);
-+	if (pm_new->do_init) {
-+		struct task_struct *task;
-+
-+		read_lock(&tasklist_lock);
-+		for_each_task(task) {
-+			struct pagg_task_s *pt;
-+
-+			pt = kmalloc(sizeof(struct pagg_task_s), GFP_KERNEL);
-+			if (!pt) {
-+				/* Error: unregister module and fail */
-+
-+				printk(KERN_ERR "Initialization for PAGG"
-+						" support failed (name=%s)"
-+						" - memory allocation"
-+						" failure in kernel\n",
-+						pm_new->name);
-+
-+				/* 
-+				 * Release locks and dec module use count so it
-+				 * can be released.
-+				 */
-+				read_unlock(&tasklist_lock);
-+				if (pm_new->module)
-+					__MOD_DEC_USE_COUNT(pm_new->module);
-+
-+				unregister_pagg(pm_new);
-+				return -ENOMEM;	/* error */
-+			}
-+
-+			pt->do_attach = pm_new->do_attach;
-+			pt->do_detach = pm_new->do_detach;
-+			pm_new->do_init(task, pt);
-+			list_add(&pt->entry, &task->pagg_list);
-+		}
-+		read_unlock(&tasklist_lock);
-+	}
-+	if (pm_new->module)
-+		__MOD_DEC_USE_COUNT(pm_new->module);
-+
-+	return 0;					/* success */
-+
-+}
-+
-+
-+/*
-+ * unregister_pagg
-+ *
-+ * Used to unregister pagg modules and remove them from the pagg_module_table.
-+ * Once the pagg module entry in the pagg_module_table is found, all of the
-+ * tasks are scanned and detached from any pagg containers defined by the
-+ * pagg module.
-+ */
-+int unregister_pagg(struct pagg_module_s *pm_old)
-+{
-+	struct pagg_module_s **pm;
-+	struct task_struct *task;
-+
-+
-+	/* Check the validity of the arguments */
-+	if (!pm_old)
-+		return -EINVAL;			/* error */
-+	if (pm_old->next)
-+		return -EINVAL;			/* error */
-+	if (pm_old->name == NULL)
-+		return -EINVAL;			/* error */
-+	if (pm_old->name[0] < 'A' || pm_old->name[0] > 'z')
-+		return -EINVAL;			/* error */
-+
-+	write_lock_irq(&pagg_module_table_lock);
-+	pm = &pagg_module_table[(pm_old->name[0] - 'A')];
-+	while (*pm) {
-+		if (pm_old == *pm) {
-+			/* 
-+			 * Scan through processes on system and remove all
-+			 * references to pagg containers for this pagg module.
-+			 * 
-+			 * Since the processes will not exit as a result of 
-+			 * unloading the module, we do not detach them.  We
-+			 * just remove all references to the container. All
-+			 * information in the container referenced will be 
-+			 * discarded as this module is unloaded.
-+			 */
-+			read_lock(&tasklist_lock);
-+			for_each_task(task) {
-+				struct pagg_task_s *pagg;
-+				
-+				pagg = find_pagg(task, pm_old->name);
-+				if (pagg) {
-+					list_del(&pagg->entry);
-+					pagg->do_detach(task, pagg);
-+					kfree(pagg);
-+				}
-+			}
-+			read_unlock(&tasklist_lock);
-+
-+			*pm = pm_old->next;
-+			pm_old->next = NULL;
-+			write_unlock_irq(&pagg_module_table_lock);
-+
-+			printk(KERN_INFO "Unregistering PAGG support for"
-+					" (name=%s)\n", pm_old->name);
-+
-+			return 0;			/* success */
-+		}
-+		pm = &(*pm)->next;
-+
-+	}
-+	write_unlock_irq(&pagg_module_table_lock);
-+
-+	printk(KERN_WARNING "Attempt to unregister PAGG support (name=%s)"
-+			" failed - not found\n", pm_old->name);
-+	
-+	return -EINVAL;				/* error */
-+}
-+
-+
-+/*
-+ * attach_pagg
-+ *
-+ * Used to attach a new task to the same pagg containers to which it's parent
-+ * is attached.
-+ */
-+int attach_pagg(struct list_head *pagg_list, struct task_struct *task)
-+{
-+	struct list_head   *entry;
-+	int  		   retcode = 0;
-+
-+	if (!task) {
-+		return -EINVAL;
-+	}
-+
-+	INIT_LIST_HEAD(&task->pagg_list);
-+
-+	list_for_each(entry, pagg_list) {
-+		struct pagg_task_s *pagg = NULL;
-+		struct pagg_task_s *ppagg = list_entry(entry, 
-+				struct pagg_task_s, entry);
-+
-+		pagg = kmalloc(sizeof(struct pagg_task_s), GFP_KERNEL);
-+		if (!pagg) {
-+			retcode = -ENOMEM;
-+			goto error_return;
-+		}
-+		pagg->name = ppagg->name;
-+		pagg->do_attach = ppagg->do_attach;
-+		pagg->do_detach = ppagg->do_detach;
-+		pagg->data = NULL;
-+		retcode = pagg->do_attach(task, ppagg->data, pagg);
-+		if (retcode != 0) {
-+			/* do_attach should issue error message */
-+			goto error_return;
-+		}
-+		list_add(&pagg->entry, &task->pagg_list);
-+	}
-+
-+	return 0;					/* success */
-+
-+  error_return:
-+	/* 
-+	 * Clean up all the pagg attachments made on behalf of the new
-+	 * task.  Set new task pagg ptr to NULL for return.
-+	 */
-+	detach_pagg(task);
-+	return retcode;				/* failure */
-+}
-+
-+
-+/*
-+ * detach_pagg
-+ *
-+ * Used to detach a task from all pagg containers to which it is attached.
-+ */
-+int detach_pagg(struct task_struct *task)
-+{
-+	struct list_head   head;
-+	struct list_head   *entry;
-+	int retcode = 0;
-+	int rettmp = 0;
-+
-+	/* Remove ref. to paggs from task immediately */
-+	list_add(&head, &task->pagg_list);
-+	list_del_init(&task->pagg_list);
-+
-+	/* Visit each pagg and detach from pagg container */
-+	list_for_each(entry, &head) {
-+		struct pagg_task_s *pagg = list_entry(entry, 
-+				struct pagg_task_s, entry);
-+
-+		rettmp = pagg->do_detach(task, pagg);
-+		if (retcode) {
-+			/* do_detach should log error message */
-+			retcode = rettmp;
-+		}
-+		list_del(&pagg->entry);
-+		kfree(pagg);
-+	}
-+
-+	return retcode;	/* 0 = success, else return last code for failure */
-+}
 +
 +
 +/* 
-+ * sys_paggctl
-+ *
-+ * The paggctl() system call.  This system call uses "name" to determine
-+ * which module will handle the system call.  The "request" and "data"
-+ * arguments are passed to the module via the module's callback function
-+ * accessed via the do_paggctl() function pointer.
++ * =========================================
++ * INTERFACE INFO FOR ACCOUNTING SUBSCRIBERS 
++ * =========================================
 + */
-+asmlinkage int sys_paggctl(char *name, int request, void *data)
-+{
-+	struct pagg_module_s *list;
 +
-+	/* Validate the name argument */
-+	if (name == NULL) {
-+		return -EINVAL;
-+	}
++/* To register as a job dependent accounting module */
++typedef struct job_acctmod_s {
++	int     	type;   /* CSA or something else */
++	int     	(*do_jobstart)(int event, void *data);
++	int     	(*do_jobend)(int event, void *data);
++	struct module	*module;
++} job_acctmod_t;
 +
-+	if (name[0] < 'A' || name[0] > 'z') {
-+		return -EINVAL;
-+	}
 +
-+	/* Find the module's entry and issue the callback function */
-+	read_lock(&pagg_module_table_lock);
-+	list = pagg_module_table[(name[0] - 'A')];
-+	while (list) {
-+		if (strcmp(name, list->name) == 0) {
-+			/* We found the target module */
-+			int retcode = 0;
++/* 
++ * Subscriber type: Each module that registers as a accounting data
++ * "subscriber" has to have a type.  This type will identify the 
++ * the appropriate structs and macros to use when exchanging data.
++ */
++#define JOB_ACCT_CSA	0
++#define JOB_ACCT_COUNT	1 /* Number of entries available */	
 +
-+			/* 
-+			 * Increment module use count so that it cannot be
-+			 * removed. At this point the read lock on the 
-+			 * pagg_module_table can be released.
-+			 */
-+			if (list->module)
-+				__MOD_INC_USE_COUNT(list->module);
-+			read_unlock(&pagg_module_table_lock);
-+			if (list->do_paggctl == NULL)
-+				/*  module does not provide callback */
-+				retcode = -ENOSYS;
-+			else
-+				/* return result of module callback */
-+				retcode = list->do_paggctl(request, data);
-+			if (list->module)
-+				__MOD_DEC_USE_COUNT(list->module);
-+			return retcode;
++/*
++ * --------------
++ * CSA ACCOUNTING 
++ * --------------
++ */
 +
-+		}
-+		list = list->next;
-+	}
-+	/* 
-+	 * If we are here, we didn't find the appropriate module entry.
-+	 * release the read lock on the pagg_module_table and return
-+	 * ENOSYS (system service not implemented.
-+	 */
-+	read_unlock(&pagg_module_table_lock);
-+	return -ENOSYS;
-+}
 +
-+#endif							/* CONFIG_PAGG */
++/* 
++ * For data exchange betwee job and csa.  The embedded defines
++ * identify the sub-fields
++ */
++typedef struct job_csa_s {
++#define                 JOB_CSA_JID             001
++	uint64_t        job_id;
++#define                 JOB_CSA_UID             002
++	uid_t           job_uid;
++#define                 JOB_CSA_START           004
++	time_t          job_start;
++#define                 JOB_CSA_COREHIMEM       010
++	uint64_t        job_corehimem;
++#define                 JOB_CSA_VIRTHIMEM       020
++	uint64_t        job_virthimem;
++#define                 JOB_CSA_ACCTFILE        040
++	struct file     *job_acctfile;
++} job_csa_t;
++
++
++
++/* 
++ * ===================
++ * FUNCTION PROTOTYPES
++ * ===================
++ */
++int job_register_acct(job_acctmod_t *);
++int job_unregister_acct(job_acctmod_t *);
++uint64_t job_getjid(struct task_struct *);
++int job_getacct(uint64_t, int, void *);
++int job_setacct(uint64_t, int, int, void *);
+diff -Naur linux-2.4.2-pagg/include/linux/paggctl.h
+linux-2.4.2-pagg-job/include/linux/paggctl.h
+--- linux-2.4.2-pagg/include/linux/paggctl.h	Mon Mar  5 08:46:37 2001
++++ linux-2.4.2-pagg-job/include/linux/paggctl.h	Mon Mar  5 08:58:43 2001
+@@ -42,6 +42,133 @@
+ #include <sys/types.h>
+ #endif
+ 
++/*
++ * ====================
++ * JOB PAGG definitions
++ * ====================
++ */
++
++/* 
++ * Module identifier string 
++ */
++#define PAGG_JOB "job"
++
++/*
++ * 
++ * Define paggctl options available in the job module 
++ *
++ */
++
++#define JOB_N0OP	0	/* No-op options */
++
++#define JOB_CREATE	1	/* Create a job - uid = 0 only */
++#define JOB_ATTACH	2	/* RESERVED */
++#define JOB_DETACH	3	/* RESERVER */
++#define JOB_GETJID	4	/* Get Job ID for specificed pid */
++#define JOB_WAITJID	5	/* Wait for job to complete */	
++#define JOB_KILLJID	6	/* Send signal to job */
++#define JOB_GETJIDCNT	9	/* Get number of JIDs on system */
++#define JOB_GETJIDLST	10	/* Get list of JIDs on system */
++#define JOB_GETPIDCNT   11	/* Get number of PIDs in JID */
++#define JOB_GETPIDLST	12	/* Get list of PIDs in JID */
++#define JOB_SETJLIMIT	13	/* Future: set job limits info */
++#define JOB_GETJLIMIT	14	/* Future: get job limits info */
++#define JOB_GETJUSAGE	15	/* Future: get job res. usage */
++#define JOB_FREE	16	/* Future: Free job entry */
++#define JOB_GETUSER	17	/* Get owner for job */
++#define JOB_GETPRIMEPID	18	/* Get prime pid for job */
++#define JOB_SETHID	19	/* Set HID for jid values */
++#define JOB_DETACHJID	20	/* Detach all tasks from job */
++#define JOB_DETACHPID	21	/* Detach a task from job */
++
++#define PAGG_JOB_NOPTIONS	JOB_GETFIRSTPID+1		
++
++
++/*
++ * 
++ * Define paggctl request structures for job module 
++ *
++ */
++
++typedef struct job_create_s {
++	uint64_t 	r_jid;	/* Return value of JID */
++	uint64_t 	jid;	/* Jid value requested */
++	uid_t	 	user;	/* UID of user associated with job */
++	int	 	options;/* creation options - unused */
++} job_create_t;
++
++
++typedef struct job_getjid_s {
++	uint64_t 	r_jid;	/* Returned value of JID */
++	pid_t	 	pid;	/* Info requested for PID */
++} job_getjid_t;
++
++
++typedef struct job_waitjid_s {
++	uint64_t 	r_jid;	/* Returned value of JID */
++	uint64_t 	jid;	/* Waiting on specified JID */
++	int	 	stat;	/* Status information on JID */
++	int	 	options;/* Waiting options */ 
++} job_waitjid_t;
++
++
++typedef struct job_killjid_s {
++	int		r_val;	/* Return value of kill request */
++	uint64_t	jid;	/* Sending signal to all PIDs in JID */
++	int		sig;	/* Signal to send */
++} job_killjid_t;
++
++
++typedef struct job_jidcnt_s {
++	int		r_val;	/* Number of JIDs on system */
++} job_jidcnt_t;
++
++
++typedef struct job_jidlst_s {
++	int		r_val;	/* Number of JIDs in list */
++	uint64_t	*jid;	/* List of JIDs */
++} job_jidlst_t;
++
++
++typedef struct job_pidcnt_s {
++	int		r_val;	/* Number of PIDs in JID */
++	uint64_t	jid;	/* Getting count of JID */
++} job_pidcnt_t;
++
++
++typedef struct job_pidlst_s {
++	int		r_val;	/* Number of PIDs in list */
++	pid_t		*pid;	/* List of PIDs */
++	uint64_t	jid;
++} job_pidlst_t;
++
++
++typedef struct job_user_s {
++	uint16_t	r_user; /* The UID of the owning user */
++	uint64_t	jid;    /* Get the UID for this job */
++} job_user_t;
++
++typedef struct job_primepid_s {
++	pid_t		r_pid; /* The prime pid */
++	uint64_t	jid;   /* Get the prime pid for this job */
++} job_primepid_t;
++
++typedef struct job_sethid_s {
++	unsigned long	r_hid; /* Value that was set */
++	unsigned long	hid;   /* Value to set to */
++} job_sethid_t;
++
++
++typedef struct job_detachjid_s {
++	int		r_val; /* Number of tasks detached from job */
++	uint64_t	jid;   /* Job to detach processes from */
++} job_detachjid_t;
++
++typedef struct job_detachpid_s {
++	uint64_t	r_jid; /* Jod ID task was attached to */
++	pid_t		pid;   /* Task to detach from job */
++} job_detachpid_t;
++
+ 
+ /*
+  * =====================================================

@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbULPLsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbULPLys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbULPLsM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 06:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbULPLsM
+	id S261925AbULPLys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 06:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbULPLys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 06:48:12 -0500
-Received: from bay23-f32.bay23.hotmail.com ([64.4.22.82]:29306 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261880AbULPLsH
+	Thu, 16 Dec 2004 06:54:48 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:40461 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261925AbULPLyr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 06:48:07 -0500
-Message-ID: <BAY23-F321730E4EE170D8D922075C4AE0@phx.gbl>
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [dankaspi@hotmail.com]
-From: "Dan Kaspi" <dankaspi@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Initrd entry in grub.conf and loading initrd in the kernel code
-Date: Thu, 16 Dec 2004 13:47:29 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Dec 2004 11:48:05.0765 (UTC) FILETIME=[1B03C350:01C4E365]
+	Thu, 16 Dec 2004 06:54:47 -0500
+Message-ID: <41C1777A.3080105@tebibyte.org>
+Date: Thu, 16 Dec 2004 12:54:34 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: slow OOM killing with 2.6.9?
+References: <41C065A2.4040504@nortelnetworks.com>
+In-Reply-To: <41C065A2.4040504@nortelnetworks.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I tried to understand the correlarion between initrd in grub.conf and the
-call to initrd_load() in the kernel (under init subtree).
-My question is : when we do not use initrd in grub (meaning there is no
-entry for initrd in grub.conf), does the kernel still calls load_initrd()?
-Or does it sets somehow the mount_initrd variable to false ? if so - how ?
+Chris Friesen escreveu:
+> I've got a ppc box with 2GB of ram, running 2.6.9.
+> 
+> If I run a few instances of memory chewing programs, eventually the 
+> OOM-killer kicks in.  At that point, the machine locks up for about 10 
+> seconds while deciding what to kill.
 
-Grepping the kernel for no_initrd() shows that do_mounts_initrd.c is the
-only
-"C" file where this method definition appears.
-Does it have to do with the _setup call in this file : __setup("noinitrd",
-no_initrd) ?
+OOM killing is known to be broken in 2.6.9, specifically it kills things 
+even when the machine isn't out of memeory and/or kills the "wrong" 
+things when it is. See threads assim for more details.
 
-I did not see initrd it in the kernel command line:
-When I run cat /proc/cmdline to see the kernel command line,
-I do not see any mention of initrd (thoughin my grub.conf I DO USE initrd ).
-What I see is:
-ro root=/dev/hda3 hdb=none hdc=none hdd=none
-
-Trying to understand the code raise some confusion (as is depicted below)
-So I hope maybe one of the Mulixes knows something about it.
-
-I had looked at 2.6.7 kernel.
-what I see (under init subtree):
-
-There is a variable named "mount_initrd" which is initialized to true (1)
-in do_mounts_initrd.c
-
-The initrd_load() method (also in do_mounts_initrd.c) checks this variable
-and
-if it is true it performs the load initrd process (creates /dev/ram0 and
-loads
-the initrd data into it by calling rd_load_image() ).
-
-There is a method named no_initrd() in this file which sets mount_initrd to
-0.
-there is also a call to __setup("noinitrd", no_initrd);
-(This macro calls __setup_param() in init.h ; it says there that it is
-OBSOLOETE
-and send us to moduleparam.h.)
+The OOM Killer is working properly again in 2.6.10-rc2-mm4. Could you 
+try that kernel and report whether it fixed your problems too?
 
 Regards,
-Dan
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+Chris R.

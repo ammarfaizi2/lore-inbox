@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSBDOGJ>; Mon, 4 Feb 2002 09:06:09 -0500
+	id <S287939AbSBDOXo>; Mon, 4 Feb 2002 09:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288985AbSBDOGA>; Mon, 4 Feb 2002 09:06:00 -0500
-Received: from [211.99.243.98] ([211.99.243.98]:51072 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S288980AbSBDOFq>; Mon, 4 Feb 2002 09:05:46 -0500
-Date: Mon, 4 Feb 2002 22:05:03 +0800
-From: hugang <gang_hu@soul.com.cn>
-To: Jens Axboe <axboe@suse.de>
-Cc: andersen@codepoet.org, calin@ajvar.org, linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-Message-Id: <20020204220503.6799df5b.gang_hu@soul.com.cn>
-In-Reply-To: <20020204085712.O29553@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu>
-	<20020204070414.GA19268@codepoet.org>
-	<20020204085712.O29553@suse.de>
-Organization: soul
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Mon__4_Feb_2002_22:05:03_+0800_08407c40"
+	id <S288086AbSBDOXe>; Mon, 4 Feb 2002 09:23:34 -0500
+Received: from mustard.heime.net ([194.234.65.222]:27089 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S287939AbSBDOXV>; Mon, 4 Feb 2002 09:23:21 -0500
+Date: Mon, 4 Feb 2002 15:23:18 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, Tux mailing list <tux-list@redhat.com>
+Subject: Re: [patch] O(1) scheduler, -K2
+In-Reply-To: <Pine.LNX.4.33.0202040621400.22435-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.30.0202041521200.22987-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+hi
 
---Multipart_Mon__4_Feb_2002_22:05:03_+0800_08407c40
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+Today, the O(1) seems to be quite incompatible with Tux. Will you be
+merging these two together, or is that a no-go?
 
-Now it can work!
-On Mon, 4 Feb 2002 08:57:12 +0100
-Jens Axboe <axboe@suse.de> wrote:
+thanks
 
-> On Mon, Feb 04 2002, Erik Andersen wrote:
-> > Jens Axboe and I wrote a little test app a year or two ago to check
-> > for whether drives supported asynchronous mode.  We found it to be
-> > unsupported on 100% of the drives we tested (and we tested quite a
-> > few)...
-> 
-> Yep, _no_ drives to date support queued event notification. However, a
-> polled approach is really not too bad -- it simply means that we'll push
-> it to user space instead. I've written a small utility for reference.
-> 
-> -- 
-> Jens Axboe
-> 
-> 
+roy
 
+On Mon, 4 Feb 2002, Ingo Molnar wrote:
 
--- 
-thanks with regards!
-hugang.บ๚ธี.
+>
+> the -K2 O(1) scheduler patch for kernels 2.5.3, 2.4.18-pre7 and 2.4.17 is
+> available at:
+>
+>     http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.3-K2.patch
+>     http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-K2.patch
+>     http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.18-pre7-K2.patch
+>
+> the -K2 patch includes fixes, cleanups, performance improvements and
+> interactivity improvements.
+>
+> Bug reports, comments, suggestions are welcome,
+>
+> 	Ingo
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-***********************************
-Beijing Soul Technology Co.,Ltd.
-Tel:010-68425741/42/43/44
-Fax:010-68425745
-email:gang_hu@soul.com.cn
-web:http://www.soul.com.cn
-***********************************
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
---Multipart_Mon__4_Feb_2002_22:05:03_+0800_08407c40
-Content-Type: application/octet-stream;
- name="diff"
-Content-Disposition: attachment;
- filename="diff"
-Content-Transfer-Encoding: base64
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-LS0tIGNkX3BvbGwuY34JTW9uIEZlYiAgNCAyMDoyNjoyNSAyMDAyCisrKyBjZF9wb2xsLmMJTW9u
-IEZlYiAgNCAyMjowMzoyMSAyMDAyCkBAIC04MCw3ICs4MCw3IEBACiAJCXJldHVybiByZXQ7CiAJ
-fQogCi0JcmV0dXJuIGJ1ZmZlcls0XSAmIDB4ZjsKKwlyZXR1cm4gYnVmZmVyWzVdICYgMHhmOwog
-fQogCiBpbnQgcG9sbF9ldmVudHMoaW50IGZkKQo=
-
---Multipart_Mon__4_Feb_2002_22:05:03_+0800_08407c40--

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTLWVkY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 16:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLWVkY
+	id S262767AbTLWVnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 16:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLWVnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 16:40:24 -0500
-Received: from unlabelled-198-29-58-81.versatel.net ([81.58.29.198]:24221 "EHLO
-	server.vanthiel.nl") by vger.kernel.org with ESMTP id S262686AbTLWVcA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 16:32:00 -0500
-Message-Id: <1072212972.817@vanthiel.nl>
-Date: Tue, 23 Dec 2003 21:56:12 0100
-To: linux-kernel@vger.kernel.org
-From: "Recreatie Media" <noreply@recreatiemedia.nl>
-Subject: Gratis kamperen en meer....
+	Tue, 23 Dec 2003 16:43:37 -0500
+Received: from zero.aec.at ([193.170.194.10]:62980 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262767AbTLWVk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 16:40:57 -0500
+To: Yaroslav Klyukin <skintwin@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 and x86_64
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 23 Dec 2003 22:40:48 +0100
+In-Reply-To: <162gF-8hY-27@gated-at.bofh.it> (Yaroslav Klyukin's message of
+ "Tue, 23 Dec 2003 22:30:25 +0100")
+Message-ID: <m3u13rcivz.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <162gF-8hY-27@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"; format=flowed
-X-OriginalArrivalTime: 23 Dec 2003 20:56:13.0010 (UTC) FILETIME=[330ADB20:01C3C997]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yaroslav Klyukin <skintwin@mail.ru> writes:
 
-Win een GRATIS WEEK KAMPEREN in Oostenrijk!
+> Did anybody have any experience with %subj%?
+> I am curious about stability.
 
-Meldt u vóór 9 januari as. aan voor onze nieuwsbrieven op één van 
-onderstaande websites:
+There are several nasty bugs in 2.6.0/x86-64. Only
+use it with the x86-64 patchkit (ftp://ftp.x86-64.org/pub/linux/v2.6/*) 
 
-www.campings.nl
-www.vakantiebungalows.nl
-www.vakantiehuisjes.nl
-
-en maak kans op een gratis kampeerweek in Oostenrijk.
-Meer info vindt u op de website: www.campings.nl.
-De winnaar wordt op 10 januari as. aldaar bekendgemaakt.
-
-www.campings.nl: De meest recreatieve site van Nederland!
-Ruim 1000 campings in Europa. (Online boeken)
-
-www.vakantiebungalows.nl: De grootste online aanbieder van Nederland!
-Keuze uit ruim 60.000 vakantiebungalows in heel Europa. (Online boeken)
-
-www.vakantiehuisjes.nl: De leukste vakantiesite van Nederland!
-Zoek & Boek hier uw vakantiehuisje. (Online boeken)
-
-Wij wensen u alvast fijne feestdagen en een gezond 2004!
-
-Team Recreatie Media
-
-
-
+-Andi

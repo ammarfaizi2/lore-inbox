@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVCQW1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVCQW22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVCQW1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 17:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVCQWYf
+	id S261259AbVCQW22 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVCQW2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 17:24:35 -0500
-Received: from mailhub.lss.emc.com ([168.159.2.31]:64636 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261274AbVCQWVf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 17:21:35 -0500
-From: Brett Russ <russb@emc.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050317221753.53957EDF@lns1032.lss.emc.com>
-In-Reply-To: <20050317221753.53957EDF@lns1032.lss.emc.com>
-Subject: Re: [PATCH libata-dev-2.6 04/05] libata: support descriptor sense in ctrl page
-Message-ID: <20050317221753.D65B81E4@lns1032.lss.emc.com>
-Date: Thu, 17 Mar 2005 17:20:21 -0500 (EST)
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __SANE_MSGID 0'
+	Thu, 17 Mar 2005 17:28:21 -0500
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:39142 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261303AbVCQW1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 17:27:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16954.1107.911531.142306@wombat.chubb.wattle.id.au>
+Date: Fri, 18 Mar 2005 09:27:31 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: vm_dirty_ratio seems a bit large.
+In-Reply-To: <20050317133148.1122e9c4.akpm@osdl.org>
+References: <20050317205213.GC17353@lnx-holt.americas.sgi.com>
+	<20050317133148.1122e9c4.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_libata_control_pg_desc_bit.patch
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-	libata must support the descriptor format sense blocks as they
-	are required to properly report results of ATA pass through
-	commands as well as other SCSI commands reporting 48b LBAs.
-	This patch adjusts the control mode page to properly report
-	this.
+Andrew> Robin Holt <holt@sgi.com> wrote:
 
-Signed-off-by: Brett Russ <russb@emc.com>
+>>  One other issue we have is the vm_dirty_ratio and background_ratio
+>> adjustments are a little coarse with these memory sizes.  Since our
+>> minimum adjustment is 1%, we are adjusting by 40GB on the largest
+>> configuration from above.  The hardware we are shipping today is
+>> capable of going to far greater amounts of memory, but we don't
+>> have customers demanding that yet.  I would like to plan ahead for
+>> that and change vm_dirty_ratio from a straight percent into a
+>> millipercent (thousandth of a percent).  Would that type of change
+>> be acceptable?
 
- libata-scsi.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+Andrew> Oh drat.  I think such a change would require a new set of
+Andrew> /proc entries.  
 
-Index: libata-dev-2.6/drivers/scsi/libata-scsi.c
-===================================================================
---- libata-dev-2.6.orig/drivers/scsi/libata-scsi.c	2005-03-17 17:16:58.000000000 -0500
-+++ libata-dev-2.6/drivers/scsi/libata-scsi.c	2005-03-17 17:16:58.000000000 -0500
-@@ -1370,7 +1370,12 @@ static unsigned int ata_msense_caching(u
- 
- static unsigned int ata_msense_ctl_mode(u8 **ptr_io, const u8 *last)
- {
--	const u8 page[] = {0xa, 0xa, 2, 0, 0, 0, 0, 0, 0xff, 0xff, 0, 30};
-+	const u8 page[] = {0xa, 0xa, 6, 0, 0, 0, 0, 0, 0xff, 0xff, 0, 30};
-+
-+	/* byte 2: set the descriptor format sense data bit (bit 2)
-+	 * since we need to support returning this format for SAT
-+	 * commands and any SCSI commands against a 48b LBA device.
-+	 */
- 
- 	ata_msense_push(ptr_io, last, page, sizeof(page));
- 	return sizeof(page);
+No, you could just extend them to understand fixed point.  Keep
+printing integers as integers, print non-integers with one (or two:
+will we ever need 0.01% increments?) decimal places.
 
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

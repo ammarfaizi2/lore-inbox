@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSKGPro>; Thu, 7 Nov 2002 10:47:44 -0500
+	id <S261320AbSKGPu1>; Thu, 7 Nov 2002 10:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbSKGPro>; Thu, 7 Nov 2002 10:47:44 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55936 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261318AbSKGPrm>; Thu, 7 Nov 2002 10:47:42 -0500
-Date: Thu, 7 Nov 2002 13:54:10 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Ketil Froyn <kernel@ketil.froyn.name>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Majordomo results
-In-Reply-To: <20021107113938.GC23425@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0211071353330.22494-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261321AbSKGPu1>; Thu, 7 Nov 2002 10:50:27 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:19368 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S261320AbSKGPu0>;
+	Thu, 7 Nov 2002 10:50:26 -0500
+Date: Thu, 7 Nov 2002 10:57:06 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Why are exe, cwd, and root priviledged bits of information?
+Message-ID: <Pine.LNX.4.33L2.0211071052540.8252-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, William Lee Irwin III wrote:
 
-> Could these DoS attempts get filtered somehow?
+In the /prod/PID subset of procfs, why are the exe, cwd, and root symlinks
+considered priviledged information?
 
-Come on, if Ryan Cumming wants to make an ass out of himself,
-why shouldn't he be allowed to ? ;)
+Exe is the big one for me, as this one can be usually infered from reading
+/prod/PID/maps.  Root I guess can't be inferred in any unpriviledged way,
+and neither can cwd.  At any rate.. I am not sure behind the philosophy to
+make these symlinks' destinations priviledged...  can someone clarify
+this?
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+Thanks,
 
-http://www.surriel.com/		http://distro.conectiva.com/
+-Calin
 

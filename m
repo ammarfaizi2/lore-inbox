@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271359AbTG2Jol (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 05:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271379AbTG2Jok
+	id S271362AbTG2Jgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 05:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTG2Jgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 05:44:40 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:11707 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S271359AbTG2Jof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 05:44:35 -0400
-Date: Tue, 29 Jul 2003 11:44:16 +0200
-From: Pavel Machek <pavel@suse.cz>
+	Tue, 29 Jul 2003 05:36:31 -0400
+Received: from dsl-217-155-102-250.zen.co.uk ([217.155.102.250]:51948 "EHLO
+	smithers.xal") by vger.kernel.org with ESMTP id S271362AbTG2JeP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 05:34:15 -0400
+Date: Tue, 29 Jul 2003 10:34:09 +0100
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2: cursor started to disappear
-Message-ID: <20030729094416.GB262@elf.ucw.cz>
-References: <20030728181408.GA499@elf.ucw.cz> <20030728182757.GA1793@win.tue.nl> <20030728131741.528a4707.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
+Message-ID: <20030729093409.GA779@xal.co.uk>
+References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030728131741.528a4707.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030728202600.18338fa9.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
+From: Pavel Rabel <pavel@xal.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Applied the patch, no OOPSing now, thanks.
 
-> > > Plus I'm seeing some silent data corruption. It may be
-> > > swsusp or loop related
+Pavel
+
+On Mon, Jul 28, 2003 at 08:26:00PM -0700, Andrew Morton wrote:
+> "S. Anderson" <sa@xmission.com> wrote:
+> >
+> > On Mon, Jul 28, 2003 at 06:18:07PM +0100, Pavel Rabel wrote:
+> > > Got this OOPS when trying "modprobe i810fb",
+> > > kernel 2.6.0-test2
+> > > 
 > > 
-> > Loop is not stable at all. Unsuitable for daily use.
+> > I am also getting this oops, or somthing very simmillar.
 > 
-> That's the first I've heard about it.  Do you have some details on this?  A
-> test case perhaps?
+> yay!  I finally fixed a bug! (sheesh, bad day).
+> 
+> The device table is not null-terminated so we run off the end during
+> matching and go oops.
+> 
+> I also moved all the statics out of i810_main.h and into i810_main.c. 
+> There is not a lot of point putting them in a header file: if any other .c
+> file includes the header we get multiple private instantiatiations of
+> all that stuff.
 
-After a while (week of use), kernel started complaining about "block
-already freed in inode X" or something like that. I rebooted and fsck
-found nothing serious (that is normal loop). I've now switched to
-Jari's version of loop -- I'd like to keep this filesystem.
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

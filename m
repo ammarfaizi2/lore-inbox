@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbUKAEgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbUKAEmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbUKAEgx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 23:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbUKAEgw
+	id S261223AbUKAEmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 23:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbUKAEmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 23:36:52 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:34500 "HELO koto.vergenet.net")
-	by vger.kernel.org with SMTP id S261185AbUKAEgu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 23:36:50 -0500
-Date: Mon, 1 Nov 2004 13:35:59 +0900
-From: Horms <horms@verge.net.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Siep Kroonenberg <siepo@cybercomm.nl>, 278068@bugs.debian.org
-Subject: chmod messes up permissions on hfs filesystem
-Message-ID: <20041101043559.GA12500@verge.net.au>
-In-Reply-To: 200410241621.i9OGLiS1003875@dep.oprit.rug.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 31 Oct 2004 23:42:08 -0500
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:10414 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261223AbUKAEmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 23:42:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working
+Date: Sun, 31 Oct 2004 23:42:01 -0500
+User-Agent: KMail/1.6.2
+Cc: Matthias Hentges <mailinglisten@hentges.net>
+References: <200410311903.06927@zodiac.zodiac.dnsalias.org> <200410312131.20088.dtor_core@ameritech.net> <1099277136.11089.1.camel@mhcln03>
+In-Reply-To: <1099277136.11089.1.camel@mhcln03>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-Cluestick: seven
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410312342.01850.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 05:21:44PM +0200, Siep Kroonenberg wrote:
-> Package: kernel-image-2.6.8-powerpc Version: 2.6.8-6 Severity: normal
+On Sunday 31 October 2004 09:45 pm, Matthias Hentges wrote:
+> Am Mo, den 01.11.2004 schrieb Dmitry Torokhov um 3:31:
 > 
+> [...]
 > 
-> chmod commands on files on hfs partitions tend to give weird results,
-> e.g.:
+> > Can I get a binary version of it (straight out of /proc/acpi/dsdt) please?
+> > The one you send was converted into C source while I need ASL.
+> > 
+> Sure, it's attached.
+
+Hmm, i8042 already recognizes both PNP IDs from your DSDT:
+
+>                 Device (PS2K)
+>                 {
+>                     Name (_HID, EisaId ("PNP0303"))
+>                     Name (_CRS, ResourceTemplate ()
+>                     {
+>                         IO (Decode16, 0x0060, 0x0060, 0x01, 0x01)
+>                         IO (Decode16, 0x0064, 0x0064, 0x01, 0x01)
+>                         IRQ (Edge, ActiveHigh, Exclusive) {1}
+>                     })
+>                 }
 > 
-> original: -rw-r--r-- after chmod g+w: -----w--w- after chmod g-w:
-> ---------- after unmounting and remounting the partition: -r--r--r--
+>                 Device (PS2M)
+>                 {
+>                     Name (_HID, EisaId ("PNP0F13"))
 > 
-> I assume this is kernel-related, since with a 2.4 kernel, chmod
-> commands mostly got ignored on this hfs partition. Anyhow, the
-> maintainer of coreutils doesn't consider this a problem with chmod.
 
-That is very strange indeed. I have sent this on to LKML so see if he has
-any ideas.
+I wonder what is going on... I see there was big ACPI update in -mm2,
+could you try reverting bk-acpi.patch.
 
->From reading hfs_inode_setattr() in fs/hfs/inode.c I observe that, it
-only honours changes for the write flag, and it changes the global,
-group and user flag simultaneously. I guess HFS only has one permission
-flag, write, which can be on or off. The relevant code in the hfs tree
-doesn't seem to have changed for many moons, so either it has always
-been broken in 2.6 or something strange has happened elsewhere. 
-
-In any case the behaviuor describe above is weird and should work
-more along the lines of. 
-
--rw-r--r--
-after chmod g+w:
--rw-rw-rw-
-after chmod g-w:
--r--r--r--
-after unmounting and remounting the partition:
--r--r--r--
-
+Btw, you said you are using 2.6.10-rc1 - is there -mm suffix missing?
+Linus's tree does not have i8042 ACPI enumeration patch yet so 
+i8042.noacpi does not have any effect and should not even be recognized
+by the kernel.
 
 -- 
-Horms
+Dmitry

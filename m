@@ -1,130 +1,558 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTHOJkf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 05:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275485AbTHOJkf
+	id S275889AbTHOKAD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 06:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275890AbTHOKAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 05:40:35 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:37604 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261151AbTHOJkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 05:40:32 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Fri, 15 Aug 2003 11:40:30 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Chris Mason <mason@suse.com>
-Cc: marcelo@conectiva.com.br, green@namesys.com, akpm@osdl.org, andrea@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030815114030.26890199.skraw@ithnet.com>
-In-Reply-To: <1060913337.1493.29.camel@tiny.suse.com>
-References: <20030814084518.GA5454@namesys.com>
-	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
-	<20030814194226.2346dc14.skraw@ithnet.com>
-	<1060913337.1493.29.camel@tiny.suse.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 06:00:03 -0400
+Received: from [212.209.10.216] ([212.209.10.216]:17043 "EHLO
+	krynn.se.axis.com") by vger.kernel.org with ESMTP id S275889AbTHOJ7n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 05:59:43 -0400
+Message-ID: <D069C7355C6E314B85CF36761C40F9A42E20B6@mailse02.se.axis.com>
+From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
+To: "'Willy Tarreau'" <willy@w.ods.org>
+Cc: "'Timothy Miller'" <miller@techsource.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: generic strncpy - off-by-one error
+Date: Fri, 15 Aug 2003 11:54:50 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C36313.44C70D10"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Aug 2003 22:08:58 -0400
-Chris Mason <mason@suse.com> wrote:
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-> On Thu, 2003-08-14 at 13:42, Stephan von Krawczynski wrote:
+------_=_NextPart_000_01C36313.44C70D10
+Content-Type: text/plain
+
+> -----Original Message-----
+> From: Willy Tarreau [mailto:willy@w.ods.org] 
+> Sent: Thursday, August 14, 2003 21:45
+> To: Peter Kjellerstedt
+> Cc: 'Timothy Miller'; linux-kernel mailing list
+> Subject: Re: generic strncpy - off-by-one error
 > 
-> > Hello Marcelo,
+> On Thu, Aug 14, 2003 at 11:34:50AM +0200, Peter Kjellerstedt wrote:
+>  
+> > char *strncpy(char *dest, const char *src, size_t count)
+> > {
+> > 	char *tmp = dest;
 > > 
-> > the system is up and running, currently:
+> > 	while (count) {
+> > 		if (*src == '\0')
+> > 			break;
 > > 
-> >   7:40pm  up 4 days  2:34,  21 users,  load average: 2.07, 2.10, 2.06
+> > 		*tmp++ = *src++;
+> > 		count--;
+> > 	}
 > > 
-> > there is still the verification issue, today I added another 50 GB to the
-> > data stream, and therefore got additional 3 verification  errors. But this
-> > seems to have no influence on the stability. Box feels ok, reacts
-> > completely normal, no strange output in any logs.
+> > 	while (count) {
+> > 		*tmp++ = '\0';
+> > 		count--;
+> > 	}
+> > 
+> > 	return dest;
+> > }
+> > 
+> > Moving the check for *src == '\0' into the first loop seems
+> > to let the compiler reuse the object code a little better
+> > (may depend on the optimizer). Also note that your version
+> > of the second loop needs an explicit  comparison with -1,
+> > whereas mine uses an implicit comparison with 0.
 > 
-> Just to second Oleg's messages so far, the verification issues are still
-> serious, it could be the same kind of memory corruptions that could be
-> causing crashes on reiserfs, just in a different place.
+> Well, if you're at this level of comparison, then I may object that
+> 'count' is evaluated twice when jumping from one loop to the 
+> other one.
+> 
+> *Algorithmically* speaking, the most optimal code should be :
+> 
+> char *strncpy(char *dest, const char *src, size_t count)
+> {
+>         char *tmp = dest;
+>         if (unlikely(!count))
+>                 goto end;
+> loop1:
+>         if ((*tmp = *src++) == '\0')
+> 		goto next;
+>         tmp++;
+>         if (likely(--count))
+> 		goto loop1;
+> 	else
+> 		goto end;
+> loop2:
+>         *tmp = '\0';
+> next:
+>         tmp++;
+>         if (likely(--count))
+> 		goto loop2;
+> end:
+>         return dest;
+> }
 
-Well, as you expected I have the oops for you happened just this morning:
+I hope we do not opt to go with this version. :)
 
-ksymoops 2.4.8 on i686 2.4.22-rc2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-rc2/ (default)
-     -m /boot/System.map-2.4.22-rc2 (default)
+> (sorry for those who hate gotos). Look at it : no test is 
+> performed twice, no byte is read nor written twice in any 
+> case. The assembly code produced is optimal on x86 (well, 
+> in fact we could delete exactly one conditionnal jump because 
+> the compiler doesn't know how to reuse them for several tests).
+> 16 inlinable instructions (= excluding function in/out) which 
+> can be executed 2 at a time if your CPU has 2 pipelines. about
+> 3 cycles/copied byte, 2 cycles/filled byte.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+It does not give optimal code for CRIS for the second loop.
+It can easily be fixed by combining loop2 and next (which
+will cause tmp to be assigned twice when changing loop),
+but I know this was not the intent of this exercise.
 
-NMI Watchdog detected LOCKUP on CPU0, eip c01457c3, registers:
-CPU:    0
-EIP:    0010:[<c01457c3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000046
-eax: 00000019   ebx: effc5c7c   ecx: 00000000   edx: effc6c7c
-esi: 00000001   edi: 00000202   ebp: c13956c0   esp: f6ae1e8c
-ds: 0018   es: 0018   ss: 0018
-Process setiathome (pid: 2696, stackpage=f6ae1000)
-Stack: f79ba218 effc5c7c f710eab8 00000008 c02165ea effc5c7c 00000001 ffffffff
-       f79ba298 f79ba218 00000001 00000010 00000001 f710ea00 c0216a0f f710ea00
-       00000001 00000000 00000001 00000001 ffffffff ffffffff 0000001c 00000000
-Call Trace:    [<c02165ea>] [<c0216a0f>] [<c024a47a>] [<c020f6b8>] [<c020f568>]
-  [<c01226da>] [<c0122563>] [<c01222d6>] [<c0109508>] [<c010c048>]
-Code: 75 eb a8 01 0f 44 f1 8b 52 28 39 da 75 ea c6 05 64 5d 30 c0
+> Unfortunately, it fools branch predictors and prefetch 
+> mechanisms found in today's processors, so it results in 
+> slower code than yours (at least on athlon and P3). Perhaps 
+> it would be fast on older processors, I don't know.
+> 
+> All that demonstrates that whatever your efforts in helping 
+> the optimizer, the only meaningful result is the benchmark. 
+> Number of bytes and speculations on the reusability of 
+> information between lines of codes are not what makes our
+> programs fast anymore :-(
+
+It was easier some years ago, wasn't it? ;)
+
+> > Testing on the CRIS architecture, your version is 24 instructions,
+> > whereas mine is 18. For comparison, Eric's one is 12 and the
+> > currently used implementation is 26 (when corrected for the
+> > off-by-one error by comparing with > 1 rather than != 0 in the
+> > second loop).
+> 
+> Just out of curiosity, can the CRIS architecture execute 
+> multiple instructions per cycle ? have you tried to determine 
+
+No it cannot. :( Our ETRAX 100LX processor which uses the
+CRIS architecture is a 100 MIPS processor without most of
+today's fancy processor optimizations like multiple instructions,
+branch prediction etc. It is designed for embedded products.
+
+> the dependencies between the instructions ? Did you time the 
+> different functions ? (yours is rather fast on x86 BTW).
+
+No I didn't, but I have done it now.
+
+I made a program that called the respective strncpy() 
+implementation a number of times copying a 100 byte string
+into a 1000 byte buffer. For each function I tested with
+copying 50, 100, 200 and 1000 bytes. I have attached the 
+source to this mail if anyone wants to make sure I did not
+screw up the benchmarking too much... ;)
+
+This table shows the times in seconds to call each function
+500,000 times for CRIS:
+
+                   50         100         200        1000
+Original        3.123906    6.138616    9.146204   33.323051  
+Eric's          2.602632    5.105367    9.637701   45.910798  
+Timothy's       3.125003    6.128571    9.147905   33.325337  
+My first        2.868396    5.626149    8.138134   28.276760  
+My second (for) 2.622412    5.129988    7.636364   27.786745  
+Algorithmic     2.597808    5.119332    7.627300   27.785999  
+
+Going by these numbers, Eric's version is a good candidate 
+for the copying phase, but loses out badly when it comes to
+the filling. The best versions here seem to be my version
+with the for loops and your algorithmic version which both
+give almost identical numbers (but look below for more on
+the algorithmic version).
+
+This table shows the times in seconds to call each function
+20,000,000 times for my P4 2.53GHz:
+
+                   50         100         200        1000
+Original        2.900444    5.475311    9.095701   37.462796  
+Eric's          2.988404    5.637352    9.576857   37.580639  
+Timothy's       2.929508    5.534824    9.157147   36.836899  
+My first        2.951068    5.511169    8.321381   29.669017  
+My second (for) 2.921675    5.531486    8.296728   28.940855  
+Algorithmic     3.911937    7.343235   12.699275   54.288284  
+
+The interesting thing here is that the original code wins
+the copying phase. But the numbers for the copying phase for
+the first five versions are so similar, that I doubt one can 
+say one is better than the other. However, when it comes to
+the filling phase my versions are back in the lead. These 
+numbers also shows very clearly what you stated above about
+branch predictions, as the algorithmic version loses out
+badly here.
+
+All these numbers taken together, I would say that my version
+with the for loops seems to be the overall winner. :)
+
+> To conclude, I would say that if we want to implement really 
+> fast low-level primitives such as str*, mem*, ... there's 
+> nothing better than assembly associated with benchmarks on 
+> different CPU architectures and models.
+> 
+> But I don't know if strncpy() is used enough to justify that...
+
+I agree
+
+> Regards,
+> Willy
+
+//Peter
 
 
->>EIP; c01457c3 <end_buffer_io_async+63/b0>   <=====
+------_=_NextPart_000_01C36313.44C70D10
+Content-Type: application/octet-stream;
+	name="testa.c"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="testa.c"
 
->>ebx; effc5c7c <_end+2fbfe61c/38462a00>
->>edx; effc6c7c <_end+2fbff61c/38462a00>
->>ebp; c13956c0 <_end+fce060/38462a00>
->>esp; f6ae1e8c <_end+3671a82c/38462a00>
+#include <stdio.h>=0A=
+#include <stdlib.h>=0A=
+#include <string.h>=0A=
+#include <errno.h>=0A=
+#include <sys/types.h>=0A=
+=0A=
+#include <sys/time.h>=0A=
+=0A=
+char *strncpy0(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count-- && (*tmp++ =3D *src++) !=3D '\0')=0A=
+    /* nothing */;=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy0a(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count && (*dest++ =3D *src++) !=3D '\0')=0A=
+    count--;=0A=
+=0A=
+  while (count > 1)=0A=
+  {=0A=
+    *dest++ =3D 0;=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  return tmp;=0A=
+}=0A=
+=0A=
+char *strncpy0b(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count && (*tmp++ =3D *src++) !=3D '\0')=0A=
+    count--;=0A=
+=0A=
+  while (count > 1)=0A=
+  {=0A=
+    *tmp++ =3D 0;=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy0x(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    if (!(*tmp =3D *src++))=0A=
+      break;=0A=
+    tmp++;=0A=
+=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy1(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    if ((*tmp =3D *src))=0A=
+      src++;=0A=
+    tmp++;=0A=
+=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy1x(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  for (; count; count--)=0A=
+  {=0A=
+    if ((*tmp =3D *src))=0A=
+      src++;=0A=
+    tmp++;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy2(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count--)=0A=
+  {=0A=
+    if ((*tmp++ =3D *src))=0A=
+      src++;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy3(char *dest, const char *src, size_t count)=0A=
+{=0A=
+   if (count)=0A=
+   {=0A=
+      char *tmp =3D dest;=0A=
+=0A=
+      while (1)=0A=
+      {=0A=
+         *tmp =3D *src;=0A=
+         if (*src)=0A=
+           src++;=0A=
+         tmp++;=0A=
+         if (!count--)=0A=
+           break;=0A=
+      }=0A=
+   }=0A=
+=0A=
+   return dest;=0A=
+}=0A=
+=0A=
+char *strncpy4(char *dest, const char *src, size_t count)=0A=
+{=0A=
+   if (count)=0A=
+   {=0A=
+      char *tmp =3D dest;=0A=
+=0A=
+      do=0A=
+      {=0A=
+         if ((*tmp =3D *src))=0A=
+           ++src;=0A=
+         ++tmp;=0A=
+      } while (--count);=0A=
+   }=0A=
+=0A=
+   return dest;=0A=
+}=0A=
+=0A=
+char *strncpy5(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count && *src)=0A=
+  {=0A=
+    count--;=0A=
+    *tmp++ =3D *src++;=0A=
+  }=0A=
+=0A=
+  while (count--)=0A=
+  {=0A=
+    *tmp++ =3D 0;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy5w(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    if (*src =3D=3D '\0')=0A=
+      break;=0A=
+=0A=
+    *tmp++ =3D *src++;=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    *tmp++ =3D 0;=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy5x(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    count--;=0A=
+    if (!(*tmp++ =3D *src++))=0A=
+      break;=0A=
+  }=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    count--;=0A=
+    *tmp++ =3D 0;=0A=
+  }=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy5y(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  for (; count && *src; count--)=0A=
+    *tmp++ =3D *src++;=0A=
+=0A=
+  for (; count; count--)=0A=
+    *tmp++ =3D '\0';=0A=
+=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+#define likely(x)    __builtin_expect(!!(x),1)=0A=
+#define unlikely(x)  __builtin_expect(!!(x),0)=0A=
+=0A=
+char *strncpy6(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  if (unlikely(!count))=0A=
+    goto end;=0A=
+=0A=
+loop1:=0A=
+  if ((*tmp =3D *src++) =3D=3D '\0')=0A=
+    goto next;=0A=
+  tmp++;=0A=
+  if (likely(--count))=0A=
+    goto loop1;=0A=
+  else=0A=
+    goto end;=0A=
+=0A=
+loop2:=0A=
+  *tmp =3D '\0';=0A=
+next:=0A=
+  tmp++;=0A=
+  if (likely(--count))=0A=
+    goto loop2;=0A=
+=0A=
+end:=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+char *strncpy6x(char *dest, const char *src, size_t count)=0A=
+{=0A=
+  char *tmp =3D dest;=0A=
+=0A=
+  if (unlikely(!count))=0A=
+    goto end;=0A=
+=0A=
+loop1:=0A=
+  if ((*tmp =3D *src++) =3D=3D '\0')=0A=
+    goto loop2;=0A=
+  tmp++;=0A=
+  if (likely(--count))=0A=
+    goto loop1;=0A=
+  else=0A=
+    goto end;=0A=
+=0A=
+loop2:=0A=
+  *tmp++ =3D '\0';=0A=
+  if (likely(--count))=0A=
+    goto loop2;=0A=
+=0A=
+end:=0A=
+  return dest;=0A=
+}=0A=
+=0A=
+void time_it(char *(*func)(char *dest, const char *src, size_t =
+count),=0A=
+             size_t size)=0A=
+{=0A=
+  struct timeval start;=0A=
+  struct timeval end;=0A=
+  long sec, usec;=0A=
+  static char *string =3D "asdl hfaslkfh alksjfh laksjh =
+lkajsdflkasflksdf ljhfljshf laksflaksfhlaksjhflaksfh lakshf lkds =
+hflsd";=0A=
+  static char buffer[1000];=0A=
+#ifdef __CRIS__=0A=
+  int count =3D 500000;=0A=
+#else=0A=
+  int count =3D 20000000;=0A=
+#endif=0A=
+=0A=
+  if (size > sizeof buffer)=0A=
+  {=0A=
+    fprintf(stderr, "Buffer too small!\n");=0A=
+    exit(1);=0A=
+  }=0A=
+=0A=
+  gettimeofday(&start, NULL);=0A=
+=0A=
+  while (count)=0A=
+  {=0A=
+    func(buffer, string, size);=0A=
+    count--;=0A=
+  }=0A=
+=0A=
+  gettimeofday(&end, NULL);=0A=
+=0A=
+  sec =3D end.tv_sec - start.tv_sec;=0A=
+  if ((usec =3D end.tv_usec - start.tv_usec) < 0)=0A=
+  {=0A=
+    sec--;=0A=
+    usec +=3D 1000000;=0A=
+  }=0A=
+=0A=
+  printf("%3ld.%06ld  ", sec, usec);=0A=
+  fflush(stdout);=0A=
+}=0A=
+=0A=
+void do_it(const char *name,=0A=
+           char *(*func)(char *dest, const char *src, size_t count))=0A=
+{=0A=
+  printf("%-12s  ", name);=0A=
+  fflush(stdout);=0A=
+  time_it(func, 50);=0A=
+  time_it(func, 100);=0A=
+  time_it(func, 200);=0A=
+  time_it(func, 1000);=0A=
+  printf("\n");=0A=
+}=0A=
+=0A=
+#define TIME_IT(func) time_it(#func, func)=0A=
+=0A=
+int main(int argc, char* argv[])=0A=
+{=0A=
+  do_it("Original", strncpy0a);=0A=
+  do_it("Eric's", strncpy1);=0A=
+  do_it("Timothy's", strncpy5);=0A=
+  do_it("My first", strncpy5x);=0A=
+  do_it("For loops", strncpy5y);=0A=
+  do_it("Algorithmic", strncpy6);=0A=
+=0A=
+  exit(0);=0A=
+}=0A=
 
-Trace; c02165ea <__scsi_end_request+ba/250>
-Trace; c0216a0f <scsi_io_completion+15f/430>
-Trace; c024a47a <rw_intr+5a/200>
-Trace; c020f6b8 <scsi_finish_command+98/d0>
-Trace; c020f568 <scsi_bottom_half_handler+c8/f0>
-Trace; c01226da <bh_action+6a/70>
-Trace; c0122563 <tasklet_hi_action+53/a0>
-Trace; c01222d6 <do_softirq+76/e0>
-Trace; c0109508 <do_IRQ+d8/f0>
-Trace; c010c048 <call_do_IRQ+5/d>
-
-Code;  c01457c3 <end_buffer_io_async+63/b0>
-00000000 <_EIP>:
-Code;  c01457c3 <end_buffer_io_async+63/b0>   <=====
-   0:   75 eb                     jne    ffffffed <_EIP+0xffffffed>   <=====
-Code;  c01457c5 <end_buffer_io_async+65/b0>
-   2:   a8 01                     test   $0x1,%al
-Code;  c01457c7 <end_buffer_io_async+67/b0>
-   4:   0f 44 f1                  cmove  %ecx,%esi
-Code;  c01457ca <end_buffer_io_async+6a/b0>
-   7:   8b 52 28                  mov    0x28(%edx),%edx
-Code;  c01457cd <end_buffer_io_async+6d/b0>
-   a:   39 da                     cmp    %ebx,%edx
-Code;  c01457cf <end_buffer_io_async+6f/b0>
-   c:   75 ea                     jne    fffffff8 <_EIP+0xfffffff8>
-Code;  c01457d1 <end_buffer_io_async+71/b0>
-   e:   c6 05 64 5d 30 c0 00      movb   $0x0,0xc0305d64
-
-
-1 warning issued.  Results may not be reliable.
-
-
-Obviously the problem seems a lot harder to trigger with ext3, but nevertheless
-comes up (this time around 5 days). I will try Chris' suggestions  and see what
-happens. I'll keep you informed.
-
-Regards,
-Stephan
+------_=_NextPart_000_01C36313.44C70D10--

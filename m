@@ -1,83 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130301AbQKGKAB>; Tue, 7 Nov 2000 05:00:01 -0500
+	id <S129618AbQKGKHD>; Tue, 7 Nov 2000 05:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbQKGJ7w>; Tue, 7 Nov 2000 04:59:52 -0500
-Received: from jabberwock.ucw.cz ([62.168.0.131]:42247 "EHLO jabberwock.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130828AbQKGJ7n>;
-	Tue, 7 Nov 2000 04:59:43 -0500
-Date: Tue, 7 Nov 2000 10:59:34 +0100
-From: Martin Mares <mj@suse.cz>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: linux-kernel@vger.kernel.org
+	id <S130743AbQKGKGy>; Tue, 7 Nov 2000 05:06:54 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:25106 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S129618AbQKGKGm>; Tue, 7 Nov 2000 05:06:42 -0500
+Message-ID: <3A07E085.3661EB6D@evision-ventures.com>
+Date: Tue, 07 Nov 2000 11:59:17 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Mares <mj@suse.cz>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Woodhouse <dwmw2@infradead.org>, Dan Hollis <goemon@anime.net>,
+        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-Message-ID: <20001107105934.B415@albireo.ucw.cz>
-In-Reply-To: <mj@suse.cz> <200011070117.eA71H4v05257@sleipnir.valparaiso.cl>
-Mime-Version: 1.0
+In-Reply-To: <3A06A053.56F09ACB@mandrakesoft.com> <E13sphu-0006O4-00@the-village.bc.nu> <20001106221254.A1196@albireo.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011070117.eA71H4v05257@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Mon, Nov 06, 2000 at 10:17:04PM -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Horst!
+Martin Mares wrote:
+> 
+> Hi Alan!
+> 
+> > If the sound card is only used some of the time or setup and then used
+> > for TV its nice to get the 60K + 128K DMA buffer back when you dont need it
+> > especially on a low end box
+> 
+> So why don't we allocate / free the DMA buffer on device open / close instead
+> of module insert / remove?  If the reason lies in problems with allocation
+> of large chunks of contiguous memory, we're going to have exactly the same
+> problems when autoloading the module.
+> 
+> I think that automatic loading / unloading of modules has been a terrible hack
+> since its first days (although back in these times a useful one) and that the
+> era of its usefulness is over. There are zillions of problems with this
+> mechanism, the most important ones being:
 
-> Strange somebody from a distribution forgets _the_ most important use of
-> modules: Remember old-time Slackware, with dozens of different boot
-> diskettes, and the imperative to compile a kernel to your machine once you
-> got it running?
+Amen.
 
-But how is this related to automatic unloading of modules???
+>    o  It would have to preserve _complete_ device state over module reload.
+>       For the sound card mixer settings discussed it's close to trivial, but
+>       for example consider a tape drive and the problem of preserving tape
+>       position after reload (probably including device reset causing tape rewind).
+>       And what about textures loaded to memory of a 3D video card?
+> 
+>    o  For many drivers, the "device currently open" concept makes no sense.
+>       Consider a mouse driver whose only activity is to feed mouse events
+>       to an event device. The mouse driver can be unloaded in any time (either
+>       manually or perhaps automatically after the mouse gets unplugged), hence
+>       it should have a use count == zero, but even if it seems to be unused,
+>       it must not be unloaded just because of some timeout since the mouse
+>       will cease to work.
+> 
+>    o  It interferes with hotplug in nasty ways. Let's have a USB host controller
+>       driver with currently no devices on its bus. It's also an example of a zero
+>       use count driver, but it also must not be unloaded as it's needed for
+>       recognizing newly plugged in devices.
 
-Even automatic loading is not needed for this purpose -- just make the startup
-scripts load all the modules needed and you don't have to maintain complex
-mappings from userspace device names to kernel drivers.
+Plese add power-saving devices like in notebooks to the list as well.
+For example in my notebook the PC speaker loops through the maestro-3e.
+The BIOS is initializing the maestro with some sane mixer values but
+after
+a suspend cycle the pc speaker is compleatly off due to suspension of
+the
+maestro-3e chip and the leak of a *permanent* driver sitting around to
+handle
+the wakeup event.
 
-> The cases mentioned are cases where unloading (automatic or manual, doesn't
-> matter) would break things. Just don't allow it, ever (IPv6 does this, for
-> one example). Or fix the loading/unloading somehow. Strategies to be able
-> to do so is what is being discussed here, BTW...
+> I don't argue whether we need or need not some kind of persistent storage for
+> the modules (it might be a good idea when it comes to hotplug, but it should
+> be probably taken care of by the userspace hotplug helpers), but I think that
+> it has no chance to solve the problems with automatic unloading.
+> 
+> We could of course attempt to circumvent the problems listed above by adding
+> some hints to module state which will say whether it's possible to auto-unload
+> the module or not even if it has zero use count, but it means another thing
+> to handle in all the drivers (well, at least another thing to think of whether
+> it's needed or not for each driver) and I think that the total effect of
+> the autounloading mechanism (a minimum amount of memory saved) in no way
+> outweighs the cost of implementing it right.
 
-No, the cases mentioned are cases where automatic unloading breaks things,
-but manual unloading is perfectly okay. Nobody expects you to preserve exact
-hardware state and keep things working if you unload the driver manually,
-but automatic unload should be perfectly transparent.
-
-> Just force a non-zero count as long as the module is in use. Wait a
-> minute... that is exactly what a non-zero count is supposed to mean!
-
-Yes, but define "in use".  Does your "in use" mean "referenced by user space
-or by other drivers" (== cannot be unloaded without crashing the system)
-or "unloading this module makes something cease to work"?  Currently, the
-use counts maintained by the drivers correspond to the first definition
-which is the right definition when it comes to manual unloading, but it
-gives you no clue when it comes to transparent automatic unloading.
-
-> What is a "minimal ammount of memory" on the 1+Gb RAM machines I've seen
-> discussed here isn't at all "minimal" for somebody who has to run Linux in
-> 4Mb, preferably less...
- 
-> Linux came to be what it is today in large part because the PC nobody
-> wanted anymore ("too slow", "can't run XYZ") became the router/firewall/web
-> server/mail server/... over in some closet, and soon nobody even remembered
-> where the machine was physically. Don't kill this.
-
-In routers dreaming the ancient dreams from the elder days of their creation,
-you need all the modules loaded all the time anyway, hence automatic unloading
-doesn't apply. Even better use a monolithic kernel since it saves in average
-half a page per driver. (Yes, I know that current distributions don't ship with
-precompiled kernels suiting your machine, but current distributions don't run
-on a 4MB 386 anyway.)
-
-Also, I'm not advocating killing compatibility with such old hardware (which
-I frequently use), but I'd very much like to avoid hacking all the drivers
-just to support correctly some (although sometimes useful) ill defined feature.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-"ADA -- A Dumb Acronym"
+And the pain for the user of the whole: Take the example of ALSA
+over-modularisation...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

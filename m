@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135935AbRDTOqE>; Fri, 20 Apr 2001 10:46:04 -0400
+	id <S135941AbRDTO6g>; Fri, 20 Apr 2001 10:58:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135936AbRDTOpz>; Fri, 20 Apr 2001 10:45:55 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50181 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135935AbRDTOpk>; Fri, 20 Apr 2001 10:45:40 -0400
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-To: esr@thyrsus.com
-Date: Fri, 20 Apr 2001 15:44:34 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        acahalan@cs.uml.edu (Albert D. Cahalan),
-        willy@ldl.fc.hp.com (Matthew Wilcox),
-        james.rich@m.cc.utah.edu (james rich), linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-In-Reply-To: <20010420101951.A6011@thyrsus.com> from "Eric S. Raymond" at Apr 20, 2001 10:19:51 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qc9E-0001PW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135943AbRDTO61>; Fri, 20 Apr 2001 10:58:27 -0400
+Received: from mail.science.uva.nl ([146.50.4.51]:25057 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S135940AbRDTO6N>; Fri, 20 Apr 2001 10:58:13 -0400
+Message-Id: <200104201456.f3KEuor01481@debye.wins.uva.nl>
+Date: Fri, 20 Apr 2001 16:56:50 +0200 (MET DST)
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+From: Mark Kettenis <kettenis@science.uva.nl>
+To: linux-kernel@vger.kernel.org
+CC: wichert@cistron.nl, ebrunet@quatramaran.ens.fr, torvalds@transmeta.com
+Subject: Re: Children first in fork
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll continue asking stupid questions, then.  Like, under this system how
-> can either you or the port maintainers maintain a good representation of 
-> how far out of sync they are with the main tree?
+The behaviour of CLONE_PTRACE in Linux 2.4.x is different from the
+behaviour in 2.2.x.  Linus is describing the 2.4.x. behaviour, where
+the program that's doing the tracing will get the events instead of
+the "real" parent.  I believe the 2.2.x behaviour was pretty much
+useless, and IIRC that was the reason that Linus accepted a patch for
+the new behaviour.  I've tested CLONE_PTRACE in the sense that the
+development version of GDB contains some code that allows debugging of
+any clone() based thread stuff if the threads implementationion
+specifies CLONE_PTRACE in its clone() calls.  That way GDB notices new
+threads automagically.  It only works on Linux 2.4.x of course, and I
+still have to hack something up to make this functionality in GDB
+available to the user.
 
-diff and read the output.
-
-[bizzare sociopolitical mumble deleted]
-
-> well, though.  One is the kind I'm bumping into right now, where
-> somebody legitimately needs to make small (almost trivial) changes
-> scattered all through the tree.
-
-Yep. But such changes are rare. Or should be. 
-
-> Another is the case where a piece of code that needs to be changed doesn't
-> have an active maintainer for a third party like me to go to.
-> What's the neighborly way to deal with these?
-
-If I get patches for stuff that doesnt seem to have a maintainer I apply them.
-On the odd occasion a scream is heard in the distance it means I now know
-there is an active maintainer.
-
-
-
+Mark

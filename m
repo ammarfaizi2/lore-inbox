@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267740AbUJHFUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUJHFVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267740AbUJHFUI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 01:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUJHFUI
+	id S267745AbUJHFVf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 01:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267766AbUJHFVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 01:20:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:60890 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267740AbUJHFUE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 01:20:04 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-ID: <16742.9694.339329.225556@cargo.ozlabs.ibm.com>
-Date: Fri, 8 Oct 2004 15:30:06 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: [PATCH] PPC64: Remove degree symbol from rtas-proc.c
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Fri, 8 Oct 2004 01:21:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12211 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267745AbUJHFV0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 01:21:26 -0400
+Date: Thu, 7 Oct 2004 22:21:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, chrisw@osdl.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       davej@codemonkey.org.uk
+Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
+Message-ID: <20041007222119.X2357@build.pdx.osdl.net>
+References: <20041007164044.23bac609.akpm@osdl.org> <4165E0A7.7080305@yahoo.com.au> <20041007174242.3dd6facd.akpm@osdl.org> <20041007184134.S2357@build.pdx.osdl.net> <20041007185131.T2357@build.pdx.osdl.net> <20041007185352.60e07b2f.akpm@osdl.org> <4165FF7B.1070302@cyberone.com.au> <20041007200109.57ce24ae.akpm@osdl.org> <416605CC.2080204@cyberone.com.au> <20041007203048.298029ab.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041007203048.298029ab.akpm@osdl.org>; from akpm@osdl.org on Thu, Oct 07, 2004 at 08:30:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox pointed out that the degree symbol in the thermal sensor proc
-files that we have on ppc64 cause problems for people using other
-locales or UTF-8.  This patch makes them disappear.
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris, do you have time to test this, against -linus?
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Yeah.  This patch held up against the simple testing, as did Nick's (not
+the most recent combined one from him).
 
-diff -urN linux-2.5/arch/ppc64/kernel/rtas-proc.c ppc64-2.5-pseries/arch/ppc64/kernel/rtas-proc.c
---- linux-2.5/arch/ppc64/kernel/rtas-proc.c	2004-08-08 12:05:16.000000000 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/rtas-proc.c	2004-08-12 15:52:39.000000000 +1000
-@@ -580,7 +580,7 @@
- 			}
- 			break;
- 		case THERMAL_SENSOR:
--			seq_printf(m, "Temp. (°C/°F):\t");
-+			seq_printf(m, "Temp. (C/F):\t");
- 			temperature = 1;
- 			break;
- 		case LID_STATUS:
+Here's some sample output from annotation I added:
+
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1013: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+balance_pgdat:1050: zone->DMA present_pages == 0
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

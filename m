@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVBAEI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVBAEQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVBAEI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 23:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVBAEI4
+	id S261535AbVBAEQG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 23:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVBAEQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 23:08:56 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:52407 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261533AbVBAEIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 23:08:49 -0500
-Message-ID: <41FF00CE.8060904@yahoo.com.au>
-Date: Tue, 01 Feb 2005 15:08:46 +1100
+	Mon, 31 Jan 2005 23:16:05 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:24665 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261535AbVBAEQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 23:16:00 -0500
+Message-ID: <41FF0281.6090903@yahoo.com.au>
+Date: Tue, 01 Feb 2005 15:16:01 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
 X-Accept-Language: en
@@ -29,59 +29,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Christoph Lameter wrote:
-
-Slightly OT: are you still planning to move the update_mem_hiwater and
-friends crud out of these fastpaths? It looks like at least that function
-is unsafe to be lockless.
-
-> @@ -1316,21 +1318,27 @@ static int do_wp_page(struct mm_struct *
->  			flush_cache_page(vma, address);
->  			entry = maybe_mkwrite(pte_mkyoung(pte_mkdirty(pte)),
->  					      vma);
-> -			ptep_set_access_flags(vma, address, page_table, entry, 1);
-> -			update_mmu_cache(vma, address, entry);
-> +			/*
-> +			 * If the bits are not updated then another fault
-> +			 * will be generated with another chance of updating.
-> +			 */
-> +			if (ptep_cmpxchg(page_table, pte, entry))
-> +				update_mmu_cache(vma, address, entry);
-> +			else
-> +				inc_page_state(cmpxchg_fail_flag_reuse);
->  			pte_unmap(page_table);
-> -			spin_unlock(&mm->page_table_lock);
-> +			page_table_atomic_stop(mm);
->  			return VM_FAULT_MINOR;
->  		}
->  	}
->  	pte_unmap(page_table);
-> +	page_table_atomic_stop(mm);
+> The page fault handler attempts to use the page_table_lock only for short
+> time periods. It repeatedly drops and reacquires the lock. When the lock
+> is reacquired, checks are made if the underlying pte has changed before
+> replacing the pte value. These locations are a good fit for the use of
+> ptep_cmpxchg.
 > 
->  	/*
->  	 * Ok, we need to copy. Oh, well..
->  	 */
->  	if (!PageReserved(old_page))
->  		page_cache_get(old_page);
-> -	spin_unlock(&mm->page_table_lock);
+> The following patch allows to remove the first time the page_table_lock is
+> acquired and uses atomic operations on the page table instead. A section
+> using atomic pte operations is begun with
+> 
+> 	page_table_atomic_start(struct mm_struct *)
+> 
+> and ends with
+> 
+> 	page_table_atomic_stop(struct mm_struct *)
 > 
 
-I don't think you can do this unless you have done something funky that I
-missed. And that kind of shoots down your lockless COW too, although it
-looks like you can safely have the second part of do_wp_page without the
-lock. Basically - your lockless COW patch itself seems like it should be
-OK, but this hunk does not.
+Hmm, this is moving toward the direction my patches take.
 
-I would be very interested if you are seeing performance gains with your
-lockless COW patches, BTW.
+I think it may be the right way to go if you're lifting the ptl
+from some core things, because some architectures won't want to
+audit and stuff, and some may need the lock.
 
-Basically, getting a reference on a struct page was the only thing I found
-I wasn't able to do lockless with pte cmpxchg. Because it can race with
-unmapping in rmap.c and reclaim and reuse, which probably isn't too good.
-That means: the only operations you are able to do lockless is when there
-is no backing page (ie. the anonymous unpopulated->populated case).
+Naturally I prefer the complete replacement that is made with
+my patch - however this of course means one has to move
+*everything* over to be pte_cmpxchg safe, which runs against
+your goal of getting the low hanging fruit with as little fuss
+as possible for the moment.
 
-A per-pte lock is sufficient for this case, of course, which is why the
-pte-locked system is completely free of the page table lock.
-
-Although I may have some fact fundamentally wrong?
 

@@ -1,107 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbTHTPOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 11:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbTHTPOk
+	id S262004AbTHTPJK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 11:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTHTPJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 11:14:40 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:36510 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S262010AbTHTPOh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 11:14:37 -0400
-Date: Wed, 20 Aug 2003 17:14:31 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-t3: vfs/ext3 do_lookup bug?!
-Message-Id: <20030820171431.0211930e.martin.zwickel@technotrend.de>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.4claws17 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Wed, 20 Aug 2003 11:09:10 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:57276 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262004AbTHTPJH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 11:09:07 -0400
+Date: Wed, 20 Aug 2003 08:09:03 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IDE wierdness
+Message-ID: <20030820150903.GA7246@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.h1Qq5GvK6'yC8."
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.h1Qq5GvK6'yC8.
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+The primary drive in our file server started to flake out on us (caught by
+the integrity checker we use as part of our backups, files that hadn't been
+modified in a couple of years started having different CRC's).  I pulled 
+the data off and stuck in a new drive.
 
-Hi there!
+I wanted to see if the old drive could be salvaged and used as a test box
+drive.  The drive seems to be degenerating fast.  When I put that drive
+in a 3ware card the 3ware card only sees 1/3 of the drives.  Strange.
+When I put all 3 drives in a promise card, it sees them but if I try and
+copy data from the bad drive to any other drive the system locks up hard,
+no console, no pings, no response to the reset switch, it takes a power
+cycle to get things back.
 
-Today I wanted to check out some src-files from cvs.
-But my fault was, that I ran cvs twice at the same time.
+I verified that behaviour on two different systems so it isn't the box.
+I also cycled through 3 different 3ware cards to make sure that wasn't
+the problem (isn't sys admin fun?).
 
-so two "cvs upd -d -A" are now in 'D' state.
+It's clear to me that I don't want to use this drive but I'm wondering if
+there is any interest in debugging the lock up.  I've only done it on
+2.4.18 as shipped by redhat but I could try 2.6 or whatever you like.
 
-I think they got stuck because both tried to access the same file.
-
-
-#ps lax
-4     0 11833 11832  15   0  4136 2664 down   D    pts/18     0:07 cvs upd -d -A
-4     0 11933 11932  22   0  2672 1180 down   D    pts/19     0:00 cvs upd -d -A
-
-#sysrq-t + dmesg:
-cvs           D 00000196 294197680 11833  11832                     (NOTLB)
-dc84de5c 00000082 d2314a0c 00000196 d23148fc dc84de58 cafba080 cccee770 
-       00000282 cafba080 cccee778 c0107f8e 00000001 cafba080 c0119687 d49d3e94 
-       cccee778 dc84de7c 00000000 d919a9f0 00000000 cccee770 cccee708 d919a980 
-Call Trace:
- [<c0107f8e>] __down+0x7c/0xc7
- [<c0119687>] default_wake_function+0x0/0x2e
- [<c0108118>] __down_failed+0x8/0xc
- [<c0159df3>] .text.lock.namei+0x5/0x16a
- [<c0156c98>] do_lookup+0x96/0xa1
- [<c0157077>] link_path_walk+0x3d4/0x762
- [<c0157c57>] open_namei+0x8e/0x3f3
- [<c014a265>] filp_open+0x43/0x69
- [<c014a64c>] sys_open+0x5b/0x8b
- [<c0109063>] syscall_call+0x7/0xb
-
-cvs           D C8E86424 297794096 11933  11932                     (NOTLB)
-d49d3e80 00000086 c03a561b c8e86424 00000001 d092d408 c2dd2080 cccee770 
-       00000286 c2dd2080 cccee778 c0107f8e 00000001 c2dd2080 c0119687 cccee778 
-       dc84de70 d49d3f38 dffe46c0 d49d3ee4 00000000 cccee770 cccee708 d919a980 
-Call Trace:
- [<c0107f8e>] __down+0x7c/0xc7
- [<c0119687>] default_wake_function+0x0/0x2e
- [<c0108118>] __down_failed+0x8/0xc
- [<c0159df3>] .text.lock.namei+0x5/0x16a
- [<c0156c98>] do_lookup+0x96/0xa1
- [<c0157077>] link_path_walk+0x3d4/0x762
- [<c015783c>] __user_walk+0x49/0x5e
- [<c0149be1>] sys_access+0x93/0x150
- [<c015393d>] sys_stat64+0x37/0x39
- [<c0109063>] syscall_call+0x7/0xb
-
-
-So is it a kernel bug? the down in do_lookup shouldn't lock the process
-forever...
-
-Regards,
-Martin
-
+If the concensus is that it is OK that bad hardware locks you up then I'll
+toss the drive and move on.
 -- 
-MyExcuse:
-The salesman drove over the CPU board.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---=.h1Qq5GvK6'yC8.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Q5BZmjLYGS7fcG0RAvWWAJwJx0FxEf5OHGi3H5MLcG9yZoCVQgCbBjJv
-OAAfwsMLZ0s9FZxO9aFBPhk=
-=b+lh
------END PGP SIGNATURE-----
-
---=.h1Qq5GvK6'yC8.--
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAZNaQ>; Fri, 26 Jan 2001 08:30:16 -0500
+	id <S129534AbRAZNqI>; Fri, 26 Jan 2001 08:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130420AbRAZNaG>; Fri, 26 Jan 2001 08:30:06 -0500
-Received: from wg.redhat.de ([193.103.254.4]:12360 "HELO mail.redhat.de")
-	by vger.kernel.org with SMTP id <S129562AbRAZNaB>;
-	Fri, 26 Jan 2001 08:30:01 -0500
-Date: Fri, 26 Jan 2001 14:29:59 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@redhat.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: <alan@redhat.com>
-Subject: [PATCH] MatroxFB support can't be compiled into kernel in 2.4.0-ac11
-Message-ID: <Pine.LNX.4.30.0101261421550.29870-200000@bochum.redhat.de>
+	id <S129561AbRAZNp7>; Fri, 26 Jan 2001 08:45:59 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:27629 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S129534AbRAZNpl>;
+	Fri, 26 Jan 2001 08:45:41 -0500
+Date: Fri, 26 Jan 2001 13:44:53 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Lars Marowsky-Bree <lmb@suse.de>
+cc: "David S. Miller" <davem@redhat.com>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re:  hotmail not dealing with ECN
+In-Reply-To: <20010126124426.O2360@marowsky-bree.de>
+Message-ID: <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279710978-395707962-980515771=:29870"
-Content-ID: <Pine.LNX.4.30.0101261429420.30041@bochum.redhat.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, 26 Jan 2001, Lars Marowsky-Bree wrote:
 
---279710978-395707962-980515771=:29870
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0101261429421.30041@bochum.redhat.de>
+> On 2001-01-26T11:40:36,
+>    James Sutherland <jas88@cam.ac.uk> said:
+> 
+> > A delayed retry without ECN might be a good compromise...
+> 
+> _NO!!!!!_
 
-Subject says it all - works as a module, but can't be compiled into the
-kernel because of duplicate definitions, caused by several files including
-matroxfb_base.h which in turn defines global_disp.
-
-Patch attached.
-
-LLaP
-bero
+Why? As it stands, I have ECN disabled. It's staying disabled until I know
+it won't degrade my Net access.
 
 
---279710978-395707962-980515771=:29870
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="matroxfb-compile.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101261429310.29870@bochum.redhat.de>
-Content-Description: matroxfb patch
-Content-Disposition: ATTACHMENT; FILENAME="matroxfb-compile.patch"
+James.
 
-LS0tIGxpbnV4L2RyaXZlcnMvdmlkZW8vbWF0cm94L21hdHJveGZiX2Jhc2Uu
-aC5iZXJvCUZyaSBKYW4gMjYgMTM6Mzk6NTQgMjAwMQ0KKysrIGxpbnV4L2Ry
-aXZlcnMvdmlkZW8vbWF0cm94L21hdHJveGZiX2Jhc2UuaAlGcmkgSmFuIDI2
-IDEzOjQwOjIyIDIwMDENCkBAIC01ODksNyArNTg5LDExIEBADQogI2Vsc2UN
-CiANCiBleHRlcm4gc3RydWN0IG1hdHJveF9mYl9pbmZvIG1hdHJveGZiX2ds
-b2JhbF9teGluZm87DQorI2lmZGVmIE1PRFVMRQ0KIHN0cnVjdCBkaXNwbGF5
-IGdsb2JhbF9kaXNwOw0KKyNlbHNlDQorZXh0ZXJuIHN0cnVjdCBkaXNwbGF5
-IGdsb2JhbF9kaXNwOw0KKyNlbmRpZg0KIA0KICNkZWZpbmUgQUNDRVNTX0ZC
-SU5GTyh4KSAobWF0cm94ZmJfZ2xvYmFsX214aW5mby54KQ0KICNkZWZpbmUg
-QUNDRVNTX0ZCSU5GTzIoaW5mbywgeCkgKG1hdHJveGZiX2dsb2JhbF9teGlu
-Zm8ueCkNCi0tLSBsaW51eC9kcml2ZXJzL3ZpZGVvL21hdHJveC9tYXRyb3hm
-Yl9iYXNlLmMuYmVybwlGcmkgSmFuIDI2IDEzOjQwOjQwIDIwMDENCisrKyBs
-aW51eC9kcml2ZXJzL3ZpZGVvL21hdHJveC9tYXRyb3hmYl9iYXNlLmMJRnJp
-IEphbiAyNiAxMzo0MToyOSAyMDAxDQpAQCAtOTgsNiArOTgsMTAgQEANCiAj
-aW5jbHVkZSA8bGludXgvbWF0cm94ZmIuaD4NCiAjaW5jbHVkZSA8YXNtL3Vh
-Y2Nlc3MuaD4NCiANCisjaWZuZGVmIE1PRFVMRQ0KK3N0cnVjdCBkaXNwbGF5
-IGdsb2JhbF9kaXNwOw0KKyNlbmRpZg0KKyANCiAjaWZkZWYgQ09ORklHX1BQ
-Qw0KIHVuc2lnbmVkIGNoYXIgbnZyYW1fcmVhZF9ieXRlKGludCk7DQogc3Rh
-dGljIGludCBkZWZhdWx0X3Ztb2RlID0gVk1PREVfTlZSQU07DQo=
---279710978-395707962-980515771=:29870--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

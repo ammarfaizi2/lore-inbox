@@ -1,47 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUIXCY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUIXCcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUIXCY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 22:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267568AbUIXCXa
+	id S267730AbUIXCcV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 22:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267568AbUIXC2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 22:23:30 -0400
-Received: from relay.pair.com ([209.68.1.20]:45841 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S265805AbUIXCWb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 22:22:31 -0400
-X-pair-Authenticated: 66.188.111.210
-Message-ID: <415384E1.2080907@cybsft.com>
-Date: Thu, 23 Sep 2004 21:22:25 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 23 Sep 2004 22:28:53 -0400
+Received: from web53608.mail.yahoo.com ([206.190.37.41]:12948 "HELO
+	web53608.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267597AbUIXC1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 22:27:47 -0400
+Message-ID: <20040924021050.689.qmail@web53608.mail.yahoo.com>
+Date: Thu, 23 Sep 2004 19:10:50 -0700 (PDT)
+From: Donald Duckie <schipperke2000@yahoo.com>
+Subject: unresolved symbol __udivsi3_i4
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm3-S5
-References: <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
-In-Reply-To: <20040923211206.GA2366@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've released the -S5 VP patch:
->  
->    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm3-S5
+hi!
 
-This one seems to bring back some issues with the network interface. The 
-only noticeable symptom is dropping ~30 percent of new telnet 
-connections under heavy load. When not loaded it still drops ~5 percent. 
-I had no dropped connections with S4 even when loaded. This just happens 
-to be one of things that I have been testing manually since I noticed 
-some problems with previous patches.
+can somebody please help me how to overcome this
+problem:
+unresolved symbol __udivsi3_i4
 
-Currently using an SMC card with a DEC 21140 chip and the tulip driver 
-on my SMP system.
+I compiled the snull files that i got from 
+http://www.oreilly.com.tw/editor_column/a138_read.htmland
+ran depmod -a -F /proc/ksyms 2.4.18 snull.o
 
-kr
+And in another machine (my running machine), I got the
+following files from my compilation machine:
+snull.o
+/lib/modules/2.4.18/*
+
+In my running machine, I ran modprobe but got this
+error:
+Using /lib/modules/2.4.18-sh/kernel/drivers/net/snull.
+  <cut>
+modprobe: unresolved symbol __udivsi3_i4
+  <cut>
+
+The gcc version that is used is:
+[aprhodite@aphrodite2 bin]$ sh-linux-gcc -v
+Reading specs from
+/usr/lib/gcc-lib/sh-linux/3.0.3/specs
+Configured with: ../configure --prefix=/usr
+--mandir=/usr/share/man --target=sh-linux
+--host=i686-pc-linux-gnu --build=i
+686-pc-linux-gnu --disable-c99 --disable-nls
+--enable-languages=c,c++ --with-system-zlib
+--with-gxx-include-dir=/usr/sh-
+linux/include/g++-v3
+--includedir=/usr/sh-linux/include
+--enable-threads=posix --enable-long-long
+Thread model: posix
+gcc version 3.0.3
+
+
+Running nm -l-s snull.o
+00000000 a *ABS*
+  <cut>
+         U __udivsi3_i4
+/home/aphrodite/snull/snull3/snull/snull.c:355
+  <cut>
+
+
+the block in snull.c that contains ine 355 is:
+    352     if (lockup && ((priv->stats.tx_packets +
+1) % lockup) == 0) {
+    353         /* Simulate a dropped transmit
+interrupt */
+    354         netif_stop_queue(dev);
+    355         PDEBUG("Simulate lockup at %ld, txp
+%ld\n", jiffies,
+    356                         (unsigned long)
+priv->stats.tx_packets);
+    357     }
+(which seems to  be okey)
+
+
+The only modification to the downloaded snull files is
+on snull.c:
+     30 //#include <linux/malloc.h> /* kmalloc() */
+     31 #include <linux/slab.h> /* kmalloc()
+deprecated use slab.h instead*/
+
+
+can anyone please tell me how to deal with this
+unresolved symbol __udivsi3_i4?
+
+
+thank you very much.
+-donald
+
+
+
+		
+_______________________________
+Do you Yahoo!?
+Declare Yourself - Register online to vote today!
+http://vote.yahoo.com

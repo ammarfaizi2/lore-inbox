@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265949AbSKBMQo>; Sat, 2 Nov 2002 07:16:44 -0500
+	id <S262364AbSKBMjO>; Sat, 2 Nov 2002 07:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265950AbSKBMQo>; Sat, 2 Nov 2002 07:16:44 -0500
-Received: from ns.suse.de ([213.95.15.193]:16398 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265949AbSKBMQm>;
-	Sat, 2 Nov 2002 07:16:42 -0500
-Date: Sat, 2 Nov 2002 13:23:12 +0100
-From: Andi Kleen <ak@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
-Message-ID: <20021102132312.A563@wotan.suse.de>
-References: <20021102025838.220E.AT541@columbia.edu.suse.lists.linux.kernel> <200211021203.gA2C37p24480@Port.imtp.ilyichevsk.odessa.ua> <20021102130954.A30729@wotan.suse.de> <200211021216.gA2CGEp24534@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211021216.gA2CGEp24534@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.22.1i
+	id <S265950AbSKBMjO>; Sat, 2 Nov 2002 07:39:14 -0500
+Received: from technicolor.pl ([62.21.19.63]:27155 "EHLO wilnet.info")
+	by vger.kernel.org with ESMTP id <S262364AbSKBMjO>;
+	Sat, 2 Nov 2002 07:39:14 -0500
+Date: Sat, 2 Nov 2002 13:45:40 +0100 (CET)
+From: Pawel Bernadowski <pbern@wilnet.info>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.45-mcp2 Build error
+Message-ID: <Pine.LNX.4.44L.0211021345060.27334-100000@farma.wilnet.info>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's easy to time memcpy() but harder to measure susequent
-> cache misses when copied data gets accessed. We can read it
-> back after memcpy and measure memcpy()+read, but is entire
-> copy gets used immediately after memcpy() in real world usage?
-> We're in benchmarking hell :(
 
-You test common operations, like pipe bandwidth or ioctls.
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
+init/do_mounts.o
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o 
+--start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  
+arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  
+lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  
+arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+init/built-in.o: In function `rd_load_image':
+init/built-in.o(.init.text+0x12ac): undefined reference to `change_floppy'
 
--Andi
+
+Pawel Bernadowski
+GG 3377
+

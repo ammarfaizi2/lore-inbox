@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbULEG0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULEG6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbULEG0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 01:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbULEG0r
+	id S261265AbULEG6j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 01:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbULEG6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 01:26:47 -0500
-Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:36028 "EHLO
+	Sun, 5 Dec 2004 01:58:39 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:16317 "EHLO
 	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261263AbULEG0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 01:26:42 -0500
-Date: Sat, 4 Dec 2004 23:26:19 -0700 (MST)
+	id S261265AbULEG6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 01:58:36 -0500
+Date: Sat, 4 Dec 2004 23:57:38 -0700 (MST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Rudolf Usselmann <rudi@asics.ws>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9, 64bit, 4GB memory => panics ...
-In-Reply-To: <1102225183.3779.15.camel@cpu0>
-Message-ID: <Pine.LNX.4.61.0412042321080.6378@montezuma.fsmlabs.com>
-References: <1102072834.31282.1450.camel@cpu0>  <20041203113704.GD2714@holomorphy.com>
- <1102225183.3779.15.camel@cpu0>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: [PATCH] NX: Fix noexec kernel parameter / x86_64
+In-Reply-To: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Rudolf,
+noexec_setup runs too late to take any effect, so parse it earlier.
 
-On Sun, 5 Dec 2004, Rudolf Usselmann wrote:
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-> FYI, I tried 2.9.10-rc3 kernel, same problem.
-> 
-> Can anyone guide me or give me some pointers how I can enable
-> login on serial ports - that would hopefully allow me to capture
-> more/longer kernal panic screens. Doing an rlogin doesn't help,
-> the kernel panic is still going to the root console (24 lines
-> visible).
-> 
-> Any other tips/pointers as to how to capture kernel panics or
-> what else I can do to help you guys to help me would be highly
-> appreciated. :*)
-
-Make sure that you have the following option in your kernel;
-
-CONFIG_SERIAL_8250_CONSOLE=y
-
-Then boot the kernel with this kernel parameter;
-
-console=ttyS0,38400
-
-Make necessary adjustments for baud rate and serial port. Then you may 
-additionally add a getty on the console with something akin to the 
-following /etc/inittab entry;
-
-7:35:respawn:/sbin/agetty 38400 ttyS0
-
-Finally all you need is a program on the monitoring system, minicom 
-should suffice if you have nothing else.
-
-	Zwane
+Index: linux-2.6.10-rc2/arch/x86_64/kernel/setup.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/x86_64/kernel/setup.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 setup.c
+--- linux-2.6.10-rc2/arch/x86_64/kernel/setup.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/x86_64/kernel/setup.c	5 Dec 2004 06:43:11 -0000
+@@ -312,6 +312,12 @@ static __init void parse_cmdline_early (
+ 		if (!memcmp(from,"oops=panic", 10))
+ 			panic_on_oops = 1;
+ 
++		if (!memcmp(from, "noexec=", 7)) {
++			extern void nonx_setup(char *str);
++	
++			nonx_setup(from + 7);
++		}
++
+ 	next_char:
+ 		c = *(from++);
+ 		if (!c)
+Index: linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 setup64.c
+--- linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/x86_64/kernel/setup64.c	5 Dec 2004 06:43:49 -0000
+@@ -50,7 +50,7 @@ Control non executable mappings for 64bi
+ on	Enable(default)
+ off	Disable
+ */ 
+-static int __init nonx_setup(char *str)
++void __init nonx_setup(char *str)
+ {
+ 	if (!strcmp(str, "on")) {
+                 __supported_pte_mask |= _PAGE_NX; 
+@@ -59,11 +59,8 @@ static int __init nonx_setup(char *str)
+ 		do_not_nx = 1;
+ 		__supported_pte_mask &= ~_PAGE_NX;
+         } 
+-        return 1;
+ } 
+ 
+-__setup("noexec=", nonx_setup); 
+-
+ /*
+  * Great future plan:
+  * Declare PDA itself and support (irqstack,tss,pml4) as per cpu data.

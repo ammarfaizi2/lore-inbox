@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTKHSMu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 13:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTKHSMu
+	id S261959AbTKHScM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 13:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTKHScM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 13:12:50 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:39865 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S261909AbTKHSMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 13:12:48 -0500
-Message-ID: <3FAD3215.9010400@backtobasicsmgmt.com>
-Date: Sat, 08 Nov 2003 11:12:37 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: libata testing on new machine with ICH5 and PDC20318
-References: <3FACC17C.7070901@backtobasicsmgmt.com> <3FAD2CB6.5070508@pobox.com>
-In-Reply-To: <3FAD2CB6.5070508@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Nov 2003 13:32:12 -0500
+Received: from thunk.org ([140.239.227.29]:49056 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261959AbTKHScL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 13:32:11 -0500
+Date: Sat, 8 Nov 2003 11:44:10 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Weird ext2 problem in 2.4.18 (redhat)
+Message-ID: <20031108164410.GB2955@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+References: <20031108063341.GA8349@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031108063341.GA8349@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-
-> The ICH5 should be fine.  You may need to twiddle BIOS setup options, 
-> some users have reported that both drivers/ide and libata fail in 
-> certain BIOS modes.  "Enhanced - SATA only" is usually the preferred 
-> mode, where feasible.
-
-I forgot to mention I will not be booting off of any of the SATA disks, 
-so that should cover the BIOS issues by just ignoring them.
-
+On Fri, Nov 07, 2003 at 10:33:41PM -0800, Larry McVoy wrote:
+> The BitKeeper source tree looks like
 > 
-> You need to make sure you get the Promise SATA fixes I just pushed to 
-> Linus.  Presumably they will be available in the next 2.6.0-testX BK 
-> snapshot on ftp.kernel.org, tonight or the next night.
+> 	BitKeeper/  SCCS/  doc/  man/  src/
+> 
+> I have a repository where it looks like
+> 
+> 	 src/  BitKeeper/  PENDING/  RELEASE-NOTES  SCCS/  doc/  man/  src/
+> 
+> That first src/ is actually " src/" and it has some rather strange behaviour.
+> It's a different directory inode than "src/" but if I create a file in " src/"
+> it shows up in "src/" and vice versa.
+> 
+> Hey, neato, it gets weirder.  I went to go run an example and now most of
+> the files in " src/" are gone, most but not all.
 
-I saw that message; I won't have the hardware until late next week, so 
-I'll watch to see what happens with the snapshot/-testX situation by then.
+Sounds like there is a two directory entries with the same name in the
+same directory.  This can cuase severe confusion since the kernel
+assumes that this will never happen.  Depending on which one gets
+found first, and what is cached in the dentry cache, you'll get one
+inode or the other.
 
-I'll have about three weeks to use the machine for "whatever" before I 
-have to start preparing it for its real purpose, so if there's any 
-stress tests or anything I else I can run that would be useful let me know.
+E2fsck doesn't normally notice these sorts of inconsistencies, since
+it takes too much time and memory to look for duplicate entries.  If
+you optimize directories using "e2fsck -fD", it will find and offer to
+rename directory entires with a duplicated name.
 
+If you notice the problem, you can also go in directly with debugfs
+and rename the errant directory entry directly.
+
+						- Ted

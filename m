@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317877AbSGQIVx>; Wed, 17 Jul 2002 04:21:53 -0400
+	id <S318242AbSGQIcR>; Wed, 17 Jul 2002 04:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSGQIVv>; Wed, 17 Jul 2002 04:21:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:15352 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318242AbSGQIVu>; Wed, 17 Jul 2002 04:21:50 -0400
-Date: Wed, 17 Jul 2002 10:24:44 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: "Justin M. Forbes" <kernelmail@attbi.com>
-cc: marcelo@conectiva.com.br, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc2 compile fail
-In-Reply-To: <Pine.LNX.4.44.0207161957140.11639-100000@leaper.linuxtx.org>
-Message-ID: <Pine.NEB.4.44.0207171023470.16056-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318244AbSGQIcQ>; Wed, 17 Jul 2002 04:32:16 -0400
+Received: from flurry.inode.at ([195.58.161.103]:45517 "EHLO flurry.inode.at")
+	by vger.kernel.org with ESMTP id <S318242AbSGQIcQ>;
+	Wed, 17 Jul 2002 04:32:16 -0400
+Subject: Problem with Via Rhine- Kernel 2.4.18
+To: linux-kernel@vger.kernel.org
+From: "Joseph Wenninger" <kernel@jowenn.at>
+X-Mailer: INODE :: webmail (http://www.inode.at)
+X-Comment: This message was sent from 128.131.80.225
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary=b6bc5280bd9af7dc5d1762de4efb493d4
+Message-Id: <E17UkHA-0003x1-00@flurry.inode.at>
+Date: Wed, 17 Jul 2002 10:35:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, Justin M. Forbes wrote:
+This is a MIME encoded message.
 
-> I get this failure when trying to compile 2.4.19-rc2
->
->
-> gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2/include -traditional
-> -DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr7x0_family
-> script_asm.pl : Illegal combination of registers in line 72 : 	MOVE
-> CTEST7 & 0xef TO CTEST7
-> 	Either source and destination registers must be the same,
-> 	or either source or destination register must be SFBR.
-> make[2]: *** [sim710_d.h] Error 255
-> make[2]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers/scsi'
-> make[1]: *** [_modsubdir_scsi] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers'
-> make: *** [_mod_drivers] Error
+--b6bc5280bd9af7dc5d1762de4efb493d4
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
 
+SGkgDQogDQpJJ20gbmV3IHRvIHRoZSBsaW51eCBrZXJuZWwsIHNvIHBsZWFzZSBiZSBwYXRpZW50
+LiANCiANCkkgaGF2ZSBhIFA0IG5vdGVib29rIHdpdGggYSB2aWEgY2hpcHNldCBhbmQgYSBtb2Jp
+bGUgUDQuIEluIFdpbmRvd3MgWFAgbXkgDQpidWlsdCBpbiBuZXR3b3JrIGRldmljZSB3b3JrcyB3
+aXRob3V0IHByb2JsZW1zLiBJbiBsaW51eCB0aGUgZGV2aWNlIGhhbmdzIGEgDQphZnRlciBzb21l
+IHRpbWUgb2YgPjkwa0IvcyBkYXRhdHJhbnNmZXJzLiBJIGhhdmUgdG8gY29tcGxldGVseSByZXNl
+dCBteSANCm5vdGVib29rIHRvIGdldCBpdCB3b3JraW5nIGFnYWluIA0KIA0KSSdtIG5vdCBzdXJl
+IGlmIGl0IGlzIGEgaGFyZHdhcmUgb3IgYSBrZXJuZWwgcHJvYmxlbS4gSG93IGNhbiBJIGRlYnVn
+IHRoaXMgDQp0byBmaW5kIG91dCBpZiBpdCBpcyBhIGtlcm5lbCBidWcgYW5kIHdoZXJlIGl0IGlz
+ID8gDQogDQpJIGhhdmUgdG8gdXNlIHBjaT1iaW9zaXJxLCBvdGhlcndpc2UgdGhlIGtlcm5lbCB3
+YXJucyBtZSwgdGhhdCBpdCBjYW4ndCANCmNoYW5nZSB0aGUgaW50ZXJ1cHRzIGZvciBteSBkZXZj
+aWVzLiANCiANCiANCkF0IGJvb3R1cCB0aGUgZGV2aWNlIGlkZW50aWZpZXMgaXRzZWxmIGFzICAN
+CnZpYS1yaGluZS5jOnYxLjEwLUxLMS4xLjEzICBOb3YtMTctMjAwMSAgV3JpdHRlbiBieSBEb25h
+bGQgQmVja2VyIA0KICBodHRwOi8vd3d3LnNjeWxkLmNvbS9uZXR3b3JrL3ZpYS1yaGluZS5odG1s
+IA0KZXRoMDogVklBIFZUNjEwMiBSaGluZS1JSSBhdCAweGQwMDAsIDAwOjQwOjQ1OjA3OmJhOjA2
+LCBJUlEgMTEuIA0KZXRoMDogTUlJIFBIWSBmb3VuZCBhdCBhZGRyZXNzIDEsIHN0YXR1cyAweDc4
+NmQgYWR2ZXJ0aXNpbmcgMDVlMSBMaW5rIDAwMjEuIA0KIA0KV2hlbiBpdCBzdG9wcyB3b3JraW5n
+IEkgZ2V0IGEgbG90IG9mIG1lc3NhZ2VzIGxpa2U6IA0Ka2VybmVsIGV0aDA6IFRyYW5zbWl0IHRp
+bWVkIG91dCwgc3RhdHVzIDAwMDAsIFBIWSBzdGF0dXMgNzg2ZCwgcmVzZXR0aW5nLi4uIA0Ka2Vy
+bmVsIGV0aDA6IFJlc2V0IGRpZCBub3QgIGNvbXBsZXRlIGluIDEwbXMuIA0KIA0KQW5vdGhlciBt
+ZXNzYWdlIEkgcXVpdGUgb2Z0ZW4gZ2V0IGlzOiANCm10cnI6IG5vIG1vcmUgTVRSUnMgYXZhaWxh
+YmxlIA0KIA0KIA0KSSdtIHRoYW5rZnVsbCBmb3IgYW55IGhlbHAgDQogDQpLaW5kIHJlZ2FyZHMg
+DQpKb3NlcGggV2VubmluZ2VyIA==
 
-Which version of gcc do you use?
-Could you send your .config?
+--b6bc5280bd9af7dc5d1762de4efb493d4--
 
-
-> Justin M. Forbes
-
-TIA
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
 

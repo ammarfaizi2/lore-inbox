@@ -1,27 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274656AbRITVRT>; Thu, 20 Sep 2001 17:17:19 -0400
+	id <S274591AbRITVRS>; Thu, 20 Sep 2001 17:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274654AbRITVRI>; Thu, 20 Sep 2001 17:17:08 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35492 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S274591AbRITVQy>;
-	Thu, 20 Sep 2001 17:16:54 -0400
-Date: Thu, 20 Sep 2001 17:17:17 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
+	id <S274656AbRITVRI>; Thu, 20 Sep 2001 17:17:08 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:34045 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S274654AbRITVQ4>; Thu, 20 Sep 2001 17:16:56 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 20 Sep 2001 15:17:08 -0600
 To: Peter Bornemann <eduard.epi@t-online.de>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: noexec-flag does not work in Linux 2.4.10-pre10
+Message-ID: <20010920151708.F14526@turbolinux.com>
+Mail-Followup-To: Peter Bornemann <eduard.epi@t-online.de>,
+	linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.33.0109201957530.2448-100000@eduard.t-online.de>
-Message-ID: <Pine.GSO.4.21.0109201715100.5631-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109201957530.2448-100000@eduard.t-online.de>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 20 Sep 2001, Peter Bornemann wrote:
-
+On Sep 20, 2001  20:05 +0200, Peter Bornemann wrote:
 > It seems that the noexec in fstab no longer works. Is this
 > intentional?
 > 
@@ -32,6 +34,24 @@ On Thu, 20 Sep 2001, Peter Bornemann wrote:
 > A ls -l in /dosc shows:
 > 
 > -rwxrwxrwx    1 root     root     267657216 Jun 28 22:34 win386.swp
+> 
+> The same case with iso9660:
+> 
+> -r-xr-xr-x    1 root     root            0 Jan 24  2000 s3cd1.dat
+> 
+> However umask=111 is still working. I don't know exactly when this
+> happened, but it was hot there in earlier 2.4 kernels.
 
-... and?  What happens if you do cp /bin/ls /dosc && /dosc/ls ?
+Are you sure this is actually a problem?  Can you really exec these
+files, or is it just a matter of the flag?  Some changes were made
+to mount flags by Al Viro.  If you really want the flags gone, you
+should use a different umask (e.g. umask=111).  The noexec flag
+means (for filesystems that actually have permissions) that _even if_
+the "x" bit is set, it cannot be executed.
+
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

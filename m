@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130434AbRCPHVP>; Fri, 16 Mar 2001 02:21:15 -0500
+	id <S130252AbRCPHQq>; Fri, 16 Mar 2001 02:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130438AbRCPHVF>; Fri, 16 Mar 2001 02:21:05 -0500
-Received: from csl.Stanford.EDU ([171.64.66.149]:27832 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S130434AbRCPHUv>;
-	Fri, 16 Mar 2001 02:20:51 -0500
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200103160719.XAA04602@csl.Stanford.EDU>
-Subject: Re: [CHECKER] big stack variables
-To: jdike@karaya.com (Jeff Dike)
-Date: Thu, 15 Mar 2001 23:19:57 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200103160256.VAA02335@karaya.com> from "Jeff Dike" at Mar 15, 2001 09:56:10 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130399AbRCPHQg>; Fri, 16 Mar 2001 02:16:36 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:18948 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S130252AbRCPHQb>;
+	Fri, 16 Mar 2001 02:16:31 -0500
+Date: Fri, 16 Mar 2001 02:15:20 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Johannes Erdfelt <jerdfelt@valinux.com>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.2 and AMD-760MP I/O APIC
+Message-ID: <20010316021520.B1864@xi.linuxpower.cx>
+In-Reply-To: <20010315173418.G25511@valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010315173418.G25511@valinux.com>; from jerdfelt@valinux.com on Thu, Mar 15, 2001 at 05:34:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> engler@csl.Stanford.EDU said:
-> > As usual, please report any false positives so we can fix our
-> > checkers.
-> 
-> Not a false positive, but a false negative:
-> 
-> the tty_struct locals at lines 1994 and 2029 in tty_register_devfs and 
-> tty_unregister_devfs, respectively, in the 2.4.2 drivers/char/tty_io.c.
+On Thu, Mar 15, 2001 at 05:34:18PM -0800, Johannes Erdfelt wrote:
+> The I/O APIC code for 2.2 contains a little trick which sets the destination
+> to 0 to disable an I/O APIC entry. This apparently trips up the I/O APIC
+> on AMD-760MP systems causing a lockup during boot.
+[snip]
 
-Turns out we didn't have CONFIG_DEVFS_FS defined.  Big time fun when it is:
-
-/u2/engler/mc/2.4.1/drivers/char/tty_io.c:1996:tty_register_devfs: ERROR:VAR:1996:1996: suspicious var 'tty' = 3112 bytes
-/u2/engler/mc/2.4.1/drivers/char/tty_io.c:2007:tty_register_devfs: ERROR:FN:2007:2007: function stack consumes = 3146 bytes
-/u2/engler/mc/2.4.1/drivers/char/tty_io.c:2031:tty_unregister_devfs: ERROR:VAR:2031:2031: suspicious var 'tty' = 3112 bytes
-/u2/engler/mc/2.4.1/drivers/char/tty_io.c:2042:tty_unregister_devfs: ERROR:FN:2042:2042: function stack consumes = 3148 bytes
-
-Right now we've just gone in and put =y for all options in .config --- is
-there a more principled approach that will get more coverage?
-
-> Nice work, BTW.
-
-Thanks!  If you have any other ideas of things to check for, do let us
-know.  We're mainly just going after things we've found in comments and
-code.  We have about another 600 potential bugs to report, but are
-going over them to try to make sure they are reasonable.
-
-Dawson
+I'd love you test your patch! What does it take to become equipt with such a
+motherboard? <snicker>

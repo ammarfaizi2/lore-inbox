@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLANLl>; Fri, 1 Dec 2000 08:11:41 -0500
+	id <S129210AbQLANRW>; Fri, 1 Dec 2000 08:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129689AbQLANLb>; Fri, 1 Dec 2000 08:11:31 -0500
-Received: from 13dyn218.delft.casema.net ([212.64.76.218]:5642 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129414AbQLANLX>; Fri, 1 Dec 2000 08:11:23 -0500
-Date: Fri, 1 Dec 2000 13:40:49 +0100 (CET)
-From: Patrick van de Lageweg <patrick@bitwizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rogier Wolff <wolff@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] rio
-Message-ID: <Pine.LNX.4.21.0012011334440.5601-100000@panoramix.bitwizard.nl>
+	id <S129414AbQLANRM>; Fri, 1 Dec 2000 08:17:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19017 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129210AbQLANRJ>; Fri, 1 Dec 2000 08:17:09 -0500
+Subject: Re: Oops in 2.2.18 with pppd dial in server
+To: root@trgras.timpanogas.org (root)
+Date: Fri, 1 Dec 2000 12:46:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+In-Reply-To: <20001130185926.A884@trgras.timpanogas.org> from "root" at Nov 30, 2000 06:59:26 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E141pa0-0000CE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi alan,
+> I was able to reproduce this oops with a somewhat more reliable ksymoops (I was ready for this nasty bug this time).  Looks like the problem is in the sockets
+> code.
 
-This patches fixes several isues with the rio driver:
+The traces so far all match one description , this one included. Its the
+'something scribbled a while ago and I just walked the list and found it'
 
- - Implemented breaks
- - Fixed a DCD up/down crash
- - Added kmalloc return value check
-
-Sorry for the late moment we submit this: the DCD bug was very, very hard
-to find.
-
-	Patrick
+Is your ppp module getting loaded/unloaded a lot. Im wondering if we have
+a module related race. That would explain why folks running large ppp dialin
+servers simply dont see any problems
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbREXSQs>; Thu, 24 May 2001 14:16:48 -0400
+	id <S261684AbREXSP6>; Thu, 24 May 2001 14:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261747AbREXSQh>; Thu, 24 May 2001 14:16:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39941 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261738AbREXSQM>; Thu, 24 May 2001 14:16:12 -0400
-Subject: Re: SyncPPP IPCP/LCP loop problem and patch
-To: paulkf@microgate.com (Paul Fulghum)
-Date: Thu, 24 May 2001 19:13:04 +0100 (BST)
-Cc: rjd@xyzzy.clara.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <003b01c0e472$6f7a3ae0$0c00a8c0@diemos> from "Paul Fulghum" at May 24, 2001 10:56:11 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S261738AbREXSPr>; Thu, 24 May 2001 14:15:47 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:49273 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261684AbREXSPf>; Thu, 24 May 2001 14:15:35 -0400
+Date: Thu, 24 May 2001 19:15:18 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Manas Garg <mls@chakpak.net>, linux-kernel@vger.kernel.org
+Subject: Re: O_TRUNC problem on a full filesystem
+Message-ID: <20010524191518.A7952@redhat.com>
+In-Reply-To: <3B0CF068.A6ADA562@uow.edu.au> <200105241724.f4OHOAhQ014259@webber.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152zbc-0005Oz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200105241724.f4OHOAhQ014259@webber.adilger.int>; from adilger@turbolinux.com on Thu, May 24, 2001 at 11:24:10AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I did not realize that syncppp does not implement
-> all the RFC1661 states. That's simply broken :(
-> A proper state machine implementation would be nice.
+Hi,
 
-syncppp.c -predates- RFC1661 I believe.
+On Thu, May 24, 2001 at 11:24:10AM -0600, Andreas Dilger wrote:
 
-> On the other hand, it works in a minimal way
-> for most people and it's supposed to be folded
-> into the generic PPP implementation someday.
-> So there's not much point in trying to overhaul the code.
+> How have you done the ext3 preallocation code? 
 
-I had hoped for 2.4 to use generic ppp with it. That might be the more
-productive way to attack the problem
+Preallocation is currently disabled in ext3.  Eventually I'll probably
+get it going by adding a journal prepare-commit callback to allow the
+filesystem to flush preallocation before committing.
 
+> One way to do it would be
+> to only mark the blocks as used in the in-memory copy of the block bitmap
+> and not write that to disk (we keep 2 copies of the block bitmap, IIRC).
+
+Indeed; I'd need to keep 3 copies to make that work.  The state
+machine just gets even uglier.  :-)  I thought about it and I might
+still end up going that route.
+
+> Did you ever benchmark ext2 with and without preallocation to see if it
+> made any difference?  No point in doing extra work if there is no benefit.
+
+The point is not just performance, but also cpu cost (which
+preallocation definitely wins on) and on fragmentation if you have
+multiple writers in the same directory.
+
+Cheers,
+ Stephen 

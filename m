@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129819AbRBRVMK>; Sun, 18 Feb 2001 16:12:10 -0500
+	id <S130024AbRBRVQJ>; Sun, 18 Feb 2001 16:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129850AbRBRVL7>; Sun, 18 Feb 2001 16:11:59 -0500
-Received: from smarty.smart.net ([207.176.80.102]:7180 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S129819AbRBRVLt>;
-	Sun, 18 Feb 2001 16:11:49 -0500
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200102182113.QAA32382@smarty.smart.net>
-Subject: Re: Linux OS boilerplate
+	id <S129850AbRBRVP7>; Sun, 18 Feb 2001 16:15:59 -0500
+Received: from mail.inreach.com ([209.142.2.35]:25610 "EHLO mail.inreach.com")
+	by vger.kernel.org with ESMTP id <S130024AbRBRVPo>;
+	Sun, 18 Feb 2001 16:15:44 -0500
+Message-Id: <200102182102.NAA15691@ann.qtpi.lakewood.ca.us>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Bob Taylor <brtaylor@inreach.com>
 To: linux-kernel@vger.kernel.org
-Date: Sun, 18 Feb 2001 16:13:34 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: Linux stifles innovation... 
+In-Reply-To: Your message of "Sun, 18 Feb 2001 10:59:27 GMT."
+             <96o9uf$j4h$1@forge.intermeta.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 18 Feb 2001 13:02:14 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you seen Janet_Reno? 
+In message <96o9uf$j4h$1@forge.intermeta.de>, "Henning P. 
+Schmiedehausen" write
+s:
+> greg@linuxpower.cx (Gregory Maxwell) writes:
+> 
+> >when you said commercial above) drivers for Linux, including the steaming
+> >pile of garbage your company ships.
+> 
+> "hostile behaviour of the open source community towards people that
+> don't agree to their ideas".
 
-ftp://linux01.gwdg.de/pub/cLIeNUX/interim/Janet_Reno.tgz IIRC.
-Janet is an x86 bootsector that gets into protected mode and can
-use the AT BIOS in pmode interrupts. It's written with a bunch of
-m4 macros I call asmacs that I'm currently basing an assembler in 
-Bash on. That's shasm in the same directory as Janet.
+As I am a member of this community and have not exhibited such 
+behavior to you, please include me *out* of such general 
+condemnation.
+BTW, your conclusion is *false*
 
-Rick Hohensee
-www.cLIeNUX.com
+-- 
++---------------------------------------------------------------+
+| Bob Taylor             Email: brtaylor@inreach.com            |
+|---------------------------------------------------------------|
+| Like the ad says, at 300 dpi you can tell she's wearing a     |
+| swimsuit. At 600 dpi you can tell it's wet. At 1200 dpi you   |
+| can tell it's painted on. I suppose at 2400 dpi you can tell  |
+| if the paint is giving her a rash. (So says Joshua R. Poulson)|
++---------------------------------------------------------------+
+
+

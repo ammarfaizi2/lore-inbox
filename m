@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261760AbSI2UGl>; Sun, 29 Sep 2002 16:06:41 -0400
+	id <S261764AbSI2UIY>; Sun, 29 Sep 2002 16:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261761AbSI2UGl>; Sun, 29 Sep 2002 16:06:41 -0400
-Received: from [209.173.6.49] ([209.173.6.49]:23168 "EHLO comet.linuxguru.net")
-	by vger.kernel.org with ESMTP id <S261760AbSI2UGk>;
-	Sun, 29 Sep 2002 16:06:40 -0400
-Date: Sun, 29 Sep 2002 16:11:59 -0400
-From: newsgate@linuxguru.net
-To: linux-kernel@vger.kernel.org
-Cc: hermes@gibson.dropbear.id.au
-Subject: [PATCH] Orinoco 2.5.39 include fix
-Message-ID: <20020929201159.GA4933@comet>
+	id <S261771AbSI2UIY>; Sun, 29 Sep 2002 16:08:24 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:21259 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261764AbSI2UIX>; Sun, 29 Sep 2002 16:08:23 -0400
+Date: Sun, 29 Sep 2002 21:13:32 +0100
+From: John Levon <levon@movementarian.org>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] break out task_struct from sched.h
+Message-ID: <20020929201331.GA90617@compsoc.man.ac.uk>
+References: <Pine.LNX.4.33.0209292137550.7800-100000@gans.physik3.uni-rostock.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.33.0209292137550.7800-100000@gans.physik3.uni-rostock.de>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.39 with orinoco support fails to include because of tqueue.h isn't
-included. This patch fixes that so that the orinoco module compiles.  
+On Sun, Sep 29, 2002 at 09:50:48PM +0200, Tim Schmielau wrote:
 
-This patch has been untested because the keyboard on my Toshiba 505-S5004
-has not worked since 2.5.31. :(
+> This patch separates struct task_struct from <linux/sched.h> to 
+> a new header <linux/task_struct.h>, so that dereferencing 'current'
+> doesn't require to #include <linux/sched.h> and all of the 138 files it 
+> drags in.
 
+It seems a bit odd to me that you /only/ split out task_struct but none
+of the simple helpers (for_each_process(), task_lock,
+set_task_state etc.). I'd prefer a task.h personally, many of these can
+be placed without further burdening the include nest.
 
-(An aside -- Some day I'm going to have a kernel patch accepted. Some
-day...)
+It'd certainly be nice to see sched.h properly cleaned up at some point
+(request_irq() ??? d_path() ???)
 
+regards
+john
 
-
-diff -urN linux-2.5.39/drivers/net/wireless/orinoco.c linux-2.5.39.new/drivers/net/wireless/orinoco.c
---- linux-2.5.39/drivers/net/wireless/orinoco.c	2002-09-27 17:49:54.000000000 -0400
-+++ linux-2.5.39.new/drivers/net/wireless/orinoco.c	2002-09-29 15:57:30.000000000 -0400
-@@ -372,6 +372,7 @@
- #include <linux/if_arp.h>
- #include <linux/etherdevice.h>
- #include <linux/wireless.h>
-+#include <linux/tqueue.h>
- 
- #include "hermes.h"
- #include "hermes_rid.h"
-diff -urN linux-2.5.39/drivers/net/wireless/orinoco_cs.c linux-2.5.39.new/drivers/net/wireless/orinoco_cs.c
---- linux-2.5.39/drivers/net/wireless/orinoco_cs.c	2002-09-27 17:50:32.000000000 -0400
-+++ linux-2.5.39.new/drivers/net/wireless/orinoco_cs.c	2002-09-29 15:57:17.000000000 -0400
-@@ -32,6 +32,7 @@
- #include <linux/if_arp.h>
- #include <linux/etherdevice.h>
- #include <linux/wireless.h>
-+#include <linux/tqueue.h>
- 
- #include <pcmcia/version.h>
- #include <pcmcia/cs_types.h>
-
-
--- 
-GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
-James Blackwell  --  Director http://www.linuxguru.net

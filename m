@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbSLCKGY>; Tue, 3 Dec 2002 05:06:24 -0500
+	id <S266191AbSLCKLL>; Tue, 3 Dec 2002 05:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266191AbSLCKGY>; Tue, 3 Dec 2002 05:06:24 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:21192 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266186AbSLCKGX> convert rfc822-to-8bit; Tue, 3 Dec 2002 05:06:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Exaggerated swap usage
-Date: Tue, 3 Dec 2002 11:13:22 +0100
-User-Agent: KMail/1.4.3
-References: <200212030059.32018.m.c.p@wolk-project.de> <20021203005939.GF28164@dualathlon.random>
-In-Reply-To: <20021203005939.GF28164@dualathlon.random>
-Cc: linux-kernel@vger.kernel.org, Andrew Clayton <andrew@sol-1.demon.co.uk>,
-       Javier Marcet <jmarcet@pobox.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212031112.14635.m.c.p@wolk-project.de>
+	id <S266200AbSLCKLL>; Tue, 3 Dec 2002 05:11:11 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:23045 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S266191AbSLCKLK>;
+	Tue, 3 Dec 2002 05:11:10 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: bincancels in linux.kernel
+Date: Tue, 3 Dec 2002 10:18:40 +0000 (UTC)
+Organization: Cistron
+Message-ID: <asi0e0$9ul$2@ncc1701.cistron.net>
+References: <fa.fv5l6nv.1am209b@ifi.uio.no> <fa.eas3r1v.k3isq5@ifi.uio.no> <3DEC6A73.2090903@debian.org>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1038910720 10197 62.216.29.67 (3 Dec 2002 10:18:40 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 December 2002 01:59, you wrote:
+In article <3DEC6A73.2090903@debian.org>,
+Giacomo Catenazzi  <cate@debian.org> wrote:
+>I read the LKML at news:fa.linux.kernel since4 years, without problems
+>(no full mailbox box during vacations :-), and the headers are unchanged,
+>so the private reply are allowed)
 
-Hi Andrea,
+The big problem is when multiple gateways to news exist in multiple
+hierarchies. News servers accept a certain message only once - and
+the only thing that is looked at is the message-id.
 
-> this is the interesting one. Did you run any unstable kernel/driver
-> software combination recently or maybe you got oopsed or crashes?
-nope, no oops, no crash, afaik no unstable kernel/drivers. Kernel is yours ;) 
-and drivers, hmm, just intel i815, eepro100. That happend after some hours of 
-uptime and just doing "rm -rf linux-old"
+So if your news server gets fa.linux.kernel and linux.kernel, half
+of the articles will end up in the first group and half of the
+articles in the second.
 
-> journaling sometime gives a false sense of reliability, you've to keep
-> in mind that unless you know why you had to reboot w/o a clean unmount
-> you should always force an e2fsck -f/reiserfsck in single user mode at
-> the next boot, no matter of journaling. If the machine crashed because
-Yep, I always do a forced fsck in case of that.
+That's why it's not a good idea anymore to read linux-kernel etc
+mailinglists through news, you'll miss a lot of articles. Unless
+you do the gatewaying yourself and have enough of a clue to
+prevent the above scenario.
 
-> of a kernel oops or similar skipping the filesystemcheck at the very
-> next boot could left the fs corrupted for a long time until you notice
-> it possibly while running an unrelated kernel. So if you crashed
-> recently and you didn't run any e2fsck -f that could explain it. I doubt
-I run e2fsck -fy every time after a crash. Fortunately it doesn't happen so 
-often :-)
-
-> ...
-> don't know the details of the bug at the time of the next reboot so
-> normally an e2fsck -f is always required after a kernel crash, this
-> can't be automated simply because if the kernel is crashed we can't
-> write to the superblock to notify e2fsck about it, so at the next boot
-> e2fsck will always think replying the log was enough).
-yep. I tried to remove that 00_umount-against-unused-dirty-inodes-race fix and 
-after that (now 5 hours uptime) doing only copying and deleting, that ext3fs 
-error is away.
-
-> Of course your problem could be explained by a bad cable or whatever
-> else hardware failure too. At the moment I doubt it's a problem in the
-> common code of my tree or mainline.
-seems it's a problem in the umount-against-unused-dirty-inodes-race fix or if 
-the fix "is the right way" the problem is located somewhere else what 
-triggers the problem of your patch.
-
-ciao, Marc
-
+Mike (reading this with 'trn' in the /local/ lists.linux.kernel group).
+-- 
+They all laughed when I said I wanted to build a joke-telling machine.
+Well, I showed them! Nobody's laughing *now*! -- acesteves@clix.pt
 

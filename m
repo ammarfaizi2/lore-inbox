@@ -1,86 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbULLXgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbULLXnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbULLXgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 18:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbULLXgr
+	id S262173AbULLXnj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 18:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbULLXni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 18:36:47 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:13530 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262171AbULLXgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 18:36:44 -0500
-Message-ID: <41BCD5F3.80401@kolivas.org>
-Date: Mon, 13 Dec 2004 10:36:19 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
+	Sun, 12 Dec 2004 18:43:38 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:31182 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S262173AbULLXnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 18:43:37 -0500
+Date: Mon, 13 Dec 2004 00:43:31 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Con Kolivas <kernel@kolivas.org>
 Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
 Subject: Re: dynamic-hz
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random>
-In-Reply-To: <20041212222312.GN16322@dualathlon.random>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3B520E8B71A19D632037A9A8"
+Message-ID: <20041212234331.GO16322@dualathlon.random>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BCD5F3.80401@kolivas.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3B520E8B71A19D632037A9A8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Dec 13, 2004 at 10:36:19AM +1100, Con Kolivas wrote:
+> The performance benefit, if any, is often lost in noise during 
+> benchmarks and when there, is less than 1%. So I was wondering if you 
+> had some specific advantage in mind for this patch? Is there some 
+> arch-specific advantage? I can certainly envision disadvantages to lower Hz.
 
-Andrea Arcangeli wrote:
-> On Sun, Dec 12, 2004 at 05:35:47PM +0100, Pavel Machek wrote:
-> 
->>It certainly helps with singing capacitors... What is overhead of
-> 
-> 
-> ;)
-> 
-> 
->>this?
-> 
-> 
-> The overhead is a single l1 cacheline in the paths manipulating HZ
-> (rather than having an immediate value hardcoded in the asm, it reads it
-> from a memory location not in the icache). Plus there are some
-> conversion routines in the USER_HZ usages. It's not a measurable
-> difference.
+My last number I've here is 1% for kernel compile. We're not talking
+fancy desktop stuff here, we're talking about raw computing servers that
+runs in userspace 99.9% of the time where the 1% loss is going to be
+multiplied dozen or hundred of times. For those HZ=1000 is a pure
+tangible disavantage.
 
-Just being devils advocate here...
-
-I had variable Hz in my tree for a while and found there was one 
-solitary purpose to setting Hz to 100; to silence cheap capacitors.
-
-The rest of my users that were setting Hz to 100 for so-called 
-performance gains were doing so under the false impression that cpu 
-usage was lower simply because of the woefully inaccurate cpu usage 
-calcuation at 100Hz.
-
-The performance benefit, if any, is often lost in noise during 
-benchmarks and when there, is less than 1%. So I was wondering if you 
-had some specific advantage in mind for this patch? Is there some 
-arch-specific advantage? I can certainly envision disadvantages to lower Hz.
-
-Cheers,
-Con
-
---------------enig3B520E8B71A19D632037A9A8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBvNX1ZUg7+tp6mRURAswIAJ9Pxcax4DC99KHdcHezY1GnHQpQdACfQVJV
-E5rNKgwUROBBhhRWYMaOQKU=
-=Nri+
------END PGP SIGNATURE-----
-
---------------enig3B520E8B71A19D632037A9A8--
+For desktops 1% of cpu being lost is not an issue of course.

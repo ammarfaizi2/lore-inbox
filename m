@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVBOUcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVBOUcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVBOUcV (ORCPT <rfc822;willy@w.ods.org>);
+	id S261855AbVBOUcV (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Feb 2005 15:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVBOU37
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVBOUaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:29:59 -0500
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:13443 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261777AbVBOUVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:21:19 -0500
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Norbert Preining <preining@logic.at>, Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-In-Reply-To: <4212460A.4000100@gmx.net>
-References: <20050214211105.GA12808@elf.ucw.cz>
-	 <20050215125555.GD16394@gamma.logic.tuwien.ac.at>
-	 <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
-	 <4212460A.4000100@gmx.net>
-Content-Type: text/plain
-Date: Tue, 15 Feb 2005 20:21:15 +0000
-Message-Id: <1108498875.12026.18.camel@elrond.flymine.org>
+	Tue, 15 Feb 2005 15:30:13 -0500
+Received: from gprs214-212.eurotel.cz ([160.218.214.212]:36238 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261855AbVBOUW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 15:22:26 -0500
+Date: Tue, 15 Feb 2005 21:22:12 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>, mhf@berlios.de,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.6.11-rc[234] setfont fails on i810 after resume from ACPI-S3
+Message-ID: <20050215202212.GK7338@elf.ucw.cz>
+References: <20050215122233.22605728.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215122233.22605728.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 19:57 +0100, Carl-Daniel Hailfinger wrote:
+Hi!
 
-> Kendall Bennett is working with me to get suspend/resume working
-> even with framebuffers. Once we have results, I'll post them here.
+> Any thoughts on this one?  We should come back from resume in 30-row mode,
+> shouldn't we?
 
-I've had success using vesafb with vbetool state restoration. vga16fb
-ought to work fairly happily.
+Well, current state of video resume is "we are happy to see anything
+at all". 
 
+> HW info
+> 
+> Using vga=0xf07, default8x16 font, display has 30 lines
+> 
+> On powerup from S3 console has only 25 lines but still scrolls 
+> at 30 lines. Setfont historically fixes it. 
+> 
+> Tested with 2.6.10, 2.6.11-rc1: OK
+> 
+> Tested with 2.6.11-rc2-Vanilla and 2.6.11-rc[234]+swsusp2.
+> When using setfont, screen goes blank. Power up after S3
+> returns console in 25 lines mode with 30 lines scroll. 
+> Several attempts - same result.
+
+So... screen goes blank even when suspend is not involved, right?
+Sounds like a bug to me ;-).
+
+> Another bug I see only on this HW and only with 2.6 is that
+> when - and only when - using gentoo emerge --usepackage in
+> text console, scroll area resets to _25_ when portage 
+> "dumps" the (binary) package contents which scrolls pretty
+> fast. I was unable to reproduce this in any other way. 
+> Tried also echo loop in bash but perhaps it is too slow
+> or not random enough. Note that 2.4.2[789] no problem.
+
+Well, dumping random stuff to console can produce funny results. I'd
+call that normal. Try cat /dev/urandom, that should be "enough
+random".
+
+								Pavel
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

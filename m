@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263650AbTKKSR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 13:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbTKKSR5
+	id S263620AbTKKSQF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 13:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTKKSQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 13:17:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60141 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263650AbTKKSRy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 13:17:54 -0500
-Date: Tue, 11 Nov 2003 10:17:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Erik Jacobson <erikj@subway.americas.sgi.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: 2.6 /proc/interrupts fails on systems with many CPUs
-In-Reply-To: <Pine.SGI.4.53.0311111116440.360387@subway.americas.sgi.com>
-Message-ID: <Pine.LNX.4.44.0311111007350.30657-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Nov 2003 13:16:05 -0500
+Received: from smtp.terra.es ([213.4.129.129]:11996 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id S263620AbTKKSQD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 13:16:03 -0500
+Date: Tue, 11 Nov 2003 19:15:56 +0100
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-Id: <20031111191556.6eae279d.diegocg@teleline.es>
+In-Reply-To: <20031111184919.43a93a88.diegocg@teleline.es>
+References: <boppm8$94h$1@gatekeeper.tmr.com>
+	<Pine.LNX.4.44.0311102136280.2881-100000@home.osdl.org>
+	<20031111184919.43a93a88.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Tue, 11 Nov 2003 18:49:19 +0100 Diego Calleja García <diegocg@teleline.es> escribió:
 
-On Tue, 11 Nov 2003, Erik Jacobson wrote:
-> 
-> I'm looking for suggestions on how to fix this.  I came up with one fix
-> that seems to work OK for ia64.  I have attached it to this message.
-> I'm looking for advice on what should be proposed for the real fix.
+> Until then, I'd suggest this patch to avoid more complains about this:
 
-This is not the real fix.
+Sorry, the previous one was sent with a broken MUA
 
-Allowing people to use up vmalloc() space by opening the /proc files would 
-be a major DoS attack. Not worth it.
+diff -puN drivers/ide/Kconfig~idescsi-broken drivers/ide/Kconfig
+--- tim/drivers/ide/Kconfig~idescsi-broken	2003-11-11 18:35:23.000000000 +0100
++++ tim-diego/drivers/ide/Kconfig	2003-11-11 18:36:07.000000000 +0100
+@@ -247,7 +247,7 @@ config BLK_DEV_IDEFLOPPY
+ 
+ config BLK_DEV_IDESCSI
+ 	tristate "SCSI emulation support"
+-	depends on SCSI
++	depends on SCSI && BROKEN
+ 	---help---
+ 	  This will provide SCSI host adapter emulation for IDE ATAPI devices,
+ 	  and will allow you to use a SCSI device driver instead of a native
 
-Instead, just make /proc/interrupts use the proper _sequence_ things, so
-that instead of trying to print out everything in one go, you have the
-"s_next()" thing to print them out one at a time. The seqfile interfaces
-will then do the rigth thing with blocking/caching, and you only need a
-single page.
-
-Al - do we have some good documentation of how to use the seq-file 
-interface? 
-
-In the meantime, without documentation, the best place to look is just at 
-other examples. One such example would be the kernel/kallsyms.c case: see 
-how it does s_start/s_show/s_next/s_stop (or /proc/slabinfo, or vmstat, or 
-any number of them).
-
-		Linus
-
+_

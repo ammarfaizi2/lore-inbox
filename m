@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292907AbSBVPft>; Fri, 22 Feb 2002 10:35:49 -0500
+	id <S292910AbSBVPkt>; Fri, 22 Feb 2002 10:40:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292906AbSBVPfb>; Fri, 22 Feb 2002 10:35:31 -0500
-Received: from mgw-x3.nokia.com ([131.228.20.26]:51098 "EHLO mgw-x3.nokia.com")
-	by vger.kernel.org with ESMTP id <S292905AbSBVPfY>;
-	Fri, 22 Feb 2002 10:35:24 -0500
-Message-ID: <3C766511.5050808@nokia.com>
-Date: Fri, 22 Feb 2002 17:34:41 +0200
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S292911AbSBVPkj>; Fri, 22 Feb 2002 10:40:39 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:34492 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S292910AbSBVPkc>; Fri, 22 Feb 2002 10:40:32 -0500
+Message-Id: <200202221452.HAA16587@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Theodore Tso <tytso@mit.edu>
+Subject: [PATCH] 2.5.5-dj1 add one help text to drivers/char/drm/Config.help
+Date: Fri, 22 Feb 2002 08:39:00 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-CC: affix-devel@lists.sourceforge.net,
-        Affix support <affix-support@lists.sourceforge.net>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: New Affix Release: Affix-0_93
-In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Feb 2002 15:35:22.0271 (UTC) FILETIME=[8A5A72F0:01C1BBB6]
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This patch adds a help text for CONFIG_DRM_SIS in drivers/char/drm/Config.help.
+Patch is made against 2.5.5-dj1.
 
-Find new affix release Affix-0_93 on
-http://affix.sourceforge.net
+Steven
 
-Version 0.93 [22.02.2002]
-- [fix] extern inline replaced by static inline
-	prevent un-optimized compilation problem
-- [new] usb driver support any bluetooth deivices
-- [fix] btsdp_browse connection establishment
-- [new] L2CAP socket can be connected through any Bluetooth adapter
-	sockaddr_l2cap {
-	... old fields..
-	BD_ADDR		local;
-	}
-	set *local* to Bluetooth address of the adapter to connect through.
-	or BDADDR_ANY
-- [fix] hci devices are removing well on *btctl close_uart *
-- [fix] added locks for l2cap objects
-- [fix] compilation problem for older kernel (2.4.7 at least) - headers ...
+--- linux-2.5.5-dj1/drivers/char/drm/Config.help.orig   Fri Feb 22 08:29:07 2002
++++ linux-2.5.5-dj1/drivers/char/drm/Config.help        Fri Feb 22 08:30:32 2002
+@@ -37,3 +37,7 @@
+   card.  If M is selected, the module will be called mga.o.  AGP
+   support is required for this driver to work.
 
-
-
-Br, Dmitry
-
--- 
- Dmitry Kasatkin
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitry.kasatkin@nokia.com
-
-
-
++CONFIG_DRM_SIS
++  Choose this option if you have a SIS graphics card. AGP support is
++  required for this driver to work.
++

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbTLPUGr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 15:06:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTLPUGr
+	id S262164AbTLPT5q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 14:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTLPT5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 15:06:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1408 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262283AbTLPUGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 15:06:45 -0500
-Date: Tue, 16 Dec 2003 12:05:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org
-Subject: Re: dmesg problem in 2.5.73
-Message-Id: <20031216120547.0d3b77e2.rddunlap@osdl.org>
-In-Reply-To: <1057228803.5499.243.camel@workshop.saharacpt.lan>
-References: <m3he64c7qo.fsf@ccs.covici.com>
-	<1057228803.5499.243.camel@workshop.saharacpt.lan>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 Dec 2003 14:57:46 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:2313 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S262164AbTLPT5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 14:57:44 -0500
+Message-ID: <3FDF63A2.9090205@enterprise.bidmc.harvard.edu>
+Date: Tue, 16 Dec 2003 14:57:22 -0500
+From: "Kristofer T. Karas" <ktk@ENTERPRISE.BIDMC.HARVARD.EDU>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Linux 2.4.24-pre1: Instant reboot
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03 Jul 2003 12:40:04 +0200 Martin Schlemmer <azarah@gentoo.org> wrote:
+Hi Marcelo, et al,
 
-| On Thu, 2003-07-03 at 10:52, John Covici wrote:
-| > Hi.  I have a weird problem -- maybe its iptables, but I am using the
-| > log target and they print at legvel 4, but I only want level 3 or
-| > less to print on the console, so I did 'dmesg -n 3' but I am still
-| > getting the iptables messages.
-| > 
-| > I thought I could do this all with syslog.conf, but that has never
-| > worked.
-| > 
-| 
-| Changing DEFAULT_CONSOLE_LOGLEVEL (?) has been broken since
-| 2.5.70 or 2.5.71.  I checked kernel/printk.c, etc, but could
-| not see anything that was causing this.
+Just wanted to report an instantaneous reboot problem with 2.4.24-pre1.
 
-Hi,
+I don't even see any printk's to the screen; as soon as LILO is finished 
+loading the new kernel, the screen blanks and the BIOS goes through its 
+boot sequence again.  Since I seem to be the only one reporting this to 
+LKML, I suspect I'll have to back out various patches to try to track 
+this down. :-P
 
-Is this still broken?  How do you test it?
+I'm using the same .config as in 2.4.23 with new questions left at their 
+defaults (e.g. XFS=n, OOM_KILLER=n).  I've had no problems with this 
+otherwise rock-stable platform for all varieties of 2.4.x, save for some 
+early USB EHCI issues long ago.
 
-In 2.6.0-testN I can change [current] console_loglevel via:
+At work now, so I don't have a full .config handy, but:
+* Slackware 8.1 based; glibc 2.2.5; gcc 2.95.3
+* Soltek SL-75DRV2 (UP, Athlon XP 1700, VIA KT266A [VT8366A/VT8233])
+* Root = ext3 on IDE partition
+* DevFS, DevPTS, IDE-SCSI=cdrom0, USBStorage, USB EHCI, VFAT
+* RadeonFB, IPTables, Realtek-8139
+Everything else in .config is pretty vanilla (e.g. Linus defaults or 
+thereabouts).
 
-echo 7 > /proc/sysrq-trigger
-or
-Alt-SysRq-8
-or
-echo "9 4 1 7" > /proc/sys/kernel/printk
+Kris
 
-The latter form can also change any of
-  (current console_loglevel, default_message_loglevel,
-   minimum_console_loglevel, default_console_loglevel}
-and is the only way that I know of to change the latter 3 of these.
-
-
---
-~Randy
-MOTD:  Always include version info.

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUF2V0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266076AbUF2V1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266073AbUF2V0z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 17:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266075AbUF2V0y
+	id S266076AbUF2V1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 17:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbUF2V1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 17:26:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20915 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266073AbUF2V0p (ORCPT
+	Tue, 29 Jun 2004 17:27:19 -0400
+Received: from mail.enyo.de ([212.9.189.167]:15623 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S266076AbUF2V1J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 17:26:45 -0400
-Date: Tue, 29 Jun 2004 14:29:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hamie <hamish@travellingkiwi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm4 compile buglet
-Message-Id: <20040629142929.14e1b746.akpm@osdl.org>
-In-Reply-To: <40E1DCD0.7090604@travellingkiwi.com>
-References: <40E1DCD0.7090604@travellingkiwi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jun 2004 17:27:09 -0400
+To: Lincoln Dale <ltd@cisco.com>
+Cc: "David S. Miller" <davem@redhat.com>, saiprathap <saiprathap@cc.usu.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: TCP-RST Vulnerability - Doubt
+References: <40DC9B00@webster.usu.edu> <40DC9B00@webster.usu.edu>
+	<5.1.0.14.2.20040629122704.04958ec8@171.71.163.14>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Tue, 29 Jun 2004 23:27:00 +0200
+In-Reply-To: <5.1.0.14.2.20040629122704.04958ec8@171.71.163.14> (Lincoln
+ Dale's message of "Tue, 29 Jun 2004 12:34:01 +1000")
+Message-ID: <874qou12e3.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hamie <hamish@travellingkiwi.com> wrote:
->
-> drivers/built-in.o(.init.text+0x90ed): In function `do_wrlvtpc':
-> : undefined reference to `apic_write'
+* Lincoln Dale:
 
-You'll need to disable CONFIG_PERFCTR or apply the below patch.
+> the vulnerabilities are real for any application/protocol which makes
+> use of long-duration TCP sessions.
 
+... *and* which hasn't got fast recovery from connection loss.
 
+For example, NNTP uses long-lived TCP connections, but it is NOT
+vulnerable because restart is very cheap.
 
-
---- linux-2.6.7-mm4/drivers/perfctr/x86_tests.c.~1~	2004-06-29 12:43:27.000000000 +0200
-+++ linux-2.6.7-mm4/drivers/perfctr/x86_tests.c	2004-06-29 13:26:26.000000000 +0200
-@@ -44,6 +44,11 @@
- #define CR4MOV	"movl"
- #endif
- 
-+#ifndef PERFCTR_INTERRUPT_SUPPORT
-+#undef apic_write
-+#define apic_write(reg,vector)			do{}while(0)
-+#endif
-+
- static void __init do_rdpmc(unsigned pmc, unsigned unused2)
- {
- 	unsigned i;
+Given the other benefits of fast recovery, it's better to concentrate
+on that than to tack something on the TCP stack which only solves a
+tiny subset of the problems (which isn't even relevant in practice).

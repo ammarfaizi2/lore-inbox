@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSEPW5y>; Thu, 16 May 2002 18:57:54 -0400
+	id <S315202AbSEPXiu>; Thu, 16 May 2002 19:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSEPW5y>; Thu, 16 May 2002 18:57:54 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:47101 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S315191AbSEPW5x>; Thu, 16 May 2002 18:57:53 -0400
-Date: Thu, 16 May 2002 16:54:51 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: davidm@hpl.hp.com, Peter Chubb <peter@chubb.wattle.id.au>,
-        Jeremy Andrews <jeremy@kerneltrap.org>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] remove 2TB block device limit
-Message-ID: <20020516225451.GO12975@turbolinux.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	davidm@hpl.hp.com, Peter Chubb <peter@chubb.wattle.id.au>,
-	Jeremy Andrews <jeremy@kerneltrap.org>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <15579.16423.930012.986750@wombat.chubb.wattle.id.au> <15580.24766.424170.333718@napali.hpl.hp.com> <20020515221733.GG12975@turbolinux.com> <E178Rlf-0008Tj-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S315204AbSEPXiu>; Thu, 16 May 2002 19:38:50 -0400
+Received: from netmail.netcologne.de ([194.8.194.109]:55330 "EHLO
+	netmail.netcologne.de") by vger.kernel.org with ESMTP
+	id <S315202AbSEPXit>; Thu, 16 May 2002 19:38:49 -0400
+Message-Id: <200205162338.AWF04364@netmail.netcologne.de>
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+Reply-To: joergprante@gmx.de
+Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
+To: quintela@mandrakesoft.com
+Subject: [PATCH] fixing supermount for > 2.4.19pre4
+Date: Fri, 17 May 2002 01:36:22 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E178TUb-0005Bh-00@the-village.bc.nu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_MK981SXI439JQ2I14B9A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 16, 2002  22:22 +0200, Daniel Phillips wrote:
-> On Thursday 16 May 2002 00:17, Andreas Dilger wrote:
-> > Even 8kB blocks would theoretically overflow these fields, but you
-> > can't yet have a group _totally_ empty (there are always two bitmaps
-> > and at least one inode table block), so it would always have less
-> > than 65535 blocks free.  Now I realize that this isn't true of the
-> > inode table in theory, but you normally also have less than the maximum
-> > number of inodes per group - need to check for that.
-> > 
-> > This could be worked around temporarily by limiting the size of each
-> > group to at most 65535 free blocks/inodes.
-> 
-> Imposing an absolute upper limit of 2**16 blocks per group makes the most 
-> sense for now, and may always make the most sense.  Even with a cap on the
-> blocks per group group size still scales directly with block size.  We
-> don't want it to scale quadratically.  If it did, then a data block could
-> end up 32 GB away from the inode, still in the same group.  This
-> effectively destroys the utility of block groups as a means of reducing
-> seek latency.
 
-Yes, Ted said the same.
+--------------Boundary-00=_MK981SXI439JQ2I14B9A
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-A minor question is whether to cap it at 65536 blocks/group or 65528?
-(The number of blocks per group must be a multiple of 8).
+Hi,
 
-The current layout is such that you will _always_ have at least 3
-blocks in use for each group.  However, if we implement Ted's
-"metagroup" layout (which puts all of a group's bitmaps/itable blocks
-in the first group of its block of group descriptors) then there could
-be cases where a group has no blocks in use, and the free count will
-overflow.
+in 2.4.19pre4, the dentry revalidation has been patched, and the VFS behavior 
+has changed due to an NFS bugfix. All non-standard remote file systems (like 
+supermount, ftpfs, etc.) are in conflict with the patch and may not operate 
+correctly.
 
-Having the upper limit at 65536 is aesthetically pleasing, and it aligns
-nicely with LVM (which allocates chunks in power-of-two sizes), but may
-preclude changing such a filesystem to the metagroup layout without a
-larger effort on the resizer's part.  I'll go with 65528 I guess.
+Alan Cox pointed out that non-standard remote file systems should get fixed 
+for 2.4.19. So, here is my quick hack for supermount 0.7 that changes the 
+return policy in the d_revalidate operation. Supermount should work now in 
+2.4.19pre4 kernels and higher.
 
-Note that going to a metagroup layout would also grow the distance
-between the itable and possible blocks quadratically (the number of
-group descriptors that fit into a block also grows with blocksize),
-but at least it is not cubic growth.  That said, the metagroup layout
-is probably only useful for cases where you _know_ you want huge files
-(in the multi-GB range) and locality of blocks to the single inode block
-is irrelevant.
+Other file systems with similar revalidate policy can get fixed accordingly.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Cheers,
 
+Jörg
+
+--------------Boundary-00=_MK981SXI439JQ2I14B9A
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="supermount-2.4.19pre8-fix.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="supermount-2.4.19pre8-fix.patch"
+
+LS0tIGxpbnV4L2ZzL3N1cGVybW91bnQvZGVudHJ5X29wZXJhdGlvbnMuYy5vcmlnCUZyaSBNYXkg
+MTcgMDA6MzY6MjEgMjAwMgorKysgbGludXgvZnMvc3VwZXJtb3VudC9kZW50cnlfb3BlcmF0aW9u
+cy5jCUZyaSBNYXkgMTcgMDE6MTY6MDYgMjAwMgpAQCAtMjUsOCArMjUsOSBAQAogCiAJZHVtcF9k
+ZW50cnkoZGVudHJ5KTsKIAotCWlmICghc3ViZnNfZ29fb25saW5lKGRlbnRyeS0+ZF9zYikpCi0J
+CWdvdG8gYmFkX2RlbnRyeTsKKwlpZiAoIXN1YmZzX2dvX29ubGluZShkZW50cnktPmRfc2IpKSB7
+CisJCWdvdG8gb3V0OworICAgIH0KIAlzcGluX2xvY2soJmRjYWNoZV9sb2NrKTsKIAlpZiAoZGVu
+dHJ5LT5kX2lub2RlICYmIGlzX2lub2RlX29ic29sZXRlKGRlbnRyeS0+ZF9pbm9kZSkpIHsKIAkJ
+c3VwZXJtb3VudF9kZWJ1ZygiZm91bmQgb2xkIGRlbnRyeTogKiolcyoqIiwKQEAgLTM2LDIwICsz
+NywyMSBAQAogCX0KIAlzcGluX3VubG9jaygmZGNhY2hlX2xvY2spOwogCXN1YmQgPSBnZXRfc3Vi
+ZnNfZGVudHJ5KGRlbnRyeSk7Ci0JaWYgKElTX0VSUihzdWJkKSkKKwlpZiAoSVNfRVJSKHN1YmQp
+KSB7CiAJCWdvdG8gYmFkX2RlbnRyeTsKKwl9CiAKIAlpZiAoc3ViZC0+ZF9vcCAmJiBzdWJkLT5k
+X29wLT5kX3JldmFsaWRhdGUpIHsKIAkJc3VwZXJtb3VudF9kZWJ1ZygibG93bGV2ZWwgcmV2YWxp
+ZGF0ZSIpOwogCQlyYyA9IHN1YmQtPmRfb3AtPmRfcmV2YWxpZGF0ZShzdWJkLCBmbGFncyk7CiAJ
+fQogCWRwdXQoc3ViZCk7CisJZ290byBvdXQ7CitiYWRfZGVudHJ5OgorCXJjID0gMDsKIG91dDoK
+IAlzdWJmc19nb19pbmFjdGl2ZShkZW50cnktPmRfc2IpOwogCXJldHVybiByYzsKLWJhZF9kZW50
+cnk6Ci0JcmMgPSAwOwotCWdvdG8gb3V0OwogfQogCiBzdHJ1Y3QgZGVudHJ5X29wZXJhdGlvbnMg
+c3VwZXJtb3VudF9kaXJfZG9wcyA9IHsK
+
+--------------Boundary-00=_MK981SXI439JQ2I14B9A--

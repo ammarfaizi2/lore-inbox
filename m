@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267142AbTBLRRo>; Wed, 12 Feb 2003 12:17:44 -0500
+	id <S267174AbTBLRX3>; Wed, 12 Feb 2003 12:23:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbTBLRRo>; Wed, 12 Feb 2003 12:17:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62215 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267142AbTBLRRn>; Wed, 12 Feb 2003 12:17:43 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Date: Wed, 12 Feb 2003 17:24:08 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b2dvvo$7n5$1@penguin.transmeta.com>
-References: <629040000.1045013743@flay> <20030212041848.GA9273@bjl1.jlokier.co.uk> <b2cnit$7e6$1@penguin.transmeta.com> <20030212101831.GB10422@bjl1.jlokier.co.uk>
-X-Trace: palladium.transmeta.com 1045070837 25979 127.0.0.1 (12 Feb 2003 17:27:17 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 12 Feb 2003 17:27:17 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S267209AbTBLRX3>; Wed, 12 Feb 2003 12:23:29 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:30607 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267174AbTBLRX2>;
+	Wed, 12 Feb 2003 12:23:28 -0500
+Date: Wed, 12 Feb 2003 17:29:05 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Adam Belay <ambx1@neo.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
+Message-ID: <20030212172905.GA18248@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Shawn Starr <spstarr@sh0n.net>, Adam Belay <ambx1@neo.rr.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030212155506.GA13038@codemonkey.org.uk> <Pine.LNX.4.44.0302121114150.211-100000@coredump.sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302121114150.211-100000@coredump.sh0n.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030212101831.GB10422@bjl1.jlokier.co.uk>,
-Jamie Lokier  <jamie@shareable.org> wrote:
->
->I meant: the trampoline _stack_ lives in the TSS.
->
->There is no trampoline _code_.
+On Wed, Feb 12, 2003 at 11:14:40AM -0500, Shawn Starr wrote:
 
-Ahh, ok. That sounds quite doable, and all my complaints go away.
+ > Right but, why does this *not* show up in 2.4? IRQ 12 is free in 2.4 but
+ > not in 2.5 *with* PS/2 mouse enabled?!
 
-It still leaves the debug exception and NMI issue.
+At a guess CONFIG_PSMOUSE=n
+It works fine here.
 
-The debug exception case is easy to trigger: use gdb to single-step
-through the user-lebel fast system call code, and you _will_ get a debug
-exception on the very first kernel instruction (which is also the one
-that doesn't have a valid stack). 
+		Dave
 
-So anybody want to actually try to implement this?
-
-		Linus
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

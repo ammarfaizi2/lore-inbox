@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280806AbRKTARV>; Mon, 19 Nov 2001 19:17:21 -0500
+	id <S280790AbRKTAS7>; Mon, 19 Nov 2001 19:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280810AbRKTARK>; Mon, 19 Nov 2001 19:17:10 -0500
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:60331 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S280806AbRKTAQy>; Mon, 19 Nov 2001 19:16:54 -0500
-Date: Tue, 20 Nov 2001 01:16:29 +0100
-From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.2 keventd fix
-Message-ID: <20011120011629.A11470@storm.local>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S280801AbRKTASv>; Mon, 19 Nov 2001 19:18:51 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:39951 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S280790AbRKTASg>; Mon, 19 Nov 2001 19:18:36 -0500
+Date: Mon, 19 Nov 2001 16:18:40 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+In-Reply-To: <Pine.LNX.4.33.0111191543390.19585-200000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0111191608190.30692-100000@shell1.aracnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the 2.2 version of keventd flush_scheduled_tasks() always oopses.  It
-adds a tq_struct with NULL routine to kick keventd to life which is
-skipped by 2.4 run_task_queue() but the 2.2 one tries to execute it.
+On a related note, the files "/usr/src/linux/Documentation/filesystems/proc.txt"
+and "sysctl/vm.txt" refer to some variables I need to be able to set on a
+system running 2.4.12. In particular, I need to be able to get to the values
+in "/proc/sys/vm/freepages", "/proc/sys/vm/buffermem" and
+"/proc/sys/vm/pagecache". However, despite their existence in the documentation
+files, these files don't exist on a 2.4.12 system. How can I read and set these
+values on a 2.4.12 system?
+--
+znmeb@aracnet.com (M. Edward Borasky) http://www.aracnet.com/~znmeb
+Relax! Run Your Own Brain with Neuro-Semantics!
+http://www.meta-trading-coach.com
 
-The following patch fixes that, I also added some spin locking from the
-2.4 version which seems to be added after the backport.  (patch against
-2.2.20)
+"Outside of a dog, a book is a man's best friend.  Inside a dog, it's
+too dark to read." -- Marx
 
-
---- linux-2.2.orig/kernel/context.c	Sun May 27 03:21:32 2001
-+++ linux-2.2/kernel/context.c	Mon Nov 19 04:04:37 2001
-@@ -101,8 +101,10 @@
- 		if (signal_pending(curtask)) {
- 			while (waitpid(-1, (unsigned int *)0, __WALL|WNOHANG) > 0)
- 				;
-+			spin_lock_irq(&curtask->sigmask_lock);
- 			flush_signals(curtask);
- 			recalc_sigpending(curtask);
-+			spin_unlock_irq(&curtask->sigmask_lock);
- 		}
- 	}
- }
-@@ -119,7 +121,8 @@
-  * The caller should hold no spinlocks and should hold no semaphores which could
-  * cause the scheduled tasks to block.
-  */
--static struct tq_struct dummy_task;
-+static void dummy_routine(void *whatever) {}
-+static struct tq_struct dummy_task = { routine: dummy_routine };
- 
- void flush_scheduled_tasks(void)
- {
-
-
--- 
-Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263925AbTEOJho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 05:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTEOJhn
+	id S263932AbTEOJl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 05:41:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTEOJl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 05:37:43 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:56706 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263925AbTEOJhm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 05:37:42 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 May 2003 05:41:28 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:37349 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263932AbTEOJlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 05:41:24 -0400
+Date: Thu, 15 May 2003 02:55:39 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: riel@redhat.com, dmccr@us.ibm.com, mika.penttila@kolumbus.fi,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-Id: <20030515025539.0067012d.akpm@digeo.com>
+In-Reply-To: <20030515094656.GB1429@dualathlon.random>
+References: <20030515004915.GR1429@dualathlon.random>
+	<Pine.LNX.4.44.0305142234120.20800-100000@chimarrao.boston.redhat.com>
+	<20030515094656.GB1429@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16067.25088.905125.474440@gargle.gargle.HOWL>
-Date: Thu, 15 May 2003 11:46:40 +0200
-From: mikpe@csd.uu.se
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm5: CONFIG_ACPI_SLEEP compile error
-In-Reply-To: <20030514225157.GA13427@elf.ucw.cz>
-References: <20030514012947.46b011ff.akpm@digeo.com>
-	<20030514214536.GK1346@fs.tum.de>
-	<20030514225157.GA13427@elf.ucw.cz>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+X-OriginalArrivalTime: 15 May 2003 09:54:08.0829 (UTC) FILETIME=[EDE15ED0:01C31AC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
- > Hi!
- > 
- > Mikpe, is this your diff? 
- > 
- > revision 1.16
- > date: 2003/05/11 18:58:48;  author: mikpe;  state: Exp;  lines: +2 -4
- > restore sysenter MSRs at APM resume
- > 
- > I do not know why you changed it (it has certainly nothing to do with
- > APM resume)... Please revert it.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > > -	if (page->buffers)
+>  > > -		goto preserve;
+>  > > +	BUG_ON(page->buffers);
+>  > 
+>  > I wonder if there is nothing else that can leave behind
+>  > buffers in this way.
+> 
+>  that's why I left the BUG_ON, if there's anything else I want to know,
+>  there shouldn't be anything else as the comment also suggest. I recall
+>  when we discussed this single check with Andrew and that was the only
+>  reason we left it AFIK.
 
-I've just posted a fix for the compile error.
-
-APM suspend and resume now use the save and restore processor state
-procedures in suspend.c. The only alternative is to duplicate that
-functionality in apm.c or a new "suspend-but-not-tied-to-acpi.c" file.
-But suspend.c is fairly generic so it makes sense to share it with APM.
-
-The suspend.c changes are cleanups. The variables are only used in acpi's
-suspend_asm.S and acpi/wakeup.S, so I moved them to suspend_asm.S since
-they aren't needed when suspend is done by APM. fix_processor_context()
-isn't used outside of suspend.c so I made it static.
-
-Do you still have a problem with this?
-
-/Mikael
+yes, the test should no longer be needed.

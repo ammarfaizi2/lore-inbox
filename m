@@ -1,90 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbTKJQWh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 11:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263958AbTKJQWh
+	id S263936AbTKJQ0o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 11:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTKJQ0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 11:22:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48533 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263946AbTKJQWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 11:22:35 -0500
-Date: Mon, 10 Nov 2003 17:18:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Csaba Halasz <Jester01@freemail.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-cd panic with faulty disk and DMA enabled (2.6.0-test9)
-Message-ID: <20031110161859.GC4451@suse.de>
-References: <9B4E9DA25A3DD41189B000508B5C0CEE2142AD@BOMBA> <20031110153948.GO32637@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031110153948.GO32637@suse.de>
+	Mon, 10 Nov 2003 11:26:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45959 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263936AbTKJQ0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 11:26:42 -0500
+Message-ID: <3FAFBC28.5000600@pobox.com>
+Date: Mon, 10 Nov 2003 11:26:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Oliver M. Bolzer" <oliver@gol.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Success with  Promise FastTrak S150 TX4 (Re: [BK PATCHES] libata
+ fixes)
+References: <20031108172621.GA8041@gtf.org> <20031110095248.GA20497@magi.fakeroot.net>
+In-Reply-To: <20031110095248.GA20497@magi.fakeroot.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10 2003, Jens Axboe wrote:
-> On Mon, Nov 10 2003, Csaba Halasz wrote:
-> > Hi!
-> > 
-> > I have a DVD+RW disk that crashes the kernel every time I try to
-> > read a particular area using my DVD-ROM drive with DMA enabled.
-> > (The writer unit can read it back without any problems though.)
-> > 
-> > IMHO the crash seems to be of a more general nature,
-> > not related to DVD+RW.
-> > 
-> > Linux version 2.6.0-test9 (hcs@defiant) (gcc version 3.3 (Debian)) #1 Sun Nov 9 14:08:41 CET 2003
-> > Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > NFORCE: IDE controller at PCI slot 0000:00:09.0
-> > NFORCE: chipset revision 195
-> > NFORCE: not 100%% native mode: will probe irqs later
-> > AMD_IDE: Bios didn't set cable bits correctly. Enabling workaround.
-> > AMD_IDE: Bios didn't set cable bits correctly. Enabling workaround.
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > AMD_IDE: 0000:00:09.0 (rev c3) UDMA100 controller on pci0000:00:09.0
-> >     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:DMA
-> >     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:DMA
-> > hda: Maxtor 5T040H4, ATA DISK drive
-> > hdb: _NEC DVD+RW ND-1100A, ATAPI CD/DVD-ROM drive
-> > Using anticipatory io scheduler
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > hdc: Maxtor 5T040H4, ATA DISK drive
-> > hdd: MATSHITADVD-ROM SR-8586, ATAPI CD/DVD-ROM drive
-> > ide1 at 0x170-0x177,0x376 on irq 15
-> > end_request: I/O error, dev hdb, sector 0
-> > hdb: ATAPI 40X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-> > Uniform CD-ROM driver Revision: 3.12
-> > end_request: I/O error, dev hdd, sector 0
-> > hdd: ATAPI 123X DVD-ROM drive, 512kB Cache, UDMA(33)
-> > hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-> > hdd: media error (bad sector): error=0x34
-> > end_request: I/O error, dev hdd, sector 7043320
-> > Buffer I/O error on device hdd, logical block 880415
-> > hdd: DMA timeout retry
-> > hdd: timeout waiting for DMA
-> > 
-> > Unable to handle kernel paging request at virtual address ddff7f74
-> >  printing eip:
-> > c0249af6
-> > *pde = 00076067
-> > *pte = 1dff7000
-> > Oops: 0000 [#1]
-> > CPU:    0
-> > EIP:    0060:[<c0249af6>]    Not tainted
+Oliver M. Bolzer wrote:
+> On Sat, Nov 08, 2003 at 12:26:21PM -0500, Jeff Garzik <jgarzik@pobox.com> wrote...
+>  
 > 
-> Could you build the same kernel with CONFIG_DEBUG_INFO enabled, and then
-> do a
+>><jgarzik@redhat.com> (03/11/06 1.1415)
+>>   [libata] fix ugly Promise interrupt masking bug
 > 
-> # gdb vmlinux
-> # l *0xc0249af6
 > 
-> for me? Thanks.
+> This solved the last outstanding problem with the 4th drive and the
+> driver seems to find all drives and properly boot off them, at least
+> in a situation where no RAID-functionalty of the card is used. Great
+> Work.
 
-You even did so, further down. Sorry, should have paid more attention.
-I'll take a look at it.
+Thanks for testing.
 
--- 
-Jens Axboe
+
+> # A first quick run of bonnie++ seems to show 2.6.0-test9+libata several
+> # %s slower then 2.4.22+ft3xx, but that might be related to differences
+> # between 2.4 and 2.6.
+
+One possibility is that queueing is not yet enabled in my sata_promise 
+driver.  Several of the SATA drivers support having multiple commands 
+outstanding per driver (tagged command queueing), but I need to do a bit 
+more work before I can enable queueing in the core.
+
+	Jeff
+
 

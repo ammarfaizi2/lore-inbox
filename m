@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUI1KcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUI1Kqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUI1KcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 06:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUI1KcQ
+	id S261232AbUI1Kqr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 06:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUI1Kqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 06:32:16 -0400
-Received: from scanner2.mail.elte.hu ([157.181.151.9]:5299 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266175AbUI1KcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 06:32:11 -0400
-Date: Tue, 28 Sep 2004 12:33:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Matt Heler <lkml@lpbproductions.com>
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20040928103324.GA21050@elte.hu>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409272142.35182.gene.heskett@verizon.net> <20040928070104.GA14836@elte.hu> <200409280626.50167.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409280626.50167.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 28 Sep 2004 06:46:47 -0400
+Received: from eth1023.nsw.adsl.internode.on.net ([150.101.206.254]:11328 "EHLO
+	naya.ABOOSPLANET.COM") by vger.kernel.org with ESMTP
+	id S261232AbUI1Kqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 06:46:44 -0400
+From: "Aboo Valappil" <aboo@aboosplanet.com>
+To: "'Alex Riesen'" <raa.lkml@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Switch back to Real mode and then boot strap
+Date: Tue, 28 Sep 2004 20:46:40 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcSlRPM2t5O4H3RCTluurruNU+2pWgAAZSSA
+In-Reply-To: <81b0412b0409280321235178f1@mail.gmail.com>
+Message-ID: <NAYArRjbDt3HvoFOAmE00000009@naya.ABOOSPLANET.COM>
+X-OriginalArrivalTime: 28 Sep 2004 10:46:42.0839 (UTC) FILETIME=[712F9A70:01C4A548]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex,
 
-* Gene Heskett <gene.heskett@verizon.net> wrote:
+Thanks for your reply, it is really good if I have to load another kernel.
+But in my case the OS on the hard disk could be Windows, Linux or x86
+Solaris. A reboot is required from Linux booted from floppy/ramdisk after
+the hard disk has been imaged with requested operating system by a user. 
 
-> >what i use is serial logging to another machine. A digital camera is
-> >fine too, if the problem area is still visible on the screen.
-> >(Netconsole is useful too for other type of hangs but it's not
-> > active at such an early stage yet.)
-> >
-> > Ingo
-> 
-> Unforch, I don't have a spare seriel port Ingo.  One is running my x10 
+Because of the automated behavior of this, changing the boot sequence is not
+an option. That is why I am after executing real mode BIOS interrupts to
+load the MBR and then pass control to it. 
 
-fortunately with the patch applied your box works now (so does mine) so
-the bug appears to be fixed.
+Any help will be appreciated :)
 
-early-bootup debugging was never easy, and breakage there doesnt happen
-all that often. Hopefully this was the last one related to remove-BKL. 
+Thanks
 
-(If such a early-bootup lockup happens in the future then you sure could
-temporarily unplug the ups serial connection and use that as the serial
-console - for the narrow and temporary purpose of debugging that
-boot-time hang.)
+Aboo
 
-	Ingo
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alex Riesen
+Sent: Tuesday, September 28, 2004 8:22 PM
+To: Aboo Valappil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Switch back to Real mode and then boot strap
+
+On Tue, 28 Sep 2004 20:11:59 +1000, Aboo Valappil <aboo@aboosplanet.com>
+wrote:
+> Basically I have a requirement of re-booting ( Without really rebooting )
+> the OS from the hard disk ( even if a floppy is present or a bootable
+CD-ROM
+> is present).  Update CMOS to change the boot sequence is not an option for
+> my requirement.
+
+You probably want to look at kexec.
+I.e. there: http://lwn.net/Articles/15468/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

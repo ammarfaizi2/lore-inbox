@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUKEUDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbUKEUFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbUKEUDX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUKEUBd
+	id S261190AbUKEUFw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:05:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUKEUFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:01:33 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:40720 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261195AbUKET7b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:59:31 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Jp@Enix. Org" <jp@enix.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Possible GPL infringement in Broadcom-based routers
-Date: Fri, 5 Nov 2004 11:59:23 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOECKPJAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <200411051843.iA5Ih4q28451@adam.yggdrasil.com>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 05 Nov 2004 11:35:53 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 05 Nov 2004 11:35:57 -0800
+	Fri, 5 Nov 2004 15:05:51 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:23046 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261194AbUKEUFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 15:05:39 -0500
+Date: Fri, 5 Nov 2004 21:00:21 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Adam Heath <doogie@debian.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+Message-ID: <20041105200021.GA30993@alpha.home.local>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <418A603A.3030806@nortelnetworks.com> <Pine.LNX.4.58.0411041216240.1229@gradall.private.brainfood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411041216240.1229@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 04, 2004 at 12:17:01PM -0600, Adam Heath wrote:
+> > You're posting to the kernel development list--many people here recompile dozens
+> > of times a day.
+> 
+> So find the fastest computer you have, and use that.  There is no need to
+> compile a kernel on the machine it will be run on.
 
-> The GPL is a grant of permission.  So, if you have an activity
-> that is restricted by copyright, you have to find something in the GPL
-> that gives you permission.  It's not just me saying that.  A
-> representative
-> from the FSF explained that to room of ~50 lawyers and ~50 lay people
-> at a seminar that I went to on it.
+Uhh ?
 
-	If that were true, I could poem up on a billboard and sue anyone who read
-it. The FSF is, of course, free to take any position it wants to. As I
-understand the law, if you want to restrict use, you must restrict access.
-Give free access, you give free use.
+What are you smoking ? We all have the fastest computers we can buy, and
+since a kernel still takes a few minutes to compile on those computers,
+we try to use the fastest compilers to save *HOURS* at the end of the day.
+Nobody ever claimed that we all spend our time compiling on the target
+system. I wonder if thas would be possible on a 16 MB/200 MHz MIPS ;-)
 
-	DS
+That's it.
 
+Willy
 

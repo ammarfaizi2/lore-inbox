@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263580AbUECDWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbUECDV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbUECDWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 23:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUECDWd
+	id S263578AbUECDV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 23:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUECDV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 23:22:33 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:8173 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S263580AbUECDWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 23:22:30 -0400
-Message-ID: <4095BAA3.3050000@keyaccess.nl>
-Date: Mon, 03 May 2004 05:21:07 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity
- removal)
-References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org> <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 2 May 2004 23:21:29 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:3549 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263578AbUECDV1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 23:21:27 -0400
+Subject: Re: [PATCH] Numdimmies MUST DIE!
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040502195109.3897ee2e@laptop.delusion.de>
+References: <1083551201.25582.149.camel@bach>
+	 <20040502195109.3897ee2e@laptop.delusion.de>
+Content-Type: text/plain
+Message-Id: <1083554446.6876.153.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 03 May 2004 13:20:50 +1000
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Mon, 2004-05-03 at 12:51, Udo A. Steinberg wrote:
+> While you're at it, there's more (revised patch below):
 
-> Aiiee...
-> 
-> You know, mcdx.c is like a roadkill - just can't stop looking at the thing.
+Thank you for your valuable contribution.  I hesitate to suggest that a
+CREDITS entry is appropriate at this point, but it's good to know that
+someone else shares my finely-tuned sense of what's important in the
+kernel.
 
-You should try sbpcd.c. I very enthousiastically opened that up one day, 
-thinking it might be a nice little newbie project, then after 30 seconds 
-gently closed it again and logged out and in of X to make very sure all 
-traces of the terminal that showed it were gone.
+Name: Psuedo Numdimmies MUST DIE!
+Status: Vitally Important
 
-But...
+I'm sure this is violating the trademark of a pre-schooler's TV show
+somewhere in the world.
 
-> How about removing all that stuff instead of keeping the known broken shit
-> in the tree?
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
+--- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
++++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
+@@ -104,7 +104,7 @@ static struct net_device **dummies;
+ 
+ /* Number of dummy devices to be set up by this module. */
+ module_param(numdummies, int, 0);
+-MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
++MODULE_PARM_DESC(numdummies, "Number of dummy pseudo devices");
+ 
+ static int __init dummy_init_one(int index)
+ {
 
-I do actually still use two of these drives. An actual soundblaster 
-connected "sbpcd" drive (which sits in a 386, and given the fact that 
-the new init-module-tools didn't compile against libc5 I haven't tested 
-it modular there yet -- builtin it doesn't work) and a "Pro Audio 
-Spectrum" connected "cdu31a" which does work. Most of the time. When the 
-timing is just right, it even allows me to mount cd-roms:
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-root@5vd5:~# uname -r
-2.6.5
-root@5vd5:~# lsmod | grep cdu31a
-cdu31a                 24944  1
-cdrom                  34112  1 cdu31a
-root@5vd5:~# mount | grep cdrom
-/dev/sonycd on /mnt/cdrom type iso9660 (ro,noexec,nosuid,nodev,check=r)
-root@5vd5:~# ls /mnt/cdrom/
-cd.id  install.exe  lecdemos  readme.doc  resource  support
-
-> If you are OK with that (and nobody on l-k stands up and claims that they want
-> it alive and *claims* *that* *right* *fucking* *NOW*) I'll send you a patch
-> putting these buggers out of their misery.
-
-Hope this qualifies a bit. Must say that one of the things I appreciate 
-about Linux is that all this old gunk I have lying about (in fact, still 
-drag in from time to time) is actually supported. Or "supported".
-
-Would it be good to have a CONFIG_LEGACY alongside CONFIG_EXPERIMENTAL 
-and friends and dump all this crap into drivers/legacy/cdrom, where it 
-wouldn't distract serious people?
-
-Rene.

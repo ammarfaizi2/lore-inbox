@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132317AbQLVULH>; Fri, 22 Dec 2000 15:11:07 -0500
+	id <S132314AbQLVUOh>; Fri, 22 Dec 2000 15:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132318AbQLVUK5>; Fri, 22 Dec 2000 15:10:57 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:46597 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132317AbQLVUKu>;
-	Fri, 22 Dec 2000 15:10:50 -0500
-Date: Fri, 22 Dec 2000 14:38:13 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Sandy Harris <sandy@storm.ca>, linux-kernel@vger.kernel.org
-Subject: Re: The NSA's Security-Enhanced Linux (fwd)
-Message-ID: <20001222143813.C30319@alcove.wittsend.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Sandy Harris <sandy@storm.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <3A439833.C64D493A@storm.ca> <E149X6e-000525-00@the-village.bc.nu>
+	id <S132260AbQLVUO1>; Fri, 22 Dec 2000 15:14:27 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:8965 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131257AbQLVUOQ>; Fri, 22 Dec 2000 15:14:16 -0500
+Date: Fri, 22 Dec 2000 13:39:08 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Pauline Middelink <middelin@polyware.nl>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: NUMA and SCI [was Re: bigphysarea support in 2.2.19 and 2.4.0 kernels]
+Message-ID: <20001222133908.A1686@vger.timpanogas.org>
+In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu> <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org> <20001222113729.A8972@scutter.internal.splhi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <E149X6e-000525-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 06:39:49PM +0000
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001222113729.A8972@scutter.internal.splhi.com>; from timw@splhi.com on Fri, Dec 22, 2000 at 11:37:29AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 06:39:49PM +0000, Alan Cox wrote:
-> > These folks are good at what they do and the code is GPL.
-> > It is worth starting to consider whether this code, or code
-> > from one of the other security-enhancement projects, should
-> > be included in the standard kernel for 2.6 or 3.0.
+On Fri, Dec 22, 2000 at 11:37:29AM -0800, Tim Wright wrote:
 
-> I think this is a good point. Its actually a nice testimonial for free 
-> software that its finally got the NSA contributing code in a way that everyone
-> benefits from and which may help cut down computer crime beyond government.
-> (and which of course actually is part of the NSA's real job)
+I have been working with SCI since 1994.  The people who own 
+Dolphin and the SCI chipsets also own TRG.  We dropped work in 
+the P6 ccNUMA cards several years back because Intel was 
+convinced that shared-nothing was the way to go (and it is).
+However, SCI's ability to create explicit sharing makes it
+the fastest shared nothing interface around for message passing
+(go figure).
 
-> > > It's just code like everone else produces.
+I think we do need some bettr APIs.  Grab the source at my FTP server,
+and I'd love any input you could provide.
 
-> > So people looking at it may find bugs and vulnerabilities the
-> > implementers hadn't considered. Great.
+Thanks,
 
-> Yep. Im sure all sorts of people will be finding bugs in it because they are
-> looking for secret NSA backdoors so why discourage them 8)
+:-)
 
-	Now that's a real damn good point that I hadn't thought of.
-With everyone so paranoid about what backdoors they may have left (like
-they would be that crazy to put them in and put it out in plain view
-for everyone) that the code should end up getting a real good review
-for bugs as well.  :-)  Such a deal.  :-)
+Jeff
 
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
+> Hi Jeff,
+> 
+> On Fri, Dec 22, 2000 at 11:11:05AM -0700, Jeff V. Merkey wrote:
+> [...]
+> > SCI allows machines to create windows of shared memory across a cluster
+> > of nodes, and at 1 Gigabyte-per-second (Gigabyte not gigabit).  I am
+> > putting a sockets interface into the drivers so Apache, LVS, and 
+> > Pirahna can use these very high speed adapters for a clustered web 
+> > server.  Our M2FS clustered file system also is being architected 
+> > to use these cards.  
+> 
+> You're probably aware of this, but SCI allows a lot more then the creation
+> of windows of shared memory. The IBM NUMA-Q machines (what was Sequent), use
+> the SCI interconnect to build a single-system image machine with all memory
+> visible from all "nodes". In fact, all the commercial NUMA machines of which
+> I am aware have this property (all nodes see and can address all memory). The
+> non-uniform part of NUMA comes from the potentially differing latency and
+> speed of different parts of memory (local vs remote in this case).
+> AFAIK, the work that Kanoj Sarcar has been doing is to enable such machines.
+> 
+> It sounds like you have a different requirement of very high-speed shared
+> memory between different nodes that can be mapped and unmapped as required.
+> Do I understand this correctly ? That would make your requirements somewhat
+> orthogonal to the requirements those of us with NUMA architectures have.
+> 
+> > I will post the source code for the SCI cards at vger.timpanogas.org 
+> > and if you have time, please download this code and take a look at 
+> > how we are using the bigphysarea APIs to create these windows accros
+> > machines.  The current NUMA support in Linux is somewhat slim, and 
+> > I would like to use established APIs to do this if possible.
+> 
+> See above. It may be that you need different APIs anyway.
+> 
+> Regards,
+> 
+> Tim
+> 
+> -- 
+> Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+> IBM Linux Technology Center, Beaverton, Oregon
+> "Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129300AbRB1WGK>; Wed, 28 Feb 2001 17:06:10 -0500
+	id <S129307AbRB1WX6>; Wed, 28 Feb 2001 17:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129305AbRB1WFv>; Wed, 28 Feb 2001 17:05:51 -0500
-Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:53254 "EHLO
-	sparrow.net") by vger.kernel.org with ESMTP id <S129300AbRB1WFa>;
-	Wed, 28 Feb 2001 17:05:30 -0500
-Date: Wed, 28 Feb 2001 17:00:30 -0500
-From: Eric Buddington <eric@sparrow.nad.adelphia.net>
+	id <S129306AbRB1WXj>; Wed, 28 Feb 2001 17:23:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47623 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129305AbRB1WXe>; Wed, 28 Feb 2001 17:23:34 -0500
 To: linux-kernel@vger.kernel.org
-Subject: time drift and fb comsole activity
-Message-ID: <20010228170030.C2122@sparrow.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: binfmt_script and ^M
+Date: 28 Feb 2001 14:23:14 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <97jtoi$iv3$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0102271425200.14871-100000@frank.gwc.org.uk> <3A9C36BF.6060608@blue-labs.org> <20010228150711.A12214@pcep-jamie.cern.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this has been reported on the list recently, but I think I can
-provide better detail. I'm running 2.4.2 with atyfb on a K6-2/266
-running at 250. This system has no history of clock problems.
+Followup to:  <20010228150711.A12214@pcep-jamie.cern.ch>
+By author:    Jamie Lokier <lk@tantalophile.demon.co.uk>
+In newsgroup: linux.dev.kernel
+>
+> David wrote:
+> > We wouldn't make the kernel translate m$ word docs into files the kernel 
+> > can parse.  It's a userland thing and changing the kernel would change a 
+> > legacy that would cause a lot of confusion I would expect.
+> 
+> Now there's a thought.  binfmt_fileextension, chooses the interpreter
+> based on filename :-)
+> 
 
-adjtimex-1.12 --compare gives me "2nd diff" readings of -0.01 in quiescent
-conditions.
+binfmt_misc?
 
-flipping consoles rapidly cboosts this number to -3 or -4.
-
-catting the full documentation to ntpd (seemed appropriate) gives me
-"2nd diff" numbers a little over 34. If I read the numbers correctly,
-47 seconds of CMOS time passed while the system clock only passed 13
-seconds.
-
-The processor and the CMOS clock were moving at zero velocity relative
-to each other, and were both in normal Earth gravity.
-
-I would appreciate cc's of replies (ore requests for further
-information), as I am not subscribed.
-
--Eric
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310124AbSCFStd>; Wed, 6 Mar 2002 13:49:33 -0500
+	id <S310126AbSCFSvn>; Wed, 6 Mar 2002 13:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310126AbSCFStX>; Wed, 6 Mar 2002 13:49:23 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9210
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310124AbSCFStP>; Wed, 6 Mar 2002 13:49:15 -0500
-Date: Wed, 6 Mar 2002 10:50:04 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bulent Abali <abali@us.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct page shrinkage
-Message-ID: <20020306185004.GA32692@matchmail.com>
-Mail-Followup-To: Bulent Abali <abali@us.ibm.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OFC19C560E.A00F9111-ON85256B74.006633D4@pok.ibm.com>
+	id <S310127AbSCFSvd>; Wed, 6 Mar 2002 13:51:33 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:60845 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP
+	id <S310126AbSCFSvV>; Wed, 6 Mar 2002 13:51:21 -0500
+Date: Wed, 6 Mar 2002 13:50:30 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: kreuzritter2000@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UDF Write Support with CD-RW and CD-R Devices ?
+Mail-Followup-To: kreuzritter2000@gmx.de, linux-kernel@vger.kernel.org
+In-Reply-To: <21051.1015437480@www39.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OFC19C560E.A00F9111-ON85256B74.006633D4@pok.ibm.com>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <21051.1015437480@www39.gmx.net>; from kreuzritter2000@gmx.de on Wed, Mar 06, 2002 at 06:58:00PM +0100
+Message-Id: <20020306185037.IYN23259.out006.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 01:41:51PM -0500, Bulent Abali wrote:
-> What is the outlook for inclusion of this patch in the main kernel?  Do you
-> plan to submit or have been included yet?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I believe it is planned to be submitted to 2.5.
+kreuzritter2000@gmx.de wrote:
+> Hello,
+> 
+> I want to use UDF with my CD-RW Device
+> but write support is not supported at the moment.
+> 
+> So I want to ask what is the status about this Topic at the moment?
+> Is someone working on this?
 
-Andrew, why isn't this listed on the 2.5 status page?
+Peter Osterlund has been maintaining Jens' packet writing code and has
+written an updated version for 2.5.  It works for many drives.
+
+You can find the patches here:
+http://w1.894.telia.com/~u89404340/patches/packet/
+
+I have no idea when it will be included...Jens would have to answer
+that.
+
+- -- 
+Skip  ID: 0x7EDDDB0A
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAjyGZOQACgkQBMKxVH7d2wodiwCgiqeTZjwF+DYK/Ga5bJZlUc4F
+74IAmwasNUo10pClWDveF8ZU/dMCnVrR
+=2NZs
+-----END PGP SIGNATURE-----

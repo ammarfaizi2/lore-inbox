@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280524AbRKTD3d>; Mon, 19 Nov 2001 22:29:33 -0500
+	id <S280857AbRKTDcd>; Mon, 19 Nov 2001 22:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280856AbRKTD3O>; Mon, 19 Nov 2001 22:29:14 -0500
-Received: from quechua.inka.de ([212.227.14.2]:30330 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S280839AbRKTD3I>;
-	Mon, 19 Nov 2001 22:29:08 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM tuning for Linux routers
-In-Reply-To: <20011118145400.A23181@se1.cogenit.fr>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E1661at-0005cw-00@calista.inka.de>
-Date: Tue, 20 Nov 2001 04:29:07 +0100
+	id <S280856AbRKTDcX>; Mon, 19 Nov 2001 22:32:23 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28778 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S280857AbRKTDcS>; Mon, 19 Nov 2001 22:32:18 -0500
+Date: Tue, 20 Nov 2001 04:32:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+Message-ID: <20011120043222.T1331@athlon.random>
+In-Reply-To: <20011119173935.A10597@asooo.flowerfire.com> <Pine.LNX.4.33.0111191543390.19585-200000@penguin.transmeta.com> <20011119210941.C10597@asooo.flowerfire.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011119210941.C10597@asooo.flowerfire.com>; from brownfld@irridia.com on Mon, Nov 19, 2001 at 09:09:41PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011118145400.A23181@se1.cogenit.fr> you wrote:
->> You can increase the reserved free memory (not sure where to do this in
-> This reserve isn't dedicated to networking alas.
+On Mon, Nov 19, 2001 at 09:09:41PM -0600, Ken Brownfield wrote:
+> Well, I think you'll be pleased to hear that your untested patch
+> compiled, booted, _and_ fixed the problem. :)
 
-But it is for atomic kernel memory requests, which happen to be caused by
-Interrupt handlers. On a Network loaded Box most of them are from the NICs.
+Can you try to run an updatedb constantly in background?
 
-Greetings
-Bernd
+Andrea

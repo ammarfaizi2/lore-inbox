@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVCICJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVCICOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVCICJx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 21:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVCICAk
+	id S262229AbVCICOF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 21:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVCICAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 21:00:40 -0500
-Received: from nonada.if.usp.br ([143.107.131.169]:12721 "EHLO
-	nonada.if.usp.br") by vger.kernel.org with ESMTP id S262316AbVCIB4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 20:56:39 -0500
-From: =?iso-8859-1?q?Jo=E3o_Luis_Meloni_Assirati?= 
-	<assirati@nonada.if.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Pktcdvd and DVD RW drive.
-Date: Tue, 8 Mar 2005 22:56:34 -0300
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503082256.34965.assirati@nonada.if.usp.br>
+	Tue, 8 Mar 2005 21:00:17 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7033 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262301AbVCIBzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 20:55:33 -0500
+Date: Tue, 08 Mar 2005 19:54:46 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: select(2), usbserial, tty's and disconnect
+In-reply-to: <3FPL5-7pH-29@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <422E5766.3040104@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3FPL5-7pH-29@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Joerg Pommnitz wrote:
+> Hello all,
+> currently it seems that select keeps blocking when the USB device behind
+> ttyUSBx gets unplugged. My understanding is, that select should return
+> when the next call to one of the operations (read/write) will not block.
+> This is certainly true for failing with ENODEV. So, is this an issue
+> that will be fixed or should I poll (not the syscall) the device? Or is 
+> there another way to monitor for a vanishing tty (it should not be USB 
+> specific).
 
-I have an
+If you just do a blocking read() on the USB serial port, what happens 
+when you pull the device? At one point (2.4.20 is the last I checked) 
+nothing happened when you did this, the process would just sit there 
+forever. There was discussion at one point about doing a tty_hangup() 
+when the USB device was disconnected (this causes the read() to return 
+with 0 bytes and future open attempts to fail), and a patch was put out 
+to do this. I thought this had been merged, but I could be wrong.
 
- hdc: HL-DT-ST DVDRAM GSA-4120B, ATAPI CD/DVD-ROM drive
+I should think that if that works, then your select should be working as 
+well..
 
-from LG. My kernel is a vanilla 2.6.11 with packet writing enabled. I noticed, 
-however, that I can mount and write a CD-RW udf formatted with 
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-# cdrwtool -d /dev/hdc -q
 
-without the need of the pktcdvd driver (with the module unloaded, indeed), 
-simply with
-
-# mount -t udf /dev/hdc /mnt
-
-I thought that this was a property only of DVD+RW and DVDRAM media. Am I 
-missing something here? What is then the use of pktcdvd driver?
-
-Thanks in advice,
-Joao Luis M. Assirati.

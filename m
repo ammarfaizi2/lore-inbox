@@ -1,93 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbUCRPdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 10:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUCRPdK
+	id S262694AbUCRPel (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 10:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbUCRPel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 10:33:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50648 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262687AbUCRPdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 10:33:03 -0500
-Date: Thu, 18 Mar 2004 10:32:58 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
+	Thu, 18 Mar 2004 10:34:41 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:60133 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262694AbUCRPeh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 10:34:37 -0500
+Subject: Re: CONFIG_PREEMPT and server workloads
+From: Robert Love <rml@ximian.com>
 To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-In-Reply-To: <20040318022201.GE2113@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403181026250.16728-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44.0403181026252.16728@chimarrao.boston.redhat.com>
-Content-Disposition: INLINE
+Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040318145129.GA2246@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at>
+	 <20040318060358.GC29530@dualathlon.random>
+	 <20040318015004.227fddfb.akpm@osdl.org>
+	 <20040318145129.GA2246@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1079624062.2136.21.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Thu, 18 Mar 2004 10:34:22 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004, Andrea Arcangeli wrote:
+On Thu, 2004-03-18 at 09:51, Andrea Arcangeli wrote:
 
-> This implements anon_vma for the anonymous memory unmapping and objrmap
-> for the file mappings, effectively removing rmap completely and
-> replacing it with more efficient algorithms (in terms of memory
-> utilization and cpu cost for the fast paths).
+> Note, the work you and the other preempt developers did with preempt was
+> great, it wouldn't be possible to be certain that it wasn't worthwhile
+> until we had the thing working and finegrined (i.e. in all in_interrupt
+> etc..), and now we know it doesn't payoff and in turn I'm going to try
+> the explicit-preempt that is to explicitly enable preempt in a few
+> cpu-intensive kernel spots where we don't take locks (i.e. copy-user),
+> the original suggestion I did 4 years ago, I believe in such places an
+> explicit-preempt will work best since we've already to check every few
+> bytes the current->need_resched, so adding a branch there should be very
+> worthwhile. Doing real preempt like now is overkill instead and should
+> be avoided IMHO.
 
-Cool.  I'm glad we've figured out how to fix all the problems
-with object based rmap.  I'd be happy to get rid of the pte
-based reverse mapping stuff...
+I think you are really blowing the overhead of kernel preemption out of
+proportion.  The numbers Marinos J. Yannikos are reported are definitely
+a bug, an issue, something that will be fixed.  The numbers everyone
+else has historically shown are in line with Andrew: slight changes and
+generally a small improvement to kernel compiles, dbench runs, et
+cetera.
 
-> Next thing to fix are the nonlinear mappings (probably I will use the
-> sysctl for the short term, sysctl may be needed anyways for allowing
-> mlock to all users), and then the rbtree for the i_mmap{shared} (the
-> prio_tree isn't stable yet, over time we can replace it with the
-> prio_tree of course).
+I also feel you underestimate the improvements kernel preemption gives. 
+Yes, the absolute worst case latency probably remains because it tends
+to occur under lock (although, it is now easier to pinpoint that latency
+and work some magic on the locks).  But the variance of the latency goes
+way down, too.  We smooth out the curve.  And these are differences that
+matter.
 
-Yeah, we'll definately need the prio_tree stuff before the
-object based rmap can go into the mainline kernel...
+And it can be turned off, so if you don't care about that and are not
+debugging atomicity (which preempt is a big help with, right?) then turn
+it off.
 
-As for nonlinear mappings, if the VMA is locked, no need to
-check anything ... the swappable VMAs could be a bit of a
-problem though, though I guess we could just unmap a large
-number of ptes ;) 
+Oh, and if the PREEMPT=n overhead is really an issue, then I agree that
+needs to be fixed :)
 
-> I'm running this kernel while writing this and it's under 500M swap load
-> without problems. Ingo complains some workload with zillon of vmas
-> in the same file will not work well, but 1) those workloads are supposed
-> to use remap_file_pages in 32bit archs, and 2) they wants mlock anyways,
-> and this vm design is optimal on the 64bit without requiring nor
-> remap_file_pages nor mlock there.
+	Robert Love
 
-Take a look at User Mode Linux ...
-
-I don't think wants to use mlock, and I suspect it doesn't
-use remap_file_pages (yet?).  Once it does use remap_file_pages,
-we'll still need to find a more or less efficient way to swap
-out those pages ...
-
-> Alternate solutions to anon_vma have been proposed and they may be
-> considered in alternative to this. Ideally we should split the anon_vma
-> patch in two parts, one that could be re-used by the anonmm design,
-> though I was no time to split it so far. I'm not claiming anon_vma is
-> definitely superior to anonmm but it's the solution I prefer. It is clearly
-> more efficient in some very high end workload I've in mind, but in the
-> small boxes it takes a bit more of memory so for the simpler workloads
-> anonmm is prefereable, plus anonmm allows full vma merging (though it
-> requires cow during mremap).
-
-They both have their advantages and disadvantages.  We'll
-have to find out in practice which one works better...
-
-I hope to get some time soon to implement the mm-based
-reverse mapping, so we can test both alternatives.
-
-At that point we'll want to split the file-backed stuff off
-into a separate patch, on which we could layer either your
-vma-based or Linus's mm-based reverse mapping scheme.
-
-I'm kind of curious which one will end up better under
-which workloads ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

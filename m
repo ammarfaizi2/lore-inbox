@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTJWI6E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 04:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTJWI6E
+	id S263456AbTJWJ2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 05:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTJWJ2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 04:58:04 -0400
-Received: from web11105.mail.yahoo.com ([216.136.131.152]:27543 "HELO
-	web11105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261276AbTJWI6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 04:58:02 -0400
-Message-ID: <20031023085801.40580.qmail@web11105.mail.yahoo.com>
-Date: Thu, 23 Oct 2003 10:58:01 +0200 (CEST)
-From: =?iso-8859-1?q?an7?= <an3h0ny@yahoo.fr>
-Subject: Useless networking code in 2.4.x ?
+	Thu, 23 Oct 2003 05:28:00 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17792 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263456AbTJWJ17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 05:27:59 -0400
+Date: Thu, 23 Oct 2003 10:30:00 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310230930.h9N9U0B4006046@81-2-122-30.bradfords.org.uk>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: In-kernel Gopher server
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Apparently my suggestion of a couple of weeks ago, for an in-kernel
+gopher server to aid remote administration and configuration, wasn't
+clear enough.
 
-Hi,
+Having just read:
 
-If we have a look at tcp_recv_skb, and
-tcp_read_sock(),
+http://lwn.net/Articles/53019/
 
-we notice that there is a SYN check, and if the flag
-is on, we do offset-- (sequence number not
-corresponding to real data byte). 
+I get the impression that I was understood to be suggesting we
+implement a generic in-kenrel gopher server, much like the kernel
+webserver that was removed.
 
-This Syn check is useless, as the function cannot be
-called at the beginning of a connection (since we have
-not copied_seq filled with the last sequence number of
-the last packet passed to the upper layer)
+The point is that if you look after systems that are on-line 24-hours
+a day, being able to have a look at data in /proc, or the .config of
+the current kernel from a portable device would be quite useful, if
+you suddenly start getting calls saying something like a webserver
+isn\'t responding.
 
-What do you think of that ?
+Implementing a web-based interface to such data is all very well until
+you want to access it on a device the size of a wristwatch.
 
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+John.

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbRESRu4>; Sat, 19 May 2001 13:50:56 -0400
+	id <S261942AbRESSCI>; Sat, 19 May 2001 14:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbRESRuq>; Sat, 19 May 2001 13:50:46 -0400
-Received: from vitelus.com ([64.81.36.147]:29189 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S261919AbRESRuc>;
-	Sat, 19 May 2001 13:50:32 -0400
-Date: Sat, 19 May 2001 10:50:06 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Andries.Brouwer@cwi.nl
-Cc: andrewm@uow.edu.au, viro@math.psu.edu, bcrl@redhat.com, clausen@gnu.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code inuserspace
-Message-ID: <20010519105006.B2648@vitelus.com>
-In-Reply-To: <UTC200105191130.NAA53601.aeb@vlet.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <UTC200105191130.NAA53601.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Sat, May 19, 2001 at 01:30:14PM +0200
+	id <S261940AbRESSB6>; Sat, 19 May 2001 14:01:58 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:28154
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S261930AbRESSBn>; Sat, 19 May 2001 14:01:43 -0400
+Date: Sat, 19 May 2001 14:01:20 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ben LaHaise <bcrl@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        Andrew Morton <andrewm@uow.edu.au>, <Andries.Brouwer@cwi.nl>,
+        <torvalds@transmeta.com>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105191352340.7806-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 01:30:14PM +0200, Andries.Brouwer@cwi.nl wrote:
-> I don't think so. It is necessary, and it is good.
-> 
-> But it is easy to make the transition painless.
-> Instead of the current choice between INITRD (yes/no)
-> we have INITRD (default built-in / external).
-> The built-in version can then slowly become smaller and die.
 
-initrd is an unnecessary pain in the ass for most people. It had
-better not become mandatory.
+
+On Sat, 19 May 2001, Alan Cox wrote:
+
+> > Now that I'm awake and refreshed, yeah, that's awful.  But
+> > echo "hot-add,slot=5,device=/dev/sda" >/dev/md0/control *is* sane.  Heck,
+> > the system can even send back result codes that way.
+>
+> Only to an English speaker. I suspect Quebec City canadians would prefer a
+> different command set.
+
+Well...  Around here we've been used to Microsoft translations like:
+
+ETES-VOUS CERTAIN [O/N] ?
+
+... and of course pressing 'o' doesn't work while 'y' does.  :-)
+
+Wanting to localize such low-level keywords is utopia.  Otherwise you'll
+want to translate command names like free, rm, mv, etc. and yet programming
+languages as well like C keywords.  And then you come to a point where
+nothing could be interoperable any more.
+
+
+Nicolas
+

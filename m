@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270247AbRHHAYt>; Tue, 7 Aug 2001 20:24:49 -0400
+	id <S270271AbRHHAdT>; Tue, 7 Aug 2001 20:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270249AbRHHAYi>; Tue, 7 Aug 2001 20:24:38 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:46855 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S270247AbRHHAY3>;
-	Tue, 7 Aug 2001 20:24:29 -0400
-Date: Wed, 8 Aug 2001 02:24:37 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Igmar Palsenberg <maillist@jdimedia.nl>
-cc: <linux-kernel@vger.kernel.org>
+	id <S270250AbRHHAdK>; Tue, 7 Aug 2001 20:33:10 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:50928
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S270274AbRHHAcu>; Tue, 7 Aug 2001 20:32:50 -0400
+Date: Tue, 7 Aug 2001 17:32:55 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.x VM problems thread
-In-Reply-To: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl>
-Message-ID: <Pine.LNX.4.33.0108080223550.17520-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010807173255.L22821@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl> <Pine.LNX.4.33.0108080223550.17520-100000@Expansa.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108080223550.17520-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This kind of code would kill any Unix system, i think, not just linux 2.4
-boxes.
+On Wed, Aug 08, 2001 at 02:24:37AM +0200, Luigi Genoni wrote:
+> This kind of code would kill any Unix system, i think, not just linux 2.4
+> boxes.
+> 
 
-On Tue, 7 Aug 2001, Igmar Palsenberg wrote:
+I tried it on 2.2.19-ppc and could kill it with ^C at the prompt, or from
+root if I was already logged in.  Trying to iniate connections to ssh didn't
+produce any results after about 30 seconds.
 
->
-> Hi,
->
-> I've followed the 2.4.x VM thread stuff. Someone mentioned he will
-> wite a test program. Attached program kills all boxen within 1 minute,
-> it's not hard to see what it does.
->
-> I'm willing to test experimental stuff if needed.
->
-> 	Regards,
->
->
-> 		Igmar
->
->
+Once it was killed the system was fine.
 
+Haven't tried 2.4 yet...

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265803AbTFVThj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTFVThj
+	id S265816AbTFVTpH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265822AbTFVTpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:37:39 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55250 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265803AbTFVThi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:37:38 -0400
-Date: Sun, 22 Jun 2003 21:51:34 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 22 Jun 2003 15:45:06 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2688 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S265816AbTFVTpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 15:45:04 -0400
+Date: Sun, 22 Jun 2003 21:07:12 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200306222007.h5MK7CS7000136@81-2-122-30.bradfords.org.uk>
+To: akpm@digeo.com, hps@intermeta.de
 Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-Message-ID: <20030622195134.GA29280@fs.tum.de>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622103251.158691c3.akpm@digeo.com> <bd4u7s$jkp$1@tangens.hometree.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bd4u7s$jkp$1@tangens.hometree.net>
-User-Agent: Mutt/1.4.1i
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 22, 2003 at 06:58:04PM +0000, Henning P. Schmiedehausen wrote:
-> Andrew Morton <akpm@digeo.com> writes:
-> 
-> Your problem is not the compiler but the build tool / system which
-> forces you to recompile all of your kernel if you change only small
-> parts.
+> No, the build system is OK.  And ccache nicely fixes up any mistakes which
+> the build system makes, and distcc speeds things up by 2x to 3x.
+>
+> None of that gets around the fact that code needs to be tested with various
+> combinations of CONFIG_SMP, CONFIG_PREEMPT, different subarchitectures,
+> spinlock debugging, etc, etc.  If the compiler is slow people don't bother
+> doing this and the code breaks.
+>
+> Cause and effect.
 
-That's not true in 2.5, the 2.5 build system only recompiles files that 
-have to be recompiled.
+Are the benchmarks that show gcc 3.3 to be much slower at compile time
+being done with a natively compiled gcc 3.3?  I.E. gcc 3.3 compiled
+with itself?
 
-But if you edit an often used header file many fils have to be 
-recompiled.
+When I upgraded a few machines from 2.95.3 to 3.2.3, I noticed that
+the last of the three compiles, (I.E. a gcc-3.2.3 compiled gcc-3.2.3
+compiling the gcc-3.2.3 source), was noticably quicker than the first
+two, to the extent that it was easily mesaurable by a wall clock.
 
-> 	Regards
-> 		Henning
+I am just wondering whether there gcc-3.X binaries in use that were
+compiled with gcc-2.95.3, that are swaying benchmarks in favour of
+2.95.3 compiled with itself.
 
-cu
-Adrian
+I haven't benchmarked gcc-2.95.3 compiled with gcc-3.2.3, though.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+John.

@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264336AbTDXAUD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 20:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbTDXAUC
+	id S264335AbTDXATi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 20:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTDXATh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 20:20:02 -0400
-Received: from c-180372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.24]:60421
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S264336AbTDXATw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 20:19:52 -0400
-Subject: Re: [Bug 623] New: Volume not remembered.
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QO9U2mNcwJrQCW2FO4as"
-Organization: 
-Message-Id: <1051144315.2199.22.camel@big.pomac.com>
+	Wed, 23 Apr 2003 20:19:37 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:65411 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S264335AbTDXATe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 20:19:34 -0400
+Date: Thu, 24 Apr 2003 10:31:43 +1000
+From: CaT <cat@zip.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>, akpm@digeo.com, pavel@ucw.cz,
+       mbligh@aracnet.com, gigerstyle@gmx.ch, geert@linux-m68k.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-ID: <20030424003143.GC678@zip.com.au>
+References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com> <20030424001733.GB678@zip.com.au> <1051143408.4305.15.camel@laptop-linux> <20030423172628.0f71ab64.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Apr 2003 02:31:56 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030423172628.0f71ab64.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 23, 2003 at 05:26:28PM -0700, Randy.Dunlap wrote:
+> | fragmented). The simplest solution is to keep using the current method
+> | and create a separate swap partition if you really feel you need to,
+> | only turning it on before swap and turning if off afterwards. As Pavel
+> | said, code could be added to get swsusp to do it itself.
+> 
+> That may be simple for you, but for lots of users, adding a partition
+> (to a ususally full disk drive) isn't simple.  It means backups,
+> shrink a filesystem, shrink a partition, add a partition, and run
+> mkswap on it.   Yes, the latter 2 are simple, but the former ones
+> are not.
+> 
+> Oh, and then just start over and install everything from backups. :(
 
---=-QO9U2mNcwJrQCW2FO4as
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+parted should help with this. Dunno if it can move the start of a
+partition yet but you can move the end down and put in your suspend
+partition in the space you just made.
 
-On Thu, 24 Apr 2003 00:30:16 +0200, Martin J. Bligh wrote:
->> Yes, but that's a user space problem too. Nothing prevents your
->> distribution to crank up the volume to 100% also on a first-time
->> installation.
->=20
-> 100% would be stupid too. If the distro can pick a reasonable value, the
-> kernel can too. Thus the argument "push the problem into userspace"
-> doesn't do anything for me.
-
-100% isn't good. F.ex. emu10k1 cards would lead to more bugreports since
-you get clipping with that volume.
-
->> The kernel should pick a value that's safe in all cases. And this is
->> zero. Don't forget that there can be several seconds between the
->> driver's initialization and the moment when the user-space utility gets
->> to change the settings.
->=20
-> So if people want 0 volume for some reason, they can set *that* in
-> userspace. Windows can manage to do this without cocking it up. I don't
-> see why we can't achieve it.
-
-Which is stupid, since you need it zero before it can get to userspace.
-(see the examples) And i know windows users who hates windows
-soundcontrol since it plays a lame sound at boot up and you can't lower
-the volume there (yes, easy workaround, but the same thing).
-
-But, imho:
-	PCM should not be 0, Setting main volume to 0 is good, but 	seeing the
-common user getting there might be a problem.
-
-Imagine:
-Joe User installs Joe-Distro and starts xmms, now, with the default
-config you change the 'master' volume but pcm is still 0. This is
-something that will/could/might/etc cause reports like that.
-
-Problem is, emu10k1 is good somewhere on the lines of 90% when it comes
-to pcm... I dunno if other cards has simular issues.
-
-Change PCM (and simular) if anything, changing master will only cause
-problems, as seen.
-
-CC, since I'm not on this ml.
-
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-QO9U2mNcwJrQCW2FO4as
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+pzB77F3Euyc51N8RAiBIAJ9GpEevQqisaD1sKNM6agNiY/EZRgCfRl87
-1IpIaj1K7VL2uKy9n4Fiz9k=
-=oU6S
------END PGP SIGNATURE-----
-
---=-QO9U2mNcwJrQCW2FO4as--
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

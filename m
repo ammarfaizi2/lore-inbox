@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265680AbUFOPMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUFOPik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265680AbUFOPMp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 11:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbUFOPMp
+	id S265508AbUFOPik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 11:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUFOPik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 11:12:45 -0400
-Received: from westleb.valley.net ([198.115.160.96]:61571 "EHLO
-	westleb.valley.net") by vger.kernel.org with ESMTP id S265680AbUFOPMn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 11:12:43 -0400
-Message-id: <43332297@enfield.VALLEY.NET>
-Date: 15 Jun 2004 11:09:25 EDT
-From: Michael.W.Salo@valley.net (Michael W. Salo)
-Subject: Re: 45 minute boot time with 2.6.4/2.6.6-mm5 kernel on 1.7GHz laptop
-To: marco.roeland@xs4all.nl (Marco Roeland),
-       matt@denner.demon.co.uk (Matthew Denner)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: BlitzMail=?ISO-8859-1?Q?=AE?= version 2.6.2/blitzserv 3.10b12
+	Tue, 15 Jun 2004 11:38:40 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:21148 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S265508AbUFOPii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 11:38:38 -0400
+Date: Tue, 15 Jun 2004 08:38:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/5] kbuild: default kernel image
+Message-ID: <20040615153836.GC11113@smtp.west.cox.net>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk> <20040615044020.GC16664@mars.ravnborg.org> <20040615093807.A1164@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040615093807.A1164@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently had a similar experience installing fedora on a dell laptop.
-In the interest of starting "fresh" I flashed the BIOS with the latest,
-installed fedora, and the laptop was dog slow
-I didn't realize that by flashing the BIOS, the BIOS processor setting was
-changed to "compatibility" mode,
-I had to manually change to "optimum" and all was well.
+On Tue, Jun 15, 2004 at 09:38:07AM +0100, Russell King wrote:
 
-just something else to check if your BIOS offers this setting...
-
--mike salo
-
---- Marco Roeland wrote:
-On Tuesday June 15th 2004 Matthew Denner wrote:
-
-> [extremely slowly functioning laptop]
+> On Tue, Jun 15, 2004 at 06:40:20AM +0200, Sam Ravnborg wrote:
+> > The advantage is that you now have a good place to document all of
+> > these formats - your Kconfig file.
+> > And you select the default target for the user.
+> > 
+> > How did I know uboot required mkimage before - now it can be documented
+> > in Kconfig.
+> > So the situation above is actually a good example why it is whortwhile
+> > to move the kernel image selection to the config stage.
+> > 
+> > If they all should be part of the kernel build is another discussion.
 > 
-> Output from 'cat /proc/interrupts':
->            CPU0
->   ...
->  20:     270154   IO-APIC-level  eth0
+> You missed my point.
+> 
+> How does a user know which format they need to build the kernel with
+> _if_ the kernel configuration contains all the formats and the boot
+> loader documentation fails to mention it?
 
-This seems perhaps quite high? On occasion I have to use a configuration
-where the network interface is configured by DHCP. When I take the
-interface down (ifdown eth0) but forget to assign it its usual network
-address (when changing location to another network) some interaction
-with the still running DHCP client (pump) makes my laptop crawl just like
-you describe. So if all other suggested options fail, you might want to
-check if you maybe have such a runaway DHCP client causing havoc.
+I think what Sam was saying is that you document what boards are
+supported by what firmwares, in the Kconfig.  But what I don't think Sam
+saw would be just how ugly that's going to look (and become another
+point where every new board port touches, and possibly conflicts with
+another new board port).
+
+> As I tried to point out, boot loaders on ARM historically seem to have
+> been "My First ARM Project" type things so there's lots of them out
+> there - there aren't 3 or so found on x86.
+
+And that's another good reason not to.
+
 -- 
-Marco Roeland
---- end of quote ---
-
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbUCAI0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 03:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbUCAI0H
+	id S262277AbUCAI3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 03:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUCAI3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 03:26:07 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:961 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S262273AbUCAI0C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 03:26:02 -0500
-Message-ID: <4042F38B.8020307@matchmail.com>
-Date: Mon, 01 Mar 2004 00:25:47 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
+	Mon, 1 Mar 2004 03:29:23 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:39882 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262277AbUCAI3T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 03:29:19 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Pavel Machek <pavel@ucw.cz>, Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
+Date: Mon, 1 Mar 2004 13:59:05 +0530
+User-Agent: KMail/1.5
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040226144155.GQ1052@smtp.west.cox.net> <20040226214531.GA397@elf.ucw.cz>
+In-Reply-To: <20040226214531.GA397@elf.ucw.cz>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: MM VM patches was: 2.6.3-mm4
-References: <20040225185536.57b56716.akpm@osdl.org>
-In-Reply-To: <20040225185536.57b56716.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403011359.05377.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> shrink_slab-for-all-zones.patch
->   vm: scan slab in response to highmem scanning
-> 
-> zone-balancing-fix.patch
->   vmscan: zone balancing fix
+On Friday 27 Feb 2004 3:15 am, Pavel Machek wrote:
+> Hi!
+>
+> > > 3. putpacket writes the packet and waits for a '+'
+> > > 4. new gdb sends a protocol initialization packet
+> > > 5. putpacket reads characters in that packet hoping for an incoming '+'
+> > > sending out console message packet on each incoming character
+> > > 6. gdb receives and rejects each console message packet
+> > >
+> > > > - Remove ok_packet(), excessive, IMHO.
+> > >
+> > > ok_packet is better than littering "OK" all over the place.
+> >
+> > I disagree.  If ok_packet was anything more than
+> > strcpy(remcom_out_buffer, "OK") you'd be right.
+>
+> Amit, he's right, having function just for one strcpy only makes code
+> harder to read. And it does not even save much typing...
 
-On 2.6.3 + [1] + nfsd-lofft.patch running on a 1GB ram file server.   I 
-have noticed two related issues.
+OK. I agree that strcpy is better.
 
-First, under 2.6.3 it averages about 90MB[2] anon memory, and 30MB with 
-the -mm4 vm (the rest is in swap cache).  This could balance out on the 
-normal non-idle week-day load though...
+-Amit
 
-Second the -mm4 vm, there is a lot more swapping[3] going on during the 
-daily updatedb, and backup runs that are performed on this machine.
-I'd have to call this second issue a regression, but I want to run it a 
-couple more days to see if it gets any better (unless you agree of course).
+>
+> 	ok_packet(foo);
+> 	strcpy(foo,"OK");
+>
+> ...we are talking 2 or 3 characters here....
+> 								Pavel
 
-Mike
-
-[1]
-instrument-highmem-page-reclaim.patch
-blk_congestion_wait-return-remaining.patch
-vmscan-remove-priority.patch
-kswapd-throttling-fixes.patch
-vm-dont-rotate-active-list.patch
-vm-lru-info.patch
-vm-shrink-zone.patch
-vm-tune-throttle.patch
-shrink_slab-for-all-zones.patch
-zone-balancing-fix.patch
-zone-balancing-batching.patch
-
-[2]
-http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-memory.html
-
-[3]
-http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-swap.html

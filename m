@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSF0O2X>; Thu, 27 Jun 2002 10:28:23 -0400
+	id <S316838AbSF0O7p>; Thu, 27 Jun 2002 10:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316869AbSF0O2W>; Thu, 27 Jun 2002 10:28:22 -0400
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:40336 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S316860AbSF0O2V>; Thu, 27 Jun 2002 10:28:21 -0400
-Subject: Re: x86 Page Sizes
-From: Steven Cole <elenstev@mesatop.com>
-To: Peter Svensson <petersv@psv.nu>
-Cc: Robert Love <rml@tech9.net>, Dan Sturtevant <dsturtev@plogic.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu>
-References: <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 27 Jun 2002 08:26:07 -0600
-Message-Id: <1025187969.27133.117.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S316880AbSF0O7o>; Thu, 27 Jun 2002 10:59:44 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49037 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S316838AbSF0O7o>; Thu, 27 Jun 2002 10:59:44 -0400
+Date: Thu, 27 Jun 2002 16:59:22 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Kees Bakker <kees.bakker@altium.nl>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ATA: cleanup of channel->autodma flags usage
+In-Reply-To: <siit443int.fsf@koli.tasking.nl>
+Message-ID: <Pine.SOL.4.30.0206271649520.11655-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-06-27 at 00:35, Peter Svensson wrote:
-> On 26 Jun 2002, Robert Love wrote:
-> 
-> > Kernel has 4K pages in user and kernel space.  It is the same address
-> > space and segment, just uses MMU protection.
-> > 
-> > x86 does 4K pages.
-> 
-> The x86 cpus can use 4K or 4M pages in the hardware. The 4M pages are 
-> restricted to the kernel in Linux due to various problems. This has been 
-> discussed on this list a while ago. The thread was called "Have the 2.4 
-> kernel memory management problems on large machines been fixed?" the last 
-> time around.
-> 
-> 4M pages are useful to minimize tlb misses which can be costly for some 
-> algorithms.
-> 
-> Peter
 
-In addition to that thread, you might want to read the paper "Multiple
-Page Size Support in the Linux Kernel", pages 573-593 in the Proceedings
-of the Ottawa Linux Symposium which you can download from here:
+On 27 Jun 2002, Kees Bakker wrote:
 
-http://www.linuxsymposium.org/2002/ 
+> >>>>> "Bartlomiej" == Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
+>
+> Bartlomiej> incremental to generic ATA PCI auto-dma patches...
+> [...]
+> Bartlomiej> 	- remove ATA_F_NOAUTODMA flag from aec62xx.c, hpt34x.c,
+> Bartlomiej> 	  sis5513.c and via82cxxx.c drivers, it's use was bogus
+> Bartlomiej> 	  in these drivers
+>
+> Bartlomiej> 	  only two usages of ATA_F_NOAUTODMA are left (in ide-pci.c),
+> Bartlomiej> 	  probably they can alse be removed due to fact that drivers
+> Bartlomiej> 	  should disable autodma not ide-pci (i.e. hpt34x)
+> [...]
+>
+> That should say: ATA_F_NOADMA
 
-If you're on a slow connection, be forewarned that it is a 631 page pdf,
-but thankfully it's compressed.
+Yep, thanks.
 
-Steven
 
+> I have removed ATA_F_NODMA in ide-pci.c for my VIA8233
+> (PCI_DEVICE_ID_VIA_82C586_1). So far it has not failed (using 2.5.20).
+
+Because its usage is bogus and you probably use via82cxxx.c anyway :)
+
+>
+> --- linux-2.5.20/drivers/ide/ide-pci.c~	Mon Jun  3 14:49:59 2002
+> +++ linux-2.5.20/drivers/ide/ide-pci.c	Fri Jun  7 18:52:50 2002
+> @@ -742,8 +742,7 @@
+>  	{
+>  		vendor: PCI_VENDOR_ID_VIA,
+>  		device: PCI_DEVICE_ID_VIA_82C586_1,
+> -		bootable: ON_BOARD,
+> -		flags: ATA_F_NOADMA
+> +		bootable: ON_BOARD
+>  	},
+>  	{
+>  		vendor: PCI_VENDOR_ID_TTI,
+>
+> - Kees
+>
 

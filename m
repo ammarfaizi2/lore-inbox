@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136802AbREISJJ>; Wed, 9 May 2001 14:09:09 -0400
+	id <S136805AbREISPM>; Wed, 9 May 2001 14:15:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136803AbREISI7>; Wed, 9 May 2001 14:08:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:4264 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S136801AbREISIa>; Wed, 9 May 2001 14:08:30 -0400
-Subject: Re: Announcing Journaled File System (JFS)  release 0.3.1 available
-To: Christoph Hellwig <hch@caldera.de>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF1E6EA372.3C309891-ON85256A47.00629678@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Wed, 9 May 2001 13:08:14 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 05/09/2001 02:08:21 PM
+	id <S136806AbREISPB>; Wed, 9 May 2001 14:15:01 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17668 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136805AbREISOx>; Wed, 9 May 2001 14:14:53 -0400
+Date: Wed, 9 May 2001 13:36:18 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mark Hemment <markhe@veritas.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
+In-Reply-To: <Pine.LNX.4.21.0105090957420.31900-100000@alloc>
+Message-ID: <Pine.LNX.4.21.0105091334540.13878-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 12:50:15PM -0500, Christoph Hellwig wrote:
->>On Wed, May 09, 2001 at 12:40:25PM -0500, Steve Best wrote:
->> Release 0.3.1 of JFS was made available today.
->>
->> Drop 31 on May 9, 2001 (jfs-0.3.1.tar.gz) includes fixes to the
->> file system and utilities.
->>
->> For more details about the problems fixed, please see the README.
 
-> would it be possible to include the latest part of the ChangeLog (e.g.
-> 0.3.0 -> 0.3.1) in the mail to allow people to get a quick overview on
-> what changed when reading the mail?
 
-Christoph,
+On Wed, 9 May 2001, Mark Hemment wrote:
 
-Here is description of the changes from 0.3.0 -> 0.3.1
+> 
+> On Tue, 8 May 2001, David S. Miller wrote: 
+> > Actually, the change was made because it is illogical to try only
+> > once on multi-order pages.  Especially because we depend upon order
+> > 1 pages so much (every task struct allocated).  We depend upon them
+> > even more so on sparc64 (certain kinds of page tables need to be
+> > allocated as 1 order pages).
+> > 
+> > The old code failed _far_ too easily, it was unacceptable.
+> > 
+> > Why put some strange limit in there?  Whatever number you pick
+> > is arbitrary, and I can probably piece together an allocation
+> > state where the choosen limit is too small.
+> 
+>   Agreed, but some allocations of non-zero orders can fall back to other
+> schemes (such as an emergency buffer, or using vmalloc for a temp
+> buffer) and don't want to be trapped in __alloc_pages() for too long.
+> 
+>   Could introduce another allocation flag (__GFP_FAIL?) which is or'ed
+> with a __GFP_WAIT to limit the looping?
 
-Function and Fixes in Utilities
-- completed endian macros support needed for xpeek
-- added socket support for fsck
-- minor bug fixes
+__GFP_FAIL is in the -ac tree already and it is being used by the bounce
+buffer allocation code. 
 
-Function and Fixes in File System
-- Removed max hard links check (showed up during cp -a /usr /jfs/usr)
-- Fixed inode writing hang could have showed up running (dbench, iozone,
-  etc), the change was to prevent a deadlock during inode writing.
 
-Steve
 

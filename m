@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262461AbSI2Mv3>; Sun, 29 Sep 2002 08:51:29 -0400
+	id <S262463AbSI2MyC>; Sun, 29 Sep 2002 08:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262465AbSI2Mv2>; Sun, 29 Sep 2002 08:51:28 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:33298 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S262461AbSI2Mv2>; Sun, 29 Sep 2002 08:51:28 -0400
-Date: Sun, 29 Sep 2002 22:56:33 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Greg KH <greg@kroah.com>
-cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-       <linux-kernel@vger.kernel.org>, <linux-security-module@wirex.com>
-Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
-In-Reply-To: <20020927214642.GS12909@kroah.com>
-Message-ID: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
+	id <S262464AbSI2MyC>; Sun, 29 Sep 2002 08:54:02 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:55048 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S262463AbSI2MyC>;
+	Sun, 29 Sep 2002 08:54:02 -0400
+Date: Sun, 29 Sep 2002 08:59:25 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: james <jdickens@ameritech.net>
+cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: v2.6 vs v3.0
+In-Reply-To: <200209290114.15994.jdickens@ameritech.net>
+Message-ID: <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002, Greg KH wrote:
+nOn Sun, 29 Sep 2002, james wrote:
 
-> On Fri, Sep 27, 2002 at 08:55:52PM +0200, Olaf Dietsche wrote:
-> >  
-> > +static int cap_ip_prot_sock (int port)
-> > +{
-> > +	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-> > +		return -EACCES;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> 
-> Do we really want to force all of the security modules to implement this
-> logic (yes, it's the same discussion again...)
-> 
-> As for the ip_prot_sock hook in general, does it look ok to the other
-> developers?
-> 
+> How many people are sitting on the sidelines waiting for guarantee that ide is
+> not going to blow up on our filesystems and take our data with it. Guarantee
+> that ide is working and not dangerous to our data, then I bet a lot more
+> people will come back and bang on 2.5.
+> James
 
-This hook is not necessary: any related access control decision can be
-made via the more generic and flexible socket_bind() hook (like SELinux).
+Some of us are waiting until it actually compiles for us ;) (see previous
+bug report)
 
+	Gerhard
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+--
+Gerhard Mack
 
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

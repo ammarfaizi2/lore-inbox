@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRBTEai>; Mon, 19 Feb 2001 23:30:38 -0500
+	id <S129193AbRBTElJ>; Mon, 19 Feb 2001 23:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129193AbRBTEa2>; Mon, 19 Feb 2001 23:30:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:28941 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129112AbRBTEaR>; Mon, 19 Feb 2001 23:30:17 -0500
-Message-ID: <3A91F2BB.A5D5D34F@transmeta.com>
-Date: Mon, 19 Feb 2001 20:29:47 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129535AbRBTEkt>; Mon, 19 Feb 2001 23:40:49 -0500
+Received: from server.divms.uiowa.edu ([128.255.28.165]:4612 "EHLO
+	server.divms.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S129193AbRBTEkj>; Mon, 19 Feb 2001 23:40:39 -0500
+From: Doug Siebert <dsiebert@divms.uiowa.edu>
+Message-Id: <200102200440.WAA10118@server.divms.uiowa.edu>
+Subject: Re: PROBLEM: pci bridge fails to wake up from suspend/resume( Inspiron 8000 )
+To: nfp3033@privat.cybercity.no
+Date: Mon, 19 Feb 2001 22:40:31 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-CC: Scott Long <smlong@teleport.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux OS boilerplate
-In-Reply-To: <3A902F77.8BF6AB52@teleport.com> <3A90E16D.DB868F2@yahoo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Gortmaker wrote:
-> 
-> Scott Long wrote:
-> >
-> > I've been poring over the x86 boot code for a while now and I've been
-> > considering writing a FAQ on the boot process (mostly for my own use,
-> 
-> [...]
-> 
-> > Does there exist an outline (detailed or not) of the boot process from
-> > the point of BIOS bootsector load to when the kernel proper begins
-> 
-> IIRC, there is some useful info contained within loadlin.  Also, I
-> found a doc by hpa called "THE LINUX/I386 BOOT PROTOCOL" in my local
-> archive of cruft -  I just assumed it was in Documentation/ but
-> apparently it never made it there (yet).
-> 
+Morten,
 
-It's in there (Documentation/i386/boot.txt).
+I'm not subscribed to linux-kernel, but I've been following the list archive
+somewhat for the past month (watching 2.4 development so I can figure out
+when it is safe to make the jump without too much hassle)
 
-	-hpa
+I just bought a Dell Inspiron 4000 laptop a month ago, and have the same
+problem with suspend/resume, with both devices on the PCI bridge (both the
+eepro100 ethernet as well as the LT winmodem) Same symptoms, both work fine
+until suspend, after resume neither work at all.  I tried your fix, and it
+worked for me.  I did the same thing you did, running 'lspci -vx' to see
+the PCI registers before and after, and then use 'setpci' to fix them.
+Since the i4000 uses a 440BX mobile chipset, it isn't exactly the same
+commands, but I got it to work (I had to ifconfig eth0 down then 'ifup
+eth0' to make it work)  Its a pretty general fix, as I'm running Redhat 6.2
+with kernel 2.2.16.  Yeah, kind of old, but I hope to be running 2.4 pretty
+soon!  (BTW, as you probably already know, your fix works fine for
+re-enabling the winmodem after resume as well)
+
+I'm cc:ing linux-kernel also, in case anyone working this problem can benefit
+from the additional data point.  If anyone working this needs further info
+from me (lspci results or whatever) feel free to email me at this address.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Douglas Siebert
+douglas-siebert@uiowa.edu
+
+A computer without Microsoft software is like chocolate cake without ketchup.

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbTHYRiP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 13:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbTHYRh7
+	id S262055AbTHYR5t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 13:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTHYR5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 13:37:59 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:27396 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261999AbTHYRh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 13:37:56 -0400
-Date: Mon, 25 Aug 2003 14:46:27 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, Fox Chen <mhchen@golf.ccl.itri.org.tw>,
-       Gustavo Niemeyer <niemeyer@conectiva.com>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1: wl3501_cs.c doesn't compile
-Message-ID: <20030825174627.GA1094@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-	Fox Chen <mhchen@golf.ccl.itri.org.tw>,
-	Gustavo Niemeyer <niemeyer@conectiva.com>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-	linux-net@vger.kernel.org
-References: <20030824171318.4acf1182.akpm@osdl.org> <20030825173007.GT7038@fs.tum.de>
+	Mon, 25 Aug 2003 13:57:48 -0400
+Received: from aneto.able.es ([212.97.163.22]:30718 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262055AbTHYR5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 13:57:31 -0400
+Date: Mon, 25 Aug 2003 19:57:28 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: marcelo@conectiva.com.br, lkml <linux-kernel@vger.kernel.org>,
+       johnstul@us.ibm.com, jamesclv@us.ibm.com
+Subject: Re: [PATCH] add seq_file "single" interfaces
+Message-ID: <20030825175728.GA2199@werewolf.able.es>
+References: <20030825100310.3c96fd68.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20030825173007.GT7038@fs.tum.de>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030825100310.3c96fd68.rddunlap@osdl.org>; from rddunlap@osdl.org on Mon, Aug 25, 2003 at 19:03:10 +0200
+X-Mailer: Balsa 2.0.13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Aug 25, 2003 at 07:30:07PM +0200, Adrian Bunk escreveu:
-> I got the following compile error in 2.6.0-test4-mm1:
 
-I'm checking this now...
+On 08.25, Randy.Dunlap wrote:
+> Hi,
+> 
+> This patch adds the seq_file "single" interfaces from 2.6.0-test4
+> to 2.4.22++.  This will enable larger /proc/interrupts and
+> /proc/mdstat, which currently have some oopsing problems
+> with large outputs.
+> 
+> Please apply.
+> 
 
-- Arnaldo
+How about exporting them in kernel/ksyms ?
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-rc3-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

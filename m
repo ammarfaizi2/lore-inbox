@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbULJC2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbULJCbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbULJC2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 21:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbULJC2f
+	id S261652AbULJCbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 21:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbULJCbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 21:28:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49050 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261668AbULJC2c (ORCPT
+	Thu, 9 Dec 2004 21:31:23 -0500
+Received: from mta6.srv.hcvlny.cv.net ([167.206.5.72]:35836 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261652AbULJCbU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 21:28:32 -0500
-Date: Thu, 9 Dec 2004 21:28:27 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Timothy Chavez <chavezt@gmail.com>
-cc: linux-kernel@vger.kernel.org, <serue@us.ltcfwd.linux.ibm.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, <rml@novell.com>,
-       <ttb@tentacle.dhs.org>, Peter Martuccelli <peterm@redhat.com>
-Subject: Re: [audit] Upstream solution for auditing file system objects
-In-Reply-To: <f2833c760412091602354b4c95@mail.gmail.com>
-Message-ID: <Xine.LNX.4.44.0412092120330.13605-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Dec 2004 21:31:20 -0500
+Date: Thu, 09 Dec 2004 21:31:01 -0500
+From: Les Schaffer <schaffer@optonline.net>
+Subject: Re: usb does not work on via's smp mainboard
+To: linux-kernel@vger.kernel.org
+Message-id: <200412092131.01480.schaffer@optonline.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+User-Agent: KMail/1.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004, Timothy Chavez wrote:
-
-> Greetings, 
->  
-> I'm writing this e-mail to facilitate some discussion on an audit
-> feature for inclusion to the mainline kernel's audit subsysystem. 
-
-Note, there is a mailing list intended for audit discussion at 
-https://www.redhat.com/archives/linux-audit/
-
-It's been a bit quiet, but it may be useful for detailed discussions.
-
-> 2.  Linux Security Module.
-
-As Chris said, LSM is not suitable for CAPP auditing.
-
-> 3.  SELinux.
-
-I don't think it's a good idea to tie everyone in to using SELinux.
-Audit and SELinux do need to play well together though (and SELinux is 
-already integrated with some of the existing audit subsystem).
-
-> 4.  Audit subsystem.
-
-IMHO we need a distinct Audit subsystem, perhaps even something which can 
-accomodate different implementations.
-
-> However, the most obvious gain here, is that the subsystem is
-> centralized and its intentions are clearer.
-
-Indeed.
+Greg KH wrote:
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+> 
+> Can you try a newer, 2.4 or even 2.6 kernel?  This is probably an
+> interrupt routing issue that should be fixed in a newer kernel.
 
+i've had the same problem even with 2.6.9. i saw your note from a couple
+years ago saying you thought the via board was broken in this regard
+(unconnected pin or something). and i wondered, but how come it works in
+windows w/ SMP then? 
 
+anyway, i also am ok with noapic, tho i wonder what performance losses there
+are when an SMP system cant handle interrupts assigned to either proc.
+
+hey, i'd even be willing to try some soldering or board changes if you had a
+sense of what was disconnected. but are you sure its not a kernel issue?
+
+thanks
+
+les schaffer

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317755AbSIJRRX>; Tue, 10 Sep 2002 13:17:23 -0400
+	id <S317816AbSIJRTg>; Tue, 10 Sep 2002 13:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317751AbSIJRRX>; Tue, 10 Sep 2002 13:17:23 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:41858 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317434AbSIJRRV>;
-	Tue, 10 Sep 2002 13:17:21 -0400
-Date: Tue, 10 Sep 2002 10:21:53 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-In-Reply-To: <20020909170847.A24352@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209101019280.1032-100000@cherise.pdx.osdl.net>
+	id <S317829AbSIJRTg>; Tue, 10 Sep 2002 13:19:36 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:33432 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317816AbSIJRTe>; Tue, 10 Sep 2002 13:19:34 -0400
+Date: Tue, 10 Sep 2002 19:47:28 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.10.10209091343540.16589-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0209101945410.1100-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Sep 2002, Andre Hedrick wrote:
 
-> > > Generic device naming consistency is a problem if multiple devices
-> > > show up with the same id.
-> > 
-> > Patrick Mochel has an open task to come up with a solution to this.
-> 
-> I don't think this can be solved if multiple devices show up with the same
-> id. If I have five disks that all say I'm disk X, how can there be one
-> name or handle for it from user level?
+> You may not switch this in the middle of the execution of a command block.
+> If you want to try this, go for it, and leave me off the CC for the mess
+> you will make of your data.
 
-Easy: you map the unique identifier of the device to a name in userspace.  
-In our utopian future, /sbin/hotplug is called with that unique ID as one
-of its parameters. It searches for, and finds names based on the ID is. If
-the name(s) already exist, then it doesn't continue.
+No worries, it was mentioned as an auxiliary comment on another topic, i 
+definitely do _not_ want to go anywhere near IDE code last i saw it has 
+quite a head count ;)
 
-
-	-pat
+	Zwane
+-- 
+function.linuxpower.ca
 

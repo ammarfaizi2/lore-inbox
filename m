@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289204AbSANLs5>; Mon, 14 Jan 2002 06:48:57 -0500
+	id <S289209AbSANL6K>; Mon, 14 Jan 2002 06:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289209AbSANLsr>; Mon, 14 Jan 2002 06:48:47 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:7690 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289204AbSANLsh>;
-	Mon, 14 Jan 2002 06:48:37 -0500
-Date: Mon, 14 Jan 2002 12:47:55 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: alan@lxorguk.ukuu.org.uk, zippel@linux-m68k.org, rml@tech9.net,
-        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
-        linux-kernel@vger.kernel.org
+	id <S289212AbSANL57>; Mon, 14 Jan 2002 06:57:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:7706 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289209AbSANL5t>; Mon, 14 Jan 2002 06:57:49 -0500
+Date: Mon, 14 Jan 2002 12:56:19 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Andrew Morton <akpm@zip.com.au>, jogi@planetzork.ping.de,
+        Ed Sweetman <ed.sweetman@wmich.edu>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-Id: <20020114124755.3b2d6a4d.skraw@ithnet.com>
-In-Reply-To: <3C42AD48.FCFD6056@zip.com.au>
-In-Reply-To: <E16PvKx-00005L-00@the-village.bc.nu>
-	<200201140033.BAA04292@webserver.ithnet.com>
-	<E16PvKx-00005L-00@the-village.bc.nu>
-	<20020114104532.59950d86.skraw@ithnet.com>
-	<3C42AD48.FCFD6056@zip.com.au>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20020114125619.E10227@athlon.random>
+In-Reply-To: <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> <20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy> <3C41E415.9D3DA253@zip.com.au> <1010952276.12125.59.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1010952276.12125.59.camel@phantasy>; from rml@tech9.net on Sun, Jan 13, 2002 at 03:04:35PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002 02:04:56 -0800
-Andrew Morton <akpm@zip.com.au> wrote:
+On Sun, Jan 13, 2002 at 03:04:35PM -0500, Robert Love wrote:
+> user system.  But things like (ack!) dbench 16 show a marked
+> improvement.
 
-> Stephan von Krawczynski wrote:
-> > 
-> > ...
-> > Unfortunately me have neither of those. This would mean I cannot benefit
-from> > _these_ patches, but instead would need _others_ 
-[...]
+please try again on top of -aa, and I've to specify this : benchmarked
+in a way that can be trusted and compared, so we can make some use of
+this information.  This mean with -18pre2aa2 alone and only -preempt on
+top of -18pre2aa2.
+
+NOTE: I'd be glad to say "preempt rules", "go preempt", "preempt is
+cool" like you as soon as I have some proof it makes _THE_ difference
+and that it is worth the mess on SMP (per-cpu, RCU locking, etc...), not
+to tell about the other architectures, but at the moment there's only a
+number of people running xmms on mainline with the broken scheduling
+points and those numbers that cannot be compared in any sane way. I
+repeat, I'm not against preempt, I just want to get some real world
+proof and measurement and at the moment I think preempt doesn't worth,
+but if you give us _any_ real world proof that a that low mean latency
+of the order of 10/100 usec matters to get most of the cpu cycles out of
+the cpu during trashing (as it could be possible to speculate from the
+broken benchmark posted in this thread), and that there's no real
+regression with the additional branches in the spin_unlock in 100%
+system load, I may change my mind (an of course, only for anything above
+2.5, and still I think there are more interesting optimizations to do
+rahter than requiring everybody spending lots of time fixing drivers,
+auditing, fixing smp, rcu locking etc... but ok if it is obviously good
+thing [aka no real regression and only benefits long term] it would be
+ok to do it early as well). I'm not particularly worried about the
+preempt lock around the per-cpu stuff, that's a cacheline local, and it
+could go into the schedule_data like I did for the rcu per-cpu
+variables, so they're at zero cacheline cost (RCU_poll patch costs now
+only 1 instruction per schedule and zero memory overhead [an incl
+instruction precisely]).
+
+> > Benchmarks are well and good, but until we have a solid explanation for
+> > the throughput changes which people are seeing, it's risky to claim
+> > that there is a general benefit.
 > 
-> In 3c59x.c, probably the biggest problem will be the call to issue_and_wait()
-> in boomerang_start_xmit().  On a LAN which is experiencing heavy collision
-rates> this can take as long as 2,000 PCI cycles (it's quite rare, and possibly
-an> erratum).  It is called under at least two spinlocks.
-> 
-> In via-rhine, wait_for_reset() can busywait for up to ten milliseconds.
-> via_rhine_tx_timeout() calls it from under a spinlock.
-> 
-> In eepro100.c, wait_for_cmd_done() can busywait for one millisecond
-> and is called multiple times under spinlock.
+> I have an explanation.  We can schedule quicker off a woken task.  When
+> an event occurs that allows an I/O-blocked task to run, its time-to-run
+> is shorter.  Same event/response improvement that helps interactivity.
 
-Did I get that right, as long as spinlocked no sense in conditional_schedule()
-?
+That's a nice speculation out of a broken comparison, it may be really
+the case, there's no way to be sure, before that sum of usec you should
+also sum the seconds spent walking the tasklist in the non O(1)
+scheduler.
 
-> Preemption will help _some_ of this, but by no means all, or enough.
-
-Maybe we should really try to shorten the lock-times _first_. You mentioned a
-way to find the bad guys?
-
-Regards,
-Stephan
-
-
+Andrea

@@ -1,57 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264019AbTICBrc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 21:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbTICBrb
+	id S261152AbTICBtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 21:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264013AbTICBtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 21:47:31 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:28335
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S264019AbTICBr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 21:47:27 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [PATCH] Nick's scheduler policy v10
-Date: Wed, 3 Sep 2003 11:55:03 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <3F5044DC.10305@cyberone.com.au> <127320000.1062514664@[10.10.2.4]> <3F552CBB.1060906@cyberone.com.au>
-In-Reply-To: <3F552CBB.1060906@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Sep 2003 21:49:12 -0400
+Received: from codepoet.org ([166.70.99.138]:40675 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S261152AbTICBtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 21:49:07 -0400
+Date: Tue, 2 Sep 2003 19:49:09 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel header separation
+Message-ID: <20030903014908.GB1601@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309031155.04056.kernel@kolivas.org>
+In-Reply-To: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003 09:50, Nick Piggin wrote:
-> Martin J. Bligh wrote:
-> >>>Not convinced of that - mm performs worse than mainline for me.
-> >>
-> >>Well, one of Con's patches caused a lot of idle time on volanomark.
-> >>The reason for the change was unclear. I guess either a fairness or
-> >>wakeup latency change (yes, it was a very scientific process, ahem).
-> >>
-> >>Anyway, in the process of looking at the load balancing, we found
-> >>and fixed a problem (although it might now possibly over balance).
-> >>This did cure most of the idle problems.
-> >>
-> >>So it could just be small changes causing things to go out of whack.
-> >>I will try to get better data after (if ever) the thing is working
-> >>nicely on the desktop.
-> >
-> >I think Con and I worked out that the degredations I was seeing
-> >(on kernbench and SDET) were due to (in his words) "my hacks throwing the
-> >cc cpu hogs onto the expired array more frequently".
->
-> This didn't explain the huge idle time increases on volanomark and
-> SPECjbb I think.
+On Tue Sep 02, 2003 at 08:16:14PM +0100, Matthew Wilcox wrote:
+> 
+> In a continuing series of "Things we should have done 5 years ago,
+> do they really need to be done before the release of 2.6.0", here's a
+> prototype of splitting the kernel headers into stuff we want userspace
+> to see and stuff we don't.
+> 
+> The basic principle is to put user headers in usr/include/linux and
+> usr/include/asm-$(ARCH).  Kernel headers may then include them as
+> <user/foo.h> and <user-asm/foo.h>
+> 
+> This patch implents the 4 lines of Makefile magic necessary and converts
+> cdrom.h to use this split.  Note that we can convert headers as slowly as
+> we care to with this scheme.
 
-Yeah this was before the profile showed it to be idle time, and before I 
-isolated it to Ingo's A3 patch.
+Wohoo!!  Great stuff.  I hope this effort continues....
 
-Con
+> RCS file: usr/include/linux/cdrom.h
+> diff -N usr/include/linux/cdrom.h
+> --- /dev/null	1 Jan 1970 00:00:00 -0000
+> +++ usr/include/linux/cdrom.h	2 Sep 2003 19:07:48 -0000
+> @@ -0,0 +1,719 @@
+> +/*
+> + * -- <linux/cdrom.h>
+> + * General header file for linux CD-ROM drivers 
+> + * Copyright (C) 1992         David Giller, rafetmad@oxy.edu
+> + *               1994, 1995   Eberhard Moenkeberg, emoenke@gwdg.de
+> + *               1996         David van Leeuwen, david@tm.tno.nl
+> + *               1997, 1998   Erik Andersen, andersee@debian.org
+> + *               1998-2000    Jens Axboe, axboe@suse.de
+> + */
+> + 
+> +#ifndef	_LUSER_CDROM_H
+> +#define	_LUSER_CDROM_H
+> +
+> +#include <linux/types.h>
 
+Header files intended for use by users should probably drop
+linux/types.h just include <stdint.h>,,,  Then convert the 
+types over to ISO C99 types.
+
+s/__u8/uint8_t/g
+s/__u16/uint16_t/g
+s/__u32/uint32_t/g
+s/__u64/uint64_t/g
+
+s/__s8/int8_t/g
+s/__s16/int16_t/g
+s/__s32/int32_t/g
+s/__s64/int64_t/g
+
+What do you think?
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

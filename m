@@ -1,35 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264200AbUEHWCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264199AbUEHWDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264200AbUEHWCB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 18:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264193AbUEHWCB
+	id S264199AbUEHWDY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 18:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264195AbUEHWCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 18:02:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264195AbUEHWBm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 18:01:42 -0400
-Date: Sat, 8 May 2004 15:01:17 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: James Morris <jmorris@redhat.com>
-Cc: sds@epoch.ncsc.mil, chrisw@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH][SELINUX] 1/2 sock_create_kern()
-Message-Id: <20040508150117.4a88b81a.davem@redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0405071043540.21372-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0405071043540.21372-100000@thoron.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 8 May 2004 18:02:30 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:48280 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264194AbUEHWBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 18:01:20 -0400
+Date: Sat, 8 May 2004 23:01:08 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rmap 28 remove_vm_struct
+In-Reply-To: <Pine.LNX.4.44.0405082250570.26569-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0405082300270.26569-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 May 2004 11:05:10 -0400 (EDT)
-James Morris <jmorris@redhat.com> wrote:
+The callers of remove_shared_vm_struct then proceed to do several
+more identical things: gather them together in remove_vm_struct.
 
-> The patch below adds a function sock_create_kern() for use when the kernel 
-> creates sockets for its own use.
+ mmap.c |   31 +++++++++++--------------------
+ 1 files changed, 11 insertions(+), 20 deletions(-)
 
-This looks fine, applied.
+--- rmap27/mm/mmap.c	2004-05-08 20:55:05.460548328 +0100
++++ rmap28/mm/mmap.c	2004-05-08 20:55:16.547862800 +0100
+@@ -66,7 +66,7 @@ EXPORT_SYMBOL(vm_committed_space);
+ /*
+  * Requires inode->i_mapping->i_shared_lock
+  */
+-static inline void __remove_shared_vm_struct(struct vm_area_struct *vma,
++static void __remove_shared_vm_struct(struct vm_area_struct *vma,
+ 		struct file *file, struct address_space *mapping)
+ {
+ 	if (vma->vm_flags & VM_DENYWRITE)
+@@ -83,9 +83,9 @@ static inline void __remove_shared_vm_st
+ }
+ 
+ /*
+- * Remove one vm structure from the inode's i_mapping address space.
++ * Remove one vm structure and free it.
+  */
+-static void remove_shared_vm_struct(struct vm_area_struct *vma)
++static void remove_vm_struct(struct vm_area_struct *vma)
+ {
+ 	struct file *file = vma->vm_file;
+ 
+@@ -95,6 +95,12 @@ static void remove_shared_vm_struct(stru
+ 		__remove_shared_vm_struct(vma, file, mapping);
+ 		spin_unlock(&mapping->i_shared_lock);
+ 	}
++	if (vma->vm_ops && vma->vm_ops->close)
++		vma->vm_ops->close(vma);
++	if (file)
++		fput(file);
++	mpol_free(vma_policy(vma));
++	kmem_cache_free(vm_area_cachep, vma);
+ }
+ 
+ /*
+@@ -1164,14 +1170,7 @@ static void unmap_vma(struct mm_struct *
+ 				area->vm_start < area->vm_mm->free_area_cache)
+ 	      area->vm_mm->free_area_cache = area->vm_start;
+ 
+-	remove_shared_vm_struct(area);
+-
+-	mpol_free(vma_policy(area));
+-	if (area->vm_ops && area->vm_ops->close)
+-		area->vm_ops->close(area);
+-	if (area->vm_file)
+-		fput(area->vm_file);
+-	kmem_cache_free(vm_area_cachep, area);
++	remove_vm_struct(area);
+ }
+ 
+ /*
+@@ -1500,15 +1499,7 @@ void exit_mmap(struct mm_struct *mm)
+ 	 */
+ 	while (vma) {
+ 		struct vm_area_struct *next = vma->vm_next;
+-		remove_shared_vm_struct(vma);
+-		if (vma->vm_ops) {
+-			if (vma->vm_ops->close)
+-				vma->vm_ops->close(vma);
+-		}
+-		if (vma->vm_file)
+-			fput(vma->vm_file);
+-		mpol_free(vma_policy(vma));
+-		kmem_cache_free(vm_area_cachep, vma);
++		remove_vm_struct(vma);
+ 		vma = next;
+ 	}
+ }
+

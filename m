@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263809AbUECSKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbUECSMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263809AbUECSKN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 14:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbUECSKM
+	id S263824AbUECSMS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 14:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbUECSKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 14:10:12 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:26361 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S263809AbUECSJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 14:09:46 -0400
-Date: Mon, 3 May 2004 11:09:45 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>, olh@suse.de,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Fix booting some PPC32 machines
-Message-ID: <20040503180945.GL26773@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 3 May 2004 14:10:24 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:52671 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S263826AbUECSKC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 14:10:02 -0400
+Message-ID: <40968A9F.6070608@keyaccess.nl>
+Date: Mon, 03 May 2004 20:08:31 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity
+ removal)
+References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org> <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk> <4095BAA3.3050000@keyaccess.nl> <20040503055934.GA17014@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040503055934.GA17014@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  The following patch fixes booting on some PPC32 machines with
-OpenFirmware, when booted without the aid of an additional bootloader.
-The problem is that the linker script for the 'zImage' type targets was
-put into the list of dependancies which objcopy would parse as a list of
-files to copy into the resulting image.  The fix is to make the phony
-zImage targets depend on the linker script.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-===== arch/ppc/boot/openfirmware/Makefile 1.22 vs edited =====
---- 1.22/arch/ppc/boot/openfirmware/Makefile	Thu Apr  1 08:16:57 2004
-+++ edited/arch/ppc/boot/openfirmware/Makefile	Mon May  3 10:24:35 2004
-@@ -104,10 +104,10 @@
- 			$(HACKCOFF) $@ && \
- 			ln -sf $(notdir $@) $(images)/zImage$(initrd).pmac
- 
--$(images)/vmlinux.coff: $(obj)/coffboot $(boot)/ld.script
-+$(images)/vmlinux.coff: $(obj)/coffboot
- 	$(call cmd,gen-coff)
- 
--$(images)/vmlinux.initrd.coff: $(obj)/coffboot.initrd $(boot)/ld.script
-+$(images)/vmlinux.initrd.coff: $(obj)/coffboot.initrd
- 	$(call cmd,gen-coff)
- 
- quiet_cmd_gen-elf-pmac = ELF     $@
-@@ -116,19 +116,19 @@
- 			$(OBJCOPY) $@ $@ --add-section=.note=$(obj)/note \
- 					 -R .comment $(del-ramdisk-sec)
- 
--$(images)/vmlinux.elf-pmac: $(obj)/image.o $(NEWWORLDOBJS) $(LIBS) $(obj)/note $(boot)/ld.script
-+$(images)/vmlinux.elf-pmac: $(obj)/image.o $(NEWWORLDOBJS) $(LIBS) $(obj)/note
- 	$(call cmd,gen-elf-pmac)
- $(images)/vmlinux.initrd.elf-pmac: $(obj)/image.initrd.o $(NEWWORLDOBJS) \
--				   $(LIBS) $(obj)/note $(boot)/ld.script
-+				   $(LIBS) $(obj)/note
- 	$(call cmd,gen-elf-pmac)
- 
- quiet_cmd_gen-chrp = CHRP    $@
-       cmd_gen-chrp = $(LD) $(CHRP_LD_ARGS) -o $@ $^ && \
- 			$(OBJCOPY) $@ $@ -R .comment $(del-ramdisk-sec)
- 
--$(images)/zImage.chrp: $(CHRPOBJS) $(obj)/image.o $(LIBS) $(boot)/ld.script
-+$(images)/zImage.chrp: $(CHRPOBJS) $(obj)/image.o $(LIBS)
- 	$(call cmd,gen-chrp)
--$(images)/zImage.initrd.chrp: $(CHRPOBJS) $(obj)/image.initrd.o $(LIBS) $(boot)/ld.script
-+$(images)/zImage.initrd.chrp: $(CHRPOBJS) $(obj)/image.initrd.o $(LIBS)
- 	$(call cmd,gen-chrp)
- 
- quiet_cmd_addnote = ADDNOTE $@
-@@ -153,13 +153,15 @@
- 		 $(images)/vmlinux.elf-pmac	\
- 		 $(images)/zImage.chrp		\
- 		 $(images)/zImage.chrp-rs6k	\
--		 $(images)/miboot.image
-+		 $(images)/miboot.image		\
-+		 $(boot)/ld.script
- 	@echo '  kernel: $@ is ready ($<)'
- zImage.initrd:	 $(images)/vmlinux.initrd.coff 		\
- 		 $(images)/vmlinux.initrd.elf-pmac	\
- 		 $(images)/zImage.initrd.chrp		\
- 		 $(images)/zImage.initrd.chrp-rs6k	\
--		 $(images)/miboot.initrd.image
-+		 $(images)/miboot.initrd.image		\
-+		 $(boot)/ld.script
- 	@echo '  kernel: $@ is ready ($<)'
- 
- TFTPIMAGE	:= /tftpboot/zImage
+> OK...  So we have
+> 	* potentially faulty mcdx (2.4, apparently either driver corrupts
+> memory in some conditions or isofs does the same for some IO failures -
+> need to take a look at that report more carefully).
+> 	* cdu31a (FUBAR driver, nasty to fix, "most of the time" works on
+> 2.6)
+> 	* sbpcd (at least two, both untested with 2.6)
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Okay, with a trivial hack to have the thing initialise when builtin, 
+sbpcd does pretend to work:
+
+3y25:~$ uname -r
+2.6.5
+3y25:~$ mount | grep cdrom
+/dev/sbpcd on /mnt/cdrom type iso9660 (ro,noexec,nosuid,nodev)
+3y25:~$ ls /mnt/cdrom/
+cd.id*        install.exe*  lecdemos/     readme.doc*   resource/ 
+support/
+
+However, any "cp" from cd-rom oopses the box.
+
+> Is anybody willing to fix those drivers?
+
+I was actually planning to get around to that at some point. Somewhat 
+fond of this drive. As you say, driver is a disaster area; a few trivial 
+fixes are not what it wants and at this point, fixing it properly would 
+not be a trivial undertaking for me. Am also currently very busy 
+elsewhere. Could it be kept around a bit?
+
+Rene.

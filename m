@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280627AbRKNPQU>; Wed, 14 Nov 2001 10:16:20 -0500
+	id <S280637AbRKNPSk>; Wed, 14 Nov 2001 10:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280632AbRKNPQK>; Wed, 14 Nov 2001 10:16:10 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:63142 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S280627AbRKNPP7>;
-	Wed, 14 Nov 2001 10:15:59 -0500
-Subject: Re: File server FS?
-From: Steve Lord <lord@sgi.com>
-To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-Cc: Sean Elble <S_Elble@yahoo.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        Brian <hiryuu@envisiongames.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200111141142227.SM00162@there>
-In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net>
-	<20011113175348.B24864@mikef-linux.matchmail.com>
-	<028201c16cb0$f489ccc0$0a00a8c0@intranet.mp3s.com> 
-	<200111141142227.SM00162@there>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
-Date: 14 Nov 2001 09:10:17 -0600
-Message-Id: <1005750618.23586.14.camel@jen.americas.sgi.com>
+	id <S280635AbRKNPSb>; Wed, 14 Nov 2001 10:18:31 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:23565 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S280634AbRKNPSY>;
+	Wed, 14 Nov 2001 10:18:24 -0500
+Date: Wed, 14 Nov 2001 16:18:18 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: "M. Edward Borasky" <znmeb@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Disk IO statistics for all disks (request queue)
+Message-ID: <20011114161818.C23345@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <20011114092022.A23345@joshua.mesa.nl> <HBEHIIBBKKNOBLMPKCBBIEGGEBAA.znmeb@aracnet.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIEGGEBAA.znmeb@aracnet.com>; from znmeb@aracnet.com on Wed, Nov 14, 2001 at 06:59:35AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-14 at 04:41, Robert Szentmihalyi wrote:
-> Am Mittwoch, 14. November 2001 03:05 schrieb Sean Elble:
-> > I'd have to recommend XFS for you . . . it supports the kernel
-> > mode NFS server very well, it supports LVM, an XFS file system
-> > can be enlarged (not reduced), and XFS has great quota support,
-> > just be sure you use a 3.0 or greater quota tools package. Why
-> > use XFS over Ext3 you ask? XFS is faster, and scales better,
-> > IMHO. Again just my opinion, but I hope that helps.
+On Wed, Nov 14, 2001 at 06:59:35AM -0800, M. Edward Borasky wrote:
+> Where might I find the Stephan Tweedie patches?
+
+	ftp.uk.linux.org:/pub/linux/sct/fs/profiling/ 
+
+contains the sard code (although it seems a bit outdated). RedHat
+also includes it in thein kernel, so SRPM might have an up to date
+patch for it.
+
+-Marcel
+> 
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org
+> > Sent: Wednesday, November 14, 2001 12:20 AM
+> > Subject: Re: [PATCH]Disk IO statistics for all disks (request queue)
 > >
-> 
-> ACK.
-> We have built an 800 GB file server for a customer about three 
-> month ago using XFS on a 3ware RAID.
-> The server performs great, even under heay load.
-> The only drawback is that group quotas were not yet supported then.
-> I don't know if this has changed yet, but it should be fairly easy 
-> to find out..... :-)
-> 
-> cheers,
->  Robert
-> 
-
-XFS on linux has had group quota support for quite a while - certainly
-longer than 3 months. All the other features are available too.
-
-Steve
-
+> > Hi,
+> >
+> > What is wrong with tha sar patches from Stephan Tweedie.
+> > They also include data to caclculate disk responsetime, busy%
+> > and queue lengths.
+> > Would be nice to have this in the mainstream kernel.
+> >
+> > -Marcel
 -- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

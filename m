@@ -1,45 +1,46 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <970999-19466>; Tue, 24 Mar 1998 13:41:36 -0500
-Received: from nyx10.nyx.net ([206.124.29.2]:3589 "EHLO nyx10.nyx.net" ident: "colin") by vger.rutgers.edu with ESMTP id <971003-19466>; Tue, 24 Mar 1998 13:40:28 -0500
-Date: Tue, 24 Mar 1998 11:43:28 -0700 (MST)
-From: Colin Plumb <colin@nyx.net>
-Message-Id: <199803241843.LAA25640@nyx10.nyx.net>
-X-Nyx-Envelope-Data: Date=Tue Mar 24 11:43:28 1998, Sender=colin, Recipient=linux-kernel@vger.rutgers.edu, Valsender=colin@localhost
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: Modified floppies can crash Linux (fwd)
+Received: by vger.rutgers.edu id <970790-319>; Tue, 21 Apr 1998 03:14:15 -0400
+Received: from smtp.bc.rogers.wave.ca ([24.113.32.20]:37999 "EHLO smtp.bc.rogers.wave.ca" ident: "NO-IDENT-SERVICE") by vger.rutgers.edu with ESMTP id <970932-319>; Tue, 21 Apr 1998 03:13:14 -0400
+Message-Id: <199804210719.AAA25982@pc-37249.bc.rogers.wave.ca>
+To: Kent Brockman <heathclf@skynet.csn.ul.ie>
+cc: Eric Schenk <eschenk@rogers.wave.ca>, davem@dm.cobaltmicro.com, linux-kernel@vger.rutgers.edu
+Subject: Re: T/TCP: Syn and RST Cookies 
+In-reply-to: Your message of "Mon, 13 Apr 1998 12:00:19 BST." <Pine.LNX.3.95.980413115552.26258A-100000@skynet.csn.ul.ie> 
+Date: Tue, 21 Apr 1998 00:19:03 -0600
+From: "Eric Schenk" <eschenk@pc-37249.bc.rogers.wave.ca>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Something that might be helpful when fixing this:
 
-A very efficient way to detect loops in a chain is to compare each element
-chain[i] with chain[j], where j is the largest power of 2 less than i.
+Kent Brockman <heathclf@skynet.csn.ul.ie> writes:
+>Where could I find out more information about the transactions being
+>played twice?
 
-E.g.
+For the record on this one, the researcher in question is
+named Mark Smith, and he was, at least a year ago when I last
+had contact with him, at MIT working with Nancy Lynch.
+His home page, which contains pointers to some of his
+work in this area can be found at <http://theory.lcs.mit.edu/~mass/>.
 
-void
-traverse_linked_list(struct linked_list *p)
-{
-	struct linked_list *bookmark = NULL;
-	unsigned counter = 0;
+Quick summary for the impatient: T/TCP can get data corruption
+and replay conditions under certain types of crash conditions
+(A crash condition means a part of the network hickups. It might
+be a machine at either end of the link, or it could be a router.)
+Even stronger, unless all network transactions obey some
+timing assumptions, no protocol that attempts to do what T/TCP does
+can work. The open questions as I understand them at this point
+are: (1) do the given assumptions get violated in realtity often
+enough that we care? (for example, if the probability is signficicantly
+lower than the probability of a data corruption that gets past the
+checksum screen, then we probably don't), and (2) does T/TCP
+as currently specified even work under the assumption that the
+timing assumptions in question are obeyed.
 
-	while (p && p != bookmark) {
-		process_node(p);
-		counter++;
-		if (!(counter & (counter-1))	/* Is counter a power of 2? */
-			bookmark = p;
-		p = p->next;
-	}
-	if (p) {
-		/* We have processed part of the chain twice, but
-		 * at least we can escape the loop.
-		 */
-		printk("Bad chain, aborting traversal.");
-	}
-}
+Personally, I think T/TCP is a dead issue until these questions are
+addressed in a complete and serious manner.
 
-Hacking this into kernel code is left as an exercise for the reader...
 -- 
-	-Colin
+Eric Schenk                             www: http://www.loonie.net/~eschenk
+                          email: eschenk@loonie.net, eschenk@rogers.wave.ca
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313533AbSDYXxO>; Thu, 25 Apr 2002 19:53:14 -0400
+	id <S313555AbSDYX6Q>; Thu, 25 Apr 2002 19:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313555AbSDYXxN>; Thu, 25 Apr 2002 19:53:13 -0400
-Received: from pc2-redb4-0-cust106.bre.cable.ntl.com ([213.107.133.106]:33014
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S313533AbSDYXxN>; Thu, 25 Apr 2002 19:53:13 -0400
-Date: Fri, 26 Apr 2002 00:52:41 +0100
-From: Mark Zealey <mark@zealos.org>
+	id <S313556AbSDYX6P>; Thu, 25 Apr 2002 19:58:15 -0400
+Received: from slide.SoftHome.net ([66.54.152.30]:31113 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S313555AbSDYX6O>;
+	Thu, 25 Apr 2002 19:58:14 -0400
+From: dmacbanay@softhome.net
 To: linux-kernel@vger.kernel.org
-Cc: Szekeres Istvan <szekeres@webvilag.com>
-Subject: Re: Assembly question
-Message-ID: <20020425235240.GA28851@itsolve.co.uk>
-In-Reply-To: <20020425083225.GA30247@webvilag.com>
+Subject: kernel 2.5.10 problems
+Date: Thu, 25 Apr 2002 17:58:14 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [64.251.165.1]
+Message-ID: <courier.3CC89816.00006EFA@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 25, 2002 at 10:32:25AM +0200, Szekeres Istvan wrote:
+This is the first time I've posted to this forum.  Usually when I have a 
+problem with a kernel other people are having the same problem and it gets 
+fixed relatively quickly.  But I've been experiencing some problems that 
+haven't been going away.  If more information is needed then what I have 
+given here please let me know.  I am using a SOYO K7VTA-B with a VIA 82C686B 
+chipset and a Duron 750mhz processor. 
 
-> void p_memset_dword( void *d, int b, int l )
-> {
->     __asm__ ("rep\n\t"
->              "stosl\n\t"
->              :
->              : "D" (d), "a" (b), "c" (l)
->              : "memory","edi", "eax", "ecx"
+1.  Cannot mount IDE-SCSI cd drive.  This problem has been mentioned 
+previously by others.  Errors occur when trying to mount it. 
 
-An input or output operand is implicitly clobbered, so it should be written as:
+2.  When ACPI support is installed the kernel gives a "Keyboard not found" 
+error when booting and I have to push the reset switch to reboot.  This 
+problem has also been mentioned before but I don't think anyone has related 
+it to the ACPI support. 
 
-	: "D" (d), "a" (b), "c" (l)
-	: "memory"
+3.  Starting sometime after kernel 2.5.1 (I couldn't compile any kernels 
+from then up until 2.5.5) the Evolution email program locks up whenever 
+Calender, Tasks, or Contacts is selected.  I have to go to another terminal 
+and kill it. 
 
-Or so.
+4.  Starting with kernel 2.5.6 (kernels 2.5.5 through 2.5.6-pre3 work)  the 
+KDE program krecord closes right after it starts. 
 
--- 
+5.  With the new ALSA routines built-in is it possible to get the midi 
+output port on a Soundblaster PCI 512 to work?  I haven't been able to get 
+it to function yet. 
 
-Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
-mark@zealos.org; mark@itsolve.co.uk
+Thank you in advance for your help 
 
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a17! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ !w--- r++ !t---?@ !X---?  !R- !tv b+ G+++ e>+++++ !h++* r!-- y--
+David Macbanay 

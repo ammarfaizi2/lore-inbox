@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287832AbSABPE4>; Wed, 2 Jan 2002 10:04:56 -0500
+	id <S287835AbSABPHG>; Wed, 2 Jan 2002 10:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287827AbSABPEq>; Wed, 2 Jan 2002 10:04:46 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:64153 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S287839AbSABPEa>;
-	Wed, 2 Jan 2002 10:04:30 -0500
-Date: Wed, 2 Jan 2002 15:59:29 +0100 (MET)
+	id <S287834AbSABPG4>; Wed, 2 Jan 2002 10:06:56 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:12699 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S287827AbSABPGl>;
+	Wed, 2 Jan 2002 10:06:41 -0500
+Date: Wed, 2 Jan 2002 16:06:12 +0100 (MET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Larry McVoy <lm@bitmover.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        Oliver Xymoron <oxymoron@waste.org>,
+To: Dave Jones <davej@suse.de>
+cc: Larry McVoy <lm@bitmover.com>, Oliver Xymoron <oxymoron@waste.org>,
         Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
         Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: The direction linux is taking
-In-Reply-To: <E16KSQt-0005zf-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0201021557360.1574-100000@vervain.sonytel.be>
+In-Reply-To: <Pine.LNX.4.33.0112292051421.1336-100000@Appserv.suse.de>
+Message-ID: <Pine.GSO.4.21.0201021559420.1574-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Alan Cox wrote:
-> The big exception is Configure.help which is a nightmare for patch, and the
-> one file I basically always did hand merges on
+On Sat, 29 Dec 2001, Dave Jones wrote:
+> On Sat, 29 Dec 2001, Larry McVoy wrote:
+> > Anyway, I'm interested to see if there are screams of "all I ever do is
+> > merge and I hate it" or "merging?  what's that?".
+> 
+> I've only been keeping this tree since the beginning of the month,
+> so I'm still trying to find my feet a little, but so far merging is
+> pretty straightforward and usually painless.
+> 
+> The procedure when Linus/Marcelo release a new patch usually goes..
+> 
+>  1. edit the patch to remove any bits that don't make sense
+>     (eg, I have newer/better version in my tree)
+>  2. cat ../patch-2.5.x | patch -p1 --dry-run
+>  3. edit the patch to remove already present hunks.
+>  4. manually fix up rejects in my tree, and remove reject hunk
+>     from the diff.
+>  5. back to (1) until no rejects.
+>  6. cat ../patch-2.5.x | patch -p1
+>  7. testing..
+>  8. Create new diff, and give it a quick readthrough.
+> 
+> Out of all this the initial patch review (step #1) and the final
+> lookover are by far the most time consuming, and I don't think any
+> automated tool could speed this up and give me the same level of
+> understanding over what I'm merging.
 
-Perhaps it would help if the entries in Configure.help were sorted?
+When I was bringing the m68k tree back in sync near the end of 1999, I used the
+following approach:
+  - keep all trees, use `cp -rl' and `patch' when a new version is released
+    (cfr. Al Viro)
+  - use `same' to prevent the need for zillions of disk space, and to make the
+    creation of diffs between such trees fast
+  - merge trees using my home-brew `mergetree' perl script (basically a
+    recursive `merge' command), which can replace the destination file by a
+    hard link if it's the same as one of the originals
 
-It's very difficult to merge anything in that file, since in many cases the
-`new' entries added by the new patch, already existed in our local tree
-(speaking about m68k). Someone just wrote new explanations, and inserted them
-someplace else in the file.
+Despite having a real CVS repository for m68k now, I still use mergetree...
 
 Gr{oetje,eeting}s,
 

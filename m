@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265982AbSKDIC2>; Mon, 4 Nov 2002 03:02:28 -0500
+	id <S263794AbSKDIKO>; Mon, 4 Nov 2002 03:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265983AbSKDIC2>; Mon, 4 Nov 2002 03:02:28 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:54661 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S265982AbSKDICZ>; Mon, 4 Nov 2002 03:02:25 -0500
+	id <S265978AbSKDIKN>; Mon, 4 Nov 2002 03:10:13 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:15283 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263794AbSKDIKN>; Mon, 4 Nov 2002 03:10:13 -0500
 From: <benh@kernel.crashing.org>
-To: "Linus Torvalds" <torvalds@transmeta.com>, "Pavel Machek" <pavel@ucw.cz>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pavel Machek" <pavel@ucw.cz>
+Cc: "Linus Torvalds" <torvalds@transmeta.com>,
        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Subject: Re: swsusp: don't eat ide disks
-Date: Mon, 4 Nov 2002 09:08:38 +0100
-Message-Id: <20021104080838.19142@smtp.wanadoo.fr>
-In-Reply-To: <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
+Date: Mon, 4 Nov 2002 09:16:24 +0100
+Message-Id: <20021104081624.27128@smtp.wanadoo.fr>
+In-Reply-To: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
+References: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
 X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,47 +22,33 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Note that "should work" does not necessarily mean "does work". For
->example, in the IDE world, some of the generic packet command stuff is
->only understood by ide-cd.c, and the generic IDE layer doesn't necessarily
->understand it even if you have a disk that speaks ATAPI. I think Jens will 
->fix that wart.
+>S4 the bios has spun the disks back up, S3 we may need to let the disks
+>perform the IDE power on and diskware load. Ben has some possible code
+>for that
 
-Which is why, IMHO (am I repeating myself ? :) that command has to
-be sent down the queue by the _lowest_ level device driver, that
-is ide-cd, ide-disk, etc...
+On pmac, I just hard reset them as I have GPIOs to control
+the disk reset line, then wait for BSY to go away. We need something
+smarter for the generic case, typically a mix of ATA/ATAPI reset,
+and eventually execute diagnostics. I need to talk to Andre a bit
+about it.
 
-This is the way our new device model is designed, at least from
-my understanding of our numerous discussions with Patrick. The
-actual device beeing suspended is the ide-disk (/cd/tape/...),
-it is the target of the suspend request, it gets it from it's
-parent in the bus binding (PCI mostly, non-PCI controllers will
-have to provide something here), and it's the only place of code
-that _knows_ what have to be done.
+Also, I know at least of one nasty device here that won't play
+nice unless it gets the identify command after reset (special
+hacked device that lies about it's device type, a ZIP that
+masquerades as an IDE-CD, to workaround firmware bugs in some
+older laptops, ugh !)
 
-"knowing" that an ATA disk wants a SYNC. CACHE and/or STANDBY
-command while an ATAPI CD wants a packet command (with eventually
-a door unlock, and a check unit attention on resume) is not
-the responsibility of the block layer nor even the ATA layer,
-that would be a layering violation. It's the driver for the
-actual device which is the one to know what to do with it's
-device and when to do it (when = bus binding).
+For now, I suspect sending an ATA reset or ATAPI reset depending
+on the device type, and making sure BSY is gone should cover
+most cases though.
 
-Pavel propose to stop processes & threads to make things easier
-regarding VM, I now tend to think it will indeed make things
-less intricated at first and agree we should keep it for now
-especially with suspend-to-disk, but it's not the responsibility
-of any generic, subsystem or whatever code to actually go suspend
-the IO queues down to the drivers (it may be to stop feeding them,
-which is the point of stopping processes).
-
-I have the feeling that Alan is trying to avoid any kind of
-responsibility upon drivers ;) Well, unfortunately, I think
-we have no choice here, and that mean yes, we will have
-eventually a few broken drivers that won't play nice with
-suspend-to-disk/ram at first, and yes, users will notice,
-post bug reports, and hopefully this will be fixed over
-time...
+For disks, you may also need to redo the LBA setting (never played
+with that, I only own sane enough disks...) and  the SET_FEATURE for
+PIO & DMA modes (provided your host controller chipset driver
+saves & restore them).
+But with the current design we have, this should probably be done
+by the host chipset driver too. In 2.4, I just re-do a dma_check()
+at the end of the resume phase, but that's incomplete in theory.
 
 Ben.
 

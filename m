@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132982AbRDEVfz>; Thu, 5 Apr 2001 17:35:55 -0400
+	id <S129112AbRDEV5R>; Thu, 5 Apr 2001 17:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132980AbRDEVfo>; Thu, 5 Apr 2001 17:35:44 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:54407 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S132978AbRDEVfc>;
-	Thu, 5 Apr 2001 17:35:32 -0400
-Date: Thu, 5 Apr 2001 23:34:46 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.0.39 oopses in sys_new(l)stat
-Message-ID: <20010405233445.A28501@khan.acc.umu.se>
-In-Reply-To: <20010405180927.A8000@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010405180927.A8000@niksula.cs.hut.fi>; from vherva@mail.niksula.cs.hut.fi on Thu, Apr 05, 2001 at 06:09:28PM +0300
+	id <S129126AbRDEV5H>; Thu, 5 Apr 2001 17:57:07 -0400
+Received: from 13dyn139.delft.casema.net ([212.64.76.139]:37904 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129112AbRDEV47>; Thu, 5 Apr 2001 17:56:59 -0400
+Message-Id: <200104052156.XAA02219@cave.bitwizard.nl>
+Subject: Re: Arch specific/multiple Configure.help files?
+In-Reply-To: <20010405214136.X18749@arthur.ubicom.tudelft.nl> from Erik Mouw
+ at "Apr 5, 2001 09:41:36 pm"
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Date: Thu, 5 Apr 2001 23:56:13 +0200 (MEST)
+CC: Johan Adolfsson <johan.adolfsson@axis.com>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 05, 2001 at 06:09:28PM +0300, Ville Herva wrote:
-> I wonder if there might still be a bug in 2.0.39 sys_new(l)stat.
-> Today, one of my trustworthy servers crashed (see details below), and
-> it has actually given me two slightly similar looking oopses before.
+Erik Mouw wrote:
+> On Thu, Apr 05, 2001 at 07:28:33PM +0200, Johan Adolfsson wrote:
+> > Would it be a good idea to have support for multiple Configure.help
+> > files in the config system?
+> > The main advantage would be that arch specific settings could
+> > have an arch specific help file as well.
 > 
-> While this might be a hardware problem (I'll run memory test asap), it
-> seems that the oopses are quite similar and could perhaps be caused by
-> a kernel bug.
-> 
-> This is vanilla 2.0.39 (2.0.37 before), gcc-2.7.2.3, Ppro-200, Intel
-> motherboard etc. It has been very reliable in past. These oopses are
-> the _only_ problems. It runs qmail, samba, cvs, rsync, apache, pop,
-> sshd and oracle. All local fs's are plain ext2.
-> 
-> I hope somebody (with more kernel hacking experience than me) is still
-> interested in the 2.0.39. I'll be happy to provide any additional
-> details or try something. The oops will propably be hard to reproduce,
-> however.
+> I don't see why this would be an advantage. IMHO Documentation belongs
+> in the Documentation tree and configuration documentation belongs in
+> Configure.help. You almost never read that file yourself, only the
+> various kernel configure tools read it, and tools don't have a problem
+> with large files. It's better to have the documentation at a single
+> point, not scattered around in the kernel tree.
 
-I'll look into it. A note, however: the additional oops:es that follow
-the first one are almost never ever useful, because the system is no
-longer in a consistent state after the first one.
+Well, the configure help is now "scattered around": The configuration
+options are in the "configure.in" files, and hte docs for them are
+somewhere else, even if it's in one large file.
 
+I'm not sure if Larry's CML2 has the help for the options near the
+options or not, but that's how I'd like it to be if I were designing
+the thing from scratch. (a bit like emacs' functions: there too, you
+give the help text near the definition of a functions!)
 
-/David, maintainer of the v2.0.xx kernel series
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

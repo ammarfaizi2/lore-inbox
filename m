@@ -1,41 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288342AbSANAAG>; Sun, 13 Jan 2002 19:00:06 -0500
+	id <S288334AbSANACQ>; Sun, 13 Jan 2002 19:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288334AbSAMX75>; Sun, 13 Jan 2002 18:59:57 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:59375 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S288338AbSAMX7t>; Sun, 13 Jan 2002 18:59:49 -0500
-Date: Sun, 13 Jan 2002 18:59:47 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] cleanup file.h and INIT_TASK a bit
-Message-ID: <20020113185947.A32700@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S288338AbSANACH>; Sun, 13 Jan 2002 19:02:07 -0500
+Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:42149 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288334AbSANABw>; Sun, 13 Jan 2002 19:01:52 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: J Sloan <jjs@pobox.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 14 Jan 2002 01:00:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020113201352Z288089-13997+4417@vger.kernel.org> <3C421946.6020607@pobox.com>
+In-Reply-To: <3C421946.6020607@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020114000201Z288334-13997+4486@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patches does a couple of things: first off, it removes the sched.h 
-include from file.h that was added recently, as we really don't need yet 
-another include file chain mess.  To make this a bit more palatable, a 
-few of the inlines are moved out of file.h and into fcntl.c, plus the 
-files_struct is moved to file.h from sched.h.  Since this meant adding 
-file.h to the various arch/*/kernel/init_task.c files, I took the time 
-to move the INIT_* bits for initializing the init task out of sched.h 
-and into init_task.h.  If this is okay, please apply the patch.  There 
-are other cleanups to do if people are interested: the #define for init_task 
-is currently duplicated in *all* asm-*/processor.h files to be exactly 
-the same thing...  This is a way of testing the waters on include file 
-cleanups.  Done properly, they shave ~10-15% off of the kernel compile 
-time on my machine.
+On Monday, 14. January 2002 00:33, J Sloan wrote:
+> Dieter Nützel wrote:
 
-Oh, the file.h cleanup exposed a mess (bug): usb.c was duplicating code 
-from daemonize().
+> >I am, too. But more for 3D visualization/simulation (with audio).
+>
+> Certainly not conflicting goals!
 
-		-ben
--- 
-Fish.
+Yes.
+
+> >>Kernel
+> >>compilation time is the farthest thing from my
+> >>mind when e.g. playing Q3A!
+> >
+> >Q3A is _NOT_ changed in any case. Even some smoother system "feeling" with
+> > Q3A and UT 436 running in parallel on an UP 1 GHz Athlon II, 640 MB.
+>
+> That's odd - for me the low latency kernels give
+> not only a smoother feel, but also markedly higher
+> standing on average at the end of the game.
+
+What did you see?
+During timedemo or avg fps?
+
+> Perhaps your setup has something that is
+> mitigating the beneficial effects of the low
+> latency modifications?
+>
+> Are you running a non-ext2 filesystem?
+
+Of course. All ReiserFS.
+I have normally posted that together with my preempt numbers.
+lock-brake has some code for ReiserFS in it. I did the testing for Robert.
+
+> Do you have a video card that grabs the
+> bus for long periods?
+
+Don't know.
+Any tools available for measuring?
+Latest development stuff for a Voodoo5 5500 AGP (XFree86 DRI CVS, 
+mesa-4-branch). I am somewhat in the DRI development involved.
+Glide3/3DNow!
+
+> And you set /proc/sys/kernel/lowlatency=1...
+
+I think I hadn't forgetten that.
+
+> >Have you seen something on any Win box?
+>
+> I have seen the games played on windoze and
+> have played at lan parties with win32 opponents
+> but I do not personally play games on windoze.
+> Lack of interest, I guess...
+
+I meant both running together at the same time.
+Never seen that on a Windows box...
+
+> On a kernel with both tux and preempt, upon
+> access to the tux webserver the kernel oopses
+> and tux dies. Not good when I depend on tux.
+>
+> OTOH the low latency patch plays quite well
+> with tux. As said, I have no anti-preempt agenda,
+> I just need for whatever solution I use to work,
+> and not crash programs and services we use.
+
+Sure. I only want to know your problem.
+
+> >Some latency numbers coming soon.
+>
+> Great!
+
+With some luck tonight.
+It is 1 o'clock local time, here...
+
+-Dieter

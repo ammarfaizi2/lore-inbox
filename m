@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268011AbTAKTdj>; Sat, 11 Jan 2003 14:33:39 -0500
+	id <S268133AbTAKTbG>; Sat, 11 Jan 2003 14:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268018AbTAKTdj>; Sat, 11 Jan 2003 14:33:39 -0500
-Received: from dialin-145-254-062-029.arcor-ip.net ([145.254.62.29]:23168 "EHLO
-	portable.localnet") by vger.kernel.org with ESMTP
-	id <S268011AbTAKTdi> convert rfc822-to-8bit; Sat, 11 Jan 2003 14:33:38 -0500
-Date: Sat, 11 Jan 2003 20:39:13 +0100 (CET)
-Message-Id: <20030111.203913.846936097.rene.rebe@gmx.net>
-To: Lionel.Bouton@inet6.fr
-Cc: kernel@nn7.de, linux-kernel@vger.kernel.org
-Subject: Re: choice of raid5 checksumming algorithm wrong ?
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <3E203C00.5060403@inet6.fr>
-References: <1042266405.14440.54.camel@sun>
-	<3E203C00.5060403@inet6.fr>
-X-Mailer: Mew version 2.2 on XEmacs 21.4.10 (Military Intelligence)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S268135AbTAKTbG>; Sat, 11 Jan 2003 14:31:06 -0500
+Received: from ldap.somanetworks.com ([216.126.67.42]:22699 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S268133AbTAKTbE>; Sat, 11 Jan 2003 14:31:04 -0500
+Date: Sat, 11 Jan 2003 14:39:47 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Grant Grundler <grundler@cup.hp.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
+       <davidm@hpl.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>
+Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
+In-Reply-To: <20030111004239.A757@localhost.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0301111346200.9854-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sat, 11 Jan 2003, Ivan Kokshaysky wrote:
 
-I also consider the kprint message a useability bug - and this is why
-I posted a patch that prints out that the algorithm is choosen to
-write "arround" the L2 cache ... - We patch this in our ROCK Linux
-standard patches ...
-
-On: Sat, 11 Jan 2003 16:45:04 +0100,
-    Lionel Bouton <Lionel.Bouton@inet6.fr> wrote:
-> Soeren Sonnenburg wrote:
+> On Fri, Jan 10, 2003 at 11:00:30AM -0800, Grant Grundler wrote:
+> > Or dynamically assigns windows to PCI Bus controllers as PCI devices
+> > are brought on-line.
 > 
-> >Hi!
-> >
-> >I really do wonder whether the displayed message is wrong or why it
-> >always chooses the slowest checksumming function (happens with 2.4.19 -
-> >21pre3)
-> >  
-> >
-> SSE is always preferred because unlike other checksumming code it 
-> doesn't use the processor caches when reading/writing data/checksum.
-> This is slower (if several GB/s can be considered slow) for the 
-> checksumming but far better for the overall system performance.
+> Eh? In general case, to make room for newly added device, you have
+> to shutdown the whole PCI bus starting from level 0, reassign _all_
+> BARs and bridge windows and then restart...
+> The "hotplug resource reservation" is the only viable approach, it has
+> been discussed numerous times.
 > 
-> LB.
+> > For PCI Hotplug, the role of managing MMIO/IRQ
+> > resources has moved to the OS since these services are needed
+> > after the OS has taken control of the box.
+> 
+> 100% agree. :-)
 
-- René
+Since the lack of resource reservation currently is keeping CompactPCI
+hot insertion from working properly, I have a strong interest in getting
+something in place before 2.6.  I've got a completely manual (kernel
+command-line parameter controlled) reservation patch[1] against 2.4 that
+I could start updating, but I've always thought there must be a more 
+elegant way to do things than the somewhat crude fixup approach I used
+in it.  I'm willing to try coding up something if you or anyone else
+have some ideas as to what would be an acceptable solution.
 
---  
-René Rebe - Europe/Germany/Berlin
-e-mail:   rene.rebe@gmx.net, rene@rocklinux.org
-web:      www.rocklinux.org, drocklinux.dyndns.org/rene/
+Thanks,
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Scott
+
+[1] look at the new file drivers/pci/setup-hp.c contained in:
+ftp://oss.somanetworks.com/pub/linux/cpci/v2.4/linux-2.4.19-cpci-20021107.diff.gz
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+
+

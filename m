@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVAPCBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVAPCDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVAPCBj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:01:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVAPCBi
+	id S262399AbVAPCDl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVAPCCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:01:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20494 "HELO
+	Sat, 15 Jan 2005 21:02:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21774 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262386AbVAPCBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:01:16 -0500
-Date: Sun, 16 Jan 2005 03:01:13 +0100
+	id S262387AbVAPCBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 21:01:20 -0500
+Date: Sun, 16 Jan 2005 03:01:17 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com,
-       pazke@donpac.ru, linux-visws-devel@lists.sf.net
-Subject: [2.6 patch] i386: reboot.c cleanups (fwd)
-Message-ID: <20050116020113.GF4274@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kill aux_device_present (fwd)
+Message-ID: <20050116020117.GG4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,109 +22,161 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.11-rc1-mm1.
+The patch forwarded below (slghtly adapted to an unrelated context 
+change) still applies and compiles against 2.6.11-rc1-mm1.
 
 Please apply.
 
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Mon, 6 Dec 2004 14:15:09 +0100
+Date:	Sat, 11 Dec 2004 23:00:12 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386: reboot.c cleanups
+Subject: [2.6 patch] kill aux_device_present
 
-On Mon, Dec 06, 2004 at 03:23:20PM +0300, Andrey Panin wrote:
-> On 341, 12 06, 2004 at 01:41:27AM +0100, Adrian Bunk wrote:
-> > The partch below includes the following changes:
-> > - arch/i386/kernel/reboot.c: make reboot_thru_bios static
-> > - arch/i386/mach-visws/reboot.c: remove the unused reboot_thru_bios and
-> >                                  reboot_smp
-> > - arch/i386/mach-voyager/voyager_basic.c: remove the unused reboot_thru_bios
-> > - arch/i386/mach-voyager/voyager_smp.c: remove the unused reboot_smp
-> 
-> Look like "i386/x86_64/parisc process.c: make hlt_counter static" patch
-> attached instead of promised :)
->...
-
-Ups, sorry.
-
-Correct patch below.
-
-
-<--  snip  -->
-
- 
-The patch below includes the following changes:
-- arch/i386/kernel/reboot.c: make reboot_thru_bios static
-- arch/i386/mach-visws/reboot.c: remove the unused reboot_thru_bios and
-                                 reboot_smp
-- arch/i386/mach-voyager/voyager_basic.c: remove the unused reboot_thru_bios
-- arch/i386/mach-voyager/voyager_smp.c: remove the unused reboot_smp
+There's no reason for keeping a write-only variable.
 
 
 diffstat output:
- arch/i386/kernel/reboot.c              |    2 +-
- arch/i386/mach-visws/reboot.c          |    3 ---
- arch/i386/mach-voyager/voyager_basic.c |    2 --
- arch/i386/mach-voyager/voyager_smp.c   |    2 --
- 4 files changed, 1 insertion(+), 8 deletions(-)
+ arch/alpha/kernel/setup.c  |    2 --
+ arch/arm/kernel/setup.c    |    2 --
+ arch/arm26/kernel/setup.c  |    1 -
+ arch/cris/kernel/setup.c   |    2 --
+ arch/i386/kernel/setup.c   |    3 ---
+ arch/ia64/kernel/setup.c   |    2 --
+ arch/ppc/kernel/setup.c    |    1 -
+ arch/sh/kernel/setup.c     |    1 -
+ arch/sh64/kernel/setup.c   |    4 ----
+ arch/x86_64/kernel/setup.c |    3 ---
+ 10 files changed, 21 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/arch/i386/mach-visws/reboot.c.old	2004-12-06 01:27:17.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/mach-visws/reboot.c	2004-12-06 01:27:44.000000000 +0100
-@@ -8,9 +8,6 @@
+--- linux-2.6.10-rc2-mm4-full/arch/ppc/kernel/setup.c.old	2004-12-11 21:50:07.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/ppc/kernel/setup.c	2004-12-11 21:50:13.000000000 +0100
+@@ -55,7 +55,6 @@
+ extern void power4_idle(void);
  
- void (*pm_power_off)(void);
+ extern boot_infos_t *boot_infos;
+-unsigned char aux_device_present;
+ struct ide_machdep_calls ppc_ide_md;
+ char *sysmap;
+ unsigned long sysmap_size;
+--- linux-2.6.10-rc2-mm4-full/arch/arm/kernel/setup.c.old	2004-12-11 21:50:33.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/arm/kernel/setup.c	2004-12-11 21:50:37.000000000 +0100
+@@ -91,8 +91,6 @@
+ struct cpu_cache_fns cpu_cache;
+ #endif
  
--int reboot_thru_bios;
--int reboot_smp;
+-unsigned char aux_device_present;
 -
- void machine_restart(char * __unused)
- {
- #ifdef CONFIG_SMP
---- linux-2.6.10-rc2-mm4-full/arch/i386/mach-voyager/voyager_basic.c.old	2004-12-06 01:28:03.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/mach-voyager/voyager_basic.c	2004-12-06 01:28:12.000000000 +0100
-@@ -36,8 +36,6 @@
+ char elf_platform[ELF_PLATFORM_SIZE];
+ EXPORT_SYMBOL(elf_platform);
+ 
+--- linux-2.6.10-rc2-mm4-full/arch/sh/kernel/setup.c.old	2004-12-11 21:50:44.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/sh/kernel/setup.c	2004-12-11 21:50:47.000000000 +0100
+@@ -43,7 +43,6 @@
   */
- void (*pm_power_off)(void);
+ struct sh_cpuinfo boot_cpu_data = { CPU_SH_NONE, 0, 10000000, };
+ struct screen_info screen_info;
+-unsigned char aux_device_present = 0xaa;
  
--int reboot_thru_bios;
+ #if defined(CONFIG_SH_UNKNOWN)
+ struct sh_machine_vector sh_mv;
+--- linux-2.6.10-rc2-mm4-full/arch/cris/kernel/setup.c.old	2004-12-11 21:50:54.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/cris/kernel/setup.c	2004-12-11 21:50:58.000000000 +0100
+@@ -26,8 +26,6 @@
+ struct drive_info_struct { char dummy[32]; } drive_info;
+ struct screen_info screen_info;
+ 
+-unsigned char aux_device_present;
 -
- int voyager_level = 0;
+ extern int root_mountflags;
+ extern char _etext, _edata, _end;
  
- struct voyager_SUS *voyager_SUS = NULL;
---- linux-2.6.10-rc2-mm4-full/arch/i386/mach-voyager/voyager_smp.c.old	2004-12-06 01:28:20.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/mach-voyager/voyager_smp.c	2004-12-06 01:28:25.000000000 +0100
-@@ -32,8 +32,6 @@
+--- linux-2.6.10-rc2-mm4-full/arch/arm26/kernel/setup.c.old	2004-12-11 21:51:07.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/arm26/kernel/setup.c	2004-12-11 21:51:12.000000000 +0100
+@@ -74,7 +74,6 @@
  
- #include <linux/irq.h>
+ struct processor processor;
  
--int reboot_smp = 0;
+-unsigned char aux_device_present;
+ char elf_platform[ELF_PLATFORM_SIZE];
+ 
+ unsigned long phys_initrd_start __initdata = 0;
+--- linux-2.6.10-rc2-mm4-full/arch/ia64/kernel/setup.c.old	2004-12-11 21:51:21.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/ia64/kernel/setup.c	2004-12-11 21:51:27.000000000 +0100
+@@ -75,8 +75,6 @@
+ EXPORT_SYMBOL(io_space);
+ unsigned int num_io_spaces;
+ 
+-unsigned char aux_device_present = 0xaa;        /* XXX remove this when legacy I/O is gone */
 -
- /* TLB state -- visible externally, indexed physically */
- DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) ____cacheline_aligned = { &init_mm, 0 };
+ /*
+  * The merge_mask variable needs to be set to (max(iommu_page_size(iommu)) - 1).  This
+  * mask specifies a mask of address bits that must be 0 in order for two buffers to be
+--- linux-2.6.10-rc2-mm4-full/arch/alpha/kernel/setup.c.old	2004-12-11 21:51:34.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/alpha/kernel/setup.c	2004-12-11 21:51:45.000000000 +0100
+@@ -110,8 +110,6 @@
+ int alpha_using_srm;
+ #endif
  
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/reboot.c.old	2004-12-06 01:28:33.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/reboot.c	2004-12-06 01:28:43.000000000 +0100
-@@ -20,7 +20,7 @@
- void (*pm_power_off)(void);
- 
- static int reboot_mode;
--int reboot_thru_bios;
-+static int reboot_thru_bios;
- 
- #ifdef CONFIG_SMP
- static int reboot_cpu = -1;
-
+-unsigned char aux_device_present = 0xaa;
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ #define N(a) (sizeof(a)/sizeof(a[0]))
+ 
+ static struct alpha_machine_vector *get_sysvec(unsigned long, unsigned long,
+--- linux-2.6.10-rc2-mm4-full/arch/sh64/kernel/setup.c.old	2004-12-11 21:51:53.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/sh64/kernel/setup.c	2004-12-11 21:51:59.000000000 +0100
+@@ -61,10 +61,6 @@
+ 
+ struct screen_info screen_info;
+ 
+-/* On a PC this would be initialised as a result of the BIOS detecting the
+- * mouse. */
+-unsigned char aux_device_present = 0xaa;
+-
+ #ifdef CONFIG_BLK_DEV_RAM
+ extern int rd_doload;		/* 1 = load ramdisk, 0 = don't load */
+ extern int rd_prompt;		/* 1 = prompt for ramdisk, 0 = don't prompt */
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/setup.c.old	2004-12-11 21:52:07.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/setup.c	2004-12-11 21:52:12.000000000 +0100
+@@ -100,8 +100,6 @@
+ struct edid_info edid_info;
+ struct e820map e820;
+ 
+-unsigned char aux_device_present;
+-
+ extern int root_mountflags;
+ extern char _text, _etext, _edata, _end;
+ 
+@@ -452,7 +450,6 @@
+  	drive_info = DRIVE_INFO;
+  	screen_info = SCREEN_INFO;
+ 	edid_info = EDID_INFO;
+-	aux_device_present = AUX_DEVICE_INFO;
+ 	saved_video_mode = SAVED_VIDEO_MODE;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM
 
------ End forwarded message -----
-
+--- linux-2.6.11-rc1-mm1-full/arch/i386/kernel/setup.c.old	2005-01-16 00:29:48.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/arch/i386/kernel/setup.c	2005-01-16 00:30:17.000000000 +0100
+@@ -120,8 +120,6 @@
+ struct ist_info ist_info;
+ struct e820map e820;
+ 
+-unsigned char aux_device_present;
+-
+ extern void early_cpu_init(void);
+ extern void dmi_scan_machine(void);
+ extern void generic_apic_probe(char *);
+@@ -1368,7 +1366,6 @@
+ 		machine_submodel_id = SYS_DESC_TABLE.table[1];
+ 		BIOS_revision = SYS_DESC_TABLE.table[2];
+ 	}
+-	aux_device_present = AUX_DEVICE_INFO;
+ 	bootloader_type = LOADER_TYPE;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM

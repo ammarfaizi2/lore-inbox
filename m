@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbQL1G3R>; Thu, 28 Dec 2000 01:29:17 -0500
+	id <S129314AbQL1Gch>; Thu, 28 Dec 2000 01:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131184AbQL1G3H>; Thu, 28 Dec 2000 01:29:07 -0500
-Received: from tantalophile.demon.co.uk ([193.237.65.219]:16134 "EHLO
-	thefinal.cern.ch") by vger.kernel.org with ESMTP id <S131060AbQL1G26>;
-	Thu, 28 Dec 2000 01:28:58 -0500
-Date: Thu, 28 Dec 2000 06:50:20 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Al Peat <al_kernel@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, myself <al_peat@yahoo.com>,
-        Juri Haberland <juri.haberland@innominate.com>
-Subject: Re: Purging the Page Table (was: Purging the Buffer Cache)
-Message-ID: <20001228065020.B4578@thefinal.cern.ch>
-In-Reply-To: <20001222011652.30206.qmail@web10101.mail.yahoo.com>
+	id <S129348AbQL1Gc2>; Thu, 28 Dec 2000 01:32:28 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:20999
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129314AbQL1GcM>; Thu, 28 Dec 2000 01:32:12 -0500
+Date: Thu, 28 Dec 2000 19:01:43 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Ari Heitner <aheitner@andrew.cmu.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: innd mmap bug in 2.4.0-test12
+Message-ID: <20001228190143.A14673@metastasis.f00f.org>
+In-Reply-To: <20001228160005.B14479@metastasis.f00f.org> <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001222011652.30206.qmail@web10101.mail.yahoo.com>; from al_kernel@yahoo.com on Thu, Dec 21, 2000 at 05:16:52PM -0800
+In-Reply-To: <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>; from aheitner@andrew.cmu.edu on Thu, Dec 28, 2000 at 12:06:47AM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Peat wrote:
-> > >   Is there any way to completely purge the buffer
-> > > cache -- not just the write requests (ala 'sync'
-> > or
-> > > 'update'), but the whole thing?  Can I just call
-> > > invalidate_buffers() or destroy_buffers()?
+On Thu, Dec 28, 2000 at 12:06:47AM -0500, Ari Heitner wrote:
 
-Try this script:
+    does anyone other than me think that the pm code is *way* too
+    agressive about spinning down the hard drive? my 256mb laptop
+    (2.2.16) will only spin down the disk for about 30 seconds before
+    it decides it's got something else it feels like writing out, and
+    spins back up. Spinnup has got to be more wasteful than just
+    leaving the drive spinning...
 
-case "`id -u`" in
-  0) ;;
-  *) echo Only root can run this script. 1>&2; exit 1 ;;
-esac
+use hdparm to increase the spin-down time then
 
-mount | sort -k3 -r | \
-while read dev ON dir TYPE type etc; do
-  echo mount $dir -o remount
-  mount $dir -o remount
-done
 
-mount | sort -k1 | \
-while read dev ON dir TYPE type etc; do
-  case "$dev" in
-    /dev/*) echo hdparm -f $dev
-      hdparm -f $dev >/dev/null ;;
-  esac
-done
-
--- Jamie
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

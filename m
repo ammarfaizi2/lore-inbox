@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265118AbUE0T41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265125AbUE0T5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265118AbUE0T41 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 15:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUE0T41
+	id S265125AbUE0T5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 15:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUE0T5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 15:56:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15593 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265118AbUE0T4Z
+	Thu, 27 May 2004 15:57:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18409 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265125AbUE0T4x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 15:56:25 -0400
-Message-ID: <40B647DB.4090109@pobox.com>
-Date: Thu, 27 May 2004 15:56:11 -0400
+	Thu, 27 May 2004 15:56:53 -0400
+Message-ID: <40B647F8.2070100@pobox.com>
+Date: Thu, 27 May 2004 15:56:40 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+To: Valdis.Kletnieks@vt.edu
+CC: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        netdev@oss.sgi.com, prism54-devel@prism54.org
-Subject: Re: [Prism54-devel] Re: [PATCH 0/14] prism54: bring up to sync with
- prism54.org cvs rep
-References: <20040524083003.GA3330@ruslug.rutgers.edu> <20040524085727.GR3330@ruslug.rutgers.edu> <40B62F29.6090101@pobox.com> <20040527192733.GB14186@logos.cnet> <40B6424D.7030203@pobox.com> <20040527194513.GV3330@ruslug.rutgers.edu>
-In-Reply-To: <20040527194513.GV3330@ruslug.rutgers.edu>
+Subject: Re: CVS tags (was  Re: [Prism54-devel] Re: [PATCH 4/14 linux-2.6.7-rc1]
+ prism54: add support for avs header in
+References: <20040524083146.GE3330@ruslug.rutgers.edu> <40B631B3.4000902@pobox.com>            <20040527191649.GT3330@ruslug.rutgers.edu> <200405271931.i4RJVjYB002642@turing-police.cc.vt.edu>
+In-Reply-To: <200405271931.i4RJVjYB002642@turing-police.cc.vt.edu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luis R. Rodriguez wrote:
-> Great. I'll fix all those patches up again for you and Marcelo. For future
-> development I've asked other prism54 developers to first send patches to
+Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 27 May 2004 15:16:49 EDT, Luis R. Rodriguez said:
+> 
+>>--- ksrc/islpci_eth.c
+>>+++ ksrc-new/islpci_eth.c
+> 
+> 
+> I think this was what he referred to:
+> 
+> 
+>>-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.31 2004/03 15:27:44 ajfa Exp $
+>>+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.33 2004/03/19 23:03:58 ajfa Exp $
+> 
+> 
+> as this will almost surely cause rejects (sooner or later) unless 100% of your
+> patches are applied and in the right order.
 
-For what it's worth, you may send a "one big patch" to add the driver to 
-2.4, since the individual changes to that point will be in 2.6.x 
-BitKeeper changelog.
-
-Once the driver is merged, I do request split-up patches just like 2.6.x.
-
-
-> netdev for review/approval. Maybe we *should* do away with prism54-devel 
-> mailing list and just use netdev as was once suggested by someone...
-
-Up to you :)
+Correct.
 
 	Jeff
 

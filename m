@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSHGKvI>; Wed, 7 Aug 2002 06:51:08 -0400
+	id <S317191AbSHGKxt>; Wed, 7 Aug 2002 06:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317114AbSHGKvI>; Wed, 7 Aug 2002 06:51:08 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:15283 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S317110AbSHGKvH>; Wed, 7 Aug 2002 06:51:07 -0400
-Date: Wed, 7 Aug 2002 11:53:04 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Leif Sawyer <lsawyer@gci.com>, Ben Greear <greearb@candelatech.com>,
-       abraham@2d3d.co.za, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ethtool documentation
-Message-ID: <20020807115304.B14073@kushida.apsleyroad.org>
-References: <BF9651D8732ED311A61D00105A9CA31509E4BD84@berkeley.gci.com> <Pine.LNX.3.95.1020806214553.26399A-100000@chaos.analogic.com>
+	id <S317209AbSHGKxt>; Wed, 7 Aug 2002 06:53:49 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26105 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317191AbSHGKxs>; Wed, 7 Aug 2002 06:53:48 -0400
+Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020807124153.A8592@wotan.suse.de>
+References: <200208062329.g76NTqP30962@devserv.devel.redhat.com.suse.lists.linux.kernel>
+	 <p73vg6nhtsb.fsf@oldwotan.suse.de>
+	<1028721043.18478.265.camel@irongate.swansea.linux.org.uk> 
+	<20020807124153.A8592@wotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 13:16:48 +0100
+Message-Id: <1028722608.18156.280.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020806214553.26399A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Aug 06, 2002 at 09:51:19PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> This is not about 'freedom'. This is about modifying some hardware
-> to make it pretend that it's something that it is not. It's completely
-> unlike IP addresses or anything like that. It is supposed to uniquely
-> identify a piece of hardware. It's like the "frequency of a radio station"
-> where the IP address is like the "call sign".
+On Wed, 2002-08-07 at 11:41, Andi Kleen wrote:
+> I don't see why it is unmaintainable. What is so bad with these ifs? 
+> 64bit cleanness is just another dependency, nothing magic and fundamentally
+> hard.
 
-That right, and it's very useful.  How else would I have the freedom to
-connect different computers onto the cable modem at home when our router
-dies? (The cable service only allows a single registered MAC address)
+Lets take I2O block the if rule would
 
-And how else would I have the freedom to replace the old ISA NIC at
-work, and continue to run the MAC-locked licensed compiler?
+if [ $CONFIG_X86 = "y" -a $CONFIG_X86_64 != "y" ] 
+	dep_bool ...
+fi
+if [ $CONFIG_ALPHA = "y" &&  other conditions ...]
+	dep_bool ...
+fi
 
-If nobody restricted freedoms by keying to the MAC address, I'd never
-want to change it.  But they do.  And if the NICs didn't allow for
-reprogramming it, I'd guess that there would be a Linux flag to run the
-cards in promiscuous mode to simulate a fake MAC address in software..
+and so on
 
--- Jamie
+The actual rule being if 32bit little endian || 64bit little endian with
+kernel memory objects always below 4Gb and having PCI bus
+
+
+Thats just one non too complicated driver. CML1 can't handle this
+scalably, maybe CML2 could have. 
+
+Secondly you actually want people to discover stuff doesn't work so you
+can persuade them to go and fix it. Stick up a 'Good/Probably
+Ok/Bad/Hopeless' driver listing on x86_64.org, then once Hammer becomes
+in general use post it to the janitor list now and then
+
+Alan
+

@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290588AbSA3Uqr>; Wed, 30 Jan 2002 15:46:47 -0500
+	id <S290586AbSA3Ux5>; Wed, 30 Jan 2002 15:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290591AbSA3Uqi>; Wed, 30 Jan 2002 15:46:38 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:38049
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S290588AbSA3UqV>; Wed, 30 Jan 2002 15:46:21 -0500
-Date: Wed, 30 Jan 2002 13:45:40 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Georg Nikodym <georgn@somanetworks.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
+	id <S290590AbSA3Uxi>; Wed, 30 Jan 2002 15:53:38 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:30141 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S290586AbSA3Ux3>;
+	Wed, 30 Jan 2002 15:53:29 -0500
+Date: Wed, 30 Jan 2002 21:50:14 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
         Rob Landley <landley@trommello.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130204540.GB6751@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.33.0201301005260.1989-100000@penguin.transmeta.com> <1012419503.1460.68.camel@keller>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1012419503.1460.68.camel@keller>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20020130083756.I23269@work.bitmover.com>
+Message-ID: <Pine.GSO.4.21.0201302136120.18197-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 02:38:21PM -0500, Georg Nikodym wrote:
+On Wed, 30 Jan 2002, Larry McVoy wrote:
 
-[snip]
-> and the way that people currently think (and thus speak) of these
-> things, saying that you're using a version 'e' kernel is ambiguous
-> because it may or may not have 'c' or 'd'.  This ambiguity also
-> complicates the task of reproducing a tree at some known state later.
+> > Er, not the pristine tree, the linuxppc_2_4 tree, sorry.  I'll try
+> > again.  One of the problems we hit frequently is that we have to move
+> > files from linuxppc_2_4_devel into linuxppc_2_4, once they prove stable.
+> > But just creating a normal patch, or cp'ing the files means when we pull
+> > linuxppc_2_4 back into linuxppc_2_4_devel we get a file conflict, and
+> > have to move one of the files (the previously existing one) into the
+> > deleted dir.  How do we cleanly move just a few files from a child tree
+> > into the parent?  I think this is a lot like what would happen, if Linus
+> > used BK and we wanted to send him support for some platforms, but not
+> > all of the other changes we have.
+> 
+> BitKeeper is like a distributed, replicated file system with atomic changes.
+> That has certain advantages, much like a database.  What you are asking 
+> violates the database rules, if I understand you properly.  Are you asking
+> to move part of a changeset?  That's a no no, that's like moving the 
+> increment to your bank account without the decrement to mine; the banks
+> frown on that :-)
+> 
+> Or are you asking more about the out of order stuff, i.e., whole changesets
+> are fine but not all of them.
 
-Well, this is what tags are for.  The ambiguity in changesets is OK,
-since it's possible anyhow with multiple people (and with some creative
-work maybe, 'c' would be before 'd', but at the same level, so 'c'
-wouldn't get 'd', but this might break the new behavior so..)  But if
-you do:
-a b (tag v1) c e (tag v2)
-             d
-	     f (added after the v2 tag)
+If I understand it correctly, yes, you want to `push' only one changeset (the
+creation of the new file) to the parent repository. Either directly (through
+push), or through creating a patch in the child repository and importing it in
+the parent repository.
 
-it should be possible to have the 'v2' tag say what changsets it had, or
-even what rev of each file it was made to.
+[ Disclaimer: I'm not that familiar with the  problem Tom mentions ]
 
-Larry, how does BK handle this now?  Ive been thinking about this for a
-bit and am kind of curious now..
+However, why couldn't BK automatically resolve this?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+In BK, a file creation (or a rename) is simply a changeset, just like a change
+to the contents of a file (i.e. a patch that affects one file only), right?
+
+If I modify a file in the child repository, and that change ends up in the
+same file in the parent repository (i.e. Linus applied the patch I sent there),
+BK will automatically resolve the issue when I do a pull in my child
+repository.  How is this different from a new file I added in the child
+repository, and the same file (with the same contents, or contents from a
+previous revision in the child repository) that got added in the parent later?
+If I do a pull, BK should `merge' the change (a new file)? Or am I missing
+something?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

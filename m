@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265716AbRFXDA2>; Sat, 23 Jun 2001 23:00:28 -0400
+	id <S265720AbRFXDH7>; Sat, 23 Jun 2001 23:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265720AbRFXDAT>; Sat, 23 Jun 2001 23:00:19 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:39442 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S265716AbRFXDAH>; Sat, 23 Jun 2001 23:00:07 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: John Adams <johna@onevista.com>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <86256A75.00106D55.00@smtpnotes.altec.com>
-Date: Sat, 23 Jun 2001 21:41:29 -0500
+	id <S265722AbRFXDHu>; Sat, 23 Jun 2001 23:07:50 -0400
+Received: from marine.sonic.net ([208.201.224.37]:18190 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S265720AbRFXDHm>;
+	Sat, 23 Jun 2001 23:07:42 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Sat, 23 Jun 2001 20:07:27 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Microsoft and Xenix.
+Message-ID: <20010623200727.A5272@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <86256A75.00106D55.00@smtpnotes.altec.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 23, 2001 at 09:41:29PM -0500, Wayne.Brown@altec.com wrote:
+> Ah, yes, the RT/PC.  That brings back some fond memories.  My first exposure to
+> Unix was with AIX on the RT.  I still have some of those weird-sized RT AIX
+> manuals around somewhere...
 
+We always ran AOS on RT's.  Actually, the server was the only RT, the rest
+were some other model that was basically a PS/2 (286) that booted DOS, then
+booted the other same chip that the RT used that was on a daughter card.
 
-Ah, yes, the RT/PC.  That brings back some fond memories.  My first exposure to
-Unix was with AIX on the RT.  I still have some of those weird-sized RT AIX
-manuals around somewhere...
+AOS was basically IBM's version of BSD.  Academic Operating System.
 
-Wayne
-
-
-
-
-John Adams <johna@onevista.com> on 06/23/2001 07:49:42 PM
-
-To:   linux-kernel@vger.kernel.org
-cc:    (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Microsoft and Xenix.
-
-
-
-On Saturday 23 June 2001 10:07, Rob Landley wrote:
-> Here's what I'm looking for:
->
-> AIX was first introduced for the IBM RT/PC in 1986, which came out of the
-> early RISC research.  It was ported to PS/2 and S/370 by SAA, and was
-> based on unix SVR2.  (The book didn't specify whether the original
-> version or the version ported to SAA was based on SVR2, I'm guessing both
-> were.)
-
-You are partially correct.  AIX (Advanced Interactive eXecutive) was built
-by the Boston office of Interactive Systems under contract to IBM.  We had
-a maximum of 17 people in the effort which shipped on the RT in January
-1986.
-
-Prior to that time, Interactive Systems had produced a port of System III
-running on the PC/XT called PC/IX which was sold via IBM.  I used PC/IX to
-produce the software only floating point code in the first version of AIX.
-
-johna
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUGQXH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGQW6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUGQXH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 19:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUGQXEy
+	id S262114AbUGQW6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 18:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUGQW6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 19:04:54 -0400
-Received: from smtp.gentoo.org ([156.56.111.197]:19163 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S262328AbUGQWj1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 18:39:27 -0400
-Date: Sat, 17 Jul 2004 23:36:54 +0100
-From: Ciaran McCreesh <ciaranm@gentoo.org>
-To: augustus@linuxhardware.org
-Cc: linux-kernel@vger.kernel.org, tseng@gentoo.org,
-       jnagyjr@joseph-a-nagy-jr.homelinux.org
-Subject: Re: vim doesn't like the command line
-Message-Id: <20040717233654.102579e1@snowdrop.home>
-In-Reply-To: <Pine.LNX.4.58.0407142340560.7017@penguin.linuxhardware.org>
-References: <Pine.LNX.4.58.0407142340560.7017@penguin.linuxhardware.org>
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/"
+	Sat, 17 Jul 2004 18:58:17 -0400
+Received: from digitalimplant.org ([64.62.235.95]:37353 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S262080AbUGQWf1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 18:35:27 -0400
+Date: Sat, 17 Jul 2004 15:35:19 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: linux-kernel@vger.kernel.org
+cc: pavel@ucw.cz
+Subject: [11/25] Merge pmdisk and swsusp
+Message-ID: <Pine.LNX.4.50.0407171529370.22290-100000@monsoon.he.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Wed, 14 Jul 2004 23:44:16 -0400 (EDT) augustus@linuxhardware.org
-wrote:
-| This is odd but it seems that vim 6.3 does not function properly with 
-| kernel 2.6.8-rc1.  It will not take command line arguement filenames. 
-| No matter what you pass it, it always goes to the file browser.  This
-| is not the case with 2.6.7 kernels.  Any ideas?  I have attached my
-| kernel .config.
+ChangeSet 1.1853, 2004/07/17 11:13:16-07:00, mochel@digitalimplant.org
 
-I've been trying to track this down as well. Kinda tricky, since it
-WORKSFORME(TM). The following may be of help to you:
-
-http://bugs.gentoo.org/show_bug.cgi?id=57378
-
-Basically, argv is getting nuked by something.
-
-Seems rebuilding without a -march in CFLAGS fixes it for some people,
-reason unknown...
-
--- 
-Ciaran McCreesh : Gentoo Developer (Sparc, MIPS, Vim, Fluxbox)
-Mail            : ciaranm at gentoo.org
-Web             : http://dev.gentoo.org/~ciaranm
+[Power Mgmt] Fix up call in kernel/power/disk.c to swsusp_suspend().
 
 
---Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/
-Content-Type: application/pgp-signature
+ kernel/power/disk.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA+aoN96zL6DUtXhERAif+AJ0W6U9ajVQPHPLSW4P02gLwISaBZwCeMgK+
-sTi/pL+gSBostwCUsdTr5u4=
-=wvyE
------END PGP SIGNATURE-----
+diff -Nru a/kernel/power/disk.c b/kernel/power/disk.c
+--- a/kernel/power/disk.c	2004-07-17 14:51:17 -07:00
++++ b/kernel/power/disk.c	2004-07-17 14:51:17 -07:00
+@@ -161,7 +161,7 @@
 
---Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/--
+ 	pr_debug("PM: snapshotting memory.\n");
+ 	in_suspend = 1;
+-	if ((error = swsusp_save()))
++	if ((error = swsusp_suspend()))
+ 		goto Done;
+
+ 	if (in_suspend) {

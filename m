@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVBKGVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVBKGeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbVBKGVF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 01:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVBKGVF
+	id S262195AbVBKGeW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 01:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVBKGeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 01:21:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48797 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262194AbVBKGVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 01:21:01 -0500
-Date: Fri, 11 Feb 2005 01:21:00 -0500
-From: Dave Jones <davej@redhat.com>
-To: Marcus Hartig <m.f.h@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-Message-ID: <20050211062100.GB1782@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marcus Hartig <m.f.h@web.de>, linux-kernel@vger.kernel.org
-References: <420C4B9A.6020900@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420C4B9A.6020900@web.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 11 Feb 2005 01:34:22 -0500
+Received: from gizmo01bw.bigpond.com ([144.140.70.11]:53724 "HELO
+	gizmo01bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262195AbVBKGeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 01:34:16 -0500
+Message-ID: <420C51DF.3000707@bigpond.net.au>
+Date: Fri, 11 Feb 2005 17:34:07 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+       rlrevell@joe-job.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.11-rc3-mm2
+References: <200502110341.j1B3fS8o017685@localhost.localdomain> <1108098286.5098.41.camel@npiggin-nld.site>
+In-Reply-To: <1108098286.5098.41.camel@npiggin-nld.site>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 07:07:22AM +0100, Marcus Hartig wrote:
+Nick Piggin wrote:
+> On Thu, 2005-02-10 at 22:41 -0500, Paul Davis wrote:
+> 
+>>  [ the best solution is .... ]
+>>
+>>  [ my preferred solution is ... ]
+>>
+>>  [ it would be better if ... ]
+>>
+>>  [ this is a kludge and it should be done instead like ... ]
+>>
+>>did nobody read what andrew wrote and what JOQ pointed out?
+>>
+>>after weeks of debating this, no other conceptual solution emerged
+>>that did not have at least as many problems as the RT LSM module, and
+>>all other proposed solutions were also more invasive of other aspects
+>>of kernel design and operations than RT LSM is.
+>>
+> 
+> 
+> Sure, it is quick and easy. Suits some. At least I do prefer
+> this to altering the semantics of realtime scheduling.
+> 
+> I can't say much about it because I'm not putting my hand up to
+> do anything. Just mentioning that rlimit would be better if not
+> for the userspace side of the equation. I think most were already
+> agreed on that point anyway though.
 
- > the agpgart backend is now always compiled in and selected with 2.6.11-rc3 
- > x86_64. I can delete or disable it in the config, it is always back written.
+I think that the rlimits are a good idea in themselves but not as a 
+solution to this problem.  I.e. having a RT CPU rate rlimit should not 
+be a sufficient (or necessary for that matter) condition to change 
+policy to SCHED_OTHER or SCHED_RR but could still be used to limit the 
+possibility of lock out.  (But I guess even that is a violation of RT 
+semantics?)
 
-probably you have selected IOMMU, which is dependant on it.
+Peter
+PS Zaphod's per task hard/soft CPU rate caps (which are the equivalent 
+of an rlimit on CPU usage rate) are only enforced for SCHED_NORMAL tasks 
+and should not (therefore) effect RT semantics.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
- > Is this the default future behaviour?
-
-This is how it's always been.
-
- > The eg Nforce3 AGP is on a normal desktop so slow on 2D and also in 3D mode
- > a lot slower and all nvidia kernel driver users can not more use the really
- > faster nv_agp.
-
-This surprises me, especially considering the in-kernel nvidia-agp driver
-was actually written by NVidia. Are there any agp error messages in
-your dmesg / X log ?
-
-How big a speed difference do you notice with the two gart drivers?
-
-		Dave
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbUKDTXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbUKDTX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbUKDTXy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUKDTVO
+	id S262371AbUKDTX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUKDTUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:21:14 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27912 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262372AbUKDTTb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:19:31 -0500
-Message-ID: <418A816C.3060705@tmr.com>
-Date: Thu, 04 Nov 2004 14:22:20 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Thu, 4 Nov 2004 14:20:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5517 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262371AbUKDTRS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:17:18 -0500
+Message-ID: <418A7D96.40307@osdl.org>
+Date: Thu, 04 Nov 2004 11:05:58 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: DervishD <lkml@dervishd.net>
-CC: Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
-       Valdis.Kletnieks@vt.edu,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <418965E0.8070508@tmr.com><418965E0.8070508@tmr.com> <20041104102655.GB23673@DervishD>
-In-Reply-To: <20041104102655.GB23673@DervishD>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: yiding_wang@agilent.com, linux-kernel@vger.kernel.org,
+       Yidng_wang@agilent.com
+Subject: Re: QM_MODULES not implemented in 2.6.9
+References: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AE3@wcosmb07.cos.agilent.com> <1099595121.16640.21.camel@laptop.fenrus.org>
+In-Reply-To: <1099595121.16640.21.camel@laptop.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
->     Hi Bill :)
+Arjan van de Ven wrote:
+> On Thu, 2004-11-04 at 10:57 -0800, yiding_wang@agilent.com wrote:
 > 
->  * Bill Davidsen <davidsen@tmr.com> dixit:
-> 
->>>   I think that the parent (which is whatever process did the fork
->>>when you clicked your mouse) is still alive and forgetting to do the
->>>'wait()' for its children.
+>>I noticed that this issue was there before but thought it was being taken care of since my Linux-2.6.2 kernel did not complain. Now I loaded Linux-2.6.9 and this QM_MODULES Function not implemented error pops up whenever I run module related command.
 >>
->>It would be good to know what the PPID is, from ps or similar. Things 
->>from X are a pain, the parent is often something you don't want to kill. 
->>Sometimes you can reparent from command line, "bash -c foo&" or similar, 
->>so the parent can be killed without logging out.
+>>If I need update module patch, could someone tell which module patch I should apply? If something else is wrong, please advice. The kernel is configured to support module.
 > 
 > 
->     Just use ps to reveal the family tree. Is not that hard ;)
+> you need to use a 2.6 compatible modutils....
 
-That's what I just said, the original poster should tell us what the 
-PPID is, which may help someone help the OP.
->  
-> 
->>I would swear that the parent *is* init in some cases, which is puzzling 
->>since they should be reaped.
-> 
-> 
->     But that's OK :))) When a parent dies without waiting for its
-> children, the zombies are reparented to init. That's correct. Then
-> init will wait for them. The problem is that sometimes the signals
-> doesn't arrive or the like. Then the zombies are laying around a bit,
-> until a timer in 'init' reaps them. That's correct too: init can only
-> wait for children when it receives SIGCHLD or periodically, using a
-> timer. I've written a init program and that's the way I do it, just
-> in case some signal gets lost.
-> 
->     If init is the parent, all works ok, just wait a bit and all
-> those zombies will really die ;)
-
-Actually the ones in i/o probably won't, since the kernel either missed 
-the completion or didn't time out if the hardware missed sending the 
-int. And even plain non-i/o zombies, just how long "a bit" are you 
-proposing?
-
-Over Thanksgiving weekend I will try to look at the init code and see if 
-a signal could be used to initiate a forced reap without waiting for the 
-timer. By "look at" I mean not only "could I do that" but is it a good 
-thing to do, before someone starts trying to explain that it's going to 
-do something evil not to wait for the timer...
+one of your email addresses also bounces.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+~Randy

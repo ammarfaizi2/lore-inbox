@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVAMLGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVAMLGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVAMLGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 06:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVAMLD4
+	id S261576AbVAMLGY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 06:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVAMLDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 06:03:56 -0500
-Received: from smtp1.sloane.cz ([62.240.161.228]:19926 "EHLO smtp1.sloane.cz")
-	by vger.kernel.org with ESMTP id S261563AbVAMKzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:55:54 -0500
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Old bug fixed few years ago newly interduced in 2.6.10
-Date: Thu, 13 Jan 2005 11:55:37 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 13 Jan 2005 06:03:42 -0500
+Received: from smartmx-02.inode.at ([213.229.60.34]:63654 "EHLO
+	smartmx-02.inode.at") by vger.kernel.org with ESMTP id S261576AbVAMKwd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 05:52:33 -0500
+Subject: Re: [fuse-devel] Merging?
+From: Bernhard Schauer <linux-kernel-list@acousta.at>
+Reply-To: schauer@acousta.at
+To: Miklos Szeredi <miklos@szeredi.hu>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
+References: <loom.20041231T155940-548@post.gmane.org>
+	 <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu>
+	 <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 11:52:02 +0100
+Message-Id: <1105613522.6178.9.camel@FC3-bernhard-1.acousta.local>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501131155.37554.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+> Well, there doesn't seem to be a great rush to include FUSE in the
+> kernel.  Maybe they just don't realize what they are missing out on ;)
 
-there were a bug when cpufreq and laptop started on battery, that linux 
-thought system boots on higher frequecy then it really worked.
+I'm a little bit confused... a few weeks ago I read a thread regarding
+the remove of some - unneeded ? - symbols from IEEE1394 core. Some
+persons in the discussion told, that everything should be included into
+kernel mainline, cause if not, symbols needed may be removed. 
 
-It is back now :((
+Now here is the discussion about including FUSE into kernel... So WHAT?
+In any case, I do not think that FUSE, compiled in as module, could
+bother someone. 
 
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Celeron(R) CPU 2.40GHz
-stepping        : 9
-cpu MHz         : 3200.000
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
-pse36 clflush dts acpi mmx fxsr sse sse2 ssht tm pbe cid xtpr
-bogomips        : 6400.00
+regards
 
-Thanks for fixing again :D
+Bernhard 
 
-Michal

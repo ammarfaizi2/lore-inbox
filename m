@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263804AbTETRaK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 13:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTETRaJ
+	id S263817AbTETRcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 13:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTETRcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 13:30:09 -0400
-Received: from [208.186.192.194] ([208.186.192.194]:42140 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263804AbTETRaI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 13:30:08 -0400
-Message-Id: <200305201743.h4KHhMC25023@es175.pdx.osdl.net>
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: re-aim - 2.5.69, -mm6
-Date: Tue, 20 May 2003 10:43:22 -0700
-From: Cliff White <cliffw@osdl.org>
+	Tue, 20 May 2003 13:32:21 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:11015 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263817AbTETRcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 13:32:20 -0400
+Subject: [PATCH] do_fork fixes for voyager x86 subarch
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: tovalds@transmeta.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-ZvomgKYsBDax72TCDYHS"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 20 May 2003 12:45:12 -0500
+Message-Id: <1053452713.1860.75.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-This is the result of running the Reaim test against the 
-2.5.69 and 2.5.69-mm6 kernels. The -mm kernels are a bit
-slower, and i'm wondering if i'm missing a tuning knob somewhere..
-advice appreciated.
-
-Re-aim is a rework of the AIM suite. (locations below)
-
-Two data points i look at-
-1. Maximum jobs per minute  
-2. Number of children when Jobs/second/child less than 1.0. 
-	(convergence)
-
-Load is the new_dbase load. (AIM7 dbase load with less synch IO)
-System is a 4-CPU PIII with 4GB of physical
-memory, test used 4 SCSI disks on a qlogicfc adapter. 
-Test is run with two different convergence methods, 3 runs each.
-Peak load is the average of 3 runs, i pick the best results
-regardless of convergence method. 
-
-Kernel                Peak Load
-2.5.69 - base         5216.68 Jobs/Minute
-2.5.69-mm6(AS)        4963.36 JPM
-2.5.69-mm6(deadline)  4966.71 JPM
-2.5.69-mm7(AS)        4966.86 JPM
-
-Load when JPS/child < 1.0 (c_ times are total for all children)
-Average of six runs
-
-Kernel             Children  JPM       RunTime  c_utime  c_systime
-
-2.5.69 - base      88         5185.88  104.87   376.01   40.28
-2.5.69-mm6(AS)     84         4894.73  106.08   374.91   45.54  
-2.5.69-mm6(deadln) 84         4858.36  106.90   376.55   46.41
-2.5.69-mm7(AS)     84         4853.80  106.95   378.02   46.26
+--=-ZvomgKYsBDax72TCDYHS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
 
-Attempting a second pass of -mm7 caused the hang reported earlier. 
-cliffw
-OSDL
 
-report details and profile data at:
-http://www.osdl.org/archive/cliffw/reaim 
+It looks like the do_fork was converted in voyager_smp.c, but the
+addition of wake_up_forked_process() was missed leading to a boot
+panic.  The attached fixes it.
 
-Reaim code at:
-http://sourceforge.net/projects/re-aim-7
-or
-bk://bk.osdl.org/aimrework
+James
+
+
+--=-ZvomgKYsBDax72TCDYHS
+Content-Disposition: attachment; filename=tmp.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
+
+=3D=3D=3D=3D=3D arch/i386/mach-voyager/voyager_smp.c 1.13 vs edited =3D=3D=
+=3D=3D=3D
+--- 1.13/arch/i386/mach-voyager/voyager_smp.c	Sun May 18 19:00:00 2003
++++ edited/arch/i386/mach-voyager/voyager_smp.c	Tue May 20 10:13:39 2003
+@@ -593,6 +593,8 @@
+ 	if(IS_ERR(idle))
+ 		panic("failed fork for CPU%d", cpu);
+=20
++	wake_up_forked_process(idle);
++
+ 	init_idle(idle, cpu);
+=20
+ 	idle->thread.eip =3D (unsigned long) start_secondary;
+
+--=-ZvomgKYsBDax72TCDYHS--
+

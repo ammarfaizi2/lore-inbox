@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVCVN5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVCVN7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVCVN5G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 08:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVCVN5G
+	id S261239AbVCVN7F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 08:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVCVN7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 08:57:06 -0500
-Received: from spectre.fbab.net ([212.214.165.139]:49836 "HELO mail2.fbab.net")
-	by vger.kernel.org with SMTP id S261228AbVCVN5D (ORCPT
+	Tue, 22 Mar 2005 08:59:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:56696 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261239AbVCVN6u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 08:57:03 -0500
-Message-ID: <42402428.8040506@fbab.net>
-Date: Tue, 22 Mar 2005 14:56:56 +0100
-From: "Magnus Naeslund(t)" <mag@fbab.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <423F5456.5010908@fbab.net> <20050322054025.GA1296@us.ibm.com>
-In-Reply-To: <20050322054025.GA1296@us.ibm.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 22 Mar 2005 08:58:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=cO/cRc0/7PvdQY44IuzbUD307tpuooyMODLdYckyn+mATbfe7ZshlBBLYwqXQ4mwoImOJmVuI+UEe8ni/lyP6JD3E0m/ENJOMD1UAIsb7797W6xRF+LZjy5LerB+JVAH+R8r0F3jDNhiUOVRuXgzOjLhq4ZqVbWDR5EndpH8Eic=
+Message-ID: <d120d50005032205584fd37a94@mail.gmail.com>
+Date: Tue, 22 Mar 2005 08:58:48 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Patrick McFarland <pmcfarland@downeast.net>
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200503220706.13029.pmcfarland@downeast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <200503201557.58055.pmcfarland@downeast.net>
+	 <200503212241.26780.pmcfarland@downeast.net>
+	 <200503212249.09512.dtor_core@ameritech.net>
+	 <200503220706.13029.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul E. McKenney wrote:
+On Tue, 22 Mar 2005 07:06:07 -0500, Patrick McFarland
+<pmcfarland@downeast.net> wrote:
+> On Monday 21 March 2005 10:49 pm, Dmitry Torokhov wrote:
+> > On Monday 21 March 2005 22:41, Patrick McFarland wrote:
+> >
+> > Ok, it looks like setup problem. Try doing:
+> >
+> >  modprobe snd-ens1371 joystick_port=1
 > 
-> Hello, Magnus,
+> I already tried that before I mailed the great and almighty source of all
+> information kernely (aka the lkml). Infact, I tried both joystick=1 and
+> joystick_port=1 (some drivers use one, others use the other, and I wasn't
+> sure at the time which es1371 used).
 > 
-> I believe that my earlier patch might take care of this (included again
-> for convenience).
-> 
-> 						Thanx, Paul
+> It didn't work.
 > 
 
-I just tested this patch, and it did not solve my problem.
-The dst cache still grows to the maximum and starts spitting errors via 
-printk.
+Ok, just so I know where we stand: your gameport/joystick does work in
+plain 2.6.11 but does not in 2.6.11-mm4, correct? When you load the
+module with "joystick_port=1" is there any messages from ens1371 in
+dmesg? Have you tried specifying exact port, like
+"joystick_port=0x200" or "joystick_port=0x218"? Do you see these ports
+reserved in /proc/ioports? What about /sys/bus/gameport/devices/? Do
+you see anything in that directory?
 
-I'll do a make mrproper build too to make sure I didn't make any mistakes.
-
-Regards,
-Magnus
+-- 
+Dmitry

@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVAKHR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVAKHjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbVAKHR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 02:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVAKHR5
+	id S262460AbVAKHjO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 02:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVAKHjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 02:17:57 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:33667 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262438AbVAKHRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 02:17:51 -0500
-Message-ID: <41E37DA0.80702@comcast.net>
-Date: Tue, 11 Jan 2005 02:17:52 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-References: <1105096053.5444.11.camel@ulysse.olympe.o2t>	 <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>	 <41DEC83D.30105@comcast.net> <1105196469.10519.3.camel@localhost.localdomain>
-In-Reply-To: <1105196469.10519.3.camel@localhost.localdomain>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 02:39:14 -0500
+Received: from news.cistron.nl ([62.216.30.38]:33668 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262460AbVAKHjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 02:39:11 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: RAM drive
+Date: Tue, 11 Jan 2005 07:39:10 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <crvvqu$icc$1@news.cistron.nl>
+References: <20050111014406.18739.qmail@web51805.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1105429150 18828 62.216.29.200 (11 Jan 2005 07:39:10 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In article <20050111014406.18739.qmail@web51805.mail.yahoo.com>,
+Phy Prabab  <phyprabab@yahoo.com> wrote:
+>I need some assistance with creating a RAM disk of 8G
+>and mounting it.  I am using 2.6.10 with this
+>proceedure:
+>
+>(ramdisk support enabled)
+>dd bs=512 if=/dev/zero of=/dev/ram0 count=16384000
+>mkfs.ext2 -m0 /dev/ram0 8192000
+>mount -t ext2 /dev/ram0 /ramdisk0
+>mount: wrong fs type, bad option, bad superblock on
+>/dev/ram0,
+>       or too many mounted file systems
+>
+>I am not sure what the issue is.  It worked on the
+>2.4.x series.
 
+I seem to remember that you must explicitly set the blocksize
+to 1024 or 4096 when creating the filesystem. Eg mkfs.ext2 -b1024
+or mkfs.ext2 -b4096 (don't remember which one exactly).
 
+But with 2.6, why not use tmpfs ? Mount -t tmpfs -o size=8192000000 /ramdisk0
 
-Alan Cox wrote:
-| On Gwe, 2005-01-07 at 17:34, John Richard Moser wrote:
-|
-|>My scheme involved a 6 month release cycle supporting kernels with
-|>bugfixes for the prior 18 months (3 releases), though if you're really
-|>committed to hardware driver backporting, I guess it can be done in the
-|>actiwve "Stable" branch.
-|
-|
-| 18 months is as good as supporting a seperate product line. Also you
-| forgot to provide the engineering resources for your plan and to fund
-| them 8)
-|
-|
+Mike.
 
-Hello??
-
-The latest 2.0 version of the Linux kernel is:  	2.0.40 	2004-02-08
-07:13 UTC 	F 	V 	VI 	  	Changelog
-
-You have FOUR.  2.6, 2.4, 2.2, 2.0
-
-In my scheme it's time to let go of 2.0; support moves to 2.6, 2.4, 2.2.
-~ Development goes to 2.7, in the same way the 2.6 model is done now (so
-that it's always usable and needs no feature freeze etc before release).
-~ In 6 months, 2.2 support is dropped, support moves to 2.8, 2.4, 2.2
-with development on 2.9.  Support includes bugfixes (security and
-otherwise) only.
-
-Quick observation
-
-|>to load up maintainers with a billion hours of backporting; but I don't
-|>want to load distributors with excess work either.
-|
-|
-| Distributors get paid by their customers to do the long term backporting
-| and careful change control for big business. We take it as given that
-| its -our- problem not the software developers.
-|
-|
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB432fhDd4aOud5P8RAqJ4AKCAEBgs7uUpQ7bTN+nI4gHWAoFfTwCfQemK
-D5/IotiX+cunDFHCzhqKFkQ=
-=ZBc/
------END PGP SIGNATURE-----

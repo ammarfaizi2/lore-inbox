@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbSJPBIV>; Tue, 15 Oct 2002 21:08:21 -0400
+	id <S264671AbSJPBOa>; Tue, 15 Oct 2002 21:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264671AbSJPBIU>; Tue, 15 Oct 2002 21:08:20 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:55951 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264643AbSJPBIU>; Tue, 15 Oct 2002 21:08:20 -0400
-Message-ID: <3DACBD58.AAD8F0A@austin.ibm.com>
-Date: Tue, 15 Oct 2002 20:14:00 -0500
-From: Saurabh Desai <sdesai@austin.ibm.com>
-Organization: IBM Corporation
-X-Mailer: Mozilla 4.7 [en] (X11; U; AIX 4.3)
-X-Accept-Language: en-US,en-GB
+	id <S264719AbSJPBOa>; Tue, 15 Oct 2002 21:14:30 -0400
+Received: from zero.aec.at ([193.170.194.10]:30995 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S264671AbSJPBOa>;
+	Tue, 15 Oct 2002 21:14:30 -0400
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Add extended attributes to ext2/3
+References: <E181a3N-0006No-00@snap.thunk.org> <3DACAC0C.D4C497C1@digeo.com>
+	<200210160211.39284.agruen@suse.de> <3DACB86A.829ECF3C@digeo.com>
+From: Andi Kleen <ak@muc.de>
+Date: 16 Oct 2002 03:20:08 +0200
+In-Reply-To: <3DACB86A.829ECF3C@digeo.com>
+Message-ID: <m3y98zp4c7.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       NPT library mailing list <phil-list@redhat.com>
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-References: <Pine.LNX.4.44.0210151438440.10496-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> the attached patch (against BK-curr) adds three new, threading related
-> improvements to the VM.
-> 
-> the first one is an mmap inefficiency that was reported by Saurabh Desai.
-> The test_str02 NPTL test-utility does the following: it tests the maximum
-> number of threads by creating a new thread, which thread creates a new
-> thread itself, etc. It basically creates thousands of parallel threads,
-> which means thousands of thread stacks.
+Andrew Morton <akpm@digeo.com> writes:
 
-  Like to point out, test_str02 is a NGPT test program not NPTL.
+> The kernel has just gained supoprt for 64-bit sectors on ia32
+> and PPC32 but the new mbcache code will not support that.
 
- 
-> the patch was tested on x86 SMP and UP. Saurabh, can you confirm that this
-> patch fixes the performance problem you saw in test_str02?
-> 
+<nitpick> ... and x86-64 (CONFIG_X86 includes X86-64) 
 
-  Yes, the test_str02 performance improved a lot using NPTL.
-  However, on a side effect, I noticed that randomly my current telnet session
-  was logged out after running this test. Not sure, why?  
-  I applied your patch on 2.5.42 kernel and running glibc-2.3.1pre2.
+But I wonder why this weird ifdef. Is there any reason why the other
+architectures are not supported ? 
+
+-Andi

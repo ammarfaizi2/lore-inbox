@@ -1,93 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273345AbTHPPYM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 11:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273906AbTHPPYM
+	id S273906AbTHPPgG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 11:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273909AbTHPPgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 11:24:12 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:6893 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S273345AbTHPPYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 11:24:06 -0400
-Date: Sat, 16 Aug 2003 17:23:20 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: Bogus serial port ttyS02
-In-Reply-To: <Pine.GSO.4.21.0308132305210.11378-100000@vervain.sonytel.be>
-Message-ID: <Pine.GSO.4.21.0308161722030.12665-100000@vervain.sonytel.be>
+	Sat, 16 Aug 2003 11:36:06 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:3731 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S273906AbTHPPgE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 11:36:04 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: increased verbosity in dmesg
+Date: Sat, 16 Aug 2003 11:36:01 -0400
+User-Agent: KMail/1.5.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200308160438.59489.gene.heskett@verizon.net> <1061031726.623.3.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1061031726.623.3.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308161136.01133.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.12.137] at Sat, 16 Aug 2003 10:36:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Geert Uytterhoeven wrote:
-> On Wed, 13 Aug 2003, Russell King wrote:
-> > You could enable DEBUG_AUTOCONF in 8250.c in 2.6.0-test3 and give
-> > further probing information. 8)
+On Saturday 16 August 2003 07:02, Felipe Alfaro Solana wrote:
+>On Sat, 2003-08-16 at 10:38, Gene Heskett wrote:
+>> I understand this 'ring' buffer has been expanded to about 16k but
+>> that was way back in 2.1 days when that occured according to the
+>> Documentation.
+>
+>In 2.6.0-test, the ring bugger size is configurable. Just look for
+>CONFIG_LOG_BUF_SHIFT. The kernel ring size will be
+>2^CONFIG_LOG_BUF_SHIFT bytes, so for a CONFIG_LOG_BUF_SHIFT of 14,
+>you'll 2^14 or 16 KBytes.
 
-This patch kills a warning if DEBUG_AUTOCONF is enabled:
+Which says that a setting of 15 would get 32k then.
+I take it this (for an i386 system) is the correct file to edit?
 
---- linux-ppc-2.6.0-test3/drivers/serial/8250.c	Mon Aug 11 02:20:41 2003
-+++ linux-longtrail-2.6.0-test3/drivers/serial/8250.c	Wed Aug 13 22:31:07 2003
-@@ -557,7 +557,7 @@
- 	if (!up->port.iobase && !up->port.mapbase && !up->port.membase)
- 		return;
- 
--	DEBUG_AUTOCONF("ttyS%d: autoconf (0x%04x, 0x%08lx): ",
-+	DEBUG_AUTOCONF("ttyS%d: autoconf (0x%04x, %p): ",
- 			up->port.line, up->port.iobase, up->port.membase);
- 
- 	/*
-> > Looking at PPC's pc_serial.h, it seems that you've told it to probe
-> > there using ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST | ASYNC_AUTO_IRQ.
-> > 
-> > ASYNC_SKIP_TEST means that we use a reduced test to probe for a port -
-> > we just check that we can read back a value written to 0x3e9.  If this
-> > suceeds, we decide that there is a port present, and go on to try and
-> > derive its type.
-> > 
-> > If you want to enable the more rigorous tests, remove ASYNC_SKIP_TEST
-> > from the port flags.  This will make us check that the device behaves
-> > like a UART before deciding that it is one.
-> 
-> If I remove the ASYNC_SKIP_TEST flag, I get
-> 
-> ttyS2: autoconf (0x03e8, 00000000): LOOP test failed (10) type=unknown
-> 
-> and only the 2 existing ports are detected! Thanks!
-> 
-> Why is the ASYNC_SKIP_TEST flag needed? Would it be safe to remove it for PPC,
-> or are there possible side effects?
+kernel/ikconfig.h:CONFIG_LOG_BUF_SHIFT=14 \n\
+Mmmm, that says do not edit, auto-generated, so how about this one?
 
-This patch removes the ASYNC_SKIP_TEST flag on PPC:
+include/config/log/buf/shift.h
 
---- linux-ppc-2.6.0-test3/include/asm-ppc/pc_serial.h	Mon Aug 11 02:21:00 2003
-+++ linux-longtrail-2.6.0-test3/include/asm-ppc/pc_serial.h	Wed Aug 13 23:01:50 2003
-@@ -28,10 +28,10 @@
- 
- /* Standard COM flags (except for COM4, because of the 8514 problem) */
- #ifdef CONFIG_SERIAL_DETECT_IRQ
--#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST | ASYNC_AUTO_IRQ)
-+#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_AUTO_IRQ)
- #define STD_COM4_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_AUTO_IRQ)
- #else
--#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
-+#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF)
- #define STD_COM4_FLAGS ASYNC_BOOT_AUTOCONF
- #endif
- 
-OK to apply?
+which contains only that single line.  Its now 15 & we'll see.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

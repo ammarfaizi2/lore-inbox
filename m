@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVCYHTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVCYHUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVCYHTr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 02:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYHTq
+	id S261507AbVCYHUz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 02:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYHUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 02:19:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39336 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261484AbVCYHTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 02:19:41 -0500
-Message-ID: <4243BB80.1010802@pobox.com>
-Date: Fri, 25 Mar 2005 02:19:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 25 Mar 2005 02:20:55 -0500
+Received: from innocence-lost.us ([66.93.152.112]:5778 "EHLO
+	innocence-lost.net") by vger.kernel.org with ESMTP id S261507AbVCYHUg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 02:20:36 -0500
+Date: Fri, 25 Mar 2005 00:20:33 -0700 (MST)
+From: jnf <jnf@innocence-lost.us>
+To: linux-kernel@vger.kernel.org
+Subject: bad drive question
+Message-ID: <Pine.LNX.4.62.0503250015320.5029@fhozvffvba.vaabprapr-ybfg.arg>
+X-GPG-PUBLIC_KEY: http://innocence-lost.net/jnf-pubkey.asc
+X-GPG-FINGRPRINT: E24B 994F D483 12EF 61D4  A384 1F16 EFD1 E1A7 954C
 MIME-Version: 1.0
-To: johnpol@2ka.mipt.ru
-CC: Herbert Xu <herbert@gondor.apana.org.au>,
-       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-References: <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>	 <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda>	 <20050325061311.GA22959@gondor.apana.org.au>	 <1111732459.20797.16.camel@uganda>	 <20050325063333.GA27939@gondor.apana.org.au>	 <1111733958.20797.30.camel@uganda>	 <20050325065622.GA31127@gondor.apana.org.au> <1111735195.20797.42.camel@uganda>
-In-Reply-To: <1111735195.20797.42.camel@uganda>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> Noone will complain on Linux if NIC is broken and produces wrong
-> checksum
-> and HW checksum offloading is enabled using ethtools.
+Hi.
+I used to have this old laptop that went through hell, and time after time
+I revived it (it got ran over by a car, stolen, etc), finally it started
+locking up on me after about 5-10 minutes of use and this occured at the
+same time my other desktop was dying, and I got angry and punched it a
+couple times.
 
+Needless to say it didn't help the situation (it made me feel better
+though). After that the box was completely dead (hard drive just clicks
+and lilo gives a L 02 02 02 etc message on boot ).
 
-Actually, that is a problem and people have definitely complained about 
-it in the past.
+Skip ahead about 4 years and now I have decided its time to try and
+recover the data on the disk. I popped the disk into another computer here
+and stuck in a live cd and hoped that i could get booted and perhaps try
+to dd the disk, however on boot it gets stuck with a persistant
+'hda: status timeout: status=0xd0 ( busy )'
 
-	Jeff
+Now, I realize this is no of you all's fault, as the OS is doing exactly
+what it should be; however I was wondering if there was a way for me to
+get passed this and still boot up and then try from there (although its
+probably hopeless). With that said, does anyone have any ideas on how to
+get past this?
 
+Any suggestions are welcomed.
+
+thanks,
+
+jnf
+
+--
+
+There are only two choices in life. You either conform the truth to your desire,
+or you conform your desire to the truth. Which choice are you making?
 

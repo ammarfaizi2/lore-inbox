@@ -1,66 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTEEV70 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 17:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbTEEV70
+	id S261437AbTEEWD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 18:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTEEWD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 17:59:26 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:21257 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261411AbTEEV7Y
+	Mon, 5 May 2003 18:03:29 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:50956 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S261437AbTEEWDR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 17:59:24 -0400
-Date: Tue, 6 May 2003 00:02:46 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [COMPILATION ERROR] 2.5.69 drivers/bluetooth/hci_usb.c USB_ZERO_PACKET
-Message-ID: <20030506000246.A28427@electric-eye.fr.zoreil.com>
-References: <1052170326.11699.2.camel@nalesnik> <1052170720.11697.6.camel@nalesnik>
+	Mon, 5 May 2003 18:03:17 -0400
+Date: Mon, 5 May 2003 15:12:38 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: processes stuck in D state
+Message-ID: <20030505221238.GD14677@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0305051122190.20491-100000@bunny.augustahouse.net> <200305051826.01134.fsdeveloper@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052170720.11697.6.camel@nalesnik>; from gj@pointblue.com.pl on Mon, May 05, 2003 at 10:38:43PM +0100
-X-Organisation: Hungry patch-scripts (c) users
+In-Reply-To: <200305051826.01134.fsdeveloper@yahoo.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl> :
-[...]
-> If so, please give me some hints i will correct it my self :) 
+On Mon, May 05, 2003 at 06:25:48PM +0200, Michael Buesch wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Monday 05 May 2003 17:24, Mike Waychison wrote:
+> > On Mon, 5 May 2003, Michael Buesch wrote:
+> > > On Monday 05 May 2003 07:52, Zeev Fisher wrote:
+> > > > Hi!
+> > >
+> > > Hi Zeev!
+> > >
+> > > > I got a continuos problem of unkillable processes stuck in D state (
+> > > > uninterruptable sleep ) on my Linux servers.
+> > > > It happens randomly every time on other server on another process ( all
+> > > > the servers are configured the same with 2.4.18-10 kernel ). Here's an
+> > > > example :
+> > >
+> > > [snip]
+> > >
+> > > > Has anyone noticed the same behavior ? Is this a well known problem ?
+> > >
+> > > I've had the same problem with some 2.4.21-preX twice (or maybe more
+> > > times, don't remember) on one of my machines.
+> > > IMHO it has something to do with NFS. (I'm using this box as a
+> > > NFS-client). I wish, I could reproduce it one more time, to do some
+> > > traces, etc on it. But I've not found a way to reproduce it, yet.
+> >
+> > This happens when you mount an NFS mount with the 'hard' option (default)
+> > and a mount's handle expires incorrectly (eg: server crash).
+> > Read the mount manpage for an explanation to the downsides of using
+> > the 'soft' option.
+> >
+> >
+> > Mike Waychison
+> 
+> my fstab-entry:
+> 192.168.0.50:/mnt/nfs_1 /mnt/nfs_1      nfs             rw,hard,intr,user,nodev,nosuid,exec         0 0
+> 
+> from man mount:
+> [snip] The process cannot be interrupted or killed unless you also specify intr. [/snip]
+> 
+> I can't interrupt any process that accessed the NFS-server
+> while shutting down the server, although intr is specified.
+> _That's_ my problem. :)
 
-If I remember M. KH's message of last week, it should be something like the
-following patch. Now I can't remember who he told it should be sent to :o)
+I had a similar problem with SuSE's 2.4.18.  Random processes
+seemed to go into D state from whence intr is useless.
 
-Typo: s/USB_ZERO_PACKET/URB_ZERO_PACKET/
+I rebuilt the kernel with NFSv3 disabled and that problem
+went away.  The logs are full of
+    May  5 14:54:15 duncan kernel: NFS: NFSv3 not supported.
+    May  5 14:54:15 duncan kernel: nfs warning: mount version older than kernel
+but that i can live with.  Processes hung and umount failing
+i cannot abide.
+
+If there is a better answer, i'm listening.
 
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
- drivers/bluetooth/hci_usb.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN drivers/bluetooth/hci_usb.c~typo-usb_zero_packet drivers/bluetooth/hci_usb.c
---- linux-2.5.69-1.1042.1.187-to-1.1063/drivers/bluetooth/hci_usb.c~typo-usb_zero_packet	Mon May  5 21:37:01 2003
-+++ linux-2.5.69-1.1042.1.187-to-1.1063-fr/drivers/bluetooth/hci_usb.c	Mon May  5 21:37:01 2003
-@@ -64,8 +64,8 @@
- #endif
- 
- #ifndef CONFIG_BT_USB_ZERO_PACKET
--#undef  USB_ZERO_PACKET
--#define USB_ZERO_PACKET 0
-+#undef  URB_ZERO_PACKET
-+#define URB_ZERO_PACKET 0
- #endif
- 
- static struct usb_driver hci_usb_driver; 
-@@ -458,7 +458,7 @@ static inline int hci_usb_send_bulk(stru
- 	pipe = usb_sndbulkpipe(husb->udev, husb->bulk_out_ep->desc.bEndpointAddress);
- 	usb_fill_bulk_urb(urb, husb->udev, pipe, skb->data, skb->len, 
- 			hci_usb_tx_complete, husb);
--	urb->transfer_flags = USB_ZERO_PACKET;
-+	urb->transfer_flags = URB_ZERO_PACKET;
- 
- 	BT_DBG("%s skb %p len %d", husb->hdev.name, skb, skb->len);
- 
-
-_
+		Remember Cernan and Schmitt

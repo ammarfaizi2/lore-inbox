@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281552AbRLFPJX>; Thu, 6 Dec 2001 10:09:23 -0500
+	id <S280801AbRLFPJx>; Thu, 6 Dec 2001 10:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284204AbRLFPJO>; Thu, 6 Dec 2001 10:09:14 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:13723 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S284122AbRLFPJC>;
-	Thu, 6 Dec 2001 10:09:02 -0500
-Message-ID: <3C0F8A5E.6060501@stesmi.com>
-Date: Thu, 06 Dec 2001 16:10:22 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S281890AbRLFPJp>; Thu, 6 Dec 2001 10:09:45 -0500
+Received: from workplace.tp1.ruhr-uni-bochum.de ([134.147.240.2]:23300 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S280801AbRLFPJl>; Thu, 6 Dec 2001 10:09:41 -0500
+Date: Thu, 6 Dec 2001 16:09:16 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Eric Lammerts <eric@lammerts.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+        Josh McKinney <forming@home.com>, <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Fwd: binutils in debian unstable is broken.
+In-Reply-To: <Pine.LNX.4.43.0112051424560.1157-100000@ally.lammerts.org>
+Message-ID: <Pine.LNX.4.33.0112061608110.3905-100000@vaio>
 MIME-Version: 1.0
-To: Erik Elmore <lk@bigsexymo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA kernel module
-In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Elmore wrote:
+On Wed, 5 Dec 2001, Eric Lammerts wrote:
 
-> Have I lost my mind?
+> We can get a panic() call (and remove the ugly #ifdef's) with
+> something like this:
 > 
-> I've always thought that NVIDIA's linux kernel support was incredibly 
-> closed source, but I swear I just saw a download link for the kernel 
-> module sources at http://www.nvidia.com/view.asp?PAGE=linux
+> in some .h file:
 > 
-> was I mistaken or is this something new?
+> #ifdef DEVEXIT_LINKED
+> #define DEVEXIT_FUNC(a) (a)
+> #else
+> void panic_exit_code();
+> #define DEVEXIT_FUNC(a) ((typeof((a)) *)panic_exit_code)
+> #endif
 
-You're mistaken.
+I definitely prefer this kind of encapsulation over #ifdef DEVEXIT_LINKED
+everywhere, it's still ugly, though.
 
-NVidia releases a binary module with open-source glue-code. You can 
-recompile the glue but not the binary part. Same as always
+However, I don't see much advantage of panic_exit_code() over a simple
+NULL. Actually, NULL will only oops, but not take the machine down, which
+makes it easier to catch and report the Oops. (Not everyone who's box 
+crashes under X will setup a serial console).
 
-// Stefan
-
+--Kai
 

@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUJGWXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269880AbUJGWan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUJGWXG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUJGWW3
+	id S269880AbUJGWan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269851AbUJGW3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:22:29 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:5072 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269859AbUJGWTM (ORCPT
+	Thu, 7 Oct 2004 18:29:04 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:29872 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269864AbUJGW03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:19:12 -0400
-Subject: [ANNOUNCE] October Release of LTP now available
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF944502BF.97D1185A-ON85256F26.007A6594-86256F26.007A94A2@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Thu, 7 Oct 2004 17:18:54 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2|August 27, 2004) at
- 10/07/2004 18:18:55
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 18:26:29 -0400
+Subject: 2.6.9-rc3-mm3 BUG() in flush_tlb_pending() on ppc64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097187487.12861.308.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Oct 2004 15:18:07 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I get following assert while booting 2.6.9-rc3-mm3 on p3 machine. 
+Any fixes ?
 
+Thanks,
+Badari
+ 
 
+        scanning pci: *..kernel BUG in __flush_tlb_pending at
+arch/ppc64/mm/tlb.c:125!
+Oops: Exception in kernel mode, sig: 5 [#1]
+SMP NR_CPUS=128 NUMA PSERIES
+NIP: C00000000003E39C XER: 0000000020000000 LR: C000000000014DF8
+REGS: c00000000f0c3550 TRAP: 0700   Not tainted  (2.6.9-rc3-mm3)
+MSR: a000000000023032 EE: 0 PR: 0 FP: 1 ME: 1 IR/DR: 11
+TASK: c00000013e983030[1401] 'pci.agent' THREAD: c00000000f0c0000 CPU: 0
+GPR00: 0000000004000000 C00000000F0C37D0 C0000000005D2D98
+C0000000006DF1A0
+GPR04: C00000003F557030 0000000BC8479B69 C0000000005D1008
+C0000000004593B0
+GPR08: 0000000000288000 C00000000F0C0000 C0000000005D1008
+000000000000003A
+GPR12: 0000000028224482 C0000000004B9900 C00000013E9832D0
+000001C0E7B672A0
+GPR16: C0000000005D1008 0000000000B735C0 0000000000000000
+C00000000FD85280
+GPR20: C0000000006E2E88 C00000000F0C3990 C00000003F557030
+C0000000006E1C38
+GPR24: C000000006325FFC C00000013E983030 00000000F2592693
+C00000003F557030
+GPR28: 0000000000002AF0 C00000013E983030 0000000000000000
+C0000000006DF1A0
+NIP [c00000000003e39c] .__flush_tlb_pending+0x38/0x150
+LR [c000000000014df8] .__switch_to+0xb4/0xd8
+Call Trace:
+[c00000000f0c37d0] [00000000f7fad210] 0xf7fad210 (unreliable)
+[c00000000f0c3890] [c000000000014df8] .__switch_to+0xb4/0xd8
+[c00000000f0c3920] [c00000000039b184] .schedule+0x38c/0xc3c
+[c00000000f0c3a40] [c00000000039bbd0] .cond_resched+0x4c/0x80
+[c00000000f0c3ac0] [c00000000009696c] .copy_page_range+0x29c/0x61c
+[c00000000f0c3bd0] [c00000000004f990] .copy_process+0x8c0/0x148c
+[c00000000f0c3ce0] [c0000000000505fc] .do_fork+0xa0/0x25c
+[c00000000f0c3dc0] [c0000000000146d8] .sys_clone+0x5c/0x74
+[c00000000f0c3e30] [c000000000010288] .ppc_clone+0x8/0xc
 
-Changes in the October LTP release:
-
-LTP-20041007
-- Applied fix from patch 1037010, submitted by mator.
-- Changes from Kris Wilson on RH specific changes
-- Changes from the security team testcases
-- Add HOWTO for pci tests
-- Changes for pci testcases
-- Disable -std=c99 and -peandtic flags in writetest's Makefile.  Some users
-of very old gcc versions
-  had problems with this, but it looks like those versions of gcc will
-still compile it ok.
-- Fix typo and add log statement if a failure on loading the test module
-- Changes requested from the security team for fix PPC64 error
-- Small fix to chown03 and fchown04.  tst_tmpdir() call was happening in a
-spot that would cause
-  it to break under certain automation environments.
-- un-spamify fork11 test
-- Fix getrlimit02.  Rajeev Tiwari <rajeevti@in.ibm.com> pointed out that
-RLIMIT_NLIMIT was now too
-  low in the usr include files for newer kernels to cause this to fail.
-Defined a new high one that
-  ought to work for the forseeable future.
-- Overhaul madvise02.  Removed some invalid testcases, fixed one case that
-was an invalid failure, and a lot of cleanup
-- Changes from SuSE for mincore tests
-- Changes from Ihno for Itainium failures
-- Changes from SuSE for setdomainname tests
-- Changes submitted from SuSE for sethostname
-- Changes to fix statfs03 error on trying to write to protected directory
-- Change to fix defect 10947, failure on tmp directory
-- Applied IA64 specific patch from Jacky Malcles:
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
 

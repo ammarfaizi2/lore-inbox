@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288964AbSANTMc>; Mon, 14 Jan 2002 14:12:32 -0500
+	id <S288971AbSANTNy>; Mon, 14 Jan 2002 14:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSANTK6>; Mon, 14 Jan 2002 14:10:58 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:11398
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288963AbSANTKJ>; Mon, 14 Jan 2002 14:10:09 -0500
-Date: Mon, 14 Jan 2002 13:54:12 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Charles Cazabon <charlesc@discworld.dyndns.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114135412.D17522@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Charles Cazabon <charlesc@discworld.dyndns.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Eli Carter <eli.carter@inet.com>,
-	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do>
-Mime-Version: 1.0
+	id <S288967AbSANTMg>; Mon, 14 Jan 2002 14:12:36 -0500
+Received: from web20910.mail.yahoo.com ([216.136.226.232]:7441 "HELO
+	web20910.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288959AbSANTL0>; Mon, 14 Jan 2002 14:11:26 -0500
+Message-ID: <20020114191125.90455.qmail@web20910.mail.yahoo.com>
+Date: Mon, 14 Jan 2002 11:11:25 -0800 (PST)
+From: Paul Lorenz <p1orenz@yahoo.com>
+Subject: Re: Driver via ac97 sound problem (VT82C686B)
+To: Jeremy Lumbroso <j.lumbroso@noos.fr>, salvador@inti.gov.ar
+Cc: Raul Sanchez Sanchez <raul@dif.um.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020114125508.A3358@twoflower.internal.do>; from charlesc@discworld.dyndns.org on Mon, Jan 14, 2002 at 12:55:08PM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Cazabon <charlesc@discworld.dyndns.org>:
-> Yes, and yes.  Aunt Tillie is running Linux because someone installed a
-> distribution for her.
+I also tried and neither worked for me, though I
+appreciate the effort :)
 
-You don't know that.  Maybe she installed it herself.
- 
-> She is never going to need anything out of her kernel that her vendor-shipped
-> update kernels do not provide.
+I did get a couple of other messages, if this helps: 
 
-*You can't know that.*  
+Assertion failed! chan->is_active ==
+sg(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
 
-And your belief that you *can* know it is a key part of the elitist
-developer psychology and implicit assumptions that keeps Linux mostly
-inaccessible to the Aunt Tillies of the world.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+(typed by hand as I'm on another computer)
 
-According to the National Crime Survey administered by the Bureau of
-the Census and the National Institute of Justice, it was found that
-only 12 percent of those who use a gun to resist assault are injured,
-as are 17 percent of those who use a gun to resist robbery. These
-percentages are 27 and 25 percent, respectively, if they passively
-comply with the felon's demands. Three times as many were injured if
-they used other means of resistance.
-        -- G. Kleck, "Policy Lessons from Recent Gun Control Research,"
-		Law and Contemporary Problems 49, no. 1. (Winter 1986.): 35-62.
+I got that using the eapd_init2_ops.
+
+Note: the patch was missing prototypes for
+eapd_on_control and eapd_off_control. Also my 
+sound chip is 0x41445361 not 0x41445461, so 
+I added that entry.
+
+Paul
+
+--- Jeremy Lumbroso <j.lumbroso@noos.fr> wrote:
+> hi 
+> i apply the patch and compile with the two values
+> but i still heard no sound .
+> Did someone got this driver works ?
+> thx 
+> 
+> 
+> Le Lundi 14 Janvier 2002 18:13, salvador a écrit :
+> > As Alan says: "The VIA driver doesnt appear to
+> support the ac97 ops."
+> > Here I'm attaching a brut force test, I created a
+> small function that turns
+> > ON the EAPD and another to turn it OFF. Note that
+> according to dataseets a
+> > 1 will disable the external amplifier, but you
+> should try with the two
+> > values. I attached the modified code. It have a
+> 1886 entry that will
+> > initialize the codec setting EAPD output to 0. The
+> code have a commented
+> > entry that does the reverse, try both.
+> > I also attached the diffs so Alan can check if
+> that could work.
+> > Note: I didn't compile it so watch for typos ;-)
+> >
+> > SET
+> 
+> -- 
+> __________________________
+> Lumbroso Jeremy
+> 188 bd malesherbes 
+> 75017 PARIS
+> 01,47,64,07,94
+> 06,19,77,01,25
+> __________________________
+
+
+__________________________________________________
+Do You Yahoo!?
+Send FREE video emails in Yahoo! Mail!
+http://promo.yahoo.com/videomail/

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbSK3Oqf>; Sat, 30 Nov 2002 09:46:35 -0500
+	id <S267254AbSK3Oqy>; Sat, 30 Nov 2002 09:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267254AbSK3Oqf>; Sat, 30 Nov 2002 09:46:35 -0500
+	id <S267255AbSK3Oqy>; Sat, 30 Nov 2002 09:46:54 -0500
 Received: from [213.140.2.50] ([213.140.2.50]:42942 "EHLO
 	mailres.fastwebnet.it") by vger.kernel.org with ESMTP
-	id <S267253AbSK3Oqe>; Sat, 30 Nov 2002 09:46:34 -0500
-Message-Id: <5.1.1.5.2.20021130150415.028fda08@popmail.iol.it>
+	id <S267254AbSK3Oqx>; Sat, 30 Nov 2002 09:46:53 -0500
+Message-Id: <5.1.1.5.2.20021130152506.02922d50@popmail.iol.it>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 30 Nov 2002 15:09:07 +0100
-To: acpi-devel@sourceforge.net
+Date: Sat, 30 Nov 2002 15:47:25 +0100
+To: jsimmons@infradead.org
 From: Alberto Ornaghi <alor@iol.it>
-Subject: [2.5.50] ACPI problems on presario 705
+Subject: [2.5.50] problems with framebuff and vesafb
 Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
@@ -19,25 +19,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-If I enable the ACPI subsystem it doesn't boot at all.
-no log in /var/log/messages, only a call trace on the video, but it is too 
-long and it scroll down too fast so I can only see few line.
+If I enable the CONFIG_VIDEO_SELECT option  and the I pass the vga=791 thru 
+LILO, I cannot see any message while the kernel boots and while 
+running.  the kernel is live, the only problem is that the video seems 
+turned off. (I can blindly log in the system and type a reboot)
 
-the call trace ends with this message:
+I suppose this is a regression since my 2.4.20 is working fine with that 
+option and I can use my 1024x768 framebuffer console.
 
-Code: 8b 00 0f 0d 00 81 7c 24 0c ac 00 45 c0 0f 85 7a ff ff ff 9c
-  <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+I have an S3 savage twister-K, and since there isn't a native driver for 
+it, I'm using the vesafb driver.
 
-sorry, my laptop doesn't have a serial port, so I cannot dump the call 
-trace...
-anyone who can ? anyone experiencing the same problem ?
-
-passing the acpi=off option the kernel boots normally
-
-I'm running acpi 20021122 under 2.4.20 and it works like a charme...
-
-are there substantial difference between the 2.4. and 2.5. version of ACPI ?
+do you need more info ?
 
 bye
 

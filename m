@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288668AbSANC1Y>; Sun, 13 Jan 2002 21:27:24 -0500
+	id <S288675AbSANCiz>; Sun, 13 Jan 2002 21:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288677AbSANC1O>; Sun, 13 Jan 2002 21:27:14 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:58600 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288668AbSANC05>; Sun, 13 Jan 2002 21:26:57 -0500
-Message-Id: <5.1.0.14.2.20020114022159.03827db0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 14 Jan 2002 02:27:00 +0000
-To: Andrew Morton <akpm@zip.com.au>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Linux 2.4.18pre3-ac1-aia21 (IDE patches)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C423E13.8A164D72@zip.com.au>
-In-Reply-To: <5.1.0.14.2.20020113232757.04f34ec0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S288690AbSANCiq>; Sun, 13 Jan 2002 21:38:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17418 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288675AbSANCih>;
+	Sun, 13 Jan 2002 21:38:37 -0500
+Date: Mon, 14 Jan 2002 00:38:21 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Duraid Madina <duraid@fl.net.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Any non-BS VM work queued for 2.5?
+In-Reply-To: <1010956364.50291.0.camel@simplex.idesign.fl.net.au>
+Message-ID: <Pine.LNX.4.33L.0201140037080.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:10 14/01/02, Andrew Morton wrote:
->Anton Altaparmakov wrote:
-> >
-> > Alan's -ac series is back! To celebrate this I added in the IDE patches and
-> > an NTFS update which dramatically reduces the number of vmalloc()s and have
-> > posted the resulting (tested) patch (to be applied on top of
-> > 2.4.18pre3-ac1) at below URL.
-> >
+On 14 Jan 2002, Duraid Madina wrote:
+
+> 	A good spot o' webtrawling has left me with the impression that
+> Rik Riel is Linux's only hope of ever competing with FreeBSD on large
+> jobs other than dbench.
 >
->Is that the NTFS code which produces eighty five quintillion warnings
->with the recommended gcc versions? :-)
+> 	Is this true? Judging by the ease with which AA's hackwork made
+> it into 2.4, I think we may all be, well, fucked.
 
-Huh? You are referring to ntfs tng perhaps? No, this is just a small update 
-to the existing ntfs driver (admittedly taken from ntfs tng but this little 
-part shouldn't produce any compiler problems AFAIK).
+I take it you're volunteering to do tests of the AA VM and
+of my -rmap VM patch, pointing out weak points in both VMs?
 
-This update makes ntfs use kmalloc instead of vmalloc for <= PAGE_SIZE 
-allocations and since the majority of the allocations are <= PAGE_SIZE this 
-is both a performance improvement and a decrease of load on the 128MiB 
-vmalloc vm area.
+(not necessarily performance bugs ... more situations where
+one or both of the VMs just "fall apart completely", the stuff
+that really needs to be fixed)
 
-There were people who reported problems under load due to failing vmallocs 
-and concurrent ldt allocation problems. This patch should address those 
-problems.
+regards,
 
-Best regards,
-
-Anton
-
-
+Rik
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

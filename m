@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266075AbUGJBvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266081AbUGJCCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266075AbUGJBvo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 21:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266081AbUGJBvo
+	id S266081AbUGJCCM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 22:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUGJCCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 21:51:44 -0400
-Received: from main.gmane.org ([80.91.224.249]:5761 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266075AbUGJBvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 21:51:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andrew Rodland <arodland@entermail.net>
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL
-Date: Fri, 09 Jul 2004 21:52:49 -0400
-Message-ID: <ccni3a$23b$1@sea.gmane.org>
-References: <20040707163048.GA30840@iram.es> <20040707184150.76132.qmail@web41109.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: poctnt-1-1.dialup.enter.net
-User-Agent: KNode/0.7.7
+	Fri, 9 Jul 2004 22:02:11 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20723 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266081AbUGJCCJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 22:02:09 -0400
+Message-ID: <40EF4E16.8000709@mvista.com>
+Date: Fri, 09 Jul 2004 19:01:58 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Kropelin <akropel1@rochester.rr.com>
+CC: Tim Bird <tim.bird@am.sony.com>,
+       linux kernel <linux-kernel@vger.kernel.org>,
+       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+References: <40EEF10F.1030404@am.sony.com> <20040709193528.A23508@mail.kroptech.com> <40EF3637.4090105@am.sony.com> <20040709220142.B29198@mail.kroptech.com>
+In-Reply-To: <20040709220142.B29198@mail.kroptech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<posted & mailed>
+Adam Kropelin wrote:
 
-tom st denis wrote:
+> +	if (preset_lpj) {
+> +		loops_per_jiffy = preset_lpj;
+> +		printk("Calibrating delay loop (skipped)... ");
+
+Suggest a "\n" at the end of that.  Maybe add the precomputed value to 
+help bring incorrect presets to someone's attention, something like:
+
++		printk("BogoMIPS preset to %lu.%02lu\n",
++			loops_per_jiffy/(500000/HZ),
++			(loops_per_jiffy/(5000/HZ)) % 100);
+
+ > + If unsure, set this to 0. An incorrect value will cause delays in
+ > + the kernel to be incorrect.  Although unlikely, in the extreme case
+ > + this might damage your hardware.
+
+I suppose it may result in unpredictable I/O errors, in case we want to 
+warn against that.
 
 
-> As for writing portable code, um, jacka#!, BitKeeper, you know, that
-> thingy that hosts the Linux kernel?  Yeah it uses LibTomCrypt.  Why not
-> goto http://libtomcrypt.org and find out who the author is.  Oh yeah,
-> that would be me.  Why not email Wayne Scott [who has code in
-> LibTomCrypt btw...] and ask him about it?
-> 
-> Who elses uses LibTomCrypt?  Oh yeah, Sony, Gracenote, IBM [um Joy
-> Latten can chip in about that], Intel, various schools including
-> Harvard, Stanford, MIT, BYU, ...
-
-Thought the name looked familiar, now I figure out why. Ladies and
-gentlemen, the Al Viro of sci.crypt has met the Al Viro of... Al Viro.
-
-
+-- 
+Todd Poynor
+MontaVista Software

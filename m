@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTEAE2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 00:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTEAE2t
+	id S262307AbTEAEm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 00:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTEAEm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 00:28:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41478 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262352AbTEAE2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 00:28:47 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Date: Thu, 1 May 2003 04:40:58 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b8q8gq$4o3$1@penguin.transmeta.com>
-References: <87d6j34jad.fsf@student.uni-tuebingen.de.suse.lists.linux.kernel> <Pine.LNX.4.44.0304301801210.20283-100000@home.transmeta.com.suse.lists.linux.kernel> <p73ade730d1.fsf@oldwotan.suse.de>
-X-Trace: palladium.transmeta.com 1051764058 8127 127.0.0.1 (1 May 2003 04:40:58 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 1 May 2003 04:40:58 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	Thu, 1 May 2003 00:42:58 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:10416 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S262307AbTEAEm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 00:42:57 -0400
+Date: Wed, 30 Apr 2003 21:55:13 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: mc@cs.stanford.edu
+Subject: [CHECKER] 2 potential passing kernel-pointer into copy_*_user errors
+In-Reply-To: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
+Message-ID: <Pine.GSO.4.44.0304302151250.22257-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <p73ade730d1.fsf@oldwotan.suse.de>, Andi Kleen  <ak@suse.de> wrote:
->Linus Torvalds <torvalds@transmeta.com> writes:
->
->> Yeah, except if you want best code generation you should probably use
->> 
->> 	static inline int fls(int x)
->> 	{
->> 		int bit;
->> 		/* Only well-defined for non-zero */
->> 		asm("bsrl %1,%0":"=r" (bit):"rm" (x));
->
->"g" should work for the second operand too and it'll give gcc
->slightly more choices with possibly better code.
 
-"g" allows immediates, which is _not_ correct.
+Hi,
 
->But the __builtin is probably preferable if gcc supports it because
->a builtin can be scheduled, inline assembly can't.
+Below are 2 more warnings where kernel pointer is passed into *_do_ioctl
+(these functions are passed into video_usercopy). Please note that our
+checker flags the dereferences as errors, where the actually errors should
+be the copy_*_user calls.
 
-You're over-estimating gcc builtins, and underestimating inline
-assembly. 
+Thanks a lot!
 
-gcc builtins usually generate _worse_ code than well-written inline
-assembly, since builtins try to be generic (at least the ones that are
-cross-architecture).
+-Junfeng
 
-And inline asms schedule as well as any built-in, unless they are marked
-volatile (either explicitly or implicitly by not having any outputs).
+---------------------------------------------------------
+[BUG] pass kernel pointer into copy_*_user. bug is in VIDIOCGTUNER. Should
+not call copy_to_user on arg since arg is already in kernel space.
 
-And the proof is in the pudding: I'll bet you a dollar my code generates
-better code. AND my code works on the intel compiler _and_ with older
-gcc's.
+/home/junfeng/linux-2.5.63/drivers/media/radio/radio-cadet.c:397:cadet_do_ioctl:
+ERROR:TAINTED:397:397: dereferencing tainted ptr 'v' [Callstack: ]
 
-The fact is, gcc builtins are almost never worth it. 
+	{
+		case VIDIOCGCAP:
+		{
+			struct video_capability *v = arg;
+			memset(v,0,sizeof(*v));
 
-		Linus
+Error --->
+			v->type=VID_TYPE_TUNER;
+			v->channels=2;
+			v->audios=1;
+			strcpy(v->name, "ADS Cadet");
+---------------------------------------------------------
+[BUG] pass kernel pointer into copy_*_user. should not call copy_to_user
+on case VIDIOCGCHAN
+
+/home/junfeng/linux-2.5.63/drivers/media/video/bw-qcam.c:763:qcam_do_ioctl:
+ERROR:TAINTED:763:763: dereferencing tainted ptr 'p' [Callstack: ]
+
+			return 0;
+		}
+		case VIDIOCGPICT:
+		{
+			struct video_picture *p = arg;
+
+Error --->
+			p->colour=0x8000;
+			p->hue=0x8000;
+			p->brightness=qcam->brightness<<8;
+			p->contrast=qcam->contrast<<8;
+
+

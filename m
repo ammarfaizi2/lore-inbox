@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBMRmv>; Tue, 13 Feb 2001 12:42:51 -0500
+	id <S129237AbRBMRpu>; Tue, 13 Feb 2001 12:45:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRBMRml>; Tue, 13 Feb 2001 12:42:41 -0500
-Received: from 041imtd176.chartermi.net ([24.247.41.176]:58772 "EHLO
-	oof.netnation.com") by vger.kernel.org with ESMTP
-	id <S129032AbRBMRm3>; Tue, 13 Feb 2001 12:42:29 -0500
-Date: Tue, 13 Feb 2001 12:42:26 -0500
-From: Simon Kirby <sim@stormix.com>
-To: linux-kernel@vger.kernel.org
-Subject: LDT allocated for cloned task!
-Message-ID: <20010213124226.A15600@stormix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S129267AbRBMRpk>; Tue, 13 Feb 2001 12:45:40 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:49811 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129237AbRBMRpY>; Tue, 13 Feb 2001 12:45:24 -0500
+Date: Tue, 13 Feb 2001 18:43:02 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC problems
+In-Reply-To: <Pine.LNX.4.30.0102121531400.22147-100000@ns-01.hislinuxbox.com>
+Message-ID: <Pine.GSO.3.96.1010213183326.20214F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LDT allocated for cloned task!
+On Mon, 12 Feb 2001, David D.W. Downey wrote:
 
-I'm seeing this message come up fairly often while running vanilla
-2.4.2-pre3 on my dual Celeron system.  I don't think I saw it before
-while running 2.4.1, but I may have just missed it.
+> I can see that the error codes are actually the values of ESR both before
+> and after the apic_write() call. I see that the codes are the modulus'd
+> value before and after the apic_write call. What I'm not understanding is
+> how to translate that into a valid ID for determining what the exact error
+> is. In this instance 08 doesn't appear to be a valid return. Or am I
+> missing something here??
 
-My system has been up around two days and has 11 of these messages in the
-ring buffer.
+ "08" is "3: Receive accept error" -- all codes are explained in
+smp_error_interrupt().  And yes, bits 0 - 3 indicate hardware problems
+(due to marginal design, overheating, etc.), especially if seen in volume. 
 
-Actually, I just remembered that I'm using the mga DRI driver module
-from the DRI CVS tree rather than the built-in module, so that's not part
-of the official kernel...maybe that is causing the messages.
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]

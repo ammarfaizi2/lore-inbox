@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUJXLWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUJXLZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbUJXLWE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUJXLVC
+	id S261479AbUJXLZk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbUJXLRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:21:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30900 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261461AbUJXLUc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:20:32 -0400
-Date: Sun, 24 Oct 2004 04:18:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH] Fix incorrect kunmap_atomic in pktcdvd
-Message-Id: <20041024041827.664845da.akpm@osdl.org>
-In-Reply-To: <m3oeisz7uh.fsf@telia.com>
-References: <m3wtxhibo9.fsf@telia.com>
-	<20041024032546.52314e23.akpm@osdl.org>
-	<m3oeisz7uh.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Oct 2004 07:17:24 -0400
+Received: from nl-ams-slo-l4-01-pip-5.chellonetwork.com ([213.46.243.21]:33851
+	"EHLO amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261450AbUJXLPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:15:54 -0400
+Date: Sun, 24 Oct 2004 13:15:52 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Antonino Daplas <adaplas@pol.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Atyfb: kill assignment warnings on Atari due to __iomem
+ changes
+Message-ID: <Pine.LNX.4.61.0410241314550.27526@anakin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > Peter Osterlund <petero2@telia.com> wrote:
-> > >
-> > >  The pktcdvd driver uses kunmap_atomic() incorrectly. The function is
-> > >  supposed to take an address as the first parameter, but the pktcdvd
-> > >  driver passed a page pointer. Thanks to Douglas Gilbert and Jens Axboe
-> > >  for discovering this.
-> > 
-> > You're about the 7,000th person to make that mistake.  We really should
-> > catch it via typechecking but the code's really lame and nobody ever got
-> > around to rotorooting it.
-> 
-> Why was the interface made different from kmap()/kunmap() in the first
-> place? Wouldn't it have made more sense to let kunmap_atomic() take a
-> page pointer as the first parameter?
 
-No, kmap-atomic() maps a single page into the CPU's address space by making
-a pte point at the page.  To unmap that page we need to get at the pte, not
-at the page.  If kmap_atomic() were to take a pageframe address we'd need
-to search the whole fixmap space for the corresponding page - a reverse
-lookup.
+Atyfb: kill assignment warnings on Atari due to __iomem changes
 
+--- linux-2.6.10-rc1/drivers/video/aty/atyfb_base.c.orig	2004-10-23 10:33:27.000000000 +0200
++++ linux-2.6.10-rc1/drivers/video/aty/atyfb_base.c	2004-10-24 12:59:07.000000000 +0200
+@@ -2344,9 +2344,9 @@ int __init atyfb_do_init(void)
+ 		info->screen_base = ioremap(phys_vmembase[m64_num],
+ 					 		   phys_size[m64_num]);	
+ 		info->fix.smem_start = (unsigned long)info->screen_base;	/* Fake! */
+-		default_par->ati_regbase = (unsigned long)ioremap(phys_guiregbase[m64_num],
+-							  0x10000) + 0xFC00ul;
+-		info->fix.mmio_start = default_par->ati_regbase; /* Fake! */
++		default_par->ati_regbase = ioremap(phys_guiregbase[m64_num],
++						   0x10000) + 0xFC00ul;
++		info->fix.mmio_start = (unsigned long)default_par->ati_regbase; /* Fake! */
+ 
+ 		aty_st_le32(CLOCK_CNTL, 0x12345678, default_par);
+ 		clock_r = aty_ld_le32(CLOCK_CNTL, default_par);
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

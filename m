@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135626AbREFLln>; Sun, 6 May 2001 07:41:43 -0400
+	id <S135624AbREFLiX>; Sun, 6 May 2001 07:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135632AbREFLle>; Sun, 6 May 2001 07:41:34 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:56080 "HELO
+	id <S135625AbREFLiN>; Sun, 6 May 2001 07:38:13 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:55312 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S135626AbREFLlZ>; Sun, 6 May 2001 07:41:25 -0400
-Date: Sun, 6 May 2001 23:41:23 +1200
+	id <S135624AbREFLiG>; Sun, 6 May 2001 07:38:06 -0400
+Date: Sun, 6 May 2001 23:38:03 +1200
 From: Chris Wedgwood <cw@f00f.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.3 connecting with mac os 8.3
-Message-ID: <20010506234123.C32060@metastasis.f00f.org>
-In-Reply-To: <01C0D62C.02EC0060.folkert@vanheusden.com>
+To: Michael Miller <michaelm@mjmm.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: curedump configuration additions
+Message-ID: <20010506233802.B32060@metastasis.f00f.org>
+In-Reply-To: <200105051955.f45JtAD02315@mjmm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <01C0D62C.02EC0060.folkert@vanheusden.com>; from folkert@vanheusden.com on Sun, May 06, 2001 at 12:56:46PM +0200
+In-Reply-To: <200105051955.f45JtAD02315@mjmm.org>; from michaelm@mjmm.org on Sat, May 05, 2001 at 08:55:09PM +0100
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 12:56:46PM +0200, Folkert van Heusden wrote:
+On Sat, May 05, 2001 at 08:55:09PM +0100, Michael Miller wrote:
 
-    Anyone out there who cares if 2.4.3 has problems connectin with
-    mac os 8.x?  Situation: pop3-server on linux 2.4.3 host. Client:
-    eudora on mac os 8.x connection times out.  always 2.4.4 works
-    fine(!).  Any more investigation required?
+    kernel.coredump_enabled
 
-Can you produce a tcpdump of this timeout? Something like:
+man ulimit
 
-	tcpdump -ln port pop3
+    kernel.coredump_file_name
 
-on the linux box (as root) should do.
+man file
+
+
+I really don't see that either of these are required... am I missing
+something?
+
 
 
   --cw
-

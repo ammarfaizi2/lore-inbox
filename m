@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130036AbQLCD5q>; Sat, 2 Dec 2000 22:57:46 -0500
+	id <S129596AbQLCEFG>; Sat, 2 Dec 2000 23:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130376AbQLCD51>; Sat, 2 Dec 2000 22:57:27 -0500
-Received: from ppp-224.cust210-9-19.ghr.chariot.net.au ([210.9.19.224]:33154
-	"EHLO mars.foursticks.com.au") by vger.kernel.org with ESMTP
-	id <S130036AbQLCD5W>; Sat, 2 Dec 2000 22:57:22 -0500
-From: Paul Schulz <pschulz@foursticks.com.au>
-To: 992C396651@stud.alakhawayn.ma
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.3.96.1001203025929.7243G-100000@stud.alakhawayn.ma>
-	(message from Mourad Lakhdar on Sun, 3 Dec 2000 03:00:47 +0000 (GMT))
-Subject: Re: how to compile redhat6.0 kernel
-In-Reply-To: <Pine.SOL.3.96.1001203025929.7243G-100000@stud.alakhawayn.ma>
-Message-Id: <E142Pm1-0000KG-00@mars.foursticks.com.au>
-Date: Sun, 03 Dec 2000 13:55:09 +1030
+	id <S129590AbQLCEEr>; Sat, 2 Dec 2000 23:04:47 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:26374 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129596AbQLCEEf>;
+	Sat, 2 Dec 2000 23:04:35 -0500
+Message-Id: <200012030334.eB33Y6Z10434@sleipnir.valparaiso.cl>
+To: linux-kernel@vger.kernel.org, Alan.Cox@linux.org
+Subject: Re: 2.2.18pre2[34] freezes 
+In-Reply-To: Message from Horst von Brand <vonbrand@sleipnir.valparaiso.cl> 
+   of "Sat, 02 Dec 2000 22:36:11 -0300." <200012030136.eB31aBM01753@sleipnir.valparaiso.cl> 
+Date: Sun, 03 Dec 2000 00:34:06 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mourad,
+Horst von Brand <vonbrand@sleipnir.valparaiso.cl> said:
+> P3/600 (Katmai, stepping 3), intel SR440BX mobo + latest BIOS, 128Mb; RH7 +
+> local updates (notably binutils-2.10.0.33-1).
+> 
+> 2.2.18pre23: Machine was mostly idle (around 15:40, no users, running Gnome
+> + screensaver). No response at all to mouse/keyboard (C-A-BS nor
+> C-A-DEL). No traces in the logs.
+> 
+> 2.2.18pre24: Rebooted into 24, downloaded latest CVS update for gcc started
+> building, was reading email via emacs + mh-e in Gnome. Full freeze again.
 
-   i wanna recompile the kernel to reset some variables "ip multicasting",
-   and i have a root access.
-
-   so can you please tell me in steps (detailed) , how to recompile an
-   installed kernel of redhat6.0.
-
-Download the kernel source (or have a look in /usr/src/linux)
-Read the 'README' in the home directory... 
-
-   thanx
-   mourad,           
-
-   -
-   To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-   the body of a message to majordomo@vger.kernel.org
-   Please read the FAQ at http://www.tux.org/lkml/
-
-
+Happened twice again when compiling today's CVS of gcc + running dip (CSLIP
+connection).
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

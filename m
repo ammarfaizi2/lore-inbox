@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270689AbRHNSkX>; Tue, 14 Aug 2001 14:40:23 -0400
+	id <S270668AbRHNSnn>; Tue, 14 Aug 2001 14:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270668AbRHNSkH>; Tue, 14 Aug 2001 14:40:07 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:5905 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S270632AbRHNSjj>; Tue, 14 Aug 2001 14:39:39 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <9lb8vp$10q$1@ns1.clouddancer.com>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMKENKDCAA.davids@webmaster.com> <3B7924C7.31923A8@trader.com> <9lb8vp$10q$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010814163452.3046E783F5@mail.clouddancer.com>
-Date: Tue, 14 Aug 2001 09:34:52 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S270632AbRHNSne>; Tue, 14 Aug 2001 14:43:34 -0400
+Received: from cs6625192-102.austin.rr.com ([66.25.192.102]:7944 "EHLO
+	mail1.cirrus.com") by vger.kernel.org with ESMTP id <S270649AbRHNSnW>;
+	Tue, 14 Aug 2001 14:43:22 -0400
+Message-ID: <973C11FE0E3ED41183B200508BC7774C022FB6F9@csexchange.crystal.cirrus.com>
+From: "Woller, Thomas" <twoller@crystal.cirrus.com>
+To: "'cardhore'" <cardhore@yahoo.com>, linux-kernel@vger.kernel.org
+Cc: nils@kernelconcepts.de, "Woller, Thomas" <twoller@crystal.cirrus.com>
+Subject: RE: cs4232 sound chip problem
+Date: Tue, 14 Aug 2001 09:43:52 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, you wrote:
->
->David Schwartz wrote:
->> 
->> > The question is not : "is this script dangerous ?",
->> > but "are you ready to blindly execute a shell script
->> > (or any program) that you receive in your  mail ?".
->> 
->>         Sure, as a user created solely for that purpose, it should be entirely
->> safe.
->> 
->
->How many users are there that use a specific user account to read
->their emails on their Linux workstation ?
->I don't, I use my account to read mails, write documents,
->develop programs,etc. So even if a malicious program does
->not do any arm to the system, it can at least destroy or corrupt my
->own files and I will loose time restoru=ing from last backup and
->rebuilding recently modified files.
+Do you have a cs46xx chip or a cs4232 on that motherboard? I think that we
+took care of most of the pops with the cs46xx driver, but I haven't ever
+looked at the cs4232 driver (ISA part).
+tom
 
+ -----Original Message-----
+From: 	cardhore [mailto:cardhore@yahoo.com] 
+Sent:	Monday, August 13, 2001 8:40 PM
+To:	linux-kernel@vger.kernel.org
+Cc:	nils@kernelconcepts.de; twoller@crystal.cirrus.com
+Subject:	cs4232 sound chip problem
 
-Anybody that can think probably does that.  First they think that
-setting up a test user takes a few seconds, then they think that
-restoring from backup takes at least 100x longer....
+*Please CC all responses to cardhore@yahoo.com as I am
+not subscribed.
 
+I'm using the cs4232 sound driver, in Linux 2.4.8 (or
+2.4.7) for my motherboard's onboard chip.  (The
+motherboard is the Intel SE440BX.)  Whenever the sound
+device is opened, it makes a loud "pop."  Does this in
+all kernels.  Any help would be appreciated!  Thanks.
 
--- 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
+__________________________________________________
+Do You Yahoo!?
+Send instant messages & get email alerts with Yahoo! Messenger.
+http://im.yahoo.com/

@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUENQHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUENQLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUENQHk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 12:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUENQHk
+	id S261648AbUENQLm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 12:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUENQLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 12:07:40 -0400
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:62653 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id S261611AbUENQHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 12:07:36 -0400
-Subject: [PATCH] befs i_flags thinko
-From: Will Dyson <will_dyson@pobox.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1084550848.20184.7.camel@thalience>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Fri, 14 May 2004 12:07:28 -0400
-Content-Transfer-Encoding: 8bit
+	Fri, 14 May 2004 12:11:42 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:16139 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261648AbUENQLi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 12:11:38 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: Will Dyson <will_dyson@pobox.com>
+Subject: Re: [PATCH] befs (1/5): LBD support
+Date: Fri, 14 May 2004 20:09:36 +0400
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+References: <200405132232.09816.rathamahata@php4.ru> <40A4E432.4020202@pobox.com>
+In-Reply-To: <40A4E432.4020202@pobox.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405142009.36776.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was caught by Jörn Engel <joern@wohnheim.fh-wedel.de> some time
-ago. It is obviously correct. My public apologies to Jörn for delaying
-his patch.
+Hello Will,
 
+On Friday 14 May 2004 19:22, Will Dyson wrote:
+> Sergey S. Kostyliov wrote:
+> > LBD patch merged long time ago, so it is safe to pass u64 block
+> > numbers to sb_bread() when sector_t is large enough.
+> 
+> Nice. I haven't mounted any of my BeFS volumes in quite some months now. 
+>   Are you interested in taking over official maintainership?
+>
 
- linuxvfs.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Yes, I am interested. How do you like this patch?
 
+===== Documentation/filesystems/befs.txt 1.2 vs edited =====
+--- 1.2/Documentation/filesystems/befs.txt	Tue Apr  1 03:55:42 2003
++++ edited/Documentation/filesystems/befs.txt	Fri May 14 20:00:47 2004
+@@ -17,8 +17,8 @@
  
---- linux-2.6.4/fs/befs/linuxvfs.c~ext23_inode_flags    2004-03-21 17:43:58.000000000 +0100
-+++ linux-2.6.4/fs/befs/linuxvfs.c      2004-03-24 01:01:11.000000000 +0100
-@@ -376,7 +376,7 @@
-        befs_ino->i_attribute = fsrun_to_cpu(sb, raw_inode->attributes);
-        befs_ino->i_flags = fs32_to_cpu(sb, raw_inode->flags);
+ AUTHOR
+ =====
+-Current maintainer: Will Dyson <will_dyson@pobox.com>
+-Has been working on the code since Aug 13, 2001. See the changelog for
++The largest part of the code written by Will Dyson <will_dyson@pobox.com>
++He has been working on the code since Aug 13, 2001. See the changelog for
+ details.
  
--       if (S_ISLNK(inode->i_mode) && !(inode->i_flags & BEFS_LONG_SYMLINK)) {
-+       if (S_ISLNK(inode->i_mode) && !(befs_ino->i_flags & BEFS_LONG_SYMLINK)){
-                inode->i_size = 0;
-                inode->i_blocks = befs_sb->block_size / VFS_BLOCK_SIZE;
-                strncpy(befs_ino->i_data.symlink, raw_inode->data.symlink,
+ Original Author: Makoto Kato <m_kato@ga2.so-net.ne.jp>
+@@ -26,6 +26,8 @@
+ <http://hp.vector.co.jp/authors/VA008030/bfs/>
+ Does anyone know of a more current email address for Makoto? He doesn't
+ respond to the address given above...
++
++Current maintainer: Sergey S. Kostyliov <rathamahata@php4.ru>
+ 
+ WHAT IS THIS DRIVER?
+ ==================
 
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277698AbRJNVGe>; Sun, 14 Oct 2001 17:06:34 -0400
+	id <S277861AbRJNVIz>; Sun, 14 Oct 2001 17:08:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277790AbRJNVGY>; Sun, 14 Oct 2001 17:06:24 -0400
-Received: from colin.muc.de ([193.149.48.1]:22534 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id <S277698AbRJNVGP>;
-	Sun, 14 Oct 2001 17:06:15 -0400
-Message-ID: <20011014230709.47894@colin.muc.de>
-Date: Sun, 14 Oct 2001 23:07:09 +0200
-From: Andi Kleen <ak@muc.de>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Andi Kleen <ak@muc.de>, Tommy Faasen <tommy@vuurwerk.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP processor rework help needed
-In-Reply-To: <k2wv1yhsh4.fsf@zero.aec.at> <Pine.LNX.4.10.10110141349510.31660-100000@innerfire.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
-In-Reply-To: <Pine.LNX.4.10.10110141349510.31660-100000@innerfire.net>; from Gerhard Mack on Sun, Oct 14, 2001 at 10:50:50PM +0200
+	id <S277857AbRJNVIp>; Sun, 14 Oct 2001 17:08:45 -0400
+Received: from kc-msxalone.kc.umkc.edu ([134.193.143.157]:4371 "EHLO
+	kc-msxalone.kc.umkc.edu") by vger.kernel.org with ESMTP
+	id <S277790AbRJNVIg> convert rfc822-to-8bit; Sun, 14 Oct 2001 17:08:36 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Subject: network device driver
+Date: Sun, 14 Oct 2001 16:09:08 -0500
+Message-ID: <F918702592382F4991EB852F78EF36583203A3@KC-MAIL2.kc.umkc.edu>
+Thread-Topic: network device driver
+Thread-Index: AcFU9HahH3qedi0kShqkDgyNb0S0Hg==
+From: "Mehta, Phoram Kirtikumar (UMKC-Student)" <pkm722@umkc.edu>
+To: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Oct 2001 21:09:08.0834 (UTC) FILETIME=[77003420:01C154F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 14, 2001 at 10:50:50PM +0200, Gerhard Mack wrote:
-> This may sound like a dumb question but wouldn't simply swapping the CPUs
-> have the same affect?
+hello,
+1. how does ifconfig and netstat get teh net statistics, where can i get
+the source to that funtion or source file.
+2. is there any funtion in the network device driver source by accessing
+which i can get the packets received or the type of packets. if not can
+anybody gimme some tips on how can i write it.
 
-In theory yes, assuming the determination of the boot cpu is fully
-deterministic. the spec says it is the one with the lowest apic number; but
-who knows if that is true in every weird board.
+i am trying to write or modify the eth device driver(3c509.c) in such a
+way that i can statistics of the traffic and then i also want to
+identify teh traffic. in short i want to incorporate a function in my
+driver which when acceseed would act as a sniffer/protocol analyzer .
+any help or advise will be appreciated.
 
--Andi
-
+thanks,
+phoram mehta

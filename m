@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273506AbRIYU2x>; Tue, 25 Sep 2001 16:28:53 -0400
+	id <S273511AbRIYUey>; Tue, 25 Sep 2001 16:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273519AbRIYU2n>; Tue, 25 Sep 2001 16:28:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29587 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S273506AbRIYU20>;
-	Tue, 25 Sep 2001 16:28:26 -0400
-Date: Tue, 25 Sep 2001 13:28:16 -0700 (PDT)
-Message-Id: <20010925.132816.52117370.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: marcelo@conectiva.com.br, andrea@suse.de, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0109251723160.26091-100000@duckman.distro.conectiva>
-In-Reply-To: <20010925.131528.78383994.davem@redhat.com>
-	<Pine.LNX.4.33L.0109251723160.26091-100000@duckman.distro.conectiva>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S273515AbRIYUep>; Tue, 25 Sep 2001 16:34:45 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:56724 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S273511AbRIYUed>; Tue, 25 Sep 2001 16:34:33 -0400
+Message-ID: <3BB0EA46.1070001@korseby.net>
+Date: Tue, 25 Sep 2001 22:34:14 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.10 - Warning: indirect lcall without `*'
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Tue, 25 Sep 2001 17:24:21 -0300 (BRST)
-   
-   Or were you measuring loads which are mostly read-only ?
+Shouldn't that fixed earlier ?
 
-When Kanoj Sarcar was back at SGI testing 32 processor Origin
-MIPS systems, pagecache_lock was at the top.
+I use gcc 2.95.3.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+make[1]: Entering directory `/usr/src/linux-2.4.10/arch/i386/boot'
+gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.10/include -D__BIG_KERNEL__ 
+-traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
+as -o bbootsect.o bbootsect.s
+bbootsect.s: Assembler messages:
+bbootsect.s:257: Warning: indirect lcall without `*'
+ld -m elf_i386 -Ttext 0x0 -s --oformat binary bbootsect.o -o bbootsect
+gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.10/include -D__BIG_KERNEL__ 
+-D__ASSEMBLY__ -traditional -DSVGA_MODE=NORMAL_VGA  setup.S -o bsetup.s
+as -o bsetup.o bsetup.s
+bsetup.s: Assembler messages:
+bsetup.s:1912: Warning: indirect lcall without `*'
+

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290960AbSBFXji>; Wed, 6 Feb 2002 18:39:38 -0500
+	id <S290953AbSBFXmi>; Wed, 6 Feb 2002 18:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSBFXja>; Wed, 6 Feb 2002 18:39:30 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:45970 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290958AbSBFXjU>;
-	Wed, 6 Feb 2002 18:39:20 -0500
-Date: Wed, 6 Feb 2002 18:39:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Heinz Diehl <hd@cavy.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Warning, 2.5.3 eats filesystems
-In-Reply-To: <20020206233051.GA503@chiara.cavy.de>
-Message-ID: <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290958AbSBFXm0>; Wed, 6 Feb 2002 18:42:26 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:16591 "EHLO mtaout03")
+	by vger.kernel.org with ESMTP id <S290961AbSBFXle>;
+	Wed, 6 Feb 2002 18:41:34 -0500
+Date: Wed, 06 Feb 2002 18:42:17 -0500
+From: Brian <hiryuu@envisiongames.net>
+Subject: Re: ?????????????????????
+In-Reply-To: <2094646627.1013034678@[195.224.237.69]>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Message-id: <0GR400HBLXT5DU@mtaout03.icomcast.net>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net>
+ <2094646627.1013034678@[195.224.237.69]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 06 February 2002 05:31 pm, Alex Bligh - linux-kernel wrote:
+> like
+>
+> Subject: [ANNOUNCE] blah blah?
+>
 
+That would be upperCASE ACSII.
+I mean 6 bytes, each higher than 127, in a row.
 
-On Thu, 7 Feb 2002, Heinz Diehl wrote:
+To my knowledge, there is no English word that would match that regex (or, 
+for that matter, any Romantic or Germanic language word).  It's the most 
+effective tool I've seen against Asian spam (like the one I replied to).
 
-> On Wed Feb 06 2002, Daniel Pittman wrote:
-> 
-> > > 2.5.3 managed to damage my ext2 filesystem (few lost directories);
-> > > beware.
-> 
-> > I can confirm that there are filesystem corruption issues with 2.5.3;
-> > after this message I rebooted and did a forced fsck which turned up
-> > around a half dozen inodes where the block count in the inode itself was
-> > too high.
-> 
-> Exactly the same thing here, and I bet it _is_ 2.5.3 and not a relict from
-> a 2.5.3-pre patch because I switched directly from 2.4.17 to 2.5.3
-> without ever using any pre patch at this machine.
-
-Very interesting.  Which filesystems are mounted (other than ext2) and
-are you been able to reproduce it on 2.5.3-pre6?
-
+> --On Wednesday, 06 February, 2002 4:21 PM -0500 Brian
+>
+> <hiryuu@envisiongames.net> wrote:
+> > Can we get something like
+> > 	/[\200-\377]{6}/   (6 upper ACSII characters in a row)
+> > added to the taboo list?
+> >
+> > 	-- Brian
+>

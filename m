@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKHDY4>; Tue, 7 Nov 2000 22:24:56 -0500
+	id <S129057AbQKHD0g>; Tue, 7 Nov 2000 22:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129057AbQKHDYq>; Tue, 7 Nov 2000 22:24:46 -0500
-Received: from memphis.cbn.net.id ([202.158.3.16]:46088 "HELO
-	memphis.cbn.net.id") by vger.kernel.org with SMTP
-	id <S129050AbQKHDYg>; Tue, 7 Nov 2000 22:24:36 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-From: imel96@trustix.co.id
-Subject: Re: [2.4.0-test10] zImage, pcmcia, and ufs(44bsd)
-Date: Wed, 8 Nov 2000 03:27:31 GMT
-X-Mailer: CBN WebMail v0.0.1
-X-Mailer-OriginatingIP: 202.158.36.82
-Message-Id: <20001108032437Z129050-31179+1882@vger.kernel.org>
+	id <S129363AbQKHD00>; Tue, 7 Nov 2000 22:26:26 -0500
+Received: from praseodumium.btinternet.com ([194.73.73.82]:25287 "EHLO
+	praseodumium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129057AbQKHD0K>; Tue, 7 Nov 2000 22:26:10 -0500
+From: davej@suse.de
+Date: Wed, 8 Nov 2000 03:25:56 +0000 (GMT)
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <3A089254.397115FE@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011080322350.8632-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> imel96 wrote:
-> > 
-> >         hi all,
-> > 
-> >         just a few reports:
-> > 
-> >         1. zImage in test10 somehow isn't working
-properly. i have a
-> >         zImage sized a bit more than 500kb on my
-harddrive which hangs at
-> >         the loading process (the one showing dots).
-> >         i write the image to a floppy, and it boots just
-fine. if i
-> >         recompiled my kernel so the zImage size is
-around 490kb, the
-> >         image gets loaded just fine.
-> 
-> make bzImage
+On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
 
-	if someone remove zImage. the zImage built just fine.
-	my problem is the zImage doesn't boot on a harddrive,
-	while it's working just fine on floppy disk.
+> If the compiler always aligned all functions and data on 16 byte
+> boundries (NetWare)  for all i386 code, it would run a lot faster.
 
+Except on architectures where 16 byte alignment isn't optimal.
 
+> Cache line alignment could be an option in the loader .... after all,
+> it's hte loader that locates data in memory.  If Linux were PE based,
+> relocation logic would be a snap with this model (like NT).
 
-	
-imel
+Are you suggesting multiple files of differing alignments packed into
+a single kernel image, and have the loader select the correct one at
+runtime ? I really hope I've misinterpreted your intention.
 
-----------------------------------------------------
-This email was sent using http://webmail.cbn.net.id/
+regards,
 
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

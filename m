@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265797AbSKVGlO>; Fri, 22 Nov 2002 01:41:14 -0500
+	id <S265843AbSKVGoA>; Fri, 22 Nov 2002 01:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265843AbSKVGlO>; Fri, 22 Nov 2002 01:41:14 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:51653 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265797AbSKVGlN>; Fri, 22 Nov 2002 01:41:13 -0500
-From: "Roland Schwarz" <webmaster@rolandschwarz.net>
-To: <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: AW: Interrupts problem with 3com network cards on dual-cpu systems ?
-Date: Fri, 22 Nov 2002 07:50:18 +0100
-Message-ID: <NNEIJAEFFFIEBKPOMOJFAELFDLAA.webmaster@rolandschwarz.net>
+	id <S265939AbSKVGoA>; Fri, 22 Nov 2002 01:44:00 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:30694 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265843AbSKVGn7>;
+	Fri, 22 Nov 2002 01:43:59 -0500
+Date: Thu, 21 Nov 2002 22:49:23 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Roland Dreier <roland@digitalvampire.org>
+cc: dan carpenter <error27@email.com>, <linux-kernel@vger.kernel.org>,
+       <smatch-kbugs@lists.sourceforge.net>,
+       <kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: [LIST] large local declarations
+In-Reply-To: <87vg2q15q5.fsf@love-shack.home.digitalvampire.org>
+Message-ID: <Pine.LNX.4.33L2.0211212248250.4812-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-In-Reply-To: <3DDD6473.95F8F4C6@digeo.com>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew !
+On 21 Nov 2002, Roland Dreier wrote:
 
-I've already tried this.
-noapic
-disableapic 
+| >>>>> "dan" == dan carpenter <error27@email.com> writes:
+|
+|     dan> I have a smatch script (smatch.sf.net) that finds the the
+|     dan> size of local variables.  I created an allyesconfig with
+|     dan> 2.5.48 and tested it.  These were the functions that declared
+|     dan> local datas with size of 5 digits or more (in bits).
+|
+| This is a minor complaint, but... why do you report the data sizes in
+| bits?  I find myself forced to mentally divide every size by 8.  Every
+| variable (obviously) has a size that's a whole number of bytes.  Why
+| not just report bytes?
 
-no change ... :-(
+I second that.
+It's not just Roland...
 
+But thanks for doing it anyway.
 
-thanks !
-
-
+-- 
+~Randy
 

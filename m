@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbSJUK6F>; Mon, 21 Oct 2002 06:58:05 -0400
+	id <S261317AbSJUK4m>; Mon, 21 Oct 2002 06:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261320AbSJUK6F>; Mon, 21 Oct 2002 06:58:05 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:17045 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261319AbSJUK6E>; Mon, 21 Oct 2002 06:58:04 -0400
-Message-ID: <3DB3DEB4.2070900@hotmail.com>
-Date: Mon, 21 Oct 2002 04:02:12 -0700
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.2a) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S261318AbSJUK4m>; Mon, 21 Oct 2002 06:56:42 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:17426 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261317AbSJUK4k>;
+	Mon, 21 Oct 2002 06:56:40 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-References: <fa.l1b0ccv.p34qob@ifi.uio.no> <fa.h9pconv.14mklqe@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: rgooch@atnf.csiro.au, viro@math.psu.edu
+Subject: 2.4.19 breaks devfs mapping for root=
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 Oct 2002 21:02:29 +1000
+Message-ID: <565.1035198149@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-.
-.
-.
-> All you are doing is saying that your goals are better than other goals.
-> That's not freedom, that is you deciding what is best for the world...
+Resend #2 - no response to previous mails.
 
-Karl Marx and Ayn Rand would be contributing to this thread by now if
-they weren't both indisposed ;-)
+A change from 2.4.18 to 2.4.19 has broken the way that devfs maps
+root=.  2.4.18 init/main.c::mount_root() has
 
-The concept of self-sacrifice for the good of the community (altruism)
-was central to their ideas:  Marx thought altruism should be mandatory,
-Rand thought it should be forbidden (because, in general, anything which
-isn't forbidden is mandatory).
+        devfs_make_root (root_device_name);
+        handle = devfs_find_handle (NULL, ROOT_DEVICE_NAME,
+                                    MAJOR (ROOT_DEV), MINOR (ROOT_DEV),
+                                    DEVFS_SPECIAL_BLK, 1);
 
-RMS is trying to thread a path between Marx and Rand, and naturally is
-pissing off people on both sides.  Not an enviable lot in life, but at
-least he picked it himself.
+where ROOT_DEVICE_NAME maps to the value of root= for non-initrd.  This
+allowed devfs to remap an entry such as sda3 to whatever driver was
+implementing sda3, even if that driver used a different major number.
+The correct major was returned in handle.
+
+2.4.19 init/do_mounts.c::mount_root() has
+
+        devfs_make_root(root_device_name);
+        create_dev("/dev/root", ROOT_DEV, root_device_name);
+
+create_dev() has
+
+	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
+                    MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
+
+The difference in 2.4.19 is that if dev is already set from
+root_dev_names[] then devfs does NOT get the value of root=, forcing
+the use of major from root_dev_names[].  If a driver reimplements one
+of the standard device names and uses a different major or minor number
+then it no longer works in 2.4.19 because devfs is given incomplete
+information.
+
+Quick and dirty workaround
+
+--- 2.4.19/init/do_mounts.c
++++ 2.4.19/init/do_mounts.c
+@@ -368,7 +368,7 @@
+ 	if (!do_devfs)
+ 		return sys_mknod(name, S_IFBLK|0600, kdev_t_to_nr(dev));
+ 
+-	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
++	handle = devfs_find_handle(NULL, devfs_name,
+ 				MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
+ 	if (!handle)
+ 		return -1;
+
+But that probably breaks initrd.  What should that code be doing to
+cope with both initrd and still allow devfs to remap root=?
 

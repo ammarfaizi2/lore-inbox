@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUHVWRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUHVWRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUHVWRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 18:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267610AbUHVWRn
+	id S267585AbUHVWRP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 18:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267600AbUHVWRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 18:17:43 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:23499 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S267607AbUHVWRi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 18:17:38 -0400
-Date: Mon, 23 Aug 2004 01:17:34 +0300
-From: Pekka Pietikainen <pp@ee.oulu.fi>
-To: linux-kernel@vger.kernel.org
-Cc: bruceg@em.ca
-Subject: Re: Broadcom 4401 problem
-Message-ID: <20040822221734.GA10372@ee.oulu.fi>
-References: <20040822205346.GA17895@em.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20040822205346.GA17895@em.ca>
-User-Agent: Mutt/1.4.2i
+	Sun, 22 Aug 2004 18:17:15 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:33452 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S267585AbUHVWRJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 18:17:09 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christer Weinigel <christer@weinigel.se>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <2ptdY-42Y-55@gated-at.bofh.it> <2uPdM-380-11@gated-at.bofh.it>
+	<2uUwL-6VP-11@gated-at.bofh.it> <2uWfh-8jo-29@gated-at.bofh.it>
+	<2uXl0-Gt-27@gated-at.bofh.it> <2vge2-63k-15@gated-at.bofh.it>
+	<2vgQF-6Ai-39@gated-at.bofh.it> <2vipq-7O8-15@gated-at.bofh.it>
+	<2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it>
+	<E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner>
+	<412889FC.nail9MX1X3XW5@burner>
+	<Pine.LNX.4.58.0408221450540.297@neptune.local>
+	<m37jrr40zi.fsf@zoo.weinigel.se> <m33c2f3zg1.fsf@zoo.weinigel.se>
+	<1093191541.24759.1.camel@localhost.localdomain>
+	<m3pt5j2i79.fsf@zoo.weinigel.se>
+	<1093207625.25039.15.camel@localhost.localdomain>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 23 Aug 2004 00:17:09 +0200
+In-Reply-To: <1093207625.25039.15.camel@localhost.localdomain>
+Message-ID: <m3d61i3jiy.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 22, 2004 at 02:53:46PM -0600, Bruce Guenter wrote:
-> Greetings.
-> 
-> I have a Dell Inspiron 1150 laptop which has a built-in Broadcom 4401
-> NIC.  I am using Gentoo's 2.6.8.1 kernel and the built-in b44 driver.
-> It compiles, loads, and I can get basic network traffic through it just
-> fine.  However, it (the NIC) locks up randomly when I try to do bulk
-> data transfers (with rsync for example).  I can get it to reset itself
-> 
-> Is this likely a hardware problem, or a problem in the driver?
-Hiya
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Could you try the driver from http://www.ee.oulu.fi/~pp/b44-095-2.tgz ,
-which has some fixes that have been submitted but not yet merged. If that
-doesn't help, the broadcom driver 
-( http://www.broadcom.com/drivers/downloaddrivers.php ) might be
-worth a try.
+> Its not an easy trade off- I don't know if there is a right answer.
+> Despite the UI problems in both cdrecord and its author the internal
+> code is actually quite rigorous so its something I'd be more comfortable
+> giving limited rawio access than quite a few other apps that touch
+> external public data.
 
-Also if you have more than 1Gb of memory, booting with mem=1024m 
-might help (although with standard kernels with a 3:1
-memory layout this hardware bug shouldn't get triggered and the typical
-symptom is a complete hang). But it's worth a try in any case.
-The updated driver mentioned above contains a workaround, so this shouldn't 
-be needed anymore in any case.
+Another way would be to add a scsi ioctl such as ENABLE_SG_IO or an
+open flag, e.g. open("/dev/hdc", ... | O_RAWIO) which needs
+CAP_SYS_RAWIO.  That way it is much less likely that the RAWIO
+permission is given away by mistake, but I must admit that it feels
+kind of ugly.
 
-Anyway, please report whether any of this helped. 
+  /Christer
+
 -- 
-Pekka Pietikainen
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

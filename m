@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273079AbTG3R0T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273081AbTG3R0S
+	id S273060AbTG3RRC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 13:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273061AbTG3RRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:26:18 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:51957 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S273079AbTG3R0Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:26:16 -0400
-Subject: Re: TSCs are a no-no on i386
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E19huHB-0000Or-00@chiark.greenend.org.uk>
-References: <20030730135623.GA1873@lug-owl.de>
-	 <E19huHB-0000Or-00@chiark.greenend.org.uk>
-Content-Type: text/plain
+	Wed, 30 Jul 2003 13:17:02 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:27554 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S273060AbTG3RQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 13:16:59 -0400
+Date: Wed, 30 Jul 2003 10:16:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: henrique2.gobbi@cyclades.com
+cc: Anuradha Ratnaweera <anuradha@ratnaweera.net>,
+       Wichert Akkerman <wichert@wiggy.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Contributing to the kernel while being employed
+Message-ID: <30780000.1059585374@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0307300952520.6400-100000@intra.cyclades.com>
+References: <Pine.LNX.4.44.0307300952520.6400-100000@intra.cyclades.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059585565.10452.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jul 2003 18:19:26 +0100
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-30 at 17:58, Matthew Garrett wrote:
-> g++ >=3.2 use 486-specific instructions in order to do atomic operations
-> in C++ code. 3.3 includes a 386 version of the same code, but it's not
-> possible to use a mixture of the two (ie, code compiled with a "486" g++
-> will not work on the "386" version), and so to keep ABI compatibility
-> with the other distributions it's necessary to break 386. The "obvious"
-> solution (dragging this back on topic) is a kernel patch to emulate 486
-> instructions on a 386.
+Yes, those contracts normally have an exclusion clause for CA, which
+has much more sensible laws (in this case ;-))
 
-You don't need to mash the kernel up for this - you can write yourself a
-SIGILL handler to do the work - take a look at things like the pure
-software MMX preloader someone wrote.
+M.
+
+--henrique2.gobbi@cyclades.com wrote (on Wednesday, July 30, 2003 09:58:02 -0700):
+
+> 
+> I don't understand laws.
+> What you guys think about this ?
+> 
+> Labor Code section 2870 of the State of California:
+> 
+> "Any provision in an employment agreement which provides that an employee 
+> shall assign or offer to assign any of his or her rights in an invention 
+> to his or her employer shall not apply to an inventory that the employee 
+> developed entirely on his or her own time without using the employer's 
+> equipment, supplies, facilities, or trade secret information..."
+> 
+> henrique
+> 
+> On Wed, 30 Jul 2003, Martin J. Bligh wrote:
+> 
+>> > What if the employer _is_ interested in contributing to the open source
+>> > under company copyright and doesn't mind using company resources, but
+>> > the employee prefers to keep copyright to himself.  The only way he can
+>> > do it is by using his own resources and time (off hours).  But this is
+>> > not possible if there is a contract that coveres the full employment
+>> > period, including after hours.
+>> 
+>> Why do you want the copyright? So you can sue in case of violation?
+>> If so, then giving both yourself and your employer copyright might help ...
+>> 
+>> M.
+>> 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>> 
+> 
+> 
 
 

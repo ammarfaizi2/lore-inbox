@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130990AbQLZWSb>; Tue, 26 Dec 2000 17:18:31 -0500
+	id <S132126AbQLZWXM>; Tue, 26 Dec 2000 17:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131460AbQLZWSL>; Tue, 26 Dec 2000 17:18:11 -0500
-Received: from smartmail.smartweb.net ([207.202.14.198]:22546 "EHLO
-	smartmail.smartweb.net") by vger.kernel.org with ESMTP
-	id <S130990AbQLZWR7>; Tue, 26 Dec 2000 17:17:59 -0500
-Message-ID: <3A4911ED.95A73903@dm.ultramaster.com>
-Date: Tue, 26 Dec 2000 16:47:25 -0500
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
+	id <S132127AbQLZWXD>; Tue, 26 Dec 2000 17:23:03 -0500
+Received: from [204.244.205.25] ([204.244.205.25]:33290 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S132126AbQLZWWq>;
+	Tue, 26 Dec 2000 17:22:46 -0500
+From: Michael Peddemors <michael@wizard.ca>
+Organization: Wizard Internet Services
+To: Linus Torvalds <torvalds@transmeta.com>, "Marco d'Itri" <md@Linux.IT>
+Subject: Re: innd mmap bug in 2.4.0-test12
+Date: Tue, 26 Dec 2000 15:02:09 -0800
+X-Mailer: KMail [version 1.1.95.0]
+Content-Type: text/plain
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012241004430.3972-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012241004430.3972-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cdrom changes in test13-pre2 slow down cdrom access by 70%
-In-Reply-To: <3A43D48D.B1825354@dm.ultramaster.com> <20001223133737.D300@suse.de> <3A4904CA.EA1062AF@dm.ultramaster.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00122615020906.32673@mistress>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >
-> > > The cdrom changes that went into test13-pre2 really kill the performance
-> > > of my cdrom.  I'm using cdparanoia to read audio data, and it normally
+> Yeah, yeah, it's 7PM Christmas Eve over there, and you're in the middle of
+> your Christmas dinner. You might feel that it's unreasonable of me to ask
+> you to test out my latest crazy idea.
+>
+> How selfish of you.
+>
+> Get back there in front of the computer NOW. Christmas can wait.
+>
+> 		Linus "the Grinch" Torvalds
 
-... cut ...
+I can just imagine Xmas at the Torvalds residence, with their annual 
+tradition of having the kids scream... But dad, other kids have the lights 
+strung around the trees, not the computer....
 
-> Anyway, do you think a 'try to allocate 8, if that fails, try to
-> allocate 1' solution would be a simple compromise?  That should be easy
-> to do, based on the above code (if kmalloc returns NULL && frames > 1,
-> frames = 1, retry...).
-> 
-
-Jens, 
-
-Here's a version of the above idea, ontop of the patch you sent.  It's
-cut and pasted, but I don't think it's whitespace mangled...  I haven't
-actually run with this patch, but it does compile :-)
-
---- drivers/cdrom//cdrom.c	2000/12/26 17:53:14	1.6.4.2
-+++ drivers/cdrom//cdrom.c	2000/12/26 21:39:42
-@@ -2004,8 +2004,15 @@
- 
- 		frames = ra.nframes > 8 ? 8 : ra.nframes;
- 
--		if ((cgc.buffer = (char *) kmalloc(CD_FRAMESIZE_RAW * frames,
-GFP_KERNEL)) == NULL)
--			return -ENOMEM;
-+	retry:
-+		if ((cgc.buffer = (char *) kmalloc(CD_FRAMESIZE_RAW * frames,
-GFP_KERNEL)) == NULL) {
-+			if (frames > 1) {
-+				frames = 1;
-+				goto retry;
-+			} else {
-+				return -ENOMEM;
-+			}
-+		}
- 
- 		if (!access_ok(VERIFY_WRITE, ra.buf, ra.nframes*CD_FRAMESIZE_RAW)) {
- 			kfree(cgc.buffer);
-
-David
+Linus, that's why they call them computer 'boxes'... didn't you know you are 
+supposed to wait for 'boxing day' before climbing back in front of the 
+screen??
 
 
 -- 
-David Mansfield                                           (718) 963-2020
-david@ultramaster.com
-Ultramaster Group, LLC                               www.ultramaster.com
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+Unix Administration - WebSite Hosting
+Network Services - Programming
+Wizard Internet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604) 589-0037 Beautiful British Columbia, Canada
+--------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

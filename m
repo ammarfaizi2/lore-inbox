@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132140AbRDNNbm>; Sat, 14 Apr 2001 09:31:42 -0400
+	id <S132151AbRDNNgN>; Sat, 14 Apr 2001 09:36:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132142AbRDNNbc>; Sat, 14 Apr 2001 09:31:32 -0400
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:34320 "EHLO
-	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S132140AbRDNNbV>; Sat, 14 Apr 2001 09:31:21 -0400
-Date: Sat, 14 Apr 2001 15:00:28 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MO-Drive under 2.4.3
-Message-ID: <20010414150028.A456@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01041310475000.02120@majestix> <E14o3Jb-0002q9-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.12i
-In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Apr 13, 2001 at 02:08:41PM +0100
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+	id <S132167AbRDNNgE>; Sat, 14 Apr 2001 09:36:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:41735 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132151AbRDNNfs>;
+	Sat, 14 Apr 2001 09:35:48 -0400
+Date: Sat, 14 Apr 2001 10:35:36 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+In-Reply-To: <Pine.LNX.4.31.0104132138310.24573-100000@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104141034420.12164-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 02:08:41PM +0100, Alan Cox wrote:
-> > I have a problem using my MO-Drive under kernel 2.4.3. I have several disks 
-> > formated with a VFAT filesystem. Under kernel 2.2.19 everything works fine. 
-> > Under kernel 2.4.3 I cannot write anything to the disk without hanging the 
-> > complete system so that I have to use the reset button. For disks with an 
-> > ext2 filesystem it works okay.
+On Fri, 13 Apr 2001, Linus Torvalds wrote:
+> On Sat, 14 Apr 2001, Rik van Riel wrote:
+> >
+> > Also, have you managed to find a real difference with this?
 > 
-> This is a bug in the scsi layer. linux-scsi@vger.kernel.org, not that any of
-> the scsi maintainers seem to care about it right now.
+> It actually makes a noticeable difference on lmbench, so I think adam is
+> 100% right.
+> 
+> > If it turns out to be beneficial to run the child first (you
+> > can measure this), why not leave everything the same as it is
+> > now but have do_fork() "switch threads" internally ?
+> 
+> Probably doesn't much matter. We've invalidated the TLB anyway due to
+> the page table copy, so the cost of switching the MM is not all that
+> noticeable.
 
-Err..., now I'm confused. Last time this issue popped up, it was my
-understanding that it's generic_file_{read,write}'s limitation to filesystems
-with logical_blksize >= hw_blksize that makes MOs fail with VFAT. Now, is
-this all moot, or is the SCSI thing just an additional problem?
+And we don't even have to physically switch MM, we could simply
+fake stuff by updating pointers in the parent MM instead of the
+child so by the time we exit do_fork() we're in the child...
 
-Regards,
+regards,
 
-Daniel.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
--- 
-	GNU/Linux Audio Mechanics - http://www.glame.de
-	      Cutting Edge Office - http://www.c10a02.de
-	      GPG Key ID 89BF7E2B - http://www.keyserver.net
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

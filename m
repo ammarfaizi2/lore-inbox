@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTAXWZn>; Fri, 24 Jan 2003 17:25:43 -0500
+	id <S261356AbTAXWYd>; Fri, 24 Jan 2003 17:24:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbTAXWZn>; Fri, 24 Jan 2003 17:25:43 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:43023 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S261368AbTAXWZl>;
-	Fri, 24 Jan 2003 17:25:41 -0500
-Date: Fri, 24 Jan 2003 17:34:13 -0500 (EST)
-From: David Mansfield <david@cobite.com>
-X-X-Sender: david@admin
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: David Mansfield <lkml@dm.cobite.com>, Andrew Morton <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: 2.5.59mm5 database 'benchmark' results
-In-Reply-To: <3E3188EB.4050807@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0301241718440.32240-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264644AbTAXWYd>; Fri, 24 Jan 2003 17:24:33 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:46294 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261356AbTAXWYc>;
+	Fri, 24 Jan 2003 17:24:32 -0500
+Subject: Re: contributing
+From: Paul Larson <plars@linuxtestproject.org>
+To: Jim Ny <jim20482003@yahoo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030124221316.51278.qmail@web13301.mail.yahoo.com>
+References: <20030124221316.51278.qmail@web13301.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-vo+cUg+GAAf/S4CPSTCc"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 24 Jan 2003 16:33:21 -0600
+Message-Id: <1043447602.3403.44.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Nick, Andrew, lists,
+--=-vo+cUg+GAAf/S4CPSTCc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I've been testing some recent kernels to see how they compare with a 
-particular database workload.  The workload is actually part of our 
-production process (last months run) but on a test server.  I'll describe 
-the platform and the workload, but first, the results :-)
+On Fri, 2003-01-24 at 16:13, Jim Ny wrote:
+> Hi,
+> I just finished up an OS class, and am pretty excited
+> about the Linux Kernel. I don't have that much
+> experience, but I would love to help out. How could I
+> be assigned bugs to work on?=20
+Finding your own is a great way to start, or even helping contribute to
+code in the Linux Test Project.  Testing is a good way to force yourself
+to learn something.  http://ltp.sourceforge.net
 
-kernel           minutes     comment
--------------    ----------- ---------------------------------
-2.4.20-aa1       134         i consider this 'baseline'
-2.5.59           124         woo-hoo
-2.4.18-19.7.xsmp 128         not bad for frankenstein's montster
-2.5.59-mm5       157         uh-oh
+-Paul Larson
 
-Platform:
-HP LH3000 U3.  Dual 866 Mhz Intel Pentium III, 2GB ram.  megaraid 
-controller with two channels, each channel raid 5 PV on 6 15k scsi disks, 
-one megaraid LV per PV.
+--=-vo+cUg+GAAf/S4CPSTCc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Two plain disks w/pairs of partitions in raid 1 for OS (redhat 7.3), a 
-second pair for Oracle redo-log (in a log 'group').
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Oracle version 8.1.7 (no aio support in this release) is accessing
-datafiles on the two megaraid devices via /dev/raw stacked on top of
-device-mapper 
+iEYEABECAAYFAj4xvzEACgkQbkpggQiFDqc4sgCeLiV6F4kcrec0mD6VGiheBtGj
+OdoAn0GQQQRZsa7gSkHmQxRL9hXk6PA6
+=pf9i
+-----END PGP SIGNATURE-----
 
-Workload:
-The workload consists of a few different phases.
-
-1) Indexing: multiple indexes built against a 9 million row table.  This
-is mostly about sequential scans of a single table, with bursts of write
-activity.  50 minutes or so. 
-
-2) Analyzing: The database scans tables and
-builds statistics.  Most of the time is spent analyzing the 9 million row
-table.  This is a completely cpu bound step on our underpowered system.  
-30 minutes. 
-
-3) Summarization: the large table is aggregated in about 100
-different ways.  Records are generated for each different summarization.  
-This is mixed read-write load.  50 minutes or so.
-
-I'll test any kernel you throw my way.
-
-David
-
-
-
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
+--=-vo+cUg+GAAf/S4CPSTCc--
 

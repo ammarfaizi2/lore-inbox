@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbTFQUI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbTFQUI2
+	id S264921AbTFQUNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbTFQUNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:08:28 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:60421 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264919AbTFQUI0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:08:26 -0400
-Date: Tue, 17 Jun 2003 22:22:21 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 compile error on alpha
-Message-ID: <20030617202221.GH6353@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wj9ZLJVQDRFjGSdK"
-Content-Disposition: inline
-In-Reply-To: <yw1xk7bk36hw.fsf@zaphod.guide>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+	Tue, 17 Jun 2003 16:13:08 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:55965 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264921AbTFQUNG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:13:06 -0400
+Message-ID: <3EEF78F4.2070604@us.ibm.com>
+Date: Tue, 17 Jun 2003 15:24:20 -0500
+From: Janice M Girouard <janiceg@us.ibm.com>
+Organization: IBM Linux Technology Center - Network Device Drivers
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: jgarzik@pobox.com, shemminger@osdl.org, Valdis.Kletnieks@vt.edu,
+       girouard@us.ibm.com, stekloff@us.ibm.com, lkessler@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: patch for common networking error messages
+References: <3EEF66AA.3000509@us.ibm.com>	<3EEF6A9D.6050303@pobox.com>	<3EEF7030.6030303@us.ibm.com> <20030617.125040.58438649.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---wj9ZLJVQDRFjGSdK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ From David S. Miller:
 
-On Tue, 2003-06-17 20:26:35 +0200, M=E5ns Rullg=E5rd <mru@users.sourceforge=
-.net>
-wrote in message <yw1xk7bk36hw.fsf@zaphod.guide>:
-> Christian Kujau <evil@g-house.de> writes:
->=20
-> > oh, and this alpha is named "Avanti" but a kernel compile needs 80mins
-> > or so :-)
->=20
-> That's typical for the slower Avantis.  Is your's something like 100 MHz?
+And when we have 1GHZ memory busses and 10GHz cpus tomorrow,
+what does this say for 1gbit and 10gbit cards?
 
-Well, that's mainly a question of compiler version and the quantity of
-modules you attempt to build...
+Such schemes are fundamentally flawed.
 
-MfG, JBG
+Bottom line..   I was asking for input, and I received it.  It's valid 
+to say... look at the statistics.  I really like the concept of driving 
+events through netlink, but querying statistics works.  
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
---wj9ZLJVQDRFjGSdK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+p.s.  It's been my experience that the memory system is the main 
+bottleneck when trying to support a heavy network load.  When the 10 
+Gigabit card emerges, and it's here today, the memory system will be 
+pressed to support it, especially if you're not using zerocopy and 
+you're thinking of using more than one card.  Perhaps if RDMA is 
+capabilities are added to Linux, then things might be different.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+So.. when do you think RDMA will show up on Linx?
 
-iD8DBQE+73h8Hb1edYOZ4bsRAsRHAJwI4vIvgL0HDZvWRVWPtE8lF+bU/gCcCb3Q
-LiGVpQtWSdBVSaM9WJB6tgo=
-=298p
------END PGP SIGNATURE-----
-
---wj9ZLJVQDRFjGSdK--

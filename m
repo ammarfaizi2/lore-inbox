@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264872AbUE0Q06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUE0Q36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264872AbUE0Q06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 12:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUE0Q06
+	id S264878AbUE0Q36 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 12:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUE0Q36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 12:26:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22163 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264872AbUE0Q0s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 12:26:48 -0400
-Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on
-	Alpha
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040527194920.A1709@jurassic.park.msu.ru>
-References: <20040527194920.A1709@jurassic.park.msu.ru>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sDfWq0Ez+ZKWrcVzPHGu"
-Organization: Red Hat UK
-Message-Id: <1085675193.7179.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 27 May 2004 18:26:33 +0200
+	Thu, 27 May 2004 12:29:58 -0400
+Received: from mxsf09.cluster1.charter.net ([209.225.28.209]:39697 "EHLO
+	mxsf09.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S264878AbUE0Q34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 12:29:56 -0400
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Date: Thu, 27 May 2004 12:13:05 -0400
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2004.05.27.16.13.04.82253@yahoo.com>
+References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <20040527145127.GB3375@work.bitmover.com>
+To: linux-kernel@vger.kernel.org, lm@bitmover.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 27 May 2004 07:51:27 -0700, Larry McVoy wrote:
+> I suspect that with a little practice this could be quite useful.  
+> I could build tools which record the secondary patches as diffs to
+> the patches (I think) and if you have ever read a diff of a diff 
+> it is suprisingly useful.  I tend to save diffs of my work in 
+> progress and then later I'll generate diffs again and diff them to 
+> get my context back.
 
---=-sDfWq0Ez+ZKWrcVzPHGu
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is a classic case of wanting an audit trail just like you have in
+accounting packages. For audit trails you have to have the entire trail,
+not just pieces of it. 
 
-On Thu, 2004-05-27 at 17:49, Ivan Kokshaysky wrote:
-> Spinning the disks down across a 'halt' on Alpha is even
-> worse than doing that on reboot on i386 (assuming the
-> boot device is IDE disk).
-> Typically, the sequence to boot another kernel is:
-> # halt
-> kernel shuts down, firmware re-initializes,
-> then on firmware prompt we type something like
-> >>> boot -file new_kernel_image.gz
->=20
-> Unfortunately, the firmware does not expect the IDE drive
-> to be in standby mode and reports 'bootstrap failure' on
-> the first and all subsequent boot attempts until the
-> drive spins up, which is extremely annoying and
-> confuses users a lot.
+I like the idea of nested packages signed by each person who touched it.
+The gives a perfect audit trail back to who authored each line. I'm sure
+bk could be modified to produce these automatically.
 
-how do you flush the disks' writecache then? Halting the disk seems to
-be the only reliable way to do so.
+I don't believe the size of this would get out of control. Only the master
+Linux repository has to keep all of it. bk clone could get a new option
+that says, i don't care about the downstream audit trail. Disks are cheap,
+I doubt if the entire Linux audit trail would fill up more than a couple
+of them.
+
+Audit trails are something that are rarely looked at but of vital
+importance. Linux needs complete and accurate audit trails. I agree that
+audit trails can clutter up patches, but the patches have to have these
+trails. The way to address this is via tools that convert the new patches
+into the old formats for people to read. Plus the bitkeeper interface
+would also hide all of the detail unless asked. Of course other source
+control systems will also need a set of helper tools too.
+
+Another problem is that you need a central key repository. Since it's
+pretty stupid to for each developer to send $2,000 to verisign for a key
+maybe bitmover would consider running the key repository. This is a
+painful job, if they want to do it, I'd let them.
 
 
---=-sDfWq0Ez+ZKWrcVzPHGu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Jon Smirl, jonsmirl@yahoo.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAtha5xULwo51rQBIRAqzrAJ9EK+woRvtXCHv4DY4wWSTROnEsegCfV04n
-Ij70mmw8PSKgbaBOsV2dfjA=
-=XMHW
------END PGP SIGNATURE-----
-
---=-sDfWq0Ez+ZKWrcVzPHGu--
 

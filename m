@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131133AbRCGR5r>; Wed, 7 Mar 2001 12:57:47 -0500
+	id <S131131AbRCGSB1>; Wed, 7 Mar 2001 13:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131134AbRCGR5i>; Wed, 7 Mar 2001 12:57:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8320 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131133AbRCGR51>; Wed, 7 Mar 2001 12:57:27 -0500
-Date: Wed, 7 Mar 2001 12:56:52 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ramdisk (and other) problems with 2.4.2
-In-Reply-To: <Pine.LNX.4.33.0103071827320.2961-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.3.95.1010307125355.2243A-100000@chaos.analogic.com>
+	id <S131134AbRCGSBR>; Wed, 7 Mar 2001 13:01:17 -0500
+Received: from npt12056206.cts.com ([216.120.56.206]:13316 "HELO
+	forty.spoke.nols.com") by vger.kernel.org with SMTP
+	id <S131131AbRCGSBD>; Wed, 7 Mar 2001 13:01:03 -0500
+Date: Wed, 7 Mar 2001 10:00:39 -0800 (PST)
+From: David Rees <drees@greenhydrant.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andreas Helke <andreas.helke@lionbioscience.com>,
+        <linux-kernel@vger.kernel.org>, <nfs@sourceforge.net>,
+        <sg_info@lionbioscience.com>, <kirschh@lionbioscienc.com>
+Subject: Re: [NFS] Re: :Redhat [Bug 30944] - Kernel 2.4.0 and Kernel 2.2.18:
+ with some programs
+In-Reply-To: <E14ahiC-0001JG-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103070940480.12048-100000@spoke>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Mike Galbraith wrote:
+On Wed, 7 Mar 2001, Alan Cox wrote:
 
-> On Wed, 7 Mar 2001, Richard B. Johnson wrote:
-> 
-> > On Wed, 7 Mar 2001, Mike Galbraith wrote:
-> >
-> > > I'd sweat bullets over system integrity if _I_ got this reply ;-)
-> > > Something is seriously amiss.
-> >
-> > Well now the denial phase sets in. This system has run fine for
-> > two years. It ran until I tried to use new kernels.
-> 
-> ?? It's not denial Richard.  I showed you your script running here and
-> working just fine.  As to your system running fine for two years, all
-> I can say is that _every_ system runs fine until it doesn't any more.
+> > Unfortunately the missing files in directory listings from SGI Irix
+> > 6.5.9f NFS servers still persists with the  2.4 kernel - we used the
+> > kernel 2.4.0 kernel that came with the Redhat 7.1beta
+> > uname -a tells Linux test-ah1 2.4.0-0.99.11 #1 Wed Jan 24 16:07:17 EST
+> > 2001 i686 unknown
+>
+> That is something I'd expect. I don't plan to merge the NFS changes into -ac
+> just yet. There are simply too many other things in 2.4 more important than
+> an Irix corner case right now.
+>
+> Irix at least used to have an export option to do mappings to keep clients that
+> had 32/64bit inode problems happy. Do those help ?
 
-No. It's __my__ denial phase.
+The 32bitclients option?  In my testing, it didn't change a thing.
 
-> 
-> There may be a problem elsewhere, but the ramdisk does not display
-> the symptom you claimed it would.
-> 
-> > Question. How come you show a lost+found directory in the ramdisk??
-> > mke2fs version 1.19 doesn't create one on a ram disk.
-> 
-> Well it certainly does create a lost+found here as you can see.  It
-> sounds as though you're implying that I dummied up the script output.
-> 
+Interestingly, unlike the original bug report, I can't reproduce the bug
+on all systems, but once it's triggered, I can reliably reproduce it.  On
+one 2.4.2 system, one directory always fails to show up, on another, I
+can't reproduce the bug in any directory.  Sometimes no files end up
+missing, 1 file is missing, or 5-6 files are missing when doing a `ls *`
+vs `ls`.
 
-No. I did not imply that. I only stated a "so-called" fact.
-Would you please check your /dev/ram0 and verify that it is:
+On 2.2.18, mounting with nfsvers=2 seems to fix the problem, on 2.4.2
+mounting with nfsvers=2 makes no difference.
 
-	block special (1/0)
+-Dave
 
-
-> > Script started on Wed Mar  7 12:22:20 2001
-> > # mke2fs -Fq /dev/ram0 1440
-> > mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-> > # mount /dev/ram0 /mnt
-> > # ls -la /mnt
-> > total 0
-> > # umount /mnt
-> > # exit
-> > exit
-> >
-> > Script done on Wed Mar  7 12:23:21 2001
-> >
-> >
-> > Also, check your logs. The errors reported don't go out to stderr.
-> > They go to whatever you have set up for kernel errors.
-> 
-> I know what kernel messages are.  There are none.
-> 
-> 	-Mike
-> 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
 
 

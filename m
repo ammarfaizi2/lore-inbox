@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285654AbRLTAER>; Wed, 19 Dec 2001 19:04:17 -0500
+	id <S285655AbRLTAGH>; Wed, 19 Dec 2001 19:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285655AbRLTAD6>; Wed, 19 Dec 2001 19:03:58 -0500
-Received: from s187-232.WebAccess.net ([216.241.187.232]:22658 "HELO
-	xerxes.data-raptors.com") by vger.kernel.org with SMTP
-	id <S285654AbRLTADv>; Wed, 19 Dec 2001 19:03:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Elyse Grasso <emgrasso@data-raptors.com>
-Reply-To: emgrasso@data-raptors.com
-To: linux-kernel@vger.kernel.org
-Subject: apm gpf on Inspiron2500 with 2.4.9
-Date: Wed, 19 Dec 2001 17:02:00 -0700
-X-Mailer: KMail [version 1.3.1]
+	id <S285656AbRLTAF5>; Wed, 19 Dec 2001 19:05:57 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:37573 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S285655AbRLTAFk> convert rfc822-to-8bit; Wed, 19 Dec 2001 19:05:40 -0500
+Message-ID: <3C212B8A.C22F31E8@oracle.com>
+Date: Thu, 20 Dec 2001 01:06:34 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011220000357Z285654-18284+4575@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+CC: =?iso-8859-1?Q?Ra=FAl=20N=FA=F1ez?= de ArenasCoronado 
+	<raul@viadomus.com>,
+        linux@sneulv.dk
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+In-Reply-To: <E16GnOs-0000JT-00@DervishD.viadomus.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please copy me on any comments, I am not subscribed to the list.
+Raúl Núñez de Arenas Coronado wrote:
+> 
+>     Hello all :))
+> 
+> >> Is it safe to use gcc-3.0.2 to compile the kernel?
+> >If it compiles.. Otherwise use gcc-3.0.3(prerelease), it has fixes that makes
+> >the _current_ kernel compile.
+> 
+>     I've using gcc-3.0.1 to compile the kernel since it was released
+> and my linux 2.4.16 runs without problems. In my experience, the only
+> problem is the ICE raised by the 8139too driver, although this seems
+> to have been corrected on gcc-3.0.2 (I haven't updated my compiler
+> yet). I haven't found any bug yet running my linux box, but this
+> doesn't mean that gcc-3.0 is safe for the kernel. It's safe for my
+> configuration of the kernel, at least.
 
-Attempts to interract with apm on Inspiron 2500 laptops produce results like 
-the following (KRUD/RedHat 7.2, but also occurs with 7.1).
+Been compiling my kernel with 3.0.2 since the day it was out and have
+ found no bugs so far. Raul's disclaimer applies in my case too - of
+ course.
 
-kernel: apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
+--alessandro
 
-general protection fault: e998
-CPU:  0
-EIP:  0050:[<00002ffb>]       Not tainted
-EFLAGS:       00010046
-eax: 00000292 ebx: 00000001   ecx: 00000000 edx: 00000000
-esi: c023149a edi: 00000014   ebp: c9f6de80   esp: c9f6de78
-ds: 0058      es: 0000        ss: 0018
-Process apmd (pid 781, stackpage c9f6d000)
-Stack:        5319519e 0000de80 00000058 149a0292 de940050 00000001 530a0000 
-00000016
-      00485369 00000000 c9f6def8 c01109b3 00000010 c9f6def8 00000292 ffff0018
-      00000018 cbe50000 c0120000 c9f6df32 c023149a ffffffff c9f5c000 c0110bbf
-Call Trace: [<c01109b3>] apm_bios_call [kernel] 0x43
-[<c0120000>] force_sig [kernel] 0x0
-[<c023149a>] .rodaata.str1.1 [kernel] 0x5c35
-[<c0110bbf>] apm_get_power_status [kernel] 0x3f
-[<c0126c24>] do_munmap [kernel] 0x64
-[<c0111886>] apm_get_info [kernel] 0x46
-[<c0153704>] proc_file_read [kernel] 0x94
-[<c0106f3b>] sys_read [kernel] 0x96
-[<c0106f3b>] system_call [kernel] 0x33
-
-Please let me know if there is other information that would be helpful... 
-it's been about 15 years since I did device driver work on 8086 based 
-machines, but I can probably figure out how to get you the information you 
-ask for.
-
-Thanks
-
-Elyse Grasso
+ "we live as we dream alone / to break the spell we mix with the others
+  we were not born in isolation / but sometimes it seems that way"
+     (R.E.M., live intro to 'World Leader Pretend')

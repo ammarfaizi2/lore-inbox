@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTLUA7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 19:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTLUA7n
+	id S261929AbTLUBBP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 20:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTLUBBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 19:59:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29104 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261928AbTLUA7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 19:59:42 -0500
-Date: Sat, 20 Dec 2003 17:00:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rik van Riel <riel@surriel.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, mbligh@us.ibm.com
-Subject: Re: [PATCH] make try_to_free_pages walk zonelist
-Message-Id: <20031220170042.3feb6aa7.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.55L.0312201928530.31547@imladris.surriel.com>
-References: <Pine.LNX.4.55L.0312201928530.31547@imladris.surriel.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 20 Dec 2003 20:01:14 -0500
+Received: from 12-211-67-128.client.attbi.com ([12.211.67.128]:411 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S261929AbTLUBBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 20:01:09 -0500
+Message-ID: <3FE4F0D3.2020904@comcast.net>
+Date: Sat, 20 Dec 2003 17:01:07 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nicklas Bondesson <nikomail@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+ (PDC20271)
+References: <BAY8-DAV26Mb5CIs4vP0000f52f@hotmail.com>
+In-Reply-To: <BAY8-DAV26Mb5CIs4vP0000f52f@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@surriel.com> wrote:
->
-> In 2.6.0 both __alloc_pages() and the corresponding
->  wakeup_kswapd()s walk all zones in the zone list,
->  possibly spanning multiple nodes in a low numa factor
->  system like AMD64.
+Nicklas Bondesson wrote:
+> Hi,
 > 
->  Also, if lower_zone_protection is set in /proc, then
->  it may be possible that kswapd never cleans out data
->  in zones further down the zonelist and try_to_free_pages
->  needs to do that.
+> Oh I forgot to say that i'm running RAID1 and it detects both drives
+> perfectly (I'm passing the IDE addresses to the kernel at boot time from the
+> lilo conf, see previous post). The system was reinstalled yesterday with two
+> brand new 80GB Western Digital disks (WD800JB-00DUA3). The thing is, I have
+> succesfully installed the TX2000 card with the native ATARAID drivers before
+> using two 30GB Maxtor (something) disks and kernel 2.4-20 - 2.4.23. I wonder
+> why I can't get it up and running now. It will only work with the pre
+> compiled kernel shipped with Debian 3.0 (2.4.18-bf2.4). I have tried all
+> sorts of kernel settings. Since I have got it to work before I think should
+> be able to do it again.
 > 
->  However, in 2.6.0 try_to_free_pages() only frees pages
->  in the pgdat the first zone in the zonelist belongs to.
+> Please advise.  
 > 
->  This is probably the wrong behaviour, since both the
->  page allocator and the kswapd wakeup free things from
->  all zones on the zonelist.  The following patch makes
->  try_to_free_pages() consistent with the allocator, by
->  passing the zonelist as an argument and freeing pages
->  from all zones in the list.
+> /Nicke
 
-hm, OK, so this should be a no-op for non-NUMA setups.
+Hmmm. I'm pretty sure that the partitions are enumerated the same way in 2.4.23
+vs. 2.4.18.  There was a change in the way IDE geometry was returned from the
+kernel that caused a hiccup in the pdcraid driver around 2.4.22 I think?  My
+patch just tells the pdcraid to use an alternate method of finding the RAID
+superblock on each drive. Not sure what else might be the problem. Do you see
+the ataraid driver fire up (looking something like this):
 
-Prior to merging such a change it would be nice to have confirmed
-before-and-after testing on real NUMA hardware.  Rather than saying "gee,
-this should help", but never knowing how much it really did help.
+ataraid/d0: ataraid/d0p1
+Drive 0 is 239372 Mb (33 / 0)
+Drive 1 is 239372 Mb (34 / 0)
+Raid1 array consists of 2 drives.
+Promise Fasttrak(tm) Softwareraid driver for linux version 0.03beta
 
-Could you suggest a suitable worklaod for Andi and Martin to test sometime?
+The only problem I've recently come upon with pdcraid, is when it detects just
+one of the drives and fails. I didn't think that should happen with raid1 though.
 
-Meanwhile, I'll mmify it for a bit of soak testing, thanks.
+

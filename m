@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVC1GCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVC1GHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVC1GCt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 01:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVC1GCt
+	id S261194AbVC1GHS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 01:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVC1GHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 01:02:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60051 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261160AbVC1GCr (ORCPT
+	Mon, 28 Mar 2005 01:07:18 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:37088 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261194AbVC1GHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 01:02:47 -0500
-Date: Sun, 27 Mar 2005 22:01:53 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: ]PATCH] cpuset: make function decl. ANSI
-Message-Id: <20050327220153.4aa3aace.pj@engr.sgi.com>
-In-Reply-To: <20050327214226.72dc5a34.rddunlap@osdl.org>
-References: <20050327214226.72dc5a34.rddunlap@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Mar 2005 01:07:10 -0500
+Message-Id: <200503280120.j2S1KE2j009816@laptop11.inf.utfsm.cl>
+To: Dave Jones <davej@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/ 
+In-Reply-To: Message from Dave Jones <davej@redhat.com> 
+   of "Sun, 27 Mar 2005 12:40:26 EST." <20050327174026.GA708@redhat.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Sun, 27 Mar 2005 21:20:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy wrote:
-> kernel/cpuset.c:1428:41: warning: non-ANSI function declaration
+Dave Jones <davej@redhat.com> said:
+> On Sun, Mar 27, 2005 at 05:12:58PM +0200, Jan Engelhardt wrote:
+> 
+>  > Well, kfree inlined was already mentioned but forgotten again.
+>  > What if this was used:
+>  > 
+>  > inline static void kfree_WRAP(void *addr) {
+>  >     if(likely(addr != NULL)) {
+>  >         kfree_real(addr);
+>  >     }
+>  >     return;
+>  > }
+>  > 
+>  > And remove the NULL-test in kfree_real()? Then we would have:
 
-Acked-by: Paul Jackson <pj@sgi.com>
+> Am I the only person who is completely fascinated by the
+> effort being spent here micro-optimising something thats
+> almost never in a path that needs optimising ?
+> I'd be amazed if any of this masturbation showed the tiniest
+> blip on a real workload, or even on a benchmark other than
+> one crafted specifically to test kfree in a loop.
 
-Thanks, Randy.
+Right.
 
+> That each occurance of this 'optimisation' also saves a handful
+> of bytes in generated code is it's only real benefit afaics.
+
+No. It clears up the calls to kfree() a bit too in the source. Not really
+important, sure.
+.
+> Even then, if a functions cache performance is better off because
+> we trimmed a few bytes from the tail of a function, I'd be
+> completely amazed.
+> 
+> I guess April 1st came early this year.
+
+Got (at) you! ;-)
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

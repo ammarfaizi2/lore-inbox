@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288962AbSATT6F>; Sun, 20 Jan 2002 14:58:05 -0500
+	id <S288958AbSATUCG>; Sun, 20 Jan 2002 15:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSATT5z>; Sun, 20 Jan 2002 14:57:55 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:16768 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S288957AbSATT5k>;
-	Sun, 20 Jan 2002 14:57:40 -0500
-Date: Sun, 20 Jan 2002 21:57:28 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Andrew Morton <akpm@zip.com.au>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
-Message-ID: <20020120215728.B1112@mea-ext.zmailer.org>
-In-Reply-To: <20020120193141.A1112@mea-ext.zmailer.org> <Pine.SGI.4.31L.02.0201201422500.1767115-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.31L.02.0201201422500.1767115-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Sun, Jan 20, 2002 at 02:24:40PM -0500
+	id <S288959AbSATUB4>; Sun, 20 Jan 2002 15:01:56 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:21704 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288958AbSATUBr>;
+	Sun, 20 Jan 2002 15:01:47 -0500
+Date: Sun, 20 Jan 2002 22:59:13 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [sched] [patch] migration-fixes-2.5.3-pre2-A1
+In-Reply-To: <3C4AD38F.7754CCC4@colorfullife.com>
+Message-ID: <Pine.LNX.4.33.0201202254440.14434-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20, 2002 at 02:24:40PM -0500, John Jasen wrote:
-> Really?
->   Software raid?
-> I have a quad ppro that is doing ext3/md just fine, and its running
-> 2.4.17.
 
-  Indeed. I didn't have problems with dual PPro200, but after I did
-  upgrade it to dual P-III-750, it does hang up.  Machines have
-  128 MB, and 750 MB memory, respectively.  (Disks and host controller
-  were moved over.)
+On Sun, 20 Jan 2002, Manfred Spraul wrote:
 
-  I recall having ran same earlier PPro optimized 2.4 kernel on PPro200,
-  and on P-III (2.4.6-ac1, or 2.4.10).  It hung up too, which prompted 
-  research on kernel versions.
+> >  #define SPURIOUS_APIC_VECTOR   0xff
+> >  #define ERROR_APIC_VECTOR      0xfe
+> >  #define INVALIDATE_TLB_VECTOR  0xfd
+> >  #define RESCHEDULE_VECTOR      0xfc
+> > -#define CALL_FUNCTION_VECTOR   0xfb
+> > +#define TASK_MIGRATION_VECTOR  0xfb
+> > +#define CALL_FUNCTION_VECTOR   0xfa
+> >
 
-  This all does point to some sort of deadlock window somewhere.
-  It appears to be practically untriggerable with PPro200, but
-  trivial to hit with P-III-750.
+> Are you sure it's a good idea to have 6 interrupts at priority 15? The
+> local apic of the P6 has only one in-service entry and one holding
+> entry for each priority.
 
-  Now to have a reliable way to find where the CPUs are spinning
-  when the thing does not work...  (I have tested kdb: keyboard
-  dies at hangup -> kdb becomes non-functional...)
+we havent been following this strict rule for some time. We are
+distributing device interrupts according to this rule, but only as an
+optimization, and only as long as the number of IRQ sources is smaller
+than ~30.
 
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- In theory, theory and practise are the same. In practise, they aren't.
+i think the worst-case is that we might lose a local APIC timer interrupt
+- and this only on older APIC versions. Recent CPUs should handle this
+correctly. AND, we have the local APIC timer interrupt on its own priority
+level anyway.
 
-/Matti Aarnio
+So i think the P6 documentation is a pessimisation of the true situation,
+and that we can very well have multiple interrupts on the same priority
+level even on older APICs - as long as the local timer interrupt is not
+amongst them.
+
+	Ingo
+

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRLLPFS>; Wed, 12 Dec 2001 10:05:18 -0500
+	id <S280588AbRLLPML>; Wed, 12 Dec 2001 10:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280588AbRLLPE6>; Wed, 12 Dec 2001 10:04:58 -0500
-Received: from ausxc07.us.dell.com ([143.166.227.166]:26774 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S280531AbRLLPEt>; Wed, 12 Dec 2001 10:04:49 -0500
-Message-ID: <71714C04806CD5119352009027289217022C40B9@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: csy@hjc.edu.sg, linux-kernel@vger.kernel.org
-Subject: RE: AACRAID & Kernel-2.4.17-pre8
-Date: Wed, 12 Dec 2001 09:04:12 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S280664AbRLLPMC>; Wed, 12 Dec 2001 10:12:02 -0500
+Received: from mail.ccur.com ([208.248.32.212]:44811 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id <S280588AbRLLPLx>;
+	Wed, 12 Dec 2001 10:11:53 -0500
+Subject: Re: [RFC] Multiprocessor Control Interfaces
+From: Jason Baietto <jason.baietto@ccur.com>
+To: Tim Hockin <thockin@sun.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C164D93.A52BC1C2@sun.com>
+In-Reply-To: <200112110138.fBB1cqS09363@www.hockin.org>
+	<1008088311.16656.4.camel@soybean>  <3C164D93.A52BC1C2@sun.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 12 Dec 2001 10:11:43 -0500
+Message-Id: <1008169908.22359.2.camel@soybean>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone know how to get rid of these messages
+On Tue, 2001-12-11 at 13:16, Tim Hockin wrote:
+> Jason Baietto wrote:
+>
+> > support it in my "run" tool, though I fear that it would always be
+> > functionally limited without /proc present.
+> 
+> Adding /proc/ interfaces like cpus_allowed or similar is just gravy
+> on top of pset, which I think is a good interface.
 
-At the top of linux/drivers/scsi/aacraid/aacraid.h:
-#define dprintk(x)  printk x
+Sorry for the ambiguity.  My comment was about the functionality of
+the "run" tool itself being limited without /proc support.
 
-Change that to be:
-#define dprintk(x)
+Although I agree that ultimately "run" is gravy, our customers think
+it's pretty tasty gravy :-)  It's very convenient to write a shell
+script to start up a complex application without having to reference
+pids anywhere and without having to modify any of the programs in
+the application to make them CPU affinity aware.  Combined with run's
+ability to tune scheduling parameters, you have a very simple but
+powerful way to experiment with and tune application performance.
 
-Thanks,
-Matt
+The run tool also allows you to quickly move processes around by
+specifying lists of pids, process names, process groups or users,
+but /proc is needed for anything more interesting than pids.
 
+Take care,
+Jason
 --
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#1 US Linux Server provider with 24% (IDC Sept 2001)
-#2 Worldwide Linux Server provider with 17% (IDC Sept 2001)
-#3 Unix provider with 18% in the US (Dataquest)!
+Jason Baietto
+jason.baietto@ccur.com
+http://www.ccur.com/realtime/oss
+

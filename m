@@ -1,85 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317440AbSHHKwV>; Thu, 8 Aug 2002 06:52:21 -0400
+	id <S317444AbSHHLE0>; Thu, 8 Aug 2002 07:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317443AbSHHKwV>; Thu, 8 Aug 2002 06:52:21 -0400
-Received: from mailgw3a.lmco.com ([192.35.35.7]:7174 "EHLO mailgw3a.lmco.com")
-	by vger.kernel.org with ESMTP id <S317440AbSHHKwU>;
-	Thu, 8 Aug 2002 06:52:20 -0400
-Content-return: allowed
-Date: Thu, 08 Aug 2002 06:55:26 -0400
-From: "Reed, Timothy A" <timothy.a.reed@lmco.com>
-Subject: RE: Hyperthreading Options in 2.4.19
-To: "'J.A. Magallon'" <jamagallon@able.es>,
-       "'Renato'" <webmaster@cienciapura.com.br>
-Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-Message-id: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE6@emss04m10.ems.lmco.com>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
+	id <S317446AbSHHLE0>; Thu, 8 Aug 2002 07:04:26 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:41220 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S317444AbSHHLEZ>;
+	Thu, 8 Aug 2002 07:04:25 -0400
+Date: Thu, 8 Aug 2002 07:08:04 -0400
+From: Rob Radez <rob@osinvestor.com>
+To: linux-kernel@vger.kernel.org
+Cc: watchdogng@lists.tummy.com
+Subject: Watchdog Updates
+Message-ID: <20020808070804.F1625@osinvestor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
-	Thanks for the answers!  In doing research on those options I too
-found that they were not need for Hyperthreading, but I needed something
-more to back up opinion.
+Howdy,
 
-Thanks Again.
+I've updated my big watchdog patch to 2.4.20-pre1.  New changes include:
+adding error handling to initialization,
+fixing pci_enable_device calls,
+adding in the C99 struct initializers,
+remove the entry in MAINTAINERS for the pcwd driver.
 
-Timothy Reed
-Software Engineer\Systems Administrator
-Lockheed Martin - NE & SS Syracuse
-Email: timothy.a.reed@lmco.com
+I've stopped tracking the 2.4-ac tree because I'm planning to start adding in
+Configure.help, Config.in, and Makefile changes, as well as hopefully starting
+to track 2.5 (or 2.5-dj, one or the other).
 
+Patch is up at http://osinvestor.com/wd/wd-2.4.20-pre1-1.diff
 
------Original Message-----
-From: J.A. Magallon [mailto:jamagallon@able.es]
-Sent: Wednesday, August 07, 2002 6:37 PM
-To: Reed, Timothy A
-Cc: Linux Kernel ML (E-mail)
-Subject: Re: Hyperthreading Options in 2.4.19
-
-
-
-On 2002.08.07 "Reed, Timothy A" wrote:
->Hello All,
->	I am going rounds with a sub-contractor of ours about what options
->should and should not be compiled into the kernel in order for
->Hyperthreading to work.  Can anyone make any suggestions and comments to
-the
->options (below)  that I am planning on enforcing:
->	MSR
->	MTRR
->	CPUID
-
-I thikn none is needed for ht. Of course, mtrr raises performance.
-The other are not needed, afaik.
-
->
->	Lilo.conf : acpismp=force?? 
->
-
-True for old kernels, not needed anymore.
-
->	Are the following worth any thing of value to Hyperthreading:
->	Microcode
->	ACPI
-
-No.
-
-In summary, with 2.4.19 you do not have to do nothing to have
-hyperthreading.
-Other useful options are 'noht' to disable ht, and 'idle=poll', that I think
-improves latency.
-
-by
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like
-sex:
-werewolf.able.es                         \           It's better when it's
-free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.20-pre1-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))
+Regards,
+Rob Radez

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269218AbUHZRYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269265AbUHZR1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269218AbUHZRYE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269185AbUHZRU2
+	id S269265AbUHZR1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 13:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269261AbUHZRZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 13:20:28 -0400
-Received: from smtp.terra.es ([213.4.129.129]:15234 "EHLO tsmtp3.ldap.isp")
-	by vger.kernel.org with ESMTP id S269275AbUHZRJD convert rfc822-to-8bit
+	Thu, 26 Aug 2004 13:25:36 -0400
+Received: from mail.shareable.org ([81.29.64.88]:42438 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269265AbUHZRWe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:09:03 -0400
-Date: Thu, 26 Aug 2004 19:05:48 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Rik van Riel <riel@redhat.com>
-Cc: jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+	Thu, 26 Aug 2004 13:22:34 -0400
+Date: Thu, 26 Aug 2004 18:22:21 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Christophe Saout <christophe@saout.de>
+Cc: Will Dyson <will_dyson@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       Andrew Morton <akpm@osdl.org>, hch@lst.de,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040826190548.3e67726f.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
-References: <20040826154446.GG5733@mail.shareable.org>
-	<Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20040826172221.GQ5733@mail.shareable.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <412E10A2.1020801@pobox.com> <1093538653.5482.21.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093538653.5482.21.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 26 Aug 2004 11:54:51 -0400 (EDT) Rik van Riel <riel@redhat.com> escribió:
+Christophe Saout wrote:
+> echo linux > file.bla/keywords/topic
+> 
+> The filesystem might then automatically put these keywords into an index
+> and then provide a search mechanism elsewhere where it could ask "find
+> me all dentries with the keyword 'linux'." and it would return a list
+> like locate does. Only that it's in realtime and also works when moving
+> the file around (but not when copying with an unaware program for
+> obvious reasons).
 
-> And if an unaware application reads the compound file
-> and then writes it out again, does the filesystem
-> interpret the contents and create the other streams ?
+It could work even when copying with an unaware program - provided
+the're a tool which knows to extract metadata from files where that
+hasn't been done already, or where the file's been modified.
 
-If the old utils doesn't support streams there's no way to make them create
-streams. There's not a real solution for that except fixing the old tools.
+-- Jamie
 
-Why instead of being "compound" you just make test.compound to
-behave as a real directory? ie:
 
-# echo "foo" > streamfile
-# echo "fake metadata" > streamfile/somemetadata
-# cat streamfile
-foo
-# cat streamfile/somemetadata
-fake metadata
 
-Now the old backup utils could see "streamfile" as a directory, ie:
-old apps could see that "streamfile" is a directory and then make
-their backups with the following contents:
-streamfile/somemetadata
-streamfile/defaultstream
-
-The defaultstream would be what its name means. There could be more
-default streams like "streamfile/compoundstream"
-
-All this looks like reinventing the file/directory concept wheel. Instead of
-adding support for streams and "use files as directories", why not orientate
-it to "use directories as files? Streams could very well be provided
-by directories containing files, with the addon of being able to cat
-a directory (which would cat the output of a designed file inside
-every directory like "defaultstream", then there could be other
-"special files" like "compoundstream", although the idea of "fixed name-
-special files" doesn't sounds very cool) All this could be very well
-provided done userspace, but then couldn't userspace also supply the whole VFS 
-functionality and still it lives in the kernel...?
 

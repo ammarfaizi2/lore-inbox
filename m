@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313836AbSDIKTw>; Tue, 9 Apr 2002 06:19:52 -0400
+	id <S313125AbSDIKSs>; Tue, 9 Apr 2002 06:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313837AbSDIKTv>; Tue, 9 Apr 2002 06:19:51 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:40666 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S313836AbSDIKTu>;
-	Tue, 9 Apr 2002 06:19:50 -0400
-Reply-To: <o.pitzeier@uptime.at>
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: <linux-kernel@vger.kernel.org>
-Subject: Compaq Alpha DS10 - Kernel 2.4.18
-Date: Tue, 9 Apr 2002 12:19:37 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <000d01c1dfb0$0da74a30$010b10ac@sbp.uptime.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <1018346790.680.10.camel@ADMIN>
-X-MailScanner: Found to be clean
+	id <S313835AbSDIKSr>; Tue, 9 Apr 2002 06:18:47 -0400
+Received: from kirk.etnet.fr ([195.146.194.12]:14093 "EHLO kirk.etnet.fr")
+	by vger.kernel.org with ESMTP id <S313125AbSDIKSq>;
+	Tue, 9 Apr 2002 06:18:46 -0400
+Date: Tue, 9 Apr 2002 12:18:21 +0200
+From: Guillaume Gimenez <ggimenez@prologue-software.fr>
+To: Nick Martens <nickm@kabelfoon.nl>
+Cc: linux-kernel@vger.kernel.org,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: 2.4.18 Boot problem
+Message-Id: <20020409121821.18817b76.ggimenez@prologue-software.fr>
+In-Reply-To: <200204090939.g399dlX02029@Port.imtp.ilyichevsk.odessa.ua>
+Organization: Prologue Software
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #aYAM@CUO[tWCSX=wrnq$Aou=9$*@-<8{sgt[sSL;U(&AIRAJpcVt`0`=<gW@j?B5~[$uVf j6<bh?MB`;Ug#@.HxckUG)/`~dT(,3~\&q{QQX<*yu,p,XGfU+-~OO^w@?FC;Yv+uUq']Y&?P)?G:n cP^h4o=/N)gGrj}o\dB8}&
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.r1ig/80cWWPt4R"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+--=.r1ig/80cWWPt4R
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-I've got a really big problem with kernel 2.4.18 and 2.4.17 on
-an Alpha.
+Denis Vlasenko a écrit:
+    Denis> On 8 April 2002 18:32, Nick Martens wrote:
+    Denis> > I don't expect it to be a memory problem my system is really stable and
+    Denis> > the weirdest about the problem is that it only happens the first time I
+    Denis> > boot up after my pc has been turned off for a while and there are no
+    Denis> > problems when i boot 2.5.1 it only crashes on shutdowns on that kernel.
+    Denis> > I have tried updating all kind of things, but noting seems to work
+    Denis> 
+    Denis> Is your "for a while" >= ten seconds? Nothing in CPU/RAM can survive
+    Denis> that long.
+    Denis> 
+    Denis> I'd say this is a hardware problem then. Something in your box does not like 
+    Denis> to be cold.
+    Denis> --
+    Denis> vda
 
-I can compile, install and boot the kernel on my Alpha.
-But if I shutdown the machine without shutting down the
-system - I know this is crazy, but sometimes this happens...
+Is Nick's system based on a Tyan TigerMP mobo with 2 cpu ?
+I have the same kind of problem.
 
-So if I'm this mad and restart the machine afterwards, I get
-a lot of fsck errors 'til the system give up and tell's me,
-that I have to check it with fsck myself.
+My TigerMP based system is very unstable the first 5 minutes
+I use it, and then become as stable as I can expect.
 
-OK, I did so... fsck -y /dev/sda1 -> Works perfectly. After
-fsck has corrected more than 1000 errors I'm able to
-reboot the machine.
+I suspect my power suply to be picky about temperature and cannot
+deliver the needed power when it is cold. It is an enermax 350W
 
-And than: MY SYSTEM IS NO LONGER BOOTABLE. It's totally
-currupted...
 
-I never saw the filesystem curruption bug on Intel, but it
-sounds like this.
+Regards, 
 
-Is this the same bug that was on Intel?
-Have I done something wrong?
+Guillaume Gimenez
 
-Are there any alpha-users in this list? :o))))
+--=.r1ig/80cWWPt4R
+Content-Type: application/pgp-signature
 
-Greetz, I look forward for answers,
- Oliver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6b (GNU/Linux)
 
+iD8DBQE8sr/x00PDGGWQcLIRAu0WAJ97KoNbMqS14iIZFqW34JGVAzVjywCgsdId
+nT+v1C3yW9j0pzInudt0aJc=
+=Y0IK
+-----END PGP SIGNATURE-----
+
+--=.r1ig/80cWWPt4R--
 

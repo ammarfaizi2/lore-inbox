@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286354AbRLJSfi>; Mon, 10 Dec 2001 13:35:38 -0500
+	id <S286353AbRLJSji>; Mon, 10 Dec 2001 13:39:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286353AbRLJSf2>; Mon, 10 Dec 2001 13:35:28 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:8199 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S286358AbRLJSfU>;
-	Mon, 10 Dec 2001 13:35:20 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112101834.VAA17862@ms2.inr.ac.ru>
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
-To: Mika.Liljeberg@welho.com (Mika Liljeberg)
-Date: Mon, 10 Dec 2001 21:34:47 +0300 (MSK)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3C14FBE7.E3A5F745@welho.com> from "Mika Liljeberg" at Dec 10, 1 08:16:07 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S286359AbRLJSj2>; Mon, 10 Dec 2001 13:39:28 -0500
+Received: from mail313.mail.bellsouth.net ([205.152.58.173]:61609 "EHLO
+	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S286353AbRLJSjT>; Mon, 10 Dec 2001 13:39:19 -0500
+Message-ID: <3C150150.3E282A1B@mandrakesoft.com>
+Date: Mon, 10 Dec 2001 13:39:12 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.5.X Directory move for old Wavelan/Netwave drivers
+In-Reply-To: <20011206155555.A18014@bougret.hpl.hp.com> <20011210103403.A20751@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Just a suggestion, if you are moving a bunch of files around, you might
+e-mail Linus a small script he can cut-n-paste to move the files, and
+then provide a patch for the stuff that is actually changed...  I don't
+want to speak for Linus but at least for the rest of LKML it would make
+the patches smaller and easier to read.  This was a pretty large patch
+to the CC to lkml...
 
-> Either LAST-ACK is completely broken or Linux just cannot handle a
-> FIN-ACK that is piggybacked on a data segment, when received in LAST-ACK
-> state. 
+Even if the files are renamed then changed, IMHO a better submission
+will include 
+	mv dir1/foo.c dir2/foo.c
+	mv dir1/bar.c dir2/bar.c
 
-It cannot handle even pure FIN in this state. :-( I bring apologies,
-it is my fault. Thank you.
+and then patch dir2/{foo,bar}.c....
 
-Well, you can just add one line to tcp_input.c to repair this.
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
-                }
-                /* Fall through */
-+       case TCP_LAST_ACK:
-        case TCP_ESTABLISHED:
-                tcp_data_queue(sk, skb);
-
-
-Dave, "official" patch will follow later. I must think about
-some marginal effect in TCP_CLOSE_WAIT and TCP_CLOSING, which can break
-out of switch too. Duh, do specs say something about segments with seqs
-above fin? I do not remember.
-
-Alexey

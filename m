@@ -1,84 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270765AbTHAOL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 10:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTHAOL4
+	id S270763AbTHAOFy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbTHAOFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 10:11:56 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:39068 "EHLO
-	gatekeeper.slim") by vger.kernel.org with ESMTP id S270765AbTHAOLy
+	Fri, 1 Aug 2003 10:05:54 -0400
+Received: from 69-55-72-144.ppp.netsville.net ([69.55.72.144]:17309 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S270763AbTHAOFx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 10:11:54 -0400
-Subject: 2.6.0-test2: irq 18: nobody cared...Disabling irq #18 (i875P SATA)
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: ML-linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 1 Aug 2003 10:05:53 -0400
+Subject: Re: [PATCH] [2.5] reiserfs: fix races between link and unlink on
+	same file
+From: Chris Mason <mason@suse.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030801111027.GA1108@namesys.com>
+References: <20030731144204.GP14081@namesys.com>
+	 <20030731133708.04bcd0c9.akpm@osdl.org> <20030801111027.GA1108@namesys.com>
 Content-Type: text/plain
-Message-Id: <1059747024.2418.8.camel@paragon.slim>
+Organization: 
+Message-Id: <1059746739.5881.20.camel@tiny.suse.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-1) 
-Date: 01 Aug 2003 16:10:24 +0200
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 01 Aug 2003 10:05:40 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2003-08-01 at 07:10, Oleg Drokin wrote:
+> Hello!
+> 
+> On Thu, Jul 31, 2003 at 01:37:08PM -0700, Andrew Morton wrote:
+> 
+> > > This patch (originally by Chris Mason) fixes link/unlink races in reiserfs.
+> > Could you describe the race a little more please?  Why is the VFS's hold of
+> > i_sem on the parent directory not sufficient?
+> 
+> Well, we do not take i_sem on parent directory of source filename for sys_link, I think.
+> So we might endup in sys_link() with inode that is already deleted/being deleted (and nlink==0).
+> Actually, I naturally thought that only i_nlink check to be non zero at reiserfs_link time should be
+> enough, but Chris is sure that we need entire patch, so may be he may add more comments to that.
+> 
 
-While booting 2.6.0-test2 on my i875P based PC I get the following:
+Yes, it's basically a problem of making sure reiserfs_link sees any
+changes made by reiserfs_unlink and vice versa.  Toss in the BKL and a
+few funcs that schedule and you get small windows where the object
+you're linking to can have a inode->i_nlink of zero.
 
-<snip>
-Adding 787176k swap on /dev/hda3.  Priority:-1 extents:1
-irq 18: nobody cared!
-Call Trace:
- [<c010cf76>] __report_bad_irq+0x2a/0x8b
- [<c010d060>] note_interrupt+0x6f/0x9f
- [<c010d38d>] do_IRQ+0x175/0x1a6
- [<c010884e>] default_idle+0x0/0x2d
- [<c010884e>] default_idle+0x0/0x2d
- [<c010b5c4>] common_interrupt+0x18/0x20
- [<c010884e>] default_idle+0x0/0x2d
- [<c010884e>] default_idle+0x0/0x2d
- [<c0108878>] default_idle+0x2a/0x2d
- [<c01088ee>] cpu_idle+0x39/0x42
- [<c0105000>] rest_init+0x0/0x65
- [<c035a83e>] start_kernel+0x191/0x1ca
- [<c035a403>] unknown_bootoption+0x0/0xff
+All of which is dealt with properly at the VFS level.  The trick in
+reiserfs is that somebody needs to take care of removing the savelink
+used to prevent lost files after a crash.  If we don't get the i_nlink
+timing right, two different procs might try to remove the savelink, or
+it might not get removed at all.
 
-handlers:
-[<c01ef51c>] (ide_intr+0x0/0x1d4)
-Disabling IRQ #18
+> BTW, looking at vfs_link, this patch (below the message) seems to be
+> natural thing to do, is not it?
+> 
 
+Looks fine.
 
-IRQ 18 belongs to the SATA interface:
+-chris
 
-ide2 at 0xefe0-0xefe7,0xefae on irq 18
-
-Funny thing is that the SATA drive is still usable while the irq
-is disabled.
-
-I also noticed that the interrupt count for IRQ 18 is still rather high
-(as I mention in a previous mail):
-
-           CPU0       CPU1
-  0:     552358          0    IO-APIC-edge  timer
-  2:          0          0          XT-PIC  cascade
-  9:          0          0   IO-APIC-level  acpi
- 14:      11122          0    IO-APIC-edge  ide0
- 15:          1          0    IO-APIC-edge  ide1
- 16:      42146          0   IO-APIC-level  uhci-hcd, nvidia
- 17:          0          0   IO-APIC-level  Intel ICH5
- 18:     100013      99992   IO-APIC-level  ide2
- 19:      14627          0   IO-APIC-level  uhci-hcd
- 20:          2          0   IO-APIC-level  ohci1394
- 21:        530          0   IO-APIC-level  eth0
- 23:          0          0   IO-APIC-level  ehci_hcd
-NMI:          0          0
-LOC:     552289     552628
-ERR:          0
-MIS:          4
-
-Any solutions?
-
-Cheers,
-
-Jurgen	
 

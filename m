@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312878AbSC0BlV>; Tue, 26 Mar 2002 20:41:21 -0500
+	id <S312817AbSC0Brm>; Tue, 26 Mar 2002 20:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312789AbSC0BlF>; Tue, 26 Mar 2002 20:41:05 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:36625 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S312829AbSC0Bkv>; Tue, 26 Mar 2002 20:40:51 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7738@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'linux-serial'" <linux-serial@vger.kernel.org>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'Roman Kurakin'" <rik@cronyx.ru>,
-        "'Russell King'" <rmk@arm.linux.org.uk>,
-        "'Theodore Tso'" <tytso@mit.edu>
-Subject: [PATCH] serial port in use bug - discussion please
-Date: Tue, 26 Mar 2002 17:40:49 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S312925AbSC0Brc>; Tue, 26 Mar 2002 20:47:32 -0500
+Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:9344 "EHLO
+	bacchus.jdhouse.org") by vger.kernel.org with ESMTP
+	id <S312817AbSC0BrV>; Tue, 26 Mar 2002 20:47:21 -0500
+Subject: Re: Linux 2.4.19-pre4-ac2
+From: "Jonathan A. Davis" <davis@jdhouse.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16q29I-0004Qr-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 26 Mar 2002 19:47:05 -0600
+Message-Id: <1017193625.1435.18.camel@bacchus.jdhouse.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds code to function set_serial_info() to fix two issues: 
+On Tue, 2002-03-26 at 19:22, Alan Cox wrote:
+> Linux 2.4.19pre4-ac2
 
-1. Function returned -EADDRINUSE when attempt was made to change fields 
-such as "baud_base" on a memory based serial port with the setserial 
-command. A check was added to bypass the port-in-use test loop if the 
-existing "iomem_base" field is nonzero, indicating a memory based 
-serial port that cannot be moved by this function. 
+Alan and Co,
 
-2. Function allowed attempts to set "port" field on memory based serial 
-ports to a nonzero value. The iomem_base field cannot be changed by this 
-function, so a test was added to return -EINVALID when new "port" field 
-is nonzero and existing "iomem_base" field is also nonzero. 
+By chance I was culling through my boot log and noticed the following:
 
-For kernel files rev 2.14.19-pre3
+Initializing CPU#0
+Detected 8132.282 MHz processor.
 
-Contributor: Roman Kurakin <rik@cronyx.ru>
+Now, I'd *love* to have a processor that could do that for real, but
+don't think my Athlon XP quite makes the grade.  :-)
 
- Subject: Serial.c Bug
- Date: Wed, 14 Nov 2001 13:02:47 +0300
- From: Roman Kurakin <rik@cronyx.ru>
- To: linux-kernel@vger.kernel.org
+Looking through my boot logs, this problem seems to start somewhere
+between 2.4.19-pre2-ac4 and 2.4.19-pre4-ac1 (I didn't run any of the
+intervening releases).
 
-   I have found a bug. It is in support of serial cards which uses
-   memory for I/O instead of ports. I made a patch for serial.c and
-   fix one place, but probably the problem like this one could be
-   somewhere else.
+It's also sporadic -- out of 5 reboots, the proper speed (1466.559 MHz)
+was detected 2 of the 5 times.  Dropping back to 2.4.19-pre2-ac4 gives
+me correct detection 5 of 5.  No config changes were made between these
+kernels (except =n for any new options).
 
-   If you try to use setserial with such cards you will get "Address in use"
-   (-EADDRINUSE)
+System:
 
-   Best regards,
-   Roman Kurakin
+Athlon XP 1700+
+Soyo SY-K7VX MB (VIA KT266A)
+1GB ECC PC2100 Memory
+Redhat 7.2 (stock+updates with the exception of the kernel and XFree 4.2
+(to support my ATI 7500 card)
+Everything from the P/S to the cpu fan is AMD spec'd and environment
+sensors show normal.
 
-diff -urN -X dontdiff.txt linux-2.4.19-pre3/drivers/char/serial.c
-patched/drivers/char/serial.c
---- linux-2.4.19-pre3/drivers/char/serial.c	Thu Mar 14 16:19:02 2002
-+++ patched/drivers/char/serial.c	Tue Mar 26 16:06:06 2002
-@@ -2131,6 +2131,7 @@
- 	if ((new_serial.irq >= NR_IRQS) || (new_serial.irq < 0) || 
- 	    (new_serial.baud_base < 9600)|| (new_serial.type < PORT_UNKNOWN)
-||
- 	    (new_serial.type > PORT_MAX) || (new_serial.type == PORT_CIRRUS)
-||
-+	    (new_port && state->iomem_base) ||
- 	    (new_serial.type == PORT_STARTECH)) {
- 		return -EINVAL;
- 	}
-@@ -2141,7 +2142,7 @@
- 			uart_config[new_serial.type].dfl_xmit_fifo_size;
- 
- 	/* Make sure address is not already in use */
--	if (new_serial.type) {
-+	if (!state->iomem_base && new_serial.type) {
- 		for (i = 0 ; i < NR_PORTS; i++)
- 			if ((state != &rs_table[i]) &&
- 			    (rs_table[i].port == new_port) &&
+Please let me know if more info is needed...
 
+-- 
 
----------------------------------------------------------------- 
-Ed Vance              serial24@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+-Jonathan <davis@jdhouse.org>
 
-
+          * "The mind is like a parachute. It works best when open." *

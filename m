@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbQJ3MAr>; Mon, 30 Oct 2000 07:00:47 -0500
+	id <S129048AbQJ3MHj>; Mon, 30 Oct 2000 07:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129290AbQJ3MAh>; Mon, 30 Oct 2000 07:00:37 -0500
-Received: from jalon.able.es ([212.97.163.2]:41963 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129053AbQJ3MA2>;
-	Mon, 30 Oct 2000 07:00:28 -0500
-Date: Mon, 30 Oct 2000 13:00:06 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel Developer <linux_developer@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
-Message-ID: <20001030130006.B1555@werewolf.cps.unizar.es>
-In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com>; from linux_developer@hotmail.com on Mon, Oct 30, 2000 at 12:09:49 +0100
-X-Mailer: Balsa 1.0.pre2
+	id <S129060AbQJ3MH3>; Mon, 30 Oct 2000 07:07:29 -0500
+Received: from deckard.concept-micro.com ([62.161.229.193]:10306 "EHLO
+	deckard.concept-micro.com") by vger.kernel.org with ESMTP
+	id <S129048AbQJ3MHY>; Mon, 30 Oct 2000 07:07:24 -0500
+Message-ID: <XFMail.20001030130943.petchema@concept-micro.com>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <39FCB13E.6267C38D@haque.net>
+Date: Mon, 30 Oct 2000 13:09:43 +0200 (CET)
+X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
+ d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
+ "%*lo](u?0p=T:P9g(ta[hH@uvv
+Organization: Concept Micro
+From: Pierre Etchemaite <petchema@concept-micro.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Subject: RE: ide/disk perf?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 30 Oct 2000 12:09:49 Linux Kernel Developer wrote:
-> The goal of this project is to clean up the kernel headers so as they are
-> useable/compatible with those who wish to program their kernel modules in
-> C++.  It is not my goal to rewrite the kernel in C++ or anything like that,
+Le 30-Oct-2000, Mohammad A. Haque écrivait :
+> Could someone who knows ide and drive inside and out (Andre?) please
+> take a look at these figures? Am I forgetting to do something (or doing
+> something I'm not suposed to) to get the best numbers? I thought I'd be
+> able to get more than ~4MB/sec off the HPT366 and a UDMA66 drive.
 
-Fist of all, there is even one other goal, to MAKE PEOPLE PROGRAMMING IN C++
-TO BE ABLE TO USE KERNEL HEADERS; it is more likely that someone programs
-something in C++ that accesses kernel info that anyone programming a C++
-module.
+It could be unrelated, but I had problems several times with Maxtor drives
+recently; Their performances are usually high (some models give >20 Mb/s
+both reads and writes), but under some conditions that I couldn't narrow down
+yet, the read throughput is stuck to the floor (a few megabytes/sec) until
+next reboot. The write performance is always ok.
 
-The generated patch has to be usable by someone that has only kernel headers
-and kernel binaries, no kernel source tree (situation 1). 
-You get the standard kernel
-headers, apply the patch and make them C++-friendly. There is a similar
-workaround done in X, that I will comment below.
+I don't think it's a chipset problem, with a box filled with several Maxtor
+drives and I observe the problem with some disk and not others at the same time.
 
-> updated.  A couple of C files had to be updated as well due to parameters,
-> defined in the header files, being called "new".  All of these were
-> straightforward fixes and should be correct, testing is welcome.
-..
->     Ok now on to the questions I have.  In include/linux/joystick.h,
-> include/linux/raid5.h, and include/linux/adfs_fs.h I've found members of
-> structures and a union which were called "new".  The datastructures in
-> question are union adfs_dirtail::new, struct stripe_head::new, struct
-> js_dev::new.  My questions are basically this.  If I update these data
-> structure members' names along with the references to them in various C
-> files in the kernel will all be happy in Linuxland.  Can any external
+I don't think it's a Linux problem either, since it can be observed with
+Windows benchmarking tools too.
 
-Why do you need to touch any existing kernel .c source file ? If you make
-that patch, this breaks "situation 1" above.
-AFAIK, ANSI C does not require that prototype (declaration) parameter names and 
-definition parameter names match, only types. So, this snippet is correct:
 
-int f(int onename);
+As a side note, I usually get better results tweaking disks using kernel
+compiling options ("default to DMA", "autotune chipset", ...) than using hdparm
+-d1 and friends, give it a try.
 
-int f(int othername)
-{
-}
-
-and compiled both under egcs-1.1.2 and gcc-2.95.2. So you don't have to touch
-kernel .c source files, only change headers to make them not break C++.
-
-And what about struct fields ? It is the same. If you change the name of a field
-permanently, you have to modify the C source that uses it. But names are not
-important for binary compatability, so you can make things like:
-struct data {
-	int field1;
-#ifndef __cplusplus
-	double 	new;
-	int	class;
-#else
-	double	dnew;
-	int	klass;
-#endif
-};
-
-The "klass" example is directly taken from XFree header files, look at
-vi +239 /usr/X11R6/include/X11/Xlib.h
-vi +898 /usr/X11R6/include/X11/Xlib.h
-
-So the core X internals, written in C, use the "class" field, but anyone using 
-X in C++ programs has to use the field as "klass" or "c_class".
-
-I think X is a good example to provide C++ friendlyness with the minimal
-internal
-change. Perhaps this is a way to make kernel programmers-mantainers to accept
-the 
-headers patch, they can continue working the same...
 
 -- 
-Juan Antonio Magallon Lacarta                          mailto:jamagallon@able.es
+Linux blade.workgroup 2.4.0-test10 #1 Sat Oct 28 18:00:09 CEST 2000 i686 unknown
+  1:09pm  up 1 day, 19:01,  2 users,  load average: 1.04, 1.08, 1.09
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

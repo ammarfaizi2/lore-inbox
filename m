@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317436AbSHHKlo>; Thu, 8 Aug 2002 06:41:44 -0400
+	id <S317440AbSHHKwV>; Thu, 8 Aug 2002 06:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317440AbSHHKlo>; Thu, 8 Aug 2002 06:41:44 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:15628 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317436AbSHHKln>; Thu, 8 Aug 2002 06:41:43 -0400
-Message-ID: <3D524A67.7030407@evision.ag>
-Date: Thu, 08 Aug 2002 12:39:35 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: martin@dalecki.de, "Bill Huey (Hui)" <billh@gnuppy.monkey.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bad: schedule() with irqs disabled! (+ ksymoops)
-References: <Pine.LNX.4.44.0208081218160.24255-100000@linux-box.realnet.co.sz>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S317443AbSHHKwV>; Thu, 8 Aug 2002 06:52:21 -0400
+Received: from mailgw3a.lmco.com ([192.35.35.7]:7174 "EHLO mailgw3a.lmco.com")
+	by vger.kernel.org with ESMTP id <S317440AbSHHKwU>;
+	Thu, 8 Aug 2002 06:52:20 -0400
+Content-return: allowed
+Date: Thu, 08 Aug 2002 06:55:26 -0400
+From: "Reed, Timothy A" <timothy.a.reed@lmco.com>
+Subject: RE: Hyperthreading Options in 2.4.19
+To: "'J.A. Magallon'" <jamagallon@able.es>,
+       "'Renato'" <webmaster@cienciapura.com.br>
+Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Message-id: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE6@emss04m10.ems.lmco.com>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Zwane Mwaikambo napisa?:
-> On Thu, 8 Aug 2002, Marcin Dalecki wrote:
-> 
-> 
->>I can report pretty the same:
->>
->>Trace; c0113f84 <try_to_wake_up+104/110>
->>Trace; c0113fa6 <wake_up_process+16/20>
->>Trace; c011d1f7 <do_softirq+a7/c0>
-> 
-> 
-> What to do? Looks like do_softirq needs some work, also reading the 
-> comments at the beginning of kernel/softirq.c is it preempt safe? This is 
-> from looking at 'cpu = smp_processor_id' usage in do_softirq.
+Guys,
+	Thanks for the answers!  In doing research on those options I too
+found that they were not need for Hyperthreading, but I needed something
+more to back up opinion.
 
-I think that you are right do_softirq is apparently in toruble.
-Nowever the above only occurs when, I'm working on my notebook through
-ssh X11 port forward login. So in this case there are likely
-many overlapping IDE/eth0 IRQ comming through. And it's *really* the
-eth part that matters. So it could simply be that the e8139too 
-       driver deserves review in regards of proper lock protection.
+Thanks Again.
 
+Timothy Reed
+Software Engineer\Systems Administrator
+Lockheed Martin - NE & SS Syracuse
+Email: timothy.a.reed@lmco.com
+
+
+-----Original Message-----
+From: J.A. Magallon [mailto:jamagallon@able.es]
+Sent: Wednesday, August 07, 2002 6:37 PM
+To: Reed, Timothy A
+Cc: Linux Kernel ML (E-mail)
+Subject: Re: Hyperthreading Options in 2.4.19
+
+
+
+On 2002.08.07 "Reed, Timothy A" wrote:
+>Hello All,
+>	I am going rounds with a sub-contractor of ours about what options
+>should and should not be compiled into the kernel in order for
+>Hyperthreading to work.  Can anyone make any suggestions and comments to
+the
+>options (below)  that I am planning on enforcing:
+>	MSR
+>	MTRR
+>	CPUID
+
+I thikn none is needed for ht. Of course, mtrr raises performance.
+The other are not needed, afaik.
+
+>
+>	Lilo.conf : acpismp=force?? 
+>
+
+True for old kernels, not needed anymore.
+
+>	Are the following worth any thing of value to Hyperthreading:
+>	Microcode
+>	ACPI
+
+No.
+
+In summary, with 2.4.19 you do not have to do nothing to have
+hyperthreading.
+Other useful options are 'noht' to disable ht, and 'idle=poll', that I think
+improves latency.
+
+by
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like
+sex:
+werewolf.able.es                         \           It's better when it's
+free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre1-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

@@ -1,133 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282859AbRLRDPk>; Mon, 17 Dec 2001 22:15:40 -0500
+	id <S283723AbRLRDWA>; Mon, 17 Dec 2001 22:22:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282918AbRLRDPb>; Mon, 17 Dec 2001 22:15:31 -0500
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:46073 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S282859AbRLRDPR>; Mon, 17 Dec 2001 22:15:17 -0500
-Date: Tue, 18 Dec 2001 04:14:27 +0100
-From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1 API change summary
-Message-ID: <20011218031427.GA5990@storm.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+	id <S283733AbRLRDVv>; Mon, 17 Dec 2001 22:21:51 -0500
+Received: from [213.97.199.90] ([213.97.199.90]:3200 "HELO fargo")
+	by vger.kernel.org with SMTP id <S283723AbRLRDVm> convert rfc822-to-8bit;
+	Mon, 17 Dec 2001 22:21:42 -0500
+From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
+Date: Tue, 18 Dec 2001 04:20:56 +0100 (CET)
+X-X-Sender: <huma@fargo>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: David Gomez <davidge@jazzfree.com>,
+        Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loopback deadlock again
+In-Reply-To: <Pine.LNX.4.21.0112171904030.3720-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0112180410220.421-100000@fargo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One problem with following kernel development is that new APIs are
-nowhere really summarized outside of the list thread where they are
-developed (if there is a thread at all).  So maybe there's this great
-new function that simplifies something in your driver, but you don't
-know about it and only stumble across it much later (like 50 dev kernel
-revisions) and wish you'd known earlier.
 
-So someone should just collect the changes and post a summary to
-linux-kernel, now wouldn't that be useful ...
+On Mon, 17 Dec 2001, Marcelo Tosatti wrote:
+>
+> Get the backtrace of the loopback thread (using magic sysrq) and use
+> ksymoops to decode it using the System.map of your running kernel...
+>
+> Thanks
 
-[Silence, far away keyboards can be heard having "So I take it you
-volun..." typed on them.]
+Dec 17 22:05:09 fargo kernel: loop0         D C19190A4     0   375      1                 358 (L-TLB)
+Dec 17 22:05:09 fargo kernel: Call Trace: [__wait_on_buffer+104/144] [__block_prepare_write+601/608] [__alloc_pages+65/384] [block_commit_write+1/48] [ext2_get_block+64/1040]
+Dec 17 22:05:09 fargo kernel: Call Trace: [<c01304f8>] [<c0131d69>] [<c012ac61>] [<c0132271>] [<c014e260>]
+Dec 17 22:05:09 fargo kernel:    [<e08522df>] [ext2_get_block+64/1040] [do_IRQ+104/176] [<e0852574>] [<e0852aa0>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel:    [<e08522df>] [<c014e260>] [<c0108188>] [<e0852574>] [<e0852aa0>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel:    [kernel_thread+38/48] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel:    [<c0105516>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel: cp            D CFC53C8C  4780   376    368                     (NOTLB)
+Dec 17 22:05:09 fargo kernel: Call Trace: [__wait_on_buffer+104/144] [getblk+24/64] [bread+114/128] [load_inode_bitmap+18/368] [ext2_free_inode+8/368]
+Dec 17 22:05:09 fargo kernel: Call Trace: [<c01304f8>] [<c01312c8>] [<c0131532>] [<c014d462>] [<c014d5c8>]
+Dec 17 22:05:09 fargo kernel:    [ext2_new_inode+245/912] [ext2_set_link+40/192] [ext2_mkdir+127/272] [sys_mkdir+11/208] [sys_mkdir+196/208] [system_call+51/56]
+Dec 17 22:05:10 fargo kernel:    [<c014d9c5>] [<c014cdb8>] [<c014fb0f>] [<c013931b>] [<c01393d4>] [<c0106cfb>]
 
-... and I will try to do that for the kernel 2.5 revisions.
+ksymoops 2.4.1 on i686 2.4.17-rc1loopdeadlock.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17-rc1loopdeadlock/ (default)
+     -m /usr/src/linux/System.map (specified)
 
-I have collected the API changes in 2.5.1 and summarized below.  I just
-read the patch for all the *.h files, so I may have confused something
-(like not realizing something just moved instead of being new).  I also
-don't know much about most of the areas I'm summarizing, any corrections
-are welcome.
+Warning (compare_maps): mismatch on symbol journal_enable_debug  , jbd says e082d424, /lib/modules/2.4.17-rc1loopdeadlock/kernel/fs/jbd/jbd.o says e082d410.  Ignoring /lib/modules/2.4.17-rc1loopdeadlock/kernel/fs/jbd/jbd.o entry
+Dec 17 22:05:09 fargo kernel: Call Trace: [__wait_on_buffer+104/144] [__block_prepare_write+601/608] [__alloc_pages+65/384] [block_commit_write+1/48] [ext2_get_block+64/1040]
+Dec 17 22:05:09 fargo kernel: Call Trace: [<c01304f8>] [<c0131d69>] [<c012ac61>] [<c0132271>] [<c014e260>]
+Dec 17 22:05:09 fargo kernel:    [<e08522df>] [ext2_get_block+64/1040] [do_IRQ+104/176] [<e0852574>] [<e0852aa0>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel:    [<e08522df>] [<c014e260>] [<c0108188>] [<e0852574>] [<e0852aa0>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel:    [<c0105516>] [<e08529d0>]
+Dec 17 22:05:09 fargo kernel: Call Trace: [__wait_on_buffer+104/144] [getblk+24/64] [bread+114/128] [load_inode_bitmap+18/368] [ext2_free_inode+8/368]
+Dec 17 22:05:09 fargo kernel: Call Trace: [<c01304f8>] [<c01312c8>] [<c0131532>] [<c014d462>] [<c014d5c8>]
+Dec 17 22:05:10 fargo kernel:    [<c014d9c5>] [<c014cdb8>] [<c014fb0f>] [<c013931b>] [<c01393d4>] [<c0106cfb>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-These summaries won't serve as documentation except when it's short and
-simple.  If there are big changes, I won't list every detail (I just
-remind you that there is something, you can read the source yourself).
-I will list changes which are global or at least apply to a whole
-subsystem.
-
-You'll also find stuff that's pretty much the talk of the week on
-linux-kernel and therefore well known, but these summaries should also
-serve as a overview ("when was what introduced") in combination with the
-kernel changelogs for those who get into 2.5 later (yes, I will archive
-these summaries on the web when I get a few together).
-
-So, here it goes:
-
-=======================================================================
-
-	include/linux/types.h:
-
-Typedef sector_t for block device sector numbers introduced to allow
-making its size an option.
-
-
-	include/linux/cache.h:
-
-New macro __cacheline_aligned_in_smp that expands to __cacheline_aligned
-on SMP and to nothing on UP.
-
-
-	include/linux/kernel.h:
-
-New macro BUG_ON(condition) which is equivalent to 
-	if (condition) BUG();
-
-The condition is also hinted "unlikely" to the compiler, which gives
-better optimization on recent gcc versions even while decreasing typing
-work.  (And if you update your code today, we'll throw in this set of
-kitchen knives which will stay sharp as a razor forever...)
-
-
-	include/linux/genhd.h:
-
-get_start_sect() and get_nr_sects() on kdev_t introduced.
-
-
-	include/linux/mempool.h (new):
-
-Memory buffer pools introduced.  "Such pools are mostly used for
-guaranteed, deadlock-free memory allocations during extreme VM load."
+Trace; c01304f8 <__wait_on_buffer+68/90>
+Trace; c0131d69 <__block_prepare_write+239/260>
+Trace; c012ac61 <__alloc_pages+41/180>
+Trace; c0132271 <block_prepare_write+21/40>
+Trace; c014e260 <ext2_get_block+0/410>
+Trace; e08522df <[loop]lo_send+df/1e0>
+Trace; e08522df <[loop]lo_send+df/1e0>
+Trace; c014e260 <ext2_get_block+0/410>
+Trace; c0108188 <do_IRQ+68/b0>
+Trace; e0852574 <[loop]do_bh_filebacked+54/90>
+Trace; e0852aa0 <[loop]loop_thread+d0/1e0>
+Trace; e08529d0 <[loop]loop_thread+0/1e0>
+Trace; c0105516 <kernel_thread+26/30>
+Trace; e08529d0 <[loop]loop_thread+0/1e0>
+Trace; c01304f8 <__wait_on_buffer+68/90>
+Trace; c01312c8 <getblk+18/40>
+Trace; c0131532 <bread+52/80>
+Trace; c014d462 <read_inode_bitmap+32/60>
+Trace; c014d5c8 <load_inode_bitmap+138/170>
+Trace; c014d9c5 <ext2_new_inode+b5/390>
+Trace; c014cdb8 <ext2_inode_by_name+18/30>
+Trace; c014fb0f <ext2_mkdir+3f/110>
+Trace; c013931b <vfs_mkdir+6b/a0>
+Trace; c01393d4 <sys_mkdir+84/d0>
+Trace; c0106cfb <system_call+33/38>
 
 
-	include/linux/bio.h (new):
-	include/linux/blkdev.h:
-	include/linux/fs.h:
-	include/linux/highmem.h:
-
-New block IO layer introduced.
+2 warnings issued.  Results may not be reliable.
 
 
-	include/linux/device.h (new):
-	include/linux/driverfs_fs.h (new):
-
-Centralized driver model introduced.
 
 
-	drivers/scsi/hosts.h:
 
-Scsi_Host_Template and Scsi_Host include new flag highmem_io, the flag
-use_new_eh_code is removed along with the old error handling interface.
+David Gómez
 
-
-	drivers/scsi/scsi.h:
-
-New sg list allocation functions scsi_alloc_sgtable() and
-scsi_free_sgtable().  Function initialize_merge_fn() renamed to
-scsi_initialize_merge_fn().  Function recount_segments() removed,
-scsi_init_io() added.
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
 
 
-	drivers/usb/hid.h:
 
-HID class defines and functions added.
-
-
-	include/linux/usb.h:
-
-Yes, there are lots of changes.  I haven't sorted them out yet.
-
-=======================================================================
-
--- 
-Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44

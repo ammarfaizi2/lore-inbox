@@ -1,1065 +1,558 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUHSOji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUHSOnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUHSOji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHSOji
+	id S266271AbUHSOnm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 10:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUHSOnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:39:38 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:30397 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266289AbUHSOf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:35:58 -0400
-Message-ID: <4124BACB.30100@acm.org>
-Date: Thu, 19 Aug 2004 09:35:55 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Patch to 2.6.8.1-mm2 to allow multiple NMI handlers to be registered
-Content-Type: multipart/mixed;
- boundary="------------020204010906080105000003"
+	Thu, 19 Aug 2004 10:43:42 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:16327 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266271AbUHSOl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 10:41:28 -0400
+Date: Thu, 19 Aug 2004 15:39:07 +0100
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: includes cleanup.
+Message-ID: <20040819143907.GA4236@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020204010906080105000003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I noticed that every file that could be built as a module was sucking
+in sched.h (and therefore, every other include file under the sun).
 
-The attached patch modifies the NMI handling to do the following (for 
-x86 only):
+This patch
+- removes the sched.h from module.h
+- Moves the capable() definition from sched.h to capability.h
+- split out the wake_up_* stuff to linux/wakeup.h
+- Removed sched.h includes from a bunch of drivers that didn't
+  need it due to the above work.
+- Fixes up all the breakage I was able to find under x86.
+  Fixing other arch's is simple enough, they just need to include
+  sched.h explicity in a few places now (or jiffies.h, or capability.h or wakeup.h))
 
-* Allow multiple handlers to be registered and return if they have 
-handled the NMI or not.  oprofile and nmi_watchdog are modified to use this.
-* Modifies the NMI watchdog code to use a function pointer instead of 
-using if statements depending on CPU type.  This made the change for the
-  previous item easier.
-* Moved the "unhandled NMI" code from nmi.c to traps.c, since nmi.c is 
-really the handling for the nmi watchdog, not general nmi handling.
-* Renames include/linux/nmi.h to include/linux/nmi_watchdog.h and 
-creates a new include/linux/nmi.h for purely NMI handling.
+I've not done any measurements to see if this is noticable on a compile,
+as I'd expect it to be mostly in the noise anyway (though last time I
+did this in 2.5.early, it did shave off the best part of a minute off
+my worst-case-scenario build), but untangling the spaghetti of includes
+a little should at least mean gcc uses less memory during the build.
 
-This patch used to rename nmi.c to nmi_watchdog.c and create a new nmi.c 
-file that was actually NMI handling.  That's probably too big for now, 
-but might be a useful change in the future.
+comments?
+		
+		Dave
 
-I need this because the IPMI watchdog can generate NMIs as a pretimeout, 
-to say "Hey, I'm about to fire the watchdog, do you want to do anything 
-about it?".  That way, the watchdog driver can panic thus generating 
-useful information instead of just resetting the processor.  I have seen 
-other watchdog timers with this capability, too.  And other 
-special-purpose hardware that generates NMIs might find this useful, too.
 
-I needed multiple handlers so the NMI watchdog and IPMI watchdog (and 
-other NMI-related things) can peacefully coexist.  It is not perfect 
-because the hardware around NMIs sucks so badly, but it does work ok.
-
-This code has been available as a patch as part of the IPMI driver for a 
-while, so it has seen some testing.
-
--Corey
-
---------------020204010906080105000003
-Content-Type: text/plain;
- name="nmi-handlers-2.6.8.1-mm2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nmi-handlers-2.6.8.1-mm2.diff"
-
-Index: linux-2.6.8.1-mm2/arch/i386/kernel/i386_ksyms.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/i386/kernel/i386_ksyms.c	2004-08-19 08:41:33.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/i386/kernel/i386_ksyms.c	2004-08-19 08:42:29.000000000 -0500
-@@ -33,6 +33,9 @@
- #include <asm/nmi.h>
- #include <asm/ist.h>
- #include <asm/kdebug.h>
-+#ifdef CONFIG_X86_LOCAL_APIC
-+#include <asm/apic.h>
-+#endif
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/14 22:17:56+01:00 davej@redhat.com 
+#   [INCLUDE] Remove sched.h inclusion from module.h.
+#   Also move some capability bits to capability.h, and break
+#   out some of sched.h to wakeup.h
+#   
+#   Build checked for make all modconfig,yesconfig,noconfig
+#   
+#   Signed-off-by: Dave Jones <davej@redhat.com>
+# 
+diff -Nru a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-08-14 22:18:22 +01:00
++++ b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-08-14 22:18:22 +01:00
+@@ -28,6 +28,7 @@
+ #include <linux/cpufreq.h>
+ #include <linux/slab.h>
+ #include <linux/cpumask.h>
++#include <linux/sched.h>	/* current / set_cpus_allowed() */
  
- extern void dump_thread(struct pt_regs *, struct user *);
- extern spinlock_t rtc_lock;
-@@ -88,6 +91,12 @@
- EXPORT_SYMBOL(cpu_khz);
- EXPORT_SYMBOL(apm_info);
+ #include <asm/processor.h> 
+ #include <asm/msr.h>
+diff -Nru a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+--- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-08-14 22:18:22 +01:00
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-08-14 22:18:22 +01:00
+@@ -27,6 +27,7 @@
+ #include <linux/cpufreq.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <linux/sched.h>	/* for current / set_cpus_allowed() */
  
-+EXPORT_SYMBOL(request_nmi);
-+EXPORT_SYMBOL(release_nmi);
-+#ifdef CONFIG_X86_LOCAL_APIC
-+EXPORT_SYMBOL(nmi_watchdog);
-+#endif
-+
- EXPORT_SYMBOL_NOVERS(__down_failed);
- EXPORT_SYMBOL_NOVERS(__down_failed_interruptible);
- EXPORT_SYMBOL_NOVERS(__down_failed_trylock);
-@@ -171,9 +180,6 @@
- 
- EXPORT_SYMBOL(rtc_lock);
- 
--EXPORT_SYMBOL_GPL(set_nmi_callback);
--EXPORT_SYMBOL_GPL(unset_nmi_callback);
--
- #undef memcmp
- extern int memcmp(const void *,const void *,__kernel_size_t);
- EXPORT_SYMBOL_NOVERS(memcmp);
-Index: linux-2.6.8.1-mm2/arch/i386/kernel/irq.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/i386/kernel/irq.c	2004-08-19 08:41:33.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/i386/kernel/irq.c	2004-08-19 08:42:29.000000000 -0500
-@@ -143,6 +143,8 @@
-  * Generic, controller-independent functions:
-  */
- 
-+extern void nmi_append_user_names(struct seq_file *p);
-+
- int show_interrupts(struct seq_file *p, void *v)
- {
- 	int i = *(loff_t *) v, j;
-@@ -181,6 +183,8 @@
- 		seq_printf(p, "NMI: ");
- 		for_each_cpu(j)
- 			seq_printf(p, "%10u ", nmi_count(j));
-+		seq_printf(p, "                ");
-+		nmi_append_user_names(p);
- 		seq_putc(p, '\n');
- #ifdef CONFIG_X86_LOCAL_APIC
- 		seq_printf(p, "LOC: ");
-Index: linux-2.6.8.1-mm2/arch/i386/kernel/nmi.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/i386/kernel/nmi.c	2004-08-19 08:41:33.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/i386/kernel/nmi.c	2004-08-19 09:33:38.000000000 -0500
-@@ -25,7 +25,7 @@
- #include <linux/module.h>
- #include <linux/nmi.h>
- #include <linux/sysdev.h>
--#include <linux/sysctl.h>
-+#include <linux/notifier.h>
- 
- #include <asm/smp.h>
- #include <asm/mtrr.h>
-@@ -45,11 +45,12 @@
- unsigned int nmi_watchdog = NMI_NONE;
- #endif
- 
--extern int unknown_nmi_panic;
- static unsigned int nmi_hz = HZ;
--static unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
--static unsigned int nmi_p4_cccr_val;
- extern void show_registers(struct pt_regs *regs);
-+void touch_nmi_watchdog (void);
-+
-+/* Special P4 register. */
-+static unsigned int nmi_p4_cccr_val;
- 
- /*
-  * lapic_nmi_owner tracks the ownership of the lapic NMI hardware:
-@@ -65,6 +66,21 @@
- #define LAPIC_NMI_WATCHDOG	(1<<0)
- #define LAPIC_NMI_RESERVED	(1<<1)
- 
-+/* This is for I/O APIC, until we can figure out how to tell if it's from the
-+   I/O APIC.  If the NMI was not handled before now, we handle it. */
-+static int dummy_watchdog_reset(int handled)
-+{
-+	if (!handled)
-+		return 1;
-+	return 0;
-+}
-+
-+/* 
-+ * Returns 1 if it is a source of the NMI, and resets the NMI to go
-+ * off again.
-+ */
-+static int (*watchdog_reset)(int handled) = dummy_watchdog_reset;
-+
- /* nmi_active:
-  * +1: the lapic NMI watchdog is active, but can be disabled
-  *  0: the lapic NMI watchdog has not been set up, and cannot
-@@ -146,6 +162,21 @@
- 	return 0;
- }
- 
-+static int nmi_watchdog_tick (void * dev_id, struct pt_regs * regs, int cpu,
-+	int handled);
-+
-+static struct nmi_handler nmi_watchdog_handler =
-+{
-+	.link     = LIST_HEAD_INIT(nmi_watchdog_handler.link),
-+	.dev_name = "nmi_watchdog",
-+	.dev_id   = NULL,
-+	.handler  = nmi_watchdog_tick,
-+
-+	/* One less than oprofile's priority.  We must be immediately after
-+	   oprofile, and higher than everything else. */
-+	.priority = NMI_HANDLER_MAX_PRIORITY-1
-+};
-+
- static int __init setup_nmi_watchdog(char *str)
- {
- 	int nmi;
-@@ -177,6 +208,18 @@
- 		nmi_active = 1;
- 		nmi_watchdog = nmi;
- 	}
-+ 
-+ 	if (nmi_watchdog != NMI_NONE) {
-+ 		if (request_nmi(&nmi_watchdog_handler) != 0) {
-+ 			/* Couldn't add a watchdog handler, give up. */
-+ 			printk(KERN_WARNING
-+ 			       "nmi_watchdog: Couldn't request nmi\n");
-+ 			nmi_watchdog = NMI_NONE;
-+			nmi_active = 0;
-+ 			return 0;
-+ 		}
-+ 	}
-+ 
- 	return 1;
- }
- 
-@@ -253,17 +296,19 @@
- 	if ((nmi_watchdog != NMI_IO_APIC) || (nmi_active <= 0))
- 		return;
- 
--	unset_nmi_callback();
- 	nmi_active = -1;
-+	release_nmi(&nmi_watchdog_handler);
- 	nmi_watchdog = NMI_NONE;
- }
- 
- void enable_timer_nmi_watchdog(void)
- {
- 	if (nmi_active < 0) {
--		nmi_watchdog = NMI_IO_APIC;
--		touch_nmi_watchdog();
--		nmi_active = 1;
-+		if (request_nmi(&nmi_watchdog_handler) == 0) {
-+			nmi_watchdog = NMI_IO_APIC;
-+			nmi_active = 1;
-+			touch_nmi_watchdog();
-+		}
- 	}
- }
- 
-@@ -327,12 +372,28 @@
- 		wrmsr(base+i, 0, 0);
- }
- 
-+static int k7_watchdog_reset(int handled)
-+{
-+	unsigned int low, high;
-+	int          source;
-+
-+	rdmsr(MSR_K7_PERFCTR0, low, high);
-+	/* 
-+	 * If the timer has overflowed, this is certainly a watchdog
-+	 * source
-+	 */
-+	source = (low & (1 << 31)) == 0;
-+	if (source)
-+		wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
-+	return source;
-+}
-+
- static void setup_k7_watchdog(void)
- {
- 	unsigned int evntsel;
- 
--	nmi_perfctr_msr = MSR_K7_PERFCTR0;
--
-+	watchdog_reset = k7_watchdog_reset;
-+  
- 	clear_msr_range(MSR_K7_EVNTSEL0, 4);
- 	clear_msr_range(MSR_K7_PERFCTR0, 4);
- 
-@@ -349,12 +410,33 @@
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
- }
- 
-+static int p6_watchdog_reset(int handled)
-+{
-+	unsigned int low, high;
-+	int          source;
-+
-+	rdmsr(MSR_P6_PERFCTR0, low, high);
-+	/* 
-+	 * If the timer has overflowed, this is certainly a watchdog
-+	 * source
-+	 */
-+	source = (low & (1 << 31)) == 0;
-+	if (source) {
-+		/* Only P6 based Pentium M need to re-unmask
-+		 * the apic vector but it doesn't hurt
-+		 * other P6 variant */
-+		apic_write(APIC_LVTPC, APIC_DM_NMI);
-+		wrmsr(MSR_P6_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
-+	}
-+	return source;
-+}
-+
- static void setup_p6_watchdog(void)
- {
- 	unsigned int evntsel;
- 
--	nmi_perfctr_msr = MSR_P6_PERFCTR0;
--
-+	watchdog_reset = p6_watchdog_reset;
-+  
- 	clear_msr_range(MSR_P6_EVNTSEL0, 2);
- 	clear_msr_range(MSR_P6_PERFCTR0, 2);
- 
-@@ -371,6 +453,33 @@
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
- }
- 
-+static int p4_watchdog_reset(int handled)
-+{
-+	unsigned int low, high;
-+	int          source;
-+
-+	rdmsr(MSR_P4_IQ_COUNTER0, low, high);
-+	/* 
-+	 * If the timer has overflowed, this is certainly a watchdog
-+	 * source
-+	 */
-+	source = (low & (1 << 31)) == 0;
-+	if (source) {
-+		/*
-+		 * P4 quirks:
-+		 * - An overflown perfctr will assert its interrupt
-+		 *   until the OVF flag in its CCCR is cleared.
-+		 * - LVTPC is masked on interrupt and must be
-+		 *   unmasked by the LVTPC handler.
-+		 */
-+		wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
-+		apic_write(APIC_LVTPC, APIC_DM_NMI);
-+
-+		wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
-+	}
-+	return source;
-+}
-+
- static int setup_p4_watchdog(void)
- {
- 	unsigned int misc_enable, dummy;
-@@ -379,7 +488,8 @@
- 	if (!(misc_enable & MSR_P4_MISC_ENABLE_PERF_AVAIL))
- 		return 0;
- 
--	nmi_perfctr_msr = MSR_P4_IQ_COUNTER0;
-+	watchdog_reset = p4_watchdog_reset;
-+
- 	nmi_p4_cccr_val = P4_NMI_IQ_CCCR0;
- #ifdef CONFIG_SMP
- 	if (smp_num_siblings == 2)
-@@ -476,15 +586,29 @@
- 
- extern void die_nmi(struct pt_regs *, const char *msg);
- 
--void nmi_watchdog_tick (struct pt_regs * regs)
-+static int nmi_watchdog_tick (void * dev_id, struct pt_regs * regs, int cpu,
-+	int handled)
- {
--
- 	/*
- 	 * Since current_thread_info()-> is always on the stack, and we
- 	 * always switch the stack NMI-atomically, it's safe to use
- 	 * smp_processor_id().
- 	 */
--	int sum, cpu = smp_processor_id();
-+	int sum;
-+
-+	/*
-+	 * The only thing that SHOULD be before us is the oprofile
-+	 * code.  If it has handled an NMI, then we shouldn't.  This
-+	 * is a rather unnatural relationship, it would much better to
-+	 * build a perf-counter handler and then tie both the
-+	 * watchdog and oprofile code to it.  Then this ugliness
-+	 * could go away.
-+	 */
-+	if (handled)
-+		return NOTIFY_DONE;
-+
-+	if (! watchdog_reset(handled))
-+		return NOTIFY_DONE; /* We are not an NMI source. */
- 
- 	sum = irq_stat[cpu].apic_timer_irqs;
- 
-@@ -512,74 +636,12 @@
- 		last_irq_sums[cpu] = sum;
- 		alert_counter[cpu] = 0;
- 	}
--	if (nmi_perfctr_msr) {
--		if (nmi_perfctr_msr == MSR_P4_IQ_COUNTER0) {
--			/*
--			 * P4 quirks:
--			 * - An overflown perfctr will assert its interrupt
--			 *   until the OVF flag in its CCCR is cleared.
--			 * - LVTPC is masked on interrupt and must be
--			 *   unmasked by the LVTPC handler.
--			 */
--			wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
--			apic_write(APIC_LVTPC, APIC_DM_NMI);
--		}
--		else if (nmi_perfctr_msr == MSR_P6_PERFCTR0) {
--			/* Only P6 based Pentium M need to re-unmask
--			 * the apic vector but it doesn't hurt
--			 * other P6 variant */
--			apic_write(APIC_LVTPC, APIC_DM_NMI);
--		}
--		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
--	}
--}
--
--#ifdef CONFIG_SYSCTL
--
--static int unknown_nmi_panic_callback(struct pt_regs *regs, int cpu)
--{
--	unsigned char reason = get_nmi_reason();
--	char buf[64];
- 
--	if (!(reason & 0xc0)) {
--		sprintf(buf, "NMI received for unknown reason %02x\n", reason);
--		die_nmi(regs, buf);
--	}
--	return 0;
--}
--
--/*
-- * proc handler for /proc/sys/kernel/unknown_nmi_panic
-- */
--int proc_unknown_nmi_panic(ctl_table *table, int write, struct file *file,
--			void __user *buffer, size_t *length, loff_t *ppos)
--{
--	int old_state;
--
--	old_state = unknown_nmi_panic;
--	proc_dointvec(table, write, file, buffer, length, ppos);
--	if (!!old_state == !!unknown_nmi_panic)
--		return 0;
--
--	if (unknown_nmi_panic) {
--		if (reserve_lapic_nmi() < 0) {
--			unknown_nmi_panic = 0;
--			return -EBUSY;
--		} else {
--			set_nmi_callback(unknown_nmi_panic_callback);
--		}
--	} else {
--		release_lapic_nmi();
--		unset_nmi_callback();
--	}
--	return 0;
-+	return NOTIFY_OK;
- }
- 
--#endif
--
- EXPORT_SYMBOL(nmi_active);
- EXPORT_SYMBOL(nmi_watchdog);
- EXPORT_SYMBOL(reserve_lapic_nmi);
- EXPORT_SYMBOL(release_lapic_nmi);
--EXPORT_SYMBOL(disable_timer_nmi_watchdog);
- EXPORT_SYMBOL(enable_timer_nmi_watchdog);
-Index: linux-2.6.8.1-mm2/arch/i386/kernel/traps.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/i386/kernel/traps.c	2004-08-19 08:41:33.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/i386/kernel/traps.c	2004-08-19 08:42:29.000000000 -0500
-@@ -25,6 +25,9 @@
- #include <linux/highmem.h>
- #include <linux/kallsyms.h>
- #include <linux/ptrace.h>
-+#include <linux/seq_file.h>
-+#include <linux/notifier.h>
-+#include <linux/sysctl.h>
- #include <linux/version.h>
- #include <linux/kprobes.h>
- 
-@@ -59,6 +62,9 @@
- asmlinkage int system_call(void);
- asmlinkage void lcall7(void);
- asmlinkage void lcall27(void);
-+void init_nmi(void);
-+
-+extern int unknown_nmi_panic;
- 
- struct desc_struct default_ldt[] = { { 0, 0 }, { 0, 0 }, { 0, 0 },
- 		{ 0, 0 }, { 0, 0 } };
-@@ -549,6 +555,95 @@
- 	}
- }
- 
-+extern void show_registers(struct pt_regs *regs);
-+
-+/* 
-+ * A list of handlers for NMIs.  This list will be called in order
-+ * when an NMI from an otherwise unidentifiable source comes in.  If
-+ * one of these handles the NMI, it should return NOTIFY_OK, otherwise
-+ * it should return NOTIFY_DONE.  NMI handlers cannot claim spinlocks,
-+ * so we have to handle freeing these in a different manner.  A
-+ * spinlock protects the list from multiple writers.  When something
-+ * is removed from the list, it is thrown into another list (with
-+ * another link, so the "next" element stays valid) and scheduled to
-+ * run as an rcu.  When the rcu runs, it is guaranteed that nothing in
-+ * the NMI code will be using it.
-+ */
-+static struct list_head nmi_handler_list = LIST_HEAD_INIT(nmi_handler_list);
-+static spinlock_t       nmi_handler_lock = SPIN_LOCK_UNLOCKED;
-+
-+/*
-+ * To free the list item, we use an rcu.  The rcu-function will not
-+ * run until all processors have done a context switch, gone idle, or
-+ * gone to a user process, so it's guaranteed that when this runs, any
-+ * NMI handler running at release time has completed and the list item
-+ * can be safely freed.
-+ */
-+static void free_nmi_handler(struct rcu_head *head)
-+{
-+	struct nmi_handler *handler = container_of(head, struct nmi_handler,
-+						   rcu);
-+
-+	INIT_LIST_HEAD(&(handler->link));
-+	complete(&(handler->complete));
-+}
-+
-+int request_nmi(struct nmi_handler *handler)
-+{
-+	struct list_head   *curr;
-+	struct nmi_handler *curr_h = NULL;
-+
-+	if (!list_empty(&(handler->link)))
-+		return -EBUSY;
-+
-+	spin_lock(&nmi_handler_lock);
-+
-+	__list_for_each(curr, &nmi_handler_list) {
-+		curr_h = list_entry(curr, struct nmi_handler, link);
-+		if (curr_h->priority <= handler->priority)
-+			break;
-+	}
-+
-+	/* list_add_rcu takes care of memory barrier */
-+	if (curr_h)
-+		if (curr_h->priority <= handler->priority)
-+			list_add_rcu(&(handler->link), curr_h->link.prev);
-+		else
-+			list_add_rcu(&(handler->link), &(curr_h->link));
-+	else
-+		list_add_rcu(&(handler->link), &nmi_handler_list);
-+
-+	spin_unlock(&nmi_handler_lock);
-+	return 0;
-+}
-+
-+void release_nmi(struct nmi_handler *handler)
-+{
-+	spin_lock(&nmi_handler_lock);
-+	list_del_rcu(&(handler->link));
-+	init_completion(&(handler->complete));
-+	call_rcu(&(handler->rcu), free_nmi_handler);
-+	spin_unlock(&nmi_handler_lock);
-+
-+	/* Wait for handler to finish being freed.  This can't be
-+           interrupted, we must wait until it finished. */
-+	wait_for_completion(&(handler->complete));
-+}
-+
-+void nmi_append_user_names(struct seq_file *p)
-+{
-+	struct list_head   *curr;
-+	struct nmi_handler *curr_h;
-+
-+	spin_lock(&nmi_handler_lock);
-+	__list_for_each(curr, &nmi_handler_list) {
-+		curr_h = list_entry(curr, struct nmi_handler, link);
-+		if (curr_h->dev_name)
-+			p += seq_printf(p, " %s", curr_h->dev_name);
-+	}
-+	spin_unlock(&nmi_handler_lock);
-+}
-+
- static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
- {
- 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
-@@ -574,22 +669,6 @@
- 	outb(reason, 0x61);
- }
- 
--static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
--{
--#ifdef CONFIG_MCA
--	/* Might actually be able to figure out what the guilty party
--	* is. */
--	if( MCA_bus ) {
--		mca_handle_nmi();
--		return;
--	}
--#endif
--	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
--		reason, smp_processor_id());
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
--}
--
- static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
- 
- void die_nmi (struct pt_regs *regs, const char *msg)
-@@ -611,53 +690,67 @@
- 	do_exit(SIGSEGV);
- }
- 
--static void default_do_nmi(struct pt_regs * regs)
-+static void unknown_nmi_error(struct pt_regs * regs, int cpu)
- {
- 	unsigned char reason = get_nmi_reason();
-- 
--	if (!(reason & 0xc0)) {
--		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 0, SIGINT)
--							== NOTIFY_BAD)
--			return;
--#ifdef CONFIG_X86_LOCAL_APIC
--		/*
--		 * Ok, so this is none of the documented NMI sources,
--		 * so it must be the NMI watchdog.
--		 */
--		if (nmi_watchdog) {
--			nmi_watchdog_tick(regs);
--			return;
--		}
--#endif
--		unknown_nmi_error(reason, regs);
-+	char buf[64];
-+
-+#ifdef CONFIG_MCA
-+	/* Might actually be able to figure out what the guilty party
-+	* is. */
-+	if( MCA_bus ) {
-+		mca_handle_nmi();
- 		return;
- 	}
--	if (notify_die(DIE_NMI, "nmi", regs, reason, 0, SIGINT) == NOTIFY_BAD)
--		return;
--	if (reason & 0x80)
--		mem_parity_error(reason, regs);
--	if (reason & 0x40)
--		io_check_error(reason, regs);
--	/*
--	 * Reassert NMI in case it became active meanwhile
--	 * as it's edge-triggered.
--	 */
--	reassert_nmi();
-+#endif
-+
-+	if (unknown_nmi_panic && (!(reason & 0xc0))) {
-+		sprintf(buf, "NMI received for unknown reason %02x\n", reason);
-+		die_nmi(regs, buf);
-+	}
-+
-+	printk("Uhhuh. Received NMI for unknown reason on CPU %d.\n", cpu);
-+	printk("Dazed and confused, but trying to continue\n");
-+	printk("Do you have a strange power saving mode enabled?\n");
- }
- 
--static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
-+/* Check "normal" sources of NMI. */
-+static int nmi_std (void * dev_id, struct pt_regs * regs, int cpu, int handled)
- {
--	return 0;
-+	unsigned char reason;
-+
-+	reason = inb(0x61);
-+	if (reason & 0xc0) {
-+		if (reason & 0x80)
-+			mem_parity_error(reason, regs);
-+		if (reason & 0x40)
-+			io_check_error(reason, regs);
-+		return NOTIFY_OK;
-+	}
-+
-+	return NOTIFY_DONE;
- }
-- 
--static nmi_callback_t nmi_callback = dummy_nmi_callback;
-- 
--asmlinkage void do_nmi(struct pt_regs * regs, long error_code)
-+
-+static struct nmi_handler nmi_std_handler =
- {
--	int cpu;
-+	.link     = LIST_HEAD_INIT(nmi_std_handler.link),
-+	.dev_name = "nmi_std",
-+	.dev_id   = NULL,
-+	.handler  = nmi_std,
-+	.priority = 128, /* mid-level priority. */
-+};
- 
--	nmi_enter();
-+asmlinkage void do_nmi(struct pt_regs * regs, long error_code)
-+{
-+	struct list_head   *curr;
-+	struct nmi_handler *curr_h;
-+	int                val;
-+	int                cpu;
-+	int                handled = 0;
-+ 
- 
-+ 	nmi_enter();
-+ 
- 	cpu = smp_processor_id();
- 
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -669,20 +762,85 @@
- 
- 	++nmi_count(cpu);
- 
--	if (!nmi_callback(regs, cpu))
--		default_do_nmi(regs);
-+	/*
-+	 * Since NMIs are edge-triggered, we could possibly miss one
-+	 * if we don't call them all, so we call them all.
-+	 */
- 
--	nmi_exit();
-+	__list_for_each_rcu(curr, &nmi_handler_list) {
-+		curr_h = list_entry(curr, struct nmi_handler, link);
-+		val = curr_h->handler(curr_h->dev_id, regs, cpu, handled);
-+		switch (val) {
-+		case NOTIFY_OK:
-+			handled = 1;
-+			break;
-+			
-+		case NOTIFY_DONE:
-+		default:
-+			;
-+		}
-+	}
-+
-+	if (!handled)
-+		unknown_nmi_error(regs, cpu);
-+	else {
-+		/*
-+		 * Reassert NMI in case it became active meanwhile
-+		 * as it's edge-triggered.    Don't do this if the NMI
-+		 * wasn't handled to avoid an infinite NMI loop.
-+		 *
-+		 * This is necessary in case we have another external
-+		 * NMI while processing this one.  The external NMIs
-+		 * are level-generated, into the processor NMIs are
-+		 * edge-triggered, so if you have one NMI source
-+		 * come in while another is already there, the level
-+		 * will never go down to cause another edge, and
-+		 * no more NMIs will happen.  This does NOT apply
-+		 * to internally generated NMIs, though, so you
-+		 * can't use the same trick to only call one handler
-+		 * at a time.  Otherwise, if two internal NMIs came
-+		 * in at the same time you might miss one.
-+		 */
-+		outb(0x8f, 0x70);
-+		inb(0x71);		/* dummy */
-+		outb(0x0f, 0x70);
-+		inb(0x71);		/* dummy */
-+	}
-+ 
-+ 	nmi_exit();
- }
- 
--void set_nmi_callback(nmi_callback_t callback)
-+#ifdef CONFIG_SYSCTL
-+
-+/*
-+ * proc handler for /proc/sys/kernel/unknown_nmi_panic
-+ */
-+int proc_unknown_nmi_panic(ctl_table *table, int write, struct file *file,
-+			   void __user *buffer, size_t *length, loff_t *ppos)
- {
--	nmi_callback = callback;
-+	int old_state;
-+
-+	old_state = unknown_nmi_panic;
-+	proc_dointvec(table, write, file, buffer, length, ppos);
-+	if (!!old_state == !!unknown_nmi_panic)
-+		return 0;
-+
-+	if (unknown_nmi_panic) {
-+		if (reserve_lapic_nmi() < 0) {
-+			unknown_nmi_panic = 0;
-+			return -EBUSY;
-+		}
-+	} else {
-+		release_lapic_nmi();
-+	}
-+	return 0;
- }
- 
--void unset_nmi_callback(void)
-+#endif
-+
-+void __init init_nmi(void)
- {
--	nmi_callback = dummy_nmi_callback;
-+	request_nmi(&nmi_std_handler);
- }
- 
- #ifdef CONFIG_KPROBES
-@@ -1131,4 +1289,6 @@
- 	cpu_init();
- 
- 	trap_init_hook();
-+
-+	init_nmi();
- }
-Index: linux-2.6.8.1-mm2/arch/i386/oprofile/nmi_int.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/i386/oprofile/nmi_int.c	2004-08-19 08:36:46.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/i386/oprofile/nmi_int.c	2004-08-19 08:42:29.000000000 -0500
-@@ -82,11 +82,24 @@
- #endif /* CONFIG_PM */
- 
- 
--static int nmi_callback(struct pt_regs * regs, int cpu)
-+// FIXME: kernel_only
-+static int nmi_callback(void * dev_id, struct pt_regs * regs, int cpu, int handled)
- {
--	return model->check_ctrs(cpu, &cpu_msrs[cpu], regs);
-+	if (model->check_ctrs(cpu, &cpu_msrs[cpu], regs))
-+		return NOTIFY_OK;
-+
-+	return NOTIFY_DONE;
- }
-  
-+static struct nmi_handler nmi_handler =
-+{
-+	.link     = LIST_HEAD_INIT(nmi_handler.link),
-+	.dev_name = "oprofile",
-+	.dev_id   = NULL,
-+	.handler  = nmi_callback,
-+	.priority = NMI_HANDLER_MAX_PRIORITY /* Highest possible priority */
-+};
-+
-  
- static void nmi_cpu_save_registers(struct op_msrs * msrs)
- {
-@@ -173,8 +186,12 @@
- }
- 
- 
-+static void nmi_cpu_shutdown(void * dummy);
-+
- static int nmi_setup(void)
- {
-+	int rv;
-+
- 	if (!allocate_msrs())
- 		return -ENOMEM;
- 
-@@ -192,7 +209,13 @@
- 	 */
- 	on_each_cpu(nmi_save_registers, NULL, 0, 1);
- 	on_each_cpu(nmi_cpu_setup, NULL, 0, 1);
--	set_nmi_callback(nmi_callback);
-+	rv = request_nmi(&nmi_handler);
-+	if (rv) {
-+		smp_call_function(nmi_cpu_shutdown, NULL, 0, 1);
-+		nmi_cpu_shutdown(0);
-+		return rv;
-+	}
-+
- 	nmi_enabled = 1;
- 	return 0;
- }
-@@ -243,7 +266,7 @@
- {
- 	nmi_enabled = 0;
- 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
--	unset_nmi_callback();
-+	release_nmi(&nmi_handler);
- 	release_lapic_nmi();
- 	free_msrs();
- }
-Index: linux-2.6.8.1-mm2/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/arch/x86_64/kernel/nmi.c	2004-08-19 08:36:46.000000000 -0500
-+++ linux-2.6.8.1-mm2/arch/x86_64/kernel/nmi.c	2004-08-19 08:42:29.000000000 -0500
-@@ -23,7 +23,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/module.h>
- #include <linux/sysdev.h>
--#include <linux/nmi.h>
-+#include <linux/nmi_watchdog.h>
- 
- #include <asm/smp.h>
- #include <asm/mtrr.h>
-Index: linux-2.6.8.1-mm2/drivers/acpi/osl.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/drivers/acpi/osl.c	2004-08-19 08:41:42.000000000 -0500
-+++ linux-2.6.8.1-mm2/drivers/acpi/osl.c	2004-08-19 08:42:29.000000000 -0500
-@@ -35,7 +35,7 @@
- #include <linux/kmod.h>
- #include <linux/delay.h>
- #include <linux/workqueue.h>
--#include <linux/nmi.h>
-+#include <linux/nmi_watchdog.h>
- #include <acpi/acpi.h>
+ #include <asm/msr.h>
  #include <asm/io.h>
- #include <acpi/acpi_bus.h>
-Index: linux-2.6.8.1-mm2/include/asm-i386/apic.h
-===================================================================
---- linux-2.6.8.1-mm2.orig/include/asm-i386/apic.h	2004-08-19 08:42:07.000000000 -0500
-+++ linux-2.6.8.1-mm2/include/asm-i386/apic.h	2004-08-19 08:42:29.000000000 -0500
-@@ -102,7 +102,6 @@
- extern void release_lapic_nmi(void);
- extern void disable_timer_nmi_watchdog(void);
- extern void enable_timer_nmi_watchdog(void);
--extern void nmi_watchdog_tick (struct pt_regs * regs);
- extern int APIC_init_uniprocessor (void);
- extern void disable_APIC_timer(void);
- extern void enable_APIC_timer(void);
-Index: linux-2.6.8.1-mm2/include/asm-i386/nmi.h
-===================================================================
---- linux-2.6.8.1-mm2.orig/include/asm-i386/nmi.h	2004-08-19 08:36:46.000000000 -0500
-+++ linux-2.6.8.1-mm2/include/asm-i386/nmi.h	2004-08-19 08:42:29.000000000 -0500
-@@ -5,24 +5,40 @@
- #define ASM_NMI_H
+diff -Nru a/arch/i386/kernel/cpu/mtrr/if.c b/arch/i386/kernel/cpu/mtrr/if.c
+--- a/arch/i386/kernel/cpu/mtrr/if.c	2004-08-14 22:18:22 +01:00
++++ b/arch/i386/kernel/cpu/mtrr/if.c	2004-08-14 22:18:22 +01:00
+@@ -3,6 +3,7 @@
+ #include <linux/ctype.h>
+ #include <linux/module.h>
+ #include <linux/seq_file.h>
++#include <linux/capability.h>
+ #include <asm/uaccess.h>
  
- #include <linux/pm.h>
-+#include <linux/rcupdate.h>
-+#include <linux/sched.h>
-  
- struct pt_regs;
-  
- typedef int (*nmi_callback_t)(struct pt_regs * regs, int cpu);
-  
--/** 
-- * set_nmi_callback
-- *
-- * Set a handler for an NMI. Only one handler may be
-- * set. Return 1 if the NMI was handled.
-+/**
-+ * Register a handler to get called when an NMI occurs.  If the
-+ * handler actually handles the NMI, it should return NOTIFY_OK.  If
-+ * it did not handle the NMI, it should return NOTIFY_DONE.
-  */
--void set_nmi_callback(nmi_callback_t callback);
-- 
--/** 
-- * unset_nmi_callback
-- *
-- * Remove the handler previously set.
-- */
--void unset_nmi_callback(void);
-- 
-+#define HAVE_NMI_HANDLER		1
-+struct nmi_handler
-+{
-+	struct list_head link; /* You must init this before use. */
+ #define LINE_SIZE 80
+diff -Nru a/drivers/block/paride/paride.c b/drivers/block/paride/paride.c
+--- a/drivers/block/paride/paride.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/block/paride/paride.c	2004-08-14 22:18:22 +01:00
+@@ -29,6 +29,7 @@
+ #include <linux/string.h>
+ #include <linux/spinlock.h>
+ #include <linux/wait.h>
++#include <linux/sched.h>	/* TASK_* */
+ 
+ #ifdef CONFIG_PARPORT_MODULE
+ #define CONFIG_PARPORT
+diff -Nru a/drivers/block/paride/pg.c b/drivers/block/paride/pg.c
+--- a/drivers/block/paride/pg.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/block/paride/pg.c	2004-08-14 22:18:22 +01:00
+@@ -162,6 +162,8 @@
+ #include <linux/mtio.h>
+ #include <linux/pg.h>
+ #include <linux/device.h>
++#include <linux/sched.h>	/* current, TASK_* */
++#include <linux/jiffies.h>
+ 
+ #include <asm/uaccess.h>
+ 
+diff -Nru a/drivers/block/paride/pt.c b/drivers/block/paride/pt.c
+--- a/drivers/block/paride/pt.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/block/paride/pt.c	2004-08-14 22:18:22 +01:00
+@@ -146,6 +146,7 @@
+ #include <linux/slab.h>
+ #include <linux/mtio.h>
+ #include <linux/device.h>
++#include <linux/sched.h>	/* current, TASK_*, schedule_timeout() */
+ 
+ #include <asm/uaccess.h>
+ 
+diff -Nru a/drivers/char/i8k.c b/drivers/char/i8k.c
+--- a/drivers/char/i8k.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/i8k.c	2004-08-14 22:18:22 +01:00
+@@ -21,6 +21,7 @@
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
+ #include <linux/apm_bios.h>
++#include <linux/capability.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
+diff -Nru a/drivers/char/watchdog/cpu5wdt.c b/drivers/char/watchdog/cpu5wdt.c
+--- a/drivers/char/watchdog/cpu5wdt.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/watchdog/cpu5wdt.c	2004-08-14 22:18:22 +01:00
+@@ -28,6 +28,7 @@
+ #include <linux/init.h>
+ #include <linux/ioport.h>
+ #include <linux/timer.h>
++#include <linux/jiffies.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ 
+diff -Nru a/drivers/char/watchdog/mixcomwd.c b/drivers/char/watchdog/mixcomwd.c
+--- a/drivers/char/watchdog/mixcomwd.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/watchdog/mixcomwd.c	2004-08-14 22:18:22 +01:00
+@@ -45,6 +45,8 @@
+ #include <linux/fs.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
++#include <linux/timer.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
+diff -Nru a/drivers/char/watchdog/pcwd.c b/drivers/char/watchdog/pcwd.c
+--- a/drivers/char/watchdog/pcwd.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/watchdog/pcwd.c	2004-08-14 22:18:22 +01:00
+@@ -66,7 +66,7 @@
+ #include <linux/init.h>
+ #include <linux/spinlock.h>
+ #include <linux/reboot.h>
+-
++#include <linux/sched.h>	/* TASK_INTERRUPTIBLE, set_current_state() and friends */
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
+diff -Nru a/drivers/char/watchdog/sc520_wdt.c b/drivers/char/watchdog/sc520_wdt.c
+--- a/drivers/char/watchdog/sc520_wdt.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/watchdog/sc520_wdt.c	2004-08-14 22:18:22 +01:00
+@@ -63,6 +63,7 @@
+ #include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+diff -Nru a/drivers/char/watchdog/softdog.c b/drivers/char/watchdog/softdog.c
+--- a/drivers/char/watchdog/softdog.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/char/watchdog/softdog.c	2004-08-14 22:18:22 +01:00
+@@ -47,6 +47,8 @@
+ #include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
 +
-+	char *dev_name;
-+	void *dev_id;
-+	int (*handler)(void *dev_id, struct pt_regs *regs, int cpu, int handled);
-+	int  priority; /* Handlers called in priority order. */
-+
-+	/* Don't mess with anything below here. */
-+
-+	struct rcu_head    rcu;
-+	struct completion  complete;
-+};
-+
-+/* Highest possible priority for the handler. */
-+#define NMI_HANDLER_MAX_PRIORITY	INT_MAX
-+
-+int request_nmi(struct nmi_handler *handler);
-+
-+/* Release will block until the handler is completely free. */
-+void release_nmi(struct nmi_handler *handler);
-+
- #endif /* ASM_NMI_H */
-Index: linux-2.6.8.1-mm2/include/linux/nmi.h
-===================================================================
---- linux-2.6.8.1-mm2.orig/include/linux/nmi.h	2004-08-19 08:36:46.000000000 -0500
-+++ linux-2.6.8.1-mm2/include/linux/nmi.h	2004-08-19 08:42:29.000000000 -0500
-@@ -1,22 +1,11 @@
+ #include <asm/uaccess.h>
+ 
+ #define PFX "SoftDog: "
+diff -Nru a/drivers/input/joystick/a3d.c b/drivers/input/joystick/a3d.c
+--- a/drivers/input/joystick/a3d.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/a3d.c	2004-08-14 22:18:22 +01:00
+@@ -34,6 +34,7 @@
+ #include <linux/init.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("FP-Gaming Assasin 3D joystick driver");
+diff -Nru a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+--- a/drivers/input/joystick/adi.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/adi.c	2004-08-14 22:18:22 +01:00
+@@ -36,6 +36,7 @@
+ #include <linux/input.h>
+ #include <linux/gameport.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Logitech ADI joystick family driver");
+diff -Nru a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+--- a/drivers/input/joystick/analog.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/analog.c	2004-08-14 22:18:22 +01:00
+@@ -38,6 +38,7 @@
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/gameport.h>
++#include <linux/jiffies.h>
+ #include <asm/timex.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+diff -Nru a/drivers/input/joystick/cobra.c b/drivers/input/joystick/cobra.c
+--- a/drivers/input/joystick/cobra.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/cobra.c	2004-08-14 22:18:22 +01:00
+@@ -34,6 +34,7 @@
+ #include <linux/init.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Creative Labs Blaster GamePad Cobra driver");
+diff -Nru a/drivers/input/joystick/gf2k.c b/drivers/input/joystick/gf2k.c
+--- a/drivers/input/joystick/gf2k.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/gf2k.c	2004-08-14 22:18:22 +01:00
+@@ -35,6 +35,7 @@
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/gameport.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Genius Flight 2000 joystick driver");
+diff -Nru a/drivers/input/joystick/grip.c b/drivers/input/joystick/grip.c
+--- a/drivers/input/joystick/grip.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/grip.c	2004-08-14 22:18:22 +01:00
+@@ -34,6 +34,7 @@
+ #include <linux/slab.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Gravis GrIP protocol joystick driver");
+diff -Nru a/drivers/input/joystick/grip_mp.c b/drivers/input/joystick/grip_mp.c
+--- a/drivers/input/joystick/grip_mp.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/grip_mp.c	2004-08-14 22:18:22 +01:00
+@@ -19,6 +19,7 @@
+ #include <linux/input.h>
+ #include <linux/delay.h>
+ #include <linux/proc_fs.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Brian Bonnlander");
+ MODULE_DESCRIPTION("Gravis Grip Multiport driver");
+diff -Nru a/drivers/input/joystick/guillemot.c b/drivers/input/joystick/guillemot.c
+--- a/drivers/input/joystick/guillemot.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/guillemot.c	2004-08-14 22:18:22 +01:00
+@@ -35,6 +35,7 @@
+ #include <linux/init.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Guillemot Digital joystick driver");
+diff -Nru a/drivers/input/joystick/interact.c b/drivers/input/joystick/interact.c
+--- a/drivers/input/joystick/interact.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/interact.c	2004-08-14 22:18:22 +01:00
+@@ -38,6 +38,7 @@
+ #include <linux/init.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("InterAct digital joystick driver");
+diff -Nru a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+--- a/drivers/input/joystick/sidewinder.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/sidewinder.c	2004-08-14 22:18:22 +01:00
+@@ -35,6 +35,7 @@
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/gameport.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Microsoft SideWinder joystick family driver");
+diff -Nru a/drivers/input/joystick/tmdc.c b/drivers/input/joystick/tmdc.c
+--- a/drivers/input/joystick/tmdc.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/input/joystick/tmdc.c	2004-08-14 22:18:22 +01:00
+@@ -38,6 +38,7 @@
+ #include <linux/init.h>
+ #include <linux/gameport.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("ThrustMaster DirectConnect joystick driver");
+diff -Nru a/drivers/isdn/capi/capifs.c b/drivers/isdn/capi/capifs.c
+--- a/drivers/isdn/capi/capifs.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/isdn/capi/capifs.c	2004-08-14 22:18:22 +01:00
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/ctype.h>
++#include <linux/sched.h>	/* current */
+ 
+ MODULE_DESCRIPTION("CAPI4Linux: /dev/capi/ filesystem");
+ MODULE_AUTHOR("Carsten Paeth");
+diff -Nru a/drivers/media/radio/miropcm20-rds.c b/drivers/media/radio/miropcm20-rds.c
+--- a/drivers/media/radio/miropcm20-rds.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/media/radio/miropcm20-rds.c	2004-08-14 22:18:22 +01:00
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/fs.h>
+ #include <linux/miscdevice.h>
++#include <linux/sched.h>	/* current, TASK_*, schedule_timeout() */
+ #include <asm/uaccess.h>
+ #include "miropcm20-rds-core.h"
+ 
+diff -Nru a/drivers/mtd/mtdblock.c b/drivers/mtd/mtdblock.c
+--- a/drivers/mtd/mtdblock.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/mtd/mtdblock.c	2004-08-14 22:18:22 +01:00
+@@ -15,6 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/sched.h>	/* TASK_* */
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/blktrans.h>
+ 
+diff -Nru a/drivers/mtd/mtdchar.c b/drivers/mtd/mtdchar.c
+--- a/drivers/mtd/mtdchar.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/mtd/mtdchar.c	2004-08-14 22:18:22 +01:00
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
++#include <linux/sched.h>	/* TASK_* */
+ #include <asm/uaccess.h>
+ 
+ #ifdef CONFIG_DEVFS_FS
+diff -Nru a/drivers/mtd/mtdconcat.c b/drivers/mtd/mtdconcat.c
+--- a/drivers/mtd/mtdconcat.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/mtd/mtdconcat.c	2004-08-14 22:18:22 +01:00
+@@ -14,7 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+-
++#include <linux/sched.h>	/* TASK_* */
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/concat.h>
+ 
+diff -Nru a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
+--- a/drivers/w1/w1_family.c	2004-08-14 22:18:22 +01:00
++++ b/drivers/w1/w1_family.c	2004-08-14 22:18:22 +01:00
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
++#include <linux/sched.h>	/* schedule_timeout() */
+ 
+ #include "w1_family.h"
+ 
+diff -Nru a/fs/filesystems.c b/fs/filesystems.c
+--- a/fs/filesystems.c	2004-08-14 22:18:22 +01:00
++++ b/fs/filesystems.c	2004-08-14 22:18:22 +01:00
+@@ -11,6 +11,7 @@
+ #include <linux/kmod.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/sched.h>	/* for 'current' */
+ #include <asm/uaccess.h>
+ 
  /*
-- *  linux/include/linux/nmi.h
-+ *	linux/include/linux/nmi.h
-+ *
-+ *	(C) 2002 Corey Minyard <cminyard@mvista.com>
-+ *
-+ *	Include file for NMI handling.
+diff -Nru a/fs/jffs2/wbuf.c b/fs/jffs2/wbuf.c
+--- a/fs/jffs2/wbuf.c	2004-08-14 22:18:22 +01:00
++++ b/fs/jffs2/wbuf.c	2004-08-14 22:18:22 +01:00
+@@ -18,6 +18,8 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/crc32.h>
+ #include <linux/mtd/nand.h>
++#include <linux/jiffies.h>
++
+ #include "nodelist.h"
+ 
+ /* For testing write failures */
+diff -Nru a/include/linux/capability.h b/include/linux/capability.h
+--- a/include/linux/capability.h	2004-08-14 22:18:22 +01:00
++++ b/include/linux/capability.h	2004-08-14 22:18:22 +01:00
+@@ -353,6 +353,21 @@
+ 
+ #define cap_is_fs_cap(c)     (CAP_TO_MASK(c) & CAP_FS_MASK)
+ 
++#ifdef CONFIG_SECURITY
++/* code is in security.c */
++extern int capable(int cap);
++#else
++static inline int capable(int cap)
++{
++	if (cap_raised(current->cap_effective, cap)) {
++		current->flags |= PF_SUPERPRIV;
++		return 1;
++	}
++	return 0;
++}
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* !_LINUX_CAPABILITY_H */
++
+diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
+--- a/include/linux/i2c.h	2004-08-14 22:18:22 +01:00
++++ b/include/linux/i2c.h	2004-08-14 22:18:22 +01:00
+@@ -32,6 +32,7 @@
+ #include <linux/types.h>
+ #include <linux/i2c-id.h>
+ #include <linux/device.h>	/* for struct device */
++#include <linux/sched.h>	/* for completion */
+ #include <asm/semaphore.h>
+ 
+ /* --- General options ------------------------------------------------	*/
+diff -Nru a/include/linux/module.h b/include/linux/module.h
+--- a/include/linux/module.h	2004-08-14 22:18:22 +01:00
++++ b/include/linux/module.h	2004-08-14 22:18:22 +01:00
+@@ -7,7 +7,6 @@
+  * Rewritten again by Rusty Russell, 2002
   */
--#ifndef LINUX_NMI_H
--#define LINUX_NMI_H
--
--#include <asm/irq.h>
--
--/**
-- * touch_nmi_watchdog - restart NMI watchdog timeout.
-- * 
-- * If the architecture supports the NMI watchdog, touch_nmi_watchdog()
-- * may be used to reset the timeout - for code which intentionally
-- * disables interrupts for a long time. This call is stateless.
-- */
--#ifdef ARCH_HAS_NMI_WATCHDOG
--extern void touch_nmi_watchdog(void);
+ #include <linux/config.h>
+-#include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/stat.h>
+@@ -18,8 +17,9 @@
+ #include <linux/stringify.h>
+ #include <linux/kobject.h>
+ #include <linux/moduleparam.h>
+-#include <asm/local.h>
++#include <linux/wakeup.h>
+ 
++#include <asm/local.h>
+ #include <asm/module.h>
+ 
+ /* Not Yet Implemented */
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	2004-08-14 22:18:22 +01:00
++++ b/include/linux/sched.h	2004-08-14 22:18:22 +01:00
+@@ -747,19 +747,8 @@
+ extern unsigned long itimer_next;
+ extern void do_timer(struct pt_regs *);
+ 
+-extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
+-extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+-extern void FASTCALL(wake_up_forked_process(struct task_struct * tsk));
+-#ifdef CONFIG_SMP
+- extern void kick_process(struct task_struct *tsk);
+- extern void FASTCALL(wake_up_forked_thread(struct task_struct * tsk));
 -#else
--# define touch_nmi_watchdog() do { } while(0)
+- static inline void kick_process(struct task_struct *tsk) { }
+- static inline void wake_up_forked_thread(struct task_struct * tsk)
+- {
+-	wake_up_forked_process(tsk);
+- }
+-#endif
++#include <linux/wakeup.h>
++
+ extern void FASTCALL(sched_fork(task_t * p));
+ extern void FASTCALL(sched_exit(task_t * p));
+ 
+@@ -827,21 +816,6 @@
+ 	return (current->sas_ss_size == 0 ? SS_DISABLE
+ 		: on_sig_stack(sp) ? SS_ONSTACK : 0);
+ }
+-
+-
+-#ifdef CONFIG_SECURITY
+-/* code is in security.c */
+-extern int capable(int cap);
+-#else
+-static inline int capable(int cap)
+-{
+-	if (cap_raised(current->cap_effective, cap)) {
+-		current->flags |= PF_SUPERPRIV;
+-		return 1;
+-	}
+-	return 0;
+-}
 -#endif
  
-+#if defined(__i386__)
-+#include <asm/nmi.h>
- #endif
-Index: linux-2.6.8.1-mm2/include/linux/nmi_watchdog.h
-===================================================================
---- linux-2.6.8.1-mm2.orig/include/linux/nmi_watchdog.h	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.8.1-mm2/include/linux/nmi_watchdog.h	2004-08-19 08:42:29.000000000 -0500
-@@ -0,0 +1,22 @@
-+/*
-+ *  linux/include/linux/nmi.h
-+ */
-+#ifndef LINUX_NMI_WATCHDOG_H
-+#define LINUX_NMI_WATCHDOG_H
+ /*
+  * Routines for handling mm_structs
+diff -Nru a/include/linux/wakeup.h b/include/linux/wakeup.h
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/include/linux/wakeup.h	2004-08-14 22:18:22 +01:00
+@@ -0,0 +1,17 @@
++#ifndef _LINUX_WAKEUP_H
++#define _LINUX_WAKEUP_H
 +
-+#include <asm/irq.h>
-+
-+/**
-+ * touch_nmi_watchdog - restart NMI watchdog timeout.
-+ * 
-+ * If the architecture supports the NMI watchdog, touch_nmi_watchdog()
-+ * may be used to reset the timeout - for code which intentionally
-+ * disables interrupts for a long time. This call is stateless.
-+ */
-+#ifdef ARCH_HAS_NMI_WATCHDOG
-+extern void touch_nmi_watchdog(void);
++extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
++extern int FASTCALL(wake_up_process(struct task_struct * tsk));
++extern void FASTCALL(wake_up_forked_process(struct task_struct * tsk));
++#ifdef CONFIG_SMP
++ extern void kick_process(struct task_struct *tsk);
++ extern void FASTCALL(wake_up_forked_thread(struct task_struct * tsk));
 +#else
-+# define touch_nmi_watchdog() do { } while(0)
++ static inline void kick_process(struct task_struct *tsk) { }
++ static inline void wake_up_forked_thread(struct task_struct * tsk)
++ {
++	wake_up_forked_process(tsk);
++ }
 +#endif
-+
 +#endif
-Index: linux-2.6.8.1-mm2/kernel/panic.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/kernel/panic.c	2004-08-19 08:42:13.000000000 -0500
-+++ linux-2.6.8.1-mm2/kernel/panic.c	2004-08-19 08:42:29.000000000 -0500
-@@ -18,7 +18,7 @@
- #include <linux/sysrq.h>
- #include <linux/syscalls.h>
- #include <linux/interrupt.h>
--#include <linux/nmi.h>
-+#include <linux/nmi_watchdog.h>
+diff -Nru a/kernel/kallsyms.c b/kernel/kallsyms.c
+--- a/kernel/kallsyms.c	2004-08-14 22:18:22 +01:00
++++ b/kernel/kallsyms.c	2004-08-14 22:18:22 +01:00
+@@ -13,6 +13,7 @@
+ #include <linux/fs.h>
+ #include <linux/err.h>
+ #include <linux/proc_fs.h>
++#include <linux/sched.h>	/* for cond_resched */
  
- int panic_timeout;
- int panic_on_oops;
-Index: linux-2.6.8.1-mm2/kernel/sched.c
-===================================================================
---- linux-2.6.8.1-mm2.orig/kernel/sched.c	2004-08-19 08:42:13.000000000 -0500
-+++ linux-2.6.8.1-mm2/kernel/sched.c	2004-08-19 08:42:29.000000000 -0500
-@@ -20,7 +20,7 @@
- 
- #include <linux/mm.h>
- #include <linux/module.h>
--#include <linux/nmi.h>
-+#include <linux/nmi_watchdog.h>
- #include <linux/init.h>
+ /* These will be re-linked against their real values during the second link stage */
+ extern unsigned long kallsyms_addresses[] __attribute__((weak));
+diff -Nru a/sound/oss/ac97_codec.c b/sound/oss/ac97_codec.c
+--- a/sound/oss/ac97_codec.c	2004-08-14 22:18:22 +01:00
++++ b/sound/oss/ac97_codec.c	2004-08-14 22:18:22 +01:00
+@@ -54,6 +54,7 @@
+ #include <linux/delay.h>
+ #include <linux/ac97_codec.h>
  #include <asm/uaccess.h>
- #include <linux/highmem.h>
-
---------------020204010906080105000003--
++#include <asm/semaphore.h>
+ 
+ #define CODEC_ID_BUFSZ 14
+ 

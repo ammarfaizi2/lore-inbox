@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317184AbSGHWIx>; Mon, 8 Jul 2002 18:08:53 -0400
+	id <S317189AbSGHWLD>; Mon, 8 Jul 2002 18:11:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSGHWIw>; Mon, 8 Jul 2002 18:08:52 -0400
-Received: from hell.ascs.muni.cz ([147.251.60.186]:18050 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S317184AbSGHWIw>; Mon, 8 Jul 2002 18:08:52 -0400
-Date: Tue, 9 Jul 2002 00:11:37 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Terrible VM in 2.4.11+?
-Message-ID: <20020709001137.A1745@mail.muni.cz>
+	id <S317191AbSGHWLC>; Mon, 8 Jul 2002 18:11:02 -0400
+Received: from [209.184.141.189] ([209.184.141.189]:51384 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317189AbSGHWLB>;
+	Mon, 8 Jul 2002 18:11:01 -0400
+Subject: Re: DELL array controller access.
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matt_Domsch@Dell.com, dtroth@bellsouth.net, linux-kernel@vger.kernel.org
+In-Reply-To: <E17RdTp-0002re-00@the-village.bc.nu>
+References: <E17RdTp-0002re-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 08 Jul 2002 17:13:37 -0500
+Message-Id: <1026166417.16788.0.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I know at a minimum...those cards can be put into a 154x mode, so it
+will work. I remember that NetWare needed this feature.
 
-Hello,
 
-as of the last stable version 2.4.18 VM management does not work for me
-properly. I have Athlon system with 512MB ram, 2.4.18 kernel without any
-additional patches.
-
-I run following sequence of commands:
-
-dd if=/dev/zero of=/tmp bs=1M count=512 &
-find / -print &
- { wait a few seconds }
-sync
-
-at this point find stops completely or at least almost stops.
-
-The same if I copy from /dev/hdf to /dev/hda. XOSVIEW shows only reading or only
-writing (as bdflushd is flushing buffers). It never shows parallel reading and
-writing. /proc/sys/* has default settings. I do not know the reason why i/o
-system stops when bdflushd is flushing buffers nor reading can be done.
-
+On Mon, 2002-07-08 at 13:43, Alan Cox wrote:
+> > > RedHat 7.0 and it does not see the board.  Where can I get a 
+> > > EISA buss AHA-154x driver to access the array controller?
+> > 
+> > David, Dell never produced a Linux device driver for the Dell SCSI Array
+> > card.  I had forgotten about the AHA-154x emulation feature, but since it
+> > doesn't seem to work, it's unlikely that it ever will.  Everyone who worked
+> > on that project 9 years ago has left for other opportunities.  The on-board
+> > NCR SCSI controller should still work, and you can use software RAID quite
+> > easily to accomplish similar functionality.
+> 
+> The EISA bus AHA154x equivalent is the AHA174x which we do support. I don't
+> know what the Dell arrays used however
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Luká¹ Hejtmánek
+Austin Gonyou <austin@digitalroadkill.net>

@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131974AbRDDTbT>; Wed, 4 Apr 2001 15:31:19 -0400
+	id <S132044AbRDDTd7>; Wed, 4 Apr 2001 15:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132042AbRDDTbJ>; Wed, 4 Apr 2001 15:31:09 -0400
-Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:57054 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S131974AbRDDTax>;
-	Wed, 4 Apr 2001 15:30:53 -0400
-Date: Wed, 4 Apr 2001 21:30:10 +0200
-To: Trevor Nichols <ocdi@ocdi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uninteruptable sleep
-Message-ID: <20010404213010.A30299@h55p111.delphi.afb.lu.se>
-In-Reply-To: <3ACA10C7.FB117A53@lexus.com> <Pine.BSF.4.33.0104040835010.88858-100000@ocdi.sb101.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.BSF.4.33.0104040835010.88858-100000@ocdi.sb101.org>; from ocdi@ocdi.org on Wed, Apr 04, 2001 at 08:39:19AM +0930
-From: andersg@0x63.nu
+	id <S132042AbRDDTdu>; Wed, 4 Apr 2001 15:33:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9089 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132038AbRDDTdg>; Wed, 4 Apr 2001 15:33:36 -0400
+Date: Wed, 4 Apr 2001 15:30:15 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Frank Cornelis <Frank.Cornelis@rug.ac.be>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.3 crashed my hard disk
+In-Reply-To: <Pine.GSO.4.10.10104042028270.13922-100000@eduserv2.rug.ac.be>
+Message-ID: <Pine.LNX.3.95.1010404145007.30656A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 04, 2001 at 08:39:19AM +0930, Trevor Nichols wrote:
+On Wed, 4 Apr 2001, Frank Cornelis wrote:
 
-> > ps -eo pid,stat,pcpu,nwchan,wchan=WIDE-WCHAN-COLUMN -o args
+> Hey,
 > 
-> 1230 D     0.0 105cc1 down_write_failed /home/data/mozilla/obj/dist/bin/mozilla-bin
+> After I did put in /etc/sysconfig/harddisks 
+> 	USE_DMA=1
+> my system did crash very badly, I guess after my hard disks did wake up
+[SNIPPED...]
 
-My mysql-server got stuck in down_write_failed today too.
-SMP dual PentiumIII system with no swap. I can provide more info at request
-and is willing to do more bug-hunting if that is needed.
 
--- 
+> 
+> BTW: my motherboard runs at 112 Mhz, overclocked, was 100 Mhz.
+> Been running this configuration over more than 2 years now without such
+> major problems.
+> Could this be the cause?
+> 
+> Frank.
 
-//anders/g
+Please don't ever report any errors to linux-kernel if you are running
+your machine over-clocked. All you need is to fetch ONE bad instruction
+and you can evaporate ALL the data on ALL your hard disks. Think what
+happens if a pointer to a structure containing the not-yet-written
+to disk blocks gets adjusted to point so some spent email buffer.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263260AbUJ2Twr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263445AbUJ2T5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263260AbUJ2Twr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUJ2Tvr
+	id S263445AbUJ2T5s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbUJ2Tzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:51:47 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65298 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262586AbUJ2TdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:33:09 -0400
-Date: Fri, 29 Oct 2004 21:32:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Carsten Paeth <calle@calle.de>
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] ISDN b1pcmcia.c: remove an unused variable
-Message-ID: <20041029193229.GS6677@stusta.de>
+	Fri, 29 Oct 2004 15:55:35 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23732 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263479AbUJ2ToU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:44:20 -0400
+Subject: RE: [PATCH] [swsusp] print error message when swapping is disabled
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Zhu, Yi" <yi.zhu@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305756F342F@pdsmsx402.ccr.corp.intel.com>
+References: <16A54BF5D6E14E4D916CE26C9AD305756F342F@pdsmsx402.ccr.corp.intel.com>
+Content-Type: text/plain
+Message-Id: <1099078254.4805.7.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 30 Oct 2004 05:30:54 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-I'm getting the following compile warning in recent 2.6 kernels:
+On Fri, 2004-10-29 at 19:54, Li, Shaohua wrote:
+> Enable DEBUG_PAGEALLOC will disable PSE. 
+> Possibly a stupid question, why swsusp need PSE? I didn't see any
+> relationship between the two.
 
+I have suspend2 working with DEBUG_PAGEALLOC. I just had to add code to
+map the original pages before making the atomic copy, so that resume
+will work (and unmap them afterwards, of course).
 
-<--  snip  -->
+Regards,
 
-...
-  CC      drivers/isdn/hardware/avm/b1pcmcia.o
-drivers/isdn/hardware/avm/b1pcmcia.c: In function `b1pcmcia_init':
-drivers/isdn/hardware/avm/b1pcmcia.c:203: warning: unused variable `err'
-...
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-<--  snip  -->
-
-
-Since this variable is completely unused, the fix is simple:
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm2-full/drivers/isdn/hardware/avm/b1pcmcia.c.old	2004-10-29 21:28:00.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/isdn/hardware/avm/b1pcmcia.c	2004-10-29 21:28:16.000000000 +0200
-@@ -200,7 +200,6 @@
- {
- 	char *p;
- 	char rev[32];
--	int err;
- 
- 	if ((p = strchr(revision, ':')) != 0 && p[1]) {
- 		strlcpy(rev, p + 2, 32);
+Everyone lives by faith. Some people just don't believe it.
+Want proof? Try to prove that the theory of evolution is true.
 

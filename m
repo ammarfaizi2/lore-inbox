@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTH2VAh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 17:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbTH2U7w
+	id S262147AbTH2Ulp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTH2Ulo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:59:52 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:57575 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262361AbTH2U5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:57:42 -0400
-Date: Fri, 29 Aug 2003 16:57:36 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 4G/4G preempt on vstack
-In-Reply-To: <Pine.LNX.4.44.0308292151480.1816-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0308291657030.2390-100000@devserv.devel.redhat.com>
+	Fri, 29 Aug 2003 16:41:44 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:64912 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262147AbTH2Ule
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 16:41:34 -0400
+Message-ID: <3F4FBACD.8030901@terra.com.br>
+Date: Fri, 29 Aug 2003 17:42:53 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dhowells@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: [PATCH 1/3] Remove unneeded linux/version.h include from net/rxrpc
+Content-Type: multipart/mixed;
+ boundary="------------090103050801090108010805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090103050801090108010805
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 29 Aug 2003, Hugh Dickins wrote:
+	Hi David,
 
-> This patch seems to fix that (ran successfully overnight on test4-mm1,
-> will run over the weekend on test4-mm3-1).  Please cast a critical eye
-> over it, I expect Ingo or someone else will find it can be improved.
+	This patch is based on Randy's modified checkversion.pl, which 
+detected an unneeded inclusion of linux/versio.h
 
-good catch - patch looks good.
+	Please consider applying.
 
-	Ingo
+	Cheers,
+
+Felipe
+
+--------------090103050801090108010805
+Content-Type: text/plain;
+ name="krxsecd.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="krxsecd.patch"
+
+--- linux-2.6.0-test4/net/rxrpc/krxsecd.c.orig	Fri Aug 29 17:35:52 2003
++++ linux-2.6.0-test4/net/rxrpc/krxsecd.c	Fri Aug 29 17:36:23 2003
+@@ -14,7 +14,6 @@
+  * - responding to security challenges on outbound connections
+  */
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/completion.h>
+
+--------------090103050801090108010805--
 

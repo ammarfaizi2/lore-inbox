@@ -1,137 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270819AbTGNUXU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270786AbTGNUVJ
+	id S270842AbTGNU7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270840AbTGNU5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:21:09 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:16909 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270820AbTGNUQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:16:23 -0400
-From: "Alan Shih" <alan@storlinksemi.com>
-To: "David griego" <dagriego@hotmail.com>, <alan@lxorguk.ukuu.org.uk>
-Cc: <alan@storlinksemi.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Alan Shih: "TCP IP Offloading Interface"
-Date: Mon, 14 Jul 2003 13:31:06 -0700
-Message-ID: <ODEIIOAOPGGCDIKEOPILAEBDCNAA.alan@storlinksemi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Sea2-F42G9i3HGRgKuw00017dcf@hotmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
-Importance: Normal
+	Mon, 14 Jul 2003 16:57:55 -0400
+Received: from NeverAgain.DE ([217.69.76.1]:2495 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S270829AbTGNU4o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:56:44 -0400
+Date: Mon, 14 Jul 2003 23:11:17 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1 refuses to boot
+Message-ID: <20030714211117.GA2931@minerva.local.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a typical application of NAS ASIC, it is easier to place 2 300MHz
-processor than a 1 GHz processor in cost. This line of reasoning forces me
-to consider making 1 of the processor to be TOE while the other one deals
-with disk/FS manipulations.
 
-Alan
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi all,
 
------Original Message-----
-From: David griego [mailto:dagriego@hotmail.com]
-Sent: Monday, July 14, 2003 1:19 PM
-To: alan@lxorguk.ukuu.org.uk
-Cc: alan@storlinksemi.com; linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+I'm wanting to test 2.6 and I want to do this on my Acer TravelMate 800 LCi.
+However, booting the kernel is not possible here, it always panics at boot
+time with the following message: 'VFS: unable to open root device "hda2" or
+hda2'. I am using DevFS, with 2.4, it works flawless.
 
+For a very short time, I ran 2.5.70-bk18 on this machine and there it worked
+just fine. Chipset is Intel 855PM. I'd really be grateful if somebody was
+able to help me with this.
 
-Embedded does not simply include toasters and fridges, it also includes NAS
-and SAN appliances as well as telco gear.  These types of devices have
-advanced memory subsystems and run processors such as PPC and ARM.  One of
-the most limiting factors in these types of devices is power consumption.
-This usually limits the number of cores and frequency these cores.
-Offloading the processing of protocol stacks to ASICS would have a great
-impact in performance.  If you are going to embed a high frequency chip in
-your embedded devices I would recommend developing a heater not a fridge.
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->To: David griego <dagriego@hotmail.com>
->CC: alan@storlinksemi.com,   Linux Kernel Mailing List
-><linux-kernel@vger.kernel.org>
->Subject: Re: Alan Shih: "TCP IP Offloading Interface"
->Date: 14 Jul 2003 20:42:53 +0100
->
->On Llu, 2003-07-14 at 19:46, David griego wrote:
-> > IMHO, there are several cases for some type of TCP/IP offload.  One is
->for
-> > embedded systems that are just not capable of doing 1Gbps+.  Another is
->with
->
->My fridge doesn't need to do 10Gbit a second, and for most other
->embedded the constraints are ram bandwidth and nothing else. Since
->deeply embedded stuff also doesn't run with MMUs or runs 'partially
->trusted' most of the VM games and the socket api games also go away.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-See PPC and ARM architecture for the use of MMUs in embedded systems
+iD8DBQE/Exx1HPo+jNcUXjARAkbuAKCIc/1s6sTsLN2517loOryCUWsYFACeLenW
+6RUrutoZnDTqhxywETRYNAs=
+=LTyZ
+-----END PGP SIGNATURE-----
 
->
->I've done deeply embedded tcp/ip. I don't buy the argument, embedded
->gains the least of all from ToE.
->
-> > 10GbE, even high end servers will not be able keep up with TCP
-> > processing/data movement at these speeds.  Not being proactive in
->adopting
->
->They said that about 10Mbit until Van showed them a thing or two. They
->said it about 100Mbit, they said it about gigabit.
-
-Not the case for embedded.  I understand your viewpoint from the server
-space though.
->
-> > TCP/IP offload will force Linux into accepting some scheme that will not
-> > necessarily be best.
->
->TCP/IP is an exercise in two things when you are running at speed
->
->1.	Finding the memory bandwidth - ToE doesn't help, checksums do,
->	sg does, on card target buffers do with decent chipsets.
-
-A TOE enabled with RDDP would help eliminate the kernel to user space copy
-(and in the case of SAMBA the copy back to the kernel).  This would reduce
-the memory system loading by a third to a half.
->
->2.	Handling in order perfectly predicted data streams. ToE is
->	overkill for this. Thats about latency to memory and touching
->	as little as possible. The main CPU has a rather good connection
->	to main memory.
->
-Yes, RDDP would be nice to have though for the reason stated for #1, so the
-hardware would need to at least be TCP aware.
-
->ToE is also horribly vulnerable to attack because putting it on a card
->dictates relatively low CPU power and low power consumption as well as
->rather nasty pricing issues. Historically low power devices have
->repeatedly been screwed by attackers hitting software or other slow
->paths in the device to attack it.
-The use of ASICs could ensure that TCP processing is as quick as wire speed
-
->
->This is before we get into the delights of multipath routing across
->different vendors cards, firewalling, traffic shaping, retrofitting new
->features, questions about what happens with an old ToE card when its
->got a hole...
-Try to keep the datapath processing on the TOE, and everything else in the
-OS.  Also give the API the ability to turn of the TOE if a hole exists and
-use it like a regular NIC.
->
->The internet land speed record is held by a non ToE system, let me know
->when that changes.
->
-Layer one network processing is often handled by ASICS, also some of the
-fastest encryption engines are hardware.  I suggest we don't wait until your
-proven wrong before making a decision on TOE.
-
-_________________________________________________________________
-MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*.
-http://join.msn.com/?page=features/virus
-
+--3MwIy2ne0vdjdPXF--

@@ -1,238 +1,457 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264879AbSJ3Tuz>; Wed, 30 Oct 2002 14:50:55 -0500
+	id <S264894AbSJ3T4A>; Wed, 30 Oct 2002 14:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264881AbSJ3Tuz>; Wed, 30 Oct 2002 14:50:55 -0500
-Received: from smtp4.us.dell.com ([143.166.148.135]:47264 "EHLO
-	smtp4.us.dell.com") by vger.kernel.org with ESMTP
-	id <S264879AbSJ3Tup>; Wed, 30 Oct 2002 14:50:45 -0500
-Date: Wed, 30 Oct 2002 13:57:09 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 2.5.44] EDD updates 4/4
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68BC03E6@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.44.0210301356400.27031-100000@humbolt.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+	id <S264901AbSJ3Tz7>; Wed, 30 Oct 2002 14:55:59 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41204 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264894AbSJ3Txx>;
+	Wed, 30 Oct 2002 14:53:53 -0500
+Message-ID: <3DC03A18.4F9197AC@mvista.com>
+Date: Wed, 30 Oct 2002 11:59:20 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 8
+References: <3DB9A314.6CECA1AC@mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------325C26EADBD7415DC1CBA580"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can import this changeset into BK by piping this whole message to
-'| bk receive [path to repository]' or apply the patch as usual.
 
-===================================================================
+This is a multi-part message in MIME format.
+--------------325C26EADBD7415DC1CBA580
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+Thus endth the corrections.  Correct patch attached.
 
-ChangeSet@1.812, 2002-10-24 16:22:00-05:00, Matt_Domsch@dell.com
-  EDD: moved attr_test to edd_attribute ->test(), comments
+This patch adds the two POSIX clocks CLOCK_REALTIME_HR and
+CLOCK_MONOTONIC_HR to the posix clocks & timers package.  A
+small change is made in sched.h and the rest of the patch is
+against .../kernel/posix_timers.c.
 
+Concerns and on going work:
 
- edd.c |   85 ++++++++++++++++++++++++++++--------------------------------------
- 1 files changed, 37 insertions, 48 deletions
+The kernel interface to the signal delivery code and it's
+need for &regs causes the nanosleep and clock_nanosleep code
+to be very messy.  The supplied interface works for the x86
+platform and provides the hooks for other platforms to
+connect (see .../include/asm-i386/signal.h for details), but
+a much cleaner solution is desired.
 
+This patch guards against overload by limiting the repeat
+interval of timers to a fixed value (currently 0.5 ms).  A
+suggested change, and one I am working on, is to not put the
+timer back in the timer list until the user's signal handler
+has completed processing the current expiry.  This requires
+a call back from the signal completion code, again a
+platform dependent thing, BUT it has the advantage of
+automatically adjusting the interval to match the hardware,
+the system overhead and the current load.  In all cases, the
+standard says we need to account for the overruns, but by
+not getting the timer interrupt code involved in useless
+spinning, we just bump the overrun, saving a LOT of
+overhead.
 
-diff -Nru a/arch/i386/kernel/edd.c b/arch/i386/kernel/edd.c
---- a/arch/i386/kernel/edd.c	Thu Oct 24 16:22:38 2002
-+++ b/arch/i386/kernel/edd.c	Thu Oct 24 16:22:38 2002
-@@ -26,9 +26,6 @@
- 
- /*
-  * Known issues:
-- * - module unload leaves directories around if a symlink was
-- *   created in that directory.  Confirmed is a driverfs bug, not
-- *   ours.  Seen on kernel 2.5.41.
-  * - refcounting of struct device objects could be improved.
-  *
-  * TODO:
-@@ -60,7 +57,7 @@
- MODULE_DESCRIPTION("driverfs interface to BIOS EDD information");
- MODULE_LICENSE("GPL");
- 
--#define EDD_VERSION "0.06 2002-Oct-09"
-+#define EDD_VERSION "0.07 2002-Oct-24"
- #define EDD_DEVICE_NAME_SIZE 16
- #define REPORT_URL "http://domsch.com/linux/edd30/results.html"
- 
-@@ -86,6 +83,7 @@
- 	struct attribute attr;
- 	ssize_t(*show) (struct edd_device * edev, char *buf, size_t count,
- 			loff_t off);
-+	int (*test) (struct edd_device * edev);
+This patch fixes the high resolution timer resolution at 1
+micro second.  Should this number be a CONFIG option?
+
+I think it would be a "good thing"=AE to move the NTP stuff to
+the jiffies clock.  This would allow the wall clock/ jiffies
+clock difference to be a "fixed value" so that code that
+needed this would not have to read two clocks.  Setting the
+wall clock would then just be an adjustment to this "fixed
+value".  It would also eliminate the problem of asking for a
+wall clock offset and getting a jiffies clock offset.  This
+issue is what causes the current 2.5.44 system to fail the
+simple:
+
+time sleep 60
+
+test (any value less than 60 seconds violates the standard
+in that it implies a timer expired early).
+
+Patch is against 2.5.44-bk3
+
+These patches as well as the POSIX clocks & timers patch are
+available on the project site:
+http://sourceforge.net/projects/high-res-timers/
+
+The 3 parts to the high res timers are:
+ core           The core kernel (i.e. platform independent)
+changes
+ i386           The high-res changes for the i386 (x86)
+platform
+*posixhr        The changes to the POSIX clocks & timers
+patch to
+use high-res timers
+
+Please apply.
+-- =
+
+George Anzinger   george@mvista.com
+High-res-timers: =
+
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------325C26EADBD7415DC1CBA580
+Content-Type: text/plain; charset=us-ascii;
+ name="hrtimers-hrposix-2.5.44-bk3-1.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-hrposix-2.5.44-bk3-1.1.patch"
+
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-i386/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.44-bk3-i386/include/linux/sched.h	Wed Oct 30 10:58:14 2002
++++ linux/include/linux/sched.h	Wed Oct 30 11:00:12 2002
+@@ -281,6 +281,9 @@
+ 	int it_sigev_signo;		 /* signo word of sigevent struct */
+ 	sigval_t it_sigev_value;	 /* value word of sigevent struct */
+ 	unsigned long it_incr;		/* interval specified in jiffies */
++#ifdef CONFIG_HIGH_RES_TIMERS
++        int it_sub_incr;                /* sub jiffie part of interval */
++#endif
+ 	struct task_struct *it_process;	/* process to send signal to */
+ 	struct timer_list it_timer;
  };
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.44-bk3-i386/kernel/posix-timers.c linux/kernel/posix-timers.c
+--- linux-2.5.44-bk3-i386/kernel/posix-timers.c	Wed Oct 30 10:45:25 2002
++++ linux/kernel/posix-timers.c	Wed Oct 30 10:45:58 2002
+@@ -23,6 +23,7 @@
+ #include <linux/posix-timers.h>
+ #include <linux/compiler.h>
+ #include <linux/id_reuse.h>
++#include <linux/hrtime.h>
  
- /* forward declarations */
-@@ -95,10 +93,11 @@
+ #ifndef div_long_long_rem
+ #include <asm/div64.h>
+@@ -33,7 +34,7 @@
+ 		       result; })
  
- static struct edd_device *edd_devices[EDDMAXNR];
- 
--#define EDD_DEVICE_ATTR(_name,_mode,_show) \
-+#define EDD_DEVICE_ATTR(_name,_mode,_show,_test) \
- struct edd_attribute edd_attr_##_name = { 	\
- 	.attr = {.name = __stringify(_name), .mode = _mode },	\
- 	.show	= _show,				\
-+	.test	= _test,				\
- };
- 
- static inline struct edd_info *
-@@ -505,17 +504,6 @@
- 	return (p - buf);
- }
- 
--static EDD_DEVICE_ATTR(raw_data, 0444, edd_show_raw_data);
--static EDD_DEVICE_ATTR(version, 0444, edd_show_version);
--static EDD_DEVICE_ATTR(extensions, 0444, edd_show_extensions);
--static EDD_DEVICE_ATTR(info_flags, 0444, edd_show_info_flags);
--static EDD_DEVICE_ATTR(default_cylinders, 0444, edd_show_default_cylinders);
--static EDD_DEVICE_ATTR(default_heads, 0444, edd_show_default_heads);
--static EDD_DEVICE_ATTR(default_sectors_per_track, 0444,
--		       edd_show_default_sectors_per_track);
--static EDD_DEVICE_ATTR(sectors, 0444, edd_show_sectors);
--static EDD_DEVICE_ATTR(interface, 0444, edd_show_interface);
--static EDD_DEVICE_ATTR(host_bus, 0444, edd_show_host_bus);
- 
+ #endif	 /* ifndef div_long_long_rem */
+-
++#define CONFIGURE_MIN_INTERVAL 500000
  /*
-  * Some device instances may not have all the above attributes,
-@@ -525,16 +513,7 @@
-  * if the default_{cylinders,heads,sectors_per_track} values
-  * are zero, the BIOS doesn't provide sane values, don't bother
-  * creating files for them either.
-- *
-- * struct attr_test pairs an attribute and a test,
-- * (the default NULL test being true - the attribute exists)
-- * and individual existence tests may be written for each
-- * attribute.
+  * Management arrays for POSIX timers.	 Timers are kept in slab memory
+  * Timer ids are allocated by an external routine that keeps track of the
+@@ -156,6 +157,7 @@
+ 
+ int do_posix_clock_monotonic_settime(struct timespec *tp);
+ 
++IF_HIGH_RES(static int high_res_guard = 0;)
+ /* 
+  * Initialize everything, well, just everything in Posix clocks/timers ;)
   */
--struct attr_test {
--	struct edd_attribute *attr;
--	int (*test) (struct edd_device * edev);
--};
- 
- static int
- edd_has_default_cylinders(struct edd_device *edev)
-@@ -591,23 +570,34 @@
+@@ -174,6 +176,15 @@
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 		sizeof(struct k_itimer), 0, 0, 0, 0);
+ 	idr_init(&posix_timers_id);
++	IF_HIGH_RES(clock_realtime.res = CONFIG_HIGH_RES_RESOLUTION;
++		    register_posix_clock(CLOCK_REALTIME_HR,&clock_realtime);
++		    clock_monotonic.res = CONFIG_HIGH_RES_RESOLUTION;
++		    register_posix_clock(CLOCK_MONOTONIC_HR,&clock_monotonic);
++		    high_res_guard = nsec_to_arch_cycles(CONFIGURE_MIN_INTERVAL);
++		);
++#ifdef	 final_clock_init
++	final_clock_init();	  // defined by arch header file
++#endif
  	return 0;
  }
  
--static struct attr_test def_attrs[] = {
--	{.attr = &edd_attr_raw_data},
--	{.attr = &edd_attr_version},
--	{.attr = &edd_attr_extensions},
--	{.attr = &edd_attr_info_flags},
--	{.attr = &edd_attr_sectors},
--	{.attr = &edd_attr_default_cylinders,
--	 .test = &edd_has_default_cylinders},
--	{.attr = &edd_attr_default_heads,
--	 .test = &edd_has_default_heads},
--	{.attr = &edd_attr_default_sectors_per_track,
--	 .test = &edd_has_default_sectors_per_track},
--	{.attr = &edd_attr_interface,
--	 .test = &edd_has_edd30},
--	{.attr = &edd_attr_host_bus,
--	 .test = &edd_has_edd30},
--	{.attr = NULL,.test = NULL},
-+static EDD_DEVICE_ATTR(raw_data, 0444, edd_show_raw_data, NULL);
-+static EDD_DEVICE_ATTR(version, 0444, edd_show_version, NULL);
-+static EDD_DEVICE_ATTR(extensions, 0444, edd_show_extensions, NULL);
-+static EDD_DEVICE_ATTR(info_flags, 0444, edd_show_info_flags, NULL);
-+static EDD_DEVICE_ATTR(sectors, 0444, edd_show_sectors, NULL);
-+static EDD_DEVICE_ATTR(default_cylinders, 0444, edd_show_default_cylinders,
-+		       edd_has_default_cylinders);
-+static EDD_DEVICE_ATTR(default_heads, 0444, edd_show_default_heads,
-+		       edd_has_default_heads);
-+static EDD_DEVICE_ATTR(default_sectors_per_track, 0444,
-+		       edd_show_default_sectors_per_track,
-+		       edd_has_default_sectors_per_track);
-+static EDD_DEVICE_ATTR(interface, 0444, edd_show_interface, edd_has_edd30);
-+static EDD_DEVICE_ATTR(host_bus, 0444, edd_show_host_bus, edd_has_edd30);
+@@ -214,8 +225,23 @@
+ 	 * We trust that the optimizer will use the remainder from the 
+ 	 * above div in the following operation as long as they are close. 
+ 	 */
+-	return	0;
++	return	 (nsec_to_arch_cycles(nsec % (NSEC_PER_SEC / HZ)));
++}
++#ifdef CONFIG_HIGH_RES_TIMERS
++static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
++{
++	int res = posix_clocks[timer->it_clock].res;
 +
-+
-+static struct edd_attribute * def_attrs[] = {
-+	&edd_attr_raw_data,
-+	&edd_attr_version,
-+	&edd_attr_extensions,
-+	&edd_attr_info_flags,
-+	&edd_attr_sectors,
-+	&edd_attr_default_cylinders,
-+	&edd_attr_default_heads,
-+	&edd_attr_default_sectors_per_track,
-+	&edd_attr_interface,
-+	&edd_attr_host_bus,
-+	NULL,
- };
- 
- /* edd_get_devpath_length(), edd_fill_devpath(), and edd_device_link()
-@@ -864,14 +854,13 @@
- static int
- edd_populate_dir(struct edd_device *edev)
++	timer->it_timer.sub_expires = tstojiffie(&time->it_value,
++						 res,
++						 &timer->it_timer.expires);
++	timer->it_sub_incr = tstojiffie(&time->it_interval,
++					res,
++					(unsigned long*) &timer->it_incr);
++	if ((unsigned long)timer->it_incr > MAX_JIFFY_OFFSET)
++		timer->it_incr = MAX_JIFFY_OFFSET;
+ }
++#else
+ static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
  {
--	struct attr_test *s;
-+	struct edd_attribute *attr;
- 	int i;
- 	int error = 0;
+ 	int res = posix_clocks[timer->it_clock].res;
+@@ -228,6 +254,7 @@
+ }
+  
  
--	for (i = 0; def_attrs[i].attr; i++) {
--		s = &def_attrs[i];
--		if (!s->test || (s->test && !s->test(edev))) {
--			if ((error = edd_create_file(edev, s->attr))) {
-+	for (i = 0; (attr=def_attrs[i]); i++) {
-+		if (!attr->test || (attr->test && !attr->test(edev))) {
-+			if ((error = edd_create_file(edev, attr))) {
- 				break;
- 			}
++#endif
+ 
+ /* PRECONDITION:
+  * timr->it_lock must be locked
+@@ -265,6 +292,47 @@
+ 	}
+ }
+ 
++#ifdef CONFIG_HIGH_RES_TIMERS
++/*
++ * This bit of code is to protect the system from being consumed by
++ * repeating timer expirations.	 We detect overrun and adjust the
++ * next time to be at least high_res_guard out. We clock the overrun
++ * but only AFTER the next expire as it has not really happened yet.
++ *
++ * Careful, only do this if the timer repeat time is less than
++ * high_res_guard AND we have fallen behind.
++
++ * All this will go away with signal delivery callback...
++ */
++
++static inline void  do_overrun_protect(struct k_itimer *timr)
++{
++	timr->it_overrun_deferred = 0;
++
++	if (! timr->it_incr &&
++	    (high_res_guard > timr->it_sub_incr)){
++		int offset = quick_update_jiffies_sub( timr->it_timer.expires);
++
++		offset -= timr->it_timer.sub_expires;
++		// touch_nmi_watchdog();
++		offset += high_res_guard;
++		if (offset <= 0){
++			return;
++		}
++		// expire time is in the past (or within the guard window)
++
++		timr->it_overrun_deferred = (offset / timr->it_sub_incr) - 1;
++		timr->it_timer.sub_expires += 
++			offset - (offset % timr->it_sub_incr);
++				     
++		while ((timr->it_timer.sub_expires -  cycles_per_jiffies) >= 0){
++			timr->it_timer.sub_expires -= cycles_per_jiffies;
++			timr->it_timer.expires++;
++		}
++	}
++}
++
++#endif
+ /* 
+  * Notify the task and set up the timer for the next expiration (if applicable).
+  * This function requires that the k_itimer structure it_lock is taken.
+@@ -277,7 +345,8 @@
+ 
+ 	/* Set up the timer for the next interval (if there is one) */
+ 	if ((interval = timr->it_incr) == 0){
+-		{
++		IF_HIGH_RES(if(timr->it_sub_incr == 0)
++			){
+ 			set_timer_inactive(timr);
+ 			return;
  		}
-@@ -926,7 +915,7 @@
- edd_init(void)
- {
- 	unsigned int i;
--	int rc;
-+	int rc=0;
- 	struct edd_device *edev;
+@@ -285,6 +354,13 @@
+ 	if (interval > (unsigned long) LONG_MAX)
+ 		interval = LONG_MAX;
+ 	timr->it_timer.expires += interval;
++	IF_HIGH_RES(timr->it_timer.sub_expires += timr->it_sub_incr;
++		    if ((timr->it_timer.sub_expires - cycles_per_jiffies) >= 0){
++			    timr->it_timer.sub_expires -= cycles_per_jiffies;
++			    timr->it_timer.expires++;
++		    }
++		    do_overrun_protect(timr);
++		);
+ 	add_timer(&timr->it_timer);
+ }
  
- 	printk(KERN_INFO "BIOS EDD facility v%s, %d devices found\n",
+@@ -543,17 +619,39 @@
+ 
+ 	do {
+ 		expires = timr->it_timer.expires;  
++		IF_HIGH_RES(sub_expires = timr->it_timer.sub_expires);
+ 	} while ((volatile long)(timr->it_timer.expires) != expires);
+ 
++	IF_HIGH_RES(write_lock(&xtime_lock);
++		    update_jiffies_sub());
+ 	if (expires && timer_pending(&timr->it_timer)){
+ 		expires -= jiffies;
++		IF_HIGH_RES(sub_expires -=  sub_jiffie());
+ 	}else{
+ 		sub_expires = expires = 0;
+ 	}
++	IF_HIGH_RES( write_unlock(&xtime_lock));
+ 
+ 	jiffies_to_timespec(expires, &cur_setting->it_value);
+ 	jiffies_to_timespec(timr->it_incr, &cur_setting->it_interval);
+ 
++	IF_HIGH_RES(cur_setting->it_value.tv_nsec += 
++		    arch_cycles_to_nsec( sub_expires);
++		    if (cur_setting->it_value.tv_nsec < 0){
++			    cur_setting->it_value.tv_nsec += NSEC_PER_SEC;
++			    cur_setting->it_value.tv_sec--;
++		    }
++		    if ((cur_setting->it_value.tv_nsec - NSEC_PER_SEC) >= 0){
++			    cur_setting->it_value.tv_nsec -= NSEC_PER_SEC;
++			    cur_setting->it_value.tv_sec++;
++		    }
++		    cur_setting->it_interval.tv_nsec += 
++		    arch_cycles_to_nsec(timr->it_sub_incr);
++		    if ((cur_setting->it_interval.tv_nsec - NSEC_PER_SEC) >= 0){
++			    cur_setting->it_interval.tv_nsec -= NSEC_PER_SEC;
++			    cur_setting->it_interval.tv_sec++;
++		    }
++		);	     
+ 	if (cur_setting->it_value.tv_sec < 0){
+ 		cur_setting->it_value.tv_nsec = 1;
+ 		cur_setting->it_value.tv_sec = 0;
+@@ -699,6 +797,7 @@
+ 
+ 	/* disable the timer */
+ 	timr->it_incr = 0;
++	IF_HIGH_RES(timr->it_sub_incr = 0);
+ 	/* 
+ 	 * careful here.  If smp we could be in the "fire" routine which will
+ 	 * be spinning as we hold the lock.  But this is ONLY an SMP issue.
+@@ -723,6 +822,7 @@
+ 	if ((new_setting->it_value.tv_sec == 0) &&
+ 	    (new_setting->it_value.tv_nsec == 0)) {
+ 		timr->it_timer.expires = 0;
++		IF_HIGH_RES(timr->it_timer.sub_expires = 0 );
+ 		return 0;
+ 	}
+ 
+@@ -743,10 +843,12 @@
+ 	 * For some reason the timer does not fire immediately if expires is
+ 	 * equal to jiffies, so the timer callback function is called directly.
+ 	 */
++#ifndef	 CONFIG_HIGH_RES_TIMERS
+ 	if (timr->it_timer.expires == jiffies) {
+ 		posix_timer_fire(timr);
+ 		return 0;
+ 	}
++#endif
+ 	timr->it_overrun_deferred = 
+ 		timr->it_overrun_last = 
+ 		timr->it_overrun = 0;
+@@ -808,6 +910,7 @@
+ static inline int do_timer_delete(struct k_itimer  *timer)
+ {
+ 	timer->it_incr = 0;
++	IF_HIGH_RES(timer->it_sub_incr = 0);
+ #ifdef CONFIG_SMP
+ 	if ( timer_active(timer) && ! del_timer(&timer->it_timer)){
+ 		/*
+@@ -905,8 +1008,25 @@
+ 		return clock->clock_get(tp);
+ 	}
+ 
++#ifdef CONFIG_HIGH_RES_TIMERS
++	{
++		unsigned long flags;
++		write_lock_irqsave(&xtime_lock, flags);
++		update_jiffies_sub();
++		update_real_wall_time();  
++		tp->tv_sec = xtime.tv_sec;
++		tp->tv_nsec = xtime.tv_nsec;
++		tp->tv_nsec += arch_cycles_to_nsec(sub_jiffie());
++		write_unlock_irqrestore(&xtime_lock, flags);
++		if ( tp->tv_nsec >  NSEC_PER_SEC ){
++			tp->tv_nsec -= NSEC_PER_SEC ;
++			tp->tv_sec++;
++		}
++	}
++#else
+ 	do_gettimeofday((struct timeval*)tp);
+ 	tp->tv_nsec *= NSEC_PER_USEC;
++#endif
+ 	return 0;
+ }
+ 
+@@ -921,8 +1041,9 @@
+ {
+ 	long sub_sec;
+ 	u64 jiffies_64_f;
++	IF_HIGH_RES(long sub_jiff_offset;)
+ 
+-#if (BITS_PER_LONG > 32) 
++#if (BITS_PER_LONG > 32) && !defined(CONFIG_HIGH_RES_TIMERS)
+ 
+ 	jiffies_64_f = jiffies_64;
+ 
+@@ -936,6 +1057,8 @@
+ 		read_lock_irqsave(&xtime_lock, flags);
+ 		jiffies_64_f = jiffies_64;
+ 
++		IF_HIGH_RES(sub_jiff_offset =	
++			    quick_update_jiffies_sub(jiffies));
+ 
+ 		read_unlock_irqrestore(&xtime_lock, flags);
+ 	}
+@@ -944,14 +1067,34 @@
+ 	do {
+ 		jiffies_f = jiffies;
+ 		barrier();
++		IF_HIGH_RES(
++			sub_jiff_offset = 
++			quick_update_jiffies_sub(jiffies_f));
+ 		jiffies_64_f = jiffies_64;
+ 	} while (unlikely(jiffies_f != jiffies));
+ 
++#else /* 64 bit long and high-res but no SMP if I did the Venn right */
++	do {
++		jiffies_64_f = jiffies_64;
++		barrier();
++		sub_jiff_offset = quick_update_jiffies_sub(jiffies_64_f);
++	} while (unlikely(jiffies_64_f != jiffies_64));
+ 
+ #endif
+-	tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
++	/*
++	 * Remember that quick_update_jiffies_sub() can return more
++	 * than a jiffies worth of cycles...
++	 */
++	IF_HIGH_RES(
++		while ( unlikely(sub_jiff_offset > cycles_per_jiffies)){
++			sub_jiff_offset -= cycles_per_jiffies;
++			jiffies_64_f++;
++		}
++		)
++		tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
+ 
+ 	tp->tv_nsec = sub_sec * (NSEC_PER_SEC / HZ);
++	IF_HIGH_RES(tp->tv_nsec += arch_cycles_to_nsec(sub_jiff_offset));
+ 	return 0;
+ }
+ 
+@@ -1110,6 +1253,7 @@
+ 			 * del_timer_sync() will return 0, thus
+ 			 * active is zero... and so it goes.
+ 			 */
++			IF_HIGH_RES(new_timer.sub_expires = )
+ 
+ 				tstojiffie(&t,
+ 					   posix_clocks[which_clock].res,
+@@ -1131,9 +1275,15 @@
+ 	}
+ 	if (active && rmtp ) {
+ 		unsigned long jiffies_f = jiffies;
++		IF_HIGH_RES(
++			long sub_jiff = 
++			quick_update_jiffies_sub(jiffies_f));
+ 
+ 		jiffies_to_timespec(new_timer.expires - jiffies_f, &t);
+ 
++		IF_HIGH_RES(t.tv_nsec += 
++			    arch_cycles_to_nsec(new_timer.sub_expires -
++						sub_jiff));
+ 		while (t.tv_nsec < 0){
+ 			t.tv_nsec += NSEC_PER_SEC;
+ 			t.tv_sec--;
 
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.812
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch21214
-M'XL(`)]DN#T``[56VV[;.!!]%K]BM@$"._&%I*YVX*)M%.P:FVV"M.G+IA!H
-MB;:$Z!)(5-)@]?%+RC<ELEULT)4,TIP9GN$,#X<Z@MN"YV/M+R:$YV9)X8?H
-M"/[("C'6`A['`S]+I.`FRZ1@&&8)'R9!;3:<W0_C*"U_].G`[/,@0-+NF@D_
-MA$>>%V.-#/2-1#P_\+%V<_'[[>7'&X0F$S@/6;K@7[B`R02)+']D<5!\8"*,
-MLW0@<I86"1=,N:\VIA7%F,K7)+:.3:LB%C;LRB<!(<P@/,#4<"P#-6+YL([A
-M%0C!5"<6-:E34=VA)G*!#!Q"`=,AP4-J`+'&E(XQ[F-3MK`+$TX)]#'Z!+]V
-M^>?(APO7'4.2/?(`I./<$[P0T@W(-'M*$,U*P:'_7LD[W1Y(/PE/18'^!!6/
-MA:ZW"4;]__@@A!E&[W?&7+%<;GVD.];PGN<ICX=R20-_E50\HICHIE$1D]I&
-M-;*LD3V?VS,6Z'.;^6]`I`8EE)AF1<AH9-3,V6VO:/3+%_P&Q!6O],HT;6S4
-MO#)?LHJ,3?,@JW0;^H;SO_`JR8(RYE"F<<8">,KR^P+8@D6IU,W*Y$'R31W>
-M*%."G"\96"[BYR8-PRA=]."A%!L"0I2^HN93R',N,0`B`3,N5[\HY%#R<[F1
-M5]#/G^J?Y-OUGCU]`W-=.@(=N98.!$WK]BC@\RCEZDAYWRYNODRO/L,[/,`V
-MJ+3UKWS1I\8[-'4<::Q%J8#.B8JJ"YU"Y*4OZL@"_ACY'$[D@#]VSY`[4N;3
-MNFUZ<"^^3<\OO(]?O]YTO)0EO.?)G,NV"+.GGK<$OD-3@HER-U`";0*UHJ?)
-MYPZY)I:H1/;4`5F93-T`221S).ECRZ`(!NJ@0C`1^2V?.7OR`B98#[!A&+UZ
-M[<JUMU5\OKV\E!'L`5AM?VO^1GYX.O\A>*H,BQ9"4W48)$KGF3>/V:(-TE0=
-M!BFX+\]/&V$C/SQ=[BDK8^'YS_*2"_@.H+8%TC18/LHH9$7;YN<.0\Z"_<Z6
-MVOV.:OW/G:R2X#UP>:ASYM^O'+X$?N&Y/67_*EJVA_9:\'S.?+YCJS>:-;[L
-M=;P?*Y2?+=ZL;&=OJWB-="??%5KCM&_KV`G(F.IQ\?=WF,`_2#M>6VS/5%.X
-M/BA-68/Z37&#S$WQFJ%-V2ZRM;5K=K0UNW:ON9!UJIO23=:0ILY*#[F.9:NJ
-MM^RTW0E3?V5]=&PBJ];4L0U9C[5YED,GDOG#9]!1%I-M6J/OW3.(3D^[*KE:
-M-(?.;TJQO%N@JI835L/C8VAH.W4U[BYGUE,[/,^EKTF]*C_G3'!O'L6\MNS5
-KM]C2WAW)FT)5\+JKZW[N3_#9]BO6#[E_7Y3)A'`2F#JWT+^*==<$+0L`````
-`
-end
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+--------------325C26EADBD7415DC1CBA580--
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263355AbTCNPNK>; Fri, 14 Mar 2003 10:13:10 -0500
+	id <S263350AbTCNPMW>; Fri, 14 Mar 2003 10:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263356AbTCNPNK>; Fri, 14 Mar 2003 10:13:10 -0500
-Received: from 237.oncolt.com ([213.86.99.237]:25281 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263355AbTCNPNI>; Fri, 14 Mar 2003 10:13:08 -0500
-Subject: Re: devfs + PCI serial card = no extra serial ports
-From: David Woodhouse <dwmw2@infradead.org>
-To: Bryan Whitehead <driver@jpl.nasa.gov>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3E6CD8B1.5070300@jpl.nasa.gov>
-References: <200303081948.LAA05459@adam.yggdrasil.com>
-	 <3E6CD8B1.5070300@jpl.nasa.gov>
+	id <S263355AbTCNPMW>; Fri, 14 Mar 2003 10:12:22 -0500
+Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:46210 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S263350AbTCNPMV>; Fri, 14 Mar 2003 10:12:21 -0500
+Subject: Re: hdf: lost interrupt
+From: Shawn <core@enodev.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047653631.29544.7.camel@irongate.swansea.linux.org.uk>
+References: <1047602014.4756.11.camel@localhost.localdomain>
+	 <1047653631.29544.7.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1047655430.14792.86.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
-Date: 14 Mar 2003 15:23:50 +0000
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047655402.2839.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Mar 2003 09:23:22 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-10 at 18:25, Bryan Whitehead wrote:
-> [snip]
-> >       There is nothing in devfs that prevents you from registering
-> > devfs devices even if they are not yet bound to specific hardware
-> > (you do not need a sysfs mapping, for example).  So, you should be
-> > able to register /dev/tts/0..N at initialization, where N is the
-> > maximum number of serial devices you want to support.
+I'm running 2.5.64-mm6 with APIC and ACPI on.
+
+Should I be?
+
+On Fri, 2003-03-14 at 08:53, Alan Cox wrote:
+> On Fri, 2003-03-14 at 00:33, Shawn wrote:
+> > I've been getting lots of messages about my Maxtor 53073H4 30GB hd, and
+> > it doesn't seem to happen under 2.4.x. Just wondering what might be
+> > going on. If it's my drive, or something else.
 > 
-> are you saying there is a way to force devfs to make more entries in 
-> /dev/tts/ without any hardware being attached to the entries? Then i can 
-> use setserial? so on boot I'd have 4 entries in /dev/tts ?
-
-Don't do this. The whole concept of opening a device node for a device
-which is _absent_, then doing magic ioctls on it to make the driver
-probe for the hardware, is utterly bogus.
-
-Fix it properly instead -- disallow opening of a /dev/ttySx node with
-uart type unknown, and implement a proper way to tell the serial driver
-'please look for a device _here_', via sysfs or something. 
-
--- 
-dwmw2
-
+> What kernel are you running ?
+> 
+> Do you have ACPI and APIC support off ?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,136 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261734AbTCQPcy>; Mon, 17 Mar 2003 10:32:54 -0500
+	id <S261768AbTCQPnz>; Mon, 17 Mar 2003 10:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261737AbTCQPcy>; Mon, 17 Mar 2003 10:32:54 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:54405 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S261734AbTCQPcw>;
-	Mon, 17 Mar 2003 10:32:52 -0500
-Date: Mon, 17 Mar 2003 17:43:44 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: select() stress
-Message-ID: <20030317154344.GG29167@mea-ext.zmailer.org>
-References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000>
+	id <S261770AbTCQPnz>; Mon, 17 Mar 2003 10:43:55 -0500
+Received: from mail1.ugr.es ([150.214.20.24]:59295 "EHLO mail1.ugr.es")
+	by vger.kernel.org with ESMTP id <S261768AbTCQPnx>;
+	Mon, 17 Mar 2003 10:43:53 -0500
+Subject: Re: make modules_install fail: depmod *** Unresolved symbols
+	(official
+From: Miguel =?ISO-8859-1?Q?Quir=F3s?= <mquiros@ugr.es>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: bonganilinux@mweb.co.za, KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047651405.3503.103.camel@workshop.saharact.lan>
+References: <E18tpXR-0007oI-00@rammstein.mweb.co.za>
+	 <1047651405.3503.103.camel@workshop.saharact.lan>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Universidad de Granada
+Message-Id: <1047916546.1486.7.camel@migelinho.ugr.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000>
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 17 Mar 2003 16:55:47 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 10:28:59AM -0500, Sparks, Jamie wrote:
-> Hello,
+El vie, 14-03-2003 a las 15:16, Martin Schlemmer escribió:
+> On Fri, 2003-03-14 at 16:03, bonganilinux@mweb.co.za wrote:
+> > > 			Granada, 14-3-2002
+> > > 
+> > > Hello, I downloaded kernel 2.4.20 and compiled it sucessfully a month
+> > > ago without any aparent problem. Yesterday I tried to compile it again
+> > > in the same computer just changing a couple of small things in the
+> > > configuration (agpart and the network card changed from "module" to
+> > > "yes").
+> > > 
+> > > make dep, make bzImage and make modules went apparently well (expect for
+> > > a few apparently non-important warnings with bzImage of the type
+> > > Warning: indirect call without '*' when compiling pci-pc and apm).
+> > > 
+> > > But when I try make modules_install, I've got a lot of error messages.
+> > > For each module I've got one line like:
+> > > 
+> > > depmod:  *** Unresolved symbols in
+> > > /lib/modules/2.4.20/kernel/arch/i386/kernel/microcode.o
+> > > 
+> > > followed by a number of lines of the type
+> > > 
+> > > depmod:     misc_deregister
+> > > depmod:     __generic_copy_from_use
+> > > depmod:     .....
+> > 
+> > Download, compile and install Rusty's latest module-init-tools
+> > ftp.kernel.org/pub/linux/kernel/people/rusty/modules
+> > 
 > 
->   I'm running some code ported from an sgi running Irix 6.5 on a
->   redhat 7.1 box: 2.4.7-10, i686.  Control hangs on a select()
->   statement forever.  The select is never completed, so I can't
->   check errno.
+> Errr, he got 2.4.20, not 2.5.48+ ....
+> 
+> Miguel:  Not a real fix, but try compiling microcode.o into the
+>          kernel and not as a module ...
 
-  You do set two socket fds for read monitoring, no write-sockets,
-  nor exceptions, and most definitely, no timeouts.
+Thanks a lot for your answers. Well, it is not only microcode.o. It
+happens for all compiled modules (at least, for a lot of them). Anyway,
+I can see that all modules have been copied to /lib/modules/2.4.20 and
+that the files modules.dep and modules.whatsoever have been created. A
+fast look to modules.dep makes me think that this file seems to be OK.
 
-  If, for some reason, whoever is supposed to send something to
-  those sockets does not do it, e.g. due to some odd buffering
-  somewhere, you are effectively stuck.
+May I use this kernel and these modules after all ignoring the depmod
+errors or should I expect problems if I do so?
 
+Thanks again.
 
->   Please reply to me personally as I'm not currently subscribed:
->   jamie.sparks@cubic.com
-> 
->   on sgi, the call is:
-> 
->   select(getdtablehi(), &socklist, NULL, NULL, NULL);
-> 
->   where socklist is declared as:  FD_SET socklist;
-> 
->   on linux, there is no getdtablehi() equivalent, so I use
->   getdtablesize() in its place.  getdtablehi() returns the
->   number of fd's currently open and getdtablesize() returns
->   the number of fd's that *can* be open.
+-- 
+-------------------------
+Miguel Quirós Olozábal
+Departamento de Química Inorgánica. Facultad de Ciencias.
+Universidad de Granada. 18071 Granada (SPAIN).
+email:mquiros@ugr.es
 
-  I would be carefull with that, and explicitely code
-  additional things to find out current highest fd in
-  the interest set:
-
->   here's the code:
-> 
->   for (;;)
->   {
-	int highfd;
-
->     printf("CLEARING sockets\n");
->     FD_ZERO(&socklist); /* Always clear the structure first. */
->     FD_SET(Sockfd[0], &socklist);
-	highfd = Sockfd[0];
->     FD_SET(Sockfd[1], &socklist);
-	if (Sockfd[1] > highfd) highfd = Sockfd[1];
->
->     int len = -1;
->     bool wasDequeued =false;
->     if (!StateManager::getSaveInProgress()&& StateManager::hasQueuedPdus())
->     {
->       FD_ZERO(&socklist); /* Always clear the structure first. */
->       pdu = StateManager::dequeuePostPduProcess();
->       len = sizeof(pdu);
->       wasDequeued = true;
->       printf("PDU DEqueued from StateManager since Save has completed\n");
->     }
->     else
->     {
->       printf("prior to select\n");
->       // orig sgi if (select(getdtablehi(), &socklist, NULL, NULL, NULL) < 0)
-
-	int rc = select(highfd + 1, &socklist, NULL, NULL, NULL);
-	if (rc < 0) ...
-
->       /*  ****************************** */
->       /*  THIS select() STATEMENT NEVER COMPLETES */
->       /*  ****************************** */
->       if (select(getdtablesize(), &socklist, NULL, NULL, NULL) < 0)
->       {
->         if (errno != EINTR) perror("WeapTerrain");
-> 	continue;
->       }
-> 
->       printf("after select\n");
-> 			}
->       printf("Prior to finding which socket\n");
-> 
->       for (ii=0;ii<2;ii++)
->       {
->         len = -1;
->         if (FD_ISSET(Sockfd[ii],&socklist))
-> 	{
->           if (!ii)
-> 	  {
->             len = waitForSocketMessage(Sockfd[ii],&pdu,
-> 	    sizeof(pdu));
-> 	  } else if (ii)
-> 	  {
-> 	    len = 0;
-> 	  }
-> 	}
-> 
-> 	if (wasDequeued){len = sizeof(pdu);wasDequeued=false;}
-> 
->         if (len == sizeof(pdu) && StateManager::getSaveInProgress())
-> 	{
->           StateManager::queuePostPduProcess(pdu);
->           printf("incoming PDU queued in StateManager since SaveInProgress\n");
-> 	  continue;
->         }
-> 
->         if (len >= 0)
-> 	{
-> 	  printf("LEN?TYPE = %d %d\n",len, pdu.dpdu.detonation_header.type);
->         }
-> 
-> 
->   Please reply to me personally as I'm not currently subscribed:
->   jamie.sparks@cubic.com
-> 
->   thanks,
-> 
->   Jamie

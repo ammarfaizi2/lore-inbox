@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbTBGR4s>; Fri, 7 Feb 2003 12:56:48 -0500
+	id <S266081AbTBGSIe>; Fri, 7 Feb 2003 13:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266297AbTBGR4s>; Fri, 7 Feb 2003 12:56:48 -0500
-Received: from bitmover.com ([192.132.92.2]:7066 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266286AbTBGR4r>;
-	Fri, 7 Feb 2003 12:56:47 -0500
-Date: Fri, 7 Feb 2003 10:06:24 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: Matt Reppert <arashi@yomerashi.yi.org>, linux-kernel@vger.kernel.org
-Subject: Re: glibc-2.3 [Was: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c]
-Message-ID: <20030207180624.GA23740@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	Matt Reppert <arashi@yomerashi.yi.org>,
-	linux-kernel@vger.kernel.org
-References: <20030206115508.4425d994.arashi@yomerashi.yi.org> <200302071618.h17GIAnG009654@eeyore.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302071618.h17GIAnG009654@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S266199AbTBGSIe>; Fri, 7 Feb 2003 13:08:34 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:58897 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S266081AbTBGSId>;
+	Fri, 7 Feb 2003 13:08:33 -0500
+Date: Fri, 7 Feb 2003 13:18:05 -0500
+Message-Id: <200302071818.h17II5901915@gonzales.badula.org>
+From: Ion Badulescu <ionut@badula.org>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Race in RPC code
+In-Reply-To: <20030207134446.GB25807@unthought.net>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.19 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 05:18:10PM +0100, Horst von Brand wrote:
-> So statically linking against glibc-2.2 crashes under glibc-2.3(-aware-kernel)?
+Hi Jakob, Trond,
 
-Statically linking glibc 2.2.4 into BK will cause it to crash on some systems.
-In general, we offer up the static image for people who aren't running glibc
-based systems.
+On Fri, 7 Feb 2003 14:44:46 +0100, Jakob Oestergaard <jakob@unthought.net> wrote:
+
+> The panic has happened once, just today.
+
+I've seen this multiple times, and even reported it to the nfs mailing list.
+
+I'm just glad someone else is seeing the same kind of oops with a vanilla 
+kernel, because I was seeing it with a heavily patched 
+redhat+nfs2.4.20+nfsall2.4.20 kernel and wasn't sure if that had anything
+to do with it.
+
+I have at least 5-6 such oopsen recorded, if anyone cares.
+
+Ion
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

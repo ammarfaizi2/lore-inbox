@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUFSOjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUFSOtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbUFSOjA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 10:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUFSOjA
+	id S263893AbUFSOtn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 10:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUFSOtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 10:39:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25809 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263895AbUFSOiz (ORCPT
+	Sat, 19 Jun 2004 10:49:43 -0400
+Received: from tor.morecom.no ([64.28.24.90]:25204 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S263893AbUFSOtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 10:38:55 -0400
-Subject: Re: [PATCH] Handle non-readable binfmt_misc executables
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: yoav.zach@intel.com, torvalds@osdl.org
-In-Reply-To: <200406181612.i5IGCIYY001854@hera.kernel.org>
-References: <200406181612.i5IGCIYY001854@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Fy5wX+mYS5Bo0pcK6KoW"
-Organization: Red Hat UK
-Message-Id: <1087655927.15190.0.camel@laptop.fenrus.com>
+	Sat, 19 Jun 2004 10:49:41 -0400
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+From: Petter Larsen <pla@morecom.no>
+To: Ken Ryan <linuxryan@leesburg-geeks.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40D1B110.7020409@leesburg-geeks.org>
+References: <40D1B110.7020409@leesburg-geeks.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1087656575.1769.243.camel@pla.lokal.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 19 Jun 2004 16:38:47 +0200
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 19 Jun 2004 16:49:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > 
+> > We are using ext3 on a compact flash disk in an embedded device. So we
+> > are not using RAID systems.
+> 
 
---=-Fy5wX+mYS5Bo0pcK6KoW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Um, is this a new application or have you done this before?
+> 
+> It's my understanding that very few (or no) CF devices do wear-levelling internally.
+> Using a journal, especially a true data journal, seems like *the* way to wear out your
+> flash as quickly as possible.
+> 
+> If you've had success using ext2 in read/write mode on flash/CF in a shipping product,
+> I for one would like to know more details!
+> 
+> 		ken
 
+>From our data sheet:
 
-> +_error_close_file:
-> +	if (fd_binary > 0) {
-> +		sys_close (fd_binary);
-> +		fd_binary =3D -1;
-> +		bprm->file =3D NULL;
-> +=09
+    Wear Leveling is an intrinsic part of the operation of 	
+    SanDisk products using NAND memory.
 
+But for sure, we will use a Compact flash that DO wear leveling, and
+also shuffling read-only data around the Compact Flash disk.
 
-ewww sys_close.... there HAS to be a better way to do that...=20
+This will be for production, yes.
 
---=-Fy5wX+mYS5Bo0pcK6KoW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA1E/3xULwo51rQBIRAiZpAJ9CFJEeSdfLDJqIwgW3mhMeQajLjACfWmBU
-1xbhrqloAs+1T9bh7q0j3/M=
-=Z8pg
------END PGP SIGNATURE-----
-
---=-Fy5wX+mYS5Bo0pcK6KoW--
-
+Petter

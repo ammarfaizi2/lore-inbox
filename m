@@ -1,90 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbTLPH7F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 02:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLPH7E
+	id S264366AbTLPIJM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 03:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLPIJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 02:59:04 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:10634 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264365AbTLPH7A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 02:59:00 -0500
-Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11,
-	reading an apparently duff DVD-R
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Toad <toad@amphibian.dyndns.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031215174908.GA29901@amphibian.dyndns.org>
-References: <20031215135802.GA4332@amphibian.dyndns.org>
-	 <Pine.LNX.4.58.0312150715410.1488@home.osdl.org> <3FDDD923.30509@pobox.com>
-	 <20031215174908.GA29901@amphibian.dyndns.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Mzmq00v2cNx4vVbiqhcU"
-Message-Id: <1071561657.4995.21.camel@nosferatu.lan>
+	Tue, 16 Dec 2003 03:09:12 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:940 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S264366AbTLPIJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 03:09:06 -0500
+Subject: Re: 2x procfs bug with 2.4.23
+From: Len Brown <len.brown@intel.com>
+To: Auke Kok <sofar@lunar-linux.org>
+Cc: linux-kernel@vger.kernel.org, dev@grsecurity.net,
+       lunar-dev@lunar-linux.org
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE001B5726C@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE001B5726C@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1071562126.2443.101.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Dec 2003 10:00:57 +0200
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Dec 2003 03:08:47 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Auke,
+Problem #2 should be fixed by the patch here:
+http://bugzilla.kernel.org/show_bug.cgi?id=991
+Please let me know if it works for you.
 
---=-Mzmq00v2cNx4vVbiqhcU
-Content-Type: multipart/mixed; boundary="=-NG+Xdnc8423WYxI6RpkF"
-
-
---=-NG+Xdnc8423WYxI6RpkF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2003-12-15 at 19:49, Toad wrote:
-
-> I've been completely unable to get cdrtools to compile... The version in
-> debian is 2.0a19, which works with IDE-SCSI, and doesn't work without
-> it. The RPM from the oss-dvd extension site doesn't work either without
-> IDE-SCSI. Nor does dvd+rwtools. Anyone attempting to write DVDs will
-> have real problems if IDE-SCSI is removed, judging by this experience.
-
-You might try this patch to get the latest 2.01 beta compiled against
-2.6 headers.
+thanks,
+-Len
 
 
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-NG+Xdnc8423WYxI6RpkF
-Content-Disposition: attachment; filename=cdrtools-2.01-kernel25-support.patch
-Content-Type: text/x-patch; name=cdrtools-2.01-kernel25-support.patch;
-	charset=iso-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGNkcnRvb2xzLTIuMDEvbGlic2NnL3Njc2ktbGludXgtc2cuYy5vcmlnCTIwMDMtMDItMDUg
-MjE6MDE6MzEuMDAwMDAwMDAwICswMjAwDQorKysgY2RydG9vbHMtMi4wMS9saWJzY2cvc2NzaS1s
-aW51eC1zZy5jCTIwMDMtMDItMDUgMjE6MTY6MzMuMDAwMDAwMDAwICswMjAwDQpAQCAtNjYsNiAr
-NjYsMTEgQEANCiAjaWYgTElOVVhfVkVSU0lPTl9DT0RFID49IDB4MDEwMzFhIC8qIDxsaW51eC9z
-Y3NpLmg+IGludHJvZHVjZWQgaW4gMS4zLjI2ICovDQogI2lmIExJTlVYX1ZFUlNJT05fQ09ERSA+
-PSAweDAyMDAwMCAvKiA8c2NzaS9zY3NpLmg+IGludHJvZHVjZWQgc29tZXdoZXJlLiAqLw0KIC8q
-IE5lZWQgdG8gZmluZSB0dW5lIHRoZSBpZmRlZiBzbyB3ZSBnZXQgdGhlIHRyYW5zaXRpb24gcG9p
-bnQgcmlnaHQuICovDQorI2lmIExJTlVYX1ZFUlNJT05fQ09ERSA+PSAweDAyMDUwMCAvKiAyLjUu
-eCBicmVha3MgdGhpbmdzIGFnYWluICovDQorI2RlZmluZSBfX0tFUk5FTF9fDQorI2luY2x1ZGUg
-PGFzbS90eXBlcy5oPg0KKyN1bmRlZiBfX0tFUk5FTF9fDQorI2VuZGlmDQogI2luY2x1ZGUgPHNj
-c2kvc2NzaS5oPg0KICNlbHNlDQogI2luY2x1ZGUgPGxpbnV4L3Njc2kuaD4NCg==
-
---=-NG+Xdnc8423WYxI6RpkF--
-
---=-Mzmq00v2cNx4vVbiqhcU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/3ru4qburzKaJYLYRAs4NAJwMRfMYiLy1q6I9MSugc3Cgsz7BXgCfX3RO
-XQKX3DCU3NU6D0lSXIGIKVA=
-=Fz6Z
------END PGP SIGNATURE-----
-
---=-Mzmq00v2cNx4vVbiqhcU--
+On Sun, 2003-12-14 at 18:51, Auke Kok wrote:
+> Hi,
+> 
+> I have encountered 2 different procfs bugs with 2.4.23, where procfs
+> seems to be running a possible race, the other with ACPI subdirs being
+> created in /proc instead of /proc/acpi, possibly leading to more
+> problems.
+> 
+> both kernels run the official grsec patchset, so I forward them to
+> 
+> 1) procfs sys shows alternatingly up as "file", "socket", and
+> "directory"
+> 
+> root@server /proc # ls -ld sys
+> srwxrwxrwx   10 root     root            0 2003-12-15 00:38 sys
+> root@server /proc # ls -ld sys
+> -r--r--r--   10 root     root            0 2003-12-15 00:38 sys
+> root@server /proc # ls -ld sys
+> prw-------   10 root     root            0 2003-12-15 00:41 sys
+> root@server /proc # ls -ld sys
+> prw-------   10 root     root            0 2003-12-15 00:41 sys
+> root@server /proc # ls -ld sys
+> srwxrwxrwx   10 root     root            0 2003-12-15 00:41 sys
+> root@server /proc # cd sys
+> root@server /proc/sys # ls -ld .
+> srwxrwxrwx   10 root     root            0 2003-12-15 00:41 .
+> root@server /proc/sys # pwd
+> /proc/sys
+> root@server /proc/sys # ls
+> abi  debug  dev  fs  kernel  net  proc  vm
+> 
+> etc... very very annoying since this box needs ip_forward enabled
+> after
+> boot to function!
+> 
+> The other box has an unsupported ACPI core:
+> 
+> [from dmesg]
+> ACPI: Unable to locate RSDP
+> ACPI: Subsystem revision 20031002
+> PCI: PCI BIOS revision 2.10 entry at 0xf7ec0, last bus=0
+> PCI: Using configuration type 1
+> ACPI: System description tables not found
+>      ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP,
+> AE_NOT_FOUND
+>      ACPI-0134: *** Error: acpi_load_tables: Could not load tables:
+> AE_NOT_FOUND
+> ACPI: Unable to load the System Description Tables
+> PCI: Probing PCI hardware
+> PCI: ACPI tables contain no PCI IRQ routing entries
+> 
+> it's a genuine pII-mmx, so I don't care about the ACPI. However, the
+> /proc/acpi directory isn't created but the subdirs for enabled
+> components are, which could result in confusion/problems:
+> 
+> ~ # ls -dF /proc/[a-zA-Z_-]*
+> /proc/ac_adapter/  /proc/interrupts  /proc/partitions
+> /proc/battery/     /proc/iomem       /proc/pci
+> /proc/bus/         /proc/ioports     /proc/processor/
+> /proc/button/      /proc/irq/        /proc/self@
+> /proc/cmdline      /proc/kmsg        /proc/slabinfo
+> /proc/cpuinfo      /proc/ksyms       /proc/stat
+> /proc/crypto       /proc/loadavg     /proc/swaps
+> /proc/devices      /proc/locks       /proc/sys/
+> /proc/dma          /proc/lvm/        /proc/sysvipc/
+> /proc/driver/      /proc/mdstat      /proc/thermal_zone/
+> /proc/execdomains  /proc/meminfo     /proc/tty/
+> /proc/fan/         /proc/misc        /proc/uptime
+> /proc/filesystems  /proc/modules     /proc/version
+> /proc/fs/          /proc/mounts@
+> /proc/ide/         /proc/net/
+> 
+> [note the thermal_zone... it should not be there I think ;^)]
+> 
+> 
+> -- not subscribed, reply to sofar <at> lunar.linux <dot> org
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135464AbRDRXLr>; Wed, 18 Apr 2001 19:11:47 -0400
+	id <S135468AbRDRXWr>; Wed, 18 Apr 2001 19:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135465AbRDRXLi>; Wed, 18 Apr 2001 19:11:38 -0400
-Received: from [212.95.166.64] ([212.95.166.64]:46084 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S135464AbRDRXLc>;
-	Wed, 18 Apr 2001 19:11:32 -0400
-Date: Thu, 19 Apr 2001 02:11:46 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: Sampsa Ranta <sampsa@netsonic.fi>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Broken ARP (was Re: ARP responses broken!)
-In-Reply-To: <Pine.LNX.4.33.0104190130490.27239-100000@nalle.netsonic.fi>
-Message-ID: <Pine.LNX.4.30.0104190149150.1192-100000@u.domain.uli>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135470AbRDRXWi>; Wed, 18 Apr 2001 19:22:38 -0400
+Received: from et-gw.etinc.com ([207.252.1.2]:59404 "EHLO et-gw.etinc.com")
+	by vger.kernel.org with ESMTP id <S135468AbRDRXWZ>;
+	Wed, 18 Apr 2001 19:22:25 -0400
+Message-Id: <5.0.2.1.0.20010418182619.0364e1d0@mail.etinc.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Wed, 18 Apr 2001 18:44:02 -0400
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+From: Dennis <dennis@etinc.com>
+Subject: Re: SMP in 2.4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010418210546.W805@mea-ext.zmailer.org>
+In-Reply-To: <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
+ <20010418211208.A1140@villain.home.ems.chel.su>
+ <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-	Hello,
-
-On Thu, 19 Apr 2001, Sampsa Ranta wrote:
-
-> So I wonder if this hidden feature or alike should be brought to 2.4 tree
-> also?
-
-	The three flags that can control the ARP behavior in 2.2
-(arp_filter, hidden and rp_filter) cover almost everything without
-breaking any RFC826 rule. You can always find the missing from Linux 2.4
-functionality in the LVS site, where it is really used.
-
-	I hope the following posts/threads explain almost everything
-related :)
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98032243112274&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98042063530177&w=2
-http://marc.theaimsgroup.com/?t=98019795800013&w=2&r=1
-http://marc.theaimsgroup.com/?t=95743539800002&w=2&r=1
+At 02:05 PM 04/18/2001, Matti Aarnio wrote:
+>On Wed, Apr 18, 2001 at 11:08:22AM -0400, Dennis wrote:
+> > Does 2.4 have something similar to spl levels or does it still require the
+> > ridiculous MS-DOSish spin-locks to protect every bit of code?
+>
+>   Lets see -- (besides of MSDOS not having any sort of spinlocks), the
+>   spl() is something out of VAX series of machines, and it really works
+>   by presuming that there is some sort of priority leveling among irq
+>   sources.
 
 
-Regards
+I was referring to the infamous CLI/STI combinations that are more 
+analogous to spinlocks than anything you are talking about. spl levels are 
+clean and transparent and have been doing a very nice job in  helping to 
+avoid race conditions in real unix systems for quite some time now.
 
---
-Julian Anastasov <ja@ssi.bg>
+db
+
 

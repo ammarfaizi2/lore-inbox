@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265546AbRF2FYE>; Fri, 29 Jun 2001 01:24:04 -0400
+	id <S265552AbRF2F3y>; Fri, 29 Jun 2001 01:29:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265545AbRF2FXy>; Fri, 29 Jun 2001 01:23:54 -0400
-Received: from wwcst27a.netaddress.usa.net ([204.68.23.16]:1980 "HELO
-	wwcst271.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S265546AbRF2FXj> convert rfc822-to-8bit; Fri, 29 Jun 2001 01:23:39 -0400
-Message-ID: <20010629052337.15050.qmail@wwcst271.netaddress.usa.net>
-Date: 28 Jun 2001 23:23:37 MDT
-From: Blesson Paul <blessonpaul@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S265559AbRF2F3o>; Fri, 29 Jun 2001 01:29:44 -0400
+Received: from ns.asml.nl ([195.109.200.66]:7312 "EHLO pollux.asml.nl")
+	by vger.kernel.org with ESMTP id <S265552AbRF2F3h>;
+	Fri, 29 Jun 2001 01:29:37 -0400
+From: Tim Timmerman <Tim.Timmerman@asml.com>
+Message-ID: <15164.4642.621532.532854@asml.nl>
+Date: Fri, 29 Jun 2001 07:29:06 +0200
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NETDEV WATCHDOG with 2.4.5
+In-Reply-To: <3B397659.816CF0A3@uow.edu.au>
+In-Reply-To: <Pine.LNX.4.21.0106261924220.10865-100000@schoen3.schoen.nl>
+	<15161.28095.801407.427346@asml.nl>
+	<3B397659.816CF0A3@uow.edu.au>
+X-Mailer: VM 6.90 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Andrew" == Andrew Morton <andrewm@uow.edu.au> writes:
 
-"This is almost always the result of flakiness in your hardware - either
-RAM (most likely), or motherboard (less likely).  "
-                         
-                              I cannot understand this. There are many other
-stuffs that I compiled with gcc without any problem. Again compilation is only
-a application. It  only parse and gernerates object files. How can RAM or
-motherboard makes different
-                          
+Andrew> Tim Timmerman wrote:
+>> 
+>> >>>>> "kees" == kees  <kees@schoen.nl> writes:
+>> 
+kees> Hi,
+>> 
+kees> I tried 2.4.5 but after a couple of hours I lost all network
+kees> connectivety.  The log shows:
+>> <snip>
+>> Can I just add a me too here ?
+>> 
+>> System: Abit BP6, Dual Celeron, Ne2k-pci, usb ohci and
+>> scanner; 128 Mb Ram, Nvidia TNT2 graphics. Kernel 2.4.5
+<snip>
+
+Andrew> Probable fixes include booting with the `noapic' option,
+Andrew> running -ac kernels or applying Maciej's APIC workaround
+Andrew> patch.  There's a copy at http://www.uow.edu.au/~andrewm/linux/apic.txt
+Andrew> -
+   Didn't check the patch, but went straight for 2.4.5-ac20... No hangs,
+   and better performance than before.
+
+   TimT. 
+   
+
+-- 
+tim.timmerman@asml.nl                              040-2683613
+timt@timt.org   Voodoo Programmer/Keeper of the Rubber Chicken
+Whatever happened to preparations A through G?
 

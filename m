@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbQKGGS0>; Tue, 7 Nov 2000 01:18:26 -0500
+	id <S129645AbQKGGkG>; Tue, 7 Nov 2000 01:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129645AbQKGGSR>; Tue, 7 Nov 2000 01:18:17 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10114 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129116AbQKGGSB>;
-	Tue, 7 Nov 2000 01:18:01 -0500
-Date: Mon, 6 Nov 2000 22:03:05 -0800
-Message-Id: <200011070603.WAA02292@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: jordy@napster.com
-CC: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <3A079D83.2B46A8FD@napster.com> (message from Jordan Mendelson on
-	Mon, 06 Nov 2000 22:13:23 -0800)
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com>
+	id <S129685AbQKGGj4>; Tue, 7 Nov 2000 01:39:56 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:35214 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129645AbQKGGjn>; Tue, 7 Nov 2000 01:39:43 -0500
+Date: Mon, 06 Nov 2000 22:45:54 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: malloc(1/0) ??
+To: atmproj@yahoo.com, linux-kernel@vger.kernel.org
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A07A522.3D1914D2@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Mon, 06 Nov 2000 22:13:23 -0800
-   From: Jordan Mendelson <jordy@napster.com>
+atmproj@yahoo.com asked:
+> [Why does this program not crash?]
+>
+> main() 
+> { 
+>    char *s; 
+>    s = (char*)malloc(0); 
+>    strcpy(s,"fffff"); 
+>    printf("%s\n",s); 
+> } 
 
-   There is a possibility that we are hitting an upper level bandwidth
-   limit between us an our upstream provider due to a misconfiguration
-   on the other end, but this should only happen during peak time
-   (which it is not right now). It just bugs me that 2.2.16 doesn't
-   appear to have this problem.
+It doesn't crash because the standard malloc is
+optimized for speed, not for finding bugs.
 
-The only thing I can do now is beg for a tcpdump from the windows95
-machine side.  Do you have the facilities necessary to obtain this?
-This would prove that it is packet drop between the two systems, for
-whatever reason, that is causing this.
+Try linking it with a debugging malloc, e.g.
+  cc bug.c -lefence
+and watch it dump core.
 
-Later,
-David S. Miller
-davem@redhat.com
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271331AbTGWVfe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 17:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTGWVfe
+	id S271034AbTGWVnO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 17:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271040AbTGWVnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 17:35:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51590 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271331AbTGWVfd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 17:35:33 -0400
-Date: Wed, 23 Jul 2003 14:47:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: root@chaos.analogic.com, bernie@develer.com, uclinux-dev@uclinux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6 size increase
-Message-Id: <20030723144719.103adc19.rddunlap@osdl.org>
-In-Reply-To: <20030723130712.6ac59b56.davem@redhat.com>
-References: <200307232046.46990.bernie@develer.com>
-	<Pine.LNX.4.53.0307231507300.16939@chaos>
-	<20030723130712.6ac59b56.davem@redhat.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jul 2003 17:43:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27656 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271034AbTGWVnI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 17:43:08 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [Lse-tech] [patch 2.6.0-test1] per cpu times
+Date: 23 Jul 2003 21:50:42 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bfmvvi$lba$1@gatekeeper.tmr.com>
+References: <200307181835.42454.efocht@hpce.nec.com> <20030718111850.C1627@w-mikek2.beaverton.ibm.com>
+X-Trace: gatekeeper.tmr.com 1058997042 21866 192.168.12.62 (23 Jul 2003 21:50:42 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 13:07:12 -0700 "David S. Miller" <davem@redhat.com> wrote:
+In article <20030718111850.C1627@w-mikek2.beaverton.ibm.com>,
+Mike Kravetz  <kravetz@us.ibm.com> wrote:
 
-| On Wed, 23 Jul 2003 15:14:22 -0400 (EDT)
-| "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+| On a somewhat related note ...
 | 
-| > On Wed, 23 Jul 2003, Bernardo Innocenti wrote:
-| > It looks like a lot of data may have been initialized in the
-| > newer kernel, i.e. int barf = 0; or struct vomit = {0,}.
-| > If they just declared the static data, it would end up in
-| > .bss which is allocated at run-time (and zeroed) and is
-| > not in the kernel image.
-| 
-| GCC 3.3 and later do this automatically.
-| 
-| It's weird, since we killed TONS of explicit zero initializers during
-| 2.5.x, you'd be pressed to find many examples like the one you
-| mention.
-| 
-| Another thing is that the define_per_cpu() stuff eliminated many huge
-| [NR_CPUS] arrays.  But this probably doesn't apply to his kernel
-| unless he built is with SMP enabled.
+| We (Big Blue) have a performance reporting application that
+| would like to know how long a task sits on a runqueue before
+| it is actually given the CPU.  In other words, it wants to
+| know how long the 'runnable task' was delayed due to contention
+| for the CPU(s).  Of course, one could get an overall feel for
+| this based on total runqueue length.  However, this app would
+| really like this info on a per-task basis.
 
-Yes, lots were already killed off, but there are also several
-kernel-janitor patches to remove many more static 0 inits.
-They can be found at
-  http://developer.osdl.org/ogasawara/kj-patches/uninit_static/
-and I'll be trying to have them merged, although I don't know
-how well they will be accepted.
-
---
-~Randy
+This is certainly a useful number. It's easy to tell when the CPU is "in
+use," but it's not easy to tell when it's "busy" and processes are
+waiting for a CPU. 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

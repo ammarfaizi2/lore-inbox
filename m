@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUBYSoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUBYSoh
+	id S261756AbUBYSqc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUBYSqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:44:37 -0500
-Received: from smtp.golden.net ([199.166.210.31]:54800 "EHLO
-	newsmtp.golden.net") by vger.kernel.org with ESMTP id S261731AbUBYSoL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:44:11 -0500
-Date: Wed, 25 Feb 2004 13:44:07 -0500
-From: Paul Mundt <lethal@linux-sh.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
-Subject: Re: make help ARCH=xx fun
-Message-ID: <20040225184407.GA24226@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Tom Rini <trini@kernel.crashing.org>,
-	"James H. Cloos Jr." <cloos@jhcloos.com>,
-	linux-kernel@vger.kernel.org
-References: <m3y8qwv78e.fsf@lugabout.jhcloos.org> <20040222095021.GB2266@mars.ravnborg.org> <20040224215548.GF1052@smtp.west.cox.net> <20040225190049.GB2474@mars.ravnborg.org> <20040225180858.GW1052@smtp.west.cox.net> <20040225183038.GA24041@linux-sh.org> <20040225183934.GX1052@smtp.west.cox.net>
+	Wed, 25 Feb 2004 13:46:31 -0500
+Received: from mail.artsci.net ([64.29.142.100]:33031 "EHLO jadsystems.com")
+	by vger.kernel.org with ESMTP id S262274AbUBYSqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:46:09 -0500
+Date: Wed, 25 Feb 2004 10:44:56 -0800
+Message-Id: <200402251044.AA2351169658@jadsystems.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-In-Reply-To: <20040225183934.GX1052@smtp.west.cox.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=us-ascii
+From: "Jim Deas" <jdeas0648@jadsystems.com>
+Reply-To: <jdeas0648@jadsystems.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: scheduling while atomic error in driver
+X-Mailer: <IMail v6.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am still trying to get the terms down.
+Could this message be caused by an interrupt driven routine calling schedule() ?
+Is schedule the command used to allow another task to interrupt the current routine?
+I am moving 2.4 code with task queues to 2.6 with workqueues. I
+see this error but want to make sure I understand why it exist
+before starting to code around.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Feb 25, 2004 at 11:39:34AM -0700, Tom Rini wrote:
-> > Simply just matching on *defconfig should be fine. I already changed th=
-is on
-> > matching defconfig-* for sh to get around matching SCCS.
->=20
-> Would you mind changing to foo_defconfig from defconfig-foo ?  Then you
-> get the make foo_defconfig rule for free.
->=20
-Yes, I plan on doing this in the next sh update. I did the defconfig-foo st=
-uff
-before foo_defconfig existed, that's the only reason it's different at this
-point..
+JD
 
 
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFAPOz31K+teJFxZ9wRAgMvAJ9sVqIgOCNohyVa/KDUN637KMdIrgCfRa+k
-1yjMactM4zkBDJ3XALlI2pU=
-=uW5l
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--

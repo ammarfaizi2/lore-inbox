@@ -1,186 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRHMVNy>; Mon, 13 Aug 2001 17:13:54 -0400
+	id <S269802AbRHMVSO>; Mon, 13 Aug 2001 17:18:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269757AbRHMVNg>; Mon, 13 Aug 2001 17:13:36 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:29459 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S269318AbRHMVNU>; Mon, 13 Aug 2001 17:13:20 -0400
-Message-ID: <3B7842D5.EDC42939@namesys.com>
-Date: Tue, 14 Aug 2001 01:12:53 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S269808AbRHMVSF>; Mon, 13 Aug 2001 17:18:05 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29706 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269802AbRHMVR7>; Mon, 13 Aug 2001 17:17:59 -0400
+Subject: Re: Are we going too fast?
+To: pf-kernel@mirkwood.net (PinkFreud)
+Date: Mon, 13 Aug 2001 22:20:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.20.0108131656470.1037-100000@eriador.mirkwood.net> from "PinkFreud" at Aug 13, 2001 05:07:38 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>, Chris Mason <mason@suse.com>
-Subject: Re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results show this)
-In-Reply-To: <F341E03C8ED6D311805E00902761278C04728E71@xfc04.fc.hp.com>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15WP7z-0008H0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are looking into this.  Elena and Chris, please advise as to whether the
-slowdown is ReiserFS code added recently or is due to layers not ReiserFS.
+> Unfortunately, that's all the info I have.  Console switching was still
+> working, so I tried enabling logging to a console - no output.  System just
+> hangs.  Any suggestions on what I might try to get more information for you?
 
-Hans
+Dont suppose you know where I can get a qnx file system to play with ?
 
+> this thread that perhaps some old HOWTOs on hardware need to be maintained
+> again - I think I agree with that.
 
-"HABBINGA,ERIK (HP-Loveland,ex1)" wrote:
-> 
-> Here are some SPEC SFS NFS testing (http://www.spec.org/osg/sfs97) results
-> I've been doing over the past few weeks that shows NFS performance degrading
-> since the 2.4.5pre1 kernel.  I've kept the hardware constant, only changing
-> the kernel.  I'm prevented by management from releasing our top numbers, but
-> have given our results normalized to the 2.4.5pre1 kernel.  I've also shown
-> the results from the first three SPEC runs to show the response time trend.
-> 
-> Normally, response time should start out very low, increasing slowly until
-> the maximum load of the system under test is reached.  Starting with
-> 2.4.8pre8, the response time starts very high, and then decreases.  Very
-> bizarre behaviour.
-> 
-> The spec results consist of the following data (only the first three numbers
-> are significant for this discussion)
-> - load.  The load the SPEC prime client will try to get out of the system
-> under test.  Measured in I/O's per second (IOPS).
-> - throughput.  The load seen from the system under test.  Measured in IOPS
-> - response time.  Measured in milliseconds
-> - total operations
-> - elapsed time.  Measured in seconds
-> - NFS version. 2 or 3
-> - Protocol. UDP (U) or TCP (T)
-> - file set size in megabytes
-> - number of clients
-> - number of SPEC SFS processes
-> - biod reads
-> - biod writes
-> - SPEC SFS version
-> 
-> The 2.4.8pre4 and 2.4.8 tests were invalid.  Too many (> 1%) of the RPC
-> calls between the SPEC prime client and the system under test failed.  This
-> is not a good thing.
-> 
-> I'm willing to try out any ideas on this system to help find and fix the
-> performance degradation.
-> 
-> Erik Habbinga
-> Hewlett Packard
-> 
-> Hardware:
-> 4 processors, 4GB ram
-> 45 fibre channel drives, set up in hardware RAID 0/1
-> 2 direct Gigabit Ethernet connections between SPEC SFS prime client and
-> system under test
-> reiserfs
-> all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes to
-> storage
-> NFS v3 UDP
-> 
-> Results:
-> 2.4.5pre1
->             500     497     0.8   149116  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1004     1.0   300240  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1501     1.0   448807  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 100% of 2.4.5pre1
-> 
-> 2.4.5pre2
->             500     497     1.0   149195  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1005     1.2   300449  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     1.2   449057  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 91% of 2.4.5pre1
-> 
-> 2.4.5pre3
->             500     497     1.0   149095  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1004     1.1   300135  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     1.2   449069  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 91% of 2.4.5pre1
-> 
-> 2.4.5pre4
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.5pre5
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.5pre6
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.7
->             500     497     1.2   149206  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1005     1.5   300503  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     1.3   449232  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 65% of 2.4.5pre1
-> 
-> 2.4.8pre1
->    wouldn't run
-> 
-> 2.4.8pre4
->             500     497     1.1   149180  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1002     1.2   299465  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     1.3   449190  299 3 U   15210624   1 48  2  2
-> 2.0
-> INVALID
-> peak IOPS: 54% of 2.4.5pre1
-> 
-> 2.4.8pre6
->             500     497     1.1   149168  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1004     1.3   300246  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     1.3   449135  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS 55% of 2.4.5pre1
-> 
-> 2.4.8pre7
->             500     498     1.5   149367  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1006     2.2   301829  300 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1502     2.2   449244  299 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 58% of 2.4.5pre1
-> 
-> 2.4.8pre8
->             500     597     8.3   179030  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000    1019     6.5   304614  299 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1538     4.5   461335  300 3 U   15210624   1 48  2  2
-> 2.0
-> peak IOPS: 48% of 2.4.5pre1
-> 
-> 2.4.8
->             500     607     7.1   181981  300 3 U    5070624   1 48  2  2
-> 2.0
->            1000     997     7.0   299243  300 3 U   10141248   1 48  2  2
-> 2.0
->            1500    1497     2.9   447475  299 3 U   15210624   1 48  2  2
-> 2.0
-> INVALID
-> peak IOPS: 45% of 2.4.5pre1
-> 
-> 2.4.9pre2
->    wouldn't run (NFS readdir errors)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+VIA has some chipset bugs, Matrox G400 cards seem to abuse the PCI spec for 
+benchmarketing dirties.
+
+(All chipsets have bugs in truth, its just how they appear and if they
+affect users. As of 2.4.8 the VIA ones should be in the users not affected
+camp)
+
+Alan

@@ -1,66 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271359AbTGQJfG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 05:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271362AbTGQJfF
+	id S271324AbTGQJlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 05:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271357AbTGQJlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 05:35:05 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:41088 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S271359AbTGQJey (ORCPT
+	Thu, 17 Jul 2003 05:41:21 -0400
+Received: from dhcp065-024-247-070.insight.rr.com ([65.24.247.70]:39040 "EHLO
+	family") by vger.kernel.org with ESMTP id S271324AbTGQJlV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 05:34:54 -0400
-Date: Thu, 17 Jul 2003 11:49:46 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t1: problems with modules
-Message-Id: <20030717114946.32ac462a.martin.zwickel@technotrend.de>
-In-Reply-To: <20030716083326.0c92c4f6.rddunlap@osdl.org>
-References: <20030715113610.371df42b.martin.zwickel@technotrend.de>
-	<20030716083326.0c92c4f6.rddunlap@osdl.org>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.0claws93 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Thu, 17 Jul 2003 05:41:21 -0400
+Date: Thu, 17 Jul 2003 05:56:16 -0400
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.5+2.6 SiS 730 DRM/DRI
+Message-ID: <20030717095616.GA27930@acolyte.merseine.nu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.6_esrN+m:_0Q49"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: nick@acolyte.merseine.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.6_esrN+m:_0Q49
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-
-Thanks for the hints!
-Got it working now. (well, not the way i supposed to do, but it works... :)
-
-Regards,
-Martin
-
-ps.: the kbuild system is strange
-
--- 
-MyExcuse:
-waste water tank overflowed onto computer
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---=.6_esrN+m:_0Q49
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/FnE6mjLYGS7fcG0RAppfAJ9nx2i8dHxPQbiNbmhnOBj5D6SMbwCfRJ+Q
-nvSnEoQ1zFRCZbi3LS588W4=
-=tVv4
------END PGP SIGNATURE-----
-
---=.6_esrN+m:_0Q49--
+i've recently upgraded to 2.6.0-test on my machines. one of them has a sis 730 video card
+built into the motherboard. as i recall, the 2.4.21 kernel allowed you to compile in DRM support for SiS 630/730 cards 
+in the "Character Devices" section under DRM. i've checked DRI support with glxinfo in 2.4.21 and direct rendering is
+enabled, while in 2.6 it is not. do the 2.6(and 2.5) kernels have support for DRM with the SiS 630/730 chipset? i know the config
+has changed, is there anything i have to compile in so i can get DRI working with these cards? the framebuffer device, frambebuffer
+console and agpgart are working fine. 

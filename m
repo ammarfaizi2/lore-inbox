@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135818AbREFTtj>; Sun, 6 May 2001 15:49:39 -0400
+	id <S135820AbREFUAv>; Sun, 6 May 2001 16:00:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135819AbREFTta>; Sun, 6 May 2001 15:49:30 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:34032 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135818AbREFTtS>; Sun, 6 May 2001 15:49:18 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105061946.f46JkkFr026005@webber.adilger.int>
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <E14wNwy-00022t-00@the-village.bc.nu> "from Alan Cox at May 6, 2001
- 01:47:47 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sun, 6 May 2001 13:46:46 -0600 (MDT)
-CC: Alexander Viro <viro@math.psu.edu>, Chris Wedgwood <cw@f00f.org>,
-        Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@suse.de>,
-        Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-        Linus Torvalds <torvalds@transmeta.com>, volodya@mindspring.com,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135823AbREFUAm>; Sun, 6 May 2001 16:00:42 -0400
+Received: from idiom.com ([216.240.32.1]:28426 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S135820AbREFUAa>;
+	Sun, 6 May 2001 16:00:30 -0400
+Message-ID: <3AF5C81E.C52CF4F2@namesys.com>
+Date: Sun, 06 May 2001 14:54:38 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS seems to be stable as of 2.4.4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan writes:
-> > an interesting task when your root lives on /dev/sda1. Ditto for destroying
-> > a single partition (not mounted/used by swap/etc.) while you have some
-> > other partition in use. IWBNI we had a decent API for handling partition
-> > tables...
-> 
-> Partitions are just very crude logical volumes, and ultimiately I believe
-> should be handled exactly that way
+Bug reports that are hardware failures masquerading as reiserfs bugs
+dominate our mailing list.  We also get bug reports from users with
+versions that are prior to 2.4.4.  We are now working on making the code
+more likely to identify a hardware failure as a hardware failure
+(without killing performance, which means there are many things we can
+do but we can't fully cure that problem).
 
-Actually, the EVMS project does exactly this.  All I/O is done on a full
-disk basis, and essentially does block remapping for each partition.  This
-also solves the problem of cache inconsistency if accessing the parent
-device vs. accessing the partition.
+fsck is the one non-solid piece of our code, and that has greatly
+improved and will hopefully be solid by June 1.  Two persons are working
+on it full-time.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+We have one bugfix in reiserfs that is not yet in the main kernel,
+mainly because it is a deep bugfix that we are being careful with so
+that it does not add more bugs.  One user only so far has hit that bug.
+
+We have some new code that we are saving for 2.5.1, to relocate, resize,
+and generally tune the journal, and to mark blocks bad for users that
+need to do that for long enough to get a new disk drive (if you see bad
+blocks, usually your drive is no longer worth trusting your home
+directory to.)
+
+We will improve performance throughout 2.5, with a new block allocator
+and a journal tuning and relocation patch, being the most important
+changes likely to happen soon.
+
+All in all, things look good for starting work on reiser4 on June 1.:)
+
+Hans

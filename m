@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTFRATW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 20:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbTFRATW
+	id S264869AbTFRA2U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 20:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265014AbTFRA2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 20:19:22 -0400
-Received: from smtp-out.comcast.net ([24.153.64.115]:21201 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S265030AbTFRATN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 20:19:13 -0400
-Date: Tue, 17 Jun 2003 20:30:23 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: How do I make this thing stop laging?  Reboot?  Sounds like  Windows!
-To: linux-kernel@vger.kernel.org
-Message-id: <200306172030230870.01C9900F@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+	Tue, 17 Jun 2003 20:28:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62613 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264869AbTFRA2T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 20:28:19 -0400
+Date: Wed, 18 Jun 2003 01:42:14 +0100
+From: Joel Becker <jlbec@evilplan.org>
+To: John Myers <jgmyers@netscape.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
+Message-ID: <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	John Myers <jgmyers@netscape.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"linux-aio@kvack.org" <linux-aio@kvack.org>
+References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EEFB165.5070208@netscape.com>
+User-Agent: Mutt/1.4.1i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Figured this one out.  I had the issue where xmms was skipping a
-lot and my system was lagging wasy too much.  Rebooted to fix it
-(WTF?!) whenever it happened.  Couldn't understand why.  Hard disk
-light flashing, but no programs that read from the HDD all that much
-(xmms doesn't do it THAT much).
+On Tue, Jun 17, 2003 at 05:25:09PM -0700, John Myers wrote:
+> No, you just declare that those errors happend "after queuing."
 
-I got rid of htdig.  It stopped.
+	But POSIX specifes that all detection that can happen before
+queuing should.
 
-So I ran GIMP recently and caused it again.  Clicked in the wrong
-place and BOOM!  Gradient needs too much RAM and CPU and time.
-Killed gimp.  Suddenly, my system is lagging.
+> EAGAIN error handling does not require contextual information about the 
+> operation being queued.  Error handling logic that knows about the 
+> context of the operation queued already has to exist in the 
+> io_getevents() processing.
 
-Ten minutes later I get the brains to run top.  It seems I have about
-50 MB in swap, and 54 MB free memory.  So I wait ten minutes more.
+	You also now require a poll round and aditional system call to
+see the errors.  In addition, you waste resources until you pick up the
+errorneous call.
 
-No change.
+Joel
 
-% swapoff -a; swapon -a
 
-Fixes all my problems.
+-- 
 
-Now this long story shows something:  The kernel appears to be unable
-to intelligently pull swap back into RAM.  What gives?
+Life's Little Instruction Book #237
 
-I'm poking around in linux/mm and can't find the code to control this.  I
-want to make it swap back in any page that it reads, even if it has to
-swap out another page (preferably one which hasn't been used for very
-long).  Also, a more aggressive thing, kswapd should have freepages.max
-in there, to force it to pull in pages from swap aggressively if there's a lot
-of free RAM and a lot of swap used.
+	"Seek out the good in people."
 
-Uhh, I'm lost... how does this stuff work?  I'm... really lost.  Should I be
-doing this?  Tell me where to start maybe?
-
---Bluefox Icy
-
+			http://www.jlbec.org/
+			jlbec@evilplan.org

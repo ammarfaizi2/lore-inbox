@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264806AbTFLQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 12:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTFLQRD
+	id S264882AbTFLQRW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 12:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTFLQRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 12:17:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264806AbTFLQRC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 12:17:02 -0400
-Date: Thu, 12 Jun 2003 17:30:45 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-Message-ID: <20030612163045.GK6754@parcelfarce.linux.theplanet.co.uk>
-References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no> <20030612155345.GB1438@in.ibm.com>
+	Thu, 12 Jun 2003 12:17:22 -0400
+Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:57579 "EHLO
+	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
+	id S264882AbTFLQRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 12:17:19 -0400
+Date: Thu, 12 Jun 2003 17:30:44 +0100
+From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc8
+Message-ID: <20030612163044.GB1501@iain-vaio-fx405>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200306120859.h5C8xuh7000958@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030612155345.GB1438@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200306120859.h5C8xuh7000958@81-2-122-30.bradfords.org.uk>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Linux/2.4.21-rc8 (i686)
+X-Uptime: 17:28:12 up  3:46,  3 users,  load average: 0.08, 0.11, 0.32
+X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
+User-Agent: Mutt/1.5.4i
+X-CIS-MailScanner: Found to be clean
+X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8.8, required 5,
+	BAYES_00 -5.20, IN_REP_TO -0.37, QUOTED_EMAIL_TEXT -0.38,
+	REFERENCES -0.00, REPLY_WITH_QUOTES 0.00, USER_AGENT_MUTT -2.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 09:23:45PM +0530, Dipankar Sarma wrote:
+* John Bradford (john@grabjohn.com) wrote:
+> Or, to look at it other way, it would be effectively carrying on the
+> -pre phase during the -rc phase:
+> 
+[snip diagram]
 
-> Lockfree d_lookup() gives us significant benefits in larger
-> SMP machines.
+interestingly, this feels somewhat similar to debian's method of
+producing stable releases - perform a 'freeze' and only allow things to
+stay that are solid.
 
-I wonder if they outweight debugging time wasted after any change...
+obviously, the kernel has a much faster release rate. :D
 
-Note that for vfsmounts proposed RCU patch had been utterly useless -
-practically all improvements had been from separate lock for vfsmounts
-(see akpm tree).
+iain
+
+-- 
+wh33, y1p33 3tc.
+
+"If sharing a thing in no way diminishes it, it is not rightly owned if it is
+not shared." -St. Augustine

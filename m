@@ -1,49 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUJWXgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUJWXl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUJWXgy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJWXgy
+	id S261260AbUJWXl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUJWXl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:36:54 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:20587 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261205AbUJWXgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:36:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ii+BMZ/5A3XYrYwwwIChFJIeMq08E/WMNZxOnE+nq6g3epahQKMkP/WmW4NsRFjMqierpTQ4vGiu8LhLejyhb3emL5mEY9q7r1J7lwLSvcMGJzji+02nMEN69rEfKlCXp1zrzsq/5c6FiofT+Yaa2berXeltyA3HNYKeE3aqkCg=
-Message-ID: <35fb2e59041023163675b693f1@mail.gmail.com>
-Date: Sun, 24 Oct 2004 00:36:46 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: How is user space notified of CPU speed changes?
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <35fb2e590410231635616f10c9@mail.gmail.com>
+	Sat, 23 Oct 2004 19:41:58 -0400
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:15496 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261260AbUJWXlx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:41:53 -0400
+Subject: Re: 2.6.10-rc1 initramfs busted [u]
+From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041023213611.A29087@flint.arm.linux.org.uk>
+References: <20041023133120.A28178@flint.arm.linux.org.uk>
+	 <1098535328.668.13.camel@nosferatu.lan>
+	 <20041023213611.A29087@flint.arm.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uHMl8dBRP+fXv0v8sbx6"
+Date: Sun, 24 Oct 2004 01:41:35 +0200
+Message-Id: <1098574895.668.19.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098508238.13176.17.camel@krustophenia.net>
-	 <1098566366.24804.8.camel@localhost.localdomain>
-	 <35fb2e590410231635616f10c9@mail.gmail.com>
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Oct 2004 00:35:46 +0100, Jon Masters <jonmasters@gmail.com> wrote:
 
-> Out of sheer interest, you said you had an example box which did this.
-> I've never actually seen a modern SMP setup with different cock
-> frequencies (even accepting it's possible) - can you give me a more
-> modern example? I'm sure they're out there, I've just missed it, and I
-> have to confess to not being aware that Linux supported this kind of
-> setup.
+--=-uHMl8dBRP+fXv0v8sbx6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Apologies for the unfortunate typo in the above. I'll refrain from
-emphasing it :-)
+On Sat, 2004-10-23 at 21:36 +0100, Russell King wrote:
+> On Sat, Oct 23, 2004 at 02:42:08PM +0200, Martin Schlemmer [c] wrote:
+> > On Sat, 2004-10-23 at 13:31 +0100, Russell King wrote:
+> > > A build using O=3D does this:
+> > >=20
+> > >   HOSTCC  usr/gen_init_cpio
+> > >   GEN_INITRAMFS_LIST usr/initramfs_list
+> > > Using shipped usr/initramfs_list
+> > >   CPIO    usr/initramfs_data.cpio
+> > > ERROR: unable to open 'usr/initramfs_list': No such file or directory
+> > >=20
+> > > Usage:
+> > >         ./usr/gen_init_cpio <cpio_list>
+> > >=20
+> > > <cpio_list> is a file containing newline separated entries that
+> > > describe the files to be included in the initramfs archive:
+> > >=20
+> > > The source tree contains this in usr:
+> > >=20
+> > > -rw-r--r--  1 rmk rmk 1657 Oct 23 11:41 Makefile
+> > > -rw-r--r--  1 rmk rmk 8335 Oct 23 11:41 gen_init_cpio.c
+> > > -rw-r--r--  1 rmk rmk 1024 Aug  1  2003 initramfs_data.S
+> > > -rw-r--r--  1 rmk rmk  146 Oct 23 11:41 initramfs_list
+> > >=20
+> > > and the build tree usr contains:
+> > >=20
+> > > -rwxr-xr-x  1 rmk rmk 10834 Oct 23 13:29 gen_init_cpio
+> > > -rw-r--r--  1 rmk rmk     0 Oct 23 13:29 initramfs_data.cpio
+> > >=20
+> > > Running with V=3D1 shows:
+> > >=20
+> > > make -f /home/rmk/build/linux-v2.6-local/scripts/Makefile.build obj=
+=3Dusr
+> > >   echo Using shipped usr/initramfs_list
+> > > Using shipped usr/initramfs_list
+> > >   ./usr/gen_init_cpio usr/initramfs_list > usr/initramfs_data.cpio
+> > > ERROR: unable to open 'usr/initramfs_list': No such file or directory
+> > >=20
+> > > so it's referencing the wrong directory.
+> > >=20
+> >=20
+> > Yep.  Please see the
+> >=20
+> >  [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs i=
+mage updates
+> >=20
+> > thread for latest patch to fix this and other issues.  There are some
+> > other patches floating around that is slightly smaller, but I would
+> > appreciate testing and feedback.
+>=20
+> There's this obvious error in the patch (missing 'i'):
+>=20
+> +$(obj)/$(initramfs_list): FORCE
+> +	$(if $(nitramfs_list_state_uptodate),, \
+>=20
 
-Jon.
+Ah, thanks!.  Should not matter though, as we do nothing with
+uptodate currently.
+
+> though I am wondering why this looks rather complicated.
+>=20
+
+I guess I can drop the  uptodate $(if, as we only really need to check
+outofdate and missing, but I was not sure if anybody wanted to print or
+do something on uptodate ...
+
+Or is it not the nested $(if's you are referring to?
+
+
+thanks,
+
+--=20
+Martin Schlemmer
+
+
+--=-uHMl8dBRP+fXv0v8sbx6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBeuwvqburzKaJYLYRAgLqAJ9M/ds7cJXQJtbpjbom/+rwBTGbcQCfYWXi
+3sdaD7MeXnvMpgQv6riCgj8=
+=rxPD
+-----END PGP SIGNATURE-----
+
+--=-uHMl8dBRP+fXv0v8sbx6--
+

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbTJPVFq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 17:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTJPVFq
+	id S262613AbTJPVCq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 17:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTJPVCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 17:05:46 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:36871 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S263184AbTJPVFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 17:05:31 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [RFC] frandom - fast random generator module
-Date: Thu, 16 Oct 2003 21:03:31 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <bmn133$513$1@abraham.cs.berkeley.edu>
-References: <3F8E552B.3010507@users.sf.net> <20031016102020.A7000@schatzie.adilger.int> <3F8EC7D0.5000003@pobox.com> <20031016121825.D7000@schatzie.adilger.int>
-Reply-To: daw@cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1066338211 5155 128.32.153.211 (16 Oct 2003 21:03:31 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Thu, 16 Oct 2003 21:03:31 +0000 (UTC)
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Thu, 16 Oct 2003 17:02:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26829 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262613AbTJPVCo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 17:02:44 -0400
+Message-ID: <3F8F0766.30405@pobox.com>
+Date: Thu, 16 Oct 2003 17:02:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Val Henson <val@nmt.edu>
+CC: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14>
+In-Reply-To: <20031016174927.GB25836@speare5-1-14>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger  wrote:
->Hmm, so every part of the kernel that doesn't need crypto-secure RNG data
->(i.e. fast and relatively unique) should implement its own hash/PRNG then?
->It isn't a matter of unbreakable crypto, but the fact that we want relatively
->unique values that will not be the same on a reboot.  Currently we do just
->as you propose for our "crappy PRNG", which is "grab 8 bytes via
->get_random_bytes and increment", but that is a little _too_ easy to guess
->(although good enough for the time being).
+Val Henson wrote:
+> Abstract:
+> 
+>  "Recent research has produced a new and perhaps dangerous technique
+>   for uniquely identifying blocks that I will call
+>   compare-by-hash. Using this technique, we decide whether two blocks
+>   are identical to each other by comparing their hash values, using a
+>   collision-resistant hash such as SHA-1. If the hash values match,
+>   we assume the blocks are identical without further ado. Users of
+>   compare-by-hash argue that this assumption is warranted because the
+>   chance of a hash collision between any two randomly generated blocks
+>   is estimated to be many orders of magnitude smaller than the chance
+>   of many kinds of hardware errors. Further analysis shows that this
+>   approach is not as risk-free as it seems at first glance."
 
-I guess I don't understand this objection.
 
-I'm having a hard time understanding the requirements for your PRNG.
-In one place you say you just want uniqueness, but then in another
-place you talk about it being easy to guess.  If all we care about is
-uniqueness, why should ease of guessing matter?  I'm confused.
+I'm curious if anyone has done any work on using multiple different 
+checksums?  For example, the cost of checksumming a single block with 
+multiple algorithms (sha1+md5+crc32 for a crazy example), and storing 
+each checksum (instead of just one sha1 sum), may be faster than reading 
+the block off of disk to compare it with the incoming block.  OTOH, 
+there is still a mathematical possibility (however-more-remote) of a 
+collission...
 
-If all we need is uniqueness, then I don't see what's wrong with grabbing
-8 bytes from get_random_bytes() and incrementing.  In particular, you
-don't need frandom in this case.
+With these sorts of schemes, from basic compare-by-hash to one that 
+actually checks the data for a collission, you take a hit no matter what 
+when writing, but reading is still full-speed-ahead.  (if anyone is 
+curious, Plan9's venti uses a multi-GB "write buffer", to mitigate the 
+effect of the checksumming on throughput)
 
-If we need both uniqueness and unpredictability, then grab 8 bytes
-from get_random_bytes() each time you need a new value.  This will
-satisfy both your requirements.  If you truly do need something hard
-to guess, nothing less than a full-strength crypto PRNG will suffice.
-In particular, frandom won't help you in this case.
+So it's easy to tweak the writing algorithms pretty much any which way, 
+as long as the outcome is a unique tag for each block.  Hash collisions 
+between two files, for example, could be resolved easily by making each 
+unique tag "$sha1_hash $n", where $n is the unique number 
+differentiating two blocks with the same SHA1 hash.
 
-What am I missing?
+	Jeff
+
+
+

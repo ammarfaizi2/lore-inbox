@@ -1,74 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262351AbSJLIDE>; Sat, 12 Oct 2002 04:03:04 -0400
+	id <S262363AbSJLILq>; Sat, 12 Oct 2002 04:11:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262363AbSJLIDE>; Sat, 12 Oct 2002 04:03:04 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:54211 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S262351AbSJLIDD> convert rfc822-to-8bit; Sat, 12 Oct 2002 04:03:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Simple NUMA Scheduler - rev 2
-Date: Sat, 12 Oct 2002 10:03:45 +0200
-User-Agent: KMail/1.4.1
-Cc: mbligh@arcanet.com, habanero@us.ibm.com
-References: <1034207779.9367.595.camel@dyn9-47-17-164.beaverton.ibm.com> <4450000.1034371619@flay>
-In-Reply-To: <4450000.1034371619@flay>
+	id <S262376AbSJLILq>; Sat, 12 Oct 2002 04:11:46 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:42213 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262363AbSJLILo>;
+	Sat, 12 Oct 2002 04:11:44 -0400
+Importance: Low
+Sensitivity: 
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: stevef@smfhome1.austin.rr.com,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFC6A681F2.17CB3EAC-ON87256C50.002CC29B@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Sat, 12 Oct 2002 02:16:05 -0600
+Subject: Re: [PATCH] rename debug_mem function in CIFS vfs in Linux v2.5.42 
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/12/2002 02:16:08 AM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210121003.45856.efocht@ess.nec.de>
+Content-type: multipart/mixed; 
+	Boundary="0__=08BBE6C3DFBF440B8f9e8a93df938690918c08BBE6C3DFBF440B"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+--0__=08BBE6C3DFBF440B8f9e8a93df938690918c08BBE6C3DFBF440B
+Content-type: text/plain; charset=us-ascii
 
-what is the cache_decay_ticks value for these results? Is it the
-default (i.e. = 0 )?
 
-Erich
 
-On Friday 11 October 2002 23:26, Martin J. Bligh wrote:
-> > Comments?
->
-> OK, that's the first one that looks better to me across the board in both
-> kernbench and Eric's tests - congrats .... do_schedule seems to be a little
-> slow, not sure if that's fixable or not. Will test Erich's new stuff this
-> evening (I hope).
->
-> (lower numbers are better).
->
-> Kernbench:
->                              Elapsed        User      System         CPU
->               2.5.41-mm3     19.946s     192.44s      44.15s       1186%
->   2.5.41-mm3-sched41rev1      20.07s    190.058s     43.434s     1163.2%
->
-> Schedbench 4:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.41-mm3       33.80       48.12      135.24        0.74
->   2.5.41-mm3-sched41rev1       22.42       37.08       89.70        0.65
->
-> Schedbench 8:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.41-mm3       46.92       81.47      375.44        1.65
->   2.5.41-mm3-sched41rev1       31.09       45.17      248.81        1.59
->
-> Schedbench 16:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.41-mm3       64.81       82.92     1037.24        5.55
->   2.5.41-mm3-sched41rev1       51.79       63.72      828.76        4.58
->
-> Schedbench 32:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.41-mm3       95.36      223.18     3052.02       12.57
->   2.5.41-mm3-sched41rev1       55.42      123.27     1773.77        7.83
->
-> Schedbench 64:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.41-mm3      156.15      638.75     9994.56       27.37
->   2.5.41-mm3-sched41rev1       57.92      256.19     3707.48       16.90
->
-> ----------------------
+Attached is a patch (1.749 at bk://cifs.bkbits.net/linux-2.5-with-cifs) for
+renaming the cifs vfs debug function that you noted can conflict in some
+cases with a jfs debug function of the same name if jfs debugging is
+enabled
+(See attached file: cifs-rename-internal-debug-function.patch)
+ asn1.c       |    2 +-
+ cifs_debug.c |    2 +-
+ cifs_debug.h |    2 +-
+ connect.c    |    7 ++-----
+ 4 files changed, 5 insertions(+), 8 deletions(-)
+
+Also patch 1.748 which fixes 64 compiler warnings in the cifs vfs and
+removes an optional debug function whose name conflicted (print_status) was
+also posted to bk://cifs.bkbits.net/linux-2.5-with-cifs earlier today.
+
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
+
+
+Adrian Bunk <bunk@fs.tum.de>@vger.kernel.org on 10/12/2002 02:23:03 AM
+
+Sent by:    linux-kernel-owner@vger.kernel.org
+
+
+To:    stevef@smfhome1.austin.rr.com,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>
+cc:    Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject:    Re: Linux v2.5.42
+
+
+
+On Fri, 11 Oct 2002, Linus Torvalds wrote:
+
+>...
+> Summary of changes from v2.5.41 to v2.5.42
+> ============================================
+>...
+> <stevef@smfhome1.austin.rr.com>:
+>   o Initial check in of cifs filesystem version 0.54 for Linux 2.5 (to
+>     clean tree as one changeset)
+>...
+
+
+Both jfs and cifs ship a function called `dump_mem' causing the following
+compile error when both are included:
+
+<--  snip  -->
+
+   ld -m elf_i386  -r -o fs/built-in.o ...
+fs/jfs/built-in.o: In function `dump_mem':
+fs/jfs/built-in.o(.text+0xe420): multiple definition of `dump_mem'
+fs/cifs/built-in.o(.text+0x3af0): first defined here
+make[1]: *** [fs/built-in.o] Error 1
+make: *** [fs] Error 2
+
+<--  snip  -->
+
+cu
+Adrian
+
+--
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+--0__=08BBE6C3DFBF440B8f9e8a93df938690918c08BBE6C3DFBF440B
+Content-type: application/octet-stream; 
+	name="cifs-rename-internal-debug-function.patch"
+Content-Disposition: attachment; filename="cifs-rename-internal-debug-function.patch"
+Content-transfer-encoding: base64
+
+ZGlmZiAtTnJ1IGEvZnMvY2lmcy9hc24xLmMgYi9mcy9jaWZzL2FzbjEuYwotLS0gYS9mcy9jaWZz
+L2FzbjEuYwlTYXQgT2N0IDEyIDAzOjA0OjQ2IDIwMDIKKysrIGIvZnMvY2lmcy9hc24xLmMJU2F0
+IE9jdCAxMiAwMzowNDo0NiAyMDAyCkBAIC00NTgsNyArNDU4LDcgQEAKIAl1bnNpZ25lZCBpbnQg
+Y2xzLCBjb24sIHRhZywgb2lkbGVuLCByYzsKIAlpbnQgdXNlX250bG1zc3AgPSBGQUxTRTsKIAot
+CWR1bXBfbWVtKCIgUmVjZWl2ZWQgU2VjQmxvYiAiLCBzZWN1cml0eV9ibG9iLCBsZW5ndGgpOwor
+CS8qIGNpZnNfZHVtcF9tZW0oIiBSZWNlaXZlZCBTZWNCbG9iICIsIHNlY3VyaXR5X2Jsb2IsIGxl
+bmd0aCk7ICovCiAKIAlhc24xX29wZW4oJmN0eCwgc2VjdXJpdHlfYmxvYiwgbGVuZ3RoKTsKIApk
+aWZmIC1OcnUgYS9mcy9jaWZzL2NpZnNfZGVidWcuYyBiL2ZzL2NpZnMvY2lmc19kZWJ1Zy5jCi0t
+LSBhL2ZzL2NpZnMvY2lmc19kZWJ1Zy5jCVNhdCBPY3QgMTIgMDM6MDQ6NDYgMjAwMgorKysgYi9m
+cy9jaWZzL2NpZnNfZGVidWcuYwlTYXQgT2N0IDEyIDAzOjA0OjQ2IDIwMDIKQEAgLTMyLDcgKzMy
+LDcgQEAKICNpbmNsdWRlICJjaWZzX2RlYnVnLmgiCiAKIHZvaWQKLWR1bXBfbWVtKGNoYXIgKmxh
+YmVsLCB2b2lkICpkYXRhLCBpbnQgbGVuZ3RoKQorY2lmc19kdW1wX21lbShjaGFyICpsYWJlbCwg
+dm9pZCAqZGF0YSwgaW50IGxlbmd0aCkKIHsKIAlpbnQgaSwgajsKIAlpbnQgKmludHB0ciA9IGRh
+dGE7CmRpZmYgLU5ydSBhL2ZzL2NpZnMvY2lmc19kZWJ1Zy5oIGIvZnMvY2lmcy9jaWZzX2RlYnVn
+LmgKLS0tIGEvZnMvY2lmcy9jaWZzX2RlYnVnLmgJU2F0IE9jdCAxMiAwMzowNDo0NiAyMDAyCisr
+KyBiL2ZzL2NpZnMvY2lmc19kZWJ1Zy5oCVNhdCBPY3QgMTIgMDM6MDQ6NDYgMjAwMgpAQCAtMjMs
+NyArMjMsNyBAQAogI2lmbmRlZiBfSF9DSUZTX0RFQlVHCiAjZGVmaW5lIF9IX0NJRlNfREVCVUcK
+IAotdm9pZCBkdW1wX21lbShjaGFyICpsYWJlbCwgdm9pZCAqZGF0YSwgaW50IGxlbmd0aCk7Cit2
+b2lkIGNpZnNfZHVtcF9tZW0oY2hhciAqbGFiZWwsIHZvaWQgKmRhdGEsIGludCBsZW5ndGgpOwog
+ZXh0ZXJuIGludCB0cmFjZVNNQjsJCS8qIGZsYWcgd2hpY2ggZW5hYmxlcyB0aGUgZnVuY3Rpb24g
+YmVsb3cgKi8KIHZvaWQgZHVtcF9zbWIoc3RydWN0IHNtYl9oZHIgKiwgaW50KTsKIApkaWZmIC1O
+cnUgYS9mcy9jaWZzL2Nvbm5lY3QuYyBiL2ZzL2NpZnMvY29ubmVjdC5jCi0tLSBhL2ZzL2NpZnMv
+Y29ubmVjdC5jCVNhdCBPY3QgMTIgMDM6MDQ6NDYgMjAwMgorKysgYi9mcy9jaWZzL2Nvbm5lY3Qu
+YwlTYXQgT2N0IDEyIDAzOjA0OjQ2IDIwMDIKQEAgLTE2OCw3ICsxNjgsNyBAQAogCQkJfSBlbHNl
+IGlmICh0ZW1wWzBdICE9IChjaGFyKSAwKSB7CiAJCQkJY0VSUk9SKDEsCiAJCQkJICAgICAgICgi
+XG5Vbmtub3duIFJGQyAxMDAxIGZyYW1lIHJlY2VpdmVkIG5vdCAweDAwIG5vciAweDg1IikpOwot
+CQkJCWR1bXBfbWVtKCIgUmVjZWl2ZWQgRGF0YSBpczogIiwgdGVtcCwgbGVuZ3RoKTsKKwkJCQlj
+aWZzX2R1bXBfbWVtKCIgUmVjZWl2ZWQgRGF0YSBpczogIiwgdGVtcCwgbGVuZ3RoKTsKIAkJCQli
+cmVhazsKIAkJCX0gZWxzZSB7CiAJCQkJaWYgKChsZW5ndGggIT0gc2l6ZW9mIChzdHJ1Y3Qgc21i
+X2hkcikgLSAxKQpAQCAtNzU3LDggKzc1Nyw3IEBACiAgICAgICAgICAgICAgICAvKiBSZW1vdmVk
+IGZvbGxvd2luZyBmZXcgbGluZXMgdG8gbm90IHNlbmQgb2xkIHN0eWxlIHBhc3N3b3JkIAogICAg
+ICAgICAgICAgICAgICAgaGFzaCBldmVyIC0gZm9yIGJldHRlciBzZWN1cml0eSAqLwogCQkJICAg
+LyogdG9VcHBlcihjaWZzX3NiLT5sb2NhbF9ubHMsIHBhc3N3b3JkX3dpdGhfcGFkKTsKLQkJCQkg
+ICBTTUJlbmNyeXB0KHBhc3N3b3JkX3dpdGhfcGFkLCBjcnlwdEtleSxzZXNzaW9uX2tleSk7IAot
+CQkJCSAgIGR1bXBfbWVtKCJcbkNJRlMgKFNhbWJhIGVuY3J5cHQpOiAiLCBzZXNzaW9uX2tleSxD
+SUZTX1NFU1NJT05fS0VZX1NJWkUpOyAqLworCQkJCSAgIFNNQmVuY3J5cHQocGFzc3dvcmRfd2l0
+aF9wYWQsIGNyeXB0S2V5LHNlc3Npb25fa2V5KTsgKi8KIAogCQkJCXJjID0gQ0lGU1Nlc3NTZXR1
+cCh4aWQsIHBTZXNJbmZvLAogCQkJCQkJICAgdm9sdW1lX2luZm8udXNlcm5hbWUsCkBAIC05ODks
+NyArOTg4LDYgQEAKIAogCXJjID0gU2VuZFJlY2VpdmUoeGlkLCBzZXMsIHNtYl9idWZmZXIsIHNt
+Yl9idWZmZXJfcmVzcG9uc2UsCiAJCQkgJmJ5dGVzX3JldHVybmVkLCAxKTsKLQkvKiBkdW1wX21l
+bSgiXG5TZXNzU2V0dXAgcmVzcG9uc2UgaXM6ICIsIHNtYl9idWZmZXJfcmVzcG9uc2UsIDkyKTsq
+LwogCWlmIChyYykgewogLyogcmMgPSBtYXBfc21iX3RvX2xpbnV4X2Vycm9yKHNtYl9idWZmZXJf
+cmVzcG9uc2UpOyBub3cgZG9uZSBpbiBTZW5kUmVjZWl2ZSAqLwogCX0gZWxzZSBpZiAoKHNtYl9i
+dWZmZXJfcmVzcG9uc2UtPldvcmRDb3VudCA9PSAzKQpAQCAtMTIzNSw3ICsxMjMzLDYgQEAKIAog
+CXJjID0gU2VuZFJlY2VpdmUoeGlkLCBzZXMsIHNtYl9idWZmZXIsIHNtYl9idWZmZXJfcmVzcG9u
+c2UsCiAJCQkgJmJ5dGVzX3JldHVybmVkLCAxKTsKLQkvKiBkdW1wX21lbSgiXG5TZXNzU2V0dXAg
+cmVzcG9uc2UgaXM6ICIsIHNtYl9idWZmZXJfcmVzcG9uc2UsIDkyKTsgICovCiAJaWYgKHJjKSB7
+CiAvKiAgICByYyA9IG1hcF9zbWJfdG9fbGludXhfZXJyb3Ioc21iX2J1ZmZlcl9yZXNwb25zZSk7
+ICAqLy8qIGRvbmUgaW4gU2VuZFJlY2VpdmUgbm93ICovCiAJfSBlbHNlIGlmICgoc21iX2J1ZmZl
+cl9yZXNwb25zZS0+V29yZENvdW50ID09IDMpCg==
+
+--0__=08BBE6C3DFBF440B8f9e8a93df938690918c08BBE6C3DFBF440B--
 

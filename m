@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbTI3Nru (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbTI3Nru
+	id S261485AbTI3NoF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbTI3NoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:47:50 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:23540 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261491AbTI3Nrs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:47:48 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "kartikey bhatt" <kartik_me@hotmail.com>, diegocg@teleline.es
-Subject: Re: Can't X be elemenated?
-Date: Tue, 30 Sep 2003 08:34:12 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Law11-F60EhrkMNYwoy0001cb7a@hotmail.com>
-In-Reply-To: <Law11-F60EhrkMNYwoy0001cb7a@hotmail.com>
-MIME-Version: 1.0
-Message-Id: <03093008341200.16194@tabby>
-Content-Transfer-Encoding: 8bit
+	Tue, 30 Sep 2003 09:44:05 -0400
+Received: from sprocket.loran.com ([209.167.240.9]:20473 "EHLO
+	willy.ottawa.loran.com") by vger.kernel.org with ESMTP
+	id S261485AbTI3NoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:44:00 -0400
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, netdev@oss.sgi.com,
+       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20030930022410.08c5649c.davem@redhat.com>
+References: <20030928225941.GW15338@fs.tum.de>
+	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
+	 <20030929220916.19c9c90d.davem@redhat.com>
+	 <1064903562.6154.160.camel@imladris.demon.co.uk>
+	 <20030930000302.3e1bf8bb.davem@redhat.com>
+	 <1064907572.21551.31.camel@hades.cambridge.redhat.com>
+	 <20030930010855.095c2c35.davem@redhat.com>
+	 <1064910398.21551.41.camel@hades.cambridge.redhat.com>
+	 <20030930013025.697c786e.davem@redhat.com>
+	 <1064911360.21551.49.camel@hades.cambridge.redhat.com>
+	 <20030930015125.5de36d97.davem@redhat.com>
+	 <1064913241.21551.69.camel@hades.cambridge.redhat.com>
+	 <20030930022410.08c5649c.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1064929494.98525.7.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 30 Sep 2003 09:44:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 September 2003 03:09, kartikey bhatt wrote:
-> your graphics card (hw) is resource that needs to be managed by OS.
-> leaving it to 3rd party developers is an *adhoc* solution, *a stark immoral
-> choice*.
-> my friend gotta new AMD athlon with nvidia gforce 32mb shared memory,
+On Tue, 2003-09-30 at 05:24, David S. Miller wrote:
+> What this means is that it's required for the kernel image to be up to
+> date before any modules can be built.  If we can check that in the
+> build system for the sake of modversions (and if we're not doing that
+> now it's a bug we should fix) we can do it equally for ipv6.
 
-Nvidia doesn't support Linux.
+So this procedure is flawed then :
 
-> but he is on the mercy of X people to get full support for it.
+1. Compile kernel.  Set up everything that you need,
+   IPV6 is set to 'n'
+2. Install kernel and modules to your liking, reboot to take effect.
 
-Nvidia doesn't support X either.
+5 minutes later a user comes and complains that IPV6 isn't available
+and he will want it later, so you decide to compile the module for
+when he needs it and avoid another reboot :
 
-> for now he has to do with generic i810 driver?
-> any answer for that.
+3. Change config IPV6 to 'm'
+4. run make modules && make modules_install
 
-The problem with nvidia is that they will NOT release information on 
-programming their graphics board.
+I think that arguing that the kernel image is out of date
+is preposterous in this case.  It was built just before the
+config was changed!
 
-Without the information, no code.
-No code, no driver.
-No driver, no support.
+I'm not saying that changing the kernel is an invalid, I'm only
+saying that documentation should be updated to mention explicitly :
 
-Want a fix? talk to nvidia.
+If you are adding a kernel module to your config, you must also
+recompile your kernel and use the new kernel before you use that
+module.  Essentially, modules are useful only for hotplugging type
+situations and not for ease of developer access to kernel drivers.
 
-> my question is can't X be eleminated by providing support for
-> graphics drivers and other routines at kernel  level?
+I agree with Mr. Woodhouse in that this is completely non-intuitive
+and is absolutely not what most linux users think of as expected
+behaviour, but I can understand how something like IPV6 changes too
+many things to be reliably build as a module in this fashion.
 
-Sure - Already has been done.
+SO
 
-There IS a framebuffer implementation of graphics display. And X already
-supports it.
+TO GET TO MY POINT :)
 
-If you are talking about nvidia support.... talk to nvidia.
+Why can't the subject line of this thread be implemented?  If IPV6
+isn't modular, then WHY ALLOW IT AS A MODULE?
+
+Dana Lacoste
+Ottawa, Canada
+

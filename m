@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261775AbREPDHZ>; Tue, 15 May 2001 23:07:25 -0400
+	id <S261776AbREPDUF>; Tue, 15 May 2001 23:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261776AbREPDHP>; Tue, 15 May 2001 23:07:15 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:47111 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S261775AbREPDG6>;
-	Tue, 15 May 2001 23:06:58 -0400
-Message-ID: <3B01EE71.A4162981@mountain.net>
-Date: Tue, 15 May 2001 23:05:21 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
-MIME-Version: 1.0
-To: mirabilos <eccesys@topmail.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: rwsem, gcc3 again
-In-Reply-To: <20010515125759.19134A5ABC2@www.topmail.de>
+	id <S261778AbREPDTz>; Tue, 15 May 2001 23:19:55 -0400
+Received: from [192.48.153.1] ([192.48.153.1]:38518 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S261776AbREPDTs>;
+	Tue, 15 May 2001 23:19:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+Subject: Re: Kernel 2.2.19 + VIA chipset + strange behaviour 
+In-Reply-To: Your message of "Wed, 16 May 2001 11:15:44 +0930."
+             <200105160145.LAA11531@mercury.physics.adelaide.edu.au> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 16 May 2001 13:17:08 +1000
+Message-ID: <21514.989983028@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mirabilos wrote:
-> 
-> Hi,
-> I have got that patch with "movl %2,%%edx" and removing the tmp
-> and still cannot compile with the same error message I posted yesterday.
-> The problem seems to be that, with or without "inline", it seems to
-> put a reference into main.o of arch/i386/boot/compressed.
-> So I cannot test -ac9 :(
-> 
-> If anyone could find a (final or at least until gcc is fixed temporarily)
-> solution please please could either post or mail me?
-> Please no Cc: as I am on the list.
-> 
-> -mirabilos
-> --
+Bug in include/linux/module.h.  Patch against 2.2.19.  This does not
+explain your oops, the ksymoops message is a separate bug.
 
-Hi,
+Index: 19.1/include/linux/module.h
+--- 19.1/include/linux/module.h Tue, 12 Sep 2000 13:37:17 +1100 kaos (linux-2.2/F/51_module.h 1.1.7.2 644)
++++ 19.1(w)/include/linux/module.h Wed, 16 May 2001 12:52:53 +1000 kaos (linux-2.2/F/51_module.h 1.1.7.2 644)
+@@ -228,9 +228,9 @@ const char __module_using_checksums[] __
+ #define MOD_DEC_USE_COUNT	do { } while (0)
+ #define MOD_IN_USE		1
+ 
+-extern struct module *module_list;
+-
+ #endif /* !__GENKSYMS__ */
++
++extern struct module *module_list;
+ 
+ #endif /* MODULE */
+ 
 
-Petr Vandrovic's patch works for me.
-$ cat /proc/version
-Linux version 2.4.5-pre1 (tleete@mercury) (gcc version 3.0 20010423
-(prerelease)) #6 Tue May 15 07:13:10 EDT 2001
-You don't mention the constraint changes, did you apply them too?
-
-I posted a simpler patch which miscompiled on gcc3 and 2.95.3. Still trying
-to understand why, it was Obviously Correct. It was also the cause of my
-boot hangs.
-
-Cheers,
-Tom
-
--- 
-The Daemons lurk and are dumb. -- Emerson

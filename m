@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUGPFRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266389AbUGPFRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUGPFRs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUGPFQE
+	id S266389AbUGPFRz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUGPFQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:16:04 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:44701 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266389AbUGPE70 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 00:59:26 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.6 
-In-reply-to: Your message of "Tue, 01 Jun 2004 14:20:13 MST."
-             <1086124813.2309.4.camel@d-mpk14-95-140> 
+	Fri, 16 Jul 2004 01:16:00 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:20627 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266362AbUGPEud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 00:50:33 -0400
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+	Preemption Patch
+From: Florin Andrei <florin@andrei.myip.org>
+To: linux-audio-dev@music.columbia.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <20040710222510.0593f4a4.akpm@osdl.org>
+References: <20040709182638.GA11310@elte.hu>
+	 <20040710222510.0593f4a4.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089953429.2631.3.camel@rivendell.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 16 Jul 2004 14:59:20 +1000
-Message-ID: <7588.1089953960@kao2.melbourne.sgi.com>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 15 Jul 2004 21:50:29 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Jun 2004 14:20:13 -0700, 
-Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
->On Mon, 2004-05-24 at 15:48 +1000, Keith Owens wrote:
->>   If you maintain an architecture specific kdb patch, please upgrade to
->>   kdb v4.4 and send it to me.
->
->OK, here is a first pass at updating the sparc64 kdb to kernel 2.6.6 and
->kdb 4.4
->
->http://members.dslextreme.com/~tomduffy/kdb-v4.4-2.6.6-sparc64-1.bz2
+On Sat, 2004-07-10 at 22:25, Andrew Morton wrote:
 
-Thanks.  Uploaded to ftp://oss.sgi.com/projects/kdb/download/v4.4
+> What we need to do is to encourage audio testers to use ALSA drivers, to
+> enable CONFIG_SND_DEBUG in the kernel build and to set
+> /proc/asound/*/*/xrun_debug and to send us the traces which result from
+> underruns.
+
+Just out of curiosity:
+If i enable CONFIG_SND_DEBUG when compiling the kernel, but do not set
+/proc/*/xrun_debug, will that kernel be slower than without
+CONFIG_SND_DEBUG turned on?
+
+-- 
+Florin Andrei
+
+http://florin.myip.org/
 

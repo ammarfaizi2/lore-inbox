@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290840AbSBLJA5>; Tue, 12 Feb 2002 04:00:57 -0500
+	id <S290843AbSBLJH6>; Tue, 12 Feb 2002 04:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290839AbSBLJAr>; Tue, 12 Feb 2002 04:00:47 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:22287 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S290837AbSBLJAf>; Tue, 12 Feb 2002 04:00:35 -0500
-Date: Tue, 12 Feb 2002 10:00:32 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Hal Duston <hald@sound.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input w/2.5.3-dj3
-Message-ID: <20020212100032.C1210@suse.cz>
-In-Reply-To: <Pine.GSO.4.10.10202111857040.7585-100000@sound.net>
+	id <S290841AbSBLJHs>; Tue, 12 Feb 2002 04:07:48 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:18953 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290839AbSBLJHl>;
+	Tue, 12 Feb 2002 04:07:41 -0500
+Date: Mon, 11 Feb 2002 21:15:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Internal compiler error in 2.4.5 (hacky workaround)
+Message-ID: <20020211201505.GA9922@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rS8CxjVDS/+yyDmU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.10.10202111857040.7585-100000@sound.net>; from hald@sound.net on Mon, Feb 11, 2002 at 07:00:47PM -0600
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This makes gcc survive... adding volatile everywhere ;-).
 
-On Mon, Feb 11, 2002 at 07:00:47PM -0600, Hal Duston wrote:
+int blk_ioctl(volatile kdev_t dev, volatile unsigned int cmd, volatile
+unsigned long arg)
+{
+        volatile request_queue_t *q;
+        volatile struct gendisk *g;
+        volatile u64 ullval = 0;
+        volatile int intval, *iptr;
+        volatile unsigned short usval;
 
-> OK, i8042_direct=1 fixed things for my wrong keys issue.
-> atkbd_set=3 didn't appear to make any difference (I think)
-> I'm using atkbd_set=2 currently, but I think =3 worked as well.
-
-Wow, this must be a crazy machine. This means it's using Set1 by default
-on the keyboard and has translation switched off in the i8042. Hmm, I'll
-have to add a way to detect this ... can you try the attached patch to
-see if it fixes your problem? With this patch, you shouldn't need to add
-"i8042_direct=1" as it should detect the case automatically. If it
-doesn't, please send me the log with this change and without the option
-again.
-
+									Pavel
 -- 
-Vojtech Pavlik
-SuSE Labs
-
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="i8042-autounxl.diff"
-
---- i8042.c	Tue Feb 12 09:57:13 2002
-+++ i8042.new	Tue Feb 12 09:56:42 2002
-@@ -492,6 +492,9 @@
- 	if (i8042_direct)
- 		i8042_ctr &= ~I8042_CTR_XLATE;
- 
-+	if (~i8042_ctr & I8042_CTR_XLATE)
-+		i8042_direct = 1;
-+
- /*
-  * Write CTR back.
-  */
-
---rS8CxjVDS/+yyDmU--
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSKWL0Z>; Sat, 23 Nov 2002 06:26:25 -0500
+	id <S262905AbSKWLff>; Sat, 23 Nov 2002 06:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSKWL0Z>; Sat, 23 Nov 2002 06:26:25 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:11782 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S261370AbSKWL0Y>;
-	Sat, 23 Nov 2002 06:26:24 -0500
-Date: Sat, 23 Nov 2002 12:33:22 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Hard Lockup with 2.4.20-rc3 and ISDN (ippp)
-Message-Id: <20021123123322.3e6ef7c2.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
-References: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S265246AbSKWLff>; Sat, 23 Nov 2002 06:35:35 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:38040 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S262905AbSKWLfe>; Sat, 23 Nov 2002 06:35:34 -0500
+Date: Sat, 23 Nov 2002 12:42:42 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.2 networking, NET_BH latency
+Message-ID: <20021123114242.GB3817@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Nov 2002 15:21:28 -0200 (BRST)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Hi,
 
-> 
-> Hi,
-> 
-> Finally, here goes -rc3.
-> [...]
-> Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
->   o ISDN: Fix error path in isdn_ppp.c
+I experience some odd behaviour when routing some network packets
+on a 2.2(.18) kernel (with Ingo's low latency patch in case it 
+matters).
 
-Something must be wrong with this one, I experience an immediate hard lockup
-when trying to use a ippp-connection. No way around it, always happens. And no
-panic message or anything, just complete immediate lockup. This is with hisax +
-AVM Fritz PCI 2.0 + SMP + SuSE 8.1 distro installation.
-Anybody else with the same problem?
-rc2 works for _some_ connections (after a while I have to reload the drivers to
-work again). All 20pre version work without any problem at all.
+Although there are probably bugs in the modifications we made
+(a network card driver, some tweaks in the network core to deal
+with several packet priorities etc), I'm not sure the behaviour
+is directly due to a bug in our modifications or some synchronisation
+issue we overlooked.
 
-Regards,
-Stephan
+So, the network driver receives a packet, pushes it to the upper
+layers (netif_rx), the packet does all its job in the network
+layers (in the NET_BH bottom-half), it gets routed to another 
+interface, and get send.
+
+The problem is that the time of the treatment (measured as time
+between the moments when the packet enters the box and exits it)
+_always_ exceeds HZ (in fact it is between 1*HZ and 2*HZ). 
+
+Is this normal ? 
+
+Is this related to the scheduling of NET_BH ? In this case, is it
+possible to schedule the bottom-half more often ?
+
+It should be noted that, each time a packet is received by the
+network card, the driver wakes up a process waiting in ioctl(), 
+making it eligible. Could this have any influence on the above ?
+
+In order to respect some minimum timing requirements, we took the
+approach of increasing HZ. Since the net latency (at least in our
+case) is directly related to the value of the tick, it works. But
+maybe there is a better solution.
+
+Thanks,
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

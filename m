@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280773AbRKBSfg>; Fri, 2 Nov 2001 13:35:36 -0500
+	id <S280771AbRKBSfg>; Fri, 2 Nov 2001 13:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280775AbRKBSf0>; Fri, 2 Nov 2001 13:35:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3336 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280771AbRKBSfO>; Fri, 2 Nov 2001 13:35:14 -0500
-Subject: Re: APM/ACPI
-To: smiddle@twp.ypsilanti.mi.us (Sean Middleditch)
-Date: Fri, 2 Nov 2001 18:42:12 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <1004725879.4921.36.camel@smiddle> from "Sean Middleditch" at Nov 02, 2001 01:31:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280774AbRKBSf0>; Fri, 2 Nov 2001 13:35:26 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:31238 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S280773AbRKBSfR>;
+	Fri, 2 Nov 2001 13:35:17 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>
+Date: Fri, 2 Nov 2001 19:34:49 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15zjGe-0003Du-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Weird /proc/meminfo output on 2.4.13-ac5
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <80D19CC2E32@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I dunno, perhaps there is some proprietary protocol?  Is ACPI backwards
-> compat with APM?  I mean, if the laptop doesn't support APM, would that
-> mean it can't support ACPI?
+On  2 Nov 01 at 14:10, Andreas Franck wrote:
+> $ cat /proc/meminfo
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  789250048 781295616  7954432   659456 402890752
+> 18446744073478758400
+> Swap: 6744576000   282624 6744293376
+> MemTotal:       770752 kB
+> MemFree:          7768 kB
+> MemShared:         644 kB
+> Buffers:        393448 kB
+> Cached:       4294741680 kB     <------ This is impossible, i think? :-)
 
-ACPI and APM are exclusive but a BIOS can contain both. Its up to the OS
-not to try and run both together.
+Problem appeared in my 2.4.13-ac4 yesterday at home too. It happened to 
+me when I was checking health of my HDD - either during 'dd if=/dev/hde1 
+of=/dev/null bs=8M', or during copying all files from VFAT (/dev/hde1) 
+partition to /dev/null on filesystem level file by file. 
+
+And if we are talking about it, 2.4.13-ac4 here at work reports that
+too. But strange thing is that this machine has just 200MB VFAT partition
+of no use, and I do not remember that I ever did read from /dev/hd* since
+last reboot. Shift-scrolllock does not report any unusual values. 
+
+I'll upgrade to -ac6 and I'll see.
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

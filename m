@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267576AbUJHGIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUJHGOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267576AbUJHGIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 02:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUJHGIQ
+	id S264984AbUJHGOv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 02:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUJHGOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 02:08:16 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:19331 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267576AbUJHGIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 02:08:14 -0400
-Message-ID: <41662EC8.4040308@yahoo.com.au>
-Date: Fri, 08 Oct 2004 16:08:08 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-CC: jbarnes@engr.sgi.com, colpatch@us.ibm.com, pj@sgi.com, mbligh@aracnet.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-Subject: Re: [Lse-tech] Re: [RFC PATCH] scheduler: Dynamic sched_domains
-References: <1097110266.4907.187.camel@arrakis>	<4164A664.9040005@yahoo.com.au>	<200410071001.07516.jbarnes@engr.sgi.com> <20041008.145516.26538192.t-kochi@bq.jp.nec.com>
-In-Reply-To: <20041008.145516.26538192.t-kochi@bq.jp.nec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 02:14:50 -0400
+Received: from [69.25.196.29] ([69.25.196.29]:11420 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264984AbUJHGOC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 02:14:02 -0400
+Date: Fri, 8 Oct 2004 02:10:52 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "David S. Miller" <davem@davemloft.net>, msipkema@sipkema-digital.com,
+       cfriesen@nortelnetworks.com, hzhong@cisco.com, jst1@email.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041008061052.GB2745@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"David S. Miller" <davem@davemloft.net>,
+	msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com,
+	hzhong@cisco.com, jst1@email.com, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk, davem@redhat.com
+References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com> <41658C03.6000503@nortelnetworks.com> <015f01c4acbe$cf70dae0$161b14ac@boromir> <4165B9DD.7010603@nortelnetworks.com> <20041007150035.6e9f0e09.davem@davemloft.net> <000901c4acc4$26404450$161b14ac@boromir> <20041007152400.17e8f475.davem@davemloft.net> <20041007224242.GA31430@mark.mielke.cc> <20041007154722.2a09c4ab.davem@davemloft.net> <20041007230019.GA31684@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041007230019.GA31684@mark.mielke.cc>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takayoshi Kochi wrote:
-
-> Yup, if SD_NODES_PER_DOMAIN is set to 4, our 32-way TX-7 have 
-> two disjoint domains ;(
-> (though the current default is 6 for ia64...)
+On Thu, Oct 07, 2004 at 07:00:19PM -0400, Mark Mielke wrote:
 > 
-> I think the default configuration of the scheduler domains should be
-> as identical to its real hardware topology as possible, and should
-> modify the default only when necessary (e.g. for Altix).
-> 
+> Just say "it's a bug, but one we have chosen not to fix for practical
+> reasons." That would have kept me out of this discussion. Saying the
+> behaviour is correct and that POSIX is wrong - that raises hairs -
+> both the question kind, and the concern kind.
 
-That is the idea. Unfortunately the ia64 modifications are ia64 wide.
-I don't think it should be too hard to make it sn2 only.
+Why?  POSIX have gotten *lots* of things wrong in the past.  
 
-> Right now with the sched domain scheduler, we have to setup the 
-> domain hierarcy only at boot time statically, which makes it harder to
-> find the optimal domain topology/parameter.  The dynamic patch
-> makes it easier to modify the default configuration.
-> 
+For example, using 512 byte units for df and du (which we ignore, and
+for which the POSIX will hopefully eventually catch up with sanity)
+and fcntl unlocking semantics (which we adhere to despite the fact
+that is broken beyond belief, and very likely will and will continue
+to cause application bugs in the feature).  What we do when POSIX does
+something idiotic is something that has to be addressed on a
+case-by-case basis.
 
-No you don't have to. If you have a look at the work in -mm, basically
-the whole thing gets recreated on every hoplug operation. It would be
-trivial to modify some parameters then reinit the domains in the same
-way.
-
-N disjoint domains can be trivially handled by making N passes over
-the init code, each using a different set of CPUs as its
-"cpu_possible_map". This can easily be done dynamically by using
-the above method.
-
-> If the scheduler gains more dynamic configurability like what Jesse
-> said, it adds more flexibility for runtime optimization and seems
-> a way to go.  I'm not sure runtime configurability of domain topology
-> is necessary for all users, but it's extremely useful for developers.
-> 
-
-That would be nice. The patch queue is pretty well clogged up at the
-moment, so I'm not going to look at the scheduler again until all the
-patches from -mm get into 2.6.10-bk.
+						- Ted

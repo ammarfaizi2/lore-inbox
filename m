@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315259AbSEaNEQ>; Fri, 31 May 2002 09:04:16 -0400
+	id <S315260AbSEaNIs>; Fri, 31 May 2002 09:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSEaNEP>; Fri, 31 May 2002 09:04:15 -0400
-Received: from mail.gmx.net ([213.165.64.20]:47551 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315259AbSEaNEO>;
-	Fri, 31 May 2002 09:04:14 -0400
-Date: Fri, 31 May 2002 16:03:21 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dcache.{c,h} cleanup
-Message-ID: <20020531130321.GA22523@callisto.yi.org>
-In-Reply-To: <20020531082806.GA4053@callisto.yi.org> <200205310919.g4V9JgA22954@northrelay01.pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315265AbSEaNIr>; Fri, 31 May 2002 09:08:47 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:55050 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S315260AbSEaNIr>;
+	Fri, 31 May 2002 09:08:47 -0400
+Date: Fri, 31 May 2002 08:53:36 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>, <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.19 : drivers/mtd/nftlcore.c
+Message-ID: <Pine.LNX.4.33.0205310847150.1058-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 02:56:23PM +0530, Maneesh Soni wrote:
-> On Fri, 31 May 2002 14:02:07 +0530, Dan Aloni wrote:
-> 
-> >  + use d_unhashed() instead of list_empty(&dentry->d_hash) 
-> There are few more list_empty(...->d_hash)s left 
-> 
-> fs/intermezzo/journal.c presto_path   
-> fs/libfs.c              dcache_dir_lseek  
-> fs/libfs.c              dcache_readdir    
-> kernel/exit.c           __unhash_process  
+Hello all,
+  The following patch fixes a few compiler warnings, as well as provides 
+blk_init_queue() with the appropriate arguments. Please review for 
+inclusion. Thanks to Jens Axboe for fixing the casting hack in 
+the previous version of this patch. 
 
-I'll send a patch to rusty.
+Regards,
+Frank
 
-> >  	if (dentry->d_op && dentry->d_op->d_delete) {
-> >  		if (dentry->d_op->d_delete(dentry))
-> > -			goto unhash_it;
-> > +			goto kill_it;
-> >  	}
-> >  	/* Unreachable? Get rid of it */
-> > -	if (list_empty(&dentry->d_hash))
-> > +	if (d_unhashed(dentry))
-> >  		goto kill_it;
-> 		^^^^^^^^^^^^^
-> This will do list_del_init on a already unhashed dentry.
-> 
 
-I am awake of this. From what I've seen, a second list_del_init 
-is a no-op, and this one-liner doesn't yell 'refactor me'.
+--- drivers/mtd/nftlcore.c.old	Thu May 30 19:08:35 2002
++++ drivers/mtd/nftlcore.c	Fri May 31 08:45:08 2002
+@@ -846,11 +846,11 @@
+ 		
+ 		/* We can do this because the generic code knows not to
+ 		   touch the request at the head of the queue */
+-		spin_unlock_irq(&QUEUE->queue_lock);
++		spin_unlock_irq(QUEUE->queue_lock);
+ 
+ 		DEBUG(MTD_DEBUG_LEVEL2, "NFTL_request\n");
+ 		DEBUG(MTD_DEBUG_LEVEL3,
+-		      "NFTL %s request, from sector 0x%04lx for 0x%04lx sectors\n",
++		      "NFTL %s request, from sector 0x%04lx for %d sectors\n",
+ 		      (req->cmd == READ) ? "Read " : "Write",
+ 		      req->sector, req->current_nr_sectors);
+ 
+@@ -899,7 +899,7 @@
+ 			DEBUG(MTD_DEBUG_LEVEL2,"NFTL read request completed OK\n");
+ 			up(&nftl->mutex);
+ 			goto repeat;
+-		} else if (req->cmd == WRITE) {
++		} else if (rq_data_dir(req) == WRITE) {
+ 			DEBUG(MTD_DEBUG_LEVEL2, "NFTL write request of 0x%x sectors @ %x "
+ 			      "(req->nr_sectors == %lx)\n", nsect, block,
+ 			      req->nr_sectors);
+@@ -927,7 +927,7 @@
+ 		}
+ 	repeat: 
+ 		DEBUG(MTD_DEBUG_LEVEL3, "end_request(%d)\n", res);
+-		spin_lock_irq(&QUEUE->queue_lock);
++		spin_lock_irq(QUEUE->queue_lock);
+ 		end_request(res);
+ 	}
+ }
+@@ -1015,10 +1015,10 @@
+ };
+ 
+ extern char nftlmountrev[];
++static spinlock_t nftl_lock = SPIN_LOCK_UNLOCKED;
+ 
+ int __init init_nftl(void)
+ {
+-	int i;
+ 
+ #ifdef PRERELEASE 
+ 	printk(KERN_INFO "NFTL driver: nftlcore.c $Revision: 1.82 $, nftlmount.c %s\n", nftlmountrev);
+@@ -1028,7 +1028,7 @@
+ 		printk("unable to register NFTL block device on major %d\n", MAJOR_NR);
+ 		return -EBUSY;
+ 	} else {
+-		blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), &nftl_request);
++		blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), &nftl_request, &nftl_lock);
+ 		add_gendisk(&nftl_gendisk);
+ 	}
+ 	
 
-> > -unhash_it:
-> > -	list_del_init(&dentry->d_hash);
-> > +kill_it:
-> > +	parent = d_release(dentry);
-> > +	if (dentry == parent)
-
--- 
-Dan Aloni
-da-x@gmx.net

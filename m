@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315451AbSFYG6r>; Tue, 25 Jun 2002 02:58:47 -0400
+	id <S314885AbSFYHuc>; Tue, 25 Jun 2002 03:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315455AbSFYG6q>; Tue, 25 Jun 2002 02:58:46 -0400
-Received: from ns2.radioschefer.ch ([62.2.224.35]:2317 "EHLO
-	ns2.radioschefer.ch") by vger.kernel.org with ESMTP
-	id <S315451AbSFYG6q>; Tue, 25 Jun 2002 02:58:46 -0400
-Message-ID: <3D18137E.B0CCC572@optronic.ch>
-Date: Tue, 25 Jun 2002 08:53:50 +0200
-From: Stephan Brauss <sbrauss@optronic.ch>
-Organization: OPTRONIC AG
-X-Mailer: Mozilla 4.75 [de] (Win95; U)
-X-Accept-Language: de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [realtek] System hang with heavy network traffic using rtl8139c
+	id <S315198AbSFYHub>; Tue, 25 Jun 2002 03:50:31 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:51703 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S314885AbSFYHub>; Tue, 25 Jun 2002 03:50:31 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 25 Jun 2002 01:48:04 -0600
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: "Amit  Agrawal, Noida" <amitag@noida.hcltech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bogus LBD patch
+Message-ID: <20020625074804.GA5858@clusterfs.com>
+Mail-Followup-To: Peter Chubb <peter@chubb.wattle.id.au>,
+	"Amit  Agrawal, Noida" <amitag@noida.hcltech.com>,
+	linux-kernel@vger.kernel.org
+References: <E04CF3F88ACBD5119EFE00508BBB21210331C254@exch-01.noida.hcltech.com> <15640.5302.257228.579646@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15640.5302.257228.579646@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+On Jun 25, 2002  16:59 +1000, Peter Chubb wrote:
+> I found that ext2 has too much metadata for the amount of disc space I
+> have for the sparse file approach to work.
 
-maybe I had a similar problem. In my case, the rtl8139 chip reports
-a negative buffer size and a following dev_alloc_skb() crashed my system.
-The problem was caused by receive buffer overruns that occur if the CPU is not fast
-enough to fetch all data. Please check if you see rtl8139-realted kernel messages 
-during the test.
-I reported this problem to the realtek list some time ago, but, as far as I know,
-it is not included in the test version 1.18 until know.
+You can easily change this by reducing the number of inodes created.
+If you specify "mke2fs -N 1 <dev>" you will get the minimum possible
+number of inodes created.  There is currently a 16TB limit on ext2/3
+filesystems, unless you are testing on a platform with 8kB+ PAGE_SIZE
+and have the e2fsprogs from the BK repository, in which case you can
+create 8kB blocks (for 32TB filesystems).
 
-Here is my patch of rtl8129_rx():
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-                } else {
-                        /* Malloc up new buffer, compatible with net-2e. */
-                        /* Omit the four octet CRC from the length. */
-                        struct sk_buff *skb;
-                        int pkt_size = rx_size - 4;
-
-+                       if(pkt_size<0)
-+                       {
-+                               if (tp->msg_level & NETIF_MSG_DRV)
-+                                       printk(KERN_ERR"%s: Impossible packet length.\n",dev->name);
-+                               tp->stats.rx_dropped++;
-+                               rtl_hw_start(dev);
-+                               break;
-+                       }
-+
-                        skb = dev_alloc_skb(pkt_size + 2);
-                        if (skb == NULL) {
-
-Additionally, I think it is a good idea to increase the receive buffer size to the maximum by setting
-RX_BUF_LEN_IDX from 2 to 3.
-If you read older messages of the realtek list, you can find additional driver changes that are maybe
-helpfull for you.
-
-Stephan

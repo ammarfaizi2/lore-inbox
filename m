@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264756AbSKKX5S>; Mon, 11 Nov 2002 18:57:18 -0500
+	id <S262380AbSKKXy4>; Mon, 11 Nov 2002 18:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264757AbSKKX5S>; Mon, 11 Nov 2002 18:57:18 -0500
-Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:24084
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264756AbSKKX5R>; Mon, 11 Nov 2002 18:57:17 -0500
-Date: Mon, 11 Nov 2002 18:58:46 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-cc: Andrew Morton <akpm@digeo.com>, Ben Clifford <benc@hawaga.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: programming for preemption (was: [PATCH] 2.5.46: access permission
- filesystem)
-In-Reply-To: <87znsgov9e.fsf@goat.bogus.local>
-Message-ID: <Pine.LNX.4.44.0211111857090.30128-100000@montezuma.mastecende.com>
-X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
+	id <S262409AbSKKXyz>; Mon, 11 Nov 2002 18:54:55 -0500
+Received: from webmail.topspin.com ([12.162.17.3]:57950 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id <S262380AbSKKXyy>; Mon, 11 Nov 2002 18:54:54 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
+References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
+	<20021111.151929.31543489.davem@redhat.com>
+	<52r8drn0jk.fsf_-_@topspin.com>
+	<20021111.153845.69968013.davem@redhat.com>
+	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 11 Nov 2002 16:01:43 -0800
+In-Reply-To: <1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
+Message-ID: <52isz3mza0.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 12 Nov 2002 00:01:39.0968 (UTC) FILETIME=[AD19A800:01C289DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Nov 2002, Olaf Dietsche wrote:
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> Thanks for this hint. So this means kmalloc(GFP_KERNEL) inside
-> spinlock is not necessarily dangerous, but should be avoided if
-> possible? Is using a semaphore better than using spinlocks? Is
-> there a list of dos and don'ts for preempt kernels beside
-> Documentation/preempt-locking.txt?
-> 
-> And btw, who is "us"?
+    >>>>> On Mon, 2002-11-11 at 23:38, David S. Miller wrote:
 
-The Cab^Kernel developers ;)
+    Dave> So how are apps able to specify such larger hw addresses to
+    Dave> configure a driver if IFHWADDRLEN is still 6?
 
--- 
-function.linuxpower.ca
+    Dave> I'm not going to increase MAX_ADDR_LEN if there is no user
+    Dave> ABI capable of configuring such larger addresses properly.
 
+    Alan> The kernel just ignores it. We support multiple devices with
+    Alan> larger address lengths. Its mostly a legacy constant
+
+What drivers in the kernel are there with address length more than
+MAX_ADDR_LEN?  What do they put dev->addr_len and dev->dev_addr?
+
+Thanks,
+  Roland  <roland@topspin.com>

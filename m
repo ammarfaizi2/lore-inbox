@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267850AbRGZM3r>; Thu, 26 Jul 2001 08:29:47 -0400
+	id <S267816AbRGZM15>; Thu, 26 Jul 2001 08:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267859AbRGZM3h>; Thu, 26 Jul 2001 08:29:37 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:35773 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267850AbRGZM3T>; Thu, 26 Jul 2001 08:29:19 -0400
-Date: Thu, 26 Jul 2001 08:29:25 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: john@vnet.ibm.com, LINUX-KERNEL@vger.kernel.org
-Subject: Re: Reserving large amounts of RAM for busmastering PCI card.
-Message-ID: <20010726082925.B2322@devserv.devel.redhat.com>
-In-Reply-To: <mailman.996053899.5490.linux-kernel2news@redhat.com> <200107252200.f6PM0IJ01020@devserv.devel.redhat.com> <3B5F428F.14DCAA44@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B5F428F.14DCAA44@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Jul 25, 2001 at 06:05:03PM -0400
+	id <S267850AbRGZM1r>; Thu, 26 Jul 2001 08:27:47 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:63384 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S267816AbRGZM13>; Thu, 26 Jul 2001 08:27:29 -0400
+Date: Thu, 26 Jul 2001 08:42:05 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DAC module in 2.4.7 buggered
+In-Reply-To: <01072622285501.00924@kiwiunixman.nodomain.nowhere>
+Message-ID: <Pine.LNX.4.31.0107260838450.3437-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> > >  Since the 2.4 kernels introduce the e820map structure, I'd like to
-> > >  plug into that infrastructure, and create a new type memory segment
-> > >  for this storage (I envisage having more than one segment), but in the
-> > >  2.4.4 kernel (which I am forced to remain with for quite a while) it
-> > >  seems not to be used apart from set up at boot time.
-> > 
-> > Stop reinventing the wheel and take Matt & Pauline's bigphisarea.
-> >  http://www.polyware.nl/~middelink/patch/bigphysarea-2.4.4.tar.gz
-> 
-> Is bigphysarea needed in 2.4?   You have alloc_bootmem...
+On Thu, 26 Jul 2001, Matthew Gardiner wrote:
 
-I thought bigphisarea allowed to unload and reload modules,
-at least I used it that way with C-cube MPEG board. Makes
-for faster tests.
+> I was just compiling 2.4.7 a couple of days ago, and DAC that is located in
+> block devices (just below the compaq raid things in the configmenu) fails to
+> compile as a module.
 
--- Pete
+I'm guessing you mean the DAC960 driver.  I couldn't get it to compile
+when built into the kernel either.
+
+> I removed it, and everything went alright.
+>
+> Although I don't need it, I thought I might as well inform the kernel guru's
+> of this error that may be affecting other users.
+
+I do need it for 2 of my machines here.  For now I've just kept them at
+2.4.6 cause that is working fine.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

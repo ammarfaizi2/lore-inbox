@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbTJ3MEn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 07:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJ3MEn
+	id S262386AbTJ3L7U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 06:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJ3L7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 07:04:43 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:58244 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S261696AbTJ3MEl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 07:04:41 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	Thu, 30 Oct 2003 06:59:20 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:39590 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262386AbTJ3L7S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 06:59:18 -0500
+Message-ID: <3FA0FD15.40207@namesys.com>
+Date: Thu, 30 Oct 2003 14:59:17 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Question on SIGFPE
-Date: Thu, 30 Oct 2003 17:33:10 +0530
-Message-ID: <94F20261551DC141B6B559DC491086727C8C69@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Question on SIGFPE
-Thread-Index: AcOez5nuOw7ywpPYQDC7JtA7iIpKKgADe3gw
-From: "Sreeram Kumar Ravinoothala" <sreeram.ravinoothala@wipro.com>
-To: "Magnus Naeslund(t)" <mag@fbab.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Oct 2003 12:04:28.0509 (UTC) FILETIME=[F82BD8D0:01C39EDD]
+To: Wichert Akkerman <wichert@wiggy.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <20031030015212.GD8689@thunk.org> <3FA0C631.6030905@namesys.com> <20031030081739.GB1399@wiggy.net>
+In-Reply-To: <20031030081739.GB1399@wiggy.net>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I tried this. It says that the address is 0. And also I saw that
-it doesn't fall into any of the si_codes of SIGFPE.
+You don't need extended attributes, you just needs files and 
+directories....  www.namesys.com/v4.html says more.
 
-Regards
-Sreeram
+Hans
 
----Never doubt that a small group of thoughtful, committed people can
-change the world. Indeed, it is the only thing that ever has. -- Copied
-from a mail
- 
+Wichert Akkerman wrote:
 
------Original Message-----
-From: Magnus Naeslund(t) [mailto:mag@fbab.net] 
-Sent: Thursday, October 30, 2003 3:53 PM
-To: Sreeram Kumar Ravinoothala
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question on SIGFPE
+>Previously Hans Reiser wrote:
+>  
+>
+>>It is true that there are many features, such as an automatic text 
+>>indexer, that belong in user space, but the basic indexes (aka 
+>>directories) and index traversal code belong in the kernel.
+>>    
+>>
+>
+>Sure, but if you have a kernel which supports arbitraty extended
+>attributes for files you don't need much more kernel support. You
+>can implement things like metadata for files and query languages on
+>top of that in userspace. If you modify applications to (also) put some
+>metadata (meta tags from html pages, document properties from office
+>documents, etc.) in those extended attributes you might already be where
+>microsoft is going.
+>
+>You only would need some kernel interaction if you want to keep an
+>updated index of file contents (dnotify for a while filesystem and
+>reindexing whole files instead of blocks doesn't sound very attractive).
+>
+>Wichert.
+>
+>  
+>
 
 
-Sreeram Kumar Ravinoothala wrote:
+-- 
+Hans
 
- > Hi,
- > 	We get this problem when we run it on disk on chip where linux
- > 2.4.5 is used.
- >
- > Thanks and Regards
- > Sreeram
-
-Since I don't know what your app is doing, it's kind of hard to know 
-whats causing the problem. I still would guess on a divide by zero, 
-maybe because of some timing issue.
-
-Use sigaction(2) to trap the signal, and then look at the 
-siginfo_t->si_addr to find out where it happens.
-
-Or better yet, just run the program through gdb, it will catch the
-thing...
-
-Magnus
 

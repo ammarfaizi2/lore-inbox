@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261384AbTCMANH>; Wed, 12 Mar 2003 19:13:07 -0500
+	id <S261363AbTCMAMT>; Wed, 12 Mar 2003 19:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbTCMANH>; Wed, 12 Mar 2003 19:13:07 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14857 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261384AbTCMANF>;
-	Wed, 12 Mar 2003 19:13:05 -0500
-Date: Wed, 12 Mar 2003 16:12:53 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] kobject support for LSM core (v2)
-Message-ID: <20030313001253.GF27256@kroah.com>
-References: <20030310001310.GU3917@pasky.ji.cz> <20030310064738.GD6512@kroah.com> <20030312232027.GQ7397@pasky.ji.cz>
-Mime-Version: 1.0
+	id <S261384AbTCMAMS>; Wed, 12 Mar 2003 19:12:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34322 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261363AbTCMAMS>; Wed, 12 Mar 2003 19:12:18 -0500
+Message-ID: <3E6FCF54.60708@zytor.com>
+Date: Wed, 12 Mar 2003 16:22:44 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Roman Zippel <zippel@linux-m68k.org>, Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+References: <Pine.LNX.4.44.0303072121180.5042-100000@serv> <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com> <20030307233916.Q17492@flint.arm.linux.org.uk> <3E692EE4.9020905@zytor.com> <Pine.LNX.4.44.0303080116500.32518-100000@serv> <3E693D65.8060308@zytor.com> <Pine.LNX.4.44.0303080208340.32518-100000@serv> <20030312172706.GA5489@zaurus.ucw.cz>
+In-Reply-To: <20030312172706.GA5489@zaurus.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312232027.GQ7397@pasky.ji.cz>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 13, 2003 at 12:20:27AM +0100, Petr Baudis wrote:
-> The second version of the patch follows...
+Pavel Machek wrote:
+> 
+> I believe HPA wants klibc to stay small,
+> and BSD license will act as contribution-
+> stopper, therefore keeping it small...
+> 
 
-Much nicer, and I would agree to add this patch to the kernel, if there
-was actually a user for it :)
+Heh,
 
-Mind converting one of the exsting LSM modules to use this sysfs
-subsystem?
+Although that may be a beneficial side effect :) the real reason is the
+one Linus articulated:
 
-thanks,
+> I can _totally_ see hpa's point that he would be perfectly happy with
+> people "stealing" parts of it - the code in question is not something
+> that anybody should _ever_ have to re-create, even if he's the most
+> evil person on earth and hates the GPL and wants to kill us all.
+> Because it's not _worth_ recreating.
 
-greg k-h
+	-hpa
+

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbTEMVVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbTEMVVe
+	id S263465AbTEMVWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbTEMVVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:21:34 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:46211 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263429AbTEMVUZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:20:25 -0400
-Date: Tue, 13 May 2003 14:33:25 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Matt Domsch <Matt_Domsch@Dell.com>
-cc: Greg KH <greg@kroah.com>, <alan@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <jgarzik@redhat.com>
-Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
-In-Reply-To: <Pine.LNX.4.44.0305131428050.9816-100000@cherise>
-Message-ID: <Pine.LNX.4.44.0305131432410.9816-100000@cherise>
+	Tue, 13 May 2003 17:21:41 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:10746 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262454AbTEMVVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:21:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       Yoav Weiss <ml-lkml@unpatched.org>
+Subject: Re: The disappearing sys_call_table export.
+Date: Tue, 13 May 2003 16:32:48 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+References: <200305131048_MC3-1-38B1-E13F@compuserve.com>
+In-Reply-To: <200305131048_MC3-1-38B1-E13F@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <03051316324801.20373@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 May 2003 09:45, Chuck Ebbert wrote:
+> Jesse Pollard wrote:
+> > > However, it'll just give you false sense of security.  First of all,
+> > > its hardware dependent.  Second, it won't get wipe in case of a crash
+> > > (which is likely to happen when They come to take your disk).
+> >
+> > It is also not a valid wipe either.
+> >
+> > This particular object reuse assumes the hardware is in a secured area.
+> > If it is in a secured area then you don't need to wipe it. It remains
+> > completely under the systems control (even during a crash and reboot).
+> > The interval between crash and reboot is covered by the requirement to be
+> > in a secured area.
+>
+>   ...until the admin walks in, shuts down the system, puts it on a cart
+> and hauls it out the door.  Is he going to wipe the swap area before he
+> does that?  Sure, you can write a procedure that says that's what he does
+> but he will not follow it (been there done that.)
 
-On Tue, 13 May 2003, Patrick Mochel wrote:
+If you are in that situation, the what keeps him from just pulling the plug...
+Again, the swap doesn't get purged.
 
-> 
-> On Tue, 6 May 2003, Matt Domsch wrote:
-> 
-> > > You can't just call driver_attach(), as the bus semaphore needs to be
-> > > locked before doing so.  In short, you almost need to duplicate
-> > > bus_add_driver(), but not quite :)
-> > 
-> > Right, and it seems to work. I made driver_attach non-static, declared
-> > it extern in pci.h, and call it in pci-driver.c while holding the bus
-> > semaphore and references to the driver and the bus.  This also let me
-> > delete my probe_each_pci_dev() function and let the driver core
-> > handle it.
-> > 
-> > Pat, can you ack the changes to bus.c and device.h please?
-> 
-> ACK. I'll add them to my tree.
-
-I take that back, since it's already checked into your BK tree. Go forth 
-and merge. 
-
-
-	-pat
-
+If you are in a situation where swap must be purged (as I am) then you also
+know you can't just walk out the door with the system. There must be property
+passes, security passes, AND inventory documents that must also show the
+contents of the purged disks... signed off by the information security
+officer.

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130559AbQJaVF7>; Tue, 31 Oct 2000 16:05:59 -0500
+	id <S130052AbQJaVGt>; Tue, 31 Oct 2000 16:06:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130572AbQJaVFt>; Tue, 31 Oct 2000 16:05:49 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:3581 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130559AbQJaVFi>; Tue, 31 Oct 2000 16:05:38 -0500
-Date: Tue, 31 Oct 2000 19:05:10 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Reto Baettig <baettig@scs.ch>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <39FEE9A4.3959CFF8@scs.ch>
-Message-ID: <Pine.LNX.4.21.0010311904110.1190-100000@duckman.distro.conectiva>
+	id <S130013AbQJaVGj>; Tue, 31 Oct 2000 16:06:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18290 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130517AbQJaVGY>; Tue, 31 Oct 2000 16:06:24 -0500
+Subject: Re: Hardware APM suspend
+To: compwiz@bigfoot.com (Ari Pollak)
+Date: Tue, 31 Oct 2000 21:07:38 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001031160037.A11639@darth.ns> from "Ari Pollak" at Oct 31, 2000 04:00:37 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qidA-0008Gm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Reto Baettig wrote:
-> Rik van Riel wrote:
-> > Ummm, last I looked Linux held the Specweb99 record;
-> > by a wide margin...
-> 
-> ...does that remove any memory copies???
+> Question - is hardware APM suspend supported in any current available
+> kernel/apmd? I ask this because when I press the power button on my
+> computer, which is supposed to do a hardware suspend (according to my
+> BIOS) and I'm in X, the screen basically turns to garbage and I can't do
+> anything except reset/poweroff my computer.
 
-> I don't want to make linux bad or stand on anybodys toes.
+It is the job of the APM BIOS to correctly restore the display. Needless to
+say since the average BIOS writer has trouble with simple int calls they don't
+have a chance here, especially non laptop.
 
-Good to know, your previous message might have fooled some
-people when it comes to these intentions ;)
+XFree 4.0 apparently has some APM awareness and may help. If not then the apmd
+user stuff has helpful aids that worked for me on some Dell horror I borrowed
 
---------------
-On Tue, 31 Oct 2000, Reto Baettig wrote:
+On Red Hat you can edit /etc/sysconfig/apmd and add
 
-> When I'm following this thread, you guys seem to forget the
-> _basics_: The Linux networking stack sucks!
---------------
+CHANGEVT=1
 
-cheers,
+this will set the apmd scripts up to switch back to the text console on
+suspend.
 
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
+ALan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

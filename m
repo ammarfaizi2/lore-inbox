@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQKNLMi>; Tue, 14 Nov 2000 06:12:38 -0500
+	id <S130247AbQKNLOI>; Tue, 14 Nov 2000 06:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbQKNLM2>; Tue, 14 Nov 2000 06:12:28 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:16907 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129324AbQKNLMW>;
-	Tue, 14 Nov 2000 06:12:22 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel <linux-kernel@i405.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: newbie, 2.4.0-test11-pre4 no compile when CONFIG_AGP=y 
-In-Reply-To: Your message of "Tue, 14 Nov 2000 00:56:13 -0800."
-             <0066CB04D783714B88D83397CCBCA0CD495F@spike2.i405.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 14 Nov 2000 21:42:16 +1100
-Message-ID: <1779.974198536@ocs3.ocs-net>
+	id <S129891AbQKNLN6>; Tue, 14 Nov 2000 06:13:58 -0500
+Received: from BDR-OSL-25-005.telenor.no ([134.47.108.13]:58891 "HELO
+	bdr-osl-25-005.oslo.telenor.no") by vger.kernel.org with SMTP
+	id <S129429AbQKNLNk>; Tue, 14 Nov 2000 06:13:40 -0500
+Message-ID: <AF6FFF5F50E4D311B45A00A0245738C90FFC36@BDR-OSL-24-208>
+From: svein-olav.bjerkeset@bravida.no
+To: linux-kernel@vger.kernel.org
+Subject: VM problem(?) in 2.2.17
+Date: Tue, 14 Nov 2000 11:43:47 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000 00:56:13 -0800, 
-linux-kernel <linux-kernel@i405.com> wrote:
->I'll preface this saying I'm a kernel compile newbie and I could be making
->the most basic of mistakes.
+Hi
 
-You are.  Hand editing the .config file gives undefined results.  Make
-all changes through menuconfig or xconfig.  The config system does lots
-of work behind the scenes which is not peformed if you hand edit.
+We have a Compaq server running RedHat Linux 6.2 with kernel 2.2.17
+Once in a while we get errors like:
 
+Nov 13 09:18:33 www2 kernel: VM: do_try_to_free_pages failed for httpd... 
+Nov 13 09:18:43 www2 kernel: VM: do_try_to_free_pages failed for mysqld... 
+
+The server then hangs and I have to cycle power to get it up and running
+again.
+Does anyone here know if 
+  1. this is a known problem / bug?
+  2. there is a patch available ?
+  3. the problem is described anywhere else ?
+
+Please CC to my e-mail as I am not subscribed to this list.
+
+
+Regards
+Svein Olav Bjerkeset
+Systems Eng.
+Bravida Norge AS
+svein-olav.bjerkeset@bravida.no
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

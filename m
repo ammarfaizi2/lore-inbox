@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285185AbRLXSOM>; Mon, 24 Dec 2001 13:14:12 -0500
+	id <S285200AbRLXSIW>; Mon, 24 Dec 2001 13:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285195AbRLXSOC>; Mon, 24 Dec 2001 13:14:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19973 "EHLO
+	id <S285195AbRLXSIJ>; Mon, 24 Dec 2001 13:08:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15621 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285185AbRLXSNx>; Mon, 24 Dec 2001 13:13:53 -0500
-Subject: Re: [patch] Assigning syscall numbers for testing
-To: dledford@redhat.com (Doug Ledford)
-Date: Mon, 24 Dec 2001 18:23:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
-        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org
-In-Reply-To: <3C27608B.4030900@redhat.com> from "Doug Ledford" at Dec 24, 2001 12:06:19 PM
+	id <S285191AbRLXSH0>; Mon, 24 Dec 2001 13:07:26 -0500
+Subject: Re: [PATCH] A slightly smarter dmi_scan.c
+To: ioshadi@sltnet.lk (Ishan Oshadi Jayawardena)
+Date: Mon, 24 Dec 2001 18:17:10 +0000 (GMT)
+Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <3C280D5B.274EC187@sltnet.lk> from "Ishan Oshadi Jayawardena" at Dec 24, 2001 11:23:39 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16IZl0-0004mP-00@the-village.bc.nu>
+Message-Id: <E16IZew-0004lD-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> syscall bindings.  My example was about code using the predefined syscall 
-> number for new functions on an older kernel where those functions don't 
-> exist, but where they overlap with the older dynamic syscall numbers.  In 
-> short, the patch is safe for code that uses the lazy binding, but it can 
-> still overlap with future syscall numbers and code that doesn't use the lazy 
-> binding but instead uses predefined numbers.
+> > APM can also be compiled as a module.
+> 
+> Right. Thanks. I blatantly ignored that APM can be built as modules ;(
+> The fixed patch is here.
 
-Now I follow you. So if Linus takes that patch he needs to allocate a block
-of per architecture dynamic syscall number space for it to use. Negative
-syscall numbers seem the most promising approach ?
+I think I prefer it without all the ifdefs being in the code like that. It is
+cleaner to read before the change. I agree the messages being printed might
+be confusing in some cases but I don't like the cure.
+

@@ -1,90 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271764AbTGRPGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271806AbTGRPFG
+	id S267363AbTGRQTU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 12:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271872AbTGRQSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:05:06 -0400
-Received: from 157.Red-80-32-159.pooles.rima-tde.net ([80.32.159.157]:41223
-	"EHLO oxo") by vger.kernel.org with ESMTP id S271778AbTGROj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:39:58 -0400
-Message-ID: <3F1808AB.2040408@iquis.com>
-Date: Fri, 18 Jul 2003 16:48:11 +0200
-From: Juan Pedro Paredes <juampe@iquis.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; es-AR; rv:1.4b) Gecko/20030507
-X-Accept-Language: es, en-us
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_oxo-11997-1058540011-0001-2"
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG REPORT 2.6.0-test1]  airo & workqueue
+	Fri, 18 Jul 2003 12:18:03 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:686 "EHLO
+	ophelia.hpce.nec.com") by vger.kernel.org with ESMTP
+	id S271859AbTGRQRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 12:17:32 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: LSE <lse-tech@lists.sourceforge.net>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.0-test1] per cpu times
+Date: Fri, 18 Jul 2003 18:35:42 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_eHCG/dGwkNXN72u"
+Message-Id: <200307181835.42454.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
 
---=_oxo-11997-1058540011-0001-2
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--Boundary-00=_eHCG/dGwkNXN72u
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+This patch brings back the per CPU user & system times which one was
+used to see in /proc/PID/cpu with 2.4 kernels. Useful for SMP and NUMA
+scheduler development, needed for reasonable output in numabench /
+numa_test.
+
+Regards,
+Erich
 
 
 
---=_oxo-11997-1058540011-0001-2
-Content-Type: text/plain; name=workqueue; charset=iso-8859-1
+--Boundary-00=_eHCG/dGwkNXN72u
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="cputimes_stat-2.6.0t1.patch"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="workqueue"
+Content-Disposition: attachment; filename="cputimes_stat-2.6.0t1.patch"
 
-Fri Jul 18 16:33:10 CEST 2003
-airo:  Probing for PCI adapters
-airo:  Finished probing for PCI adapters
-airo: MAC enabled eth1 0:7:eb:31:1:e6
-eth1: index 0x05: Vcc 5.0, Vpp 5.0, irq 3, io 0x0100-0x013f
-------------[ cut here ]------------
-kernel BUG at kernel/workqueue.c:77!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c012f0bd>]    Not tainted
-EFLAGS: 00010213
-EIP is at queue_work+0x6d/0x80
-eax: 00000000   ebx: dcad037c   ecx: dcad2bc8   edx: 00000000
-esi: dcad2bcc   edi: dffd0c20   ebp: dca3fce0   esp: dca3fcd4
-ds: 007b   es: 007b   ss: 0068
-Process ifconfig (pid: 424, threadinfo=dca3e000 task=dca2d9c0)
-Stack: dcad037c dcad0220 00000000 dca3fd30 e097f85c c0339b81 df7479a0 00000001
-       00000000 dffb4e20 dca3fd24 c0348596 df7479a0 c03398b8 00000000 00000000
-       00000000 df7479a0 df2bd4c0 dca3fe2c dca3fd30 dcad0220 04000001 dca3fdbc
-Call Trace:
- [<e097f85c>] airo_read_mic+0x8c/0x90 [airo]
- [<c0339b81>] __kfree_skb+0x81/0x110
- [<c0348596>] netlink_broadcast+0x156/0x280
- [<c03398b8>] alloc_skb+0x48/0xf0
- [<e09800a0>] airo_interrupt+0x840/0x8e0 [airo]
- [<e098099d>] issuecommand+0x6d/0x90 [airo]
- [<c011e5c6>] scheduler_tick+0x116/0x300
- [<c0128c76>] update_process_times+0x46/0x50
- [<c0128ae6>] update_wall_time+0x16/0x40
- [<c0128f00>] do_timer+0xe0/0xf0
- [<c010d20b>] handle_IRQ_event+0x3b/0x70
- [<c010d4fe>] do_IRQ+0x8e/0x120
- [<c010ba7c>] common_interrupt+0x18/0x20
- [<e098019e>] IN4500+0x1e/0x40 [airo]
- [<e0980976>] issuecommand+0x46/0x90 [airo]
- [<e098023c>] enable_MAC+0x7c/0xb0 [airo]
- [<e097e660>] airo_open+0x50/0x80 [airo]
- [<c037d3fc>] fib_inetaddr_event+0x4c/0x80
- [<c033d74c>] dev_open+0x7c/0x90
- [<c033ec68>] dev_change_flags+0x58/0x130
- [<c0375d43>] devinet_ioctl+0x2a3/0x660
- [<c03782c0>] inet_ioctl+0xc0/0x110
- [<c0336834>] sock_ioctl+0xc4/0x270
- [<c0165881>] sys_ioctl+0xb1/0x230
- [<c010b10f>] syscall_call+0x7/0xb
+diff -urN 2.6.0-test1-ia64-0/fs/proc/array.c 2.6.0-test1-ia64-na/fs/proc/array.c
+--- 2.6.0-test1-ia64-0/fs/proc/array.c	2003-07-14 05:35:12.000000000 +0200
++++ 2.6.0-test1-ia64-na/fs/proc/array.c	2003-07-18 13:38:02.000000000 +0200
+@@ -405,3 +405,26 @@
+ 	return sprintf(buffer,"%d %d %d %d %d %d %d\n",
+ 		       size, resident, shared, text, lib, data, 0);
+ }
++
++#ifdef CONFIG_SMP
++int proc_pid_cpu(struct task_struct *task, char * buffer)
++{
++	int i, len;
++
++	len = sprintf(buffer,
++		"cpu  %lu %lu\n",
++		jiffies_to_clock_t(task->utime),
++		jiffies_to_clock_t(task->stime));
++		
++	for (i = 0 ; i < NR_CPUS; i++) {
++		if (cpu_online(i))
++		len += sprintf(buffer + len, "cpu%d %lu %lu\n",
++			i,
++			jiffies_to_clock_t(task->per_cpu_utime[i]),
++			jiffies_to_clock_t(task->per_cpu_stime[i]));
++
++	}
++	len += sprintf(buffer + len, "current_cpu %d\n",task_cpu(task));
++	return len;
++}
++#endif
+diff -urN 2.6.0-test1-ia64-0/fs/proc/base.c 2.6.0-test1-ia64-na/fs/proc/base.c
+--- 2.6.0-test1-ia64-0/fs/proc/base.c	2003-07-14 05:35:15.000000000 +0200
++++ 2.6.0-test1-ia64-na/fs/proc/base.c	2003-07-18 13:38:02.000000000 +0200
+@@ -56,6 +56,7 @@
+ 	PROC_PID_STAT,
+ 	PROC_PID_STATM,
+ 	PROC_PID_MAPS,
++	PROC_PID_CPU,
+ 	PROC_PID_MOUNTS,
+ 	PROC_PID_WCHAN,
+ #ifdef CONFIG_SECURITY
+@@ -83,6 +84,9 @@
+   E(PROC_PID_CMDLINE,	"cmdline",	S_IFREG|S_IRUGO),
+   E(PROC_PID_STAT,	"stat",		S_IFREG|S_IRUGO),
+   E(PROC_PID_STATM,	"statm",	S_IFREG|S_IRUGO),
++#ifdef CONFIG_SMP
++  E(PROC_PID_CPU,	"cpu",		S_IFREG|S_IRUGO),
++#endif
+   E(PROC_PID_MAPS,	"maps",		S_IFREG|S_IRUGO),
+   E(PROC_PID_MEM,	"mem",		S_IFREG|S_IRUSR|S_IWUSR),
+   E(PROC_PID_CWD,	"cwd",		S_IFLNK|S_IRWXUGO),
+@@ -1170,6 +1174,12 @@
+ 			inode->i_fop = &proc_info_file_operations;
+ 			ei->op.proc_read = proc_pid_stat;
+ 			break;
++#ifdef CONFIG_SMP
++		case PROC_PID_CPU:
++			inode->i_fop = &proc_info_file_operations;
++			ei->op.proc_read = proc_pid_cpu;
++			break;
++#endif
+ 		case PROC_PID_CMDLINE:
+ 			inode->i_fop = &proc_info_file_operations;
+ 			ei->op.proc_read = proc_pid_cmdline;
+diff -urN 2.6.0-test1-ia64-0/include/linux/sched.h 2.6.0-test1-ia64-na/include/linux/sched.h
+--- 2.6.0-test1-ia64-0/include/linux/sched.h	2003-07-14 05:30:40.000000000 +0200
++++ 2.6.0-test1-ia64-na/include/linux/sched.h	2003-07-18 13:38:02.000000000 +0200
+@@ -390,6 +390,9 @@
+ 	struct list_head posix_timers; /* POSIX.1b Interval Timers */
+ 	unsigned long utime, stime, cutime, cstime;
+ 	u64 start_time;
++#ifdef CONFIG_SMP
++	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
++#endif
+ /* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
+ 	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
+ /* process credentials */
+diff -urN 2.6.0-test1-ia64-0/kernel/fork.c 2.6.0-test1-ia64-na/kernel/fork.c
+--- 2.6.0-test1-ia64-0/kernel/fork.c	2003-07-14 05:30:39.000000000 +0200
++++ 2.6.0-test1-ia64-na/kernel/fork.c	2003-07-18 13:38:02.000000000 +0200
+@@ -861,6 +861,14 @@
+ 	p->tty_old_pgrp = 0;
+ 	p->utime = p->stime = 0;
+ 	p->cutime = p->cstime = 0;
++#ifdef CONFIG_SMP
++	{
++		int i;
++
++		for(i = 0; i < NR_CPUS; i++)
++			p->per_cpu_utime[i] = p->per_cpu_stime[i] = 0;
++	}
++#endif
+ 	p->array = NULL;
+ 	p->lock_depth = -1;		/* -1 = no lock */
+ 	p->start_time = get_jiffies_64();
+diff -urN 2.6.0-test1-ia64-0/kernel/timer.c 2.6.0-test1-ia64-na/kernel/timer.c
+--- 2.6.0-test1-ia64-0/kernel/timer.c	2003-07-14 05:37:22.000000000 +0200
++++ 2.6.0-test1-ia64-na/kernel/timer.c	2003-07-18 13:38:02.000000000 +0200
+@@ -720,6 +720,10 @@
+ void update_one_process(struct task_struct *p, unsigned long user,
+ 			unsigned long system, int cpu)
+ {
++#ifdef CONFIG_SMP
++	p->per_cpu_utime[cpu] += user;
++	p->per_cpu_stime[cpu] += system;
++#endif
+ 	do_process_times(p, user, system);
+ 	do_it_virt(p, user);
+ 	do_it_prof(p);
 
-Code: 0f 0b 4d 00 0b f5 3c c0 eb b2 89 f6 8d bc 27 00 00 00 00 55
- <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+--Boundary-00=_eHCG/dGwkNXN72u--
 
-
---=_oxo-11997-1058540011-0001-2--

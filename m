@@ -1,75 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUH2CfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267610AbUH2Cvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUH2CfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 22:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267604AbUH2CfW
+	id S267610AbUH2Cvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 22:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUH2Cvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 22:35:22 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:46039 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267602AbUH2CfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 22:35:13 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-In-Reply-To: <1093737080.1385.2.camel@krustophenia.net>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <1093715573.8611.38.camel@krustophenia.net>
-	 <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu>
-	 <20040828203116.GA29686@elte.hu>
-	 <1093727453.8611.71.camel@krustophenia.net>
-	 <20040828211334.GA32009@elte.hu>  <1093727817.860.1.camel@krustophenia.net>
-	 <1093737080.1385.2.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1093746912.1312.4.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 28 Aug 2004 22:35:12 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 22:51:40 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:48559 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267610AbUH2Cvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 22:51:36 -0400
+Message-ID: <413144B3.4080301@triplehelix.org>
+Date: Sat, 28 Aug 2004 19:51:31 -0700
+From: Joshua Kwan <joshk@triplehelix.org>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [gmulas@ca.astro.it: kernel-source-2.4.27: libata.o not compiled
+ as module]
+References: <20040829021638.GA29207@darjeeling.triplehelix.org> <41313FDA.6080009@pobox.com>
+In-Reply-To: <41313FDA.6080009@pobox.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEA328E2062C6CAAFADA7B326"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-28 at 19:51, Lee Revell wrote:
-> On Sat, 2004-08-28 at 17:16, Lee Revell wrote:
-> > On Sat, 2004-08-28 at 17:13, Ingo Molnar wrote:
-> > > ok, will add this to -Q4.
-> > > 
-> > 
-> > Hrm, Q3 broke my PS/2 keyboard.
-> > 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEA328E2062C6CAAFADA7B326
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Some more info:
+Jeff Garzik wrote:
+> Everything is working just fine, from looking at the output.
 
-This bug is 100% reproducible.  During boot, as soon as the i8042 driver
-is loaded:
+Just fine?
 
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
+depmod: *** Unresolved symbols in
+/usr/src/kernel-source-2.4.27/debian/tmp-image/lib/modules/2.4.27/kernel/drivers/scsi/sata_sx4.o
+depmod:         ata_add_to_probe_list_Rsmp_c4708b60
+depmod:         ata_port_probe_Rsmp_f8f01db6
+depmod:         ata_std_bios_param_Rsmp_8021f007
+depmod:         ata_check_status_mmio_Rsmp_2dc27824
+depmod:         ata_port_start_Rsmp_4afd23de
+depmod:         ata_scsi_error_Rsmp_4db27aa3
+depmod:         ata_tf_load_mmio_Rsmp_5d4089a1
+depmod:         ata_scsi_queuecmd_Rsmp_61a16164
+depmod:         ata_bus_reset_Rsmp_48b3c601
+depmod:         ata_port_disable_Rsmp_cf3f6248
+depmod:         ata_qc_complete_Rsmp_27e6abc6
+depmod:         ata_scsi_release_Rsmp_bc1c53b1
+depmod:         ata_scsi_detect_Rsmp_79dc600b
+depmod:         ata_exec_command_mmio_Rsmp_7b0a5b2d
+depmod:         ata_tf_read_mmio_Rsmp_830b4f4e
+depmod:         ata_pci_remove_one_Rsmp_6c0a4dd5
+depmod:         ata_port_stop_Rsmp_301e7c1e
 
-the keyboard freezes, with 'Num Lock' stuck on.
+> CONFIG_SCSI_SATA_VITESSE is set to 'y', which means that libata is built 
+> into the kernel rather than as a module, because 
+> CONFIG_SCSI_SATA_VITESSE is built into the kernel, and libata is a 
+> dependency.
 
-The problem only occurs when CONFIG_PREEMPT_HARDIRQS=y.  Works fine
-otherwise.
+But as my own compile tests showed, neither sata_vsc.c or libata-core.c 
+/ libata-scsi.c were ever compiled into sata_vsc.o and libata.o (for use 
+at kernel link time) during a 'make bzImage modules'.
 
-/proc/interrupts:
+> Because the dependency (libata.o) is built into the kernel, no kernel 
+> module will be produced.
 
-           CPU0       
-  0:     509819          XT-PIC  timer
-  1:       1649          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:          4          XT-PIC  rtc
- 10:          0          XT-PIC  uhci_hcd, EMU10K1
- 11:      24394          XT-PIC  uhci_hcd, eth0
- 12:          0          XT-PIC  uhci_hcd
- 14:          1          XT-PIC  ide0
- 15:      12864          XT-PIC  ide1
-NMI:          0 
-ERR:          0
+Makes sense. But it doesn't seem to work that way in practice.
 
-Lee
+Run a kbuild using that .config and you'll probably see the problem too..
 
+-- 
+Joshua Kwan
+
+--------------enigEA328E2062C6CAAFADA7B326
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQTFEtqOILr94RG8mAQL46A//fAQOAJJGFIhyZkQBj8r0TIUs3a+BkD/A
+GhmiprJnlYejVBCDCRLLuSnshJW2RNHUFhkxvlZJfkE1KfffpXDHnm71lre8n0uT
+kRT+hMTbkqgO4F6IQkO7Odzyn7tAif8yW6iZIBBNgGahGQYPI29KmU2JpSRqKn7S
+Wt3dVRDLdFI2WxweabETP8S7ptZhBb8+W1v17TSypjISz2L1GpbxPNLgzqjYZ3yb
+DfzzXm3Vz6gzL9fSIWPf5fNOcmvk40/2dVmrbOUDUdkh9JIdhuUu0JIoEvO9KY6d
+0saJdZad5vWQW48B+SzUJh+lrGKcBadtKx+T1pklL5F2BeoSfL1FU9gZ9GO1Atqi
+MDgeSOWagyEWT3KV+uJXtcIt0r8qOmdcxuXBQHmEkF/7MWyNtX3O+s59wXA/w1xu
+pyc0Vq9iXLyEuxEBw9t+3GgoYPoNWYcmMAZkQG78RkyTIjfe5zesJi2AKxv+41gJ
+hhzfN0HoHjGXcS3NNTlxrAy4qJ4UnNsVxv6wYBNSz1ps2R/AtXxT6w94ZQKNLQ83
+nKTcqe8yY6jtAHtCajeUcpB7WN1m6x9Gor/7eHwSFgqzTMgGYujs24QZD22nnA6X
+A7H/RkgpSgJymgh+xkvmUSbSsHuyTWbrRss4qP35Pk3jaGozQuRENzL7Lll0ULrM
+z52ThZ9n0U4=
+=BOCQ
+-----END PGP SIGNATURE-----
+
+--------------enigEA328E2062C6CAAFADA7B326--

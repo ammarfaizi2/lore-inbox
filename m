@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270724AbRITHzf>; Thu, 20 Sep 2001 03:55:35 -0400
+	id <S274359AbRITH5f>; Thu, 20 Sep 2001 03:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274357AbRITHzZ>; Thu, 20 Sep 2001 03:55:25 -0400
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:21516 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S270724AbRITHzO>; Thu, 20 Sep 2001 03:55:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Martin Brooks <martin@jtrix.com>
-Reply-To: martin@jtrix.com
-Organization: Jtrix Ltd 
+	id <S274358AbRITH5P>; Thu, 20 Sep 2001 03:57:15 -0400
+Received: from 211-174-51-118.kidc.net ([211.174.51.118]:65292 "EHLO
+	mail.wowlinux.com") by vger.kernel.org with ESMTP
+	id <S274357AbRITH5N>; Thu, 20 Sep 2001 03:57:13 -0400
+Message-Id: <200109200757.f8K7vTr30542@mail.wowlinux.com>
+Content-Type: text/plain;
+  charset="euc-kr"
+From: Kim Yong Il <nalabi@formail.org>
+Reply-To: nalabi@formail.org
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10pre12 build error
-Date: Thu, 20 Sep 2001 08:55:38 +0100
+Subject: Max hdd size?
+Date: Thu, 20 Sep 2001 16:57:38 +0900
 X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15jygW-0007gN-00@obelix.intranet.hyperlink.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-init/main.o: In function `smp_init':
-init/main.o(.text.init+0x74d): undefined reference to 
-`IO_APIC_init_uniprocessor'
-make: *** [vmlinux] Error 1
+Linux support max hdd size???
 
-
-I'm not subscribed, please CC.
 -- 
+즐거운 하루 되세요.
+nalabi@formail.org
 
-Martin A. Brooks,  Systems Administrator
-------------------------------------------------
-Jtrix Ltd		t: +44 207 395 4990
-57-59 Neal Street	f: +44 207 395 4991
-Covent Garden		e: martin@jtrix.org
-London WC2H 9PJ		w: http://www.jtrix.org
-
-Running Windows: while (problem){ reboot; last if
-Upgrade||ServicePack||MassivelyPublicisedExploit;} restart;

@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130644AbRCIUIW>; Fri, 9 Mar 2001 15:08:22 -0500
+	id <S130661AbRCIULM>; Fri, 9 Mar 2001 15:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130656AbRCIUID>; Fri, 9 Mar 2001 15:08:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11648 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130644AbRCIUH6>;
-	Fri, 9 Mar 2001 15:07:58 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15017.14312.932929.194773@pizda.ninka.net>
-Date: Fri, 9 Mar 2001 12:07:04 -0800 (PST)
-To: David Brownell <david-b@pacbell.net>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        linux-usb-devel@lists.sourceforge.net,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Russell King <rmk@arm.linux.org.uk>, zaitcev@redhat.com,
+	id <S130662AbRCIULF>; Fri, 9 Mar 2001 15:11:05 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:9479 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S130661AbRCIUKB>;
+	Fri, 9 Mar 2001 15:10:01 -0500
+Date: Fri, 9 Mar 2001 21:09:13 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
- [RFC: API]
-In-Reply-To: <06a701c0a8d1$199377e0$6800000a@brownell.org>
-In-Reply-To: <001f01c0a5c0$e942d8f0$5517fea9@local>
-	<00d401c0a5c6$f289d200$6800000a@brownell.org>
-	<20010305232053.A16634@flint.arm.linux.org.uk>
-	<15012.27969.175306.527274@pizda.ninka.net>
-	<055e01c0a8b4$8d91dbe0$6800000a@brownell.org>
-	<3AA91B2C.BEB85D8C@colorfullife.com>
-	<15017.7950.106874.276894@pizda.ninka.net>
-	<20010309133502.R31345@sventech.com>
-	<06a701c0a8d1$199377e0$6800000a@brownell.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: Re: static scheduling - SCHED_IDLE?
+Message-ID: <20010309210913.F13320@pcep-jamie.cern.ch>
+In-Reply-To: <20010309204243.E13320@pcep-jamie.cern.ch> <Pine.LNX.4.33.0103100001200.2283-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0103100001200.2283-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Sat, Mar 10, 2001 at 12:02:05AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel wrote:
+> > Just raise the priority whenever the task's in kernel mode.  Problem
+> > solved.
+> 
+> Remember that a task schedules itself out at the timer interrupt,
+> in kernel/sched.c::schedule() ... which is kernel mode ;)
 
-David Brownell writes:
- > Given that some hardware must return the dma addresses, why
- > should it be a good thing to have an API that doesn't expose
- > the notion of a reverse mapping?  At this level -- not the lower
- > level code touching hardware PTEs.
+Even nicer.  On x86 change this:
 
-Because its' _very_ expensive on certain machines.  You have to do
-1 or more I/O accesses to get at the PTEs.
+reschedule:
+	call SYMBOL_NAME(schedule)    # test
+	jmp ret_from_sys_call
 
-If you add this reverse notion to just one API (the dma pool one) then
-people will complain (rightly) that there is not orthogonality in the
-API since the other mapping functions do not provide it.
+to this:
 
-No, it is unacceptable.
+reschedule:
+	orl $PF_HONOUR_LOW_PRIORITY,flags(%ebx)	
+	call SYMBOL_NAME(schedule)    # test
+	andl $~PF_HONOUR_LOW_PRIORITY,flags(%ebx)
+	jmp ret_from_sys_call
 
-Later,
-David S. Miller
-davem@redhat.com
+(You get the idea; this isn't the best implementation).
+
+I think this code can only be reached in two ways:
+
+  1. An interrupt, exception, page fault etc. that is returning to user space.
+  2. A system call, whatever space it's from.
+
+In both these cases, no critical locks will be held, right?
+
+-- Jamie

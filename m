@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268859AbRHKVgo>; Sat, 11 Aug 2001 17:36:44 -0400
+	id <S268857AbRHKVhO>; Sat, 11 Aug 2001 17:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268858AbRHKVgZ>; Sat, 11 Aug 2001 17:36:25 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9101 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S268857AbRHKVgW>; Sat, 11 Aug 2001 17:36:22 -0400
-Date: Sat, 11 Aug 2001 14:35:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1.1 is available.
-Message-ID: <20010811143559.E4657@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <1904.997542180@ocs3.ocs-net>
+	id <S268858AbRHKVg7>; Sat, 11 Aug 2001 17:36:59 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:45612 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S268857AbRHKVgi>;
+	Sat, 11 Aug 2001 17:36:38 -0400
+Message-ID: <20010811233657.A15011@win.tue.nl>
+Date: Sat, 11 Aug 2001 23:36:57 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>, linux-kernel@vger.kernel.org
+Subject: Re: PC keyboard unknown scancodes (Power, Sleep, Wake)
+In-Reply-To: <E15VdrR-0000LQ-00@mm.amelek.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1904.997542180@ocs3.ocs-net>
-User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E15VdrR-0000LQ-00@mm.amelek.gda.pl>; from Marek Michalkiewicz on Sat, Aug 11, 2001 at 08:51:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 12, 2001 at 01:03:00AM +1000, Keith Owens wrote:
+On Sat, Aug 11, 2001 at 08:51:46PM +0200, Marek Michalkiewicz wrote:
 
-> Release 1.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-> http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
-> release 1.1.
+> these three keys (on a cheap no-name "Designed for Win*" keyboard ;)
+> produce "unknown scancode" kernel messages when pressed or released.
+> 
+> Power - e0 5e
+> Sleep - e0 5f
+> Wake  - e0 63
+> 
+> I'd suggest adding support for them to linux/drivers/char/pc_keyb.c
+> but I'm not sure who maintains this file, so reporting this here...
 
-Okay, I think I found some wierd problem.
-$ make -f Makefile-2.5 ARCH=i386
-Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc -E' AR='ar'
-Generating global Makefile
-phase 1 (find all inputs)
-phase 2 (evaluate selections)
-pp_makefile2: drivers/char/defkeymap.o is selected but is not part of vmlinux, missing link_subdirs?
-pp_makefile2: drivers/char/pc_keyb.o is selected but is not part of vmlinux, missing link_subdirs?
-make: *** [/home/trini/work/kernel/kbuild/linux-2.4.8/.tmp_targets] Error 2
-
-Prior to this i did make -f Makefile-2.5 ARCH=i386 oldconfig and said 'n' to
-all new questions.
-    
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+You can use the setkeycodes command to tell the kernel about them.

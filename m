@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132264AbRCVX6t>; Thu, 22 Mar 2001 18:58:49 -0500
+	id <S132250AbRCWADu>; Thu, 22 Mar 2001 19:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132257AbRCVX6b>; Thu, 22 Mar 2001 18:58:31 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:14749 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S132246AbRCVX41>; Thu, 22 Mar 2001 18:56:27 -0500
-Date: Thu, 22 Mar 2001 15:53:21 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: USB oops Linux 2.4.2ac6
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Message-id: <176a01c0b32b$47e305c0$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20010228175009.A27630@devserv.devel.redhat.com>
- <3ABA8737.82BD7ACA@cypress.com>
-X-Priority: 3
+	id <S132245AbRCWABX>; Thu, 22 Mar 2001 19:01:23 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:61950 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S132246AbRCVX7t>;
+	Thu, 22 Mar 2001 18:59:49 -0500
+Date: Thu, 22 Mar 2001 15:59:06 -0800
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re : [CHECKER] 28 potential interrupt errors
+Message-ID: <20010322155906.B13215@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20010322153641.B13162@bougret.hpl.hp.com> <Pine.GSO.4.31.0103221543240.29011-100000@epic8.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.31.0103221543240.29011-100000@epic8.Stanford.EDU>; from yjf@Stanford.EDU on Thu, Mar 22, 2001 at 03:49:31PM -0800
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I found the problem.
-> CONFIG_DEBUG_SLAB "Debug memory allocation"
-> in the 2.4.2-ac series doesn't work with USB.
+On Thu, Mar 22, 2001 at 03:49:31PM -0800, Junfeng Yang wrote:
 > 
-> 2.4.2-ac5 just booted and found the mouse correctly.
-> On to ac-21 now...
+> Sometimes the line number reported by the checker is not correct.
+> But if you go into the function, you can find the bug.
 
-I just glanced at Alan's change list, it didn't have patches
-that seemed to cover that (vs ac20).
+	Gotcha. It in fact indicate the error at the end of the
+function instead of the place where the error is. Very confusing.
+	So, mea culpa, I was wrong...
 
-You might see what sort of luck you have with the patches
-I posted to linux-usb-devel earlier today.  At least both
-usb-ohci and usb-uhci enumerated even after configuring
-in slab debugging ... but there are bugs yet to be found.
-Maybe it deserves a CONFIG_DEBUG_PCI_POOL to
-decouple autopoisoning from CONFIG_DEBUG_SLAB.
-
-
-> Did David Brownell's patch to disable OHCI loading
-> on the AMD-756 make it into the source trees?
-
-It's been sent to Linus.  Unless/until someone learns the
-vendor fix and implements it, it seems to be the best way
-to prevent the 756-specific USB problems (happening
-most with lowspeed devices like mice).
-
-- Dave
-
-
+	Jean

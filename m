@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbTH2O1R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTH2O1R
+	id S261173AbTH2OjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbTH2OjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:27:17 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:10426 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261252AbTH2O1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:27:16 -0400
-Date: Fri, 29 Aug 2003 17:27:14 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 -> ext3 on the fly?
-Message-ID: <20030829142714.GY16395@mea-ext.zmailer.org>
-References: <20030829141619.GA12564@rdlg.net>
+	Fri, 29 Aug 2003 10:39:06 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:39595 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261173AbTH2OjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:39:04 -0400
+Subject: Re: Single P4, many IDE PCI cards == trouble??
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nick Urbanik <nicku@vtc.edu.hk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F4F5C9A.5BAA1542@vtc.edu.hk>
+References: <3F4EA30C.CEA49F2F@vtc.edu.hk>
+	 <1062150643.26753.4.camel@dhcp23.swansea.linux.org.uk>
+	 <3F4F5C9A.5BAA1542@vtc.edu.hk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062167896.27561.4.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030829141619.GA12564@rdlg.net>
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 29 Aug 2003 15:38:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 10:16:19AM -0400, Robert L. Harris wrote:
-> I have a number of servers which are currently mounting /usr as ext2.  I 
-> have a means of doing an tune2fs -j on all of them remotely en mass but
-> I'd rather not reboot them all to enable journaling on machines that are
-> up and not having issues.  I've tried to do a:
+On Gwe, 2003-08-29 at 15:00, Nick Urbanik wrote:
+> Is there _anyone_ who is using a number of ATA133 IDE disks (>=6), each on
+> its own IDE channel, on a number of PCI IDE cards, and doing so
+
+The most I know of is 8, and that was one of the people who found the
+shared IRQ/IDE race cases that 2.4.21 or so fixed.
+
+> > A freeze in an IRQ handler would cause that kind of thing, turning on
+> > the NMI watchdog might get you a trace in such a failure case - and
+> > that would help.
 > 
-> mount -t ext3 -o remount /usr
-> as well as just a mount -o remount after changing the fstab.
+> If the NMI count is positive in /proc/interrupts, and I have nmi_watchdog=2
+> in /proc/cmdline, does that mean that the NMI watchdog is turned on?  If
 
-  No, the 'remount' does not work for this.
-  I have done this type of upgrade myself, but I had to unmount
-  and then remount filesystems.
+nmi watchdog trigger failure would indicate hardware problems in just
+about any situation I can imagine. The nmi is just that -not maskable-
+by software.
 
-> on a test box but it just blows out a usage message.  Is there a way to
-> do this remount without a complete reboot that'll be transparant to
-> users?
 
-  No.
- 
-> If not, is it dangerous to tune2fs the filesystems, change the fstab and
-> then leave the box up for 2-6 months and let them reboot through
-> atrrition, upgrades, etc?
-
-  In one instance I had considerable difficulties to get the box up.
-  Or rather it probably came up, but claimed bogously in mtab  having
-  been mounted as  ext2,  while it in reality was ext3.
-
-  You might want to run fsck on the filesystems anyway.
-
-> Current kernel is 2.4.21-ac3, getting outages and upgrades is a rather
-> long process involving regression testing, etc.
-
-  Invisible upgrade isn't possible, unfortunately.
-
-> Robert
-> ---------------------------------------------------------------------------
-> Robert L. Harris                     | GPG Key ID: E344DA3B
-
-/Matti Aarnio

@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265713AbUAKCgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 21:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbUAKCgC
+	id S265726AbUAKCkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 21:40:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUAKCkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 21:36:02 -0500
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:27998 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265713AbUAKCgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 21:36:00 -0500
-From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+	Sat, 10 Jan 2004 21:40:09 -0500
+Received: from mail.aei.ca ([206.123.6.14]:39133 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S265726AbUAKCj6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 21:39:58 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0)
-Date: Sat, 10 Jan 2004 23:35:49 +0000
-User-Agent: KMail/1.5.94
+Subject: Re: 2.6.1 and irq balancing
+Date: Sat, 10 Jan 2004 21:39:09 -0500
+User-Agent: KMail/1.5.93
+Cc: Ethan Weinstein <lists@stinkfoot.org>
+References: <40008745.4070109@stinkfoot.org>
+In-Reply-To: <40008745.4070109@stinkfoot.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401102335.49022.murilo_pontes@yahoo.com.br>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200401102139.09883.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-My ABNT-2 keyboard work fine with kernel 2.6.0, but I found two bugs in:
-versions:
-2.6.1-rc1
-2.6.1-rc1-mm1
-2.6.1-rc1-mm2
-2.6.1-rc2
-2.6.1-rc2-mm1
-2.6.1-rc3
-2.6.1-mm1
-2.6.1-mm2
+What is the load on the box when this is happening?  If its low think
+this is optimal (for cache reasons).
 
+Ed Tomlinson
 
-First bug:
-My ABNT-2 keyboard not work "/" in console mode, but work fine in X11.
-I turnaround problem with "/" near of num lock!
-I has see in syslog: atkbd.c: Unknown key released (translated set 2, code 
-0x7a on isa0060/serio0)
-
-Second bug:
-Loop device not work!
-
-mount $RAMIMAGE $RAMMOUNTDIR -v -t minix -o loop=/dev/loop/0
-ioctl: LOOP_SET_FD
-losetup -d /dev/loop0
-ioctl: LOOP_CLR_FD
-
-23:30:19 [root@murilo:/MRX/tools/mrxcdram]#mount -V
-mount: mount-2.12
-23:31:00 [root@murilo:/MRX/tools/mrxcdram]#
-
-
-Thanks for any help!!!!
+On January 10, 2004 06:14 pm, Ethan Weinstein wrote:
+> Greetings all,
+> 
+> I upgraded my server to 2.6.1, and I'm finding I'm saddled with only 
+> interrupting on CPU0 again. 2.6.0 does this as well. This is the 
+> Supermicro X5DPL-iGM-O (E7501 chipset), 2 Xeons@2.4ghz HT enabled. 
+> /proc/cpuinfo is normal as per HT, displaying 4 cpus.
+> 2.4.2(3|4) exhibited this behaviour as well, until I applied patches 
+> from here: 
+> http://www.hardrock.org/kernel/2.4.23/irqbalance-2.4.23-jb.patch, et al.
+> 
+> 
+>             CPU0       CPU1       CPU2       CPU3
+>    0:    1572323          0          0          0    IO-APIC-edge  timer
+>    2:          0          0          0          0          XT-PIC  cascade
+>    3:      23520          0          0          0    IO-APIC-edge  serial
+>    8:          2          0          0          0    IO-APIC-edge  rtc
+>    9:          0          0          0          0   IO-APIC-level  acpi
+>   14:         10          0          0          0    IO-APIC-edge  ide0
+>   16:         30          0          0          0   IO-APIC-level 
+> sym53c8xx 22:       4162          0          0          0   IO-APIC-level 
+> eth0 48:       7798          0          0          0   IO-APIC-level 
+> aic79xx 49:       3385          0          0          0   IO-APIC-level 
+> aic79xx 54:      17062          0          0          0   IO-APIC-level 
+> eth1 NMI:          0          0          0          0
+> LOC:    1572002    1572251    1572250    1572243
+> ERR:          0
+> MIS:          0
+> 
+> 
+> THey keyboard isn't working either, but we see the i8042..
+> 
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> 
+> 
+> -Ethan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbUDOALo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 20:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUDOALo
+	id S262370AbUDOARc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 20:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUDOARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 20:11:44 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:64756 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262136AbUDOALb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 20:11:31 -0400
-Date: Wed, 14 Apr 2004 17:22:42 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>
-cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-Message-ID: <170580000.1081988562@flay>
-In-Reply-To: <20040415000529.GX2150@dualathlon.random>
-References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain> <Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu> <69200000.1081804458@flay> <Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu> <20040415000529.GX2150@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 14 Apr 2004 20:17:32 -0400
+Received: from fmr99.intel.com ([192.55.52.32]:19605 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262370AbUDOAR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 20:17:29 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH]
+From: Len Brown <len.brown@intel.com>
+To: Christian =?ISO-8859-1?Q?Kr=F6ner?= 
+	<christian.kroener@tu-harburg.de>
+Cc: linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       ross@datscreative.com.au
+In-Reply-To: <200404142157.34502.christian.kroener@tu-harburg.de>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <1081893978.2251.653.camel@dhcppc4>
+	 <200404141502.14023.ross@datscreative.com.au>
+	 <200404142157.34502.christian.kroener@tu-harburg.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1081988224.15062.75.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Apr 2004 20:17:05 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Martin! When you get time to test your SDET with this patch, please
->> let me know whether this patch helps you at all. The patch applies
->> on top of 2.6.5-mjb1+anobjrmap9_prio_tree.
-> 
-> I considered converting it to a rwsem too, details are in the the email
-> I posted while providing the rwspinlock solution to the parisc cache
-> flushing code.
+On Wed, 2004-04-14 at 15:57, Christian Kröner wrote:
 
-I will try it, but I'm not convinced it'll help. I profiled the takers
-of i_shared_sem, and I think they're all writers (and I tried rwsem on
-the simple linked list before with no benefit).
+> This is simply great, any uncommon hi-load disappeared.
+> Will something like this get into mainline soon, maybe with automatic chipset 
+> detection?
 
-M.
+I'm okay putting the bootparam and the workaround into the kernel,
+for it is generic and we may find other platforms need it.
+
+But I don't have a clean way to make it automatic.
+This is a BIOS bug, so chipset ID will not always work.
+
+We could list the BIOS in dmi_scan(), but I hate doing
+that b/c then the vendor releases a new version of their
+broken BIOS and the automatic workaround no longer works...
+
+-Len
+
+

@@ -1,115 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265157AbUFAT5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUFAT6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265157AbUFAT5h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 15:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUFAT5h
+	id S265195AbUFAT6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 15:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUFAT6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 15:57:37 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:36494
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S265157AbUFAT5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 15:57:08 -0400
-Message-Id: <200406011956.i51JuYkD019999@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: reg@dwf.com
-cc: linux-kernel@vger.kernel.org, reg@orion.dwf.com, linux@horizon.com
-Subject: Re: Intel 875 Motherboard cant use 4GB of Memory. 
-In-Reply-To: Message from reg@dwf.com 
-   of "Tue, 01 Jun 2004 01:32:17 MDT." <200406010732.i517WHOm009984@orion.dwf.com> 
+	Tue, 1 Jun 2004 15:58:10 -0400
+Received: from apate.telenet-ops.be ([195.130.132.57]:4245 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S265195AbUFAT5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 15:57:40 -0400
+Date: Tue, 1 Jun 2004 21:56:48 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] v2.6.6 w83627hf_wdt.c-patch
+Message-ID: <20040601215648.G30061@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-Date: Tue, 01 Jun 2004 13:56:34 -0600
-From: reg@dwf.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> That could be PCI devices.  Some (particularly high-end video cards)
-> take up a lot of address space, which comes straight out of the available
-> 4 GB physical address space.
-> 
-> Check /proc/iomem.
->
+Hi Linus, Andrew,
 
-OK, that leaves me more confused, and (to me) it still looks like a
-BIOS problem rather than a greedy device.  Here is the /proc/iomem
-with some decimal annotations: (as noted, there is 4x1GB of memory installed)
+please do a
 
----
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-  00000000-0009fbff : System RAM
-  0009fc00-0009ffff : reserved
-  000a0000-000bffff : Video RAM area
-  000c0000-000ccfff : Video ROM
-  000f0000-000fffff : System ROM
-  00100000-ae62ffff : System RAM                    1048576 - 2925723647
-  00100000-002a2fff : Kernel code
-  002a3000-003542ff : Kernel data
-  ae630000-ae64180f : ACPI Non-volatile Storage
-  ae641810-ae72ffff : System RAM
-  ae730000-ae73ffff : ACPI Tables
-  ae740000-ae7effff : ACPI Non-volatile Storage
-  ae7f0000-ae7fffff : reserved
-  ae800000-ae8003ff : 0000:00:1f.1               2927624192 - 2927625215
-  aeb00000-eeafffff : PCI Bus #01                2930769920 - 4004511743 <<
-  c0000000-cfffffff : 0000:01:00.1               3221225472 - 3489660927
-  d0000000-dfffffff : 0000:01:00.0               3489660928 - 3758096383
-  f0000000-f7ffffff : 0000:00:00.0               4026531840 - 4160749567
-  fecf0000-fecf0fff : reserved
-  fed20000-fed9ffff : reserved
-  ff800000-ff8fffff : PCI Bus #01                4286578688 - 4287627263  
-  ff8e0000-ff8effff : 0000:01:00.1
-  ff8f0000-ff8fffff : 0000:01:00.0
-  ff900000-ff9fffff : PCI Bus #02
-  ff9e0000-ff9fffff : 0000:02:01.0
-  ff9e0000-ff9fffff : e1000
-  ffaffc00-ffafffff : 0000:00:1d.7
-  ffaffc00-ffafffff : ehci_hcd
+This will update the following files:
 
----
-and here is the lspci
+ drivers/char/watchdog/w83627hf_wdt.c |   66 ++++++++++++++++++++++++++++-------
+ 1 files changed, 54 insertions(+), 12 deletions(-)
 
-00:00.0 Host bridge: Intel Corp. 82875P Memory Controller Hub (rev 02)
-00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (rev 02)
-00:03.0 PCI bridge: Intel Corp. 82875P Processor to PCI to CSA Bridge (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 (rev 
-02)
-00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #2 (rev 
-02)
-00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 
-02)
-00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4 (rev 
-02)
-00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI 
-Controller (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI 
-Bridge (rev c2)
-00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) Ultra ATA 100 
-Storage Controller (rev
-02)
-00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
-Controller (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AR [Radeon 9600]
-01:00.1 Display controller: ATI Technologies Inc RV350 AR [Radeon 9600] 
-(Secondary)
-02:01.0 Ethernet controller: Intel Corp. 82547EI Gigabit Ethernet Controller 
-(LOM)
-03:01.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
-03:01.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 0a)
-[
----
+through these ChangeSets:
 
-This still isnt making much sense to me, so if somone can explain why I
-can only see a little over 2/3 of the installed memory, I would appreciate
-it.
-
-And of course, the original question, any workarround?
-
----
-
-				Reg.Clemens
-				reg@dwf.com
+<P@draigBrady.com> (04/06/01 1.1818)
+   [WATCHDOG] v2.6.6 w83627hf_wdt.c-patch
+   
+   Add w83627hf_select_wd_register and w83627hf_unselect_wd_register.
+   Add w83627hf_init to fix initialization problem on certain motherboards.
+   Make ping and disable code return 0 (int) on success.
+   Extract set_heartbeat code to seperate function.
 
 
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
 
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/w83627hf_wdt.c b/drivers/char/watchdog/w83627hf_wdt.c
+--- a/drivers/char/watchdog/w83627hf_wdt.c	Tue Jun  1 21:48:45 2004
++++ b/drivers/char/watchdog/w83627hf_wdt.c	Tue Jun  1 21:48:45 2004
+@@ -72,7 +72,7 @@
+ #define WDT_EFDR (WDT_EFIR+1) /* Extended Function Data Register */
+ 
+ static void
+-wdt_ctrl(int timeout)
++w83627hf_select_wd_register(void)
+ {
+ 	outb_p(0x87, WDT_EFER); /* Enter extended function mode */
+ 	outb_p(0x87, WDT_EFER); /* Again according to manual */
+@@ -81,23 +81,64 @@
+ 	outb_p(0x08, WDT_EFDR); /* select logical device 8 (GPIO2) */
+ 	outb_p(0x30, WDT_EFER); /* select CR30 */
+ 	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
++}
++
++static void
++w83627hf_unselect_wd_register(void)
++{
++	outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
++}
++
++/* tyan motherboards seem to set F5 to 0x4C ?
++ * So explicitly init to appropriate value. */
++static void
++w83627hf_init(void)
++{
++	unsigned char t;
++
++	w83627hf_select_wd_register();
++
++	outb_p(0xF5, WDT_EFER); /* Select CRF5 */
++	t=inb_p(WDT_EFDR);      /* read CRF5 */
++	t&=~0x0C;               /* set second mode & disable keyboard turning off watchdog */
++	outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
++
++	w83627hf_unselect_wd_register();
++}
++
++static void
++wdt_ctrl(int timeout)
++{
++	w83627hf_select_wd_register();
+ 
+ 	outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
+ 	outb_p(timeout, WDT_EFDR); /* Write Timeout counter to CRF6 */
+ 
+-	outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
++	w83627hf_unselect_wd_register();
+ }
+ 
+-static void
++static int
+ wdt_ping(void)
+ {
+ 	wdt_ctrl(timeout);
++	return 0;
+ }
+ 
+-static void
++static int
+ wdt_disable(void)
+ {
+ 	wdt_ctrl(0);
++	return 0;
++}
++
++static int
++wdt_set_heartbeat(int t)
++{
++	if ((t < 1) || (t > 63))
++		return -EINVAL;
++
++	timeout = t;
++	return 0;
+ }
+ 
+ static ssize_t
+@@ -134,7 +175,7 @@
+ 	static struct watchdog_info ident = {
+ 		.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+ 		.firmware_version = 1,
+-		.identity = "Advantech WDT",
++		.identity = "W83627HF WDT",
+ 	};
+ 
+ 	switch (cmd) {
+@@ -154,9 +195,8 @@
+ 	case WDIOC_SETTIMEOUT:
+ 	  if (get_user(new_timeout, (int *)arg))
+ 		  return -EFAULT;
+-	  if ((new_timeout < 1) || (new_timeout > 63))
++	  if (wdt_set_heartbeat(new_timeout))
+ 		  return -EINVAL;
+-	  timeout = new_timeout;
+ 	  wdt_ping();
+ 	  /* Fall */
+ 
+@@ -211,8 +251,8 @@
+ 		printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
+ 		wdt_ping();
+ 	}
+-	clear_bit(0, &wdt_is_open);
+ 	expect_close = 0;
++	clear_bit(0, &wdt_is_open);
+ 	return 0;
+ }
+ 
+@@ -266,10 +306,10 @@
+ 
+ 	printk(KERN_INFO "WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.\n");
+ 
+-	if (timeout < 1 || timeout > 63) {
+-		timeout = WATCHDOG_TIMEOUT;
+-		printk (KERN_INFO PFX "timeout value must be 1<=x<=63, using %d\n",
+-			timeout);
++	if (wdt_set_heartbeat(timeout)) {
++		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
++		printk (KERN_INFO PFX "timeout value must be 1<=timeout<=63, using %d\n",
++			WATCHDOG_TIMEOUT);
+ 	}
+ 
+ 	if (!request_region(wdt_io, 1, WATCHDOG_NAME)) {
+@@ -278,6 +318,8 @@
+ 		ret = -EIO;
+ 		goto out;
+ 	}
++
++	w83627hf_init();
+ 
+ 	ret = register_reboot_notifier(&wdt_notifier);
+ 	if (ret != 0) {

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312358AbSDNQHk>; Sun, 14 Apr 2002 12:07:40 -0400
+	id <S312361AbSDNQJm>; Sun, 14 Apr 2002 12:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312361AbSDNQHj>; Sun, 14 Apr 2002 12:07:39 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:8202 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312358AbSDNQHj>;
-	Sun, 14 Apr 2002 12:07:39 -0400
-Date: Sun, 14 Apr 2002 08:07:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Ian Molton <spyro@armlinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci *BUG*
-Message-ID: <20020414150719.GA17826@kroah.com>
-In-Reply-To: <20020414004022.6450f038.spyro@armlinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 17 Mar 2002 12:39:17 -0800
+	id <S312364AbSDNQJl>; Sun, 14 Apr 2002 12:09:41 -0400
+Received: from deepthought.blinkenlights.nl ([62.58.162.228]:22788 "EHLO
+	deepthought.blinkenlights.nl") by vger.kernel.org with ESMTP
+	id <S312361AbSDNQJk>; Sun, 14 Apr 2002 12:09:40 -0400
+Date: Sun, 14 Apr 2002 18:44:08 +0200 (CEST)
+From: Sten <sten@blinkenlights.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: linux as a minicomputer ?
+In-Reply-To: <E16wkJq-0004Jl-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44-Blink.0204141838050.25592-100000@deepthought.blinkenlights.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 14, 2002 at 12:40:22AM +0100, Ian Molton wrote:
-> Hi
-> 
-> I'm not familiar with the USB code, but I've been hitting a BUG() with my
-> new OHCI card (sorry, it was cheap :(   )
-> 
-> the BUG() is at line 464 in usb-ohci.h, which seems to be a linked-list
-> traversal failing to find an entry.
+On Sun, 14 Apr 2002, Alan Cox wrote:
 
-So your "Subject:" is wrong?  Which driver are you having problems with?
-usb-ohci.c or usb-uhci.c?
+> > cheap system, but dual Celeron? The last dual Celeron m/b I saw was the
+> > BP6, and I have a bunch of them in various places. Is that the board
+> > you're remembering? It uses CPUs no longer available.
+>
+> There are much newer dual Celeron boards. Maybe they just don't sell them
+> in the USA any more ?
 
-What platform are you running this on, x86?
-What devices do you have plugged in?
-What were you doing when the BUG() call happened?
-Are there any kernel log entries before the BUG()?
-What is your .config?
-What is the output of /proc/bus/usb/devices with your USB device plugged
-in?
+eeeh, after 533, starting with the celeron A intel basically succeeded
+in breaking smp on celerons. And they also switched to using
+borked p3's for celerons ( 256k cache vs 128k ) if the rumors are true :).
 
-thanks,
+There were some ppl doing realy nasty voltage mods but nothing
+conclusive ever came of that. The last thing I heard was that
+asus succeeded in making a dual p4, but I dont expect much
+from that corner.
 
-greg k-h
+So you're stuck with p3 or xeon, going the amd route might be
+smarter if you want something affordable.
+
+-- 
+Sten Spans
+
+  "What does one do with ones money,
+   when there is no more empty rackspace ?"
+

@@ -1,200 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbUAODhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 22:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAODhU
+	id S266433AbUAODjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 22:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUAODjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 22:37:20 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:59529 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264893AbUAODhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 22:37:04 -0500
-Date: Wed, 14 Jan 2004 19:36:59 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: irda-users@lists.sourceforge.net
-Subject: [PATCH 2.6 IrDA] IrCOMM TTY API fix
-Message-ID: <20040115033659.GA25325@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Wed, 14 Jan 2004 22:39:16 -0500
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:3975 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S266433AbUAODjJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 22:39:09 -0500
+Date: Thu, 15 Jan 2004 10:35:00 +1100
+From: Rusty Russell <rusty@au1.ibm.com>
+To: dipankar@in.ibm.com
+Cc: rusty@au1.ibm.com, paul.mckenney@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] RCU for low latency [2/2]
+Message-Id: <20040115103500.28f9e1bf.rusty@rustcorp.com.au>
+In-Reply-To: <20040114082420.GA3755@in.ibm.com>
+References: <20040108115051.GC5128@in.ibm.com>
+	<20040109000244.8C58D17DDE@ozlabs.au.ibm.com>
+	<20040114082420.GA3755@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Dave,
+On Wed, 14 Jan 2004 13:54:20 +0530
+Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> > static inline unsigned int max_rcu_at_once(int cpu)
+> > {
+> > 	if (in_softirq() && RCU_krcud(cpu) && rq_has_rt_task(cpu))
+> > 		return rcu_max_bh_callbacks;
+> > 	return (unsigned int)-1;
+> > }
+> 
+> Done, except that once we reach the callback limit, we need to check
+> for RT tasks after every callback, instead of at the start of the RCU batch.
 
-	Another bug fix, this time from Russell. This problem prevent some users to make connection to their phones over IrDA.
-	Would you mind adding that to my previous batch of patches ?
+AFAICT, if you're in a softirq it can't change.  If you're not, there's
+no limit anyway.
 
-	Thanks...
+> > Ideally you'd create a new workqueue for this, or at the very least
+> > use kthread primitives (once they're in -mm, hopefully soon).
+> 
+> I will use kthread primitives once they are available in mainline.
 
-	Jean
+But ulterior motive is to push the kthread primitives by making as much
+code depend on it as possible 8)
 
-=========================================================================
+> I will clean this up later should we come to a conclusion that
+> we need the low-latency changes in mainline. I don't see
+> any non-driver kernel code using module_param() though.
 
-ir260_ircomm_ioctl-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Russell King>
-	o [CORRECT] Migrate TIOCMGET and TIOCMSET ioctls in IrCOMM to
-		the new TTY API.
+I'm trying to catch them as new ones get introduced.  If the name is
+old-style, then there's little point changing (at least for 2.6).
 
+>From now on, I'm being more vigilant 8)
 
-diff -u -p linux/include/net/irda/ircomm_tty.d5.h linux/include/net/irda/ircomm_tty.h
---- linux/include/net/irda/ircomm_tty.d5.h	Tue Jan 13 09:51:52 2004
-+++ linux/include/net/irda/ircomm_tty.h	Tue Jan 13 10:01:11 2004
-@@ -122,6 +122,9 @@ void ircomm_tty_stop(struct tty_struct *
- void ircomm_tty_check_modem_status(struct ircomm_tty_cb *self);
- 
- extern void ircomm_tty_change_speed(struct ircomm_tty_cb *self);
-+extern int ircomm_tty_tiocmget(struct tty_struct *tty, struct file *file);
-+extern int ircomm_tty_tiocmset(struct tty_struct *tty, struct file *file,
-+			       unsigned int set, unsigned int clear);
- extern int ircomm_tty_ioctl(struct tty_struct *tty, struct file *file, 
- 			    unsigned int cmd, unsigned long arg);
- extern void ircomm_tty_set_termios(struct tty_struct *tty, 
-diff -u -p linux/net/irda/ircomm/ircomm_tty.d5.c linux/net/irda/ircomm/ircomm_tty.c
---- linux/net/irda/ircomm/ircomm_tty.d5.c	Tue Jan 13 09:55:04 2004
-+++ linux/net/irda/ircomm/ircomm_tty.c	Tue Jan 13 10:02:52 2004
-@@ -86,7 +86,9 @@ static struct tty_operations ops = {
- 	.write_room      = ircomm_tty_write_room,
- 	.chars_in_buffer = ircomm_tty_chars_in_buffer,
- 	.flush_buffer    = ircomm_tty_flush_buffer,
--	.ioctl           = ircomm_tty_ioctl,
-+	.ioctl           = ircomm_tty_ioctl,	/* ircomm_tty_ioctl.c */
-+	.tiocmget        = ircomm_tty_tiocmget,	/* ircomm_tty_ioctl.c */
-+	.tiocmset        = ircomm_tty_tiocmset,	/* ircomm_tty_ioctl.c */
- 	.throttle        = ircomm_tty_throttle,
- 	.unthrottle      = ircomm_tty_unthrottle,
- 	.send_xchar      = ircomm_tty_send_xchar,
-diff -u -p linux/net/irda/ircomm/ircomm_tty_ioctl.d5.c linux/net/irda/ircomm/ircomm_tty_ioctl.c
---- linux/net/irda/ircomm/ircomm_tty_ioctl.d5.c	Tue Jan 13 09:54:53 2004
-+++ linux/net/irda/ircomm/ircomm_tty_ioctl.c	Wed Jan 14 11:27:56 2004
-@@ -190,81 +190,62 @@ void ircomm_tty_set_termios(struct tty_s
- }
- 
- /*
-- * Function ircomm_tty_get_modem_info (self, value)
-+ * Function ircomm_tty_tiocmget (tty, file)
-  *
-  *    
-  *
-  */
--static int ircomm_tty_get_modem_info(struct ircomm_tty_cb *self, 
--				     unsigned int *value)
-+int ircomm_tty_tiocmget(struct tty_struct *tty, struct file *file)
- {
-+	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
- 	unsigned int result;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
- 
-+	if (tty->flags & (1 << TTY_IO_ERROR))
-+		return -EIO;
-+
- 	result =  ((self->settings.dte & IRCOMM_RTS) ? TIOCM_RTS : 0)
- 		| ((self->settings.dte & IRCOMM_DTR) ? TIOCM_DTR : 0)
- 		| ((self->settings.dce & IRCOMM_CD)  ? TIOCM_CAR : 0)
- 		| ((self->settings.dce & IRCOMM_RI)  ? TIOCM_RNG : 0)
- 		| ((self->settings.dce & IRCOMM_DSR) ? TIOCM_DSR : 0)
- 		| ((self->settings.dce & IRCOMM_CTS) ? TIOCM_CTS : 0);
--
--	return put_user(result, value);
-+	return result;
- }
- 
- /*
-- * Function set_modem_info (driver, cmd, value)
-+ * Function ircomm_tty_tiocmset (tty, file, set, clear)
-  *
-  *    
-  *
-  */
--static int ircomm_tty_set_modem_info(struct ircomm_tty_cb *self, 
--				     unsigned int cmd, unsigned int *value)
-+int ircomm_tty_tiocmset(struct tty_struct *tty, struct file *file,
-+			unsigned int set, unsigned int clear)
- { 
--	unsigned int arg;
--	__u8 old_rts, old_dtr;
-+	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
- 
-+	if (tty->flags & (1 << TTY_IO_ERROR))
-+		return -EIO;
-+
- 	ASSERT(self != NULL, return -1;);
- 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
- 
--	if (get_user(arg, value))
--		return -EFAULT;
-+	if (set & TIOCM_RTS)
-+		self->settings.dte |= IRCOMM_RTS;
-+	if (set & TIOCM_DTR)
-+		self->settings.dte |= IRCOMM_DTR;
-+
-+	if (clear & TIOCM_RTS)
-+		self->settings.dte &= ~IRCOMM_RTS;
-+	if (clear & TIOCM_DTR)
-+		self->settings.dte &= ~IRCOMM_DTR;
- 
--	old_rts = self->settings.dte & IRCOMM_RTS;
--	old_dtr = self->settings.dte & IRCOMM_DTR;
--
--	switch (cmd) {
--	case TIOCMBIS: 
--		if (arg & TIOCM_RTS) 
--			self->settings.dte |= IRCOMM_RTS;
--		if (arg & TIOCM_DTR)
--			self->settings.dte |= IRCOMM_DTR;
--		break;
--		
--	case TIOCMBIC:
--		if (arg & TIOCM_RTS)
--			self->settings.dte &= ~IRCOMM_RTS;
--		if (arg & TIOCM_DTR)
-- 			self->settings.dte &= ~IRCOMM_DTR;
-- 		break;
--		
--	case TIOCMSET:
-- 		self->settings.dte = 
--			((self->settings.dte & ~(IRCOMM_RTS | IRCOMM_DTR))
--			 | ((arg & TIOCM_RTS) ? IRCOMM_RTS : 0)
--			 | ((arg & TIOCM_DTR) ? IRCOMM_DTR : 0));
--		break;
--		
--	default:
--		return -EINVAL;
--	}
--	
--	if ((self->settings.dte & IRCOMM_RTS) != old_rts)
-+	if ((set|clear) & TIOCM_RTS)
- 		self->settings.dte |= IRCOMM_DELTA_RTS;
--
--	if ((self->settings.dte & IRCOMM_DTR) != old_dtr)
-+	if ((set|clear) & TIOCM_DTR)
- 		self->settings.dte |= IRCOMM_DELTA_DTR;
- 
- 	ircomm_param_request(self, IRCOMM_DTE, TRUE);
-@@ -406,14 +387,6 @@ int ircomm_tty_ioctl(struct tty_struct *
- 	}
- 
- 	switch (cmd) {
--	case TIOCMGET:
--		ret = ircomm_tty_get_modem_info(self, (unsigned int *) arg);
--		break;
--	case TIOCMBIS:
--	case TIOCMBIC:
--	case TIOCMSET:
--		ret = ircomm_tty_set_modem_info(self, cmd, (unsigned int *) arg);
--		break;
- 	case TIOCGSERIAL:
- 		ret = ircomm_tty_get_serial_info(self, (struct serial_struct *) arg);
- 		break;
+> New patch below. Needs rq-has-rt-task.patch I mailed earlier.
+> There are more issues that need investigations - can we starve
+> RCU callbacks leading to OOMs
+
+You can screw your machine up with RT tasks, yes.  This is no new problem,
+I think.
+
+> should we compile out krcuds
+> based on a config option (CONFIG_PREEMPT?). Any suggestions ?
+
+Depends on the neatness of the code, I think...
+
+Cheers,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

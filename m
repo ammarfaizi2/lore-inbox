@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVBSQXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVBSQbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVBSQXr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 11:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVBSQXr
+	id S261707AbVBSQbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 11:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVBSQbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 11:23:47 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:48581 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261698AbVBSQXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 11:23:46 -0500
-Date: Sat, 19 Feb 2005 17:23:42 +0100
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: FAUmachine: Looking for a good documented DMA bus master capable PCI IDE Controller card
-Message-ID: <20050219162342.GA29455@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20050219102410.GD16858@cip.informatik.uni-erlangen.de> <58cb370e05021903481de251df@mail.gmail.com> <20050219132606.GH16858@cip.informatik.uni-erlangen.de> <58cb370e050219055337ca9d62@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e050219055337ca9d62@mail.gmail.com>
-X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
-User-Agent: Mutt/1.5.8i
+	Sat, 19 Feb 2005 11:31:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18825 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261707AbVBSQbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 11:31:14 -0500
+Message-ID: <421769BD.4060606@pobox.com>
+Date: Sat, 19 Feb 2005 11:30:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: ncunningham@cyclades.com, kwijibo@zianet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Should kirqd work on HT?
+References: <88056F38E9E48644A0F562A38C64FB60040DBACB@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB60040DBACB@scsmsx403.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Pallipadi, Venkatesh wrote:
+> You are right. Kernel balancer doesn't move around the irqs, unless it
+> has too many interrupts. The logic is moving around interrupts all the
+> time will not be good on caches. So, there is a threshold above which
+> the balancer start moving things around.
+> 
+> You should see them moving around if you do 'ping -f' or a big 'dd' from
+> the disk.
 
-> Hm, maybe you will have to implement some PCI add-on IDE controller,
-> AFAIR Silicon Image 680 datasheet is publicly available now.
+If kirqd is moving NIC interrupts, it's broken.
 
-I just talked with a coworker who has experience with the above card. He
-told me that this IDE controller (hardware) has havy problems if you
-have havy load on both channels. (Blue screens in windows and DMA errors
-in Linux).
+(and another reason why irqbalanced is preferable)
 
-He also told me that everything works fine if you use one channel in PIO
-mode and that there are workarounds in the linux kernel to circumvent
-the upcomming problems under havy load.
+	Jeff
 
-Is that true or just nonsense?
 
-However it is worth to look at them. Thanks for the pointer! :-)
 
-	Thomas

@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUILHpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUILHrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268515AbUILHpB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 03:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUILHpB
+	id S268520AbUILHrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 03:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUILHrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 03:45:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11433 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268515AbUILHo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 03:44:58 -0400
-Date: Sun, 12 Sep 2004 00:42:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: nickpiggin@yahoo.com.au, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
-Message-Id: <20040912004256.59a74c28.akpm@osdl.org>
-In-Reply-To: <20040912071948.GH2660@holomorphy.com>
-References: <20040909155226.714dc704.akpm@osdl.org>
-	<20040909230905.GO3106@holomorphy.com>
-	<20040909162245.606403d3.akpm@osdl.org>
-	<20040910000717.GR3106@holomorphy.com>
-	<414133EB.8020802@yahoo.com.au>
-	<20040910174915.GA4750@logos.cnet>
-	<20040912045636.GA2660@holomorphy.com>
-	<4143D07E.3030408@yahoo.com.au>
-	<20040912062703.GF2660@holomorphy.com>
-	<4143E6C6.40908@yahoo.com.au>
-	<20040912071948.GH2660@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 12 Sep 2004 03:47:23 -0400
+Received: from polaris.galacticasoftware.com ([206.45.95.222]:13515 "EHLO
+	polaris.galacticasoftware.com") by vger.kernel.org with ESMTP
+	id S268520AbUILHrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 03:47:07 -0400
+Message-ID: <4143FEFE.7020800@galacticasoftware.com>
+Date: Sun, 12 Sep 2004 02:47:10 -0500
+From: Adam Majer <adamm@galacticasoftware.com>
+Organization: Galactica Software Corporation
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Wolfpaw - Dale Corse <admin-lists@wolfpaw.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [grsec] Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote)
+ Denial of Service
+References: <004c01c49848$2608e180$0200a8c0@wolf>
+In-Reply-To: <004c01c49848$2608e180$0200a8c0@wolf>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Wolfpaw - Dale Corse wrote:
+
+>Greetings,
 >
-> A large stream of faults to map in a file will blow L1 caches of the
->  sizes you've mentioned at every kernel/user context switch. 256 distinct
->  cachelines will very easily be referenced between faults. MAP_POPULATE
->  and mlock() don't implement batching for either ->page_table_lock or
->  ->tree_lock, so the pagevec point is moot in pagetable instantiation
->  codepaths (though it probably shouldn't be).
+> My apologies if this is to the wrong place - it happens to be the
+>first kernel bug I have found (or what appears to be one), and I'm
+>not entirely sure how to properly inform the Linux community about
+>it. 
+>
+>Anyway - on to the bug :)
+>==========================
+>Severity: HIGH
+>Title: KERNEL: TCP Local (probable remote) Denial of Service
+>Date: September 11, 2004
+>  
+>
 
-Instantiation via normal fault-in becomes lock-intensive once you have
-enough CPUs.  At low CPU count the page zeroing probably preponderates.
+Actually, it seems that the sockets that are not closing properly are
+the ones opened by your proof of concept code, *NOT* the server. The
+servers (mysql and Apache), close their sockets properly. I could verify
+this over a network. Locally, I got
 
->  O_DIRECT writes and msync(..., ..., MS_SYNC) will use pagevecs on
->  ->tree_lock in a rapid-fire process-triggerable manner. Almost all
->  uses of pagevecs for ->lru_lock outside the scanner that I'm aware
->  of are not rapid-fire in nature (though there probably should be some).
+tcp        0      0 192.168.53.2:41440      192.168.53.1:3306      
+TIME_WAIT
+tcp        0      0 192.168.53.2:41442      192.168.53.1:3306      
+TIME_WAIT
+tcp        0      0 192.168.53.2:41443      192.168.53.1:3306      
+TIME_WAIT
+tcp        0      0 192.168.53.2:41452      192.168.53.1:3306      
+TIME_WAIT
+tcp        0      0 192.168.53.2:41468      192.168.53.1:80        
+TIME_WAIT
+tcp        0      0 192.168.53.2:41441      192.168.53.1:80        
+TIME_WAIT
+tcp        0      0 192.168.53.2:41447      192.168.53.1:80        
+TIME_WAIT
+tcp        0      0 192.168.53.2:41444      192.168.53.1:80         TIME
 
-pagetable teardown (munmap, mremap, exit) is the place where pagevecs help
-->lru_lock.  And truncate.
+etc..
 
->  IMHO pagevecs are somewhat underutilized.
-> 
+But on the server, only 1 or two ESTABISHED entries, nothing more.
 
-Possibly.  I wouldn't bother converting anything unless a profiler tells
-you to though.
+I don't see much of a DOS, except maybe to DOS a localhost. And you can
+do that already.
 
->  Sorry, 4*lg(NR_CPUS) is 64 when lg(NR_CPUS) = 16, or 65536 cpus. 512x
->  Altixen would have 4*lg(512) = 4*9 = 36. The 4*lg(NR_CPUS) sizing was
->  rather conservative on behalf of users of stack-allocated pagevecs.
+>The socket table looks like this while it is going on:
+>
+>http://www.ancients.org/LG.txt
+>(it is 29,000+ lines, so I didn't put it here)
+>  
+>
 
-It's pretty simple to diddle PAGEVEC_SIZE, run a few benchmarks.  If that
-makes no difference then the discussion is moot.  If it makes a significant
-difference then more investigation is warranted.
+
+-- 
+Building your applications one byte at a time
+http://www.galacticasoftware.com
+
 

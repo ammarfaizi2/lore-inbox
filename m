@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265453AbSJaWlA>; Thu, 31 Oct 2002 17:41:00 -0500
+	id <S265427AbSJaWnt>; Thu, 31 Oct 2002 17:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSJaWlA>; Thu, 31 Oct 2002 17:41:00 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:53135 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S265453AbSJaWk7>; Thu, 31 Oct 2002 17:40:59 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC8B3@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Linus Torvalds'" <torvalds@transmeta.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'lkcd-general@lists.sourceforge.net'" 
-	<lkcd-general@lists.sourceforge.net>,
-       "'lkcd-devel@lists.sourceforge.net'" 
-	<lkcd-devel@lists.sourceforge.net>
-Subject: RE: What's left over.
-Date: Thu, 31 Oct 2002 14:47:14 -0800
+	id <S265430AbSJaWnt>; Thu, 31 Oct 2002 17:43:49 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:50130 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S265427AbSJaWno>; Thu, 31 Oct 2002 17:43:44 -0500
+Date: Thu, 31 Oct 2002 17:50:06 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Greg KH <greg@kroah.com>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bare pci configuration access functions ?
+In-Reply-To: <20021031221136.GC10689@kroah.com>
+Message-ID: <Pine.LNX.4.33.0210311748050.26260-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Oct 2002, Greg KH wrote:
+[snip]
+> Anyway, this is a nice diversion from the real problem here, for 2.4,
+> should I just backport the pci_ops changes which will allow pci
+> hotplugging to work again on ia64, or do we want to do something else?
 
-> THAT is what I mean by vendor-driven. If vendors decide they 
-> really want the patches, and I actually start seeing noises on 
-> linux-kernel or getting
-> requests for it being merged from _users_ rather than developers, then
-> that means that the vendor is on to something.
+It would be nice from a hotplug driver maintenance point of view if the
+2.4 and 2.5 interfaces were the same IMO.  How about submitting the change
+in 2.4.21-pre?
 
-I am a user and I use it; I'd like it. I am a developer and I use it. I'd
-love it. Forget my intel.com paying my paycheck.
+Scott
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263386AbTKCVMr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTKCVMr
+	id S262796AbTKCV0F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTKCV0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:12:47 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:5863 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263386AbTKCVMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:12:45 -0500
-Date: Mon, 3 Nov 2003 22:12:41 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: how to restart userland?
-Message-ID: <20031103211241.GN16820@louise.pinerecords.com>
-References: <20031103193940.GA16820@louise.pinerecords.com> <Pine.LNX.4.53.0311031519050.2654@chaos> <20031103204118.GJ16820@louise.pinerecords.com> <20031103220006.A21093@electric-eye.fr.zoreil.com> <20031103220357.A22860@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
+	Mon, 3 Nov 2003 16:26:05 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:37013 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S262796AbTKCV0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 16:26:02 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031103220357.A22860@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16294.51171.463585.783228@napali.hpl.hp.com>
+Date: Mon, 3 Nov 2003 13:25:55 -0800
+To: David Brownell <david-b@pacbell.net>
+Cc: davidm@hpl.hp.com, Greg KH <greg@kroah.com>, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
+In-Reply-To: <3FA5CF9E.2060507@pacbell.net>
+References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
+	<20031028013013.GA3991@kroah.com>
+	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
+	<3FA12A2E.4090308@pacbell.net>
+	<16289.29015.81760.774530@napali.hpl.hp.com>
+	<3FA5CF9E.2060507@pacbell.net>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov-03 2003, Mon, 22:03 +0100
-Francois Romieu <romieu@fr.zoreil.com> wrote:
+>>>>> On Sun, 02 Nov 2003 19:46:38 -0800, David Brownell <david-b@pacbell.net> said:
 
-> Francois Romieu <romieu@fr.zoreil.com> :
-> [...]
-> > Hack sysvinit/shutdown.c so that it exec /sbin/telinit U and put the adequate
-> > command in /etc/inittab ?
-> 
-> Won't work: init keeps "did_boot" in its state.
+  David> I'm not sure that if the HID driver were to pass a null
+  David> buffer pointer, it would be caught anywhere.
+  >>  OK, I'll try to find some time to trace the I/O MMU calls to see
+  >> if something isn't kosher at that level.  Is there a good way of
+  >> getting a relatively high-level of tracing in the USB subsystem
+  >> that would some me what's going on between the HID and the core
+  >> USB level?
 
-Maybe also hack a new "telinit R" option that would clear the flag?
+  Dave.B> Most of that story is just submitting and completing URBs.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Yeah.  And it appears that it's the very first call to
+hid_submit_ctrl() that's triggering the problem (not always, but about
+9 out of 10 times).  I dumped some of the key fields for the URB being
+submitted and they all looked saned to me.
+
+  Dave.B> I'd either try changing the spots in drivers/usb/core/hcd.c
+  Dave.B> marked as appropriate for generic MONITOR_URB hooks (printk
+  Dave.B> if it's your HID device, maybe), or manually turn on
+  Dave.B> whatever HCD-specific hooks exist (maybe use a VERBOSE
+  Dave.B> message level).
+
+OK, thanks for the suggestion.  I'll keep looking, but will be on
+travel this week, so I may not be able to spend much time on this
+problem.
+
+	--david

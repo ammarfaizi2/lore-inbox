@@ -1,97 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVAUDpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVAUD6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVAUDpY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 22:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVAUDpY
+	id S262261AbVAUD6N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 22:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVAUD6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 22:45:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:2442 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262256AbVAUDpN (ORCPT
+	Thu, 20 Jan 2005 22:58:13 -0500
+Received: from waste.org ([216.27.176.166]:47505 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262261AbVAUD6I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 22:45:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=unpgQvQPo4daWJL83b9Kc203QbP/Dm7mfp6jRgNd9m7W6x460G+YJRKlwYZ29d7qQesk4mq9nL3RIv11xDr5xOaU7B3Xm/w+7WBPStG8d/gm+mvZ5JYDT4o+tXvMzXuZvuyjMCenawdF/0MTHz4rRwLGaVDEeVe1tgOBMsgOYes=
-Message-ID: <73e6204505012019454372f6e3@mail.gmail.com>
-Date: Fri, 21 Jan 2005 11:45:13 +0800
-From: zhan rongkai <zhanrk@gmail.com>
-Reply-To: zhan rongkai <zhanrk@gmail.com>
-To: zhan rongkai <zhanrk@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: fix the bug of __free_pages() of mm/page_alloc.c
-In-Reply-To: <73e6204505012019406cf47f04@mail.gmail.com>
+	Thu, 20 Jan 2005 22:58:08 -0500
+Date: Thu, 20 Jan 2005 19:57:58 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       benh@kernel.crashing.org
+Subject: Re: Radeon framebuffer weirdness in -mm2
+Message-ID: <20050121035758.GH12076@waste.org>
+References: <20050120232122.GF3867@waste.org> <20050120153921.11d7c4fa.akpm@osdl.org> <20050120234844.GF12076@waste.org> <20050120160123.14f13ca6.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <73e62045050120053463b7e763@mail.gmail.com>
-	 <20050120143133.A13242@flint.arm.linux.org.uk>
-	 <73e62045050120193214c1abf7@mail.gmail.com>
-	 <73e6204505012019406cf47f04@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050120160123.14f13ca6.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.6.10.orig/mm/page_alloc.c	2004-12-25 05:33:51.000000000 +0800
-+++ linux-2.6.10/mm/page_alloc.c	2005-01-21 11:46:58.000000000 +0800
-@@ -788,7 +788,22 @@
- 
- fastcall void __free_pages(struct page *page, unsigned int order)
- {
--	if (!PageReserved(page) && put_page_testzero(page)) {
-+	if (!PageReserved(page)) {
-+#ifdef CONFIG_MMU
-+		if (!put_page_testzero(page))
-+			return;
-+#else
-+		int i, result = 1;
-+
-+		/*
-+		 * We need to de-reference all the pages for this order -- see
-set_page_refs()
-+		 */
-+		for (i = 0; i < (1 << order); i++)
-+			result &= put_page_testzero(page+i);
-+		if (!result)
-+			BUG();
-+#endif /* CONFIG_MMU */
-+
- 		if (order == 0)
- 			free_hot_page(page);
- 		else
-
-
-On Fri, 21 Jan 2005 11:40:52 +0800, zhan rongkai <zhanrk@gmail.com> wrote:
-> --- linux-2.6.10.orig/mm/page_alloc.c   2004-12-25 05:33:51.000000000 +0800
-> +++ linux-2.6.10/mm/page_alloc.c        2005-01-21 11:43:44.000000000 +0800
-> @@ -788,7 +788,22 @@
+On Thu, Jan 20, 2005 at 04:01:23PM -0800, Andrew Morton wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
+> >
+> > > Which radeon driver? CONFIG_FB_RADEON_OLD or CONFIG_FB_RADEON?
+> > 
+> > FB_RADEON.
 > 
->  fastcall void __free_pages(struct page *page, unsigned int order)
->  {
-> -       if (!PageReserved(page) && put_page_testzero(page)) {
-> +       if (!PageReserved(page)) {
-> +#ifdef CONFIG_MMU
-> +               if (!put_page_testzero(page))
-> +                       return;
-> +#else
-> +               int i, result = 1;
-> +
-> +               /*
-> +                * We need to de-reference all the pages for this order -- see
-> set_page_refs()
-> +                */
-> +                for (i = 0; i < (1 << order); i++)
-> +                        result &= put_page_testzero(page+i);
-> +                if (!result)
-> +                        BUG();
-> +#endif /* CONFIG_MMU */
-> +
->                 if (order == 0)
->                         free_hot_page(page);
->                 else
+> Ah, OK.  Likely culprits are
 > 
-> --
-> Rongkai Zhan
-> 
+> radeonfb-massive-update-of-pm-code.patch
+> radeonfb-build-fix.patch
 
+Ok, learned a few things.
+
+Here are the symptoms:
+
+mm2: corruption of Tux logo at boot, corruption of display at
+powerdown, lockup and LCD blooming on next warm boot when radeonfb
+starts. Ben suggested I try some radeonfb options, but none seemed to
+have any effect.
+
+mm1: no observed problems
+
+mm2 - above patches: corruption still occurs but no lockup on next
+warm boot.
+
+I think I have a lead on the logo and shutdown corruption:
+
+If I do a reboot(8) from inside X, I get switched to vt 0, but the
+shutdown messages come out on vt 7, where X was running. As I'm
+sitting on vt 0 during shutdown, I see character cells changed to
+something like "_" (last two scanlines filled) slowly marching down
+the screen corresponding to the shutdown messages.
+
+So the logo corruption is probably getty popping up on the
+other vts at the end of init. The timing and the screen placement seem
+to agree.
+
+Photos for the curious (be sure to see "executioner Tux" glitch):
+http://selenic.com/radeon
 
 -- 
-Rongkai Zhan
+Mathematics is the supreme nostalgia of our time.

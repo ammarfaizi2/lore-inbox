@@ -1,98 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVA3Lti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVA3MAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVA3Lti (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 06:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVA3Lti
+	id S261684AbVA3MAT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 07:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVA3MAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 06:49:38 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:14601 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261683AbVA3Ltd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 06:49:33 -0500
-Subject: Re: [PATCH 04/04] Add LRW
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Fruhwirth Clemens <clemens-dated-1107431870.41eb@endorphin.org>,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050130000221.GA2955@waste.org>
-References: <20050124115750.GA21883@ghanima.endorphin.org>
-	 <20050130000221.GA2955@waste.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iJdc2FQH73EmRjb0ohRr"
-Date: Sun, 30 Jan 2005 12:49:29 +0100
-Message-Id: <1107085769.13776.11.camel@ghanima>
+	Sun, 30 Jan 2005 07:00:19 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2058 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261684AbVA3MAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 07:00:12 -0500
+Date: Sun, 30 Jan 2005 13:00:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
+       Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.11-rc2-mm2
+Message-ID: <20050130120009.GG3185@stusta.de>
+References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org> <20050130105738.GA28387@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050130105738.GA28387@infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 30, 2005 at 10:57:38AM +0000, Christoph Hellwig wrote:
+> On Sun, Jan 30, 2005 at 10:54:29AM +0000, Christoph Hellwig wrote:
+> > We want to avoid building xfs_export.o when CONFIG_EXPORTFS
+> > isn't set.  CONFIG_XFS_EXPORT=y and CONFIG_EXPORTFS=m worked for
+> > me in my testing.  Do you have XFS builtin or modular?
+> > 
+> > I suspect we need to add another weird depency to force XFS builtin
+> > when NFSD is modular.
+> 
+> s/modular/builtin/ in the last sentence
 
---=-iJdc2FQH73EmRjb0ohRr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+His problem is:
+- CONFIG_NFSD=m
+- CONFIG_EXPORTFS=m
+- CONFIG_XFS=y
+- CONFIG_XFS_EXPORT=y
 
-On Sat, 2005-01-29 at 16:02 -0800, Matt Mackall wrote:
-> On Mon, Jan 24, 2005 at 12:57:50PM +0100, Fruhwirth Clemens wrote:
-> > This is the core of my LRW patch. Added test vectors.
-> > http://grouper.ieee.org/groups/1619/email/pdf00017.pdf
->=20
-> Please include a URL for the standard at the top of the LRW code and
-> next to the test vectors. I had to search around a fair bit for decent
-> background material, would be helpful to a couple other references as
-> well.
+The builtin fs/xfs/linux-2.6/xfs_export.c can't call the function 
+find_exported_dentry in the modular fs/exportfs/expfs.c .
 
-Ack.
 
-> > +static inline void findAlignment(u128 callersN, int value, int *align)=
- {
-> > +	int i;
->=20
-> Your gfmulseq code has lots of StudlyCaps and strange whitespace, eg
-> this '{' should be on the next line.
 
-In fact, it's lowerCamelCase, that's intentional. The whitespace and the
-left '{' is an error.
+cu
+Adrian
 
-> > +	/* Copy N, so lsr does not destroy caller's copy */
-> > +	u128_alloc(N);
-> > +	copy128(N,callersN);
->=20
-> The usage of your u128 type is really confusing, so 'u128' is an
-> especially bad name. I expect u128 to work like u64 and u32. I propose
-> gf128_t.
+-- 
 
-That's ok.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-> > +#define u128_alloc(VAR) u64 _ ## VAR ## _[2]; u128 VAR =3D _ ## VAR ##=
- _
->=20
-> Wrap this in a struct, please. That's disgusting.
-
-No need to be disgusted, I've seen much worse things in the kernel. I
-will change it to C99 compound literals.
-
-> > -obj-$(CONFIG_CRYPTO) +=3D api.o scatterwalk.o cipher.o digest.o compre=
-ss.o \
-> > +obj-$(CONFIG_CRYPTO) +=3D api.o scatterwalk.o cipher.o digest.o compre=
-ss.o lrw.o gfmulseq.o \
->=20
-> LRW and the GF(2**128) code is not configurable?
-
-No, it's a cipher mode. None of the modes is configurable.
-
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-iJdc2FQH73EmRjb0ohRr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB/MnJW7sr9DEJLk4RAtPBAKCHtG40XyOuURtvomUAVl2D0W9SewCghAPR
-xVGVXHtWXIdqhbKQ/lcW4+Y=
-=zpWX
------END PGP SIGNATURE-----
-
---=-iJdc2FQH73EmRjb0ohRr--

@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUG1Whn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUG1Who@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266705AbUG1Whn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUG1Whl
+	id S266683AbUG1Who (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266752AbUG1WhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:37:41 -0400
-Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:4741 "EHLO
-	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266705AbUG1WeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:34:20 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jul 2004 18:37:19 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:44745 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S266683AbUG1WeQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:34:16 -0400
+Subject: Re: [Patch] Per kthread freezer flags
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+References: <1090999301.8316.12.camel@laptop.cunninghams>
+	 <20040728142026.79860177.akpm@osdl.org>
+	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1091053646.8867.21.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 29 Jul 2004 08:27:26 +1000
 Content-Transfer-Encoding: 7bit
-Message-ID: <16648.10711.200049.616183@wombat.chubb.wattle.id.au>
-Date: Thu, 29 Jul 2004 08:33:59 +1000
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: stat very inefficient
-In-Reply-To: <233602095@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "viro" == viro  <viro@parcelfarce.linux.theplanet.co.uk> writes:
+Hi.
 
-On Tue, Jul 27, 2004 at 08:13:01PM -0700, David S. Miller wrote:
->> I was about to make sparc64 specific copies of all the stat system
->> calls in order to optimize this properly.  But that makes little
->> sense, instead I think fs/stat.c should call upon arch-specific
->> stat{,64} structure fillin routines that can do the magic, given a
->> kstat struct.
->> 
->> Comments?
+On Thu, 2004-07-29 at 08:30, Felipe Alfaro Solana wrote:
+> On Wed, 2004-07-28 at 14:20 -0700, Andrew Morton wrote:
+> 
+> > wrt your "Add missing refrigerator support" patch: I'll suck that up, but
+> > be aware that there's a big i2o patch in -mm which basically rips out the
+> > driver which you just fixed up.  Perhaps you can send Markus Lidel
+> > <Markus.Lidel@shadowconnect.com> and I a fix for that version of the driver
+> > sometime?
+> 
+> BTW, the "Add missing refrigerator support" breaks ACPI S3 and S4
+> support for me (2.6.8-rc2-bk7) and my laptop (NEC Chrom@). When
+> resuming, my 3c59x CardBus NIC is not powered up forcing me to eject it,
+> then plug it again.
 
-viro> I'm not sure that it's worth doing for anything below the
-viro> "widest" version of stat.  For that one - yeah, no objections.
+Hmm. I'll take a look. Those patches are straight out of current
+suspend2 and have been in there for some time. Perhaps I just don't have
+any users who have that config.
 
-Agree -- glibc redirects stat() to stat64() under many compilation
-models.
+Regards,
 
-But is stat{,64} actually showing up badly in profiles?
-If it's not I don't think it's worth doing *anything* (I can imagine
-loads where it would, e.g., make on a large sourcetree, or running a
-backup)
-
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
-
-
+Nigel
 

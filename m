@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130315AbRBZQLf>; Mon, 26 Feb 2001 11:11:35 -0500
+	id <S130317AbRBZQWl>; Mon, 26 Feb 2001 11:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRBZQL0>; Mon, 26 Feb 2001 11:11:26 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:44171 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130312AbRBZQLR>; Mon, 26 Feb 2001 11:11:17 -0500
-Message-ID: <3A9A8023.7542CBF7@coplanar.net>
-Date: Mon, 26 Feb 2001 11:11:16 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S130318AbRBZQWb>; Mon, 26 Feb 2001 11:22:31 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:63739 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S130317AbRBZQW1>; Mon, 26 Feb 2001 11:22:27 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F0F12@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: awe_ram.c
+Date: Mon, 26 Feb 2001 17:31:10 +0100
 MIME-Version: 1.0
-To: Brian Grossman <brian@SoftHome.net>
-CC: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz
-Subject: Re: tcp stalls with 2.4 (but not 2.2)
-In-Reply-To: <20010226092240.23713.qmail@lindy.softhome.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Grossman wrote:
+Hi,
 
-> I'm seeing stalls sending packets to some clients.  I see this problem
-> under 2.4 (2.4.1 and 2.4.1ac17) but not under 2.2.17.
+On http://helllabs.org/~claudio/awebd/awe_ram.c I found some code which
+transforms the
+RAM on an AWE32/64 into a block-device. I tried to compile it, but I did not
+succeed.
+The writer of this code doesn't respond to e-mails.
+Anyone out there who has a clue what is going wrong with it? (using kernel
+2.2.18)
 
-compiled in ECN support? SYNcookies?  try disabling through /proc
-tcp or udp? if udp check /proc/net/ipv4/ip_udpdloose or such
+Am getting the following errors:
+bash-2.03# gcc -Wall -Wstrict-prototypes -Winline -O2 -fomit-frame-pointer
+-I/usr/src/linux/include/ -c awe_ram.c -o awe_ram.o 2>&1 | more 
+In file included from /usr/src/linux/include/linux/sched.h:74,
+                 from awe_ram.c:26:
+/usr/src/linux/include/asm/processor.h:287: warning: `struct task_struct'
+declared inside parameter list
+/usr/src/linux/include/asm/processor.h:287: warning: its scope is only this
+definition or declaration,
+/usr/src/linux/include/asm/processor.h:287: warning: which is probably not
+what you want.
+/usr/src/linux/include/asm/processor.h:291: warning: `struct task_struct'
+declared inside parameter list
+In file included from /usr/src/linux/include/linux/blk.h:4,
+                 from awe_ram.c:42:
+/usr/src/linux/include/linux/blkdev.h:23: parse error before `kdev_t'
+/usr/src/linux/include/linux/blkdev.h:23: warning: no semicolon at end of
+struct or union
+/usr/src/linux/include/linux/blkdev.h:36: parse error before `}'
+/usr/src/linux/include/linux/blkdev.h:39: parse error before `dev'
+/usr/src/linux/include/linux/blkdev.h:39: warning: function declaration
+isn't a prototype
+/usr/src/linux/include/linux/blkdev.h:55: parse error before `unsigned'
+/usr/src/linux/include/linux/blkdev.h:55: warning: function declaration
+isn't a prototype
+/usr/src/linux/include/linux/blkdev.h:75: field `plug' has incomplete type
+/usr/src/linux/include/linux/blkdev.h:94: parse error before `kdev_t'
+/usr/src/linux/include/linux/blkdev.h:94: warning: function declaration
+isn't a prototype
+/usr/src/linux/include/linux/blkdev.h:96: parse error before `mddev'
+/usr/src/linux/include/linux/blkdev.h:96: warning: function declaration
+isn't a prototype
+<etc.>
 
->
->
-> My theory is there is an ICMP black hole between my server and some of its
-> clients.  Is there a tool to pinpoint that black hole if it exists?
 
-ping is your friend.  -s lets you set size of packet. (to
-check for fragmentation) use tcpdump to capture
-a trace of this or a tcp session.
-
-email trace to me private if you want.
-
->
->
-> Can anyone suggest another cause or a direction for investigation?
->
-> Why does this affect 2.4 but not 2.2?
->
-> The characteristics I've discovered so far:
->
->         From strace of the server process, each write to the network is
->         preceeded by a select on the output fd.  The select waits for a
->         long time, after which the write succeeds.
->
->         The packets are received by the client a couple minutes after my
->         server sends them.
->
->         The clients I have tested with are win98 and winNT.
->
->         The router for both 2.4 and 2.2 servers is running 2.2.18 with
->         ipvs (ipvs-1.0.2-2.2.18).
->
->         That router does not block any ICMP.
->
->         The behavior occurs on the 2.4 machine whether the packets are
->         routed directly or are mangled by ipvs.
->
->         I've tried the same machine with both 2.4 and 2.2, as well as
->         another machine with just 2.2.  2.2 works.  2.4 doesn't.
->
->         Both of my servers and the router I mentioned have two tulip
->         network cards.
->
->         The clients I've tested with are behind a modem through earthlink.
->         Another I suspect to have same problem is behind a modem
->         through Juno.
->
->         I've tried adjusting both /proc/sys/net/ipv4/route/min_adv_mss and
->         /proc/sys/net/ipv4/route/min_pmtu downward.  Do these require an
->         ifconfig down/up to take effect?
->
-
+Greetings,
+Folkert van Heusden.

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272181AbRIEOPS>; Wed, 5 Sep 2001 10:15:18 -0400
+	id <S272058AbRIEOVu>; Wed, 5 Sep 2001 10:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272182AbRIEOPJ>; Wed, 5 Sep 2001 10:15:09 -0400
-Received: from caymail.com ([199.227.10.105]:20663 "HELO pop1.netcis.com")
-	by vger.kernel.org with SMTP id <S272181AbRIEOOz>;
-	Wed, 5 Sep 2001 10:14:55 -0400
-Date: Wed, 5 Sep 2001 10:15:25 -0400 (EDT)
-From: Jeremiah Johnson <miah@pop1.netcis.com>
-To: volodya@mindspring.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re[4]: 2.4.9 UDP broke?
-In-Reply-To: <Pine.LNX.4.20.0109042354001.22370-100000@node2.localnet.net>
-Message-ID: <Pine.LNX.4.10.10109051010220.29827-100000@pop1.netcis.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272182AbRIEOV3>; Wed, 5 Sep 2001 10:21:29 -0400
+Received: from [128.242.109.118] ([128.242.109.118]:26136 "EHLO ziplip.com")
+	by vger.kernel.org with ESMTP id <S272058AbRIEOVU>;
+	Wed, 5 Sep 2001 10:21:20 -0400
+Message-ID: <JK3MT4ZNAEJNIG1ZEGEDMAZMT10XZKMHVJEFFMME@ziplip.com>
+Date: Wed, 5 Sep 2001 07:22:27 -0700 (PDT)
+From: noneuclidean <noneuclidean@ziplip.com>
+Reply-To: noneuclidean <noneuclidean@ziplip.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Athlon doesn't like Athlon optimisation?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-ZLExpiry: -1
+X-ZLReceiptConfirm: N
+X-ZLAuthUser: noneuclidean@ziplip.com
+X-ZLAuthType: WEB-MAIL
+X-ZLAuthOn: Y
+X-Mailer: ZipLip Sonoma v3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an Iwill KK266 (VIAKT133A chipset, latest BIOS) with an unlocked but not overclocked Athlon 950 (AMD Thunderbird, A4, Model 4). The system DOES suffer the Athlon optimisation problem.
 
+I ran burnK7, burnK7 in linux 2.4.8ac11 (optimised for K6) and WinME for over 3 hours with no problems.
 
-Ironically, the latest "stable" version of the tulip driver on:
-http://sourceforge.net/projects/tulip is older than whats in 2.4.9.  I'm
-willing to bet the latest "devel" is older too (they're dated June
-15(devel), and February 19(stable).
+For ?fun? I also tried running 50 mulitiple instances (in total) of a mix of burnK7, burnMMX, burnBX, burnP6 and burnK6 in linux (with different memory settings for burnBX and burnMMX), while accessing floppy, CD-ROM, 2xHDDs, my SBLive card and my Geforce 2 to try and load my voltages... but again completely stable, if a bit... well very... jerky!.
 
--miah
+I think the burnK7 program does not test enough K7 specific instruction sets to find the problem.
 
-On Tue, 4 Sep 2001 volodya@mindspring.com wrote:
-> 
-> 
-> On Tue, 4 Sep 2001, Jeremiah Johnson wrote:
-> 
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: MD5
-> > 
-> > Hello volodya,
-> > 
-> > I found the answer to the problem today.  It has to do with a bug in
-> > one of these options:
-> > 
-> > CONFIG_TULIP_MWI
-> > CONFIG_TULIP_MMIO
-> 
-> Hmm, interesting. I'll check the latest version of tulip (as well as the
-> one on Donald Becker's website). Did you try them out already ?
-> 
->                           Vladimir Dergachev
-
+Jamal Conway
+I am not on this list, please CC replies.

@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVBQFvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVBQGAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbVBQFvI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 00:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVBQFvI
+	id S262219AbVBQGAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 01:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVBQGAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 00:51:08 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:2477 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262222AbVBQFuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 00:50:52 -0500
-Subject: [BKPATCH] ACPI for 2.6.11
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1108619425.2096.397.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 17 Feb 2005 00:50:37 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Feb 2005 01:00:25 -0500
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:13458 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262219AbVBQGAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 01:00:17 -0500
+Message-ID: <3615.10.10.10.24.1108619875.squirrel@linux1>
+In-Reply-To: <20050217045743.GB6115@thunk.org>
+References: <20050214020802.GA3047@bitmover.com>
+    <58cb370e05021404081e53f458@mail.gmail.com>
+    <20050214150820.GA21961@optonline.net>
+    <20050214154015.GA8075@bitmover.com>
+    <7579f7fb0502141017f5738d1@mail.gmail.com>
+    <20050214185624.GA16029@bitmover.com>
+    <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp>
+    <20050216154321.GB34621@dspnet.fr.eu.org>
+    <4213E141.5040407@tequila.co.jp> <20050217045743.GB6115@thunk.org>
+Date: Thu, 17 Feb 2005 00:57:55 -0500 (EST)
+Subject: Re: [BK] upgrade will be needed
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: "Clemens Schwaighofer" <cs@tequila.co.jp>,
+       "Olivier Galibert" <galibert@pobox.com>, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-7
+X-Mailer: SquirrelMail/1.4.3a-7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a 
+On Wed, February 16, 2005 11:57 pm, Theodore Ts'o said:
+> On Thu, Feb 17, 2005 at 09:11:45AM +0900, Clemens Schwaighofer wrote:
+>>
+>> first. what kind of advantages does bk have over other svn? Seriously.
+>> If Apache can use it, and gcc might use it (again two very large
+>> projects), what makes linux so differetnt that it can't.
+>
+> Compare the number of developers, the number of overlapping
+> simultaneous development trees, and the number of patches that touch
+> overlapping files, and you'll begin to start to appreciate the
+> difference between a system that can work for Linux, and a system that
+> can working for simpler projects.
+>
 
-	bk pull bk://linux-acpi.bkbits.net/to-linus
+Hey Ted,
 
-	This fixes two regressions in 2.6.11 vs 2.6.10
-	in the ACPI interpreter.
+Considering that the kernel was being developed without BK for a long time
+it's rather obvious that _any_ version control system could have improved
+the situation.   BK gets credit for improving the situation, but much of
+that improvment could have been achieved with any of the simpler and truly
+free options too.
 
-thanks,
--Len
+Even today, some top developers do not use BK and manage to get along
+fine.  BK offers some advantages over simpler version control offerings
+but the price is too high.  It's disappointing to see so many top
+developers not give a damn about its costs and ignore the difficulties it
+creates for many.
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.11/acpi-20050211-2.6.11-rc4.diff.gz
-
-This will update the following files:
-
- drivers/acpi/dispatcher/dswexec.c |    7 +
- drivers/acpi/executer/exoparg6.c  |  133 +++++++++++++++++---------
- drivers/acpi/executer/exresop.c   |    2 
- drivers/acpi/executer/exstoren.c  |   20 ++-
- drivers/acpi/executer/exstorob.c  |   12 +-
- drivers/acpi/namespace/nsxfname.c |   51 +++++----
- drivers/acpi/parser/psopcode.c    |    2 
- drivers/acpi/tables/tbconvrt.c    |    4 
- include/acpi/acconfig.h           |    2 
- include/acpi/acinterp.h           |    5 
- include/acpi/platform/aclinux.h   |    2 
- 11 files changed, 159 insertions(+), 81 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (05/02/15 1.1938.498.13)
-   [ACPI] ACPICA 20050211 from Bob Moore
-   
-   Implemented ACPI 3.0 support for implicit conversion within
-   the Match() operator. match_obj can now be of type
-   integer, buffer, or string instead of just type integer.
-   Package elements are implicitly converted to the type
-   of the match_obj. This change aligns the behavior of
-   Match() with the behavior of the other logical operators
-   (LLess(), etc.)  It also requires an errata change to the
-   ACPI specification as this support was intended for ACPI
-   3.0, but was inadvertently omitted.
-   
-   Fixed a problem with the internal implicit "to buffer"
-   conversion.  Strings that are converted to buffers will
-   cause buffer truncation if the string is smaller than the
-   target buffer. Integers that are converted to buffers will
-   not cause buffer truncation, only zero extension (both as
-   per the ACPI spec.) The problem was introduced when code
-   was added to truncate the buffer, but this should not be
-   performed in all cases, only the string case.
-   
-   Fixed a problem with the Buffer and Package operators
-   where the interpreter would get confused if two such
-   operators were used as operands to an ASL operator (such
-   as LLess(Buffer(1){0},Buffer(1){1}).  The internal result
-   stack was not being popped after the execution of these
-   operators, resulting in an AE_NO_RETURN_VALUE exception.
-   
-   Fixed a problem with constructs of the form
-   Store(Index(...),...). The reference object returned from
-   Index was inadvertently resolved to an actual value. This
-   problem was introduced in version 20050114 when the
-   behavior of Store() was modified to restrict the object
-   types that can be used as the source operand (to match
-   the ACPI specification.)
-   
-   Reduced stack use in acpi_get_object_info().
-
-
+Cheers,
+Sean
 
 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRCMBJr>; Mon, 12 Mar 2001 20:09:47 -0500
+	id <S130707AbRCMAmr>; Mon, 12 Mar 2001 19:42:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130698AbRCMBJi>; Mon, 12 Mar 2001 20:09:38 -0500
-Received: from [208.49.193.203] ([208.49.193.203]:6409 "EHLO web.kd0yu.com")
-	by vger.kernel.org with ESMTP id <S129764AbRCMBJV>;
-	Mon, 12 Mar 2001 20:09:21 -0500
-Message-Id: <200103130108.f2D18YO08079@goliath.kd0yu.com>
-Date: Mon, 12 Mar 2001 19:08:31 -0600 (CST)
-From: dave@kd0yu.com
-Reply-To: dave@kd0yu.com
-Subject: aicasm build error with db3
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; CHARSET=US-ASCII
+	id <S130719AbRCMAmi>; Mon, 12 Mar 2001 19:42:38 -0500
+Received: from ohiper1-204.apex.net ([209.250.47.219]:40196 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S130707AbRCMAm3>; Mon, 12 Mar 2001 19:42:29 -0500
+Date: Mon, 12 Mar 2001 18:45:18 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: rusty@linuxcare.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Trouble with an ip_conntrack_helper
+Message-ID: <20010312184518.A4793@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 6:39pm  up  2:25,  1 user,  load average: 1.01, 1.10, 1.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi group,
+I'm getting some interesting behavior while writing an ip_conntrack
+helper module.  The primary problem is if I specify a destination port
+for the struct ip_conntrack_helper, my help routine is never called.
+If I specify a source port, rather than a destination port, the routine
+gets called for the various packets in the desired connection.
 
-  I recently seen a message go by regarding this....
-Sorry for asking if this has been hashed out more than twice.
-I didn't see anything in Documentation about it.  Nothing in
-Configure.help about db3 either.
+The problem with this is that I my routine doesn't start getting called
+until a packet in the opposite direction arrives, and all packets before
+that are never sent by my module.  This makes sense, as the tuple
+specifies a /source/ port, which would only occur on reverse traffic.
 
-make[4]: Entering directory `/usr/src/linux-2.4.2/drivers/scsi/aic7xxx/aicasm'
-gcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
-/tmp/cc4xDUrp.o: In function `symtable_open':
-/tmp/cc4xDUrp.o(.text+0x1b5): undefined reference to `__db185_open'
-collect2: ld returned 1 exit status
-make[4]: *** [aicasm] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.4.2/drivers/scsi/aic7xxx/aicasm'
-make[3]: *** [aicasm/aicasm] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4.2/drivers/scsi/aic7xxx'
-make[2]: *** [_modsubdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.2/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.2/drivers'
-make: *** [_mod_drivers] Error 2
+Here is the chunk of code I'm using to register my helper.  Is there
+something really obvious that I'm missing.  I really appreciate any help
+you can give.
+
+static struct ip_conntrack_helper icq;
+
+static int __init init(void) {
+        memset(&icq, 0, sizeof(struct ip_conntrack_helper));
+        icq.tuple.dst.protonum = IPPROTO_UDP;
+        icq.tuple.dst.u.udp.port = __constant_htons(4000);
+        icq.mask.dst.protonum = 0xffff;
+        icq.mask.dst.u.udp.port = 0xffff;
+        icq.help = help;
+        printk(KERN_INFO "ip_conntrack_icq: registered\n");
+        return ip_conntrack_helper_register(&icq);
+}
 
 
-I have verified the path in aicdb.h is correct.
-I am attempting to build it as a module to include in an initrd.
-
-Tnx
 -- 
-Dave
-
----------------------------------------------------------------------------
-Dave Helton, KD0YU    - dave@realworldcomputing.net  - http://www.kd0yu.com
-Real World Computing  - 319-386-4041                 - 8am-5pm CST    
----------------------------------------------------------------------------
-
-
+-Steven
+Never ask a geek why, just nod your head and slowly back away.

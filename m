@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263427AbRFEXwo>; Tue, 5 Jun 2001 19:52:44 -0400
+	id <S263428AbRFFAEh>; Tue, 5 Jun 2001 20:04:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263430AbRFEXwe>; Tue, 5 Jun 2001 19:52:34 -0400
-Received: from mailb.telia.com ([194.22.194.6]:51730 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S263428AbRFEXw1>;
-	Tue, 5 Jun 2001 19:52:27 -0400
-Message-Id: <200106052351.BAA12041@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: kswapd and MM overload fix
-Date: Wed, 6 Jun 2001 01:48:49 +0200
-X-Mailer: KMail [version 1.2.2]
+	id <S263430AbRFFAE1>; Tue, 5 Jun 2001 20:04:27 -0400
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:47461 "EHLO
+	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S263428AbRFFAEM>; Tue, 5 Jun 2001 20:04:12 -0400
+Message-ID: <008001c0ee1d$90f1ec90$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Pete Wyckoff" <pw@osc.edu>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0106051612500.9908-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.31.0106051612500.9908-100000@penguin.transmeta.com>
+In-Reply-To: <04ea01c0ed67$ad3f38f0$0701a8c0@morph> <20010605182120.F23799@osc.edu> <078d01c0ee15$8072b960$0701a8c0@morph> <20010605193134.B8037@bigger.osc.edu>
+Subject: Re: forcibly unmap pages in driver?
+Date: Tue, 5 Jun 2001 20:13:51 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday66 0666 6 June 2001 01:16, Linus Torvalds wrote:
-> On Wed, 6 Jun 2001, Andrea Arcangeli wrote:
-> > Anybody running on a machine with some zone empty (<16Mbyte boxes (PDAs),
-> > <1G x86 with highmem enabled kernel or an arch with an iommu like alpha)
-> > probably noticed that the MM was unusable on those hardware
-> > configurations (as I also incidentally mentioned a few times on l-k in
-> > the last months).
-> >
-> > Yesterday I checked and here it is the fix (included in 2.4.5aa3).
->
-> I think the real problem is that zone->pages_{min,low,high} aren't
-> initialized at all for empty zones. If they were initialized (to zero, of
-> course), the shortage calculations would have worked automatically.
->
-> Using uninitialized variables is always bad. Your patch is certainly fine,
-> but I think we should also make the init code clear the zone data for
-> empty zones so that these kinds of "use uninitialized stuff" things cannot
-> happen. No?
->  
+>> Later, the program calls the ioctl() again to set a smaller
+>> buffer size, or closes the file descriptor. At this point
+>> I'd like to shrink the buffer or free it completely. But I
+>> can't assume that the program will be nice and munmap() the
+>> region for me
 
-Lets see - that zone will have no free nor inactive pages 
+> Look at drivers/char/drm, for example.  At mmap time they allocate a
+> vm_ops to the address space.  With that you catch changes to the vma
+> structure initiated by a user mmap, munmap, etc.  You could also
+> dynamically map the pages in using the nopage method (optional).
 
-In page_alloc.c:254  function __alloc_pages_limit
-where water_mark will be zero too...
-              if (z->free_pages + z->inactive_clean_pages >= water_mark) {    
-we will attempt a lot of interesting/unnecessary stuff.
-But it should be caught by the test a few lines up...
-                if (!z->size)
-                        BUG();
+OK I think I have a solution... Whenever I need to re-allocate or free the
+DMA buffer, I could set all of the user's corresponding page table entries
+to deny all access. Then I'd get a page fault on the next access to the
+buffer, and inside nopage() I could update the user's mapping or send a
+SIGBUS as appropriate (hmm, just like restoring a file mapping that was
+thrown away)... So I just have to figure out how to find the user's page
+table entries that are pointing to the DMA buffer.
 
-In page_alloc.c:331 (function __alloc_pages)
-                if (z->free_pages >= z->pages_low) {
-                        page = rmqueue(z, order);
-                        if (page)
-                                return page;
-
-Hmm... a lot more than first meets the eye.
-Note: >= matches < in another place, removing the = will leave the mm stuck...
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Regards,
+Dan
 

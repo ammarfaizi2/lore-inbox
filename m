@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135198AbRDZIc4>; Thu, 26 Apr 2001 04:32:56 -0400
+	id <S135193AbRDZIcP>; Thu, 26 Apr 2001 04:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135201AbRDZIcq>; Thu, 26 Apr 2001 04:32:46 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:24856 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S135198AbRDZIci>;
-	Thu, 26 Apr 2001 04:32:38 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [Announce] kdb v1.8 updates are available
-Date: Thu, 26 Apr 2001 18:31:15 +1000
-Message-ID: <19032.988273875@kao2.melbourne.sgi.com>
+	id <S135198AbRDZIcF>; Thu, 26 Apr 2001 04:32:05 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:2432 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S135193AbRDZIbx>;
+	Thu, 26 Apr 2001 04:31:53 -0400
+Date: Thu, 26 Apr 2001 10:05:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vivek Dasmohapatra <vivek@etla.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: drivers/usb/hid.c
+Message-ID: <20010426100547.A1659@suse.cz>
+In-Reply-To: <Pine.LNX.4.10.10104252235460.2687-100000@www.teaparty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10104252235460.2687-100000@www.teaparty.net>; from vivek@etla.org on Wed, Apr 25, 2001 at 10:44:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Apr 25, 2001 at 10:44:37PM +0100, Vivek Dasmohapatra wrote:
+> 
+> Hi: Been battling w. my new Gravis joystick [kernel 2.4.3-ac5] - the
+> driver wouldn't recognise it through the gameport, but would through the
+> USB port [the stick came with a converter]. I did have one problem though:
+> I had to apply the following one line patch to get the joystick hat to
+> work correctly: Don't know if this is generally correct, as I only have
+> one USB joystick with which to test it.
+> 
+> --- linux/drivers/usb/hid.c~	Sat Apr 21 20:34:33 2001
+> +++ linux/drivers/usb/hid.c	Sat Apr 21 20:38:51 2001
+> @@ -78,7 +78,7 @@
+>  static struct {
+>  	__s32 x;
+>  	__s32 y;
+> -}  hid_hat_to_axis[] = {{ 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, { 0, 0}};
+> +}  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
+>  
+>  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+>  				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
 
-Content-Type: text/plain; charset=us-ascii
+I'll have to verify, but either a fix got lost somewhere, or this is a
+bug in the joystick. The hats were working fine.
 
-These updates to kdb have had minimal testing, they compile and boot
-for me(TM).
-
-http://oss.sgi.com/projects/kdb/download/
-
-  ix86/
-    kdb-v1.8-2.4.2-ac28.gz
-    kdb-v1.8-2.4.3.gz
-    kdb-v1.8-2.4.3-ac14.gz
-    kdb-v1.8-2.4.4-pre7.gz
-
-  ia64/
-    kdb-v1.8-2.4.3-ia64-010405.gz
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE659zTi4UHNye0ZOoRAtNaAKDQd+QWW1y80POlsX7O9t+8jQRkfwCgto9g
-VGWN+P7+hb9ORFLzPP1Ly9E=
-=Nvgx
------END PGP SIGNATURE-----
-
+-- 
+Vojtech Pavlik
+SuSE Labs

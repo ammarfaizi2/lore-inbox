@@ -1,79 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311641AbSDECSw>; Thu, 4 Apr 2002 21:18:52 -0500
+	id <S311270AbSDECTN>; Thu, 4 Apr 2002 21:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311273AbSDECSn>; Thu, 4 Apr 2002 21:18:43 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29320 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311270AbSDECS1>; Thu, 4 Apr 2002 21:18:27 -0500
-Date: Thu, 4 Apr 2002 19:18:21 -0700
-Message-Id: <200204050218.g352ILY32221@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: joeja@mindspring.com, linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-In-Reply-To: <3CACEF18.CE742314@zip.com.au>
+	id <S311403AbSDECTD>; Thu, 4 Apr 2002 21:19:03 -0500
+Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:7296 "EHLO
+	bacchus.jdhouse.org") by vger.kernel.org with ESMTP
+	id <S311270AbSDECSt>; Thu, 4 Apr 2002 21:18:49 -0500
+Date: Thu, 4 Apr 2002 20:19:49 -0600 (CST)
+From: "Jonathan A. Davis" <davis@jdhouse.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: patch-2.4.19-pre5-ac2
+In-Reply-To: <Pine.LNX.4.33.0204041720210.1546-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0204041958070.1384-100000@bacchus.jdhouse.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-> Joe, you're speaking to a bunch of people who reboot their
-> boxes ten times an hour or more.  It's an interesting topic.
-> 
-> If you want to get really radical you could investigate
-> Richard Gooch's boot scripts which I believe allow all the
-> initscripts to be launched in parallel.  Which is a good
-> thing to do.
-> 
-> 	http://www.atnf.csiro.au/people/rgooch/linux/boot-scripts/
 
-Around 20 seconds or less from when the kernel starts init(8) to when
-my XDM splash screen is up, last time I checked.
+The radeon updates in pre5-ac2 seem to make a minor mess out of my Radeon
+7500's console fb.  After X starts up -- switching back to a text console
+results in artifacts from the X display contents plus borked scrolling.  
+No tendency to crash though and switching back to X results in a normal X
+display.  I dropped out the patches to:
 
-> Last year I developed a bunch of code which was designed to
-> speed up the boot process.  It works as follows:
-> 
-> 1: Boot the machine, start your X server or whatever you
->    normally do.  Wait for everything to settle down.
-> 
-> 2: Load a kernel module and run a userspace app which dumps
->    out a directory of your pagecache and buffercache contents
->    to a database file.  It's of the form:
-> 
-> 	filename:page,page,page,page and
-> 	device:block,block,block,
-> 
->    The database file is sorted in ascending block order.
-> 
-> 3: Next time you reboot, load a different kernel module and
->    run a different userspace app which together walk that
->    database and preload the pagecache and buffercache.
-> 
-> The theory was lovely.  And I tried all sorts of stuff.  But
-> the bottom line benefit was only about 10%.  The whole thing
-> was constrained by buffercache seek time - filesytem metadata.
+drivers/char/drm/radeon_state.c
+drivers/video/radeon.h
+drivers/video/radeonfb.c
 
-The problem is that you're not listing the metadata blocks when
-building the database, right? And that's because Linus didn't want
-such hackery in the kernel. So instead we got the not-very-useful
-readahead system call.
+Which returned things to normal.  I'm not up enough on the kernel fb stuff 
+to dig into the patch guts very effectively.
 
-> Oh well.  The best benefit was in fact from launching all
-> the initscripts in parallel.  Lots of stuff broke because
-> of the lack of any sort of dependency system, but it was
-> appreciably quicker.
+The mb chipset is a VIA K266A with very conservative (no overclock, 
+etc...) settings.  Processor is an Athlon XP 1700+.
 
-Of course, my boot scripts do the dependency stuff right (actually,
-it's the changes I made to simpleinit(8) that make it possible).
+Here is some boot/config info:
 
-> I guess the greatest benefit would come from reorganising the
-> layout of the root filesystem's data and metadata so the
-> pagecache prepopulation doesn't have to seek all over the place.
+--dmesg--
+radeonfb: ref_clk=2700, ref_div=12, xclk=23000 defaults
+Console: switching to colour frame buffer device 80x30
+radeonfb: ATI Radeon 7500 QW  DDR SGRAM 64 MB
+radeonfb: DVI port no monitor connected
+radeonfb: CRT port CRT monitor connected
 
-Or being able to preload *everything* in ascending order...
+--lspci--
+01:00.0 VGA compatible controller: ATI Technologies Inc: Unknown device 
+5157 (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc: Unknown device 013a
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
+        Region 1: I/O ports at c000 [size=256]
+        Region 2: Memory at ed000000 (32-bit, non-prefetchable) [size=64K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [58] AGP version 2.0
+                Status: RQ=47 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x2
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-				Regards,
+--XFree86.0.log--
+(--) PCI:*(1:0:0) ATI Radeon 7500 QW rev 0, Mem @ 0xe0000000/27, 
+0xed000000/16,I/O @ 0xc000/8
+...
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+-- 
+
+-Jonathan <davis@jdhouse.org>
+
+

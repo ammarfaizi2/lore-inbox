@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265042AbUFRHvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUFRIFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265042AbUFRHvP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 03:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUFRHvP
+	id S265040AbUFRIFa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 04:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFRIFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 03:51:15 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:27525 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S265037AbUFRHvN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 03:51:13 -0400
-Date: Fri, 18 Jun 2004 10:51:12 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: linux-kernel@vger.kernel.org
-Subject: Another mtrr - BIOS-e820 mismatch
-Message-ID: <Pine.LNX.4.60.0406181046540.977@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 18 Jun 2004 04:05:30 -0400
+Received: from [61.49.235.7] ([61.49.235.7]:5625 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S265040AbUFRIFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 04:05:23 -0400
+Date: Thu, 17 Jun 2004 23:56:39 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200406180656.i5I6udn14886@adam.yggdrasil.com>
+To: mdpoole@troilus.org
+Subject: Re: more files with licenses that aren't GPL-compatible
+Cc: greg@kroah.com, hch@lst.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Jun 17, 2004 at 04:22:42PM -0400, mdpoole@troilus.org wrote:
+> http://www.ipwatchdog.com/equitable_estoppel.html discusses equitable
+> estoppel vis-a-vis patent rights (which are treated similarly to
+> copyrights by many courts).  When you contributed your changes to the
+> USB maintainers, they -- and later redistributors -- inferred that you
+> would not allege copyright infringement by applying your changes to
+> the kernel that existed then.
 
-Yesterday I read about a mtrr - BIOS-e820 mismatch.
-So I check on a server and I think I find a mismatch:
-2048MB - 1 = 7FFFFFFF, but at 0x7ff80000 there is 512 uncacheable memory.
-Am I right?
+	From my reading of that web page, it does not seem to me
+that one would have a case of either equitable estoppel or implied
+license (for example, "silence alone is generally not sufficient
+affirmative conduct to give rise to estoppel").  I've made my
+opposition to the illegal drivers clear from the time that I've
+been aware of them.
 
-Thanks!
+	If you are not fabricating claims about inferences
+by "the USB maintainers [...] and later distributors", I would
+be interested in your citing some historical examples of the
+"USB mainatiners" stating this inference and not being corrected.
 
-It's a Intel MB, with 2 Pentium 4, with HT, 2GB RAM.
-(Sorry I could not get more info.)
+	Also, I apologize in advance if I'm unable to justify
+prioritizing time to respond to you further.  It does not mean
+that I necessarily agree with anything you've said.
 
-reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-reg01: base=0x7ff80000 (2047MB), size= 512KB: uncachable, count=1
-
-BIOS-provided physical RAM map:
-BIOS-e820: 0000000000000000 - 000000000009b400 (usable)
-BIOS-e820: 000000000009b400 - 00000000000a0000 (reserved)
-BIOS-e820: 00000000000cc000 - 00000000000d0000 (reserved)
-BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-BIOS-e820: 0000000000100000 - 000000007ff70000 (usable)
-BIOS-e820: 000000007ff70000 - 000000007ff7b000 (ACPI data)
-BIOS-e820: 000000007ff7b000 - 000000007ff80000 (ACPI NVS)
-BIOS-e820: 000000007ff80000 - 0000000080000000 (reserved)
-BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
-BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
-BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
-
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
-
+-- 
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

@@ -1,353 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275271AbTHSBYF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 21:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275283AbTHSBYF
+	id S275296AbTHSBbX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 21:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275298AbTHSBbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 21:24:05 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:61451 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S275271AbTHSBXx convert rfc822-to-8bit
+	Mon, 18 Aug 2003 21:31:23 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:49357 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S275296AbTHSBbN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 21:23:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10612562312671@movementarian.org>
-Subject: [PATCH 1/3] OProfile: reduce allocations of MSR structs
-In-Reply-To: 
-From: John Levon <levon@movementarian.org>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 19 Aug 2003 02:23:51 +0100
-Content-Transfer-Encoding: 7BIT
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19ovE0-000BdO-0I*jHkeMMjSIgA*
+	Mon, 18 Aug 2003 21:31:13 -0400
+Date: Tue, 19 Aug 2003 13:23:42 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Software Suspend 2.4 beta18-1.1rc4: Possible hard disk corruption
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1061256163.9992.7.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all.
 
-Andi Kleen pointed out the MSRs array was a massive bloat source. Reduce
-it somewhat by only allocating the amount actually needed for the CPU type.
+The following patch fixes possible hard disk corruption in versions
+beta18 through 1.1-rc4 (inclusive) of Software Suspend for 2.4 kernels.
+Software Suspend for 2.5/6 is not affected.
 
-Untested on Pentium IV - I don't have a machine.
+Corruption can occur if you have unsynced data when starting to suspend
+and that data is overwritten by Software Suspend in the normal course of
+its operation and then the kernel attempts to sync data due to a panic
+or you pressing the appropriate SysRq keys. This patch addresses those
+issues.
 
-diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/nmi_int.c linux-fixes/arch/i386/oprofile/nmi_int.c
---- linux-cvs/arch/i386/oprofile/nmi_int.c	2003-06-18 15:06:05.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/nmi_int.c	2003-08-11 20:40:22.000000000 +0100
-@@ -12,6 +12,7 @@
- #include <linux/smp.h>
- #include <linux/oprofile.h>
- #include <linux/sysdev.h>
-+#include <linux/slab.h>
- #include <asm/nmi.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-@@ -91,24 +92,66 @@
+All users should apply this portion of the incremental patch for 1.1-rc5
+immediately.
+
+Regards and apologies,
+
+Nigel
+
+diff -ruN swsusp-1.1-rc4/drivers/char/sysrq.c swsusp-1.1-rc5/drivers/char/sysrq.c
+--- swsusp-1.1-rc4/drivers/char/sysrq.c	2003-08-19 13:05:43.000000000 +1200
++++ swsusp-1.1-rc5/drivers/char/sysrq.c	2003-08-19 13:05:44.000000000 +1200
+@@ -139,8 +139,19 @@
+ static void go_sync(struct super_block *sb, int remount_flag)
  {
- 	unsigned int const nr_ctrs = model->num_counters;
- 	unsigned int const nr_ctrls = model->num_controls; 
--	struct op_msr_group * counters = &msrs->counters;
--	struct op_msr_group * controls = &msrs->controls;
-+	struct op_msr * counters = msrs->counters;
-+	struct op_msr * controls = msrs->controls;
- 	unsigned int i;
- 
- 	for (i = 0; i < nr_ctrs; ++i) {
--		rdmsr(counters->addrs[i],
--			counters->saved[i].low,
--			counters->saved[i].high);
-+		rdmsr(counters[i].addr,
-+			counters[i].saved.low,
-+			counters[i].saved.high);
- 	}
-  
- 	for (i = 0; i < nr_ctrls; ++i) {
--		rdmsr(controls->addrs[i],
--			controls->saved[i].low,
--			controls->saved[i].high);
-+		rdmsr(controls[i].addr,
-+			controls[i].saved.low,
-+			controls[i].saved.high);
- 	}
- }
- 
-- 
+ 	int orig_loglevel;
 +
-+static void free_msrs(void)
-+{
-+	int i;
-+	for (i = 0; i < NR_CPUS; ++i) {
-+		kfree(cpu_msrs[i].counters);
-+		cpu_msrs[i].counters = NULL;
-+		kfree(cpu_msrs[i].controls);
-+		cpu_msrs[i].controls = NULL;
++#ifdef CONFIG_SOFTWARE_SUSPEND
++	if (suspend_task) {
++		printk(KERN_INFO "Not %sing device %s. Suspend may have used memory with dirty data!",
++		       remount_flag ? "remount" : "sync",
++		       kdevname(sb->s_dev));
++		return;
 +	}
-+}
++#endif
 +
+ 	orig_loglevel = console_loglevel;
+ 	console_loglevel = 7;
 +
-+static int allocate_msrs(void)
-+{
-+	int success = 1;
-+	size_t controls_size = sizeof(struct op_msr) * model->num_controls;
-+	size_t counters_size = sizeof(struct op_msr) * model->num_counters;
-+
-+	int i;
-+	for (i = 0; i < NR_CPUS; ++i) {
-+		if (!cpu_online(i))
-+			continue;
-+
-+		cpu_msrs[i].counters = kmalloc(counters_size, GFP_KERNEL);
-+		if (!cpu_msrs[i].counters) {
-+			success = 0;
-+			break;
-+		}
-+		cpu_msrs[i].controls = kmalloc(controls_size, GFP_KERNEL);
-+		if (!cpu_msrs[i].controls) {
-+			success = 0;
-+			break;
-+		}
-+	}
-+
-+	if (!success)
-+		free_msrs();
-+
-+	return success;
-+}
-+
-+
- static void nmi_cpu_setup(void * dummy)
- {
- 	int cpu = smp_processor_id();
-@@ -125,6 +168,9 @@
+ 	printk(KERN_INFO "%sing device %s ... ",
+ 	       remount_flag ? "Remount" : "Sync",
+ 	       kdevname(sb->s_dev));
+diff -ruN swsusp-1.1-rc4/kernel/panic.c swsusp-1.1-rc5/kernel/panic.c
+--- swsusp-1.1-rc4/kernel/panic.c	2003-08-19 13:05:43.000000000 +1200
++++ swsusp-1.1-rc5/kernel/panic.c	2003-08-19 13:05:44.000000000 +1200
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/sysrq.h>
+ #include <linux/interrupt.h>
++#include <linux/suspend.h>
  
- static int nmi_setup(void)
- {
-+	if (!allocate_msrs())
-+		return -ENOMEM;
-+
- 	/* We walk a thin line between law and rape here.
- 	 * We need to be careful to install our NMI handler
- 	 * without actually triggering any NMIs as this will
-@@ -142,20 +188,20 @@
- {
- 	unsigned int const nr_ctrs = model->num_counters;
- 	unsigned int const nr_ctrls = model->num_controls; 
--	struct op_msr_group * counters = &msrs->counters;
--	struct op_msr_group * controls = &msrs->controls;
-+	struct op_msr * counters = msrs->counters;
-+	struct op_msr * controls = msrs->controls;
- 	unsigned int i;
+ asmlinkage void sys_sync(void);	/* it's really int */
  
- 	for (i = 0; i < nr_ctrls; ++i) {
--		wrmsr(controls->addrs[i],
--			controls->saved[i].low,
--			controls->saved[i].high);
-+		wrmsr(controls[i].addr,
-+			controls[i].saved.low,
-+			controls[i].saved.high);
- 	}
-  
- 	for (i = 0; i < nr_ctrs; ++i) {
--		wrmsr(counters->addrs[i],
--			counters->saved[i].low,
--			counters->saved[i].high);
-+		wrmsr(counters[i].addr,
-+			counters[i].saved.low,
-+			counters[i].saved.high);
- 	}
- }
-  
-@@ -185,6 +231,7 @@
- 	on_each_cpu(nmi_cpu_shutdown, NULL, 0, 1);
- 	unset_nmi_callback();
- 	enable_lapic_nmi_watchdog();
-+	free_msrs();
- }
- 
-  
-diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/op_model_athlon.c linux-fixes/arch/i386/oprofile/op_model_athlon.c
---- linux-cvs/arch/i386/oprofile/op_model_athlon.c	2003-06-15 02:06:38.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/op_model_athlon.c	2003-08-11 20:28:31.000000000 +0100
-@@ -20,12 +20,12 @@
- #define NUM_COUNTERS 4
- #define NUM_CONTROLS 4
- 
--#define CTR_READ(l,h,msrs,c) do {rdmsr(msrs->counters.addrs[(c)], (l), (h));} while (0)
--#define CTR_WRITE(l,msrs,c) do {wrmsr(msrs->counters.addrs[(c)], -(unsigned int)(l), -1);} while (0)
-+#define CTR_READ(l,h,msrs,c) do {rdmsr(msrs->counters[(c)].addr, (l), (h));} while (0)
-+#define CTR_WRITE(l,msrs,c) do {wrmsr(msrs->counters[(c)].addr, -(unsigned int)(l), -1);} while (0)
- #define CTR_OVERFLOWED(n) (!((n) & (1U<<31)))
- 
--#define CTRL_READ(l,h,msrs,c) do {rdmsr(msrs->controls.addrs[(c)], (l), (h));} while (0)
--#define CTRL_WRITE(l,h,msrs,c) do {wrmsr(msrs->controls.addrs[(c)], (l), (h));} while (0)
-+#define CTRL_READ(l,h,msrs,c) do {rdmsr(msrs->controls[(c)].addr, (l), (h));} while (0)
-+#define CTRL_WRITE(l,h,msrs,c) do {wrmsr(msrs->controls[(c)].addr, (l), (h));} while (0)
- #define CTRL_SET_ACTIVE(n) (n |= (1<<22))
- #define CTRL_SET_INACTIVE(n) (n &= ~(1<<22))
- #define CTRL_CLEAR(x) (x &= (1<<21))
-@@ -39,15 +39,15 @@
-  
- static void athlon_fill_in_addresses(struct op_msrs * const msrs)
- {
--	msrs->counters.addrs[0] = MSR_K7_PERFCTR0;
--	msrs->counters.addrs[1] = MSR_K7_PERFCTR1;
--	msrs->counters.addrs[2] = MSR_K7_PERFCTR2;
--	msrs->counters.addrs[3] = MSR_K7_PERFCTR3;
--
--	msrs->controls.addrs[0] = MSR_K7_EVNTSEL0;
--	msrs->controls.addrs[1] = MSR_K7_EVNTSEL1;
--	msrs->controls.addrs[2] = MSR_K7_EVNTSEL2;
--	msrs->controls.addrs[3] = MSR_K7_EVNTSEL3;
-+	msrs->counters[0].addr = MSR_K7_PERFCTR0;
-+	msrs->counters[1].addr = MSR_K7_PERFCTR1;
-+	msrs->counters[2].addr = MSR_K7_PERFCTR2;
-+	msrs->counters[3].addr = MSR_K7_PERFCTR3;
-+
-+	msrs->controls[0].addr = MSR_K7_EVNTSEL0;
-+	msrs->controls[1].addr = MSR_K7_EVNTSEL1;
-+	msrs->controls[2].addr = MSR_K7_EVNTSEL2;
-+	msrs->controls[3].addr = MSR_K7_EVNTSEL3;
- }
- 
-  
-diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/op_model_p4.c linux-fixes/arch/i386/oprofile/op_model_p4.c
---- linux-cvs/arch/i386/oprofile/op_model_p4.c	2003-08-14 13:21:20.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/op_model_p4.c	2003-08-14 13:19:23.000000000 +0100
-@@ -366,8 +366,8 @@
- #define CCCR_SET_PMI_OVF_1(cccr) ((cccr) |= (1<<27))
- #define CCCR_SET_ENABLE(cccr) ((cccr) |= (1<<12))
- #define CCCR_SET_DISABLE(cccr) ((cccr) &= ~(1<<12))
--#define CCCR_READ(low, high, i) do {rdmsr (p4_counters[(i)].cccr_address, (low), (high));} while (0)
--#define CCCR_WRITE(low, high, i) do {wrmsr (p4_counters[(i)].cccr_address, (low), (high));} while (0)
-+#define CCCR_READ(low, high, i) do {rdmsr(p4_counters[(i)].cccr_address, (low), (high));} while (0)
-+#define CCCR_WRITE(low, high, i) do {wrmsr(p4_counters[(i)].cccr_address, (low), (high));} while (0)
- #define CCCR_OVF_P(cccr) ((cccr) & (1U<<31))
- #define CCCR_CLEAR_OVF(cccr) ((cccr) &= (~(1U<<31)))
- 
-@@ -410,7 +410,7 @@
- 
- 	/* the counter registers we pay attention to */
- 	for (i = 0; i < num_counters; ++i) {
--		msrs->counters.addrs[i] = 
-+		msrs->counters[i].addr = 
- 			p4_counters[VIRT_CTR(stag, i)].counter_address;
- 	}
- 
-@@ -419,42 +419,42 @@
- 	/* 18 CCCR registers */
- 	for (i = 0, addr = MSR_P4_BPU_CCCR0 + stag;
- 	     addr <= MSR_P4_IQ_CCCR5; ++i, addr += addr_increment()) {
--		msrs->controls.addrs[i] = addr;
-+		msrs->controls[i].addr = addr;
- 	}
- 	
- 	/* 43 ESCR registers in three discontiguous group */
- 	for (addr = MSR_P4_BSU_ESCR0 + stag;
- 	     addr <= MSR_P4_SSU_ESCR0; ++i, addr += addr_increment()) { 
--		msrs->controls.addrs[i] = addr;
-+		msrs->controls[i].addr = addr;
- 	}
- 	
- 	for (addr = MSR_P4_MS_ESCR0 + stag;
- 	     addr <= MSR_P4_TC_ESCR1; ++i, addr += addr_increment()) { 
--		msrs->controls.addrs[i] = addr;
-+		msrs->controls[i].addr = addr;
- 	}
- 	
- 	for (addr = MSR_P4_IX_ESCR0 + stag;
- 	     addr <= MSR_P4_CRU_ESCR3; ++i, addr += addr_increment()) { 
--		msrs->controls.addrs[i] = addr;
-+		msrs->controls[i].addr = addr;
- 	}
- 
- 	/* there are 2 remaining non-contiguously located ESCRs */
- 
- 	if (num_counters == NUM_COUNTERS_NON_HT) {		
- 		/* standard non-HT CPUs handle both remaining ESCRs*/
--		msrs->controls.addrs[i++] = MSR_P4_CRU_ESCR5;
--		msrs->controls.addrs[i++] = MSR_P4_CRU_ESCR4;
-+		msrs->controls[i++].addr = MSR_P4_CRU_ESCR5;
-+		msrs->controls[i++].addr = MSR_P4_CRU_ESCR4;
- 
- 	} else if (stag == 0) {
- 		/* HT CPUs give the first remainder to the even thread, as
- 		   the 32nd control register */
--		msrs->controls.addrs[i++] = MSR_P4_CRU_ESCR4;
-+		msrs->controls[i++].addr = MSR_P4_CRU_ESCR4;
- 
- 	} else {
- 		/* and two copies of the second to the odd thread,
- 		   for the 22st and 23nd control registers */
--		msrs->controls.addrs[i++] = MSR_P4_CRU_ESCR5;
--		msrs->controls.addrs[i++] = MSR_P4_CRU_ESCR5;
-+		msrs->controls[i++].addr = MSR_P4_CRU_ESCR5;
-+		msrs->controls[i++].addr = MSR_P4_CRU_ESCR5;
- 	}
- }
- 
-diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/op_model_ppro.c linux-fixes/arch/i386/oprofile/op_model_ppro.c
---- linux-cvs/arch/i386/oprofile/op_model_ppro.c	2003-06-15 02:06:38.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/op_model_ppro.c	2003-08-11 20:29:33.000000000 +0100
-@@ -20,12 +20,12 @@
- #define NUM_COUNTERS 2
- #define NUM_CONTROLS 2
- 
--#define CTR_READ(l,h,msrs,c) do {rdmsr(msrs->counters.addrs[(c)], (l), (h));} while (0)
--#define CTR_WRITE(l,msrs,c) do {wrmsr(msrs->counters.addrs[(c)], -(u32)(l), -1);} while (0)
-+#define CTR_READ(l,h,msrs,c) do {rdmsr(msrs->counters[(c)].addr, (l), (h));} while (0)
-+#define CTR_WRITE(l,msrs,c) do {wrmsr(msrs->counters[(c)].addr, -(u32)(l), -1);} while (0)
- #define CTR_OVERFLOWED(n) (!((n) & (1U<<31)))
- 
--#define CTRL_READ(l,h,msrs,c) do {rdmsr((msrs->controls.addrs[(c)]), (l), (h));} while (0)
--#define CTRL_WRITE(l,h,msrs,c) do {wrmsr((msrs->controls.addrs[(c)]), (l), (h));} while (0)
-+#define CTRL_READ(l,h,msrs,c) do {rdmsr((msrs->controls[(c)].addr), (l), (h));} while (0)
-+#define CTRL_WRITE(l,h,msrs,c) do {wrmsr((msrs->controls[(c)].addr), (l), (h));} while (0)
- #define CTRL_SET_ACTIVE(n) (n |= (1<<22))
- #define CTRL_SET_INACTIVE(n) (n &= ~(1<<22))
- #define CTRL_CLEAR(x) (x &= (1<<21))
-@@ -39,11 +39,11 @@
-  
- static void ppro_fill_in_addresses(struct op_msrs * const msrs)
- {
--	msrs->counters.addrs[0] = MSR_P6_PERFCTR0;
--	msrs->counters.addrs[1] = MSR_P6_PERFCTR1;
-+	msrs->counters[0].addr = MSR_P6_PERFCTR0;
-+	msrs->counters[1].addr = MSR_P6_PERFCTR1;
- 	
--	msrs->controls.addrs[0] = MSR_P6_EVNTSEL0;
--	msrs->controls.addrs[1] = MSR_P6_EVNTSEL1;
-+	msrs->controls[0].addr = MSR_P6_EVNTSEL0;
-+	msrs->controls[1].addr = MSR_P6_EVNTSEL1;
- }
- 
- 
-diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/op_x86_model.h linux-fixes/arch/i386/oprofile/op_x86_model.h
---- linux-cvs/arch/i386/oprofile/op_x86_model.h	2003-06-15 02:06:38.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/op_x86_model.h	2003-08-11 20:08:27.000000000 +0100
-@@ -11,22 +11,19 @@
- #ifndef OP_X86_MODEL_H
- #define OP_X86_MODEL_H
- 
--/* Pentium IV needs all these */
--#define MAX_MSR 63
-- 
- struct op_saved_msr {
- 	unsigned int high;
- 	unsigned int low;
- };
- 
--struct op_msr_group {
--	unsigned int addrs[MAX_MSR];
--	struct op_saved_msr saved[MAX_MSR];
-+struct op_msr {
-+	unsigned long addr;
-+	struct op_saved_msr saved;
- };
- 
- struct op_msrs {
--	struct op_msr_group counters;
--	struct op_msr_group controls;
-+	struct op_msr * counters;
-+	struct op_msr * controls;
- };
- 
- struct pt_regs;
+@@ -58,6 +59,10 @@
+ 		printk(KERN_EMERG "In interrupt handler - not syncing\n");
+ 	else if (!current->pid)
+ 		printk(KERN_EMERG "In idle task - not syncing\n");
++#ifdef CONFIG_SOFTWARE_SUSPEND
++	else if (suspend_task)
++		printk(KERN_EMERG "In software suspend - not syncing.\n");
++#endif
+ 	else
+ 		sys_sync();
+ 	bust_spinlocks(0);
+
+
 

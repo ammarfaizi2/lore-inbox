@@ -1,59 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUDHTV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUDHTV6
+	id S262311AbUDHT0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbUDHT0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:21:58 -0400
-Received: from prime.hereintown.net ([141.157.132.3]:28831 "EHLO
-	prime.hereintown.net") by vger.kernel.org with ESMTP
-	id S262370AbUDHTVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:21:39 -0400
-Subject: initramfs howto?
-From: Chris Meadors <clubneon@hereintown.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1081451826.238.23.camel@clubneon.priv.hereintown.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Thu, 08 Apr 2004 15:17:07 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Apr 2004 15:26:13 -0400
+Received: from [203.197.196.2] ([203.197.196.2]:17608 "EHLO mail2.iitk.ac.in")
+	by vger.kernel.org with ESMTP id S262311AbUDHT0A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 15:26:00 -0400
+Date: Fri, 9 Apr 2004 00:56:57 +0530 (IST)
+From: "K.Anantha Kiran" <ananth@cse.iitk.ac.in>
+To: linux-kernel@vger.kernel.org
+cc: linux-net@vger.kernel.org,
+       K A Ndukuri Anantha Kiran mt cse 
+	<ananth@cse.iitk.ac.in>
+Subject: Can i use dev_queue_xmit()
+Message-ID: <Pine.LNX.4.44.0404090039460.3687-200000@csews112.cse.iitk.ac.in>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="464285715-660789105-1081452417=:3687"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been a monolithic kernel guy forever.  But with all the new toys
-going into 2.6 I figured I'd try to catch up with the times.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I've got udev + hotplug halfway functioning, and wanted to try moving
-even my fs and IDE/SCSI modules out of the kernel.  It seems the way to
-do that is with an initramfs.
+--464285715-660789105-1081452417=:3687
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-So I figure I'll start simple, I got klibc and built it.  Copied the the
-lib and executables into a new tree, lib in lib and bins in bin.
-Symlinked linuxrc to /bin/sh.  I also added a dev directory with ram0,
-ram1, and initrd (later in my experimentation).  Then I cpio'd up the
-tree, gzip'd it, and put it where I told grub to find it:
- "initrd (hd0,0)/boot/test/initramfs.cpio.gz"
 
-When I boot the kernel associated with that initrd line, it says that it
-found a compressed image at block 0.  But then panics saying it can't
-mount the root filesystem.
+We wrote a KernelModule for fetching internet packets through certain 
+interface, and reforwarding them through another interface of our choice 
+based on IP-address,Port values of packet.
+ 
+This module is working fine for less rate of traffic(< 200 Mbps) , But 
+same module is dropping some of the packets(4 lakhs out of 10 lakhs)  for 
+highier speeds(> 200Mbps).Function  *dev_queue_xmit()* in the kernel 
+module, is returning NET_XMIT_DROP for dropped packets.This is due to 
+the function call *q->enqueue(skb,q)* in dev_queue_xmit().What might be 
+the reason for that return value.
 
-I've tried various root= options.
->From /dev/ram0, /dev/ram1, /dev/initrd, and initramfs.  All fail.
-Although /dev/ram0, spit out its own name instead of an unknown block
-device 0,0.
+Is it the problem with s/w or h/w ? We are using Linux-2.4 and Gigabyte 
+Eth cards.And we are genrating traffic by resending same packet for many 
+times.How can we figure out the location of problem. 
 
-So, what am I missing?  I've Googled for about an hour now.  Everyone is
-just talking about the neat new features of initramfs, but no one says,
-"do this".  The in-tree documentation isn't much better, although it is
-what got me this far.  The early-userspace document talks about
-short-circuting the kernel build to get a custom initramfs appended to
-the kernel image.  But that seems a bit rough, shouldn't the bootloader
-be able to do the appending?
+We are attaching our module file.
 
-Any help will be welcomed.
+I will be very thankful to your help.
+Thanks in advance,
+K.AnanthaKiran
 
--- 
-Chris
+--464285715-660789105-1081452417=:3687
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="module.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0404090056570.3687@csews112.cse.iitk.ac.in>
+Content-Description: 
+Content-Disposition: attachment; filename="module.c"
 
+I2RlZmluZSBNT0RVTEUNCiNkZWZpbmUgX19LRVJORUxfXw0KDQojaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+DQojaW5jbHVkZSA8bGludXgva2VybmVsLmg+
+DQojaW5jbHVkZSA8bGludXgvc2tidWZmLmg+DQojaW5jbHVkZSA8bGludXgv
+aW4uaD4NCiNpbmNsdWRlIDxsaW51eC9pcC5oPg0KI2luY2x1ZGUgPGxpbnV4
+L3RjcC5oPg0KI2luY2x1ZGUgPGxpbnV4L2ljbXAuaD4NCiNpbmNsdWRlIDxs
+aW51eC9uZXRkZXZpY2UuaD4NCiNpbmNsdWRlIDxsaW51eC9uZXRmaWx0ZXIu
+aD4NCiNpbmNsdWRlIDxsaW51eC9uZXRmaWx0ZXJfaXB2NC5oPg0KI2luY2x1
+ZGUgPGxpbnV4L2lmX2FycC5oPg0KI2luY2x1ZGUgPGxpbnV4L2lmX2V0aGVy
+Lmg+DQojaW5jbHVkZSA8bGludXgvaWZfcGFja2V0Lmg+DQojaW5jbHVkZSA8
+YXNtLWkzODYvdHlwZXMuaD4NCg0KDQovKiBUaGlzIGlzIHRoZSBzdHJ1Y3R1
+cmUgd2Ugc2hhbGwgdXNlIHRvIHJlZ2lzdGVyIG91ciBmdW5jdGlvbiAqLw0K
+DQpzdGF0aWMgc3RydWN0IG5mX2hvb2tfb3BzIG5maG87IC8qIEluaXRpYWxp
+c2F0aW9uIHJvdXRpbmUgKi8NCg0KaW50IGhvb2tfZnVuYyh1bnNpZ25lZCBp
+bnQgaG9va251bSwNCgkgICAgICBzdHJ1Y3Qgc2tfYnVmZiAqKnNrYnVmZiwN
+CgkgICAgICBjb25zdCBzdHJ1Y3QgbmV0X2RldmljZSAqaW4sDQoJICAgICAg
+Y29uc3Qgc3RydWN0IG5ldF9kZXZpY2UgKm91dCwNCgkgICAgIGludCAoKm9r
+Zm4pKHN0cnVjdCBza19idWZmICopKQ0Kew0KCXN0cnVjdCBza19idWZmKiBz
+a2I9KnNrYnVmZjsNCglzdHJ1Y3QgaXBoZHIgKmlwaDsNCglzdHJ1Y3QgdGNw
+aGRyICp0aDsNCglzdHJ1Y3QgZXRoaGRyICpldGhlcjsNCgl1bnNpZ25lZCBj
+aGFyIGVhMVs3XSA9IHsweDAwLDB4MDcsMHhlOSwweDI0LDB4NzEsMHgxNX07
+DQoJdW5zaWduZWQgaW50IGRldm5vOw0KCXN0YXRpYyBpbnQgY250WzNdOw0K
+CXN0cnVjdCBuZXRfZGV2aWNlICpkZXY7DQoJDQoJdTMyICBzYWRkcixkYWRk
+cjsgDQoJdTE2ICBzb3VyY2UsZGVzdDsgDQoJDQoJLyoNCgkgKiAgQ2hlY2tp
+bmcgd2hldGhlciBza2IgYW5kIElQX0hlYWRlciBhcmUgbm90IG51bGwNCgkg
+Ki8NCgkNCgkgaWYgKCFza2IgKSAJCXJldHVybiBORl9BQ0NFUFQ7DQogICAg
+ICAgICBpZiAoIShza2ItPm5oLmlwaCkpIAlyZXR1cm4gTkZfQUNDRVBUOw0K
+DQoJaWYoc3RyY21wKGluLT5uYW1lLCJldGgwIikgIT0gMCkNCgkJcmV0dXJu
+IE5GX0FDQ0VQVDsNCgkvKg0KCSAqIENoZWNraW5nIHdoZXRoZXIgUGFja2V0
+IGlzIGZyb20gRXRoZXJuZXQgZGV2aWNlIG9yIG5vdA0KCSAqIERvdWJ0OiBX
+aGF0IGlzIHRoZSBiZXR0ZXIgcGxhY2UgdG8gcHV0IGl0ICEgDQoJICovDQoN
+CglpZihza2ItPmRldi0+dHlwZSE9QVJQSFJEX0VUSEVSKQ0KCQlyZXR1cm4g
+TkZfQUNDRVBUOw0KCQ0KCWlwaCA9IHNrYi0+bmguaXBoOw0KDQoJLyoNCgkg
+KiBDaGVja2luZyB3aGV0aGVyIHBhY2tldCBpcyBUQ1Agb3IgVURQIHBhY2tl
+dCANCgkgKiAgb3RoZXJ3aXNlIGlnbm9yZSBpdCANCgkgKi8NCg0KCWlmICgg
+aXBoIC0+IHByb3RvY29sICE9IElQUFJPVE9fVENQICYmIGlwaCAtPiBwcm90
+b2NvbCAhPSBJUFBST1RPX1VEUCApDQoJCXJldHVybiBORl9BQ0NFUFQ7DQoN
+Cgl0aCA9IChzdHJ1Y3QgdGNwaGRyICopIChza2ItPmRhdGEgKyAoc2tiLT5u
+aC5pcGgtPmlobCAqIDQpICkgOw0KCQ0KCS8vIEdldHRpbmcgc291cmNlIGFu
+ZCBkZXN0aW5hdGlvbiBpcCBhZGRyZXNzZXMgZnJvbSBpcCBoZWFkZXINCglz
+YWRkciA9IGlwaC0+c2FkZHI7DQoJZGFkZHIgPSBpcGgtPmRhZGRyOw0KDQoJ
+Ly8gR2V0dGluZyBzb3VyY2UgYW5kIGRlc3RpbmF0aW9uIHBvcnRzIGZyb20g
+VENQIGhlYWRlcg0KCXNvdXJjZSA9IHRoLT5zb3VyY2U7DQoJZGVzdCAgID0g
+dGgtPmRlc3Q7DQoNCgkvLyBDb21wdXRpbmcgSGFzaCANCg0KCWRldm5vID0g
+KHNhZGRyICsgZGFkZHIgKyBzb3VyY2UgKyBkZXN0KSAlIDI7DQoNCg0KCS8v
+IFN0YXJ0aW5nIGFkZHJlc3Mgb2YgZXRoZXJuZXQgZnJhbWUNCg0KDQoJaWYo
+KGV0aGVyID0gKHN0cnVjdCBldGhoZHIgKilza2ItPm1hYy5ldGhlcm5ldCk9
+PSBOVUxMKSANCgkJcmV0dXJuIE5GX0FDQ0VQVDsNCgkNCgkvLyBTZWxlY3Rp
+bmcgZGV2aWNlIA0KCXN3aXRjaChkZXZubykNCgl7DQoJCWNhc2UgMDogDQoJ
+CQlpZiggKGRldiA9IGRldl9nZXRfYnlfbmFtZSgiZXRoMSIpKSA9PSBOVUxM
+KQ0KCQkJCXJldHVybiBORl9BQ0NFUFQ7DQoJCQltZW1jcHkoZXRoZXItPmhf
+c291cmNlLGRldi0+ZGV2X2FkZHIsRVRIX0FMRU4pOw0KCQkJYnJlYWs7DQoN
+CgkJY2FzZSAxOg0KCQkJaWYoIChkZXYgPSBkZXZfZ2V0X2J5X25hbWUoImV0
+aDIiKSkgPT0gTlVMTCkNCgkJCQlyZXR1cm4gTkZfQUNDRVBUOw0KCQkJbWVt
+Y3B5KGV0aGVyLT5oX3NvdXJjZSxkZXYtPmRldl9hZGRyLEVUSF9BTEVOKTsN
+CgkJCWJyZWFrOw0KDQoJCWNhc2UgMjoNCgkJCWlmKCAoZGV2ID0gZGV2X2dl
+dF9ieV9uYW1lKCJldGgxIikpID09IE5VTEwpDQoJCQkJcmV0dXJuIE5GX0FD
+Q0VQVDsNCgkJCW1lbWNweShldGhlci0+aF9zb3VyY2UsZGV2LT5kZXZfYWRk
+cixFVEhfQUxFTik7DQoJCQlicmVhazsNCg0KCX0NCg0KCS8vU2V0dGluZyBE
+ZXN0aW5hdGlvbiBhcyBlYTENCgltZW1jcHkoZXRoZXItPmhfZGVzdCxlYTEs
+RVRIX0FMRU4pOw0KDQoJc2tiLT5kYXRhID0gKHVuc2lnbmVkIGNoYXIgKilz
+a2ItPm1hYy5ldGhlcm5ldDsNCglza2ItPmxlbiArPSBFVEhfSExFTjsgDQoJ
+DQoJLy8gU2V0dGluZyBpdCBhcyBvdXRnb2luZyBwYWNrZXQNCglza2ItPnBr
+dF90eXBlPVBBQ0tFVF9PVVRHT0lORzsNCg0KCS8vIGNoYW5naW5nIHRoZSBk
+ZXYgdG8gb3V0cHV0IGRldmljZSB3ZSBuZWVkDQoJc2tiLT5kZXYgPSBkZXY7
+DQoNCgkvLyBUcmFuc21pdHRpbmcgdGhlIHBhY2tldA0KCWlmKChjbnRbMl09
+ZGV2X3F1ZXVlX3htaXQoc2tiKSk9PU5FVF9YTUlUX1NVQ0NFU1MpIA0KCQlj
+bnRbMF0rKzsNCgllbHNlDQoJCWlmKGNudFsyXSAhPSAxKQ0KCQlwcmludGso
+IiVkICIsY250WzJdKTsNCgljbnRbMV0rKzsNCglpZigoY250WzFdJTEwMDAw
+MCk9PTApIHByaW50aygiJWQgJWRcbiIsY250WzBdLGNudFsxXSk7DQoNCgly
+ZXR1cm4gTkZfU1RPTEVOOw0KDQp9DQppbnQgaW5pdF9tb2R1bGUoKQ0Kew0K
+CS8qIEZpbGwgaW4gb3VyIGhvb2sgc3RydWN0dXJlICovDQoJbmZoby5ob29r
+ICAgICA9IChuZl9ob29rZm4gKilob29rX2Z1bmM7DQoNCgkvKiBIYW5kbGVy
+IGZ1bmN0aW9uICovDQoJbmZoby5ob29rbnVtICA9IE5GX0lQX1BSRV9ST1VU
+SU5HOyAvKiBGaXJzdCBob29rIGZvciBJUHY0ICovDQoJbmZoby5wZiAgICAg
+ICA9IFBGX0lORVQ7DQoJbmZoby5wcmlvcml0eSA9IE5GX0lQX1BSSV9GSVJT
+VDsgICAvKiBNYWtlIG91ciBmdW5jdGlvbiBmaXJzdCAqLw0KICAgICAgICAg
+IA0KCW5mX3JlZ2lzdGVyX2hvb2soJm5maG8pOw0KDQoJcmV0dXJuIDA7DQp9
+DQogICAgICAgICAgDQovKiBDbGVhbnVwIHJvdXRpbmUgKi8NCnZvaWQgY2xl
+YW51cF9tb2R1bGUoKQ0Kew0KCW5mX3VucmVnaXN0ZXJfaG9vaygmbmZobyk7
+DQp9DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
+DQoNCg0KDQoNCg0K
+--464285715-660789105-1081452417=:3687--

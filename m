@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281217AbRLBSpT>; Sun, 2 Dec 2001 13:45:19 -0500
+	id <S281762AbRLBSnT>; Sun, 2 Dec 2001 13:43:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281827AbRLBSpJ>; Sun, 2 Dec 2001 13:45:09 -0500
-Received: from mercury.mv.net ([199.125.85.40]:16615 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S281217AbRLBSov>;
-	Sun, 2 Dec 2001 13:44:51 -0500
-Message-ID: <003401c17b61$02f5ec80$0201a8c0@home>
-From: "jeff millar" <jeff@wa1hco.mv.com>
-To: <dalecki@evision.ag>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Larry McVoy" <lm@bitmover.com>,
-        "Davide Libenzi" <davidel@xmailserver.org>,
-        "Andrew Morton" <akpm@zip.com.au>,
-        "Daniel Phillips" <phillips@bonn-fries.net>,
-        "Henning Schmiedehausen" <hps@intermeta.de>,
-        "Jeff Garzik" <jgarzik@mandrakesoft.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16AZhj-0003pe-00@the-village.bc.nu>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Date: Sun, 2 Dec 2001 13:41:15 -0500
+	id <S281957AbRLBSnB>; Sun, 2 Dec 2001 13:43:01 -0500
+Received: from dsl-213-023-038-056.arcor-ip.net ([213.23.38.56]:17160 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281217AbRLBSmo>;
+	Sun, 2 Dec 2001 13:42:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Coding style - a non-issue
+Date: Sun, 2 Dec 2001 19:41:26 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>,
+        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16AbYM-00009p-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: <dalecki@evision.ag>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Larry McVoy" <lm@bitmover.com>;
-"Davide Libenzi" <davidel@xmailserver.org>; "Andrew Morton"
-<akpm@zip.com.au>; "Daniel Phillips" <phillips@bonn-fries.net>; "Henning
-Schmiedehausen" <hps@intermeta.de>; "Jeff Garzik"
-<jgarzik@mandrakesoft.com>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, December 02, 2001 11:42 AM
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+On December 2, 2001 09:12 pm, Ingo Molnar wrote:
+> On Sun, 2 Dec 2001, Rik van Riel wrote:
+> > Also, natural selection tends to favour the best return/effort ratio,
+> > not the best end result. [...]
+> 
+> there is no 'effort' involved in evolution. Nature does not select along
+> the path we went. It's exactly this property why it took 5 billion years
+> to get here, while Linux took just 10 years to be built from grounds up.
+> The fact is that bacteria took pretty random paths for 2 billion years to
+> get to the next level. That's alot of 'effort'.
 
+One fact that is often missed by armchair evolutionists is that evolution is 
+not random.  It's controlled by a mechanism (most obviously: gene shuffling) 
+and the mechanism *itself* evolves.  That is why evolution speeds up over 
+time.  There's a random element, yes, but it's not the principle element.
 
-> > > Question: What happens when people stick 8 threads of execution on a
-die with
-> > > a single L2 cache ?
-> >
-> > That had been already researched. Gogin bejoind 2 threads on a single
-> > CPU
-> > engine doesn't give you very much... The first step is giving about 25%
-> > the second only about 5%. There are papers in the IBM research magazine
-> > on
->
-> The IBM papers make certain architectural assumptions. With some of the
-> tiny modern CPU cores its going to perfectly viable to put 4 or 8 of them
-> on one die. At that point cccluster still has to have cluster nodes
-scaling
-> to 8 way
+The fact that Linux has evolved from nothing to what it is in a mere 10 years 
+- 30 if you count the 20 years of Unix that came before it - is due entirely 
+to the fact that Nature has evolved a very efficient mechanism (us) to guide 
+Linux's evolution.
 
-Semiconductor technology will push this way because it's no longer possible
-to propagate a signal across the die in one clock cycle.  This means
-pipeline
-interlocking becomes vastly more complicated.  The simple solution puts
-several CPU cores on the die, each able to interlock in one clock but
-sharing
-memory over several clocks.
+> So *once* we have something that is better, it does not matter how long it 
+> took to get there.
 
+Sure, once you are better than the other guy you're going to eat his lunch.  
+But time does matter: a critter that fails to get its evolutionary tail in 
+gear before somebody eats its lunch isn't going to get a second chance.
+
+--
+Daniel

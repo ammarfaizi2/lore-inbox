@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310370AbSCGQAg>; Thu, 7 Mar 2002 11:00:36 -0500
+	id <S310372AbSCGQD4>; Thu, 7 Mar 2002 11:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310372AbSCGQA3>; Thu, 7 Mar 2002 11:00:29 -0500
-Received: from bitmover.com ([192.132.92.2]:2695 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S310370AbSCGQAR>;
-	Thu, 7 Mar 2002 11:00:17 -0500
-Date: Thu, 7 Mar 2002 08:00:13 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tom Lord <lord@regexps.com>
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com, hozer@drgw.net,
-        davej@suse.de
+	id <S310375AbSCGQDr>; Thu, 7 Mar 2002 11:03:47 -0500
+Received: from altus.drgw.net ([209.234.73.40]:21771 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S310381AbSCGQDg>;
+	Thu, 7 Mar 2002 11:03:36 -0500
+Date: Thu, 7 Mar 2002 10:02:39 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Larry McVoy <lm@work.bitmover.com>, Tom Lord <lord@regexps.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
 Subject: Re: Why not an arch mirror for the kernel?
-Message-ID: <20020307080013.B26028@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tom Lord <lord@regexps.com>, linux-kernel@vger.kernel.org,
-	lm@bitmover.com, hozer@drgw.net, davej@suse.de
-In-Reply-To: <200203071425.GAA06679@morrowfield.home> <20020306190419.E31751@work.bitmover.com> <20020306225652.Q1682@altus.drgw.net> <20020306213238.D3240@work.bitmover.com> <200203072147.NAA08182@morrowfield.home>
+Message-ID: <20020307100239.R1682@altus.drgw.net>
+In-Reply-To: <200203071425.GAA06679@morrowfield.home> <20020306190419.E31751@work.bitmover.com> <20020306225652.Q1682@altus.drgw.net> <20020306213238.D3240@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200203072147.NAA08182@morrowfield.home>; from lord@regexps.com on Thu, Mar 07, 2002 at 01:47:07PM -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020306213238.D3240@work.bitmover.com>; from lm@bitmover.com on Wed, Mar 06, 2002 at 09:32:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 01:47:07PM -0800, Tom Lord wrote:
-> 	More than a year ago, we had some research done to see what it
-> 	would cost to reproduce BitKeeper from scratch. At that point,
-> 	it was estimated to be about $12,000,000 and at least 3.5
-> 	years from the time a good team started.
-> 
-> That sounds to me like the kind of research you'd want to include in a
-> proposal to potential investors: to prove that you have a unique
-> strength in the market being addressed (a "barrier to entry").  I find
-> the apparent urgency and hysteria with which you defame arch on this
-> list to be pretty funny.
+> And why Arch and not subversion?  Subversion has more people working on
+> it, Collab has put a pile of money into it, it has the Apache guy working
+> on it, and Arch has one guy with no money and a pile of shell scripts.
+> Come on.  There is nothing free in this life, if one guy and some hacking
+> could solve this problem, it would have been solved long ago.
 
-Hmm, maybe I am urgent, I'm packing for a long weekend.  Anyway, you're
-missing my points, and I don't see why, it's in your best interest to
-get it.  Let's try it as a question, and see if that works.  
+I didn't include subversion because no one has volunteered help make 
+gateway stuff from the subversion project. Let's concentrate one gateway 
+setup first.
 
-Suppose all the kernel people started using your tool today.  On your
-web page, you have a long list of things which need to be done to Arch
-and your best case scenario is that it will take about year to do them
-(your words, not mine).  So suppose the kernel people start using
-your tool right now, bury you in requests for changes, and you can't
-keep up.  They leave because it doesn't work.  End result: big negative
-endorsement from the kernel team.  Obviously, you don't want that, and
-equally obviously, you understand the probability of that (read your
-own website), so maybe with all that, you'll understand why I said that
-if you want to succeed you should pick a small group and work with them
-closely until Arch is ready.
+> I don't like gateways because they force everyone down to whatever
+> is the highest level of functionality that the weakest system can do.
+> It's exactly like a stereo system.  You don't spend $4000 on really nice
+> system and then try and drive it with $5 of speaker wire.  It will suck,
+> it's as good as the weakest part.  In spite of your claims to the contrary,
+> Troy, it is really not in our best interests to make a BK<->$OTHER_SCM
+> gateway if that means that BK now works only as well as those other
+> SCM systems.  That's just stupid. 
 
-OK, let's address your other point.  It sounds like you think we're trying
-to convince VC's of something and somehow doing so means that I need to
-be badmouthing Arch.  Or maybe you think we have VC's leaning on us and
-they are telling us that we'd better kill Arch.  Or some such thing, the
-implication being that investors (or lack of them, or desire for them)
-are causing me to go after Arch.  That's not true, we are not now and
-were not then in discussions with VC's, the only investment BitMover 
-has is from engineers who work here on the code.  We're self supporting
-through sales of the product and we are not dependent on or subject to
-the whims of any VC.  And we've declined offers to be bought so we could
-stay that way.  Go read the ArsDigita archives and you will understand
-why.
+It is not my intention to force any kind of a 'lowest common denominator' 
+setup. Going from a system with fewer capabilities to one with greater 
+capabilities (i.e., currently arch->bk) is going to require some manual 
+intervention from $MAINTAINER.
+
+What I'd like to see is someone volunteer to help develop gateway scripts
+(where did all those patchbot people go now?). Then I'd like to see 
+someone volunteer to be a maintainer to run a gateway so that people that 
+feel arch is a better solution can use it, and those that feel BK is a 
+better solution can get on with life and not leave anyone out because they 
+may have issues with the bk license, or even real technical issues with 
+BK.
+
+Obviously using arch is going to be harder, because it is nowwhere near 
+mature as BK is. Some people are willing to make that tradeoff.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

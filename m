@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292749AbSBUUXR>; Thu, 21 Feb 2002 15:23:17 -0500
+	id <S292751AbSBUUYH>; Thu, 21 Feb 2002 15:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292751AbSBUUW5>; Thu, 21 Feb 2002 15:22:57 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:51979 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S292749AbSBUUWs>; Thu, 21 Feb 2002 15:22:48 -0500
-Message-ID: <3C7556D7.1030208@lexus.com>
-Date: Thu, 21 Feb 2002 12:21:43 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S292757AbSBUUYA>; Thu, 21 Feb 2002 15:24:00 -0500
+Received: from mgw-dax2.ext.nokia.com ([63.78.179.217]:53955 "EHLO
+	mgw-dax2.ext.nokia.com") by vger.kernel.org with ESMTP
+	id <S292751AbSBUUXq> convert rfc822-to-8bit; Thu, 21 Feb 2002 15:23:46 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Tom Epperly <tepperly@llnl.gov>
-CC: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
-In-Reply-To: <Pine.LNX.4.44.0202211118030.19681-100000@tux06.llnl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: ide cd-recording not working in 2.4.18-rc2-ac1
+Date: Thu, 21 Feb 2002 12:23:43 -0800
+Message-ID: <4D7B558499107545BB45044C63822DDE3A201E@mvebe001.NOE.Nokia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ide cd-recording not working in 2.4.18-rc2-ac1
+Thread-Index: AcG6ihw6QPgKAQiNSVK9TdnV9TXKUgAiJLiQ
+From: <Tony.P.Lee@nokia.com>
+To: <ed.sweetman@wmich.edu>, <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Feb 2002 20:23:44.0436 (UTC) FILETIME=[A8D58F40:01C1BB15]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I really doubt the nvidia is the problem
-unless it's actually bad hardware doing
-strange things to the bus.
 
-FWIW I've torture tested linux with voodoo,
-nvidia and radeon cards, and interestingly
-enough the only problems I've seen are
-with the radeon.
+> 
+> On Wed, 2002-02-20 at 20:54, Alan Cox wrote:
+> > > I get this on every cd I try and I've tried more than I'd 
+> have liked to.
+> > > 
+> > > Performing OPC...
+> > > 
+> > /usr/bin/cdrecord: Input/output error. write_g1: scsi 
+> sendcmd: no error
+> > > CDB:  2A 00 00 00 00 1F 00 00 1F 00
+> > > status: 0x2 (CHECK CONDITION)
+> > > Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 21 00 00 00
+> > > Sense Key: 0x5 Illegal Request, Segment 0
+> > > Sense Code: 0x21 Qual 0x00 (logical block address out of 
+> range) Fru 0x0
+> > 
+> > Thats saying that cdrecord sent the drive a bogus command.
+> > 
+> > > Now I know every cd isn't bad because they used to work in older
+> > > 2.4.17ish kernels.  I have scsi-generic support compiled 
+> as a module as
+> > 
+> > Does it still work with them ?
+> > 
+> > > SCSI subsystem driver Revision: 1.00
+> > > scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+> > 
+> > Right same as I am using
+> > 
+> > > not sure what else I can get informationwize about what 
+> the drive is
+> > > doing.  
+> > 
+> > What type of IDE controller ?
+> 
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+> 
+> 
+> If i retry over and over sometimes it will eventually work.  
+> (same cd)  
+> 
+> 
+> 
 
-However to satisfy all demands you could
-change the modules.conf line to read
+In my previous project (4 years ago), I worked on HP/Philips' CDR/W drive's 
+(2600 IDE, SCSI 2x drive) firmware.  
 
-alias char-major-195 off
+OPC is Optical (P something) Calibration.  If the CDR program is designed
+correctly (like Easy CD Creator), it issues the the calibrated command and record
+the calibrated value and that CDR(W) disk ID in the PC.  So the drive
+doesn't have to recalibrate again if the same CDR(W) is inserted back for 
+packet writing or multi-session writing.  CDR disk has limited (10) "calibration
+area" to perform the this calibration procedure.  When all 10 calibration areas are
+used, you can't calibrate for that CDR anymore and you can not write to that
+CDR disk neither.  If you do disk at once or just writing a few session this is not
+an issue.   It is only an issue for packet writing or Track and once and you have to 
+reject and reuse the same disk > 10 times.   CDRW disk can reuse the calibrate area.  
+You can try that drive with CDRW disk.  But like Rogier Wolff said, it is very likely 
+be the CDR drive issue instead of SCSI/IDE issue.
 
-I predict that will change nothing...
-
-Joe
-
-Tom Epperly wrote:
-
->On Thu, 21 Feb 2002 arjan@fenrus.demon.nl wrote:
->
->>In article <Pine.LNX.4.44.0202211010270.19681-100000@tux06.llnl.gov> you wrote:
->>
->>>5. nVidia Corp NV15 GL (Quadro2) plugged into the AGP slot.
->>>
->>>By running without the X11 server, I hoped to remove the nVidia board as a 
->>>source of trouble.
->>>
->>did you ever install the NVidia driver ?
->>
->
->The NVidia drivers (kernel module and X11) are installed, but I have
->rebooted since disabling the X11 server. /sbin/lsmod does not list the
->NVdriver in the running system.  Will the kernel load NVdriver if the X11
->server is never started after a reboot?  /etc/modules.conf has this line
->
->alias char-major-195 NVdriver
->
->Tom
->
->--
->------------------------------------------------------------------------
->Tom Epperly
->Center for Applied Scientific Computing   Phone: 925-424-3159
->Lawrence Livermore National Laboratory      Fax: 925-424-2477
->L-661, P.O. Box 808, Livermore, CA 94551  Email: tepperly@llnl.gov
->------------------------------------------------------------------------
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+--
+Tony Lee           Nokia Networks, Inc. 

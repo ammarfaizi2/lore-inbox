@@ -1,18 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbULLCKn (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 11 Dec 2004 21:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbULLCKn
+	id S262193AbULMBhd (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 12 Dec 2004 20:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbULMBhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 21:10:43 -0500
-Received: from host-212-158-225-122.bulldogdsl.com ([212.158.225.122]:26671
-	"HELO holidayhome.co.uk") by vger.kernel.org with SMTP
-	id S261720AbULLCKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 21:10:39 -0500
-Message-ID: <e58f01c4dff2$9bf5cf0b$7d1a67d6@holidayhome.co.uk>
-From: "Emmett Boyd" <emmettboydqz@vcable.co.uk>
+	Sun, 12 Dec 2004 20:37:33 -0500
+Received: from f4-pc203.cty-net.ne.jp ([210.149.124.203]:58637 "HELO eol.ca")
+	by vger.kernel.org with SMTP id S262189AbULMBh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 20:37:28 -0500
+Message-ID: <fe4f01c4e0b3$37c11774$9870235f@eol.ca>
+From: "Claudette N. Waddell" <c.n_waddell95@amtra.com.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Order Royal Replica Watches Online
-Date: Sun, 12 Dec 2004 08:33:09 +0600
+Subject: Premium Replica Watches
+Date: Mon, 13 Dec 2004 00:34:30 -0100
 MIME-Version: 1.0
 X-Priority: 3
 X-MSMail-Priority: Normal
@@ -21,7 +21,7 @@ Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261720AbULLCKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262193AbULMBhd@vger.kernel.org>
 
 Get the Finest Rolex Watch Replica!
 

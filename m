@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbQJ1KdA>; Sat, 28 Oct 2000 06:33:00 -0400
+	id <S129801AbQJ1KxN>; Sat, 28 Oct 2000 06:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130109AbQJ1Kcu>; Sat, 28 Oct 2000 06:32:50 -0400
-Received: from client38155.atl.mediaone.net ([24.88.38.155]:48632 "HELO
-	whitestar.soark.net") by vger.kernel.org with SMTP
-	id <S129679AbQJ1Kcm>; Sat, 28 Oct 2000 06:32:42 -0400
-Date: Sat, 28 Oct 2000 06:32:38 -0400
-From: kernel@whitestar.soark.net
-To: Burton Windle <burton@fint.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [drm:drm_release] *ERROR* Process 256 dead
-Message-ID: <20001028063238.A32511@whitestar.soark.net>
-Reply-To: warp@whitestar.soark.net
-In-Reply-To: <Pine.LNX.4.21.0010232316300.12884-100000@fint.staticky.com>
-Mime-Version: 1.0
+	id <S129983AbQJ1KxE>; Sat, 28 Oct 2000 06:53:04 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:17285 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129801AbQJ1Kwr>; Sat, 28 Oct 2000 06:52:47 -0400
+Message-ID: <39FAAFF2.200E1860@uow.edu.au>
+Date: Sat, 28 Oct 2000 21:52:34 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Stephen E. Clark" <sclark46@gte.net>
+CC: lk <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: RTNL assert
+In-Reply-To: <39FA4968.62588272@gte.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0010232316300.12884-100000@fint.staticky.com>; from burton@fint.org on Mon, Oct 23, 2000 at 11:22:53PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2000 at 11:22:53PM -0400, Burton Windle wrote:
-> Sorry if this is user-error, but after about 20min of using
-> 2.4.0-test10-pre5, my Debian Woody system dropped out of X with this
-> message in syslog:
+"Stephen E. Clark" wrote:
 > 
-> [drm:drm_release] *ERROR* Process 256 dead, freeing lock for context 1
+> When I configure in Tunneling I get the following error message. Is this
+> normal? This with 2.4test9pre5
 > 
-> I've never seen this before; I had been using test10-pre4 for several days
-> without error.
-> 
-> Is this a kernel bugglet/error, or X?
+> GRE over IPv4 tunneling driver
+> RTNL: assertion failed at devinet.c(775):inetdev_event
 
-Could you please send me the /var/log/XFree86.0.log from the crash, as
-well as your /etc/X11/XF86Config-4?
+The rtnetlink lock needs to be taken around
+register_netdevice().  There should be a function
+which does these three common steps, but there isn't.
 
-Thanks.
-Zephaniah E. Hull.
-(The Debian 3Dfx guy, who generally does not do X, but gets to anyways)
-> 
-> -- 
-> Burton Windle				burton@fint.org
-> Linux: the "grim reaper of innocent orphaned children."
->           from /usr/src/linux/init/main.c:1384
+
+--- linux-2.4.0-test10-pre5/net/ipv4/ip_gre.c	Sat Sep  9 16:19:30 2000
++++ linux-akpm/net/ipv4/ip_gre.c	Sat Oct 28 21:44:23 2000
+@@ -1266,7 +1266,9 @@
+ #ifdef MODULE
+ 	register_netdev(&ipgre_fb_tunnel_dev);
+ #else
++	rtnl_lock();
+ 	register_netdevice(&ipgre_fb_tunnel_dev);
++	rtnl_unlock();
+ #endif
+ 
+ 	inet_add_protocol(&ipgre_protocol);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

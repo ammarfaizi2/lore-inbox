@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263761AbREYPPP>; Fri, 25 May 2001 11:15:15 -0400
+	id <S263763AbREYPWZ>; Fri, 25 May 2001 11:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263763AbREYPPF>; Fri, 25 May 2001 11:15:05 -0400
-Received: from 125-CORU-X13.libre.retevision.es ([62.83.48.125]:47257 "HELO
-	trasno.mitica") by vger.kernel.org with SMTP id <S263761AbREYPOw>;
-	Fri, 25 May 2001 11:14:52 -0400
-To: Rich Baum <richbaum@acm.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] warning fixes for 2.4.5pre5
-In-Reply-To: <873E21525C8@coral.indstate.edu>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <873E21525C8@coral.indstate.edu>
-Date: 25 May 2001 17:13:39 +0200
-Message-ID: <m2ae41o40s.fsf@trasno.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S263764AbREYPWQ>; Fri, 25 May 2001 11:22:16 -0400
+Received: from cmn2.cmn.net ([206.168.145.10]:57376 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S263763AbREYPWG>;
+	Fri, 25 May 2001 11:22:06 -0400
+Message-ID: <3B0E7891.5030803@valinux.com>
+Date: Fri, 25 May 2001 09:21:53 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] free bugs in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <E1533qI-0005jT-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-Hi 
+> 
+>> 		return;
+>> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/char/drm/gamma_dma.c:573:gamma_dma_send_buffers: ERROR:FREE:561:573: WARN: Use-after-free of "last_buf"! set by 'drm_free_buffer':561
+>> 		DRM_DEBUG("%d running\n", current->pid);
+> 
+> 
+> Left for the XFree folk
+> 
 
-> --- linux/arch/i386/math-emu/fpu_trig.c	Fri Apr  6 12:42:47 2001
-> +++ rb/arch/i386/math-emu/fpu_trig.c	Tue May 22 16:44:57 2001
-> @@ -1543,6 +1543,7 @@
-> 	  EXCEPTION(EX_INTERNAL | 0x116);
-> 	  return;
-> #endif /* PARANOID */
->+	  return;	
-> 	}
->     }
->   else if ( (st0_tag == TAG_Valid) || (st0_tag == TW_Denormal) )
+This is a false positive, drm_free_buffer doesn't free any memory 
+associated with a buffer.  This code construct is fine.
 
-Will not be better to move the return out of the #endif PARANOID?
-Otherwise you get 2 returns when you have defined paranoid ...
+-Jeff
 
-> --- linux/drivers/scsi/sym53c8xx.c	Fri Apr 27 15:59:19 2001
-> +++ rb/drivers/scsi/sym53c8xx.c	Tue May 22 16:45:03 2001
-> @@ -11564,6 +11564,7 @@
-> 	OUTL_DSP (NCB_SCRIPT_PHYS (np, clrack));
-> 	return;
-> out_stuck:
->+	return;
-> }
- 
-same
- 
-Later,Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

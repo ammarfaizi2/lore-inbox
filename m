@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263849AbTD0IlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 04:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTD0IlL
+	id S263286AbTD0IlC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 04:41:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTD0IlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 04:41:11 -0400
-Received: from mail6.home.nl ([213.51.128.20]:2957 "EHLO mail6-sh.home.nl")
-	by vger.kernel.org with ESMTP id S263849AbTD0IlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 04:41:09 -0400
-Message-ID: <3EAB99EE.30601@keyaccess.nl>
-Date: Sun, 27 Apr 2003 10:50:54 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Sun, 27 Apr 2003 04:41:02 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:62451 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S263286AbTD0IlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 04:41:01 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: Oop in 2.5.68-mm2 apply_alternatives
+Date: Sun, 27 Apr 2003 10:53:00 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200304271013.47047.schlicht@uni-mannheim.de> <20030427012149.285bbde9.akpm@digeo.com>
+In-Reply-To: <20030427012149.285bbde9.akpm@digeo.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Alternative patching for prefetches & cleanup
-References: <Pine.LNX.4.44.0304262021190.25498-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0304262021190.25498-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_1p5q+8rDw3FHgNO";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200304271053.09604.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
-> That's not the fibonacci sequence, that's just a regular sigma(i)  
-> (i=1..n) sequence. And if you were to generate the sequence numbers at
-> compile-time I might agree with you, if you also were to avoid using 
-> inline asms.
+--Boundary-02=_1p5q+8rDw3FHgNO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-If the sigma(i) method is to stay, please note that
+On April 27, Andrew Morton wrote:
+> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+> > I get following (hand copied) Oops at init when booting 2.5.68-mm2.
+>
+> You'll need to delete the `__init' qualifier from the definition
+> of arch/i386/kernel/setup.c:apply_alternatives()
 
-sigma(1 <= i <= n | i) = n*(n+1) / 2
+Thank you!
+Sorry I missed the thread from Petr Vandrovec and Rusty Russell before.
+Now I changed __init to __init_or_module as Rusty proposed and it works=20
+fine...
 
-for all n > 0 (trivial proof by induction).
+   Thomas Schlichter
+--Boundary-02=_1p5q+8rDw3FHgNO
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-That is, no need to loop; in this case, with n = num - 1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-k = ((num - 1) * num) / 2
+iD8DBQA+q5p1YAiN+WRIZzQRAq/jAJ4h3z5k+Dflgc9CrnvpjM98HZ3UMACfUSUz
+ahXXLrOlWt+SBQmVnG22oYM=
+=Z22w
+-----END PGP SIGNATURE-----
 
-Rene.
-
+--Boundary-02=_1p5q+8rDw3FHgNO--
 

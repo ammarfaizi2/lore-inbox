@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbUC1SLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 13:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUC1SLH
+	id S262311AbUC1SOi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 13:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUC1SOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 13:11:07 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:13840 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S262286AbUC1SK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 13:10:59 -0500
-Date: Sun, 28 Mar 2004 20:09:56 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Subject: Re: Problems with my parport (and printer)
-Message-ID: <20040328180956.GA6260@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>,
-	Jan-Benedict Glaw <jbglaw@lug-owl.de>
-References: <20040325115131.GA12195@DervishD> <20040328155134.GG27362@lug-owl.de>
+	Sun, 28 Mar 2004 13:14:37 -0500
+Received: from holomorphy.com ([207.189.100.168]:44694 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262311AbUC1SOe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 13:14:34 -0500
+Date: Sun, 28 Mar 2004 10:12:23 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+Message-ID: <20040328181223.GA791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406612AA.1090406@yahoo.com.au> <4066156F.1000805@pobox.com> <20040328141014.GE24370@suse.de> <40670BD9.9020707@pobox.com> <20040328173508.GI24370@suse.de> <40670FDB.6080409@pobox.com> <20040328175436.GL24370@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040328155134.GG27362@lug-owl.de>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+In-Reply-To: <20040328175436.GL24370@suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Jan :)
+On Sun, Mar 28, 2004 at 07:54:36PM +0200, Jens Axboe wrote:
+> Sorry, but I cannot disagree more. You think an artificial limit at the
+> block layer is better than one imposed at the driver end, which actually
+> has a lot more of an understanding of what hardware it is driving? This
+> makes zero sense to me. Take floppy.c for instance, I really don't want
+> 1MB requests there, since that would take a minute to complete. And I
+> might not want 1MB requests on my Super-ZXY storage, because that beast
+> completes io easily at an iorate of 200MB/sec.
+> So you want to put this _policy_ in the block layer, instead of in the
+> driver. That's an even worse decision if your reasoning is policy. The
+> only such limits I would want to put in, are those of the bio where
+> simply is best to keep that small and contained within a single page to
+> avoid higher order allocations to do io. Limits based on general sound
+> principles, not something that caters to some particular piece of
+> hardware. I absolutely refuse to put a global block layer 'optimal io
+> size' restriction in, since that is the ugliest of policies and without
+> having _any_ knowledge of what the hardware can do.
 
- * Jan-Benedict Glaw <jbglaw@lug-owl.de> dixit:
-> > kernel: parport0: PC-style at 0x378 (0x778), irq 7 [PCSPP,TRISTATE]
-> > kernel: parport0: Printer, Lexmark International Lexmark Optra E312
-> > kernel: lp0: using parport0 (interrupt-driven).
-> > kernel: lp0: console ready
-> >     It works ok, BTW... The problem is that, when the printer is
-> > switched of and I try to print something, the print command just
-> > blocks, no error, no messages, nothing. I use a shell function to
-> First of all, if you want to do normal printing, you shouldn't switch on
-> LP console. From there on, all kernel debug output (as seen in
-> /var/log/kern.log and outputted with "dmesg") would be sent to the
-> printer, what isn't exactly what you want to have.
+How about per-device policies and driver hints wrt. optimal io?
 
-    That's right, but LP console must be activated at boot time (or
-at module-loading time) AFAIK, so this is not the problem.
 
-> >     Why this operation doesn't fail? IMHO, it should fail with
-> > ENODEV, because parport can work (the parallel port is there...), but
-> > lp shouldn't (the printer is switched off...).
-> Another gotcha may be that your printer doesn't easily accept commands.
-> Many printers don't do that nowadays. Some are dumb GDI-Printerts
-> (Windows-only, that is...), some nees specific wake-up sequences.
-
-    This printer (Lexmark Optra E312) is not a winprinter, and the
-problem is not related to commands. The printer works fine, I have no
-problems with that. My problem arises when the printer is offline:
-when I send data to the printer and it is not connected, the command
-used to send that data doesn't fail, just waits forever...
-
-    Thanks for your answer anyway :) Really I'm not familiar with the
-parallel port :(
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+-- wli

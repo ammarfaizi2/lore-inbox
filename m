@@ -1,67 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277618AbRJRJY5>; Thu, 18 Oct 2001 05:24:57 -0400
+	id <S277646AbRJRJmJ>; Thu, 18 Oct 2001 05:42:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277633AbRJRJYr>; Thu, 18 Oct 2001 05:24:47 -0400
-Received: from sky.irisa.fr ([131.254.60.147]:36265 "EHLO sky.irisa.fr")
-	by vger.kernel.org with ESMTP id <S277618AbRJRJYh>;
-	Thu, 18 Oct 2001 05:24:37 -0400
-Message-ID: <3BCE9FF5.97F7BD8D@irisa.fr>
-Date: Thu, 18 Oct 2001 11:25:09 +0200
-From: Romain Dolbeau <dolbeau@irisa.fr>
-Organization: IRISA, Campus de Beaulieu, 35042 Rennes Cedex, FRANCE
-X-Mailer: Mozilla 4.78 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Mounting of HFS CD-ROM broke between 2.4.9 and 2.4.10
+	id <S277649AbRJRJl7>; Thu, 18 Oct 2001 05:41:59 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:61911 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277646AbRJRJlo>; Thu, 18 Oct 2001 05:41:44 -0400
+Date: Thu, 18 Oct 2001 15:18:28 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chip Salzenberg <chip@pobox.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.13pre3aa1: expand_fdset() may use invalid pointer
+Message-ID: <20011018151828.M11266@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+In-Reply-To: <20011017113245.A3849@perlsupport.com> <20011017204204.C2380@athlon.random> <20011018121124.L11266@in.ibm.com> <20011018102226.I12055@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011018102226.I12055@athlon.random>; from andrea@suse.de on Thu, Oct 18, 2001 at 10:22:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Oct 18, 2001 at 10:22:26AM +0200, Andrea Arcangeli wrote:
+> On Thu, Oct 18, 2001 at 12:11:24PM +0530, Maneesh Soni wrote:
+> > +struct rcu_fd_array {
+> > +	struct rcu_head rh;
+> > +	struct file **array;   
+> > +	int nfds;
+> > +};
+> > +
+> > +struct rcu_fd_set {
+> > +	struct rcu_head rh;
+> > +	fd_set *openset;
+> > +	fd_set *execset;
+> > +	int nfds;
+> > +};
+> 
+> Some other very minor comment. I'd also rename them fd_array, and
+> fd_set.
+> 
+> think, when we add a spinlock to a data structure (say a semaphore or a
+> waitqueue) to scale per-spinlock or per-waitqueue we're not going to
+> rename the "struct semaphore" into "struct per_spinlock_semaphore", at
+> least unless we also provide two different types of semaphores.
+> 
+> same happens if we move a data structure into the slab cache, we don't
+> call it "struct slab_semaphore" just because it gets allocated/freed via
+> the slab cache rather than by using kmalloc/kfree.
 
-HFS (Hierarchical File Sytem, from Apple) formatted CD-ROM used
-to mount fine until 2.4.9, and file on them were accessible.
-They won't mount anymore in 2.4.10 and 2.4.12. Error messages are:
+Got it...but both fd_set and fd_array are not very straight forward as
+other structures like struct dentry, so I didnot embedd rcu head in them
+fd_set is defined as 
 
-#####
-ll_rw_block: device 0b:00: only 2048-char blocks implemented (512)
-hfs_fs: unable to read block 0x00000002 from dev 0b:00
-hfs_fs: Unable to read superblock
-ll_rw_block: device 0b:00: only 2048-char blocks implemented (512)
-hfs_fs: unable to read block 0x00000000 from dev 0b:00
-hfs_fs: Unable to read block 0.
-#####
+typedef __kernel_fd_set         fd_set; 
 
-Between 2.4.9 and 2.4.10, changes were made to this function
-including:
+where as __kernel_fd_set is as in (linux/posix_types.h)
 
-#####
---- linux-2.4.9/drivers/block/ll_rw_blk.c       Sat Aug  4 07:37:09 2001
-+++ linux-2.4.10/drivers/block/ll_rw_blk.c      Fri Sep 21 06:02:01 2001
-[SNIP some other changes]
-@@ -990,12 +973,7 @@
-        major = MAJOR(bhs[0]->b_dev);
- 
-        /* Determine correct block size for this device. */
--       correct_size = BLOCK_SIZE;
--       if (blksize_size[major]) {
--               i = blksize_size[major][MINOR(bhs[0]->b_dev)];
--               if (i)
--                       correct_size = i;
--       }
-+       correct_size = get_hardsect_size(bhs[0]->b_dev);
- 
-        /* Verify requested block sizes. */
-        for (i = 0; i < nr; i++) {
-#####
+typedef struct {
+        unsigned long fds_bits [__FDSET_LONGS];
+} __kernel_fd_set;
 
-A check then made on correct_size fails with the above error message.
+so I don't think it is appropriate to add  rcu_head and others (openset, 
+execset and nfds) in __kernel_fd_set. and thought rcu_fd_set could be 
+appropriate name.  There is no "struct fd_array". 
+
+I think we can combine rcu_fd_set & rcu_fd_array like this
+
+struct def_free_files_struct_args {
+	int nfds;
+	struct file **array;   
+	fd_set *openset;
+	fd_set *execset;
+	struct rcu_head rh;
+};
+	
+or just rename them as def_free_fdarray_args and def_free_fdset_args.
+
+We also thought of embedding rcu head in the files_struct, but that was ruled
+out as we are not freeing the entire files_struct but a couple of fields in
+it. So it may happen that before the callback for one files_struct is processed 
+we queue another one for the same files_struct.
+
+> I'd also put the rcu_head at the end of the structure, the rcu_head
+> should be used only when we are going to free the data, so it's not used
+> at runtime and it worth to keep the other fields in the first cacheline
+> so they're less likely to be splitted off in more than one cacheline.
+
+There is no problem in this one.
+
+Regards,
+Maneesh
 
 -- 
-DOLBEAU Romain               | Brothers of Metal will always be there     
-ENS Cachan / Ker Lann        | Standing together with hands in the air    
-Thesard IRISA / CAPS         |           -- Manowar,                      
-dolbeaur@club-internet.fr    |                     'Brothers of Metal'
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5262355 Extn. 3999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/locking/rcupdate.html

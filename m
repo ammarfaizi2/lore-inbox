@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUFVFIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266586AbUFVFV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266449AbUFVFIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 01:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUFVFIq
+	id S266586AbUFVFV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 01:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266589AbUFVFV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 01:08:46 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:2186 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266449AbUFVFIp
+	Tue, 22 Jun 2004 01:21:58 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:61269 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266586AbUFVFV5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 01:08:45 -0400
-Date: Tue, 22 Jun 2004 07:20:37 +0200
+	Tue, 22 Jun 2004 01:21:57 -0400
+Date: Tue, 22 Jun 2004 07:33:49 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: s0348365@sms.ed.ac.uk, Martin Schlemmer <azarah@nosferatu.za.org>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/2] kbuild updates
-Message-ID: <20040622052037.GA2722@mars.ravnborg.org>
-Mail-Followup-To: Peter Chubb <peterc@gelato.unsw.edu.au>,
-	s0348365@sms.ed.ac.uk, Martin Schlemmer <azarah@nosferatu.za.org>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-References: <539000871@toto.iv> <16599.36319.269156.432040@wombat.chubb.wattle.id.au>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm1
+Message-ID: <20040622053349.GA2738@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+	linux-kernel@vger.kernel.org
+References: <20040620174632.74e08e09.akpm@osdl.org> <20040621020420.GL27822@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16599.36319.269156.432040@wombat.chubb.wattle.id.au>
+In-Reply-To: <20040621020420.GL27822@fs.tum.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 11:39:43AM +1000, Peter Chubb wrote:
+On Mon, Jun 21, 2004 at 04:04:20AM +0200, Adrian Bunk wrote:
+> On Sun, Jun 20, 2004 at 05:46:32PM -0700, Andrew Morton wrote:
+> >...
+> > +wanxl-firmware-build-fix.patch
+> > 
+> >  Fix allmodconfig build
+> >...
 > 
-> But can the include2/asm symlink be made a relative one, please?  I frequently
-> build on one machine, then NFS-mount the build tree and run make
-> modules_install somewhere else; I always at present have to convert
-> that link to a relative symlink before doing so.
+> This option is in drivers/base/Kconfig, but the similar option 
+> STANDALONE [1] is in init/Kconfig.
+> 
+> Shouldn't buoth be at the same place?
+> What about moving STANDALONE ad let it depend on PREVENT_FIRMWARE_BUILD?
 
-Patch is welcome. I recall having trouble with it when introducing it. But that
-can have been caused by other issues.
+STANDALONE avoids any drivers not using external firmware.
+PREVENT_FIRMWARE_BUILD just prevents the supplied firmware to be build.
+So no I do not see they should be dependent.
+
+But for sure they should be located in the same place.
+This is drivers only information and not related to the actual
+maturity of the code - so moving STANDALONE to drivers/base
+makes sense to me.
+Adrian - care to submit a patch?
 
 	Sam

@@ -1,80 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272341AbRIWRP4>; Sun, 23 Sep 2001 13:15:56 -0400
+	id <S270619AbRIWRa6>; Sun, 23 Sep 2001 13:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272369AbRIWRPq>; Sun, 23 Sep 2001 13:15:46 -0400
-Received: from femail20.sdc1.sfba.home.com ([24.0.95.129]:17589 "EHLO
-	femail20.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272341AbRIWRP3>; Sun, 23 Sep 2001 13:15:29 -0400
-Date: Sun, 23 Sep 2001 13:17:39 -0400
-From: Gordon Tyler <gordon@doxxx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@redhat.com>
-Subject: [PATCH] devfs support for raw char device, kernel 2.4.9
-Message-ID: <20010923131739.A1700@puchiko.doxxx.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S272369AbRIWRat>; Sun, 23 Sep 2001 13:30:49 -0400
+Received: from fysh.org ([212.47.68.126]:32273 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S270619AbRIWRad>;
+	Sun, 23 Sep 2001 13:30:33 -0400
+From: zefram@fysh.org
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] tty canonical mode: nicer erase behaviour
+Message-Id: <E15kyyG-0000mq-00@dext.rous.org>
+Date: Sun, 23 Sep 2001 02:26:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+problem rationale
+-----------------
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+One of the long-standing problems preventing Unix from being a
+user-friendly desktop OS is its handling of erase keys.  There are
+often two such keys on a keyboard (Backspace and Delete), and which one
+works depends very much on context -- many text editing programs will
+only accept one of the erase-related characters (^H and ^?), and the
+mapping from keys to characters is terminal-dependent.  Unfortunately,
+any solution to this problem has to be implemented in each program that
+faces this problem.
 
-Hi,
+Theoretically every program should be able to determine which erase
+character to accept by looking at terminfo, but that's very cumbersome,
+particularly in programs that might not otherwise need to use terminfo.
+It also utterly fails in programs that don't know what kind of terminal
+they are interacting with.  The more practical solution, therefore, is
+that the program should accept *both* ^H and ^? as erase characters.
+Look at bash's and zsh's command line editors for examples of this
+approach.
 
-I'm not subscribed to the linux-kernel list so please CC me on any replies.
+One of the programs that exhibits the ^H/^? problem is the tty
+line discipline in the Linux kernel.  It falls into the category of
+programs that don't know (and don't care) what kind of terminal they
+are interacting with.  This patch implements the accept-both-characters
+solution.
 
-This is a patch to kernel 2.4.9 for adding devfs support to the raw char device
-(drivers/char/raw.c). It registers the rawctl device, the raw subdirectory and
-a configurable (max_raw kernel param) number of raw/rawX devices. I've done
-some basic empirical testing on my changes and it seems to be working okay. I
-haven't tested it for compatibility with a non-devfs system since I don't have
-one.
+patch rationale
+---------------
 
-There are two further modifications I would like to make. First, make it a
-module so that it can be loaded at runtime and thus configured at runtime
-without having to add a kernel parameter to LILO or whatever. Second, change
-the control interface to kernel functions (ala loopback device) rather than
-ioctl on a control device which seems a bit grungy to me. This second change
-would require changing the userspace configuration utility as well and is not
-as "trivial" as the first.
+The exact semantics changed are: in canonical mode, if IEXTEN is on
+and the ERASE character is set to either ^H or ^?, then both ^H and
+^? are treated as ERASE characters.  The standard single-erase-character
+behaviour is followed if IEXTEN is off (which prohibits non-POSIX extended
+behaviour) or if the ERASE character is neither ^H or ^? (indicating
+that the user actually wants erase behaviour other than the usual use
+of the erase keys).
 
-Ciao,
-Gordon
+At first glance, a more obvious way to implement handling of both erase
+characters would be to have an ERASE2 character setting in the tty state,
+much as there is EOL and EOL2.  However, this solution would suffer
+some annoying problems.  It would rely on the user setting the two erase
+characters properly in order to take advantage of it.  Even if they're
+set to ^H and ^? by default, user code that tries to set ERASE based on
+the terminal type (and doesn't know about ERASE2) might end up with ERASE
+and ERASE2 set to the same character, breaking the solution.  Also, code
+(and users) that doesn't know about ERASE2 would get surprising results
+if they try to set ERASE to something other than ^H/^?.  All of this
+points to it being preferable not to change the tty settings interface,
+but only change the behaviour to this preferable form.
 
---HcAYCG3uE/tztfnV
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="raw_devfs_patch.tar.gz"
-Content-Transfer-Encoding: base64
+the patch
+---------
 
-H4sIAKYTrjsAA+1XbU/jRhDma/IrRqm4c7Dj2A4OlAAiPQLlyksVoJx0PVmOvSF7+CXy2hBa
-+O+d3bVDSODgKtGqqh9FxNmdmZ3XZ02/19096i29KQzTMNqrq0uGYZhrtjH7LWDarSVjrWW3
-Vk2j1VpDebNl2EtgvK1bEhlL3QRg6TJO/Dh6Xu6l/f8ofnVTbwRpDK7vg0+uhwxYNh7HScoX
-0xGBxL0Bb4Q5wl3qEVD8hF6ThDX5YhN3da+uweAW9kWG4Ow2IAlsynzt+PFkMtEjkm5X/+1Q
-SzwBrJ8jyu6MeSe8yRkvzD/OvVXMv9luoZzZss1y/v8RNBoNCGiUTRqWvqr/2Fwc7soF8eFj
-FoG1BpaxYRobto0PhllVVRWuSBKRoMHiLPHI8zZOUf+UjMFqgWlt2NZGy5I2dnagsa61QV3X
-zFXY2akCrBRM4yYEMoanIxMNaOQLOorxTwIhjeIEoiwc4EFiP4i9q1yR6dxKswpVtblSVdHg
-h5EbXRK2IX6IP6Yt/UEfAF6kLq4B0ICu75M5mtShTy4pS7kfGKuXBpqgTJYNfJoQL42TW3DR
-eVzkyfiUGwNwPQ8PotEl9z90Jw5XQy9oRFOdSzWrahV+oJEXZD6BTVGm5pDpo+3FZRoPsuGT
-O6H7NU74Dk+12ea5tla1NZHreVnPHbsDGtD09klTLBw7PM9zmy4LmxlGQ5jwTV3wjQfEVVDJ
-J0MaEfDHCY3SK2Wi63od14Vz1hq6pbbammkI7yosTTIvBUZCdzyKsRvCLCWTThXuIectrLbj
-u6nrpB1ebpzllHqYwXSa0C1Yx618Y0FrZoV9tuz2l87UiGRFbBw/IFIQa+vMrn5Ldk4Qpi4w
-Rv8QMjdOLqZwd5MbDfJwhzQgsKLJSxe/pYIGQTwcouJKvZPny25p2MZq29baspwz4TsOz7rw
-hD8o1zH161X4E7PKt2mn2qgkeeM63ijhfvS7F85R9+NJX4MaKtY0eMf1h/GY4ZmNqlrBT164
-X3r9Y2e399P5vpDdEF1L3YAybOjfoxoqCHE6BEUparEJZh3u7mC6sA2Wbdfr6JZaeWT5ots/
-Pjh+sH2Nlv1pTZUQWRsGBD/pDSFRjatXKnyoamCKaeN2NWQPPl7Yc24WpKCs1wvPKo/aQ63c
-46g9H1uRKG5MjNPsC1Fhkkcqi/49eX0x9ixyB9gPSBGF2UUXYNlHLzSYHiRjTEiaJRE0egcn
-3xej7PW5+J4YAMweP+dx1Mrx+eGhjBTl0avd3m97p87eIR631z0/PJvxUwNDE7U7dQ72Pvzc
-hzvAp/75/ol8ujg/7efZ4mfzjGnA7RftNT9p6JH8GV45SL8zvtRmFHmpFjW3pMDrCxK6V2R6
-Gcyw/XuUez/ttL9dheVMXCQ5O4kC510rDA+xBxSKAZsdoLC5VWziL1XNoxA9Erkh+WwKaqtU
-mDh5qPBFmZjlDA1T6etcJedzpIFUEyX7ZllpLvRyXedqes/rCg/BGSI4HOe2jAv3KpxqnKPz
-s94n5d0sf9MvurggBEFCkXiD3xe40JCU6LlBoBS0yI/kzCh4kkymPKny7MnIs+jZdBRN+JTg
-/KjM8uG8/HM8Ua+/thMfbL2SHEQXhrGf4X0l7ofZjOTrIh9FYvj6o/s1v2DypnMYJnusyCsL
-77E8hQ8sy2g4Rpu4lcaBgl+y5kgAklxkrczCNSc3WMstbD00v9yRNW7i2xx/YTwZk6jpBTEj
-4MX44sHbh597cKKX/3aWKFGiRIkSJUqUKFGiRIkSJUqUKFGiRIn/If4ChJ1ZvgAoAAA=
+This patch is based on kernel version 2.4.8.  It will also apply cleanly
+up to at least kernel version 2.4.10-pre14.
 
---HcAYCG3uE/tztfnV--
+--- drivers/char/n_tty.c.orig	Sat Sep 22 22:14:19 2001
++++ drivers/char/n_tty.c	Sun Sep 23 02:59:30 2001
+@@ -329,9 +329,11 @@
+ 	}
+ }
+ 
+-static void eraser(unsigned char c, struct tty_struct *tty)
++enum kill_type { ERASE, WERASE, KILL };
++
++static void eraser(int kill_type, unsigned char cc, struct tty_struct *tty)
+ {
+-	enum { ERASE, WERASE, KILL } kill_type;
++	unsigned char c;
+ 	int head, seen_alnums;
+ 	unsigned long flags;
+ 
+@@ -339,11 +341,7 @@
+ 		/* opost('\a', tty); */		/* what do you think? */
+ 		return;
+ 	}
+-	if (c == ERASE_CHAR(tty))
+-		kill_type = ERASE;
+-	else if (c == WERASE_CHAR(tty))
+-		kill_type = WERASE;
+-	else {
++	if (kill_type == KILL) {
+ 		if (!L_ECHO(tty)) {
+ 			spin_lock_irqsave(&tty->read_lock, flags);
+ 			tty->read_cnt -= ((tty->read_head - tty->canon_head) &
+@@ -359,13 +357,12 @@
+ 			tty->read_head = tty->canon_head;
+ 			spin_unlock_irqrestore(&tty->read_lock, flags);
+ 			finish_erasing(tty);
+-			echo_char(KILL_CHAR(tty), tty);
++			echo_char(cc, tty);
+ 			/* Add a newline if ECHOK is on and ECHOKE is off. */
+ 			if (L_ECHOK(tty))
+ 				opost('\n', tty);
+ 			return;
+ 		}
+-		kill_type = KILL;
+ 	}
+ 
+ 	seen_alnums = 0;
+@@ -392,7 +389,7 @@
+ 				}
+ 				echo_char(c, tty);
+ 			} else if (kill_type == ERASE && !L_ECHOE(tty)) {
+-				echo_char(ERASE_CHAR(tty), tty);
++				echo_char(cc, tty);
+ 			} else if (c == '\t') {
+ 				unsigned int col = tty->canon_column;
+ 				unsigned long tail = tty->canon_head;
+@@ -590,9 +587,19 @@
+ 		}
+ 	}
+ 	if (tty->icanon) {
+-		if (c == ERASE_CHAR(tty) || c == KILL_CHAR(tty) ||
+-		    (c == WERASE_CHAR(tty) && L_IEXTEN(tty))) {
+-			eraser(c, tty);
++		if (c == ERASE_CHAR(tty) ||
++		    (L_IEXTEN(tty) &&
++		     (ERASE_CHAR(tty) == 8 || ERASE_CHAR(tty) == 127) &&
++		     (c == 8 || c == 127))) {
++			eraser(ERASE, c, tty);
++			return;
++		}
++		if (c == KILL_CHAR(tty)) {
++			eraser(KILL, c, tty);
++			return;
++		}
++		if (c == WERASE_CHAR(tty) && L_IEXTEN(tty)) {
++			eraser(WERASE, c, tty);
+ 			return;
+ 		}
+ 		if (c == LNEXT_CHAR(tty) && L_IEXTEN(tty)) {
+@@ -822,6 +829,11 @@
+ 			set_bit('\n', &tty->process_char_map);
+ 			set_bit(EOL_CHAR(tty), &tty->process_char_map);
+ 			if (L_IEXTEN(tty)) {
++				if (ERASE_CHAR(tty) == 8 ||
++				    ERASE_CHAR(tty) == 127) {
++					set_bit(8, &tty->process_char_map);
++					set_bit(127, &tty->process_char_map);
++				}
+ 				set_bit(WERASE_CHAR(tty),
+ 					&tty->process_char_map);
+ 				set_bit(LNEXT_CHAR(tty),
+
+-zefram

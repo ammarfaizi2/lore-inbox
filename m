@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUK2Tdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUK2TfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbUK2Tdg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUK2Tdg
+	id S261597AbUK2TfV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbUK2TeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:33:36 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:47572 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261581AbUK2TA2 (ORCPT
+	Mon, 29 Nov 2004 14:34:03 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:15319 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261615AbUK2TKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:00:28 -0500
-Message-ID: <41AB71B2.1050301@colorfullife.com>
-Date: Mon, 29 Nov 2004 20:00:02 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] rcu: eliminate rcu_data.last_qsctr
-References: <41AA0D5F.21CB9ED3@tv-sign.ru>
-In-Reply-To: <41AA0D5F.21CB9ED3@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Nov 2004 14:10:41 -0500
+Date: Mon, 29 Nov 2004 11:07:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] touchkitusb: module_param to swap axes
+Message-ID: <20041129190739.GD15452@kroah.com>
+References: <200411242228.53446.daniel.ritz@gmx.ch> <200411250010.09049.dtor_core@ameritech.net> <200411252118.17690.daniel.ritz@gmx.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411252118.17690.daniel.ritz@gmx.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
+On Thu, Nov 25, 2004 at 09:18:17PM +0100, Daniel Ritz wrote:
+> On Thursday 25 November 2004 06:10, Dmitry Torokhov wrote:
+> > On Wednesday 24 November 2004 04:28 pm, Daniel Ritz wrote:
+> > > add a module parameter to swap the axes. many displays need this...
+> > > 
+> > > --- 1.2/drivers/usb/input/touchkitusb.c	2004-09-18 10:07:25 +02:00
+> > > +++ edited/drivers/usb/input/touchkitusb.c	2004-11-24 18:57:59 +01:00
+> > > @@ -59,6 +59,10 @@
+> > >  #define DRIVER_AUTHOR			"Daniel Ritz <daniel.ritz@gmx.ch>"
+> > >  #define DRIVER_DESC			"eGalax TouchKit USB HID Touchscreen Driver"
+> > >  
+> > > +static int swap_xy;
+> > > +module_param(swap_xy, bool, 0);
+> > 
+> > It looks it can easily be exported to userspace to allow switching "on-fly"
+> > since it is checked for every packet. I think 0600 will do.
+> >  
+> 
+> agreed. and when 0600 is ok, i guess 0644 is ok too.
 
->last_qsctr is used in rcu_check_quiescent_state() exclusively.
->We can reset qsctr at the start of the grace period, and then
->just test qsctr against 0.
->
->On top of the 'rcu: eliminate rcu_ctrlblk.lock', see
->http://marc.theaimsgroup.com/?l=linux-kernel&m=110156786721526
->
->Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
->
->  
->
-Compile and boot tested with 2.6.10-rc2 on a 2-cpu system.
+Applied, thanks.
 
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+greg k-h
 

@@ -1,106 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVAUTDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVAUTEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbVAUTDj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 14:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVAUTDi
+	id S262466AbVAUTEs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 14:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVAUTDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 14:03:38 -0500
-Received: from pop-a065c32.pas.sa.earthlink.net ([207.217.121.247]:3232 "EHLO
-	pop-a065c32.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S262465AbVAUTDX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 14:03:23 -0500
-From: Eric Bambach <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: system load avg loops?!?
-Date: Fri, 21 Jan 2005 13:04:34 -0600
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <18D4A39C-6BCA-11D9-9476-000D932A43BC@karlsbakk.net>
-In-Reply-To: <18D4A39C-6BCA-11D9-9476-000D932A43BC@karlsbakk.net>
+	Fri, 21 Jan 2005 14:03:45 -0500
+Received: from smtp3.poczta.onet.pl ([213.180.130.29]:1218 "EHLO
+	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262466AbVAUTD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 14:03:26 -0500
+Message-ID: <41F15307.4030009@poczta.onet.pl>
+Date: Fri, 21 Jan 2005 20:07:51 +0100
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200501211304.34556.eric@cisu.net>
+To: dtor_core@ameritech.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AT keyboard dead on 2.6
+References: <41F11F79.3070509@poczta.onet.pl> <d120d500050121074831087013@mail.gmail.com>
+In-Reply-To: <d120d500050121074831087013@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 January 2005 10:32 am, Roy Sigurd Karlsbakk wrote:
-This is not re-creatable here. As expected the tight loop pegs my CPU to 100 
-and we see the load avg increasing.
+Dmitry Torokhov wrote:
+> Hi,
+> 
+> What kernel version are you using? Have you tried 2.6.8.1? - it looks
+> like changes in 2.6.9-rc2-bk3 caused problems on some hardware.
+> 
 
-Either this was introduced in mm1, gentoo fixes it, or its an isolated 
-incident with Mr R. Karlsbakk.
+Hi,
 
-Can I be of service in any other capacity kernel gurus?
+it looks like 2.6.10 (which I was using) - serio ports are detected ok 
+(both on 0x60,0x64, keyboard irq 1, aux irq 12), keyboard also (AT 
+Keyboard Translated Set 2 on isa0060/serio) and nothing - while 
+detection NumLock (set by BIOS) is turned off and keyboard is dead. 
+Maybe someone would be so kind and compare keyboard driver 
+hadrware-level parts and (possibly) post patch reversing any changes 
+since 2.4? Any other ideas?
 
-bot403@eric MVS $ uname -a
-Linux eric 2.6.9-gentoo-r9 #6 Wed Jan 19 18:37:07 CST 2005 i686 AMD Athlon(tm) 
-XP 2600+ AuthenticAMD GNU/Linux
-
---------------Tried to recreate OP output below------------
-<~:12:55:44>
-root@eric >while true; do uptime >> log; done
-<~:12:57:37>
-root@eric >uniq log
- 12:55:45 up 1 day, 18:14,  7 users,  load average: 0.69, 0.55, 0.38
- 12:55:46 up 1 day, 18:14,  7 users,  load average: 0.69, 0.55, 0.38
- 12:55:47 up 1 day, 18:14,  7 users,  load average: 0.69, 0.55, 0.38
- 12:55:48 up 1 day, 18:14,  7 users,  load average: 0.69, 0.55, 0.38
- 12:55:48 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:49 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:50 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:51 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:52 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:53 up 1 day, 18:14,  7 users,  load average: 0.87, 0.59, 0.39
- 12:55:53 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
- 12:55:54 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
- 12:55:55 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
- 12:55:56 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
- 12:55:57 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
- 12:55:58 up 1 day, 18:14,  7 users,  load average: 0.88, 0.60, 0.39
---snip to shorten, you get the idea steady increase--
- 12:56:55 up 1 day, 18:15,  7 users,  load average: 0.95, 0.67, 0.43
- 12:56:56 up 1 day, 18:15,  7 users,  load average: 0.95, 0.67, 0.43
- 12:56:57 up 1 day, 18:15,  7 users,  load average: 0.95, 0.67, 0.43
- 12:56:58 up 1 day, 18:15,  7 users,  load average: 0.95, 0.67, 0.43
- 12:56:58 up 1 day, 18:15,  7 users,  load average: 0.96, 0.67, 0.43
- 12:56:59 up 1 day, 18:15,  7 users,  load average: 0.96, 0.67, 0.43
---snip more avg .96 each second--
- 12:57:12 up 1 day, 18:15,  7 users,  load average: 0.96, 0.68, 0.44
- 12:57:13 up 1 day, 18:15,  7 users,  load average: 0.96, 0.68, 0.44
- 12:57:13 up 1 day, 18:15,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:14 up 1 day, 18:15,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:15 up 1 day, 18:15,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:16 up 1 day, 18:15,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:16 up 1 day, 18:16,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:17 up 1 day, 18:16,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:18 up 1 day, 18:16,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:19 up 1 day, 18:16,  7 users,  load average: 0.97, 0.69, 0.44
- 12:57:20 up 1 day, 18:16,  7 users,  load average: 0.97, 0.69, 0.44
-<~:12:57:40>
-root@eric >                                         
-
-> hei
->
-> the log at http://karlsbakk.net/uptime.log.gz is a log create with
---snip--
-
--- 
-----------------------------------------
---EB
-
-> All is fine except that I can reliably "oops" it simply by trying to read
-> from /proc/apm (e.g. cat /proc/apm).
-> oops output and ksymoops-2.3.4 output is attached.
-> Is there anything else I can contribute?
-
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
-
-                --Alan Cox LKML-December 08,2000 
-
-----------------------------------------
+(I use the newest gcc-3.3 if it matters.)

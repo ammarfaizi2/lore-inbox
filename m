@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTJAFu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 01:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTJAFu7
+	id S261951AbTJAFr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 01:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbTJAFr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 01:50:59 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:63888 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261959AbTJAFuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 01:50:55 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linuxabi
-References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl>
-	<E1A4WNJ-000182-00@calista.inka.de>
-	<20031001033437.GP7665@parcelfarce.linux.theplanet.co.uk>
-	<bldmhg$qoa$1@cesium.transmeta.com> <87r81x5y82.fsf@ceramic.fifi.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 01 Oct 2003 14:50:47 +0900
-In-Reply-To: <87r81x5y82.fsf@ceramic.fifi.org>
-Message-ID: <buolls5h5fs.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 01:47:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60132 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261951AbTJAFr5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 01:47:57 -0400
+Date: Tue, 30 Sep 2003 22:48:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: jun.nakajima@intel.com, davej@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata
+ patch
+Message-Id: <20030930224853.15073447.akpm@osdl.org>
+In-Reply-To: <20031001053833.GB1131@mail.shareable.org>
+References: <7F740D512C7C1046AB53446D3720017304AFCF@scsmsx402.sc.intel.com>
+	<20031001053833.GB1131@mail.shareable.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin <phil@fifi.org> writes:
-> A common uber-ugly trick (seen in Solaris headers) to solve this
-> problem is:
+Jamie Lokier <jamie@shareable.org> wrote:
+>
+> Nakajima, Jun wrote:
+> > Yes. It would kind to tell the pilot about the errata of the engine (and
+> > refuse to start), rather than telling him that the engine might break
+> > down anytime after the takeoff.
 > 
->   enum {
->   #define FOO FOO
->     FOO,
+> Doesn't refusing to boot seem to heavy handed for this bug?  The buggy
+> CPUs have been around for many years (it is practically the entire AMD
+> line for the last 4 years or so), and nobody in userspace has
+> complained about the 2.4 behaviour so far.  (Linux 2.4 behaviour is,
+> of course, to ignore the errata).
 
-I always thought this trick was kind of cool, despite the slight
-increase in ugliness for the enum definition.
+That is the case at present.  But the 2.6 kernel was hitting this
+erracularity daily.
 
--Miles
--- 
-"Though they may have different meanings, the cries of 'Yeeeee-haw!' and
- 'Allahu akbar!' are, in spirit, not actually all that different."
+If some smart cookie decides to add prefetches to some STL implementation
+or something, they are likely to start hitting it with the same frequency.
+
+

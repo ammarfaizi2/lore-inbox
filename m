@@ -1,41 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUD1INj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264687AbUD1IVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264686AbUD1INj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 04:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbUD1INj
+	id S264687AbUD1IVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 04:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUD1IVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 04:13:39 -0400
-Received: from math.ut.ee ([193.40.5.125]:23248 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S264686AbUD1INi (ORCPT
+	Wed, 28 Apr 2004 04:21:21 -0400
+Received: from zasran.com ([198.144.206.234]:63902 "EHLO zasran.com")
+	by vger.kernel.org with ESMTP id S264687AbUD1IVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 04:13:38 -0400
-Date: Wed, 28 Apr 2004 11:13:35 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: New warnings on NTFS code
-Message-ID: <Pine.GSO.4.44.0404281106040.24906-100000@math.ut.ee>
+	Wed, 28 Apr 2004 04:21:18 -0400
+Message-ID: <408F697D.2010906@bigfoot.com>
+Date: Wed, 28 Apr 2004 01:21:17 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+References: <40853060.2060508@bigfoot.com> <408EF33F.5040104@bigfoot.com> <1083136394.23415.4.camel@amilo.bradney.info> <200404281022.23878.kim@holviala.com>
+In-Reply-To: <200404281022.23878.kim@holviala.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is 2.6.6-rc3 on sparc64. It has recently got some new warnings in
-NTFS (there was a warning before but now there are more):
+Kim Holviala wrote:
+> On Wednesday 28 April 2004 10:13, Craig Bradney wrote:
+> 
+> 
+>>>>>> the mouse says: Cordless MouseMan Wheel (Logitech), it has
+>>>>>>left/right buttonss, wheel that can be pushed or rotated and a side
+>>>>>>button, not sure how to better identify it. With 2.4 kernels it used
+>>>>>>to work with X using protocol MouseManPlusPS/2.
+>>>>>
+>>>>>  anybody? any hints? should I look at driver? are there some docs for
+>>>>>logitech mice (protocol)?
+>>>>
+>>>>err.. they all Just Work (tm) here.. ps2 or USB, IMPS/2 driver
+>>>
+>>>   which kernel (mine doesn't work with 2.6.5, used to work with 2.4.x),
+>>>which mouse models? I guess there might be more models and for some
+>>>reason my particular model does not work. Can you find out which
+>>>protocol the kernel is using (psmouse, not usb)?
+>>
+>>2.4.x, 2.61,3,5, currently 2.6.5 on 4 PCs
+>>
+>>-logitech cordless optical for notebooks (USB)
+>>-logitech cordless mouseman optical (via a kmv switch to 2PCs )(ps2)
+>>-logitech cordless optical mouse(ps2)
+>>
+>>err. how do i find out the protocol the kernel uses?
+> 
+> 
+> Check your kernel logs (/var/log/messages perhaps). Grepping for "psmouse" 
+> will help you find the relevant part.
 
-fs/ntfs/super.c: In function `parse_ntfs_boot_sector':
-fs/ntfs/super.c:638: warning: long long unsigned int format, s64 arg (arg 4)
-fs/ntfs/super.c: In function `ntfs_fill_super':
-fs/ntfs/super.c:1523: warning: cast to pointer from integer of different size
-fs/ntfs/super.c:1529: warning: cast to pointer from integer of different size
-fs/ntfs/super.c:1634: warning: cast to pointer from integer of different size
+   didn't find anything for psmouse but found these in dmesg output 
+after doing modprobe psmouse with difeferent protocols (you can see I 
+was trying different protocols, none of them worked (turning wheel 
+doesn't work, sidebutton is same as middle button):
 
-The 3 new warnings are because of this definition:
+input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
+input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
+input: PS2++ Logitech Mouse on isa0060/serio1
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+input: PS2++ Logitech Mouse on isa0060/serio1
+input: PS/2 Generic Mouse on isa0060/serio1
+input: PS/2 Generic Mouse on isa0060/serio1
+input: ExPS/2 Generic Explorer Mouse on isa0060/serio1
 
-#define OGIN    ((struct inode*)le32_to_cpu(0x4e49474f))        /* OGIN */
-
-This seems suspicious - hardcoded pointer?
-
--- 
-Meelis Roos (mroos@linux.ee)
-
+	erik

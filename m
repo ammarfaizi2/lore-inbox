@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUIWUzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUIWUzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267350AbUIWUzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 16:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUIWUxG
+	id S267361AbUIWUzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 16:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUIWUxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:53:06 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:9447 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S267352AbUIWUtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:49:01 -0400
-Subject: [patch 1/4]  md/md: replace 	schedule_timeout() with msleep_interruptible()
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:49:01 +0200
-Message-ID: <E1CAaWU-0002kD-82@sputnik>
+	Thu, 23 Sep 2004 16:53:20 -0400
+Received: from soda.CSUA.Berkeley.EDU ([128.32.112.233]:20744 "EHLO
+	soda.csua.berkeley.edu") by vger.kernel.org with ESMTP
+	id S267346AbUIWUsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:48:39 -0400
+Message-ID: <4153369A.2030804@csua.berkeley.edu>
+Date: Thu, 23 Sep 2004 13:48:26 -0700
+From: Mark Goodman <mgoodman@CSUA.Berkeley.EDU>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Make locks work on NFS3 krb5 mounts
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch makes locks work on NFS3 krb5 mounts. In particular, it makes 
+gconf-sanity-check-1 succeed when my home directory is a NFS3 krb5 
+mount. gconf-sanity-check-1 is part of GConf. It applies to 2.6.9-rc2. 
+Please consider applying.
+
+Signed-off-by: Mark Goodman <mgoodman@csua.berkeley.edu>
+
+--- linux-2.6.9-rc2/net/sunrpc/clnt.c.orig    2004-09-12 
+22:32:17.000000000 -0700
++++ linux-2.6.9-rc2/net/sunrpc/clnt.c    2004-09-23 13:35:12.028606648 -0700
+@@ -425,6 +425,16 @@ rpc_call_setup(struct rpc_task *task, st
+ {
+     task->tk_msg   = *msg;
+     task->tk_flags |= flags;
++
++    /*
++     * For a nfs3 krb5 mount, lockd tries to use a RPCSEC cred with UNIX
++     * auth. If that's the case, get a UNIX cred.
++     */
++    if (task->tk_msg.rpc_cred != NULL &&
++        task->tk_msg.rpc_cred->cr_auth->au_ops != task->tk_auth->au_ops) {
++        task->tk_msg.rpc_cred = NULL;
++    }
++
+     /* Bind the user cred */
+     if (task->tk_msg.rpc_cred != NULL) {
+         rpcauth_holdcred(task);
 
 
 
-Any comments would be appreciated.
 
-Description: Use msleep_interruptible() instead of schedule_timeout() to
-guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
-
- linux-2.6.9-rc2-bk7-max/drivers/md/md.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-diff -puN drivers/md/md.c~msleep_interruptible-drivers_md_md drivers/md/md.c
---- linux-2.6.9-rc2-bk7/drivers/md/md.c~msleep_interruptible-drivers_md_md	2004-09-21 21:16:48.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/md/md.c	2004-09-21 21:16:48.000000000 +0200
-@@ -3468,8 +3468,7 @@ static void md_do_sync(mddev_t *mddev)
- 		if (currspeed > sysctl_speed_limit_min) {
- 			if ((currspeed > sysctl_speed_limit_max) ||
- 					!is_mddev_idle(mddev)) {
--				current->state = TASK_INTERRUPTIBLE;
--				schedule_timeout(HZ/4);
-+				msleep_interruptible(250);
- 				goto repeat;
- 			}
- 		}
-_

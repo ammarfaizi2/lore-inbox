@@ -1,36 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUFLMqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUFLMsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264748AbUFLMqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 08:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUFLMqz
+	id S264750AbUFLMsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 08:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbUFLMsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 08:46:55 -0400
-Received: from hellhawk.shadowen.org ([212.13.208.175]:7178 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S264748AbUFLMpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 08:45:52 -0400
-Date: Sat, 12 Jun 2004 13:45:08 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-To: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-cc: dhowells@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated > MAX_ORDER size
-Message-ID: <4F2B7A16061839F525FD5279@[192.168.0.7]>
-In-Reply-To: <20040611163051.6e7985bb.akpm@osdl.org>
-References: <20040611034809.41dc9205.akpm@osdl.org>	<567.1086950642@redhat.com>	<1056.1086952350@redhat.com>	<20040611150419.11281555.akpm@osdl.org>	<3066250000.1086995005@flay>	<20040611161920.0a40e49d.akpm@osdl.org>	<3067490000.1086995928@flay> <20040611163051.6e7985bb.akpm@osdl.org>
-X-Mailer: Mulberry/3.1.5 (Win32)
+	Sat, 12 Jun 2004 08:48:24 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:32896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264750AbUFLMsH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 08:48:07 -0400
+Date: Sat, 12 Jun 2004 08:47:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: Rik van Riel <riel@redhat.com>, Tobias Hirning <Tobias.Hirning@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Insults in the kernel-sources
+In-Reply-To: <200406120637.i5C6bW0c000376@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0406120845580.2220@chaos>
+References: <Pine.LNX.4.44.0406112245460.13607-100000@chimarrao.boston.redhat.com>
+ <200406120637.i5C6bW0c000376@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On 11 June 2004 16:30 -0700 Andrew Morton <akpm@osdl.org> wrote:
+On Sat, 12 Jun 2004, John Bradford wrote:
 
-> Doesn't look that way.  It uses
+> Quote from Rik van Riel <riel@redhat.com>:
+> > On Thu, 10 Jun 2004, Tobias Hirning wrote:
+> >
+> > > have you ever tried a
+> > > grep "insult" -i -r ./*
+> > >  in the sourcetree of the kernel?
+> >
+> > Yeah, isn't it great ?
+> >
+> > Hours and hours of fun, learning more about
+> > crappy hardware than you ever wanted to know.
+> >
+> > > So do and think about, because the you can find to much of
+> > > insults in the sources.
+> >
+> > Too much?  Considering how amazingly bad some
+> > stuff is (especially hardware bugs) I'm quite
+> > surprised there aren't more of those amusing
+> > profanities throughout the source code.
+> >
+> > Maybe I should start hacking device drivers,
+> > so I can legitimately add them ?
+> >
+> > What do you think ?
 >
-> 	(zone->zone_mem_map - page) >> (1 + order)
+> Patches specifically to add insults are probably 2.7 material :-).
+>
+> John.
 
-Hmmm, yes.  Does this not mean that we will violate the object size N will be aligned at size N.  Presumably that's why the error says 'it'll crash'.  If we are two pages offset we will allocate 4 page objects 2 page aligned.  I'll have a closer look and see if we can just 'round down' the zone_mem_map pointer here to give the correct alignment.  As long as we don't try and free them into the allocator originally we should be ok, as they are marked allocated in the bitmaps at the start.
+Gotta be careful. SCO probably patented most of them ;^).
 
--apw
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

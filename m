@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUFOU2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265923AbUFOUaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUFOU2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 16:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUFOU2M
+	id S265923AbUFOUaW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 16:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUFOUaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 16:28:12 -0400
-Received: from centaur.culm.net ([83.16.203.166]:16145 "EHLO centaur.culm.net")
-	by vger.kernel.org with ESMTP id S265909AbUFOU2J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 16:28:09 -0400
-From: Witold Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7] [OOPS] Oops while removing mediabay CD
-Date: Tue, 15 Jun 2004 22:26:07 +0200
-User-Agent: KMail/1.6.2
-References: <200406152210.13537.adasi@kernel.pl>
-In-Reply-To: <200406152210.13537.adasi@kernel.pl>
-MIME-Version: 1.0
+	Tue, 15 Jun 2004 16:30:22 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:35717 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265923AbUFOUaJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 16:30:09 -0400
+Date: Tue, 15 Jun 2004 22:30:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_USB_HID vs. CONFIG_USB_HIDINPUT
+Message-ID: <20040615203053.GA2568@ucw.cz>
+References: <20040615140705.B6153@beton.cybernet.src> <20040615160502.GA11059@ucw.cz> <20040615171451.A6843@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406152226.07331.adasi@kernel.pl>
-X-Spam-Score: -4.6 (----)
-X-MIME-Warning: Serious MIME defect detected ()
-X-Scan-Signature: 58444daecd5819ce53022823bc23d18d
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615171451.A6843@beton.cybernet.src>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia wtorek 15 czerwiec 2004 22:10, napisa³e¶:
-Well, I forgot to add decoded oops:
-Call trace: [c000b244]  [c009b9d8]  [c0117594]  [c0312800]  [c031294c]
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: C0097D04 LR: C0098EB0 SP: C1893E50 REGS: c1893da0 TRAP: 0300    Not
-Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
-MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-TASK = cbe0ad20[156] 'media-bay' THREAD: c1892000Last syscall: -1
-GPR00: C0098EB0 C1893E50 CBE0AD20 00000000 C03418D0 C18AC310 00000000
-00000000
-GPR08: 00000001 FFFF0001 C0336384 00009032 FFFFFFFA 00000000 00000000
-00000000
-GPR16: 00000000 00000000 00000000 00000000 00000000 00220000 00230000
-C0280000
-GPR24: C9C86800 00000001 CBFEE294 00000000 00000001 C0341C40 00000000
-C03418D0
-Call trace: [c0098eb0]  [c00fc56c]  [c00fc764]  [c00fb134]  [c00fb1b8]
-Warning (Oops_read): Code line not seen, dumping what data is available
+On Tue, Jun 15, 2004 at 05:14:51PM +0000, Karel Kulhavý wrote:
+> On Tue, Jun 15, 2004 at 06:05:02PM +0200, Vojtech Pavlik wrote:
+> > On Tue, Jun 15, 2004 at 02:07:05PM +0000, Karel Kulhavý wrote:
+> > > Hello
+> > > 
+> > > When I enable CONFIG_USB_HID and not enable CONFIG_USB_HIDINPUT in 2.4.25, will
+> > > I get something different from when I don't enable neither of them?
+> > > 
+> > > The <Help> says basically the same about both: that they control
+> > > "keyboards, mice, joysticks, graphics tablets, or any other HID based devices"
+> > > (CONFIG_USB_HID)
+> > > "keyboard, mouse or joystick or any other HID input device"
+> > > (CONFIG_USB_HIDINPUT)
+> > > 
+> > > I assume
+> > > 1) it doesn't matter if "keyboard" or "keyboards" is in the <Help>
+> > > 2) graphics tablets are assumed to be "any other HID input devices".
+> > 
+> > In that case you get the HID driver, but you won't get the Input
+> > binding, so the devices will be detected, but won't be accessible by the
+> > common means (keyboard through console, mouse via /dev/input/mice,
+> > etc.). They still will be accessible via HIDDEV, if you enable that.
+> > 
+> > Enabling HID without either HIDINPUT or HIDDEV is pointless.
+> 
+> So they are 4 meaningful combinations:
+> 0)nothing
+> 1)HIDDEV
+> 2)HIDINPUT
+> 3)HIDINPUT+HIDDEV
+> 
+> There are 3 tickboxes with 5 possible combinations.  I suggest reducing this
+> count to 2 tickboxes with 4 naturally resulting combinations. I think it will
+> be less confusing for a user.
 
+Actually - not. CONFIG_USB_HID enables or disables the hid.o module, and
+has three states - Y, N, M. The HIDINPUT/HIDDEV are just options for
+that module, enabling/disabling some of its functionality, having only Y
+and N states.
 
->>NIP; c0097d04 <sysfs_hash_and_remove+18/dc>   <=====
+So it's quite straightforward. And there are 7 useful combinations,
+out of 9 possible.
 
->>GPR0; c0098eb0 <sysfs_remove_link+14/24>
->>GPR4; c03418d0 <macio_lock+7c8/3040>
->>GPR10; c0336384 <per_cpu__rcu_data+c/1c>
->>GPR29; c0341c40 <macio_lock+b38/3040>
+And in your suggested case, you would either have to make
+HIDDEV/HIDINPUT tristate, resulting in illegal combinations of Y+M, or
+you wouldn't be able to express that the driver should be built as a
+module.
+
 -- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+Vojtech Pavlik
+SuSE Labs, SuSE CR

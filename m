@@ -1,91 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUIZHFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUIZHrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269501AbUIZHFX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 03:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUIZHFW
+	id S267502AbUIZHrj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 03:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUIZHrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 03:05:22 -0400
-Received: from av7-1-sn1.fre.skanova.net ([81.228.11.113]:8892 "EHLO
-	av7-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S269501AbUIZHFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 03:05:08 -0400
+	Sun, 26 Sep 2004 03:47:39 -0400
+Received: from ppsw-8.csi.cam.ac.uk ([131.111.8.138]:62600 "EHLO
+	ppsw-8.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S267502AbUIZHre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 03:47:34 -0400
+Date: Sun, 26 Sep 2004 08:47:30 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Gerd Knorr <kraxel@bytesex.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc2
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
-	<m3ekl5de7b.fsf@telia.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 26 Sep 2004 09:05:05 +0200
-In-Reply-To: <m3ekl5de7b.fsf@telia.com>
-Message-ID: <m3pt49ik7y.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [PATCH 8/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation,
+ cleanups and a bugfix
+In-Reply-To: <Pine.LNX.4.58.0409241930510.2317@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.60.0409260828200.18239@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241712490.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713070.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713220.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713380.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241714190.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0409240926580.32117@ppc970.osdl.org>
+ <Pine.LNX.4.60.0409242059420.5443@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.58.0409241930510.2317@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
-
-> Linus Torvalds <torvalds@osdl.org> writes:
+On Fri, 24 Sep 2004, Linus Torvalds wrote:
+> On Fri, 24 Sep 2004, Anton Altaparmakov wrote:
+> > On Fri, 24 Sep 2004, Linus Torvalds wrote:
+> > > 
+> > > Btw, Al is fixing this. We'll make enum's properly typed, rather than just 
+> > > plain integers. It's not traditional C behaviour, but it gives you better 
+> > > type safety, and Al points out that other C compilers (the Plan 9 one, to 
+> > > be specific) have done the same thing for similar reasons.
 > 
-> > Gerd Knorr:
-> >   o v4l: bttv driver update
+> Well, when I said "Al is fixing this", I lied.
 > 
-> This patch,
+> I just fixed it myself. 
+
+Great.  (-:
+
+> > This is good news.  Once that is done I will be very happy to go back to 
+> > using enums as I also agree that they can and in this case do look a 
+> > lot nicer...
 > 
->     http://linus.bkbits.net:8080/linux-2.5/cset@4138a998OBJaigDdWZo3Y58C5Brqlg?nav=index.html|ChangeSet@-2w
+> Try the current sparse, I think it should work for you.
 > 
-> makes my computer lock up or instantly reboot when I try to do a tv
-> recording with mplayer.
+> So if you make an enum where the initializer expression is a little-endian 
+> expression, the type of that (single) enumerator will be little-endian.
+> 
+> HOWEVER, the type of an enum _variable_ will still be just "int". So
+> 
+> 	enum myenum {
+> 		one = 1ULL,
+> 		two = 2,
+> 	};
+> 
+> has the strange behaviour that if you use "one" in an expression, it will
+> have the type "unsigned long long", but if you use a "enum myenum" entry
+> (even if it has the value "1"), it will be an "int":
+> 
+> 	sizeof(one) == 8
+> 	sizeof(enum myenum) == 4
+> 
+> So I would stronly suggest (and I may make sparse warn) against using
+> non-integertyped enum values with any enum that actually has any backing
+> store (ie if you ever use a variable of type "enum myenum", that would
+> result in a warning - you can really just use the values "one" and "two"
+> directly).
 
-I think the patch below should be applied before 2.6.9. It fixes the
-bug that made the card DMA lots of data to random memory locations,
-causing lockups and instant reboots.
+Ah, I was using them for backing store as well and I was using the 
+__attribute__((packed)) gcc extension to make them the bit-width I wanted 
+in combination with a "filler element" at the end of the enum.
 
-The problem was that the yoffset variable got modified inside the
-loop, but the logic in the switch statement was meant to work on the
-initial value of the yoffset variable.
+So for example to get a 16-bit enum type I was using:
 
-(Bug fix extracted from
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109532814823565&w=2)
+typedef enum {
+	RESTART_VOLUME_IS_CLEAN = const_cpu_to_le16(0x0002),
+	REST_AREA_SPACE_FILLER  = 0xffff	/* Just to make flags 
+16-bit. */
+} __attribute__ ((__packed__)) RESTART_AREA_FLAGS;
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
+And then when defining the structure containing these flags I would just 
+do:
 
----
+typedef struct {
+	...
+	RESTART_AREA_FLAGS flags;
+	...
+} __attribute__ ((__packed__)) RESTART_AREA;
 
- linux-petero/drivers/media/video/bttv-risc.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+Also I use the enum type as parameters to functions, for example in the 
+above case I might have:
+	int blah(RESTART_AREA_FLAGS flags);
 
-diff -puN drivers/media/video/bttv-risc.c~bttv-crash-fix drivers/media/video/bttv-risc.c
---- linux/drivers/media/video/bttv-risc.c~bttv-crash-fix	2004-09-26 08:39:52.627762048 +0200
-+++ linux-petero/drivers/media/video/bttv-risc.c	2004-09-26 08:42:23.642804272 +0200
-@@ -125,6 +125,7 @@ bttv_risc_planar(struct bttv *btv, struc
- 	struct scatterlist *ysg;
- 	struct scatterlist *usg;
- 	struct scatterlist *vsg;
-+	int topfield = (0 == yoffset);
- 	int rc;
- 
- 	/* estimate risc mem: worst case is one write per page border +
-@@ -153,13 +154,13 @@ bttv_risc_planar(struct bttv *btv, struc
- 			chroma = 1;
- 			break;
- 		case 1:
--			if (!yoffset)
-+			if (topfield)
- 				chroma = (line & 1) == 0;
- 			else
- 				chroma = (line & 1) == 1;
- 			break;
- 		case 2:
--			if (!yoffset)
-+			if (topfield)
- 				chroma = (line & 3) == 0;
- 			else
- 				chroma = (line & 3) == 2;
-_
+So this use doesn't work with the sparse update either.  At the moment I 
+have changed everything to just a bunch of #defines followed by a:
 
+typedef le16 RESTART_AREA_FLAGS;
+
+So I guess with your sparse update I can now go to a point in between the 
+old one and the new one:
+
+enum {
+	RESTART_VOLUME_IS_CLEAN = const_cpu_to_le16(0x0002),
+} __attribute__ ((__packed__)) RESTART_AREA_FLAGS;
+
+typedef le16 RESTART_AREA_FLAGS;
+
+So I get the enum rather than bunch of defines and I get my proper types 
+as well.
+
+That only looses the ability for the compiler to warn if people use the 
+wrong constant when trying to set such a variable or pass a wrong constant 
+into a function but that is not nearly as useful a warning as the wrong 
+endianness bitwise warnings we have now gained so I am not going to worry 
+about losing it.
+
+Best regards,
+
+	Anton
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

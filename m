@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTJWR2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 13:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbTJWR2X
+	id S261151AbTJWRwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 13:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTJWRwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 13:28:23 -0400
-Received: from rrcs-central-24-106-129-221.biz.rr.com ([24.106.129.221]:16807
-	"EHLO mailbox.nortoncafe.dnsalias.org") by vger.kernel.org with ESMTP
-	id S261311AbTJWR2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 13:28:22 -0400
-From: Rob <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe
-To: "Joseph D. Wagner" <theman@josephdwagner.info>,
-       linux-kernel@vger.kernel.org
-Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
-Date: Thu, 23 Oct 2003 13:26:19 -0400
-User-Agent: KMail/1.5.4
-References: <200310221855.15925.theman@josephdwagner.info>
-In-Reply-To: <200310221855.15925.theman@josephdwagner.info>
+	Thu, 23 Oct 2003 13:52:24 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:37333 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261151AbTJWRwX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 13:52:23 -0400
+Date: Thu, 23 Oct 2003 15:48:40 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Peter Osterlund <petero2@telia.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.23-pre8
+In-Reply-To: <m23cdjopfn.fsf@p4.localdomain>
+Message-ID: <Pine.LNX.4.44.0310231548230.3129-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310231326.20159.rpc@cafe4111.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't want to have to hand edit the makefiles just to optimize my kernel.
-> I think this change is simple enough to do, and would allow kernel
-> developers the option of processor-specific optimizations in the future.
 
-yea, it's simple enough to do.
-/usr/src/linux-2.4.22/Makefile, line 94. Add "-march *" as you wish.
-Now all that talent was wasted on this, all this time... for something so 
-small, only that you want that simple fix made available for everyone. DIY 
-like the rest of the people who are already building their own kernel(!!!)
 
-look: every time i build, i have to uncomment "export install_path=/boot".
-go figure out why i never asked them to change it for me, and stop biting the 
-hand that feeds.
+On 23 Oct 2003, Peter Osterlund wrote:
 
--- 
-Don't be fooled... if you can help it.
+> The toplevel Makefile contains this change which looks like a typo:
+> 
+> @@ -28,7 +28,7 @@
+>  AS             = $(CROSS_COMPILE)as
+>  LD             = $(CROSS_COMPILE)ld
+>  CC             = $(CROSS_COMPILE)gcc
+> -CPP            = $(CC) -E
+> +PP             = $(CC) -E
+>  AR             = $(CROSS_COMPILE)ar
+>  NM             = $(CROSS_COMPILE)nm
+>  STRIP          = $(CROSS_COMPILE)strip
+
+Yes its a typo. Its in fixed in the BK tree.
+
+
+

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261263AbSJCMCw>; Thu, 3 Oct 2002 08:02:52 -0400
+	id <S262777AbSJCL60>; Thu, 3 Oct 2002 07:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263241AbSJCMCv>; Thu, 3 Oct 2002 08:02:51 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:5104 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261263AbSJCMCv>; Thu, 3 Oct 2002 08:02:51 -0400
-Subject: Re: Sequence of IP fragment packets on the wire
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hps@intermeta.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <anh7es$mpl$1@forge.intermeta.de>
-References: <anh7es$mpl$1@forge.intermeta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 13:16:10 +0100
-Message-Id: <1033647370.28022.0.camel@irongate.swansea.linux.org.uk>
+	id <S263216AbSJCL60>; Thu, 3 Oct 2002 07:58:26 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:8079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262777AbSJCL6Z>;
+	Thu, 3 Oct 2002 07:58:25 -0400
+Date: Fri, 4 Oct 2002 14:01:44 +0200
+From: Dexter Filmore <Dexter.Filmore@gmx.de>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: IDE subsystem issues with 2.4.18/19
+Message-Id: <20021004140144.418a8569.Dexter.Filmore@gmx.de>
+Organization: SCHWA Corporation
+X-Mailer: Sylpheed version 0.8.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 11:51, Henning P. Schmiedehausen wrote:
-> This confuses at least one firewall appliance. As I understand it,
+Got a motherboard with VIA VT8233 Southbridge (a MSI K7T266 Pro2), Slackware
+8.1 with a standard kernel (tried .18 as well as .19) patched with SGI XFS
+support, two atapi drives attached with /dev/hdc is Pioneer115 DVD and
+/dev/hdd is a Traxdata 24x-writer, both running in scsi emulation.
+Got VIA-support compiled in.
 
-You should replace that appliance. Packets can get re-ordered by a
-million different things on the wire not just by the fact Linux is
-optimising the fragment processes.
+Everythings runs fine: reading DVD, reading CD, writing CD. 
+*Apart from*: CD ripping. When trying to read audio CDs, the system locks up,
+can't reproduce the exact error msgs right now, need a running system atm. If
+you like, I'll post them later on.
 
-> Is there a way to configure this? Maybe even connection specific? 
+Tried cdparanoia 9.8-III, cdda2wav - nothing works.
 
-No
+I contacted Vojtech Pavlik, the author of the via82xxx.c code who advised me
+to ask Alan Cox or Andre Hedrick about this, so I thought best write to this
+list.
+Are there any workarounds/patches/voodoo magic for this problem?
 
-Alan
+Dex
 
+
+-- 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS d--(+)@ s-:+ a-- C++(+++) UL>+++ P+>++ L++>++++ E-- W++ N+
+o? K- w--(---) !O M-- V- PS+ PE(+) Y+>++ PGP- t+(++)
+5 X+(++) R++ tv--(+)@ b++(+++) DI+++ D G++(--) e* h r%>* y?
+------END GEEK CODE BLOCK------
+
+Nothing fights like the opposition

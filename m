@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S276856AbUKBALl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S291561AbUKBARf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S276856AbUKBALl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 19:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381917AbUKAXas
+	id S291561AbUKBARf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 19:17:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S291564AbUKBARf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:30:48 -0500
-Received: from mail.kroah.org ([69.55.234.183]:35016 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S379327AbUKAWyT (ORCPT
+	Mon, 1 Nov 2004 19:17:35 -0500
+Received: from fsmlabs.com ([168.103.115.128]:43653 "EHLO musoma.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S385249AbUKBARQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:54:19 -0500
-Date: Mon, 1 Nov 2004 14:43:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [PATCH 1/4] Driver core: add driver symlink to device
-Message-ID: <20041101224314.GA17618@kroah.com>
-References: <20041029185753.53517.qmail@web81307.mail.yahoo.com> <20041029202249.GB29171@kroah.com> <200410300326.23345.dtor_core@ameritech.net> <200410300327.24589.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410300327.24589.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+	Mon, 1 Nov 2004 19:17:16 -0500
+Date: Mon, 1 Nov 2004 17:16:02 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Dominik Brodowski <linux@dominikbrodowski.de>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] [CPU-HOTPLUG] convert cpucontrol to be a rwsem
+In-Reply-To: <1099332277.3647.43.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.61.0411011711560.2985@musoma.fsmlabs.com>
+References: <20041101084337.GA7824@dominikbrodowski.de> 
+ <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
+ <1099332277.3647.43.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 30, 2004 at 03:27:22AM -0500, Dmitry Torokhov wrote:
+On Mon, 1 Nov 2004, Lee Revell wrote:
+
+> On Mon, 2004-11-01 at 07:00 -0700, Zwane Mwaikambo wrote:
+> > Agreed it makes a lot more sense, i think there could be some places where 
+> > we use preempt_disable to protect against cpu offline which could 
+> > converted, but that can come later.
+> > 
 > 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1955, 2004-10-30 01:08:14-05:00, dtor_core@ameritech.net
->   Driver core: when binding device to a driver create "driver"
->                symlink in device's directory. Rename serio's
->                "driver" attribute to "drvctl" (write-only)
->   
->   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> You know I picked up Robert Love's book the other day and was surprised
+> to read we are not supposed to be using preempt_disable, there is a
+> per_cpu interface for exactly this kind of thing.  Which is currently
+> recommended?
 
-Ok, I've applied this one, as it was very simple.
+It's on a case by case basis, preempt_disable has the side effect of 
+ensuring that you run through that specific critical section without being 
+interrupted by scheduling, this happens to also block out various things 
+like RCU and the stop_machine (used by cpu hotplug) code amongst others. 
+I'm curious what is the excert that you're referring to?
 
-I'll get to your other patches tomorrow, need to get a pci and usb
-update out today...
+Thanks,
+	Zwane
 
-thanks for your patience, we'll get there eventually :)
-
-greg k-h

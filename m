@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131520AbQLVPCm>; Fri, 22 Dec 2000 10:02:42 -0500
+	id <S131533AbQLVPRs>; Fri, 22 Dec 2000 10:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbQLVPCd>; Fri, 22 Dec 2000 10:02:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:35592 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131450AbQLVPCX>; Fri, 22 Dec 2000 10:02:23 -0500
-Date: Fri, 22 Dec 2000 15:31:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: unlisted-recipients: no To-header on input <;@pop.zip.com.au>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre4
-Message-ID: <20001222153145.A15733@athlon.random>
-In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <3A43506B.6CEF84BB@eyal.emu.id.au>
+	id <S131773AbQLVPRi>; Fri, 22 Dec 2000 10:17:38 -0500
+Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:60129 "EHLO
+	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S131533AbQLVPRZ>; Fri, 22 Dec 2000 10:17:25 -0500
+Date: Fri, 22 Dec 2000 15:46:52 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: Chris Kloiber <ckloiber@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OS Software?
+Message-ID: <20001222154652.A14672@uni-mainz.de>
+Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+	Chris Kloiber <ckloiber@rochester.rr.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001221104400Z131058-439+5361@vger.kernel.org> <3A432118.6B475A93@rochester.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3A43506B.6CEF84BB@eyal.emu.id.au>; from eyal@eyal.emu.id.au on Sat, Dec 23, 2000 at 12:00:27AM +1100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.11i
+In-Reply-To: <3A432118.6B475A93@rochester.rr.com>; from ckloiber@rochester.rr.com on Fri, Dec 22, 2000 at 04:38:32AM -0500
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 23, 2000 at 12:00:27AM +1100, Eyal Lebedinsky wrote:
-> Linus Torvalds wrote:
-> >  - pre4:
-> >    - Andrea Arkangeli: update to LVM-0.9
+On Fri, Dec 22, 2000 at 04:38:32AM -0500, Chris Kloiber wrote:
+> heesun9@mail.com wrote:
+> > 
+> > Are you interested in Office 2000? I am selling perfectly working
+> > copies of Microsoft Office 2000 SR-1 Premium Edition for a flat price of
+> > $50 USD. The suite contains 4 discs and includes:
 > 
-> gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall
-> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
-> -DMODVERSIONS -include
-> /usr/local/src/linux/include/linux/modversions.h   -c -o lvm.o lvm.c
-> lvm.c: In function `lvm_do_vg_extend':
-> lvm.c:2024: warning: implicit declaration of function
-> `lvm_do_create_proc_entry_of_pv'
-> lvm.c: In function `lvm_do_create_proc_entry_of_lv':
-> lvm.c:3016: `pde' undeclared (first use in this function)
-> lvm.c:3016: (Each undeclared identifier is reported only once
-> lvm.c:3016: for each function it appears in.)
-> lvm.c: At top level:
-> lvm.c:3044: warning: type mismatch with previous implicit declaration
-> lvm.c:2024: warning: previous implicit declaration of
-> `lvm_do_create_proc_entry_of_pv'
-> lvm.c:3044: warning: `lvm_do_create_proc_entry_of_pv' was previously
-> implicitly declared to return `int'
-> lvm.c: In function `lvm_do_create_proc_entry_of_pv':
-> lvm.c:3050: `pde' undeclared (first use in this function)
-> lvm.c: At top level:
-> lvm.c:147: warning: `lvm_short_version' defined but not used
-> make[2]: *** [lvm.o] Error 1
-> make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/drivers/md'
+> This guy really needs a few whacks from a cluestick.
+> 
+> Chris Kloiber
 
-Strange, test13-pre3 plus the 0.9 lvm patch compiled and worked fine
-for me. I'll try to compile test13-pre4 now and I'll let you know.
+Just forward the mail to the M$ legal department... >:-)=)
 
-Andrea
+Dominik
+-- 
+http://petition.eurolinux.org/index_html - No Software Patents In Europe!
+http://petition.lugs.ch/ (in Switzerland)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

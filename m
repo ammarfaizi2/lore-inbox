@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266415AbTGERCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 13:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266419AbTGERCh
+	id S266413AbTGERCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 13:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbTGERCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 13:02:37 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:6414 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S266415AbTGERCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 13:02:34 -0400
-Date: Sun, 6 Jul 2003 03:16:09 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Andrew Morton <akpm@osdl.org>, <Andries.Brouwer@cwi.nl>,
-       <akpm@digeo.com>, <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
-Subject: Re: [PATCH] cryptoloop
-In-Reply-To: <3F068F49.1883BE0D@pp.inet.fi>
-Message-ID: <Mutt.LNX.4.44.0307060312520.21967-100000@excalibur.intercode.com.au>
+	Sat, 5 Jul 2003 13:02:09 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:1951 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266413AbTGERCH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 13:02:07 -0400
+Date: Sat, 5 Jul 2003 10:16:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: benh@kernel.crashing.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>, <linuxppc64-dev@lists.linuxppc.org>
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+In-Reply-To: <20030705104428.GA19311@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44.0307051013140.5900-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jul 2003, Jari Ruusu wrote:
 
-> This tests only low level cipher functions aes_encrypt() and aes_decrypt()
-> from linux-2.5.74/crypto/aes.c with all CryptoAPI overhead removed. In real
-> use, including CryptoAPI overhead, these numbers should be a little bit
-> smaller.
+On Sat, 5 Jul 2003, Jörn Engel wrote:
 > 
-> key length 128 bits, encrypt speed 68.5 Mbits/sec
-> key length 128 bits, decrypt speed 58.9 Mbits/sec
-> key length 192 bits, encrypt speed 58.3 Mbits/sec
-> key length 192 bits, decrypt speed 50.3 Mbits/sec
-> key length 256 bits, encrypt speed 51.0 Mbits/sec
-> key length 256 bits, decrypt speed 43.8 Mbits/sec
+> Except that the patch didn't match the description.  My test loops
+> just as happily as before and the conditional part of give_sigsegv is
+> pointless now.  That might really break some threading stuff.
 
-[snip]
+Hmm? I tried it, and for me it does:
 
-> This tests aes_encrypt() and aes_decrypt() from loop-AES-v1.7d/aes.c
-> Loop-AES users running non-x86 kernels or x86 configured for i386/i486 will
-> run this version.
-> 
-> key length 128 bits, encrypt speed 81.2 Mbits/sec
-> key length 128 bits, decrypt speed 83.4 Mbits/sec
-> key length 192 bits, encrypt speed 68.5 Mbits/sec
-> key length 192 bits, decrypt speed 70.6 Mbits/sec
-> key length 256 bits, encrypt speed 58.9 Mbits/sec
-> key length 256 bits, decrypt speed 60.9 Mbits/sec
+	torvalds@home:~> ./a.out 
+	SIGNAL .... 11
+	Segmentation fault
 
-These results are interesting, if they represent a pure comparison of the
-crypto algorithm implementations -- both the mainline kernel version and
-yours are based on the same Gladman code.
+but I have to admit that I didn't even try it before my kernel change, so 
+maybe it worked for me before too ;)
 
+There could easily be glibc version issues here, ie maybe your library 
+sets SA_NOMASK and mine doesn't.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+		Linus
 

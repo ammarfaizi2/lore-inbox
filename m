@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbUABCj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 21:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbUABCj2
+	id S263228AbUABCyk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 21:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUABCyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 21:39:28 -0500
-Received: from h80ad2717.async.vt.edu ([128.173.39.23]:28839 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262901AbUABCj0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 21:39:26 -0500
-Message-Id: <200401020239.i022dH05005627@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: DXpublica@telefonica.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i18n for kernel 2.7.x? 
-In-Reply-To: Your message of "Fri, 02 Jan 2004 01:53:58 +0100."
-             <200401020153.59030.DXpublica@telefonica.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200312311332.15422.DXpublica@telefonica.net> <200312311625.25178.DXpublica@telefonica.net> <200312311604.hBVG4ruS000274@81-2-122-30.bradfords.org.uk>
-            <200401020153.59030.DXpublica@telefonica.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1994442464P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 1 Jan 2004 21:54:40 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:2185 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263228AbUABCyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 21:54:39 -0500
+Message-ID: <3FF4DD6B.2080705@colorfullife.com>
+Date: Fri, 02 Jan 2004 03:54:35 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/patch] wake_up_info() draft ...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 01 Jan 2004 21:39:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1994442464P
-Content-Type: text/plain; charset=us-ascii
+Hi Davide,
 
-On Fri, 02 Jan 2004 01:53:58 +0100, Xan said:
+I think the patch adds unnecessary bloat, and mandates one particular 
+use of the wait queue info interface.
+For example, why does remove_wait_queue_info copy the wakeup info 
+around? That's now how I would use it for fasync: I would send the 
+necessary signals directly from the wakeup handler, and 
+remove_wait_queue_info is called during sys_close handling, info discarded.
 
-> Well... if (all of) you think that.... 
-> But, what happens with Documentation/ directory and README, COPYRIGHT, ... and 
-> WEB PAGE of the kernel?
-> 
-> It's NOT so technically hard to do. Why not so?
+I'm thinking about a simpler approach: add a wake_up_info() function, 
+and forward the info parameter to the wait_queue_func_t. This means 
+changing the prototype of this function - there shouldn't be that many 
+instances. NULL is passed if the normal wake_up functions are used. No 
+additional fields in the wait queue entry are required. Then I would 
+convert kill_fasync to that interface, with the band value from 
+kill_fasync as the info parameter. A custom wait queue func does the 
+signal sending. fasync_helper would be kmalloc+add_wait_queue.
 
-Oh, give me a <bleep>ing break, already.
+--
+    Manfred
 
-We demonstrably have *enough* trouble keeping the English-only contents of the
-Documentation/ directory in sync with the source.  What do you propose to do if/
-when some kernel change requires a document update, and we can't find somebody
-who is qualified to translate to Swahili, or one of the Baltic languages(*),
-and so on? Pretty soon, you have 15 or 20 slowly diverging versions due to
-missed updates and the like.
-
-As far as translating the COPYING file, I think you need to see what the FSF
-thinks of translating the GPL into other languages:
-
-http://www.fsf.org/licenses/licenses.html
-
-(Bottom line - English is canonical, and the others are basically considered
-study aids for the English-challenged).
-
-(*) Don't look at me - although I went bughunting in the cpufreq code, and have
-more relatives in Riga than I do in the US, and my Latvian is quite sufficient
-to deal with a newspaper, dinner conversation, or television programming, I'd
-hate to be the guy trying to understand my attempt to explain the cpufreq code
-in Latvian.. ;) 
-
-
---==_Exmh_-1994442464P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/9NnUcC3lWbTT17ARArJrAJ49GnEPMalczn2Tq8Bu2nUAPUXigwCeOVlB
-dpCCSR/0mA1n01B+KO4V7hs=
-=YTw5
------END PGP SIGNATURE-----
-
---==_Exmh_-1994442464P--

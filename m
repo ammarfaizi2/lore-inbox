@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272575AbTHOTO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHOTO7
+	id S270763AbTHOTHb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270750AbTHOTFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:14:59 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:51412 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S272575AbTHOTO6 (ORCPT
+	Fri, 15 Aug 2003 15:05:36 -0400
+Received: from Sina.Sharif.EDU ([81.31.160.35]:10149 "EHLO sina.sharif.edu")
+	by vger.kernel.org with ESMTP id S270755AbTHOTFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:14:58 -0400
-Date: Fri, 15 Aug 2003 23:15:13 +0200
-From: Clock <clock@twibright.com>
-To: Alistair J Strachan <alistair@devzero.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nforce2 lockups
-Message-ID: <20030815231513.A5681@beton.cybernet.src>
-References: <df962fdf9006.df9006df962f@us.army.mil> <200308151738.08965.alistair@devzero.co.uk> <20030815210601.A5452@beton.cybernet.src> <200308151847.20128.alistair@devzero.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200308151847.20128.alistair@devzero.co.uk>; from alistair@devzero.co.uk on Fri, Aug 15, 2003 at 06:47:20PM +0100
-X-Orientation: Gay
+	Fri, 15 Aug 2003 15:05:05 -0400
+Date: Fri, 15 Aug 2003 23:40:21 +0430 (IRST)
+From: Behdad Esfahbod <behdad@bamdad.org>
+To: linux-kernel@vger.kernel.org
+Subject: Auto Module Loading Question
+Message-ID: <Pine.LNX.4.44.0308152332030.26087-100000@gilas.bamdad.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 06:47:20PM +0100, Alistair J Strachan wrote:
-> On Friday 15 August 2003 20:06, Clock wrote:
-> [SNIP]
-> >
-> > I have had three boards with nforce2 replaced (all of them Soltek
-> > SL75FRN2-L) and all three did the same. However it seemed the frequency of
-> > the crashes varies with actual piece of board.
-> 
-> That's certainly interesting.
-> 
-> >
-> > The crashes aren't in software - bare 'cat /dev/hda > /dev/null' is
-> > often to lock up the machine to the point that poweroff fails.
-> 
-> [root] 06:43 PM [/home/alistair] time cat /dev/discs/disc0/disc > /dev/null
-> (I ctrl-C'd here)
-> 
-> real    1m23.275s
-> user    0m0.979s
-> sys     0m12.608s
-> 
-> I don't know how obvious the problem is on your machine, but it's clearly not 
-> an issue on this nForce2. When I was referring to software, that included the 
-> kernel i.e., I suspect it isn't a design fault.
+Hi,
 
-It seems to occur fairly often just after boot time. When you try later,
-you usually fail in an attempt to lockup the machine and have to freshly RESET
-(not ctrl-alt-del!) the machine to get the behaviour back.
+It is off-topic, but I couldn't find the answer by Googling.
+I have installed 2.6.0-test2 and module-init-tools-0.9.13-pre2 on 
+my RedHat 9 system.
 
-Cl<
+Now I have two problem:  First one is that mount does not load
+needed modules automatically, so refuses to mount if the module
+for the filesystem is not loaded.  When I load it and retry, it
+mounts.
+
+The other problem is that, in the old era, I would simply put a
+line of 'alias char-major-10-144 nvram' in my /etc/modules.conf,
+and reading from /dev/nvram would load the module and work.  Now
+there is a line for that in auto-generated /etc/modprobe.conf, 
+but 'cat /dev/nvram' errs:
+
+	cat: /dev/nvram: No such device
+
+The same problem is with some other modules, including loop.  But 
+some drivers, like rtc and cdrom have been loaded themselves.
+
+Help is welcome,
+behdad
+
+PS.  Please keep me CCed
+
+
+-- 
+Behdad Esfahbod		24 Mordad 1382, 2003 Aug 15 
+http://behdad.org/	[Finger for Geek Code]
+
+If you do a job too well, you'll get stuck with it.
+

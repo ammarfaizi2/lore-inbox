@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTJKQdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 12:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTJKQdP
+	id S263142AbTJKQsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 12:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJKQsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 12:33:15 -0400
-Received: from mail-1.tiscali.it ([195.130.225.147]:64672 "EHLO
-	mail-1.tiscali.it") by vger.kernel.org with ESMTP id S263320AbTJKQdO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 12:33:14 -0400
-Date: Sat, 11 Oct 2003 18:32:44 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: frodol@dds.nl, Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Subject: Re: [patch] sensors/w83781d.c creates useless sysfs entries
-Message-ID: <20031011163244.GA2570@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Sat, 11 Oct 2003 12:48:39 -0400
+Received: from h80ad24a2.async.vt.edu ([128.173.36.162]:56719 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263142AbTJKQsi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 12:48:38 -0400
+Message-Id: <200310111648.h9BGmZ6s026348@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: asdfd esadd <retu834@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts: common well-architected object model 
+In-Reply-To: Your message of "Sat, 11 Oct 2003 09:06:21 PDT."
+             <20031011160621.22378.qmail@web13006.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031011160621.22378.qmail@web13006.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8805A7.6080306@kmlinux.fjfi.cvut.cz>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-381369844P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 11 Oct 2003 12:48:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> ha scritto:
-> Hello,
+--==_Exmh_-381369844P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 11 Oct 2003 09:06:21 PDT, you said:
 > 
-> here is a trivial fix for Winbond sensor driver, which currently creates 
-> useless entries in sys/bus/i2c due to missing braces after if statements 
-> - author probably forgot about the macro expansion.
+> the other OS has an at this stage highly consistent
+> object model user along the lines of COM+ from the
+> kernel up encompassing a single event, thread etc.
+> model. Things are quite consistently wrapped, user
+> mode exposed if needed etc. If people were to fully
+> draw on it and the simpler .net BCL and not ride win32
+> that would (will be) a killer.  
 
-IMHO it's better to fix the macro:
+If all your friends jumped off a cliff, would you do it too?
 
---- a/drivers/i2c/chips/w83781d.c	Sun Sep 28 17:47:38 2003
-+++ b/drivers/i2c/chips/w83781d.c	Sat Oct 11 18:31:04 2003
-@@ -422,9 +422,11 @@
- sysfs_in_offsets(8);
- 
- #define device_create_file_in(client, offset) \
-+do { \
- device_create_file(&client->dev, &dev_attr_in_input##offset); \
- device_create_file(&client->dev, &dev_attr_in_min##offset); \
--device_create_file(&client->dev, &dev_attr_in_max##offset);
-+device_create_file(&client->dev, &dev_attr_in_max##offset); \
-+} while (0);
- 
- #define show_fan_reg(reg) \
- static ssize_t show_##reg (struct device *dev, char *buf, int nr) \
+I submit to you that the reason The Other OS needs the concept of a object
+model from the kernel through to user space is because the architects had a
+very fuzzy concept of "boundary".  Yes, you need stuff like that if your GUI
+and your IIS (yes, really, Win2003 apparently has IIS on the kernel side of the
+boundary now).  If you have a syscall interface, the kernel is free to
+implement read() in any way it wants, and the userspace calling read() is able
+to use it for pretty much anything.
+
+Ask yourself:  (a) Could I implement .NET in userspace using the supplied syscalls?
+(b) If .NET was implemented and enforced kernel-side, could I implement CORBA?
+
+Remember - it's quite possible that the user wants some OTHER GUI, or some
+OTHER thread model, or some OTHER.....  We're not the operating system run by
+jackboots.
 
 
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Windows NT: Designed for the Internet. The Internet: Designed for Unix.
+--==_Exmh_-381369844P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/iDRicC3lWbTT17ARAuimAJ9fybP+eq2KAwkZ4W/Zjzf70LC+RwCg5POa
+HzuzXTFPJmbm+imlPQCbKrs=
+=sw4R
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-381369844P--

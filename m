@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278001AbRJRTTV>; Thu, 18 Oct 2001 15:19:21 -0400
+	id <S278092AbRJRTZv>; Thu, 18 Oct 2001 15:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278098AbRJRTTL>; Thu, 18 Oct 2001 15:19:11 -0400
-Received: from mailgw3a.lmco.com ([192.35.35.24]:32516 "EHLO mailgw3a.lmco.com")
-	by vger.kernel.org with ESMTP id <S278001AbRJRTS6>;
-	Thu, 18 Oct 2001 15:18:58 -0400
-Content-return: allowed
-Date: Thu, 18 Oct 2001 11:55:53 -0700
-From: "Borrelli, Michael J" <michael.j.borrelli@lmco.com>
-Subject: Re: Input on the Non-GPL Modules
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Reply-to: mike@nerv-9.net
-Message-id: <B094D0875C68D311915500508B0EA6D509EC27F4@emss01m08.ems.lmco.com>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	id <S278025AbRJRTZl>; Thu, 18 Oct 2001 15:25:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64644 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S278092AbRJRTZ1>;
+	Thu, 18 Oct 2001 15:25:27 -0400
+Date: Thu, 18 Oct 2001 12:25:25 -0700 (PDT)
+Message-Id: <20011018.122525.82054118.davem@redhat.com>
+To: marcelo@conectiva.com.br
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fork() failing
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0110181503220.12276-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0110181503220.12276-100000@freak.distro.conectiva>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 05:08:13PM +0000, Tony Hoyle wrote: 
-> This is still a GPL violation, as the small module couldn't then be 
-> linked with the proprietary module. Most companies aren't prepared to 
-> get into the legally murky ground that that sort of thing entails.
+   From: Marcelo Tosatti <marcelo@conectiva.com.br>
+   Date: Thu, 18 Oct 2001 15:04:15 -0200 (BRST)
+   
+   As you know, we currently allow 1-order allocations to fail easily. 
+   
+   However, there is one special case of 1-order allocations which cannot
+   fail: fork.
+   
+   Here is the tested patch against pre4.
 
-Where, in the conceptual layers of the kernel, does a peice of code cease to
-be a derived work which must also be GPL'ed and become a "normal use" of the
-kernel as is allowed by Linus's clause:
+There are also some platforms using 1-order allocations
+for page tables as well.
 
-"NOTE! This copyright does *not* cover user programs that use kernel
-services by normal system calls - this is merely considered normal use of
-the kernel, and does *not* fall under the heading of "derived work"."
+But I don't know if I agree with this special casing.
+Why not just put something into the GFP flag bits
+which distinguishes between high order allocations which
+are "critical" and others which are "don't try too hard".
 
-Cheers,
-Mike
+BTW, such a scheme could be useful for page cache pre-fetching.
+If you use a high order allocation, it is more likely that all
+of the pages in that prefetch will fit into the same kernel TLB
+mapping.  We could use a GFP_NONCRITICAL for something like this.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

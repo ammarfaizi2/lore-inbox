@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129637AbRBBV5l>; Fri, 2 Feb 2001 16:57:41 -0500
+	id <S129412AbRBBV7x>; Fri, 2 Feb 2001 16:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129976AbRBBV5c>; Fri, 2 Feb 2001 16:57:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50440 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129637AbRBBV53>; Fri, 2 Feb 2001 16:57:29 -0500
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-To: ionut@moisil.cs.columbia.edu (Ion Badulescu)
-Date: Fri, 2 Feb 2001 21:57:39 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), reiser@namesys.com (Hans Reiser),
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        kas@informatics.muni.cz (Jan Kasprzak)
-In-Reply-To: <200102022122.f12LMct11509@moisil.dev.hydraweb.com> from "Ion Badulescu" at Feb 02, 2001 01:22:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129976AbRBBV7o>; Fri, 2 Feb 2001 16:59:44 -0500
+Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:32476
+	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S129412AbRBBV7h>; Fri, 2 Feb 2001 16:59:37 -0500
+Message-ID: <3A7B2B83.77548C64@nortelnetworks.com>
+Date: Fri, 02 Feb 2001 16:49:55 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: question regarding routing/ethertap
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14OoD8-0007GI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As it stands, there is no way to determine programatically whether
-> gcc-2.96 is broken or now. The only way to do it is to check the RPM
-> version -- which, needless to say, is a bit difficult to do from the
-> C code about to be compiled. So I can't really blame Hans if he decides
-> to outlaw gcc-2.96[.0] for reiserfs compiles.
 
-Oh I can see why Hans wants to cut down his bug reporting load. I can also
-say from experience it wont work. If you put #error in then everyone will
-mail him and complain it doesnt build, if you put #warning in nobody will
-read it and if you dont put anything in you get the odd bug report anyway.
+I have a quick question regarding the ethertap device and routing.  We're seeing
+the contents of the packet coming up through the ethertap device just fine, but
+the originating address seems to be overwritten with the ethertap device's
+address.
 
-Basically you can't win and unfortunately a shrink wrap forcing the user
-to read the README file for the kernel violates the GPL ..
+Am I missing something obvious here?  I'm positive that this isn't how it's
+supposed to work, but I don't know enough about the routing/forwarding stuff in
+the kernel to know what I need to change.
 
-Jaded, me ?
+Thanks,
 
-Alan
+Chris
 
-
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261730AbTCZP5A>; Wed, 26 Mar 2003 10:57:00 -0500
+	id <S261734AbTCZP6Z>; Wed, 26 Mar 2003 10:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261734AbTCZP5A>; Wed, 26 Mar 2003 10:57:00 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:43524 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261730AbTCZP47>; Wed, 26 Mar 2003 10:56:59 -0500
-Date: Wed, 26 Mar 2003 16:08:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] s390 update (4/9): common i/o layer update.
-Message-ID: <20030326160810.A17984@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <200303261610.16448.schwidefsky@de.ibm.com>
+	id <S261744AbTCZP6Z>; Wed, 26 Mar 2003 10:58:25 -0500
+Received: from waste.org ([209.173.204.2]:64493 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261734AbTCZP6X>;
+	Wed, 26 Mar 2003 10:58:23 -0500
+Date: Wed, 26 Mar 2003 10:09:09 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, ptb@it.uc3m.es,
+       Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ENBD for 2.5.64
+Message-ID: <20030326160908.GG20244@waste.org>
+References: <3E81132C.9020506@pobox.com> <200303252053.h2PKrRn09596@oboe.it.uc3m.es> <3E81132C.9020506@pobox.com> <5.1.0.14.2.20030326182627.0387b1a0@mira-sjcm-3.cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303261610.16448.schwidefsky@de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Mar 26, 2003 at 04:10:16PM +0100
+In-Reply-To: <5.1.0.14.2.20030326182627.0387b1a0@mira-sjcm-3.cisco.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 04:10:16PM +0100, Martin Schwidefsky wrote:
-> +	typeof (chsc_area_ssd.response_block)
-> +		*ssd_res = &chsc_area_ssd.response_block;
+On Wed, Mar 26, 2003 at 06:31:31PM +1100, Lincoln Dale wrote:
+> At 11:55 PM 25/03/2003 -0600, Matt Mackall wrote:
+> >> Yeah, iSCSI handles all that and more.  It's a behemoth of a
+> >> specification.  (whether a particular implementation implements all that
+> >> stuff correctly is another matter...)
+> >
+> >Indeed, there are iSCSI implementations that do multipath and
+> >failover.
+> 
+> iSCSI is a transport.
+> logically, any "multipathing" and "failover" belongs in a layer above it -- 
+> typically as a block-layer function -- and not as a transport-layer 
+> function.
+>
+> multipathing belongs elsewhere -- whether it be in MD, LVM, EVMS, DevMapper 
+> PowerPath, ...
 
-Yikes!  Please use the actual type here instead of typeof()
+Funny then that I should be talking about Cisco's driver. :P
 
-> +	if (sch->lpm == 0)
-> +		return -ENODEV;
-> +	else
-> +		return -EACCES;
+iSCSI inherently has more interesting reconnect logic than other block
+devices, so it's fairly trivial to throw in recognition of identical
+devices discovered on two or more iSCSI targets..
+ 
+> >Both iSCSI and ENBD currently have issues with pending writes during
+> >network outages. The current I/O layer fails to report failed writes
+> >to fsync and friends.
+> 
+> these are not "iSCSI" or "ENBD" issues.  these are issues with VFS.
 
-I'd write this as return (sch->lpm ? -EACCES : -ENODEV), but maybe I'm
-just too picky..
+Except that the issue simply doesn't show up for anyone else, which is
+why it hasn't been fixed yet. Patches are in the works, but they need
+more testing:
 
-> -	sch = kmalloc (sizeof (*sch), GFP_DMA);
-> +	sch = kmalloc (sizeof (*sch), GFP_KERNEL | GFP_DMA);
+http://www.selenic.com/linux/write-error-propagation/
 
-What about using GFP_KERNEL | __GFP_DMA instead?  This makes it
-more clear that it's just a qualifier.
-
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

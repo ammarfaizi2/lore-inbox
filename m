@@ -1,103 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVBOBFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVBOBGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVBOBFF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 20:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVBOBDr
+	id S261588AbVBOBGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 20:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVBOBFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 20:03:47 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12173 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261582AbVBOBBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 20:01:09 -0500
-Subject: Re: [BK] upgrade will be needed
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215003535.GB32158@bitmover.com>
-References: <3586df11f3bb037ab4b0284109ff9c0a@dalecki.de>
-	 <200502140923.03155.rmiller@duskglow.com>
-	 <20050214174932.GB8846@bitmover.com>
-	 <1108406835.8413.20.camel@localhost.localdomain>
-	 <20050214190137.GB16029@bitmover.com>
-	 <1108415541.8413.48.camel@localhost.localdomain>
-	 <20050214231148.GP13174@bitmover.com>
-	 <1108425420.8413.78.camel@localhost.localdomain>
-	 <20050215000028.GS13174@bitmover.com>
-	 <1108426451.8413.84.camel@localhost.localdomain>
-	 <20050215003535.GB32158@bitmover.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 14 Feb 2005 20:00:59 -0500
-Message-Id: <1108429259.8413.99.camel@localhost.localdomain>
+	Mon, 14 Feb 2005 20:05:51 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:38638 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261562AbVBOBEk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 20:04:40 -0500
+Date: Mon, 14 Feb 2005 17:04:35 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Sergey Vlasov <vsu@altlinux.ru>,
+       Al Borchers <alborchers@steinerpoint.com>, david-b@pacbell.net,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC UPDATE PATCH] add wait_event_*_lock() functions and comments
+Message-ID: <20050215010435.GD2403@us.ibm.com>
+References: <1108105628.420c599cf3558@my.visi.com> <200502121238.31478.arnd@arndb.de> <20050212162835.4b95d635.vsu@altlinux.ru> <200502130341.07746.arnd@arndb.de> <29495f1d05021221003ef31c3e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <29495f1d05021221003ef31c3e@mail.gmail.com>
+X-Operating-System: Linux 2.6.11-rc3 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 16:35 -0800, Larry McVoy wrote:
-> On Mon, Feb 14, 2005 at 07:14:11PM -0500, Steven Rostedt wrote:
-> > On Mon, 2005-02-14 at 16:00 -0800, Larry McVoy wrote:
-> > > How about this?
-> > > 
-> > > http://lkml.org/lkml/2003/12/14/47
+On Sat, Feb 12, 2005 at 09:00:52PM -0800, Nish Aravamudan wrote:
+> On Sun, 13 Feb 2005 03:41:01 +0100, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Sünnavend 12 Februar 2005 14:28, Sergey Vlasov wrote:
+> > > On Sat, 12 Feb 2005 12:38:26 +0100 Arnd Bergmann wrote:
+> > > > #define __wait_event_lock(wq, condition, lock, flags)                  \
+> > > > do {                                                                   \
+> > > >        DEFINE_WAIT(__wait);                                            \
+> > > >                                                                        \
+> > > >        for (;;) {                                                      \
+> > > >                prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);    \
+> > > >                spin_lock_irqsave(lock, flags);                         \
+> > > >                if (condition)                                          \
+> > > >                        break;                                          \
+> > > >                spin_unlock_irqrestore(lock, flags);                    \
+> > > >                schedule();                                             \
+> > > >        }                                                               \
+> > > >        spin_unlock_irqrestore(lock, flags);                            \
+> > > >        finish_wait(&wq, &__wait);                                      \
+> > > > } while (0)
+> > >
+> > > But in this case the result of testing the condition becomes useless
+> > > after spin_unlock_irqrestore - someone might grab the lock and change
+> > > things.   Therefore the calling code would need to add a loop around
+> > > wait_event_lock - and the wait_event_* macros were added precisely to
+> > > encapsulate such a loop and avoid the need to code it manually.
 > > 
-> > I don't know about others, but it solves my issues.  I'm one of the many
-> > that use BK not for the changes, but just for the snapshots. This seems
-> > to do it.  Warning, you will still not please a lot of the complainers
-> > on the list, but myself (and others) would be satisfied.
+> > Ok, i understand now what the patch really wants to achieve. However,
+> > I'm not convinced it's a good idea. In the usb/gadget/serial.c driver,
+> > this appears to work only because an unconventional locking scheme is
+> > used, i.e. there is an extra flag (port->port_in_use) that is set to
+> > tell other functions about the state of the lock in case the lock holder
+> > wants to sleep.
+> > 
+> > Is there any place in the kernel that would benefit of the
+> > wait_event_lock() macro family while using locks without such
+> > special magic?
 > 
-> Well it would sure help if you said that in public.  Unless people ask
-> for this we aren't going to go build it and support it on bkbits.net.
-> It needs to solve problems for a pile of people or we can't afford to do
-> it.
-> 
+> Sorry for replying from a different account, but it's the best I can
+> do right now. I know while I was scanning the whole kernel for other
+> wait_event*() replacements, I thought at least a handful of times,
+> "ugh, I could replace this whole block of code, except for that lock!"
+> I will try to get you a more concrete example on Monday. Thanks for
+> the feedback & patience!
 
-I wasn't very active on the list back then, but post something like this
-again and I'll second it publicly. You may have already done so, but I
-might have missed it. I'll cc the LKML to make this public anyway.
+Here's at least one example:
 
-> > As someone mentioned. Still do what you were going to do (keep BK free
-> > for Open Source albeit the restriction). But have this for those of us
-> > that can't go with the restriction, but still like the latest snapshots
-> > of the kernel. In essence, two free versions, where one is "more free"
-> > but also "crippled".
-> 
-> There are HUGE costs with maintaining multiple versions, I'd like to
-> avoid that.  We've specced out what it would cost us to maintain 
-> old/new versions that talked to each other and it's more or less twice
-> as much engineering because you have to backport each new feature needed
-> for compat, you have to figure out which bugs have to be backported,
-> etc., etc.  It is very very expensive and takes up the resources of our
-> most important people.
+drivers/ieee1394/video1394.c:__video1394_ioctl()
 
-I don't know the architecture of the tool, but I've worked on some
-pretty big projects, that could disable most of the tool with just a
-simple config option. Heck, the Linux kernel does this.  But if the
-design of the tool is such that you can't disable features without
-destroying others (like removing IE from Windows),  then I guess this is
-not an option. 
+I'm having trouble finding more (maybe I already fixed some of them via
+the existing macros in different ways -- or maybe my memory is just
+acting up...).
 
-I guess you are dealing with three groups of people.
+I think this patch/macro can be useful for wait-queues where the same
+lock is used to protect the sleeper and the sleeper's data?
 
-1) The ones paying you. The companies that spend money to get things
-done.  -- Needs full version of BK.
+Any further feedback would be appreciated, or any recommendations for
+better ways of doing things. I really would just like to have one
+consistent interface for all wait-queue usage :) The fact that was is
+nearly (but not quite) done by wait_event*() has to be defined somewhere
+else just to get that functionality, when it costs little to add it to a
+common header, makes this a pretty small change to me.
 
-2) The Open Source developers, Linus and others that like BK and will
-work with it with whatever license you give it. -- Needs strong version
-of BK. Probably no more than 100 users (or less).
+But, Arnd, I understand your concern. It would not be good if we had a
+bunch of lock-holding sleepers pop up now! I will try to think of a
+better solution.
 
-3) The Open Source users, tweakers, hackers that are not the core
-developers. -- Needs only to checkout the kernel. Probably over 1000
-users.  I fall in this category.
-
-This is why we have asked about three versions. Obviously, Linus and
-friends are the most important part for the Linux community, so even if
-it hurts 2000 other people that only want to download the lastest
-snapshots from BK, it really doesn't matter.  Let us complain, but
-unless Linus decides to go elsewhere, we are stuck.  So don't do the
-crippled version if it hurts Linus.
-
--- Steve
-
-
+Thanks,
+Nish

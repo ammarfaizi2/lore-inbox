@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUFYJDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265495AbUFYJGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUFYJDV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 05:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUFYJDV
+	id S265495AbUFYJGY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 05:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUFYJGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 05:03:21 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:13451 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S265233AbUFYJDU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 05:03:20 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: not detectable
-To: For users of Fedora Core releases <fedora-list@redhat.com>
-Subject: scsi (driver sg) error fix requires a reboot
-Date: Fri, 25 Jun 2004 05:03:12 -0400
-User-Agent: KMail/1.6.2
+	Fri, 25 Jun 2004 05:06:24 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:42925 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S265495AbUFYJGW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 05:06:22 -0400
+Date: Fri, 25 Jun 2004 11:04:13 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Andreas Gruenbacher <agruen@suse.de>,
+       Andreas Dilger <adilger@clusterfs.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: RFC: Testing for kernel features in external modules
+Message-ID: <20040625090413.GM3956@marowsky-bree.de>
+References: <20040624203043.GA4557@mars.ravnborg.org> <20040624203516.GV31203@schnapps.adilger.int> <200406251032.22797.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406250503.12752.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.153.74.164] at Fri, 25 Jun 2004 04:03:18 -0500
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200406251032.22797.agruen@suse.de>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On 2004-06-25T10:32:22,
+   Andreas Gruenbacher <agruen@suse.de> said:
 
-I'm running fedora FC1, but with the most recent 2.6.7-rc3-mm2 kernel, 
-however this doesn't seem to be particularly kernel version 
-sensitive.  I first noted this maybe 3 or 4 years ago, and its bit me 
-maybe 3 or 4 times since.
+> I disagree. I don't think we want to clutter the code with feature
+> definitions that have no known users. That doesn't age/scale very
+> well. It's easy enough to test for features in the external module.
 
-If I use mtx (version in this instant case is 1.2.18rel) to manipulate 
-my tape changer, and there is an error in loading the tape (which it 
-actually did just fine by the way), the only apparent recovery seems 
-to be a reboot as /dev/sg1 is no longer functioning for the amanda 
-required usages after the error.
+True enough, but how do you propose to do that? I do understand the pain
+of the external module builds who have to try and support the vanilla
+kernel plus several vendor trees.
 
-Is this a known bug, or something rather obscure?
+Yes, of course, we could end up with a autoconf like approach for
+building them, but ... you know ... that's sort of ugly.
+
+Having a list of defines to document the version of a specific API in
+the kernel, and a set of defines pre-fixed with <vendor>_ to document
+vendor tree extensions may not be the worst thing:
+
+- if the vendor backports a given feature + API from mainstream, the
+  define can be set to match the mainstream version;
+- If vendor introduces a vendor API extension, the vendor extension
+  would come into play.
+- If the vendor API eventually merges with the mainstream API again, the
+  vendor define goes away again and rule 1 applies.
+
+This should age pretty well - as soon as an external code tree drops
+support for a given version, they can clean out all the #ifdefs they had
+based on this.
+
+Now the granularity of the API versioning is interesting - per .h is too
+coarse, and per-call would be too fine. But I'm sure someone could come
+up with a sane proposal here.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty.  Soap, ballot, 
-jury, and ammo.
- Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett,
-all rights
-reserved.
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
+

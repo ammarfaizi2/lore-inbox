@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUJEXt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUJEXtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUJEXt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUJEXt4
+	id S266034AbUJEXtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUJEXtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:49:56 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:33448 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266362AbUJEXtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:49:53 -0400
-Subject: Re: [PATCH] ide-dma blacklist behaviour broken
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20041005154628.GG19971@suse.de>
-References: <20041005142001.GR2433@suse.de>
-	 <20041005163730.A19554@infradead.org>  <20041005154628.GG19971@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097016410.23923.8.camel@localhost.localdomain>
+	Tue, 5 Oct 2004 19:49:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30927 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266034AbUJEXth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 19:49:37 -0400
+Date: Tue, 5 Oct 2004 16:53:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2 ip_conntrack problems
+Message-Id: <20041005165314.422a3281.akpm@osdl.org>
+In-Reply-To: <200410051913.00266.edt@aei.ca>
+References: <20041004020207.4f168876.akpm@osdl.org>
+	<200410041941.56453.edt@aei.ca>
+	<20041004170853.34d25529.akpm@osdl.org>
+	<200410051913.00266.edt@aei.ca>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 05 Oct 2004 23:46:57 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-10-05 at 16:46, Jens Axboe wrote:
-> I didn't check, someone just reported today. But looking at eg 2.6.5, it
-> seems to have the same bug. So it's likely very old.
+Ed Tomlinson <edt@aei.ca> wrote:
+>
+> The startup hangs at the same place rc2-mm1 did.
 
-We should actually probably nuke most of the IDE blacklist, much of the
-CD-ROM blacklist arose because we DMA rather than PIO'd the ATAPI CDB.
+I'll forward your report to linux-usb-devel@lists.sourceforge.net.
+The USB tree seems fairly broken lately.
+
+> Disabling APCI does not help.  Recient mm build only
+> work if APCI is enabled here.
+
+Please send a .config which exhibits this failure.
 

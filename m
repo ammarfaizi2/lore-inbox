@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272691AbTHEMA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 08:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272692AbTHEMA7
+	id S272676AbTHEMNM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272681AbTHEMNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 08:00:59 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:11279 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S272691AbTHEMAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 08:00:55 -0400
-Date: Tue, 5 Aug 2003 14:00:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Christoph Hellwig <hch@lst.de>
-cc: James.Bottomley@steeleye.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] simplify i386 mca Kconfig bits
-In-Reply-To: <20030805113551.GB23754@lst.de>
-Message-ID: <Pine.LNX.4.44.0308051347060.717-100000@serv>
-References: <20030805113154.GA23728@lst.de> <20030805113351.GA23754@lst.de>
- <20030805113551.GB23754@lst.de>
+	Tue, 5 Aug 2003 08:13:12 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15745 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S272676AbTHEMNL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 08:13:11 -0400
+Date: Tue, 5 Aug 2003 08:14:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Rafael Costa dos Santos <rafael@thinkfreak.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Module Programming
+In-Reply-To: <200308050838.49544.rafael@thinkfreak.com.br>
+Message-ID: <Pine.LNX.4.53.0308050808350.4731@chaos>
+References: <200308050838.49544.rafael@thinkfreak.com.br>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 5 Aug 2003, Rafael Costa dos Santos wrote:
 
-On Tue, 5 Aug 2003, Christoph Hellwig wrote:
+> Where can I follow the modifications under the main functions of linux kernel
+> programming between versions of kernerl?
+>
+> I am asking that because I have some work on that area and I want it to be
+> portable to every kernel versions.
+>
 
-> --- 1.62/arch/i386/Kconfig	Thu Jun 19 19:06:56 2003
-> +++ edited/arch/i386/Kconfig	Tue Jun 24 21:31:52 2003
-> @@ -1104,16 +1104,13 @@
->  
->  config MCA
->  	bool "MCA support"
-> -	depends on !(X86_VISWS || X86_VOYAGER)
-> +	depends on !X86_VISWS
-> +	default y if X86_VOYAGER
->  	help
->  	  MicroChannel Architecture is found in some IBM PS/2 machines and
->  	  laptops.  It is a bus system similar to PCI or ISA. See
->  	  <file:Documentation/mca.txt> (and especially the web page given
->  	  there) before attempting to build an MCA bus kernel.
-> -
-> -config MCA
-> -	depends on X86_VOYAGER
-> -	default y if X86_VOYAGER
+Well you can't be "portable to every kernel version", but you
+can design your modules so that they will compile and run on
+every version that supports modules.
 
-This is not really the same as before, e.g. this might be better:
+The easiest thing is to try to compile your module, designed for
+an older version, using a newer version of kernel headers. You
+can then "fix" things that don't compile. You fix them inside
+some compiler conditionals so they are not "fixed", hense broken,
+for previous versions.
 
-config MCA
-	bool "MCA support" if !(X86_VISWS || X86_VOYAGER)
-	default y if X86_VOYAGER
+If you have a lot of modules, then you probably should make a
+'configure' program or script that sets the proper conditionals
+in some dynamic header file, based upon the kernel version.
 
-or you could do this:
-
-config X86_VOYAGER
-	bool "Voyager (NCR)"
-	select MCA
-
-config MCA
-	bool "MCA support"
-	depends on !X86_VISWS
-
-bye, Roman
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

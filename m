@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUIQFqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUIQFyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267651AbUIQFqP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 01:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIQFqP
+	id S268206AbUIQFyh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 01:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUIQFye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 01:46:15 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:17792 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267651AbUIQFpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 01:45:53 -0400
-Message-ID: <414A7A01.9080708@nortelnetworks.com>
-Date: Thu, 16 Sep 2004 23:45:37 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-References: <16714.14118.212946.499226@wombat.chubb.wattle.id.au>
-In-Reply-To: <16714.14118.212946.499226@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 17 Sep 2004 01:54:34 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:56806 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S268206AbUIQFyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 01:54:33 -0400
+Subject: Re: hotplug e1000 failed after 32 times
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20040916221406.1f3764e0.akpm@osdl.org>
+References: <1095396793.10407.9.camel@sli10-desk.sh.intel.com>
+	 <20040916221406.1f3764e0.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1095400095.10407.13.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 17 Sep 2004 13:48:15 +0800
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
-
-> This depends on how expensive % is.  On IA64, something like this:
+On Fri, 2004-09-17 at 13:14, Andrew Morton wrote:
+> Li Shaohua <shaohua.li@intel.com> wrote:
+> >
+> > I'm testing a hotplug driver. In my test, I will hot add/remove an e1000
+> >  NIC frequently. The result is my hot add failed after 32 times hotadd.
+> >  After looking at the code of e1000 driver, I found
+> >  e1000_adapter->bd_number has maxium limitation of 32, and it increased
+> >  one every hot add. Looks like the remove driver routine didn't free the
+> >  'bd_number', so hot add failed after 32 times. Below patch fixes this
+> >  issue.
 > 
->      add(char c) {
-> 	     int i = p->head == p->len ? p->head++ : 0;
-> 	     p->buf[i] = c;
->      }
-> 
-> is cheaper, as % generates a subroutine call to __modsi3.  It also is
-> shorter =-- 12 bundles as opposed to 15.
+> Yeah.  I think you'll find that damn near every net driver in the kernel
+> has this problem.  I think it would be better to create a little suite of
+> library functions in net/core/dev.c to handle this situation.
+Thanks Andrew. That makes sense. I will add as you said.
 
-I did a similar test once for ppc that found that an increment followed by a 
-test (marked unlikely) was actually quicker in practice than modulo arithmetic. 
-  The branch predictor got it right most of the time, so the test was almost free.
+Thanks,
+Shaohua
 
-Chris

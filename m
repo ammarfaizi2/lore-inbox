@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265628AbUBBOTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 09:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBBOTJ
+	id S265630AbUBBOil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 09:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBBOil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 09:19:09 -0500
-Received: from ol.freeshell.org ([192.94.73.20]:32233 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S265628AbUBBOTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 09:19:07 -0500
-Date: Mon, 2 Feb 2004 14:19:05 +0000 (UTC)
-From: Ognen Duzlevski <maketo@sdf.lonestar.org>
-X-X-Sender: maketo@mx.freeshell.org
-To: linux-kernel@vger.kernel.org
-Subject: real-time filesystem monitoring
-Message-ID: <Pine.NEB.4.58.0402021412150.12346@mx.freeshell.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Feb 2004 09:38:41 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:30677 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S265630AbUBBOij
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 09:38:39 -0500
+Date: Mon, 2 Feb 2004 08:38:36 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: trelane@digitasaru.net, bluefoxicy@linux.net, linux-kernel@vger.kernel.org
+Subject: Re: ACPI -- Workaround for broken DSDT
+Message-ID: <20040202083836.A20843@lists.us.dell.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC8A85@hdsmsx402.hd.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC8A85@hdsmsx402.hd.intel.com>; from len.brown@intel.com on Sun, Feb 01, 2004 at 11:33:44PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Feb 01, 2004 at 11:33:44PM -0500, Brown, Len wrote:
+> For non-vendor supplied solutions, you might also follow the DSDT link
+> here: http://acpi.sourceforge.net/  
 
-I am working on a GPL-ed tool to monitor a filesystem in real time and
-then perform a backup as soon as something has changed. In that direction
-I tried FAM/libfam and dnotify and both choked on large directory
-hierarchies. dnotify seems to require open file descriptors so it is not a
-good solution unless one is to carefully control the number of the file
-descriptors open and perform (sometimes large and slow) directory
-re-reads every time there is some change (whose nature dnotify will not
-report). I wanted to also port the code to Windows and provide a free
-solution for its users and it turns out implementing such a solution on
-Windows is much easier - there is a function called ReadDirectoryChangesW
-which will notify an application every time there is a filesystem-wide
-change and provide all information about this change. Anything similar on
-Linux?
+Len, this is a really good idea making this available.  May I suggest
+you also have people provide patches between the original and their
+modified versions, so it's easy for everyone to see what was changed?
 
-Thank you,
-Ognen
+Thanks,
+Matt (who's not looking forward to pulling 20 systems from the
+hardware library and flashing BIOSses to pull the original DSDT to
+compare with what users suggest need to be fixed for each one before
+he can file bug reports with the BIOS writers...)
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

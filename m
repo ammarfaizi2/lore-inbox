@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289312AbSA3PmQ>; Wed, 30 Jan 2002 10:42:16 -0500
+	id <S289314AbSA3PoG>; Wed, 30 Jan 2002 10:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289314AbSA3PmH>; Wed, 30 Jan 2002 10:42:07 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:1427 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289312AbSA3Plz>;
-	Wed, 30 Jan 2002 10:41:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Date: Wed, 30 Jan 2002 16:46:05 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
+	id <S289315AbSA3Pn4>; Wed, 30 Jan 2002 10:43:56 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:23712
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289314AbSA3Pnv>; Wed, 30 Jan 2002 10:43:51 -0500
+Date: Wed, 30 Jan 2002 08:42:33 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
         Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-        killeri@iki.fi
-In-Reply-To: <Pine.LNX.4.33.0201301306190.7674-100000@serv> <20020130161105.E9765@jaquet.dk> <20020130162851.H9765@jaquet.dk>
-In-Reply-To: <20020130162851.H9765@jaquet.dk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Vww1-0000FS-00@starship.berlin>
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130154233.GK25973@opus.bloom.county>
+In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin> <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 04:28 pm, Rasmus Andersen wrote:
-> On Wed, Jan 30, 2002 at 04:11:05PM +0100, Rasmus Andersen wrote:
-> > If I understand correctly, the bot would, in its basic incarnation,
-> > accept patches (at patchbot@somewhere), stamp them with an uid,
-> > and forward them to various places, e.g., lists, maintainers etc
-> > and let the sumbitter know the patch uid. A mailing list archive
-> > would then be the patch store. Basic filtering could be done by
-> > the bot to reject non-patches etc.
+On Tue, Jan 29, 2002 at 11:48:05PM -0800, Linus Torvalds wrote:
+ 
+> -- tangential --
 > 
-> Somehow, I totally forgot the security disclaimer for some of
-> the points. Obviously, mindlessly patching a makefile and
-> executing it would be a Bad Idea. If no satisfying solution
-> to this can be found, this (execute/compile) step could be 
-> foregone.
+> One thing intrigued me in this thread - which was not the discussion
+> itself, but the fact that Rik is using bitkeeper.
 > 
-> Thanks to Tommy Faasen for raising this point.
+> How many other people are actually using bitkeeper already for the kernel?
+> I know the ppc guys have, for a long time, but who else is? bk, unlike
+> CVS, should at least be _able_ to handle a "network of people" kind of
+> approach.
 
-I'd say, don't try to run it, just see if it applies cleanly.
-
-Speaking of security, we can't expect Matti to take care of blocking spam
-on the patch lists the way he does on lkml, so that is going to have to
-be handled, or the system will fall apart.  Well, spammers are not going
-to be bright enough to send correctly formed patches that apply without
-rejects I hope, so maybe that is a non-problem.
-
-The patchbot will have to understand the concept of a patch set, a
-series of patches that apply in a particular order.  If it can handle
-that it probably doesn't need a general way of handling inter-patch
-relationships, at least to start.
+It does in some ways anyhow.  Following things downstream is rather
+painless, but one of the things we in the PPC tree hit alot is when we
+have a new file in one of the sub trees and want to move it up to the
+'stable' tree, or when it shows up in your/marcelo's tree.  bk send only
+works for same base tree type things (ie a clone of tree X, some
+changes, not a clone of tree Y, which was a clone of tree X but has lots
+of changes and has tree X changes pulled in frequently).  Unfortunaly I
+don't think this is an easy problem to work on either.
 
 -- 
-Daniel
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

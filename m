@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVDFO34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVDFOid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVDFO34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 10:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVDFO34
+	id S262217AbVDFOid (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 10:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVDFOid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 10:29:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40909 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262216AbVDFO3t (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 10:29:49 -0400
-Date: Wed, 6 Apr 2005 07:25:13 -0700
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Derek Cheung <derek.cheung@sympatico.ca>,
-       "'Andrew Morton'" <akpm@osdl.org>, Linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
-Message-ID: <20050406142513.GB27741@kroah.com>
-References: <003901c53a51$0093b7d0$1501a8c0@Mainframe> <42535AF1.5080008@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Apr 2005 10:38:33 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:30731 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S262217AbVDFOic
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 10:38:32 -0400
+From: Joe Button <joe@joebutton.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1: Mouse stopped working
+Date: Wed, 6 Apr 2005 15:44:56 +0100
+User-Agent: KMail/1.7.2
+References: <200504061319.39431.vger.kernel.org@joebutton.co.uk> <4253E938.4040306@aitel.hist.no>
+In-Reply-To: <4253E938.4040306@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42535AF1.5080008@osdl.org>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200504061544.57029.joe@joebutton.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 08:43:45PM -0700, Randy.Dunlap wrote:
-> Big Question:  does most Coldfire or I2C use volatile so heavily,
-> or is it just this one driver that does that?  Volatile here
-> semms very overused.
+On Wednesday 06 April 2005 14:50, Helge Hafting wrote:
+> Joe Button wrote:
+> >My mouse stopped working in x.org with 2.6.12-rc1. Problem is still there
+> > in 2.6.12-rc2. Works on 2.6.11.x with same .config (except for make
+> > oldconfig / defaults).
+>
+> Yes, but it may have moved to mouse1 or some such.
+> Do you have a fancy keyboard with a wheel (perhaps a
+> volume control) on it?  That may have become
+> a "mouse" now.
 
-It's not a i2c issue, volatile should not be needed here at all.
+Aha, /dev/input/mouse1 works. Thanks Helge and Benoit. No fancy keyboard, 
+wheels etc so I don't know why it's moved.
 
-thanks,
+Aside: I guess this sort of thing's why people keep complaining about the 2.6 
+series not being 'stable' enough. Not a huge deal here though.
 
-greg k-h

@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265635AbTFRX6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 19:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265637AbTFRX6x
+	id S265637AbTFSAAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265638AbTFSAAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 19:58:53 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:21752 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S265635AbTFRX6v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 19:58:51 -0400
-Message-ID: <3EF10002.7020308@cox.net>
-Date: Wed, 18 Jun 2003 17:12:50 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030603
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@tech9.net>,
-       Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@digeo.com>,
-       sdake@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-References: <3EE8D038.7090600@mvista.com> <1055459762.662.336.camel@localhost> <20030612232523.GA1917@kroah.com> <200306132201.47346.oliver@neukum.org> <20030618225913.GB2413@kroah.com>
-In-Reply-To: <20030618225913.GB2413@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jun 2003 20:00:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16351 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265637AbTFSAAl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:00:41 -0400
+Date: Wed, 18 Jun 2003 16:52:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chris@wirex.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] PCI device list locking - take 2
+Message-ID: <20030618235232.GA2667@kroah.com>
+References: <20030618212921.GA1807@kroah.com> <20030618153324.A20212@figure1.int.wirex.com> <20030618224609.GB2215@kroah.com> <20030618163237.A21050@figure1.int.wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030618163237.A21050@figure1.int.wirex.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
->>If this kmalloc fails, you'll have a hole in the numbers and
->>user space will be very confused. You need to report dropped
->>events if you do this.
+On Wed, Jun 18, 2003 at 04:32:37PM -0700, Chris Wright wrote:
+> * Greg KH (greg@kroah.com) wrote:
+> > Hm, I think we should probably just check in pci_get_device() to verify
+> > that ->next is really valid.  If it isn't just return NULL, as we have
+> > no idea what the next device would possibly be.  The worse thing that
+> > would happen is the proc file would be a bit shorter than expected.  If
+> > read again, it would be correct, with the previously referenced device
+> > now gone.
 > 
-> 
-> Yes, we should add the sequence number last.
-> 
+> I'm not sure testing a valid ->next makes sense.  It could be non-NULL,
+> but poison, or if it was using list_del_init, it would be stuck in loop.
 
-While this is not a bad idea, I don't think you want to make a promise 
-to userspace that there will never be gaps in the sequence numbers. When 
-this sequence number was proposed, in my mind it seemed perfect because 
-then userspace could _order_ multiple events for the same device to 
-ensure they got processed in the correct order. I don't know that any 
-hotplug userspace implementation is going to be large and complex enough 
-to warrant "holding" events until lower-numbered events have been 
-delivered. That just seems like a very difficult task with little 
-potential gain, but I could very well be mistaken :-)
+When we take the devices off of the list, after list_del(), still under
+the lock, we can null out the list pointers.  Then, later under the
+lock, we can check the pointer before we move to it.  We aren't doing
+fancy list_* functions with the pci device lists at all.
 
+> > I don't want to try to hold a lock over start/next/stop as that would
+> > just be asking for trouble :)
+> 
+> Heh, I agree, it doesn't feel quite right to acquire lock and release
+> lock in separate functions, but in the case of start/show/next/stop this
+> seems to be the design.  Alternative here seems to be keeping thing on
+> list with get and deleting from with put on last ref, but that didn't
+> look so simple.
+
+No, that isn't the proper model anyway.  After the device is removed, we
+don't want to still have it floating around on the device lists, even if
+someone has a reference to it.  That would make things just too
+difficult :)
+
+I'll go and try to see how the above proposed changes will work out, and
+see if I can see any side affects when beating on /proc/pci on a pci
+hotplug box...
+
+thanks,
+
+greg k-h

@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132478AbRDYVGI>; Wed, 25 Apr 2001 17:06:08 -0400
+	id <S132483AbRDYVJ2>; Wed, 25 Apr 2001 17:09:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132483AbRDYVF5>; Wed, 25 Apr 2001 17:05:57 -0400
-Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:40693
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S132478AbRDYVFw>; Wed, 25 Apr 2001 17:05:52 -0400
-Subject: Re: 2.2.19 Realaudio masq problem
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Dave Mielke <dave@mielke.cc>
-Cc: Whit Blauvelt <whit@transpect.com>, Tim Moore <timothymoore@bigfoot.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0104251450550.1012-100000@dave.private.mielke.cc>
-In-Reply-To: <Pine.LNX.4.30.0104251450550.1012-100000@dave.private.mielke.cc>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 25 Apr 2001 22:56:11 +0200
-Message-Id: <988232207.32641.4.camel@nomade>
-Mime-Version: 1.0
+	id <S132556AbRDYVJR>; Wed, 25 Apr 2001 17:09:17 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:9168 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S132483AbRDYVJJ>; Wed, 25 Apr 2001 17:09:09 -0400
+Message-ID: <3AE73D43.9DEAE608@kegel.com>
+Date: Wed, 25 Apr 2001 14:10:27 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
+In-Reply-To: <200104252056.PAA44995@tomcat.admin.navo.hpc.mil>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 25 Apr 2001 14:52:56 -0400, Dave Mielke a écrit :
-> [quoted lines by Whit Blauvelt on April 25, 2001, at 13:38]
-> 
-> >On Tue, Apr 24, 2001 at 06:01:05PM -0700, Tim Moore wrote:
-> >> Try '# strace /usr/bin/X11/realplay On24ram.asp > log' and see where the
-> >> connect fails if you aren't getting specific error messages.
+Jesse Pollard wrote:
+> > But one thing XML provides (potentially) is a DTD that defines meanings and formats.
+> > IMHO the kernel needs something like this for /proc (though not in DTD format!).
 > >
-> >Unfortunately this spits out a bunch of stuff and then totally freezes up my
-> >KDE 2.1.1 desktop.
+> > Has anyone ever tried to write a formal syntax for all the entries
+> > in /proc?   We have bits and pieces of /proc documentation in
+> > /usr/src/linux/Documentation, but nothing you could feed directly
+> > into a parser generator.  It'd be neat to have a good definition for /proc
+> > in the LSB, and have an LSB conformance test that could look in
+> > /proc and say "Yup, all the entries there conform to the spec and can
+> > be parsed properly."...
 > 
-> strace writes to standard error, not standard output, by default. Better yet,
-> though, use the -o option of strace to direct its output to a file, which
-> leaves the standard output streams alone for the aplication being traced.
+> From one point of view (that of the /proc entries...) each file
+> is by definition in the proper format. That format is specified
+> (in the /proc interface to the driver). Using "proc_printf" is a
+> specification for the output.
 
-I didn't follow this thread at all (just caught this last mail), but I
-use realplayer8 here, and I actually had to *rmmod* the realaudio
-masquerading module to make it stream audio from the internet on a
-masqueraded machine. The server is a debian with kernel 2.2.19, does
-NAT.
+When two different distributions ship different forks of
+the kernel source, which differ in the arguments passed to proc_printf,
+which one is right?  
+There's no way to tell.  That's why saying "the source is the spec" doesn't cut it.
 
-Xav
+Also, the source is not a specification a parser generator can use.
 
+A formal spec for /proc entries maintained by e.g. the LSB is needed;
+it has to be separate from the source code (to avoid forking problems),
+and it should be machine-readable (so we can build parsers from it).
+
+> That DOES NOT mean that no improvements are possible. If the formats
+> used by the various modules/drivers has some variation in format from
+> access to acess, then the determination of that format must also be
+> included. From what I've seen (via "cat /proc/....") the files all
+> have a fixed format. Sometimes the number of entries varies, but then
+> the count should ALSO be included in the file (in a known place of
+> course). The multi-entry files I've looked at (/proc/net) reach the
+> EOF to end the list. This is not unreasonable.
+
+Yeah, there's a general style that seems to work; it just needs to be
+formalized.
+ 
+> I'm not sure of the usefullness of the title lines that are printed. If
+> looked at in raw form, yes the titles are nice. But the utilities
+> that are aimed at examining the values should not have to discard them, nor
+> should the drivers have to generate them.
+
+I think they're good; they're a little bit like the XML tags you're proposing.
+ 
+> I can live with them anyway, since they are already there.....
+> 
+> The biggest problem I know of is being able to retrieve structure
+> in an atomic manner. Not easy (in any system, not just Linux).
+
+Something SNMP doesn't deal well with, either.  People seem to cope,
+though.
+
+- Dan

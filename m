@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVBNSSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVBNSVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVBNSSs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVBNSSo
+	id S261512AbVBNSVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVBNSVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:18:44 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:19978 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261510AbVBNSRg (ORCPT
+	Mon, 14 Feb 2005 13:21:38 -0500
+Received: from mail1.upco.es ([130.206.70.227]:1213 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261512AbVBNSVP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:17:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OTVgKpiD7Wq/wM2MTsoGMbjzhTEPGozGMFH8fYY490KKCoO06t/nsLdkNAV80BrIiPEl8e7yOee/6mGNejDaXfxBX2rsEZ6iZZezn97fAn2Wr2m8Ypo98VSSiKzQ5chY2uFFph41lTAWAx0nmDmME+Mo/1oKFzFN6I/EMVeIReA=
-Message-ID: <7579f7fb0502141017f5738d1@mail.gmail.com>
-Date: Mon, 14 Feb 2005 10:17:35 -0800
-From: Matthew Jacob <lydianconcepts@gmail.com>
-Reply-To: Matthew Jacob <lydianconcepts@gmail.com>
-To: lm@bitmover.com, Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-In-Reply-To: <20050214154015.GA8075@bitmover.com>
+	Mon, 14 Feb 2005 13:21:15 -0500
+Date: Mon, 14 Feb 2005 19:21:12 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net
+Subject: Repost: BUG 2.6.11-rc1: ACPI keys events: only "arrive" after 8 of them.
+Message-ID: <20050214182112.GA11686@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050214020802.GA3047@bitmover.com>
-	 <58cb370e05021404081e53f458@mail.gmail.com>
-	 <20050214150820.GA21961@optonline.net>
-	 <20050214154015.GA8075@bitmover.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So how would you suggest that we resolve it?  The protection we need is
-> that people don't get to
-> 
->    - use BK
->    - stop using BK so they can go work on another system
->    - start using BK again
->    - stop using BK so they can go work on another system
->    ...
-> 
 
-I guess I don't see the advantage that accrues to BitMover Inc from
-this or what you're trying to do here. I'm not trying to add kerosene
-to a flame fest here, but I'm definitely scratching my head on this
-one.
+Dear Linux gurus, 
 
-Is your concern that you don't want to provide a free tool to people
-who then turn around to compete with you? That is, you don't want BK
-to enable people to do things to harm BK and its ongoing development?
+     this is a minor bug that is puzzling me since my switch from 2.6.7 to
+     2.6.9 (and continuing with 2.6.11-rc1).
 
-I mean- you're certainly free to impose whatever license you want, and
-others are free to be happy or unhappy with that. I'm just trying to
-figure out what you're actually trying to accomplish here.
+     When I press the suspend key on my Vaio FX701, nothing happens. It
+     should trigger an ACPI event that, caught by acpid, run the suspend
+     script (which show a confirmation window); and so worked in 2.6.7.
+
+          
+     Now, the really strange thing: if I press it 8 times in a row, then the
+     event arrives. It's as if the events are queued in a 8-depth queue. If
+     now I cancel suspend, and press another special key, like the
+     combination to switch video output to the external VGA, all the
+     "queued" suspend-event do arrive... this happens with the two "display
+     switch" key, and the "suspend" key. There is no interaction with, for
+     example, lid close event which works as should. 
+
+     I'm stymied. If anyone can help me with this, or simply tell me how to
+     have more data on this, I will try to obtain all the data I can. 
+     I'm using a vanilla 2.6.11-rc1, which config is available here: 
+
+     http://www.dea.icai.upco.es/romano/linux/config-2.6.11rc1.txt
+
+     Thank you in advance,      
+                                Romano 
+     
+
+          
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbUDCXE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 18:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUDCXE7
+	id S262027AbUDCXHW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 18:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUDCXHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 18:04:59 -0500
-Received: from [24.80.50.208] ([24.80.50.208]:18444 "EHLO gw.sieb.net")
-	by vger.kernel.org with ESMTP id S262022AbUDCXE6 (ORCPT
+	Sat, 3 Apr 2004 18:07:22 -0500
+Received: from CS2075.cs.fsu.edu ([128.186.122.75]:32794 "EHLO mail.cs.fsu.edu")
+	by vger.kernel.org with ESMTP id S262027AbUDCXHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 18:04:58 -0500
-Message-ID: <406F42D8.4010301@sieb.net>
-Date: Sat, 03 Apr 2004 15:03:52 -0800
-From: Samuel Sieb <samuel@sieb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040321
-X-Accept-Language: en-us, en
+	Sat, 3 Apr 2004 18:07:19 -0500
+Message-ID: <003b01c419d0$67e59e50$af7aa8c0@VALUED65BAD02C>
+From: "Amit" <khandelw@cs.fsu.edu>
+To: <karim@opersys.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>	<406F21CB.8070908@opersys.com> <1081026049.f64d5288b5aaa@system.cs.fsu.edu> <406F2851.6050304@opersys.com>
+Subject: Re: kernel 2.4.16
+Date: Sat, 3 Apr 2004 18:07:15 -0500
 MIME-Version: 1.0
-To: Aubin LaBrosse <arl8778@rit.edu>
-Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: Re: pc card hangs computer with 2.6 kernel (more details)
-References: <406E2392.2090804@sieb.net> <1080963939.7055.159.camel@rain.rh.rit.edu>
-In-Reply-To: <1080963939.7055.159.camel@rain.rh.rit.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aubin LaBrosse wrote:
+Hi,
+   The patches got installed smoothly however, like in linux-2.4.19 this
+time the "Kernel Tracing" option didn't come up when I did "make xconfig". I
+copied the CONFIG_TRACE=m from my .config of linux-2.4.19. I hope this is
+correct.
 
->  On Fri, 2004-04-02 at 21:38, Samuel Sieb wrote:
->
-> > I sent this originally to the pcmcia list, but haven't seen a
-> > response yet.
-> >
-> > My laptop freezes as soon as I insert a Linksys WPC11 card which is
-> > an 802.11b wireless card. I don't think it's the driver since as
-> > far as I can tell, the drivers aren't included in the kernel (it's
-> > a prism 2). I first tried with a 2.6.1 kernel and then upgraded to
-> > 2.6.4 but it still acts the same. (I'm using Fedora Core Testing,
-> > updated to latest.)
-> >
-> > The laptop is a Compaq Presario 2190
->
->
->  I had similar issues with an hp laptop which was running fedora at
->  the time. It turns out to be the fedora pcmcia config vs the laptop.
->  You can try this /etc/pcmcia/config.opts file, originally posted by
->  Mathieu Lesniak (Thanks Mathieu!) in response to my issue - it forces
->  pcmcia to use a specific irq and memory range, and it Worked For Me
->  (tm)
->
->  --aubin
+Thanks for all the help.
+- Amit Khandelwal
 
-Thank you very much!  (I'm sending this wirelessly.)
-It did take IRQ 10 even though it was excluded in the config file.  But 
-it works, so it was either a port issue or memory issue.  I'll try to 
-narrow it down if I get a chance.
+----- Original Message ----- 
+From: "Karim Yaghmour" <karim@opersys.com>
+To: <khandelw@cs.fsu.edu>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Saturday, April 03, 2004 4:10 PM
+Subject: Re: kernel 2.4.16
+
+
+>
+> khandelw@cs.fsu.edu wrote:
+> > The Patches/ directory of LTT is empty. Do I need to download the
+patches from
+> > somewhere else? The installation of LTT suggests that we need to patch
+the
+> > kernel.
+>
+> The patch was posted to ltt-dev:
+> http://www.listserv.shafik.org/pipermail/ltt-dev/2004-March/000561.html
+>
+> Karim
+> -- 
+> Author, Speaker, Developer, Consultant
+> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
 

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136109AbREDIwD>; Fri, 4 May 2001 04:52:03 -0400
+	id <S135986AbREDJNT>; Fri, 4 May 2001 05:13:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135986AbREDIvz>; Fri, 4 May 2001 04:51:55 -0400
-Received: from bosch82.ncsa.es ([194.224.235.82]:44811 "EHLO www.bosch.es")
-	by vger.kernel.org with ESMTP id <S136066AbREDIvp>;
-	Fri, 4 May 2001 04:51:45 -0400
-Message-ID: <3AF24CA6.10807@juridicas.com>
-Date: Fri, 04 May 2001 08:31:02 +0200
-From: Jorge =?ISO-8859-1?Q?Ner=EDn?= <jnerin@juridicas.com>
-Reply-To: comandante@zaralinux.com
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: es-es, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linux SMP <linux-smp@vger.kernel.org>
-Subject: Re: Memory management issues with 2.4.4
-In-Reply-To: <Pine.LNX.4.21.0105021625520.4127-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S135987AbREDJNJ>; Fri, 4 May 2001 05:13:09 -0400
+Received: from pec-89-74.tnt6.b2.uunet.de ([149.225.89.74]:260 "HELO
+	sonne.glowinginthesun") by vger.kernel.org with SMTP
+	id <S135986AbREDJMw>; Fri, 4 May 2001 05:12:52 -0400
+Date: Fri, 4 May 2001 10:12:19 +0200
+From: Hendrik Volker Brunn <hvb@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: pdc20267 both channels share one IRQ
+Message-ID: <20010504101219.A300@sonne.glowinginthesun>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+Is it ok for an Promise Ultra 100 to have both channels
+assigned the same IRQ?
 
-> 
-> On Wed, 2 May 2001, Jorge Nerin wrote:
-> 
->> Short version:
->> Under very heavy thrashing (about four hours) the system either lockups 
->> or OOM handler kills a task even when there is swap space left.
-> 
-> 
-> First of all, please try to reproduce the problem with 2.4.5-pre1. 
-> 
-> If it still happens with pre1, please show us the output of "cat
-> /proc/slabinfo" when the kernel is about to trigger the OOM killer.
-> 
-> Thanks.
-> 
-Well, I have tried with 2.4.5-pre1 compiled form SMP, and the result has been that this morning when I wake up the system has the console black (is there any way to prevent cons.saver from blanking the screen) and the disks where quiet, so I SysRQ-Sync, Umount, powerOff and then, at the last command the console wake up and I have been saluted with:
+I have one DTLA-307030 attached as master to each channel
+and get transfer rates at around 12 - 16 MB/s.
+As I have heard people reporting transfer rates of about 24 - 28 MB/s
+I was wondering if there were some connections.
 
-Kernel BUG in sched.c:709!
-Invalid operand: 0000
-Dump copied by hand, but not yet filtered by ksymoops (I'm at work now).
-kernel panic Aiee, killing interrupt handler!
-In interrupt not syncing.
+Is it me just being dumb and ignoring obvious facts or something 
+misconfigured weirdly with my system?
 
-This afternoon when I return home I will feed the stack dump to ksymoops and post the results, I mail this now just to see if someone sees the ligth.
+Hendrik
+
+I'm subscribed.
 
 -- 
-Jorge Nerin
-<comandante@zaralinux.com>
-
+"And I'm right. I'm always right, but in this case I'm just a bit more
+right than I usually am" -- Linus Torvald, Sunday Aug 27, 2000.
+## Linux 2.4.4 running on an i586 ##

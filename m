@@ -1,274 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULFQW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbULFQ07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbULFQW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULFQW2
+	id S261555AbULFQ07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULFQ07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:22:28 -0500
-Received: from lug-owl.de ([195.71.106.12]:9433 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261551AbULFQVy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:21:54 -0500
-Date: Mon, 6 Dec 2004 17:21:53 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-Message-ID: <20041206162153.GH16958@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <87acsrqval.fsf@coraid.com>
+	Mon, 6 Dec 2004 11:26:59 -0500
+Received: from mailfe06.swip.net ([212.247.154.161]:54526 "EHLO
+	mailfe06.swip.net") by vger.kernel.org with ESMTP id S261555AbULFQ04
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:26:56 -0500
+X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
+Subject: Re: The bugzilla story
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, zwane@holomorphy.com, akpm@osdl.org
+In-Reply-To: <476570000.1102346931@[10.10.2.4]>
+References: <1102342960.727.59.camel@boxen>
+	 <476570000.1102346931@[10.10.2.4]>
+Content-Type: text/plain
+Date: Mon, 06 Dec 2004 17:26:45 +0100
+Message-Id: <1102350405.727.79.camel@boxen>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a58rN+WbXIGauCK9"
-Content-Disposition: inline
-In-Reply-To: <87acsrqval.fsf@coraid.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-12-06 at 07:28 -0800, Martin J. Bligh wrote:
+> > As some of you may have noticed I've been doing a run on bugzilla for
+> > the last few days to close old bugs and upgrade those who still are real
+> > bugs.
+> > 
+> > I have a few things that I would like to enforce on bugzilla to makes it
+> > more maintanable which it clearly hasn't been for a while - there are
+> > lots and lots of bugs open older than 2.6.0-final.
+> > 
+> > I think the alternative trees section should be dropped. This is
+> > especially a matter for -mm which has most reports of the alternative
+> > trees in bugzilla. -mm changes way too rapidly to keep track of at
+> > bugzilla ending up with open bugs that are fixed long ago.
+> > 
+> > I also think this goes for any alternative tree, that problems should be
+> > reported directly to the maintainer/LKML of the tree. Only if a problem
+> > can be reproduced with the mainline kernel should the bug be reported at
+> > bugzilla. 
+> > 
+> > New bugzilla reports against other trees than mainline should be
+> > rejected and ask the submitter to report directly to the
+> > maintainer/LKML.
+> > 
+> > Andrew, what do you think about bug reports against -mm on bugzilla?
+> > 
+> > Does anyone see a problem with this? 
+> 
+> The subtrees section was created for exactly that reason - to isolate the
+> bugs in alternate trees, and keep the out of everyone else's hair. Now if
+> one was to argue that bugs in -mm should be cleaned up much more agressively,
+> that'd make a lot of sense ... but that should be fairly easy to do as 
+> they're in a separate category you can search by.
+> 
+> The main issue is that there haven't been many people doing what you're doing
+> now ... going through and housekeeping the bugs.
 
---a58rN+WbXIGauCK9
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The thing is that -mm changes so fast that a bug reported can be solved
+an hour later, leaving a stale bug report for a few days (or years).
+Whoever wants to pick up the bug quite much has to mail either the
+bug-submitter asking if the bug has been resolved, mail the maintainer
+of whatever area the bug concerns or mail akpm. 
 
-On Mon, 2004-12-06 10:51:46 -0500, Ed L Cashin <ecashin@coraid.com>
-wrote in message <87acsrqval.fsf@coraid.com>:
-> The included patch allows the Linux kernel to use the ATA over
-> Ethernet (AoE) network protocol to communicate with any block device
-> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
-> Blade is the first hardware using AoE.
->=20
-> Like IP, AoE is an ethernet-level network protocol, registered with
-> the IEEE.  Unlike IP, AoE is not routable.
+This leads me to thinking that bugzilla doesn't serve any functionality
+for at least -mm.
 
-So AoE is out of scope for many uses...
-
-However, some comments:
-
-> diff -urpN linux-2.6.9/drivers/block/Kconfig linux-2.6.9-aoe/drivers/bloc=
-k/Kconfig
-> --- linux-2.6.9/drivers/block/Kconfig	2004-11-30 08:22:33.000000000 -0500
-> +++ linux-2.6.9-aoe/drivers/block/Kconfig	2004-12-06 10:40:00.000000000 -=
-0500
-> @@ -357,5 +357,6 @@ config LBD
->  	  bigger than 2TB.  Otherwise say N.
-> =20
->  source "drivers/s390/block/Kconfig"
-> +source "drivers/block/aoe/Kconfig"
-> =20
->  endmenu
-> diff -urpN linux-2.6.9/drivers/block/aoe/Kconfig linux-2.6.9-aoe/drivers/=
-block/aoe/Kconfig
-> --- linux-2.6.9/drivers/block/aoe/Kconfig	1969-12-31 19:00:00.000000000 -=
-0500
-> +++ linux-2.6.9-aoe/drivers/block/aoe/Kconfig	2004-12-06 10:40:00.0000000=
-00 -0500
-> @@ -0,0 +1,10 @@
-> +#
-> +# ATA over Ethernet configuration
-> +#
-> +config ATA_OVER_ETH
-> +	tristate "ATA over Ethernet support"
-> +	depends on NET
-> +	default m
-> +	help
-> +	This driver provides Support for ATA over Ethernet block
-> +	devices like the Coraid EtherDrive (R) Storage Blade.
-
-Since your config only contains a single element, just put it into the
-block device Kconfig.
-
-> diff -urpN linux-2.6.9/drivers/block/aoe/all.h linux-2.6.9-aoe/drivers/bl=
-ock/aoe/all.h
-> --- linux-2.6.9/drivers/block/aoe/all.h	1969-12-31 19:00:00.000000000 -05=
-00
-> +++ linux-2.6.9-aoe/drivers/block/aoe/all.h	2004-12-06 10:40:00.000000000=
- -0500
-[...]
-> +#define nil NULL
-
-It's not April 1st today :)
-
-> +#define nelem(A) (sizeof (A) / sizeof (A)[0])
-
-Just use ARRAY_SIZE()
-
-> +#define AOE_MAJOR 152
-> +#define ROOT_PATH "/dev/etherd/"
-> +#define PATHLEN (strlen(ROOT_PATH) + 8)
-
-Looks strangely hardcoded...
-
-[many typedefs deleted]
-
-Typedefs tend to make the code harder to read and understand. Why don't
-you just use the struct xxx notation?
-
-> diff -urpN linux-2.6.9/drivers/block/aoe/aoeblk.c linux-2.6.9-aoe/drivers=
-/block/aoe/aoeblk.c
-> --- linux-2.6.9/drivers/block/aoe/aoeblk.c	1969-12-31 19:00:00.000000000 =
--0500
-> +++ linux-2.6.9-aoe/drivers/block/aoe/aoeblk.c	2004-12-06 10:40:00.000000=
-000 -0500
-
-> +static struct block_device_operations aoe_bdops =3D {
-> +	open:			aoeblk_open,
-> +	release:		aoeblk_release,
-> +	ioctl:			aoeblk_ioctl,
-> +	owner:			THIS_MODULE,
-> +};
-
-Please use C99 syntax:
-
-	.open =3D aoeblk_open,
-
-etc.
+Alexander
 
 
-> +void
-> +aoeblk_gdalloc(void *vp)
-> +{
-> +	if (gd =3D=3D nil) {
-
-Could be shorter like "if (!gd) {"
-
-> +void
-> +aoeblk_exit(void)
-> +{
-> +	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
-> +}
-> +
-> +int
-> +aoeblk_init(void)
-> +{
-> +	int n;
-> +
-> +	n =3D register_blkdev(AOE_MAJOR, DEVICE_NAME);
-> +	if (n < 0) {
-> +		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
-> +		return n;
-> +	}
-> +	return 0;
-> +}
-
-__exit and __init are missing here.
-
-> diff -urpN linux-2.6.9/drivers/block/aoe/aoechr.c linux-2.6.9-aoe/drivers=
-/block/aoe/aoechr.c
-> --- linux-2.6.9/drivers/block/aoe/aoechr.c	1969-12-31 19:00:00.000000000 =
--0500
-> +++ linux-2.6.9-aoe/drivers/block/aoe/aoechr.c	2004-12-06 10:40:00.000000=
-000 -0500
-> +struct file_operations aoe_fops =3D {
-> +	write:		aoechr_write,
-> +	read: 		aoechr_read,
-> +	open:		aoechr_open,
-> +	release:  	aoechr_rel,
-> +	owner:		THIS_MODULE,
-> +};
-
-C99
-
-> +u16
-> +nhget16(uchar *p)
-> +{
-> +	u16 n;
-> +
-> +	n =3D p[0];
-> +	n <<=3D 8;
-> +	return n |=3D p[1];
-> +}
-> +
-> +u32
-> +nhget32(uchar *p)
-> +{
-> +	u32 n;
-> +
-> +	n =3D nhget16(p);
-> +	n <<=3D 16;
-> +	return n |=3D nhget16(p+2);
-> +}
-> +
-> +void
-> +hnput16(uchar *p, u16 n)
-> +{
-> +	p[1] =3D n;
-> +	p[0] =3D n >>=3D 8;
-> +}
-> +
-> +void
-> +hnput32(uchar *p, u32 n)
-> +{
-> +	hnput16(p+2, n);
-> +	hnput16(p, n >>=3D 16);
-> +}
-> +
-> +u16
-> +lhget16(uchar *p)
-> +{
-> +	u16 n;
-> +
-> +	n =3D p[1];
-> +	n <<=3D 8;
-> +	return n |=3D p[0];
-> +}
-> +
-> +u32
-> +lhget32(uchar *p)
-> +{
-> +	u32 n;
-> +
-> +	n =3D lhget16(p+2);
-> +	n <<=3D 16;
-> +	return n |=3D lhget16(p);
-> +}
-> +
-> +u64
-> +lhget64(uchar *p)
-> +{
-> +	u64 n;
-> +
-> +	n =3D lhget32(p+4);
-> +	n <<=3D 32;
-> +	return n |=3D lhget32(p);
-> +}
-
-There are function available for this, look at the endianess header
-files.
-
-
-After all, especially keeping in mind that AoE isn't routeable, my
-thinking is that this had better written as a (E)NBD server process
-running in userspace. This way, you'd use the in-kernel NBD driver (or
-the ENBD which isn't in the kernel) and you the the routing stuff for
-free :)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---a58rN+WbXIGauCK9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBtIchHb1edYOZ4bsRAqZwAKCSYiYBkidFS+tWirm2G2FXbYQxWQCgiVFs
-reglP0+YruRJNfWoh0Ac8lk=
-=O4w7
------END PGP SIGNATURE-----
-
---a58rN+WbXIGauCK9--

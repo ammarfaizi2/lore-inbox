@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYIgA>; Thu, 25 Jan 2001 03:36:00 -0500
+	id <S129444AbRAYJHN>; Thu, 25 Jan 2001 04:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAYIfu>; Thu, 25 Jan 2001 03:35:50 -0500
-Received: from mail.crc.dk ([130.226.184.8]:37390 "EHLO mail.crc.dk")
-	by vger.kernel.org with ESMTP id <S129444AbRAYIfg>;
-	Thu, 25 Jan 2001 03:35:36 -0500
-Message-ID: <3A6FE550.2208427C@crc.dk>
-Date: Thu, 25 Jan 2001 09:35:28 +0100
-From: Mogens Kjaer <mk@crc.dk>
-Organization: Carlsberg Laboratory
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: da, en, de
+	id <S129534AbRAYJHC>; Thu, 25 Jan 2001 04:07:02 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7557 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129444AbRAYJGz>;
+	Thu, 25 Jan 2001 04:06:55 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, rdale@digital-mission.com
-Subject: Re: agpgart (2.4.0 kernel)
-In-Reply-To: <Pine.LNX.4.10.10101241752450.20959-300000@vs-01.digipath.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14959.60545.51978.532381@pizda.ninka.net>
+Date: Thu, 25 Jan 2001 01:06:09 -0800 (PST)
+To: Juri Haberland <juri.haberland@innominate.com>
+Cc: Jeremy Hansen <jeremy@xxedgexx.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <3A6FD7A0.B45964A8@innominate.com>
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com>
+	<3A6FD7A0.B45964A8@innominate.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Dale wrote:
-> 
-> I have agpgart compiled into the kernel with both (Intel 440LX/BX/GX and
-> I815/I840/I850) and Intel I810/I815 drivers.  When the kernel boots I get:
-> 
->   Linux agpgart interface v0.99 (c) Jeff Hartmann
->   agpgart: Maximum main memory to use for agp memory: 27M
->   agppart: agpgart: Detected an Intel i815, but could not find
->   the secondary device.
 
-You can try one of the 2.4.0-ac kernels or look in the lkml archives
-for a threeline patch.
+Juri Haberland writes:
+ > Forget it. I mailed them and this is the answer:
+ > 
+ > "As ECN is not a widely used internet standard, and as Cisco does not
+ > have a stable OS for their routers that accepts ECN, anyone attempting
+ > to access our site through a gateway or from a computer that uses ECN
+ > will be unable to do so."
 
-Mogens
--- 
-Mogens Kjaer, Carlsberg Laboratory, Dept. of Chemistry
-Gamle Carlsberg Vej 10, DK-2500 Valby, Denmark
-Phone: +45 33 27 53 25, Fax: +45 33 27 47 08
-Email: mk@crc.dk Homepage: http://www.crc.dk
+The interesting bit is the "Cisco does not have a stable OS..." part.
+
+I've been told repeatedly by the Cisco folks that a stable supported
+patch is available from them for their firewall products which were
+rejecting ECN packets.
+
+I'd really like Cisco to reaffirm this and furthermore, and
+furthermore get in contact with and correct the hotmail folks
+if necessary.
+
+I have in fact noticed that some sites that did have the problem have
+installed the fix and are now accessible with ECN enabled.
+
+Later,
+David S. Miller
+davem@redhat.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

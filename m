@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281464AbRKHFBr>; Thu, 8 Nov 2001 00:01:47 -0500
+	id <S281463AbRKHFF5>; Thu, 8 Nov 2001 00:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281469AbRKHFB1>; Thu, 8 Nov 2001 00:01:27 -0500
-Received: from mx10.port.ru ([194.67.57.20]:10423 "EHLO mx10.port.ru")
-	by vger.kernel.org with ESMTP id <S281464AbRKHFBX>;
-	Thu, 8 Nov 2001 00:01:23 -0500
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200111080502.fA852im17980@vegae.deep.net>
-Subject: Re: Laptop harddisk spindown?
-To: kubla@sciobyte.de (Dominik Kubla)
-Date: Thu, 8 Nov 2001 08:02:38 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011108002154.D7288@duron.intern.kubla.de> from "Dominik Kubla" at Nov 08, 2001 12:21:54 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281469AbRKHFFr>; Thu, 8 Nov 2001 00:05:47 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:25351 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281470AbRKHFFg>; Thu, 8 Nov 2001 00:05:36 -0500
+Message-ID: <3BEA116A.646B9159@zip.com.au>
+Date: Wed, 07 Nov 2001 21:00:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
+In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com> <3BE9E9A7.6F90C4DB@zip.com.au>,
+		<3BE9E9A7.6F90C4DB@zip.com.au> <20011107182442.B467@mikef-linux.matchmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Dominik Kubla wrote:"
+Mike Fedyk wrote:
 > 
-> On Thu, Nov 08, 2001 at 01:51:05AM +0300, Samium Gromoff wrote:
-> >      I`m sorry folks, i dont quite recall whether i poked lkml with that,
-> >   but here it is:
-> > 	2.4.13, reiserfs
-> > 	i have a disk access _every_ 5 sec, unregarding the system load, 
-> >     24x7x365, so i suppose while it doesnt hurts me, it hurts folks with power
-> >     bound boxes...
-> >         I must add that i `m experiencing this on -ac tree too, adn this is true
-> >     as far as my memory goes... (in the kernel-version context i mean)
-> > 
-> > cheers, Samium Gromoff
+> >
 > 
-> That's a FAQ: you have cron running...
-   hehe...
-   i`ve actually compiled cron only a week ago, so its not an issue ;)
-   (i havent had cron before on my homemmade linux)
+> I am running unpatched 2.4.14 now.
+> 
+> Do you still want me to try this patch now that you know I have been able to
+> see the problem with 2.2.14+ext3?
+> 
 
-   i mean i`m not this lame, and i told *no_system_load*... :-)
-> 
-> Dominik
-> -- 
-> ScioByte GmbH    Zum Schiersteiner Grund 2     55127 Mainz (Germany)
-> Phone: +49 700 724 629 83                    Fax: +49 700 724 629 84
-> 
-> GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB
-> 
-cheers, Samium Gromoff
+It's OK - I can reproduce it easily anyway.
+
+There are two things here.  Recent -ac kernels had a merge
+bug down in the /proc code which caused `Cached:' to go
+negative.  It was recently fixed.
+
+And quite independently, current ext3 for Linus kernels now has a
+bug which causes the `buffermem_pages' number to get too large.
+This has the exact same effect: `Cached:' goes negative. 
+
+The buffermem_pages counter is purely for reporting - no VM decisions
+are based on its value.  But if it worries you, just remove line 1933 of fs/jbd/transaction.c.

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUEBIk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUEBItV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUEBIk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 04:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUEBIk6
+	id S262905AbUEBItV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 04:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbUEBItV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 04:40:58 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:24566 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262902AbUEBIk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 04:40:57 -0400
-Date: Sun, 2 May 2004 10:40:28 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Giuliano Colla <copeca@copeca.dsnet.it>
-cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linus Torvalds <torvalds@osdl.org>, hsflinux@lists.mbsi.ca,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
- their license
-In-Reply-To: <4092A88D.70007@copeca.dsnet.it>
-Message-ID: <Pine.GSO.4.58.0405021030410.7925@waterleaf.sonytel.be>
-References: <408DC0E0.7090500@gmx.net> <40914C35.1030802@copeca.dsnet.it>
- <Pine.LNX.4.58.0404291404100.1629@ppc970.osdl.org> <409256A4.5080607@copeca.dsnet.it>
- <409276D6.9070500@gmx.net> <4092A88D.70007@copeca.dsnet.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 2 May 2004 04:49:21 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:12810 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262905AbUEBItU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 04:49:20 -0400
+Date: Sun, 2 May 2004 10:48:41 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH][2.4] remove amd7(saucy)_tco
+Message-ID: <20040502084841.GA10228@alpha.home.local>
+References: <Pine.LNX.4.58.0405011534230.2332@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405011534230.2332@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Apr 2004, Giuliano Colla wrote:
-> It may make sense not to have anything left in the GPL directory in a
-> binary only .rpm package, because once linked GPL parts cannot be told
-> apart from non-GPL ones.
+On Sat, May 01, 2004 at 03:37:36PM -0400, Zwane Mwaikambo wrote:
+> Hello Marcelo,
+> 	This driver has already been removed in 2.6, essentially we've had
+> problems getting it working (it's been a while now) with a lot of boards,
+> all seems to be alright until the actual point where the hardware is
+> supposed to reset the system. So lets just back it out.
 
-When speaking about loadable kernel modules: yes they can! That's what
-modinfo(8) is for!
+Indeed, I've just checked here, because I believed I had seen it working,
+but now I think it was the softdog. It does nothing at all. I've downloaded
+and read AMD's datasheet and the driver seems to do the right thing. BTW,
+I wonder if the chip is buggy or not, because I tried to play with the
+SYSRST and FULLRST bits in the 0xCF9 register. Changing SYSRST to 1 does not
+change anything, and changing FULLRST to 1 immediately reboots the machine
+even if no reset was pending !
 
-Oh wait, someone played tricks with a \0 character...
+Regards,
+Willy
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

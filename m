@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbULFWUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbULFWcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbULFWUu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 17:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbULFWUu
+	id S261681AbULFWcg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 17:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbULFWce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 17:20:50 -0500
-Received: from 209-128-68-124.BAYAREA.NET ([209.128.68.124]:51393 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261680AbULFWUm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 17:20:42 -0500
-Message-ID: <41B4DB1C.3060406@zytor.com>
-Date: Mon, 06 Dec 2004 14:20:12 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
-X-Accept-Language: en-us, en
+	Mon, 6 Dec 2004 17:32:34 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:655 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261681AbULFWca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 17:32:30 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Date: Mon, 6 Dec 2004 23:37:14 +0200
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] dynamic syscalls revisited
-References: <1101741118.25841.40.camel@localhost.localdomain>	 <20041129151741.GA5514@infradead.org>	 <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>	 <cp2i3h$hs0$1@terminus.zytor.com> <1102370517.25841.216.camel@localhost.localdomain>
-In-Reply-To: <1102370517.25841.216.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH 2.6] clean-up: fixes "comparison between signed 
+Cc: linux-kernel@vger.kernel.org, mroos@ut.ee
+X-mailer: Pegasus Mail v3.50
+Message-ID: <2C0CC42621D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
+On  6 Dec 04 at 23:11, Jesper Juhl wrote:
+> On Mon, 6 Dec 2004, Riina Kikas wrote:
 > 
-> I disagree about this statement.  ioctl's suck because they usually have
-> none, or very poor documentation and you are stuck with opening devices,
-> and sending parameters to them that may be for the wrong device and
-> there is really no good checking to see what you sent is what you want
-> since its all defined by human unreadable numbers.
+> > This patch fixes warning "comparison between signed and unsigned"
+> > occuring on line 308
+> > 
+> > Signed-off-by: Riina Kikas <Riina.Kikas@mail.ee>
+> > 
+> > --- a/arch/i386/mm/fault.c    2004-12-02 21:30:30.000000000 +0000
+> > +++ b/arch/i386/mm/fault.c    2004-12-02 21:30:59.000000000 +0000
+> > @@ -302,7 +302,13 @@
+> >        * pusha) doing post-decrement on the stack and that
+> >        * doesn't show up until later..
+> >        */
+> > -     if (address + 32 < regs->esp)
+> > +     unsigned long regs_esp;
+> > +     if (regs->esp < 0) {
+> > +         regs_esp = 0;
+> > +     } else {
+> > +         regs_esp = regs->esp;
+> > +     }
+> > +     if (address + 32 < regs_esp)
+> >           goto bad_area;
+> >   }
+> >   if (expand_stack(vma, address))
 > 
+> This seems a bit silly. If the stack pointer (esp) is ever negative that's 
+> clearly a bug somewhere. So instead of testing it for <0 and then setting 
+> your regs_esp variable to 0 it would make more sense to me to just 
+> BUG_ON(regs->esp < 0) or something, if you want to do anything at all. And 
+> if you want to silence the warning a exlicit cast to unsigned long should 
+> do I'd say, but I have a feeling the best thing is to just leave that 
+> warning alone, the code seems to be fine.
 
-That's like saying you might be calling the wrong syscall by accident.
+regs->esp is < 0 almost always - user stack starts at 0xBFFFFFFF, which
+is negative number when you treat it as 'long'.  Change is wrong, now
+when esp is in top 2GB 'address' is never evaluated as invalid, and it
+was definitely not intention.
 
-> As for dynamic system calls (and especially the way I've implemented
-> them) you have human readable names, with varying amount of parameters
-> that can make sense. So even if you still have none to very poor
-> documentation, you can understand things perhaps a little better.  There
-> is also much better checking in dynamic system calls than to ioctls.
-
-There is NO checking in the syscall interface.  Period.  Any such 
-checking is a facility of some kind of stub generator, and that's 
-independent of the method used to invoke it.
-
-	-hpa
-
-
-
+Correct is (if any fix is needed at all) typecast regs->esp to unsigned
+long, eventually with check that address is less than (unsigned long)-32,
+as area at VA 0 is not going to grow "down" to 0xFFFFFxxx, even if you
+nicely ask.
+                                                     Best regards,
+                                                            Petr Vandrovec
+                                                            
 

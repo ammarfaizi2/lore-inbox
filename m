@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137138AbRAHHJQ>; Mon, 8 Jan 2001 02:09:16 -0500
+	id <S137154AbRAHHMR>; Mon, 8 Jan 2001 02:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137137AbRAHHJH>; Mon, 8 Jan 2001 02:09:07 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:55826 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S136990AbRAHHJC>;
-	Mon, 8 Jan 2001 02:09:02 -0500
-Message-ID: <3A597665.4B68C39@candelatech.com>
-Date: Mon, 08 Jan 2001 01:12:21 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S137153AbRAHHMH>; Mon, 8 Jan 2001 02:12:07 -0500
+Received: from slc293.modem.xmission.com ([166.70.2.39]:14346 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S136990AbRAHHLx>; Mon, 8 Jan 2001 02:11:53 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch (repost): cramfs memory corruption fix
+In-Reply-To: <Pine.LNX.4.21.0101071910200.21675-100000@duckman.distro.conectiva>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jan 2001 23:56:06 -0700
+In-Reply-To: Rik van Riel's message of "Sun, 7 Jan 2001 19:11:56 -0200 (BRDT)"
+Message-ID: <m1d7dyilbt.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hashed device lookup (New Benchmarks)
-In-Reply-To: <3A578F27.D2A9DF52@candelatech.com> <20010107042959.A14330@gruyere.muc.suse.de> <3A580B31.7998C783@candelatech.com> <20010107062744.A15198@gruyere.muc.suse.de> <3A58249F.86DD52BC@candelatech.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See a pretty graph showing performance of ifconfig and ip
-both with and without my device-hashed-lookup patch:
+Rik van Riel <riel@conectiva.com.br> writes:
 
-http://grok.yi.org/~greear/hashed_dev.png
-(If you can't get to it, let me know and I'll email it to you...some
- cable modem networks have I firewalled.)
+> On Sun, 7 Jan 2001, Linus Torvalds wrote:
+> > On Sun, 7 Jan 2001, Alan Cox wrote:
+> > 
+> > > -ac has the rather extended ramfs with resource limits and stuff. That one
+> > > also has rather more extended bugs 8). AFAIK none of those are in the
+> vanilla
+> 
+> > > ramfs code
+> 
+> > This is actually where I agree with whoever it was that said that ramfs as
+> > it stands now (without the limit checking etc) is much nicer simply
+> > because it can act as an example of how to do a simple filesystem. 
+> > 
+> > I wonder what to do about this - the limits are obviously useful, as would
+> > the "use swap-space as a backing store" thing be. At the same time I'd
+> > really hate to lose the lean-mean-clean ramfs. 
+> 
+> Sounds like a job for ... <drum roll> ... tmpfs!!
 
-I ran ifconfig -a and ip addr show every 50 interfaces,
-as I added 4000 interfaces, and used the 'time -p' program to
-find the system and user times.
+If you need tmpfs the VFS layer is broken.  For 99% of everything
+performance is determined by VFS layer caching.  A fs that
+uses swap space as a backing store is not a big win.  You just have 
+a fs that doesn't support sync and you can add a mount option to
+a normal fs if you want that.
 
-Summary:
-	ifconfig scales badly, ip is better.
-	Both ip and ifconfig work better with the hash patch, at
-        least when the number of interfaces grows past 1000.
+I've written the filesystem and it was a dumb idea.
 
-If anyone wants the raw numbers, I can provide them and the script
-that generated them.
+Ramfs with (maybe) some basic limits has a place.  tmpfs is just
+extra code to maintain. 
 
-NOTE:  I stopped the non-hashed test after 3000 interfaces because
-it was just going too slow (ifconfig was killing me!)
-
-So, is this good enough reason to add the hashed patch?
-
-If not, I feel sure I can write a program that binds to a specific
-interface 10k times, and my assumption is that the hash will help
-significantly if there are lots of interfaces.  However, I'd
-rather not go to the hassle if the ifconfig/ip numbers are sufficient.
-
-If no amount of benchmarking will change key player's minds, then
-go ahead and tell me now so that I can go back to hacking code
-and just include this patch with my VLAN patch.
-
-Thanks,
-Ben
-
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

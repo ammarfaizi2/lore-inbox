@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVCDLyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVCDL5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVCDLyN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVCDLyM
+	id S262870AbVCDL5D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbVCDLz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:54:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14862 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262874AbVCDLQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:16:42 -0500
-Date: Fri, 4 Mar 2005 11:16:28 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ian Campbell <icampbell@arcom.com>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304111628.D3932@flint.arm.linux.org.uk>
-Mail-Followup-To: Ian Campbell <icampbell@arcom.com>,
-	Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <1109934698.7304.2.camel@icampbell-debian>
+	Fri, 4 Mar 2005 06:55:29 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24850 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262877AbVCDLhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:37:21 -0500
+Date: Fri, 4 Mar 2005 12:37:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       "Antonino A. Daplas" <adaplas@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] [2.6 patch] drivers/video/: more cleanups
+Message-ID: <20050304113719.GE3992@stusta.de>
+References: <20050303210119.GK4608@stusta.de> <9e47339105030314442a2b4e43@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1109934698.7304.2.camel@icampbell-debian>; from icampbell@arcom.com on Fri, Mar 04, 2005 at 11:11:38AM +0000
+In-Reply-To: <9e47339105030314442a2b4e43@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 11:11:38AM +0000, Ian Campbell wrote:
-> On Fri, 2005-03-04 at 10:52 +0000, Russell King wrote:
-> > Unfortunately, http://l4x.org/k/ doesn't save any build logs for
-> > investigation.
+On Thu, Mar 03, 2005 at 05:44:30PM -0500, Jon Smirl wrote:
+> On Thu, 3 Mar 2005 22:01:19 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch contains cleanups including the following:
 > 
-> If you click the 'Fail' then it seems to keep the make output etc.
+> Are you cleaning up all of that annoying trailing whitespace too? It
+> is always giving me problems on diffs.
 
-elinks doesn't show any of the "fail" in the matrix as links - this
-seems to be using javascript.
+I'm not the maintainer, and such a cleanup might break all pending 
+patches.
 
-In fact there doesn't appear to be a reason to use javascript for
-this - it seems to be implementing a standard link to:
+Antonino, any opinions on such cleanups?
 
-	http://l4x.org/k/?d=<number>
-
-which can be done just as well with standard HTML without need to
-resort to javascript.  Plus it works with a wider range of browsers.
-Including those used by certain blind developers in this community
-who are completely unable to use any form of GUI.
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

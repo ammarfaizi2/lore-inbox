@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290701AbSBOTbI>; Fri, 15 Feb 2002 14:31:08 -0500
+	id <S290713AbSBOTcF>; Fri, 15 Feb 2002 14:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290688AbSBOTa4>; Fri, 15 Feb 2002 14:30:56 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:45247 "EHLO
-	pc1-camc5-0-cust78.cam.cable.ntl.com") by vger.kernel.org with ESMTP
-	id <S290708AbSBOTap>; Fri, 15 Feb 2002 14:30:45 -0500
-Date: Fri, 15 Feb 2002 19:29:36 GMT
-Message-Id: <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com>
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: esr@thyrsus.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <20020215135557.B10961@thyrsus.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-21 (i586))
+	id <S290708AbSBOTb4>; Fri, 15 Feb 2002 14:31:56 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:48909 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290688AbSBOTbo>;
+	Fri, 15 Feb 2002 14:31:44 -0500
+Date: Fri, 15 Feb 2002 17:31:31 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
+        Tux mailing list <tux-list@redhat.com>
+Subject: Re: How to make Linux/Tux/Whatever better? (was Re: TUX development?
+ Anyone?)
+In-Reply-To: <Pine.LNX.4.30.0202151956290.21207-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33L.0202151730510.12554-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020215135557.B10961@thyrsus.com> you wrote:
-> 
-> But laughter won't make the chronic communications problems go away.
+On Fri, 15 Feb 2002, Roy Sigurd Karlsbakk wrote:
 
-A "I don't like don't like <FOO> and won't apply it" is not a communications problem in general. When the person trying to submit <FOO> keeps submitting it without listening to suggestions or to reasons why it's not applied.... THEN there is a one sided communcation problem.
+> > > Please try to understand that banging my head against a problem for (now
+> > > over a month) is quite annoying.
+> >
+> > You know what...... that's what support is for.
+>
+> Is it only me?
 
-Not saying that's the case here, but it starts to appear to be so.
+Clients always get answers, other people get answers if/when
+time allows.
+
+> Can I please get *some* sort of feedback after submitting a bug report?
+>
+> I thought that was what made open-source projects better...
+
+Indeed, but unfortunately developers don't always have time
+to look at everything.
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

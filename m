@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267229AbTA0QjF>; Mon, 27 Jan 2003 11:39:05 -0500
+	id <S267221AbTA0Qsm>; Mon, 27 Jan 2003 11:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbTA0QjF>; Mon, 27 Jan 2003 11:39:05 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:28575 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267229AbTA0QjE>;
-	Mon, 27 Jan 2003 11:39:04 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 27 Jan 2003 17:48:12 +0100 (MET)
-Message-Id: <UTC200301271648.h0RGmCh27353.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, philipp.marek@bmlv.gv.at
-Subject: Re: [PATCH] fs/partitions/msdos.c Guard against negative sizes
-Cc: linux-kernel@vger.kernel.org
+	id <S267239AbTA0Qsm>; Mon, 27 Jan 2003 11:48:42 -0500
+Received: from imprs-cs.de ([139.19.1.1]:52898 "EHLO interferon.mpi-sb.mpg.de")
+	by vger.kernel.org with ESMTP id <S267221AbTA0Qsk>;
+	Mon, 27 Jan 2003 11:48:40 -0500
+Message-ID: <3E3564EB.8E675E@mpi-sb.mpg.de>
+Date: Mon, 27 Jan 2003 17:57:15 +0100
+From: Roman Dementiev <dementiev@mpi-sb.mpg.de>
+Reply-To: dementiev@mpi-sb.mpg.de
+Organization: MPI for Computer Science
+X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.9 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: buffer leakage in kernel?
+References: <3E31364E.F3AFDCF0@mpi-sb.mpg.de> <20030124130208.52583b24.akpm@digeo.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    u32 start = START_SECT(p)*sector_size;
-    u32 size = NR_SECTS(p)*sector_size;
-    And this looks as if it was calculated in bytes
+Andrew Morton wrote:
 
-But it is not. It converts hardware sector size units
-to 512-byte units. For example, some MO disks use
-2048-byte sectors, and also have the partition tables
-in that unit.
+> > While this scanning is running, number of "buffers" reported by ''free"
+> > and in /proc/meminfo
+> > is continuously increasing up to ~ 500 MB !!
+>
+> You did not specify the filesystem type.  I shall assume ext2.
 
-    What about overflow?
+right
 
-More detailed checking of the table is certainly possible.
+> > This is not nice at all when I have another applications running
+> > with memory consumption > 500 MB: when my "scanner" approaches 50G
+> > border on
+> > each disk, I've got numerous  "Out of memory" murders :(. Even 'ssh' to
+> > this machine
+> > is killed :(
+> >
+> > Could anyone explain why it happens? I suppose that it is a memory
+> > leakage in file system buffer management.
 
-[But then, weird tables only occur when people fiddle with
-the partition table themselves. Or when an accident happened.
-I am not sure inhibiting access to partitions that look strange
-is useful. It might make rescue operations difficult or impossible.]
+Thanx for explanation.
 
-    And btw, when can a partition that extends beyond the end
-    be "allowed or even necessary"?
+> Sounds like a bug.
+>
+> Are you reading these large files via a single application, or via one
+> process per file?
 
-One reason is that "the end" is not well-defined. E.g.,
-disk manufacturers invent jumpers that make the disk appear
-smaller than it is in reality in order to avoid BIOS bugs.
-See http://www.win.tue.nl/~aeb/linux/Large-Disk-11.html#ss11.3
+via single application with 8 I/O threads + 1 thread.
 
-In many cases the kernel option CONFIG_IDEDISK_STROKE will tell
-the kernel to automatically fix up fake lengths. If that doesn't
-work, a user mode utility may be needed to give the disk full size.
-Since that utility is run after the kernel does the partition detection,
-it is often easiest to let the last logical partition start just before
-the fake end.
+> How large is the buffer into which the application is performing the O_DIRECT
+> read?
 
-Andries
+Application allocates 512 MB and never uses more.
+2MB buffers are used for each read() and write() calls.
+Each file has only one read or write request going any time. There is no othr
+memory-
+hungry applications running.
+
+> Please perform this test:
+>
+> 1: Wait until you have 500M "Buffers"
+> 2: cat 64_gig_file > /dev/null
+> 3: Now see how large "Buffers" is.  It should have reduced a lot.
+
+Yes, it worked, they had reduced.
+Does this mean, that cached indirect buffers can't be kicked out of memory
+automatically
+and ONLY non-O_DIRECT access can do it? I suppose, they should be displaced by
+newly allocated indirect buffers and user memory allocation.
+
+
+Roman
+

@@ -1,49 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269498AbUICPRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUICPRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269498AbUICPRK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 11:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269077AbUICPN6
+	id S269056AbUICPRM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 11:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269496AbUICPNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 11:13:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62879 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269147AbUICPMV (ORCPT
+	Fri, 3 Sep 2004 11:13:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3231 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269335AbUICPJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 11:12:21 -0400
-Date: Fri, 3 Sep 2004 17:10:53 +0200
+	Fri, 3 Sep 2004 11:09:44 -0400
+Date: Fri, 3 Sep 2004 17:08:29 +0200
 From: Jens Axboe <axboe@suse.de>
-To: bzolnier@milosz.na.pl
-Cc: Alan Cox <alan@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
+To: Alan Cox <alan@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: PATCH: fix the barrier IDE detection logic
-Message-ID: <20040903151053.GB1717@suse.de>
-References: <20040831165046.GA6928@devserv.devel.redhat.com> <200409031554.31057.bzolnier@elka.pw.edu.pl>
+Message-ID: <20040903150829.GA1717@suse.de>
+References: <20040831165046.GA6928@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409031554.31057.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040831165046.GA6928@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03 2004, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On Tuesday 31 August 2004 18:50, Alan Cox wrote:
-> > This fixes the logic so we always check for the cache. It also defaults
-> > to safer behaviour for the non cache flush case now we have the right bits
-> > in the right places. I've also played a bit with timings - the worst case
-> > timings I can get for the flush are about 7 seconds (which I'd expect
-> > as the engineering worst cases will include retries)
-> > 
-> > Probably what should happen is that the barrier logic is enabled providing
-> > the wcache is disabled. I've not meddled with this as I don't know what
-> > the intended semantics and rules are for disabling barrier on a live disk
-> > (eg when a user uses hdparm to turn on the write cache). In the current
-> > code as with Jens original that cannot occur.
-> 
-> I think that logic is reversed here, I guess it should be: enable barrier
-> if user enables wcache and disable it if user disables wcache.
+On Tue, Aug 31 2004, Alan Cox wrote:
+> This fixes the logic so we always check for the cache. It also defaults
+> to safer behaviour for the non cache flush case now we have the right bits
+> in the right places. I've also played a bit with timings - the worst case
+> timings I can get for the flush are about 7 seconds (which I'd expect
+> as the engineering worst cases will include retries)
 
-There's no need for changes, ide_queue_flush_cmd() handles this fine
-right now.
+7 seconds isn't too bad, for a write you'll often see larger latencies
+in the io scheduler as well.
+
+> Probably what should happen is that the barrier logic is enabled providing
+> the wcache is disabled. I've not meddled with this as I don't know what
+> the intended semantics and rules are for disabling barrier on a live disk
+> (eg when a user uses hdparm to turn on the write cache). In the current
+> code as with Jens original that cannot occur.
+
+The code will work just fine if you disable/enable the write cache on
+the fly. We'll just return immediately on pre/post flush issues on the
+barrier write.
+
+> I've also fixed the new printk's as per a private request from Matt Domsch.
+> 
+> This look right to you Jens ?
+
+Looks fine, yes thanks.
+
+> 
+> --- drivers/ide/ide-disk.c~	2004-08-31 17:35:01.065916488 +0100
+> +++ drivers/ide/ide-disk.c	2004-08-31 17:41:42.637868272 +0100
+> @@ -1298,7 +1298,7 @@
+>  	return 0;
+>  }
+>  
+> -static int write_cache (ide_drive_t *drive, int arg)
+> +static int write_cache(ide_drive_t *drive, int arg)
+>  {
+>  	ide_task_t args;
+>  	int err;
+> @@ -1508,7 +1508,7 @@
+>  		blk_queue_max_sectors(drive->queue, max_s);
+>  	}
+>  
+> -	printk("%s: max request size: %dKiB\n", drive->name, drive->queue->max_sectors / 2);
+> +	printk(KERN_INFO "%s: max request size: %dKiB\n", drive->name, drive->queue->max_sectors / 2);
+>  
+>  	/* Extract geometry if we did not already have one for the drive */
+>  	if (!drive->cyl || !drive->head || !drive->sect) {
+> @@ -1537,7 +1537,7 @@
+>  
+>  	/* limit drive capacity to 137GB if LBA48 cannot be used */
+>  	if (drive->addressing == 0 && drive->capacity64 > 1ULL << 28) {
+> -		printk("%s: cannot use LBA48 - full capacity "
+> +		printk(KERN_WARNING "%s: cannot use LBA48 - full capacity "
+>  		       "%llu sectors (%llu MB)\n",
+>  		       drive->name, (unsigned long long)drive->capacity64,
+>  		       sectors_to_MB(drive->capacity64));
+> @@ -1607,23 +1607,31 @@
+>  	if ((id->csfo & 1) || (id->cfs_enable_1 & (1 << 5)))
+>  		drive->wcache = 1;
+>  
+> -	write_cache(drive, 1);
+> -
+>  	/*
+> -	 * decide if we can sanely support flushes and barriers on
+> -	 * this drive. unfortunately not all drives advertise FLUSH_CACHE
+> -	 * support even if they support it. So assume FLUSH_CACHE is there
+> -	 * always. LBA48 drives are newer, so expect it to flag support
+> -	 * properly. We can safely support FLUSH_CACHE on lba48, if capacity
+> -	 * doesn't exceed lba28
+> +	 * We must avoid issuing commands a drive does not understand
+> +	 * or we may crash it. We check flush cache is supported. We also
+> +	 * check we have the LBA48 flush cache if the drive capacity is
+> +	 * too large. By this time we have trimmed the drive capacity if
+> +	 * LBA48 is not available so we don't need to recheck that.
+>  	 */
+> -	barrier = 1;
+> +	barrier = 0;
+> +	if (ide_id_has_flush_cache(id))
+> +		barrier = 1;
+>  	if (drive->addressing == 1) {
+> +		/* Can't issue the correct flush ? */
+>  		if (capacity > (1ULL << 28) && !ide_id_has_flush_cache_ext(id))
+>  			barrier = 0;
+>  	}
+> +	/* Now we have barrier awareness we can be properly conservative
+> +	   by default with other drives. We turn off write caching when
+> +	   barrier is not available. Users can adjust this at runtime if
+> +	   they need unsafe but fast filesystems. This will reduce the
+> +	   performance of non cache flush supporting disks but it means
+> +	   you get the data order guarantees the journalling fs's require */
+> +	   
+> +	write_cache(drive, barrier);
+>  
+> -	printk("%s: cache flushes %ssupported\n",
+> +	printk(KERN_DEBUG "%s: cache flushes %ssupported\n",
+>  		drive->name, barrier ? "" : "not ");
+>  	if (barrier) {
+>  		blk_queue_ordered(drive->queue, 1);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
 Jens Axboe

@@ -1,79 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264688AbTFLBtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTFLBtF
+	id S264698AbTFLBwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTFLBts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:49:05 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:28423 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264676AbTFLBst convert rfc822-to-8bit
+	Wed, 11 Jun 2003 21:49:48 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:62221 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264692AbTFLBsv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:48:49 -0400
+	Wed, 11 Jun 2003 21:48:51 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10553833504038@movementarian.org>
-Subject: [PATCH 1/4] OProfile: Export task->tgid in the buffer
-In-Reply-To: 
+Message-Id: <10553833533873@movementarian.org>
+Subject: [PATCH 4/4] OProfile: fix init / exit routine
+In-Reply-To: <10553833522557@movementarian.org>
 From: John Levon <levon@movementarian.org>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Thu, 12 Jun 2003 03:02:30 +0100
+Date: Thu, 12 Jun 2003 03:02:33 +0100
 Content-Transfer-Encoding: 7BIT
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QHQ8-000228-6l*HGi3F0fBjTo*
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QHQA-000FFv-L2*KbI8Emw4Wc2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Export the task->tgid to userspace as well. This is needed
-for forthcoming thread profiling stuff and should have been
-done in the original patch ... oh well.
+Ensure that the arch exit routines are always called when needed,
+previously we could end up with a nasty crash if using oprofile.timer=1,
+or the FS register failed.
 
-This requires an upgrade to oprofile 0.5.3. You can get it from
-the website, or, for the impatient, here :
-
-http://movementarian.org/oprofile-0.5.3.tar.gz
-
-diff -Naur -X dontdiff linux-cvs/drivers/oprofile/buffer_sync.c linux-fixes/drivers/oprofile/buffer_sync.c
---- linux-cvs/drivers/oprofile/buffer_sync.c	2003-05-26 05:42:35.000000000 +0100
-+++ linux-fixes/drivers/oprofile/buffer_sync.c	2003-06-12 02:05:19.000000000 +0100
-@@ -274,12 +272,17 @@
- 		add_event_entry(KERNEL_EXIT_SWITCH_CODE); 
- }
-  
--static void add_user_ctx_switch(pid_t pid, unsigned long cookie)
-+static void
-+add_user_ctx_switch(struct task_struct const * task, unsigned long cookie)
+diff -Naur -X dontdiff linux-cvs/drivers/oprofile/oprof.c linux-fixes/drivers/oprofile/oprof.c
+--- linux-cvs/drivers/oprofile/oprof.c	2003-05-26 05:42:45.000000000 +0100
++++ linux-fixes/drivers/oprofile/oprof.c	2003-06-12 03:07:14.000000000 +0100
+@@ -131,36 +131,33 @@
+ 
+ static int __init oprofile_init(void)
  {
- 	add_event_entry(ESCAPE_CODE);
- 	add_event_entry(CTX_SWITCH_CODE); 
--	add_event_entry(pid);
-+	add_event_entry(task->pid);
- 	add_event_entry(cookie);
-+	/* Another code for daemon back-compat */
-+	add_event_entry(ESCAPE_CODE);
-+	add_event_entry(CTX_TGID_CODE);
-+	add_event_entry(task->tgid);
+-	int err = -ENODEV;
++	/* Architecture must fill in the interrupt ops and the
++	 * logical CPU type, or we can fall back to the timer
++	 * interrupt profiler.
++	 */
++	int err = oprofile_arch_init(&oprofile_ops);
+ 
+-	if (!timer) {
+-		/* Architecture must fill in the interrupt ops and the
+-		 * logical CPU type, or we can fall back to the timer
+-		 * interrupt profiler.
+-		 */
+-		err = oprofile_arch_init(&oprofile_ops);
+-	}
+-
+-	if (err == -ENODEV) {
++	if (err == -ENODEV || timer) {
+ 		timer_init(&oprofile_ops);
+ 		err = 0;
+-	}
+-
+-	if (err)
++	} else if (err) {
+ 		goto out;
++	}
+ 
+ 	if (!oprofile_ops->cpu_type) {
+ 		printk(KERN_ERR "oprofile: cpu_type not set !\n");
+ 		err = -EFAULT;
+-		goto out;
++	} else {
++		err = oprofilefs_register();
+ 	}
+-
+-	err = oprofilefs_register();
+-	if (err)
+-		goto out;
+  
++	if (err)
++		goto out_exit;
+ out:
+ 	return err;
++out_exit:
++	oprofile_arch_exit();
++	goto out;
  }
  
-  
-@@ -446,7 +449,7 @@
- 				mm = take_tasks_mm(new);
  
- 				cookie = get_exec_dcookie(mm);
--				add_user_ctx_switch(new->pid, cookie);
-+				add_user_ctx_switch(new, cookie);
- 			}
- 		} else {
- 			add_sample(mm, s, in_kernel);
-diff -Naur -X dontdiff linux-cvs/drivers/oprofile/event_buffer.h linux-fixes/drivers/oprofile/event_buffer.h
---- linux-cvs/drivers/oprofile/event_buffer.h	2003-04-02 06:06:51.000000000 +0100
-+++ linux-fixes/drivers/oprofile/event_buffer.h	2003-06-12 02:04:05.000000000 +0100
-@@ -31,6 +31,7 @@
- #define KERNEL_ENTER_SWITCH_CODE	4
- #define KERNEL_EXIT_SWITCH_CODE		5
- #define MODULE_LOADED_CODE		6
-+#define CTX_TGID_CODE			7
-  
- /* add data to the event buffer */
- void add_event_entry(unsigned long data);
+diff -Naur -X dontdiff linux-cvs/include/linux/oprofile.h linux-fixes/include/linux/oprofile.h
+--- linux-cvs/include/linux/oprofile.h	2003-04-05 05:12:09.000000000 +0100
++++ linux-fixes/include/linux/oprofile.h	2003-06-12 02:03:47.000000000 +0100
+@@ -40,7 +40,9 @@
+ 
+ /**
+  * One-time initialisation. *ops must be set to a filled-in
+- * operations structure.
++ * operations structure. This is called even in timer interrupt
++ * mode.
++ *
+  * Return 0 on success.
+  */
+ int oprofile_arch_init(struct oprofile_operations ** ops);
 

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSKTTFY>; Wed, 20 Nov 2002 14:05:24 -0500
+	id <S262366AbSKTTLL>; Wed, 20 Nov 2002 14:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262442AbSKTTFR>; Wed, 20 Nov 2002 14:05:17 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53509
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262425AbSKTTFA>; Wed, 20 Nov 2002 14:05:00 -0500
-Date: Wed, 20 Nov 2002 11:11:43 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ross Vandegrift <ross@willow.seitz.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <1037820823.3267.60.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10211201109320.3892-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262604AbSKTTJp>; Wed, 20 Nov 2002 14:09:45 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:16017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262464AbSKTTJc>;
+	Wed, 20 Nov 2002 14:09:32 -0500
+Subject: root=LABEL=/ broken in 2.5.47
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Nov 2002 11:16:36 -0800
+Message-Id: <1037819796.1413.31.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Nov 2002, Alan Cox wrote:
+It seems that sometime in the recent 2.5 progress (probably when initrd
+changes went in), the root device naming changed.
+Specifying "root=LABEL=/" used to work, now the only valid parameter
+seems to be a actual device (as in "root=/dev/hda2" ).
 
-> On Wed, 2002-11-20 at 18:57, Andre Hedrick wrote:
-> > The double negative unwrapped:
-> > 
-> > "Being a module doesnt make it not a derivative work."
-> > 
-> > 'Being a module does (not) make it not a derivative work.'
-> > 'Being a module does (not) make it (not) a derivative work.'
-> > 
-> > 'Being a module does make it a derivative work.'
-> > 
-> > Is this the intent of the statement?
-> 
-> No
+Is this an intentional change? or a bug introduced?
 
-Excellent!
+Is there an existing patch to fix it?
 
-Now if Linus would just make to position clear.
 
-Andre Hedrick
-LAD Storage Consulting Group
+
+
 

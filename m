@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265174AbUEYWa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUEYWia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265174AbUEYWa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEYW1K
+	id S265099AbUEYWia (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUEYWia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:27:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59031 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265238AbUEYWY1 (ORCPT
+	Tue, 25 May 2004 18:38:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49313 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265099AbUEYWi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:24:27 -0400
-Date: Tue, 25 May 2004 15:24:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       bcrl@kvack.org, linux-mm@kvack.org,
-       Linux Arch list <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <1085523563.15281.136.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0405251523310.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>  <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-  <1085371988.15281.38.camel@gaston>  <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-  <1085373839.14969.42.camel@gaston>  <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-  <20040525034326.GT29378@dualathlon.random>  <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-  <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> 
- <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>  <20040525153501.GA19465@foobazco.org>
-  <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>  <20040525102547.35207879.davem@redhat.com>
-  <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>  <20040525105442.2ebdc355.davem@redhat.com>
-  <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>  <1085521251.24948.127.camel@gaston>
-  <Pine.LNX.4.58.0405251504170.9951@ppc970.osdl.org> <1085523563.15281.136.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 18:38:27 -0400
+Date: Tue, 25 May 2004 15:41:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: olh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: very low performance on SCSI disks if device node is in tmpfs
+Message-Id: <20040525154107.053b9ef6.akpm@osdl.org>
+In-Reply-To: <20040525145923.68af0ad8.akpm@osdl.org>
+References: <20040525184732.GB26661@suse.de>
+	<20040525144836.1af59a96.akpm@osdl.org>
+	<20040525145923.68af0ad8.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Everything there is consistent with "not doing readahead".
+>
 
 
-On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
-> > 
-> > So I think the code needs to invalidate the hash after having updated the 
-> > pte. No?
-> 
-> No, we'll take a hash fault, not a page fault. The hash fault is an asm
-> fast path, which in this case, will update the HPTE RW permission when
-> the PTE has PAGE_RW (and will set PAGE_DIRTY again, but that's fine).
 
-Ahh. Goodie. Then the "simple" atomic bitset probably works. Assuming I 
-translated the asm/atomic.h stuff correctly.
+We need to set file->f_ra _after_ calling blkdev_open(), when inode->i_mapping
+points at the right thing.  And we need to get it from
+inode->i_mapping->host->i_mapping too, which represents the underlying device.
 
-		Linus
+
+--- 25/fs/open.c~blockdev-readahead-fix	Tue May 25 15:38:15 2004
++++ 25-akpm/fs/open.c	Tue May 25 15:38:15 2004
+@@ -790,7 +790,6 @@ struct file *dentry_open(struct dentry *
+ 	}
+ 
+ 	f->f_mapping = inode->i_mapping;
+-	file_ra_state_init(&f->f_ra, f->f_mapping);
+ 	f->f_dentry = dentry;
+ 	f->f_vfsmnt = mnt;
+ 	f->f_pos = 0;
+@@ -804,6 +803,8 @@ struct file *dentry_open(struct dentry *
+ 	}
+ 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
+ 
++	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
++
+ 	/* NB: we're sure to have correct a_ops only after f_op->open */
+ 	if (f->f_flags & O_DIRECT) {
+ 		if (!f->f_mapping || !f->f_mapping->a_ops ||
+_
+

@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289145AbSAGIxd>; Mon, 7 Jan 2002 03:53:33 -0500
+	id <S289146AbSAGI4D>; Mon, 7 Jan 2002 03:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289144AbSAGIxX>; Mon, 7 Jan 2002 03:53:23 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:27152 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289145AbSAGIxO>; Mon, 7 Jan 2002 03:53:14 -0500
-Date: Mon, 7 Jan 2002 08:53:07 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: Missing entries in Configuure.help)
-Message-ID: <20020107085307.A17914@flint.arm.linux.org.uk>
-In-Reply-To: <20020106210233.A30319@thyrsus.com>
+	id <S289152AbSAGIzz>; Mon, 7 Jan 2002 03:55:55 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:6041 "EHLO ns1.yggdrasil.com")
+	by vger.kernel.org with ESMTP id <S289147AbSAGIzr>;
+	Mon, 7 Jan 2002 03:55:47 -0500
+Date: Mon, 7 Jan 2002 00:55:46 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch?: linux-2.5.2-pre9/drivers/block/ll_rw_blk.c blk_rq_map_sg simplification
+Message-ID: <20020107005546.A2459@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020106210233.A30319@thyrsus.com>; from esr@thyrsus.com on Sun, Jan 06, 2002 at 09:02:33PM -0500
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2002 at 09:02:33PM -0500, Eric S. Raymond wrote:
-> 6xx_GENERIC
 
-What's this?  Where is it?
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> ARCH_CO285
-> ARCH_FOOTBRIDGE
-> ARCH_SA1100
-> ARCH_SHARK
-> CPU_ARM922_CPU_IDLE
-> CPU_ARM922_D_CACHE_ON
-> CPU_ARM922_I_CACHE_ON
-> CPU_ARM922_WRITETHROUGH
+Hello Jens,
 
-Erm, I don't believe these have been added since you last complained.
-I don't see how they became a non-issue and are now a problem.  Please
-double-check them.
+	The following patch removes gotos from blk_rq_map_sg, making
+it more readable and five lines shorter.  I think the compiler should
+generate the same code.  I have not tested this other than to
+verify that it compiles.
 
-> ARCH_ADIFCC
-> ARCH_AUTCPU12
-> ARCH_CAMELOT
-> ARCH_CLPS711X
-> ARCH_CLPS7500
-> ARCH_IOP310
-> DEBUG_WAITQ
-> DEBUG_LL_SER3
-> H3600_SLEEVE
-> IOP310_AAU
-> IOP310_DMA
-> IOP310_MU
-> IOP310_PMON
-> SA1100_H3100
-> SA1100_H3800
-> SA1100_PT_SYSTEM3
-> SA1100_SHANNON
-> SA1100_USB
-> SA1100_USB_CHAR
-> SA1100_USB_NETLINK
+	If it works and looks good to you, I would appreciate it if
+you would forward it to Linus for integration.  (I am also cc'ing this to
+linux-kernel in case anyone spots a mistake on my part.)
 
-Some of these are waiting to be dug out of my copy of the Configure.help
-file and forwarded to Linus.
+	Also, if there is some other way by which you would like
+me to submit future bio patches (if any), please let me know.
 
-The only thing I'm doing at the moment is forwarding the stuff that doesn't
-touch ARM specific files; Configure.help is a generic file, so it doesn't
-get sent as often, and will always take longer (and therefore be out of
-date).
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ll.diff"
+
+--- linux-2.5.2-pre8/drivers/block/ll_rw_blk.c	Sat Jan  5 15:33:53 2002
++++ linux/drivers/block/ll_rw_blk.c	Mon Jan  7 00:28:17 2002
+@@ -474,18 +474,13 @@
+ 		bio_for_each_segment(bvec, bio, i) {
+ 			int nbytes = bvec->bv_len;
+ 
+-			if (bvprv && cluster) {
+-				if (sg[nsegs - 1].length + nbytes > q->max_segment_size)
+-					goto new_segment;
+-
+-				if (!BIOVEC_PHYS_MERGEABLE(bvprv, bvec))
+-					goto new_segment;
+-				if (!BIOVEC_SEG_BOUNDARY(q, bvprv, bvec))
+-					goto new_segment;
+-
++			if (bvprv && cluster &&
++			    (sg[nsegs - 1].length + nbytes <=
++			     q->max_segment_size) &&
++			    BIOVEC_PHYS_MERGEABLE(bvprv, bvec) &&
++			    BIOVEC_SEG_BOUNDARY(q, bvprv, bvec)) {
+ 				sg[nsegs - 1].length += nbytes;
+ 			} else {
+-new_segment:
+ 				memset(&sg[nsegs],0,sizeof(struct scatterlist));
+ 				sg[nsegs].page = bvec->bv_page;
+ 				sg[nsegs].length = nbytes;
+
+--lrZ03NoBR/3+SXJZ--

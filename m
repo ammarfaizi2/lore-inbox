@@ -1,48 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVAGQI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVAGQJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVAGQI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 11:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVAGQI1
+	id S261488AbVAGQJv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 11:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVAGQJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 11:08:27 -0500
-Received: from albireo.ucw.cz ([81.27.203.89]:52611 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261480AbVAGQIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 11:08:10 -0500
-Date: Fri, 7 Jan 2005 17:08:08 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107160808.GB6529@ucw.cz>
-References: <20050107144718.GB9606@infradead.org> <200501071526.j07FQG2g018486@localhost.localdomain>
+	Fri, 7 Jan 2005 11:09:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20944 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261480AbVAGQI5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 11:08:57 -0500
+Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Lukasz Kosewski <lkosewsk@nit.ca>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>,
+       dipankar sarma <dipankar@in.ibm.com>, linux-os@analogic.com,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <41DEA2E8.8030701@nit.ca>
+References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
+	 <1105013524.4468.3.camel@laptopd505.fenrus.org>
+	 <20050106195043.4b77c63e.akpm@osdl.org> <41DE15C7.6030102@nit.ca>
+	 <41DEA2E8.8030701@nit.ca>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1105116758.2688.447.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501071526.j07FQG2g018486@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Jan 2005 22:22:38 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 2005-01-07 at 20:25, Lukasz Kosewski wrote:
+> Lukasz Kosewski wrote:
+> > Andrew Morton wrote:
+> > 
+> >>> looks like the following is happening:
+> >>> the controller wants to send an irq (probably from previous life)
+> >>> then suddenly the driver gets loaded
+> >>> * which registers an irq handler
+> >>> * which does pci_enable_device()
+> >>> and .. the irq goes through. the irq handler just is not yet 
+> >>> expecting this irq, so
+> >>> returns "uh dunno not mine"
+> >>> the kernel then decides to disable the irq on the apic level
+> >>> and then the driver DOES need an irq during init
+> >>> ... which never happens.
+> >>>
 
-> Olaf:
-> -----
-> Capabilities don't work, because of missing filesystem
-> capabilities. If you have them, it's a question of setting the
-> appropriate permitted, inheritable and effective capability sets.
+Well, in last 4-5 trials I did not see this problem. Everything is same
+except we had just opened the box once to checkout few things.
 
-Sure, filesystem capabilities would be nice, but for the stuff Paul
-mentions they aren't needed -- what you need is to grant capabilities
-to the user's session, which can be easily done by a PAM module.
+Probably "noirqdebug" boot time parameter can be a stop gap solution
+over a kdump boot, which will make sure irq is not disabled even if
+unhandled interrupts are there. Assuming driver will be able to
+initialize after this and hence undesired interrupt generation shall be
+stopped.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"C++: an octopus made by nailing extra legs onto a dog." -- Steve Taylor
+> >>
+> >>
+> >> yes, that's exactly what e100 was doing on my laptop last month.  Fixed
+> >> that by arranging for the NIC to be reset before the call to
+> >> pci_set_master().
+> 
+> After reading this again when I /wasn't/ semi-comatose, I retract my 
+> statement insofar as it wouldn't help you (but I think it's still rather 
+> necessary) :)
+> 
+> The system did exactly what I'm talking about (which it didn't do for 
+> me, possibly because the board/processor didn't support APIC).  I guess 
+> my question to you is:  do you have other devices sharing this 
+> interrupt?  In other words, are you /sure/ that it's the adaptec 
+> controller which is setting the interrupt line high?
+
+I am not sure about this. Following are two contradictory observations.
+
+1. Remove the adaptec controller support and everything works fine. It
+might mean that it was adapted controller only which was generating
+spurious interrupts.
+
+2. There are two more SCSI Controllers in the system and first one is
+managing all the six hard disks in the system.
+
+05:07.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev
+07)
+05:07.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev
+07)
+
+These also could be potential source of interrupts as after a successful
+reboot with kdump, these also are sharing irq 9.
+
+Following is a snapshot of /proc/interrupts over a kdump boot with
+"noirqdebug"
+
+           CPU0       CPU1
+  0:     109474          0          XT-PIC  timer
+  1:          8          0          XT-PIC  i8042
+  2:          0          0          XT-PIC  cascade
+  4:        385          0          XT-PIC  serial
+  8:          1          0          XT-PIC  rtc
+  9:      25588          0          XT-PIC  aic7xxx, ioc0, ioc1
+ 12:        100          0          XT-PIC  i8042
+ 14:         19          0          XT-PIC  ide0
+
+
+
+In normal boot, I don't see any other device connected to irq 9. (I am
+not sure if this irq number can change over reboot)
+
+Following is a snapshot of /proc/interrupts over a normal boot.
+
+           CPU0       CPU1
+  0:      95314          0    IO-APIC-edge  timer
+  1:          9          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  4:        498          0    IO-APIC-edge  serial
+  8:          2          0    IO-APIC-edge  rtc
+ 12:        100          0    IO-APIC-edge  i8042
+ 14:         20          0    IO-APIC-edge  ide0
+ 18:       1155          0   IO-APIC-level  eth0
+ 24:         30          0   IO-APIC-level  aic7xxx
+ 27:       1946          0   IO-APIC-level  ioc0
+ 28:         29          0   IO-APIC-level  ioc1
+NMI:          0          0
+LOC:      94835      96567
+ERR:          0
+MIS:          0
+
+
+Does that conclude anything that who is/was the potential source?
+
+Vivek
+
+

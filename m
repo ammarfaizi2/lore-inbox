@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbUJZCmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbUJZDji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUJZCmT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 22:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUJZBut
+	id S262140AbUJZDji (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 23:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbUJZDja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:50:49 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:4051 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261930AbUJZBTZ (ORCPT
+	Mon, 25 Oct 2004 23:39:30 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15832 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262140AbUJZDgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:19:25 -0400
-Date: Tue, 26 Oct 2004 00:40:09 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
- kernels II
-In-Reply-To: <417D786F.4020101@acm.org>
-Message-ID: <Pine.LNX.4.58L.0410260031050.10974@blysk.ds.pg.gda.pl>
-References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
- <p73u0sik2fa.fsf@verdi.suse.de> <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl>
- <20041025201758.GG9142@wotan.suse.de> <20041025204144.GA27518@wotan.suse.de>
- <Pine.LNX.4.58L.0410252157440.10974@blysk.ds.pg.gda.pl> <417D786F.4020101@acm.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Oct 2004 23:36:43 -0400
+Subject: [PATCH] ppc64: don't include <stddef.h>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 26 Oct 2004 13:33:37 +1000
+Message-Id: <1098761617.5154.8.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Oct 2004, Corey Minyard wrote:
+Hi !
 
-> If you look at my patch, it does create a shadow index.
+This patch fixes a couple of places where the ppc64 iSeries code would
+#include <stddef.h>. The only "system" include I consider acceptable is
+<stdarg.h> provided by gcc.
 
- I've noticed, yes.  Actually yours is the right approach as we can't use 
-an arbitrary index in the NMI handler -- C register reads from the RTC 
-have a side effect of clearing pending interrupts.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-> And you need a mutex for SMP systems.  If one processor is handling an 
-> NMI, another processor may still be accessing the device.
+Index: linux-work/arch/ppc64/kernel/pacaData.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pacaData.c	2004-10-17 12:07:06.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pacaData.c	2004-10-26 08:43:35.091369968 +1000
+@@ -7,13 +7,12 @@
+  *      2 of the License, or (at your option) any later version.
+  */
+ 
+-#include <asm/types.h>
+-#include <asm/page.h>
+-#include <stddef.h>
+ #include <linux/config.h>
++#include <linux/types.h>
+ #include <linux/threads.h>
+ #include <asm/processor.h>
+ #include <asm/ptrace.h>
++#include <asm/page.h>
+ 
+ #include <asm/iSeries/ItLpPaca.h>
+ #include <asm/iSeries/ItLpQueue.h>
+Index: linux-work/arch/ppc64/kernel/LparData.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/LparData.c	2004-10-21 11:47:00.000000000 +1000
++++ linux-work/arch/ppc64/kernel/LparData.c	2004-10-26 08:44:56.238033800 +1000
+@@ -6,9 +6,8 @@
+  * as published by the Free Software Foundation; either version
+  * 2 of the License, or (at your option) any later version.
+  */
+-#include <asm/types.h>
+-#include <asm/page.h>
+-#include <stddef.h>
++#include <linux/config.h>
++#include <linux/types.h>
+ #include <linux/threads.h>
+ #include <linux/module.h>
+ #include <linux/bitops.h>
 
- Actually this path is meant to be ever accessed by one CPU only (one that
-has its LINT1 line enabled), but it may be reached by other ones due to
-the NMI watchdog as code does not check if its run by the right processor.  
-This probably qualifies as a bug.  Only the watchdog code of the NMI
-handler is expected to run everywhere.
 
-> The complexity comes because the claiming of the lock, the CPU that owns 
-> the lock, and the index has to be atomic because the NMI handler has to 
-> know all these things when the lock is claimed.
-
- If not the mentioned bug all the hassle wouldn't be needed.
-
-  Maciej

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUBDTPy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUBDTPx
+	id S263564AbUBDTOr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUBDTOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:15:53 -0500
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:3968 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S264286AbUBDTPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:15:50 -0500
-Message-ID: <40211EE7.8090707@backtobasicsmgmt.com>
-Date: Wed, 04 Feb 2004 09:33:43 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Wed, 4 Feb 2004 14:14:47 -0500
+Received: from mail4.l-3com.com ([166.20.84.205]:23499 "EHLO mail4.L-3com.com")
+	by vger.kernel.org with ESMTP id S263564AbUBDTOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:14:46 -0500
+Message-ID: <3194.130.210.245.112.1075922081.squirrel@portunus.bgm.link.com>
+Date: Wed, 4 Feb 2004 13:14:41 -0600 (CST)
+Subject: acpi interrupts going haywire
+From: "Casey Lancour" <cjlancour@link.com>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.0
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
-References: <40210578.6000504@mrc-bsu.cam.ac.uk>	 <200402041503.i14F3Bdq000287@81-2-122-30.bradfords.org.uk> <1075907649.23288.1.camel@midux>
-In-Reply-To: <1075907649.23288.1.camel@midux>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Hästbacka wrote:
+Problem:
+im running the 2.4.20 kernel and my /proc/interrupts reports that my acpi
+has like 4billion inturrupts going off and my system is sluggish
+(rebooting fixes it).  It isnt intermitant! Yet i have about 100 of these
+computers and not all of them do it, the bois settings and versions are
+all the same as well as the harddisks and hardware. (the ones that have
+the problem always have it and the ones that dont always dont)
 
-> On Wed, 2004-02-04 at 17:03, John Bradford wrote:
-> 
->>There was some discussion on the list about dropping version numbers
->>altogether during 2.7:
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=107174577415393&w=2
-> 
-> Like it isn't hard enough already? You mean something like
-> Smoking beaver.Out of detox.While running?
+Question:
+I wanna log and trace what my kernel is doing at boot see if i can see if
+there is a before and after for when the interrupts go nuts. how is this
+done?
 
-Several Species Of Small Furry Animals.Gathered Together In A Cave.And 
-Grooving With A Pict
+Could getting the latest Intel IA32 CPU microcode help? and adding
+/dev/cpu support to kernel make any difference. as
+http://urbanmyth.org/microcode/ isnt specific as to what the microcode
+does.
 
+thanks in advance,
+
+     -=Casey

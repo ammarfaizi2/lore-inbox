@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUJHSru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJHSru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbUJHSru (ORCPT <rfc822;willy@w.ods.org>);
+	id S261875AbUJHSru (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Oct 2004 14:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJHSpY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUJHSpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:45:24 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:20494 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261426AbUJHSgg (ORCPT
+	Fri, 8 Oct 2004 14:45:50 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48085 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S263540AbUJHSfw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:36:36 -0400
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Subject: Re: Megaraid random loss of luns
-Date: Fri, 8 Oct 2004 22:36:30 +0400
-User-Agent: KMail/1.7
-Cc: comsatcat@earthlink.net, linux-kernel@vger.kernel.org
-References: <0E3FA95632D6D047BA649F95DAB60E57033BCADD@exa-atlanta>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BCADD@exa-atlanta>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_u4tZBeIZCbjgDv8"
-Message-Id: <200410082236.30485.rathamahata@ehouse.ru>
+	Fri, 8 Oct 2004 14:35:52 -0400
+Date: Fri, 8 Oct 2004 11:36:11 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: akpm@osdl.org, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] register_chrdev_region, alloc_chrdev_region const
+ char
+Message-Id: <20041008113611.5aaf0693@zqx3.pdx.osdl.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_u4tZBeIZCbjgDv8
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+A couple chrdev routines take a constant string and should be declared
+with const char *
 
-On Friday 08 October 2004 20:30, Mukker, Atul wrote:
-> You can try to add the PCI ids for your controllers in megaraid_mbox.c
-> pci_device_id table. That _should_ work
-
-That solve unrecognized controller issue. Thank you!
-And here is a patch, please consider applying.
-
-
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org
-
---Boundary-00=_u4tZBeIZCbjgDv8
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="ami_megaraid_series_475_pci_id.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="ami_megaraid_series_475_pci_id.patch"
-
-===== drivers/scsi/megaraid/megaraid_mbox.c 1.4 vs edited =====
---- 1.4/drivers/scsi/megaraid/megaraid_mbox.c	2004-08-31 22:52:04 +04:00
-+++ edited/drivers/scsi/megaraid/megaraid_mbox.c	2004-10-08 21:54:44 +04:00
-@@ -295,6 +295,12 @@
- 		PCI_SUBSYS_ID_PERC3_SC,
- 	},
- 	{
-+		PCI_VENDOR_ID_AMI,
-+		PCI_DEVICE_ID_AMI_MEGARAID3,
-+		PCI_VENDOR_ID_AMI,
-+		PCI_SUBSYS_ID_PERC3_SC,
-+	},
-+	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
- 		PCI_DEVICE_ID_MEGARAID_SCSI_320_0,
- 		PCI_VENDOR_ID_LSI_LOGIC,
-
---Boundary-00=_u4tZBeIZCbjgDv8--
+diff -Nru a/fs/char_dev.c b/fs/char_dev.c
+--- a/fs/char_dev.c	2004-10-08 10:44:52 -07:00
++++ b/fs/char_dev.c	2004-10-08 10:44:52 -07:00
+@@ -153,7 +153,7 @@
+ 	return cd;
+ }
+ 
+-int register_chrdev_region(dev_t from, unsigned count, char *name)
++int register_chrdev_region(dev_t from, unsigned count, const char *name)
+ {
+ 	struct char_device_struct *cd;
+ 	dev_t to = from + count;
+@@ -178,7 +178,8 @@
+ 	return PTR_ERR(cd);
+ }
+ 
+-int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count, char *name)
++int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count, 
++			const char *name)
+ {
+ 	struct char_device_struct *cd;
+ 	cd = __register_chrdev_region(0, baseminor, count, name);
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	2004-10-08 10:44:52 -07:00
++++ b/include/linux/fs.h	2004-10-08 10:44:52 -07:00
+@@ -1269,8 +1269,8 @@
+ extern void bd_release(struct block_device *);
+ 
+ /* fs/char_dev.c */
+-extern int alloc_chrdev_region(dev_t *, unsigned, unsigned, char *);
+-extern int register_chrdev_region(dev_t, unsigned, char *);
++extern int alloc_chrdev_region(dev_t *, unsigned, unsigned, const char *);
++extern int register_chrdev_region(dev_t, unsigned, const char *);
+ extern int register_chrdev(unsigned int, const char *,
+ 			   struct file_operations *);
+ extern int unregister_chrdev(unsigned int, const char *);

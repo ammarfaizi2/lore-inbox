@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262229AbSJASqo>; Tue, 1 Oct 2002 14:46:44 -0400
+	id <S262225AbSJASYO>; Tue, 1 Oct 2002 14:24:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262228AbSJASqo>; Tue, 1 Oct 2002 14:46:44 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:41664 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP
-	id <S261380AbSJASqn>; Tue, 1 Oct 2002 14:46:43 -0400
-From: "immortal1015" <immortal1015@hotpop.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: compiling errors
-X-mailer: Foxmail 4.2 [cn]
-Date: Wed, 2 Oct 2002 2:53:26 +0800
-Message-Id: <20021001185127.AA2C21B85AA@smtp-2.hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	id <S262226AbSJASYN>; Tue, 1 Oct 2002 14:24:13 -0400
+Received: from mircea.interplus.ro ([193.231.253.241]:27616 "EHLO
+	mircea.interplus.ro") by vger.kernel.org with ESMTP
+	id <S262225AbSJASYM>; Tue, 1 Oct 2002 14:24:12 -0400
+Message-ID: <3D99E993.6000203@interplus.ro>
+Date: Tue, 01 Oct 2002 21:29:39 +0300
+From: Mircea Ciocan <mirceac@interplus.ro>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Linux iSCSI server implementation
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to compile the very simple kernel module code as following.
-I compile this code using gcc -c hello.c, but gcc tell me:
- /usr/include/linux	/module.h:60 parse error before 'atomic_t'
+	Estemeed kernel developers,
 
-What is the error? My gcc version is 2.96 and Redhat Linux 7.3
+	I adress you this offtopic question, but I know that only here I  can 
+find a corect and authoritative answer:
 
+	Did some of you know a reliable and production ready implementation of 
+iSCSI server ( host adapter) protocol because I was able to find only 
+client software for Linux.
 
-//////////////////////////////////////////////////////////////////////////////
-#ifndef __KERNEL__
-#  define __KERNEL__
-#endif
-#ifndef MODULE
-#  define MODULE
-#endif
-#include <linux/version.h>
-#include <linux/config.h>
-#include <linux/module.h>
+	Thank you for your help and patince,
 
-#include <linux/kernel.h> /* printk */
-
-int init_module(void)
-{
-	printk("<1>Hello the world\n");
-	return 0;
-}
-
-void cleanup_module(void)
-{
-	printk("<1>Goodbye the world\n");	
-}
-/////////////////////////////////////////////////////////////////
-
-
-Best regards
-yours Brucie
-
-
+		Mircea Ciocan
 

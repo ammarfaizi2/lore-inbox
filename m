@@ -1,51 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVDEV4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVDEVoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVDEV4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 17:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVDEVzv
+	id S261744AbVDEVoP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 17:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVDEVlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 17:55:51 -0400
-Received: from outbound04.telus.net ([199.185.220.223]:27273 "EHLO
-	priv-edtnes28.telusplanet.net") by vger.kernel.org with ESMTP
-	id S261672AbVDEVvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 17:51:54 -0400
-Subject: Re: ... no drivers for IEEE1394 product 0x/0x/0x in kernel
-	2.6.12-rc1-bk6
-From: Bob Gill <gillb4@telusplanet.net>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050405031423.GA10733@ip68-4-98-123.oc.oc.cox.net>
-References: <1112667776.6675.1.camel@localhost.localdomain>
-	 <20050405031423.GA10733@ip68-4-98-123.oc.oc.cox.net>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 15:51:25 -0600
-Message-Id: <1112737885.9514.4.camel@localhost.localdomain>
+	Tue, 5 Apr 2005 17:41:11 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:45327 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262054AbVDEVid
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 17:38:33 -0400
+Date: Tue, 5 Apr 2005 23:38:36 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405213836.GA11735@mars.ravnborg.org>
+References: <20050405000524.592fc125.akpm@osdl.org> <4252B2B6.9020302@portrix.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4252B2B6.9020302@portrix.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually I don't use CONFIG_DEVFS_FS as it tends to break things here
-(and I found wasn't necessary for things to work, in fact it got in the
-way of some things working, some of the autodetect/hotplug peripherels
-didn't like it).  Thank you for the reply though.
-Bob
-
-On Mon, 2005-04-04 at 20:14 -0700, Barry K. Nathan wrote:
-> On Mon, Apr 04, 2005 at 08:22:56PM -0600, Bob Gill wrote:
-> > Hi.  I recently built 2.6.12-rc1-bk6.  The kernel seems to be tripping
-> > over sbp2.  The error messages keep right on rolling till I hit the
-> > reboot button (I let it run for more than 90 seconds last time).
-> > 2.6.11.6 builds/runs without any problems.
-> [snip]
+On Tue, Apr 05, 2005 at 05:45:58PM +0200, Jan Dittmer wrote:
+> Something has broken make O= :
 > 
-> I was having the same problem on a system of mine too, but it went away
-> after I disabled CONFIG_DEVFS_FS. You didn't include enough of your
-> .config for me to be able to tell if that is at all relevant in your
-> case however.
+>   HOSTCC  scripts/kallsyms
+>   HOSTCC  scripts/conmakehash
+> make[1]: *** No rule to make target `include/asm', needed by `arch/alpha/kernel/asm-offsets.s'.  Stop.
+> make: *** [_all] Error 2
 > 
-> -Barry K. Nathan <barryn@pobox.com>
--- 
-Bob Gill <gillb4@telusplanet.net>
+> Happens for most archs. See http://l4x.org/k/
 
+Thanks - here is a patch:
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/04/05 23:37:09+02:00 sam@mars.ravnborg.org 
+#   kbuild: fix make O=... build
+#   
+#   It fixes the following error:
+#   
+#   make[1]: *** No rule to make target `include/asm', needed by `arch/alpha/kernel/asm-offsets.s'.  Stop.
+#   
+#   Reported by:
+#   From: Jan Dittmer <j.dittmer@portrix.net>
+#   
+#   In same patch fix spaces to tabs as reported by:
+#   From: Adrian Bunk <bunk@stusta.de>
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# Makefile
+#   2005/04/05 23:36:45+02:00 sam@mars.ravnborg.org +3 -3
+#   fix make O=... build
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2005-04-05 23:37:38 +02:00
++++ b/Makefile	2005-04-05 23:37:38 +02:00
+@@ -576,7 +576,7 @@
+ 
+ ifdef CONFIG_LOCALVERSION_AUTO
+ 	localversion-auto := \
+-        	$(shell $(PERL) $(srctree)/scripts/setlocalversion $(srctree))
++		$(shell $(PERL) $(srctree)/scripts/setlocalversion $(srctree))
+ 	LOCALVERSION := $(LOCALVERSION)$(localversion-auto)
+ endif
+ 
+@@ -808,7 +808,7 @@
+ # prepare1 creates a makefile if using a separate output directory
+ prepare1: prepare2 outputmakefile
+ 
+-prepare0: prepare1 include/linux/version.h $(objtree)/include/asm \
++prepare0: prepare1 include/linux/version.h include/asm \
+                    include/config/MARKER
+ ifneq ($(KBUILD_MODULES),)
+ 	$(Q)rm -rf $(MODVERDIR)
+@@ -845,7 +845,7 @@
+ #	hard to detect, but I suppose "make mrproper" is a good idea
+ #	before switching between archs anyway.
+ 
+-$(objtree)/include/asm:
++include/asm:
+ 	@echo '  SYMLINK $@ -> include/asm-$(ARCH)'
+ 	$(Q)if [ ! -d include ]; then mkdir -p include; fi;
+ 	@ln -fsn asm-$(ARCH) $@

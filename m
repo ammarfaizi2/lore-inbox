@@ -1,84 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264099AbTH1QBA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 12:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTH1QBA
+	id S264088AbTH1P7b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTH1P7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 12:01:00 -0400
-Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:37771
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S264099AbTH1QAw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 12:00:52 -0400
-Message-ID: <3F4E2772.8050104@trash.net>
-Date: Thu, 28 Aug 2003 18:01:54 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       "David S. Miller" <davem@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-bk2 and 2.4.23-pre1 broke routing
-References: <Pine.LNX.4.55L.0308281134120.9167@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0308281134120.9167@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------070104040709070809070004"
+	Thu, 28 Aug 2003 11:59:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51945 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264088AbTH1P73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 11:59:29 -0400
+Date: Thu, 28 Aug 2003 09:02:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test4-mm2
+Message-Id: <20030828090240.2cccf4d9.akpm@osdl.org>
+In-Reply-To: <1062075227.422.2.camel@lorien>
+References: <20030826221053.25aaa78f.akpm@osdl.org>
+	<1062075227.422.2.camel@lorien>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070104040709070809070004
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-It's fixed by this patch. (tested by Hans Lambrechts).
-
-Best regards,
-Patrick
-
-Marcelo Tosatti wrote:
-
->David?
+Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br> wrote:
 >
->
->---------------------------
->
->I'm running 2.4.22 now and have a NAT behind my firewall as well as IPv6
->happily run through unixcore.com.  I upgraded to 2.4.22-bk2 last night
->to fix an odd problem where I can't ssh-6 to one host.  All of a sudden
->it all works within the nat but nothing behind the firewall can get out
->from behind to the real work though the firewall still can.  Recompiled
->trying 2.4.23-pre1 and I get the exact same behavior.  All 3 use the
->same .config file.
->
->The only noticable change I can see is a bunch of messages:
->
->Aug 27 22:09:10 wally kernel: MASQUERADE: No route: Rusty's brain broke!
->Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
->Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
->
->  
->
+> when using the hdparm program, thus:
+> 
+>  # hdparm /dev/hda
+> 
+>  I'm getting this:
+> 
+>  Oops: 0000 [#1]
 
---------------070104040709070809070004
-Content-Type: text/plain;
- name="x.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x.diff"
+This should fix it.
 
-===== net/ipv4/netfilter/ipt_MASQUERADE.c 1.6 vs edited =====
---- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c	Tue Aug 12 11:30:12 2003
-+++ edited/net/ipv4/netfilter/ipt_MASQUERADE.c	Thu Aug 28 16:54:15 2003
-@@ -90,6 +90,7 @@
- #ifdef CONFIG_IP_ROUTE_FWMARK
- 	key.fwmark = (*pskb)->nfmark;
- #endif
-+	key.oif = 0;
- 	if (ip_route_output_key(&rt, &key) != 0) {
-                 /* Funky routing can do this. */
-                 if (net_ratelimit())
+--- 25/include/linux/genhd.h~large-dev_t-12-fix	2003-08-27 10:36:32.000000000 -0700
++++ 25-akpm/include/linux/genhd.h	2003-08-27 10:36:32.000000000 -0700
+@@ -197,7 +197,7 @@ extern void rand_initialize_disk(struct 
+ 
+ static inline sector_t get_start_sect(struct block_device *bdev)
+ {
+-	return bdev->bd_part->start_sect;
++	return bdev->bd_contains == bdev ? 0 : bdev->bd_part->start_sect;
+ }
+ static inline sector_t get_capacity(struct gendisk *disk)
+ {
 
---------------070104040709070809070004--
+_
 

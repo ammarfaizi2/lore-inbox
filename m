@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbSJ1G3d>; Mon, 28 Oct 2002 01:29:33 -0500
+	id <S262911AbSJ1HCB>; Mon, 28 Oct 2002 02:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262907AbSJ1G3d>; Mon, 28 Oct 2002 01:29:33 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:47039 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262905AbSJ1G3c> convert rfc822-to-8bit; Mon, 28 Oct 2002 01:29:32 -0500
+	id <S262912AbSJ1HCB>; Mon, 28 Oct 2002 02:02:01 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:10236 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262911AbSJ1HCB> convert rfc822-to-8bit; Mon, 28 Oct 2002 02:02:01 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
 Reply-To: landley@trommello.org
-To: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: New nanosecond stat patch for 2.5.44
-Date: Sun, 27 Oct 2002 20:35:47 -0500
+To: Skip Ford <skip.ford@verizon.net>
+Subject: Re: Crunch time continues: the merge candidate list v1.1
+Date: Sun, 27 Oct 2002 21:08:05 -0500
 User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <20021027121318.GA2249@averell> <aphqqo$261$1@cesium.transmeta.com> <3DBC9194.5090006@nortelnetworks.com>
-In-Reply-To: <3DBC9194.5090006@nortelnetworks.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <200210202303.46848.landley@trommello.org> <200210271731.29640.landley@trommello.org> <200210280550.g9S5o9i3001282@pool-141-150-241-241.delv.east.verizon.net>
+In-Reply-To: <200210280550.g9S5o9i3001282@pool-141-150-241-241.delv.east.verizon.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200210271935.47252.landley@trommello.org>
+Message-Id: <200210272008.05280.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 October 2002 19:23, Chris Friesen wrote:
-> H. Peter Anvin wrote:
-> > We probably need to revamp struct stat anyway, to support a larger
-> > dev_t, and possibly a larger ino_t (we should account for 64-bit ino_t
-> > at least if we have to redesign the structure.)  At that point I would
-> > really like to advocate for int64_t ts_sec and uint32_t ts_nsec and
-> > quite possibly a int32_t ts_taidelta to deal with leap seconds... I'd
-> > personally like struct timespec to look like the above everywhere.
+On Sunday 27 October 2002 23:50, Skip Ford wrote:
+> Rob Landley wrote:
+> > On Sunday 27 October 2002 19:29, Rusty Russell wrote:
+> > > I think I'll keep my own list, thanks.
+> >
+> > Sure thing.
 >
-> For filesystems can we get away with just the 64-bit nanoseconds?  By my
-> calculations that gives something like 584 years--do we need to worry
-> about files older than that?
+> How about not duplicating Rusty's list.
 
-1) The hard drive is only about 50 years old, so there aren't any files older 
-than that at the moment:
-http://www.mdhc.scu.edu/100th/reyjohnson.htm
+The "huge disorganized heap 'o patches" thing was an attempt to get Rusty to 
+post some kind of description or announcement for the patches (and I believe 
+has been in the last three or four versions unchanged), but if those either 
+aren't being pushed for 2.5, or he wants to do it himself and doesn't want 
+them to be on my list, I'm fine with that...
 
-2) This thing is unlikely to be a problem in our lifetimes, our 
-grandchildren's lifetimes, or our great grandchildren's lifetimes (barring 
-unforseen advances in active telomere reconstruction and a regenerative 
-interpretation of DNA that somehow looks at it as a blueprint rather than a 
-recipe).
+> The way you have the Kprobes
+> stuff listed for example could disuade Linus from including it.  Only
+> the base kprobe patch was submitted, the rest were posted out of
+> kindness for those of us playing with it.
 
-3) If any current hardware or software is still in use in the year 2554, it 
-will be seriously overdue for an upgrade.
+The IBM guys asked me to put kprobes on my list.  The relationship between 
+kprobes and dprobes is something I had to ask about two or three times before 
+getting particularly clear on (since I don't use it), and what I have links 
+to is what they told me.
+
+> I'd hate to see the number
+> of patches work against it (especially since I requested the extra
+> patches.)
+
+I have yet to see Linus complain that a change has been been broken into too 
+many pieces for him. :)
 
 Rob
 

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbRBTTvV>; Tue, 20 Feb 2001 14:51:21 -0500
+	id <S129682AbRBTTzv>; Tue, 20 Feb 2001 14:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130206AbRBTTvL>; Tue, 20 Feb 2001 14:51:11 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:738 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S129842AbRBTTu6>; Tue, 20 Feb 2001 14:50:58 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: linux-kernel@vger.kernel.org
-Subject: can somebody explain barrier() macro ?
-Date: Tue, 20 Feb 2001 12:50:54 -0700
+	id <S130206AbRBTTzb>; Tue, 20 Feb 2001 14:55:31 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:7285 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129682AbRBTTzV>;
+	Tue, 20 Feb 2001 14:55:21 -0500
+Message-ID: <3A92CB59.F9CD00C0@sgi.com>
+Date: Tue, 20 Feb 2001 11:54:01 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: sync on pages containing EOF
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-barrier() is defined in kernel.h as follows :
+I was looking at some code to deal with sync (eg. sys_fsync(fd)).
+Generally, sync is performed by calling filemap_fdatasync(...)
+which does writepage() on pages in the dirty list of the inode,
+and then using filemap_fdatawait to wait on the I/O's started by
+the writepage's.
 
-#define barrier() __asm__ __volatile__("": : :"memory")
+Consider writepage() on a (partial) page containing EOF. In this case,
+prepare_write/commit_write is employed to write the page out.
+However, commit_write will only mark the buffer dirty, and
+not actually start the I/O. Subsequently, either memory pressure
+(page_launder) or write pressure (flush_dirty_buffers) will
+start the I/O on the EOF-page. So, it appears that filemap_fdatawait
+will be delayed.
 
+I'm just wondering if this argument is correct ...
 
-what does this mean ? is this like "nop" ?
-
-TIA,
--hiren
+-- 
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------

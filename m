@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129913AbQKSV5R>; Sun, 19 Nov 2000 16:57:17 -0500
+	id <S130132AbQKSV7H>; Sun, 19 Nov 2000 16:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130572AbQKSV5I>; Sun, 19 Nov 2000 16:57:08 -0500
-Received: from usuario1-36-184-142.dialup.uni2.es ([62.36.184.142]:4 "HELO
-	zaknafein.net.dhis.org") by vger.kernel.org with SMTP
-	id <S129913AbQKSV4w>; Sun, 19 Nov 2000 16:56:52 -0500
-Date: Sun, 19 Nov 2000 22:15:49 +0100
-From: Drizzt <drizzt.dourden@iname.com>
-To: linux-kernel@vger.kernel.org
-Subject: VFAT corrupt files :?
-Message-ID: <20001119221549.A646@menzoberrazan.dhis.org>
-Mime-Version: 1.0
+	id <S130572AbQKSV65>; Sun, 19 Nov 2000 16:58:57 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:26374 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S130132AbQKSV6v>;
+	Sun, 19 Nov 2000 16:58:51 -0500
+To: dalecki@evision-ventures.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] megaraid driver update for 2.4.0-test10
+In-Reply-To: <3A170A06.934405FC@evision-ventures.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 19 Nov 2000 22:28:44 +0100
+In-Reply-To: dalecki's message of "Sun, 19 Nov 2000 00:00:23 +0100"
+Message-ID: <d3zoivtzw3.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using 2.4.0-test11pre7
+>>>>> "dalecki" == dalecki  <dalecki@evision-ventures.com> writes:
 
-I calcute md5sum of some files in a ext2 partition. I move those files
-to a vfat partition. I duplicate the directory im the vfat partition. The
-duplicate set doesn't pass the md5sum.
+A few questions after scanning through your patch, it's likely I
+missed something but I am kind acurious.
 
-I have done various test and I can replicate they don't pass the md5 sum.
+dalecki> The attached patch does the following: 1. Merge the most
+dalecki> current version (aka: 1.08) of the MegaRAID driver from AMI
+dalecki> in to the most current kernel (2.4.0-test10 and friends).
 
-Are there some problem with the vfat code :?. Some problem with my hardware
-:?. I have no overclocked hardware nor using dma on disks ( only multicount).
+Hmmm I don't get it why you changed the return type of the
+readl/writel macros to return unsigned long rather than u32 - is there
+a reason for this other than to get sign extension?
 
-Saludos
-Drizzt
--- 
-... 10 IF "LAS RANAS"="TIENEN PELO" THEN PRINT "Windows is good".
-____________________________________________________________________________
-Drizzt Do'Urden                Three rings for the Elves Kings under the Sky   
-drizzt.dourden@iname.com       Seven for the Dwarf_lords in their  
-                               hall of stone
-                               Nine for the Mortal Men doomed to die 
+dalecki> 3. Fix the virt_to_phys mapping for scatter-gather transfers
+dalecki> as well as some other minor tidups here and there.
+
+What are you trying to achieve there? You run virt_to_phys() on a user
+space address as far as I can read and stick it into something
+labelled xferaddr? Normally you should never need the physical address
+in a device driver unless you want to play with page table settings or
+the like. If the address is to be handed to a DMA engine you should
+never take the physical address, but rather use virt_to_bus() or even
+better use the new 2.3+ PCI DMA API (pci_map_single()).
+
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

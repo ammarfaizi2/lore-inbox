@@ -1,109 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316629AbSGBFdC>; Tue, 2 Jul 2002 01:33:02 -0400
+	id <S316632AbSGBFgQ>; Tue, 2 Jul 2002 01:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316632AbSGBFdB>; Tue, 2 Jul 2002 01:33:01 -0400
-Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:38417 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S316629AbSGBFdA>; Tue, 2 Jul 2002 01:33:00 -0400
-Subject: Loopback + NFS: files copied partially with bogus error message.
-From: Manuel McLure <manuel@mclure.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Jul 2002 22:35:28 -0700
-Message-Id: <1025588128.13795.13.camel@ulthar.internal.mclure.org>
+	id <S316636AbSGBFgP>; Tue, 2 Jul 2002 01:36:15 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:39893 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S316632AbSGBFgP>;
+	Tue, 2 Jul 2002 01:36:15 -0400
+Date: Tue, 2 Jul 2002 02:43:22 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020702024322.F2295@almesberger.net>
+References: <3D212757.5040709@quark.didntduck.org> <32193.1025585595@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32193.1025585595@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 02, 2002 at 02:53:15PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running two machines, one ("leng") running a Red Hat 2.4.9-31
-kernel, the other ("ulthar") running a 2.4.18+lowlatency kernel. On
-"leng", I have ISO images of the Red Hat 7.3 install CDs mounted through
-loopback, and exported via NFS. "ulthar" mounts the images via NFS from
-"leng":
+Keith Owens wrote:
+> For netfilter, the use count reflects the number of packets being
+> processed.  Complex and potentially high overhead.
 
-/dev/hda3 on / type ext3 (rw)
-none on /proc type proc (rw)
-usbdevfs on /proc/bus/usb type usbdevfs (rw)
-/dev/hda1 on /boot type ext3 (rw)
-none on /dev/shm type tmpfs (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-/var/sharedspace/RH73_ISOs/valhalla-i386-disc1.iso on /mnt/rh73/disc1
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH73_ISOs/valhalla-i386-disc2.iso on /mnt/rh73/disc2
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH73_ISOs/valhalla-i386-disc3.iso on /mnt/rh73/disc3
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH73_ISOs/valhalla-SRPMS-disc1.iso on /mnt/rh73/SRPMS1
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH73_ISOs/valhalla-SRPMS-disc2.iso on /mnt/rh73/SRPMS2
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH73_ISOs/valhalla-docs.iso on /mnt/rh73/docs type
-iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH72_ISOs/enigma-i386-disc1.iso on /mnt/rh72/disc1 type
-iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH72_ISOs/enigma-i386-disc2.iso on /mnt/rh72/disc2 type
-iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH72_ISOs/enigma-SRPMS-disc1.iso on /mnt/rh72/SRPMS1
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH72_ISOs/enigma-SRPMS-disc2.iso on /mnt/rh72/SRPMS2
-type iso9660 (ro,nosuid,nodev)
-/var/sharedspace/RH72_ISOs/enigma-docs.iso on /mnt/rh72/docs type
-iso9660 (ro,nosuid,nodev)
+Good example - netfilter may access a huge number of tiny
+modules when working on a packet. While this by itself is a
+performance issue, the need to keep reference counts right
+doesn't necessarily help.
 
+> All of this requires that the module information be passed in multiple
+> structures and assumes that all code is careful about reference
+> counting the code it is about to execute.
 
-[root@ulthar root]# mount
-/dev/hdb3 on / type ext3 (rw)
-none on /proc type proc (rw)
-usbdevfs on /proc/bus/usb type usbdevfs (rw)
-/dev/hdb1 on /boot type ext3 (rw)
-/dev/hdc1 on /home type ext3 (rw)
-none on /dev/shm type tmpfs (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/hda1 on /win98c type vfat (rw,gid=100,umask=2)
-leng:/var/sharedspace on /sharedspace type nfs (rw,addr=10.1.1.1)
-leng:/mnt/rh73/disc1 on /mnt/rh73/disc1 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh73/disc2 on /mnt/rh73/disc2 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh73/disc3 on /mnt/rh73/disc3 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh73/SRPMS1 on /mnt/rh73/SRPMS1 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh73/SRPMS2 on /mnt/rh73/SRPMS2 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh73/docs on /mnt/rh73/docs type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh72/disc1 on /mnt/rh72/disc1 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh72/disc2 on /mnt/rh72/disc2 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh72/SRPMS1 on /mnt/rh72/SRPMS1 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh72/SRPMS2 on /mnt/rh72/SRPMS2 type nfs (ro,addr=10.1.1.1)
-leng:/mnt/rh72/docs on /mnt/rh72/docs type nfs (ro,addr=10.1.1.1)
-/dev/cdrom on /mnt/cdrom type iso9660 (ro)
+It's not really just the module information. If I can, say, get
+callbacks from something even after I unregister, I may well
+have destroyed the data I need to process the callbacks, and
+oops or worse.
 
-This is working fine for accessing the data on the Red Hat images from
-"ulthar", unless I am trying to access a large file. If I do on
-"ulthar":
+> There has to be a better way!
 
-[root@ulthar root]# ls -l /tmp/XFree86-4.2.0-8.src.rpm
-ls: /tmp/XFree86-4.2.0-8.src.rpm: No such file or directory
-[root@ulthar root]# cp /mnt/rh73/SRPMS1/SRPMS/XFree86-4.2.0-8.src.rpm
-/tmp
-cp: reading `/mnt/rh73/SRPMS1/SRPMS/XFree86-4.2.0-8.src.rpm': No such
-file or directory
-[root@ulthar root]# ls -l /tmp/XFree86-4.2.0-8.src.rpm
--rw-r--r--    1 root     root      9977856 Jul  1 22:30
-/tmp/XFree86-4.2.0-8.src.rpm
-[root@ulthar root]# 
+Well yes, there are other approaches that make sure something is
+not used, e.g.
 
-As you can see, it does a partial copy and then fails with a "No such
-file or directory" error. The size of the file after the failed copy
-varies - sometimes I've seen up to 26MB be copied (the actual size of
-the file is 42M). No errors are listed in the system logs of either
-system. Copies from the loopback filesystem to a local file on "leng"
-succeed, as are copies from an ext3 filesystem on "leng" to "ulthar"
-over NFS - the problem only seems to happen with the combination.
+If you can a) make sure no new references are generated, and b)
+send a sequential marker through the subsystem, you can be sure
+that all references are gone, when the marker re-emerges. (Or use
+multiple markers, e.g. one per CPU.)
 
-Does anyone have any idea about what's going on? Thanks!
+Likewise, if you can disable restarting of a subsystem, and then
+wait until the subsystem is idle, you're safe. E.g. tasklet_disable
+works like this.
+
+- Werner
 
 -- 
-Manuel A. McLure KE6TAW <manuel@mclure.org> <http://www.mclure.org>
-...for in Ulthar, according to an ancient and significant law,
-no man may kill a cat.                       -- H.P. Lovecraft
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbUAHBze (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 20:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUAHBzd
+	id S263448AbUAHBrn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 20:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUAHBrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 20:55:33 -0500
-Received: from [209.19.21.18] ([209.19.21.18]:43205 "HELO genscript.com")
-	by vger.kernel.org with SMTP id S263441AbUAHBz1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 20:55:27 -0500
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Wed, 7 Jan 2004 20:33 -0800
-Subject: Boost Protein Expression by Codon Optimization
+	Wed, 7 Jan 2004 20:47:43 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:64778 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263448AbUAHBrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 20:47:42 -0500
+Date: Thu, 8 Jan 2004 02:44:57 +0100 (CET)
+From: Jesper Juhl <juhl@dif.dk>
 To: linux-kernel@vger.kernel.org
-From: Sally Wang <service@genscript.com>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S263441AbUAHBz1/20040108015528Z+24960@vger.kernel.org>
+cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] fs/fcntl.c - remove impossible <0 check in do_fcntl - arg
+ is unsigned.
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC074B2059@difpst1a.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Colleague,
 
-Happy New Year!
-
-As we know, codon preference among different species could be dramatically different.  To enhance the expression level of a foreign protein in a particular expression system (E.coli, Yeast, Insect, or Mammalian cell), it is very important to adjust the codon frequency of the foreign protein to match that of the host expression system.  One classic example is GFP (green fluorescent protein) which was optimized to achieve high-level of expression in mammalian cells. 
-
-GenScript has developed a proprietary algorithm for codon optimization.  This algorithm can optimize sequences for protein expression using either your own codon usage table or those from publicly available codon usage database.  It can converts your amino acid sequence into a DNA sequence with overall codon usage similar to a specified organism, and also optimizes the RNA secondary structure, GC content, repetitive codons etc. Using Genscript optimized synthetic genes, many of our customers have reported dramatic increase on protein expression. 
-
-The optimized gene can be synthesized by GenScript gene synthesis technology with 100% fidelity.  The cost is as low as $2.35 per base pair.  Our service is very flexible, we can clone the optimized gene into our standard vectors (without extra charge), or any expression vector that you provide (for $400 extra charge).
-
-Gene synthesis is a powerful technology and it has many other applications.  Another application example is to replace PCR Cloning.  Please visit our web (http://www.genscript.com/gene_synthesis.html) to learn more about this technology.  
-
-Besides Gene Synthesis, we also provide custom vector-based siRNA, siRNA cassette, peptide, oligo, cloning and protein expression, biochemical reagents, and labwares.  Please visit our web site (http://www.genscript.com) to learn more about our services.
+The 'arg' argument to the function do_fcntl in fs/fcntl.c is of type
+'unsigned long', thus it can never be less than zero (all callers of
+do_fcntl take unsigned arguments as well and pass on unsigned values),
+thus the check for 'arg < 0' in the F_SETSIG case of the switch in
+do_fcntl can never be true and thus does not need to be there in the first
+place.  Patch below (against 2.6.1-rc1-mm2) removes this dead code.
 
 
-Sincerely,
- 
-Sally Wang
-Account Manager
-GenScript Corporation
-120 Centennial Ave.
-Piscataway, New Jersey 08854, USA
-Tel: 1-732-885-9188, 1-732-357-3839
-Fax: 1-732-210-0262
-Email: sallyw@genscript.com
-Web: http://www.genscript.com
+--- linux-2.6.1-rc1-mm2-orig/fs/fcntl.c 2004-01-06 01:33:08.000000000 +0100
++++ linux-2.6.1-rc1-mm2/fs/fcntl.c      2004-01-08 02:44:45.000000000 +0100
+@@ -331,9 +331,8 @@ static long do_fcntl(unsigned int fd, un
+ 			break;
+ 		case F_SETSIG:
+ 			/* arg == 0 restores default behaviour. */
+-			if (arg < 0 || arg > _NSIG) {
++			if (arg > _NSIG)
+ 				break;
+-			}
+ 			err = 0;
+ 			filp->f_owner.signum = arg;
+ 			break;
 
 
-==============================================
+Patch is only compile tested, but as far as I can see it should be
+correct.
 
-P.S.   If you prefer not to receive GenScript News and Offers in email, please follow this link:
-https://www.genscript.com/ssl-bin/uns_email?number=M461X4M4X02WM62W9662&email=linux-kernel@vger.kernel.org, and we apologize
+
+Kind regards,
+
+Jesper Juhl
+
+
+
+PS. CC'ing Matthew Wilcox as he's listed as 'file locking' maintainer in
+MAINTAINERS, and Linus Torvalds as he's listed as original author in the
+file - sorry for the inconvenience, if any.
 

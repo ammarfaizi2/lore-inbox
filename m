@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264429AbUE3W7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUE3XEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264429AbUE3W7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 18:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbUE3W7K
+	id S264430AbUE3XEP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 19:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbUE3XEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 18:59:10 -0400
-Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:5766 "EHLO
-	goose.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264429AbUE3W7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 18:59:07 -0400
-Date: Sun, 30 May 2004 15:59:01 -0700
-From: Lee Howard <faxguy@howardsilvan.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: c-d.hailfinger.kernel.2004@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc1 breaks forcedeth
-Message-ID: <20040530225901.GA2399@bilbo.x101.com>
-References: <20040530155715.GA2612@bilbo.x101.com> <40BA17DF.4040706@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
+	Sun, 30 May 2004 19:04:15 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:36101 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264430AbUE3XEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 19:04:08 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.7-bk] vram boot option
+Date: Mon, 31 May 2004 01:03:37 +0200
+User-Agent: KMail/1.6.2
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <40BA17DF.4040706@pobox.com>; from jgarzik@pobox.com on Sun, May 30, 2004 at 10:20:31 -0700
-X-Mailer: Balsa 1.4.1
+Organization: Linux-Systeme GmbH
+Message-Id: <200405310103.37119@WOLK>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_JhmuAGIQhev6uHS"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.05.30 10:20 Jeff Garzik wrote:
-> Lee Howard wrote:
->> I use the forcedeth driver for my nVidia ethernet successfully with 
->> kernel 2.6.6.  I recently tested 2.6.7-rc1, and when using it the 
->> ethernet does not work, and I see this in dmesg:
->> 
->> eth1: forcedeth.c: subsystem: 01043:80a7 bound to 0000:00:04.0
->> NETDEV WATCHDOG: eth1: transmit timed out
->> NETDEV WATCHDOG: eth1: transmit timed out
->> NETDEV WATCHDOG: eth1: transmit timed out
->> NETDEV WATCHDOG: eth1: transmit timed out
->> NETDEV WATCHDOG: eth1: transmit timed out
->> 
->> I can ping localhost and the device's IP number, but I cannot ping 
->> other systems' IP numbers.
-> 
-> 
-> Well, there are zero changes to the driver itself, so I would guess 
-> ACPI perhaps...
-> 
-> Try booting with 'acpi=off' or 'noapic' or 'pci=noacpi' or similar...
 
-I didn't have ACPI built-in to the kernel.  So, I added it, and then 
-the network started working again.
+--Boundary-00=_JhmuAGIQhev6uHS
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-So, in 2.6.6 I didn't need ACPI to have network access, but with 2.6.7 
-I do.  Is this a bug or a feature?
+Hi Linus,
 
-Lee.
+could we either change that boot opion to "vram:" to be equal to 2.4 or should 
+we change 2.4 to be equal to 2.6.7-bk? I guess we should do the 1st.
+
+I'm speaking about this one:
+
+http://linux.bkbits.net:8080/linux-2.5/gnupatch@40ba1aa0CbdwIRz9E1pww0NREOd4nQ
+
+And document the option, please!
+
+ciao, Marc
+
+
+
+--Boundary-00=_JhmuAGIQhev6uHS
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="vram-sane-with-2.4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="vram-sane-with-2.4.patch"
+
+--- a/Documentation/fb/vesafb.txt	2003-12-18 03:59:06.000000000 +0100
++++ b/Documentation/fb/vesafb.txt	2004-05-31 01:01:12.000000000 +0200
+@@ -146,6 +146,10 @@ pmipal	Use the protected mode interface 
+ 
+ mtrr	setup memory type range registers for the vesafb framebuffer.
+ 
++vram:n	remap 'n' MiB of video RAM. If 0 or not specified, remap memory 
++	according to video mode. (2.5.66 patch/idea by Antonino Daplas 
++	reversed to give override possibility (allocate more fb memory 
++	than the kernel would) to 2.4 by tmb@iki.fi)
+ 
+ Have fun!
+ 
+--- a/drivers/video/vesafb.c	2004-05-31 00:59:41.000000000 +0200
++++ b/drivers/video/vesafb.c	2004-05-31 01:00:29.000000000 +0200
+@@ -207,7 +207,7 @@ int __init vesafb_setup(char *options)
+ 			mtrr=1;
+ 		else if (! strcmp(this_opt, "nomtrr"))
+ 			mtrr=0;
+-		else if (! strncmp(this_opt, "vram=", 5))
++		else if (! strncmp(this_opt, "vram:", 5))
+ 			vram = simple_strtoul(this_opt+5, NULL, 0);
+ 	}
+ 	return 0;
+
+--Boundary-00=_JhmuAGIQhev6uHS--

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUF0FE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266259AbUF0FcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266244AbUF0FE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 01:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUF0FE6
+	id S266259AbUF0FcP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 01:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUF0FcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 01:04:58 -0400
-Received: from mail.kroah.org ([65.200.24.183]:7050 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266244AbUF0FEw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 01:04:52 -0400
-Date: Sat, 26 Jun 2004 22:02:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, arjanv@redhat.com, jgarzik@redhat.com,
-       tburke@redhat.com, linux-kernel@vger.kernel.org,
-       mdharm-usb@one-eyed-alien.net, david-b@pacbell.net, oliver@neukum.org
-Subject: Re: drivers/block/ub.c
-Message-ID: <20040627050201.GA24788@kroah.com>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <Pine.LNX.4.44L0.0406262356110.30028-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0406262356110.30028-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 27 Jun 2004 01:32:15 -0400
+Received: from wasp.conceptual.net.au ([203.190.192.17]:14538 "EHLO
+	wasp.net.au") by vger.kernel.org with ESMTP id S266259AbUF0Fbq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 01:31:46 -0400
+Message-ID: <40DE5BC0.7080206@wasp.net.au>
+Date: Sun, 27 Jun 2004 09:31:44 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20040602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob Landley <rob@landley.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Process in D state with USB and swsuspsp
+References: <200406262031.14464.rob@landley.net>
+In-Reply-To: <200406262031.14464.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 27, 2004 at 12:05:22AM -0400, Alan Stern wrote:
-> It look like you are targeting ub for Linux 2.4.  Do you intend to use it 
-> with 2.6?  An important difference between the two kernel versions is that 
-> in 2.6 we do not try to make devices persistent across disconnections by 
-> recognizing some type of unique ID.
+Rob Landley wrote:
+>
+> As I said, I realise that unplugging even a USB adapter with the machine is 
+> suspended is Not A Good Thing.  But it's likely to be a common thing among 
+> people who can't figure out after the fact "oh yeah, that's what's going 
+> wrong"...
+> 
 
-The patch was against 2.6.7.  Why do you think this is for 2.4?
+Most of us that use swsusp regularly have our pre-suspend script unload usb before suspend to 
+prevent exactly this sort of behaviour.
+I also unload PCMCIA.
 
-greg k-h
+If there is something using these devices that prevents unloading, then my script notifies me that 
+I'm doing something I need to stop before I suspend. Can't remember the last time that happened though.
+
+Check out the swsusp-devel list for further info.
+
+Regards,
+Brad

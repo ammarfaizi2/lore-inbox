@@ -1,105 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUC0VLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 16:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUC0VLu
+	id S261875AbUC0VaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 16:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUC0VaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 16:11:50 -0500
-Received: from bimba.bezeqint.net ([192.115.104.6]:8104 "EHLO
-	bimba.bezeqint.net") by vger.kernel.org with ESMTP id S261900AbUC0VLq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 16:11:46 -0500
-Date: Sat, 27 Mar 2004 23:11:35 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040327211135.GG2737@luna.mooo.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com>
- <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com>
-	 <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com>
+	Sat, 27 Mar 2004 16:30:04 -0500
+Received: from gprs214-250.eurotel.cz ([160.218.214.250]:25984 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261875AbUC0V37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 16:29:59 -0500
+Date: Sat, 27 Mar 2004 22:29:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Luke-Jr <luke-jr@artcena.com>
+Cc: swsusp-devel@lists.sourceforge.net, ncunningham@users.sourceforge.net,
+       Michael Frank <mhf@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was	Re: Your opinion on the merge?]]
+Message-ID: <20040327212946.GB295@elf.ucw.cz>
+References: <20040323233228.GK364@elf.ucw.cz> <20040326222234.GE9491@elf.ucw.cz> <1080353285.9264.3.camel@calvin.wpcb.org.au> <200403270337.48704.luke-jr@artcena.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <405F70F6.5050605@aurema.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200403270337.48704.luke-jr@artcena.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 10:04:22AM +1100, Peter Williams wrote:
-> Micha Feigin wrote:
-> >On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
-> >
-> >>>>>there is one. Nothing uses it
-> >>>>>(sysconf() provides this info)
-> >>>>
-> >>>>Seems to me that it would be fairly trivial to modify those programs 
-> >>>>(that should use this mechanism but don't) to use it?  So why should 
-> >>>>they be allowed to dictate kernel behaviour?
-> >>>
-> >>>
-> >>>quality of implementation; for example shell scripts that want to do
-> >>>echo 500 > /proc/sys/foo/bar/something_in_HZ
-> >>>...
-> >>>or /etc/sysctl.conf or ...
-> >>>
-> >>
-> >>Then write a simple program already. How hard is it to write a program
-> >>that does a sysconf() and returns (as ascii of course) just the
-> >>value of HZ? Then do some trivial calculation off of that.
-> >>
-> >>HZ=$(gethz)
-> >>
-> >>If your 500 was 5 seconds, do
-> >>
-> >>TIME=$[HZ*5]
-> >>echo $TIME > /proc/sys/foo/bar/something_in_HZ
-> >>
-> >
-> >
-> >Will this be USER_HZ or kernel HZ?
-> >Someone earlier suggested it would be USER_HZ which would make it
-> >pointless.
-> 
-> It has to be whatever enables user space to correctly interpret values 
-> sent to user space as "ticks".  That means USER_HZ and it's not useless 
-> as it enables USER_HZ to be different and/or change without breaking 
-> programs that use values expressed in "ticks".
-> 
+Hi!
 
-Unless the kernel is converted to make that conversion possible then it
-is useless at the moment since userspace gets USER_HZ and the kernel
-proc interface speaks (KERNEL) HZ so userspace really has no idea how
-to speak to kernel space with 2.6.
+On So 27-03-04 03:37:48, Luke-Jr wrote:
+> On Saturday 27 March 2004 02:08 am, Nigel Cunningham wrote:
+> > On Sat, 2004-03-27 at 10:22, Pavel Machek wrote:
+> > > You are right, that would be ugly. How is encryption supposed to work,
+> > > kernel asks you to type in a key?
+> >
+> > I haven't thought about the specifics there. Perhaps the plugin prompts
+> > for one, or perhaps it takes a lilo parameter? 
+> The only purpose I can think of for encryption would be so someone can't grab 
+> the HD and boot it on another PC or read the image directly.
+> Unless I'm missing something, that would imply that the key would need to be 
+> generated from a hardware profile (only creatable by root) somehow to 
+> restrict its readability to that one system.
 
-> >
-> >
-> >>I mean, come on.
-> >>
-> >>Then you include it in the default distro of choice so that
-> >>everybody can use it and there you are.
-> >>
-> >>If someone doesn't have "gethz" then they can download it.
-> >>
-> >>// Stefan
-> >>
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> -- 
-> Dr Peter Williams, Chief Scientist                peterw@aurema.com
-> Aurema Pty Limited                                Tel:+61 2 9698 2322
-> PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-> 79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-> 
-> 
-> +++++++++++++++++++++++++++++++++++++++++++
-> This Mail Was Scanned By Mail-seCure System
-> at the Tel-Aviv University CC.
-> 
+Hmm, I do not see how hardware hash helps. When I can steal your hdd,
+there's good chance I can steal whole machine, too.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,217 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263849AbTCVUxJ>; Sat, 22 Mar 2003 15:53:09 -0500
+	id <S263813AbTCVUvk>; Sat, 22 Mar 2003 15:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263871AbTCVUxJ>; Sat, 22 Mar 2003 15:53:09 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:64464 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263849AbTCVUxE>; Sat, 22 Mar 2003 15:53:04 -0500
-Date: Sat, 22 Mar 2003 13:04:02 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 487] New: hisax.ko needs unknown symbol arek 
-Message-ID: <367940000.1048367042@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S263819AbTCVUvk>; Sat, 22 Mar 2003 15:51:40 -0500
+Received: from [206.246.248.56] ([206.246.248.56]:3602 "EHLO
+	gaspar.dragonspyre.net") by vger.kernel.org with ESMTP
+	id <S263813AbTCVUvj>; Sat, 22 Mar 2003 15:51:39 -0500
+From: "Sean Gillespie" <dragonbyte@dragonspyre.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: ACPI Problems on a HP ZE4145
+Date: Sat, 22 Mar 2003 16:01:42 -0500
+Message-ID: <NHBBKNMMGLNAADPIJANHMEBOCAAA.dragonbyte@dragonspyre.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hisax.ko needs unknown symbol kstat__per_cpu
-X-Bugzilla-Reason:CC
-
-http://bugme.osdl.org/show_bug.cgi?id=487
-
-           Summary: hisax.ko needs unknown symbol            arek
-                    hisax.ko needs unknown symbol kstat__per_cpu
-    Kernel Version: 2.5.65-bk3
-            Status: NEW
-          Severity: normal
-             Owner: jgarzik@pobox.com
-         Submitter: rmrmg@wp.pl
-
-
-Distribution: Slackware-current
-Hardware Environment: ISDN card: avm fritz pci (pnp); mainboard: aopen AX59pro,
-CPU k6-2 500MHz 
-Software Environment:module-init-tools-0.9.10 gcc-3.2.2 glibc-2.3.1
-Problem Description:
-after make bzImage and make modules in make modules_install:
-depmod -ae -F System.map  2.5.65-bk3
-WARNING: /lib/modules/2.5.65-bk3/kernel/drivers/isdn/hisax/hisax.ko needs
-unknown symbol kstat__per_cpu
-
-Steps to reproduce:
-
-[root@slack:/usr/src/linux-2.5.65#] less ./.config | grep -v "is not set" | grep
-^[0-9A-Za-z]
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK6=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PM=y
-CONFIG_APM=m
-CONFIG_APM_REAL_MODE_POWER_OFF=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_ISDN_BOOL=y
-CONFIG_ISDN=m
-CONFIG_ISDN_NET_SIMPLE=y
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-CONFIG_ISDN_PPP_BSDCOMP=m
-CONFIG_ISDN_DRV_HISAX=m
-CONFIG_HISAX_EURO=y
-CONFIG_HISAX_MAX_CARDS=8
-CONFIG_HISAX_FRITZPCI=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_MINIX_FS=m
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-2"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_UTF8=m
-CONFIG_FB=y
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_EMU10K1=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-
+I am unable to get ACPI working on my ZE4145 Laptop (BIOS Rev KA.M1.20).  I
+have tried 2.4.18 w/ ACPI patch, 2.4.21 w/ ACPI patch, 2.5.53, 2.5.64, and
+2.5.65 and have tried pci=acpi and pci=nobios and get the same error with
+each one.  I enabled Debug mode for ACPI and this basically what happens.
+ACPI: Subsystem revision <varies with kernel>, ACPI Tables successfully
+acquired, Parsing all Control Methods, Table [DSDT] - 724 Objects 51 Devices
+222 Methods 17 Regions, Parsing all Control Methods, Table [SSDT] 0 Objects,
+0 Devices, 0 Methods, 0 Regions, ACPI Namespace successfully loaded at root
+c03c89bc, evxfevnt-0073 [04] acpi_enable : Transition to ACPI mode
+successful, evgpe-0262:  GPE Block0 defined as GPE0 to GPE63.  The system
+then halts <no oops, no panic> on this line <shown as it appears>
+Executing all Device _STA and_INI methods:....
+Any help would be greatly appreciated please CC any replies to me.
 

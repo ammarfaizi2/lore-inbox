@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311433AbSDIUfE>; Tue, 9 Apr 2002 16:35:04 -0400
+	id <S311454AbSDIUhY>; Tue, 9 Apr 2002 16:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311445AbSDIUfD>; Tue, 9 Apr 2002 16:35:03 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:12939 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S311433AbSDIUfD>;
-	Tue, 9 Apr 2002 16:35:03 -0400
-Date: Mon, 8 Apr 2002 01:38:01 +0000
+	id <S311475AbSDIUhX>; Tue, 9 Apr 2002 16:37:23 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:16011 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S311454AbSDIUhW>;
+	Tue, 9 Apr 2002 16:37:22 -0400
+Date: Mon, 8 Apr 2002 01:25:37 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre5-ac3
-Message-ID: <20020408013801.B329@toy.ucw.cz>
-In-Reply-To: <200204051945.g35JjnX23183@devserv.devel.redhat.com> <20020408214612.GR961@matchmail.com>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: Re: user-mode port 0.56-2.4.18-15
+Message-ID: <20020408012536.A329@toy.ucw.cz>
+In-Reply-To: <200204082056.PAA03749@ccure.karaya.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -20,16 +21,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Linux 2.4.19pre5-ac3
-> > o	Software suspend initial patch 		(Pavel Machek, Gabor Kuti,..)
-> > 	| Don't enable this idly. Its here to get exposure and so
-> > 	| people can bring the rest of the code up to meet its needs as
-> > 	| well as fix it.
-> > 	| Read the docs first!
-> 
-> Didn't enable software suspend, but I do use ACPI...
+> Added SA_SAMPLE_RANDOM to the irq registration flags of some drivers.  This
+> makes apps which read /dev/random work a lot better.  Randomness in UML is
+> more problematic than on the host, but I chose a set of drivers whose
+> interrupts shouldn't be too predictable.
 
-Looks like we need some #ifdefs in acpi... I'll fix that.
+Why don't you just feed your /dev/random from hosts /dev/random?
+
+> HZ is now 52.
+
+Wow.. Why such strange value?
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

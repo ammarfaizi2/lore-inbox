@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319062AbSIJAWa>; Mon, 9 Sep 2002 20:22:30 -0400
+	id <S319048AbSIJATg>; Mon, 9 Sep 2002 20:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319063AbSIJAWa>; Mon, 9 Sep 2002 20:22:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7684 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319062AbSIJAW3>; Mon, 9 Sep 2002 20:22:29 -0400
-Date: Mon, 9 Sep 2002 17:30:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Greg KH <greg@kroah.com>
-cc: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <20020910001945.GB8477@kroah.com>
-Message-ID: <Pine.LNX.4.33.0209091727370.2069-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319049AbSIJATf>; Mon, 9 Sep 2002 20:19:35 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:17925 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S319048AbSIJATd>; Mon, 9 Sep 2002 20:19:33 -0400
+Date: Tue, 10 Sep 2002 01:24:18 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.34 - EXPORT_SYMBOL(reparent_to_init) for module build
+Message-ID: <20020910002418.GA69537@compsoc.man.ac.uk>
+References: <20020909172111.A19949@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020909172111.A19949@eng2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 09, 2002 at 05:21:11PM -0700, Patrick Mansfield wrote:
 
-On Mon, 9 Sep 2002, Greg KH wrote:
-> 
-> Sorry, Matt told me to add it, I didn't realize the background.  Should
-> I leave it as show_trace(), or just remove it?  Do you want me to send
-> you another changeset to put it back?
+> With 2.5.34, in order to build a module that calls daemonize(), I had to 
+> export reparent_to_init:
 
-I've just excluded it, with a comment to never _ever_ kill the machine 
-unless there is a major reason for it.
+I suggest you check the source of daemonize() in 2.5.34 ;)
 
-We might want to add some "weaker" form of BUG_ON() for sanity checks that 
-aren't life-threatening (ie a "CHECK(a == b)" kind of debug facility) that 
-would be prettier than doing printk's and show_trace(), and that would 
-also be easier to disable for production kernels (not that I personally 
-much believe in disabling debugging like that - if it really isn't needed 
-it should be removed, not disabled).
-
-		Linus
-
+regards
+john
+-- 
+"This *is* Usenet, after all, where virtually every conversation that goes on
+is fairly ludicrous in the first place."
+	- Godwin's Law FAQ

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUJ0Ckr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUJ0Cm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUJ0Ckr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUJ0Ckr
+	id S261582AbUJ0Cm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUJ0Cmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:40:47 -0400
-Received: from ozlabs.org ([203.10.76.45]:29639 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261580AbUJ0Ckd (ORCPT
+	Tue, 26 Oct 2004 22:42:55 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:10374 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261582AbUJ0Cme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:40:33 -0400
-Subject: Re: [RFC as402] Delaying module memory release
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0410261520170.690-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0410261520170.690-100000@ida.rowland.org>
-Content-Type: text/plain
-Date: Wed, 27 Oct 2004 12:40:11 +1000
-Message-Id: <1098844811.22012.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Oct 2004 22:42:34 -0400
+Date: Wed, 27 Oct 2004 03:41:52 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The naming wars continue...
+In-Reply-To: <clmqqf$g8r$1@terminus.zytor.com>
+Message-ID: <Pine.LNX.4.61.0410270341210.20284@student.dei.uc.pt>
+References: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+ <417D7089.3070208@tmr.com> <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
+ <MPG.1be8533f25663a40989703@news.gmane.org> <clmqqf$g8r$1@terminus.zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-26 at 15:52 -0400, Alan Stern wrote:
-> This issue has come up in the past, without much in the way of visible 
-> results.
-> 
-> The problem is that sometimes the memory for a kernel module needs to be
-> freed _after_ rmmod has exited.  The classic example is where the standard
-> input to the rmmod process has been redirected to a pseudo-file that pins
-> a kobject whose release method calls into the module.  Another example
-> (which could be worked around with some effort) is multiple kernel threads
-> executing in the module -- the module exit routine would have to wait for 
-> each one of them to terminate.
-> 
-> In these cases it's not desirable/feasible to increment the module's 
-> refcount.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Why not?  In the former the module is still in use, in the latter the
-module_exit routine is expected to clean up.
+On Wed, 27 Oct 2004, H. Peter Anvin wrote:
 
-> Instead the module's exit routine should run and rmmod should 
-> return, but the module's memory should only be freed when it is known that 
-> nothing else will try to use it.
+>> Yeah but try fitting that in the extraversion. Maybe we should
+>> use -hopstt(hold on patches, stress-test this) for this kind of
+>> stuff, and -beo (bring 'em on) for the "early" -rcX ... :)
+>>
+>
+> We could even spell them -pre and -rc.
 
-[Snip poor man's two-stage module delete patch].
+Exactly.
+If 2.4 works so well, why change it in 2.6?
 
-We've been here lots of times before.  Most people want "remove or fail"
-semantics for module removal.  Two-stage delete doesn't do this, but
-instead leaves modules in a "half-removed" state, where the module
-cannot be used, but usually a replacement module cannot be loaded
-either.  This is what "rmmod --wait" does: close off module use to
-future users (ie. try_module_get() will fail) and wait for the refcnt to
-hit 0.
+Mind Booster Noori
 
-This option has not proven popular.
-Rusty.
--- 
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFBfwrymNlq8m+oD34RAlqzAJ4h8s7eS3Jfkz8lvbGvnf35hVN9FgCeJYyQ
+suVxn5dtr7sXQYN9FM/EVHM=
+=9xz9
+-----END PGP SIGNATURE-----
 

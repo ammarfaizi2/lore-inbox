@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVCDAKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVCDAOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbVCDAKV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbVCDAIG
+	id S262732AbVCDAOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVCDANq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:08:06 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45003 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262745AbVCCXh7 (ORCPT
+	Thu, 3 Mar 2005 19:13:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25299 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262683AbVCDAJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:37:59 -0500
-Date: Thu, 3 Mar 2005 15:37:54 -0800
+	Thu, 3 Mar 2005 19:09:02 -0500
+Date: Thu, 3 Mar 2005 16:08:49 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Brice Figureau <brice+lklm@daysofwonder.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-ac10 oops in journal_commit_transaction
-Message-Id: <20050303153754.7a5deecd.akpm@osdl.org>
-In-Reply-To: <1109857541.29075.25.camel@localhost.localdomain>
-References: <1109857541.29075.25.camel@localhost.localdomain>
+To: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org,
+       scalability@gelato.org
+Subject: Re: [PATCH] Fixing address space lock contention in 2.6.11
+Message-Id: <20050303160849.0b80be76.akpm@osdl.org>
+In-Reply-To: <20050302184653.3ea8e29d.akpm@osdl.org>
+References: <16934.28560.325928.858464@berry.gelato.unsw.EDU.AU>
+	<20050302184653.3ea8e29d.akpm@osdl.org>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,33 +25,53 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Figureau <brice+lklm@daysofwonder.com> wrote:
+Andrew Morton <akpm@osdl.org> wrote:
 >
-> I'm reporting an oops on a bi-Xeon database server under 2.6.10-ac10
-> quite similar to:
-> http://marc.theaimsgroup.com/?l=ext3-users&m=110848085314238&w=2
+> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+> >
+> > 
+> > Hi,
+> > 	As part of the Gelato scalability focus group, we've been running
+> > OSDL's Re-AIM7 benchmark with an I/O intensive load with varying
+> > numbers of processors.  The current kernel shows severe contention on
+> > the tree_lock in the address space structure when running on tmpfs or
+> > ext2 on a RAM disk.
+> > 
 > 
-> I also got another server crashing (a mail server this time), but I
-> couldn't get the oops/panic.
+> Yup.
 > 
-> This was after more than two weeks of uptime, I was running 2.6.10-ac1
-> before and never got this problem.
+> Problem is, an rwlock is a little bit slower than a spinlock on a P4 due to
+> the buslocked unlock, and a lot of people have p4's.
 > 
-> Here are the oops information:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
->  printing eip:
-> c01a858d
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT SMP 
-> Modules linked in: i2c_i801 i2c_core ip_conntrack_ftp ipt_LOG ipt_limit ipt_REJECT ipt_state iptable_filter ip_conntrack ip_tables
-> CPU:    2
-> EIP:    0060:[journal_commit_transaction+877/5264]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.10-ac10) 
-> EIP is at journal_commit_transaction+0x36d/0x1490
+> Could you do some testing on a 2-way p4?
 
-Please do:
+hm, turns out I did some P4 testing ages ago:
 
-gdb vmlinux
-(gdb) l *0xc01a858d
+with:
+
+dd if=/dev/zero of=foo bs=1 count=2M  0.80s user 4.15s system 99% cpu 4.961 total
+dd if=/dev/zero of=foo bs=1 count=2M  0.73s user 4.26s system 100% cpu 4.987 total
+dd if=/dev/zero of=foo bs=1 count=2M  0.79s user 4.25s system 100% cpu 5.034 total
+
+dd if=foo of=/dev/null bs=1  0.80s user 3.12s system 99% cpu 3.928 total
+dd if=foo of=/dev/null bs=1  0.77s user 3.15s system 100% cpu 3.914 total
+dd if=foo of=/dev/null bs=1  0.92s user 3.02s system 100% cpu 3.935 total
+
+(3.926: 1.87 usecs)
+
+without:
+
+dd if=/dev/zero of=foo bs=1 count=2M  0.85s user 3.92s system 99% cpu 4.780 total
+dd if=/dev/zero of=foo bs=1 count=2M  0.78s user 4.02s system 100% cpu 4.789 total
+dd if=/dev/zero of=foo bs=1 count=2M  0.82s user 3.94s system 99% cpu 4.763 total
+dd if=/dev/zero of=foo bs=1 count=2M  0.71s user 4.10s system 99% cpu 4.810 tota
+
+dd if=foo of=/dev/null bs=1  0.76s user 2.68s system 100% cpu 3.438 total
+dd if=foo of=/dev/null bs=1  0.74s user 2.72s system 99% cpu 3.465 total
+dd if=foo of=/dev/null bs=1  0.67s user 2.82s system 100% cpu 3.489 total
+dd if=foo of=/dev/null bs=1  0.70s user 2.62s system 99% cpu 3.326 total
+
+(3.430: 1.635 usecs)
+
+
+So the spinlock->rwlock conversion costs us 240 nsecs on a one-byte-write.

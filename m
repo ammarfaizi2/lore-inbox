@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129769AbRBMKRm>; Tue, 13 Feb 2001 05:17:42 -0500
+	id <S129550AbRBMKUC>; Tue, 13 Feb 2001 05:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129414AbRBMKRc>; Tue, 13 Feb 2001 05:17:32 -0500
-Received: from fisica.ufpr.br ([200.17.209.129]:25340 "EHLO
-	hoggar.fisica.ufpr.br") by vger.kernel.org with ESMTP
-	id <S129550AbRBMKRR>; Tue, 13 Feb 2001 05:17:17 -0500
-From: Carlos Carvalho <carlos@fisica.ufpr.br>
+	id <S130126AbRBMKTw>; Tue, 13 Feb 2001 05:19:52 -0500
+Received: from gw.chygwyn.com ([62.172.158.50]:40966 "EHLO gw.chygwyn.com")
+	by vger.kernel.org with ESMTP id <S129550AbRBMKTs>;
+	Tue, 13 Feb 2001 05:19:48 -0500
+From: Steve Whitehouse <steve@gw.chygwyn.com>
+Message-Id: <200102131019.KAA21847@gw.chygwyn.com>
+Subject: Re: SO_RCVTIMEO, SO_SNDTIMEO
+To: chris@scary.beasts.org (Chris Evans)
+Date: Tue, 13 Feb 2001 10:19:38 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0102130035550.9858-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 13, 2001 12:38:16 AM
+Organization: ChyGywn Limited
+X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
+X-RegisteredNumber: 03887683
+Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14985.2457.869083.246477@hoggar.fisica.ufpr.br>
-Date: Tue, 13 Feb 2001 08:16:57 -0200
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-In-Reply-To: <shslmra9a9f.fsf@charged.uio.no>
-In-Reply-To: <E14SQqi-0008Bm-00@the-village.bc.nu>
-	<shslmra9a9f.fsf@charged.uio.no>
-X-Mailer: VM 6.90 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust (trond.myklebust@fys.uio.no) wrote on 13 February 2001 10:56:
- >Actually, since BUG() only seems to be defined on i386 platforms for
- >2.2.x, perhaps the easiest thing to do (unless somebody wants to
- >volunteer to backport all the `safe' definitions from 2.4.x) would be
- >to add the generic `*(int *)0 = 0' definition for local use by ping()
- >itself.
+Hi,
 
-Yes, this is what I wanted, something just enough to catch the bug and
-run 2.2.19 until we can use 2.4. Thanks.
+They are the maximum amount of time that a send or receive call will
+block for. The standard socket error returns apply, so if data has
+been sent or received, then the return value will be the amount of
+data transferred; if no data has been transferred and the timeout
+has been reached then -1 is returned with errno=EAGAIN just as if the socket
+was specified to be nonblocking. If the timeout is set to zero (the default)
+then the operation will never timeout.
+
+Steve.
+
+> 
+> 
+> Hi,
+> 
+> I notice the entities in the subject line have appeared in Linux 2.4.
+> 
+> What is their functional specification? I guess they trigger if no bytes
+> are received/send within a consecutive period. How does the app get the
+> error? -EPIPE for a blocking read/write? If so, does SIGPIPE
+> get raised? Or is -ETIMEDOUT used? ...
+> 
+> TIA,
+> Chris
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://vger.kernel.org/lkml/
+> 
+

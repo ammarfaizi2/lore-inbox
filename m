@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281994AbRKUXXv>; Wed, 21 Nov 2001 18:23:51 -0500
+	id <S281995AbRKUXZc>; Wed, 21 Nov 2001 18:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281995AbRKUXXc>; Wed, 21 Nov 2001 18:23:32 -0500
-Received: from AGrenoble-101-1-5-109.abo.wanadoo.fr ([80.11.136.109]:39562
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281994AbRKUXXX> convert rfc822-to-8bit; Wed, 21 Nov 2001 18:23:23 -0500
-Message-ID: <3BFC382F.60405@wanadoo.fr>
-Date: Thu, 22 Nov 2001 00:26:39 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
+	id <S281996AbRKUXZL>; Wed, 21 Nov 2001 18:25:11 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:17448 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S281995AbRKUXZB>; Wed, 21 Nov 2001 18:25:01 -0500
+Date: Wed, 21 Nov 2001 17:24:44 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Joseph Fannin <jhf@rivenstone.net>
+cc: Anders Linden <anli@perceptive.se>, linux-kernel@vger.kernel.org
+Subject: Re: Network card timeouts
+In-Reply-To: <20011121154836.A9016@gibraltar.rivenstone.net>
+Message-ID: <Pine.LNX.3.96.1011121172341.24649A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 not supported by kernel !!!!!
-In-Reply-To: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Maria Godinho de Matos wrote:
+I think what people sometimes do not understand is that transmit
+timeouts are a generic handler for a NIC- or driver-specific problem
+
+It is a mistake to assume that timeouts are a "common thread" of any
+sort.
+
+	Jeff
 
 
-> fs ext3 not supported by kernel!
-> 
-> This was for what i  think something i misschoose in the make config step am 
-> i right??'
-
-
-yes and no... basically vanilla 2.4.14 doesn't support ext3,
-although you can patch it to get ext3.
-
-either you want to try 2.4.15pre8 and you have to patch your 2.4.14
-with
-http://www.kernel.org/pub/linux/kernel/testing/patch-2.4.15-pre8.gz
-or you can patch 2.4.14 with the ext3 patch at :
-http://beta.redhat.com/index.cgi?action=ext3
-or you can wait for 2.4.15
-
-
-> If so can one of u tell me which menu contains the ext3 support for the 
-> kernel compilation.
-
-
-Filesystems
-
-François
 

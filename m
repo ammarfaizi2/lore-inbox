@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267699AbTCFDMV>; Wed, 5 Mar 2003 22:12:21 -0500
+	id <S267693AbTCFDCi>; Wed, 5 Mar 2003 22:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267708AbTCFDMV>; Wed, 5 Mar 2003 22:12:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19726 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267699AbTCFDMT>; Wed, 5 Mar 2003 22:12:19 -0500
-Date: Wed, 5 Mar 2003 19:20:34 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Robert Love <rml@tech9.net>, <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <20030228202555.4391bf87.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267699AbTCFDCi>; Wed, 5 Mar 2003 22:02:38 -0500
+Received: from [216.234.192.169] ([216.234.192.169]:26897 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP
+	id <S267693AbTCFDCh>; Wed, 5 Mar 2003 22:02:37 -0500
+Subject: Re: Those ruddy punctuation fixes
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030305122008.GA4280@suse.de>
+References: <20030305111015.B8883@flint.arm.linux.org.uk> 
+	<20030305122008.GA4280@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 05 Mar 2003 20:11:11 -0700
+Message-Id: <1046920285.3786.68.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 28 Feb 2003, Andrew Morton wrote:
-> > 
-> > Andrew, if you drop this patch, your X desktop usability drops?
+On Wed, 2003-03-05 at 05:20, Dave Jones wrote:
+> On Wed, Mar 05, 2003 at 11:10:15AM +0000, Russell King wrote:
 > 
-> hm, you're right.  It's still really bad.  I forgot that I was using distcc.
+>  > Could we stop fix^wbreaking this stuff please.  GCC 3.2.2:
+>  > ...
+>  > include/asm/proc-fns.h:128:39: missing terminating ' character
 > 
-> And I also forgot that tbench starves everything else only on CONFIG_SMP=n.
-> That problem remains with us as well.
+> 100% agreed. People really are going too far IMO.
+> Given that most people will never read those comments, the
+> effort would be much better spent proof-reading/correcting
+> documentation than comments.
+> 
+> The "its just a spelling mistake, it cant break the build!"
+> mantra is also way off base. If you touch a .c/.h file, you
+> introduce the possibility of breakage.
 
-Andrew, I always thought that the scheduler interactivity was bogus, since
-it didn't give any bonus to processes that _help_ interactive users
-(notably the X server, but it could be other things).
+That is why I was very careful with my its -> it's patch.
+In the two files where an extra apostrophe would have broken
+the build, I changed its to it is.  Why not just leave it alone?
+Because some well-meaning spelling fixer may come along in the
+future and break it, just like in proc-fns.h.
 
-To fix that, some people nice up their X servers, which has its own set of 
-problems.
+> 
+> The cant -> can't pedantry is an example of just how extremely
+> silly these are getting. Is there really someone who sees
+> "cant" and doesn't understand what it could mean?
+> It just pedantic masturbation AFAICS.
+> 
+> 		Dave
 
-How about something more like this (yeah, untested, but you get the idea): 
-the person who wakes up an interactive task gets the interactivity bonus 
-if the interactive task is already maxed out. I dunno how well this plays 
-with the X server, but assuming most clients use UNIX domain sockets, the 
-wake-ups _should_ be synchronous, so it should work well to say "waker 
-gets bonus".
+It's too bad that the cant -> can't change is tarred with the same brush
+as thresold -> threshold and asociation -> association.  My belief is
+that those kind of fixes have these benefits:
 
-This should result in:
+The comments are more readable.
+The source can be grepped more accurately.
+Correct spelling sets a good example.
+Incorrect spelling sets a bad example and proliferates.
 
- - if X ends up using all of its time to handle clients, obviously X will 
-   not count as interactive on its own. HOWEVER, if an xterm or something 
-   gets an X event, the fact that the xterm has been idle means that _it_ 
-   gets a interactivity boost at wakeup.
+Why all the fixes now?  Because it's a window of opportunity. Linus
+seems more comfortable with accepting these kind of changes now than at
+other times.
 
- - after a few such boosts (or assuming lots of idleness of xterm), the 
-   process that caused the wakeup (ie the X server) will get the 
-   "extraneous interactivity".
+If we don't get these changes in now, expect to have this same
+conversation around 2.9.50 or so. (Assuming that 3.0 will follow 2.6)
 
-This all depends on whether the unix domain socket code runs in bottom 
-half or process context. If it runs in bottom half context we're screwed, 
-I haven't checked.
-
-Does this make any difference for you? I don't know what your load test 
-is, and considering that my regular desktop has 4 fast CPU's I doubt I can 
-see the effect very clearly anyway ("Awww, poor Linus!")
-
-NOTE! This doesn't help a "chain" of interactive helpers. It could be 
-extended to that, by just allowing the waker to "steal" interactivity 
-points from a sleeping process, but then we'd need to start being careful 
-about fairness and in particular we'd have to disallow this for signal 
-handling.
-
-		Linus
-
-----
-===== kernel/sched.c 1.161 vs edited =====
---- 1.161/kernel/sched.c	Thu Feb 20 20:33:52 2003
-+++ edited/kernel/sched.c	Wed Mar  5 19:09:45 2003
-@@ -337,8 +337,15 @@
- 		 * boost gets as well.
- 		 */
- 		p->sleep_avg += sleep_time;
--		if (p->sleep_avg > MAX_SLEEP_AVG)
-+		if (p->sleep_avg > MAX_SLEEP_AVG) {
-+			int ticks = p->sleep_avg - MAX_SLEEP_AVG + current->sleep_avg;
- 			p->sleep_avg = MAX_SLEEP_AVG;
-+			if (ticks > MAX_SLEEP_AVG)
-+				ticks = MAX_SLEEP_AVG;
-+			if (!in_interrupt())
-+				current->sleep_avg = ticks;
-+		}
-+			
- 		p->prio = effective_prio(p);
- 	}
- 	enqueue_task(p, array);
+Cheers,
+Steven 
 

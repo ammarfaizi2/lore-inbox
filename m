@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUDSRzI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 13:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUDSRzH
+	id S261684AbUDSR53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 13:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUDSR53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 13:55:07 -0400
-Received: from mail.ccur.com ([208.248.32.212]:22026 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S261606AbUDSRzE (ORCPT
+	Mon, 19 Apr 2004 13:57:29 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:48085 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261684AbUDSR5U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 13:55:04 -0400
-Date: Mon, 19 Apr 2004 13:55:03 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: siginfo & 32 bits compat, what is the story ?
-Message-ID: <20040419175503.GA4383@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <1082360155.1677.31.camel@gaston>
+	Mon, 19 Apr 2004 13:57:20 -0400
+Date: Mon, 19 Apr 2004 10:57:18 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.26 IRDA BUG - blocker
+Message-ID: <20040419175718.GA7959@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082360155.1677.31.camel@gaston>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 05:35:55PM +1000, Benjamin Herrenschmidt wrote:
-> So I've been playing around the siginfo copy code for 32 bits
-> processes on ppc64 and found some interesting stuffs that I don't
-> know how to fix at this point.
+Michal Semler wrote :
 > 
-> I looked at x86-64, and they always copy/convert those 3 fields,
-> never copy the rest of the siginfo. I looked at s390 and they do
-> the opposite: just copy the rest of the structure...
+> Hi,
+> 
+> I have in my laptop this irda port:
+> IrCOMM protocol (Dag Brattli)
+> nsc-ircc, Found chip at base=0x02e
+> nsc-ircc, driver loaded (Dag Brattli)
+> IrDA: Registered device irda0
+> 
+> modules.conf:
+> alias irda0 nsc-ircc
+> options nsc-ircc dongle_id=0x08
+> 
+> When I try connect with 2.4.26 kernel to T68i
+> I getts this message and then port freezes - no devices discovered and no 
+> communication, sometimes freezes whole laptop:
+> 
+> irlap_adjust_qos_settings(), Detected buggy peer, adjust mtt to 10us!
+> IrLAP, no activity on link!
+> IrLAP, no activity on link!
+> IrLAP, no activity on link!
+> IrLAP, no activity on link!
 
-I believe the x86_64 method is correct.
+	My web page document those kind of problems, how to configure
+nsc-ircc, and how to report bug properly. Have you read it ?
+	Note that I've just answered a similar question a couple of
+days ago on the IrDA mailing list.
 
-It might be worth moving this compatibility code to a
-common place where all architectures could reference it.
+> previous versions were OK
 
-Joe
+	There was no IrDA changes from 2.4.25 to 2.4.26.
+
+> 2.4.26-vanilla
+> debian woody with bunk2 debs
+> 
+> Thanks a lot
+> 
+> Michal
+
+Daniele Venzano wrote :
+> I'm seeing this same behaviour with a Nokia 6610, same modules, same
+> messages, but kernel 2.6.5.
+> I also noted that with irdaping I loose one ping every 2, so that
+> sequence numbers follow the following pattern:
+> 1
+> 2
+> 4
+> 5
+> 7
+> 8
+
+	Same story, please read my web page on how to report bugs. And
+I bet the problem is the same.
+
+	Regards,
+
+	Jean

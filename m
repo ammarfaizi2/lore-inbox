@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272605AbRHaFFA>; Fri, 31 Aug 2001 01:05:00 -0400
+	id <S272606AbRHaFLL>; Fri, 31 Aug 2001 01:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272606AbRHaFEu>; Fri, 31 Aug 2001 01:04:50 -0400
-Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:50948
-	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
-	id <S272605AbRHaFEp>; Fri, 31 Aug 2001 01:04:45 -0400
-Date: Fri, 31 Aug 2001 00:05:01 -0500 (CDT)
-From: Chris Abbey <linux@cabbey.net>
-X-X-Sender: <cabbey@tweedle.cabbey.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
-Message-ID: <Pine.LNX.4.33.0108302353380.4964-100000@tweedle.cabbey.net>
+	id <S272607AbRHaFKv>; Fri, 31 Aug 2001 01:10:51 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64260 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272606AbRHaFKp>; Fri, 31 Aug 2001 01:10:45 -0400
+Date: Thu, 30 Aug 2001 22:08:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <200108310128.f7V1SSn08071@moisil.badula.org>
+Message-ID: <Pine.LNX.4.33.0108302204350.15159-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today, Dan Hollis wrote:
-> but where would the finger start pointing then?
 
-hmm... *compiler optimizations* for a specific family cause
-problems on that family, but *compiler optimizations* for
-a lesser family don't... I'll admit my kernel h4x0|^ 5k1!!s
-aren't on par with most on this list, but has anyone thought
-to take a look at the *compiler optimizations* that are
-generated? It sure wouldn't be a first if the combination
-of agressive optimizations and complex kernel code exposed
-a subtle and/or complex bug in one, the other, or both...
-and different levels of compiler might explain why some
-have the problems, and others don't.
+On Thu, 30 Aug 2001, Ion Badulescu wrote:
+>
+> Really? How so? We _know_ that the result of sizeof() fits confortably within
+> "int"'s range. So the natural way to write that comparison would be
+>
+> 	if (len <= (int) sizeof(short) || len > (int) sizeof(*sunaddr))
 
-Having spent way too many hours this week looking at highly
-optimized 64bit ppc assembly I can only say that <drawl
-type=hick> them thar compiler hackors is devious lil
-twerps when yas ask fer all the bells n wistles. </drawl>
+You're so full of shit that it's incredible.
 
-This of course is all assuming that one or more folks do
-recreate it on obviously good hardware. ;)
+I'mnot going to argue this, when people call stuff like the above the
+"natural way". This is not worth it.
 
--- 
-now the forces of openness have a powerful and
-  unexpected new ally - http://ibm.com/linux
+The fact is, the way gcc currently does things, -Wsign-compare is useless.
+Anybody who is honest would admit that. In order for the warning to become
+useful, gcc would need to do value range analysis - which people have been
+talking about, but which is not there yet.
+
+There have been some constructive comments here (the automatic detection
+of bad comparisons etc), but yours is just stupid.
+
+		Linus
 

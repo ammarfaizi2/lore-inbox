@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270071AbRHGFRJ>; Tue, 7 Aug 2001 01:17:09 -0400
+	id <S270069AbRHGFKK>; Tue, 7 Aug 2001 01:10:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270075AbRHGFQ7>; Tue, 7 Aug 2001 01:16:59 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65156 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270071AbRHGFQu>; Tue, 7 Aug 2001 01:16:50 -0400
-Date: Mon, 6 Aug 2001 23:17:14 -0600
-Message-Id: <200108070517.f775HEw30547@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108062203170.16817-100000@weyl.math.psu.edu>
-In-Reply-To: <200108070200.f77202G27928@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0108062203170.16817-100000@weyl.math.psu.edu>
+	id <S270071AbRHGFJ7>; Tue, 7 Aug 2001 01:09:59 -0400
+Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:225 "EHLO
+	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270069AbRHGFJq>; Tue, 7 Aug 2001 01:09:46 -0400
+Date: Tue, 7 Aug 2001 01:12:28 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+X-X-Sender: <gspen@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Encrypted Swap
+In-Reply-To: <200108070420.f774KXl04696@www.2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Mon, 6 Aug 2001, Richard Gooch wrote:
-> 
-> > Again, historical reasons. When I wrote devfs, the pipe data trampled
-> > the inode->u.generic_ip pointer. So that's no good. I see that the
-> > pipe data has been moved away. Good. Hm. But there's still the
-> > inode->u.socket_i structure. I'd need to check where that gets
-> > trampled.
-> 
-> It isn't. socket_i is used only in inodes allocated by sock_alloc().
-> It is not used in the inodes that live on any fs other than sockfs.
+> Hmmm, if you have PHYSICAL access to the machine, you can simply reboot and type
+> "linux init=/bin/sh" and after it simply cat /etc/shadow and run John The Ripper....
+> Am i wrong?
 
-OK. Although, where is sockfs?
+Yes. Generally speaking if you have physical access to a machine then you
+have root.
 
-> For local-domain socket you get _two_ kinds of inodes, both with
-> S_IFSOCK in ->i_mode: one on the filesystem (acting like an meeting
-> place) and another - bearing the actual socket and used for all IO.
-> 
-> In other words, the only kind you can get from mknod(2) never uses
-> ->i_socket. It's used only by bind() and connect() - and only as
-> a place in namespace. The only thing we ever look at is ownership
-> and permissions - they determine who can bind()/connect() here.
-> 
-> So ->u.generic_ip is safe.
+Heck why bother trying to crack the passwords when you can just boot up
+with a root disk and access any file on the hard drive that you want? If
+you want to use the machine for malicious purposes while it's running then
+just install a back door.
 
-Great! That table is toast! All I need is a spinlock-protected
-incrementing counter :-)
+So as someone else earlier in the thread mentioned, any secure set up
+would not allow non-root users to access swap while the machine's running.
+And if you can get at the hard drive physically while the machine is not
+running then why bother screwing with swap when you have root anyway?
 
-				Regards,
+However, writing this got me thinking: you could potentialy go
+through swap if you're after keys for encrypted files...
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Garett Spencley
+
+I encourage you to encrypt e-mail sent to me using PGP
+My public key is available on PGP key servers (http://keyservers.net)
+Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
+

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSDIQTy>; Tue, 9 Apr 2002 12:19:54 -0400
+	id <S293337AbSDIQVx>; Tue, 9 Apr 2002 12:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293276AbSDIQTy>; Tue, 9 Apr 2002 12:19:54 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:31500 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S293203AbSDIQTx>;
-	Tue, 9 Apr 2002 12:19:53 -0400
-Date: Tue, 9 Apr 2002 09:17:08 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.7 and runaway modprobe loop?
-Message-ID: <Pine.LNX.4.33L2.0204090912540.22258-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293448AbSDIQVw>; Tue, 9 Apr 2002 12:21:52 -0400
+Received: from pool-151-201-227-143.pitt.east.verizon.net ([151.201.227.143]:45696
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id <S293337AbSDIQVs>; Tue, 9 Apr 2002 12:21:48 -0400
+Date: Tue, 9 Apr 2002 11:21:47 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: C++ and the kernel
+Message-ID: <20020409112147.B999@marta>
+In-Reply-To: <OE379mspgEOI7vDcPp200002a4c@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Scribbling feverishly on April 09, T. A. managed to emit:
+> Hi all,
+> 
+>     I am in the initial stages of writing some C++ wrapper classes for the
+> kernel.  So far its been an interesting process, mainly due to the use of
 
-Hi,
+Stop right here, read http://www.tux.org/lkml/#s15-3, and figure out
+what you've done wrong. ;-)
 
-If I build/boot 2.5.7 with 64 GB support (with or without
-high_pte), I get:
+>     Would patches be welcomed for one or more of these issues?
 
-Freeing unused kernel memory: 448k freed
-INIT: version 2.78 booting
-kmod: runaway modprobe loop assumed and stopped
-kmod: runaway modprobe loop assumed and stopped
-kmod: runaway modprobe loop assumed and stopped
-kmod: runaway modprobe loop assumed and stopped
-kmod: runaway modprobe loop assumed and stopped
+I dare say not. One wonders if this message was a carefully crafted
+troll.
 
-If I build/boot it with 4 GB support, it boots fine.
-
-Fixes, suggestion?
-
-This is a 16 GB 8-proc machine (IBM SMP).
-
-Thanks,
+Kurt
 -- 
-~Randy
-
+Ships are safe in harbor, but they were never meant to stay there.

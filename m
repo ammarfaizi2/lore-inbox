@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbULXS5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbULXTXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbULXS5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 13:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbULXS5s
+	id S261437AbULXTXY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 14:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbULXTXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 13:57:48 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:23057 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261421AbULXS5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 13:57:43 -0500
-Subject: Re: Prezeroing V2 [0/3]: Why and When it works
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-mm@kvack.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0412241018430.2654@ppc970.osdl.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	 <41C20E3E.3070209@yahoo.com.au>
-	 <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	 <16843.13418.630413.64809@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.58.0412231325420.2654@ppc970.osdl.org>
-	 <1103879668.4131.15.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0412241018430.2654@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Fri, 24 Dec 2004 19:57:28 +0100
-Message-Id: <1103914648.4131.29.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 24 Dec 2004 14:23:24 -0500
+Received: from web51506.mail.yahoo.com ([206.190.38.198]:57982 "HELO
+	web51506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261437AbULXTXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 14:23:15 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=jegRsKm5DEtdIjhUYieV00MTVWI7q18XO0fVk3RGgGkKPyiV9yjGta3E3AGPIRj3x6zUVARG8b5wsedas6Fn/i7O6QljAzDprohDgwiU/efXppB+DdACJPZGXruMlMA2xXGghaSujbh6M+hxtwd6cWAZfOzCqjVEc6GqrGQu6xw=  ;
+Message-ID: <20041224192311.67180.qmail@web51506.mail.yahoo.com>
+Date: Fri, 24 Dec 2004 11:23:11 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: [Ipsec] Issue on input process of Linux native IPsec
+To: David Dillow <dave@thedillows.org>
+Cc: ipsec@ietf.org, ipsec-tools-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+In-Reply-To: <1103869407.3016.7.camel@ori.thedillows.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-24 at 10:21 -0800, Linus Torvalds wrote:
-> 
-> On Fri, 24 Dec 2004, Arjan van de Ven wrote:
-> > 
-> > problem is.. will it buy you anything if you use the page again
-> > anyway... since such pages will be cold cached now. So for sure some of
-> > it is only shifting latency from kernel side to userspace side, but
-> > readprofile doesn't measure the later so it *looks* better...
-> 
-> Absolutely. I would want to see some real benchmarks before we do this.  
-> Not just some microbenchmark of "how many page faults can we take without
-> _using_ the page at all".
-> 
-> I agree 100% with you that we shouldn't shift the costs around. Having a
-> hice hot-spot that we know about is a good thing, and it means that
-> performance profiles show what the time is really spent on. Often getting
-> rid of the hotspot just smears out the work over a wider area, making
-> other optimizations (like trying to make the memory footprint _smaller_
-> and removing the work entirely that way) totally impossible because now
-> the performance profile just has a constant background noise and you can't 
-> tell what the real problem is.
+On Fri, 24 Dec 2004 at 01:23, David Dillow wrote:
+> On Wed, 2004-12-22 at 22:29 -0800, Park Lee wrote:
+> > Thanks.
+> > But, After a packet was received, It has already 
+> > been processed by xfrm4_rcv(), xfrm4_rcv_encap(),
+> > ah_input(), esp_input(),etc. so, I think that 
+> > there is no need to search(or created) a bundle 
+> > everytime a packet is recieved, since it has 
+> > already been processed. Am I right?
+>
+> Are you sure you're not seeing the creation of a 
+> reply packet? Unless you're testing with UDP and a 
+> listening socket on the receiver, you're going to 
+> get a response packet if the incoming packet makes 
+> it through the iptables rules. You were testing 
+> with ICMP echo requests (ping), if I recall.
+>
+> I think either you're basing your idea of the 
+> packet flow on printk()'s,or I'm just too tired and 
+> missing where xfrm_lookup() gets called on the
+> rx path... 
 
-I suspect it's even worse.
-Think about it; you can spew 4k of zeroes into your L1 cache really fast
-(assuming your cpu is smart enough to avoid write-allocate for rep
-stosl; not sure which cpus are). I suspect you can do that faster than a
-cachemiss or two. And at that point the page is cache hot... so reads
-don't miss either.
+Yes, I'm testing with ping and basing my idea of the
+packet flow on printk().
 
-all this makes me wonder if there is any scenario where this thing will
-be a gain, other than cpus that aren't smart enough to avoid the write-
-allocate.
+> (yes, sk can be NULL there, but I was wrong about 
+> it being called for Rx'd packets, I think).
+
+Does this mean that when the reply (response) packet
+is sending out through xfrm_lookup(), the sk parameter
+of xfrm_lookup() will not be NULL? and When the
+incoming packet itself goes through xfrm_lookup(), the
+sk parameter will be NULL?
+
+Thank you 
+and 
+Merry Christmas.
 
 
+=====
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

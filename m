@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264463AbUBFMSx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 07:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUBFMSx
+	id S265256AbUBFM0F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 07:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUBFM0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 07:18:53 -0500
-Received: from ns.suse.de ([195.135.220.2]:21987 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264463AbUBFMSu (ORCPT
+	Fri, 6 Feb 2004 07:26:05 -0500
+Received: from codepoet.org ([166.70.99.138]:51356 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S265256AbUBFM0C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 07:18:50 -0500
-Date: Fri, 6 Feb 2004 13:16:39 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-Id: <20040206131639.74dd87cf.ak@suse.de>
-In-Reply-To: <200402061728.36989.amitkale@emsyssoft.com>
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
-	<200402052320.04393.amitkale@emsyssoft.com>
-	<20040206032054.3fd7db8d.ak@suse.de>
-	<200402061728.36989.amitkale@emsyssoft.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 6 Feb 2004 07:26:02 -0500
+Date: Fri, 6 Feb 2004 05:25:33 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: DervishD <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with IDE taskfile
+Message-ID: <20040206122533.GA26575@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	DervishD <raul@pleyades.net>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040202120120.GC570@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040202120120.GC570@DervishD>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004 17:28:36 +0530
-"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-
-> On Friday 06 Feb 2004 7:50 am, Andi Kleen wrote:
-> > On Thu, 5 Feb 2004 23:20:04 +0530
-> >
-> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-> > > On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
-> > > > Andrew Morton <akpm@osdl.org> writes:
-> > > > > need to take a look at such things and really convice ourselves that
-> > > > > they're worthwhile.  Personally, I'd only be interested in the basic
-> > > > > stub.
-> > > >
-> > > > What I found always extremly ugly in the i386 stub was that it uses
-> > > > magic globals to talk to the page fault handler. For the x86-64
-> > > > version I replaced that by just using __get/__put_user in the memory
-> > > > accesses, which is much cleaner. I would suggest doing that for i386
-> > > > too.
-> > >
-> > > May be I am missing something obvious. When debugging a page fault
-> > > handler if kgdb accesses an swapped-out user page doesn't it deadlock
-> > > when trying to hold mm semaphore?
-> >
-> > Modern i386 kernels don't grab the mm semaphore when the access is >=
-> > TASK_SIZE and the access came from kernel space (actually I see x86-64
-> > still does, but that's a bug, will fix). You could only see a deadlock when
-> > using user addresses and you already hold the mm semaphore for writing
-> > (normal read lock is ok). Just don't do that.
+On Mon Feb 02, 2004 at 01:01:20PM +0100, DervishD wrote:
+>     Hi all :))
 > 
-> OK. It don't deadlock when kgdb accesses kernel addresses.
+>     In my logs I have the following message:
 > 
-> When a user space address is accessed through kgdb, won't the kernel attempt 
-> to fault in the user page? We don't want that to happen inside kgdb.
+> <28>Feb  2 12:18:41 kernel: hda: ST340016A, ATA DISK drive
+> <28>Feb  2 12:18:41 kernel: hdb: ST34310A, ATA DISK drive
+> <28>Feb  2 12:18:41 kernel: blk: queue c02d0020, I/O limit 4095Mb (mask 0xffffffff)
+> <28>Feb  2 12:18:41 kernel: blk: queue c02d015c, I/O limit 4095Mb (mask 0xffffffff)
+> [...]
+> <28>Feb  2 12:18:41 kernel: hda: attached ide-disk driver.
+> <28>Feb  2 12:18:41 kernel: hda: host protected area => 1
+> <30>Feb  2 12:18:41 kernel: hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=4865/255/63, UDMA(100)
+> <28>Feb  2 12:18:41 kernel: hdb: attached ide-disk driver.
+> <28>Feb  2 12:18:41 kernel: hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> <28>Feb  2 12:18:41 kernel: hdb: task_no_data_intr: error=0x04 { DriveStatusError }
+> <30>Feb  2 12:18:41 kernel: hdb: 8420832 sectors (4311 MB) w/512KiB Cache, CHS=524/255/63, UDMA(33)
+> 
+>     The problem is that message from function 'task_no_data_intr'.
+> What can be the problem? Should I worry about it? Is the drive
+> damaged?
 
-Yes, it will. But I don't think it's a bad thing. If the users doesn't want
-that they should not follow user addresses. After all kgdb is for people
-who know what they are doing.
+Nope.  This is a bug in the 2.4.x ide driver.  I sent in a patch
+for it a while back that made it into 2.6, but not into 2.4.
+Basically, the 2.4.x ide driver always asks the drive if it
+supports HPA.  In this case, your drive is old and doesn't know
+what an HPA is, and complains.  Some older drives get confused
+and have to be power cycled when this happens.
 
--Andi
+http://lkml.org/lkml/2003/8/22/193
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

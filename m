@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262911AbTCKQRR>; Tue, 11 Mar 2003 11:17:17 -0500
+	id <S262912AbTCKQ1R>; Tue, 11 Mar 2003 11:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbTCKQRR>; Tue, 11 Mar 2003 11:17:17 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:3032 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262911AbTCKQRQ>; Tue, 11 Mar 2003 11:17:16 -0500
-Date: Tue, 11 Mar 2003 17:27:34 +0100
-From: Andi Kleen <ak@muc.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dcache hash distrubition patches
-Message-ID: <20030311162734.GA5640@averell>
-References: <10280000.1047318333@[10.10.2.4]> <20030310175221.GA20060@averell> <26350000.1047368465@[10.10.2.4]> <20030311152322.GA2358@averell> <31840000.1047396682@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <31840000.1047396682@[10.10.2.4]>
-User-Agent: Mutt/1.4i
+	id <S262962AbTCKQ1R>; Tue, 11 Mar 2003 11:27:17 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:32281 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S262912AbTCKQ1Q>; Tue, 11 Mar 2003 11:27:16 -0500
+Date: Tue, 11 Mar 2003 17:29:46 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+In-Reply-To: <1047402060.19262.33.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.30.0303111702170.13969-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11, 2003 at 04:31:23PM +0100, Martin J. Bligh wrote:
-> I can try 1Mb or something I suppose ... what's the purpose here,
-> to keep the cachelines of the bucket heads warm? Not sure it's worth
-> the tradeoff, as we have to touch another line for each element we
-> walk?
 
-Use less cache for the hash table overall.
+On 11 Mar 2003, Alan Cox wrote:
+> On Mon, 2003-03-10 at 07:22, Szakacsits Szabolcs wrote:
+> > The question is if we want to support the buggy 2.9[56] compilers or
+> > not. I checked Red Hat 7.3 and the latest errata gcc fixes this issue,
+> > the generated code is ok. But your complier didn't and probably many
+> > more out there don't.
+>
+> I don't think gcc 2.96 had that problem.
 
-Use less lowmem.
+Randy's compliler is 2.96 and it forgot to do a 'sub $0xc,%esp'. See
+yourself all the data at http://bugme.osdl.org/show_bug.cgi?id=432
 
-Ideally there would be no tradeoff if you can still get reasonable 
-hash chain length with smaller tables (= overall win)
+Red Hat had this bug also for 1-1.5 year (there is a bugzilla entry
+submitted by a Parasoft employee, the bug also screw[s|ed] user space
+apps, e.g. by signal handling).
 
-> 
-> I take it you're happy enough with the current hash function distribution?
+	Szaka
 
-At least I don't know how to improve it.
-
-
-
-> > Also same for inode hash (but I don't have statistics for that right now)
-> 
-> I could hack something up ... but 1 machine ain't going to cut it. I
-> suspect I'd have a much smaller inode hash, as I tend to have masses
-> of kernel trees, mostly hardlinked to each other.
-
-I doubt inode cache is very critical, except perhaps in NFS server loads
-(but even the nfs server has an own frontend cache)
-Normally the dcache should bear most of the load.
-
--Andi

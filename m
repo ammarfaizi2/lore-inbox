@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310913AbSCMRoU>; Wed, 13 Mar 2002 12:44:20 -0500
+	id <S310943AbSCMRqK>; Wed, 13 Mar 2002 12:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310917AbSCMRoL>; Wed, 13 Mar 2002 12:44:11 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34064 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S310913AbSCMRoB>; Wed, 13 Mar 2002 12:44:01 -0500
-Message-Id: <200203131842.g2DIgjtb024607@pincoya.inf.utfsm.cl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7 
-In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.com> 
-   of "Mon, 11 Mar 2002 20:50:05 EST." <3C8D5ECD.6090108@mandrakesoft.com> 
-Date: Wed, 13 Mar 2002 14:42:45 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S310942AbSCMRqC>; Wed, 13 Mar 2002 12:46:02 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:57521 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310932AbSCMRps>;
+	Wed, 13 Mar 2002 12:45:48 -0500
+Date: Wed, 13 Mar 2002 12:44:41 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Valdis.Kletnieks@vt.edu
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Rik van Riel <riel@conectiva.com.br>, Hans Reiser <reiser@namesys.com>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Re: PROBLEM: Kernel Panic on 2.5.6 and 2.5.7-pre1
+ boot [PATCH] and discussion of Linux testing procedures 
+In-Reply-To: <200203131703.g2DH3ij6019570@foo-bar-baz.cc.vt.edu>
+Message-ID: <Pine.GSO.4.21.0203131230240.22930-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com>
 
-[...]
 
-> I -do- know the distrinction between hosts and devices.  I think there 
-> should be -some- way, I don't care how, to filter out those unknown 
-> commands (which may be perfectly valid for a small subset of special IBM 
-> drives).  The net stack lets me do filtering, I want to sell you on the 
-> idea of letting the ATA stack do the same thing.
+On Wed, 13 Mar 2002 Valdis.Kletnieks@vt.edu wrote:
 
-The net stack does filtering for handling traffic from _untrusted_ external
-sources, either for local consumtion or as a service for dumb machines
-downstream, and as a way of limiting outward access to _untrusted_
-users. Here we are talking of the ultimate _trusted_ user (root,
-CAP_SYS_RAWIO, whatever). It makes no sense for the _kernel_ to get in the
-way. Create a userland proggie for prodding IDE drives, and give it ways to
-check (as far as terminal paranoia demands, a little, or not at all) as
-desired. Unix ultimate simplicity is all about giving root enough rope to
-shoot at his own feet.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> On Wed, 13 Mar 2002 09:09:52 EST, Alexander Viro said:
+> 
+> > Proposal is a bit naive, though - in most of the cases fuckups merrily
+> > pass original testing.
+> 
+> 
+> We're not going to create a testing procedure that will find all bugs,
+> since that's essentially impossible.  On the other hand, I think we
+> all need to collectively take 24 or 48 hour off, spend the time downing
+> several <insert beverage here>, and see if anybody has a good proposal
+> that would catch 90% of the show-stopper bugs that have slipped through
+> so far in the 2.4 and 2.5 series, without complicating matters TOO much.
+> 
+> Here's a simple one:  a -rcN release has to sit there at least 96
+> hours before it gets tagged as "final".  That's something we've been
+> quite poor at so far:
+
+Well, let's see.  I can't speak for other folks, but the worst of mine
+during 2.4 was in 2.4.15-pre9.  The rest was minor and IIRC didn't make
+it into -final.  That one did, however.  It wasn't caught until 2.4.15 -
+not immediately, at that.
+

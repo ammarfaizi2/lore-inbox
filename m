@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268813AbRHHTir>; Wed, 8 Aug 2001 15:38:47 -0400
+	id <S268909AbRHHTtg>; Wed, 8 Aug 2001 15:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268909AbRHHTi0>; Wed, 8 Aug 2001 15:38:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:64504 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268813AbRHHTiV>;
-	Wed, 8 Aug 2001 15:38:21 -0400
-Importance: Normal
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF320F8ECC.3EB12A09-ON85256AA2.006BF096@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 8 Aug 2001 15:40:00 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/08/2001 03:38:25 PM
+	id <S268913AbRHHTtR>; Wed, 8 Aug 2001 15:49:17 -0400
+Received: from ns3.keyaccesstech.com ([209.47.245.85]:52742 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S268909AbRHHTtG>; Wed, 8 Aug 2001 15:49:06 -0400
+Date: Wed, 8 Aug 2001 15:49:16 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: Mike Jadon <mikej@umem.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PCI NVRAM Memory Card
+In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+Message-ID: <Pine.LNX.4.33.0108081541430.23903-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 Aug 2001, Mike Jadon wrote:
 
-We did not modify the UP code at all. There will be NO effects (positive
-nor negative) what so ever.
+> My company has released a PCI NVRAM memory card but we haven't developed a
+> Linux driver for it yet.  We want the driver to be open to developers to
+> build upon.  Is there a specific path we should follow with this being our
+> goal?  In researching Linux driver development I have come across "GPL" or
+> "LGPL".  Where do you recommend we go to find out more about this
+> development process?
+>
+> Thanks and my apologies for using a technical forum for this question, but
+> wanted to go to the right source.
+>
+>
+> Mike
 
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+Real simple.
 
+Anything that goes into the kernel should be GPLed, because the kernel is
+GPLed and one of the clauses states that anything linked with or derived from
+a GPLed work must also be GPLed.
 
+User-mode libraries should be LGPLed, because software linked to LGPLed
+software does not have to be GPLed or LGPLed (i.e., commercial packages), but
+derivatives must be LGPLed.
 
-Victor Yodaiken <yodaiken@fsmlabs.com> on 08/08/2001 03:27:55 PM
+There are also other licenses that you can consider, although GPL and LGPL are
+usually considered the most fair (except by Microsoft, of course). You can get
+more info at http://www.gnu.org/philosophy/license-list.html.
 
-To:   Mike Kravetz <mkravetz@sequent.com>
-cc:   Linus Torvalds <torvalds@transmeta.com>, Hubertus
-      Franke/Watson/IBM@IBMUS, linux-kernel@vger.kernel.org
-Subject:  Re: [RFC][PATCH] Scalable Scheduling
-
-
-
-On Wed, Aug 08, 2001 at 11:28:00AM -0700, Mike Kravetz wrote:
-> One challenge will be maintaining the same level of performance
-> for UP as in the current code.  The current code has #ifdefs to
-
-How does the "current code" compare to the current Linux UP code?
-
-
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
 
 

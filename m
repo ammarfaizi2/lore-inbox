@@ -1,56 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318026AbSIJS60>; Tue, 10 Sep 2002 14:58:26 -0400
+	id <S318014AbSIJTLg>; Tue, 10 Sep 2002 15:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSIJS60>; Tue, 10 Sep 2002 14:58:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46346 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318026AbSIJS6Z>; Tue, 10 Sep 2002 14:58:25 -0400
-Date: Tue, 10 Sep 2002 12:03:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <1031683480.31787.107.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318032AbSIJTLg>; Tue, 10 Sep 2002 15:11:36 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:27140 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318014AbSIJTLe>;
+	Tue, 10 Sep 2002 15:11:34 -0400
+Date: Tue, 10 Sep 2002 21:15:44 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] undo 2.5.34 ftape damage
+Message-ID: <20020910211544.B2197@mars.ravnborg.org>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <15742.2206.709234.102259@kim.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15742.2206.709234.102259@kim.it.uu.se>; from mikpe@csd.uu.se on Tue, Sep 10, 2002 at 04:58:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 10 Sep 2002, Alan Cox wrote:
+On Tue, Sep 10, 2002 at 04:58:38PM +0200, Mikael Pettersson wrote:
+> In the 2.5.33->2.5.34 step someone removed "export-objs" from
+> drivers/char/ftape/lowlevel/Makefile, which makes it impossible to build
+> ftape as a module since is _does_ have a number of EXPORT_SYMBOL's.
 > 
-> It drops you politely into the kernel debugger, you fix up the values
-> and step over it. If you want to debug with zen mind power and printk
-> feel free. For the rest of us BUG() is fine on SMP
+> The patch below reverts that change. Linus, please apply.
 
-Ok, a show of hands.. 
+The reason for this error to pop up is the usage of the FT_KSYM macro
+in ftape_syms.c.
+That exist solely for backwards compatibility for kernel 2.1.18 and older.
+Better clean it up as follows.
+Compiled, not tested.
 
-Of the millions (whatever) of Linux machines, how many have a kernel 
-debugger attached? Count them.
+	Sam
 
-In other words, if a user is faced with a dead machine with no other way
-to even know what BUG() triggered than to try to set up a cross debugger,
-just how useful is that BUG()? I claim it is pretty useless - simply
-because 99+% of all people won't even make a bug report in that case,
-they'll just push the reset button and consider Linux unreliable.
-
-In other news, the approach that shows up in the kernel logs might just 
-eventually be noticed and acted upon (especially if the machine acts 
-strange and kills processes).
-
-So I claim a BUG() that locks up the machine is useless. If the user can't
-just run ksymoops and email out the BUG message, that BUG() is _not_ fine
-on SMP.
-
-It has nothing to do with zen mind power or printk's. It has everything to 
-do with the fact that a working machine is about a million times easier to 
-debug on than a dead one, _and_ is a lot more likely to get acted upon by 
-most users.
-
-		Linus
+===== drivers/char/ftape/lowlevel/ftape_syms.c 1.1 vs edited =====
+--- 1.1/drivers/char/ftape/lowlevel/ftape_syms.c	Tue Feb  5 18:40:05 2002
++++ edited/drivers/char/ftape/lowlevel/ftape_syms.c	Tue Sep 10 21:14:26 2002
+@@ -42,62 +42,48 @@
+ #include "../lowlevel/ftape-buffer.h"
+ #include "../lowlevel/ftape-format.h"
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VER(2,1,18)
+-# define FT_KSYM(sym) EXPORT_SYMBOL(sym);
+-#else
+-# define FT_KSYM(sym) X(sym),
+-#endif
+-
+-#if LINUX_VERSION_CODE < KERNEL_VER(2,1,18)
+-struct symbol_table ftape_symbol_table = {
+-#include <linux/symtab_begin.h>
+-#endif
+ /* bad sector handling from ftape-bsm.c */
+-FT_KSYM(ftape_get_bad_sector_entry)
+-FT_KSYM(ftape_find_end_of_bsm_list)
++EXPORT_SYMBOL(ftape_get_bad_sector_entry);
++EXPORT_SYMBOL(ftape_find_end_of_bsm_list);
+ /* from ftape-rw.c */
+-FT_KSYM(ftape_set_state)
++EXPORT_SYMBOL(ftape_set_state);
+ /* from ftape-ctl.c */
+-FT_KSYM(ftape_seek_to_bot)
+-FT_KSYM(ftape_seek_to_eot)
+-FT_KSYM(ftape_abort_operation)
+-FT_KSYM(ftape_get_status)
+-FT_KSYM(ftape_enable)
+-FT_KSYM(ftape_disable)
+-FT_KSYM(ftape_mmap)
+-FT_KSYM(ftape_calibrate_data_rate)
++EXPORT_SYMBOL(ftape_seek_to_bot);
++EXPORT_SYMBOL(ftape_seek_to_eot);
++EXPORT_SYMBOL(ftape_abort_operation);
++EXPORT_SYMBOL(ftape_get_status);
++EXPORT_SYMBOL(ftape_enable);
++EXPORT_SYMBOL(ftape_disable);
++EXPORT_SYMBOL(ftape_mmap);
++EXPORT_SYMBOL(ftape_calibrate_data_rate);
+ /* from ftape-io.c */
+-FT_KSYM(ftape_reset_drive)
+-FT_KSYM(ftape_command)
+-FT_KSYM(ftape_parameter)
+-FT_KSYM(ftape_ready_wait)
+-FT_KSYM(ftape_report_operation)
+-FT_KSYM(ftape_report_error)
++EXPORT_SYMBOL(ftape_reset_drive);
++EXPORT_SYMBOL(ftape_command);
++EXPORT_SYMBOL(ftape_parameter);
++EXPORT_SYMBOL(ftape_ready_wait);
++EXPORT_SYMBOL(ftape_report_operation);
++EXPORT_SYMBOL(ftape_report_error);
+ /* from ftape-read.c */
+-FT_KSYM(ftape_read_segment_fraction)
+-FT_KSYM(ftape_zap_read_buffers)
+-FT_KSYM(ftape_read_header_segment)
+-FT_KSYM(ftape_decode_header_segment)
++EXPORT_SYMBOL(ftape_read_segment_fraction);
++EXPORT_SYMBOL(ftape_zap_read_buffers);
++EXPORT_SYMBOL(ftape_read_header_segment);
++EXPORT_SYMBOL(ftape_decode_header_segment);
+ /* from ftape-write.c */
+-FT_KSYM(ftape_write_segment)
+-FT_KSYM(ftape_start_writing)
+-FT_KSYM(ftape_loop_until_writes_done)
++EXPORT_SYMBOL(ftape_write_segment);
++EXPORT_SYMBOL(ftape_start_writing);
++EXPORT_SYMBOL(ftape_loop_until_writes_done);
+ /* from ftape-buffer.h */
+-FT_KSYM(ftape_set_nr_buffers)
++EXPORT_SYMBOL(ftape_set_nr_buffers);
+ /* from ftape-format.h */
+-FT_KSYM(ftape_format_track)
+-FT_KSYM(ftape_format_status)
+-FT_KSYM(ftape_verify_segment)
++EXPORT_SYMBOL(ftape_format_track);
++EXPORT_SYMBOL(ftape_format_status);
++EXPORT_SYMBOL(ftape_verify_segment);
+ /* from tracing.c */
+ #ifndef CONFIG_FT_NO_TRACE_AT_ALL
+-FT_KSYM(ftape_tracing)
+-FT_KSYM(ftape_function_nest_level)
+-FT_KSYM(ftape_trace_call)
+-FT_KSYM(ftape_trace_exit)
+-FT_KSYM(ftape_trace_log)
+-#endif
+-/* end of ksym table */
+-#if LINUX_VERSION_CODE < KERNEL_VER(2,1,18)
+-#include <linux/symtab_end.h>
+-};
++EXPORT_SYMBOL(ftape_tracing);
++EXPORT_SYMBOL(ftape_function_nest_level);
++EXPORT_SYMBOL(ftape_trace_call);
++EXPORT_SYMBOL(ftape_trace_exit);
++EXPORT_SYMBOL(ftape_trace_log);
+ #endif
++
 

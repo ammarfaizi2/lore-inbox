@@ -1,81 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTIOG5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 02:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTIOG5l
+	id S262459AbTIOHCx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 03:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbTIOHCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 02:57:41 -0400
-Received: from ns.suse.de ([195.135.220.2]:19149 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262451AbTIOG5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 02:57:37 -0400
-Date: Mon, 15 Sep 2003 08:57:34 +0200
-From: Karsten Keil <kkeil@suse.de>
+	Mon, 15 Sep 2003 03:02:53 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:26019 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262459AbTIOHCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 03:02:51 -0400
+Date: Mon, 15 Sep 2003 09:02:06 +0200
+From: Michael Neuffer <neuffer@neuffer.info>
 To: Adrian Bunk <bunk@fs.tum.de>
-Cc: isdn4linux@listserv.isdn4linux.de,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test5: ISDN kcapi.c no longer compiles
-Message-ID: <20030915065734.GA5134@pingi3.kke.suse.de>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	isdn4linux@listserv.isdn4linux.de,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <20030910165742.GG27368@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [1/4] [2.6 patch] better i386 CPU selection
+Message-ID: <20030915070206.GH1455@neuffer.info>
+References: <20030913222443.GN27368@fs.tum.de> <20030913222659.GO27368@fs.tum.de> <20030915064623.GA6772@neuffer.info> <20030915065211.GB126@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030910165742.GG27368@fs.tum.de>
-User-Agent: Mutt/1.4i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.21-58-default i686
+In-Reply-To: <20030915065211.GB126@fs.tum.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 06:57:42PM +0200, Adrian Bunk wrote:
-> On Mon, Sep 08, 2003 at 01:32:05PM -0700, Linus Torvalds wrote:
-> >...
-> > Summary of changes from v2.6.0-test4 to v2.6.0-test5
-> > ============================================
-> >...
-> > Karsten Keil:
-> >...
-> >   o next fixes
-> >...
+Quoting Adrian Bunk (bunk@fs.tum.de):
+> On Mon, Sep 15, 2003 at 08:46:23AM +0200, Michael Neuffer wrote:
+> > Quoting Adrian Bunk (bunk@fs.tum.de):
+> > > [...]
+> > > - help text changes/updates
+> > > [...]  
+> > > -config M686
+> > > +config CPU_686
+> > >  	bool "Pentium-Pro"
+> > >  	help
+> > > -	  Select this for Intel Pentium Pro chips.  This enables the use of
+> > > -	  Pentium Pro extended instructions, and disables the init-time guard
+> > > -	  against the f00f bug found in earlier Pentiums.
+> > > +	  Select this for Intel Pentium Pro chips.
+> > > [...one example left]  
+> > 
+> > Is there a valid reason why you removed most of the
+> > descriptions ? I think a bit of a background on the
+> > CPU selections is helpful and interesting, especially 
+> > for newcommers. You've cut it down so far, that you 
+> > could also put there "Read Variable Name" or 
+> > "No help available"  instead.
 > 
-> It seems this change broke the compilation of kcapi.c:
-> 
+> With the CPU selection scheme I propose this is no longer true. 
+> Especially the f00f workaround is no longer disabled when configuring 
+> for a Pentium Pro or above, it's only enabled when you select the older 
+> Pentium - but this setting is now independend of the Pentium Pro 
+> setting.
 
-Ah, with your .config now it's clear what was broken: none MODULE compile
+Hi Adrian
 
-diff -ur -x '.built-in*' -x '.*cmd' linux-2.6.0-test5/drivers/isdn/capi/kcapi.c linux-2.6.0-test5-bk3/drivers/isdn/capi/kcapi.c
---- linux-2.6.0-test5/drivers/isdn/capi/kcapi.c	2003-09-14 17:43:45.000000000 +0200
-+++ linux-2.6.0-test5-bk3/drivers/isdn/capi/kcapi.c	2003-09-14 22:39:28.000000000 +0200
-@@ -77,17 +77,21 @@
- static inline struct capi_ctr *
- capi_ctr_get(struct capi_ctr *card)
- {
-+#ifdef MODULE
- 	if (!try_module_get(card->owner))
- 		return NULL;
- 	DBG("Reserve module: %s", card->owner->name);
-+#endif
- 	return card;
- }
- 
- static inline void
- capi_ctr_put(struct capi_ctr *card)
- {
-+#ifdef MODULE
- 	module_put(card->owner);
- 	DBG("Release module: %s", card->owner->name);
-+#endif
- }
- 
- /* ------------------------------------------------------------- */
+OK, bad example. What about the rest ?
 
 
-This should fix it.
-
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Cheers
+  Mike

@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbUCKNXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUCKNXd
+	id S261248AbUCKN2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbUCKN2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:23:33 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:22656 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261292AbUCKNXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:23:24 -0500
-Date: Thu, 11 Mar 2004 14:23:15 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Subject: Re: NVIDIA and 2.6.4?
-Message-Id: <20040311142315.21c3b928@phoebee>
-In-Reply-To: <20040311131027.051055D9A@mx.ktv.lt>
-References: <20040311123100.GE17760@rdlg.net>
-	<20040311131027.051055D9A@mx.ktv.lt>
-X-Mailer: Sylpheed version 0.9.10claws2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d"
+	Thu, 11 Mar 2004 08:28:24 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11841 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261248AbUCKN2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 08:28:22 -0500
+Date: Thu, 11 Mar 2004 13:23:24 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <20040311065254.GT30940@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403111248450.1402-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi Andrea,
 
-On Thu, 11 Mar 2004 15:07:03 +0200 (EET)
-Nerijus Baliunas <nerijus@users.sourceforge.net> bubbled:
-
-> On Thu, 11 Mar 2004 07:31:00 -0500 "Robert L. Harris"
-> <Robert.L.Harris@rdlg.net> wrote:
+On Thu, 11 Mar 2004, Andrea Arcangeli wrote:
 > 
-> > And that's just for starters.  Does anyone know if there's a way to get
-> > this to compile cleanly or is it SoL until a new driver is released
-> > (running 1.0.4191 currently).
-> 
-> At least for x86 the latest driver (1.0-5336) is compatible with 2.6.x
-> (didn't test on 2.6.4 though).
+> this is the full current status of my anon_vma work. Now fork() and all
+> the other page_add/remove_rmap in memory.c plus the paging routines
+> seems fully covered and I'm now dealing with the  vma merging and the
+> anon_vma garbage collection (the latter is easy but I need to track all
+> the kmem_cache_free).
 
-nvidia 5336 works with 2.6.4 here. (but it has a basic sysfs patch
-applied by gentoo)
+I'm still making my way through all the relevant mails, and not even
+glanced at your code yet: I hope later today.  But to judge by the
+length of your essay on vma merging, it strikes me that you've taken
+a wrong direction in switching from my anon mm to your anon vma.
 
-Regards,
-Martin
+Go by vmas and you have tiresome problems as they are split and merged,
+very commonly.  Plus you have the overhead of new data structure per vma.
+If your design magicked those problems away somehow, okay, but it seems
+you're finding issues with it: I think you should go back to anon mms.
 
--- 
-MyExcuse:
-kernel panic: write-only-memory (/dev/wom0) capacity exceeded.
+Go by mms, and there's only the exceedingly rare (does it ever occur
+outside our testing?) awkward case of tracking pages in a private anon
+vma inherited from parent, when parent or child mremaps it with MAYMOVE.
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+Which I reused the pte_chain code for, but it's probably better done
+by conjuring up an imaginary tmpfs object as backing at that point
+(that has its own little cost, since the object lives on at full size
+until all its mappers unmap it, however small the portion they have
+mapped).  And the overhead of the new data structre is per mm only.
 
-TechnoTrend AG <http://www.technotrend.de>
+I'll get back to reading through the mails now: sorry if I'm about to
+find the arguments against anonmm in my reading.  (By the way, several
+times you mention the size of a 2.6 struct page as larger than a 2.4
+struct page: no, thanks to wli and others it's the 2.6 that's smaller.)
 
---Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d
-Content-Type: application/pgp-signature
+Hugh
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAUGhFmjLYGS7fcG0RAvPhAJ0RVm+JbOtU7eKEeomNiIJ0gR031gCfVqDC
-OTRgmy6tv8Vrh7VDKXDjkJ8=
-=73eF
------END PGP SIGNATURE-----
-
---Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d--

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290645AbSBFP65>; Wed, 6 Feb 2002 10:58:57 -0500
+	id <S290644AbSBFQEH>; Wed, 6 Feb 2002 11:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290644AbSBFP6r>; Wed, 6 Feb 2002 10:58:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56073 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290639AbSBFP6o>; Wed, 6 Feb 2002 10:58:44 -0500
-Subject: Re: kernel: ldt allocation failed
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Wed, 6 Feb 2002 16:08:45 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.3.96.1020206105011.7298A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Feb 06, 2002 10:51:45 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290643AbSBFQD5>; Wed, 6 Feb 2002 11:03:57 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:49422 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S290640AbSBFQDu>;
+	Wed, 6 Feb 2002 11:03:50 -0500
+Date: Wed, 6 Feb 2002 07:59:48 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christoph Rohland <cr@sap.com>, <Andries.Brouwer@cwi.nl>, <hpa@zytor.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16YSs7-0005GY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L2.0202060758340.18426-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YUcn-0005bZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 6 Feb 2002, Alan Cox wrote:
-> > I think it would be a good idea to modify the glibc authors in that case.
->   Did you mean "notify," or are you REALLY serious about this ;-)
+On Wed, 6 Feb 2002, Alan Cox wrote:
 
-Can we have a kernel FAQ entry about non-US humour 8)
+| > > If you are going to cat it onto the end of the kernel image just
+| > > mark it __initdata and shove a known symbol name on it. It'll get
+| > > dumped out of memory and you can find it trivially by using tools on
+| > > the binary
+| >
+| > What about putting such info into a (swappable) tmpfs file with
+| > shmem_file_setup?
+|
+| That is indeed an extremely cunning plan. Paticularly as /proc/config can
+| be a symlink to it
+| -
 
-Actually Jakub has already replied to my email with a glibc folks paper
-on the thread stuff (confusingly called tls just to confuse everyone who
-reads internet standards) and useful discussion can I hope go from that
-point.
+I still prefer your suggestion to append it to the kernel image
+as __initdata so that it's discarded from memory but can be
+read with some tool(s).
 
-Alan
+-- 
+~Randy
+

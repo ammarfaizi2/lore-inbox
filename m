@@ -1,118 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLSHtq>; Tue, 19 Dec 2000 02:49:46 -0500
+	id <S129289AbQLSIOq>; Tue, 19 Dec 2000 03:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLSHtg>; Tue, 19 Dec 2000 02:49:36 -0500
-Received: from mail.aslab.com ([205.219.89.194]:18464 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S129228AbQLSHtV>;
-	Tue, 19 Dec 2000 02:49:21 -0500
-Message-ID: <037401c0698a$b49aa190$7818b7c0@aslab.com>
-From: "Jeff Nguyen" <jeff@aslab.com>
-To: "Rico Tudor" <rico@patrec.com>
-Cc: "Dan Hollis" <goemon@anime.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001218100429.8407.qmail@pc7.prs.nunet.net>
-Subject: Re: ServerWorks docs?
-Date: Mon, 18 Dec 2000 23:10:00 -0800
+	id <S129410AbQLSIOf>; Tue, 19 Dec 2000 03:14:35 -0500
+Received: from SMTP3.ANDREW.CMU.EDU ([128.2.10.83]:47813 "EHLO
+	smtp3.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S129289AbQLSIOR>; Tue, 19 Dec 2000 03:14:17 -0500
+Date: Tue, 19 Dec 2000 02:43:35 -0500 (EST)
+From: Ari Heitner <aheitner@andrew.cmu.edu>
+Reply-To: Ari Heitner <aheitner@andrew.cmu.edu>
+To: rsousa@grad.physics.sunysb.edu
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        emu10k1-devel@opensource.creative.com
+Subject: emu10k1 broken in 2.2.18
+Message-ID: <Pine.SOL.3.96L.1001219022620.533B-100000@unix13.andrew.cmu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rico & Dan,
 
-Below is the Email that Jim Forster of Serverworks sent to me:
+Alan/Rui,
 
-          "We want to enable the Linux community as quickly as possible; we
-agree with
-            you that it makes business sense to do so.  Given the fact that
-our IP is
-           our sole product, we cannot release our technical documents to
-the world at
-            large.  We have been working to create an extract of our
-documents to enable
-            the Linux community.  As a small company experiencing tremendous
-growth, our
-            support infrastructure must focus on our existing customers.  At
-this time,
-            I do not have an estimated release date for the technical
-extract.
-            ...
-            We are continuing our work to enable the Linux community.  Can
-you think of
-             any alternative methods to enable the Linux community without
-exposing
-              ourselves?  I'm certainly open to new ideas..."
+just built 2.2.18 (on a box that's been running 2.2.14 for a very very long
+time, and loading an emu10k1 module from opensource.creative.com or wherever). 
 
-Jim responded to my Email regarding support for lm-sensor. Granted
-Serverworks has
-not released any information to the public. But they are planing to extract
-certain chipset
-information that might be helpful for you. They are also open to idea from
-the Linux
-community.
+was pleased to note that emu10k1 finally made it in. Compiled and built. Dmesg
+indicated that things were detecting nicely, but attempts to play sound result
+in 'Cannot open /dev/dsp!' (not a rights problem). I had heard a bit earlier
+this evening on #debian that someone was complaining of similar problems on a
+2.2.17->2.2.18 upgrade, so on a hunch i pulled down a 2.2.17 kernel, and make
+oldconfig'd it with my 2.2.18 config.
 
-After Jim replied, Phil Edelbock from lm-sensor group came up with a good
-idea. They
-decided to ask Jim for a specific set of information pertaining to the
-project. So rather
-goes for the whole documentation, they only asked for a small subset. The
-idea worked
-because Serverworks were able to supply the information quickly.
+dmesg again fine, this time it works :) so there does appear to be a problem
+there.
 
-This could be a good approach in getting information from Serverwork outside
-of NDA.
+templestowe:~$ dmesg |less
+Linux version 2.2.17 (root@templestowe) (gcc version 2.95.2 20000220 (Debian
+GNU/Linux)) #1 Tue Dec 19 01:44:23 EST 2000
+...
+Creative EMU10K1 PCI Audio Driver, version 0.6, 01:45:48 Dec 19 2000
+emu10k1: EMU10K1 rev 4 model 0x20 found, IO at 0xe400-0xe41f, IRQ 10
+...
 
-Jeff
+machine is running debian sid. i'll be happy to do anything else anyone
+suggests to play with this. I did diff out the source file by file in
+drivers/sound/emu10k1 (my *god* since when did this driver need to be 8k+ lines
+of code? i just wrote a kernel and filesystem for my CMU OS class [15-412] in
+that many lines :)  ... and there's more than i'm prepared to deal with.
 
-ASL Inc.
+is this driver working for anyone else in 2.2.18? anyone recall the reasoning
+behind this patch set (i may well have missed it going by on l-k)?
 
------ Original Message -----
-From: "Rico Tudor" <rico@patrec.com>
-To: "Jeff Nguyen" <jeff@aslab.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, December 18, 2000 3:14 AM
-Subject: Re: ServerWorks docs?
+perhaps this is just a known problem by now but i haven't seen mention on l-k
+so i'll risk the wrath of the appropriate gods.
 
 
-> Thanks for the offer, but the basic problem remains: no docs.
-> As jamagallon@able.es noted, http://www.netroedge.com/~lm78/ shows some
-> cause for hope, but a medium-sized LART is still called for.
->
-> My interest in ServerWorks documentation is two-fold: first, to
-> expand chipset support in my ECC utility and second, to better support
-> ServerWorks-based machines in my workplace.
->
-> On behalf of the Linux community, I would sign NDA if it was civilized
-> and if my source remained, obviously, public-domain.  I could visit
-> ServerWorks on my next foray to the Bay Area.
->
-> More important to me is ready access to technical documentation to support
-> machines at work.  I come from the era when PDP-11's were shipped with
-> schematics, the OS, and the source to the OS.  Things have been going
-> downhill ever since.  I'm not catching the next plane to the Bay Area
-> for "eyes only" examination of a document every time a problem arises.
-> In this regard, companies like IBM Storage and Intel win my kudos,
-> and my dollars.  ServerWorks may get some of those dollars because they
-> have an affordable chipset that supports 4 GB, but that advantage can
-> change overnight.  It's not like IP has a long half-life these days,
-> unless you can corner the pyramid-building business.
->
-> These companies must evaluate their proprietary stance in relation to lost
-> sales, the more so as free source accelerates.  ATI, Matrox, Adaptec: need
-> we say more?  But then, I'm preaching to the choir.  Perhaps ServerWorks
-> should look into their hearts, and decide what small part of their IP
-> has enormous, eternal value -- the kind that will have them rolling in
-> dough, just like Scrooge McDuck.  The rest of the specification, like
-> the miserable ECC circuitry that's been done a million times before,
-> release it already!  Their adoring Linux fans are waiting.
->
-> P.S. I wonder if Via reads this list.
+Cheers,
+
+Ari Heitner
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

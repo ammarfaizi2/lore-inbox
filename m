@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277308AbRJEFsv>; Fri, 5 Oct 2001 01:48:51 -0400
+	id <S277316AbRJEFqB>; Fri, 5 Oct 2001 01:46:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277315AbRJEFsn>; Fri, 5 Oct 2001 01:48:43 -0400
-Received: from rj.sgi.com ([204.94.215.100]:41700 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S277308AbRJEFsg>;
-	Fri, 5 Oct 2001 01:48:36 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: george anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Standard way of generating assembler offsets 
-In-Reply-To: Your message of "Thu, 04 Oct 2001 08:36:54 MST."
-             <3BBC8216.4B708192@mvista.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Oct 2001 15:48:58 +1000
-Message-ID: <4054.1002260938@kao2.melbourne.sgi.com>
+	id <S277315AbRJEFpw>; Fri, 5 Oct 2001 01:45:52 -0400
+Received: from wolf.ericsson.net.nz ([203.97.68.250]:58268 "EHLO
+	wolf.ericsson.net.nz") by vger.kernel.org with ESMTP
+	id <S277308AbRJEFph>; Fri, 5 Oct 2001 01:45:37 -0400
+Date: Fri, 5 Oct 2001 17:46:03 +1200 (NZST)
+From: Mark Henson <kern@wolf.ericsson.net.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Throughput @100Mbs on link of ~10ms latency
+Message-ID: <Pine.LNX.4.33.0110051704430.16678-100000@wolf.ericsson.net.nz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Oct 2001 08:36:54 -0700, 
-george anzinger <george@mvista.com> wrote:
->The symbol name IMHO should contain both the member name and the
->structure name.  Otherwise there may be a problem if two structures use
->the same member name (flags comes to mind).
+Hi,
 
-The asm symbol name is arch defined, I am defining the standard method,
-not the asm names.  It is up to the arch maintainers to pick suitable
-names, e.g. ia64 does
+Can someone give me a pointer to a FAQ on how to tune a 2.4 machine to
+achieve high throughput (approx i/f speed 100Mbits/sec) on a link with the
+following characteristics:
 
-DEFINE(IA64_SWITCH_STACK_AR_BSPSTORE_OFFSET, offsetof(struct switch_stack, ar_bspstore),);
 
->This is way down on the list, but is it possible to generate a separate
->file for each *.S AND put the "required symbols" in the *.S.  
 
-That works for a small number of mappings but not when there are a
-large number that are required in several places.  Take a look at
-arch/ia64/tools/print_offsets.c, 130+ mappings used by 5 or 6 different
-asm sources.  There are also technical reasons (to do with the kernel
-CONFIG system) why a single asm-offsets file is easier to maintain.
+Latency		Throughput
+
+9-10ms		3.8 MByte/s
+3-4ms		7-8MByte/s
+
+I have implemented:
+
+echo "4096 87380 4194304" > /proc/sys/net/ipv4/tcp_rmem
+echo "4096 65536 4194304" > /proc/sys/net/ipv4/tcp_wmem
+
+from http://www-didc.lbl.gov/tcp-wan.html
+
+this lifted the performance from ~1MByte/s to the 3.8 above.
+
+When the receiving machine is freebsd I get 10.05 MBytes/s which
+is interesting - but when sending from BSD I get the same rate.
+
+cheers
+Mark
+
+
+[root@tsaturn ncftp]# lsmod
+Module                  Size  Used by
+autofs                 11264   1  (autoclean)
+3c59x                  25344   1  (autoclean)
+e100                   44240   1  (autoclean)
+ipchains               38976   0  (unused)
+
+
 

@@ -1,77 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbUDDRhD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 13:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUDDRhD
+	id S261460AbUDDRfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 13:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbUDDRfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 13:37:03 -0400
-Received: from mailrelay03.sunrise.ch ([194.158.229.31]:52430 "EHLO
-	obelix.spectraweb.ch") by vger.kernel.org with ESMTP
-	id S262518AbUDDRg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 13:36:58 -0400
-Date: Sun, 4 Apr 2004 19:36:46 +0200
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.5, ACPI, suspend and ThinkPad R40
-Message-ID: <20040404173646.GA15635@puck.ch>
-Mail-Followup-To: bol, linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-X-From: Olivier Bornet <Olivier.Bornet@puck.ch>
-X-Url: http://puck.ch/
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Olivier Bornet <Olivier.Bornet@puck.ch>
+	Sun, 4 Apr 2004 13:35:16 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:35977 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261460AbUDDRfH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 13:35:07 -0400
+Message-ID: <40704743.3000909@g-house.de>
+Date: Sun, 04 Apr 2004 19:34:59 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sven Hartge <hartge@ds9.gnuu.de>
+CC: linux-kernel@vger.kernel.org,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
+References: <20040329151515.GD2895@smtp.west.cox.net> <Pine.GSO.4.44.0403301430180.12030-100000@math.ut.ee> <E1B8OEW-0006Jb-BX@ds9.argh.org>
+In-Reply-To: <E1B8OEW-0006Jb-BX@ds9.argh.org>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ cc'ing linuxppc-dev ]
 
-Hello,
+Sven Hartge wrote:
+| Meelis Roos <mroos@linux.ee> wrote:
+|
+|
+|>>Ok.  Can both of you try the following patch on top of the version
+|>>which fails?
+|
+|
+|>Tried it on top of fresh 2.6.5-rc3, no changes, it still hangs.
+|
+|
+| Same here, still totally dead after tftp.
 
-I have an IBM ThinkPad R40, with kernel 2.6.5 and ACPI enabled. The
-system is a GNU/Debian testing up-to-date, with acpid debian package
-1.0.3-2.
+not so dead here. 2.6.4 is ok, 2.6.5-rc1|2|3 are loaded within the OF
+menu, but no bootprompt appears. but: i can hear the scsi disk
+initalizing, short after this, the atkbd is recognized and the LEDs on
+my keyboard are flashing. then again my nfs-root is supposed to be
+mounted, but my PReP still locks up completely upon network-init. (last
+working is still 2.5.30).
 
-I can suspend with Fn-F4, thanks to a acpi config doing:
+another issue here: i was finally able to cross-compile 2.5.x / 2.6.x
+kernels (on x86). i tried to compile kernels from 2.5.21 on with
+"allnoconfig" (was introduced in 2.5.21). only 2.5.30 can be built, all
+other attempts to build "zImage" fail...(still compiling 2.5.6x)...
+(full logs of builds available...)
 
-    echo 3 > /proc/acpi/sleep
+Christian.
+- --
+BOFH excuse #204:
 
-The laptop goes to sleep as execpted: all the lights goes off, and the
-light with the moon goes on. All is OK until this. :-)
-
-The problem is that I can't resume it. I have found no way. Pressing Fn
-don't work. The power button don't work. Closing and opening the display
-don't work. The only way to re-start the computer is to remove the
-battery. Of course, this cause a reboot.
-
-Has anyone some suggestion for me ?
-
-Thanks in advance.
-
-		Olivier
---=20
-Olivier Bornet                |    fran=E7ais : http://puck.ch/f
-Swiss Ice Hockey Results      |    english  : http://puck.ch/e
-http://puck.ch/               |    deutsch  : http://puck.ch/g
-Olivier.Bornet@puck.ch        |    italiano : http://puck.ch/i
-Get my PGP-key at http://puck.ch/pgp or at http://pgp.mit.edu/
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
+Just pick up the phone and give modem connect sounds. "Well you said we
+should get more lines so we don't have voice lines."
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFAcEeudj3R/MU9khgRAng2AKCAFf4hpFUCyo+lMslC1XjQp9XpOACeO+e/
-bi6oCpVNioryKkBloVQ2Ke4=
-=83mq
+iD8DBQFAcEdC+A7rjkF8z0wRAq5TAJsHIh5V7wb/IP1xW7uHde4nC3EquACgk4D+
+TLrtSsdwpdtZBXCRmD9fiE4=
+=aGiL
 -----END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--

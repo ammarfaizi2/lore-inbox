@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272431AbRH3UYd>; Thu, 30 Aug 2001 16:24:33 -0400
+	id <S272439AbRH3Umf>; Thu, 30 Aug 2001 16:42:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272432AbRH3UYX>; Thu, 30 Aug 2001 16:24:23 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:50192 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272431AbRH3UYM>; Thu, 30 Aug 2001 16:24:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: David Weinehall <tao@acc.umu.se>, "Peter T. Breuer" <ptb@it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Date: Thu, 30 Aug 2001 22:31:10 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108300902570.7973-100000@penguin.transmeta.com> <200108301638.SAA04923@nbd.it.uc3m.es> <20010830215151.A14715@khan.acc.umu.se>
-In-Reply-To: <20010830215151.A14715@khan.acc.umu.se>
+	id <S272438AbRH3UmZ>; Thu, 30 Aug 2001 16:42:25 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:14345 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S272434AbRH3UmO>;
+	Thu, 30 Aug 2001 16:42:14 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: OHCI1394 hangs
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 30 Aug 2001 22:32:34 +0200
+Message-ID: <m31yltl259.fsf@intrepid.pm.waw.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010830202428Z16099-32383+2509@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 30, 2001 09:51 pm, David Weinehall wrote:
-> On Thu, Aug 30, 2001 at 06:38:40PM +0200, Peter T. Breuer wrote:
-> > "Linus Torvalds wrote:"
-> > > What if the "int" happens to be negative?
-> > 
-> >    if sizeof(typeof(a)) != sizeof(typeof(b)) 
-> >        BUG() // sizes differ
-> >    const (typeof(a)) _a = ~(typeof(a))0   
-> >    const (typeof(b)) _b = ~(typeof(b))0   
-> >    if _a < 0 && _b > 0 || _a > 0 && b < 0
-> >        BUG() // one signed, the other unsigned
-> >    standard_max(a,b)
-> 
-> <disgusting vomit-sound>Do you really want code like that in the
-> kernel (yes, I know that there are code that can compete with it in
-> ugliness</disgusting vomit-sound>
+Hi,
 
-Well, loook, if the signedness and widths match all the tests get optimized 
-out as constant expressions, if they don't it barfs with BUG and the author 
-has to insert specify saner types for the input variables.  It's nice.
+2.4.9 UP kernel here, OHCI 1394 Exsys card + Sony DCR-TRV110E Digital8
+camcorder. 440BX mobo.
 
-This accomplishes what 3arg_min/max set out to do without messing up the 
-syntax.
+The problem manifests itselt when I turn the camera off and then try
+to load the ohci1394 driver. It halts with the following messages
+(debugging on, hand-edited):
 
---
-Daniel
+devctl: Bus reset requested
+Get PHY Req timeout [0x0/0x0/100]
+IntEvent: 20010
+irq_handler: Bus reset requested
+Cancel request received
+IntEvent: 20000
+IntEvent: 20000
+(this message loops here)
+
+The driver loads and works correctly when the camera is on or when nothing
+is connected to 1394 bus.
+
+
+
+00:0d.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020 (prog-if 10 [OHCI])
+  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+  Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+  Latency: 32 (750ns min, 1000ns max), cache line size 08
+  Interrupt: pin A routed to IRQ 10
+  Region 0: Memory at d9004000 (32-bit, non-prefetchable) [size=2K]
+  Region 1: Memory at d9000000 (32-bit, non-prefetchable) [size=16K]
+  Capabilities: [44] Power Management version 1
+  Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+The IRQ is being shared with (inactive) SB Live:
+
+00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
+  Subsystem: Creative Labs CT4832 SBLive! Value
+  Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+  Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+  Latency: 32 (500ns min, 5000ns max)
+  Interrupt: pin A routed to IRQ 10
+  Region 0: I/O ports at d800 [size=32]
+  Capabilities: [dc] Power Management version 1
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+Any ideas?
+-- 
+Krzysztof Halasa
+Network Administrator

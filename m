@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUJCM0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUJCMak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUJCM0V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 08:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUJCM0V
+	id S267869AbUJCMak (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 08:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUJCMak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 08:26:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11942 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267860AbUJCM0T (ORCPT
+	Sun, 3 Oct 2004 08:30:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:29887 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267869AbUJCMaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 08:26:19 -0400
-Date: Sun, 3 Oct 2004 14:23:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: jmerkey@comcast.net
-Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: 2.6.9-rc2-mm4 BIO's still broken
-Message-ID: <20041003122333.GI2296@suse.de>
-References: <100120041714.26442.415D9057000F388B0000674A2200734840970A059D0A0306@comcast.net>
+	Sun, 3 Oct 2004 08:30:06 -0400
+Subject: [Fwd: Properly recognize PowerMac7,3]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1096806324.23142.21.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <100120041714.26442.415D9057000F388B0000674A2200734840970A059D0A0306@comcast.net>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 03 Oct 2004 22:25:24 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please apply...
 
-(please wrap your out going emails, the lines are way too long)
+-----Forwarded Message-----
+From: Andreas Schwab <schwab@suse.de>
+To: linuxppc64-dev@ozlabs.org
+Subject: Properly recognize PowerMac7,3
+Date: Sun, 03 Oct 2004 14:20:43 +0200
 
-On Fri, Oct 01 2004, jmerkey@comcast.net wrote:
-> 
-> I have more information on the problem with bio requests.  I am seeing
-> the bi_size value return through bi_end_io early with an odd size if
-> the interface is passed an unaligned 4K write.  What's busted here is
-> that bio_add_page accepts the 4K unaligned write request, then the
-> callback from the SCSI layer calls back with a partial compleation
-> with the bi_size field set to the value of 0x1FE (????) and no other
-> callback is received.  What's busted here is if you use the
-> recommended logic of 
-> 
-> if (bio->bi_size) return 1;
-> 
-> then you never get the completed callback and the IO request just sits
-> off in left field and the driver never returns any error status
-> through the callback interface.  I am also still seeing the
-> disappearing pages and after tracking through the code, I am certain
-> they are related since I am not getting any callbacks from the driver
-> layer after I receive the first end_io callback with bi_size set.  
+Make the PowerMac7,3 no longer unknown.
 
-Please send a test case, thanks.
+Andreas.
 
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+
+--- linux-2.6/arch/ppc64/kernel/pmac_feature.c.~1~	2004-09-28 00:28:34.000000000 +0200
++++ linux-2.6/arch/ppc64/kernel/pmac_feature.c	2004-10-03 14:17:03.458461540 +0200
+@@ -343,6 +343,10 @@ static struct pmac_mb_def pmac_mb_defs[]
+ 		PMAC_TYPE_POWERMAC_G5,		g5_features,
+ 		0,
+ 	},
++	{	"PowerMac7,3",			"PowerMac G5",
++		PMAC_TYPE_POWERMAC_G5,		g5_features,
++		0,
++	},
+ 	{       "RackMac3,1",                   "XServe G5",
+ 		PMAC_TYPE_POWERMAC_G5,          g5_features,
+ 		0,
 -- 
-Jens Axboe
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

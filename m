@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbTKMF06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 00:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTKMF06
+	id S262198AbTKMGIk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 01:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKMGIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 00:26:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23183 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262152AbTKMF05 (ORCPT
+	Thu, 13 Nov 2003 01:08:40 -0500
+Received: from pat.uio.no ([129.240.130.16]:63691 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262198AbTKMGIj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 00:26:57 -0500
-Date: Wed, 12 Nov 2003 21:20:25 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "Beau E. Cox" <beau@beaucox.com>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: PROBLEM: 2.4.23-rc4 -> rc1 hang with change to ip_nat_core.c
- made in pre4
-Message-Id: <20031112212025.5eb29f52.davem@redhat.com>
-In-Reply-To: <200311121924.38376.beau@beaucox.com>
-References: <200311121442.27406.beau@beaucox.com>
-	<20031112195908.0611fe2e.davem@redhat.com>
-	<200311121924.38376.beau@beaucox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Nov 2003 01:08:39 -0500
+To: Kyle Rose <krose@krose.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Paging request oops in 2.6.0-test9-bk16
+References: <87islohptz.fsf@nausicaa.krose.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Nov 2003 01:08:30 -0500
+In-Reply-To: <87islohptz.fsf@nausicaa.krose.org>
+Message-ID: <shsr80cer6p.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Nov 2003 19:24:38 -1000
-"Beau E. Cox" <beau@beaucox.com> wrote:
+>>>>> " " == Kyle Rose <krose@krose.org> writes:
 
-> On Wednesday 12 November 2003 05:59 pm, David S. Miller wrote:
-> > Marcelo has reverted the change in question, so his current
-> > 2.4.x tree should be fine.
-> 
-> Thank you so much.
-> 
-> I guess this makes me an honary Linux kernel contribitor, er...
-> uncontributor... :)
+     > Got an oops tonight when trying to access an NFS mounted
+     > partition through SFS (www.fs.net):
 
-I take what I said back temporarily, Marcelo didn't revert the
-change yet but I have just reminded him to do so.
+Can it be duplicated against a normal NFS server?
 
-It should be fixed by the time 2.4.23 final rolls out.
+Why is your kernel labelled as "tainted"? Are you loading any modules
+other than the ones listed in you .config?
+
+Cheers,
+  Trond

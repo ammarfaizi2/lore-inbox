@@ -1,80 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbTLFRnm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 12:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265220AbTLFRnm
+	id S265214AbTLFRfa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 12:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTLFRfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 12:43:42 -0500
-Received: from stinkfoot.org ([65.75.25.34]:37778 "EHLO stinkfoot.org")
-	by vger.kernel.org with ESMTP id S265218AbTLFRnk (ORCPT
+	Sat, 6 Dec 2003 12:35:30 -0500
+Received: from wlvh-3e35347b.pool.mediaWays.net ([62.53.52.123]:8434 "EHLO
+	whs1.whs") by vger.kernel.org with ESMTP id S265214AbTLFRfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 12:43:40 -0500
-Message-ID: <3FD215F9.8070506@stinkfoot.org>
-Date: Sat, 06 Dec 2003 12:46:33 -0500
-From: Ethan Weinstein <lists@stinkfoot.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031103
-X-Accept-Language: en-us, en
+	Sat, 6 Dec 2003 12:35:23 -0500
+Message-ID: <3FD21334.7090705@lrc.ruralwales.org>
+Date: Sat, 06 Dec 2003 17:34:44 +0000
+From: Bob Hutchinson <hutch@lrc.ruralwales.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.3.1) Gecko/20030514 Debian/1.3.1.x.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23: aic7xxx/aicasm fails to build
-References: <20031205093800.GV754@charite.de>
-In-Reply-To: <20031205093800.GV754@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: server crashing
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Hildebrandt wrote:
-> Hi!
-> 
-> When I try to build 2.4.23, I get:
-> 
-> ...
-> /usr/bin/make -C scsi
-> make[3]: Entering directory /usr/src/linux-2.4.23/drivers/scsi'
-> /usr/bin/make -C aic7xxx
-> make[4]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-> /usr/bin/make all_targets
-> make[5]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-> /usr/bin/make -C aicasm
-> make[6]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
-> yacc -d -b aicasm_gram aicasm_gram.y
-> mv aicasm_gram.tab.c aicasm_gram.c
-> mv aicasm_gram.tab.h aicasm_gram.h
-> yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
-> mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
-> mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
-> lex  -oaicasm_scan.c aicasm_scan.l
-> lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
-> gcc -I/usr/include -I. aicasm.c aicasm_symbol.c aicasm_gram.c aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm -ld
-> aicasm_gram.y:1933: warning: type mismatch with previous implicit declaration
-> aicasm_gram.tab.c:3055: warning: previous implicit declaration of yyerror'
-> aicasm_gram.y:1933: warning: yyerror' was previously implicitly declared to return int'
-> aicasm_macro_gram.y:162: warning: type mismatch with previous implicit declaration
-> aicasm_macro_gram.tab.c:1275: warning: previous implicit declaration of mmerror'
-> aicasm_macro_gram.y:162: warning: mmerror' was previously implicitly declared to return int'
-> aicasm_scan.l: In function expand_macro':
-> aicasm_scan.l:522: error: yytext_ptr' undeclared (first use in this function)
-> aicasm_scan.l:522: error: (Each undeclared identifier is reported only once
-> aicasm_scan.l:522: error: for each function it appears in.)
-> make[6]: *** [aicasm] Error 1
-> make[6]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
-> make[5]: *** [aicasm/aicasm] Error 2
-> make[5]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-> make[4]: *** [first_rule] Error 2
-> make[4]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-> make[3]: *** [_subdir_aic7xxx] Error 2
-> make[3]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi'
-> make[2]: *** [_subdir_scsi] Error 2
-> make[2]: Leaving directory /usr/src/linux-2.4.23/drivers'
-> make[1]: *** [_dir_drivers] Error 2
-> make[1]: Leaving directory /usr/src/linux-2.4.23'
-> make: *** [stamp-build] Error 2
-> 
-Ralf,
+Hi all,
+hope this is the right list for this question...
 
-I believe if you turn off
-CONFIG_AIC7XXX_BUILD_FIRMWARE in your config, it should build.
+We have a server running RH7.3 (patched with RHN to date apart from Kernel
+which is 2.4.20-13.7). Apart from the software RAID being broken & the
+machine running in degraded mode for several months) it has been reliable
+until recently.
 
-Ethan
+It has started crashing with a console screen full of kernel messages - for
+the last 5 days - always at 4am, though we have been unable to see which of
+the 4am cron jobs might be tipping it over (we HAVE looked and thought it
+might be logwatch [5.0.1] which we are now turning off).
+
+Messages are too long & hexy to copy all ... here are the gist:
+<snip>
+bread <kernel>
+ext3_mark_iloc_dirty <kernel>
+ext3_truncate   .....
+.rodata   .....
+__jbd_kmalloc  ....
+start_this_handle   ....
+journal_start  ...
+start_transaction  ...
+ext3_delete_inode  ...
+iput  ...
+notify_change  ...
+d_delete  ...
+vfs_unlink  ...
+cached_lookup <kernel>
+lookup_hash  ...
+sys_unlink  ...
+sys_close  ...
+system_call ...
+
+Code:    "strings of hex numbers all on one line ..."
+</snip>
+
+And that is it.
+
+A hard RESET results in a reboot that hangs & drops into a shell - but
+ANOTHER (second) hard RESET results in a successful & totally clean boot
+(apart from the degraded raid messages and they appear on every boot).
+
+We are baffled & do not know what is causing this or what we need to do.
+Any help would be much appreciated as this is a busy server with over 1000
+users on it.
+
+Any help or pointers would be appreciated
+
+

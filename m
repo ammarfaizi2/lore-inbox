@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270125AbRHGHeh>; Tue, 7 Aug 2001 03:34:37 -0400
+	id <S270124AbRHGHe4>; Tue, 7 Aug 2001 03:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270124AbRHGHe1>; Tue, 7 Aug 2001 03:34:27 -0400
-Received: from clavin.efn.org ([206.163.176.10]:29643 "EHLO clavin.efn.org")
-	by vger.kernel.org with ESMTP id <S270123AbRHGHeM>;
-	Tue, 7 Aug 2001 03:34:12 -0400
-From: Steve VanDevender <stevev@efn.org>
+	id <S270126AbRHGHex>; Tue, 7 Aug 2001 03:34:53 -0400
+Received: from CS.BU.EDU ([128.197.10.2]:8360 "EHLO cs.bu.edu")
+	by vger.kernel.org with ESMTP id <S270124AbRHGHeo>;
+	Tue, 7 Aug 2001 03:34:44 -0400
+From: Jeffrey Considine <jconsidi@cs.bu.edu>
+Message-Id: <200108070734.f777YpE08994@csb.bu.edu>
+Subject: Re: Encrypted Swap
+To: johnpol@2ka.mipt.ru
+Date: Tue, 7 Aug 2001 03:34:51 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200108070705.f7775xl27094@www.2ka.mipt.ru> from "Evgeny Polyakov" at Aug 07, 2001 11:08:38 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15215.39409.12204.662831@localhost.efn.org>
-Date: Tue, 7 Aug 2001 00:34:08 -0700
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <200108070420.f774KXl04696@www.2ka.mipt.ru>
-In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>
-	<Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net>
-	<15215.27296.959612.765065@localhost.efn.org>
-	<200108070420.f774KXl04696@www.2ka.mipt.ru>
-X-Mailer: VM 6.95 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Polyakov writes:
- > Hmmm, if you have PHYSICAL access to the machine, you can simply reboot and type 
- > "linux init=/bin/sh" and after it simply cat /etc/shadow and run John The Ripper....
- > Am i wrong?
+> >> Hmmm, let us suppose, that i copy your crypted partition per bit to my
+> >> disk.
+> >> After it I will disassemble your decrypt programm and will find a key....
+> >>
+> >> In any case, if anyone have crypted data, he MUST decrypt them.
+> >> And for it he MUST have some key.
+> >> If this is a software key, it MUST NOT be encrypted( it's obviously,
+> >> becouse in other case, what will decrypt this key?) and anyone, who have
+> >> PHYSICAL access to the machine, can get this key.
+> >> Am I wrong?
 
-You can password-protect LILO to prevent others from giving it their own
-boot options.  Similarly you can password-protect single-user mode so
-either a deliberate shutdown-and-reboot to single-user mode, or an
-attempt to induce the machine to go into single-user mode, will prevent
-others from getting at the single-user root shell.
+The key can be locked into memory. Locking just the key is better than
+running setuid root to lock the whole application.
 
+> RM> I think the point you are missing is that encrypted swap only needs to be
+> RM> accessible for one power cycle.  Thus the computer can generate a key at
+> No, computer can not do this.
+> This will do some program,and this program is not crypted.
+> Yes?
+> We disassemle this program, get algorithm and regenerate a key in evil machine?
+> Am i wrong?
+
+Waiting for entropy (mentionned by RM I think) would take care of
+this. However, I imagine it takes a while to build up enough random
+bits, especially if no users are logged on and the network isn't
+up. Stalling for entropy before setting up the swap partition is
+probably not a good idea. Switching keys from predictable to really
+random or delaying encryption sounds expensive and/or messy and would
+leave a small window right after booting where the swap file could be
+decrypted relatively easily.
+
+Perhaps a cheaper alternative that wouldn't really slow down most
+applications would be to add a flag set by a system call toggling
+whether the page was encrypted in the swap file. That way most
+applications don't see a performance difference. If the flag was
+inheritable, the security paranoid could use a shell or wrapper to set
+it and run everything through that.
+
+jef

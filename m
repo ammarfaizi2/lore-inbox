@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265275AbSKFBSM>; Tue, 5 Nov 2002 20:18:12 -0500
+	id <S265276AbSKFBSe>; Tue, 5 Nov 2002 20:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSKFBSM>; Tue, 5 Nov 2002 20:18:12 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:23695 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S265275AbSKFBSK>;
-	Tue, 5 Nov 2002 20:18:10 -0500
-To: Emmanuel Fuste <e.fuste@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx problem.
-References: <1036535689.3349.36.camel@rafale>
-From: Philippe Troin <phil@fifi.org>
-Date: 05 Nov 2002 17:24:41 -0800
-In-Reply-To: <1036535689.3349.36.camel@rafale>
-Message-ID: <87bs53qyli.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265277AbSKFBSe>; Tue, 5 Nov 2002 20:18:34 -0500
+Received: from pcp02781107pcs.eatntn01.nj.comcast.net ([68.85.61.149]:60910
+	"EHLO linnie.riede.org") by vger.kernel.org with ESMTP
+	id <S265276AbSKFBSb>; Tue, 5 Nov 2002 20:18:31 -0500
+Date: Tue, 5 Nov 2002 20:25:06 -0500
+From: Willem Riede <wriede@riede.org>
+To: linux-kernel@vger.kernel.org
+Subject: ide-scsi problem in 2.5.44
+Message-ID: <20021106012506.GE3664@linnie.riede.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Fuste <e.fuste@wanadoo.fr> writes:
+I realize Linus doesn't like ide-scsi, but while it exists I need it to work 
+:-)
 
-> Hi all,
-> 
-> I have a problem with an adaptec 2940u2w since ... a long time: I tried
-> to get it working since kernel 2.3.9x.
-> The board work fine in other computer on Linux.
-> When I try on mine (old dual cpu i586 asus board) I got this kind of
-> kernel messages at boot and less than five second later, the computer
-> lock:
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x7
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x9
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x7
-> scsi0: Data Parity Error Detected during address or write data phase
-> scsi0: PCI error Interrupt at seqaddr = 0x8
-> scsi0: Data Parity Error Detected during address or write data phase
+In 2.5.44 ide-scsi doesn't work with my OnStream DI-30 IDE Tape Drive.
+Works fine with 2.4.18 on the same hardware. It's not an osst (the driver
+for these devices, which I maintain) problem, the error comes from the
+scsi host (ide-scsi).
 
-8< snip >8
+When I try it, I get the following errors:
 
-Which hardware is connected to your SCSI adapter? (hint: cat /proc/scsi/scsi)
+Nov  5 17:54:58 fallguy kernel: osst :I: Tape driver with OnStream support 
+version 0.9.10
+Nov  5 17:54:58 fallguy kernel: osst :I: $Id: osst.c,v 1.65 2001/11/11 
+20:38:56 riede Exp $
+Nov  5 17:54:58 fallguy kernel: osst :I: Attached OnStream SC-30 tape at 
+scsi0, channel 0, id 0, lun 0 as osst0
+Nov  5 17:54:58 fallguy kernel: osst :I: Attached OnStream DI-30 tape at 
+scsi4, channel 0, id 1, lun 0 as osst1
+Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
+0x0, host bt 0x0).
+Nov  5 17:55:10 fallguy kernel: osst1:I: This warning may be caused by your 
+scsi controller,
+Nov  5 17:55:10 fallguy kernel: osst1:I: it has been reported with some 
+Buslogic cards.
+Nov  5 17:55:10 fallguy kernel: hdc: status error: status=0x50 { DriveReady 
+SeekComplete }
+Nov  5 17:55:10 fallguy kernel: ide-scsi: Strange, packet command initiated 
+yet DRQ isn't asserted
+Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
+0x0, host bt 0x0).
+Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
+0x0, host bt 0x0).
+Nov  5 17:55:10 fallguy kernel: osst1:I: Device did not become Ready in open
+Nov  5 18:08:54 fallguy kernel: osst :I: Unloaded.
 
-I've found out that some IBM hard disks give the above error when too
-many tagged commands are queued (firmware bug probably). I definitely
-have a DDRS-39130D drive which shows this behavior. The old SCSI
-driver (5.x) was not as bold as the 6.x driver which is in 2.4 with
-regards to queueing: the 6.x driver use 253 tagged command openings by
-default.
+Note the "hdc:" and the "ide-scsi:" lines.
 
-For me, passing `aic7xxx=tag_info:{{,,,8}}' to the kernel solved the
-problems. The above tells the aic7xxx driver to limit tagged queuing
-depth to 8 for the drive at ID 3 on the first aic7xxx adapter, but
-YMMV.
+Does anyone know what ide-scsi's status is, and what might have gone wrong for 
+me?
 
-Phil.
+Thanks, Willem Riede.
+

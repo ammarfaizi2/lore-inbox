@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTEGJK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 05:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTEGJK0
+	id S263021AbTEGJYL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 05:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTEGJYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 05:10:26 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:6922 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263015AbTEGJKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 05:10:23 -0400
-Date: Wed, 7 May 2003 10:22:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-Message-ID: <20030507102256.B14040@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Hunold <hunold@convergence.de>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <3EB7DCF0.2070207@convergence.de> <20030506220828.A19971@infradead.org> <3EB8C67A.4020500@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EB8C67A.4020500@convergence.de>; from hunold@convergence.de on Wed, May 07, 2003 at 10:40:26AM +0200
+	Wed, 7 May 2003 05:24:11 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:29693 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263021AbTEGJYJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 05:24:09 -0400
+Message-ID: <3EB8D36E.10206@mvista.com>
+Date: Wed, 07 May 2003 02:35:42 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: akpm@zip.com.au, kbuild-devel@lists.sourceforge.net, mec@shout.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] asm-generic magic
+References: <3EB75924.1080304@mvista.com>	<1052205991.983.13.camel@rth.ninka.net>	<3EB817C9.8020603@mvista.com> <20030506.195511.74729679.davem@redhat.com>
+In-Reply-To: <20030506.195511.74729679.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 10:40:26AM +0200, Michael Hunold wrote:
-> Hello Christoph,
+David S. Miller wrote:
+>    From: george anzinger <george@mvista.com>
+>    Date: Tue, 06 May 2003 13:15:05 -0700
 > 
-> > What the problem with 2.5, dvb and devfs? 
+>    David S. Miller wrote:
+>    > This is not at all how this stuff is supposed to work.
+>    
+>    Um, where might one learn how it is _supposed_ to work?
 > 
-> The main problem is that our development "dvb-kernel" CVS tree *should* 
-> compile under 2.4 aswell, because most of the dvb-users don't want to 
-> participate in kernel development in general, but only on the 
-> development of the dvb subsystem. So work is done on the "dvb-kernel" 
-> tree, which should be synced with the 2.5 kernel frequently.
-
-That okay in principle, but I'd like to ask you nicely to not touch any
-devfs-related stuff currently.  I'ts in flux and any external change
-makes my life in cleaning up the mess a lot harder.
-
-> > But first I have to fix the devfs API on 2.5 and randomly bringing
-> > back old crap and lots of ifdefs in those changing areas won't help.
+> By looking at existing uses.
 > 
-> I understand. But delaying the dvb updates just because a few calls to 
-> the devfs subsystem (which are now separated by #ifdefs and can easily 
-> be found) is not a good option either, or is it?
+> Some files provide partial APIs, other files are "configured'
+> by the asm-ARCH/foo.h header before being included.
+> 
+Yes, I am aware of existing use.  Sometimes the asm file just includes 
+the generic with no additional content.  It is these that go away.
+This also means that an arch need not supply the asm version UNTIL it 
+has one that does it better.  This might be useful if one wanted to 
+supply a u64 = u64 * u32 mpy, for example.  This can be done in C, but 
+is rather costly.  An arch could supply the asm version at a later 
+time, but for the short haul, the generic gets them on the air.
 
-I think it is :)  Esepcially as you don't just add ifdefs (which give
-me lots of rejects and you much uglier code than just using the
-compat header I'll send to lkml once I'm done with the API changes) but
-you also change the code that's ifdefed for 2.5 to reverse change I
-did.  There is a reason why I removed every occurance of devfs_handle_t
-from all drivers and the particular reason is that it will go away in
-the next series of patches.
+If the arch wanted to supply only some of the content, the configure 
+option as is used with some today, is still available.  CURRENT USAGE 
+IS NOT AFFECTED.
+
+As to "_supposed_ to work", I rather though we were making this up as 
+we went along, as long as we don't change existing usage, and even, 
+sometimes, that rule is not honored :)
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

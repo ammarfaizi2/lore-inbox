@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbTBCVZ6>; Mon, 3 Feb 2003 16:25:58 -0500
+	id <S265423AbTBCVbS>; Mon, 3 Feb 2003 16:31:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265276AbTBCVZ5>; Mon, 3 Feb 2003 16:25:57 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:62969 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S265243AbTBCVZ5>; Mon, 3 Feb 2003 16:25:57 -0500
-Date: Mon, 3 Feb 2003 13:35:06 -0800
-From: Chris Wright <chris@wirex.com>
-To: John Goerzen <jgoerzen@complete.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.20 panic in scheduler
-Message-ID: <20030203133506.A26686@figure1.int.wirex.com>
-Mail-Followup-To: John Goerzen <jgoerzen@complete.org>,
-	linux-kernel@vger.kernel.org
-References: <87k7gh85pw.fsf@christoph.complete.org>
-Mime-Version: 1.0
+	id <S265754AbTBCVbS>; Mon, 3 Feb 2003 16:31:18 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:29189 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265423AbTBCVbR>;
+	Mon, 3 Feb 2003 16:31:17 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302032141.h13LfKYB004114@darkstar.example.net>
+Subject: Re: CPU throttling??
+To: davej@codemonkey.org.uk (Dave Jones)
+Date: Mon, 3 Feb 2003 21:41:20 +0000 (GMT)
+Cc: andrew.grover@intel.com, Valdis.Kletnieks@vt.edu,
+       assembly@gofree.indigo.ie, linux-kernel@vger.kernel.org
+In-Reply-To: <20030203211806.GA21312@codemonkey.org.uk> from "Dave Jones" at Feb 03, 2003 09:18:06 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87k7gh85pw.fsf@christoph.complete.org>; from jgoerzen@complete.org on Mon, Feb 03, 2003 at 02:33:15PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Goerzen (jgoerzen@complete.org) wrote:
-> 
-> Today I experienced a kernel panic running kernel 2.4.20 (plus the ctx
-> vserver patch; otherwise vanilla) with a bcm5700 module added in.  It's
+> Sure I *could* run that at 523MHz and still pump 1.550V into it,
+> but why would I want to do that ?
 
-Have you tried this without the vserver patch?  Last I looked it touched
-many of the code paths in your trace below.  Also, if possible, set up a
-serial console, it'll be a lot easier to catch the full trace.
+If you were using a laptop in a very cold climate.
 
-> Adhoc c01093ef <system_call+33/38>
-> Adhoc c011a201 <schedule+501/530>
-
-vserver touches this code
-
-> Adhoc c01208c8 <release_task+e8/110>
-
-vserver touches this code
-
-> Adhoc c01218dc <sys_wait4+39c/410>
-> Adhoc c01218de <sys_wait4+39e/410>
-> Adhoc c012b419 <sys_release_ip_info+29/60>
-
-this is vserver code which could be called from either release_task() or
-inet_sock_destruct() (both are in this trace).
-
-you get the idea...
-cheers,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+John.

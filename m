@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265636AbTGDByw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 21:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbTGDByw
+	id S265668AbTGDB4t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 21:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265638AbTGDBzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 21:54:52 -0400
-Received: from granite.he.net ([216.218.226.66]:23054 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265636AbTGDBys convert rfc822-to-8bit
+	Thu, 3 Jul 2003 21:55:02 -0400
+Received: from granite.he.net ([216.218.226.66]:23566 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S265649AbTGDByu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 21:54:48 -0400
+	Thu, 3 Jul 2003 21:54:50 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10572845542321@kroah.com>
+Message-Id: <10572845541853@kroah.com>
 Subject: Re: [PATCH] PCI and sysfs fixes for 2.5.74
-In-Reply-To: <10572845533715@kroah.com>
+In-Reply-To: <10572845543452@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 3 Jul 2003 19:09:14 -0700
@@ -22,34 +22,52 @@ Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1371, 2003/07/03 16:06:08-07:00, greg@kroah.com
+ChangeSet 1.1375, 2003/07/03 17:43:34-07:00, greg@kroah.com
 
-[PATCH] sysfs: change print() to pr_debug() to not annoy everyone.
-
-
- fs/sysfs/bin.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+[PATCH] kobject: add kobject_rename()
+Based on a patch written by Dan Aloni <da-x@gmx.net>
 
 
-diff -Nru a/fs/sysfs/bin.c b/fs/sysfs/bin.c
---- a/fs/sysfs/bin.c	Thu Jul  3 18:16:09 2003
-+++ b/fs/sysfs/bin.c	Thu Jul  3 18:16:09 2003
-@@ -2,6 +2,8 @@
-  * bin.c - binary file operations for sysfs.
-  */
+ include/linux/kobject.h |    2 ++
+ lib/kobject.c           |   15 +++++++++++++++
+ 2 files changed, 17 insertions(+)
+
+
+diff -Nru a/include/linux/kobject.h b/include/linux/kobject.h
+--- a/include/linux/kobject.h	Thu Jul  3 18:15:44 2003
++++ b/include/linux/kobject.h	Thu Jul  3 18:15:44 2003
+@@ -39,6 +39,8 @@
+ extern int kobject_add(struct kobject *);
+ extern void kobject_del(struct kobject *);
  
-+#undef DEBUG
++extern void kobject_rename(struct kobject *, char *new_name);
 +
- #include <linux/errno.h>
- #include <linux/fs.h>
- #include <linux/kobject.h>
-@@ -48,7 +50,7 @@
- 	if (copy_to_user(userbuf, buffer + offs, count) != 0)
- 		return -EINVAL;
+ extern int kobject_register(struct kobject *);
+ extern void kobject_unregister(struct kobject *);
  
--	printk("offs = %lld, *off = %lld, count = %zd\n", offs, *off, count);
-+	pr_debug("offs = %lld, *off = %lld, count = %zd\n", offs, *off, count);
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	Thu Jul  3 18:15:44 2003
++++ b/lib/kobject.c	Thu Jul  3 18:15:44 2003
+@@ -314,6 +314,21 @@
+ }
  
- 	*off = offs + count;
- 
+ /**
++ *	kobject_rename - change the name of an object
++ *	@kobj:	object in question.
++ *	@new_name: object's new name
++ */
++
++void kobject_rename(struct kobject * kobj, char *new_name)
++{
++	kobj = kobject_get(kobj);
++	if (!kobj)
++		return;
++	sysfs_rename_dir(kobj, new_name);
++	kobject_put(kobj);
++}
++
++/**
+  *	kobject_del - unlink kobject from hierarchy.
+  * 	@kobj:	object.
+  */
 

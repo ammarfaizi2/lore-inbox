@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291654AbSBNNvb>; Thu, 14 Feb 2002 08:51:31 -0500
+	id <S291658AbSBNNxM>; Thu, 14 Feb 2002 08:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291658AbSBNNvV>; Thu, 14 Feb 2002 08:51:21 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:55495 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S291654AbSBNNvJ>; Thu, 14 Feb 2002 08:51:09 -0500
-Date: Thu, 14 Feb 2002 07:50:41 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200202141350.HAA29931@tomcat.admin.navo.hpc.mil>
-To: gurre@start.no, Rob Landley <landley@trommello.org>
-Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make
- cardbus compile in -pre4))
-Cc: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+	id <S291659AbSBNNww>; Thu, 14 Feb 2002 08:52:52 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55764 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S291658AbSBNNwl>; Thu, 14 Feb 2002 08:52:41 -0500
+Date: Thu, 14 Feb 2002 14:49:02 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-rc1
+In-Reply-To: <E16bM7s-0008TY-00@the-village.bc.nu>
+Message-ID: <Pine.NEB.4.44.0202141446130.25879-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------HEADER END-DONT REMOVE------ 
-> Rob Landley <landley@trommello.org> writes:
-> 
-> > Not that it's worth it. Keys get exponentially more difficult to
-> > brute force as the key length increases. I read part of a book a
-> > long time ago (might have been called "applied cryptography") that
-> > figured out that if you could build a perfectly efficient computer
-> > that could do 1 bit's worth of calculation with the the amount of
-> > energy in the minimal electron state transition in a hydrogen atom,
-> > and you built a dyson sphere around the sun to capture its entire
-> > energy output for the however many billion years its expected to
-> > last, you wouldn't even brute-force exhaust a relatively small
-> > keyspace (128 bits? 256 bits? Something like that).
+On Thu, 14 Feb 2002, Alan Cox wrote:
+
+> >   tridentfb.c:524: #error "Floating point maths. This needs fixing before
+> >   the driver is safe"
 > >
-> > Somebody else here is likely to recognize the above anecdote and give a more 
-> > accurate reference.  Book title and page number would be good...
-> 
-> Bruce Schneier's "Applied Cryptography" (second edition, may be in the
-> first edition as well), pages 157-158 ("Thermodynamic Limitations").
-Remember - this is a dated example, since some theories are beginning
-to consider storing & computing data with photons/interference patterns...
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-Any opinions expressed are solely my own.
+> > which makes it pretty useless. Since this is a stable kernel series I want
+> > to suggest that if there's no fix for this before 2.4.18-final to remove
+> > the trident support from 2.4.18 and to re-add it in 2.4.19-pre1 (with
+> > the hope that it will be fixed before 2.4.19-final).
+>
+> Or just comment out the Config.in line for it ?
+
+Yes, this seems to be the best solution.
+
+cu
+Adrian
+
+

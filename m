@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266769AbUF3QT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUF3QQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266769AbUF3QT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 12:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266767AbUF3QTF
+	id S266756AbUF3QQH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 12:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266754AbUF3QQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 12:19:05 -0400
-Received: from [217.222.53.238] ([217.222.53.238]:20240 "EHLO mail.gts.it")
-	by vger.kernel.org with ESMTP id S266737AbUF3QRK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 12:17:10 -0400
-Message-ID: <40E2E77A.3030704@gts.it>
-Date: Wed, 30 Jun 2004 18:16:58 +0200
-From: Stefano Rivoir <s.rivoir@gts.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7-mm4] Network regression?
-References: <20040630160124.46609.qmail@web51806.mail.yahoo.com>
-In-Reply-To: <20040630160124.46609.qmail@web51806.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 12:16:02 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:50904 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S266763AbUF3QMq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 12:12:46 -0400
+Message-Id: <200406301612.i5UGCdiw010913@localhost.localdomain>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK 
+In-reply-to: Your message of "Wed, 30 Jun 2004 17:05:48 +0200."
+             <20040630150548.GB28506@elte.hu> 
+Date: Wed, 30 Jun 2004 12:12:39 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.152.253.159] at Wed, 30 Jun 2004 11:12:46 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phy Prabab wrote:
+>another question: do all JACK threads run at SCHED_FIFO, and do they all 
+>have the same rt_priority value?
 
-> Pulled from another thread, have you tried this:
-> 
-> sysctl -w net.ipv4.tcp_default_win_scale=0
+They don't all run SCHED_FIFO. Just two threads in the server (one is
+a watchdog designed to prevent system lockups) and at least one in
+each client (there may be more depending on what the client does, but
+its not created by JACK and JACK doesn't know about it). The client
+threads run at 1 level lower priority than the servers main thread,
+and that runs 1 level lower than the watchdog.
 
-Yes, tried that but doesn't help...
+but ...
 
-Bye
+>it seems part of the problem is that the setscheduler() calls 'succeed',
+>but the policy is not changed to SCHED_FIFO. The question here is,
+>are the correct PIDs used?
 
--- 
-Stefano RIVOIR
+this has me thinking. one of the major changes with NPTL is that all
+threads share the same PID. so how in the world do we ever set the
+scheduling policy of a single thread (as opposed to something
+identified by a pid_t) to SCHED_FIFO?
 
+--p

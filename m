@@ -1,173 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbULGVbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbULGVc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbULGVbR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 16:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULGVbQ
+	id S261946AbULGVc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 16:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULGVb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 16:31:16 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:16536 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S261939AbULGVap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 16:30:45 -0500
-Date: Tue, 07 Dec 2004 16:30:37 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [RFC]Add an unlocked_ioctl file operation
-In-reply-to: <200412071211.41468.werner@sgi.com>
-To: werner@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <41B620FD.6020402@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-2
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <200412071211.41468.werner@sgi.com>
+	Tue, 7 Dec 2004 16:31:29 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48273 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261940AbULGVat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 16:30:49 -0500
+Date: Tue, 7 Dec 2004 22:29:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Katrina Tsipenyuk <ytsipenyuk@fortifysoftware.com>,
+       katrina@fortifysoftware.com, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH][1/2] fix unchecked returns from kmalloc() (in kernel/module.c)
+Message-ID: <20041207212958.GD10083@suse.de>
+References: <Pine.LNX.4.61.0412072203070.3320@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412072203070.3320@dragon.hygekrogen.localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Mike Werner wrote:
-> Per Andi Kleen's suggestion.
+On Tue, Dec 07 2004, Jesper Juhl wrote:
 > 
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> #   Run Lindent on ioctl.c
-> #   Add an ioctl path which does not take the BKL.
-> # 
-> diff -Nru a/fs/ioctl.c b/fs/ioctl.c
-> --- a/fs/ioctl.c	2004-12-07 11:53:59 -08:00
-> +++ b/fs/ioctl.c	2004-12-07 11:53:59 -08:00
-> @@ -16,15 +16,15 @@
->  #include <asm/uaccess.h>
->  #include <asm/ioctls.h>
->  
-> -static int file_ioctl(struct file *filp,unsigned int cmd,unsigned long arg)
-> +static int file_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->  {
->  	int error;
->  	int block;
-> -	struct inode * inode = filp->f_dentry->d_inode;
-> +	struct inode *inode = filp->f_dentry->d_inode;
->  	int __user *p = (int __user *)arg;
->  
->  	switch (cmd) {
-> -		case FIBMAP:
-> +	case FIBMAP:
->  		{
->  			struct address_space *mapping = filp->f_mapping;
->  			int res;
-> @@ -39,101 +39,113 @@
->  			res = mapping->a_ops->bmap(mapping, block);
->  			return put_user(res, p);
->  		}
-> -		case FIGETBSZ:
-> -			if (inode->i_sb == NULL)
-> -				return -EBADF;
-> -			return put_user(inode->i_sb->s_blocksize, p);
-> -		case FIONREAD:
-> -			return put_user(i_size_read(inode) - filp->f_pos, p);
-> +	case FIGETBSZ:
-> +		if (inode->i_sb == NULL)
-> +			return -EBADF;
-> +		return put_user(inode->i_sb->s_blocksize, p);
-> +	case FIONREAD:
-> +		return put_user(i_size_read(inode) - filp->f_pos, p);
->  	}
->  	if (filp->f_op && filp->f_op->ioctl)
->  		return filp->f_op->ioctl(inode, filp, cmd, arg);
->  	return -ENOTTY;
->  }
->  
-> -
->  asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long 
-> arg)
-> -{	
-> -	struct file * filp;
-> +{
-> +	struct file *filp;
->  	unsigned int flag;
->  	int on, error = -EBADF;
-> -
-> +	int locked = 1;
->  	filp = fget(fd);
->  	if (!filp)
->  		goto out;
->  
->  	error = security_file_ioctl(filp, cmd, arg);
->  	if (error) {
-> -                fput(filp);
-> -                goto out;
-> -        }
-> +		fput(filp);
-> +		goto out;
+> Problem reported by Katrina Tsipenyuk and the Fortify Software engineering 
+> team in thread with subject "PROBLEM: unchecked returns from kmalloc() in 
+> linux-2.6.10-rc2".
+> 
+> The patch attempts to handle a failed kmalloc() a bit better than it 
+> currently is. As I see it (and I'm not familliar with this code) there's 
+> no really good way to cope with kmalloc failing on us here, so the best we 
+> can do is print an error message and return a meaningful error value. As 
+> the function is used with __initcall() I don't think much will actually 
+> come of the negatve return, but returning -ENOMEM seems to me to be the 
+> proper thing to do. Comments from someone who's actually familliar with 
+> the code is very welcome.
+> 
+> Patch has been compile tested, boot tested, and didn't immediately blow 
+> up my kernel, but that's all. Please review before applying.
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> diff -up linux-2.6.10-rc3-bk2-orig/kernel/module.c linux-2.6.10-rc3-bk2/kernel/module.c
+> --- linux-2.6.10-rc3-bk2-orig/kernel/module.c	2004-12-06 22:24:56.000000000 +0100
+> +++ linux-2.6.10-rc3-bk2/kernel/module.c	2004-12-07 21:17:00.000000000 +0100
+> @@ -334,6 +334,10 @@ static int percpu_modinit(void)
+>  	pcpu_num_allocated = 2;
+>  	pcpu_size = kmalloc(sizeof(pcpu_size[0]) * pcpu_num_allocated,
+>  			    GFP_KERNEL);
+> +	if (!pcpu_size) {
+> +		printk(KERN_ERR "Unable to allocate per-cpu memory for modules.");
+> +		return -ENOMEM;
 > +	}
-> +
-> +	if (filp->f_op && filp->f_op->unlocked_ioctl)
-> +		locked = 0;
-> +	else
-> +		lock_kernel();
 
-...
+I'd say these cases are similar to SLAB_PANIC. Since it runs at boot, if
+it fails it's likely an indication of some other problem, so dealing
+with it here is silly. Perhaps just panic() on a NULL return.
 
-> +	case FIOCLEX:
-> +		set_close_on_exec(fd, 1);
-> +		break;
-> +
-> +	case FIONCLEX:
-> +		set_close_on_exec(fd, 0);
-> +		break;
->  
+Both of these fortify cases aren't real problems, imho. They trip a
+stupid (no offense to the analyzer, but it's not human :) static
+analyzer, that's all.
 
-...
+-- 
+Jens Axboe
 
-> +	default:
-> +		error = -ENOTTY;
-> +		if (S_ISREG(filp->f_dentry->d_inode->i_mode))
-> +			error = file_ioctl(filp, cmd, arg);
-> +		else if (filp->f_op && filp->f_op->unlocked_ioctl)
-> +			error =
-> +			    filp->f_op->unlocked_ioctl(filp->f_dentry->d_inode,
-> +						       filp, cmd, arg);
-> +		else if (filp->f_op && filp->f_op->ioctl)
-> +			error =
-> +			    filp->f_op->ioctl(filp->f_dentry->d_inode, filp,
-> +					      cmd, arg);
->  	}
-> -	unlock_kernel();
-> +	if (locked)
-> +		unlock_kernel();
-
-...
-
-This doesn't look right?  Have all the ioctls handled in sys_ioctl been
-audited to ensure that they don't need lock_kernel?  I think what you
-really want is if a) the ioctl isn't handled in the switch case and b)
-unlocked_ioctl is != NULL, _then_ don't lock.  These means you'll need
-to either a) grab the BKL in each switch case or b) filter the cmd to
-see if it is handled below.
-
-Also, file_ioctl didn't use unlocked_ioctl in the default case if it was
-!= NULL.
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBtiD9dQs4kOxk3/MRAkIPAJ0QjZOj/2ojbZOh/t2lUYQemiOirQCghtNj
-IB36Sc4Uqfw7kq3GDuK0Cx4=
-=HkMd
------END PGP SIGNATURE-----

@@ -1,267 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSJ2Qoz>; Tue, 29 Oct 2002 11:44:55 -0500
+	id <S261724AbSJ2Qja>; Tue, 29 Oct 2002 11:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262020AbSJ2Qnk>; Tue, 29 Oct 2002 11:43:40 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:45792 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S261973AbSJ2QgH>;
-	Tue, 29 Oct 2002 11:36:07 -0500
+	id <S262038AbSJ2Qhi>; Tue, 29 Oct 2002 11:37:38 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:39904 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261724AbSJ2Qfu>;
+	Tue, 29 Oct 2002 11:35:50 -0500
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: [PATCH] 9/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+Subject: [PATCH] 3/11  Ext2/3 Updates: Extended attributes, ACL, etc.
 From: tytso@mit.edu
-Message-Id: <E186ZRj-0006tg-00@snap.thunk.org>
-Date: Tue, 29 Oct 2002 11:42:27 -0500
+Message-Id: <E186ZRT-0006tU-00@snap.thunk.org>
+Date: Tue, 29 Oct 2002 11:42:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Port 0.8.50 acl-xattr patch to 2.5 (harmonize header file with SGI/XFS)
+Ext2/3 forward compatibility: inode size
 
-This patch provides converts extended attributes passed in from user
-space to a generic Posix ACL representation.
+This patch allows filesystems with expanded inodes to be mounted.
+(compatibility feature flags will be used to control whether or not the
+filesystem should be mounted in case the new inode fields will result in
+compatibility issues).  This allows for future compatibility with newer
+versions of ext2fs.
 
-fs/Makefile                     |    5 +-
-fs/xattr_acl.c                  |   99 ++++++++++++++++++++++++++++++++++++++++
-include/linux/posix_acl_xattr.h |   55 ++++++++++++++++++++++
-include/linux/xattr_acl.h       |   50 ++++++++++++++++++++
-4 files changed, 207 insertions(+), 2 deletions(-)
+ext2/ext2.h   |    7 +++++++
+ext2/ialloc.c |    1 +
+ext2/inode.c  |    7 +++++++
+ext2/super.c  |    4 +++-
+ext3/inode.c  |   14 +++++---------
+ext3/super.c  |    4 +++-
+6 files changed, 26 insertions(+), 11 deletions(-)
 
-diff -Nru a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	Tue Oct 29 09:55:49 2002
-+++ b/fs/Makefile	Tue Oct 29 09:55:49 2002
-@@ -6,7 +6,8 @@
- # 
- 
- export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
--                fcntl.o read_write.o dcookies.o mbcache.o posix_acl.o
-+                fcntl.o read_write.o dcookies.o mbcache.o posix_acl.o \
-+		xattr_acl.o
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
- 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
-@@ -31,7 +32,7 @@
- obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
- 
- obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
--obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o
-+obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o xattr_acl.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-diff -Nru a/fs/xattr_acl.c b/fs/xattr_acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/xattr_acl.c	Tue Oct 29 09:55:49 2002
-@@ -0,0 +1,99 @@
+diff -Nru a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+--- a/fs/ext2/ext2.h	Tue Oct 29 09:54:39 2002
++++ b/fs/ext2/ext2.h	Tue Oct 29 09:54:39 2002
+@@ -10,6 +10,7 @@
+ 	__u32	i_faddr;
+ 	__u8	i_frag_no;
+ 	__u8	i_frag_size;
++	__u16	i_state;
+ 	__u32	i_file_acl;
+ 	__u32	i_dir_acl;
+ 	__u32	i_dtime;
+@@ -22,6 +23,12 @@
+ 	rwlock_t i_meta_lock;
+ 	struct inode	vfs_inode;
+ };
++
 +/*
-+ * linux/fs/xattr_acl.c
-+ *
-+ * Almost all from linux/fs/ext2/acl.c:
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
++ * Inode dynamic state flags
 + */
++#define EXT2_STATE_NEW			0x00000001 /* inode is newly created */
 +
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/posix_acl_xattr.h>
+ 
+ /*
+  * Function prototypes
+diff -Nru a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
+--- a/fs/ext2/ialloc.c	Tue Oct 29 09:54:39 2002
++++ b/fs/ext2/ialloc.c	Tue Oct 29 09:54:39 2002
+@@ -386,6 +386,7 @@
+ 	ei->i_prealloc_block = 0;
+ 	ei->i_prealloc_count = 0;
+ 	ei->i_dir_start_lookup = 0;
++	ei->i_state = EXT2_STATE_NEW;
+ 	if (ei->i_flags & EXT2_SYNC_FL)
+ 		inode->i_flags |= S_SYNC;
+ 	if (ei->i_flags & EXT2_DIRSYNC_FL)
+diff -Nru a/fs/ext2/inode.c b/fs/ext2/inode.c
+--- a/fs/ext2/inode.c	Tue Oct 29 09:54:39 2002
++++ b/fs/ext2/inode.c	Tue Oct 29 09:54:39 2002
+@@ -1012,6 +1012,7 @@
+ 		ei->i_dir_acl = le32_to_cpu(raw_inode->i_dir_acl);
+ 	ei->i_dtime = 0;
+ 	inode->i_generation = le32_to_cpu(raw_inode->i_generation);
++	ei->i_state = 0;
+ 	ei->i_next_alloc_block = 0;
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_prealloc_count = 0;
+@@ -1076,6 +1077,11 @@
+ 	if (IS_ERR(raw_inode))
+  		return -EIO;
+ 
++	/* For fields not not tracking in the in-memory inode,
++	 * initialise them to zero for new inodes. */
++	if (ei->i_state & EXT2_STATE_NEW)
++		memset(raw_inode, 0, EXT2_SB(sb)->s_inode_size);
 +
+ 	if (ino == EXT2_ACL_IDX_INO || ino == EXT2_ACL_DATA_INO) {
+ 		ext2_error (sb, "ext2_write_inode", "bad inode number: %lu",
+ 			    (unsigned long) ino);
+@@ -1152,6 +1158,7 @@
+ 			err = -EIO;
+ 		}
+ 	}
++	ei->i_state &= ~EXT2_STATE_NEW;
+ 	brelse (bh);
+ 	return err;
+ }
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Tue Oct 29 09:54:39 2002
++++ b/fs/ext2/super.c	Tue Oct 29 09:54:39 2002
+@@ -630,7 +630,9 @@
+ 	} else {
+ 		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
+ 		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
+-		if (sbi->s_inode_size != EXT2_GOOD_OLD_INODE_SIZE) {
++		if ((sbi->s_inode_size < EXT2_GOOD_OLD_INODE_SIZE) ||
++		    (sbi->s_inode_size & (sbi->s_inode_size - 1)) ||
++		    (sbi->s_inode_size > blocksize)) {
+ 			printk ("EXT2-fs: unsupported inode size: %d\n",
+ 				sbi->s_inode_size);
+ 			goto failed_mount;
+diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
+--- a/fs/ext3/inode.c	Tue Oct 29 09:54:39 2002
++++ b/fs/ext3/inode.c	Tue Oct 29 09:54:39 2002
+@@ -2325,6 +2325,11 @@
+ 		if (err)
+ 			goto out_brelse;
+ 	}
++	/* For fields not not tracking in the in-memory inode,
++	 * initialise them to zero for new inodes. */
++	if (ei->i_state & EXT3_STATE_NEW)
++		memset(raw_inode, 0, EXT3_SB(inode->i_sb)->s_inode_size);
 +
-+/*
-+ * Convert from extended attribute to in-memory representation.
-+ */
-+struct posix_acl *
-+posix_acl_from_xattr(const void *value, size_t size)
-+{
-+	posix_acl_xattr_header *header = (posix_acl_xattr_header *)value;
-+	posix_acl_xattr_entry *entry = (posix_acl_xattr_entry *)(header+1), *end;
-+	int count;
-+	struct posix_acl *acl;
-+	struct posix_acl_entry *acl_e;
-+
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(posix_acl_xattr_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (header->a_version != cpu_to_le32(POSIX_ACL_XATTR_VERSION))
-+		return ERR_PTR(-EINVAL);
-+
-+	count = posix_acl_xattr_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	acl_e = acl->a_entries;
-+	
-+	for (end = entry + count; entry != end; acl_e++, entry++) {
-+		acl_e->e_tag  = le16_to_cpu(entry->e_tag);
-+		acl_e->e_perm = le16_to_cpu(entry->e_perm);
-+
-+		switch(acl_e->e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				acl_e->e_id = ACL_UNDEFINED_ID;
-+				break;
-+
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				acl_e->e_id = le32_to_cpu(entry->e_id);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return acl;
-+
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+EXPORT_SYMBOL (posix_acl_from_xattr);
-+
-+/*
-+ * Convert from in-memory to extended attribute representation.
-+ */
-+int
-+posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size)
-+{
-+	posix_acl_xattr_header *ext_acl = (posix_acl_xattr_header *)buffer;
-+	posix_acl_xattr_entry *ext_entry = ext_acl->a_entries;
-+	int real_size, n;
-+
-+	real_size = posix_acl_xattr_size(acl->a_count);
-+	if (!buffer)
-+		return real_size;
-+	if (real_size > size)
-+		return -ERANGE;
-+	
-+	ext_acl->a_version = cpu_to_le32(POSIX_ACL_XATTR_VERSION);
-+
-+	for (n=0; n < acl->a_count; n++, ext_entry++) {
-+		ext_entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		ext_entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		ext_entry->e_id   = cpu_to_le32(acl->a_entries[n].e_id);
-+	}
-+	return real_size;
-+}
-+EXPORT_SYMBOL (posix_acl_to_xattr);
-diff -Nru a/include/linux/posix_acl_xattr.h b/include/linux/posix_acl_xattr.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/posix_acl_xattr.h	Tue Oct 29 09:55:49 2002
-@@ -0,0 +1,55 @@
-+/*
-+  File: linux/posix_acl_xattr.h
-+
-+  Extended attribute system call representation of Access Control Lists.
-+
-+  Copyright (C) 2000 by Andreas Gruenbacher <a.gruenbacher@computer.org>
-+  Copyright (C) 2002 SGI - Silicon Graphics, Inc <linux-xfs@oss.sgi.com>
-+ */
-+#ifndef _POSIX_ACL_XATTR_H
-+#define _POSIX_ACL_XATTR_H
-+
-+#include <linux/posix_acl.h>
-+
-+/* Extended attribute names */
-+#define POSIX_ACL_XATTR_ACCESS	"system.posix_acl_access"
-+#define POSIX_ACL_XATTR_DEFAULT	"system.posix_acl_default"
-+
-+/* Supported ACL a_version fields */
-+#define POSIX_ACL_XATTR_VERSION	0x0002
-+
-+
-+/* An undefined entry e_id value */
-+#define ACL_UNDEFINED_ID	(-1)
-+
-+typedef struct {
-+	__u16			e_tag;
-+	__u16			e_perm;
-+	__u32			e_id;
-+} posix_acl_xattr_entry;
-+
-+typedef struct {
-+	__u32			a_version;
-+	posix_acl_xattr_entry	a_entries[0];
-+} posix_acl_xattr_header;
-+
-+
-+static inline size_t
-+posix_acl_xattr_size(int count)
-+{
-+	return (sizeof(posix_acl_xattr_header) +
-+		(count * sizeof(posix_acl_xattr_entry)));
-+}
-+
-+static inline int
-+posix_acl_xattr_count(size_t size)
-+{
-+	if (size < sizeof(posix_acl_xattr_header))
-+		return -1;
-+	size -= sizeof(posix_acl_xattr_header);
-+	if (size % sizeof(posix_acl_xattr_entry))
-+		return -1;
-+	return size / sizeof(posix_acl_xattr_entry);
-+}
-+
-+#endif	/* _POSIX_ACL_XATTR_H */
-diff -Nru a/include/linux/xattr_acl.h b/include/linux/xattr_acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/xattr_acl.h	Tue Oct 29 09:55:49 2002
-@@ -0,0 +1,50 @@
-+/*
-+  File: linux/xattr_acl.h
-+
-+  (extended attribute representation of access control lists)
-+
-+  (C) 2000 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+#ifndef _LINUX_XATTR_ACL_H
-+#define _LINUX_XATTR_ACL_H
-+
-+#include <linux/posix_acl.h>
-+
-+#define XATTR_NAME_ACL_ACCESS	"system.posix_acl_access"
-+#define XATTR_NAME_ACL_DEFAULT	"system.posix_acl_default"
-+
-+#define XATTR_ACL_VERSION	0x0002
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} xattr_acl_entry;
-+
-+typedef struct {
-+	__u32		a_version;
-+	xattr_acl_entry	a_entries[0];
-+} xattr_acl_header;
-+
-+static inline size_t xattr_acl_size(int count)
-+{
-+	return sizeof(xattr_acl_header) + count * sizeof(xattr_acl_entry);
-+}
-+
-+static inline int xattr_acl_count(size_t size)
-+{
-+	if (size < sizeof(xattr_acl_header))
-+		return -1;
-+	size -= sizeof(xattr_acl_header);
-+	if (size % sizeof(xattr_acl_entry))
-+		return -1;
-+	return size / sizeof(xattr_acl_entry);
-+}
-+
-+struct posix_acl * posix_acl_from_xattr(const void *value, size_t size);
-+int posix_acl_to_xattr(const struct posix_acl *acl, void *buffer, size_t size);
-+
-+
-+
-+#endif /* _LINUX_XATTR_ACL_H */
+ 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+ 	if(!(test_opt(inode->i_sb, NO_UID32))) {
+ 		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(inode->i_uid));
+@@ -2362,15 +2367,6 @@
+ 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
+ 	raw_inode->i_frag = ei->i_frag_no;
+ 	raw_inode->i_fsize = ei->i_frag_size;
+-#else
+-	/* If we are not tracking these fields in the in-memory inode,
+-	 * then preserve them on disk, but still initialise them to zero
+-	 * for new inodes. */
+-	if (ei->i_state & EXT3_STATE_NEW) {
+-		raw_inode->i_faddr = 0;
+-		raw_inode->i_frag = 0;
+-		raw_inode->i_fsize = 0;
+-	}
+ #endif
+ 	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
+ 	if (!S_ISREG(inode->i_mode)) {
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Tue Oct 29 09:54:39 2002
++++ b/fs/ext3/super.c	Tue Oct 29 09:54:39 2002
+@@ -1116,7 +1116,9 @@
+ 	} else {
+ 		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
+ 		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
+-		if (sbi->s_inode_size != EXT3_GOOD_OLD_INODE_SIZE) {
++		if ((sbi->s_inode_size < EXT3_GOOD_OLD_INODE_SIZE) ||
++		    (sbi->s_inode_size & (sbi->s_inode_size - 1)) ||
++		    (sbi->s_inode_size > blocksize)) {
+ 			printk (KERN_ERR
+ 				"EXT3-fs: unsupported inode size: %d\n",
+ 				sbi->s_inode_size);

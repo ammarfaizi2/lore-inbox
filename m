@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290688AbSBLBbg>; Mon, 11 Feb 2002 20:31:36 -0500
+	id <S290743AbSBLDBt>; Mon, 11 Feb 2002 22:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290687AbSBLBb1>; Mon, 11 Feb 2002 20:31:27 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:45027 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S290677AbSBLBbU>; Mon, 11 Feb 2002 20:31:20 -0500
-Date: Tue, 12 Feb 2002 01:30:34 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.4-dj1
-Message-ID: <20020212013034.A14368@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S290744AbSBLDBj>; Mon, 11 Feb 2002 22:01:39 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:65272 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S290743AbSBLDBa>;
+	Mon, 11 Feb 2002 22:01:30 -0500
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15464.34183.282646.869983@napali.hpl.hp.com>
+Date: Mon, 11 Feb 2002 19:01:27 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
+        zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+In-Reply-To: <20020211.185100.68039940.davem@redhat.com>
+In-Reply-To: <15464.32354.452126.182563@napali.hpl.hp.com>
+	<20020211.183603.111204707.davem@redhat.com>
+	<15464.33256.837784.657759@napali.hpl.hp.com>
+	<20020211.185100.68039940.davem@redhat.com>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mostly compile fixes, and a point-release resync.
-Diffsize hasn't come down as much as I expected, so I'll push a few
-of the larger chunks to Linus tomorrow.
+>>>>> On Mon, 11 Feb 2002 18:51:00 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
 
-Patch against 2.5.4 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+  DaveM> It keeps your platform the same, and it does help other
+  DaveM> platforms.
 
- -- Davej.
+No, it will slow down ia64 and you haven't shown that it helps others.
 
-2.5.4-dj1
-o   Merge 2.5.4
-o   Fix inverted parameters in NCR5380			(Rasmus Andersen)
-o   NSC Geode Companion chip workaround.		(Hiroshi MIURA)
-    | TODO: Nuke the CONFIG option, replace with
-    | PCI detection.
-o   Improve kiobuf_init performance.			(Various Intel folks)
-o   uidhash cleanup.					(William Lee Irwin III)
-o   Fix /proc 'read past end of buffer' bug.		(Thomas Hood)
-o   PnPBIOS updates (ESCD support).			(Thomas Hood)
-o   signal.c missing binfmt include compile fix.	(Udo A. Steinberg)
-o   thread_saved_pc compile fix.			(Andrew Morton)
-o   Various reiserfs updates.				(Oleg Drokin, Namesys)
-o   Fix UP Preempt compilation.				(Mikael Pettersson)
-o   Kill sleep_on in Olympic TR driver.			(Mike Phillips)
-o   Drop 64bit DRM fixes.
-o   Fix zftape compile.					(Me)
-o   Hack around synclink non-compile.			(Me)
+  DaveM> This only leaves "I don't want to do the conversion because
+  DaveM> it has no benefit to ia64."  Well, it doesn't hurt your
+  DaveM> platform either, so just cope :-)
 
+There are 9 other platforms.  Anton doesn't seem too happy about this
+change either.  I don't know how the maintainers of the others feel.
 
-2.5.3-dj5
-o   Merge 2.5.4pre5
-o   Add some missing MODULE_LICENSE tags	(Hubert Mantel)
-o   Fix ptrace PEEKUSR oops.			(Manfred Spraul, others)
-o   Drop some bogus bits from USB & netdrivers.	(Me)
-o   sbpcd bio fixes.				(Paul Gortmaker)
-o   pci id trigraph warning fixes.		(Steven J. Hill)
-o   Tridentfb resource management fixes.	(Geert Uytterhoeven)
-o   53c700 locking cleanup.			(James Bottomley)
-o   Workaround ext2 trying to free block -1	(Andreas Dilger)
-o   Fix up deviceio Docbook generation.		(Jason Ferguson)
-o   removal of isa_read/writes from ibmtr.	(Mike Phillips)
-o   kthread abstraction.			(Christoph Hellwig)
-
-
-
-
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+	--david

@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUJQEN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269043AbUJQEl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269048AbUJQEN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 00:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUJQEN2
+	id S269043AbUJQEl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 00:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbUJQEl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 00:13:28 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2008 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269048AbUJQEN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 00:13:27 -0400
-Subject: Re: Running user processes in kernel mode; Java and .NET support
-	in kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Simon Kissane <skissane@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <82fa66380410152111143f75ec@mail.gmail.com>
-References: <82fa66380410152111143f75ec@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1097985637.2148.49.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 17 Oct 2004 00:00:38 -0400
+	Sun, 17 Oct 2004 00:41:59 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:28327 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269043AbUJQEl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 00:41:58 -0400
+Message-ID: <4171F7CB.9030104@biomail.ucsd.edu>
+Date: Sat, 16 Oct 2004 21:40:43 -0700
+From: John Gilbert <jgilbert@biomail.ucsd.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: U4 + reiserfs problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-16 at 00:11, Simon Kissane wrote:
-> Hi,
-> 
-> I have some ideas, which I think:
-> -	Wouldn't be too hard to implement,
-> -	And would give Linux a distinctive advantage over competing
-> platforms such as Solaris or Windows, when executing Java or .NET code
+Hi all,
+I'm not able to get 2.6.9rc4mm1U4 booted up, it seems to get stuck 
+spitting out endless messages when the bootup process gets to the 
+reiserfs check stage.  U3 seemed to get out of this mode in just a few 
+seconds.
 
-Last time I checked Java code still ran a lot slower than the native
-equivalent.  If you are trying to speed up your Java apps then improving
-the JVM would be a much better use of your time.
+If KGDB works with this, I can try to get a log of these messages Monday 
+if that will help.
+Back to playing with U3 for me for now.
 
-The kernel is just another program, the same code will run just as fast
-in kernel mode as in user mode.
-
-Lee
-
+John G.
+jgilbert@biomail.ucsd.edu

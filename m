@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285219AbRLRVhn>; Tue, 18 Dec 2001 16:37:43 -0500
+	id <S285213AbRLRVpN>; Tue, 18 Dec 2001 16:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285180AbRLRVgQ>; Tue, 18 Dec 2001 16:36:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:7315 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285203AbRLRVe6>;
-	Tue, 18 Dec 2001 16:34:58 -0500
-Date: Tue, 18 Dec 2001 13:33:38 -0800 (PST)
-Message-Id: <20011218.133338.122061979.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: rmk@arm.linux.org.uk, kuznet@ms2.inr.ac.ru, Mika.Liljeberg@welho.com,
-        Mika.Liljeberg@nokia.com, linux-kernel@vger.kernel.org,
-        sarolaht@cs.helsinki.fi
-Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0112181923030.28489-100000@duckman.distro.conectiva>
-In-Reply-To: <20011218.131155.91757544.davem@redhat.com>
-	<Pine.LNX.4.33L.0112181923030.28489-100000@duckman.distro.conectiva>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S285206AbRLRVnz>; Tue, 18 Dec 2001 16:43:55 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:49925 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285226AbRLRVms>; Tue, 18 Dec 2001 16:42:48 -0500
+Date: Tue, 18 Dec 2001 21:42:35 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org, 125612@bugs.debian.org
+Subject: Re: APM driver patch summary
+Message-ID: <20011218214235.I13126@flint.arm.linux.org.uk>
+In-Reply-To: <1008710648.21102.1.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1008710648.21102.1.camel@thanatos>; from jdthood@mail.com on Tue, Dec 18, 2001 at 04:24:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Tue, 18 Dec 2001 19:24:41 -0200 (BRST)
-   
-   Then the problem will have to be fixed elsewhere, maybe
-   by having the networking code do explicit unaligned
-   accesses through some macro which defaults to a normal
-   access on other systems ?
+On Tue, Dec 18, 2001 at 04:24:05PM -0500, Thomas Hood wrote:
+> Move "sti()" up a bit inside suspend() function.  (Should be harmless.)
 
-It is a port requirement to fix up such accesses.  It has always been
-a port requirement to fix up such accesses, and it isn't going to
-change.
+Doesn't guarantee that you'll keep interrupts disabled.
 
-If I fix up TCP options, I'd have to fixup every access to every
-single networking header in the entire stack because "protocol in
-protocol" cases can cause unaligned accesses to happen just about any
-place.
+suspend() calls pm_send_all() which calls down() which might call
+schedule(), which I think you'll find will re-enable interrupts.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136111AbREGOA5>; Mon, 7 May 2001 10:00:57 -0400
+	id <S136137AbREGOOt>; Mon, 7 May 2001 10:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136114AbREGOAr>; Mon, 7 May 2001 10:00:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55560 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136111AbREGOAf>; Mon, 7 May 2001 10:00:35 -0400
-Subject: Re: what causes Machine Check exception? revisited (2.2.18)
-To: Martin.Bene@KPNQwest.com (Bene, Martin)
-Date: Mon, 7 May 2001 14:51:01 +0100 (BST)
-Cc: Simon.Richter@phobos.fachschaften.tu-muenchen.de ('Simon Richter'),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <5F6171E541C8D311B9F200508B63D32801C31F52@ntexgvie01> from "Bene, Martin" at May 07, 2001 03:33:54 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14wlPj-0003WB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S136136AbREGOOj>; Mon, 7 May 2001 10:14:39 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:35846 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S136135AbREGOOf>; Mon, 7 May 2001 10:14:35 -0400
+Message-Id: <200105071414.f47EENU35387@aslan.scsiguy.com>
+To: Andy Carlson <naclos@swbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine 
+In-Reply-To: Your message of "Mon, 07 May 2001 08:04:16 CDT."
+             <Pine.LNX.4.20.0105070800360.142-200000@bigandy> 
+Date: Mon, 07 May 2001 08:14:23 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You get SIG11 errors when running programs(kernel compile seems to be agood
-> example), you get crashing processes, you get all sorts of weird funnies but
-> you really shouldn't get machine check exceptions.
-> 
-> I don't think there is a way a machine check exception can be triggered by
-> software - which it would have to be in order to be caused by bad RAMs.
+>I have a dual ppro 200MHZ W6LI motherboard.  I put 2.4.4-ac5 on last
+>night, and the machine hung at Freeing unused Kernel memory.  I
+>selectively backed off what I thought were relevant patches.  I got to
+>aic7xxx, and ac5 without it worked. I attached /proc/scsi/aic7xxx/0.
 
-Bad ECC memory and unrecoverable ECC faults can certainly be reported back to
-the processor electrically. Also an L2 cache load failing when the RAM fails
-to ack the signals is quite visible to a processor.
+This problem was fixed in rev. 6.1.13 of the aic7xxx driver.
 
+--
+Justin

@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUGJK6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266207AbUGJKzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUGJK6L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 06:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUGJK6K
+	id S266207AbUGJKzn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 06:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUGJKzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 06:58:10 -0400
-Received: from outmx001.isp.belgacom.be ([195.238.3.51]:5508 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S266209AbUGJK6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 06:58:08 -0400
-Subject: rss recovery
-From: FabF <fabian.frederick@skynet.be>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <40EFC076.9050504@yahoo.com.au>
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
-	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>
-	 <cone.1089268800.781084.4554.502@pc.kolivas.org>
-	 <20040708001027.7fed0bc4.akpm@osdl.org>
-	 <cone.1089273505.418287.4554.502@pc.kolivas.org>
-	 <20040708010842.2064a706.akpm@osdl.org>
-	 <cone.1089275229.304355.4554.502@pc.kolivas.org>
-	 <1089284097.3691.52.camel@localhost.localdomain>
-	 <40EDEF68.2020503@kolivas.org>
-	 <1089366486.3322.10.camel@localhost.localdomain>
-	 <40EE76CC.5070905@yahoo.com.au>
-	 <1089371646.3322.38.camel@localhost.localdomain>
-	 <40EE8075.6060700@yahoo.com.au>
-	 <1089452697.3646.11.camel@localhost.localdomain>
-	 <40EFC076.9050504@yahoo.com.au>
-Content-Type: text/plain
-Message-Id: <1089457076.3646.33.camel@localhost.localdomain>
+	Sat, 10 Jul 2004 06:55:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:16216 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266207AbUGJKzl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 06:55:41 -0400
+Message-ID: <2a4f155d040710035512f21d34@mail.gmail.com>
+Date: Sat, 10 Jul 2004 13:55:25 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Cc: Redeeman <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <20040710085044.GA14262@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 10 Jul 2004 12:57:57 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu> <20040710085044.GA14262@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick,
-	Putting some more pressure I finally saw the awaited behaviour from np
-: rss gaining 1MB (or at least 1 byte :) : top reports 10M -> 11M )
-directly after make was done with 10 threads.
+Tested on 2.6.7-bk20, Pentium3 700 mhz, 576 mb RAM
 
-But I guess it can do much better than that (IOW recover original rss).
-Where does re-attribution takes place in np ?
+I did cp -rf big_folder new_folder . Then opened up a gui ftp client
+and music in amarok started to skip like for 2-3 seconds.
 
-Regards,
-FabF
+Btw Amarok uses Artsd ( KDE Sound Daemon ) which in turn set to use
+Jack Alsa Backend.
 
+
+Cheers,
+ismail 
+
+
+On Sat, 10 Jul 2004 10:50:44 +0200, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > * Redeeman <lkml@metanurb.dk> wrote:
+> >
+> > > this all seems pretty cool... do you think you could make a patch
+> > > against mm for this? it would be greatly apreciated
+> >
+> > it should apply cleanly to 2.6.7-mm6. -mm7 already includes most of the
+> > might_sleep() additions. I'll do a patch against -mm7 too.
+> 
+> here's the patch against -mm7:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-mm7-H3
+> 
+> the patch got really small because most of the fixes and infrastructure
+> enhancements that resulted out of this patch are in -mm7 already. It
+> will get even smaller later on.
+> 
+> 
+> 
+>         Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+Time is what you make of it

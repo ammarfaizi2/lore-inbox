@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266004AbTFWLLr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 07:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbTFWLLr
+	id S265998AbTFWLQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 07:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266000AbTFWLQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 07:11:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22284 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266004AbTFWLLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 07:11:46 -0400
-Date: Mon, 23 Jun 2003 12:25:48 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MOD_DEC_USE_COUNT is deprecated
-Message-ID: <20030623122548.B28325@flint.arm.linux.org.uk>
-Mail-Followup-To: Jan De Luyck <lkml@kcore.org>,
-	linux-kernel@vger.kernel.org
-References: <200306231316.21018.lkml@kcore.org>
+	Mon, 23 Jun 2003 07:16:44 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:17 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S265998AbTFWLQo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 07:16:44 -0400
+Date: Mon, 23 Jun 2003 13:30:53 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Willy TARREAU <willy@w.ods.org>
+Cc: willy@w.ods.org, marcelo@conectiva.com.br, kpfleming@cox.net,
+       stoffel@lucent.com, gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030623133053.30d6cb88.skraw@ithnet.com>
+In-Reply-To: <20030621105019.GA834@pcw.home.local>
+References: <20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+	<20030611222346.0a26729e.skraw@ithnet.com>
+	<16103.39056.810025.975744@gargle.gargle.HOWL>
+	<20030613114531.2b7235e7.skraw@ithnet.com>
+	<20030621105019.GA834@pcw.home.local>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200306231316.21018.lkml@kcore.org>; from lkml@kcore.org on Mon, Jun 23, 2003 at 01:16:21PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 01:16:21PM +0200, Jan De Luyck wrote:
-> Little question: With many modules I'm still seeying the MOD_DEC_USE_COUNT is 
-> deprecated message. I've checked the changes that have been done earlier, and 
-> they usually just consist of removing these lines. If so, I'm more than 
-> willing to "search and destroy" those and send 'em over to the patch monkey, 
-> but if what I'm saying is totally idiotic just slap me ;p
+Hello again,
 
-It's not that simple - you need to ensure that there are mechanisms
-in place to ensure that module unloading is safe before removing these.
+so we learned that working on the weekend is no good ;-)
+The problem is back - still on 22-pre1 . I had two failed verifications this
+morning.
+Now I am giving Willy's checksumming a try. I'll keep you informed.
 
-The remaining MOD_{INC,DEC}_USE_COUNT act as markers for code that needs
-to be fixed up.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Regards,
+Stephan

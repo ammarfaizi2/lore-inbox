@@ -1,49 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317480AbSFRQZr>; Tue, 18 Jun 2002 12:25:47 -0400
+	id <S317478AbSFRQ2B>; Tue, 18 Jun 2002 12:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317481AbSFRQZr>; Tue, 18 Jun 2002 12:25:47 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:778 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317480AbSFRQZp>; Tue, 18 Jun 2002 12:25:45 -0400
-Date: Tue, 18 Jun 2002 09:22:02 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Garet Cammer <arcolin@arcoide.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Need IDE Taskfile Access
-In-Reply-To: <004701c216cf$efd1ca60$8201a8c0@arcoi0s17j2t0x>
-Message-ID: <Pine.LNX.4.10.10206180917550.3804-100000@master.linux-ide.org>
+	id <S317481AbSFRQ2A>; Tue, 18 Jun 2002 12:28:00 -0400
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:22833 "EHLO
+	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
+	id <S317478AbSFRQ17>; Tue, 18 Jun 2002 12:27:59 -0400
+Message-ID: <EE83E551E08D1D43AD52D50B9F5110927E7AA0@ntserver2>
+From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
+Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: VMM - freeing up swap space
+Date: Tue, 18 Jun 2002 19:26:11 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Sure. Execute `swapoff -a`, followed by `swapon -a`. This is no joke.
 
-Garet,
-
-You are wasting electons, the interface is gone and the API to the
-transport is wrecked.  I will need to compose a loadable module to renable
-the support.  Clearly 2.5/2.6 is not friendly with the needs of the
-industry and it will never be at this rate.
-
-In the end, I will end up writing a closed ATA binary driver for sale as a
-replacement.  I have had several requests to consider the option.  As much
-as I do not like the idea, it is less offensive than the current
-direction.
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Tue, 18 Jun 2002, Garet Cammer wrote:
-
-> For some time now we have been writing user applications that send ATAPI commands to the IDE bus to initialize and configure our hardware RAID 1 controllers. This has been working well, thanks to Andre's patch that gave us taskfile access through the ioctl API. We were counting on it to be a permanent part of the 2.5/2.6 kernel, since there is a lot of hardware in the field using these apps.
-> Imagine our surprise when we discovered that taskfile access was being abandoned completely!
-> Although we understand that the kernel may need to filter some commands, why can't applications access at least the Smart commands? Help!
-> Regards,
-> Garet Cammer
-> Software Development
-> Arco Computer Products
-> (954) 925-2688
-> 
-
+Thanks. That really helped, let alone the fact that swapoff is a lengthy
+operation (I can understand why), the resulting memory was even less than
+the original RAM+swap size. I guess that happened because of memory
+rearrangements when moving it up to RAM.

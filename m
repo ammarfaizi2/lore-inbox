@@ -1,149 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266938AbTBLGU1>; Wed, 12 Feb 2003 01:20:27 -0500
+	id <S266944AbTBLHEQ>; Wed, 12 Feb 2003 02:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTBLGU0>; Wed, 12 Feb 2003 01:20:26 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:53183 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266938AbTBLGTS>;
-	Wed, 12 Feb 2003 01:19:18 -0500
-Date: Wed, 12 Feb 2003 17:28:18 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, anton@samba.org, davem@redhat.com, ak@muc.de,
-       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org, matthew@wil.cx,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH][COMPAT] compat_sys_futex 1/7 generic
-Message-Id: <20030212172818.3ae39457.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.44.0302112122130.3901-100000@home.transmeta.com>
-References: <20030212154716.7c101942.sfr@canb.auug.org.au>
-	<Pine.LNX.4.44.0302112122130.3901-100000@home.transmeta.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266955AbTBLHEQ>; Wed, 12 Feb 2003 02:04:16 -0500
+Received: from ishtar.tlinx.org ([64.81.58.33]:58803 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id <S266944AbTBLHEP>;
+	Wed, 12 Feb 2003 02:04:15 -0500
+From: "LA Walsh" <law@tlinx.org>
+To: <linux-kernel@vger.kernel.org>, <linux-security-module@wirex.com>
+Subject: RE: lsm truly "generic" allowing complete choice?  Clean? Simple?  I don't think so.
+Date: Tue, 11 Feb 2003 23:13:55 -0800
+Message-ID: <000201c2d266$4daa51a0$1403a8c0@sc.tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <200302120142.34882.russell@coker.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-On Tue, 11 Feb 2003 21:26:54 -0800 (PST) Linus Torvalds <torvalds@transmeta.com> wrote:
->
-> I'd prefer this much more if it just passed the timout around as jiffies
-> (unconditionally), instead of converting them from one type of timespec to 
-> another, and then converting that other timespec to jiffies, and having 
-> multiple tests for NULL because of all that conversion confusion.
+
+> -----Original Message-----
+> From: Russell Coker
 > 
-> Hmm?
+> I think that most people who want to use LSM and similar 
+> systems don't want to 
+> re-write any significant portion of their applications.  
+---
+	I would agree -- that is true for _most_ people.
+> People who want 
+> serious security and are prepared to re-write applications 
+> will probably want 
+> a high-assurance kernel and won't use Linux.
+---
+	Why rewrite?  My security policy is burned into a ROM as 
+well as all my files -- and all files are set to 777, how many 
+applications am I going to need to port to fit on an embedded 
+system?
 
-How about this then.  Just the generic part retransmitted.
+	Why shouldn't I be able to config the kernel at compile time
+to include the basest of functionality, I put in a terminal program, 
+maybe, a copy of a video and audio player, device drivers for a dvd/cdrom,
+an ethernet interface and maybe a custom remote/LCD display.  Where
+do I need or want UIDs' or want checks for 'execute' access?  If I
+call 'exec', its because it's burned into the ROM that way and I don't
+care about 'execute' bits.
 
-/me mumbles "I will not ignore Rusty's suggestions ..."
+	Maybe I'd be able to configure out paging support as well...Think
+of linux in your toaster with a cute penguin on the side...  You load
+your pre-sliced bread into the bread dispenser, and then right after
+you finish the morning coffee (started brewing when you turned off
+the alarm for the last time, or maybe earlier) and finish the slashdot
+morning news, you click the toast icon on your kitchen desktop and the
+bread dispenser drops the bread into the toaster.  
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+	Now how many of those home-appliance IP's will need security
+controls?  Hopefully about as many people need security on their 
+appliances now -- you have a locked door parameter and an isolated internal
+net...if you need security for your appliances -- someone has already
+broken into your house.  That's not good.  You don't design every 
+appliance, range, fridge and stereo with DAC security controls --
+they are assumed safe behind your front door.  
 
-diff -ruN 2.5.60-32bit.1/kernel/compat.c 2.5.60-32bit.2/kernel/compat.c
---- 2.5.60-32bit.1/kernel/compat.c	2003-01-17 14:01:08.000000000 +1100
-+++ 2.5.60-32bit.2/kernel/compat.c	2003-02-12 17:22:18.000000000 +1100
-@@ -16,6 +16,7 @@
- #include <linux/errno.h>
- #include <linux/time.h>
- #include <linux/signal.h>
-+#include <linux/sched.h>	/* for MAX_SCHEDULE_TIMEOUT */
- 
- #include <asm/uaccess.h>
- 
-@@ -208,3 +209,19 @@
- 		ret = put_user(s, oset);
- 	return ret;
- }
-+
-+extern long do_futex(u32 *, int, int, unsigned long);
-+
-+asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
-+		struct compat_timespec *utime)
-+{
-+	struct timespec t;
-+	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-+
-+	if ((op == FUTEX_WAIT) && utime) {
-+		if (get_compat_timespec(&t, utime))
-+			return -EFAULT;
-+		timeout = timespec_to_jiffies(t) + 1;
-+	}
-+	return do_futex((unsigned long)uaddr, op, val, timeout);
-+}
-diff -ruN 2.5.60-32bit.1/kernel/futex.c 2.5.60-32bit.2/kernel/futex.c
---- 2.5.60-32bit.1/kernel/futex.c	2002-11-28 10:34:59.000000000 +1100
-+++ 2.5.60-32bit.2/kernel/futex.c	2003-02-12 17:18:36.000000000 +1100
-@@ -315,23 +315,6 @@
- 	return ret;
- }
- 
--static inline int futex_wait_utime(unsigned long uaddr,
--		      int offset,
--		      int val,
--		      struct timespec* utime)
--{
--	unsigned long time = MAX_SCHEDULE_TIMEOUT;
--
--	if (utime) {
--		struct timespec t;
--		if (copy_from_user(&t, utime, sizeof(t)) != 0)
--			return -EFAULT;
--		time = timespec_to_jiffies(&t) + 1;
--	}
--
--	return futex_wait(uaddr, offset, val, time);
--}
--
- static int futex_close(struct inode *inode, struct file *filp)
- {
- 	struct futex_q *q = filp->private_data;
-@@ -437,7 +420,7 @@
- 	return ret;
- }
- 
--asmlinkage int sys_futex(unsigned long uaddr, int op, int val, struct timespec *utime)
-+long do_futex(unsigned long uaddr, int op, int val, unsinged long timeout)
- {
- 	unsigned long pos_in_page;
- 	int ret;
-@@ -445,12 +428,12 @@
- 	pos_in_page = uaddr % PAGE_SIZE;
- 
- 	/* Must be "naturally" aligned */
--	if (pos_in_page % sizeof(int))
-+	if (pos_in_page % sizeof(u32))
- 		return -EINVAL;
- 
- 	switch (op) {
- 	case FUTEX_WAIT:
--		ret = futex_wait_utime(uaddr, pos_in_page, val, utime);
-+		ret = futex_wait(uaddr, pos_in_page, val, timeout);
- 		break;
- 	case FUTEX_WAKE:
- 		ret = futex_wake(uaddr, pos_in_page, val);
-@@ -465,6 +448,20 @@
- 	return ret;
- }
- 
-+asmlinkage long sys_futex(u32 *uaddr, int op, int val, struct timespec *utime)
-+{
-+	struct timespec t;
-+	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-+
-+
-+	if ((op == FUTEX_WAIT) && utime) {
-+		if (copy_from_user(&t, utime, sizeof(t)) != 0)
-+			return -EFAULT;
-+		timeout = timespec_to_jiffies(t) + 1;
-+	}
-+	return do_futex((unsigned long)uaddr, op, val, timeout);
-+}
-+
- static struct super_block *
- futexfs_get_sb(struct file_system_type *fs_type,
- 	       int flags, char *dev_name, void *data)
+	Now what cheap OS can we put on those appliances?  What's 'free'
+these days and is adaptable as a chameleon (I hope).  Certainly no
+dinosaur OS's, that's for sure.
+
+
+> For all the machines I run (hand-held, laptop, embedded 
+> server, desktop, and 
+> server) I plan to keep Unix permissions whether I need them 
+> or not.  Removing 
+> them breaks too much compatability at the moment.  Maybe if 
+> someone else gets 
+> a few thousand Linux machines running without any Unix 
+> permissions and fixes 
+> a lot of the bugs I'll consider it.
+---
+	It's not *for* you...a no-security machine wouldn't be
+useful as a general purpose machine.  You'd have something akin to
+Win98...no...it has readonly/system/hidden...something less than
+DOS 1.0 since it even had those.  
+
+	The idea was 'completely generic' to support implementation of
+any of the security policies/models -- including those that require
+audit.  Audit isn't just for 'audit'...it can be very useful in IDS
+and to a small extent, verification.  
+
+	The points needed for audit, possibly with some augmentation might
+also allow for performance statistics on the level Win2k/NT has.  I have
+to believe that the combined talent of linux programmers has to exceed
+that of MS.  Creativity and control are opposite forces -- the more
+of one you have, the less of the other.  But MS has some software that
+does quite well in benchmarks -- at least giving linux a run-for the money.
+I think one of the reasons why is instrumenting and performance figures
+that are tied into every kernel.  You know when the disk is your bottle
+neck, or your memory, you know how many programs are spilling.  You
+don't have to setup a special kernel or write extra software.  It's
+all built-in.  Of course in the linux world, it'd be a build-time
+config, but if done right, I'd leave it on all the time (I'd expect
+< 1% performance impact in typical cases).
+
+-l
+

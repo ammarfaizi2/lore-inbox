@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261772AbREPCfM>; Tue, 15 May 2001 22:35:12 -0400
+	id <S261773AbREPCqL>; Tue, 15 May 2001 22:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261770AbREPCev>; Tue, 15 May 2001 22:34:51 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:19593 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261769AbREPCel>; Tue, 15 May 2001 22:34:41 -0400
-Message-ID: <3B01E670.E96A2865@uow.edu.au>
-Date: Wed, 16 May 2001 12:31:12 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jonathan Lundell <jlundell@pobox.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>,
-		<Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com> <p05100330b7277e2beea6@[207.213.214.37]>
+	id <S261775AbREPCpv>; Tue, 15 May 2001 22:45:51 -0400
+Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:20860 "EHLO
+	orr.falooley.org") by vger.kernel.org with ESMTP id <S261774AbREPCpr>;
+	Tue, 15 May 2001 22:45:47 -0400
+Date: Tue, 15 May 2001 22:45:25 -0400
+From: Jason Lunz <j@falooley.org>
+To: linux-kernel@vger.kernel.org
+Subject: DVD_AUTH ioctl fails with aic7xxx / 2.4.4
+Message-ID: <20010515224525.A9171@orr.falooley.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell wrote:
-> 
-> ...
-> I *like* eth0..n (I'd like net0..n better). And I *can't* ask what
-> eth0 and eth1 are, by the way, but I should be able to (Jeff Garzik
-> has proposed an extension to ethtool to help out this lack, but it's
-> not in Linux today, and needs concrete implementation anyway).
-> 
-> But that's not my point. I'm *not* proposing that we exchange eth0
-> for geographic names. I'm suggesting, though, that the location of
-> the device is *not* meaningless, because it's the physically-located
-> RJ45 socket (or whatever) that I have to connect a particular cable
-> to. Sure, no big deal for systems with a single connection, but it
-> becomes a real pain when you've got a dozen, which is a reasonable
-> number for some network-infrastructure functions (eg firewalls).
-> 
-> When I ifconfig one of a collection of interfaces, I'm very much
-> talking about the specific physical interface connected via a
-> specific physical cable to a specific physical switch port.
-> 
 
-Yes, it can be a security trap as well - physically move a card and
-your firewall rules end up being applied to the wrong connection.
+I've set up a Pioneer 305S scsi dvd-rom on an old adaptec card using the
+stock aic7xxx driver included with the 2.4.4 kernel (not the old_aic7xxx
+one). Everything works well, except when trying to access an encrypted
+file on a DVD. This ioctl from libcss fails:
 
-The 2.4 kernel allows you to rename an interface.  So you can build
-a little database of (MAC address/name) pairs. Apply this after booting
-and before bringing up the interfaces and everything has the name
-you wanted, based on MAC address.
+static int _get_title_key(int fd, int agid, int lba, char *key, char *key_title)
+{
+	dvd_authinfo ai;
+	int i;
 
-Andi Kleen has an app which does this:
+	ai.type = DVD_LU_SEND_TITLE_KEY;
 
-	ftp://ftp.firstfloor.org/pub/ak/smallsrc/nameif.c
+	ai.lstk.agid = agid;
+	ai.lstk.lba = lba;
 
-but apparently some additional kernel work is needed to make
-this work 100% correctly.  I do not know what the specific
-problem is.
+	if (ioctl (fd, DVD_AUTH, &ai)) {
+		perror ("GetTitleKey failed");
+		return -1;
+	}
 
+All I see from the kernel is:
 
--
+	sr1: CDROM (ioctl) reports ILLEGAL REQUEST.
+
+This happens with any DVD. Can someone tell me what the problem is? I
+seem to be using the same libcss that everyone else uses with no
+problem, and everything is properly configured, AFAIK.
+
+thanks,
+
+Jason

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131621AbRACNUp>; Wed, 3 Jan 2001 08:20:45 -0500
+	id <S131974AbRACNWF>; Wed, 3 Jan 2001 08:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131654AbRACNUf>; Wed, 3 Jan 2001 08:20:35 -0500
-Received: from latt.if.usp.br ([143.107.129.103]:21005 "HELO latt.if.usp.br")
-	by vger.kernel.org with SMTP id <S131621AbRACNUW>;
-	Wed, 3 Jan 2001 08:20:22 -0500
-Date: Wed, 3 Jan 2001 10:49:54 -0200 (BRST)
-From: "Jorge L. deLyra" <delyra@latt.if.usp.br>
-To: Andi Kleen <ak@suse.de>
-cc: Neil Brown <neilb@cse.unsw.edu.au>,
-        Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Frank.Olsen@stonesoft.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-In-Reply-To: <20010103130624.A31209@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.3.96.1010103102308.21599A-100000@latt.if.usp.br>
+	id <S131967AbRACNVz>; Wed, 3 Jan 2001 08:21:55 -0500
+Received: from aeon.tvd.be ([195.162.196.20]:26559 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S131966AbRACNVm>;
+	Wed, 3 Jan 2001 08:21:42 -0500
+Date: Wed, 3 Jan 2001 13:50:46 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-fbdev@vuser.vu.union.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [linux-fbdev] [PATCH] clgenfb on PPC
+In-Reply-To: <20010102095133.B26653@opus.bloom.county>
+Message-ID: <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's a bit surprising that you have so many problems with unfsd, I know
-> lots of installations where it is (still) used successfully in its limits.
-> I did recently some mainteance work on it to fix it for reiserfs.
+On Tue, 2 Jan 2001, Tom Rini wrote:
+> Hey all.  While going through the 2.4 tree and removing dead CONFIG_xxx's for
+> PPC stuff, I noticed clgenfb still had CONFIG_PREP stuff (which may have
+> partily explained why it no longer worked here).  I've attached a patch, that
+> with another patch to fix some PCI issues on certain machines, gives me a
+> working (so far, can't test heavily yet tho) framebuffer on my powerstack.
+> 
+> Comments?
 
-Well, let me qualify that better. The problems were not really bad before
-2.2.18. There where none in 2.0, by the way, as far as I remember. They
-first showed up when we switched to 2.2, and were more frequent at the
-beginning. When we got to 2.2.17 we had pretty much forgotten about them.
-We have NFS exports on many machines around here and it only happened in
-some, so it is difficult to pinpoint the problem. We were never quite sure
-whether the problem was on the server or client, sometimes it looked one
-way, sometimes another. Once there was a certain directory such that an ls
--lR on it was sure-fire to give an I/O error message and hang the mount.
-Moving the contents to another directory and deleting the first one solved
-it, don't ask me why. Very often a way to produce the problem was to sit
-at the mount point and do a find for something. When a hang was produced,
-you had to kill autofs, unmount by hand, maybe killing a few programs in
-order not to get "busy" messages. Then just mount it again and it's OK.
-Note that neither killing and restarting the server nor rebooting the
-client seemed necessary. You just had to unmount and remount.
+To me it looks like most of them depend on `big endian', not on `PReP'.
 
-> (when you ignore locking and NFS over TCP ATM) All you need is to forward
-> UDP packets. This can either be done by a normal user space daemon that
-> uses portmap and just sends the packets out again, or alternatively by using
-> UDP masquerading and appropiate routes on the internal boxes.
-> Only forwarding packets is very different from full reexport support in knfsd
-> and much simpler.
+BTW, doesn't the Cirrus Logic graphics chip have a big endian aperture? I don't
+like things like green.offset = -3, since it will probably break some
+applications (did you run X?).
 
-Well, I hope some solution is found, since this is an important feature.
-It would be nicer in knfsd, I think, but if that proves unpractical for
-some reason, your packet filter/forwarder might just be the answer.
+Gr{oetje,eeting}s,
 
-							Best luck,
+						Geert
 
-----------------------------------------------------------------
-        Jorge L. deLyra,  Associate Professor of Physics
-            The University of Sao Paulo,  IFUSP-DFMA
-       For more information: finger delyra@latt.if.usp.br
-----------------------------------------------------------------
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

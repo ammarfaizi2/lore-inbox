@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135738AbRDVImX>; Sun, 22 Apr 2001 04:42:23 -0400
+	id <S135898AbRDVIvN>; Sun, 22 Apr 2001 04:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135705AbRDVImN>; Sun, 22 Apr 2001 04:42:13 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:11014 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S135517AbRDVImJ>;
-	Sun, 22 Apr 2001 04:42:09 -0400
-Date: Sun, 22 Apr 2001 10:42:06 +0200
-From: FAVRE Gregoire <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: rmmod take all CPU and I can't stop it under 2.4.3-ac{9,11}
-Message-ID: <20010422104206.A2939@ulima.unil.ch>
-Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S135938AbRDVIvD>; Sun, 22 Apr 2001 04:51:03 -0400
+Received: from [164.164.83.132] ([164.164.83.132]:21257 "EHLO
+	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
+	id <S135898AbRDVIuy>; Sun, 22 Apr 2001 04:50:54 -0400
+Reply-To: <raghav@ishoni.com>
+From: "Raghav P" <raghav@ishoni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Question about console driver switch
+Date: Sun, 22 Apr 2001 14:23:37 +0530
+Message-ID: <E0FDC90A9031D511915D00C04F0CCD2503996F@leonoid.in.ishoni.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I am porting a serial driver on my MIPS board and have to provide support
+for serial console. After  going thru the initialisation sequence: Looks
+like in the initial stages before the interrupts and memory is set up; a
+serial driver is set up by some brute force method in the function
+serial_console_init() and the write function address is registered to the
+printk module.  After interrupts and memory are available; the old
+memory(and hence the old UART driver) is freed using init_freemem() and
+full-fledged UART driver is setup.
 
-Hello,
+Now the doubts are:
+(i) After the old serial driver is thrown out using init_freemem and new
+driver is installed; register_console() is not invoked again. I tried
+printing the address of the write function in printk and they remain the
+same. Now how does printk start throwing out the messages using the new
+driver?
+(ii) Does init_freemem free both text and data? If so should care be taken
+for including code before free_initmem is called?
 
-I am using DVB and sometimes I have to reload the driver, some times, I
-can just do it without problem, but often, it result in a (from top):
- 1359 root      19   0   532  532   360 R    77.7  0.2   8:32 rmmod
+Since I do not belong to this mailing list; It would be nice if I am replied
+back to my official e-mail: raghav@ishoni.com
 
-And a kill -KILL 1359 has no effect at all?
+Thanks in advance
 
-Is there a way to kill that jobs?
+Raghav
 
-Thanks you very much,
+_________________________________________________
+P.Raghavan
+ishoni Networks (India) Pvt Ltd (http://www.ishoni.com)
+...Broadband for everyone
+email:raghav@ishoni.com
+Phone: +91-80-2292125 (Work)
+Fax: +91-80-2995545 (Work)
 
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
 
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE64pleZZVeVjNKmG0RAjvYAJ9iN4+05nIahFBB2fxFDShqY1CWxwCeND1u
-vJDOmEBK+lDEoSqtZaLnC/c=
-=8yFK
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--

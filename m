@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136601AbRECJ6I>; Thu, 3 May 2001 05:58:08 -0400
+	id <S136560AbRECKAi>; Thu, 3 May 2001 06:00:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136595AbRECJ57>; Thu, 3 May 2001 05:57:59 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:27316 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S136560AbRECJ5u>;
-	Thu, 3 May 2001 05:57:50 -0400
-Message-ID: <3AF12B94.60083603@alsa-project.org>
-Date: Thu, 03 May 2001 11:57:40 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
-X-Accept-Language: it, en
+	id <S136595AbRECKA3>; Thu, 3 May 2001 06:00:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9356 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136560AbRECKAR>;
+	Thu, 3 May 2001 06:00:17 -0400
+Date: Thu, 3 May 2001 06:00:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Why recovering from broken configs is too hard
+In-Reply-To: <20010503054349.C28728@thyrsus.com>
+Message-ID: <Pine.GSO.4.21.0105030545470.15957-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: "David S. Miller" <davem@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <3AF10E80.63727970@alsa-project.org>  <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+
+
+On Thu, 3 May 2001, Eric S. Raymond wrote:
+
+> You're almost right.  If you counted only explicit constraints, 
+> created by require statements, you get a bunch of cliques that
+> aren't that large.
 > 
-> abramo@alsa-project.org said:
-> >  The problem I see is that with the former solution nothing prevents
-> > from to do:
+> Unfortunately....there are a huge bunch of implicit constraints
+> created by dependency relationships in the menu tree.  For example,
+> all SCSI cards are dependents of the SCSI symbol.  Set SCSI to N
+> and all the card symbols get turned off; set any card symbol to Y or M
+> and the value of SCSI goes to Y or M correspondingly.
 > 
-> >       regs->reg2 = 13;
-> 
-> > That's indeed the reason to change ioremap prototype for 2.5.
-> 
-> An alternative is to add an fixed offset to the cookie before returning it,
-> and subtract it again in {read,write}[bwl].
+> So the way it actually works (I think; I've have to write code to do a
+> topological analysis to be sure) out is that there's sort of a light
+> dust of atoms (BSD quota is one of them) surrounding one huge gnarly
+> menu-tree-shaped clique.
 
-You understand that in this way you change a compile time warning in a
-runtime error (conditioned to path reaching, not easy to interpret,
-etc.)
+Errrmmm... _That_ is not too horrible - e.g. SCSI definitely belongs
+to core. Individual drivers, OTOH, do not and there's a lot of them.
 
-IMO this is a far less effective debugging strategy.
+I'm not talking about connectedness of the thing. However, I suspect that
+graph has a small subset such that removing it makes it fall apart.
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+IOW, you have a small well-connected backbone and a lot of small groups
+around it, such that each path from one group to another hits the
+backbone. ACK? Picture you've described doesn't contradict that - there's
+a relatively small number of symbols that correspond to subsystems and
+tons of stuff hanging from that subset.
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
+Look at it as a network. How many sites do you need to nuke to break it
+into tiny bits?
 
-ALSA project               http://www.alsa-project.org
-It sounds good!

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281884AbRKSCc7>; Sun, 18 Nov 2001 21:32:59 -0500
+	id <S280024AbRKSCdI>; Sun, 18 Nov 2001 21:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281883AbRKSCcs>; Sun, 18 Nov 2001 21:32:48 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:781 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280024AbRKSCcm>; Sun, 18 Nov 2001 21:32:42 -0500
-Message-ID: <3BF86EAA.1070605@yahoo.com>
-Date: Mon, 19 Nov 2001 10:30:02 +0800
-From: Zhongyu <xxx_pku@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeffrin <jeffrin@msservices.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compilation related
-In-Reply-To: <15352.6424.786079.47914@jeffrin@msservices.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S281883AbRKSCc7>; Sun, 18 Nov 2001 21:32:59 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:49936 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S280024AbRKSCcw>;
+	Sun, 18 Nov 2001 21:32:52 -0500
+Subject: Re: replacing the page replacement algo.
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Shaya Potter <spotter@opus.cs.columbia.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0111182344150.4079-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0111182344150.4079-100000@imladris.surriel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1 (Preview Release)
+Date: 18 Nov 2001 21:31:15 -0500
+Message-Id: <1006137133.604.8.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just delete the lines which have the 'deactivate_page' function
-
->Hello all,
->
->I tried to do a typical compilation of 2.4.14 related kernel
->but compilation stops.
->
->
->drivers/block/block.o: In function `lo_send':
->drivers/block/block.o(.text+0xa86f): undefined reference to
->`deactivate_page'
->drivers/block/block.o(.text+0xa8b9): undefined reference to
->`deactivate_page'
->make: *** [vmlinux] Error 1
->
+On Sun, 2001-11-18 at 20:44, Rik van Riel wrote:
+> On 18 Nov 2001, Shaya Potter wrote:
 > 
->
+> > If I wanted to experiment with different algorithms that chose which
+> > page to replace (say on a page fault) what functions would I have to
+> > replace?
+> 
+> try_to_free_pages() and all the functions it calls.
 
+I was looking at vmscan.c and it appears that swap_out() is what I
+want.  If instead of having it step through the mmlist, I give it the
+explicit mm of the processes that I want a page swapped out from? so I
+could implement my algorithm either inside that func or as function
+calls from it and have it pass onto swap_out_mm() the mm of the
+processes I choose to swap out.
 
+or am I totally misunderstanding something here? (likely, as this is my
+first time digging into the vm and trying to learn about it)
 
+thanks,
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+shaya potter
 

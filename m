@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVCFKNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVCFKTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVCFKNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 05:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCFKNY
+	id S261351AbVCFKTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 05:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVCFKTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 05:13:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39564 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261348AbVCFKNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 05:13:22 -0500
-Date: Sun, 6 Mar 2005 11:13:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Vincent Vanackere <vincent.vanackere@gmail.com>, kernel@kolivas.org,
-       ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-ck1 (cfq-timeslice)
-Message-ID: <20050306101306.GF18335@suse.de>
-References: <200503030030.29722.kernel@kolivas.org> <65258a58050304064710b403d7@mail.gmail.com> <20050304140750.757e9f4a.akpm@osdl.org>
+	Sun, 6 Mar 2005 05:19:22 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261353AbVCFKTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 05:19:17 -0500
+Date: Sun, 6 Mar 2005 10:19:12 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix for 8250.c *wrongly* detecting XScale UART(s) on x86 PC
+Message-ID: <20050306101912.A19558@flint.arm.linux.org.uk>
+Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
+	linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <20050306093321.GA3040@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050304140750.757e9f4a.akpm@osdl.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050306093321.GA3040@taniwha.stupidest.org>; from cw@f00f.org on Sun, Mar 06, 2005 at 01:33:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04 2005, Andrew Morton wrote:
-> Vincent Vanackere <vincent.vanackere@gmail.com> wrote:
-> >
-> > Speaking of the cfq-timeslice scheduler, is there a version that
-> > applies to recent -mm kernels ?
+On Sun, Mar 06, 2005 at 01:33:21AM -0800, Chris Wedgwood wrote:
+> Breaks my UARTS.
 > 
-> Yes, what happened to that?
+> I'm not thrilled with this patch but 8250.c has similar warts so I
+> guess it's not too bad.  Ideally we could refactor this a bit so if
+> this isn't acceptable let me know and I'll do that instead.
 
-Don't exactly remember :-)
+If it breaks here (due to your ports being "embraced and extended") it
+could well break elsewhere, and wrapping it in CONFIG_ARM doesn't solve
+that.
 
-I'll post an updated version for -mm, I'd like for it to spend a
-cycle there.
+I'm not sure what the solution to this is, but unless we can autodetect
+the port "type", it rather screws the current direction of 8250, which
+has been to move away from port types to a set of port capabilities.
+
+I wonder if its possible to get hold of any documentation for your
+misdetected serial port...
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

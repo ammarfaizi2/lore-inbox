@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbTEEOUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 10:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTEEOUL
+	id S262269AbTEEOa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 10:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbTEEOa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 10:20:11 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:25793 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262266AbTEEOUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 10:20:03 -0400
-Subject: 2.5.68-mm4 broke ide cdrw
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1052145150.2349.6.camel@mars.goatskin.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 May 2003 10:32:30 -0400
-Content-Transfer-Encoding: 8bit
+	Mon, 5 May 2003 10:30:26 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:25473 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262269AbTEEOaZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 10:30:25 -0400
+Date: Mon, 5 May 2003 21:29:51 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <20030505134516.GB10374@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.SGI.4.10.10305052053000.8200163-100000@Sky.inp.nsk.su>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 5 May 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-I am unable to record a cd in 2.5.68-mm4 and 2.5.69-mm1 but it works in
-2.5.68-mm2 and 2.5.69. So it might have broken in -mm3 but I did not try
-it. I am also backing out the dev_t from the -mm kernels. The problem is
-cdrecord is unable to find the drive or at least a 'cdrecord
--dev=/dev/hdc -inq' hangs for a while and then only comes up with some
-other, 'FAKE' ide drive, that doesn't work. This is using cdrecord
-version 2.0 on a UP x86 box with preempt.
+> On Mon, May 05, 2003 at 08:30:38PM +0700, Dmitry A. Fedorov wrote:
+> > I use the following calls:
+> > 
+> > sys_mknod
+> > sys_chown
+> > sys_umask
+> > sys_unlink
+> > 
+> > for creating/deleting /dev entries dynamically on driver
+> > loading/unloading. It allows me to acquire dynamic major
+> > number without devfs and external utility of any kind.
+> > And there is no risk of intersection with statically assigned major
+> > numbers, as it is for many others third-party sources.
+> 
+> *yuck*
+> 
+> Do that from modprobe.  "No external utility" is not a virtue, especially
+> when said utility is a trivial shell script.
 
-ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:DMA, hdd:pio
-hdc: LG CD-RW CED-8120B, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 32X CD-ROM CD-R/RW drive, 8192kB Cache, DMA
+What about modprobe? Dynamic major number can be acquired only by the
+module itself. Only after that the appropriate /dev entry can be
+created. External utility must get major number from the module
+but without the /dev entry there is no communication end point with the
+module.
 
-and it is plugged in here..
+Only two possibilities exists:
 
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+1. /dev entries created with statically assigned major/minor numbers.
+It is inconvenient for third-party modules.
 
-2.5.68-mm4: (Not working)   
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-Using libscg version 'schily-0.7'
-Device type    : Disk
-Version        : 2
-Response Format: 2
-Capabilities   : 
-Vendor_info    : 'ADAPTEC '
-Identifikation : 'ACB-5500        '
-Revision       : 'FAKE'
-Device seems to be: Adaptec 5500.
+2. devfs or procfs (/dev entry is just a symlink to some /proc/ entry
+which will be created with the device attributes later).
 
-2.5.68-mm2 (Working)
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-Using libscg version 'schily-0.7'
-Device type    : Removable CD-ROM
-Version        : 2
-Response Format: 2
-Capabilities   : 
-Vendor_info    : 'LG      '
-Identifikation : 'CD-RW CED-8120B '
-Revision       : '1.03'
-Device seems to be: Generic mmc CD-RW.
+You should look at my approach as tiny portable private devfs library.
+It would works with and without devfs, without procfs (stripped in
+embedded environment), with old and new kernels.
+There is no "illegal" kernel mechanisms used.
 
-I tried a few different versions of cdrtools, and they were the same.
-
-Regards,
-
-Shane
-
-
-
-
-
+Only one thing required - availability of systems calls.
 

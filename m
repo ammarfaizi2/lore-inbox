@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274676AbRITWZa>; Thu, 20 Sep 2001 18:25:30 -0400
+	id <S274678AbRITW3V>; Thu, 20 Sep 2001 18:29:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274678AbRITWZU>; Thu, 20 Sep 2001 18:25:20 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:19744 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274677AbRITWZL> convert rfc822-to-8bit; Thu, 20 Sep 2001 18:25:11 -0400
-Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Andrew Morton <akpm@zip.com.au>, Chris Mason <mason@suse.com>,
-        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <200109202112.f8KLCXG16849@zero.tech9.net>
-In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com>
-	<3BAA29C2.A9718F49@zip.com.au> <1001019170.6090.134.camel@phantasy> 
-	<200109202112.f8KLCXG16849@zero.tech9.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.21.54 (Preview Release)
-Date: 20 Sep 2001 18:24:48 -0400
-Message-Id: <1001024694.6048.246.camel@phantasy>
+	id <S274679AbRITW3L>; Thu, 20 Sep 2001 18:29:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38537 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274678AbRITW25>;
+	Thu, 20 Sep 2001 18:28:57 -0400
+Date: Thu, 20 Sep 2001 15:29:19 -0700 (PDT)
+Message-Id: <20010920.152919.35356833.davem@redhat.com>
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: flush_tlb_all in vmalloc_area_pages
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010921002547.G729@athlon.random>
+In-Reply-To: <20010907165612.T11329@athlon.random>
+	<20010920.142638.68040129.davem@redhat.com>
+	<20010921002547.G729@athlon.random>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-09-20 at 17:11, Dieter Nützel wrote:
-> > I am putting together a conditional scheduling patch to fix some of the
-> > worst cases, for use in conjunction with the preemption patch, and this
-> > might be useful.
-> 
-> The conditional_schedule() function hampered me from running it already.
+   From: Andrea Arcangeli <andrea@suse.de>
+   Date: Fri, 21 Sep 2001 00:25:47 +0200
 
-hrm, i didnt notice that conditional_schedule wasnt defined in that
-patch.  you will need to do it, but do something more like
+   The only question I'd like to get a answer is "what is actually the
+   data that can be virtually indexed) in the vmalloc range at the time we
+   run vmalloc?" Where does it cames from?
+   
+>From the the direct PAGE_OFFSET mappings.
 
-if (current->need_resched && current->lock_depth == 0) {
-	unlock_kernel();
-	lock_kernel();
-}
+   Furthmore I recall on sparc you cannot flush the cache if you don't have
+   a mapping in place,
 
-like Andrew wrote.
+This is only true of Hypersparc sparc32 chips for page based flushes,
+not whole flushes.
 
-If you don't jump on the idea of trying this :) I will send work out a
-patch that does some other low-latency thigns and send it out.
+   If anybody is using at boot time the vmalloc range for whatever purpuse
+   it should be its own business to flush the cache before dropping the
+   mappings from there.
+   
+That isn't the problem, it's dirty cache lines left over from the
+usual access addresses for physical memory (ie. via PAGE_OFFSET linear
+mappings).
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Please, I would heavily suggest leaving this area until 2.5.x there
+are already a traumatic amount of changes going on in 2.4.x
 
+Later,
+David S. Miller
+davem@redhat.com
+
+   

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262491AbSJETqy>; Sat, 5 Oct 2002 15:46:54 -0400
+	id <S262504AbSJETvE>; Sat, 5 Oct 2002 15:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbSJETqy>; Sat, 5 Oct 2002 15:46:54 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26898
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262491AbSJETqw> convert rfc822-to-8bit; Sat, 5 Oct 2002 15:46:52 -0400
-Subject: Re: 2.5.40 (BK of today) vmstat SIGSEGV after reading /proc/stat
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mau <Patrick.Mau@t-online.de>
-In-Reply-To: <200210052041.18854.Dieter.Nuetzel@hamburg.de>
-References: <200210052041.18854.Dieter.Nuetzel@hamburg.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 15:53:01 -0400
-Message-Id: <1033847582.742.4025.camel@phantasy>
+	id <S262525AbSJETvE>; Sat, 5 Oct 2002 15:51:04 -0400
+Received: from bitmover.com ([192.132.92.2]:64129 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262504AbSJETuy>;
+	Sat, 5 Oct 2002 15:50:54 -0400
+Date: Sat, 5 Oct 2002 12:56:24 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Nicolas Pitre <nico@cam.org>, Ulrich Drepper <drepper@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+Message-ID: <20021005125624.F11375@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Nicolas Pitre <nico@cam.org>, Ulrich Drepper <drepper@redhat.com>,
+	Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+References: <3D9F3C5C.1050708@redhat.com> <Pine.LNX.4.44.0210051533310.5197-100000@xanadu.home> <20021005125412.E11375@work.bitmover.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021005125412.E11375@work.bitmover.com>; from lm@bitmover.com on Sat, Oct 05, 2002 at 12:54:12PM -0700
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 14:41, Dieter Nützel wrote:
-
-> 2.5.40/2.5.40-mcp1 gave me same.
-> "top" showed only one CPU.
+On Sat, Oct 05, 2002 at 12:54:12PM -0700, Larry McVoy wrote:
+> On Sat, Oct 05, 2002 at 03:47:09PM -0400, Nicolas Pitre wrote:
+> > On Sat, 5 Oct 2002, Ulrich Drepper wrote:
+> > 
+> > > I have never looked closer at bk than I had to be able to check out the
+> > > latest sources.  I'm not doing any development with it and I'm not
+> > > checking in anything using bk.
+> > 
+> > What about Larry making available a special version of BK that would only be
+> > able to perform checkouts?  
+> > 
+> > This special version could have a less controversial license, even be GPL
+> > with source.  This only to provide a tool to extract data out of public BK
+> > repositories (like Linus' kernel repository) for people who don't intend or
+> > aren't willing to actually use the real value of the full fledged BK.
 > 
-> Solution:
-> 
-> Get 2.5.40-ac3. Alan "fixed" that.
+> You can do this today.  rsync a BK tree and use GNU CSSC to check out
+> the sources.  We maintained SCCS compat for exactly that reason.
+> You've had the ability to ignore the BKL since day one if you aren't
+> running the BK binaries.
 
-I think (and I could be wrong, I have been once or twice before) that
-what you are describing is separate from the issue I am talking about
-and Patrick Mau reported.
+Whoops, forgot one thing.  Take the GNU CSSC sources, they look for
 
-In the current BK (not 2.5.40) I believe Linus merged a patch from
-Andrew that changed /proc/stat syntax.  This will break old vmstat
-binaries.  You need to upgrade to the above version, at least.
+	^Ah%05u\n
 
-	Robert Love
-
-
+at the top of the file.  Make them accept both "h" and "H" and then it will
+work.  We changed it so that ATT SCCS would overwrite our metadata.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291626AbSBAJOe>; Fri, 1 Feb 2002 04:14:34 -0500
+	id <S291621AbSBAJMY>; Fri, 1 Feb 2002 04:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291627AbSBAJO1>; Fri, 1 Feb 2002 04:14:27 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:21413 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S291624AbSBAJMn>;
-	Fri, 1 Feb 2002 04:12:43 -0500
-Date: Fri, 1 Feb 2002 10:11:20 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: James Simmons <jsimmons@transvirtual.com>, Vojtech Pavlik <vojtech@ucw.cz>,
-        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-In-Reply-To: <20020201081442.G15571@suse.cz>
-Message-ID: <Pine.GSO.4.21.0202011010481.25104-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291624AbSBAJMP>; Fri, 1 Feb 2002 04:12:15 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:32644 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291621AbSBAJME>;
+	Fri, 1 Feb 2002 04:12:04 -0500
+Date: Fri, 01 Feb 2002 01:10:10 -0800 (PST)
+Message-Id: <20020201.011010.45741509.davem@redhat.com>
+To: velco@fadata.bg
+Cc: mingo@elte.hu, anton@samba.org, torvalds@transmeta.com, andrea@suse.de,
+        riel@conectiva.com.br, stoffel@casc.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <87u1t1shhd.fsf@fadata.bg>
+In-Reply-To: <Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain>
+	<87u1t1shhd.fsf@fadata.bg>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Vojtech Pavlik wrote:
-> On Thu, Jan 31, 2002 at 09:54:51PM +0100, Geert Uytterhoeven wrote:
-> > On Thu, 31 Jan 2002, James Simmons wrote:
-> > >   The amiga mouse and amiga joystick have been already ported over to the
-> > > input api. Now for the keyboard. This patch is the input api amiga
-> > > keyboard. I wanted people to try it out before I send it off to be
-> > > included in the DJ tree. Have fun!!!
+   From: Momchil Velikov <velco@fadata.bg>
+   Date: 01 Feb 2002 11:01:50 +0200
+   
+   Does cache line bounce (shared somewhere -> exclusive elsewhere) cost
+   more that a simple miss (present nowhere -> exclusive somewhere) ?
 
-    [...]
+They are about equal.  For coherency purposes all cpus have to listen
+to all the transactions anyways to see if they have a match in their
+L2 caches (and thus must provide the data to the requestor).
 
-> > Oops, amikbd_messages[scancode-0x78]?
-> 
-> Thanks. And thanks to James for fixing this in the CVS as well.
-> Does it work otherwise?
-
-No idea (yet).
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Perhaps the exclusive somewhere --> exclusive somewhere else is a bit
+more expensive because you eat a write port for the cache line move on
+the processor providing the data.

@@ -1,40 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286273AbSAAQ3s>; Tue, 1 Jan 2002 11:29:48 -0500
+	id <S280975AbSAAQsX>; Tue, 1 Jan 2002 11:48:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286303AbSAAQ3i>; Tue, 1 Jan 2002 11:29:38 -0500
-Received: from [212.2.162.33] ([212.2.162.33]:37509 "EHLO weasel")
-	by vger.kernel.org with ESMTP id <S286273AbSAAQ32>;
-	Tue, 1 Jan 2002 11:29:28 -0500
+	id <S280725AbSAAQsN>; Tue, 1 Jan 2002 11:48:13 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:22288 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S280975AbSAAQrx>;
+	Tue, 1 Jan 2002 11:47:53 -0500
+Date: Tue, 1 Jan 2002 17:47:51 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: brian@worldcontrol.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bounce from andre@linuxdiskcert.org
+Message-Id: <20020101174751.6bc07b98.skraw@ithnet.com>
+In-Reply-To: <20011231175816.A2909@top.worldcontrol.com>
+In-Reply-To: <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com>
+	<200112301911.UAA07512@webserver.ithnet.com>
+	<20011231013817.A3377@top.worldcontrol.com>
+	<20011231163800.57cda2f7.skraw@ithnet.com>
+	<20011231175816.A2909@top.worldcontrol.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: David Golden <david.golden@oceanfree.net>
-Organization: Legion
-To: linux-kernel@vger.kernel.org
-Subject: Re: A happy new year
-Date: Tue, 1 Jan 2002 16:31:01 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20020101232033.GA565@www.ekinos.com> <3C32043B.CC31DB56@top.bg> <3C31DFB8.354F6401@eznet.net>
-In-Reply-To: <3C31DFB8.354F6401@eznet.net>
-MIME-Version: 1.0
-Message-Id: <02010116310100.01195@golden1.goldens.ie>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 January 2002 16:11, David A. Frantz wrote:
+On Mon, 31 Dec 2001 17:58:17 -0800
+brian@worldcontrol.com wrote:
 
->  So think about that physical and at least an hour every day
-> engaged in vigorous execise.    Your body will love you for it.
+> Trying to find interesting email among 'Hot Young Teen Girls', which
+> is at least honest, and among the less forthright emails trying to
+> masquarade as something else in order to get me to read them certainly
+> makes me angry regardless of how they are addressed.
 
-On a light note:
-What we really need is computer keyboards and monitors mounted
-just a little bit higher so you can use them while on an exercise bike, 
-stepper machine, and so on. Imagine how fit you could get if every time
-you were kernel coding* you had no excuse not to be pedalling...
+Hm, this is of course getting very philosophical, but: you must have a very bad
+feeling in everyday life, if I take your words serious. How can you cope with
+the fact that basically _every_ ad ever published is a _lie_ to a certain
+extent. Does this make you angry, too? How can you life with that? Ads do
+nothing else but disguise the fact that something should be sold and make
+someone real rich. And most of the things sold are really ridiculous stuff
+nobody ever needs. Some is even harmful to people, and still they buy it (e.g.
+drugs). Emails are only a mirror of The Real Life (tm).
 
-* See, it's on-topic, honest... :-)
+> > What I basically want to say: just live with it.
+> 
+> Interesting philosophy.  You are saying that anyone may speak at you
+> and you have to at least read the subject line.
 
-Happy New Year!
+Yes, plain and simple: yes.
 
+>  I wonder what your
+> corrollary for real life would be?
 
+Hm, I am not quite sure if I get what you like to know, but how about:
+_learning_ ??
+
+> We are at absolutely opposite extremes.
+
+Maybe, maybe not. I tend to think we are both on a road heading in a direction
+we both do not know, maybe we meet each other sometime, I can't tell. I guess
+your picture of the world is a bit too static currently. "Can you colorize my
+life I'm so sick of black and white?" (Jim Steinman, 1993)
+
+> > PS: If you want to go ahead in this talk, please keep it off LKML, it
+> > doesn't look like common interest to me.
+> 
+> That has always been a tough issue for me.  Your email, which was cc'ed
+> to l-k, will go into the various archives and forever be "findable" via
+> google groups and other archives.  If I reply offline from histories
+> perspective I will never have replied.
+
+This is an either interesting point of view. It looks like you live in a world
+where the real and absolute truth is still existing, neglecting the fact that
+so much knowledge has vanished from this planet and has partly been
+rediscovered by later generations. It is very easy to understand that all
+archives are by definition limited, and therefore the information inside can
+only be limited and never _complete_. So if you read some thread in google (or
+whereever) it is very likely you do not get the full picture, because some
+information (maybe even important) is simply hidden for various reasons. An
+answer not found in google does not mean it never existed. You have to keep
+that in mind, if you read the corresponding question there.
+
+> [...]
+> On the other hand, when looking at the archives it looks like I didn't
+> respond to some criticisms, which in many people minds means they
+> are valid.
+
+Well, this cannot be your fault, you are not Jesus. And most likely even he did
+not answer every question to full extent, although I tend to think he tried
+hard to _listen_ to it.
+
+:-)
+
+Regards,
+Stephan
 

@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267738AbUG3QwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUG3QyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267738AbUG3QwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 12:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUG3QwW
+	id S267745AbUG3QyN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 12:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUG3QyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 12:52:22 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:26346 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S267738AbUG3Qu1 (ORCPT
+	Fri, 30 Jul 2004 12:54:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17545 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267737AbUG3Qwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 12:50:27 -0400
-Message-ID: <410A7CBF.2020708@colorfullife.com>
-Date: Fri, 30 Jul 2004 18:52:15 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Gigabit Ethernet support for forcedeth
-References: <20040730100421.GB8175@redhat.com> <410A4A1C.4040608@colorfullife.com> <20040730162023.GD8175@redhat.com>
-In-Reply-To: <20040730162023.GD8175@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jul 2004 12:52:35 -0400
+Date: Fri, 30 Jul 2004 18:51:53 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: symlinks follow 8 or 5?
+Message-ID: <20040730165151.GA11967@devserv.devel.redhat.com>
+References: <1091079278.1999.5.camel@localhost.localdomain> <slrn-0.9.7.4-22364-14114-200407301259-tc@hexane.ssi.swin.edu.au> <1091171770.2794.4.camel@laptop.fenrus.com> <410A7A86.6030206@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+In-Reply-To: <410A7A86.6030206@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
 
->>Which phy is used by your board? Could you enable dprintk (near line 
->>115) and reload the driver?
->>    
->>
->
->I've enabled dprintk and captured *.debug syslog output from a normal
->boot.  Here is the result:
->
->http://cyberelk.net/tim/tmp/forcedeth-debug
->
->  
->
-The log is very odd - why are there two lines with
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> forcedeth.c: Reverse Engineered nForce ethernet driver. Version 0.28.
+On Fri, Jul 30, 2004 at 09:42:46AM -0700, Ulrich Drepper wrote:
+> Arjan van de Ven wrote:
+> 
+> > you haven't been paying attention.... the current 2.6 kernels have a
+> > patch series that is fixing this for most filesystems already 
+> 
+> Which reminds me: how can we safely determine whether this is
+> implemented for a local filesystem from userland?  Unless we can do I
+> cannot change the value of SYMLOOP_MAX and people will not be able to
+> take advantage of the raised limit safely.
 
-Did you rmmod/insmod the driver twice?
+well actually it can't be per userland; it's just that we're almost at the
+point where all filesystems are switched to the new infrastructure so that
+the global constant can be bumped to 8 again...
 
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Could you manually insmod the driver, wait for two seconds and then call 
-ifup? The new driver
-- resets the phy during _probe. The result is no link for a few seconds, 
-until autonegotiation has completed.
-- check if there is a link during _open(). If there is a link, it's 
-used. If there is no link, then it relies on the link irq to detect it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-I frequently see the "no link" messages during ifup, but on my system 
-the driver recovers as soon as the autonegotiation is completed. Perhaps 
-I must add a link handling timer that polls for link changes.
+iD8DBQFBCnymxULwo51rQBIRAvo8AJ9U0EPn5Mr4BESeiev8nm68z94wFgCfSxUg
+l6ypsVcMniSntc+KhcMvZoQ=
+=5XPy
+-----END PGP SIGNATURE-----
 
-If a delay before ifup is not enough: manually call nv_link_irq even if 
-NVREG_IRQ_LINK is not set. If this is not enough: comment out the 
-NVREG_MIISTAT_LINKCHANGE test in nv_link_irq.
-
---
-    Manfred
---
-    Manfred
+--Nq2Wo0NMKNjxTN9z--

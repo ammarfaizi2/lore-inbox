@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270681AbTHGMCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270821AbTHGMCZ
+	id S270821AbTHGMDK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 08:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272404AbTHGMDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:02:25 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45442 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270681AbTHGMCY
+	Thu, 7 Aug 2003 08:03:10 -0400
+Received: from pwmail.procempa.com.br ([200.248.222.108]:23505 "EHLO
+	portoweb.com.br") by vger.kernel.org with ESMTP id S270821AbTHGMC6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:02:24 -0400
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jason Baron <jbaron@redhat.com>
-In-Reply-To: <3F309FD8.8090105@gibraltar.at>
-References: <Pine.LNX.4.44.0308051506570.26542-100000@dhcp64-178.boston.redhat.com>
-	 <3F309FD8.8090105@gibraltar.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060257509.3168.26.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Aug 2003 12:58:30 +0100
+	Thu, 7 Aug 2003 08:02:58 -0400
+Date: Thu, 7 Aug 2003 09:05:14 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: Alex Williamson <alex_williamson@hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <davej@codemonkey.org.uk>,
+       <pci-ids@ucw.cz>
+Subject: Re: [PATCH] trivial 2.4/2.6 PCI name change/addition
+In-Reply-To: <200308061613.26982.bjorn.helgaas@hp.com>
+Message-ID: <Pine.LNX.4.44.0308070904580.5617-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-06 at 07:27, Rene Mayrhofer wrote:
-> Hi all,
-> 
-> The problem with pivot_root that appeared in 2.4.21-ac4 and the 
-> 2.4.22-pre kernels is now solved (at least for my case) by applying the 
-> trvial patch sent by Jason Baron.
 
-The patch shouldnt be needed or make any difference. I have to
-understand why its fixing the problem and fix it properly yet (or
-someone does)
+
+On Wed, 6 Aug 2003, Bjorn Helgaas wrote:
+
+> On Wednesday 06 August 2003 1:54 pm, Alex Williamson wrote:
+> >    This patch renames the PCI-X adapter found in HP zx1 and sx1000
+> > ia64 systems to something more generic and descriptive.  It also
+> > adds an ID for the PCI adapter used in sx1000.  Patches against
+> > 2.4.21+ia64 and 2.6.0-test2+ia64 attached.  Thanks,
+> 
+> I applied this for the 2.4 ia64 patch.
+> 
+> Marcelo, do we need to do anything else to get this in your tree?
+
+Nope. Its in.
 

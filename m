@@ -1,73 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUA3RHG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUA3RHG
+	id S262123AbUA3Q52 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 11:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUA3Q52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:07:06 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:4753 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262040AbUA3RHA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:07:00 -0500
-content-class: urn:content-classes:message
+	Fri, 30 Jan 2004 11:57:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45989 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262123AbUA3Q50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 11:57:26 -0500
+Date: Fri, 30 Jan 2004 11:57:20 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Arnd Bergmann <arnd@arndb.de>
+cc: linux-kernel@vger.kernel.org, R CHAN <rspchan@starhub.net.sg>
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+In-Reply-To: <200401301643.13477.arnd@arndb.de>
+Message-ID: <Xine.LNX.4.44.0401301156120.16128-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-Date: Fri, 30 Jan 2004 08:58:39 -0800
-Message-ID: <7F740D512C7C1046AB53446D37200173B135C2@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-Thread-Index: AcPnTsQbkrKFq65zQwiFiuRmES8zBQAA1xdg
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Greg KH" <greg@kroah.com>,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
-Cc: "Matthew Wilcox" <willy@debian.org>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>
-X-OriginalArrivalTime: 30 Jan 2004 16:58:40.0647 (UTC) FILETIME=[4FAB5970:01C3E752]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, can someone from Intel test out Matthew's patch to make sure it
-> works properly for them on their hardware?  It's much cleaner than the
-> last patch submitted by you all :)
+On Fri, 30 Jan 2004, Arnd Bergmann wrote:
 
-Okay I'll make sure it happens.
+> James Morris wrote:
+> > Have you noticed if this happens for any of the other crypto algorithms?
+> 
+> Just as a reminder, there is still an issue with extreme stack usage
+> of some of the algorithms, depending on compiler version and
+> flags.
+> 
+> The worst I have seen was around 16kb for twofish_setkey on 64 bit
+> s390 with gcc-3.1 (iirc). Right now, I get up to 4kb for this
+> function with gcc-3.3.1, which probably works but is definitely
+> a bad sign. I've seen this as well on other architectures (iirc
+> on x86_64), but not as severe.
+> 
+> Other algorithms are bad as well, these are the top scores from
+> Jörn Engel's checkstack.pl (s390 64bit 2.6.1 gcc-3.3.1):
+> 
+> 0x00000a twofish_setkey:           lay    %r15,-3960(%r15)
+> 0x0026fc aes_decrypt:              lay    %r15,-1168(%r15)
+> 0x000c0c aes_encrypt:              lay    %r15,-1000(%r15)
+> 0x00000e sha512_transform:         lay    %r15,-936(%r15)
+> 0x001292 test_deflate:             lay    %r15,-784(%r15)
+> 0x0028a2 cast6_decrypt:            lay    %r15,-696(%r15)
+> 0x00d1a0 twofish_encrypt:          lay    %r15,-664(%r15)
+> 0x001b34 setkey:                   lay    %r15,-656(%r15)
+> 0x00e2b0 twofish_decrypt:          lay    %r15,-624(%r15)
+> 0x000c9e cast6_encrypt:            lay    %r15,-600(%r15)
+> 0x000014 sha1_transform:           lay    %r15,-504(%r15)
 
-Jun
+I'm not seeing anything like this on x86 (e.g. stack usage is 8 bytes), 
+and can't see an obvious way to fix the problem for your compiler.
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Friday, January 30, 2004 8:33 AM
-> To: Durairaj, Sundarapandian; Kondratiev, Vladimir; Seshadri,
-> Harinarayanan; Nakajima, Jun
-> Cc: Matthew Wilcox; Kernel Mailing List; linux-
-> pci@atrey.karlin.mff.cuni.cz
-> Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-> 
-> On Thu, Jan 29, 2004 at 10:09:52AM -0800, Greg KH wrote:
-> > On Thu, Jan 29, 2004 at 08:05:52AM -0800, Linus Torvalds wrote:
-> > >
-> > > That said, this patch looks perfectly acceptable to me. With some
-> testing,
-> > > I'd take it through Greg or -mm.
-> >
-> > It's looking much better.  But I _really_ want to actually test this
-on
-> > real hardware.  As no one is shipping PCI Express hardware yet,
-there is
-> > no rush to get this patch into the kernel tree.
-> 
-> Also, can someone from Intel test out Matthew's patch to make sure it
-> works properly for them on their hardware?  It's much cleaner than the
-> last patch submitted by you all :)
-> 
-> thanks,
-> 
-> greg k-h
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

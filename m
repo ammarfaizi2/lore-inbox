@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266468AbUFQM3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUFQM24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266468AbUFQM3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 08:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266471AbUFQM3P
+	id S266463AbUFQM24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 08:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUFQM2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 08:29:15 -0400
-Received: from p060192.ppp.asahi-net.or.jp ([221.113.60.192]:20979 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S266468AbUFQM26
+	Thu, 17 Jun 2004 08:28:55 -0400
+Received: from p060192.ppp.asahi-net.or.jp ([221.113.60.192]:20467 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S266463AbUFQM2w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 08:28:58 -0400
-Date: Thu, 17 Jun 2004 21:28:54 +0900
-Message-ID: <m2isdqwepl.wl%ysato@users.sourceforge.jp>
+	Thu, 17 Jun 2004 08:28:52 -0400
+Date: Thu, 17 Jun 2004 21:28:46 +0900
+Message-ID: <m2k6y6wept.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 update (2/3) io.h cleanup
+Subject: [PATCH] H8/300 update (1/3) ptrace fix
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,160 +23,100 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- optimize byteswap
-- add noswap io mode
-- cleanup var type
+- Kconfig typo fix
+- PTRACE_PEEKUSER read process info support
+- exr restore fix
+- ptrace register offset fix
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -ru -X .exclude-diff linux-2.6.7/include/asm-h8300/io.h linux-2.6.7-h8300/include/asm-h8300/io.h
---- linux-2.6.7/include/asm-h8300/io.h	2004-06-16 14:19:36.000000000 +0900
-+++ linux-2.6.7-h8300/include/asm-h8300/io.h	2004-06-17 19:31:01.000000000 +0900
-@@ -35,27 +35,38 @@
+diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/Kconfig linux-2.6.7-h8300/arch/h8300/Kconfig
+--- linux-2.6.7/arch/h8300/Kconfig	2004-06-16 14:19:44.000000000 +0900
++++ linux-2.6.7-h8300/arch/h8300/Kconfig	2004-06-07 00:50:45.000000000 +0900
+@@ -223,7 +223,7 @@
  
- static inline unsigned short _swapw(volatile unsigned short v)
- {
--	unsigned short r,t;
--	__asm__("mov.b %w2,%x1\n\t"
--		"mov.b %x2,%w1\n\t"
--		"mov.w %1,%0"
--		:"=r"(r),"=r"(t)
--		:"r"(v));
-+#ifndef H8300_IO_NOSWAP
-+	unsigned short r;
-+	__asm__("xor.b %w0,%x0\n\t"
-+		"xor.b %x0,%w0\n\t"
-+		"xor.b %w0,%x0"
-+		:"=r"(r)
-+		:"0"(v));
- 	return r;
--}
+ config CONFIG_SH_STANDARD_BIOS
+ 	bool "Use gdb protocol serial console"
+-	depends on (!H8300H_SIM && H8S_SIM)
++	depends on (!H8300H_SIM && !H8S_SIM)
+ 	help
+ 	  serial console output using GDB protocol.
+ 	  Require eCos/RedBoot
+diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/kernel/ptrace.c linux-2.6.7-h8300/arch/h8300/kernel/ptrace.c
+--- linux-2.6.7/arch/h8300/kernel/ptrace.c	2004-06-16 14:19:09.000000000 +0900
++++ linux-2.6.7-h8300/arch/h8300/kernel/ptrace.c	2004-06-17 20:28:05.000000000 +0900
+@@ -116,18 +116,36 @@
+ 		case PTRACE_PEEKUSR: {
+ 			unsigned long tmp;
+ 			
+-			if ((addr & 3) || addr < 0 || addr >= sizeof(struct user))
++			if ((addr & 3) || addr < 0 || addr >= sizeof(struct user)) {
+ 				ret = -EIO;
++				break ; 
++			}
+ 			
+-			tmp = 0;  /* Default return condition */
++		        ret = 0;  /* Default return condition */
+ 			addr = addr >> 2; /* temporary hack. */
++
+ 			if (addr < H8300_REGS_NO)
+ 				tmp = h8300_get_reg(child, addr);
+ 			else {
+-				ret = -EIO;
+-				break ;
++				switch(addr) {
++				case 49:
++					tmp = child->mm->start_code;
++					break ;
++				case 50:
++					tmp = child->mm->start_data;
++					break ;
++				case 51:
++					tmp = child->mm->end_code;
++					break ;
++				case 52:
++					tmp = child->mm->end_data;
++					break ;
++				default:
++					ret = -EIO;
++				}
+ 			}
+-			ret = put_user(tmp,(unsigned long *) data);
++			if (!ret)
++				ret = put_user(tmp,(unsigned long *) data);
+ 			break ;
+ 		}
+ 
+diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/platform/h8s/entry.S linux-2.6.7-h8300/arch/h8300/platform/h8s/entry.S
+--- linux-2.6.7/arch/h8300/platform/h8s/entry.S	2004-06-16 14:19:52.000000000 +0900
++++ linux-2.6.7-h8300/arch/h8300/platform/h8s/entry.S	2004-06-17 00:29:35.000000000 +0900
+@@ -83,6 +83,7 @@
+ 	mov.l	@(LER0-LER1:16,sp),er1		/* restore ER0 */
+ 	mov.l	er1,@er0
+ 	mov.w	@(LEXR-LER1:16,sp),r1		/* restore EXR */
++	mov.b	r1l,r1h
+ 	mov.w	r1,@(8:16,er0)
+ 	mov.w	@(LCCR-LER1:16,sp),r1		/* restore the RET addr */
+ 	mov.b	r1l,r1h
+@@ -214,7 +215,6 @@
+ 	jsr	@SYMBOL_NAME(syscall_trace)
+ 	bra	SYMBOL_NAME(ret_from_exception):8
+ 
 -
--static inline unsigned int _swapl(volatile unsigned long v)
--{
--	unsigned int r,t;
--	__asm__("mov.b %w2,%x1\n\t"
--		"mov.b %x2,%w1\n\t"
--		"mov.w %f1,%e0\n\t"
--		"mov.w %e2,%f1\n\t"
--		"mov.b %w1,%x0\n\t"
--		"mov.b %x1,%w0"
--		:"=r"(r),"=r"(t)
--		:"r"(v));
-+#else
-+	return v;
-+#endif
-+}
-+
-+static inline unsigned long _swapl(volatile unsigned long v)
-+{
-+#ifndef H8300_IO_NOSWAP
-+	unsigned long r;
-+	__asm__("xor.b %w0,%x0\n\t"
-+		"xor.b %x0,%w0\n\t"
-+		"xor.b %w0,%x0\n\t"
-+		"xor.w %e0,%f0\n\t"
-+		"xor.w %f0,%e0\n\t"
-+		"xor.w %e0,%f0\n\t"
-+		"xor.b %w0,%x0\n\t"
-+		"xor.b %x0,%w0\n\t"
-+		"xor.b %w0,%x0"
-+		:"=r"(r)
-+		:"0"(v));
- 	return r;
-+#else
-+	return v;
-+#endif
- }
+ SYMBOL_NAME_LABEL(ret_from_fork)
+ 	mov.l	er2,er0
+ 	jsr	@SYMBOL_NAME(schedule_tail)
+diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/platform/h8s/ptrace_h8s.c linux-2.6.7-h8300/arch/h8300/platform/h8s/ptrace_h8s.c
+--- linux-2.6.7/arch/h8300/platform/h8s/ptrace_h8s.c	2004-06-16 14:19:01.000000000 +0900
++++ linux-2.6.7-h8300/arch/h8300/platform/h8s/ptrace_h8s.c	2004-06-02 23:33:03.000000000 +0900
+@@ -23,7 +23,7 @@
+ static const int h8300_register_offset[] = {
+ 	PT_REG(er1), PT_REG(er2), PT_REG(er3), PT_REG(er4),
+ 	PT_REG(er5), PT_REG(er6), PT_REG(er0), PT_REG(orig_er0),
+-	PT_REG(ccr), PT_REG(pc), PT_REG(exr)
++	PT_REG(ccr), PT_REG(pc),  0,           PT_REG(exr)
+ };
  
- #define readb(addr) \
-@@ -109,12 +120,28 @@
- 
- static inline void io_outsl(unsigned int addr, const void *buf, int len)
- {
--	volatile unsigned int *ap = (volatile unsigned int *) addr;
-+	volatile unsigned long *ap = (volatile unsigned long *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
- 		*ap = _swapl(*bp++);
- }
- 
-+static inline void io_outsw_noswap(unsigned int addr, const void *buf, int len)
-+{
-+	volatile unsigned short *ap = (volatile unsigned short *) addr;
-+	unsigned short *bp = (unsigned short *) buf;
-+	while (len--)
-+		*ap = *bp++;
-+}
-+
-+static inline void io_outsl_noswap(unsigned int addr, const void *buf, int len)
-+{
-+	volatile unsigned long *ap = (volatile unsigned long *) addr;
-+	unsigned long *bp = (unsigned long *) buf;
-+	while (len--)
-+		*ap = *bp++;
-+}
-+
- static inline void io_insb(unsigned int addr, void *buf, int len)
- {
- 	volatile unsigned char  *ap_b;
-@@ -142,12 +169,28 @@
- 
- static inline void io_insl(unsigned int addr, void *buf, int len)
- {
--	volatile unsigned int *ap = (volatile unsigned int *) addr;
-+	volatile unsigned long *ap = (volatile unsigned long *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
- 		*bp++ = _swapl(*ap);
- }
- 
-+static inline void io_insw_noswap(unsigned int addr, void *buf, int len)
-+{
-+	volatile unsigned short *ap = (volatile unsigned short *) addr;
-+	unsigned short *bp = (unsigned short *) buf;
-+	while (len--)
-+		*bp++ = *ap;
-+}
-+
-+static inline void io_insl_noswap(unsigned int addr, void *buf, int len)
-+{
-+	volatile unsigned long *ap = (volatile unsigned long *) addr;
-+	unsigned long *bp = (unsigned long *) buf;
-+	while (len--)
-+		*bp++ = *ap;
-+}
-+
- /*
-  *	make the short names macros so specific devices
-  *	can override them as required
-@@ -160,7 +203,8 @@
- #define inb(addr)    ((h8300_buswidth(addr))?readw((addr) & ~1) & 0xff:readb(addr))
- #define inw(addr)    _swapw(readw(addr))
- #define inl(addr)    _swapl(readl(addr))
--#define outb(x,addr) ((void)((h8300_buswidth(addr) && ((addr) & 1))?writew(x,(addr) & ~1):writeb(x,addr)))
-+#define outb(x,addr) ((void)((h8300_buswidth(addr) && \
-+                      ((addr) & 1))?writew(x,(addr) & ~1):writeb(x,addr)))
- #define outw(x,addr) ((void) writew(_swapw(x),addr))
- #define outl(x,addr) ((void) writel(_swapl(x),addr))
- 
-@@ -227,7 +271,7 @@
- 	return *(volatile unsigned short*)addr;
- }
- 
--static __inline__ unsigned int ctrl_inl(unsigned long addr)
-+static __inline__ unsigned long ctrl_inl(unsigned long addr)
- {
- 	return *(volatile unsigned long*)addr;
- }
-@@ -242,7 +286,7 @@
- 	*(volatile unsigned short*)addr = b;
- }
- 
--static __inline__ void ctrl_outl(unsigned int b, unsigned long addr)
-+static __inline__ void ctrl_outl(unsigned long b, unsigned long addr)
- {
-         *(volatile unsigned long*)addr = b;
- }
+ /* read register */

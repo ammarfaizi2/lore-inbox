@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTIVNuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 09:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTIVNuY
+	id S263151AbTIVOLF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 10:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbTIVOLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 09:50:24 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:13443 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S263152AbTIVNuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 09:50:19 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Subject: Re: 2.6.0-test5-mm4
-Date: Mon, 22 Sep 2003 14:49:37 +0100
-User-Agent: KMail/1.5.9
-References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk> <20030922143605.GA9961@gemtek.lt>
-In-Reply-To: <20030922143605.GA9961@gemtek.lt>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+	Mon, 22 Sep 2003 10:11:05 -0400
+Received: from dagobah.vivo.com.br ([200.244.85.31]:15240 "EHLO
+	rjlngtw02.vivo.com.br") by vger.kernel.org with ESMTP
+	id S263151AbTIVOLD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 10:11:03 -0400
+Subject: RE: 2.4.22-ac1 -- loading of usb-uhci gives hard lockup
+To: jun.nakajima@intel.com
+Cc: pawel.dziekonski@pwr.wroc.pl, linux-kernel@vger.kernel.org,
+       jcastro@vialink.com.br
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF33F914A6.53F3FBCC-ON03256DA9.004C95C9@vivo.com.br>
+From: juan.carlos@vivo.com.br
+Date: Mon, 22 Sep 2003 12:09:42 -0200
+X-MIMETrack: Serialize by Router on RJLNGTW02/Celular(Release 5.0.11  |July 24, 2002) at
+ 09/22/2003 11:11:01 AM
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200309221449.37677.alistair@devzero.co.uk>
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 September 2003 15:36, Zilvinas Valinskas wrote:
-[snip]
-> >
-> > VFS: Cannot open root device "302" or hda2.
-> > Please append correct "root=" boot option.
-> > Kernel Panic: VFS: Unable to mount root fs on hda2.
->
-> Do you use devfsd ?
->
+Hello, I tried the patch you wrote (and noticed it is now in 2.4.22-ac3)
+but I still have the same hard lockup Pawel Dziekonski has -- and, like
+him, everything works when I don't compile ACPI into the kernel. My mobo is
+a Soyo K7VTA-PRO, Athlon 950 Mhz, chipset VIA82Csomething.
 
-No. As I said, I mount /dev with mount -t devfs devfs /dev in a sysinit 
-bootscript. Whether it's in the kernel or not shouldn't make any difference. 
-Maybe I just need to reissue LILO after booting the 32bit dev_t kernel?
+Is there a piece of information I could send you that would help (BIOS
+settings, /proc listings)? Please CC to me at j[CUBAN-DICTATOR'S-SURNAME]
+@vialink.com.br, I'm not subscribed to LKML (but could be since I'm getting
+broadband today. Yay!) :)
 
-> I had to specify root like this :
-> root=/dev/ide/host0/bus0/target0/lun0/part5  then it worked just fine.
->
+Cheers all,
 
-I'll try that, thanks. But I have this in lilo.conf:
+Juan Carlos Castro y Castro
+VIVO - Diretoria de Processos de Negócio - Projetos
+Tel.: 55 (21) 2574-3506 - Cel.: 55 (21) 9603-7440
+juan.carlos@vivo.com.br
+jcastro@vialink.com.br
 
-boot=/dev/discs/disc0/disc
-root=/dev/discs/disc0/part2
 
-/dev/discs is indeed a symlink, but it should be resolved when LILO is 
-installed, i.e., prior to the reboot. Why has this behaviour changed?
 
-Cheers,
-Alistair.
+
+

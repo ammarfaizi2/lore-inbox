@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318327AbSICO33>; Tue, 3 Sep 2002 10:29:29 -0400
+	id <S318538AbSICOao>; Tue, 3 Sep 2002 10:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318355AbSICO32>; Tue, 3 Sep 2002 10:29:28 -0400
-Received: from grace.speakeasy.org ([216.254.0.2]:35592 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S318327AbSICO32>; Tue, 3 Sep 2002 10:29:28 -0400
-Date: Tue, 3 Sep 2002 09:34:00 -0500 (CDT)
-From: Mike Isely <isely@pobox.com>
-X-X-Sender: isely@grace.speakeasy.net
-Reply-To: Mike Isely <isely@pobox.com>
-To: mbs <mbs@mc.com>
-cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre4-ac1 trashed my system
-In-Reply-To: <200209031237.IAA27024@mc.com>
-Message-ID: <Pine.LNX.4.44.0209030917040.17540-100000@grace.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318561AbSICOan>; Tue, 3 Sep 2002 10:30:43 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:32522 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S318538AbSICOal>; Tue, 3 Sep 2002 10:30:41 -0400
+Message-Id: <200209031435.g83EZ2F03562@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>, Doug Ledford <dledford@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Sep 2002 09:35:02 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, mbs wrote:
+> Doug Ledford writes:
+> 
+>  > took the device off line.  So, in short, the mid layer isn't waiting
+> long   > enough, or when it gets sense indicated not ready it needs to
+> implement a   > waiting queue with a timeout to try rekicking things a
+> few times and don't   > actually mark the device off line until a longer
+> period of time has   > elasped without the device coming back.
+> 
+> There is a kernel config CONFIG_AIC7XXX_RESET_DELAY_MS (default 15s).
+> Would increasing it help?
 
-> it trashed mine also.
-> 
-> supermicro p4dp8-g2 mobo
-> 2x 2.2 Xeon
-> e7500 chipset
-> wd400 40gb hd
-> 
-> 2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
-> 
-> boot it and eveything runs fine for a short while, then I start getting "bad 
-> CRC" errors and "seek failure" errors.
-> 
-> I have had this problem with both ext2 and ext3
-> 
-> initially I thought it was a bad HD, so I installed a new one on a new cable 
-> and did a complete rh7.3 install ran for a while eith no problems then built 
-> the same kernel over again, rebooted into the new kernel and within seconds 
-> was having problems again.
-> 
-> 2.4.19-rc3-ac4 +rml preempt has been dead stable, as has (so far) 2.4.29-ac4 
-> +rml and RH 2.4.18-3 and -5
-> 
-> I am not doing anything funky with hd setup, not even specifying idebus= 
-> 
+Justin Gibbs writes:
+> This currently only effects the initial bus reset delay.  If the
+> driver holds off commands after subsequent bus resets, it can cause
+> undeserved timeouts on the commands it has intentionally deferred.
+> The mid-layer has a 5 second delay after bus resets, but I haven't
+> verified that this is honored correctly during error recovery.
 
-This is likely different than the problem I've been seeing.
+I'm planning a major re-write of this area in the error handler.  The way I 
+think it should go is:
 
-My situation appears to be due to the fact that on my Promise
-controller, LBA48 addressing mode had been turned off on the primary
-channel, which then causes access problems with my 160GB Maxtor drive.  
-Turning LBA48 mode back on (by removing the hack which turned it off,
-which wasn't in 2.4.19-ac4) breaks DMA.  Either that or I screwed
-something up when removing the hack.  I'm wondering if a bug appeared
-after 2.4.19-ac4 which breaks DMA on Promise 20265 primary channel
-access, and that a work-around was put in place that disables LBA48
-addressing.  There are in fact well over 100 diffs in pdc202xx.c between
-2.4.19-ac4 and 2.4.20-pre4-ac1.  This wrong addressing is what
-(indirectly) wrecked my system.  I've posted my findings on this so far
-along with some questions for further investigation, but I haven't seen
-any answers yet (or even a "go away you're bothering me" reply).
+1) Quiesce host (set in_recovery flag)
+2) Suspend active timers on this host
+3) Proceed down the error correction track (eliminate abort and go down 
+device, bus and host resets and finally set the device offline).
+5) On each error recovery wait out a recovery timer for the device to become 
+active before talking to it again.  Send all affected commands back to the 
+block layer to await reissue (note: it would now be illegal for commands to 
+lie to the mid layer and say they've done the reset when they haven't).
+6) issue a TUR using a command allocated to the eh for that purpose.  Process 
+the return code (in particular, if the device says NOT READY, wait some more). 
+ Only if the TUR definitively fails proceed up the recovery chain all the way 
+to taking the device offline.
 
-Unfortunately you've said you are using a 40GB drive and something other
-than a Promise controller so your situation may be a different problem.
+I also plan to expose the suspend and resume timers API in some form for FC 
+drivers to use.
 
-  -Mike
+James
 
-
-                        |         Mike Isely          |     PGP fingerprint
-    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
- UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
-                        |   (spam-foiling  address)   |
 

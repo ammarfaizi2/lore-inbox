@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266851AbSKOWYr>; Fri, 15 Nov 2002 17:24:47 -0500
+	id <S266876AbSKOW3W>; Fri, 15 Nov 2002 17:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbSKOWY3>; Fri, 15 Nov 2002 17:24:29 -0500
-Received: from are.twiddle.net ([64.81.246.98]:7814 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S266851AbSKOWXv>;
-	Fri, 15 Nov 2002 17:23:51 -0500
-Date: Fri, 15 Nov 2002 14:30:45 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: in-kernel linking issues
-Message-ID: <20021115143045.C25624@twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <p73wunfv5b0.fsf@oldwotan.suse.de> <20021115084757.A640A2C145@lists.samba.org> <20021115045146.A23944@twiddle.net> <20021115131645.A2168@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021115131645.A2168@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Nov 15, 2002 at 01:16:45PM +0000
+	id <S266865AbSKOW26>; Fri, 15 Nov 2002 17:28:58 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11676 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266859AbSKOW2H>;
+	Fri, 15 Nov 2002 17:28:07 -0500
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-kernel-owner@vger.kernel.org, mbligh@aracnet.com
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
+From: "Khoa Huynh" <khoa@us.ibm.com>
+Date: Fri, 15 Nov 2002 16:34:45 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 05:34:48 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 01:16:45PM +0000, Russell King wrote:
-> I'm slightly worried about this.  For things like shared libraries to be
-> relocatable on ARM on current toolchains, you need to build with -fPIC.
 
-Err, no you don't.  You only need that if you want to share pages,
-which is clearly not an issue with kernel modules.  There are no
-restrictions of which I am aware that require ARM to build with -fpic.
+David Miller wrote:
 
-My test case,
+> mozilla handles it this way: the bug starts as unconfirmed. they have a
+>   volunteer group of pre screeners. Only when one of these people sets
+>   it to valid or similar then the owners of the module get mail.
+>
+>This sounds like a good idea.
 
-	int i;
-	int foo() { return bar() + i; }
-	int j __attribute__((section(".init.data")));
-	int __attribute__((section(".init.text")))
-	baz() { return i + j; }
+Currently in the kernel bugzilla, after a bug is filed, it is initially
+in the OPEN state -- this is similar to the Unconfirmed state mentioned
+above.  The screeners (my team and others who volunteer) can get rid of
+many invalid bugs and dups.  Only valid bugs then go to the ASSIGNED state
+with correct owners.  Of course, we do not expect to get rid 100% of all
+the invalids and dups, but at least that should reduce the work of
+the owners who should only work with bugs in the ASSIGNED state.
 
-works exactly as desired on ARM:
+Also, the bug owner can close MULTIPLE bugs at the same time
+on Bugzilla.  A bug owner can query all of his bugs which will
+then be displayed in a list, click the option "Change several bugs
+at once" at the bottom of the list, select the bugs that he wants
+to close, and then hit Commit button.  It's pretty simple.  Besides
+closing the bugs, the owner can make similar changes to several bugs
+at the same time using the same mechanism.
 
-Disassembly of section .text:
-
-00000000 <foo>:
-   0:   e52de004        str     lr, [sp, -#4]!
-   4:   ebfffffe        bl      4 <foo+0x4>
-   8:   e59f3008        ldr     r3, [pc, #8]    ; 18 <foo+0x18>
-   c:   e5933000        ldr     r3, [r3]
-  10:   e0800003        add     r0, r0, r3
-  14:   e49df004        ldr     pc, [sp], #4
-
-Disassembly of section .init.text:
-
-00001000 <baz>:
-    1000:       e59f3010        ldr     r3, [pc, #16]   ; 1018 <baz+0x18>
-    1004:       e5930000        ldr     r0, [r3]
-    1008:       e59f300c        ldr     r3, [pc, #12]   ; 101c <baz+0x1c>
-    100c:       e5933000        ldr     r3, [r3]
-    1010:       e0800003        add     r0, r0, r3
-    1014:       e1a0f00e        mov     pc, lr
-
-Relocation section '.rel.dyn' at offset 0x11258 contains 4 entries:
- Offset     Info    Type            Sym.Value  Sym. Name
-00000004  00001501 R_ARM_PC24        00000000   bar
-00000018  00001202 R_ARM_ABS32       00000040   i
-00001018  00001202 R_ARM_ABS32       00000040   i
-0000101c  00000f02 R_ARM_ABS32       00001020   j
+Regards,
+Khoa
+_________________________________________
+Khoa Huynh, Ph.D.
+IBM Linux Technology Center
+(512) 838-4903; T/L 678-4903; khoa@us.ibm.com
 
 
-
-r~

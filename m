@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262986AbSITQ7V>; Fri, 20 Sep 2002 12:59:21 -0400
+	id <S263137AbSITRMa>; Fri, 20 Sep 2002 13:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263012AbSITQ7V>; Fri, 20 Sep 2002 12:59:21 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:39950 "EHLO
-	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S262986AbSITQ7U>; Fri, 20 Sep 2002 12:59:20 -0400
-Message-ID: <3D8B55D8.31E4F0F@compro.net>
-Date: Fri, 20 Sep 2002 13:07:36 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
-X-Accept-Language: en
+	id <S263141AbSITRMa>; Fri, 20 Sep 2002 13:12:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6163 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263137AbSITRM2>;
+	Fri, 20 Sep 2002 13:12:28 -0400
+Message-ID: <3D8B580D.9030009@mandrakesoft.com>
+Date: Fri, 20 Sep 2002 13:17:01 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: flx@msu.ru
-CC: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: [P4DC6+]  Booting problems with dual p4 on i860 chipset with 2.4 and 
- 2.5
-References: <20020920190537.A11244@namesys.com> <3D8B3BDE.11C7E177@compro.net> <20020920193138.B14066@t-raenon.nmd.msu.ru> <20020920193933.C14066@t-raenon.nmd.msu.ru>
-Content-Type: text/plain; charset=us-ascii
+To: jt@hpl.hp.com
+CC: thunder@lightweight.ods.org, linux-kernel@vger.kernel.org
+Subject: Re: FW: 2.5.34: IR __FUNCTION__ breakage
+References: <MNEMKBGMDIMHCBHPHLGPMEEDDDAA.dag@brattli.net> <20020920171314.GD8260@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Lyamin wrote:
+Jean Tourrilhes wrote:
+> On Fri, Sep 13, 2002 at 08:25:50AM +0200, Dag Brattli wrote:
 > 
-> Fri, Sep 20, 2002 at 07:31:38PM +0400, Alexander Lyamin wrote:
-> > Fri, Sep 20, 2002 at 11:16:46AM -0400, Mark Hounschell wrote:
-> > > Oleg Drokin wrote:
-> > > >
-> > > > Hello!
-> > > >
-> > > >    We have a problem with newly acquired dual p4 xeon (2.2Ghz, heperthreading
-> > > >    blah blah) box built on i860 chipset (SuperMicro P4DC6+ motherboard).
-> > > >    Thank you.
-> > > >
-> > >
-> > > I've got 6 of them here running SuSE 8.0. Hyperthreading was disabled in the
-> > > bios when Suse-8.0 was
-> > > installed and 3 of the 6 had the clock speed set at it's lowest setting when
-> > > they arrived but other than that there were no problems. HT was enabled after
-> > > the install of SuSE-8.0 and no problems there either. ?????
-> >
-> > what is your bios version Mark ?
+>>-----Original Message-----
+>>From: Thunder from the hill [mailto:thunder@lightweight.ods.org]
+>>Sent: 12. september 2002 22:17
+>>To: Bob_Tracy
+>>Cc: dag@brattli.net; linux-kernel@vger.kernel.org
+>>Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+>>
+>>
+>>Hi,
+>>
+>>On Thu, 12 Sep 2002, Bob_Tracy wrote:
+>>
+>>>define DERROR(dbg, args...) \
+>>>	{if(DEBUG_##dbg){\
+>>>		printk(KERN_INFO "irnet: %s(): ", __FUNCTION__);\
+>>>		printk(KERN_INFO args);}}
+>>>
+>>>which strikes me as not quite what the author intended, although it
+>>>should work.
+>>
+>>Why not
+>>
+>>#define DERROR(dbg, fmt, args...) \
+>>	do { if (DEBUG_##dbg) \
+>>		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION, args); \
+>>	} while(0)
+>>
+>>?
+>>
+>>			Thunder
+> 
+> 
+> 	Try it, it won't work when there is zero args.
 
-bios-1.2
 
-Mark
+I fixed up a bunch of these __FUNCTION__ breakage, you can grab them 
+from 2.5.37 (just released)
+
+Also, specifically relating to varargs macros as described above, you 
+can certainly have a varargs macro with zero args, just look at C99 
+varargs macros...
+
+	Jeff
+
+
+

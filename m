@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130020AbRBDWQJ>; Sun, 4 Feb 2001 17:16:09 -0500
+	id <S130079AbRBDWWU>; Sun, 4 Feb 2001 17:22:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130079AbRBDWP7>; Sun, 4 Feb 2001 17:15:59 -0500
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:1449 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S130020AbRBDWP4>; Sun, 4 Feb 2001 17:15:56 -0500
-Date: Sun, 4 Feb 2001 16:15:54 -0600
-From: Joseph Pingenot <jap3003@ksu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: APM screen blanking
-Message-ID: <20010204161554.A24588@ksu.edu>
-Reply-To: jap3003+response@ksu.edu
-Mail-Followup-To: linux-kernel@vger.kernel.org.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-School: Kansas State University
-X-vi-or-emacs: vi
+	id <S131064AbRBDWWB>; Sun, 4 Feb 2001 17:22:01 -0500
+Received: from mailer3.bham.ac.uk ([147.188.128.54]:15090 "EHLO
+	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
+	id <S130079AbRBDWVw>; Sun, 4 Feb 2001 17:21:52 -0500
+Date: Sun, 4 Feb 2001 22:21:39 +0000 (GMT)
+From: Mark Cooke <mpc@star.sr.bham.ac.uk>
+To: Jamie Lokier <ln@tantalophile.demon.co.uk>
+cc: Andi Kleen <ak@muc.de>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        John Fremlin <vii@altern.org>, <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>, <paulus@linuxcare.com>,
+        <linux-ppp@vger.kernel.org>, <linux-net@vger.kernel.org>
+Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
+In-Reply-To: <20010129193136.A11035@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.30.0102042218590.3256-100000@pc24.sr.bham.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings.
+On Mon, 29 Jan 2001, Jamie Lokier wrote:
 
-Does anyone know what would cause a lockup when (2.4.x):
-  * supsending to disk
-  * changing from X to a virtual console
-with APM enabled?  Changing from X to a VC functions when APM is
-  compiled out.
-Essentially, the screen blanks once and the machine locks up.
-  Usually while suspending, the screen blanks at least twice.
-  The 2.2.1[78] kernels work fine.
-Has anyone else seen this behaviour?  I'm seeing this on a Toshiba 
-  Satellite 1605CDS.
-Thanks!
+> Unfortunately getting the same IP is rare now, so I've been toying with
+> running a PPP tunnel through a fixed host out on the net.  The tunnel
+> would be dropped and recreated with each new connection.  My local link
+> IP would change, but the tunnel IP would not so connections to other
+> places, ssh etc. would all be from the tunnel IP.
 
-                              -Joseph
+ciped is great for this.  I use it to tunnel ssh from my home dialup
+to work.  Very stable, and with cipe's shared keys, there's nothing
+too taxing about setting it up.
+
+I just have a call to /etc/init.d/ciped restart in my ppp up script.
+
+freeswan was another way I looked at , but ip/sec was horrible at
+the time and didn't (maybe still doesn't) deal with dynamic ip
+assignment nicely.
+
+Cheers,
+
+Mark
 
 -- 
-Joseph==============================================jap3003@ksu.edu
-"I felt a great disturbance in the force.  As if a significant plot
-  line suddenly cried out in terror... and was suddenly silenced."
-                        -Torg in "Sluggy Freelance" www.sluggy.com.
++-------------------------------------------------------------------------+
+Mark Cooke                  The views expressed above are mine and are not
+Systems Programmer          necessarily representative of university policy
+University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
++-------------------------------------------------------------------------+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

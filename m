@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUBXPec (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUBXPec
+	id S262280AbUBXPkH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbUBXPkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:34:32 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:62137 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262279AbUBXPe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:34:29 -0500
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: joe.korty@ccur.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040224152451.GA21699@tsunami.ccur.com>
-References: <1077596668.1983.282.camel@mulgrave> 
-	<20040224152451.GA21699@tsunami.ccur.com>
-Content-Type: text/plain
+	Tue, 24 Feb 2004 10:40:07 -0500
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:37582
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S262280AbUBXPkE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 10:40:04 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Subject: Re: Why are 2.6 modules so huge?
+Date: Tue, 24 Feb 2004 12:40:54 -0300
+User-Agent: KMail/1.6.1
+References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
+In-Reply-To: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Feb 2004 09:34:25 -0600
-Message-Id: <1077636866.2152.55.camel@mulgrave>
-Mime-Version: 1.0
+Message-Id: <200402241240.54681.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-24 at 09:24, Joe Korty wrote:
->  I am getting a panic out of the 2.6.3 Fusion driver when no devices
-> are attached to it.  Does the above update fix it?  If so, I would
-> like to get a copy of the above in patch form.  If not, I can send
-> you a copy of my boot log.
+Ian Soboroff wrote:
+> Can anyone help me understand why 2.6-series kernel modules are so
+> huge?
 
-Well, without a bug report I don't really have any idea.
+Debuging symbols?
 
-The patch is here:
-
-http://marc.theaimsgroup.com/?l=linux-scsi&m=107670916906716&w=2
-
-James
-
-
+Regards,
+Norberto

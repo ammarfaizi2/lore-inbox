@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271431AbRHZTAz>; Sun, 26 Aug 2001 15:00:55 -0400
+	id <S271421AbRHZS5f>; Sun, 26 Aug 2001 14:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271432AbRHZTAp>; Sun, 26 Aug 2001 15:00:45 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:65294 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271431AbRHZTAd>;
-	Sun, 26 Aug 2001 15:00:33 -0400
-Date: Sun, 26 Aug 2001 16:00:28 -0300 (BRST)
+	id <S271431AbRHZS5Z>; Sun, 26 Aug 2001 14:57:25 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59406 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271421AbRHZS5P>;
+	Sun, 26 Aug 2001 14:57:15 -0400
+Date: Sun, 26 Aug 2001 15:56:34 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Swap reclaiming
-In-Reply-To: <20010826190121.A24395@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.33L.0108261559200.5646-100000@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: <pcg@goof.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <20010826172310Z16216-32383+1477@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0108261555340.5646-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,24 +23,25 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Pavel Machek wrote:
+On Sun, 26 Aug 2001, Daniel Phillips wrote:
+> On August 26, 2001 04:49 am, pcg@goof.com ( Marc) (A.) (Lehmann ) wrote:
 
-	[snip swap full code]
+> > Anyway, I compiled and bootet into linux-2.4.8-ac9. I jused ac8 on my
+> > desktop machines and was not pleased with absolute performance but, unlike
+> > the linus' series, I can listen to mp3's while working which was the
+> > killer feature for me ;)
+>
+> Yes, this probably points at a bug in linus's tree.
 
-> Hmm... This kind-of defeats purposes on swap priorities: with this,
-> you are going to fill slow swap even through there is lots of fast
-> swap that could be reclaimed.
+"It works, it must be a bug!"
 
-When swap fills up, we will start freeing swap space on swapin.
+> > So the ac9 kernel seems to work much better (than the linus' series),
+> > although the number of connections was below the critical limit. I'll
+> > check this when I get higher loads again.
+>
+> The reason for that is still unclear.
 
-This means that we'll free up space in both fast and slow swap.
-
-> I'm not sure what fix should be.
-
-I'm not sure what the problem would be ;)
-
-(but would love a more detailed explanation if you
-really have found a problem)
+I've tried to explain it to you about 10 times now.
 
 regards,
 

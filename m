@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310529AbSCPTlB>; Sat, 16 Mar 2002 14:41:01 -0500
+	id <S310533AbSCPTml>; Sat, 16 Mar 2002 14:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310533AbSCPTkl>; Sat, 16 Mar 2002 14:40:41 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:65031 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310529AbSCPTkf>;
-	Sat, 16 Mar 2002 14:40:35 -0500
-Date: Sat, 16 Mar 2002 11:40:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Gordon J Lee <gordonl@world.std.com>
+	id <S310534AbSCPTmb>; Sat, 16 Mar 2002 14:42:31 -0500
+Received: from ns.suse.de ([213.95.15.193]:55559 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310533AbSCPTm3>;
+	Sat, 16 Mar 2002 14:42:29 -0500
+Date: Sat, 16 Mar 2002 20:42:28 +0100
+From: Dave Jones <davej@suse.de>
+To: S W <egberts@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-Message-ID: <20020316194025.GA10571@kroah.com>
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315234333.GH5563@kroah.com> <3C92B1EA.F40BDBD5@world.std.com> <20020316055542.GA8125@kroah.com> <3C938093.D1640CB6@world.std.com> <20020316173434.GB10003@kroah.com> <3C938693.6D29979C@world.std.com>
+Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
+Message-ID: <20020316204228.B15296@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	S W <egberts@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C938693.6D29979C@world.std.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 16 Feb 2002 17:38:12 -0800
+In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 12:53:23PM -0500, Gordon J Lee wrote:
-> > > 2.4.18  shows two processors
-> > > 2.4.19-pre3 shows two processors
-> > > 2.4.19-pre3-ac1 shows four processors
-> >
-> > Great, thanks for testing.  I'd recommend using this hardware :)
+On Sat, Mar 16, 2002 at 10:07:05AM -0800, S W wrote:
+ > But I recalled Linux 2.2 having a bug fix for broken
+ > L2 cache in Cyrix II.
+ 
+ The cache itself isn't broken. Reporting of the size of it is.
+ 
+ > So, it got me thinking again...
+ > (did Cyrix fix this L2 cache in certain subsequential
+ > core?)
 
-Sorry, I meant to say, "I'd recommend using this kernel version".
+ The bug is potentially in all cores with cpuid 670->68F
+ If you have it, and you're not running a kernel with the
+ fix you'll see you have a 16MB cache. If you run a kernel
+ with the fix, you'll have the correct size (64KB)
+ 
+ > Does anyone recall where exactly are the Cyrix II L2
+ > cache bug fix in the kernelso that I can experiement
+ > them toward the Cyrix III?
 
-> From your earlier post, I presume that the bug here was simply a presentation
-> layer bug in /proc/cpuinfo, and that kernel versions previous to 2.4.19-pre3-ac1
-> can actually use all of the logical processors.  Is this correct ?
+ arch/i386/kernel/setup.c display_cacheinfo()
 
-No, the other processors are not recognized by Linux at all.  You need
-that kernel version to properly use all of the logical processors.
-
-> If so, at which 2.4.x kernel did support for hyperthreading show up?
-
-In one of the 2.4.19-ac kernels from what I remember, sorry I don't know
-the exact version.
-
-Hope this helps,
-
-greg k-h
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUJYT23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbUJYTod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbUJYT23 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 15:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbUJYP7d
+	id S261219AbUJYTod (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 15:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUJYTo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:59:33 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:41656 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S262011AbUJYPm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:42:58 -0400
-Date: Mon, 25 Oct 2004 17:43:19 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Joe Perches <joe@perches.com>, Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041025154318.GA14325@dualathlon.random>
-References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Mon, 25 Oct 2004 15:44:29 -0400
+Received: from web12204.mail.yahoo.com ([216.136.173.88]:29803 "HELO
+	web12204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261219AbUJYTna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 15:43:30 -0400
+Message-ID: <20041025194327.88284.qmail@web12204.mail.yahoo.com>
+Date: Mon, 25 Oct 2004 21:43:27 +0200 (CEST)
+From: karsten wiese <annabellesgarden@yahoo.de>
+Subject: Re: [PATCH]Uncompressing Linux... Out of memory: fixed by increased HEAP_SIZE
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041025143014.GA14992@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 08:14:25AM -0700, Linus Torvalds wrote:
-> Your point is pointless. No such distributed revision control system 
-> exists. And without BK, the people who have worked on them wouldn't 
+ --- Ingo Molnar <mingo@elte.hu> schrieb: 
+> 
+> > booting newest 2.6.9 experimental kernels, I frequently
+> encountered 
+> > "Uncompressing Linux... Out of memory --System halted"
+> > In some mail archive I found the (obvious ;-) solution:
+> Increase HEAP_SIZE.
+> > 
+> > Here in line 122 of arch/i386/boot/compressed/misc.c
+> this
+> > 	#define HEAP_SIZE             0x4000
+> > instead of 
+> > 	#define HEAP_SIZE             0x3000
+> > made 2.6.9-mm1-RT-U10.3 boot again.
+> 
+> ah! Makes sense. Did you have LATENCY_TRACE enabled? That
+> compiles the
+> kernel with -pg which creates a fatter stackframe.
+> 
+Only the malloc() called by gunzip() called by
+decompress_kernel() is influenced by this HEAP_SIZE.
+gunzip()'s internal work data is stored in that heap.
+This only is in effect before the kernel "really" boots,
+no?
+LATENCY_TRACE is indeed off, ...but can gunzip()'s heap
+needs be easier answered by a fatter stackframe (at
+decompression time!)?
 
-arch exists and it's exactly as distributed as BK.
+Thanks,
+Karsten
+
+
+	
+
+	
+		
+___________________________________________________________
+Gesendet von Yahoo! Mail - Jetzt mit 100MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

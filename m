@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBCRse>; Sat, 3 Feb 2001 12:48:34 -0500
+	id <S129114AbRBCR60>; Sat, 3 Feb 2001 12:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129114AbRBCRs0>; Sat, 3 Feb 2001 12:48:26 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22281 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129066AbRBCRsI>; Sat, 3 Feb 2001 12:48:08 -0500
-Date: Sat, 3 Feb 2001 09:47:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] POSIX timers for 2.4.1
-In-Reply-To: <20010203153310.B30376@pcep-jamie.cern.ch>
-Message-ID: <Pine.LNX.4.10.10102030922030.8824-100000@penguin.transmeta.com>
+	id <S129145AbRBCR6Q>; Sat, 3 Feb 2001 12:58:16 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:15741 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129114AbRBCR6I>; Sat, 3 Feb 2001 12:58:08 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200102031756.f13Hu4s13521@devserv.devel.redhat.com>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Sat, 3 Feb 2001 12:56:04 -0500 (EST)
+Cc: dwmw2@infradead.org (David Woodhouse), alan@redhat.com (Alan Cox),
+        reiser@namesys.com (Hans Reiser), mason@suse.com (Chris Mason),
+        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com,
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+In-Reply-To: <200102031733.f13HXUo463110@saturn.cs.uml.edu> from "Albert D. Cahalan" at Feb 03, 2001 12:33:29 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 3 Feb 2001, Jamie Lokier wrote:
-
-> Robert H. de Vries wrote:
-> > Hi Linus,
-> > c. setitimer() can be used only once in a given process, you can have
-> >    up to 32 (configurable) POSIX timers at the same time in your process.
+> David Woodhouse writes:
 > 
-> Why is there a limit?  With such a small limit, any library that wants
-> to use its own private timers is going to have to agree a way to
-> multiplex with other libraries, and you're back to setitimer().
+> >  -a "$CC" = "gcc"
+> 
+> Not worth it; they should upgrade the local gcc too.
+> If anything, they are getting a reminder that they need.
 
-There's a limit, simply because the thing is implemented as an array. Ugh.
-
-It also doesn't handle the old itimers with the new ones, so you end up
-having _both_ the three hardcoded timers _and_ the new timers. Which I
-think is rather ugly.
-
-Quite frankly, I'd much rather have the current real/prof/virt itimers
-expanded to lists instead (ie _three_ lists: the behaviour of
-real/prof/virt timers are very different, and trying to mix them on one
-list would be horrible), with the magic timer ID value of zero being the
-one that the old itimer() functions work on.
-
-That way, CLONE_ITIMERS would also do something sane (which it doesn't do
-with the current POSIX timer patch - it will clone the posix itimers but
-not the old itimers).
-
-Also note that the POSIX itimer patch with CLONE_ITIMERS seems to be
-horribly buggy: it will save off "timer->it_process", but the process may
-not actually EXIST any more by the time the timer is called: exiting only
-decrements the usage count, which may be elevated due to clone's etc.
-
-In short, there's not a way in hell I will apply this patch any time soon.
-It has real implementation bugs that will cause oopses and
-possible lockups (sending signals to non-existent tasks), and I think it
-has design problems too.
-
-			Linus
+The local gcc has no bearing on the compiler. The local compiler might not 
+even be gcc - eg if they are cross building off non Linux systems
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

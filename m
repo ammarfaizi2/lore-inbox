@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272976AbTGaK5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 06:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272982AbTGaK53
+	id S272983AbTGaKyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 06:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272980AbTGaKwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 06:57:29 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:34822 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272976AbTGaK51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 06:57:27 -0400
-Subject: Re: 2.6.0-test2-mm2
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030730223810.613755b4.akpm@osdl.org>
-References: <20030730223810.613755b4.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1059648996.1263.1.camel@debian>
+	Thu, 31 Jul 2003 06:52:55 -0400
+Received: from smithers.nildram.co.uk ([195.112.4.34]:60933 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S272976AbTGaKvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 06:51:44 -0400
+Date: Thu, 31 Jul 2003 11:51:43 +0100
+From: Joe Thornber <thornber@sistina.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch 6/6] dm: use sector_div()
+Message-ID: <20030731105143.GJ394@fib011235813.fsnet.co.uk>
+References: <20030731104517.GD394@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 31 Jul 2003 12:57:23 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030731104517.GD394@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El jue, 31-07-2003 a las 07:38, Andrew Morton escribió:
-
-> . CPU scheduler changes
-
-The best desktop experience for me since I run 2.5/2.6 kernels. No more
-sound skips and a very good response of all applications into  the
-X-Windows.
-
-And all this with my very slow k6-2 450 MHz and 256 MB RAM. Very good
-job!.
-
-> . Several changes to the synaptics and PS/2 drivers.  People who have had
->   problems with keyboards and mice, please test and report.
-
-The mouse is working smoother and smoother :)
-
-> . Lots of other things, mainly bugfixes.
-
-All of them will be merged soon with Linus tree?
--- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
-
+Use sector_div() rather than defining own version.  [Christophe Saout]
+--- diff/drivers/md/dm-stripe.c	2003-06-30 10:07:21.000000000 +0100
++++ source/drivers/md/dm-stripe.c	2003-07-31 11:31:48.000000000 +0100
+@@ -64,30 +64,6 @@
+ }
+ 
+ /*
+- * FIXME: Nasty function, only present because we can't link
+- * against __moddi3 and __divdi3.
+- *
+- * returns a == b * n
+- */
+-static int multiple(sector_t a, sector_t b, sector_t *n)
+-{
+-	sector_t acc, prev, i;
+-
+-	*n = 0;
+-	while (a >= b) {
+-		for (acc = b, prev = 0, i = 1;
+-		     acc <= a;
+-		     prev = acc, acc <<= 1, i <<= 1)
+-			;
+-
+-		a -= prev;
+-		*n += i >> 1;
+-	}
+-
+-	return a == 0;
+-}
+-
+-/*
+  * Construct a striped mapping.
+  * <number of stripes> <chunk size (2^^n)> [<dev_path> <offset>]+
+  */
+@@ -126,7 +102,8 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!multiple(ti->len, stripes, &width)) {
++	width = ti->len;
++	if (sector_div(width, stripes)) {
+ 		ti->error = "dm-stripe: Target length not divisable by "
+ 		    "number of stripes";
+ 		return -EINVAL;

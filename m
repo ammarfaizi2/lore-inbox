@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261331AbSIZQcf>; Thu, 26 Sep 2002 12:32:35 -0400
+	id <S261338AbSIZQh6>; Thu, 26 Sep 2002 12:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSIZQcf>; Thu, 26 Sep 2002 12:32:35 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30641 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261331AbSIZQce>; Thu, 26 Sep 2002 12:32:34 -0400
-Date: Thu, 26 Sep 2002 13:37:33 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux,v2
-In-Reply-To: <Pine.LNX.4.44.0209260934170.7827-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44L.0209261336360.15154-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261344AbSIZQh6>; Thu, 26 Sep 2002 12:37:58 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7930 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261338AbSIZQh5>; Thu, 26 Sep 2002 12:37:57 -0400
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <Pine.LNX.4.44.0209261712420.20778-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209261712420.20778-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 17:48:12 +0100
+Message-Id: <1033058892.11848.102.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Thunder from the hill wrote:
-> On Thu, 26 Sep 2002, Rik van Riel wrote:
-> > If I were you, I'd take a large piece of paper and make
-> > a drawing of what the data structure looks like and what
-> > the various macros/functions are supposed to do.
->
-> Well, I know what they _should_ do. But I don't know what I should
-> initialize an empty list entry to.
+On Thu, 2002-09-26 at 16:27, Ingo Molnar wrote:
+> > Trust me, you'll have to use the page list approach.
+> 
+> yeah, will try that now. I'm a bit worried about the mandatory cross-CPU
+> TLB flushes though.
 
-And now you contradict yourself ;)
-
-Please make a detailed picture of the data structure on
-a piece of paper so you can check the code against the
-picture and see if it really is doing the right thing.
-
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Wouldn't splitting the vm area also be cleaner - that would let you get
+things like correct address space accounting too.
 

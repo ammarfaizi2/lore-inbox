@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbTECOeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 10:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTECOeP
+	id S263328AbTECOkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 10:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTECOkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 10:34:15 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:12818 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263327AbTECOeO (ORCPT
+	Sat, 3 May 2003 10:40:40 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:15122 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263328AbTECOkk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 10:34:14 -0400
-Subject: [PATCH 2.{4,5}.x] mod_timer fix for sdla_x25.c
+	Sat, 3 May 2003 10:40:40 -0400
+Subject: [PATCH 2.{4,5}.x] mod_timer fix for synclink.c
 From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: eis@baty.hanse.de
+To: davej@codemonkey.org.uk
 Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 May 2003 20:21:16 +0530
-Message-Id: <1051973476.1243.167.camel@lima.royalchallenge.com>
+Date: 03 May 2003 20:27:51 +0530
+Message-Id: <1051973871.2018.174.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdla_x25.c: trivial {del,add}_timer to mod_timer conversion.
+synclink.c: trivial {del,add}_timer to mod_timer conversion.
 
---- linux-2.5.68/drivers/net/wan/sdla_x25.c	2003-03-25 10:07:27.000000000 +0530
-+++ linux-2.5.68-nvk/drivers/net/wan/sdla_x25.c	2003-05-03 16:02:35.000000000 +0530
-@@ -1224,9 +1224,7 @@
- 			connect(card);
- 			S508_S514_unlock(card, &smp_flags);
+--- linux-2.5.68/drivers/char/synclink.c	2003-03-25 10:07:40.000000000 +0530
++++ linux-2.5.68-nvk/drivers/char/synclink.c	2003-05-03 15:43:24.000000000 +0530
+@@ -4278,9 +4278,7 @@
+ 				info->get_tx_holding_index=0;
  
--			del_timer(&card->u.x.x25_timer);
--			card->u.x.x25_timer.expires=jiffies+HZ;
--			add_timer(&card->u.x.x25_timer);
-+			mod_timer(&card->u.x.x25_timer, jiffies + HZ);
+ 			/* restart transmit timer */
+-			del_timer(&info->tx_timer);
+-			info->tx_timer.expires = jiffies + jiffies_from_ms(5000);
+-			add_timer(&info->tx_timer);
++			mod_timer(&info->tx_timer, jiffies + jiffies_from_ms(5000));
+ 
+ 			ret = 1;
  		}
- 	}
- 	/* Device is not up until the we are in connected state */
 
 
 

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136498AbREDUJ6>; Fri, 4 May 2001 16:09:58 -0400
+	id <S136499AbREDUNL>; Fri, 4 May 2001 16:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136499AbREDUJj>; Fri, 4 May 2001 16:09:39 -0400
-Received: from penguins-world.pcsystems.de ([212.63.44.200]:19183 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S136498AbREDUJd>;
-	Fri, 4 May 2001 16:09:33 -0400
-Message-ID: <3AF30C5F.7445714F@pcsystems.de>
-Date: Fri, 04 May 2001 22:09:03 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oystein Viggen <oysteivi@tihlde.org>
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: added a new feature: disable pc speaker
-In-Reply-To: <8340.988979784@ocs3.ocs-net> <03wv7xm085.fsf@colargol.tihlde.org>
+	id <S136492AbREDUNA>; Fri, 4 May 2001 16:13:00 -0400
+Received: from bitmover.com ([207.181.251.162]:28176 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S136502AbREDUMl>;
+	Fri, 4 May 2001 16:12:41 -0400
+Date: Fri, 4 May 2001 13:12:39 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3ware 6410 RAID 10 performance?
+Message-ID: <20010504131239.G6437@work.bitmover.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010504130103.T22922@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20010504130103.T22922@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   setterm -blength 0 (text)
-> >   xset b 0 (X11)
->
-> Well, some buggy programs don't care about you turning off beeping in
-> X.  I think gnome-terminal or such has its own checkbox for turning
-> beeps on or off.
+More data:
 
-Exactly.
+the test file is 2GB in size.
+When I do a reboot and time the reading of the entire file,
+the first time the performance is great, 27MB.
+The second time it sucks, 2.7MB.
+I tried clearing memory by allocating and pounding on an array of 512MB 
+(size of main mem), that clears out memory but the performance still 
+sucks.
+Unmounting and remounting the drive does not help.
 
-> I still agree that this is fixing userspace bugs in the kernel, and
-> probably not desirable, even if I think I'd disable the pc speaker if
-> the kernel actually asked me.  If nothing else, I figure it would make
-> my kernel 0.5k or so smaller  ;)
+Any ideas?
 
-Something about that, didn't make any comparision to a original
-2.4.4 kernel.
+On Fri, May 04, 2001 at 01:01:03PM -0700, Larry McVoy wrote:
+> I'm looking for people who know about the 3ware 6410 driver.  I've got one
+> of these and sometimes it goes fast and sometimes it doesn't.  The bad 
+> case seems to happen after memory has a lot of cached blocks in it.
+> 
+> I've tried 2.2.15, 2.4.4, and 2.4.3-ac9 and they all behave pretty similarly.
+> 
+> I'm most interested in seeing this fixed in the 2.4 series so if there is
+> someone who wants to go into a test/debug cycle with me, speak up.  I'd
+> really like this thing to work well.
+> 
+> hardware config:
+> 
+> K7 @ 750Mhz
+> ASUS K7V motherboard
+> 512MB
+> 4x 3c905
+> boot disk on the motherboard
+> 4 WD 40GB 7200 drives on one 3ware 6410
+> matrox g200 AGP
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-I first thought the same Keith did, a userspace program.
-This could call the same asm code used in kd_nosound,
-but the problem is, the next time _kd_mksound is called,
-sound is enabled again.
-
-Can somebody give me a hint where to find documentation about
-sysctl and howto use/program that ?
-This is what Simon and David suggested.
-
-But as long as I am not able to make sysctl's, I would like
-to add this feature under the General setup.
-
-What do you think ?
-
-Nico
-
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

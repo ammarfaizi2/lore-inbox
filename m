@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTISHgG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 03:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbTISHgG
+	id S261419AbTISH7N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 03:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTISH7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 03:36:06 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:43502 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261406AbTISHgC
+	Fri, 19 Sep 2003 03:59:13 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:38610 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261419AbTISH7M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 03:36:02 -0400
-Subject: Re: [PATCH 2/13] use cpu_relax() in busy loop
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, chas@cmf.nrl.navy.mil, torvalds@osdl.org
-In-Reply-To: <20030918162748.F16499@osdlab.pdx.osdl.net>
-References: <20030918162522.E16499@osdlab.pdx.osdl.net>
-	 <20030918162748.F16499@osdlab.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VHMfbDzQNiYtqhTq/Zt/"
-Organization: Red Hat, Inc.
-Message-Id: <1063956829.5394.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Fri, 19 Sep 2003 09:33:50 +0200
+	Fri, 19 Sep 2003 03:59:12 -0400
+Date: Fri, 19 Sep 2003 19:59:30 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: How does one get paid to work on the kernel?
+In-reply-to: <yw1xad91nrmd.fsf@users.sourceforge.net>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1063958370.5520.6.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+References: <1063915370.2410.12.camel@laptop-linux>
+ <yw1xad91nrmd.fsf@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is support in the current kernel for Software Suspend, but the 2.4
+version contains a lot of extra functionality that isn't present in 2.6
+at the moment. (Support for HighMem, swap files, asynchronous I/O, a
+nicer user interface, compression...).
 
---=-VHMfbDzQNiYtqhTq/Zt/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2003-09-19 at 19:51, Måns Rullgård wrote:
+> Nigel Cunningham <ncunningham@clear.net.nz> writes:
+> 
+> > I'm about to finish my present employment, and have wondered about the
+> > possibility of getting paid to finish off the 2.4 version of Software
+> > Suspend and do the port to 2.6. How does one go about seeing if anyone
+> > might be interested in funding such a project for a few months?
+> 
+> Hasn't that already been done?
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-On Fri, 2003-09-19 at 01:27, Chris Wright wrote:
-> [PATCH 2/13] use cpu_relax() in busy loop
->=20
-> Replace busy loop nop with cpu_relax().
->=20
-> =3D=3D=3D=3D=3D drivers/atm/fore200e.c 1.19 vs edited =3D=3D=3D=3D=3D
-> --- 1.19/drivers/atm/fore200e.c	Tue Sep  2 11:07:59 2003
-> +++ edited/drivers/atm/fore200e.c	Thu Sep 18 10:42:17 2003
-> @@ -248,7 +248,8 @@
->  fore200e_spin(int msecs)
->  {
->      unsigned long timeout =3D jiffies + MSECS(msecs);
-> -    while (time_before(jiffies, timeout));
-> +    while (time_before(jiffies, timeout))
-> +    	cpu_relax();
->  }
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 
-
-ehmmm how about making this use mdelay instead ?
-(not to speak of maybe making it sleep, but that's a less obvious
-transformation)
-
---=-VHMfbDzQNiYtqhTq/Zt/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/arFdxULwo51rQBIRAohCAJ9UnL5BvPSz8p6/XEiXXzRY57w6TACgiHV5
-v8Ef3ubjg323JH4QQxyuqW8=
-=bqtG
------END PGP SIGNATURE-----
-
---=-VHMfbDzQNiYtqhTq/Zt/--

@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317115AbSFKOyU>; Tue, 11 Jun 2002 10:54:20 -0400
+	id <S317114AbSFKOyD>; Tue, 11 Jun 2002 10:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSFKOyU>; Tue, 11 Jun 2002 10:54:20 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:55396 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317115AbSFKOyS>; Tue, 11 Jun 2002 10:54:18 -0400
-Message-Id: <5.1.0.14.2.20020611155046.00af3980@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 11 Jun 2002 15:54:09 +0100
-To: vda@port.imtp.ilyichevsk.odessa.ua
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, k-suganuma@mvj.biglobe.ne.jp,
-        Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <200206111428.g5BES0L15607@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317115AbSFKOyC>; Tue, 11 Jun 2002 10:54:02 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34043 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317114AbSFKOyB>;
+	Tue, 11 Jun 2002 10:54:01 -0400
+Message-ID: <3D060EC8.321A0D66@mvista.com>
+Date: Tue, 11 Jun 2002 07:52:56 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>, dent@cosy.sbg.ac.at,
+        adilger@clusterfs.com, da-x@gmx.net, patch@luckynet.dynu.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <Pine.LNX.4.44.0206110128130.1987-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 20:29 11/06/02, Denis Vlasenko wrote:
->On 11 June 2002 08:57, Anton Altaparmakov wrote:
-> > At 08:42 11/06/02, Andrew Morton wrote:
-> > >Rusty Russell wrote:
-> > > > Linus, please apply.  Tested on my dual x86 box.
-> > > >
-> > > > This patch removes smp_num_cpus, cpu_number_map and cpu_logical_map
-> > > > from generic code, and uses cpu_online(cpu) instead, in preparation
-> > > > for hotplug CPUS.
-> > >
-> > >umm.  This patch does introduce a non-zero amount of bloat:
-> > > > ...
-> > > > -       ntfs_compression_buffers =  (u8**)kmalloc(smp_num_cpus *
-> > >
-> > > sizeof(u8*),
-> > >
-> > > > +       ntfs_compression_buffers =  (u8**)kmalloc(NR_CPUS *
-> > > > sizeof(u8*),
+Linus Torvalds wrote:
+> 
+> On Tue, 11 Jun 2002, Rusty Russell wrote:
 > >
-> > This is crazy! It means you are allocating 2MiB of memory instead of just
-> > 128kiB on a 2 CPU system, which will be about 99% of the SMP systems in
-> > use, at my guess. So your change is throwing away 1920kiB of kernel ram for
-> > no reason at all. And that is just ntfs...
->
->Wait a minute.
->These buffers are allocated per CPU. Can we allocate additional ones when
->new CPU is added?
+> > Worst sin is that you can't predeclare typedefs.  For many uses (not the
+> > list macros of course):
+> >       struct xx;
+> > is sufficient and avoids the #include hell,
+> 
+> True.
+> 
+> However, that only works for function declarations.
+> 
+> typedefs are easy to avoid.
+> 
+> The real #include hell comes, to a large degree, from the fact that we
+> like inline functions. Which have many wonderful properties, but they have
+> the same nasty property typedefs have: they require full type information
+> and cannot be predeclared.
+> 
+> And while I'd like to avoid #include hell, I'm not willing to replace
+> inline functions with #define's to avoid it ;^p
 
-Of course, see my suggestion for how to handle this in the post after the 
-one you replied to.
+On wonders if it might be useful to split header files into
+say for example, list_d.h and list_i.h with the declarations
+in the "_d.h" and inlines in the "_i.h".  Then we could move
+the "_i.h" includes to the end of the include list.  Yeah, I
+know, too many includes in includes to work.  
 
->I do hope these buffers aren't allocated an boot time but at mount time, 
->are they?
-
-At mount time and only if the volume supports compression. And they are 
-ntfs global, i.e. not per mount point. That is still a big ram waste.
-
->I'm sorry it sounds like NTFS code needs rework, not Rusty's patch.
-
-Sorry to disappoint you but my code is as efficient as possible while 
-NR_CPUs is as ugly and inefficient as hell.
-
->Feel free to enlighten me why I am wrong.
-
-I hope I have managed to do that. (-:
-
-Best regards,
-
-         Anton
-
-
+By the way, my reading of the C standard indicates that they
+don't _have to_ compile the inlines when they are found, but
+_may_ defer the compile until they are referenced by
+non-inline code.  This change would fix the problem.
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

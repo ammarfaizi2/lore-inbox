@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290528AbSAYDzN>; Thu, 24 Jan 2002 22:55:13 -0500
+	id <S290537AbSAYENF>; Thu, 24 Jan 2002 23:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290536AbSAYDzD>; Thu, 24 Jan 2002 22:55:03 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:59298 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S290528AbSAYDyz>;
-	Thu, 24 Jan 2002 22:54:55 -0500
-Date: Fri, 25 Jan 2002 14:53:45 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Combined APM patch for 2.5.3-pre2
-Message-Id: <20020125145345.16953a99.sfr@canb.auug.org.au>
-In-Reply-To: <20020123173757.D78@toy.ucw.cz>
-In-Reply-To: <20020121135046.574bfa60.sfr@canb.auug.org.au>
-	<20020123173757.D78@toy.ucw.cz>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S290541AbSAYEMz>; Thu, 24 Jan 2002 23:12:55 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:61703 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290537AbSAYEMl>;
+	Thu, 24 Jan 2002 23:12:41 -0500
+Date: Thu, 24 Jan 2002 20:12:26 -0800
+From: Greg KH <greg@kroah.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: usb or video4linux problem
+Message-ID: <20020125041226.GA22366@kroah.com>
+In-Reply-To: <20020125032857.GA671@online.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020125032857.GA671@online.fr>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 28 Dec 2001 02:10:32 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
-
-On Wed, 23 Jan 2002 17:37:57 +0000
-Pavel Machek <pavel@suse.cz> wrote:
+On Thu, Jan 24, 2002 at 10:28:57PM -0500, christophe barbé wrote:
 > 
-> > 	Rename kapm-idled to kapmd
-> 
-> Why? Leave the name alone. It does not matter, and it changed already
-> too much in the past. It *is* idle thread!
+> I'm convinced that it's a problem with OHCI.
+> I think it's a soft problem because I can trigger it with cpu/io
+> activity.
 
-Read the patch ... it is NOT the idle thread any longer .....
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-Linux APM Maintainer
+Does the kernel log show any USB errors, or any USB messages at all?
+What kernel version are you using?
+
+thanks,
+
+greg k-h

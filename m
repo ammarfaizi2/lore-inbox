@@ -1,93 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266689AbUHCULz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266720AbUHCUT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266689AbUHCULz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUHCULz
+	id S266720AbUHCUT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 16:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266770AbUHCUT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:11:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55550 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266689AbUHCULv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:11:51 -0400
-Date: Tue, 3 Aug 2004 22:11:44 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs-masters@oss.sgi.com, linux-xfs@oss.sgi.com
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL (fwd)
-Message-ID: <20040803201143.GE2746@fs.tum.de>
-References: <20040802225951.GR2746@fs.tum.de> <20040802162846.3929e463.akpm@osdl.org> <20040803004509.GW2746@fs.tum.de> <1091490958.1647.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091490958.1647.25.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Tue, 3 Aug 2004 16:19:59 -0400
+Received: from posti5.jyu.fi ([130.234.4.34]:34467 "EHLO posti5.jyu.fi")
+	by vger.kernel.org with ESMTP id S266720AbUHCUT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 16:19:57 -0400
+Date: Tue, 3 Aug 2004 23:19:33 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <20040803185026.A10580@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.44.0408032256110.2281-100000@silmu.st.jyu.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Checked: by miltrassassin
+	at posti5.jyu.fi; Tue, 03 Aug 2004 23:19:36 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 12:56:01AM +0100, Alan Cox wrote:
-> On Maw, 2004-08-03 at 01:45, Adrian Bunk wrote:
-> > OTOH, at least XFS is known to have problems with 4kb stacks - and you 
-> > don't want such problems to occur in production environments.
-> 
-> So put && !4KSTACKS in the XFS configuration ?
+On Tue, 3 Aug 2004, Francois Romieu wrote:
+
+> > The first log file is with both patchs applied and the second one with one 
+> > little change to rx8139_rx() to show if it even goes to through 
+> > 
+> > "        while (netif_running(dev) && received < budget
+> >                && (RTL_R8 (ChipCmd) & RxBufEmpty) == 0) {"-section.
+> > 
+> > This was the change which I made.. so you can see in the second log file 
+> > that there won't be any of these messages after the driver has crashed. 
+> If you remove the "if (received > 0) {" test in r8139-10.patch and keep
+> both patches applied, I assume you are back to a crash within 15min (instead
+> of within 2min as suggested by the log), right ?
+
+Hmm,
+
+I removed "if (received > 0) {" and tested it something like 3 hours and 
+wasn't able to crash the driver. I will test it for couple more hours 
+tomorrow and if I'm not still able the crash it, we may have find some 
+sort of a solution.
+
+I'm not sure yet if it's a good one because of that earlier crash I had.
+I guess I will also test if
+
+- read the interruption status word that the driver will ack before the
+  actual processing is done;
+
+has something to do it.
+
+We'll see.. I'll get back to you tomorrow with more information.
+
+--
+Pasi Sjöholm
 
 
-The patch below does exactly this.
-
-The 4KSTACKS option has to be moved for that it's asked before XFS in
-"make config".
-
-diffstat output:
- arch/i386/Kconfig |   18 +++++++++---------
- fs/Kconfig        |    1 +
- 2 files changed, 10 insertions(+), 9 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc2-full/arch/i386/Kconfig.old	2004-07-20 21:00:32.000000000 +0200
-+++ linux-2.6.8-rc2-full/arch/i386/Kconfig	2004-07-20 21:03:30.000000000 +0200
-@@ -865,6 +865,15 @@
- 	generate incorrect output with certain kernel constructs when
- 	-mregparm=3 is used.
- 
-+config 4KSTACKS
-+	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	help
-+	  If you say Y here the kernel will use a 4Kb stacksize for the
-+	  kernel stack attached to each process/thread. This facilitates
-+	  running more threads on a system and also reduces the pressure
-+	  on the VM subsystem for higher order allocations. This option
-+	  will also use IRQ stacks to compensate for the reduced stackspace.
-+
- endmenu
- 
- 
-@@ -1289,15 +1299,6 @@
- 	  If you don't debug the kernel, you can say N, but we may not be able
- 	  to solve problems without frame pointers.
- 
--config 4KSTACKS
--	bool "Use 4Kb for kernel stacks instead of 8Kb"
--	help
--	  If you say Y here the kernel will use a 4Kb stacksize for the
--	  kernel stack attached to each process/thread. This facilitates
--	  running more threads on a system and also reduces the pressure
--	  on the VM subsystem for higher order allocations. This option
--	  will also use IRQ stacks to compensate for the reduced stackspace.
--
- config X86_FIND_SMP_CONFIG
- 	bool
- 	depends on X86_LOCAL_APIC || X86_VOYAGER
---- linux-2.6.8-rc2-full/fs/Kconfig.old	2004-07-20 21:04:02.000000000 +0200
-+++ linux-2.6.8-rc2-full/fs/Kconfig	2004-07-20 21:04:25.000000000 +0200
-@@ -294,6 +294,7 @@
- 
- config XFS_FS
- 	tristate "XFS filesystem support"
-+	depends on (4KSTACKS=n || BROKEN)
- 	help
- 	  XFS is a high performance journaling filesystem which originated
- 	  on the SGI IRIX platform.  It is completely multi-threaded, can

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129507AbQKWQ3g>; Thu, 23 Nov 2000 11:29:36 -0500
+        id <S129091AbQKWQch>; Thu, 23 Nov 2000 11:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129581AbQKWQ30>; Thu, 23 Nov 2000 11:29:26 -0500
-Received: from wellspring.nwc.alaska.net ([209.112.130.9]:52673 "EHLO
-        alaska.net") by vger.kernel.org with ESMTP id <S129507AbQKWQ3P>;
-        Thu, 23 Nov 2000 11:29:15 -0500
-Date: Thu, 23 Nov 2000 06:58:53 -0900
-From: Ethan Benson <erbenson@alaska.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: binary garbage in dmesg/boot messages (2.2.18pre23)
-Message-ID: <20001123065853.B23839@plato.local.lan>
-Mail-Followup-To: Ethan Benson <erbenson@alaska.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001123054644.A23839@plato.local.lan> <E13yyLo-0007TS-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13yyLo-0007TS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Nov 23, 2000 at 03:31:51PM +0000
+        id <S129153AbQKWQc1>; Thu, 23 Nov 2000 11:32:27 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:13061 "EHLO
+        tellus.mine.nu") by vger.kernel.org with ESMTP id <S129091AbQKWQcP>;
+        Thu, 23 Nov 2000 11:32:15 -0500
+Date: Thu, 23 Nov 2000 17:02:10 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: netdev@oss.sgi.com
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Too long network device names corrupts kernel
+Message-ID: <Pine.LNX.4.21.0011231642110.32263-100000@svea.tellus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 03:31:51PM +0000, Alan Cox wrote:
-> > Board Name: Agate.
-> > Board Version: AA662195-305.
-> 
-> So far so good
-> 
-> > BIOS Vendor: f.=A3^]<94>fA=E8^D.=A3ESC<94>^N^_
-> 
-> This looks like the table end markers are missing or the length was wrong.
-> If you change
-> 
-> static int __init dmi_table(u32 base, int len, int num, void (*decode)(struct d
-> {	 
-> 		char *buf;
-> 	struct dmi_header *dm;   
-> 	u8 *data;
-> 	int i=0;
-> 
-> in arch/i386/kernel/dmi_scan.c to use
-> 
-> 	int i=1;
-> 
-> does it then behave nicely ?
-> 
+(2.4.0-test11, but probably every version)
 
-yes sure does, thanks!
+The name member of the net_device struct is fixed to IFNAMSIZ (16) bytes,
+and is accessed using strcpy, strcmp and friends all over the place, which
+suggests that the last byte of the name must be a null character. This
+must be verified when the name is set. I haven't looked very hard, but
+this seems not to be the case.
 
--- 
-Ethan Benson
-http://www.alaska.net/~erbenson/
+It is, to my knowledge, not possible for a normal user to create/name a
+device, so only root can cause the corruption. Bad enough, but not
+catastrophic.
+
+As I see it, one (or both) of the following must be done:
+
+1. Find all places where the device name is set and use length checking
+   functions such as strncpy.
+
+2. Find all places where a device name is used, and use special methods to
+   copy and add a null character, or use strncpy, strncmp, etc.
+
+...where number one is probably the only realistic solution.
+
+I discovered this when I tried to create a tunnel using more than
+IFNAMSIZ-1 (15) characters. It's quite hard to remove that tunnel. I'll go
+for the Windows solution and reboot. Sigh!
+
+Btw, does anyone know of a C function that works like strncpy, but does
+add a terminating null character, event if the string does not fit, ro
+does one have to do str[5]=0 first, and then strncpy(str,src,4)?
+
+/Tobias
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

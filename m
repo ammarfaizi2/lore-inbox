@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbTFYBT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTFYBTW
+	id S264372AbTFYBQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTFYBQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:19:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47879 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264432AbTFYBR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:17:29 -0400
-Date: Tue, 24 Jun 2003 18:31:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>, <macro@ds2.pg.gda.pl>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] unexpected IO-APIC update
-In-Reply-To: <20030624161003.20fbbbd4.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0306241825280.1041-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Jun 2003 21:16:55 -0400
+Received: from holomorphy.com ([66.224.33.161]:21723 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264372AbTFYBQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 21:16:48 -0400
+Date: Tue, 24 Jun 2003 18:30:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] My research agenda for 2.7
+Message-ID: <20030625013050.GQ26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <200306250307.18291.phillips@arcor.de> <20030625011031.GP26348@holomorphy.com> <200306250325.47529.phillips@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306250325.47529.phillips@arcor.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 25 June 2003 03:10, William Lee Irwin III wrote:
+>> It severely limits its usefulness. Dropping in a more flexible data
+>> structure should be fine.
 
-On Tue, 24 Jun 2003, Randy.Dunlap wrote:
->
-> +	if (reg_01.version >= 0x20)
-> +		*(int *)&reg_03 = io_apic_read(apic, 3);
+On Wed, Jun 25, 2003 at 03:25:47AM +0200, Daniel Phillips wrote:
+> Eventually it could well make sense to do that, e.g., the radix tree 
+> eventually ought to evolve into a btree of extents (probably).  But making 
+> things so complex in the first version, thus losing much of the incremental 
+> development advantage, would not be smart.  With a single size of page per 
+> address_space,  changes to the radix tree code are limited to a couple of 
+> lines, for example.
+> But perhaps you'd like to supply some examples where more than one size of 
+> page in the same address space really matters?
 
-There's a lot of these 
+Software-refill TLB architectures would very much like to be handed the
+largest physically contiguous chunk of memory out of pagecache possible
+and map it out using the fewest number of TLB entries possible. Dropping
+in a B+ tree to replace radix trees should be a weekend project at worst.
+Speculatively allocating elements that are "as large as sane/possible"
+will invariably result in variable-sized elements in the same tree.
 
-	*(int *)&reg_03
 
-kinds of things there, and the fact is, gcc's alias analysis doesn't like 
-them, _and_ they are ugly.
-
-The alias analysis I could care less about, since a good alias analysis
-would take static address information into account, and gcc at least last
-time I looked wasn't. So we don't even bother using it for now.
-
-We may want to reconsider that eventually, though, since more recent
-versions of gcc at least try to make their alias analysis useful with
-things like "attribute((may_alias))"  or whatever the syntax was.
-
-But the ugliness part I care about, and I wonder if it wouldn't be better 
-in this case to just make the register definition a "union", and have 
-something like
-
-	union reg_03 {
-		u32 value;
-		struct {
-			u32 boot_DT:1,
-			    reserved:31;
-		} bits;
-	};
-
-and then you can avoid the ugly dereference/cast/address-of thing, and 
-just say
-
-	reg_03.value
-
-or
-
-	reg_03.bits.boot_DT
-
-which looks a lot cleaner.
-
-This is what unions are _designed_ for.
-
-		Linus
-
+-- wli

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbTISInY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 04:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTISInY
+	id S261432AbTISIep (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 04:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTISIep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 04:43:24 -0400
-Received: from gw-nl3.philips.com ([212.153.190.5]:6374 "EHLO
-	gw-nl3.philips.com") by vger.kernel.org with ESMTP id S261439AbTISInW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 04:43:22 -0400
-Message-ID: <3F6AC11D.40103@basmevissen.nl>
-Date: Fri, 19 Sep 2003 10:41:01 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Fri, 19 Sep 2003 04:34:45 -0400
+Received: from hydra.colinet.de ([194.231.113.36]:52102 "EHLO hydra.colinet.de")
+	by vger.kernel.org with ESMTP id S261432AbTISIen (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 04:34:43 -0400
+Date: Fri, 19 Sep 2003 11:28:31 +0200 (CEST)
+From: "T. Weyergraf" <kirk@colinet.de>
+Subject: [PATCH] 2.6.0-test5 Alpha/SMP build fix
+To: linux-kernel@vger.kernel.org
+cc: rth@twiddle.net, kirk@colinet.de
 MIME-Version: 1.0
-To: rob@landley.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Make modules_install doesn't create /lib/modules/$version
-References: <200309180321.40307.rob@landley.net>
-In-Reply-To: <200309180321.40307.rob@landley.net>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <E1A0HZG-0007f7-00@hydra.colinet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+Hi all,
 
-> I've installed -test3, -test4, and now -test5, and each time make 
-> modules_install died with the following error:
-> 
-> Kernel: arch/i386/boot/bzImage is ready
-> sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
-> /lib/modules/2.6.0-test5 is not a directory.
-> mkinitrd failed
-> make[1]: *** [install] Error 1
-> make: *** [install] Error 2
-> 
-> I had to create the directory in question by hand, and then run it again, at 
-> which point it worked.
-> 
-> Am I the only person this is happening for?  (Bog standard Red Hat 9 system 
-> otherwise.  With Rusty's modutils...)
-> 
-
-I didn't see that here with Red Hat 9 system and 2.6.0-test3.
-
-Maybe you can greb the used scripts to see which one does make (or test 
-the existence of) the directory.
-
-I now use the modutils package from rawhide. It also handles the 
-creation of the new /etc/modprobe.conf file.
-
-Bas.
+the following patch fixes the build of 2.6.0-test5 on Alpha/SMP.
+It is trivial and has been forwarded to $MAINTAINER.
 
 
+Regards,
+Thomas Weyergraf
+
+
+diff -Naur linux-2.6.0-test5/arch/alpha/kernel/setup.c linux-2.6.0-test5-kirk1/arch/alpha/kernel/setup.c
+--- linux-2.6.0-test5/arch/alpha/kernel/setup.c	2003-09-08 21:49:54.000000000 +0200
++++ linux-2.6.0-test5-kirk1/arch/alpha/kernel/setup.c	2003-09-19 09:09:03.000000000 +0200
+@@ -1203,7 +1203,7 @@
+ 		       platform_string(), nr_processors);
+ 
+ #ifdef CONFIG_SMP
+-	seq_printf(f, "cpus active\t\t: %d\n"
++    seq_printf(f, "cpus active\t\t: %ld\n"
+ 		      "cpu active mask\t\t: %016lx\n",
+ 		       num_online_cpus(), cpu_present_mask);
+ #endif
+diff -Naur linux-2.6.0-test5/arch/alpha/kernel/smp.c linux-2.6.0-test5-kirk1/arch/alpha/kernel/smp.c
+--- linux-2.6.0-test5/arch/alpha/kernel/smp.c	2003-09-08 21:49:58.000000000 +0200
++++ linux-2.6.0-test5-kirk1/arch/alpha/kernel/smp.c	2003-09-19 09:09:30.000000000 +0200
+@@ -597,7 +597,7 @@
+ 		if (cpu_online(cpu))
+ 			bogosum += cpu_data[cpu].loops_per_jiffy;
+ 	
+-	printk(KERN_INFO "SMP: Total of %d processors activated "
++	printk(KERN_INFO "SMP: Total of %ld processors activated "
+ 	       "(%lu.%02lu BogoMIPS).\n",
+ 	       num_online_cpus(), 
+ 	       (bogosum + 2500) / (500000/HZ),
+diff -Naur linux-2.6.0-test5/include/asm-alpha/smp.h linux-2.6.0-test5-kirk1/include/asm-alpha/smp.h
+--- linux-2.6.0-test5/include/asm-alpha/smp.h	2003-09-08 21:50:28.000000000 +0200
++++ linux-2.6.0-test5-kirk1/include/asm-alpha/smp.h	2003-09-19 09:09:41.000000000 +0200
+@@ -46,7 +46,7 @@
+ #define smp_processor_id()	(current_thread_info()->cpu)
+ 
+ extern cpumask_t cpu_present_mask;
+-extern cpumask_t long cpu_online_map;
++extern cpumask_t cpu_online_map;
+ extern int smp_num_cpus;
+ 
+ #define cpu_possible(cpu)	cpu_isset(cpu, cpu_present_mask)
+
+
+--  
+Thomas Weyergraf                                     kirk@colinet.de
+Funny IA64 Opcode Dept: ( see arch/ia64/lib/memset.S )
+"br.ret.spnt.few" - got back from getting beer, did not spend a lot.
 

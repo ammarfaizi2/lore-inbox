@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbTJQRop (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 13:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbTJQRop
+	id S263575AbTJQRqq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 13:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJQRqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 13:44:45 -0400
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:34073 "HELO
-	ash.lnxi.com") by vger.kernel.org with SMTP id S263571AbTJQRol
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 13:44:41 -0400
-Subject: remove unnecessary BIOS reserved resources
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: linux-kernel@vger.kernel.org
-Cc: Eric Biederman <ebiederman@lnxi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p9GkyyrpvzN8JvUdKn26"
-Organization: Linux Networx
-Message-Id: <1066412413.6281.12.camel@tubarao>
+	Fri, 17 Oct 2003 13:46:19 -0400
+Received: from devil.servak.biz ([209.124.81.2]:30416 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S263573AbTJQRqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 13:46:09 -0400
+Subject: Re: [Linux-fbdev-devel] FBDEV 2.6.0-test7 updates.
+From: Torrey Hoffman <thoffman@arnor.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0310171824190.966-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0310171824190.966-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1066412752.1675.20.camel@torrey.et.myrio.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 17 Oct 2003 11:40:13 -0600
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 17 Oct 2003 10:45:52 -0700
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-10-17 at 10:25, James Simmons wrote:
+[...]
 
---=-p9GkyyrpvzN8JvUdKn26
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> The BK tree doesn't have the new radeon driver. I placed the new radeon 
+> driver into the patch so people coudl test it.
 
-e820 BIOS reserved memory ranges can be incorrect.  Even when the ranges
-are correct, once they are entered into iomem_resource with
-request_resorce() the ranges prevent drivers from registering the same
-ranges.
+I have a Radeon All-In-Wonder 7500.  I downloaded the tar.gz patch and
+applied it to -test7.  The resulting kernel panics at startup, while
+test7 with the same config works fine for me.
 
-Not registering the ranges shouldn't break anything - some BIOSes don't
-even report _any_ reserved ranges and the kernel works just fine.  This
-patch drops registration of e820 BIOS reserved ranges.  The patch should
-apply to 2.4.x and 2.6.
+Before it panics, the penguin shows up at least, so it works a little
+bit :-/
 
---- linux-2.4.20/arch/i386/kernel/setup.c	2002-11-28 16:53:09.000000000
--0700
-+++ linux-2.4.20-bs/arch/i386/kernel/setup.c	2003-10-17
-12:01:12.000000000 -0600
-@@ -1047,7 +1047,6 @@
- 		case E820_RAM:	res->name =3D "System RAM"; break;
- 		case E820_ACPI:	res->name =3D "ACPI Tables"; break;
- 		case E820_NVS:	res->name =3D "ACPI Non-volatile Storage"; break;
--		default:	res->name =3D "reserved";
- 		}
- 		res->start =3D e820.map[i].addr;
- 		res->end =3D res->start + e820.map[i].size - 1;
+I have not had time to attach a serial console to capture the oops yet,
+but hope to do that by the end of the day...
 
-Anyone have reasons why this shouldn't be applied?
 
---=20
-Thayne Harbaugh
-Linux Networx
-
---=-p9GkyyrpvzN8JvUdKn26
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/kCl9fsBPTKE6HMkRAsLIAJkBBtRjX0wBWqYbPwnSxJgdJPxcVwCfcZNT
-eygV7cM6F5yINNKK1CesxKs=
-=lyYI
------END PGP SIGNATURE-----
-
---=-p9GkyyrpvzN8JvUdKn26--
+-- 
+Torrey Hoffman <thoffman@arnor.net>
 

@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261413AbREQMsy>; Thu, 17 May 2001 08:48:54 -0400
+	id <S261464AbREQNef>; Thu, 17 May 2001 09:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261414AbREQMso>; Thu, 17 May 2001 08:48:44 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56592 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261413AbREQMsi>; Thu, 17 May 2001 08:48:38 -0400
-Subject: Re: alpha/2.4.x: CPU misdetection, possible miscompilation
-To: mike@rainbow.studorg.tuwien.ac.at (Michael Wildpaner)
-Date: Thu, 17 May 2001 13:45:33 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105161739440.31072-100000@rainbow.studorg.tuwien.ac.at> from "Michael Wildpaner" at May 17, 2001 02:23:03 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261419AbREQNeZ>; Thu, 17 May 2001 09:34:25 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:32670 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S261422AbREQNeQ>; Thu, 17 May 2001 09:34:16 -0400
+Message-ID: <3B03D350.6080006@AnteFacto.com>
+Date: Thu, 17 May 2001 14:34:08 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; rv:0.9) Gecko/20010505
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: mdaljeet@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: bindprocessor
+In-Reply-To: <CA256A4F.003B5469.00@d73mta05.au.ibm.com> <3B03B5F5.F9EC01D3@uow.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150N9p-0005KA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> possible miscompilation of smp_tune_scheduling:
-> 	These versions of gcc
-> 		gcc version 2.95.3 20010111
-> 		gcc version 2.95.4 20010506
+Look @ the processor sets plugin @
+http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html
 
-Does gcc 2.96 or the gcc 3.0 snapshot also show this problem ?
+Padraig.
+
+Andrew Morton wrote:
+
+>mdaljeet@in.ibm.com wrote:
+>
+>>How can I bind a user space process to a particular processor in  a SMP
+>>environment?
+>>
+>
+>You can't.
+>
+>Nick Pollitt had an implementation of prcctl() which does this
+>http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.2/0214.html
+>
+>I have a /proc based one at
+>http://www.uow.edu.au/~andrewm/linux/#cpus_allowed
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+

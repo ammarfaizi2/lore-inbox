@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVBGXAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVBGXDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVBGXAh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 18:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVBGXAg
+	id S261321AbVBGXDY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 18:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBGXDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 18:00:36 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:2948 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261344AbVBGW7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:59:41 -0500
-Message-ID: <4207F2DA.8060101@us.ibm.com>
-Date: Mon, 07 Feb 2005 16:59:38 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Mon, 7 Feb 2005 18:03:23 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1492 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261343AbVBGXDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 18:03:08 -0500
+Message-ID: <4207F396.7080408@nortel.com>
+Date: Mon, 07 Feb 2005 17:02:46 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
-References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com> <20050207221820.GA27543@kroah.com> <4207ECDB.7060506@us.ibm.com> <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: question on symbol exports
+References: <41FECA18.50609@nortelnetworks.com>	 <1107243398.4208.47.camel@laptopd505.fenrus.org>	 <41FFA21C.8060203@nortelnetworks.com>	 <1107273017.4208.132.camel@laptopd505.fenrus.org>	 <20050204203050.GA5889@dmt.cnet>  <4203D793.1040604@nortel.com>	 <1107595148.30302.5.camel@gaston>  <42077EE0.2060505@nortel.com> <1107812101.7734.42.camel@gaston>
+In-Reply-To: <1107812101.7734.42.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Hello!
-> 
-> 
->>>Which is a good thing, right?  "driver_data" is usually a pointer to
->>>somewhere.  Having userspace specify it would not be a good thing.
->>
->>That depends on the driver usage, and the patch allows it to be 
->>configurable and defaults to not being used.
-> 
-> 
-> Maybe we could just define the operation as cloning of an entry
-> for another device ID, including its driver_data.
+Benjamin Herrenschmidt wrote:
 
-Possibly. That would potentially require a lot of parameters to 
-userspace. We would really need to duplicate all the currently existing 
-sysfs parms to accomplish this.
+> Interesting... more than no swap, you must also make sure you have no
+> r/w mmap'ed file (which are technically equivalent to swap).
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+Ah...thanks for the warning.
+
+We want to eventually make it work with swap as well, but that's 
+substantially more complicated.
+
+> I'm not too fan about exporting those symbols, but I'll talk to paulus,
+> it should be possible at least to EXPORT_SYMBOL_GPL them...
+
+I understand the reluctance.  I'm perfectly willing to export it GPL in 
+my private branch as long as you guys don't consider it evil--the module 
+is going to be GPL anyways.
+
+The alternative would be for me to build my code directly in to the 
+kernel...just makes it harder for me to debug.
+
+Chris

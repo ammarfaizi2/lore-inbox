@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129803AbQLZSsT>; Tue, 26 Dec 2000 13:48:19 -0500
+	id <S130541AbQLZSzA>; Tue, 26 Dec 2000 13:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130541AbQLZSsK>; Tue, 26 Dec 2000 13:48:10 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17426 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129803AbQLZSr5>; Tue, 26 Dec 2000 13:47:57 -0500
-Date: Tue, 26 Dec 2000 10:17:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Marco d'Itri" <md@Linux.IT>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <E14Ag3n-0000Me-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10012261014080.8122-100000@penguin.transmeta.com>
+	id <S131649AbQLZSyv>; Tue, 26 Dec 2000 13:54:51 -0500
+Received: from denise.shiny.it ([194.20.232.1]:58630 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S130541AbQLZSyg>;
+	Tue, 26 Dec 2000 13:54:36 -0500
+Message-ID: <3A4930FA.7C8E9F7C@denise.shiny.it>
+Date: Tue, 26 Dec 2000 18:59:54 -0500
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.18 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: linuxppc-dev@lists.linuxppc.org
+Subject: USB related crashes
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+How to crash kernel 2.2.17-18:
 
-On Mon, 25 Dec 2000, Alan Cox wrote:
->
-> > The simple fix is along the lines of adding code to fsync() that walks the
-> > inode page list and writes out dirty pages.
-> > 
-> > The clever and clean fix is to split the inode page list into two lists,
-> > one for dirty and one for clean pages, and only walk the dirty list.
-> 
-> Like the patches that were floating around on the list for the past 
-> few months to make O_SYNC work. Could those be used for it ?
+Turn on the USB printer without paper and try
+to print something. Wait for the "printer.c: usblp0:
+out of paper" message and turn off the printer.
+Ok, now "killall gs" will freeze the system.
 
-I haven't seen the patches, but I suspect strongly that they clash with
-the ext2 smart buffer sync code.
+(kernel 2.2.17-18, I did't try 2.4, GCC 2.95.3, PowerPC750)
 
-For example, the old generic_fdatasync() function already walks the list
-of pages and could trivially be extended to handle dirty pages in addition
-to just dirty blocks. But ext2 uses the faster and more clever "walk just
-the dirty buffers of this inode" thing, which never even looks at any
-pages.
-
-This is high-level enough that the low-level filesystems should not even
-see this functionality, and it doesn't look very hard to do. It's just all
-these holidays in the way (and if you think you can skip christmas with a
-4-year-old in the house, think AGAIN. This is a sacred time.).
-
-		Linus
+Bye.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

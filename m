@@ -1,95 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266941AbTADOrk>; Sat, 4 Jan 2003 09:47:40 -0500
+	id <S266944AbTADOxH>; Sat, 4 Jan 2003 09:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTADOrk>; Sat, 4 Jan 2003 09:47:40 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:53477 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S266941AbTADOrj>; Sat, 4 Jan 2003 09:47:39 -0500
-Date: Sat, 4 Jan 2003 15:56:04 +0100 (CET)
-From: Thomas Speck <Thomas.Speck@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic in 2.4.20-rc2
-Message-ID: <Pine.LNX.4.21.0301041544310.1106-100000@ThS-home.dyns.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266948AbTADOxH>; Sat, 4 Jan 2003 09:53:07 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:3274 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266944AbTADOxF>; Sat, 4 Jan 2003 09:53:05 -0500
+Date: Sat, 4 Jan 2003 16:01:28 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: [PATCH] unify netdev config follow-up
+Message-ID: <20030104150128.GZ1360@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add more netdev bus dependencies.  Patch by Arnd Bergmann.
 
-Hi,
-from time to time (frequency a couple of weeks) I get the following: 
-
-Jan  4 15:32:19 ThS-home kernel: CPU 0: Machine Check 
-Exception: 0000000000000004
-Jan  4 15:32:19 ThS-home kernel: Bank 1: f200000000000115
-Jan  4 15:32:19 ThS-home kernel: Kernel panic: CPU context corrupt
-
-Is that a hardware problem ? 
-
-ThS-home:[~]# cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 3
-model name      : Pentium II (Klamath)
-stepping        : 4
-cpu MHz         : 300.686
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
-mmx
-bogomips        : 599.65
+Linus, please apply.
 
 
-ThS-home:[~]# lspci
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
-(rev 02)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
-(rev 02)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:09.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
-[Tulip Pass 3] (rev 11)
-00:0a.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 Video
-Capture (rev 12)
-01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo Banshee
-(rev 03)
 
-ThS-home:[~]# cat /proc/iomem 
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-13feffff : System RAM
-  00100000-0020f743 : Kernel code
-  0020f744-00282a63 : Kernel data
-13ff0000-13ff2fff : ACPI Non-volatile Storage
-13ff3000-13ffffff : ACPI Tables
-d8000000-dbffffff : Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
-dc000000-dfffffff : PCI Bus #01
-  dc000000-ddffffff : 3Dfx Interactive, Inc. Voodoo Banshee
-e0000000-e1ffffff : PCI Bus #01
-  e0000000-e1ffffff : 3Dfx Interactive, Inc. Voodoo Banshee
-e3000000-e300007f : Digital Equipment Corporation DECchip 21041 [Tulip
-Pass 3]
-  e3000000-e300007f : tulip
-e3001000-e3001fff : Brooktree Corporation Bt848 Video Capture
-ffff0000-ffffffff : reserved
-
-
-Thank you 
---
-Thomas
+===== drivers/net/Kconfig 1.8 vs edited =====
+--- 1.8/drivers/net/Kconfig	Thu Jan  2 22:05:21 2003
++++ edited/drivers/net/Kconfig	Fri Jan  3 17:48:11 2003
+@@ -2364,7 +2364,7 @@
+ 
+ config ARLAN
+ 	tristate "Aironet Arlan 655 & IC2200 DS support"
+-	depends on NET_RADIO
++	depends on NET_RADIO && ISA
+ 	---help---
+ 	  Aironet makes Arlan, a class of wireless LAN adapters. These use the
+ 	  www.Telxon.com chip, which is also used on several similar cards.
+===== drivers/net/wan/Kconfig 1.1 vs edited =====
+--- 1.1/drivers/net/wan/Kconfig	Wed Oct 30 02:16:55 2002
++++ edited/drivers/net/wan/Kconfig	Fri Jan  3 18:25:47 2003
+@@ -62,7 +62,7 @@
+ #
+ config COMX
+ 	tristate "MultiGate (COMX) synchronous serial boards support"
+-	depends on WAN
++	depends on WAN && (ISA || PCI)
+ 	---help---
+ 	  Say Y if you want to use any board from the MultiGate (COMX) family.
+ 	  These boards are synchronous serial adapters for the PC,
+@@ -176,7 +176,7 @@
+ #
+ config DSCC4
+ 	tristate "Etinc PCISYNC serial board support"
+-	depends on WAN && m
++	depends on WAN && PCI && m
+ 	help
+ 	  This is a driver for Etinc PCISYNC boards based on the Infineon
+ 	  (ex. Siemens) DSCC4 chipset. It is supposed to work with the four
+@@ -193,7 +193,7 @@
+ #
+ config LANMEDIA
+ 	tristate "LanMedia Corp. SSI/V.35, T1/E1, HSSI, T3 boards"
+-	depends on WAN
++	depends on WAN && PCI
+ 	---help---
+ 	  This is a driver for the following Lan Media family of serial
+ 	  boards.
+@@ -222,7 +222,7 @@
+ # There is no way to detect a Sealevel board. Force it modular
+ config SEALEVEL_4021
+ 	tristate "Sealevel Systems 4021 support"
+-	depends on WAN && m
++	depends on WAN && ISA && m
+ 	help
+ 	  This is a driver for the Sealevel Systems ACB 56 serial I/O adapter.
+ 
+@@ -336,7 +336,7 @@
+ 
+ config N2
+ 	tristate "SDL RISCom/N2 support"
+-	depends on HDLC
++	depends on HDLC && ISA
+ 	help
+ 	  This driver is for RISCom/N2 single or dual channel ISA cards
+ 	  made by SDL Communications Inc.  If you have such a card,
+@@ -348,7 +348,7 @@
+ 
+ config C101
+ 	tristate "Moxa C101 support"
+-	depends on HDLC
++	depends on HDLC && ISA
+ 	help
+ 	  This driver is for C101 SuperSync ISA cards made by Moxa
+ 	  Technologies Co., Ltd. If you have such a card,
+@@ -358,7 +358,7 @@
+ 
+ config FARSYNC
+ 	tristate "FarSync T-Series support"
+-	depends on HDLC
++	depends on HDLC && PCI
+ 	---help---
+ 	  This driver supports the FarSync T-Series X.21 (and V.35/V.24) cards
+ 	  from FarSite Communications Ltd.
+@@ -432,7 +432,7 @@
+ 
+ config SDLA
+ 	tristate "SDLA (Sangoma S502/S508) support"
+-	depends on DLCI
++	depends on DLCI && ISA
+ 	help
+ 	  Say Y here if you need a driver for the Sangoma S502A, S502E, and
+ 	  S508 Frame Relay Access Devices. These are multi-protocol cards, but
+@@ -465,7 +465,7 @@
+ 
+ config VENDOR_SANGOMA
+ 	tristate "Sangoma WANPIPE(tm) multiprotocol cards"
+-	depends on WAN_ROUTER_DRIVERS && WAN_ROUTER
++	depends on WAN_ROUTER_DRIVERS && WAN_ROUTER && (PCI || ISA)
+ 	---help---
+ 	  WANPIPE from Sangoma Technologies Inc. (<http://www.sangoma.com/>)
+ 	  is a family of intelligent multiprotocol WAN adapters with data
+@@ -559,7 +559,7 @@
+ 
+ config CYCLADES_SYNC
+ 	tristate "Cyclom 2X(tm) cards (EXPERIMENTAL)"
+-	depends on WAN_ROUTER_DRIVERS
++	depends on WAN_ROUTER_DRIVERS && (PCI || ISA)
+ 	---help---
+ 	  Cyclom 2X from Cyclades Corporation (<http://www.cyclades.com/> and
 

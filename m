@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271642AbRH0C7o>; Sun, 26 Aug 2001 22:59:44 -0400
+	id <S271643AbRH0DIH>; Sun, 26 Aug 2001 23:08:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271643AbRH0C7e>; Sun, 26 Aug 2001 22:59:34 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:54800 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271642AbRH0C7X>; Sun, 26 Aug 2001 22:59:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Updated Linux kernel preemption patches
-Date: Mon, 27 Aug 2001 05:06:18 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: nigel@nrg.org
-In-Reply-To: <998877465.801.19.camel@phantasy>
-In-Reply-To: <998877465.801.19.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827025934Z16098-32383+1547@humbolt.nl.linux.org>
+	id <S271644AbRH0DH6>; Sun, 26 Aug 2001 23:07:58 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:54997 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S271643AbRH0DHr>;
+	Sun, 26 Aug 2001 23:07:47 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linuxppc-dev@lists.linuxppc.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac12 ppc ftr_fixup 
+In-Reply-To: Your message of "Sun, 26 Aug 2001 19:54:58 MST."
+             <20010826195458.D1481@cpe-24-221-152-185.az.sprintbbd.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 27 Aug 2001 13:07:50 +1000
+Message-ID: <21144.998881670@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 03:57 am, Robert Love wrote:
-> This is a straight update of Nigel Gamble's Linux kernel preemption
-> patch from http://kpreempt.sourceforge.net, updated for the above
-> kernels.  Thus, this is Nigel's code -- I merely updated it.
-> [...]
-> The performance increase in kernel compile and dbench 16 is decent, but
-> the decrease in dbench 1 is odd.  I am curious what numbers others find.
-> My "how does it feel" benchmark is that bandwidth seems similar while
-> multitasking may be a tad smoother with the patch.
+On Sun, 26 Aug 2001 19:54:58 -0700, 
+Tom Rini <trini@kernel.crashing.org> wrote:
+>> >On Mon, Aug 27, 2001 at 10:27:22AM +1000, Keith Owens wrote:
+>> >
+>> >> 2.4.9-ac12 has new ppc code for CPU feature fixups.  The ftr_fixup code
+>> >> only handles entries that are built into the kernel.  timex.h defines
+>> >> get_cycles() using ftr_fixup and get_cycles() is used all over the
+>> >> place, including in modules.  AFAICT we need to add modutils support
+>> >> for ftr_fixup.
+>Hmm..  I'm guessing no one's tried get_cycles from a module on a 601 in
+>ages...
 
-Congratulations on showing evidence that preemption can improve performance 
-under some loads, especially the all-important kernel compile.  Don't be too 
-worried about the dbench 1 results, dbench can vary by a factor of 2 
-depending on the alignment of the planets (ask Tridge).  Try something more 
-stable like bonnie.
+OK, so insmod needs to pass the ftr_fixup data for modules into the
+kernel, I will add the ftp_fixup section as archdata in insmod.  Do not
+code any kernel change to use ftr_fixup in modules until Maciej W.
+Rozycki's patch for module archdata handling is in.
 
-The theory goes that preemption improves performance by cutting down the time 
-between IO completion and user task resume, with only a small cost in extra 
-locking.  It would be nice to see profiling statistics to support this idea.
-
---
-Daniel

@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUFGUsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265056AbUFGUyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUFGUsg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 16:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUFGUsg
+	id S265056AbUFGUyg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 16:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUFGUyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 16:48:36 -0400
-Received: from webmail.cs.unm.edu ([64.106.20.39]:3773 "EHLO mail.cs.unm.edu")
-	by vger.kernel.org with ESMTP id S265053AbUFGUsd (ORCPT
+	Mon, 7 Jun 2004 16:54:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44964 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265051AbUFGUyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 16:48:33 -0400
-Message-ID: <40C4DE2A.1070008@cs.unm.edu>
-Date: Mon, 07 Jun 2004 15:29:14 -0600
-From: Sushant Sharma <sushant@cs.unm.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Mon, 7 Jun 2004 16:54:32 -0400
+Date: Mon, 7 Jun 2004 13:54:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Greg Weeks <greg.weeks@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] jffs2 aligment problems
+In-Reply-To: <1086640771.29255.57.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0406071351450.1637@ppc970.osdl.org>
+References: <40C484F9.20504@timesys.com>  <200406071736.53101.tglx@linutronix.de>
+  <Pine.LNX.4.58.0406070900010.6162@ppc970.osdl.org> 
+ <20040607174147.I28526@flint.arm.linux.org.uk>  <1086635643.29255.46.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0406071218240.1637@ppc970.osdl.org>
+ <1086640771.29255.57.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: when is alloc_skb called
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1BXR2h-00014r-00*855g5qWQsV6*
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
 
-I want to know which are the evnets
-that can lead to the calling of alloc_skb
-function which is used to allocate sk_buff.
-Arrival and departure of packet are 2 events
-which I know. Are there any other events/cases
-which can lead to alloc_skb(...) function call in kernel.
 
-Thanks for help
-Sushant
+On Mon, 7 Jun 2004, David Woodhouse wrote:
+>
+> On Mon, 2004-06-07 at 12:22 -0700, Linus Torvalds wrote:
+> > I don't see it as a correctness issue, I see it as a performance issue.
+> 
+> In the case in question it's very much _not_ a performance issue. We're
+> writing a buffer to FLASH memory. The time it takes to read the word
+> from RAM is entirely lost in the noise compared with the time it takes
+> to write it to the flash.
 
+Not if you have to take an alignment fault, which is easily several 
+thousand cycles.
+
+Think of "get_unaligned()" as a worst-case limiter. It can make the best 
+case be worse on architectures where it matters, but it can make the worst 
+case go from thousands of cycles to just single cycles.
+
+And your flash isn't _that_ slow. Thousands of cycles that can't even 
+overlap with any flash IO _does_ show up.
+
+Now, whether the unaligned case is common enough for people to even worry, 
+I don't know.
+
+			Linus

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULURHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbULUROg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbULURHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 12:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbULURHc
+	id S261808AbULUROg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 12:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbULUROg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 12:07:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53904 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261807AbULURH1 (ORCPT
+	Tue, 21 Dec 2004 12:14:36 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58003 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261808AbULUROe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 12:07:27 -0500
-Date: Tue, 21 Dec 2004 09:05:28 -0800
+	Tue, 21 Dec 2004 12:14:34 -0500
+Date: Tue, 21 Dec 2004 09:13:18 -0800
 From: Greg KH <greg@kroah.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, willy@debian.org,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH] add PCI API to sysfs
-Message-ID: <20041221170528.GB1459@kroah.com>
-References: <200412201450.47952.jbarnes@engr.sgi.com> <20041220225817.GA21404@kroah.com> <200412201501.12575.jbarnes@engr.sgi.com>
+To: Arne Caspari <arnem@informatik.uni-bremen.de>
+Cc: Adrian Bunk <bunk@stusta.de>, bcollins@debian.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: updated: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+Message-ID: <20041221171317.GC1459@kroah.com>
+References: <20041220015320.GO21288@stusta.de> <41C694E0.8010609@informatik.uni-bremen.de> <20041220175156.GW21288@stusta.de> <20041221004237.GJ21288@stusta.de> <41C7E2D7.7040806@informatik.uni-bremen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412201501.12575.jbarnes@engr.sgi.com>
+In-Reply-To: <41C7E2D7.7040806@informatik.uni-bremen.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 03:01:12PM -0800, Jesse Barnes wrote:
-> > What happens if mmap is not set?  oops...
+On Tue, Dec 21, 2004 at 09:46:15AM +0100, Arne Caspari wrote:
+> Adrian Bunk wrote:
+> >On Mon, Dec 20, 2004 at 06:51:56PM +0100, Adrian Bunk wrote:
+> >
+> >>...
+> >>After grepping through your CVS sources, it seems hpsb_read and 
+> >>hpsb_write are the EXPORT_SYMBOLS affecting you?
+> >>So keeping them should address your concerns?
+> >>...
 > 
-> Yeah, I mentioned that in "things to do" at the bottom, but I'm really looking 
-> for an "ack, this is a sane way to go" before I sink much more time into it.
+> Adrian,
+> 
+> A stable API for the 2.6.x tree would address my concerns :-)
 
-I think this is a sane way to go.
-
-How about sending me a patch just to add the mmap support to binary
-sysfs files now?  I'll be glad to add that to my trees.
-
-Then you can work on the pci stuff over time.
-
-Sound good?
+Please read Documentation/stable_api_nonesense.txt for details about why
+that will never happen :)
 
 thanks,
 

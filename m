@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbUJZC5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbUJZECS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbUJZC5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 22:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUJZC4h
+	id S262090AbUJZECS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUJZD6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 22:56:37 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:5515 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261898AbUJZCuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 22:50:06 -0400
-Message-ID: <417DBB5A.6020207@acm.org>
-Date: Mon, 25 Oct 2004 21:50:02 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
- kernels II
-References: <417D2305.3020209@acm.org.suse.lists.linux.kernel> <p73u0sik2fa.fsf@verdi.suse.de> <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl> <20041025201758.GG9142@wotan.suse.de> <20041025204144.GA27518@wotan.suse.de> <Pine.LNX.4.58L.0410252157440.10974@blysk.ds.pg.gda.pl> <417D786F.4020101@acm.org> <Pine.LNX.4.58L.0410260031050.10974@blysk.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.58L.0410260031050.10974@blysk.ds.pg.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 25 Oct 2004 23:58:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:52558 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262152AbUJZDz7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 23:55:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aJut3RCaA/3GHzkCq9JeBzTZuheDvRDXJsyi9urlJMG3Mj07hXu0d8DgTs7W7okUIeqYHc+L9zU+LelIeYV+NmcAQQ6OAZBdFvG6BQEBJJ/N3J9yF4nfWnawGiM0BI8H3dvuHw1Lh22KiRXBbryrJsL1iaI5XghgZ7ZAVzadbQY=
+Message-ID: <9e47339104102520555460b8af@mail.gmail.com>
+Date: Mon, 25 Oct 2004 23:55:58 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Cc: Kendall Bennett <kendallb@scitechsoft.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <21d7e997041025193640d0c351@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <4176E08B.2050706@techsource.com>
+	 <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com>
+	 <4177ABC9.24323.20E9CA71@localhost>
+	 <21d7e997041025193640d0c351@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
+On Tue, 26 Oct 2004 12:36:52 +1000, Dave Airlie <airlied@gmail.com> wrote:
+> ATI and Nvidia not open-sourcing 3D stuff for one simple reason, IP
+> issues. It is also why Intel are not even giving out their later
+> chipsets docs to anyone by Tungsten, if anyone tells you differently
+> send them to me :-)
 
->>And you need a mutex for SMP systems.  If one processor is handling an 
->>NMI, another processor may still be accessing the device.
->>    
->>
-> Actually this path is meant to be ever accessed by one CPU only (one that
->has its LINT1 line enabled), but it may be reached by other ones due to
->the NMI watchdog as code does not check if its run by the right processor.  
->This probably qualifies as a bug.  Only the watchdog code of the NMI
->handler is expected to run everywhere.
->  
->
-Yes, only one processor will run through the NMI code, but another 
-processor may be accessing the RTC or something else in CMOS.  The mutex 
-will prevent the NMI and the RTC access from conflicting.
+After talking to representatives of both companies, it seems that the
+patent system has completely perverted the IP situation between them.
+But are staying secret because of fear of being sued by the other for
+infringement. This is exactly the opposite of what full disclosure of
+patents was supposed to achieve.
 
--Corey
+I wish they could just get together and agree not to sue each other
+over stupid things like register designs and programming models. The
+designs are horrible on both cards due to accumulation of historical
+cruft. Save the lawsuits for the core of the engines if you really
+have to sue each other.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317768AbSGZPVP>; Fri, 26 Jul 2002 11:21:15 -0400
+	id <S317765AbSGZPUy>; Fri, 26 Jul 2002 11:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317771AbSGZPVP>; Fri, 26 Jul 2002 11:21:15 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:39625 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S317768AbSGZPVO>;
-	Fri, 26 Jul 2002 11:21:14 -0400
-Date: Fri, 26 Jul 2002 10:18:48 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 Problem Report Status 
-Message-ID: <Pine.LNX.4.44.0207261001420.1036-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317768AbSGZPUx>; Fri, 26 Jul 2002 11:20:53 -0400
+Received: from B5bda.pppool.de ([213.7.91.218]:24592 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S317765AbSGZPUx>; Fri, 26 Jul 2002 11:20:53 -0400
+Subject: Re: [PATCH] SiS IDE ATA 133 support
+From: Daniel Egger <degger@fhm.edu>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D411EFF.2040205@inet6.fr>
+References: <3D411EFF.2040205@inet6.fr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-QwltVk4U8a086FsGjF0o"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 26 Jul 2002 15:58:29 +0200
+Message-Id: <1027691911.20695.1.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've updated the status report on the web page at 
 
-http://members.cox.net/tmolina/kernprobs/status.html
+--=-QwltVk4U8a086FsGjF0o
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- Items marked closed are based on Linux releasing 2.5.28 as well as lkml 
-messages.  Those items will be deleted after the next Linus release.
+Am Fre, 2002-07-26 um 12.05 schrieb Lionel Bouton:
 
-- Links to discussion about the problem reports are available on the page.  
-Dates under the discussion column are the date of last modification.  
-Those items marked with a kernel version rather than a date are items I 
-believe may be specific kernel version.  Those items will be deleted after 
-the next Linus release unless further discussion is noted.
+> People with SiS IDE chips, please test and report any failure/success to =
+me.
 
-- Discussions are only lightly edited to delete headers, trailers, and 
-unneeded contextual quotes.  Flamage will not be included.  I will, of 
-course, delete any person's contribution at his/her request.
+Are you asking for tests with any SiS chipset or just the recent ones
+with ATA/133? I could give it a spin on a SiS 735.
+=20
+--=20
+Servus,
+       Daniel
 
-- Comments, criticisms, pointers to relevant material needing to be 
-included are gratefully accepted.
+--=-QwltVk4U8a086FsGjF0o
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-               Kernel Problem Reports as of 26 Jul
-   Problem Title                       Status       Discussion
-   Software Suspend Failure            proposed fix 26 Jul 2002
-   big IRQ lock removal                closed       24 Jul 2002
-   Time jump/kernel freeze             open         2.5.27
-   IDE problem                         open         26 Jul 2002
-   RAID initialization                 open         24 Jul 2002
-   free_pages_ok problem               proposed fix 25 Jul 2002
-   console lockup                      open         2.5.27
-   slab page problem                   closed       24 Jul 2002
-   tcp_v6_get_port oops                closed       24 Jul 2002
-   RAID shutdown                       open         24 Jul 2002
-   Broken flock                        proposed fix 25 Jul 2002
-   odd memory corruption               closed       24 Jul 2002
-   Broken Floppy                       proposed fix 24 Jul 2002
-   OOPS with date                      open         25 Jul 2002
-   cpqarray broken since 2.5.19        open         25 Jul 2002
-   Oops w/PCMCIA modem & 8250_cs       open         25 Jul 2002
-   bad: schedule() with irqs disabled! open         26 Jul 2002
-   ISDN broken?                        open         26 Jul 2002
+iD8DBQA9QVWEchlzsq9KoIYRArsqAJwNltYFZxk7iuJPBL4RK1eH+UykRwCggiUt
+9ZrRvxpgE5/IbEr+bwfSaD4=
+=uypi
+-----END PGP SIGNATURE-----
 
+--=-QwltVk4U8a086FsGjF0o--
 

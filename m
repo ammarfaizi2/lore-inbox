@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbUKDN4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbUKDOEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUKDN4X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 08:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbUKDN4X
+	id S262222AbUKDOEN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUKDOEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 08:56:23 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:27317 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262217AbUKDN4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 08:56:20 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Thu, 4 Nov 2004 08:56:18 -0500
-User-Agent: KMail/1.7
-Cc: Jan Knutar <jk-lkml@sci.fi>, Tom Felker <tfelker2@uiuc.edu>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411040718.54250.gene.heskett@verizon.net> <200411041429.51575.jk-lkml@sci.fi>
-In-Reply-To: <200411041429.51575.jk-lkml@sci.fi>
+	Thu, 4 Nov 2004 09:04:13 -0500
+Received: from pop.gmx.net ([213.165.64.20]:48068 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262222AbUKDOEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 09:04:09 -0500
+X-Authenticated: #21910825
+Message-ID: <418A36CD.2030600@gmx.net>
+Date: Thu, 04 Nov 2004 15:03:57 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC] randomized major and minor numbers
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411040856.18929.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.11.139] at Thu, 4 Nov 2004 07:56:19 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 07:29, Jan Knutar wrote:
->On Thursday 04 November 2004 14:18, Gene Heskett wrote:
->> The machine is hung.  No ssh, no ping response, the only button
->> that works is the hardware reset on the front of the tower.
->
->I must've missed where the thread went from zombies into totally
-> hung machine. My apologies for the noise.
+Hi,
 
-It went from an unkillable process (gnomeradio) that was blocking 
-other programs like tvtime with its locks on /dev/video0, to 
-completely hung at "stopping alsasound" when I tried to reboot.  That 
-required the reset button to get going again.
+IIRC it was debated during 2.5 development to make the kernel
+hand out randomized major/minor numbers to better test handling
+of dynamic major/minor numbers. Is there a patch available
+to test?
 
+Background: I want to make sure that userspace can handle
+arbitrary device numbers for disks in my quest for a unified
+/dev/diskXpY naming and numbering scheme. This would unify
+all the different naming schemes (hd*, sd*, ub*, etc.),
+remove arbitrary limits like 15 partitions max on SCSI disks
+and achieve most of this in userspace with udev.
+
+In the end, there would be only one block major number >256
+with dynamically allocated major numbers for all disks in the
+system if LANANA agrees with such a concept. Why would I
+want a major >256 registered? Because that way we can make
+sure the software accessing these devices can handle a large
+dev_t and it doesn't only work by luck.
+
+Comments?
+
+Regards,
+Carl-Daniel
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+http://www.hailfinger.org/

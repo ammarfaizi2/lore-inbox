@@ -1,145 +1,722 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVAVMJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVAVMVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbVAVMJi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 07:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVAVMJi
+	id S262682AbVAVMVf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 07:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVAVMVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 07:09:38 -0500
-Received: from pD9F8757A.dip0.t-ipconnect.de ([217.248.117.122]:49282 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S262705AbVAVMJ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 07:09:27 -0500
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, binary search result
-Date: Sat, 22 Jan 2005 10:40:52 +0100
-Organization: privat
-Message-ID: <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
-References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no>
+	Sat, 22 Jan 2005 07:21:35 -0500
+Received: from verein.lst.de ([213.95.11.210]:48569 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262682AbVAVMUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 07:20:20 -0500
+Date: Sat, 22 Jan 2005 13:20:09 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: lethal@linux-sh.org
+Cc: linux-sh@m17n.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] use generic hardirq code on SH
+Message-ID: <20050122122009.GA9635@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-To: Helge Hafting <helgehaf@aitel.hist.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20050112
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.hinb9iv.s38127@ifi.uio.no>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting schrieb:
-> On Fri, Jan 21, 2005 at 09:05:12PM +0100, Andreas Hartmann wrote:
->> Hello Helge,
->> 
->> Helge Hafting schrieb:
->> > On Sun, Jan 16, 2005 at 10:41:23PM +1100, Dave Airlie wrote:
->> >> > 
->> >> > I'm fine with adding this code, but we still don't know if this is the
->> >> > cause of his problem. The debug output can determine if this really is
->> >> > the source of the problem or if it is somewhere else.
->> >> > 
->> >> 
->> >> I actually doubt it is this stuff.. my guess is that it is something
->> >> nasty like ACPI breaking int10 for X or something like that... it
->> >> seems a lot more subtle than the usually things that break when we
->> >> mess with the DRM :-)
->> 
->> Which glibc do you use? I have problems with glibc 2.3.4, kernel 2.4.x and
->> X / Xorg while executing the int10-code of X. glibc 2.3.3 works fine for
->> me. But I could find another posting, which describes, that there are even
->> problems with glibc 2.3.3 and kernel 2.4.x.
->> 
->> It's new for me, that there could be problems with kernelversions of 2.6, too.
->> 
->> Therefore, it would be really interessting to know, which glibc version
->> you are using.
->> 
-> I use glibc 2.3.2 from debian testing (or unstable).  
-> This is not the problem though, because a reboot into 2.6.8.1 makes
-> X work without crashing.  The crash only happens with 2.6.9-rc2
-> or later kernels.
 
-Did you try another version of glibc?
-
-> So the only way glibc could be the culprit, is if the newer kernel
-> exports some new interface that this glibc manages to mess up.  Still,
-> even a buggy glibc shouldn't hang the kernel anyway.
-
-That's certainly correct.
-
-> Such issues
-> could crash (all) user apps, but shouldn't prevent the machine from
-> responding to sysrq sequences.
-
-You emphasized the differences of the effects. But there is one reason in
-all cases which I know: int10 crashes X or even the whole kernel.
-
-I could debug the problem to the following point:
-
---------------------------------------------------------------------------
-static int
-vm86_rep(struct vm86_struct *ptr)
-{
-    int __res;
-
-#ifdef __PIC__
-    /* When compiling with -fPIC, we can't use asm constraint "b" because
-       %ebx is already taken by gcc. */
-    __asm__ __volatile__("pushl %%ebx\n\t"
-                         "movl %2,%%ebx\n\t"
-                         "movl %1,%%eax\n\t"
-                         "int $0x80\n\t"
-                         "popl %%ebx"
-                         :"=a" (__res)
-                         :"n" ((int)113), "r" ((struct vm86_struct *)ptr));
-#else
-    __asm__ __volatile__("int $0x80\n\t"
-                         :"=a" (__res):"a" ((int)113),
-                         "b" ((struct vm86_struct *)ptr));
-#endif
-/* Comment from me */
-xf86MsgVerb(X_INFO,3,"my comment\n");
-            if (__res < 0) {
-                errno = -__res;
-                __res = -1;
-            }
-            else errno = 0;
-            return __res;
-}
-
-#endif
------------------------------------------------------------------------
-
-I could see, that X crashes in glibc 2.3.4 with kernel 2.4.x (not with
-kernel 2.6.x, x <= 10, x > 10 not tested) during the first malloc syscall
-after int10 to execute the function
-xf86MsgVerb(X_INFO,3,"my comment\n");
-
-
-The crashes depend on different versions of used software:
-
-glibc 2.3.3 or 2.3.4 with kernel 2.4.x
-glibc 2.3.2 with kernel > 2.6.9rc2
-
-I asked a X developper, but he couldn't help until now, too.
-
-
-I can't say, if glibc or the kernel could be the problem. You can't relate
-it reliable neither to glibc nor to the kernel nor to X. Therefore, it
-_seems_ to me, nobody really cares about the problem.
-
-I'm willing to help to find the problem - but I'm neither a kernel
-developper, nor a glibc developper nor a X developper. I'm depending on
-the support of the developpers.
-
-I think, there should work one developper of each application together to
-find the problem. I could ask a X developper, which I know, if he is
-willing to help to find the problem together with a developper from the
-kernel and from the glibc (I don't know, who to ask from the glibc-team).
-
-
-Kind regards,
-Andreas Hartmann
+--- 1.35/arch/sh/Kconfig	2005-01-15 23:31:06 +01:00
++++ edited/arch/sh/Kconfig	2005-01-21 18:11:39 +01:00
+@@ -29,6 +29,14 @@
+ 	bool
+ 	default y
+ 
++config GENERIC_HARDIRQS
++	bool
++	default y
++
++config GENERIC_IRQ_PROBE
++	bool
++	default y
++
+ source "init/Kconfig"
+ 
+ menu "System type"
+--- 1.21/arch/sh/kernel/irq.c	2004-10-20 10:37:14 +02:00
++++ edited/arch/sh/kernel/irq.c	2005-01-21 18:16:16 +01:00
+@@ -40,58 +40,17 @@
+ #include <asm/irq.h>
+ #include <linux/irq.h>
+ 
+-/*
+- * Controller mappings for all interrupt sources:
+- */
+-irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned = {
+-	[0 ... NR_IRQS-1] = {
+-		.handler = &no_irq_type,
+-		.lock = SPIN_LOCK_UNLOCKED
+-	}
+-};
+-
+-/*
+- * Special irq handlers.
+- */
+ 
+-irqreturn_t no_action(int cpl, void *dev_id, struct pt_regs *regs)
+-{ return IRQ_NONE; }
+-
+-/*
+- * Generic no controller code
+- */
+-
+-static void enable_none(unsigned int irq) { }
+-static unsigned int startup_none(unsigned int irq) { return 0; }
+-static void disable_none(unsigned int irq) { }
+-static void ack_none(unsigned int irq)
+-{
+ /*
+  * 'what should we do if we get a hw irq event on an illegal vector'.
+  * each architecture has to answer this themselves, it doesn't deserve
+  * a generic callback i think.
+  */
++void ack_bad_irq(unsigned int irq)
++{
+ 	printk("unexpected IRQ trap at vector %02x\n", irq);
+ }
+ 
+-/* startup is the same as "enable", shutdown is same as "disable" */
+-#define shutdown_none	disable_none
+-#define end_none	enable_none
+-
+-struct hw_interrupt_type no_irq_type = {
+-	"none",
+-	startup_none,
+-	shutdown_none,
+-	enable_none,
+-	disable_none,
+-	ack_none,
+-	end_none
+-};
+-
+-/*
+- * Generic, controller-independent functions:
+- */
+-
+ #if defined(CONFIG_PROC_FS)
+ int show_interrupts(struct seq_file *p, void *v)
+ {
+@@ -127,210 +86,13 @@
+ }
+ #endif
+ 
+-/*
+- * This should really return information about whether
+- * we should do bottom half handling etc. Right now we
+- * end up _always_ checking the bottom half, which is a
+- * waste of time and is not what some drivers would
+- * prefer.
+- */
+-int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqaction * action)
+-{
+-	int status = 1;	/* Force the "do bottom halves" bit */
+-	int ret, retval = 0;
+-
+-	if (!(action->flags & SA_INTERRUPT))
+-		local_irq_enable();
+-
+-	do {
+-		ret = action->handler(irq, action->dev_id, regs);
+-		if (ret == IRQ_HANDLED)
+-			status |= action->flags;
+-		retval |= ret;
+-		action = action->next;
+-	} while (action);
+-
+-	if (status & SA_SAMPLE_RANDOM)
+-		add_interrupt_randomness(irq);
+-
+-	local_irq_disable();
+-	return retval;
+-}
+-
+-static void __report_bad_irq(int irq, irq_desc_t *desc, irqreturn_t action_ret)
+-{
+-	struct irqaction *action;
+-
+-	if (action_ret != IRQ_HANDLED && action_ret != IRQ_NONE) {
+-		printk(KERN_ERR "irq event %d: bogus return value %x\n",
+-				irq, action_ret);
+-	} else {
+-		printk(KERN_ERR "irq %d: nobody cared!\n", irq);
+-	}
+-	dump_stack();
+-	printk(KERN_ERR "handlers:\n");
+-	action = desc->action;
+-	do {
+-		printk(KERN_ERR "[<%p>]", action->handler);
+-		print_symbol(" (%s)",
+-			(unsigned long)action->handler);
+-		printk("\n");
+-		action = action->next;
+-	} while (action);
+-}
+-
+-static void report_bad_irq(int irq, irq_desc_t *desc, irqreturn_t action_ret)
+-{
+-	static int count = 100;
+-
+-	if (count) {
+-		count--;
+-		__report_bad_irq(irq, desc, action_ret);
+-	}
+-}
+-
+-static int noirqdebug;
+-
+-static int __init noirqdebug_setup(char *str)
+-{
+-	noirqdebug = 1;
+-	printk("IRQ lockup detection disabled\n");
+-	return 1;
+-}
+-
+-__setup("noirqdebug", noirqdebug_setup);
+-
+-/*
+- * If 99,900 of the previous 100,000 interrupts have not been handled then
+- * assume that the IRQ is stuck in some manner.  Drop a diagnostic and try to
+- * turn the IRQ off.
+- *
+- * (The other 100-of-100,000 interrupts may have been a correctly-functioning
+- *  device sharing an IRQ with the failing one)
+- *
+- * Called under desc->lock
+- */
+-static void note_interrupt(int irq, irq_desc_t *desc, irqreturn_t action_ret)
+-{
+-	if (action_ret != IRQ_HANDLED) {
+-		desc->irqs_unhandled++;
+-		if (action_ret != IRQ_NONE)
+-			report_bad_irq(irq, desc, action_ret);
+-	}
+-
+-	desc->irq_count++;
+-	if (desc->irq_count < 100000)
+-		return;
+-
+-	desc->irq_count = 0;
+-	if (desc->irqs_unhandled > 99900) {
+-		/*
+-		 * The interrupt is stuck
+-		 */
+-		__report_bad_irq(irq, desc, action_ret);
+-		/*
+-		 * Now kill the IRQ
+-		 */
+-		printk(KERN_EMERG "Disabling IRQ #%d\n", irq);
+-		desc->status |= IRQ_DISABLED;
+-		desc->handler->disable(irq);
+-	}
+-	desc->irqs_unhandled = 0;
+-}
+-
+-/*
+- * Generic enable/disable code: this just calls
+- * down into the PIC-specific version for the actual
+- * hardware disable after having gotten the irq
+- * controller lock. 
+- */
+-inline void disable_irq_nosync(unsigned int irq)
+-{
+-	irq_desc_t *desc = irq_desc + irq;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&desc->lock, flags);
+-	if (!desc->depth++) {
+-		desc->status |= IRQ_DISABLED;
+-		desc->handler->disable(irq);
+-	}
+-	spin_unlock_irqrestore(&desc->lock, flags);
+-}
+-
+-/*
+- * Synchronous version of the above, making sure the IRQ is
+- * no longer running on any other IRQ..
+- */
+-void disable_irq(unsigned int irq)
+-{
+-	irq_desc_t *desc = irq_desc + irq;
+-	disable_irq_nosync(irq);
+-	if (desc->action)
+-		synchronize_irq(irq);
+-}
+-
+-void enable_irq(unsigned int irq)
+-{
+-	irq_desc_t *desc = irq_desc + irq;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&desc->lock, flags);
+-	switch (desc->depth) {
+-	case 1: {
+-		unsigned int status = desc->status & ~(IRQ_DISABLED | IRQ_INPROGRESS);
+-		desc->status = status;
+-		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
+-			desc->status = status | IRQ_REPLAY;
+-			hw_resend_irq(desc->handler,irq);
+-		}
+-		desc->handler->enable(irq);
+-		/* fall-through */
+-	}
+-	default:
+-		desc->depth--;
+-		break;
+-	case 0:
+-		printk("enable_irq() unbalanced from %p\n",
+-		       __builtin_return_address(0));
+-	}
+-	spin_unlock_irqrestore(&desc->lock, flags);
+-}
+-
+-/*
+- * do_IRQ handles all normal device IRQ's.
+- */
+ asmlinkage int do_IRQ(unsigned long r4, unsigned long r5,
+ 		      unsigned long r6, unsigned long r7,
+ 		      struct pt_regs regs)
+ {	
+-	/* 
+-	 * We ack quickly, we don't want the irq controller
+-	 * thinking we're snobs just because some other CPU has
+-	 * disabled global interrupts (we have already done the
+-	 * INT_ACK cycles, it's too late to try to pretend to the
+-	 * controller that we aren't taking the interrupt).
+-	 *
+-	 * 0 return value means that this irq is already being
+-	 * handled by some other CPU. (or is disabled)
+-	 */
+ 	int irq;
+-	irq_desc_t *desc;
+-	struct irqaction * action;
+-	unsigned int status;
+ 
+ 	irq_enter();
+-
+-#ifdef CONFIG_PREEMPT
+-	/*
+-	 * At this point we're now about to actually call handlers,
+-	 * and interrupts might get reenabled during them... bump
+-	 * preempt_count to prevent any preemption while the handler
+-	 * called here is pending...
+-	 */
+-	preempt_disable();
+-#endif
+-
+-	/* Get IRQ number */
+ 	asm volatile("stc	r2_bank, %0\n\t"
+ 		     "shlr2	%0\n\t"
+ 		     "shlr2	%0\n\t"
+@@ -338,394 +100,7 @@
+ 		     "add	#-16, %0\n\t"
+ 		     :"=z" (irq));
+ 	irq = irq_demux(irq);
+-
+-	kstat_this_cpu.irqs[irq]++;
+-	desc = irq_desc + irq;
+-	spin_lock(&desc->lock);
+-	desc->handler->ack(irq);
+-	/*
+-	   REPLAY is when Linux resends an IRQ that was dropped earlier
+-	   WAITING is used by probe to mark irqs that are being tested
+-	   */
+-	status = desc->status & ~(IRQ_REPLAY | IRQ_WAITING);
+-	status |= IRQ_PENDING; /* we _want_ to handle it */
+-
+-	/*
+-	 * If the IRQ is disabled for whatever reason, we cannot
+-	 * use the action we have.
+-	 */
+-	action = NULL;
+-	if (likely(!(status & (IRQ_DISABLED | IRQ_INPROGRESS)))) {
+-		action = desc->action;
+-		status &= ~IRQ_PENDING; /* we commit to handling */
+-		status |= IRQ_INPROGRESS; /* we are handling it */
+-	}
+-	desc->status = status;
+-
+-	/*
+-	 * If there is no IRQ handler or it was disabled, exit early.
+-	   Since we set PENDING, if another processor is handling
+-	   a different instance of this same irq, the other processor
+-	   will take care of it.
+-	 */
+-	if (unlikely(!action))
+-		goto out;
+-
+-	/*
+-	 * Edge triggered interrupts need to remember
+-	 * pending events.
+-	 * This applies to any hw interrupts that allow a second
+-	 * instance of the same irq to arrive while we are in do_IRQ
+-	 * or in the handler. But the code here only handles the _second_
+-	 * instance of the irq, not the third or fourth. So it is mostly
+-	 * useful for irq hardware that does not mask cleanly in an
+-	 * SMP environment.
+-	 */
+-	for (;;) {
+-		irqreturn_t action_ret;
+-
+-		spin_unlock(&desc->lock);
+-		action_ret = handle_IRQ_event(irq, &regs, action);
+-		spin_lock(&desc->lock);
+-		if (!noirqdebug)
+-			note_interrupt(irq, desc, action_ret);
+-		if (likely(!(desc->status & IRQ_PENDING)))
+-			break;
+-		desc->status &= ~IRQ_PENDING;
+-	}
+-	desc->status &= ~IRQ_INPROGRESS;
+-
+-out:
+-	/*
+-	 * The ->end() handler has to deal with interrupts which got
+-	 * disabled while the handler was running.
+-	 */
+-	desc->handler->end(irq);
+-	spin_unlock(&desc->lock);
+-
++	__do_IRQ(irq, &regs);
+ 	irq_exit();
+-
+-#ifdef CONFIG_PREEMPT
+-	/*
+-	 * We're done with the handlers, interrupts should be
+-	 * currently disabled; decrement preempt_count now so
+-	 * as we return preemption may be allowed...
+-	 */
+-	preempt_enable_no_resched();
+-#endif
+-
+ 	return 1;
+ }
+-
+-int request_irq(unsigned int irq, 
+-		irqreturn_t (*handler)(int, void *, struct pt_regs *),
+-		unsigned long irqflags, 
+-		const char * devname,
+-		void *dev_id)
+-{
+-	int retval;
+-	struct irqaction * action;
+-
+-	if (irq >= ACTUAL_NR_IRQS)
+-		return -EINVAL;
+-	if (!handler)
+-		return -EINVAL;
+-
+-	action = (struct irqaction *)
+-			kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
+-	if (!action)
+-		return -ENOMEM;
+-
+-	action->handler = handler;
+-	action->flags = irqflags;
+-	cpus_clear(action->mask);
+-	action->name = devname;
+-	action->next = NULL;
+-	action->dev_id = dev_id;
+-
+-	retval = setup_irq(irq, action);
+-	if (retval)
+-		kfree(action);
+-	return retval;
+-}
+-
+-EXPORT_SYMBOL(request_irq);
+-
+-void free_irq(unsigned int irq, void *dev_id)
+-{
+-	irq_desc_t *desc;
+-	struct irqaction **p;
+-	unsigned long flags;
+-
+-	if (irq >= ACTUAL_NR_IRQS)
+-		return;
+-
+-	desc = irq_desc + irq;
+-	spin_lock_irqsave(&desc->lock,flags);
+-	p = &desc->action;
+-	for (;;) {
+-		struct irqaction * action = *p;
+-		if (action) {
+-			struct irqaction **pp = p;
+-			p = &action->next;
+-			if (action->dev_id != dev_id)
+-				continue;
+-
+-			/* Found it - now remove it from the list of entries */
+-			*pp = action->next;
+-			if (!desc->action) {
+-				desc->status |= IRQ_DISABLED;
+-				desc->handler->shutdown(irq);
+-			}
+-			spin_unlock_irqrestore(&desc->lock,flags);
+-			synchronize_irq(irq);
+-			kfree(action);
+-			return;
+-		}
+-		printk("Trying to free free IRQ%d\n",irq);
+-		spin_unlock_irqrestore(&desc->lock,flags);
+-		return;
+-	}
+-}
+-
+-EXPORT_SYMBOL(free_irq);
+-
+-static DECLARE_MUTEX(probe_sem);
+-
+-/*
+- * IRQ autodetection code..
+- *
+- * This depends on the fact that any interrupt that
+- * comes in on to an unassigned handler will get stuck
+- * with "IRQ_WAITING" cleared and the interrupt
+- * disabled.
+- */
+-unsigned long probe_irq_on(void)
+-{
+-	unsigned int i;
+-	irq_desc_t *desc;
+-	unsigned long val;
+-	unsigned long delay;
+-
+-	down(&probe_sem);
+-	/* 
+-	 * something may have generated an irq long ago and we want to
+-	 * flush such a longstanding irq before considering it as spurious. 
+-	 */
+-	for (i = NR_IRQS-1; i > 0; i--) {
+-		desc = irq_desc + i;
+-
+-		spin_lock_irq(&desc->lock);
+-		if (!desc->action)
+-			desc->handler->startup(i);
+-		spin_unlock_irq(&desc->lock);
+-	}
+-
+-	/* Wait for longstanding interrupts to trigger. */
+-	for (delay = jiffies + HZ/50; time_after(delay, jiffies); )
+-		/* about 20ms delay */ barrier();
+-
+-	/*
+-	 * enable any unassigned irqs
+-	 * (we must startup again here because if a longstanding irq
+-	 * happened in the previous stage, it may have masked itself)
+-	 */
+-	for (i = NR_IRQS-1; i > 0; i--) {
+-		desc = irq_desc + i;
+-
+-		spin_lock_irq(&desc->lock);
+-		if (!desc->action) {
+-			desc->status |= IRQ_AUTODETECT | IRQ_WAITING;
+-			if (desc->handler->startup(i))
+-				desc->status |= IRQ_PENDING;
+-		}
+-		spin_unlock_irq(&desc->lock);
+-	}
+-
+-	/*
+-	 * Wait for spurious interrupts to trigger
+-	 */
+-	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
+-		/* about 100ms delay */ barrier();
+-
+-	/*
+-	 * Now filter out any obviously spurious interrupts
+-	 */
+-	val = 0;
+-	for (i=0; i<NR_IRQS; i++) {
+-		unsigned int status;
+-
+-		desc = irq_desc + i;
+-
+-		spin_lock_irq(&desc->lock);
+-		status = desc->status;
+-
+-		if (status & IRQ_AUTODETECT) {
+-			/* It triggered already - consider it spurious. */
+-			if (!(status & IRQ_WAITING)) {
+-				desc->status = status & ~IRQ_AUTODETECT;
+-				desc->handler->shutdown(i);
+-			} else
+-				if (i < 32)
+-					val |= 1 << i;
+-		}
+-		spin_unlock_irq(&desc->lock);
+-	}
+-
+-	return val;
+-}
+-
+-EXPORT_SYMBOL(probe_irq_on);
+-
+-/* Return a mask of triggered interrupts (this
+- * can handle only legacy ISA interrupts).
+- */
+-
+-/*
+- *	probe_irq_mask - scan a bitmap of interrupt lines
+- *	@val:	mask of interrupts to consider
+- *
+- *	Scan the ISA bus interrupt lines and return a bitmap of
+- *	active interrupts. The interrupt probe logic state is then
+- *	returned to its previous value.
+- *
+- *	Note: we need to scan all the irq's even though we will
+- *	only return ISA irq numbers - just so that we reset them
+- *	all to a known state.
+- */
+-unsigned int probe_irq_mask(unsigned long val)
+-{
+-	int i;
+-	unsigned int mask;
+-
+-	mask = 0;
+-	for (i = 0; i < NR_IRQS; i++) {
+-		irq_desc_t *desc = irq_desc + i;
+-		unsigned int status;
+-
+-		spin_lock_irq(&desc->lock);
+-		status = desc->status;
+-
+-		if (status & IRQ_AUTODETECT) {
+-			if (i < 16 && !(status & IRQ_WAITING))
+-				mask |= 1 << i;
+-
+-			desc->status = status & ~IRQ_AUTODETECT;
+-			desc->handler->shutdown(i);
+-		}
+-		spin_unlock_irq(&desc->lock);
+-	}
+-	up(&probe_sem);
+-
+-	return mask & val;
+-}
+-
+-int probe_irq_off(unsigned long val)
+-{
+-	int i, irq_found, nr_irqs;
+-
+-	nr_irqs = 0;
+-	irq_found = 0;
+-	for (i=0; i<NR_IRQS; i++) {
+-		irq_desc_t *desc = irq_desc + i;
+-		unsigned int status;
+-
+-		spin_lock_irq(&desc->lock);
+-		status = desc->status;
+-
+-		if (status & IRQ_AUTODETECT) {
+-			if (!(status & IRQ_WAITING)) {
+-				if (!nr_irqs)
+-					irq_found = i;
+-				nr_irqs++;
+-			}
+-			desc->status = status & ~IRQ_AUTODETECT;
+-			desc->handler->shutdown(i);
+-		}
+-		spin_unlock_irq(&desc->lock);
+-	}
+-	up(&probe_sem);
+-
+-	if (nr_irqs > 1)
+-		irq_found = -irq_found;
+-	return irq_found;
+-}
+-
+-EXPORT_SYMBOL(probe_irq_off);
+-
+-int setup_irq(unsigned int irq, struct irqaction * new)
+-{
+-	int shared = 0;
+-	struct irqaction *old, **p;
+-	unsigned long flags;
+-	irq_desc_t *desc = irq_desc + irq;
+-
+-	if (desc->handler == &no_irq_type)
+-		return -ENOSYS;
+- 	/*
+-	 * Some drivers like serial.c use request_irq() heavily,
+-	 * so we have to be careful not to interfere with a
+-	 * running system.
+-	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-		rand_initialize_irq(irq);
+-	}
+-
+-	/*
+-	 * The following block of code has to be executed atomically
+-	 */
+-	spin_lock_irqsave(&desc->lock,flags);
+-	p = &desc->action;
+-	if ((old = *p) != NULL) {
+-		/* Can't share interrupts unless both agree to */
+-		if (!(old->flags & new->flags & SA_SHIRQ)) {
+-			spin_unlock_irqrestore(&desc->lock,flags);
+-			return -EBUSY;
+-		}
+-
+-		/* add new interrupt at end of irq queue */
+-		do {
+-			p = &old->next;
+-			old = *p;
+-		} while (old);
+-		shared = 1;
+-	}
+-
+-	*p = new;
+-
+-	if (!shared) {
+-		desc->depth = 0;
+-		desc->status &= ~(IRQ_DISABLED | IRQ_AUTODETECT | IRQ_WAITING | IRQ_INPROGRESS);
+-		desc->handler->startup(irq);
+-	}
+-	spin_unlock_irqrestore(&desc->lock,flags);
+-	return 0;
+-}
+-
+-#if defined(CONFIG_PROC_FS) && defined(CONFIG_SYSCTL)
+-
+-void init_irq_proc(void)
+-{
+-}
+-#endif
+-
+-/* Taken from the 2.5 alpha port */
+-#ifdef CONFIG_SMP
+-void synchronize_irq(unsigned int irq)
+-{
+-	/* is there anything to synchronize with? */
+-	if (!irq_desc[irq].action)
+-		return;
+-
+-	while (irq_desc[irq].status & IRQ_INPROGRESS)
+-		barrier();
+-}
+-#endif
+--- 1.9/include/asm-sh/hardirq.h	2005-01-05 03:48:11 +01:00
++++ edited/include/asm-sh/hardirq.h	2005-01-21 18:14:08 +01:00
+@@ -23,4 +23,6 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
++extern void ack_bad_irq(unsigned int irq);
++
+ #endif /* __ASM_SH_HARDIRQ_H */

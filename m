@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbTDRQOL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 12:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTDRQMa
+	id S263208AbTDRQRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 12:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRQQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 12:12:30 -0400
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:62725 "EHLO
-	fw.vanvergehaald.nl") by vger.kernel.org with ESMTP id S263139AbTDRQMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 12:12:12 -0400
-Date: Fri, 18 Apr 2003 17:49:12 +0200
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm4
-Message-ID: <20030418154911.GA16046@hout.vanvergehaald.nl>
-References: <20030418014536.79d16076.akpm@digeo.com>
-Mime-Version: 1.0
+	Fri, 18 Apr 2003 12:16:48 -0400
+Received: from isis.cs3-inc.com ([207.224.119.73]:50683 "EHLO isis.cs3-inc.com")
+	by vger.kernel.org with ESMTP id S263201AbTDRQQF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 12:16:05 -0400
+From: don-linux@isis.cs3-inc.com (Don Cohen)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030418014536.79d16076.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16032.9818.987823.826601@isis.cs3-inc.com>
+Date: Fri, 18 Apr 2003 09:22:50 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: proposed optimization for network drivers
+In-Reply-To: <20030418.085933.131914868.davem@redhat.com>
+References: <200304170656.h3H6ujA28940@isis.cs3-inc.com>
+	<20030418.013640.28803567.davem@redhat.com>
+	<16032.7069.454420.811252@isis.cs3-inc.com>
+	<20030418.085933.131914868.davem@redhat.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 01:45:36AM -0700, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm4/
-> 
-> . A bunch of anticipatory scheduler patches.
-> 
->   For the first time ever, AS is working well with both IDE and SCSI
->   under all the usual tests.
-> 
->   It works just fine on SCSI with zero TCQ tags, and with four TCQ tags. 
->   At eight tags, read-vs-write performace is starting to measurably drop off.
->   At 32 tags it is about 2000x slower than at zero or four tags.
-> 
->   My recommendation, as always, is to disable SCSI TCQ completely.  If you
->   really must, set it to four tags.
+David S. Miller writes:
+ >    From: don-linux@isis.cs3-inc.com (Don Cohen)
+ >    Date: Fri, 18 Apr 2003 08:37:01 -0700
+ > 
+ >    For instance, why does every driver have to call
+ >    eth_type_trans?  Could that be delayed for netif_rx ?
+ > 
+ > Silly example.  Ethernet specific routines do not belong in
+ > device generic netif_rx().
 
-What about drivers that bypass de SCSI layer?
-I administer a server with a Mylex RAID controller (DAC960)...
+Ok, fair enough.
+How about the larger point that it's reasonable to check early whether
+the labor you're about to expend will be wasted and the suggestion
+that this be encapsulated in a function that all drivers can share?
 
-Regards,
-Toon.

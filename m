@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUGAQpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266078AbUGAQts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUGAQpW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 12:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUGAQpV
+	id S266078AbUGAQts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 12:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266079AbUGAQts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 12:45:21 -0400
-Received: from users.linvision.com ([62.58.92.114]:5274 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S266048AbUGAQpQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 12:45:16 -0400
-Date: Thu, 1 Jul 2004 18:45:14 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Jason Mancini <xorbe@sbcglobal.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/isofs/inode.c, 2-4GB files rejected on DVDs
-Message-ID: <20040701164514.GA19407@bitwizard.nl>
-References: <1088073870.17691.8.camel@xorbe.dyndns.org> <20040624150122.GB5068@apps.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624150122.GB5068@apps.cwi.nl>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+	Thu, 1 Jul 2004 12:49:48 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:19820 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S266078AbUGAQtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 12:49:45 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH/2.4.26] Avoid kernel data corruption through /dev/kmem
+Date: Thu, 1 Jul 2004 16:05:29 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_poB5AYL3pY4S0Nw"
+Message-Id: <200407011605.29386.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 05:01:22PM +0200, Andries Brouwer wrote:
-> Config item? No. There are far too many.
-> 
-> Automatically enabling? No - that code must be deleted, like you did.
-> Anyone with such a CDROM can give the "cruft" mount option herself.
 
-Agreed, But how about printing a warning (once!) if in the old days
-the cruft option would have been enabled automatically?
+--Boundary-00=_poB5AYL3pY4S0Nw
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-	Roger. 
+I'm sending this fix for /dev/kmem; I already sent a cleanup about this, but 
+since you said "cleanups go in 2.6", then I'm sending only the bugfix.
 
+Bye
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+
+--Boundary-00=_poB5AYL3pY4S0Nw
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="fix-mem-return.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="fix-mem-return.patch"
+
+
+We need to check if do_write_mem == -EFAULT.
+In fact, without that check, we could execute this:
+
+do_write_mem returns -EFAULT;
+wrote = -EFAULT;
+
+buf += wrote; //i.e. buf -= EFAULT (14);
+
+... read other data from buf, and write it to kernel memory
+(actually on special circumstances, i.e. p < high_memory && 
+ p + count > high_memory).
+
+Luckily not at all exploitable (not even in the OpenBSD idea) since
+to write on /dev/kmem you must already be root.
+
+---
+
+ linux-2.4.26-paolo/drivers/char/mem.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff -puN drivers/char/mem.c~fix-mem-return drivers/char/mem.c
+--- linux-2.4.26/drivers/char/mem.c~fix-mem-return	2004-07-01 15:14:00.275806312 +0200
++++ linux-2.4.26-paolo/drivers/char/mem.c	2004-07-01 15:28:24.604408392 +0200
+@@ -287,11 +287,13 @@ static ssize_t write_kmem(struct file * 
+ 	char * kbuf; /* k-addr because vwrite() takes vmlist_lock rwlock */
+ 
+ 	if (p < (unsigned long) high_memory) {
+-		wrote = count;
++		ssize_t towrite = count;
+ 		if (count > (unsigned long) high_memory - p)
+-			wrote = (unsigned long) high_memory - p;
++			towrite = (unsigned long) high_memory - p;
+ 
+-		wrote = do_write_mem(file, (void*)p, p, buf, wrote, ppos);
++		wrote = do_write_mem(file, (void*)p, p, buf, towrite, ppos);
++		if (wrote != towrite)
++			return wrote;
+ 
+ 		p += wrote;
+ 		buf += wrote;
+_
+
+--Boundary-00=_poB5AYL3pY4S0Nw--
+

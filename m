@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUIOH4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUIOIB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUIOH4m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 03:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUIOH4m
+	id S263664AbUIOIB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 04:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUIOIB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 03:56:42 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:61383 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263024AbUIOH4k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 03:56:40 -0400
-Date: Wed, 15 Sep 2004 00:56:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: thockin@hockin.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-Id: <20040915005613.2a64f536.pj@sgi.com>
-In-Reply-To: <4147F1B4.1060009@ppp0.net>
-References: <20040915011146.GA27782@hockin.org>
-	<1095214229.20763.6.camel@localhost>
-	<20040915031706.GA909@hockin.org>
-	<20040915034229.GA30747@kroah.com>
-	<20040915044830.GA4919@hockin.org>
-	<20040915050904.GA682@kroah.com>
-	<20040915062129.GA9230@hockin.org>
-	<4147E525.4000405@ppp0.net>
-	<20040915064735.GA11272@hockin.org>
-	<4147E649.1060306@ppp0.net>
-	<20040915065515.GA11587@hockin.org>
-	<4147F1B4.1060009@ppp0.net>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Sep 2004 04:01:59 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:61457 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263664AbUIOIB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 04:01:58 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, "Roman Zippel" <zippel@linux-m68k.org>
+Subject: Re: [PATCH] README (resend) - Explain new 2.6.xx.x version number
+Date: Wed, 15 Sep 2004 11:01:21 +0300
+User-Agent: KMail/1.5.4
+Cc: "Daniel Andersen" <anddan@linux-user.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+References: <41476413.1060100@linux-user.net> <Pine.LNX.4.61.0409150255590.981@scrub.home> <1109.4.5.49.23.1095216021.squirrel@www.osdl.org>
+In-Reply-To: <1109.4.5.49.23.1095216021.squirrel@www.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409151101.21715.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan wrote:
-> Well, time for /sys/devices/memory/memory<n>/. That would perhaps also
-> be suitable for numa which want to know which memory module is near
-> which cpu. 
+On Wednesday 15 September 2004 05:40, Randy.Dunlap wrote:
+> > Hi,
+> >
+> > On Tue, 14 Sep 2004, Daniel Andersen wrote:
+> >> This one ended up in the void last time without any comments.
+> >
+> > The funny thing is by the time people managed to apply the patch
+> > correctly, they don't need to read the README anymore.
+>
+> That's correct for this time.  However, if they have other kernel
+> trees (in the future) with this patch applied, it can help.
+>
+> > Seriously, without knowing about the pre-patches, what would you expect
+> > about the patch order if you found the patches 2.6.8, 2.6.8.1, 2.6.9?
+>
+> We have evidence that it's confusing to more than one person.
 
-Don't we already have something like that.  On an SN2 near me at this
-time, running 2.6.9-rc1-mm4:
+Using 2.6.8-fix1 instead of 2.6.8.1 could avoid such problems.
+--
+vda
 
-# pwd
-/sys/devices/system/node/node0
-
-# ls -lt cpu? | cut -c33-
-         0 Sep 15 00:50 cpu0 -> ../../../../devices/system/cpu/cpu0
-         0 Sep 15 00:50 cpu1 -> ../../../../devices/system/cpu/cpu1
-
-This tells me that CPUs 0 and 1 are on node 0.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

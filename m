@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282133AbRLQSwi>; Mon, 17 Dec 2001 13:52:38 -0500
+	id <S282129AbRLQS4I>; Mon, 17 Dec 2001 13:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282129AbRLQSw3>; Mon, 17 Dec 2001 13:52:29 -0500
-Received: from nc-ashvl-66-169-84-151.charternc.net ([66.169.84.151]:14466
-	"EHLO orp.orf.cx") by vger.kernel.org with ESMTP id <S282133AbRLQSwU>;
-	Mon, 17 Dec 2001 13:52:20 -0500
-Message-Id: <200112171852.fBHIqJR05703@orp.orf.cx>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: Re: modify_ldt returning ENOMEM on highmem
-Organization: Department of Tesselating Kumquats
-X-URL: http://orf.cx
-X-face: "(Qpt_9H~41JFy=C&/h^zmz6Dm6]1ZKLat1<W!0bNwz2!LxG-lZ=r@4Me&uUvG>-r\?<DcD
- b+Y'p'sCMJ
-From: Leigh Orf <orf@mailbag.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 17 Dec 2001 13:52:19 -0500
+	id <S282187AbRLQSz6>; Mon, 17 Dec 2001 13:55:58 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:8711 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id <S282129AbRLQSzl>; Mon, 17 Dec 2001 13:55:41 -0500
+Message-ID: <3C1E12A3.5955B8F6@cyclades.com>
+Date: Mon, 17 Dec 2001 12:43:31 -0300
+From: Daniela Squassoni <daniela@cyclades.com>
+Organization: Cyclades
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.4.9 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: dscc4 and new Generic HDLC Layer
+In-Reply-To: <3C19CA22.E604CB32@cyclades.com>
+		<20011214151518.B30306@xyzzy.org.uk> <m31yhwppzq.fsf@defiant.pm.waw.pl>
+Content-Type: multipart/mixed;
+ boundary="------------859B4E3D27C4266341800C86"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------859B4E3D27C4266341800C86
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Holger Lubitz wrote:
+Krzysztof Halasa wrote:
+> 
+> Anyway, incremental patch is better, I'm going to submit my paches
+> to 2.5 after some features (FR InARP, DCD handling, probably FR bridging)
+> are added and tested.
+> 
+> Seems it's better to include that things in 2.4 when it works fine.
+> Especially if all drivers are updated.
+> 2.5 first - of course.
 
-|   Hi,
-|   
-|   I tried posting this before, but apparently it didn't get through to the
-|   list.
-|   The following are the final lines of a strace of a failing mplayer:
-|   
-|   [...]
-|   modify_ldt(0x1, 0xbffff85c, 0x10)       = -1 ENOMEM (Cannot allocate
-|   memory)
-|   --- SIGSEGV (Segmentation fault) ---
-|   +++ killed by SIGSEGV +++
+How long do you think it will take to include the last changes in 2.4?
+Isn't it possible to submit a patch without these new features, just to
+speed up this process? Is there anything else that still need to be done
+before you submit it?
 
-Do you have an NTFS disk mounted? I had a similar problem which was
-"fixed" by not having an NTFS vol mounted. Apparently the ntfs code
-makes a lot of calls to vmalloc which leads to badness.
+It seems that there is a consensus that maintaining this out of the
+kernel is causing some overhead to the drivers maintainers...
 
-See http://www.uwsg.indiana.edu/hypermail/linux/kernel/0112.1/0878.html
-if interested.
+Best regards,
 
-Leigh Orf
+Daniela
+--------------859B4E3D27C4266341800C86
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="daniela.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Daniela Squassoni
+Content-Disposition: attachment;
+ filename="daniela.vcf"
+
+begin:vcard 
+n:Squassoni;Daniela
+x-mozilla-html:FALSE
+org:Cyclades;R&D
+adr:;;;;;;
+version:2.1
+email;internet:daniela@cyclades.com
+title:Software Engineer
+x-mozilla-cpt:;-3392
+fn:Daniela Squassoni
+end:vcard
+
+--------------859B4E3D27C4266341800C86--
 

@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbTDXUnm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 16:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTDXUnm
+	id S261482AbTDXUi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 16:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTDXUi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 16:43:42 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:19332 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264442AbTDXUnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 16:43:40 -0400
-Subject: Re: [dcl_discussion] [ANNOUNCE] OSDL Whitepaper: "Reducing System
-	Reboot Time With Kexec"
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Timothy D. Witham" <wookie@osdl.org>
-Cc: fastboot@osdl.org, cgl_discussion@osdl.org, dcl_discussion@osdl.org,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051208689.1787.326.camel@localhost.localdomain>
-References: <1051204164.4840.17.camel@andyp.pdx.osdl.net>
-	 <1051208689.1787.326.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051217727.2302.10.camel@andyp.pdx.osdl.net>
+	Thu, 24 Apr 2003 16:38:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:15752 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261482AbTDXUi2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 16:38:28 -0400
+Date: Thu, 24 Apr 2003 21:50:35 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424205035.GE30082@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <3EA84D1E.8020308@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Apr 2003 13:55:27 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA84D1E.8020308@techsource.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-24 at 11:24, Timothy D. Witham wrote:
->   So questions and comments are being accepted?
+Timothy Miller wrote:
+> Certainly.  But say the GPL allows it, and say Linus decides he wants 
+> it.  There's nothing stopping someone else from forking it and deciding 
+> they'll never accept any DRM-related code into their fork.
 
-Sure.
+True but if the GPL allows, nobody could prevent their fork becoming
+the heart of a DRM-locked product, either.
 
->      The actual values from the measurements in an appendix 
->      would be helpful.  Including the boot time breakdown
->      for the 8 way.
-...
-     On your chart, the time saved column is distracting to
->      me as it is extra data.
-...
-     On the relative percentage column
->      if it could be kexec/full boot that would make it so that
->      I wouldn't have to go back to the text to understand the
->      column.
+I wonder whether the FSF shouldn't fork the GPLv3 into two versions,
+according to what philosophy GPLv2 users would like to adopt for their
+own projects :)  (In principle, only the FSF is able to alter the
+license of a many-authored GPL'd project like Linux.  It would be
+unfortunate if they used that special status to promote an agenda
+which a large number existing GPL users disliked).
 
-Fair enough.  The 8-way measurements aren't currently available because
-that specific system has been assigned to another OSDL Lab Associate.
-
->      Also on the kernel boot time, I think that you 
->      are talking about the kernel init time.  So why not call
->      it that?
-
-I was hoping to avoid dancing around the semantics and interpretation of
-"booted" vs. "initialized".  I guess that didn't work as well as I had
-hoped. ;^)
-
-> 
->   On future and ongoing work.
->      The crash dump seems to be orthogonal to fast booting.  I 
->      would like to see future and ongoing work that applies to
->      fast booting. 
-> 
-> Tim
-
-Thanks for taking the time to generate feedback.
-
-Andy
-
-
+-- Jamie
 

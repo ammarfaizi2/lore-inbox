@@ -1,101 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbTKHCjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 21:39:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTKHCjw
+	id S261506AbTKHCzi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 21:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTKHCzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 21:39:52 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:5650 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261484AbTKHCjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 21:39:47 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: alpha@steudten.com (Thomas Steudten), Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG Missing define] 2.6.0-test 9-bk11: ALPHA:  missing asm/mca.h
-Organization: Core
-In-Reply-To: <3FABD32A.9090601@steudten.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1AIIzZ-0002oE-00@gondolin.me.apana.org.au>
-Date: Sat, 08 Nov 2003 13:38:25 +1100
+	Fri, 7 Nov 2003 21:55:38 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:11100 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S261506AbTKHCzg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 21:55:36 -0500
+Message-ID: <3FAC675F.8050606@rackable.com>
+Date: Fri, 07 Nov 2003 19:47:43 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: CPU-Test similar to Memtest?
+References: <20031028160550.GA855@rdlg.net> <1067379433.6281.575.camel@tubarao> <bogc7p$l07$1@gatekeeper.tmr.com>
+In-Reply-To: <bogc7p$l07$1@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Nov 2003 02:55:35.0751 (UTC) FILETIME=[C86F8570:01C3A5A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Steudten <alpha@steudten.com> wrote:
+bill davidsen wrote:
+> In article <1067379433.6281.575.camel@tubarao>,
+> Thayne Harbaugh  <tharbaugh@lnxi.com> wrote:
 > 
-> Andrew Morton wrote:
+> | On Tue, 2003-10-28 at 09:05, Robert L. Harris wrote:
+> | > I'm going to run MEMTEST today when I get home and get a chance to make
+> | > a bootable CD
+> | 
+> | Memtest86 is good, but it isn't as good as it could be.  Many times I
+> | have seen it run 24 hours without error even though the the system has
+> | bad memory.
+> | 
+> | >  but I'm wondering if there might be a "CPUTEST" or such
+> | > utility anyone knows of that'll poke and prod a dual athalon real well
+> | > and make sure I don't have a flaky cpu.
+> | 
+> | Run Linpack (or other computationally intensive program) while
+> | monitoring ECC errors with either
+> | http://www.anime.net/~goemon/linux-ecc/files/
+> | or
+> | ftp://ftp.lnxi.com/pub/bluesmoke
 > 
->> Thomas Steudten <alpha@steudten.com> wrote:
->> 
->>>This problem ist still there in -test9..
->>>
->>>In file included from drivers/net/3c509.c:77:
->>>include/linux/mca.h:15:21: asm/mca.h: No such file or directory
->
-> Problem still there in -bk11. Who can fix this in the kernel
-> source code?
+> I agree with almost everything you said, but I have seen cases in which
+> no CPU use would generate an error, but using heavy DMA io in addition
+> triggered the problem. If all else fails add your favorite disk test.
 
-I don't know.  But here is a different approach which hides the
-ifdef stuff in mca*.h.
+
+   Cpuburn is a good test to run on x86's.  That said I've only seen it 
+fail in 2 systems out of ~20,000.  Generally cpu erros will crash your 
+system before the error is printed to the screen.
+
+   Also compiling your kernel in a loop is a good way to shake loose 
+cpu, and memory issue.  I've often found this finds errors much quicker 
+many memory tests.
+
+   You might want to try ctcs.  "Make ; "./new-burn -t"
+http://sourceforge.net/projects/va-ctcs/
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-Index: kernel-source-2.5/include/linux/mca-legacy.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/include/linux/mca-legacy.h,v
-retrieving revision 1.1.1.3
-retrieving revision 1.3
-diff -u -r1.1.1.3 -r1.3
---- kernel-source-2.5/include/linux/mca-legacy.h	8 Oct 2003 19:24:51 -0000	1.1.1.3
-+++ kernel-source-2.5/include/linux/mca-legacy.h	26 Oct 2003 04:50:38 -0000	1.3
-@@ -7,6 +7,7 @@
- #ifndef _LINUX_MCA_LEGACY_H
- #define _LINUX_MCA_LEGACY_H
- 
-+#include <linux/config.h>
- #include <linux/mca.h>
- 
- #warning "MCA legacy - please move your driver to the new sysfs api"
-@@ -24,7 +25,7 @@
-  */
- #define MCA_NOTFOUND	(-1)
- 
--
-+#ifdef CONFIG_MCA
- 
- /* Returns the slot of the first enabled adapter matching id.  User can
-  * specify a starting slot beyond zero, to deal with detecting multiple
-@@ -70,3 +71,4 @@
- extern void mca_write_pos(int slot, int reg, unsigned char byte);
- 
- #endif
-+#endif
-Index: kernel-source-2.5/include/linux/mca.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/include/linux/mca.h,v
-retrieving revision 1.4
-retrieving revision 1.6
-diff -u -r1.4 -r1.6
---- kernel-source-2.5/include/linux/mca.h	11 Oct 2003 06:29:27 -0000	1.4
-+++ kernel-source-2.5/include/linux/mca.h	26 Oct 2003 04:50:38 -0000	1.6
-@@ -6,6 +6,10 @@
- #ifndef _LINUX_MCA_H
- #define _LINUX_MCA_H
- 
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_MCA
-+
- /* FIXME: This shouldn't happen, but we need everything that previously
-  * included mca.h to compile.  Take it out later when the MCA #includes
-  * are sorted out */
-@@ -149,4 +153,5 @@
- }
- #endif
- 
-+#endif /* CONFIG_MCA */
- #endif /* _LINUX_MCA_H */
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+

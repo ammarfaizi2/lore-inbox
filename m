@@ -1,104 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUJEHQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUJEHd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268920AbUJEHQD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 03:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUJEHQD
+	id S268802AbUJEHd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 03:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUJEHd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 03:16:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26839 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268933AbUJEHPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 03:15:47 -0400
-Date: Tue, 5 Oct 2004 09:12:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Message-ID: <20041005071245.GB2433@suse.de>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200410042212.32106.petkov@uni-muenster.de> <20041004204214.GB9022@suse.de> <200410042311.55584.petkov@uni-muenster.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410042311.55584.petkov@uni-muenster.de>
+	Tue, 5 Oct 2004 03:33:29 -0400
+Received: from gizmo08ps.bigpond.com ([144.140.71.18]:41628 "HELO
+	gizmo08ps.bigpond.com") by vger.kernel.org with SMTP
+	id S268802AbUJEHd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 03:33:26 -0400
+Message-ID: <41624E42.8030105@bigpond.net.au>
+Date: Tue, 05 Oct 2004 17:33:22 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bug in sched.c:task_hot()
+References: <200410050237.i952bx620740@unix-os.sc.intel.com>
+In-Reply-To: <200410050237.i952bx620740@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04 2004, Borislav Petkov wrote:
-> On Monday 04 October 2004 22:42, Jens Axboe wrote:
-> > On Mon, Oct 04 2004, Borislav Petkov wrote:
-> > > On Monday 04 October 2004 19:36, Jens Axboe wrote:
-> > > > On Mon, Oct 04 2004, Borislav Petkov wrote:
-> > > > > Ok here we go,
-> > > > >
-> > > > > final results:
-> > > > >
-> > > > >  2.6.8-rc1: OK
-> > > > >  2.6.8-rc2: OK
-> > > > >  2.6.8-rc3: OK
-> > > > >  2.6.8-rc3-bk1: OK
-> > > > >  2.6.8-rc3-bk2: OK
-> > > > >  2.6.8-rc3-bk3: OK
-> > > > >  2.6.8-rc3-bk4: OK
-> > > > >  2.6.8-rc4: BUG!
-> > > > >
-> > > > > So, assuming that everything went fine during testing, the bug got
-> > > > > introduced in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
-> > > >
-> > > > That's some nice testing, thank you. Try backing out this hunk:
-> > > >
-> > > > diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c
-> > > > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c ---
-> > > > linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c 2004-08-03
-> > > > 23:28:51.000000000 +0200 +++
-> > > > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c 2004-08-10
-> > > > 04:24:08.000000000 +0200 @@ -90,7 +90,7 @@ static int
-> > > > sg_set_reserved_size(request_ if (size < 0)
-> > > >    return -EINVAL;
-> > > >   if (size > (q->max_sectors << 9))
-> > > > -  return -EINVAL;
-> > > > +  size = q->max_sectors << 9;
-> > > >
-> > > >   q->sg_reserved_size = size;
-> > > >   return 0;
-> > > >
-> > > > It's the only thing that sticks out, and it could easily explain it if
-> > > > your cd ripper starts issuing requests that are too big. Maybe even add
-> > > > a printk() here, so it will look like this in the kernel you test:
-> > > >
-> > > >  if (size > (q->sectors << 9)) {
-> > > >   printk("%u rejected\n", size);
-> > > >   return -EINVAL;
-> > > >  }
-> > > >
-> > > > to verify.
-> > >
-> > > Yeah, that was it. Two lines in the log:
-> > >
-> > > Oct 4 22:07:04 zmei kernel: 3145728 rejected
-> > > Oct 4 22:07:04 zmei kernel: 3145728 rejected
-> > >
-> > > Hmm, so this means that my dvd drive is sending too big requests. What do
-> > > we do: firmware upgrade?
-> >
-> > It actually means we have a little discrepancy between what programs
-> > expact of the api. What program are you using? They are supposed to read
-> > back what value has been set with SG_GET_RESERVED_SIZE, I guess this one
-> > does not
-> > 
-> It is called cdda2wav and it is part of the cdrtools package by Joerg 
-> Schilling.  
+Chen, Kenneth W wrote:
+> Current implementation of task_hot() has a performance bug in it
+> that it will cause integer underflow.
+> 
+> Variable "now" (typically passed in as rq->timestamp_last_tick)
+> and p->timestamp are all defined as unsigned long long.  However,
+> If former is smaller than the latter, integer under flow occurs
+> which make the result of subtraction a huge positive number. Then
+> it is compared to sd->cache_hot_time and it will wrongly identify
+> a cache hot task as cache cold.
+> 
+> This bug causes large amount of incorrect process migration across
+> cpus (at stunning 10,000 per second) and we lost cache affinity very
+> quickly and almost took double digit performance regression on a db
+> transaction processing workload.  Patch to fix the bug.  Diff'ed against
+> 2.6.9-rc3.
+> 
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> 
+> 
+> --- linux-2.6.9-rc3/kernel/sched.c.orig	2004-10-04 19:11:21.000000000 -0700
+> +++ linux-2.6.9-rc3/kernel/sched.c	2004-10-04 19:19:27.000000000 -0700
+> @@ -180,7 +180,8 @@ static unsigned int task_timeslice(task_
+>  	else
+>  		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
+>  }
+> -#define task_hot(p, now, sd) ((now) - (p)->timestamp < (sd)->cache_hot_time)
+> +#define task_hot(p, now, sd) ((long long) ((now) - (p)->timestamp)	\
+> +				< (long long) (sd)->cache_hot_time)
+> 
+>  enum idle_type
+>  {
 
-Then it's a bug for sure. Not because it's Joerg, but because the
-semantics in the newer kernel is what he wanted. And what sg has been
-doing for a long time. The difference is that if you go through
-sg/ide-scsi, the scsi mid layer will handle requeueing a request for
-you. Most other drivers don't support requests larger than what the
-drive can handle in one operation.
+The interesting question is: How does now get to be less than timestamp? 
+  This probably means that timestamp_last_tick is not a good way of 
+getting a value for "now".  By the way, neither is sched_clock() when 
+measuring small time differences as it is not monotonic (something that 
+I had to allow for in my scheduling code).  I applied no such safeguards 
+to the timing used by the load balancing code as I assumed that it 
+already worked.
 
-You don't have an old version or anything like that, do you?
-
+Peter
 -- 
-Jens Axboe
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266120AbUA1RJW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 12:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbUA1RJW
+	id S266104AbUA1RAf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbUA1RAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 12:09:22 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:58320 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S266120AbUA1RI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 12:08:57 -0500
-Date: Wed, 28 Jan 2004 17:08:28 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Tim Hockin <thockin@hockin.org>
-cc: Andrew Morton <akpm@osdl.org>, <thockin@sun.com>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>
-Subject: Re: NGROUPS 2.6.2rc2
-In-Reply-To: <20040128010222.GA32323@hockin.org>
-Message-ID: <Pine.LNX.4.44.0401281706040.6069-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 28 Jan 2004 12:00:35 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:18095 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S266074AbUA1RAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 12:00:33 -0500
+Date: Wed, 28 Jan 2004 09:01:53 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
+Message-ID: <20040128170153.GA5494@cup.hp.com>
+References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com> <Pine.LNX.4.58.0401271847440.10794@home.osdl.org> <20040128085825.A3591@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040128085825.A3591@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jan 2004, Tim Hockin wrote:
-> On Tue, Jan 27, 2004 at 04:46:15PM -0800, Andrew Morton wrote:
-> > +
-> > +	if (info->ngroups > TASK_SIZE/sizeof(group))
-> > +		return -EFAULT;
-> > +	if (!access_ok(VERIFY_WRITE, grouplist, info->ngroups * sizeof(group)))
-> > +		return -EFAULT;
-> > 
-> > Why are many functions playing with TASK_SIZE?
+On Wed, Jan 28, 2004 at 08:58:25AM +0000, Russell King wrote:
+> On Tue, Jan 27, 2004 at 06:55:17PM -0800, Linus Torvalds wrote:
+> > Does anybody see any downsides to something like this?
 > 
-> Not sure - I thought it was maybe a paranoid check, Rusty included it in his
-> version of a similar patch a while ago.
+> What if the failing PCI access happened in an interrupt routine?
+> (I'm thinking of the situation where you may need to read the PCI
+> status registers to find out whether an error occurred.)
 
-Yes, a necessary paranoid check: without it, info->ngroups * sizeof(group)
-can easily wrap to something small, and access_ok pass when it should fail.
+The driver needs to be able to clean up in any context.
+That's why I'm advocating what willy called an "exception framework".
 
-Hugh
+While I like linus' suggestion is better than the original,
+it spreads the driver error recovery code throughout the driver.
+That upside is it can handle every situation.
+The downside is numerous error paths makes the regular code alot
+harder to read and maintain.
 
+> Also, for that matter, what if a network device receives an abort
+> while performing BM-DMA?
+
+The next PIO read will see the error caused by BM-DMA.
+
+> Do we even care about either of these two scenarios?
+
+yes. IO Error recovery has to deal with every scenario.
+
+grant

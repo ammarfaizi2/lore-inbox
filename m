@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269531AbUIZNnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269534AbUIZNxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269531AbUIZNnt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 09:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269534AbUIZNnt
+	id S269534AbUIZNxI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 09:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269535AbUIZNxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 09:43:49 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:55105 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S269531AbUIZNnq (ORCPT
+	Sun, 26 Sep 2004 09:53:08 -0400
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:3816 "EHLO
+	mwinf0904.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S269534AbUIZNxE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 09:43:46 -0400
-Message-ID: <33089.192.168.1.5.1096206148.squirrel@192.168.1.5>
-In-Reply-To: <1096156450.3697.19.camel@krustophenia.net>
-References: <20040903120957.00665413@mango.fruits.de> 
-    <20040925203841.GB28001@elte.hu>
-    <1096144856.3697.6.camel@krustophenia.net> 
-    <200409252250.53703.baldrick@free.fr>
-    <1096156450.3697.19.camel@krustophenia.net>
-Date: Sun, 26 Sep 2004 14:42:28 +0100 (WEST)
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Cc: "Duncan Sands" <baldrick@free.fr>, "Ingo Molnar" <mingo@elte.hu>,
-       "Florian Schmidt" <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Sun, 26 Sep 2004 09:53:04 -0400
+From: Fabrice =?iso-8859-1?q?M=E9nard?= <menard.fabrice@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: fbcon and unimap (kernel 2.6.8.1) again
+Date: Sun, 26 Sep 2004 15:53:15 +0200
+User-Agent: KMail/1.7
+Cc: jsimmons@infradead.org, geert@linux-m68k.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 26 Sep 2004 13:43:41.0033 (UTC) FILETIME=[D54BED90:01C4A3CE]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200409261553.16053.menard.fabrice@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Hi,
 
->
-> You know, this actually seems like an easier process than the serial
-> console.  Is there any good reason this isn't the "recommended" way to
-> diagnose lockups?  Unless they used to work at a telco ;-), most users
-> are more likely to have an ethernet crossover cable handy than a serial
-> cable.
->
-> Here's the netconsole mini-mini HOWTO.
->
-> load the module like:
->     insmod netconsole \
->     netconsole=source-port@source-ip/net-interface,dest-port@dest-ip/MAC-address
->
-> for example:
->     modprobe netconsole \
->     netconsole=1234@69.44.153.169/eth0,4567@64.81.245.32/00:0A:8A:05:3D:80
->
-> then connect the other machine and run:
->     netcat -u -l -p dest-port
->
-> to watch the output.
->
+Switching from 2.6.5 to 2.6.8.1, I found the same problem with accented chars 
+at boot time (fbcon didn't set a unicode map in 2.6.5).
+Looking into fbcon.c, I found that in the 2.6.8.1 release it is done in 
+fbcon_startup (fbcon.c).  I don't know exactly the internals but I think this 
+call is misplaced (maybe too late for the boot process ?).
 
-Thanks Lee.
+So I placed a call to con_set_default_unimap in fbcon_init and it works fine !
 
-I have tested this netconsole stuff and it seems to work pretty well.
-Already sent some results to alsa-devel bugtracker on the respective bug
-entry.
+Here is the patch
 
-Cheers.
+--- linux-2.6.8.1/drivers/video/console/fbcon.c.orig 2004-09-26 
+15:48:10.000000000 +0200
++++ linux-2.6.8.1/drivers/video/console/fbcon.c 2004-09-26 14:27:37.000000000 
++0200
+@@ -853,6 +853,7 @@ static void fbcon_init(struct vc_data *v
+    softback_top = 0;
+   }
+  }
++ con_set_default_unimap(vc->vc_num);
+ }
+ 
+ static void fbcon_deinit(struct vc_data *vc)
+
+(I think it doesn't hurt to leave the previous call in fbcont_startup)
+
+regards,
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+Fabrice Ménard
+menard.fabrice@wanadoo.fr

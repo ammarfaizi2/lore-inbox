@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbTCXXeC>; Mon, 24 Mar 2003 18:34:02 -0500
+	id <S261211AbTCXX04>; Mon, 24 Mar 2003 18:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261299AbTCXXeC>; Mon, 24 Mar 2003 18:34:02 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:30128 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S261296AbTCXXdy>; Mon, 24 Mar 2003 18:33:54 -0500
-Date: Tue, 25 Mar 2003 10:45:56 +1100
-From: CaT <cat@zip.com.au>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65: *huge* interactivity problems
-Message-ID: <20030324234556.GK621@zip.com.au>
-References: <20030323231306.GA4704@elf.ucw.cz> <20030324171936.680f98e2.akpm@digeo.com>
+	id <S261282AbTCXX0V>; Mon, 24 Mar 2003 18:26:21 -0500
+Received: from vger.timpanogas.org ([216.250.140.154]:33929 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S264496AbTCXXZg>; Mon, 24 Mar 2003 18:25:36 -0500
+Date: Mon, 24 Mar 2003 18:02:14 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Adam Radford <aradford@3WARE.com>
+Cc: "'Steven Pritchard'" <steve@silug.org>, linux-kernel@vger.kernel.org
+Subject: Re: 3ware driver errors
+Message-ID: <20030324180214.B14746@vger.timpanogas.org>
+References: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030324171936.680f98e2.akpm@digeo.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>; from aradford@3WARE.com on Mon, Mar 24, 2003 at 01:44:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 05:19:36PM -0800, Andrew Morton wrote:
-> Pavel Machek <pavel@ucw.cz> wrote:
-> > I'm having awfull interactivity problems. While lingvistic application
-> > (slm from nltools.sf.net) is running, machine is unusable. I still can
-> > read text in most, but can't login, can't run links, can't... For
-> > minutes.
-> > 
-> > slm does a lot of computation over ~250MB dataset, but during stall
-> > disk was not active.
+
+Adam,
+
+They also need to upgrade the firmware on the WD drives.  There's a known problem with WD drives and 3Ware.  
+
+Jeff
+
+On Mon, Mar 24, 2003 at 01:44:23PM -0800, Adam Radford wrote:
+> This is fixed in driver 1.02.00.032, the scsi layer is looping on sense key
+> 'aborted command' after you lost power to a jbod drive, and not checking the
+> ASC 
+> which is 0x04 (Logical Unit Not Ready).  If you want to fix it by hand in
+> your
+> driver before .032 comes out, in 3w-xxxx.h, change:
 > 
-> Oh Pavel, this is more a whinge than a bug report.  You know better ;)
-
-If he's seeing what I'm seeing then I can put my own answers to this. I
-get freezups, lost keystrokes and eventual shutdown of the laptop. I can
-reproduce it prettymuch at will be it a compilation of a piece of s/w,
-the kernel, mozilla loading pages or whatnot.
-
-> - How much memory does the machine have?
-
-256
-
-> - UP/SMP/preempt?
-
-UP with and without preempt presents the same issues.
-
-> - What do vmstat and top say?
-
-My box never survived long enough for me to be able to look.
-
-> - Did it happen in 2.5.64?  2.5.63?  2.4.20?
-
-Never had this under 2.4, Not sure wchi version now as I went to 2.5
-with this laptop as soon as the freeze came and I could back it up.
-
-As for 2.5 I can definately say the sluggishness and freezes happen with
-2.5.63+ (about to compile .66 and try it) but .63 does not turn the
-laptop off for me and .64 takes a wee bit more punishment before dieing
-on me.
-
-> - Does it get better if you renice stuff?
-
->From memory, I niced (to lvl 19) a compile of mplayer that was killing
-my laptop and it survived.
-
-> - What steps should others take to reproduce it?
-
-Not too sure. For me it's 'when compiling don't even think of looking at
-an input device the wrong way or BOOM'.
-
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, Leader of the United States Regime
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
+> {0x37, 0x0b, 0x04, 0x00},
+> 
+> to:
+> 
+> {0x37, 0x02, 0x04, 0x00}
+> 
+> This will return sense key 'Not Ready', and you will will not infinitely
+> loop.
+> If I were you, I would jiggle the power cables on that box and replace flaky
+> ones.
+> 
+> -Adam
+> 
+> -----Original Message-----
+> From: Steven Pritchard [mailto:steve@silug.org]
+> Sent: Monday, March 24, 2003 1:28 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: 3ware driver errors
+> 
+> 
+> (Apparently 3w-xxxx in the Subject gets caught as spam.  Somebody
+> might want to adjust that regular expression.  :-)
+> 
+> I have a server that is locking up every day or two with a console
+> full of this error:
+> 
+>     3w-xxxx: scsi0: Command failed: status = 0xcb, flags = 0x37, unit #0.
+> 
+> This is on a Dell PowerEdge 1400SC (dual PIII/1.13GHz, 1.1GB RAM),
+> with a 3ware Escalade 7000-2 and two WD1600JB drives, running Red Hat
+> 8.0 with kernel-smp 2.4.18-27.8.0.
+> 
+> I plan to report this to Red Hat's bugzilla, but I'm hoping for some
+> ideas or big red flags to jump out at somebody here...  I use this box
+> for a UML hosting server, so all this downtime is affecting *way* too
+> many people.
+> 
+> This box has been having other stability problems, so I'm guessing
+> this might not be directly related to the 3ware card/driver.  It did
+> survive a memtest86 pass.
+> 
+> Steve
+> -- 
+> steve@silug.org           | Southern Illinois Linux Users Group
+> (618)398-7360             | See web site for meeting details.
+> Steven Pritchard          | http://www.silug.org/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

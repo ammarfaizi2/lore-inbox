@@ -1,73 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263503AbVCEAgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbVCDXwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263503AbVCEAgg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbVCEASo
+	id S263301AbVCDXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVCDXth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:18:44 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13443 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263339AbVCEAA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:00:56 -0500
-Subject: Re: [PATCH] 2.6.11-mm1 ext3 writepages support for writeback mode
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050304154346.488b0a14.akpm@osdl.org>
-References: <1109978510.7236.18.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050304154346.488b0a14.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1109980684.7236.35.camel@dyn318077bld.beaverton.ibm.com>
+	Fri, 4 Mar 2005 18:49:37 -0500
+Received: from bender.bawue.de ([193.7.176.20]:39558 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S263089AbVCDWc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 17:32:27 -0500
+Date: Fri, 4 Mar 2005 23:32:22 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [SATA] libata-dev queue updated
+Message-ID: <20050304223222.GA10815@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com> <20050304063717.GA12203@sommrey.de> <422809D6.5090909@pobox.com> <20050304174956.GA10971@sommrey.de> <4228A3D4.8050906@pobox.com> <20050304203330.GA14557@sommrey.de> <4228C87A.8080205@pobox.com> <20050304220623.GA11867@sommrey.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Mar 2005 15:58:05 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304220623.GA11867@sommrey.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 15:43, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > Hi Andrew,
+On Fri, Mar 04, 2005 at 11:06:23PM +0100, Joerg Sommrey wrote:
+> On Fri, Mar 04, 2005 at 03:43:38PM -0500, Jeff Garzik wrote:
+> > Joerg Sommrey wrote:
+> > >On Fri, Mar 04, 2005 at 01:07:16PM -0500, Jeff Garzik wrote:
+> > >
+> > >>Joerg Sommrey wrote:
+> > >>
+> > >>>On Fri, Mar 04, 2005 at 02:10:14AM -0500, Jeff Garzik wrote:
+> > >>>
+> > >>>
+> > >>>>Joerg Sommrey wrote:
+> > >>>>
+> > >>>>
+> > >>>>>On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
+> > >>>>>
+> > >>>>>
+> > >>>>>
+> > >>>>>>Joerg Sommrey wrote:
+> > >>>>>>
+> > >>>>>>
+> > >>>>>>
+> > >>>>>>>On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
+> > >>>>>>>
+> > >>>>>>>
+> > >>>>>>>
+> > >>>>>>>
+> > >>>>>>>>Joerg Sommrey wrote:
+> > >>>>>>>>
+> > >>>>>>>>
+> > >>>>>>>>
+> > >>>>>>>>
+> > >>>>>>>>>Jeff Garzik wrote:
+> > >>>>>>>>>
+> > >>>>>>>>>
+> > >>>>>>>>>
+> > >>>>>>>>>
+> > >>>>>>>>>>Patch:
+> > >>>>>>>>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
+> > >>>>>>>>>
+> > >>>>>>>>>
+> > >>>>>>>>>Still not usable here.  The same errors as before when backing up:
+> > >>>>>>>>
+> > >>>>>>>>Please try 2.6.11 without any patches.
+> > >>>>>>>
+> > >>>>>>>Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
+> > >>>>>>>2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with 
+> > >>>>>>>the
+> > >>>>>>>same symptoms. 
+> > >>>>>>>
+> > >>>>>>>Reverting to stable 2.6.10-ac8 :-)
+> > >>>>>>
+> > >>>>>>Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
+> > >>>>>>things?
+> > >>>>>>
+> > >>>>>
+> > >>>>>
+> > >>>>>Still the same with this patch reverted.
+> > >>>>
+> > >>>>Does reverting the attached patch in 2.6.11 fix things?  (apply with 
+> > >>>>patch -R)
+> > >>>>
+> > >>>>This patch reverts the entire libata back to 2.6.10.
+> > >>>>
+> > >>>
+> > >>>I'm confused.  Still the same with everything reverted.  What shall I do
+> > >>>now?
+> > >>
+> > >>Well, first, thanks for your patience in narrowing this down.
+> > >>
+> > >>This means we have eliminated libata as a problem source, but we still 
+> > >>have the rest of the kernel go to through :)
+> > >>
+> > >>Try disabling ACPI with 'acpi=off' or 'pci=biosirq' to see if that fixes 
+> > >>things.
+> > >>
+> > >
+> > >I tried both settings with plain 2.6.11. Almost the same results, in my
+> > >impression apci=off causes the failure to appear even faster.
 > > 
-> > Here is the 2.6.11-mm1 patch for adding writepages support
-> > for ext3 writeback mode. Could you include it in -mm tree ?
+> > Just to make sure I have things right, please tell me if this is correct:
+> > 
+> > * 2.6.10 vanilla works
+> > 
+> > * 2.6.11 vanilla does not work
+> > 
+> > * 2.6.11 vanilla + 2.6.10 libata does not work
+> >   [2.6.10 libata == reverting all libata changes]
+> > 
+> > Is that all correct?
 > 
-> spose so.  Does it work?
+> Thanks for asking these precise questions.  After double-checking
+> everything I found a typo in my configuration that changes things a bit.
+> I repeated some tests and the correct answers are now:
+> * 2.6.10 vanilla		works
+> * 2.6.10-ac8			works
+> * 2.6.10-ac11			does not work
+> * 2.6.11 vanilla		does not work
+> * 2.6.11 w/o promise.patch	does not work
+> * 2.6.11 + 2.6.10 libata	works!
 > 
-> Do you have any benchmarking results handy?
+> This looks much more consistent to me but brings the case back to
+> libata.
 
-I did few benchmarks earlier which showed 5-7% improvement
-on throughput. I will run the numbers again.
+After one more test using 2.6.11 + 2.6.10 libata I got some errors.
+They are different, they end after some time and they don't lock the system:
 
-> 
-> > +static int
-> > +ext3_writeback_writepages(struct address_space *mapping, 
-> > +				struct writeback_control *wbc)
-> > +{
-> > +	struct inode *inode = mapping->host;
-> > +	handle_t *handle = NULL;
-> > +	int err, ret = 0;
-> > +
-> > +	if (!mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
-> > +		return ret;
-> 
-> Can we please add a comment explaining why this is here?  I've already
-> forgotten why we put it there.
+Mar  4 23:15:00 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }Mar  4 23:15:00 bear kernel: sdb: Current: sense key: Recovered Error
+Mar  4 23:15:00 bear kernel:     ASC=0x26 <<vendor>> ASCQ=0xc0
+Mar  4 23:15:00 bear kernel: FMK, ILI
 
-This is to avoid not starting the journal when we are trying to
-destroy journal inode. I will add comments.
+Got 1900 of these in 90 seconds and silence afterwards.  Maybe that
+helps. I'll keep this kernel running and watch it.
 
->       journal_destory()
->               iput(journal inode)
->                       do_writepages()
->                               generic_writepages()
->                                       ext3_writeback_writepage()
->                                               journal_start()
+-jo
 
- 
-Thanks,
-Badari
-
-
+-- 
+-rw-r--r--  1 jo users 63 2005-03-04 23:12 /home/jo/.signature

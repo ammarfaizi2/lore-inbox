@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261177AbSJYClw>; Thu, 24 Oct 2002 22:41:52 -0400
+	id <S261186AbSJYCmw>; Thu, 24 Oct 2002 22:42:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261186AbSJYClw>; Thu, 24 Oct 2002 22:41:52 -0400
-Received: from ns.cinet.co.jp ([210.166.75.130]:59921 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S261177AbSJYClv>;
-	Thu, 24 Oct 2002 22:41:51 -0400
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A30F@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Takashi Iwai '" <tiwai@suse.de>
-Cc: "'LKML '" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCHSET 22/25] add support for PC-9800 architecture (sound 
-	alsa)
-Date: Fri, 25 Oct 2002 11:47:55 +0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	id <S261191AbSJYCmw>; Thu, 24 Oct 2002 22:42:52 -0400
+Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:44172 "EHLO
+	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S261186AbSJYCmw>; Thu, 24 Oct 2002 22:42:52 -0400
+From: jlnance@unity.ncsu.edu
+Date: Thu, 24 Oct 2002 22:49:06 -0400
+To: linux-kernel@vger.kernel.org
+Subject: USB does not work after 2.4.18 to 2.5.44-ac2 upgrade
+Message-ID: <20021025024906.GA18214@ncsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello All,
+    I decided to do what Linus asked, and try out a 2.5.X kernel.
+The machine boots fine with the 2.5.44-ac2 kernel I installed, however
+I am having some problems with USB.  The usb-uhci module seems to be
+gone.  I read Documentation/usb/uhci.txt and it appears that the
+uhci module has been rewritten.  I assume the module named uhci-hcd.o
+is the replacement, but I could not find that written down anywhere.
+I did an insmod of this module and I can now see the hub in
+/proc/bus/usb/devices.  I dont see any of my other USB devices in that
+file, even after I insmod the drivers.  Does anyone know what I need to
+do to make this all work, preferably in a way that will let me boot into
+a 2.4 kernel as well?
 
------Original Message-----
-From: Takashi Iwai
-To: Osamu Tomita
-Cc: LKML
-Sent: 2002/10/24 0:46
-Subject: Re: [PATCHSET 22/25] add support for PC-9800 architecture (sound
-alsa)
+Thanks,
 
-> the question is, whether cs4232 module works on PC9800, or not.
-> i guess the control-port is not used on this card.  in such a case,
-> you can deactivate the control-port via module option (or even add
-> ifdef for the specific kernel config).
-Test results on some PC-9800 (including not CS4232 chip),
-snd-cs4232 driver works fine with snd_isapnp=0 snd_cport=-1 options.
-Thanks for your advice.
-
-Another problem, I'm tring to separate mpu401 driver for PC-9800.
-To do this, I need to patch many files. So I think previus patch is
-better than separated driver. How do you think?
-
-Regards
-Osamu Tomita
-
+Jim

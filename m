@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVCYTut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVCYT6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVCYTut (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 14:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVCYTut
+	id S261769AbVCYT6e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 14:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVCYT6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 14:50:49 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:33824 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261767AbVCYTue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 14:50:34 -0500
-Message-ID: <42446B86.7080403@mesatop.com>
-Date: Fri, 25 Mar 2005 12:50:30 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm3 (cannot read cd-rom, 2.6.12-rc1 is OK)
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-In-Reply-To: <20050325002154.335c6b0b.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+	Fri, 25 Mar 2005 14:58:33 -0500
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:40398 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S261769AbVCYT61 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 14:58:27 -0500
+Date: Fri, 25 Mar 2005 21:58:26 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: rmk+lkml@arm.linux.org.uk, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driver core: Separate platform device name from platform device number
+Message-ID: <20050325195826.GC4192@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Kyle Moffett <mrmacman_g4@mac.com>, rmk+lkml@arm.linux.org.uk,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <1110414879646@kroah.com> <11104148792069@kroah.com> <20050325180136.GA4192@linux-sh.org> <20050325181014.GA13436@kroah.com> <20050325183534.GB4192@linux-sh.org> <5c0804da3486a6e735a46220d73c9637@mac.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FsscpQKzF/jJk6ya"
+Content-Disposition: inline
+In-Reply-To: <5c0804da3486a6e735a46220d73c9637@mac.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having trouble reading from the cd-rom with 2.6.12-rc1-mm3.
 
-Kernel 2.6.12-rc1 behaves normally:
+--FsscpQKzF/jJk6ya
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[root@spc1 steven]# mount /dev/hdc /mnt/cdrom
-mount: block device /dev/hdc is write-protected, mounting read-only
-[root@spc1 steven]# df -T
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/hda1     ext3    304M   96M  193M  34% /
-/dev/hda9 reiserfs    8.3G  7.2G  1.1G  88% /home
-/dev/hda8     ext3    464M  8.1M  432M   2% /tmp
-/dev/hda6     ext3    7.4G  1.5G  5.5G  22% /usr
-/dev/hda7     ext3    1.9G   96M  1.7G   6% /var
-/dev/hdc   iso9660     38M   38M     0 100% /mnt/cdrom
-[root@spc1 steven]# ls -l /mnt/cdrom
-total 37859
--rw-r--r--  1 501 501 38673949 Mar 25 07:41 linux-2429tar.gz
--rw-r--r--  1 501 501    92317 Mar 25 07:43 patch-2430-rc1.bz2
-[root@spc1 steven]# uname -r
-2.6.12-rc1-GX110
+On Fri, Mar 25, 2005 at 02:38:22PM -0500, Kyle Moffett wrote:
+> So how would you tell the difference between the following?
+> 	device =3D "foobar0"
+> 	id =3D -1
+> 	path =3D "/sys/devices/platform/foobar0"
+> versus
+> 	device =3D "foobar"
+> 	id =3D 0
+> 	path =3D "/sys/devices/platform/foobar0"
+>=20
+Easy, we use the delimiter on anything ending with a number at the end of
+the device name.. so for device =3D "foobar0", this would end up as
+/sys/devices/platform/foobar0.0, whereas in the latter case this would
+end up as /sys/devices/platform/foobar0.
 
-Snipped from dmesg:
+The first case is a corner case, and really shouldn't happen that much in
+practice outside of broken drivers.
 
-[   51.440018] EXT3-fs: mounted filesystem with ordered data mode.
-[   58.585093] PCI: Found IRQ 5 for device 0000:01:0c.0
-[  232.333180] ISO 9660 Extensions: IEEE_P1282
+> It's not as nice to add the extra period, but otherwise you end up with
+> a lot of _extra_ special cases in both the kernel _and_ applications,
+> which helps nobody.
+>=20
+No you don't, it's pretty easy to figure out that if the end of the
+device name is a number that there will be a delimiter between that and
+the id. This should be the exception, not the rule.
 
+We don't go around changing /dev semantics everytime someone decides to
+call their device something silly, I don't see why platform devices
+should be treated differently, better to just fix the broken drivers..
 
+--FsscpQKzF/jJk6ya
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Kernel 2.6.12-rc1-mm3 does not: (same CD left in device)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-[root@spc1 steven]# mount /dev/hdc /mnt/cdrom
-mount: block device /dev/hdc is write-protected, mounting read-only
-[root@spc1 steven]# df -T
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/hda1     ext3    304M   96M  193M  34% /
-/dev/hda9 reiserfs    8.3G  7.2G  1.1G  88% /home
-/dev/hda8     ext3    464M  8.1M  432M   2% /tmp
-/dev/hda6     ext3    7.4G  1.5G  5.5G  22% /usr
-/dev/hda7     ext3    1.9G   96M  1.7G   6% /var
-/dev/hdc   iso9660     38M   38M     0 100% /mnt/cdrom
-[root@spc1 steven]# ls -l /mnt/cdrom
-total 0
-[root@spc1 steven]# uname -r
-2.6.12-rc1-mm3-GX110
+iD8DBQFCRG1i1K+teJFxZ9wRAqxcAJ0ZsqeZoNyTuWJNNEG3UTU7IBFnHACfZq+h
++47V3OzkRtC18zByfFkBJZQ=
+=AA4Z
+-----END PGP SIGNATURE-----
 
-Snipped from dmesg:
-
-[   49.198779] EXT3-fs: mounted filesystem with ordered data mode.
-[   56.310394] PCI: Found IRQ 5 for device 0000:01:0c.0
-[  222.804956] rock: directory entry would overflow storage
-[  222.804978] rock: sig=0x5245, size=8, remaining=0
-[  235.551953] rock: directory entry would overflow storage
-[  235.551969] rock: sig=0x5850, size=36, remaining=34
-[  235.551976] rock: directory entry would overflow storage
-[  235.551981] rock: sig=0x5850, size=36, remaining=34
-
-Sorry, I don't have the time to do further troubleshooting, but I
-hope this is enough information.  The .config for this machine was
-posted earlier in another thread here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111167720523853&w=2
-
-Steven
+--FsscpQKzF/jJk6ya--

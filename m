@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268057AbTBWIEH>; Sun, 23 Feb 2003 03:04:07 -0500
+	id <S268062AbTBWIIZ>; Sun, 23 Feb 2003 03:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268059AbTBWIEH>; Sun, 23 Feb 2003 03:04:07 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:23980 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S268057AbTBWIEG>;
-	Sun, 23 Feb 2003 03:04:06 -0500
-Date: Sun, 23 Feb 2003 09:13:30 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: make the sl82c105 work again
-Message-ID: <20030223091330.A31359@ucw.cz>
-References: <E18lCZa-0006Ec-00@the-village.bc.nu> <20030218185309.C9785@flint.arm.linux.org.uk> <1045601367.570.56.camel@zion.wanadoo.fr> <1045620358.25795.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1045620358.25795.24.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 19, 2003 at 02:05:59AM +0000
+	id <S268063AbTBWIIZ>; Sun, 23 Feb 2003 03:08:25 -0500
+Received: from [202.141.25.3] ([202.141.25.3]:39819 "EHLO mail.iitm.ernet.in")
+	by vger.kernel.org with ESMTP id <S268062AbTBWIIY>;
+	Sun, 23 Feb 2003 03:08:24 -0500
+Date: Sun, 23 Feb 2003 13:13:54 +0530 (IST)
+From: cs02m023 <kartik@peacock.iitm.ernet.in>
+To: nataraja kumar <hainattu@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A question on kernel stack 
+In-Reply-To: <20030221180508.18214.qmail@web20206.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10302231313180.12547-100000@peacock.iitm.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 19, 2003 at 02:05:59AM +0000, Alan Cox wrote:
 
-> On Tue, 2003-02-18 at 20:49, Benjamin Herrenschmidt wrote:
-> > and when setting xfer mode. Not on hdparm -d1. I'm still wondering
-> > what is the best fix for that. For ide-pmac, I did the later
-> > (only do the job in check()), but I also think we should change
-> > ide.c to actually call hwif->ide_dma_check() when DMA is turned
-> > ON with hdparm instead of ide_dma_on().
+What if USER STACK OVERFLOWS in KERNEL MODE ?????
+
+
+----------------- 
+S.Kartikeyan ,CS02M023
+
+
+On Fri, 21 Feb 2003, nataraja kumar wrote:
+
+> hi,
+> my apologies if i am wrong. please let me know
+> why does kernel use kernel stack when process jumps
+> from user mode to kernel mode. why can't user stack
+> be used ?
 > 
-> I think thats the right change for 2.5 at least
+> nattu.
+> 
+> __________________________________________________
+> Do you Yahoo!?
+> Yahoo! Tax Center - forms, calculators, tips, more
+> http://taxes.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I think it'd be VERY good for 2.4 as well. Older 2.4's did setup the
-DMA timing when -d1 only was used.
-
--- 
-Vojtech Pavlik
-SuSE Labs

@@ -1,109 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTIBL5x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 07:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbTIBL5w
+	id S263822AbTIBPCi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 11:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbTIBPCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 07:57:52 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:26762 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261294AbTIBL5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 07:57:40 -0400
-Date: Tue, 2 Sep 2003 12:57:31 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030902115731.GA14354@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk> <20030902053415.GA7619@mail.jlokier.co.uk> <20030902091553.A29984@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Tue, 2 Sep 2003 11:02:38 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:63706 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263822AbTIBPCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 11:02:11 -0400
+Date: Tue, 02 Sep 2003 08:01:24 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: jon@nanocrew.net
+Subject: [Bug 1171] New: Boot hang - ThinkPad T40 
+Message-ID: <128580000.1062514884@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030902091553.A29984@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> > > If you take a moment to think about what should be going on -
-> > > 
-> > > - first write gets translated to physical address, and the address with
-> > >   the data is placed in the write buffer.
-> > > - second write gets translated to the same physical address, and the
-> > >   address and data is placed into the write buffer such that we store
-> > >   the first write then the second write to the same physical memory.
-> > > - reading from the first mapping should return the second writes value
-> > >   no matter what.
-> > 
-> > That is an incomplete explanation, because it should never be possible
-> > for reads to access data from the write buffer which isn't the most
-> > recent.
-> 
-> Umm, that's what I said.
+           Summary: Boot hang - ThinkPad T40
+    Kernel Version: 2.6.0-test4
+            Status: NEW
+          Severity: normal
+             Owner: len.brown@intel.com
+         Submitter: jon@nanocrew.net
 
-You say that "reading from the first mapping _should_ return the
-second write value no matter what", but that there's a bug in the
-write buffer and it isn't doing that.
 
-I'm saying that the bug can't be that, because such a bug would affect
-normal applications.
+Notebook: ThinkPad T40 (2373 94G)
 
-> > Don't some of the ARMs executed two instructions concurrently, like
-> > the original Pentium?
-> 
-> Nope - they're all single issue CPUs, and, if non-buggy, they guarantee
-> that stores never bypass loads.  (In a later architecture revision, this
-> is controllable.)
->
-> Remember - ARM CPUs aren't a high spec desktop CPU.  They're an embedded
-> CPU where power consumption matters.  Superscalar/multiple issue/high
-> performance isn't viable in such many embedded environments.
+.config, acpidmp output and dsdt patch:
+http://nanocrew.net/linux/t40/
 
-Fair enough.  I recall someone mentioning a dual issue ARM once upon a
-time, that's all.
+Panic during boot:
+http://w3studi.informatik.uni-stuttgart.de/~rauar/IMG_1120.JPG
 
--- Jamie
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=98849
+https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=93319&action=view
+
+With that patch, the kernel does not panic, but hangs after this:
+
+58 Devices found containing: 58 _STA, 6 _INI methods
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *9 10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 9 10 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 *10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 5 6 7 9 10 11)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+Transparent bridge - 0000:00:1e.0
+ACPI: Embedded Controller [EC] (gpe 28)
+ACPI: Power Resource [PUBS] (on)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-Russell King wrote:
-> > > If you take a moment to think about what should be going on -
-> > > 
-> > > - first write gets translated to physical address, and the address with
-> > >   the data is placed in the write buffer.
-> > > - second write gets translated to the same physical address, and the
-> > >   address and data is placed into the write buffer such that we store
-> > >   the first write then the second write to the same physical memory.
-> > > - reading from the first mapping should return the second writes value
-> > >   no matter what.
-> > 
-> > That is an incomplete explanation, because it should never be possible
-> > for reads to access data from the write buffer which isn't the most
-> > recent.
-> 
-> Umm, that's what I said.
+           Summary: Boot hang - ThinkPad T40
+    Kernel Version: 2.6.0-test4
+            Status: NEW
+          Severity: normal
+             Owner: len.brown@intel.com
+         Submitter: jon@nanocrew.net
 
-You say that "reading from the first mapping _should_ return the
-second write value no matter what", but that there's a bug in the
-write buffer and it isn't doing that.
 
-I'm saying that the bug can't be that, because such a bug would affect
-normal applications.
+Notebook: ThinkPad T40 (2373 94G)
 
-> > Don't some of the ARMs executed two instructions concurrently, like
-> > the original Pentium?
-> 
-> Nope - they're all single issue CPUs, and, if non-buggy, they guarantee
-> that stores never bypass loads.  (In a later architecture revision, this
-> is controllable.)
->
-> Remember - ARM CPUs aren't a high spec desktop CPU.  They're an embedded
-> CPU where power consumption matters.  Superscalar/multiple issue/high
-> performance isn't viable in such many embedded environments.
+.config, acpidmp output and dsdt patch:
+http://nanocrew.net/linux/t40/
 
-Fair enough.  I recall someone mentioning a dual issue ARM once upon a
-time, that's all.
+Panic during boot:
+http://w3studi.informatik.uni-stuttgart.de/~rauar/IMG_1120.JPG
 
--- Jamie
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=98849
+https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=93319&action=view
+
+With that patch, the kernel does not panic, but hangs after this:
+
+58 Devices found containing: 58 _STA, 6 _INI methods
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *9 10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 9 10 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 *10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 9 10 11, disabled)
+ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 5 6 7 9 10 11)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+Transparent bridge - 0000:00:1e.0
+ACPI: Embedded Controller [EC] (gpe 28)
+ACPI: Power Resource [PUBS] (on)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+
+

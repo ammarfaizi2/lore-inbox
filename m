@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSG2RlF>; Mon, 29 Jul 2002 13:41:05 -0400
+	id <S317559AbSG2Rmb>; Mon, 29 Jul 2002 13:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317543AbSG2RlF>; Mon, 29 Jul 2002 13:41:05 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18564
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317547AbSG2RkZ>; Mon, 29 Jul 2002 13:40:25 -0400
-Date: Mon, 29 Jul 2002 10:43:41 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
-Message-ID: <20020729174341.GA12964@opus.bloom.county>
-References: <20020729181702.E25451@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020729181702.E25451@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S317551AbSG2RmZ>; Mon, 29 Jul 2002 13:42:25 -0400
+Received: from imo-m03.mx.aol.com ([64.12.136.6]:28620 "EHLO
+	imo-m03.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S317543AbSG2RlW>; Mon, 29 Jul 2002 13:41:22 -0400
+Message-ID: <3D454763.5050903@netscape.net>
+Date: Mon, 29 Jul 2002 13:47:15 +0000
+From: Adam Belay <ambx1@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: mochel@osdl.org, rgooch@atnf.csiro.au
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] integrate driverfs and devfs (2.5.28)
+References: <3D445C2F.20603@netscape.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 06:17:02PM +0100, Russell King wrote:
+Forgot to mention:
+-    the floppy driver was converted as an example
+-    adds a new file "dev" to each driverfs entry
+-    output is in the following format
+        MAJOR,MINOR PATH
+-    one line per each devfs entry during output
+-    to test try: #cat (driverfs)/root/sys/03?0/dev
+        assuming you have a floppy drive
+-    Applies cleanly to 2.5.29 as well
+-    If there's a demand for it I'll add the ability to unregister
+        individual devfs entries from driverfs
+Cheers,
+ambx1
 
- 
-> 1. Serial port initialisation
-> -----------------------------
-> 
-> Firstly, one thing to bear in mind here is that, as Alan says "be nice
-> to make sure it was much earlier".  I guess Alan's right, so we can get
-> oopsen out of the the kernel relatively easily, even when we're using
-> framebuffer consoles.
-> 
-> I'm sure Alan will enlighten us with his specific reasons if required.
-> 
-> There have been several suggestions around on how to fix this table:
-> 
-> a. architectures provide a sub-module to 8250.c which contains the
->    per-port details, rather than a table in serial.h.  This would
->    ideally mean removing serial.h completely.  The relevant object
->    would be linked into 8250.c when 8250.c is built as a module.
+ambx1@netscape.net wrote:
 
-I think this would work best.  On PPC this would allow us to change the
-mess of include/asm-ppc/serial.h into a slightly cleaner Makefile
-(especially if we do the automagic <platforms/platform.h> or
-<asm/platform.h> bit that's been talked about in the past) magic and we
-could use that object file as well in the bootwrapper as well.
+> This patch integrates driverfs and devfs.  A summary is as follows:
+> - create new interface directory and move interface.c
+>       * I intend to add more to this directory later
+> - add devfs entry list
+> - add devfs related functions
+> - create devfs interface
+>    This patch is intended to be as non intrusive as possible.  Therefore
+> it doesn't modify devfs directly but instead creates a layer above it.
+> This is due to the fact that if devfs was modified it would break
+> every driver.  Eventually we have to decide when and how to
+> integrate it directly,  This patch will provide the necessary
+> infrastructure.  Please Apply.
+> cheers,
+> Adam Belay
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+

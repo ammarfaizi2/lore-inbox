@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318769AbSICNAZ>; Tue, 3 Sep 2002 09:00:25 -0400
+	id <S318690AbSICM6B>; Tue, 3 Sep 2002 08:58:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318770AbSICNAZ>; Tue, 3 Sep 2002 09:00:25 -0400
-Received: from mail.iolinc.net ([206.102.147.2]:29447 "EHLO
-	iolmail.camelot.iolinc.net") by vger.kernel.org with ESMTP
-	id <S318769AbSICNAY>; Tue, 3 Sep 2002 09:00:24 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Gene Heskett <gene_heskett@iolinc.net>
-Organization: None that appears to be detectable by casual observers
-To: kde-linux@mail.kde.org, Jerry McBride <mcbrides9@comcast.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       "kde-linux@mail.kde.org" <kde-linux@mail.kde.org>
-Subject: Re: [kde-linux] Can't find qt libs...
-Date: Tue, 3 Sep 2002 09:04:49 -0400
-User-Agent: KMail/1.4.2
-References: <0H1V0080X1S3C3@mtaout03.icomcast.net>
-In-Reply-To: <0H1V0080X1S3C3@mtaout03.icomcast.net>
+	id <S318769AbSICM6B>; Tue, 3 Sep 2002 08:58:01 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52938 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318690AbSICM6A>; Tue, 3 Sep 2002 08:58:00 -0400
+Date: Tue, 3 Sep 2002 15:02:28 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Thomas Koller <kt@aon.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops after X-Server shutdown
+In-Reply-To: <1031050498.3d7495028d2e6@webmail.jet2web.at>
+Message-ID: <Pine.NEB.4.44.0209031454410.696-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209030904.49101.gene_heskett@iolinc.net>
-X-Note: This E-mail was scanned by Declude JunkMail (www.declude.com) for spam.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 07:48, Jerry McBride wrote:
->Why is it that after I successfully compile qt3 and kde3.0.x...
-> that I can never go back and
->recompile the beast without kde's ./configure scripts not being
-> able to find qt3?? it acts like a
->onetime shot at compiling and then never again.
+On Tue, 3 Sep 2002, Thomas Koller wrote:
+
+> hi,
+
+Hi Thomas,
+
+> shutting down the x-server with dri support on a i830M graficcard lets the
+> kernel produce an oops and left the screen black.
 >
->It's a pain in the ass. What's the skinny, if any one knows?
+> Aug 31 18:16:45 mobile kernel:  printing eip:
+> Aug 31 18:16:45 mobile kernel: c0124e20
+> Aug 31 18:16:45 mobile kernel: Oops: 0000
+>...
+> KernelPatches:
+>
+> DRI Modules http://www.xfree86.org/~alanh/linux-drm-4.2.0-
+> kernelsource.tar.gz
+>
+> ACPI-Patches (acpi.sourceforge.net) acpi-20020821-2.4.19
+>
+> X-Server: Xfree86 4.2.0
+>
+> Hardware: TravelMate 621LV
+>
+> Is there a chance to get Xfree 4.2.0 working with DRI on that hardware?
+> maybe this is a bug in the kernel.
 
-And its not just kde. I have several things that won't configure 
-because the *&%&^%$ libqt-mt.so in >= qt-3.0.2 can't be found.  
-There are 4 copies of 3.0.4 scattered about my system.  Its a real 
-problem that so far evertone seems to think will go away if our 
-$QTDIR is set correctly, and/or we use the --with-qt-libs= options.
+1. Could you try whether 2.4.20-pre5 [1] fixes this (with 2.4.20-pre5 you
+   don't need the external DRI Modules)?
+2. If this doesn't help please run the Oops message from 2.4.20-pre5
+   through ksymoops as described in Documentation/oops-tracing.txt and
+   send the output to linux-kernel.
 
-It doesn't go away no matter how much the rest of this list wishes 
-*we* would.
+> best regards
+> thomas
+
+TIA
+Adrian
+
+[1] ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing/patch-2.4.20-pre5.gz
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.13% setiathome rank, not too shabby for a WV hillbilly
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

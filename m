@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312131AbSCQW0D>; Sun, 17 Mar 2002 17:26:03 -0500
+	id <S312134AbSCQWnh>; Sun, 17 Mar 2002 17:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312128AbSCQWZp>; Sun, 17 Mar 2002 17:25:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63493 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312130AbSCQWZa> convert rfc822-to-8bit; Sun, 17 Mar 2002 17:25:30 -0500
+	id <S312130AbSCQWn1>; Sun, 17 Mar 2002 17:43:27 -0500
+Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:12819
+	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
+	id <S312128AbSCQWnN>; Sun, 17 Mar 2002 17:43:13 -0500
+Date: Sun, 17 Mar 2002 14:45:32 -0800
+From: Neil Schemenauer <nas@python.ca>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: ANN: capwrap - grant capabilities to executables
-Date: 17 Mar 2002 14:25:12 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a73548$4t3$1@cesium.transmeta.com>
-In-Reply-To: <20020317121118.A18548@glacier.arctrix.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g2HMPDN00548
+Message-ID: <20020317144532.A18963@glacier.arctrix.com>
+In-Reply-To: <20020317121118.A18548@glacier.arctrix.com> <a73548$4t3$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <a73548$4t3$1@cesium.transmeta.com>; from hpa@zytor.com on Sun, Mar 17, 2002 at 02:25:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020317121118.A18548@glacier.arctrix.com>
-By author:    Neil Schemenauer <nas@python.ca>
-In newsgroup: linux.dev.kernel
->
-> I've written a small module¹ that enables the use of Linux capabilities
-> on filesystems that do not support them.  It is similar in spirit to ELF
-> capabilities hack² but is not specific to the ELF executable format and
-> is implemented as separate kernel module.
-> 
-> To grant capabilities to an executable, a small wrapper file is created
-> that includes the path to an executable followed a capability set
-> written in hexadecimal.  When this file is executed by the kernel, the
-> executable is granted the specified capabilities.  The wrapper file must
-> be owned by root and have the SUID bit set.
-> 
-> For example, to remove the SUID bit on the ping program while retaining
-> its functionality:
-> 
->     # chmod -s /bin/ping
->     # mv /bin/ping /bin/ping_real
->     # echo '&/bin/ping_real 2000' > /bin/ping
->     # chmod +xs /bin/ping
-> 
+H. Peter Anvin wrote:
+> Why not just do this with a small program if you're doing setuid
+> anyway?
 
-Why not just do this with a small program if you're doing setuid
-anyway?
+Nothing is running with root privileges (unless root is executing it).
+The SUID bit on the wrapper is just a marker and does not change the
+effective uid of the process.  Also, AFAIK, you can't pass capabilities
+from one program to another using exec().   I don't completely
+understand this stuff yet but fs/exec.c has these lines in the
+prepare_binprm() function:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+        cap_clear(bprm->cap_inheritable);
+        cap_clear(bprm->cap_permitted);
+        cap_clear(bprm->cap_effective);
+
+Capabilities are only raised if bprm->e_uid == 0.  So, unless I'm
+misunderstand the code, you can't do the same thing with a SUID wrapper.
+
+Thanks for you're comments.
+
+  Neil

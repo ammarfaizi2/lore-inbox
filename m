@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261896AbSI3Bk7>; Sun, 29 Sep 2002 21:40:59 -0400
+	id <S261894AbSI3By1>; Sun, 29 Sep 2002 21:54:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261897AbSI3Bk7>; Sun, 29 Sep 2002 21:40:59 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:5278 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S261896AbSI3Bk6>;
-	Sun, 29 Sep 2002 21:40:58 -0400
-Date: Sun, 29 Sep 2002 18:46:23 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: cwhmlist@bellsouth.net, linux-kernel@vger.kernel.org
-Subject: Re: How to capture bootstrap oops?
-Message-ID: <20020930014623.GA8740@tapu.f00f.org>
-References: <20020929235607.FLPK26495.imf20bis.bellsouth.net@localhost> <3D9794D5.9551485E@digeo.com>
+	id <S261897AbSI3By1>; Sun, 29 Sep 2002 21:54:27 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:14714 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261894AbSI3By0>;
+	Sun, 29 Sep 2002 21:54:26 -0400
+Date: Mon, 30 Sep 2002 03:59:48 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 oopses at boot in ide_toggle_bounce
+Message-ID: <20020930015948.GA18680@win.tue.nl>
+References: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl> <20020923074142.GB15479@suse.de> <20020923100134.GA16260@win.tue.nl> <20020923100219.GG25682@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D9794D5.9551485E@digeo.com>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+In-Reply-To: <20020923100219.GG25682@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 05:03:33PM -0700, Andrew Morton wrote:
+On Mon, Sep 23, 2002 at 12:04:24PM +0200, Jens Axboe wrote:
+> > On Mon, Sep 23 2002, Andries Brouwer wrote:
 
-    cwhmlist@bellsouth.net wrote:
+> > > It no longer sees my disks on an HPT366,
 
-    > I need some help, I'm new to this.  I have compliled a 2.5.39
-    > kernel for my quad pentium pro system and it is oopsing on
-    > bootup.  Unfortunently, it looks like a good portion of the oops
-    > scrolls off of the screen.  Since I don't have the ability to
-    > hook up a serial terminal, how do I capture this oops so I can
-    > report it?
+> > Can you send me the kernel boot log
+>
+> Ah hang on, please boot with this patch from Ivan.
 
-> This might suffice?
+Patch makes no difference.
 
-[... patch removed ...]
+Situation:
+ no special kernel boot parameters concerning these disks,
+ no hdparm used
+ no CONFIG_BLK_DEV_HPT366
 
-Or try a serial console (if you have access to such a thing).
+For 2.5.33:
 
+HPT366: IDE controller on PCI bus 00 dev 48
+HPT366: detected chipset, but driver not compiled in!
+HPT366: chipset revision 1
+HPT366: not 100%% native mode: will probe irqs later
+    ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:pio, hdf:pio
+HPT366: IDE controller on PCI bus 00 dev 49
+HPT366: chipset revision 1
+HPT366: not 100%% native mode: will probe irqs later
+    ide3: BM-DMA at 0xa800-0xa807, BIOS settings: hdg:pio, hdh:pio
 
-  --cw
+For 2.5.38:
+The string HPT does not occur in the boot log.
+
+For 2.5.38 with CONFIG_BLK_DEV_HPT366:
+ all OK at first sight, the disks mount, have not tried to stress them
+ warnings in boot.log:
+
+HPT366: chipset revision 1
+HPT366: not 100%% native mode: will probe irqs later
+    ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:DMA, hdf:DMA
+hde: Maxtor 93652U8, ATA DISK drive
+hdf: Maxtor 96147H6, ATA DISK drive
+hde: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hde: set_drive_speed_status: error=0x04 { DriveStatusError }
+hdf: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdf: set_drive_speed_status: error=0x04 { DriveStatusError }
+
+Funny that 2.5.33 reports "BIOS settings: hde:pio, hdf:pio"
+while 2.5.38 says "BIOS settings: hde:DMA, hdf:DMA".
+
+Long ago I would get (sporadic) disk errors and fs corruption with
+CONFIG_BLK_DEV_HPT366, while all worked without. Today
+CONFIG_BLK_DEV_HPT366 is required, but apart from the messages quoted
+I have not seen any error messages or problems. Everything works.
+
+Precisely the same holds for 2.5.39.
+
+Andries

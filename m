@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265311AbRGBCZ4>; Sun, 1 Jul 2001 22:25:56 -0400
+	id <S265771AbRGBCe2>; Sun, 1 Jul 2001 22:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265338AbRGBCZq>; Sun, 1 Jul 2001 22:25:46 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:55787 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265311AbRGBCZc>; Sun, 1 Jul 2001 22:25:32 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 1 Jul 2001 19:25:11 -0700
-Message-Id: <200107020225.TAA02230@adam.yggdrasil.com>
-To: kaos@ocs.com.au, rhw@MemAlpha.CX
-Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+	id <S265361AbRGBCeS>; Sun, 1 Jul 2001 22:34:18 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:48402 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265351AbRGBCeG>;
+	Sun, 1 Jul 2001 22:34:06 -0400
+Date: Sun, 1 Jul 2001 23:33:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alex Khripin <akhripin@morgoth.mit.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Soft updates for 2.5?
+In-Reply-To: <200106301041.f5UAfCVM012803@morgoth.mit.edu>
+Message-ID: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Does anyone know if there is any code that would break if
-we put quotation marks around the $CONFIG_xxxx references in the
-dep_xxx commands in all of the Config.in files?  In other words,
-change all commands of the form
+On Sat, 30 Jun 2001, Alex Khripin wrote:
 
-dep_tristate  CONFIG_FOO 'Foo on x86/pci machines'  $CONFIG_PCI $CONFIG_X86
+> There was a discussion in October, 2000, about the Granger and
+> McKusick paper on soft updates for the BSD FFS. Reading the thread,
+> nothing conclusive seemed to come out of it.
 
-to
+What you want is ext3.
 
-dep_tristate  CONFIG_FOO 'Foo on x86/pci machines'  "$CONFIG_PCI" "$CONFIG_X86"
+It is a journaling version of ext2, which basically
+means you get all the advantages of soft updates and
+a bit more (due to the atomicity that journaled
+transactions can give you).
 
-      Then, we could change dep_{bool,tristate} to only treat "" as "n",
-in its dependency parameters without effecting how undefined variables
-are treated elsewhere.  For example, CONFIG_FOO being undefined would
-still cause "make oldconfig" to treat it as "NEW" and ask the user
-about it.
+It should be superior to softupdates in both the
+consistency area and the performance area (due to
+the fact that stuff is in the journal, you have
+more freedom to reorder the writes to the "main"
+part of the filesystem).
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

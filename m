@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbTFDATr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTFDATr
+	id S262015AbTFDAW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTFDAW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:19:47 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:59657 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262011AbTFDATo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:19:44 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Daniel.A.Christian@NASA.gov, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc7 SMP module unresolved symbols
-Date: Wed, 4 Jun 2003 02:32:57 +0200
-User-Agent: KMail/1.5.2
-References: <200306031728.41982.Daniel.A.Christian@NASA.gov>
-In-Reply-To: <200306031728.41982.Daniel.A.Christian@NASA.gov>
+	Tue, 3 Jun 2003 20:22:56 -0400
+Received: from [209.172.88.2] ([209.172.88.2]:64567 "EHLO caex01.trans.corp")
+	by vger.kernel.org with ESMTP id S262015AbTFDAWz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 20:22:55 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306040232.16281.m.c.p@wolk-project.de>
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: IOAPIC not disabled on shutdown of X86_UP_IOAPIC kernel 2.4.18
+Date: Tue, 3 Jun 2003 17:36:19 -0700
+Message-ID: <36504F2E352484458C5D574719DC837217B31B@caex01.trans.corp>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: IOAPIC not disabled on shutdown of X86_UP_IOAPIC kernel 2.4.18
+Thread-Index: AcMqMVEfBoG4C9QIQ6GRQFwyTOPaMg==
+From: "Philip Thomas" <PThomas@pillardata.com>
+To: <mingo@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 June 2003 02:28, Dan Christian wrote:
+The following patch causes the IOAPIC to be disabled during shutdown of
+kernels compiled with either the CONFIG_SMP or the CONFIG_X86_UP_IOAPIC
+options (either of which causes the IOAPIC to be initialized).
+Previously, the IOAPIC was disabled only during shutdown of CONFIG_SMP
+kernels, and not CONFIG_X86_UP_IOAPIC kernels.  This caused unexpected
+IRQ errors on warm boot of CONFIG_X86_UP_IOAPIC kernel because BIOS did
+not reset the IOAPIC.
 
-Hi Dan,
+Phil
 
-> I can build a 2.4.21-rc7 Athlon single processor kernel and modules
-> without problem.
-> When I enable SMP, most (but not all) modules have unresolved symbols.
-> This is basic stuff like prink and kmalloc.  I've tried both with and
-> without symbol versioning.
-> The build line was:
-> make clean && make dep && make bzImage && make modules && make
-> modules_install
-> I'm building on RedHat 7.3.
-> #rpm -q gcc binutils modutils
-> gcc-2.96-113
-> binutils-2.11.93.0.2-11
-> modutils-2.4.18-3.7x
-> I'm not on the list.  Please CC me.
-w/o your .config a most impossible mission to fix this up.
-
-Just a guess: Did you switch from UP to SMP with out doing "make mrproper"?
-
-ciao, Marc
+--- arch/i386/kernel/process.c.orig	2003-06-03 17:03:28.000000000
+-0700
++++ arch/i386/kernel/process.c	2003-06-03 17:03:41.000000000 -0700
+@@ -399,11 +399,17 @@
+ 		__asm__ __volatile__ ("hlt");
+ 	}
+ 	/*
+-	 * Stop all CPUs and turn off local APICs and the IO-APIC, so
++	 * Stop all CPUs and turn off local APICs, so
+ 	 * other OSs see a clean IRQ state.
+ 	 */
+ 	if (!netdump_func)
+ 		smp_send_stop();
++#endif
++
++#if CONFIG_X86_IOAPIC
++	/*
++	 * Turn off the IO-APIC, so other OSs see a clean IRQ state.
++	 */
+ 	disable_IO_APIC();
+ #endif
 

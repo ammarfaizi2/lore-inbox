@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291324AbSAaVTF>; Thu, 31 Jan 2002 16:19:05 -0500
+	id <S291317AbSAaVSd>; Thu, 31 Jan 2002 16:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291320AbSAaVSy>; Thu, 31 Jan 2002 16:18:54 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:52557 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S291319AbSAaVSn>; Thu, 31 Jan 2002 16:18:43 -0500
-Date: Thu, 31 Jan 2002 22:18:36 +0100 (CET)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: <linux-m68k@lists.linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-In-Reply-To: <Pine.LNX.4.10.10201310712130.20956-100000@www.transvirtual.com>
-Message-Id: <Pine.LNX.4.33.0201312216460.10027-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S291319AbSAaVSX>; Thu, 31 Jan 2002 16:18:23 -0500
+Received: from zeke.inet.com ([199.171.211.198]:30874 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S291317AbSAaVSN>;
+	Thu, 31 Jan 2002 16:18:13 -0500
+Message-ID: <3C59B487.64B7631A@inet.com>
+Date: Thu, 31 Jan 2002 15:17:59 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+CC: Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
+Subject: Re: vfs.txt and i_ino
+In-Reply-To: <Pine.SOL.3.96.1020131205057.15330A-100000@virgo.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002, James Simmons wrote:
+Anton Altaparmakov wrote:
+> 
+> On Thu, 31 Jan 2002, Eli Carter wrote:
+> > It appears that struct inode i_ino has a special value of 0.  I don't
+> > see a mention of that in vfs.txt, and I haven't found anything obvious
+> > in the fs code... Would it be possible to add some documentation of
+> > that, along with an explaination of what i_ino==0 is supposed to
+> > indicate?  (Bad/invalid inode?)
+> 
+> i_ino = 0 is perfectly valid and is in fact one of the system files in
+> NTFS. And accessing inode 0 from user space works fine, too. The only
+> thing which is odd is that a simple "ls" (or "ls -l") doesn't show the
+> file with i_ino=0, while an explicit ls a-la "ls \$MFT" (or "ls -l \$MFT")
+> does show the file. I believe this to be purely a userspace problem but
+> when I looked at the /bin/ls source I got scared and ran away... A short
+> investigation into /bin/ls source didn't make anything obvious appear but
+> I do think it is /bin/ls at fault and not the kernel...
+> 
+> So I guess my point is that i_ino=0 is not special as far as the kernel is
+> concerned.
 
-> +	scancode = scancode >> 1;	/* lowest bit is release bit */
-> +	down = scancode & 1;
+Hmm... 'ls -al' doesn't show the file for me.  I was using i_ino=0 for
+the root inode, and found that 'ls -al' did not display '.' or '..'.  It
+very well may be a user-space error... do you know who I should ask
+about it?
 
-Shouldn't that be the other way 'round?
+TIA,
 
-   Simon
-
--- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
-
+Eli
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

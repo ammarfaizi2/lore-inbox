@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbTJ3XeW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 18:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTJ3XeV
+	id S262986AbTJ3X06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 18:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTJ3X06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 18:34:21 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:40633 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262982AbTJ3XeE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 18:34:04 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: uptime reset after about 45 days
-Date: Thu, 30 Oct 2003 23:34:03 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bns75b$ssn$1@news.cistron.nl>
-References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com> <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1067556843 29591 62.216.29.200 (30 Oct 2003 23:34:03 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Thu, 30 Oct 2003 18:26:58 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:33579 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S262986AbTJ3X05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 18:26:57 -0500
+Date: Fri, 31 Oct 2003 00:26:37 +0100 (CET)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: chas williams <chas@cmf.nrl.navy.mil>
+cc: linux-kernel@vger.kernel.org, Bartlomiej Solarz <solarz@wsisiz.edu.pl>
+Subject: Re: Linux 2.4.23-pre8
+In-Reply-To: <200310300030.h9U0U4NB001760@ginger.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.58LT.0310310022340.2673@lt.wsisiz.edu.pl>
+References: <200310300030.h9U0U4NB001760@ginger.cmf.nrl.navy.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>,
-Maciej Zenczykowski  <maze@cela.pl> wrote:
->> After about 45 days or so, my uptime was reset. My idle time is correct.
->> 
->> $ cat /proc/uptime
->> 94245.37 3686026.54
->> 
->> $ cat /proc/version Linux version 2.4.20-gentoo-r1
->> (root@dpb2.resnet.calvin.edu) (gcc version 3.2.2) #6 SMP Thu Apr 17
->> 14:11:34 EDT 2003
->
->Uptime is stored in jiffies which is 32bit on your arch, which results in 
->an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
->(overflow after 470 or so days) now, they're 1000 -> overflows after 45 
->days.  Doesn't wreck anything except for uptime display - known problem, 
+On Wed, 29 Oct 2003, chas williams wrote:
 
-No, that's only on 2.6, and it has been fixed in 2.6 too.
-The 2.4 32 bits kernels run with HZ=100.
+> this doesnt look bad. i see 1 tx packet and some rx packets.  how
+> did you test this interface?  does tcpdump show anything?  could you
+> be more specific about this configuration so i could try to duplicate
+> your setup?  the nicstar driver seems to work for me in the 2.4.23-pre8
+> kernel (ilmid, signalling).  i tested the clip module as well but that
+> was via an arp server not clip over a pvc.
 
-Sounds like the gentoo-kernel has just upped HZ to 1000 without
-fixing these problems properly. That's .. disappointing.
+I'm sorry, ATM works on 2.4.23-pre8. I have disabled ipv6 in kernel 
+config. ipv6 was connected with zebra config, zebra was connected with
+routing. Anyway, it's works, sorry for false alarm.
 
-Mike.
-
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

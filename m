@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264776AbTF3O3C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 10:29:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbTF3O3A
+	id S265034AbTF3O2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 10:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbTF3O0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 10:29:00 -0400
-Received: from pat.uio.no ([129.240.130.16]:17826 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264776AbTF3OXb (ORCPT
+	Mon, 30 Jun 2003 10:26:54 -0400
+Received: from pat.uio.no ([129.240.130.16]:53921 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264802AbTF3OWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 10:23:31 -0400
+	Mon, 30 Jun 2003 10:22:52 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16128.19258.196767.5060@charged.uio.no>
-Date: Mon, 30 Jun 2003 16:37:46 +0200
+Message-ID: <16128.19218.139117.293393@charged.uio.no>
+Date: Mon, 30 Jun 2003 16:37:06 +0200
 To: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        NFS maillist <nfs@lists.sourceforge.net>
-Subject: [PATCH 3/4] Optimize NFS open() calls by means of 'intents'...
+Subject: [PATCH 1/4] Optimize NFS open() calls by means of 'intents'...
 X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Reply-To: trond.myklebust@fys.uio.no
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
@@ -26,839 +26,669 @@ X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   - Make the VFS pass the struct nameidata as an optional parameter
-     to the permission() inode operation.
 
-   - Patch may_create()/may_open() so it passes the struct nameidata from
-     vfs_create()/open_namei() as an argument to permission().
+  - Make the VFS pass the struct nameidata as an optional argument
+    to the create inode operation.
+  - Patch vfs_create() to take a struct nameidata as an optional
+    argument.
 
-   - Add an intent flag for the sys_access() function.
 
-diff -u --recursive --new-file linux-2.5.73-05-createintent/drivers/block/floppy.c linux-2.5.73-06-permission/drivers/block/floppy.c
---- linux-2.5.73-05-createintent/drivers/block/floppy.c	2003-05-25 11:45:06.000000000 +0200
-+++ linux-2.5.73-06-permission/drivers/block/floppy.c	2003-06-30 08:49:25.000000000 +0200
-@@ -3767,7 +3767,7 @@
- 	 * Needed so that programs such as fdrawcmd still can work on write
- 	 * protected disks */
- 	if ((filp->f_mode & 2) || 
--	    (inode->i_sb && (permission(inode,2) == 0)))
-+	    (inode->i_sb && (permission(inode,2, NULL) == 0)))
- 	    filp->private_data = (void*) 8;
- 
- 	if (UFDCS->rawcmd == 1)
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/cifs/cifsfs.c linux-2.5.73-06-permission/fs/cifs/cifsfs.c
---- linux-2.5.73-05-createintent/fs/cifs/cifsfs.c	2003-06-20 22:16:06.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/cifs/cifsfs.c	2003-06-30 08:49:25.000000000 +0200
-@@ -178,7 +178,7 @@
- 	return 0;		/* always return success? what if volume is no longer available? */
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/affs/namei.c linux-2.5.73-05-createintent/fs/affs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/affs/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/affs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -256,7 +256,7 @@
  }
  
--static int cifs_permission(struct inode * inode, int mask)
-+static int cifs_permission(struct inode * inode, int mask, struct nameidata *nd)
- {
- 	/* the server does permission checks, we do not need to do it here */
- 	return 0;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/coda/dir.c linux-2.5.73-06-permission/fs/coda/dir.c
---- linux-2.5.73-05-createintent/fs/coda/dir.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/coda/dir.c	2003-06-30 08:49:25.000000000 +0200
-@@ -147,7 +147,7 @@
- }
- 
- 
--int coda_permission(struct inode *inode, int mask)
-+int coda_permission(struct inode *inode, int mask, struct nameidata *nd)
- {
-         int error = 0;
-  
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/coda/pioctl.c linux-2.5.73-06-permission/fs/coda/pioctl.c
---- linux-2.5.73-05-createintent/fs/coda/pioctl.c	2002-10-06 00:36:27.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/coda/pioctl.c	2003-06-30 08:49:25.000000000 +0200
-@@ -24,7 +24,8 @@
- #include <linux/coda_psdev.h>
- 
- /* pioctl ops */
--static int coda_ioctl_permission(struct inode *inode, int mask);
-+static int coda_ioctl_permission(struct inode *inode, int mask,
-+				 struct nameidata *nd);
- static int coda_pioctl(struct inode * inode, struct file * filp, 
-                        unsigned int cmd, unsigned long user_data);
- 
-@@ -41,7 +42,8 @@
- };
- 
- /* the coda pioctl inode ops */
--static int coda_ioctl_permission(struct inode *inode, int mask)
-+static int coda_ioctl_permission(struct inode *inode, int mask,
-+				 struct nameidata *nd)
- {
-         return 0;
- }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/exec.c linux-2.5.73-06-permission/fs/exec.c
---- linux-2.5.73-05-createintent/fs/exec.c	2003-06-30 08:48:42.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/exec.c	2003-06-30 08:49:25.000000000 +0200
-@@ -126,7 +126,7 @@
- 	if (!S_ISREG(nd.dentry->d_inode->i_mode))
- 		goto exit;
- 
--	error = permission(nd.dentry->d_inode, MAY_READ | MAY_EXEC);
-+	error = permission(nd.dentry->d_inode, MAY_READ | MAY_EXEC, &nd);
- 	if (error)
- 		goto exit;
- 
-@@ -462,7 +462,7 @@
- 		file = ERR_PTR(-EACCES);
- 		if (!(nd.mnt->mnt_flags & MNT_NOEXEC) &&
- 		    S_ISREG(inode->i_mode)) {
--			int err = permission(inode, MAY_EXEC);
-+			int err = permission(inode, MAY_EXEC, &nd);
- 			if (!err && !(inode->i_mode & 0111))
- 				err = -EACCES;
- 			file = ERR_PTR(err);
-@@ -792,7 +792,7 @@
- 	flush_thread();
- 
- 	if (bprm->e_uid != current->euid || bprm->e_gid != current->egid || 
--	    permission(bprm->file->f_dentry->d_inode,MAY_READ))
-+	    permission(bprm->file->f_dentry->d_inode,MAY_READ, NULL))
- 		current->mm->dumpable = 0;
- 
- 	/* An exec changes our domain. We are no longer part of the thread
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext2/acl.c linux-2.5.73-06-permission/fs/ext2/acl.c
---- linux-2.5.73-05-createintent/fs/ext2/acl.c	2003-02-25 17:21:08.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ext2/acl.c	2003-06-30 08:49:25.000000000 +0200
-@@ -309,7 +309,7 @@
-  * BKL held [before 2.5.x]
-  */
  int
--ext2_permission(struct inode *inode, int mask)
-+ext2_permission(struct inode *inode, int mask, struct nameidata *nd)
+-affs_create(struct inode *dir, struct dentry *dentry, int mode)
++affs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
  {
- 	return __ext2_permission(inode, mask, 1);
- }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext2/acl.h linux-2.5.73-06-permission/fs/ext2/acl.h
---- linux-2.5.73-05-createintent/fs/ext2/acl.h	2002-10-31 08:34:13.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ext2/acl.h	2003-06-30 08:49:25.000000000 +0200
-@@ -59,7 +59,7 @@
- #define EXT2_ACL_NOT_CACHED ((void *)-1)
+ 	struct super_block *sb = dir->i_sb;
+ 	struct inode	*inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/bfs/dir.c linux-2.5.73-05-createintent/fs/bfs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/bfs/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/bfs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -78,7 +78,8 @@
  
- /* acl.c */
--extern int ext2_permission (struct inode *, int);
-+extern int ext2_permission (struct inode *, int, struct nameidata *);
- extern int ext2_permission_locked (struct inode *, int);
- extern int ext2_acl_chmod (struct inode *);
- extern int ext2_init_acl (struct inode *, struct inode *);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext2/xattr_user.c linux-2.5.73-06-permission/fs/ext2/xattr_user.c
---- linux-2.5.73-05-createintent/fs/ext2/xattr_user.c	2003-02-25 17:21:08.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ext2/xattr_user.c	2003-06-30 08:49:25.000000000 +0200
-@@ -47,7 +47,7 @@
- #ifdef CONFIG_EXT2_FS_POSIX_ACL
- 	error = ext2_permission_locked(inode, MAY_READ);
- #else
--	error = permission(inode, MAY_READ);
-+	error = permission(inode, MAY_READ, NULL);
- #endif
- 	if (error)
- 		return error;
-@@ -71,7 +71,7 @@
- #ifdef CONFIG_EXT2_FS_POSIX_ACL
- 	error = ext2_permission_locked(inode, MAY_WRITE);
- #else
--	error = permission(inode, MAY_WRITE);
-+	error = permission(inode, MAY_WRITE, NULL);
- #endif
- 	if (error)
- 		return error;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext3/acl.c linux-2.5.73-06-permission/fs/ext3/acl.c
---- linux-2.5.73-05-createintent/fs/ext3/acl.c	2003-06-20 22:16:31.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/ext3/acl.c	2003-06-30 08:49:25.000000000 +0200
-@@ -312,7 +312,7 @@
-  * inode->i_sem: up
-  */
- int
--ext3_permission(struct inode *inode, int mask)
-+ext3_permission(struct inode *inode, int mask, struct nameidata *nd)
+ extern void dump_imap(const char *, struct super_block *);
+ 
+-static int bfs_create(struct inode * dir, struct dentry * dentry, int mode)
++static int bfs_create(struct inode * dir, struct dentry * dentry, int mode,
++		struct nameidata *nd)
  {
- 	return __ext3_permission(inode, mask, 1);
- }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext3/acl.h linux-2.5.73-06-permission/fs/ext3/acl.h
---- linux-2.5.73-05-createintent/fs/ext3/acl.h	2002-10-31 08:32:57.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ext3/acl.h	2003-06-30 08:49:25.000000000 +0200
-@@ -59,7 +59,7 @@
- #define EXT3_ACL_NOT_CACHED ((void *)-1)
- 
- /* acl.c */
--extern int ext3_permission (struct inode *, int);
-+extern int ext3_permission (struct inode *, int, struct nameidata *);
- extern int ext3_permission_locked (struct inode *, int);
- extern int ext3_acl_chmod (struct inode *);
- extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ext3/xattr_user.c linux-2.5.73-06-permission/fs/ext3/xattr_user.c
---- linux-2.5.73-05-createintent/fs/ext3/xattr_user.c	2003-02-25 17:21:08.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ext3/xattr_user.c	2003-06-30 08:49:25.000000000 +0200
-@@ -49,7 +49,7 @@
- #ifdef CONFIG_EXT3_FS_POSIX_ACL
- 	error = ext3_permission_locked(inode, MAY_READ);
- #else
--	error = permission(inode, MAY_READ);
-+	error = permission(inode, MAY_READ, NULL);
- #endif
- 	if (error)
- 		return error;
-@@ -73,7 +73,7 @@
- #ifdef CONFIG_EXT3_FS_POSIX_ACL
- 	error = ext3_permission_locked(inode, MAY_WRITE);
- #else
--	error = permission(inode, MAY_WRITE);
-+	error = permission(inode, MAY_WRITE, NULL);
- #endif
- 	if (error)
- 		return error;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/hpfs/namei.c linux-2.5.73-06-permission/fs/hpfs/namei.c
---- linux-2.5.73-05-createintent/fs/hpfs/namei.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/hpfs/namei.c	2003-06-30 08:49:25.000000000 +0200
-@@ -374,7 +374,7 @@
- 		d_drop(dentry);
- 		spin_lock(&dentry->d_lock);
- 		if (atomic_read(&dentry->d_count) > 1 ||
--		    permission(inode, MAY_WRITE) ||
-+		    permission(inode, MAY_WRITE, NULL) ||
- 		    get_write_access(inode)) {
- 			spin_unlock(&dentry->d_lock);
- 			d_rehash(dentry);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/intermezzo/dir.c linux-2.5.73-06-permission/fs/intermezzo/dir.c
---- linux-2.5.73-05-createintent/fs/intermezzo/dir.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/intermezzo/dir.c	2003-06-30 08:49:25.000000000 +0200
-@@ -81,7 +81,7 @@
- /*
-  * these are initialized in super.c
-  */
--extern int presto_permission(struct inode *inode, int mask);
-+extern int presto_permission(struct inode *inode, int mask, struct nameidata *nd);
- static int izo_authorized_uid = 0;
- 
- int izo_dentry_is_ilookup(struct dentry *dentry, ino_t *id,
-@@ -830,7 +830,7 @@
-  * appropriate permission function. Thus we do not worry here about ACLs
-  * or EAs. -SHP
-  */
--int presto_permission(struct inode *inode, int mask)
-+int presto_permission(struct inode *inode, int mask, struct nameidata *nd)
- {
-         unsigned short mode = inode->i_mode;
-         struct presto_cache *cache;
-@@ -852,11 +852,11 @@
- 
-                 if ( S_ISREG(mode) && fiops && fiops->permission ) {
-                         EXIT;
--                        return fiops->permission(inode, mask);
-+                        return fiops->permission(inode, mask, nd);
-                 }
-                 if ( S_ISDIR(mode) && diops && diops->permission ) {
-                         EXIT;
--                        return diops->permission(inode, mask);
-+                        return diops->permission(inode, mask, nd);
-                 }
-         }
- 
-@@ -867,7 +867,7 @@
-          * the VFS permission function.
-          */
-         inode->i_op->permission = NULL;
--        rc = permission(inode, mask);
-+        rc = permission(inode, mask, nd);
-         inode->i_op->permission = &presto_permission;
- 
-         EXIT;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/intermezzo/file.c linux-2.5.73-06-permission/fs/intermezzo/file.c
---- linux-2.5.73-05-createintent/fs/intermezzo/file.c	2003-03-18 18:08:01.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/intermezzo/file.c	2003-06-30 08:49:25.000000000 +0200
-@@ -53,7 +53,7 @@
- /*
-  * these are initialized in super.c
-  */
--extern int presto_permission(struct inode *inode, int mask);
-+extern int presto_permission(struct inode *inode, int mask, struct nameidata *nd);
- 
- 
- static int presto_open_upcall(int minor, struct dentry *de)
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/intermezzo/vfs.c linux-2.5.73-06-permission/fs/intermezzo/vfs.c
---- linux-2.5.73-05-createintent/fs/intermezzo/vfs.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/intermezzo/vfs.c	2003-06-30 08:49:25.000000000 +0200
-@@ -134,7 +134,7 @@
-         int error;
-         if (!victim->d_inode || victim->d_parent->d_inode != dir)
-                 return -ENOENT;
--        error = permission(dir,MAY_WRITE | MAY_EXEC);
-+        error = permission(dir,MAY_WRITE | MAY_EXEC, NULL);
-         if (error)
-                 return error;
-         if (IS_APPEND(dir))
-@@ -158,7 +158,7 @@
-                 return -EEXIST;
-         if (IS_DEADDIR(dir))
-                 return -ENOENT;
--        return permission(dir,MAY_WRITE | MAY_EXEC);
-+        return permission(dir,MAY_WRITE | MAY_EXEC, NULL);
- }
- 
- #ifdef PRESTO_DEBUG
-@@ -1840,7 +1840,7 @@
-          * we'll need to flip '..'.
-          */
-         if (new_dir != old_dir) {
--                error = permission(old_dentry->d_inode, MAY_WRITE);
-+                error = permission(old_dentry->d_inode, MAY_WRITE, NULL);
-         }
-         if (error)
-                 return error;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/jfs/acl.c linux-2.5.73-06-permission/fs/jfs/acl.c
---- linux-2.5.73-05-createintent/fs/jfs/acl.c	2002-11-11 15:27:31.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/jfs/acl.c	2003-06-30 08:49:25.000000000 +0200
-@@ -208,7 +208,7 @@
- 
- 	return -EACCES;
- }
--int jfs_permission(struct inode * inode, int mask)
-+int jfs_permission(struct inode * inode, int mask, struct nameidata *nd)
- {
- 	return __jfs_permission(inode, mask, 0);
- }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/jfs/jfs_acl.h linux-2.5.73-06-permission/fs/jfs/jfs_acl.h
---- linux-2.5.73-05-createintent/fs/jfs/jfs_acl.h	2002-11-09 21:41:48.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/jfs/jfs_acl.h	2003-06-30 08:49:25.000000000 +0200
-@@ -25,7 +25,7 @@
- struct posix_acl *jfs_get_acl(struct inode *, int);
- int jfs_set_acl(struct inode *, int, struct posix_acl *);
- int jfs_permission_have_sem(struct inode *, int);
--int jfs_permission(struct inode *, int);
-+int jfs_permission(struct inode *, int, struct nameidata *);
- int jfs_init_acl(struct inode *, struct inode *);
- int jfs_setattr(struct dentry *, struct iattr *);
- 
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/jfs/xattr.c linux-2.5.73-06-permission/fs/jfs/xattr.c
---- linux-2.5.73-05-createintent/fs/jfs/xattr.c	2003-02-25 17:21:08.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/jfs/xattr.c	2003-06-30 08:49:25.000000000 +0200
-@@ -731,7 +731,7 @@
- #ifdef CONFIG_JFS_POSIX_ACL
- 	return jfs_permission_have_sem(inode, MAY_WRITE);
- #else
--	return permission(inode, MAY_WRITE);
-+	return permission(inode, MAY_WRITE, NULL);
- #endif
- }
- 
-@@ -893,7 +893,7 @@
- 	else
- 		return jfs_permission_have_sem(inode, MAY_READ);
- #else
--	return permission(inode, MAY_READ);
-+	return permission(inode, MAY_READ, NULL);
- #endif
- }
- 
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/namei.c linux-2.5.73-06-permission/fs/namei.c
---- linux-2.5.73-05-createintent/fs/namei.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/namei.c	2003-06-30 08:49:25.000000000 +0200
-@@ -203,7 +203,7 @@
- 	return -EACCES;
- }
- 
--int permission(struct inode * inode,int mask)
-+int permission(struct inode * inode,int mask, struct nameidata *nd)
- {
- 	int retval;
- 	int submask;
-@@ -212,7 +212,7 @@
- 	submask = mask & ~MAY_APPEND;
- 
- 	if (inode->i_op && inode->i_op->permission)
--		retval = inode->i_op->permission(inode, submask);
-+		retval = inode->i_op->permission(inode, submask, nd);
- 	else
- 		retval = vfs_permission(inode, submask);
- 	if (retval)
-@@ -588,7 +588,7 @@
- 
- 		err = exec_permission_lite(inode);
- 		if (err == -EAGAIN) { 
--			err = permission(inode, MAY_EXEC);
-+			err = permission(inode, MAY_EXEC, nd);
- 		}
-  		if (err)
- 			break;
-@@ -876,7 +876,7 @@
  	int err;
+ 	struct inode * inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/cifs/cifsfs.h linux-2.5.73-05-createintent/fs/cifs/cifsfs.h
+--- linux-2.5.73-04-lookupintent/fs/cifs/cifsfs.h	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/cifs/cifsfs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -46,7 +46,7 @@
  
- 	inode = base->d_inode;
--	err = permission(inode, MAY_EXEC);
-+	err = permission(inode, MAY_EXEC, nd);
- 	dentry = ERR_PTR(err);
- 	if (err)
- 		goto out;
-@@ -996,12 +996,12 @@
-  * 10. We don't allow removal of NFS sillyrenamed files; it's handled by
-  *     nfs_async_unlink().
+ /* Functions related to inodes */
+ extern struct inode_operations cifs_dir_inode_ops;
+-extern int cifs_create(struct inode *, struct dentry *, int);
++extern int cifs_create(struct inode *, struct dentry *, int, struct nameidata *);
+ extern struct dentry *cifs_lookup(struct inode *, struct dentry *, struct nameidata *);
+ extern int cifs_unlink(struct inode *, struct dentry *);
+ extern int cifs_hardlink(struct dentry *, struct inode *, struct dentry *);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/cifs/dir.c linux-2.5.73-05-createintent/fs/cifs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/cifs/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/cifs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -119,7 +119,8 @@
+ /* Inode operations in similar order to how they appear in the Linux file fs.h */
+ 
+ int
+-cifs_create(struct inode *inode, struct dentry *direntry, int mode)
++cifs_create(struct inode *inode, struct dentry *direntry, int mode,
++		struct nameidata *nd)
+ {
+ 	int rc = -ENOENT;
+ 	int xid;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/coda/dir.c linux-2.5.73-05-createintent/fs/coda/dir.c
+--- linux-2.5.73-04-lookupintent/fs/coda/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/coda/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -28,7 +28,7 @@
+ #include <linux/coda_proc.h>
+ 
+ /* dir inode-ops */
+-static int coda_create(struct inode *dir, struct dentry *new, int mode);
++static int coda_create(struct inode *dir, struct dentry *new, int mode, struct nameidata *nd);
+ static int coda_mknod(struct inode *dir, struct dentry *new, int mode, dev_t rdev);
+ static struct dentry *coda_lookup(struct inode *dir, struct dentry *target, struct nameidata *nd);
+ static int coda_link(struct dentry *old_dentry, struct inode *dir_inode, 
+@@ -190,7 +190,7 @@
+ }
+ 
+ /* creation routines: create, mknod, mkdir, link, symlink */
+-static int coda_create(struct inode *dir, struct dentry *de, int mode)
++static int coda_create(struct inode *dir, struct dentry *de, int mode, struct nameidata *nd)
+ {
+         int error=0;
+ 	const char *name=de->d_name.name;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/ext2/namei.c linux-2.5.73-05-createintent/fs/ext2/namei.c
+--- linux-2.5.73-04-lookupintent/fs/ext2/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/ext2/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -120,7 +120,7 @@
+  * If the create succeeds, we fill in the inode information
+  * with d_instantiate(). 
   */
--static inline int may_delete(struct inode *dir,struct dentry *victim, int isdir)
-+static inline int may_delete(struct inode *dir,struct dentry *victim,int isdir)
+-static int ext2_create (struct inode * dir, struct dentry * dentry, int mode)
++static int ext2_create (struct inode * dir, struct dentry * dentry, int mode, struct nameidata *nd)
+ {
+ 	struct inode * inode = ext2_new_inode (dir, mode);
+ 	int err = PTR_ERR(inode);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/ext3/namei.c linux-2.5.73-05-createintent/fs/ext3/namei.c
+--- linux-2.5.73-04-lookupintent/fs/ext3/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/ext3/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -1623,7 +1623,8 @@
+  * If the create succeeds, we fill in the inode information
+  * with d_instantiate(). 
+  */
+-static int ext3_create (struct inode * dir, struct dentry * dentry, int mode)
++static int ext3_create (struct inode * dir, struct dentry * dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	handle_t *handle; 
+ 	struct inode * inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/hfs/dir.c linux-2.5.73-05-createintent/fs/hfs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/hfs/dir.c	2002-02-15 01:54:38.000000000 +0100
++++ linux-2.5.73-05-createintent/fs/hfs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -163,7 +163,7 @@
+  * a directory and return a corresponding inode, given the inode for
+  * the directory and the name (and its length) of the new file.
+  */
+-int hfs_create(struct inode * dir, struct dentry *dentry, int mode)
++int hfs_create(struct inode * dir, struct dentry *dentry, int mode, struct nameidata *nd)
+ {
+ 	struct hfs_cat_entry *entry = HFS_I(dir)->entry;
+ 	struct hfs_cat_entry *new;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/hfs/dir_dbl.c linux-2.5.73-05-createintent/fs/hfs/dir_dbl.c
+--- linux-2.5.73-04-lookupintent/fs/hfs/dir_dbl.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/hfs/dir_dbl.c	2003-06-30 08:49:04.000000000 +0200
+@@ -26,7 +26,7 @@
+ 
+ static struct dentry *dbl_lookup(struct inode *, struct dentry *, struct nameidata *);
+ static int dbl_readdir(struct file *, void *, filldir_t);
+-static int dbl_create(struct inode *, struct dentry *, int);
++static int dbl_create(struct inode *, struct dentry *, int, struct nameidata *);
+ static int dbl_mkdir(struct inode *, struct dentry *, int);
+ static int dbl_unlink(struct inode *, struct dentry *);
+ static int dbl_rmdir(struct inode *, struct dentry *);
+@@ -272,7 +272,7 @@
+  * the directory and the name (and its length) of the new file.
+  */
+ static int dbl_create(struct inode * dir, struct dentry *dentry,
+-		      int mode)
++		      int mode, struct nameidata *nd)
  {
  	int error;
- 	if (!victim->d_inode || victim->d_parent->d_inode != dir)
- 		return -ENOENT;
--	error = permission(dir,MAY_WRITE | MAY_EXEC);
-+	error = permission(dir,MAY_WRITE | MAY_EXEC, NULL);
- 	if (error)
- 		return error;
- 	if (IS_APPEND(dir))
-@@ -1031,12 +1031,14 @@
-  *  3. We should have write and exec permissions on dir
-  *  4. We can't do it if dir is immutable (done in permission())
-  */
--static inline int may_create(struct inode *dir, struct dentry *child) {
-+static inline int may_create(struct inode *dir, struct dentry *child,
-+			     struct nameidata *nd)
-+{
- 	if (child->d_inode)
- 		return -EEXIST;
- 	if (IS_DEADDIR(dir))
- 		return -ENOENT;
--	return permission(dir,MAY_WRITE | MAY_EXEC);
-+	return permission(dir,MAY_WRITE | MAY_EXEC, nd);
- }
  
- /* 
-@@ -1108,7 +1110,7 @@
- int vfs_create(struct inode *dir, struct dentry *dentry, int mode,
- 		struct nameidata *nd)
- {
--	int error = may_create(dir, dentry);
-+	int error = may_create(dir, dentry, nd);
- 
- 	if (error)
- 		return error;
-@@ -1144,7 +1146,7 @@
- 	if (S_ISDIR(inode->i_mode) && (flag & FMODE_WRITE))
- 		return -EISDIR;
- 
--	error = permission(inode, acc_mode);
-+	error = permission(inode, acc_mode, nd);
- 	if (error)
- 		return error;
- 
-@@ -1398,7 +1400,7 @@
- 
- int vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
- {
--	int error = may_create(dir, dentry);
-+	int error = may_create(dir, dentry, NULL);
- 
- 	if (error)
- 		return error;
-@@ -1469,7 +1471,7 @@
- 
- int vfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- {
--	int error = may_create(dir, dentry);
-+	int error = may_create(dir, dentry, NULL);
- 
- 	if (error)
- 		return error;
-@@ -1715,7 +1717,7 @@
- 
- int vfs_symlink(struct inode *dir, struct dentry *dentry, const char *oldname)
- {
--	int error = may_create(dir, dentry);
-+	int error = may_create(dir, dentry, NULL);
- 
- 	if (error)
- 		return error;
-@@ -1777,7 +1779,7 @@
- 	if (!inode)
- 		return -ENOENT;
- 
--	error = may_create(dir, new_dentry);
-+	error = may_create(dir, new_dentry, NULL);
- 	if (error)
- 		return error;
- 
-@@ -1898,7 +1900,7 @@
- 	 * we'll need to flip '..'.
- 	 */
- 	if (new_dir != old_dir) {
--		error = permission(old_dentry->d_inode, MAY_WRITE);
-+		error = permission(old_dentry->d_inode, MAY_WRITE, NULL);
- 		if (error)
- 			return error;
+@@ -280,7 +280,7 @@
+ 	if (is_hdr(dir, dentry->d_name.name, dentry->d_name.len)) {
+ 		error = -EEXIST;
+ 	} else {
+-		error = hfs_create(dir, dentry, mode);
++		error = hfs_create(dir, dentry, mode, nd);
  	}
-@@ -1976,7 +1978,7 @@
- 		return error;
- 
- 	if (!new_dentry->d_inode)
--		error = may_create(new_dir, new_dentry);
-+		error = may_create(new_dir, new_dentry, NULL);
- 	else
- 		error = may_delete(new_dir, new_dentry, is_dir);
- 	if (error)
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/namespace.c linux-2.5.73-06-permission/fs/namespace.c
---- linux-2.5.73-05-createintent/fs/namespace.c	2003-06-05 17:55:12.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/namespace.c	2003-06-30 08:49:25.000000000 +0200
-@@ -403,7 +403,7 @@
- 		if (current->uid != nd->dentry->d_inode->i_uid)
- 			return -EPERM;
- 	}
--	if (permission(nd->dentry->d_inode, MAY_WRITE))
-+	if (permission(nd->dentry->d_inode, MAY_WRITE, nd))
- 		return -EPERM;
- 	return 0;
- #endif
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/ncpfs/ioctl.c linux-2.5.73-06-permission/fs/ncpfs/ioctl.c
---- linux-2.5.73-05-createintent/fs/ncpfs/ioctl.c	2003-03-11 07:34:29.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/ncpfs/ioctl.c	2003-06-30 08:49:25.000000000 +0200
-@@ -40,7 +40,7 @@
- 	switch (cmd) {
- 	case NCP_IOC_NCPREQUEST:
- 
--		if ((permission(inode, MAY_WRITE) != 0)
-+		if ((permission(inode, MAY_WRITE, NULL) != 0)
- 		    && (current->uid != server->m.mounted_uid)) {
- 			return -EACCES;
- 		}
-@@ -99,7 +99,7 @@
- 		{
- 			struct ncp_fs_info info;
- 
--			if ((permission(inode, MAY_WRITE) != 0)
-+			if ((permission(inode, MAY_WRITE, NULL) != 0)
- 			    && (current->uid != server->m.mounted_uid)) {
- 				return -EACCES;
- 			}
-@@ -127,7 +127,7 @@
- 		{
- 			struct ncp_fs_info_v2 info2;
- 
--			if ((permission(inode, MAY_WRITE) != 0)
-+			if ((permission(inode, MAY_WRITE, NULL) != 0)
- 			    && (current->uid != server->m.mounted_uid)) {
- 				return -EACCES;
- 			}
-@@ -155,7 +155,7 @@
- 		{
- 			unsigned long tmp = server->m.mounted_uid;
- 
--			if (   (permission(inode, MAY_READ) != 0)
-+			if (   (permission(inode, MAY_READ, NULL) != 0)
- 			    && (current->uid != server->m.mounted_uid))
- 			{
- 				return -EACCES;
-@@ -169,7 +169,7 @@
- 		{
- 			struct ncp_setroot_ioctl sr;
- 
--			if (   (permission(inode, MAY_READ) != 0)
-+			if (   (permission(inode, MAY_READ, NULL) != 0)
- 			    && (current->uid != server->m.mounted_uid))
- 			{
- 				return -EACCES;
-@@ -249,7 +249,7 @@
- 
- #ifdef CONFIG_NCPFS_PACKET_SIGNING	
- 	case NCP_IOC_SIGN_INIT:
--		if ((permission(inode, MAY_WRITE) != 0)
-+		if ((permission(inode, MAY_WRITE, NULL) != 0)
- 		    && (current->uid != server->m.mounted_uid))
- 		{
- 			return -EACCES;
-@@ -272,7 +272,7 @@
- 		return 0;		
- 		
-         case NCP_IOC_SIGN_WANTED:
--		if (   (permission(inode, MAY_READ) != 0)
-+		if (   (permission(inode, MAY_READ, NULL) != 0)
- 		    && (current->uid != server->m.mounted_uid))
- 		{
- 			return -EACCES;
+ 	unlock_kernel();
+ 	return error;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/hpfs/hpfs_fn.h linux-2.5.73-05-createintent/fs/hpfs/hpfs_fn.h
+--- linux-2.5.73-04-lookupintent/fs/hpfs/hpfs_fn.h	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/hpfs/hpfs_fn.h	2003-06-30 08:49:04.000000000 +0200
 @@ -285,7 +285,7 @@
- 		{
- 			int newstate;
+ /* namei.c */
  
--			if (   (permission(inode, MAY_WRITE) != 0)
-+			if (   (permission(inode, MAY_WRITE, NULL) != 0)
- 			    && (current->uid != server->m.mounted_uid))
- 			{
- 				return -EACCES;
-@@ -306,7 +306,7 @@
- 
- #ifdef CONFIG_NCPFS_IOCTL_LOCKING
- 	case NCP_IOC_LOCKUNLOCK:
--		if (   (permission(inode, MAY_WRITE) != 0)
-+		if (   (permission(inode, MAY_WRITE, NULL) != 0)
- 		    && (current->uid != server->m.mounted_uid))
- 		{
- 			return -EACCES;
-@@ -608,7 +608,7 @@
- 		}
- #endif /* CONFIG_NCPFS_NLS */
- 	case NCP_IOC_SETDENTRYTTL:
--		if ((permission(inode, MAY_WRITE) != 0) &&
-+		if ((permission(inode, MAY_WRITE, NULL) != 0) &&
- 				 (current->uid != server->m.mounted_uid))
- 			return -EACCES;
- 		{
-@@ -637,7 +637,7 @@
- 	/* NCP_IOC_GETMOUNTUID may be same as NCP_IOC_GETMOUNTUID2,
-            so we have this out of switch */
- 	if (cmd == NCP_IOC_GETMOUNTUID) {
--		if ((permission(inode, MAY_READ) != 0)
-+		if ((permission(inode, MAY_READ, NULL) != 0)
- 		    && (current->uid != server->m.mounted_uid)) {
- 			return -EACCES;
- 		}
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/nfs/dir.c linux-2.5.73-06-permission/fs/nfs/dir.c
---- linux-2.5.73-05-createintent/fs/nfs/dir.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/nfs/dir.c	2003-06-30 08:49:25.000000000 +0200
-@@ -1240,7 +1240,7 @@
+ int hpfs_mkdir(struct inode *, struct dentry *, int);
+-int hpfs_create(struct inode *, struct dentry *, int);
++int hpfs_create(struct inode *, struct dentry *, int, struct nameidata *);
+ int hpfs_mknod(struct inode *, struct dentry *, int, dev_t);
+ int hpfs_symlink(struct inode *, struct dentry *, const char *);
+ int hpfs_unlink(struct inode *, struct dentry *);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/hpfs/namei.c linux-2.5.73-05-createintent/fs/hpfs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/hpfs/namei.c	2003-06-26 01:30:54.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/hpfs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -106,7 +106,7 @@
+ 	return -ENOSPC;
  }
  
- int
--nfs_permission(struct inode *inode, int mask)
-+nfs_permission(struct inode *inode, int mask, struct nameidata *nd)
+-int hpfs_create(struct inode *dir, struct dentry *dentry, int mode)
++int hpfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
  {
- 	struct nfs_access_cache *cache = &NFS_I(inode)->cache_access;
- 	struct rpc_cred *cred;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/nfsd/nfsfh.c linux-2.5.73-06-permission/fs/nfsd/nfsfh.c
---- linux-2.5.73-05-createintent/fs/nfsd/nfsfh.c	2003-06-18 01:31:29.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/nfsd/nfsfh.c	2003-06-30 08:49:26.000000000 +0200
-@@ -56,7 +56,7 @@
- 		/* make sure parents give x permission to user */
- 		int err;
- 		parent = dget_parent(tdentry);
--		err = permission(parent->d_inode, S_IXOTH);
-+		err = permission(parent->d_inode, S_IXOTH, NULL);
- 		if (err < 0) {
- 			dput(parent);
- 			break;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/nfsd/vfs.c linux-2.5.73-06-permission/fs/nfsd/vfs.c
---- linux-2.5.73-05-createintent/fs/nfsd/vfs.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/nfsd/vfs.c	2003-06-30 08:49:26.000000000 +0200
-@@ -1584,12 +1584,12 @@
- 	    inode->i_uid == current->fsuid)
- 		return 0;
- 
--	err = permission(inode, acc & (MAY_READ|MAY_WRITE|MAY_EXEC));
-+	err = permission(inode, acc & (MAY_READ|MAY_WRITE|MAY_EXEC), NULL);
- 
- 	/* Allow read access to binaries even when mode 111 */
- 	if (err == -EACCES && S_ISREG(inode->i_mode) &&
- 	    acc == (MAY_READ | MAY_OWNER_OVERRIDE))
--		err = permission(inode, MAY_EXEC);
-+		err = permission(inode, MAY_EXEC, NULL);
- 
- 	return err? nfserrno(err) : 0;
- }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/open.c linux-2.5.73-06-permission/fs/open.c
---- linux-2.5.73-05-createintent/fs/open.c	2003-06-20 22:16:06.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/open.c	2003-06-30 08:49:26.000000000 +0200
-@@ -219,7 +219,7 @@
- 	if (!S_ISREG(inode->i_mode))
- 		goto dput_and_out;
- 
--	error = permission(inode,MAY_WRITE);
-+	error = permission(inode,MAY_WRITE,&nd);
- 	if (error)
- 		goto dput_and_out;
- 
-@@ -365,7 +365,7 @@
- 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
- 	} else {
- 		if (current->fsuid != inode->i_uid &&
--		    (error = permission(inode,MAY_WRITE)) != 0)
-+		    (error = permission(inode,MAY_WRITE,&nd)) != 0)
- 			goto dput_and_out;
- 	}
- 	down(&inode->i_sem);
-@@ -410,7 +410,7 @@
- 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
- 	} else {
- 		if (current->fsuid != inode->i_uid &&
--		    (error = permission(inode,MAY_WRITE)) != 0)
-+		    (error = permission(inode,MAY_WRITE,&nd)) != 0)
- 			goto dput_and_out;
- 	}
- 	down(&inode->i_sem);
-@@ -467,9 +467,9 @@
- 	else
- 		current->cap_effective = current->cap_permitted;
- 
--	res = user_path_walk(filename, &nd);
-+	res = __user_walk(filename, LOOKUP_FOLLOW|LOOKUP_ACCESS, &nd);
- 	if (!res) {
--		res = permission(nd.dentry->d_inode, mode);
-+		res = permission(nd.dentry->d_inode, mode, &nd);
- 		/* SuS v2 requires we report a read only fs too */
- 		if(!res && (mode & S_IWOTH) && IS_RDONLY(nd.dentry->d_inode)
- 		   && !special_file(nd.dentry->d_inode->i_mode))
-@@ -493,7 +493,7 @@
- 	if (error)
- 		goto out;
- 
--	error = permission(nd.dentry->d_inode,MAY_EXEC);
-+	error = permission(nd.dentry->d_inode,MAY_EXEC,&nd);
- 	if (error)
- 		goto dput_and_out;
- 
-@@ -526,7 +526,7 @@
- 	if (!S_ISDIR(inode->i_mode))
- 		goto out_putf;
- 
--	error = permission(inode, MAY_EXEC);
-+	error = permission(inode, MAY_EXEC, NULL);
- 	if (!error)
- 		set_fs_pwd(current->fs, mnt, dentry);
- out_putf:
-@@ -544,7 +544,7 @@
- 	if (error)
- 		goto out;
- 
--	error = permission(nd.dentry->d_inode,MAY_EXEC);
-+	error = permission(nd.dentry->d_inode,MAY_EXEC,&nd);
- 	if (error)
- 		goto dput_and_out;
- 
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/proc/base.c linux-2.5.73-06-permission/fs/proc/base.c
---- linux-2.5.73-05-createintent/fs/proc/base.c	2003-06-30 08:48:43.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/proc/base.c	2003-06-30 08:49:26.000000000 +0200
-@@ -334,7 +334,7 @@
- 	goto exit;
+ 	const char *name = dentry->d_name.name;
+ 	unsigned len = dentry->d_name.len;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/hugetlbfs/inode.c linux-2.5.73-05-createintent/fs/hugetlbfs/inode.c
+--- linux-2.5.73-04-lookupintent/fs/hugetlbfs/inode.c	2003-06-20 22:16:19.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/hugetlbfs/inode.c	2003-06-30 08:49:04.000000000 +0200
+@@ -462,7 +462,7 @@
+ 	return retval;
  }
  
--static int proc_permission(struct inode *inode, int mask)
-+static int proc_permission(struct inode *inode, int mask, struct nameidata *nd)
+-static int hugetlbfs_create(struct inode *dir, struct dentry *dentry, int mode)
++static int hugetlbfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
  {
- 	if (vfs_permission(inode, mask) != 0)
- 		return -EACCES;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/smbfs/file.c linux-2.5.73-06-permission/fs/smbfs/file.c
---- linux-2.5.73-05-createintent/fs/smbfs/file.c	2002-12-14 18:42:09.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/smbfs/file.c	2003-06-30 08:49:26.000000000 +0200
-@@ -367,7 +367,7 @@
-  * privileges, so we need our own check for this.
+ 	return hugetlbfs_mknod(dir, dentry, mode | S_IFREG, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/intermezzo/dir.c linux-2.5.73-05-createintent/fs/intermezzo/dir.c
+--- linux-2.5.73-04-lookupintent/fs/intermezzo/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/intermezzo/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -412,7 +412,8 @@
+         return 0;
+ }
+ 
+-static int presto_create(struct inode * dir, struct dentry * dentry, int mode)
++static int presto_create(struct inode * dir, struct dentry * dentry, int mode,
++                struct nameidata *nd)
+ {
+         int error;
+         struct presto_cache *cache;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/intermezzo/vfs.c linux-2.5.73-05-createintent/fs/intermezzo/vfs.c
+--- linux-2.5.73-04-lookupintent/fs/intermezzo/vfs.c	2003-06-12 05:00:51.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/intermezzo/vfs.c	2003-06-30 08:49:04.000000000 +0200
+@@ -598,7 +598,7 @@
+         }
+         DQUOT_INIT(dir->d_inode);
+         lock_kernel();
+-        error = iops->create(dir->d_inode, dentry, mode);
++        error = iops->create(dir->d_inode, dentry, mode, NULL);
+         if (error) {
+                 EXIT;
+                 goto exit_lock;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/jffs/inode-v23.c linux-2.5.73-05-createintent/fs/jffs/inode-v23.c
+--- linux-2.5.73-04-lookupintent/fs/jffs/inode-v23.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/jffs/inode-v23.c	2003-06-30 08:49:04.000000000 +0200
+@@ -1273,7 +1273,8 @@
+  * with d_instantiate().
   */
  static int
--smb_file_permission(struct inode *inode, int mask)
-+smb_file_permission(struct inode *inode, int mask, struct nameidata *nd)
+-jffs_create(struct inode *dir, struct dentry *dentry, int mode)
++jffs_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
  {
- 	int mode = inode->i_mode;
- 	int error = 0;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/udf/file.c linux-2.5.73-06-permission/fs/udf/file.c
---- linux-2.5.73-05-createintent/fs/udf/file.c	2002-12-14 18:42:09.000000000 +0100
-+++ linux-2.5.73-06-permission/fs/udf/file.c	2003-06-30 08:49:26.000000000 +0200
-@@ -188,7 +188,7 @@
- {
- 	int result = -EINVAL;
+ 	struct jffs_raw_inode raw_inode;
+ 	struct jffs_control *c;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/jffs2/dir.c linux-2.5.73-05-createintent/fs/jffs2/dir.c
+--- linux-2.5.73-04-lookupintent/fs/jffs2/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/jffs2/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -32,7 +32,7 @@
  
--	if ( permission(inode, MAY_READ) != 0 )
-+	if ( permission(inode, MAY_READ, NULL) != 0 )
- 	{
- 		udf_debug("no permission to access inode %lu\n",
- 						inode->i_ino);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/fs/xfs/linux/xfs_iops.c linux-2.5.73-06-permission/fs/xfs/linux/xfs_iops.c
---- linux-2.5.73-05-createintent/fs/xfs/linux/xfs_iops.c	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/fs/xfs/linux/xfs_iops.c	2003-06-30 08:49:26.000000000 +0200
-@@ -431,7 +431,8 @@
- STATIC int
- linvfs_permission(
- 	struct inode	*inode,
+ static int jffs2_readdir (struct file *, void *, filldir_t);
+ 
+-static int jffs2_create (struct inode *,struct dentry *,int);
++static int jffs2_create (struct inode *,struct dentry *,int, struct nameidata *);
+ static struct dentry *jffs2_lookup (struct inode *,struct dentry *, struct nameidata *);
+ static int jffs2_link (struct dentry *,struct inode *,struct dentry *);
+ static int jffs2_unlink (struct inode *,struct dentry *);
+@@ -175,7 +175,8 @@
+ /***********************************************************************/
+ 
+ 
+-static int jffs2_create(struct inode *dir_i, struct dentry *dentry, int mode)
++static int jffs2_create(struct inode *dir_i, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	struct jffs2_raw_inode *ri;
+ 	struct jffs2_inode_info *f, *dir_f;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/jfs/namei.c linux-2.5.73-05-createintent/fs/jfs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/jfs/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/jfs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -54,11 +54,13 @@
+  * PARAMETER:	dip 	- parent directory vnode
+  *		dentry	- dentry of new file
+  *		mode	- create mode (rwxrwxrwx).
++ *		nd- nd struct
+  *
+  * RETURN:	Errors from subroutines
+  *
+  */
+-int jfs_create(struct inode *dip, struct dentry *dentry, int mode)
++int jfs_create(struct inode *dip, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	int rc = 0;
+ 	tid_t tid;		/* transaction id */
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/minix/namei.c linux-2.5.73-05-createintent/fs/minix/namei.c
+--- linux-2.5.73-04-lookupintent/fs/minix/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/minix/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -89,7 +89,8 @@
+ 	return error;
+ }
+ 
+-static int minix_create(struct inode * dir, struct dentry *dentry, int mode)
++static int minix_create(struct inode * dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	return minix_mknod(dir, dentry, mode, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/msdos/namei.c linux-2.5.73-05-createintent/fs/msdos/namei.c
+--- linux-2.5.73-04-lookupintent/fs/msdos/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/msdos/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -261,7 +261,8 @@
+  */
+ 
+ /***** Create a file */
+-int msdos_create(struct inode *dir,struct dentry *dentry,int mode)
++int msdos_create(struct inode *dir,struct dentry *dentry,int mode,
++		struct nameidata *nd)
+ {
+ 	struct super_block *sb = dir->i_sb;
+ 	struct buffer_head *bh;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/namei.c linux-2.5.73-05-createintent/fs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/namei.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -1105,7 +1105,8 @@
+ 	}
+ }
+ 
+-int vfs_create(struct inode *dir, struct dentry *dentry, int mode)
++int vfs_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	int error = may_create(dir, dentry);
+ 
+@@ -1120,7 +1121,7 @@
+ 	if (error)
+ 		return error;
+ 	DQUOT_INIT(dir);
+-	error = dir->i_op->create(dir, dentry, mode);
++	error = dir->i_op->create(dir, dentry, mode, nd);
+ 	if (!error) {
+ 		inode_dir_notify(dir, DN_CREATE);
+ 		security_inode_post_create(dir, dentry, mode);
+@@ -1277,7 +1278,7 @@
+ 	if (!dentry->d_inode) {
+ 		if (!IS_POSIXACL(dir->d_inode))
+ 			mode &= ~current->fs->umask;
+-		error = vfs_create(dir->d_inode, dentry, mode);
++		error = vfs_create(dir->d_inode, dentry, mode, nd);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1445,7 +1446,7 @@
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+-			error = vfs_create(nd.dentry->d_inode,dentry,mode);
++			error = vfs_create(nd.dentry->d_inode,dentry,mode,&nd);
+ 			break;
+ 		case S_IFCHR: case S_IFBLK: case S_IFIFO: case S_IFSOCK:
+ 			error = vfs_mknod(nd.dentry->d_inode,dentry,mode,dev);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/ncpfs/dir.c linux-2.5.73-05-createintent/fs/ncpfs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/ncpfs/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/ncpfs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -34,7 +34,7 @@
+ 
+ static int ncp_readdir(struct file *, void *, filldir_t);
+ 
+-static int ncp_create(struct inode *, struct dentry *, int);
++static int ncp_create(struct inode *, struct dentry *, int, struct nameidata *);
+ static struct dentry *ncp_lookup(struct inode *, struct dentry *, struct nameidata *);
+ static int ncp_unlink(struct inode *, struct dentry *);
+ static int ncp_mkdir(struct inode *, struct dentry *, int);
+@@ -942,7 +942,8 @@
+ 	return error;
+ }
+ 
+-static int ncp_create(struct inode *dir, struct dentry *dentry, int mode)
++static int ncp_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	return ncp_create_new(dir, dentry, mode, 0, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/nfs/dir.c linux-2.5.73-05-createintent/fs/nfs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/nfs/dir.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/nfs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -40,7 +40,7 @@
+ static struct dentry *nfs_lookup(struct inode *, struct dentry *, struct nameidata *);
+ static int nfs_cached_lookup(struct inode *, struct dentry *,
+ 				struct nfs_fh *, struct nfs_fattr *);
+-static int nfs_create(struct inode *, struct dentry *, int);
++static int nfs_create(struct inode *, struct dentry *, int, struct nameidata *);
+ static int nfs_mkdir(struct inode *, struct dentry *, int);
+ static int nfs_rmdir(struct inode *, struct dentry *);
+ static int nfs_unlink(struct inode *, struct dentry *);
+@@ -787,7 +787,8 @@
+  * that the operation succeeded on the server, but an error in the
+  * reply path made it appear to have failed.
+  */
+-static int nfs_create(struct inode *dir, struct dentry *dentry, int mode)
++static int nfs_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	struct iattr attr;
+ 	struct nfs_fattr fattr;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/nfsd/vfs.c linux-2.5.73-05-createintent/fs/nfsd/vfs.c
+--- linux-2.5.73-04-lookupintent/fs/nfsd/vfs.c	2003-06-20 22:16:06.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/nfsd/vfs.c	2003-06-30 08:49:04.000000000 +0200
+@@ -924,7 +924,7 @@
+ 	err = nfserr_perm;
+ 	switch (type) {
+ 	case S_IFREG:
+-		err = vfs_create(dirp, dchild, iap->ia_mode);
++		err = vfs_create(dirp, dchild, iap->ia_mode, NULL);
+ 		break;
+ 	case S_IFDIR:
+ 		err = vfs_mkdir(dirp, dchild, iap->ia_mode);
+@@ -1067,7 +1067,7 @@
+ 		goto out;
+ 	}
+ 
+-	err = vfs_create(dirp, dchild, iap->ia_mode);
++	err = vfs_create(dirp, dchild, iap->ia_mode, NULL);
+ 	if (err < 0)
+ 		goto out_nfserr;
+ 
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/openpromfs/inode.c linux-2.5.73-05-createintent/fs/openpromfs/inode.c
+--- linux-2.5.73-04-lookupintent/fs/openpromfs/inode.c	2003-06-30 08:48:42.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/openpromfs/inode.c	2003-06-30 08:49:04.000000000 +0200
+@@ -59,7 +59,7 @@
+ #define NODE2INO(node) (node + OPENPROM_FIRST_INO)
+ #define NODEP2INO(no) (no + OPENPROM_FIRST_INO + last_node)
+ 
+-static int openpromfs_create (struct inode *, struct dentry *, int);
++static int openpromfs_create (struct inode *, struct dentry *, int, struct nameidata *);
+ static int openpromfs_readdir(struct file *, void *, filldir_t);
+ static struct dentry *openpromfs_lookup(struct inode *, struct dentry *dentry, struct nameidata *nd);
+ static int openpromfs_unlink (struct inode *, struct dentry *dentry);
+@@ -854,7 +854,8 @@
+ 	return 0;
+ }
+ 
+-static int openpromfs_create (struct inode *dir, struct dentry *dentry, int mode)
++static int openpromfs_create (struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	char *p;
+ 	struct inode *inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/qnx4/namei.c linux-2.5.73-05-createintent/fs/qnx4/namei.c
+--- linux-2.5.73-04-lookupintent/fs/qnx4/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/qnx4/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -142,7 +142,8 @@
+ }
+ 
+ #ifdef CONFIG_QNX4FS_RW
+-int qnx4_create(struct inode *dir, struct dentry *dentry, int mode)
++int qnx4_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	QNX4DEBUG(("qnx4: qnx4_create\n"));
+ 	if (dir == NULL) {
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/ramfs/inode.c linux-2.5.73-05-createintent/fs/ramfs/inode.c
+--- linux-2.5.73-04-lookupintent/fs/ramfs/inode.c	2003-05-26 04:19:54.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/ramfs/inode.c	2003-06-30 08:49:04.000000000 +0200
+@@ -111,7 +111,7 @@
+ 	return retval;
+ }
+ 
+-static int ramfs_create(struct inode *dir, struct dentry *dentry, int mode)
++static int ramfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
+ {
+ 	return ramfs_mknod(dir, dentry, mode | S_IFREG, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/reiserfs/namei.c linux-2.5.73-05-createintent/fs/reiserfs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/reiserfs/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/reiserfs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -558,7 +558,8 @@
+     return 0 ;
+ }
+ 
+-static int reiserfs_create (struct inode * dir, struct dentry *dentry, int mode)
++static int reiserfs_create (struct inode * dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+     int retval;
+     struct inode * inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/smbfs/dir.c linux-2.5.73-05-createintent/fs/smbfs/dir.c
+--- linux-2.5.73-04-lookupintent/fs/smbfs/dir.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/smbfs/dir.c	2003-06-30 08:49:04.000000000 +0200
+@@ -25,7 +25,7 @@
+ static int smb_dir_open(struct inode *, struct file *);
+ 
+ static struct dentry *smb_lookup(struct inode *, struct dentry *, struct nameidata *);
+-static int smb_create(struct inode *, struct dentry *, int);
++static int smb_create(struct inode *, struct dentry *, int, struct nameidata *);
+ static int smb_mkdir(struct inode *, struct dentry *, int);
+ static int smb_rmdir(struct inode *, struct dentry *);
+ static int smb_unlink(struct inode *, struct dentry *);
+@@ -510,7 +510,8 @@
+ 
+ /* N.B. How should the mode argument be used? */
+ static int
+-smb_create(struct inode *dir, struct dentry *dentry, int mode)
++smb_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	struct smb_sb_info *server = server_from_dentry(dentry);
+ 	__u16 fileid;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/sysv/namei.c linux-2.5.73-05-createintent/fs/sysv/namei.c
+--- linux-2.5.73-04-lookupintent/fs/sysv/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/sysv/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -96,7 +96,7 @@
+ 	return err;
+ }
+ 
+-static int sysv_create(struct inode * dir, struct dentry * dentry, int mode)
++static int sysv_create(struct inode * dir, struct dentry * dentry, int mode, struct nameidata *nd)
+ {
+ 	return sysv_mknod(dir, dentry, mode, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/udf/namei.c linux-2.5.73-05-createintent/fs/udf/namei.c
+--- linux-2.5.73-04-lookupintent/fs/udf/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/udf/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -621,7 +621,7 @@
+ 	return udf_write_fi(inode, cfi, fi, fibh, NULL, NULL);
+ }
+ 
+-static int udf_create(struct inode *dir, struct dentry *dentry, int mode)
++static int udf_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
+ {
+ 	struct udf_fileident_bh fibh;
+ 	struct inode *inode;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/ufs/namei.c linux-2.5.73-05-createintent/fs/ufs/namei.c
+--- linux-2.5.73-04-lookupintent/fs/ufs/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/ufs/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -92,7 +92,8 @@
+  * If the create succeeds, we fill in the inode information
+  * with d_instantiate(). 
+  */
+-static int ufs_create (struct inode * dir, struct dentry * dentry, int mode)
++static int ufs_create (struct inode * dir, struct dentry * dentry, int mode,
++		struct nameidata *nd)
+ {
+ 	struct inode * inode = ufs_new_inode(dir, mode);
+ 	int err = PTR_ERR(inode);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/umsdos/emd.c linux-2.5.73-05-createintent/fs/umsdos/emd.c
+--- linux-2.5.73-04-lookupintent/fs/umsdos/emd.c	2002-04-30 00:18:54.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/umsdos/emd.c	2003-06-30 08:49:04.000000000 +0200
+@@ -105,7 +105,7 @@
+ Printk(("umsdos_make_emd: creating EMD %s/%s\n",
+ parent->d_name.name, demd->d_name.name));
+ 
+-	err = msdos_create(parent->d_inode, demd, S_IFREG | 0777);
++	err = msdos_create(parent->d_inode, demd, S_IFREG | 0777, NULL);
+ 	if (err) {
+ 		printk (KERN_WARNING
+ 			"umsdos_make_emd: create %s/%s failed, err=%d\n",
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/umsdos/namei.c linux-2.5.73-05-createintent/fs/umsdos/namei.c
+--- linux-2.5.73-04-lookupintent/fs/umsdos/namei.c	2002-11-20 12:19:02.000000000 +0100
++++ linux-2.5.73-05-createintent/fs/umsdos/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -274,7 +274,7 @@
+ 	if (fake->d_inode)
+ 		goto out_remove_dput;
+ 
+-	ret = msdos_create (dir, fake, S_IFREG | 0777);
++	ret = msdos_create (dir, fake, S_IFREG | 0777, NULL);
+ 	if (ret)
+ 		goto out_remove_dput;
+ 
+@@ -311,7 +311,7 @@
+  * 
+  * Return the status of the operation. 0 mean success.
+  */
+-int UMSDOS_create (struct inode *dir, struct dentry *dentry, int mode)
++int UMSDOS_create (struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
+ {
+ 	return umsdos_create_any (dir, dentry, mode, 0, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/vfat/namei.c linux-2.5.73-05-createintent/fs/vfat/namei.c
+--- linux-2.5.73-04-lookupintent/fs/vfat/namei.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/vfat/namei.c	2003-06-30 08:49:04.000000000 +0200
+@@ -912,7 +912,8 @@
+ 	return dentry;
+ }
+ 
+-int vfat_create(struct inode *dir,struct dentry* dentry,int mode)
++int vfat_create(struct inode *dir,struct dentry* dentry,int mode,
++		struct nameidata *nd)
+ {
+ 	struct super_block *sb = dir->i_sb;
+ 	struct inode *inode = NULL;
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/fs/xfs/linux/xfs_iops.c linux-2.5.73-05-createintent/fs/xfs/linux/xfs_iops.c
+--- linux-2.5.73-04-lookupintent/fs/xfs/linux/xfs_iops.c	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/fs/xfs/linux/xfs_iops.c	2003-06-30 08:49:04.000000000 +0200
+@@ -175,7 +175,8 @@
+ linvfs_create(
+ 	struct inode	*dir,
+ 	struct dentry	*dentry,
 -	int		mode)
 +	int		mode,
 +	struct nameidata *nd)
  {
- 	vnode_t		*vp = LINVFS_GET_VP(inode);
- 	int		error;
-diff -u --recursive --new-file linux-2.5.73-05-createintent/include/linux/coda_linux.h linux-2.5.73-06-permission/include/linux/coda_linux.h
---- linux-2.5.73-05-createintent/include/linux/coda_linux.h	2002-11-17 04:49:10.000000000 +0100
-+++ linux-2.5.73-06-permission/include/linux/coda_linux.h	2003-06-30 08:49:26.000000000 +0200
-@@ -38,7 +38,7 @@
- int coda_open(struct inode *i, struct file *f);
- int coda_flush(struct file *f);
- int coda_release(struct inode *i, struct file *f);
--int coda_permission(struct inode *inode, int mask);
-+int coda_permission(struct inode *inode, int mask, struct nameidata *nd);
- int coda_revalidate_inode(struct dentry *);
- int coda_getattr(struct vfsmount *, struct dentry *, struct kstat *);
- int coda_setattr(struct dentry *, struct iattr *);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/include/linux/fs.h linux-2.5.73-06-permission/include/linux/fs.h
---- linux-2.5.73-05-createintent/include/linux/fs.h	2003-06-30 08:49:04.000000000 +0200
-+++ linux-2.5.73-06-permission/include/linux/fs.h	2003-06-30 08:49:26.000000000 +0200
-@@ -743,7 +743,7 @@
- 	int (*readlink) (struct dentry *, char __user *,int);
- 	int (*follow_link) (struct dentry *, struct nameidata *);
- 	void (*truncate) (struct inode *);
--	int (*permission) (struct inode *, int);
-+	int (*permission) (struct inode *, int, struct nameidata *);
- 	int (*setattr) (struct dentry *, struct iattr *);
- 	int (*getattr) (struct vfsmount *mnt, struct dentry *, struct kstat *);
- 	int (*setxattr) (struct dentry *, const char *,const void *,size_t,int);
-@@ -1121,7 +1121,7 @@
- extern sector_t bmap(struct inode *, sector_t);
- extern int setattr_mask(unsigned int);
- extern int notify_change(struct dentry *, struct iattr *);
--extern int permission(struct inode *, int);
-+extern int permission(struct inode *, int, struct nameidata *);
- extern int vfs_permission(struct inode *, int);
- extern int get_write_access(struct inode *);
- extern int deny_write_access(struct file *);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/include/linux/namei.h linux-2.5.73-06-permission/include/linux/namei.h
---- linux-2.5.73-05-createintent/include/linux/namei.h	2003-06-30 08:48:43.000000000 +0200
-+++ linux-2.5.73-06-permission/include/linux/namei.h	2003-06-30 08:49:26.000000000 +0200
-@@ -52,6 +52,7 @@
+ 	return linvfs_mknod(dir, dentry, mode, 0);
+ }
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/include/linux/affs_fs.h linux-2.5.73-05-createintent/include/linux/affs_fs.h
+--- linux-2.5.73-04-lookupintent/include/linux/affs_fs.h	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/include/linux/affs_fs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -43,7 +43,7 @@
+ extern int	affs_hash_name(struct super_block *sb, const u8 *name, unsigned int len);
+ extern struct dentry *affs_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *);
+ extern int	affs_unlink(struct inode *dir, struct dentry *dentry);
+-extern int	affs_create(struct inode *dir, struct dentry *dentry, int mode);
++extern int	affs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *);
+ extern int	affs_mkdir(struct inode *dir, struct dentry *dentry, int mode);
+ extern int	affs_rmdir(struct inode *dir, struct dentry *dentry);
+ extern int	affs_link(struct dentry *olddentry, struct inode *dir,
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/include/linux/fs.h linux-2.5.73-05-createintent/include/linux/fs.h
+--- linux-2.5.73-04-lookupintent/include/linux/fs.h	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/include/linux/fs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -639,7 +639,7 @@
+ /*
+  * VFS helper functions..
   */
- #define LOOKUP_OPEN		(0x0100)
- #define LOOKUP_CREATE		(0x0200)
-+#define LOOKUP_ACCESS		(0x0400)
+-extern int vfs_create(struct inode *, struct dentry *, int);
++extern int vfs_create(struct inode *, struct dentry *, int, struct nameidata *);
+ extern int vfs_mkdir(struct inode *, struct dentry *, int);
+ extern int vfs_mknod(struct inode *, struct dentry *, int, dev_t);
+ extern int vfs_symlink(struct inode *, struct dentry *, const char *);
+@@ -730,7 +730,7 @@
+ };
  
- extern int FASTCALL(__user_walk(const char __user *, unsigned, struct nameidata *));
- #define user_path_walk(name,nd) \
-diff -u --recursive --new-file linux-2.5.73-05-createintent/include/linux/nfs_fs.h linux-2.5.73-06-permission/include/linux/nfs_fs.h
---- linux-2.5.73-05-createintent/include/linux/nfs_fs.h	2003-04-08 00:27:32.000000000 +0200
-+++ linux-2.5.73-06-permission/include/linux/nfs_fs.h	2003-06-30 08:49:26.000000000 +0200
-@@ -240,7 +240,7 @@
- 				struct nfs_fattr *);
- extern int __nfs_refresh_inode(struct inode *, struct nfs_fattr *);
- extern int nfs_getattr(struct vfsmount *, struct dentry *, struct kstat *);
--extern int nfs_permission(struct inode *, int);
-+extern int nfs_permission(struct inode *, int, struct nameidata *);
- extern int nfs_open(struct inode *, struct file *);
- extern int nfs_release(struct inode *, struct file *);
- extern int __nfs_revalidate_inode(struct nfs_server *, struct inode *);
-diff -u --recursive --new-file linux-2.5.73-05-createintent/kernel/sysctl.c linux-2.5.73-06-permission/kernel/sysctl.c
---- linux-2.5.73-05-createintent/kernel/sysctl.c	2003-06-15 01:16:11.000000000 +0200
-+++ linux-2.5.73-06-permission/kernel/sysctl.c	2003-06-30 08:49:26.000000000 +0200
-@@ -130,7 +130,7 @@
+ struct inode_operations {
+-	int (*create) (struct inode *,struct dentry *,int);
++	int (*create) (struct inode *,struct dentry *,int, struct nameidata *);
+ 	struct dentry * (*lookup) (struct inode *,struct dentry *, struct nameidata *);
+ 	int (*link) (struct dentry *,struct inode *,struct dentry *);
+ 	int (*unlink) (struct inode *,struct dentry *);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/include/linux/hfs_fs.h linux-2.5.73-05-createintent/include/linux/hfs_fs.h
+--- linux-2.5.73-04-lookupintent/include/linux/hfs_fs.h	2002-10-07 19:27:58.000000000 +0200
++++ linux-2.5.73-05-createintent/include/linux/hfs_fs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -234,7 +234,7 @@
+ 					 const struct hfs_cat_key *);
  
- static ssize_t proc_readsys(struct file *, char __user *, size_t, loff_t *);
- static ssize_t proc_writesys(struct file *, const char __user *, size_t, loff_t *);
--static int proc_sys_permission(struct inode *, int);
-+static int proc_sys_permission(struct inode *, int, struct nameidata *);
+ /* dir.c */
+-extern int hfs_create(struct inode *, struct dentry *, int);
++extern int hfs_create(struct inode *, struct dentry *, int, struct nameidata *);
+ extern int hfs_mkdir(struct inode *, struct dentry *, int);
+ extern int hfs_unlink(struct inode *, struct dentry *);
+ extern int hfs_rmdir(struct inode *, struct dentry *);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/include/linux/msdos_fs.h linux-2.5.73-05-createintent/include/linux/msdos_fs.h
+--- linux-2.5.73-04-lookupintent/include/linux/msdos_fs.h	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/include/linux/msdos_fs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -308,7 +308,7 @@
  
- struct file_operations proc_sys_file_operations = {
- 	.read		= proc_readsys,
-@@ -1177,7 +1177,7 @@
- 	return do_rw_proc(1, file, (char __user *) buf, count, ppos);
+ /* msdos/namei.c  - these are for Umsdos */
+ extern struct dentry *msdos_lookup(struct inode *dir, struct dentry *, struct nameidata *);
+-extern int msdos_create(struct inode *dir, struct dentry *dentry, int mode);
++extern int msdos_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *);
+ extern int msdos_rmdir(struct inode *dir, struct dentry *dentry);
+ extern int msdos_mkdir(struct inode *dir, struct dentry *dentry, int mode);
+ extern int msdos_unlink(struct inode *dir, struct dentry *dentry);
+@@ -318,7 +318,7 @@
+ 
+ /* vfat/namei.c - these are for dmsdos */
+ extern struct dentry *vfat_lookup(struct inode *dir, struct dentry *, struct nameidata *);
+-extern int vfat_create(struct inode *dir, struct dentry *dentry, int mode);
++extern int vfat_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *);
+ extern int vfat_rmdir(struct inode *dir, struct dentry *dentry);
+ extern int vfat_unlink(struct inode *dir, struct dentry *dentry);
+ extern int vfat_mkdir(struct inode *dir, struct dentry *dentry, int mode);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/include/linux/qnx4_fs.h linux-2.5.73-05-createintent/include/linux/qnx4_fs.h
+--- linux-2.5.73-04-lookupintent/include/linux/qnx4_fs.h	2003-06-30 08:48:43.000000000 +0200
++++ linux-2.5.73-05-createintent/include/linux/qnx4_fs.h	2003-06-30 08:49:04.000000000 +0200
+@@ -117,14 +117,13 @@
+ extern struct buffer_head *qnx4_getblk(struct inode *, int, int);
+ extern struct buffer_head *qnx4_bread(struct inode *, int, int);
+ 
+-extern int qnx4_create(struct inode *dir, struct dentry *dentry, int mode);
+ extern struct inode_operations qnx4_file_inode_operations;
+ extern struct inode_operations qnx4_dir_inode_operations;
+ extern struct file_operations qnx4_file_operations;
+ extern struct file_operations qnx4_dir_operations;
+ extern int qnx4_is_free(struct super_block *sb, long block);
+ extern int qnx4_set_bitmap(struct super_block *sb, long block, int busy);
+-extern int qnx4_create(struct inode *inode, struct dentry *dentry, int mode);
++extern int qnx4_create(struct inode *inode, struct dentry *dentry, int mode, struct nameidata *nd);
+ extern void qnx4_truncate(struct inode *inode);
+ extern void qnx4_free_inode(struct inode *inode);
+ extern int qnx4_unlink(struct inode *dir, struct dentry *dentry);
+diff -u --recursive --new-file linux-2.5.73-04-lookupintent/mm/shmem.c linux-2.5.73-05-createintent/mm/shmem.c
+--- linux-2.5.73-04-lookupintent/mm/shmem.c	2003-06-20 22:16:19.000000000 +0200
++++ linux-2.5.73-05-createintent/mm/shmem.c	2003-06-30 08:49:04.000000000 +0200
+@@ -1397,7 +1397,8 @@
+ 	return 0;
  }
  
--static int proc_sys_permission(struct inode *inode, int op)
-+static int proc_sys_permission(struct inode *inode, int op, struct nameidata *nd)
+-static int shmem_create(struct inode *dir, struct dentry *dentry, int mode)
++static int shmem_create(struct inode *dir, struct dentry *dentry, int mode,
++		struct nameidata *nd)
  {
- 	return test_perm(inode->i_mode, op);
+ 	return shmem_mknod(dir, dentry, mode | S_IFREG, 0);
  }
-diff -u --recursive --new-file linux-2.5.73-05-createintent/net/unix/af_unix.c linux-2.5.73-06-permission/net/unix/af_unix.c
---- linux-2.5.73-05-createintent/net/unix/af_unix.c	2003-06-18 22:59:01.000000000 +0200
-+++ linux-2.5.73-06-permission/net/unix/af_unix.c	2003-06-30 08:49:26.000000000 +0200
-@@ -594,7 +594,7 @@
- 		err = path_lookup(sunname->sun_path, LOOKUP_FOLLOW, &nd);
- 		if (err)
- 			goto fail;
--		err = permission(nd.dentry->d_inode,MAY_WRITE);
-+		err = permission(nd.dentry->d_inode,MAY_WRITE, &nd);
- 		if (err)
- 			goto put_fail;
- 

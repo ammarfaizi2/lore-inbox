@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbQKQQhR>; Fri, 17 Nov 2000 11:37:17 -0500
+	id <S129411AbQKQQms>; Fri, 17 Nov 2000 11:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129411AbQKQQhI>; Fri, 17 Nov 2000 11:37:08 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:40355 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129270AbQKQQg5>; Fri, 17 Nov 2000 11:36:57 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tigran Aivazian <tigran@veritas.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error in x86 CPU capabilities starting with test5/6
-In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com>
-	<20001117161833.A27098@athlon.random>
-Organisation: SAP LinuxLab
-Date: 17 Nov 2000 17:06:49 +0100
-In-Reply-To: Andrea Arcangeli's message of "Fri, 17 Nov 2000 16:18:33 +0100"
-Message-ID: <qwwaeaytwfa.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129856AbQKQQmj>; Fri, 17 Nov 2000 11:42:39 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:5133 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129411AbQKQQmb>; Fri, 17 Nov 2000 11:42:31 -0500
+Date: Fri, 17 Nov 2000 11:11:56 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre6
+In-Reply-To: <20001117003046.A16984@codepoet.org>
+Message-ID: <Pine.LNX.4.21.0011171110350.735-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Fri, 17 Nov 2000, Erik Andersen wrote:
 
-On Fri, 17 Nov 2000, Andrea Arcangeli wrote:
-> So as worse you'll have to wait x86-64 to get that lightweight
-> vgettimeofday.
+>> >     - Rik Faith: DRM update to make it easier to sync up 2.2.x
+>> >     - David Woodhouse: make old 16-bit pcmcia controllers work
+>> >       again (ie i82365 and TCIC)
+>> Level I
+>> 
+>> The list is getting shorter.  
+>
+>WTF is "Level I" supposed to mean and why have you inserted it seemingly
+>randomly into the changelog and why are you telling the world about it?  I've
+>seen you do this several times and I am completely baffled.  Surely you have
+>some reason for wanting to share?
 
-Could I get this for i686? :-)
+I believe he is pointing out showstopper bugs getting fixed, and
+the number of them decreasing over time thus symbolizing we're
+close to a 2.4.0 kernel release.  That is what I see anyway..
 
-Greetings
-		Christoph
+
+
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+#[Mike A. Harris bash tip #3 - how to disable core dumps]
+# Put the following at the bottom of your ~/.bash_profile
+ulimit -c 0
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

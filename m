@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVBXGil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVBXGlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbVBXGil (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 01:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVBXGeO
+	id S261835AbVBXGlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 01:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVBXGlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 01:34:14 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:20201 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261835AbVBXGcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 01:32:04 -0500
-Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0502240441260.5427@goblin.wat.veritas.com>
-References: <1109182061.16201.6.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
-	 <1109187381.3174.5.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
-	 <Pine.LNX.4.61.0502232048330.14747@goblin.wat.veritas.com>
-	 <1109196824.4009.1.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502240441260.5427@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 01:32:04 -0500
-Message-Id: <1109226724.4957.16.camel@krustophenia.net>
+	Thu, 24 Feb 2005 01:41:21 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:45269 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261835AbVBXGlG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 01:41:06 -0500
+Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Gerrit Huizenga <gh@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>
+In-Reply-To: <20050223144144.35d8985f@zanzibar.2ka.mipt.ru>
+References: <1108649153.8379.137.camel@frecb000711.frec.bull.fr>
+	 <1109148752.1738.105.camel@frecb000711.frec.bull.fr>
+	 <20050223010747.0a572422.akpm@osdl.org>
+	 <20050223140818.4261c4d0@zanzibar.2ka.mipt.ru>
+	 <20050223025806.5a39f8fb.akpm@osdl.org>
+	 <20050223144144.35d8985f@zanzibar.2ka.mipt.ru>
+Date: Thu, 24 Feb 2005 07:41:05 +0100
+Message-Id: <1109227265.16029.154.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 24/02/2005 07:49:59,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 24/02/2005 07:50:02,
+	Serialize complete at 24/02/2005 07:50:02
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 04:56 +0000, Hugh Dickins wrote:
-> On Wed, 23 Feb 2005, Lee Revell wrote:
-> > On Wed, 2005-02-23 at 20:53 +0000, Hugh Dickins wrote:
-> > > On Wed, 23 Feb 2005, Hugh Dickins wrote:
-> > > > Please replace by new patch below, which I'm now running through lmbench.
-> > > 
-> > > That second patch seems fine, and I see no lmbench regression from it.
-> > 
-> > Should go into 2.6.11, right?
+On Wed, 2005-02-23 at 14:41 +0300, Evgeniy Polyakov wrote:
+> > Please assume that <whatever secret application the connector stuff was
+> > originally written for> will always be listening.
+> >
+> > > > What happened to the idea of sending an on/off message down the netlink
+> > > > socket?
+> > ...
+> > Arrange for the userspace daemon to send a message to the fork_connector
+> > subsystem turning it on or off.  So we can bypass all this code in the
+> > common case where <secret application> is listening, but your daemon is
+> > not.
 > 
-> That's up to Andrew (and Linus).
-> 
-> I was thinking that way when I rushed you the patch.  But given that
-> you have remaining unresolved latency issues nearby (zap_pte_range,
-> clear_page_range), and given the warning shot that I screwed up my
-> first attempt, I'd be inclined to say hold off.
-> 
-> It's a pity: for a while we were thinking 2.6.11 would be a big step
-> forward for mainline latency; but it now looks to me like these tests
-> have come too late in the cycle to be dealt with safely.
-> 
-> In other mail, you do expect people still to be using Ingo's patches,
-> so probably this patch should stick there (and in -mm) for now.
+> Ok, now I see(I'm not a fork connector author, so I did not receive them).
+> That will require to add real fork connector with callback routing.
+> Guillaume?
 
-Well all of these were fixed in the past so it may not be unreasonable
-to fix them for 2.6.11.
+Yes the connector's callback is a good solution. I will add a fork
+enable/disable callback in drivers/connector/connector.c that will
+switch a global variable when called from user space. It will be
+something like:
 
-Lee
+void cn_fork_callback(void)
+{
+	if (cn_already_initialized) 
+		cn_fork_enable = cn_fork_enable ? 0 : 1 ;
+} 
+
+With cn_fork_enable set to 0 by default. In the do_fork() I will replace
+the statement "if (cn_already_initialized)" by "if (cn_fork_enable)"
+
+> > Without a lock you can have two messages with the same sequence number. 
+> > Even if the daemon which you're planning on implementing can handle that,
+> > we shouldn't allow it.
+> 
+> Yes, they can have the same number, but does it cost atomic/lock overhead?
+> Anyway, simple spin_lock() should be enough in do_fork() context.
+> Guillaume?
+
+I will protect the incrementation by a spin_lock(&fork_cn_lock).
+
+Guillaume
 

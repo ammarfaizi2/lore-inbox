@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBMPp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVBMPo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVBMPp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 10:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVBMPp3
+	id S261280AbVBMPo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 10:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVBMPo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 10:45:29 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:14732 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261281AbVBMPpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 10:45:18 -0500
-Date: Sun, 13 Feb 2005 16:44:41 +0100
+	Sun, 13 Feb 2005 10:44:58 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:62856 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261280AbVBMPoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 10:44:55 -0500
+Date: Sun, 13 Feb 2005 16:44:16 +0100
 From: Luca <kronos@kronoz.cjb.net>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Steve Frenchs <french@samba.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6] Check return of copy_from_user value in cifssmb.c [Re: Linux 2.6.11-rc4]
-Message-ID: <20050213154441.GB26396@dreamland.darkstar.lan>
+Subject: [PATCH 2.6] Check return value of copy_to_user in fs/cifs/file.c [Re: Linux 2.6.11-rc4]
+Message-ID: <20050213154416.GA26396@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -31,46 +31,56 @@ Linus Torvalds <torvalds@osdl.org> ha scritto:
 
 The following patch against 2.6.11-rc4 fixes this compile time warning:
 
-fs/cifs/cifssmb.c: In function `CIFSSMBWrite':
-fs/cifs/cifssmb.c:902: warning: ignoring return value of
-`copy_from_user', declared with attribute warn_unused_result
+ CC [M]  fs/cifs/file.o
+fs/cifs/file.c: In function `cifs_user_read':
+fs/cifs/file.c:1168: warning: ignoring return value of
+`copy_to_user', declared with attribute warn_unused_result
 
-It also fixes the strange indentation of the code in that point. Also
-note that pSMB cannot be NULL, since the return value of smb_init (which
-initiliaze pSMB) is checked (see line 874).
+I also added an explicit check for errors other than -EAGAIN, since
+CIFSSMBRead may return -ENOMEM if it's unable to allocate smb_com_read_rsp;
+in that case we don't want to call copy_to_user with a NULL pointer.
 
 Signed-off-by: Luca Tettamanti <kronoz@kronoz.cjb.net>
 
---- a/fs/cifs/cifssmb.c	2005-02-03 17:43:18.000000000 +0100
-+++ b/fs/cifs/cifssmb.c	2005-02-03 17:47:29.000000000 +0100
-@@ -896,14 +896,17 @@
- 	pSMB->DataLengthHigh = 0;
- 	pSMB->DataOffset =
- 	    cpu_to_le16(offsetof(struct smb_com_write_req,Data) - 4);
--    if(buf)
--	    memcpy(pSMB->Data,buf,bytes_sent);
--	else if(ubuf)
--		copy_from_user(pSMB->Data,ubuf,bytes_sent);
--    else {
--		/* No buffer */
--		if(pSMB)
-+
-+	if(buf)
-+		memcpy(pSMB->Data, buf, bytes_sent);
-+	else if(ubuf) {
-+		if (copy_from_user(pSMB->Data, ubuf, bytes_sent)) {
- 			cifs_buf_release(pSMB);
-+			return -EFAULT;
-+		}
-+	} else {
-+		/* No buffer */
-+		cifs_buf_release(pSMB);
- 		return -EINVAL;
- 	}
+--- a/fs/cifs/file.c	2005-02-03 17:58:07.000000000 +0100
++++ b/fs/cifs/file.c	2005-02-03 18:17:37.000000000 +0100
+@@ -1151,7 +1151,7 @@
+ 		current_read_size = min_t(const int,read_size - total_read,cifs_sb->rsize);
+ 		rc = -EAGAIN;
+ 		smb_read_data = NULL;
+-		while(rc == -EAGAIN) {
++		while(1) {
+ 			if ((open_file->invalidHandle) && (!open_file->closePend)) {
+ 				rc = cifs_reopen_file(file->f_dentry->d_inode,
+ 					file,TRUE);
+@@ -1164,13 +1164,22 @@
+ 				 current_read_size, *poffset,
+ 				 &bytes_read, &smb_read_data);
  
++			if (rc == -EAGAIN)
++				continue;
++			else
++				break;
++
+ 			pSMBr = (struct smb_com_read_rsp *)smb_read_data;
+-			copy_to_user(current_offset,smb_read_data + 4/* RFC1001 hdr*/
++			rc = copy_to_user(current_offset,smb_read_data + 4/* RFC1001 hdr*/
+ 				+ le16_to_cpu(pSMBr->DataOffset), bytes_read);
+ 			if(smb_read_data) {
+ 				cifs_buf_release(smb_read_data);
+ 				smb_read_data = NULL;
+ 			}
++			if (rc) {
++				FreeXid(xid);
++				return -EFAULT;
++			}
+ 		}
+ 		if (rc || (bytes_read == 0)) {
+ 			if (total_read) {
+
+
 
 Luca
 -- 
 Home: http://kronoz.cjb.net
-Il dottore mi ha detto di smettere di fare cene intime per quattro.
-A meno che non ci siamo altre tre persone.
+Se non sei parte della soluzione, allora sei parte del problema.

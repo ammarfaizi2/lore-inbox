@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVALVEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVALVEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVALVEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 16:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVALVDD
+	id S261436AbVALVEL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 16:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVALVD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 16:03:03 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11452 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261438AbVALU52 (ORCPT
+	Wed, 12 Jan 2005 16:03:28 -0500
+Received: from gprs214-252.eurotel.cz ([160.218.214.252]:4529 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261436AbVALU5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 15:57:28 -0500
-Date: Wed, 12 Jan 2005 12:57:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112205717.GA12319@kroah.com>
-References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112122711.S24171@build.pdx.osdl.net>
+	Wed, 12 Jan 2005 15:57:08 -0500
+Date: Wed, 12 Jan 2005 21:56:51 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: kinema@gmail.com, fuse-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [fuse-devel] Merging?
+Message-ID: <20050112205651.GI1408@elf.ucw.cz>
+References: <loom.20041231T155940-548@post.gmane.org> <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu> <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu> <20050112194408.GB1464@openzaurus.ucw.cz> <E1CopDd-0002dh-00@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112122711.S24171@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <E1CopDd-0002dh-00@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:27:11PM -0800, Chris Wright wrote:
-> * Linus Torvalds (torvalds@osdl.org) wrote:
-> > But in the absense of politics, I'd _happily_ have a self-imposed embargo
-> > that is limited to some reasonable timeframe (and "reasonable" is
-> > definitely counted in days, not weeks. And absolutely _not_ in months,
-> > like apparently sometimes happens on vendor-sec).
-> > 
-> > So if the embargo time starts ticking from _first_ report, I'd personally
-> > be perfectly happy with a policy of, say "5 working days" (aka one week), 
-> > or until it was made public somewhere else.
+Hi!
+
+> > I like fuse, but I do not think Linus and Akpm have enough mails
+> > already. Getting it merged to some distribution might do the
+> > trick....
 > 
-> That's more or less my take.  Timely response to reporter, timely
-> debugging/bug fixing and timely disclosure.
+> I know debian and gentoo already carry packages.  It doesn't get it
+> closer to inclusion though.
 
-That sounds sane to me too.
+Does Debian carry kernel patched with FUSE patches by default?
 
-> > IOW, if it was released on vendor-sec first, vendor-sec could _not_ then
-> > try to time the technical list (unless they do so in a very timely manner
-> > indeed).
-> 
-> What about the reverse, and informing vendors?  This is typical...project
-> security contact gets report, figures out bug, works with vendor-sec on
-> release date.  In my experience, the long cycles rarely come from that
-> final negotiation.  It's usually not much of a negotiation, rather a
-> "heads-up", "thanks".
-
-Vendors should also cc: the kernel-security list/contact at the same
-time they would normally contact vendor-sec.  I don't see a problem with
-that happening, and would help out the people on vendor-sec from having
-to wade through a lot of linux kernel specific stuff at times.
-
-> The two goals: 1) timely response, fix, dislosure; and 2) not leaving
-> vendors with pants down; don't have to be mutually exclusive.
-
-I agree, having pants down when you don't want them to be isn't a good
-thing :)
-
-thanks,
-
-greg k-h
+								Pavel
+PS: IIRC and not speaking for suse: I think suse was seriously
+thinking about using FUSE by default. It did not work well enough back
+then. Not sure who exactly was working on it...
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

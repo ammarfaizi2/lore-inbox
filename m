@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278364AbRJMTGr>; Sat, 13 Oct 2001 15:06:47 -0400
+	id <S278365AbRJMTHr>; Sat, 13 Oct 2001 15:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278366AbRJMTG3>; Sat, 13 Oct 2001 15:06:29 -0400
-Received: from waste.org ([209.173.204.2]:7996 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S278364AbRJMTGS>;
-	Sat, 13 Oct 2001 15:06:18 -0400
-Date: Sat, 13 Oct 2001 14:09:32 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Corrupt ext2/ext3 directory entries not recovered by e2fsck 
-In-Reply-To: <18096.1002985353@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.30.0110131407220.6512-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278366AbRJMTHi>; Sat, 13 Oct 2001 15:07:38 -0400
+Received: from [212.21.93.146] ([212.21.93.146]:58755 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S278365AbRJMTH3>; Sat, 13 Oct 2001 15:07:29 -0400
+Date: Sat, 13 Oct 2001 21:05:21 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+Message-ID: <20011013210521.A995@kushida.jlokier.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com> <3BC88AB3.2040707@laotraesquina.com.ar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BC88AB3.2040707@laotraesquina.com.ar>; from pabloa@laotraesquina.com.ar on Sat, Oct 13, 2001 at 03:40:51PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Oct 2001, Keith Owens wrote:
+Pablo Alcaraz wrote:
+> Whatever will be the chosen solution, it would have to allow to 
+> overwrite all the executables and libraries files (if we have enough 
+> permissions).
 
-> On Sat, 13 Oct 2001 16:06:35 +0200,
-> Manfred Spraul <manfred@colorfullife.com> wrote:
-> >> I forgot to mention that both fsck.ext2 and fsck.ext3 report
-> >>
-> >> 1: Entry 'sendmail.pid' in /var/run (686849) has
-> >>		deleted/unused inode 688415.  CLEARED.
-> >> /1: Entry 'crond.pid' in /var/run (686849) has
-> >>		deleted/unused inode 688416.  CLEARED.
-> >> /1: Entry 'xfs.pid' in /var/run (686849) has
-> >>		deleted/unused inode 688417.  CLEARED.
-> >> /1: Entry 'atd.pid' in /var/run (686849) has
-> >>		deleted/unused inode 688418.  CLEARED.
-> >>
-> >All inodes are in the same sector.
-> >Could you try out if that sector is destroyed?
->
-> It should not matter which sector the inode is in, the directory entry
-> should have been cleared, independent of the inode.  But I checked
-> anyway, dd of the entire partition to /dev/null succeeded, no disk
-> error messages anywhere in the logs at any time.
+Pablo, there's no need for this.  Upgrades to libraries are done by
+removing the old file's name from its parent directory and placing the
+new file at that name, perhaps using an atomic rename.  The old _file_
+continues to exist even though its name has been deleted, until the last
+program using the library finishes using it, even though the old file
+does not have a name any more.
 
-Is this your root partition perhaps? Fsck of a mounted device might act a
-little differently with the new blockdev-in-pagecache approach.
+New programs that open the library will find the new file.  Both files
+exist until the old file finally disappears.  At no point is any file's
+contents overwritten.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+This is why you can upgrade a running linux system including critical
+system libraries, and nothing crashes.  Usually ;-)
 
+-- Jamie

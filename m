@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbSJJOdy>; Thu, 10 Oct 2002 10:33:54 -0400
+	id <S261609AbSJJOfE>; Thu, 10 Oct 2002 10:35:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbSJJOdr>; Thu, 10 Oct 2002 10:33:47 -0400
-Received: from smtp07.iddeo.es ([62.81.186.17]:46273 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S261598AbSJJOdq>;
-	Thu, 10 Oct 2002 10:33:46 -0400
-Date: Thu, 10 Oct 2002 16:39:27 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Robert Love <rml@tech9.net>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on O_STREAMING (goodby read pauses)
-Message-ID: <20021010143927.GA2193@werewolf.able.es>
-References: <20021009222349.GA2353@werewolf.able.es> <1034203433.794.152.camel@phantasy> <20021010034057.GC8805@mark.mielke.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021010034057.GC8805@mark.mielke.cc>; from mark@mark.mielke.cc on Thu, Oct 10, 2002 at 05:40:57 +0200
-X-Mailer: Balsa 1.4.1
+	id <S261607AbSJJOfE>; Thu, 10 Oct 2002 10:35:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14609 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261609AbSJJOfD>;
+	Thu, 10 Oct 2002 10:35:03 -0400
+Message-ID: <3DA59159.3070901@pobox.com>
+Date: Thu, 10 Oct 2002 10:40:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A simple request (was Re: boring BK stats)
+References: <20021009.163920.85414652.wlandry@ucsd.edu> <3DA58B60.1010101@pobox.com> <20021010072818.F27122@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
+>>The laptop has 200MB RAM, and mozilla and a ton of xterms loaded.  IDE 
+>>drives w/ Intel PIIX4 controller.  The Dual Athlon has 512MB RAM, and I 
+>>forget what kind of IDE controller -- I think AMD.  IDE drives as well.
+>>
+>>BitKeeper must scan the entire tree when doing a checkin or checkout, so 
+>>that is impossible to optimize at the SCM level without compromising 
+>>features...  if your source tree takes up ~190MB on disk, you have 200MB 
+>>of RAM total, and you need to sequentially scan the entire thing, there 
+>>is nothing that can be done at either the OS or app level... You're just 
+>>screwed.  Things are extremely fast on the Dual Athlon because the 
+>>entire tree is in RAM.
+> 
+> 
+> In low memory situations you really want to run the tree compressed.  
+> ON a fast machine do a "bk -r admin -Z" and then clone that onto your
+> laptop.  I think that will drop the tree to about 145MB which will
+> help, maybe.  I suspect that you use enough of the rest of your 200MB
+> that it still won't fit.
 
-On 2002.10.10 Mark Mielke wrote:
->On Wed, Oct 09, 2002 at 06:43:52PM -0400, Robert Love wrote:
->> On Wed, 2002-10-09 at 18:23, J.A. Magallon wrote:
->> > But I did the test with an addition: read a 1Gb file and print an '*'
->> > after every 10M. Without O_STREAMING, when memory fills, the 'progress
->> > bar' stalls for a few seconds while pages are sent to disk.
->> > So the patch also favours a constant sustained rate of read from the
->> > disk. Very interesting for things like video edition and so on.
->> > I like it ;).
->> This is 100% the point of the patch and hopefully the point I proved
->> when I first posted it.
->
->I assume the stall is not 'while pages are sent to disk', but rather
->until kswapd gets around to freeing enough pages to allow memory to
->fill again. The stall is due to the pages being fully analyzed to
->determine which ones should go, and which ones shouldn't. O_STREAMING
->removes the pages ahead of time, so no analysis is ever required.
->
+Yeah, I don't think that will help at all, given that X and KDE and all 
+its acoutrements are loaded...  I would rather run uncompressed anyway :)
 
-I can _hear_ the disk activity when the stall happens, so selecting what
-to drop is fast, but then you have to write it...
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-pre10-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
+> For the checkouts, always do a "bk -r get -S" the -S doesn't check out the
+> file again if it is already there.  We could make that the default but
+> it is an interface change.  A fairly minor one though.
+
+I do "bk -r co -Sq", is the above faster than that?
+
+
+> We've got some other fixes in the pipeline for the checkin and integrity
+> check pass.
+> 
+> There is only so much we can do when you are trying to cram 10 pounds of
+> crap in a 5 pound bag :(
+
+indeed :)  That's why I keep repeating that it's not BK's fault, and 
+keep pointing out that my Dual Athlon with plenty of RAM does multiple 
+simultaneous checks/checkins quite rapidly.
+
+	Jeff
+
+
+

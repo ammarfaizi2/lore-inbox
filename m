@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312610AbSDOEbE>; Mon, 15 Apr 2002 00:31:04 -0400
+	id <S312834AbSDOFWT>; Mon, 15 Apr 2002 01:22:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312684AbSDOEbD>; Mon, 15 Apr 2002 00:31:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16773 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312610AbSDOEbD>;
-	Mon, 15 Apr 2002 00:31:03 -0400
-Date: Sun, 14 Apr 2002 21:23:08 -0700 (PDT)
-Message-Id: <20020414.212308.33849971.davem@redhat.com>
-To: taka@valinux.co.jp
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020415.103013.62679757.taka@valinux.co.jp>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312859AbSDOFWS>; Mon, 15 Apr 2002 01:22:18 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:30219 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312834AbSDOFWR>;
+	Mon, 15 Apr 2002 01:22:17 -0400
+Date: Sun, 14 Apr 2002 21:21:47 -0700
+From: Greg KH <greg@kroah.com>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 croaks with USB and make dep
+Message-ID: <20020415042147.GA18791@kroah.com>
+In-Reply-To: <20020415024914.GA28512@wizard.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 17 Mar 2002 20:10:32 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hirokazu Takahashi <taka@valinux.co.jp>
-   Date: Mon, 15 Apr 2002 10:30:13 +0900 (JST)
+On Sun, Apr 14, 2002 at 07:49:14PM -0700, A Guy Called Tyketto wrote:
+> 
+>         Subject sez it all:
 
-   I'd like to implenent sendpage of UDP stack which NFS uses heavily.
-   It may improve the performance of NFS over UDP dramastically.
-   
-   I wonder if there were "SENDPAGES" interface instead of sendpage 
-   between socket layer and inet layer, we could send some pages
-   atomically with low overhead.
-   And it could make implementing RPC over UDP easier
-   to send multiple pages as one UDP pakcet easily.
-   
-   How do you think about this approach?
-   
-Sendpages mechanism will not be implemented.
+Did you run 'make oldconfig' first?
+How about 'make mrproper'?  You might have to clean out some old files
+first, as the USB files all moved around.
 
-You must implement UDP sendfile() one page at a time, by building up
-an SKB with multiple calls similar to TCP with TCP_CORK socket option
-set.
+thanks,
 
-For datagram sockets, define temporary SKB hung off of struct sock.
-Define UDP_CORK socket option which begins the "queue data only"
-state.
-
-All sendmsg()/sendfile() calls append to temporary SKB, first
-sendmsg()/sendfile() call to UDP will create this sock->skb.  First
-call may be sendmsg() but subsequent calls for that SKB must be
-sendfile() calls.  If this pattern of calls is broken, SKB is sent.
-
-Call to set UDP_CORK socket option to zero actually sends the SKB
-being built.
-
-The normal usage will be:
-
-	setsockopt(fd, UDP_CORK, 1);
-	sendmsg(fd, sunrpc_headers, sizeof(sunrpc_headers));
-	sendfile(fd, ...);
-	setsockopt(fd, UDP_CORK, 0);
-
+greg k-h

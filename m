@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268937AbUJKNWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUJKN30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268937AbUJKNWB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUJKNUP
+	id S268944AbUJKN30 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268947AbUJKN30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:20:15 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:52975 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S268944AbUJKNTa (ORCPT
+	Mon, 11 Oct 2004 09:29:26 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:15831 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S268944AbUJKN3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:19:30 -0400
-Date: Mon, 11 Oct 2004 15:19:26 +0200
-From: Tim Cambrant <cambrant@acc.umu.se>
-To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to handle kernel paging request at virtual address 0000ed9c [was Re: 2.6.9-rc4-mm1]
-Message-ID: <20041011131926.GA13258@shaka.acc.umu.se>
-References: <20041011032502.299dc88d.akpm@osdl.org> <416A8019.4050901@hispalinux.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <416A8019.4050901@hispalinux.es>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: SunOS shaka.acc.umu.se 5.8 Generic_117000-05 sun4u sparc SUNW,Ultra-250 Solaris
+	Mon, 11 Oct 2004 09:29:24 -0400
+Message-ID: <416A8B6C.30206@linux-user.net>
+Date: Mon, 11 Oct 2004 15:32:28 +0200
+From: Daniel Andersen <anddan@linux-user.net>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040519)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tejun Heo <tj@home-tj.org>, netdev@oss.sgi.com
+Subject: Re: via-velocity heads up (was (Re: Linux 2.6.9-rc4 - pls test (and
+ no more patches))
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <20041011072307.GA18577@electric-eye.fr.zoreil.com>
+In-Reply-To: <20041011072307.GA18577@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 02:44:09PM +0200, Ramón Rey Vicente wrote:
->  
-> I get this with rc4-mm1
+Francois Romieu wrote:
+> Linus Torvalds <torvalds@osdl.org> :
+> [...]
 > 
-> Unable to handle kernel paging request at virtual address 0000ed9c
-> ...
+>>Summary of changes from v2.6.9-rc3 to v2.6.9-rc4
+>>============================================
+> 
+> [...]
+> 
+>>Fran?ois Romieu:
+>>  o via-velocity: properly manage the count of adapters
+>>  o via-velocity: removal of unused velocity_info.xmit_lock
+>>  o via-velocity: velocity_give_rx_desc() removal
+>>  o via-velocity: received ring wrong index and missing barriers
+>>  o via-velocity: early invocation of init_cam_filter()
+>>  o via-velocity: removal of incomplete endianness handling
+>>  o via-velocity: wrong buffer offset in velocity_init_td_ring()
+>>  o via-velocity: comment fixes
+> 
+> 
+> The attribution is a bit misleading as Tejun Heo <tj@home-tj.org>
+> did the real work (he appears in the logs though).
+> 
+> People should really, really, test this code if they have been
+> experiencing issues with the driver lately.
+> 
+> Test reports welcome here or on netdev@oss.sgi.com.
+> 
 
-This problem is left since -mm3, and is (for now) fixed by reversing
-optimize-profile-path-slightly.patch. Do it like this:
+I'm finally able to successfully use my On board VT6122 10/100/1000 Mb 
+PCI Ethernet Controller on my Abit KV8-Pro. I have not found any 
+problems with the via-velocity driver yet. Great work! :)
 
-cd /usr/src/linux
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
-patch -R -p1 < optimize-profile-path-slightly.patch
+Daniel Andersen
 
-
--- 
-
-Tim Cambrant <cambrant@acc.umu.se>
-http://www.acc.umu.se/~cambrant/
+--

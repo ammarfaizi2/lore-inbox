@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbQKKLd4>; Sat, 11 Nov 2000 06:33:56 -0500
+	id <S129600AbQKKLf4>; Sat, 11 Nov 2000 06:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129600AbQKKLdq>; Sat, 11 Nov 2000 06:33:46 -0500
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:43729 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S129457AbQKKLdc>; Sat, 11 Nov 2000 06:33:32 -0500
-Date: Sat, 11 Nov 2000 12:33:25 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Tim Walberg <tewalberg@mediaone.net>,
-        Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>, wmaton@ryouko.dgim.crc.ca,
+	id <S130012AbQKKLfq>; Sat, 11 Nov 2000 06:35:46 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:58034 "EHLO saturn.homenet")
+	by vger.kernel.org with ESMTP id <S129600AbQKKLfd>;
+	Sat, 11 Nov 2000 06:35:33 -0500
+Date: Sat, 11 Nov 2000 11:36:00 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Message-ID: <20001111123325.A17600@uni-mainz.de>
-Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	"Jeff V. Merkey" <jmerkey@timpanogas.org>,
-	wmaton@ryouko.dgim.crc.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <jmerkey@timpanogas.org> <200011101930.eAAJUWi25886@pincoya.inf.utfsm.cl> <20001110134639.A30531@mediaone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20001110134639.A30531@mediaone.net>; from tewalberg@mediaone.net on Fri, Nov 10, 2000 at 01:46:39PM -0600
-X-No-Archive: yes
-Restrict: no-external-archive
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <3A0CB6FD.D4CCE09F@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011111133050.1029-100000@saturn.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 01:46:39PM -0600, Tim Walberg wrote:
-...
-> Wow... that just might be one that's due for immortalizing
-> as an urban legend or what not... Definitely stupid user trick
-> material...
+On Fri, 10 Nov 2000, H. Peter Anvin wrote:
+> > 
+> > On x86 machines there is a size limitation on booting.  Though I thought
+> > it was 1024K as the max, 900K should be fine.
+> > 
+> 
+> No, there isn't.  There used to be, but it has been fixed.
+> 
 
-I can do better! I had a smart ass trying to backup his harddrives
-using email, no less than 2Gig!
+Are you sure? I thought the fix was to build 2 page tables for 0-8M
+instead of 1 page table for 0-4M. So, we still cannot boot a bzImage more
+than 2.5M which roughly corresponds to 8M. Is this incorrect? Are you
+saying I should be able to boot a bzImage corresponding to an ELF object
+vmlinux of 4G or more?
 
-Dominik
--- 
-http://petition.eurolinux.org/index_html - No Software Patents In Europe!
-http://petition.lugs.ch/ (in Switzerland)
+I tried it and it failed (a few weeks ago) so at least reasonably recently
+what you are saying was not true. I will now check if it suddenly became
+true now.
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

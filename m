@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279927AbRKNBX4>; Tue, 13 Nov 2001 20:23:56 -0500
+	id <S279934AbRKNBXp>; Tue, 13 Nov 2001 20:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279930AbRKNBXp>; Tue, 13 Nov 2001 20:23:45 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:41233 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S279927AbRKNBXd>; Tue, 13 Nov 2001 20:23:33 -0500
-Message-ID: <3BF1C72C.2B5B5EB3@linux-m68k.org>
-Date: Wed, 14 Nov 2001 02:21:48 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S279930AbRKNBXg>; Tue, 13 Nov 2001 20:23:36 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:13828 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S279926AbRKNBX3>; Tue, 13 Nov 2001 20:23:29 -0500
+Posted-Date: Wed, 14 Nov 2001 00:50:25 GMT
+Date: Wed, 14 Nov 2001 00:50:25 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Pascal Schmidt <pleasure.and.pain@web.de>
+cc: H Peter Anvin <hpa@zytor.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: fdutils.
+In-Reply-To: <Pine.LNX.4.33.0111140135420.1297-100000@neptune.sol.net>
+Message-ID: <Pine.LNX.4.21.0111140048250.3058-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Next cut of new devfs core
-In-Reply-To: <200111131855.fADIt2Q26535@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+Hi Pascal.
 
-> If people could try this out and report back, I'd appreciate it.
+>>> Shameless plug: I use my own distribtion
+>>>
+>>> 	http://www.tzi.de/~pharao90/ttylinux/
+>>>
+>>> for the same purpose. ;)
 
-Do you have any other intentions for us than to just "try this out"? If
-not then an URL to the patch would suffice instead of flooding the list
-with lots of 80kB patches.
-If you want other feedback, I would greatly appreciated it, if you would
-make it a bit easier for other developers. Incremental patches would
-help to see what actually changed, or even better make them available
-through CVS (I think I suggested that before).
-Your coding style was already mentioned as well, so I'm not going to
-repeat that. Anyway, an important point you should understand is that,
-you might be the devfs maintainer, but devfs is not an isolated project.
-The common project is Linux, which is maintained by lots of people, to
-make such a cooperative development effort possible these people have to
-agree on some basic rules. One of these rules is the coding style, Linus
-might not care too much about it, but by now you should have noticed
-several other developers do.
-To maintain a high code quality a constant code review is necessary, a
-single person can mistakes, that's normal, but it's important to learn
-from mistakes. That also requires that other people are able review the
-code, but you aren't making it very easy to review your code. If you're
-going to continue with this attitude I can only support Al to split the
-code. Sorry, there isn't much room for an ego trip, if you're not able
-to deliver high quality code (for whatever reasons of which we got
-enough by now).
+>> And some not-so-minimalistic systems...
+>> you can fit an awful lot on a CD.
+>>
+>> 	http://www.kernel.org/pub/dist/superrescue/
 
-bye, Roman
+> Sure, but having to mount the CDROM means the drive is inaccessible
+> during a rescue operation, so no restore from CDROM or CDRW backups
+> is possible. ;) Mine runs out of a 4 MB ramdisk image.
+
+Maybe that drive is inaccessible, but what about the other drive? Many
+systems have both a CD (or DVD) drive and a CD-RW as well nowadays.
+
+Best wishes from Riley.
 

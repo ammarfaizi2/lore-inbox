@@ -1,81 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVBOXqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVBOX51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVBOXqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVBOXqn
+	id S261950AbVBOX51 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVBOX51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 18:46:43 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:57028 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261949AbVBOXqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 18:46:40 -0500
-Date: Tue, 15 Feb 2005 16:46:37 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Andrew Morton <akpm@osdl.org>, ext3 users list <ext3-users@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
-Message-ID: <20050215234637.GI27352@schnapps.adilger.int>
-Mail-Followup-To: Mitchell Blank Jr <mitch@sfgoth.com>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-	ext3 users list <ext3-users@redhat.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200502151246.06598.adobriyan@mail.ru> <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk> <20050215232939.GD16892@gaz.sfgoth.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyqLL/JqMvClXZi1"
-Content-Disposition: inline
-In-Reply-To: <20050215232939.GD16892@gaz.sfgoth.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 15 Feb 2005 18:57:27 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:8406 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261950AbVBOX5U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 18:57:20 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] quiet non-x86 option ROM warnings
+Date: Tue, 15 Feb 2005 15:57:05 -0800
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_SxoEC6eNcmcDtuC"
+Message-Id: <200502151557.06049.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---oyqLL/JqMvClXZi1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Feb 15, 2005  15:29 -0800, Mitchell Blank Jr wrote:
-> Stephen C. Tweedie wrote:
-> > If we want to fix this, let's fix the macros: for example, convert
-> > EXT3_HAS_COMPAT_FEATURE to be
-> >=20
-> > 	( le32_to_cpu(EXT3_SB(sb)->s_es->s_feature_compat) & (mask) )
->=20
-> Of course that's less efficient though since "mask" is probably constant..
-> so now the endian conversion changed from compile-time to run-time.
->=20
-> Would something like
->=20
->  	( ( EXT3_SB(sb)->s_es->s_feature_compat & cpu_to_le32(mask) ) !=3D 0)
->=20
-> be enough to satisfy sparse?
-
-Or we could cast "mask" to the appropriate type (I'm not sure what sparse
-uses to determine this).
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
-
-
---oyqLL/JqMvClXZi1
-Content-Type: application/pgp-signature
+--Boundary-00=_SxoEC6eNcmcDtuC
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Both the r128 and radeon drivers complain if they don't find an x86 option ROM 
+on the device they're talking to.  This would be fine, except that the 
+message is incorrect--not all option ROMs are required to be x86 based.  This 
+small patch just removes the messages altogether, causing the drivers to 
+*silently* fall back to the non-x86 option ROM behavior (it works fine and 
+there's no cause for alarm).
 
-iD8DBQFCEondpIg59Q01vtYRAhzoAJ4jWeWP9TNduF+hdJzrs5jEAmItZwCdFvcj
-y984j9Zi+asHeFvDLCj1qK8=
-=U6IO
------END PGP SIGNATURE-----
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
---oyqLL/JqMvClXZi1--
+
+--Boundary-00=_SxoEC6eNcmcDtuC
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="non-x86-rom-ok.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="non-x86-rom-ok.patch"
+
+===== drivers/video/aty/radeon_base.c 1.39 vs edited =====
+--- 1.39/drivers/video/aty/radeon_base.c	2005-02-10 22:57:44 -08:00
++++ edited/drivers/video/aty/radeon_base.c	2005-02-15 15:51:19 -08:00
+@@ -329,11 +329,9 @@
+ 	rinfo->bios_seg = rom;
+ 
+ 	/* Very simple test to make sure it appeared */
+-	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
+-		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
+-		goto failed;
+-	}
++	if (BIOS_IN16(0) != 0xaa55)
++		goto failed; /* not an x86 option ROM, bail out */
++
+ 	/* Look for the PCI data to check the ROM type */
+ 	dptr = BIOS_IN16(0x18);
+ 
+===== drivers/video/aty/aty128fb.c 1.56 vs edited =====
+--- 1.56/drivers/video/aty/aty128fb.c	2005-02-10 22:57:44 -08:00
++++ edited/drivers/video/aty/aty128fb.c	2005-02-15 15:51:40 -08:00
+@@ -812,11 +812,8 @@
+ 	}
+ 
+ 	/* Very simple test to make sure it appeared */
+-	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
+-		       BIOS_IN16(0));
+-		goto failed;
+-	}
++	if (BIOS_IN16(0) != 0xaa55)
++		goto failed; /* not an x86 option ROM, bail out */
+ 
+ 	/* Look for the PCI data to check the ROM type */
+ 	dptr = BIOS_IN16(0x18);
+
+--Boundary-00=_SxoEC6eNcmcDtuC--

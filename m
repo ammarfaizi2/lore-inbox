@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318967AbSH1U6m>; Wed, 28 Aug 2002 16:58:42 -0400
+	id <S318963AbSH1U7C>; Wed, 28 Aug 2002 16:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318966AbSH1U6m>; Wed, 28 Aug 2002 16:58:42 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:29173 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318961AbSH1U6k>; Wed, 28 Aug 2002 16:58:40 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: IPv6 PMTU/MTU related patch for 2.5.31 kernel
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF8DA779DB.E7BE1739-ON88256C23.0072CBDB@boulder.ibm.com>
-From: "Shirley Ma" <xma@us.ibm.com>
-Date: Wed, 28 Aug 2002 14:01:03 -0700
-X-MIMETrack: Serialize by Router on D03NM037/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 08/28/2002 03:02:26 PM
+	id <S318966AbSH1U7C>; Wed, 28 Aug 2002 16:59:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17930 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318963AbSH1U7A>; Wed, 28 Aug 2002 16:59:00 -0400
+Date: Wed, 28 Aug 2002 14:05:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dominik Brodowski <devel@brodo.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <cpufreq@www.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+In-Reply-To: <20020828223939.C816@brodo.de>
+Message-ID: <Pine.LNX.4.33.0208281400330.16824-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andi,
+On Wed, 28 Aug 2002, Dominik Brodowski wrote:
+> 
+> #3 Then the cpufreq driver is called to actually set the CPU frequency. 
+> 
+> #3 is absolutely ready
 
-I think it needs to be RFC conformance for PMTU to avoid unnecessary
-probing PMTU network traffics. For UDP and ICMP which doesn't have any
-reference on this kind of route, the route needs to be around for a while
-instead of being delete within a very short time even immediately.
+#3 is _not_ ready, if it doesn't include a "policy" part in addition to
+the frequency. That was what I started off talking about: on some CPU's
+you absolutely do _not_ want to set a hard frequency, you want to tell the
+CPU how to behave (possibly together with a frequency _range_).
 
-Thanks
-Shirley Ma
+Until that is done, no other upper layers can use this low-level 
+functionality, since all upper layers would be forced to come up with a 
+hard frequency goal.
 
+THAT is the problem. If you want to build infrastructure for upper layers, 
+then that infrastructure has to be able to pass down sufficient 
+information from those upper layers.
 
+Think of this as a driver abstraction layer. Some hardware will do more 
+for you, some will do less. Some hardware is the equivalent of a dumb 
+frame buffer (where software has to change frequency and voltage by hand, 
+and be careful about every single step and the delays in between), while 
+some other hardware contains internal accelerators where you just tell 
+them what you want, and the hardware will do it for you asynchronously.
 
-Andi Kleen <ak@muc.de>@averell.firstfloor.org on 08/28/2002 02:44:34 AM
+The current abstraction layer _thinks_ that all hardware is stupid, and is 
+thus not actually usable with smart hardware. See?
 
-Sent by:    andi@averell.firstfloor.org
-
-
-To:    Shirley Ma/Beaverton/IBM@IBMUS
-cc:    linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, LTC IPv6
-Subject:    Re: IPv6 PMTU/MTU related patch for 2.5.31 kernel
-
-
-
-"Shirley Ma" <xma@us.ibm.com> writes:
-
-> +           /* If there is no reference to this route, this route will be
-> +              deleted by fib6_run_gc() within 30 secs. The cached
-decreased
-> +              PMTU will be gone. It's possible to be deleted before any
-> +              other protocol using it. Then the old larger pmtu will be
-used,
-> +              which against RFC1981: detect an increase MUST NOT be done
-> +              less than 5 minutes after a Packet Too Big Messages has
-> +              been received for the given path.
-> +            */
-> +           dst_hold(&nrt->u.dst);
-
-This seems overkill and could potentially tie up quite a of dst
-entries for dubious purposes. This RFC requirement clearly cannot be
-followed in all cases, e.g. when you run out of memory for the
-destination cache. This is one such case too.
-
-I think only following it when there is still another reference to the
-dst entry (e.g. from a socket) is reasonably near the spirit of the
-specification.
-
--Andi
-
-
-
+			Linus
 

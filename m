@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292991AbSCJBAA>; Sat, 9 Mar 2002 20:00:00 -0500
+	id <S292996AbSCJBAU>; Sat, 9 Mar 2002 20:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292996AbSCJA7u>; Sat, 9 Mar 2002 19:59:50 -0500
-Received: from mtao2.east.cox.net ([68.1.17.243]:42377 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S292991AbSCJA7l>; Sat, 9 Mar 2002 19:59:41 -0500
-Reply-To: <charles-heselton@cox.net>
-From: "Charles Heselton" <charles-heselton@cox.net>
-To: =?iso-8859-15?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        "Dan Mann" <mainlylinux@attbi.com>
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.5.6 Interactive performance
-Date: Sat, 9 Mar 2002 17:00:15 -0800
-Message-ID: <NFBBKFIFGLNJKLMMGGFPOEPCCFAA.charles-heselton@cox.net>
+	id <S292997AbSCJBAN>; Sat, 9 Mar 2002 20:00:13 -0500
+Received: from leviathan.kumin.ne.jp ([211.9.65.12]:53275 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
+	id <S292996AbSCJBAH>; Sat, 9 Mar 2002 20:00:07 -0500
+Message-Id: <200203100059.AA00023@prism.kumin.ne.jp>
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Date: Sun, 10 Mar 2002 09:59:42 +0900
+To: Bruce Harada <bruce@ask.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.21-pre4 hung up
+In-Reply-To: <20020310084825.031ee4b0.bruce@ask.ne.jp>
+In-Reply-To: <20020310084825.031ee4b0.bruce@ask.ne.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <200203092055.57348.Dieter.Nuetzel@hamburg.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How would you implement these thing?  I'm not on the same technical level
-that you guys are, and when/if things are out of context, I don't follow.
-Can you help?
+Thanks mail.
 
-Charles Heselton
-Network Installer
-Staffing Alternatives, Inc.
-619.261.6866
-charles_heselton@hotmail.com <mailto:charles_heselton@hotmail.com>
+I update linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c, and compile,install, bootup.
+Then kernel work fine.
 
+diff bluesmoke.c~ bluesmoke.c
 
+167c167
+< 	for(i=0;i<banks;i++)
+---
+> 	for(i=1;i<banks;i++)
 
+=====
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Dieter Nützel
-Sent: Saturday, March 09, 2002 1156
-To: Dan Mann
-Cc: Linux Kernel List
-Subject: Re: Kernel 2.5.6 Interactive performance
-
-
-On Saturday, 9. März 2002 18:55:00, Dan Mann wrote:
-[-]
->Machine now feels more responsive than windows 2000 pro machine at work.
+>[SNIP]
 >
-> Great work guys.
+>According to other reports, it would appear that this change:
+>
+>diff -ruN linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c
+>--- linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c	Sun Mar  3 23:20:11 2002
+>+++ linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c	Sat Mar  9 03:58:57 2002
+>@@ -165,7 +164,7 @@
+> 	if(l&(1<<8))
+> 		wrmsr(0x17b, 0xffffffff, 0xffffffff);
+> 	banks = l&0xff;
+>-	for(i=1;i<banks;i++)
+>+	for(i=0;i<banks;i++)
+> 	{
+> 		wrmsr(0x400+4*i, 0xffffffff, 0xffffffff); 
+> 	}
+>
+>is the problem. Reversing it (i.e. changing the i=0 to i=1) should allow
+>you to boot again.
+>
 
-It's due to preemption and Ingo's great O(1)-scheduler.
-BIO should help, too but throughput isn't were it should be...;-)
-
-You can get this when you apply preemption+lock-break, O(1) and Andrew
-Morten's low-latency to 2.4.18, too.
-
--aa (vm_29) deliver additional throughput.
-If you are running under KDE you should try 3.0 beta2 or -rc2 (!!!)
-It flies then.
-
-Regards,
-	Dieter
---
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

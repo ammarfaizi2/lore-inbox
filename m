@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269409AbTGOSgs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbTGOSgr
+	id S269400AbTGOSeh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269412AbTGOSeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:36:47 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:33458 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S269409AbTGOSfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 14:35:14 -0400
-Date: Tue, 15 Jul 2003 20:49:29 +0200 (MEST)
-Message-Id: <200307151849.h6FInTkH025346@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: andrew.grover@intel.com, hugh@veritas.com, len.brown@intel.com
-Subject: RE: ACPI patches updated (20030714)
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
+	Tue, 15 Jul 2003 14:34:36 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57287
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S269400AbTGOSdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 14:33:49 -0400
+Subject: Re: [patch] vesafb fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Jamie Lokier <jamie@shareable.org>, Gerd Knorr <kraxel@suse.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+In-Reply-To: <20030715182253.GG15505@suse.de>
+References: <20030715141023.GA14133@bytesex.org>
+	 <20030715173557.GB1491@mail.jlokier.co.uk> <20030715175358.GB15505@suse.de>
+	 <1058292400.3845.59.camel@dhcp22.swansea.linux.org.uk>
+	 <20030715182253.GG15505@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058294762.3857.63.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Jul 2003 19:46:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003 11:07:29 -0700, "Brown, Len" wrote:
->Ps. Below is the current plan for ACPI build and boot knobs.  Except for the
->config syntax -- 2.4 and 2.5 should end up the same.  Let me know if we
->missed anything.
->
->Audit of ACPI build and boot options
->Scrubbed w/ Andy 7/10 -- see TODO for Lenb's plan
->
->
->Build Options
->-------------
->Indentation shows dependency (from acpi/Kconfig, Makefile)
->
->CONFIG_ACPI_HT_ONLY
->	depends on X86 && ACPI && X86_LOCAL_APIC
->	:= acpitable.o
->
->	TODO: simplify acpitable.c to only to LAPIC enumeration for HT
->		It probably shouldn't parse the non-LAPIC MADT entries
+On Maw, 2003-07-15 at 19:22, Dave Jones wrote:
+> I can't see how you can cover an not-a-powerof2 size area of memory
+> without doing too little/too much. The winchip code was written with
+> RAM in mind, which is always a power of 2 unless you boot with
+> mem=fooMB
 
-I would like to see HT_ONLY generalized to parsing the MADT for
-I/O-APICs. The problem I have is that some mainboards, like my
-i850 ASUS P4T-E, have I/O-APICs but no MP tables. The only way for
-the Linux kernel to discover the I/O-APICs on these mainboard is
-through MADT parsing.
+RAM is never power of two, a few bits always vanish off the ends.
+The trick is that you start at a power of 2 boundary then build up/down
+if you have to do power of two ranges
 
-However, this currently requires me to enable all of ACPI, which
-I don't need or want for many reasons, including code bloat and
-behavioural side-effects.
-
-Replacing "HT_ONLY" with "MADT_PARSING_ONLY" would be ideal, IMO.
-
-/Mikael

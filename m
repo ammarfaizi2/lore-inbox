@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268940AbTBZUxj>; Wed, 26 Feb 2003 15:53:39 -0500
+	id <S268926AbTBZU7Y>; Wed, 26 Feb 2003 15:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268944AbTBZUxi>; Wed, 26 Feb 2003 15:53:38 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:17887 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268940AbTBZUxe>; Wed, 26 Feb 2003 15:53:34 -0500
-Date: Wed, 26 Feb 2003 13:03:25 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ion Badulescu <ionut@badula.org>, Rusty Russell <rusty@rustcorp.com.au>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [BUG] 2.5.63: ESR killed my box!
-Message-ID: <5740000.1046293404@[10.10.2.4]>
-In-Reply-To: <200302262047.h1QKlcPt015577@buggy.badula.org>
-References: <200302262047.h1QKlcPt015577@buggy.badula.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S268941AbTBZU7Y>; Wed, 26 Feb 2003 15:59:24 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:20648 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S268926AbTBZU7W>;
+	Wed, 26 Feb 2003 15:59:22 -0500
+Message-Id: <200302262107.h1QL7dPr001970@eeyore.valparaiso.cl>
+To: jt@hpl.hp.com
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Invalid compilation without -fno-strict-aliasing 
+In-Reply-To: Your message of "Wed, 26 Feb 2003 09:22:15 -0800."
+             <20030226172215.GB3731@bougret.hpl.hp.com> 
+Date: Wed, 26 Feb 2003 18:07:39 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect the ESR is a red herring. The problem is that the kernel 
-> assumes that the boot CPU is always CPU#0, and it also misprograms the 
-> boot CPU's APIC.
+Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> On Wed, Feb 26, 2003 at 04:38:10PM +0100, Horst von Brand wrote:
+> > Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> > > 	It looks like a compiler bug to me...
+> > > 	Some users have complained that when the following code is
+> > > compiled without the -fno-strict-aliasing, the order of the write and
+> > > memcpy is inverted (which mean a bogus len is mem-copied into the
+> > > stream).
+> > > 	Code (from linux/include/net/iw_handler.h) :
+> > > --------------------------------------------
+> > > static inline char *
+> > > iwe_stream_add_event(char *	stream,		/* Stream of events */
+> > > 		     char *	ends,		/* End of stream */
+> > > 		     struct iw_event *iwe,	/* Payload */
+> > > 		     int	event_len)	/* Real size of payload */
+> > > {
+> > > 	/* Check if it's possible */
+> > > 	if((stream + event_len) < ends) {
+> > > 		iwe->len = event_len;
+> > > 		memcpy(stream, (char *) iwe, event_len);
+> > > 		stream += event_len;
+> > > 	}
+> > > 	return stream;
+> > > }
+> > > --------------------------------------------
+> > > 	IMHO, the compiler should have enough context to know that the
+> > > reordering is dangerous. Any suggestion to make this simple code more
+> > > bullet proof is welcomed.
+> > 
+> > The compiler is free to assume char *stream and struct iw_event *iwe point
+> > to separate areas of memory, due to strict aliasing.
 > 
-> What kind of SMP box is it (Intel/AMD)?
+> 	Which is true and which is not the problem I'm complaining about.
 
-The boot cpu *is* always CPU#0. It may not be physical apicid 0, but that
-matters not. as long as the mpstables are correct. And we should bug out if
-it's not (which is pretty stupid anyway ... we know what the boot cpu ID
-is, we should just warn). This is how I fixed it for kexec:
-
-diff -urpN -X /home/fletch/.diff.exclude virgin/arch/i386/kernel/smpboot.c
-nonzero_apicid/arch/i386/kernel/smpboot.c
---- virgin/arch/i386/kernel/smpboot.c	Sat Feb 15 16:11:40 2003
-+++ nonzero_apicid/arch/i386/kernel/smpboot.c	Wed Feb 26 13:02:10 2003
-@@ -951,6 +951,7 @@ static void __init smp_boot_cpus(unsigne
- 	print_cpu_info(&cpu_data[0]);
- 
- 	boot_cpu_logical_apicid = logical_smp_processor_id();
-+	boot_cpu_physical_apicid = hard_smp_processor_id();
- 
- 	current_thread_info()->cpu = 0;
- 	smp_tune_scheduling();
-
-
-
+... the compiler thus goes and reorders the frobbing of the variables, as
+they are (assumed) separate.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261387AbREVLmZ>; Tue, 22 May 2001 07:42:25 -0400
+	id <S261401AbREVLwo>; Tue, 22 May 2001 07:52:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbREVLmO>; Tue, 22 May 2001 07:42:14 -0400
-Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:36875 "EHLO
-	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
-	id <S261386AbREVLl7>; Tue, 22 May 2001 07:41:59 -0400
-Date: Tue, 22 May 2001 14:36:35 +0300
-From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
-To: linux-kernel@vger.kernel.org
+	id <S261402AbREVLwZ>; Tue, 22 May 2001 07:52:25 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:7055 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S261391AbREVLwS>; Tue, 22 May 2001 07:52:18 -0400
+Date: Tue, 22 May 2001 06:51:57 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+        <linux-scsi@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-hams@vger.kernel.org>, <linux-ppp@vger.kernel.org>
 Subject: Re: ECN is on!
-Message-ID: <20010522143635.A2370@kivc.vstu.vinnica.ua>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Tue, May 22, 2001 at 01:10:31PM +0300
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 01:10:31PM +0300, Matti Aarnio wrote:
+> I veto, the whole point of moving to ECN was to make a statement and
+> get people to fix their kit.
+>
+Isn't this a problem though because the messge saying that ECN was enabled
+was set after ECN was enabled?  Thus these people have no idea what is
+going on and they probably won't know what to fix until they do.
 
-> This list is NOT exhaustive of domains with problems, it
-> primarily lists only those who are subscribers of linux-kernel,
-> and thus accumulated (al lot) more than 1 email with "connection
-> timed out" status into vger's queue.
-> 
->   DEST. DOMAIN                     SERVER NAME
-> 
-> ic.sunysb.edu                   -> bartman.ic.sunysb.edu
-...
-> geeksimplex.org			-> DNS A: 24.18.90.197 (home.com cable)
-Please, next time you'll send such lists, sort it somehow. For example,
-with vim you can do it by selecting lines with V, and then :!sort
+> We will remove these people, that's all.
+>
+> Later,
+> David S. Miller
+> davem@redhat.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Thanks!.
+Brent Norris
+
+Executive Advisor -- WKU-Linux
+

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271352AbRHOSgO>; Wed, 15 Aug 2001 14:36:14 -0400
+	id <S271363AbRHOStz>; Wed, 15 Aug 2001 14:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271351AbRHOSfz>; Wed, 15 Aug 2001 14:35:55 -0400
-Received: from barn.holstein.com ([198.134.143.193]:50948 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S271348AbRHOSfp>;
-	Wed, 15 Aug 2001 14:35:45 -0400
-Date: Wed, 15 Aug 2001 14:35:03 -0400
-Message-Id: <200108151835.f7FIZ3802147@pcx4168.holstein.com>
-From: "Todd M. Roy" <troy@holstein.com>
-To: mauelshagen@sistina.com
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20010815191736.A32547@sistina.com> (mauelshagen@sistina.com)
-Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
-Reply-To: troy@holstein.com
-In-Reply-To: <20010815191736.A32547@sistina.com>
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 08/15/2001 02:38:32 PM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 08/15/2001 02:38:33 PM,
-	Serialize complete at 08/15/2001 02:38:33 PM
-X-Priority: 3 (Normal)
+	id <S271361AbRHOSto>; Wed, 15 Aug 2001 14:49:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18189 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271360AbRHOStf>; Wed, 15 Aug 2001 14:49:35 -0400
+Subject: Re: 2.4.8 Resource leaks + limits
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 15 Aug 2001 19:51:38 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mag@fbab.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108150952001.2220-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 15, 2001 09:53:09 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X5lS-0003m6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From reading the README.1st file, is my understanding
-correct that if  one  already has migrated from
-lvm 0.9.1b7 to 0.9.1b8, it is
-*NOT* necessary to run pvvversion again?
+> Yes, it would mean that the primary group is _really_ primary, but from a
+> system management standpoint that's probably preferable (ie you can give
+> group read-write access to a person without giving group "resource" access
+> to him)
 
-Thanks,
+Non unix systems generally have a separate accounting uid - one reason for
+that is the problem of charging for setuid apps and things done in your
+name. Otherwise its all too easy to attack a bug in a setuid app to make it
+expand to fill memory.
 
-  Todd
-**********************************************************************
-This footnote confirms that this email message has been swept by 
-MIMEsweeper for the presence of computer viruses.
-**********************************************************************
+I'd rather we had an luid or equivalent personally.
+
+Alan

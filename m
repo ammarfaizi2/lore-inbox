@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264594AbTLQWr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 17:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTLQWr4
+	id S264588AbTLQWnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 17:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTLQWnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 17:47:56 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52749 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264594AbTLQWry
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 17:47:54 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: raid0 slower than devices it is assembled of?
-Date: 17 Dec 2003 22:36:23 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <brqlp7$80v$1@gatekeeper.tmr.com>
-References: <20031217192244.GB12121@mail.shareable.org> <Pine.LNX.4.58.0312171129040.8541@home.osdl.org>
-X-Trace: gatekeeper.tmr.com 1071700583 8223 192.168.12.62 (17 Dec 2003 22:36:23 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 17 Dec 2003 17:43:49 -0500
+Received: from adsl-64-161-225-63.dsl.lsan03.pacbell.net ([64.161.225.63]:49148
+	"EHLO river.thesalmons.org") by vger.kernel.org with ESMTP
+	id S264588AbTLQWnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 17:43:47 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about max_readahead for ide devices in 2.4?
+References: <200312152244.hBFMiej6011977@river.thesalmons.org>
+	<20031215223903.19687b79.akpm@osdl.org>
+From: John Salmon <jsalmon@thesalmons.org>
+Date: Wed, 17 Dec 2003 14:43:42 -0800
+In-Reply-To: <20031215223903.19687b79.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 15 Dec 2003 22:39:03 -0800")
+Message-ID: <m3iskfm5ep.fsf@river.fishnet>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0312171129040.8541@home.osdl.org>,
-Linus Torvalds  <torvalds@osdl.org> wrote:
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-| Let's say that you are striping four disks, with 32kB blocking. Not 
-| an unreasonable setup.
+Andrew> John Salmon <jsalmon@thesalmons.org> wrote:
+>> 
+>> 
+>> 
+>> Several "tuning" recommendations suggest that sequential accesses of
+>> large files, and hence the performance of busy web servers, can be improved
+>> by changing the maximum readahead value with, e.g.,
+>> 
+>> echo 511 > /proc/sys/vm/max-readahead
+>> 
+>> But it looks to me like get_max_readahead in filemap.c ignores the
+>> value set by /proc/sys in favor of max_readahead[major][minor] whenever
+>> max_readahead[major] is non-NULL.  And furthermore that 
+>> max_readahead[major] IS initialized to non-NULL for ide devices in
+>> init_gendisk.  (N.B. I'm looking at 2.4 sources).
+>> 
+>> Conclusion: echoing a value into /proc/sys/vm/max-readahead won't change the
+>> readahead behavior for already-probed IDE devices.
+>> 
+>> Is this correct, or am I missing something?
 
-Let me drop one of my pet complaints here, that the install programs of
-many (most? all?) commercial releases don't give you a stripe size menu
-to let the user make a decision based on intended use. Instead the
-program uses the "one size fits all" approach and picks a size. As you
-say here it's not unreasonable in terms of being typical, but for most
-people it such for performance. As you noted elsewhere big stripes are
-almost always better, and a default of 256k or so would work better for
-most people.
+Andrew> That's correct - it's all a bit weird.   You should use
 
-Sorry, related flamage, but your comments welcome, since this does
-affect the perception of performance of the o/s.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Andrew> 	blockdev --setra 511 /dev/hda
+
+Andrew> for IDE devices.  Not sure about scsi.  You may as well set
+Andrew> /proc/sys/vm/max-readahead to the same thing.
+
+Are you sure?  It looks like that invokes the BLKRASET ioctl, which
+sets an entry in the read_ahead[MAJOR(dev)] array.  But the only code
+that uses the read_ahead[] array is in fs/hfs/file.c, and I'm definitely
+not using an hfs filesystem.
+
+Or am I missing something else??
+
+Thanks,
+John Salmon
+
+P.S.  The weird thing is that I tried the blockdev --setra suggestoin
+and it *seemed to* improve performance.  This is why drug tests are
+double-blind ... the patient (the computer) may not be susceptible to
+the placebo effect, but the doctor (me) may be :-(.
+
+

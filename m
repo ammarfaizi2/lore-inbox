@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284809AbRLEXPI>; Wed, 5 Dec 2001 18:15:08 -0500
+	id <S284814AbRLEXSI>; Wed, 5 Dec 2001 18:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284814AbRLEXO6>; Wed, 5 Dec 2001 18:14:58 -0500
-Received: from ns.suse.de ([213.95.15.193]:7439 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284810AbRLEXOu>;
-	Wed, 5 Dec 2001 18:14:50 -0500
-Date: Thu, 6 Dec 2001 00:14:49 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: <joeja@mindspring.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x 2.5.x wishlist
-In-Reply-To: <Springmail.105.1007593036.0.46637500@www.springmail.com>
-Message-ID: <Pine.LNX.4.33.0112060009080.18145-100000@Appserv.suse.de>
+	id <S284810AbRLEXR6>; Wed, 5 Dec 2001 18:17:58 -0500
+Received: from nrg.org ([216.101.165.106]:7479 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S284779AbRLEXRl>;
+	Wed, 5 Dec 2001 18:17:41 -0500
+Date: Wed, 5 Dec 2001 15:17:19 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Larry McVoy <lm@bitmover.com>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+In-Reply-To: <20011205130547.X11801@work.bitmover.com>
+Message-ID: <Pine.LNX.4.40.0112051505170.2852-100000@cosmic.nrg.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001 joeja@mindspring.com wrote:
+On Wed, 5 Dec 2001, Larry McVoy wrote:
+> Seriously, I went through this at SGI, that's exactly what they did, and it
+> was a huge mistake and it never worked.
 
-> 2) The nasty VIA ide-floppy / iomega zip 100 drive bugs would get fixed
-> as well as this prevents people from using their zip drives under Linux
-> and forces them to use them under another OS.
+In what sense do you think it "never worked"?  It worked for a huge
+range of systems and applications.
 
-Last I checked, mine worked fine. Details please?
+But then, you left SGI before the process was really finished didn't
+you?  (IRIX 6.5 was the first release that had all the pieces fully in
+place.)
 
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 

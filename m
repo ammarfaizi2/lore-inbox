@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266335AbSKZPDT>; Tue, 26 Nov 2002 10:03:19 -0500
+	id <S266320AbSKZPCf>; Tue, 26 Nov 2002 10:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266353AbSKZPDS>; Tue, 26 Nov 2002 10:03:18 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55697 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266335AbSKZPDR>; Tue, 26 Nov 2002 10:03:17 -0500
-Subject: Re: [PATCH]  v850 additions to include/linux/elf.h
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Miles Bader <miles@gnu.org>
-Cc: Greg Ungerer <gerg@snapgear.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <buoel987otw.fsf_-_@mcspd15.ucom.lsi.nec.co.jp>
-References: <buoel987otw.fsf_-_@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Nov 2002 15:41:28 +0000
-Message-Id: <1038325289.2594.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S266335AbSKZPCf>; Tue, 26 Nov 2002 10:02:35 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:30349 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266320AbSKZPCe> convert rfc822-to-8bit; Tue, 26 Nov 2002 10:02:34 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: APM IOC REJECT ?
+Date: Tue, 26 Nov 2002 16:09:33 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: David Balazic <david.balazic@uni-mb.si>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211261608.30869.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 07:49, Miles Bader wrote:
-> Hi,
-> 
-> This patch adds more stuff to include/linux/elf.h for the v850 (used by
-> the new module loader).
+Hi David,
 
-To save cluttering a linux/*.h file couldnt the module loader for v850 
-include an asm/*.h file holding the extra info ?
+> What is keeping hte APM REJECT ioctl from getting into the kernel ?
+> The patch was first released eons ago.
+where can we find that one?
+
+ciao, Marc
+
 

@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVAaHp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVAaHp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVAaHp1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261951AbVAaHp1 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 31 Jan 2005 02:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVAaHoU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVAaHoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:44:20 -0500
-Received: from waste.org ([216.27.176.166]:59628 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261949AbVAaHfB (ORCPT
+	Mon, 31 Jan 2005 02:44:37 -0500
+Received: from waste.org ([216.27.176.166]:59372 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261952AbVAaHfB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 31 Jan 2005 02:35:01 -0500
-Date: Mon, 31 Jan 2005 01:35:00 -0600
+Date: Mon, 31 Jan 2005 01:34:59 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.com>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3.416337461@selenic.com>
-Message-Id: <4.416337461@selenic.com>
-Subject: [PATCH 3/8] lib/sort: Replace qsort in NFS ACL code
+In-Reply-To: <2.416337461@selenic.com>
+Message-Id: <3.416337461@selenic.com>
+Subject: [PATCH 2/8] lib/sort: Replace qsort in XFS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switch NFS ACLs to lib/sort
+Point XFS qsort at lib/sort in a way that makes it happy.
 
-Index: mm2/fs/nfsacl.c
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: mm2/fs/xfs/linux-2.6/xfs_linux.h
 ===================================================================
---- mm2.orig/fs/nfsacl.c	2005-01-30 21:26:27.000000000 -0800
-+++ mm2/fs/nfsacl.c	2005-01-30 22:06:43.000000000 -0800
-@@ -25,6 +25,7 @@
- #include <linux/sunrpc/xdr.h>
- #include <linux/nfsacl.h>
- #include <linux/nfs3.h>
+--- mm2.orig/fs/xfs/linux-2.6/xfs_linux.h	2005-01-30 14:22:38.000000000 -0800
++++ mm2/fs/xfs/linux-2.6/xfs_linux.h	2005-01-30 20:15:45.000000000 -0800
+@@ -87,6 +87,7 @@
+ #include <linux/list.h>
+ #include <linux/proc_fs.h>
+ #include <linux/version.h>
 +#include <linux/sort.h>
  
- MODULE_LICENSE("GPL");
- 
-@@ -163,9 +164,10 @@
- 	return 0;
+ #include <asm/page.h>
+ #include <asm/div64.h>
+@@ -367,4 +368,12 @@
+ 	return(x * y);
  }
  
--static int
--cmp_acl_entry(const struct posix_acl_entry *a, const struct posix_acl_entry *b)
-+static int cmp_acl_entry(const void *x, const void *y)
- {
-+	const struct posix_acl_entry *a = x, *b = y;
 +
- 	if (a->e_tag != b->e_tag)
- 		return a->e_tag - b->e_tag;
- 	else if (a->e_id > b->e_id)
-@@ -188,8 +190,8 @@
- 	if (!acl)
- 		return 0;
- 
--	qsort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
--	      (int(*)(const void *,const void *))cmp_acl_entry);
-+	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
-+	     cmp_acl_entry, 0);
- 
- 	/* Clear undefined identifier fields and find the ACL_GROUP_OBJ
- 	   and ACL_MASK entries. */
-Index: mm2/fs/Kconfig
++#define qsort xfs_sort
++static inline void xfs_sort(void *a, size_t n, size_t s,
++			int (*cmp)(const void *,const void *))
++{
++	sort(a, n, s, cmp, 0);
++}
++
+ #endif /* __XFS_LINUX__ */
+Index: mm2/fs/xfs/Kconfig
 ===================================================================
---- mm2.orig/fs/Kconfig	2005-01-30 21:32:26.000000000 -0800
-+++ mm2/fs/Kconfig	2005-01-30 22:07:10.000000000 -0800
-@@ -1428,7 +1428,6 @@
- config NFS_ACL
- 	bool "NFS_ACL protocol extension"
- 	depends on NFS_V3
--	select QSORT
- 	select FS_POSIX_ACL
- 	help
- 	  Implement the NFS_ACL protocol extension for manipulating POSIX
-@@ -1513,7 +1512,6 @@
- config NFSD_ACL
- 	bool "NFS_ACL protocol extension"
- 	depends on NFSD_V3
+--- mm2.orig/fs/xfs/Kconfig	2005-01-30 14:22:38.000000000 -0800
++++ mm2/fs/xfs/Kconfig	2005-01-30 20:34:54.000000000 -0800
+@@ -2,7 +2,6 @@
+ 
+ config XFS_FS
+ 	tristate "XFS filesystem support"
 -	select QSORT
  	help
- 	  Implement the NFS_ACL protocol extension for manipulating POSIX
- 	  Access Control Lists on exported file systems.  The clients must
+ 	  XFS is a high performance journaling filesystem which originated
+ 	  on the SGI IRIX platform.  It is completely multi-threaded, can

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbUKXNts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbUKXNtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbUKXNts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbUKXNsw
+	id S262650AbUKXNtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbUKXNsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:48:52 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:14535 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262704AbUKXNa0 (ORCPT
+	Wed, 24 Nov 2004 08:48:45 -0500
+Received: from lucidpixels.com ([66.45.37.187]:14737 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262684AbUKXNTs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:30:26 -0500
-Date: Wed, 24 Nov 2004 07:27:08 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Pavel Fedin <sonic_amiga@rambler.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Licensing question
-In-Reply-To: <20041124140433.1d9d1022.sonic_amiga@rambler.ru>
-Message-ID: <Pine.LNX.4.61.0411240725130.14989@chaos.analogic.com>
-References: <20041124140433.1d9d1022.sonic_amiga@rambler.ru>
+	Wed, 24 Nov 2004 08:19:48 -0500
+Date: Wed, 24 Nov 2004 08:13:06 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.9 SCSI driver compile error w/gcc-3.4.2.
+Message-ID: <Pine.LNX.4.61.0411240812220.19627@p500>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Pavel Fedin wrote:
+Under slackware-current, gcc-3.4.2.
 
-> Hello!
-> I'm a member of AROS team (http://www.aros.org) and i'd like to ask for a permission to use parts of Linux source code (small parts) in developing this system. It is licensed under APL (http://www.aros.org/license.html) so i need a permission. I don't know where to ask for it so i ask here.
-> Currently i use a little part of ide-cd driver and its includes.
->
-> -- 
-> Best regards,
-> Pavel Fedin,
-mailto:sonic_amiga@rambler.ru
+root@p500b:/usr/src/linux# make modules
+   CHK     include/linux/version.h
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+   CC [M]  drivers/scsi/cpqfcTScontrol.o
+drivers/scsi/cpqfcTScontrol.c:609:2: #error This is too much stack
+drivers/scsi/cpqfcTScontrol.c:721:2: #error This is too much stack
+make[2]: *** [drivers/scsi/cpqfcTScontrol.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+root@p500b:/usr/src/linux# gcc -v
+Reading specs from /usr/lib/gcc/i486-slackware-linux/3.4.2/specs
+Configured with: ../gcc-3.4.2/configure --prefix=/usr --enable-shared 
+--enable-threads=posix --enable-__cxa_atexit --disable-checking 
+--with-gnu-ld --verbose --target=i486-slackware-linux 
+--host=i486-slackware-linux
+Thread model: posix
+gcc version 3.4.2
+root@p500b:/usr/src/linux#
 
-I think you will need to "inspect-to-learn", then write your own.
-Don't just change the variable names.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVASN1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVASNni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVASN1x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 08:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVASN1x
+	id S261718AbVASNni (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 08:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVASNng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 08:27:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39364 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261717AbVASN1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 08:27:52 -0500
-Date: Wed, 19 Jan 2005 08:06:47 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.29-rc4
-Message-ID: <20050119100647.GB2240@logos.cnet>
+	Wed, 19 Jan 2005 08:43:36 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:30082 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261718AbVASNne (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 08:43:34 -0500
+Date: Wed, 19 Jan 2005 14:43:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Vincent Hanquez <tab@snarc.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] arch/i386/kernel/signal.c: fix err test twice
+Message-ID: <20050119134325.GB8112@elte.hu>
+References: <20050119095913.GA4155@snarc.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050119095913.GA4155@snarc.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
 
-Here goes the fourth release candidate.
+* Vincent Hanquez <tab@snarc.org> wrote:
 
-It reverts the root mount retry patch for USB/special devices, this is 
-going to get fixed cleanly on v2.6.
+> Hi, the following patch:
+> 	- correct the err variable tested twice when _NSIG_WORDS == 1
+> 	  (unlikely to happen, but ..)
 
-And updates the i386 defconfig.
+(this isnt a problem, even if it happens. But worth cleaning up
+nevertheless.)
 
-v2.4.29 announcement should follow shortly
+> 	- remove some |= in favor of = because we don't need to 'pack' err
+> 
+> Please apply,
+> 
+> Signed-off-by: Vincent Hanquez <tab@snarc.org>
 
+looks good.
 
-Summary of changes from v2.4.29-rc3 to v2.4.29-rc4
-============================================
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Marcelo Tosatti:
-  o Cset exclude: solar@openwall.com|ChangeSet|20041218011100|24870
-  o Changed VERSION to 2.4.29-rc4
-  o Update i386 defconfig
-
+	Ingo

@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbTKURx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 12:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTKURx3
+	id S264396AbTKURth (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTKURth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 12:53:29 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:906 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264389AbTKURx1 (ORCPT
+	Fri, 21 Nov 2003 12:49:37 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:14859 "EHLO w.ods.org")
+	by vger.kernel.org with ESMTP id S264396AbTKURtc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 12:53:27 -0500
-Date: Fri, 21 Nov 2003 18:43:34 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: jt@hpl.hp.com, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031121174334.GA22734@ucw.cz>
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120033422.GA8674@bougret.hpl.hp.com> <20031121120534.GA20822@ucw.cz> <20031121172541.GB25453@bougret.hpl.hp.com> <3FBE4BC7.20605@pobox.com>
+	Fri, 21 Nov 2003 12:49:32 -0500
+Date: Fri, 21 Nov 2003 18:49:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Len Brown <len.brown@intel.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [BKPATCH] ACPI for 2.4
+Message-ID: <20031121174909.GA16457@alpha.home.local>
+References: <1069189083.2970.540.camel@dhcppc4> <1069326962.16410.49.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FBE4BC7.20605@pobox.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1069326962.16410.49.camel@dhcppc4>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21, 2003 at 12:30:47PM -0500, Jeff Garzik wrote:
+Hi Len,
 
-> Jean Tourrilhes wrote:
-> >On Fri, Nov 21, 2003 at 01:05:34PM +0100, Vojtech Pavlik wrote:
-> >
-> >>On Wed, Nov 19, 2003 at 07:34:22PM -0800, Jean Tourrilhes wrote:
-> >>
-> >>
-> >>>	Excuse me ? Have you looked at the Howto lately ? There is
-> >>>only Broadcom and Intel which are not supported, which leaves plenty
-> >>>of choice (including many 802.11g and 802.11a cards).
-> >>
-> >>And Realtek (I own one such card) and ADMtek (I bought one by accident
-> >>in Canada) and Atheros and ... basically anything CardBus doesn't work.
-> >
-> >
-> >	Wrong. There are wireless drivers for RealTek, ADMtek and
-> >Atheros.
-> >	I may repeat myself like a parrot, but "Have you looked at the
-> >Howto lately ?". I think you exactly prove my point ;-)
+On Thu, Nov 20, 2003 at 06:16:03AM -0500, Len Brown wrote:
+> Hi Marcelo, please do a 
 > 
+> 	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.4.23
 > 
-> Last I checked, none of these were 100% open source.  I am certain this 
-> is true for Atheros, but IIRC it's also the case for the other two?
-> 
-> Anyway, WRT RealTek, they gave me (and others) docs.  If I can locate a 
-> card, I'll do a driver (or merge an existing one, if any).  RealTek's 
-> been pretty supportive of open source in the past, what with 
-> 8139too/8139cp/r8169 stuff.
 
-If you want, I will send you one. The Edimax EW-7106PC is a Realtek based card.
+This version, as well as the original 2.4.23-rc2 code cannot reboot my
+VAIO. I don't know yet when the problem got in, since I've been using
+a 2.4.21 base + acpi-20030424-2.4.21-rc1.diff for a long time without
+this problem, and don't know if this was the case with intermediate
+versions since it's not something that I immediately notice.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I will try to identify which pre-release brought this problem.
+
+Basically, when I reboot, the screen goes black, and I hear the
+speakers shut down exactly as when it will reboot. But nothing
+appears on the screen anymore. I must say that I also had this
+behaviour with the above version only when I used LOCAL_APIC.
+But I tried both with and without, without success. I clearly
+suspect my BIOS since it's a real crap, but since it once worked,
+I'll search a bit.
+
+Other than that, power down works pretty well (this has always
+been a problem on this crap too), and the rest of the kernel is
+really fine and stable.
+
+Regards,
+Willy
+

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282508AbRL1Qlg>; Fri, 28 Dec 2001 11:41:36 -0500
+	id <S282482AbRL1Qpq>; Fri, 28 Dec 2001 11:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282547AbRL1Ql1>; Fri, 28 Dec 2001 11:41:27 -0500
-Received: from cabal.xs4all.nl ([213.84.101.140]:31934 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S282508AbRL1QlP>;
-	Fri, 28 Dec 2001 11:41:15 -0500
-Date: Fri, 28 Dec 2001 17:41:11 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org
-Subject: link error in SCC driver
-Message-ID: <20011228164111.GK7481@wiggy.net>
-Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
-	linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org
+	id <S282511AbRL1Qpg>; Fri, 28 Dec 2001 11:45:36 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:32528 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S282482AbRL1Qp1>;
+	Fri, 28 Dec 2001 11:45:27 -0500
+Date: Fri, 28 Dec 2001 17:45:10 +0100
+From: Jan Niehusmann <list064@gondor.com>
+To: andersg@0x63.nu
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        lvm-devel@sistina.com
+Subject: Re: lvm in 2.5.1
+Message-ID: <20011228164510.GA9129@gondor.com>
+Reply-To: Jan Niehusmann <jan@gondor.com>
+Mail-Followup-To: Jan Niehusmann <list064@gondor.com>, andersg@0x63.nu,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	lvm-devel@sistina.com
+In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <3C2B75B3.4DEF90D3@zip.com.au> <20011227193711.GB20501@h55p111.delphi.afb.lu.se> <3C2B7A3E.E5C05404@zip.com.au> <20011227202451.GC20501@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20011227202451.GC20501@h55p111.delphi.afb.lu.se>
 User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I compile a kernel with a recent binutils and the scc driver
-I get the now famous linking error:
+On Thu, Dec 27, 2001 at 09:24:51PM +0100, andersg@0x63.nu wrote:
+> hmm, enlarging the dummy[200] in the userspace version of lv_t seems to be a
+> nice quickndirty solution.
 
-net/network.o(.text.lock+0x2b38): undefined reference to `local symbols
-in discarded section .text.exit'
+Please do not change the kernel / userspace interface easily. Past
+experience has shown that this leads to significant update problems,
+because kernel and userspace tools need to be updated at the same time.
 
-Stock 2.4.17 kernel source, GNU ld version 2.11.92.0.12.3 20011121.
+Jan
 
-Wichert.
-
--- 
-  _________________________________________________________________
- /wichert@wiggy.net         This space intentionally left occupied \
-| wichert@deephackmode.org            http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

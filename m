@@ -1,50 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263042AbUCSSEK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 13:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbUCSSEK
+	id S263088AbUCSSQU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 13:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUCSSQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 13:04:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12526 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263042AbUCSSEH (ORCPT
+	Fri, 19 Mar 2004 13:16:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51354 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263088AbUCSSQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 13:04:07 -0500
-Date: Fri, 19 Mar 2004 10:03:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dipankar@in.ibm.com
-Cc: tiwai@suse.de, andrea@suse.de, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-Id: <20040319100311.5aa11733.akpm@osdl.org>
-In-Reply-To: <20040319172203.GB4537@in.ibm.com>
-References: <40591EC1.1060204@geizhals.at>
-	<20040318060358.GC29530@dualathlon.random>
-	<s5hlllycgz3.wl@alsa2.suse.de>
-	<20040318110159.321754d8.akpm@osdl.org>
-	<s5hbrmuc6ed.wl@alsa2.suse.de>
-	<20040318221006.74246648.akpm@osdl.org>
-	<20040319172203.GB4537@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 19 Mar 2004 13:16:18 -0500
+Date: Fri, 19 Mar 2004 19:16:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040319181616.GA2423@suse.de>
+References: <20040319153554.GC2933@suse.de> <405B200A.40909@kolumbus.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <405B200A.40909@kolumbus.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
->
-> On Thu, Mar 18, 2004 at 10:10:06PM -0800, Andrew Morton wrote:
->  > The worst-case latency is during umount, fs/inode.c:invalidate_list() when
->  > the filesystem has a zillion inodes in icache.  Measured 250 milliseconds
->  > on a 256MB 2.7GHz P4 here.   OK, so don't do that.
->  > 
->  > The unavoidable worst case is in the RCU callbacks for dcache shrinkage -
->  > I've seen 25 millisecond holdoffs on the above machine during filesystem
->  > stresstests when RCU is freeing a huge number of dentries in softirq
->  > context.
+On Fri, Mar 19 2004, Mika Penttil? wrote:
 > 
->  What filesystem stresstest was that ? 
+> 
+> Jens Axboe wrote:
+> 
+> >Hi,
+> >
+> >A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
+> >have a few changes planned to support dm/md + sata, I'll do those
+> >changes over the weekend.
+> >
+> >Reiser has the best barrier support, ext3 works but only if things don't
+> >go wrong. So only attempt to use the barrier feature on ext3 if on ide
+> >drives, not SCSI nor SATA.
+> >
+> > 
+> >
+> What are these brutal pieces...?
+> 
+> 
+> +static int ide_transform_pc_req(ide_drive_t *drive, struct request *rq)
+> +{
+> + if (rq->cmd[0] != 0x35) {
+> + ide_end_request(drive, 0, 0);
+> + return 1;
+> + }
+> +
+> + if (!drive->wcache) {
+> + ide_end_request(drive, 1, 0);
+> + return 1;
+> + }
+> +
+> + ide_fill_flush_cmd(drive, rq);
+> + return 0;
+> +}
+> 
+> 
+> /*
+> + * basic transformation support for scsi -> ata commands
+> + */
+> + if (blk_pc_request(rq)) {
+> + if (drive->media != ide_disk)
+> + goto kill_rq;
+> + if (ide_transform_pc_req(drive, rq))
+> + return ide_stopped;
+> + }
 
-Something which creates a lot of slab, and a bit of memory pressure
-basically.  Such as make-teeny-files from
-http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+Hmm, I thought it was pretty obvious, even just from the naming and
+comments. Right now, the block layer issued flush without data attached
+(ie a drive barrier without pinning it to a buffer) comes as a scsi
+synchronize cache command. I'm going to change this anyways and allow
+queue hook of a ->issue_flush_fn() that can just tailored to ide or
+scsi, _or_ dm/md and that sort of thing.
+
+-- 
+Jens Axboe
+

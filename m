@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVANEMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVANEOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVANEMu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 23:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVANEMu
+	id S261889AbVANEOe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 23:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVANEOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 23:12:50 -0500
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:21449 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261873AbVANEMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 23:12:47 -0500
-Message-ID: <41E7468B.3050702@kolivas.org>
-Date: Fri, 14 Jan 2005 15:11:55 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       lkml@s2y4n2c.de, rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com,
-       chrisw@osdl.org, mpm@selenic.com, hch@infradead.org, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <1105669451.5402.38.camel@npiggin-nld.site>	 <200501140240.j0E2esKG026962@localhost.localdomain>	 <20050113191237.25b3962a.akpm@osdl.org>  <41E739F4.1030902@kolivas.org> <1105673482.5402.58.camel@npiggin-nld.site>
-In-Reply-To: <1105673482.5402.58.camel@npiggin-nld.site>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2A7698D224E3B6F75413683B"
+	Thu, 13 Jan 2005 23:14:34 -0500
+Received: from colin2.muc.de ([193.149.48.15]:14852 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261889AbVANEOX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 23:14:23 -0500
+Date: 14 Jan 2005 05:14:21 +0100
+Date: Fri, 14 Jan 2005 05:14:21 +0100
+From: Andi Kleen <ak@muc.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       nickpiggin@yahoo.com.au, torvalds@osdl.org, hugh@veritas.com,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+Message-ID: <20050114041421.GA41559@muc.de>
+References: <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com> <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org> <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com> <20050112104326.69b99298.akpm@osdl.org> <Pine.LNX.4.58.0501121055490.11169@schroedinger.engr.sgi.com> <41E73EE4.50200@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E73EE4.50200@linux-m68k.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2A7698D224E3B6F75413683B
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Jan 14, 2005 at 04:39:16AM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> Christoph Lameter wrote:
+> 
+> >Introduction of the cmpxchg is one atomic operations that replaces the two
+> >spinlock ops typically necessary in an unpatched kernel. Obtaining the
+> >spinlock requires an spinlock (which is an atomic operation) and then the
+> >release involves a barrier. So there is a net win for all SMP cases as far
+> >as I can see.
+> 
+> But there might be a loss in the UP case. Spinlocks are optimized away, 
+> but your cmpxchg emulation enables/disables interrupts with every access.
 
-Nick Piggin wrote:
-> It sounds to me like both your proposals may be too complex and not
-> sufficiently deterministic (I don't know for sure, maybe that's
-> exactly what the RT people want).
+Only for 386s and STI/CLI is quite cheap there.
 
-This is the solution already employed in the real world by OSX. It works
-well, and the audio people have told me they are happy with it.
-
-> I could be completely off the rails though. I haven't really been
-> following this thread so please shoot me in my foot if I have put it
-> in my mouth.
-
-If your foot is in your mouth and you ask me to shoot you in the foot it
-would blow your head off... Hmm it's tempting...
-
-Cheers,
-Con
-
---------------enig2A7698D224E3B6F75413683B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB50aLZUg7+tp6mRURAjYoAJ9KjJ/EbK17MZYhP5JFqzFJ5RaOrACfRnay
-Dc2ElN3ZMar19hHuJKct9HA=
-=erhg
------END PGP SIGNATURE-----
-
---------------enig2A7698D224E3B6F75413683B--
+-Andi
